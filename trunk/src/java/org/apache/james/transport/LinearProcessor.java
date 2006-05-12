@@ -17,11 +17,18 @@
 
 package org.apache.james.transport;
 
-import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.activity.Disposable;
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MailetConfigImpl;
+import org.apache.james.services.MailetLoader;
+import org.apache.james.services.MatcherLoader;
 import org.apache.james.services.SpoolRepository;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.GenericMatcher;
@@ -33,15 +40,16 @@ import org.apache.mailet.MailetException;
 import org.apache.mailet.Matcher;
 
 import javax.mail.MessagingException;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
-import java.util.Iterator;
 import java.util.Locale;
+import java.util.Random;
 
 /**
  * Implements a processor for mails, directing the mail down
@@ -78,7 +86,7 @@ import java.util.Locale;
  */
 public class LinearProcessor 
     extends AbstractLogEnabled
-    implements Initializable, Disposable {
+    implements Disposable, Configurable, Serviceable {
 
     private static final Random random = new Random();  // Used to generate new mail names
 
@@ -105,6 +113,12 @@ public class LinearProcessor
     private volatile boolean listsClosed;  // Whether the matcher/mailet lists have been closed.
     private SpoolRepository spool;  // The spool on which this processor is acting
 
+    private ServiceManager compMgr;
+
+    private MailetLoader mailetLoader;
+
+    private MatcherLoader matchLoader;
+
     /**
      * Set the spool to be used by this LinearProcessor.
      *
@@ -117,14 +131,6 @@ public class LinearProcessor
             throw new IllegalArgumentException("The spool cannot be null");
         }
         this.spool = spool;
-    }
-
-    /**
-     * @see org.apache.avalon.framework.activity.Initializable#initialize()
-     */
-    public void initialize() {
-        matchers = new ArrayList();
-        mailets = new ArrayList();
     }
 
     /**
@@ -529,5 +535,113 @@ public class LinearProcessor
         mail.setErrorMessage(errorString);
         getLogger().error(errorString);
         throw me;
+    }
+    
+    /**
+     * <p>Initialize the processor matcher/mailet list.</p>
+     */
+    public void openProcessorList() {
+        matchers = new ArrayList();
+        mailets = new ArrayList();
+    }
+
+    /**
+     * @see org.apache.avalon.framework.configuration.Configurable#configure(org.apache.avalon.framework.configuration.Configuration)
+     */
+    public void configure(Configuration processorConf) throws ConfigurationException {
+        openProcessorList();
+        
+        final Configuration[] mailetConfs
+            = processorConf.getChildren( "mailet" );
+        // Loop through the mailet configuration, load
+        // all of the matcher and mailets, and add
+        // them to the processor.
+        for ( int j = 0; j < mailetConfs.length; j++ )
+        {
+            Configuration c = mailetConfs[j];
+            String mailetClassName = c.getAttribute("class");
+            String matcherName = c.getAttribute("match");
+            Mailet mailet = null;
+            Matcher matcher = null;
+            try {
+                matcher = matchLoader.getMatcher(matcherName);
+                //The matcher itself should log that it's been inited.
+                if (getLogger().isInfoEnabled()) {
+                    StringBuffer infoBuffer =
+                        new StringBuffer(64)
+                                .append("Matcher ")
+                                .append(matcherName)
+                                .append(" instantiated.");
+                    getLogger().info(infoBuffer.toString());
+                }
+            } catch (MessagingException ex) {
+                // **** Do better job printing out exception
+                if (getLogger().isErrorEnabled()) {
+                    StringBuffer errorBuffer =
+                        new StringBuffer(256)
+                                .append("Unable to init matcher ")
+                                .append(matcherName)
+                                .append(": ")
+                                .append(ex.toString());
+                    getLogger().error( errorBuffer.toString(), ex );
+        if (ex.getNextException() != null) {
+        getLogger().error( "Caused by nested exception: ", ex.getNextException());
+        }
+                }
+                System.err.println("Unable to init matcher " + matcherName);
+                System.err.println("Check spool manager logs for more details.");
+                //System.exit(1);
+                throw new ConfigurationException("Unable to init matcher",c,ex);
+            }
+            try {
+                mailet = mailetLoader.getMailet(mailetClassName, c);
+                if (getLogger().isInfoEnabled()) {
+                    StringBuffer infoBuffer =
+                        new StringBuffer(64)
+                                .append("Mailet ")
+                                .append(mailetClassName)
+                                .append(" instantiated.");
+                    getLogger().info(infoBuffer.toString());
+                }
+            } catch (MessagingException ex) {
+                // **** Do better job printing out exception
+                if (getLogger().isErrorEnabled()) {
+                    StringBuffer errorBuffer =
+                        new StringBuffer(256)
+                                .append("Unable to init mailet ")
+                                .append(mailetClassName)
+                                .append(": ")
+                                .append(ex.toString());
+                    getLogger().error( errorBuffer.toString(), ex );
+        if (ex.getNextException() != null) {
+        getLogger().error( "Caused by nested exception: ", ex.getNextException());
+        }
+                }
+                System.err.println("Unable to init mailet " + mailetClassName);
+                System.err.println("Check spool manager logs for more details.");
+                //System.exit(1);
+                throw new ConfigurationException("Unable to init mailet",c,ex);
+            }
+            //Add this pair to the processor
+            add(matcher, mailet);
+        }
+
+        // Close the processor matcher/mailet lists.
+        //
+        // Please note that this is critical to the proper operation
+        // of the LinearProcessor code.  The processor will not be
+        // able to service mails until this call is made.
+        closeProcessorLists();
+    }
+
+    /**
+     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
+     */
+    public void service(ServiceManager comp) throws ServiceException {
+        compMgr = comp;
+        mailetLoader = (MailetLoader) compMgr.lookup(MailetLoader.ROLE);
+        matchLoader = (MatcherLoader) compMgr.lookup(MatcherLoader.ROLE);
+        spool = (SpoolRepository) compMgr.lookup(SpoolRepository.ROLE);
+        setSpool(spool);
     }
 }
