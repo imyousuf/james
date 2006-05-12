@@ -147,6 +147,7 @@ public class LinearProcessorTest extends TestCase {
         changeBody.init(mockMailetConfig);
         
         checkerMailet = new CheckerMailet();
+        t.openProcessorList();
         t.add(recipientIs,changeBody);
         t.add(all,changeBody);
         t.add(all,dumpSystemErr);
@@ -189,6 +190,7 @@ public class LinearProcessorTest extends TestCase {
         Mailet dumpSystemErr = new DumpSystemErr();
         
         checkerMailet = new CheckerMailet();
+        t.openProcessorList();
         t.add(recipientIs,dumpSystemErr);
         t.add(all,dumpSystemErr);
         t.add(all,checkerMailet);
@@ -219,8 +221,6 @@ public class LinearProcessorTest extends TestCase {
         t = new LinearProcessor();
         Logger l = new ConsoleLogger();
         ContainerUtil.enableLogging(t, l);
-        ContainerUtil.initialize(t);
-        
     }
     
     public void tearDown() throws Exception {

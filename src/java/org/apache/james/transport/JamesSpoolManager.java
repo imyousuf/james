@@ -22,18 +22,14 @@ import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.service.DefaultServiceManager;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
-import org.apache.james.services.MailetLoader;
-import org.apache.james.services.MatcherLoader;
 import org.apache.james.services.SpoolRepository;
 import org.apache.mailet.Mail;
-import org.apache.mailet.Mailet;
 import org.apache.mailet.MailetException;
-import org.apache.mailet.Matcher;
 
 import javax.mail.MessagingException;
 
@@ -56,7 +52,7 @@ public class JamesSpoolManager
     /**
      * System component manager
      */
-    private DefaultServiceManager compMgr;
+    private ServiceManager compMgr;
 
     /**
      * The configuration object used by this spool manager.
@@ -115,7 +111,8 @@ public class JamesSpoolManager
      */
     public void service(ServiceManager comp) throws ServiceException {
         // threadManager = (ThreadManager) comp.lookup(ThreadManager.ROLE);
-        compMgr = new DefaultServiceManager(comp);
+        compMgr = comp;
+        spool = (SpoolRepository) compMgr.lookup(SpoolRepository.ROLE);
     }
 
     /**
@@ -132,12 +129,6 @@ public class JamesSpoolManager
     public void initialize() throws Exception {
 
         getLogger().info("JamesSpoolManager init...");
-        spool = (SpoolRepository) compMgr.lookup(SpoolRepository.ROLE);
-
-        MailetLoader mailetLoader
-        = (MailetLoader) compMgr.lookup(MailetLoader.ROLE);
-        MatcherLoader matchLoader
-        = (MatcherLoader) compMgr.lookup(MatcherLoader.ROLE);
 
         //A processor is a Collection of
         processors = new HashMap();
@@ -149,93 +140,12 @@ public class JamesSpoolManager
             String processorName = processorConf.getAttribute("name");
             try {
                 LinearProcessor processor = new LinearProcessor();
-                setupLogger(processor, processorName);
-                processor.setSpool(spool);
-                processor.initialize();
                 processors.put(processorName, processor);
-
-                final Configuration[] mailetConfs
-                    = processorConf.getChildren( "mailet" );
-                // Loop through the mailet configuration, load
-                // all of the matcher and mailets, and add
-                // them to the processor.
-                for ( int j = 0; j < mailetConfs.length; j++ )
-                {
-                    Configuration c = mailetConfs[j];
-                    String mailetClassName = c.getAttribute("class");
-                    String matcherName = c.getAttribute("match");
-                    Mailet mailet = null;
-                    Matcher matcher = null;
-                    try {
-                        matcher = matchLoader.getMatcher(matcherName);
-                        //The matcher itself should log that it's been inited.
-                        if (getLogger().isInfoEnabled()) {
-                            StringBuffer infoBuffer =
-                                new StringBuffer(64)
-                                        .append("Matcher ")
-                                        .append(matcherName)
-                                        .append(" instantiated.");
-                            getLogger().info(infoBuffer.toString());
-                        }
-                    } catch (MessagingException ex) {
-                        // **** Do better job printing out exception
-                        if (getLogger().isErrorEnabled()) {
-                            StringBuffer errorBuffer =
-                                new StringBuffer(256)
-                                        .append("Unable to init matcher ")
-                                        .append(matcherName)
-                                        .append(": ")
-                                        .append(ex.toString());
-                            getLogger().error( errorBuffer.toString(), ex );
-                if (ex.getNextException() != null) {
-                getLogger().error( "Caused by nested exception: ", ex.getNextException());
-                }
-                        }
-                        System.err.println("Unable to init matcher " + matcherName);
-                        System.err.println("Check spool manager logs for more details.");
-                        //System.exit(1);
-                        throw ex;
-                    }
-                    try {
-                        mailet = mailetLoader.getMailet(mailetClassName, c);
-                        if (getLogger().isInfoEnabled()) {
-                            StringBuffer infoBuffer =
-                                new StringBuffer(64)
-                                        .append("Mailet ")
-                                        .append(mailetClassName)
-                                        .append(" instantiated.");
-                            getLogger().info(infoBuffer.toString());
-                        }
-                    } catch (MessagingException ex) {
-                        // **** Do better job printing out exception
-                        if (getLogger().isErrorEnabled()) {
-                            StringBuffer errorBuffer =
-                                new StringBuffer(256)
-                                        .append("Unable to init mailet ")
-                                        .append(mailetClassName)
-                                        .append(": ")
-                                        .append(ex.toString());
-                            getLogger().error( errorBuffer.toString(), ex );
-                if (ex.getNextException() != null) {
-                getLogger().error( "Caused by nested exception: ", ex.getNextException());
-                }
-                        }
-                        System.err.println("Unable to init mailet " + mailetClassName);
-                        System.err.println("Check spool manager logs for more details.");
-                        //System.exit(1);
-                        throw ex;
-                    }
-                    //Add this pair to the processor
-                    processor.add(matcher, mailet);
-                }
-
-                // Close the processor matcher/mailet lists.
-                //
-                // Please note that this is critical to the proper operation
-                // of the LinearProcessor code.  The processor will not be
-                // able to service mails until this call is made.
-                processor.closeProcessorLists();
-
+                
+                setupLogger(processor, processorName);
+                ContainerUtil.service(processor, compMgr);
+                ContainerUtil.configure(processor, processorConf);
+                
                 if (getLogger().isInfoEnabled()) {
                     StringBuffer infoBuffer =
                         new StringBuffer(64)
