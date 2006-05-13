@@ -1124,9 +1124,10 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                             // This is an update, we have to unlock and notify or this mail
                             // is kept locked by this thread
                             outgoing.unlock(key);
-                            synchronized(outgoing) {
-                                outgoing.notify();
-                            }
+                            // We do not notify because we updated an already existing mail
+                            // and we are now free to handle more mails.
+                            // Furthermore this mail should not be processed now because we
+                            // have a retry time scheduling.
                         }
                         //Clear the object handle to make sure it recycles this object.
                         mail = null;
