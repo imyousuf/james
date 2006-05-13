@@ -912,6 +912,45 @@ public class SMTPServerTest extends TestCase {
     }
     
 
+    /**
+     * This is useful code to run tests on javamail bugs 
+     * http://issues.apache.org/jira/browse/JAMES-52
+     * 
+     * This 
+     * @throws Exception
+     */
+    public void testDeliveryToSelfWithGatewayAndBind() throws Exception {
+        finishSetUp(m_testConfiguration);
+        outgoingSpool = new InMemorySpoolRepository();
+        ((MockStore) m_serviceManager.lookup(Store.ROLE)).add("outgoing", outgoingSpool);
+        
+        RemoteDelivery rd = new RemoteDelivery();
+        
+        MockMailContext mmc = new MockMailContext();
+        mmc.setAttribute(Constants.AVALON_COMPONENT_MANAGER,m_serviceManager);
+        mmc.setAttribute(Constants.HELLO_NAME,"localhost");
+        MockMailetConfig mci = new MockMailetConfig("Test",mmc,getStandardParameters());
+        mci.setProperty("bind", "127.0.0.1");
+        mci.setProperty("gateway","127.0.0.1");
+        mci.setProperty("gatewayPort",""+m_smtpListenerPort);
+        rd.init(mci);
+        String sources = "Content-Type: text/plain;\r\nSubject: test\r\n\r\nBody";
+        String sender = "test@localhost";
+        String recipient = "test@localhost";
+        MimeMessage mm = new MimeMessage(Session.getDefaultInstance(new Properties()),new ByteArrayInputStream(sources.getBytes()));
+        MailImpl mail = new MailImpl("name",new MailAddress(sender),Arrays.asList(new MailAddress[] {new MailAddress(recipient)}),mm);
+        
+        rd.service(mail);
+        
+        while (outgoingSpool.size() > 0) {
+            Thread.sleep(1000);
+        }
+
+        verifyLastMail(sender, recipient, null);
+        
+        assertEquals(((String) mm.getContent()).trim(),((String) ((MimeMessage) m_mailServer.getLastMail()[2]).getContent()).trim());
+    }
+
     
     /**
      * This is useful code to run tests on javamail bugs 
