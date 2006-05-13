@@ -913,11 +913,8 @@ public class SMTPServerTest extends TestCase {
     
 
     /**
-     * This is useful code to run tests on javamail bugs 
-     * http://issues.apache.org/jira/browse/JAMES-52
-     * 
-     * This 
-     * @throws Exception
+     * This has been created to test javamail 1.4 introduced bug.
+     * http://issues.apache.org/jira/browse/JAMES-490
      */
     public void testDeliveryToSelfWithGatewayAndBind() throws Exception {
         finishSetUp(m_testConfiguration);
