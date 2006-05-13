@@ -300,6 +300,11 @@ public class LinearProcessor
 
         //This is the original state of the message
         String originalState = mail.getState();
+        
+        
+        // The original mail: we should not care to save this mail.
+        // This should be saved in the spoolmanager.
+        Mail originalMail = mail;
 
         //We'll use these as temporary variables in the loop
         mail = null;  // the message we're currently processing
@@ -402,7 +407,8 @@ public class LinearProcessor
                 // and store it in the next spot
                 Mail notMail = new MailImpl(mail,newName(mail));
                 notMail.setRecipients(notRecipients);
-                notMail.setState(mail.getState());
+                // set the state to the current processor
+                notMail.setState(originalState);
                 unprocessed[i + 1].add(notMail);
                 //We have to set the reduce possible recipients on the old message
                 mail.setRecipients(recipients);
@@ -450,7 +456,11 @@ public class LinearProcessor
                 // This was just set to another state requiring further processing... 
                 // Store this back in the spool and it will get picked up and 
                 // run in that processor
-                spool.store(mail);
+                // We store only mails created by the matcher "splitting"
+                // The original mail will be "stored" by the caller.
+                if (originalMail != mail) {
+                    spool.store(mail);
+                }
                 mail = null;
                 continue;
             } else {
