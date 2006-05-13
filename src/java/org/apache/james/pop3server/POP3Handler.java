@@ -17,6 +17,7 @@
 
 package org.apache.james.pop3server;
 
+import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.Constants;
 import org.apache.james.core.AbstractJamesHandler;
 import org.apache.james.core.MailImpl;
@@ -280,6 +281,10 @@ public class POP3Handler
         authenticatedUser = null;
         userInbox = null;
         if (userMailbox != null) {
+            Iterator i = userMailbox.iterator();
+            while (i.hasNext()) {
+                ContainerUtil.dispose(i.next());
+            }
             userMailbox.clear();
             userMailbox = null;
         }
