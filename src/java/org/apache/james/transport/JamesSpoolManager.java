@@ -122,6 +122,7 @@ public class JamesSpoolManager
         }
         
         try {
+            ContainerUtil.enableLogging(processorList, getLogger());
             ContainerUtil.service(processorList, compMgr);
         } catch (ServiceException e) {
             getLogger().error(e.getMessage(), e);
