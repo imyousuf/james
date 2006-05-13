@@ -21,6 +21,7 @@ import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
@@ -460,6 +461,7 @@ public class LinearProcessor
                 // The original mail will be "stored" by the caller.
                 if (originalMail != mail) {
                     spool.store(mail);
+                    ContainerUtil.dispose(mail);
                 }
                 mail = null;
                 continue;

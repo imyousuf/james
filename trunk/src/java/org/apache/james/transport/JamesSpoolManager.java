@@ -213,6 +213,7 @@ public class JamesSpoolManager
                     // Do not notify: we simply updated the current mail
                     // and we are able to reprocess it now.
                 }
+                ContainerUtil.dispose(mail);
                 mail = null;
             } catch (InterruptedException ie) {
                 getLogger().info("Interrupted JamesSpoolManager: " + Thread.currentThread().getName());
