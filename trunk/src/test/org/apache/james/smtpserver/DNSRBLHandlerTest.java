@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 1999-2006 The Apache Software Foundation.             *
+ * Copyright (c) 2006 The Apache Software Foundation.                  *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -87,8 +87,7 @@ public class DNSRBLHandlerTest extends TestCase {
                 }
                 ;
                 if ("2.0.0.127.bl.spamcop.net".equals(hostname)) {
-                    res
-                            .add("Blocked - see http://www.spamcop.net/bl.shtml?127.0.0.2");
+                    res.add("Blocked - see http://www.spamcop.net/bl.shtml?127.0.0.2");
                 }
                 return res;
             }
@@ -263,7 +262,7 @@ public class DNSRBLHandlerTest extends TestCase {
     }
 
     // ip is blacklisted and has txt details
-    public void testDNSRBL1() {
+    public void testBlackListedTextPresent() {
         DNSRBLHandler rbl = new DNSRBLHandler();
 
         ContainerUtil.enableLogging(rbl, new MockLogger());
@@ -276,11 +275,11 @@ public class DNSRBLHandlerTest extends TestCase {
         rbl.onConnect(mockedSMTPSession);
         assertEquals("Blocked - see http://www.spamcop.net/bl.shtml?127.0.0.2",
                 mockedSMTPSession.getBlockListedDetail());
-        assertEquals(true, mockedSMTPSession.isBlockListed());
+        assertTrue(mockedSMTPSession.isBlockListed());
     }
 
     // ip is blacklisted and has txt details but we don'T want to retrieve the txt record
-    public void testDNSRBL2() {
+    public void testGetNoDetail() {
         DNSRBLHandler rbl = new DNSRBLHandler();
 
         ContainerUtil.enableLogging(rbl, new MockLogger());
@@ -291,12 +290,12 @@ public class DNSRBLHandlerTest extends TestCase {
         rbl.setBlacklist(new String[] { "bl.spamcop.net" });
         rbl.setGetDetail(false);
         rbl.onConnect(mockedSMTPSession);
-        assertEquals(null, mockedSMTPSession.getBlockListedDetail());
-        assertEquals(true, mockedSMTPSession.isBlockListed());
+        assertNull(mockedSMTPSession.getBlockListedDetail());
+        assertTrue(mockedSMTPSession.isBlockListed());
     }
 
     // ip is allowed to relay
-    public void testDNSRBL3() {
+    public void testRelayAllowed() {
         DNSRBLHandler rbl = new DNSRBLHandler();
 
         ContainerUtil.enableLogging(rbl, new MockLogger());
@@ -309,12 +308,12 @@ public class DNSRBLHandlerTest extends TestCase {
         rbl.setBlacklist(new String[] { "bl.spamcop.net" });
         rbl.setGetDetail(true);
         rbl.onConnect(mockedSMTPSession);
-        assertEquals(null, mockedSMTPSession.getBlockListedDetail());
-        assertEquals(false, mockedSMTPSession.isBlockListed());
+        assertNull(mockedSMTPSession.getBlockListedDetail());
+        assertFalse(mockedSMTPSession.isBlockListed());
     }
 
     // ip not on blacklist
-    public void testDNSRBL4() {
+    public void testNotBlackListed() {
         DNSRBLHandler rbl = new DNSRBLHandler();
 
         ContainerUtil.enableLogging(rbl, new MockLogger());
@@ -326,12 +325,12 @@ public class DNSRBLHandlerTest extends TestCase {
         rbl.setBlacklist(new String[] { "bl.spamcop.net" });
         rbl.setGetDetail(true);
         rbl.onConnect(mockedSMTPSession);
-        assertEquals(null, mockedSMTPSession.getBlockListedDetail());
-        assertEquals(false, mockedSMTPSession.isBlockListed());
+        assertNull(mockedSMTPSession.getBlockListedDetail());
+        assertFalse(mockedSMTPSession.isBlockListed());
     }
 
     // ip on blacklist without txt details
-    public void testDNSRBL5() {
+    public void testBlackListedNoTxt() {
         DNSRBLHandler rbl = new DNSRBLHandler();
 
         ContainerUtil.enableLogging(rbl, new MockLogger());
@@ -343,12 +342,12 @@ public class DNSRBLHandlerTest extends TestCase {
         rbl.setBlacklist(new String[] { "bl.spamcop.net" });
         rbl.setGetDetail(true);
         rbl.onConnect(mockedSMTPSession);
-        assertEquals(null, mockedSMTPSession.getBlockListedDetail());
-        assertEquals(true, mockedSMTPSession.isBlockListed());
+        assertNull(mockedSMTPSession.getBlockListedDetail());
+        assertTrue(mockedSMTPSession.isBlockListed());
     }
 
     // ip on whitelist
-    public void testDNSRBL6() {
+    public void testWhiteListed() {
         DNSRBLHandler rbl = new DNSRBLHandler();
 
         ContainerUtil.enableLogging(rbl, new MockLogger());
@@ -360,8 +359,8 @@ public class DNSRBLHandlerTest extends TestCase {
         rbl.setWhitelist(new String[] { "bl.spamcop.net" });
         rbl.setGetDetail(true);
         rbl.onConnect(mockedSMTPSession);
-        assertEquals(null, mockedSMTPSession.getBlockListedDetail());
-        assertEquals(false, mockedSMTPSession.isBlockListed());
+        assertNull(mockedSMTPSession.getBlockListedDetail());
+        assertFalse(mockedSMTPSession.isBlockListed());
     }
 
 }
