@@ -702,8 +702,14 @@
          <handlerchain>
             
             <!-- The connect handler configuration -->
-            <!--            
+
+            <!-- This command handler check against RBL-Lists -->
+            <!-- If getDetail is set to true it try to retrieve information from TXT Record -->
+            <!-- why the ip was blocked. Default to false -->            
+            <!--
+            
             <handler class="org.apache.james.smtpserver.DNSRBLHandler">
+               <getDetail> false </getDetail>
                <rblservers>
                   <whitelist> query.bondedsender.org </whitelist>
                   <blacklist> sbl-xbl.spamhaus.org </blacklist>
