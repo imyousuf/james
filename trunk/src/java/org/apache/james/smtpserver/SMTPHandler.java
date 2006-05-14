@@ -123,6 +123,11 @@ public class SMTPHandler
      * TEMPORARY: is the sending address blocklisted
      */
     private boolean blocklisted;
+    
+    /**
+     * The blocklisted detail
+     */
+    private String blocklistedDetail = null;
 
     /**
      * The id associated with this particular SMTP interaction.
@@ -423,6 +428,20 @@ public class SMTPHandler
      */
     public void setBlockListed(boolean blocklisted ) {
         this.blocklisted = blocklisted;
+    }
+    
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#getBlockListedDetail()
+     */
+    public String getBlockListedDetail() {
+        return blocklistedDetail;
+    }
+    
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#setBlockListedDetail(String)
+     */
+    public void setBlockListedDetail(String blocklistedDetail) {
+        this.blocklistedDetail = blocklistedDetail;
     }
 
     /**
