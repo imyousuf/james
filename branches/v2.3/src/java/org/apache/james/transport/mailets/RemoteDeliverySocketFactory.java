@@ -17,10 +17,13 @@
 
 package org.apache.james.transport.mailets;
 
+import javax.net.SocketFactory;
+
+import java.io.IOException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.io.IOException;
 
 /**
  * It is used by RemoteDelivery in order to make possible to bind the client
@@ -31,12 +34,21 @@ import java.io.IOException;
  * (current version 1.3) to support a corresonding property, e.g.
  * mail.smtp.bindAdress.
  * 
- * It should be a javax.net.SocketFactory descendant, but 
- * 1. it is not necessary because JavaMail 1.2 uses reflection when accessing
+ * This used to not extend javax.net.SocketFactory descendant, because 
+ * 1. it was not necessary because JavaMail 1.2 uses reflection when accessing
  * this class;
- * 2. it is not desirable because it would require java 1.4.
+ * 2. it was not desirable because it would require java 1.4.
+ * 
+ * But since James 2.3.0a1:
+ * 1. we require Java 1.4 so the dependency on SocketFactory is
+ * not really an issue;
+ * 2. Javamail 1.4 cast the object returned by getDefault to SocketFactory and
+ * fails to create the socket if we don't extend SocketFactory.
+ * 
+ * Note: Javamail 1.4 should correctly support mail.smtp.localaddr so we could
+ * probably get rid of this class and simply add that property to the Session.
  */
-public class RemoteDeliverySocketFactory {
+public class RemoteDeliverySocketFactory extends SocketFactory {
     
     /**
      * @param addr the ip address or host name the delivery socket will bind to
@@ -49,22 +61,25 @@ public class RemoteDeliverySocketFactory {
     /**
      * the same as the similarly named javax.net.SocketFactory operation.
      */
-    public static RemoteDeliverySocketFactory getDefault() {
+    public static SocketFactory getDefault() {
         return new RemoteDeliverySocketFactory();
     }
     
     /**
      * the same as the similarly named javax.net.SocketFactory operation.
      * Just to be safe, it is not used by JavaMail 1.3.
+     * This is the only method used by JavaMail 1.4.
      */
     public Socket createSocket() throws IOException {
-        throw new IOException("Incompatible JavaMail version, " +
-                "cannot bound socket");
+        Socket s = new Socket();
+        s.bind(new InetSocketAddress(bindAddress, 0));
+        return s;
     }
     
     /**
      * the same as the similarly named javax.net.SocketFactory operation.
      * This is the one which is used by JavaMail 1.3.
+     * This is not used by JavaMail 1.4.
      */
     public Socket createSocket(String host, int port)
                             throws IOException, UnknownHostException {
@@ -74,6 +89,7 @@ public class RemoteDeliverySocketFactory {
     /**
      * the same as the similarly named javax.net.SocketFactory operation.
      * Just to be safe, it is not used by JavaMail 1.3.
+     * This is not used by JavaMail 1.4.
      */
     public Socket createSocket(String host,
                                     int port,
@@ -88,6 +104,7 @@ public class RemoteDeliverySocketFactory {
     /**
      * the same as the similarly named javax.net.SocketFactory operation.
      * Just to be safe, it is not used by JavaMail 1.3.
+     * This is not used by JavaMail 1.4.
      */
     public Socket createSocket(InetAddress host, int port) throws IOException {
         return new Socket(host, port, bindAddress, 0);
@@ -96,6 +113,7 @@ public class RemoteDeliverySocketFactory {
     /**
      * the same as the similarly named javax.net.SocketFactory operation.
      * Just to be safe, it is not used by JavaMail 1.3.
+     * This is not used by JavaMail 1.4.
      */
     public Socket createSocket(InetAddress address,
                                     int port,
