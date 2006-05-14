@@ -38,6 +38,7 @@ import org.xbill.DNS.Resolver;
 import org.xbill.DNS.RRset;
 import org.xbill.DNS.ResolverConfig;
 import org.xbill.DNS.SetResponse;
+import org.xbill.DNS.TXTRecord;
 import org.xbill.DNS.TextParseException;
 import org.xbill.DNS.Type;
 
@@ -532,5 +533,25 @@ public class DNSServer
      */
     public void dispose()
     {
-    } 
+    }
+    
+    /**
+     * @see org.apache.james.services.DNSServer#findTXTRecords(String)
+     */
+    public Collection findTXTRecords(String hostname){
+        List txtR = new ArrayList();
+        Record[] records;
+        
+        records = lookup(hostname, Type.TXT);
+    
+        if (records != null) {
+           for (int i = 0; i < records.length; i++) {
+               TXTRecord txt = (TXTRecord) records[i];
+               txtR.add(txt.rdataToString());
+           }
+        
+        }
+        return txtR;
+    }
+
 }

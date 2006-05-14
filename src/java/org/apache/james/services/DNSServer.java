@@ -45,6 +45,14 @@ public interface DNSServer {
      */
     Collection findMXRecords(String hostname);
 
+    /**
+     * Get a collection of DNS TXT Records
+     * 
+     * @param hostname The hostname to check
+     * @return collection of strings representing TXT record values
+     */
+    Collection findTXTRecords(String hostname);
+
 
     /**
      * Performs DNS lookups as needed to find servers which should or might

@@ -162,6 +162,17 @@ public class SMTPServerTest extends TestCase {
 //                throw new UnsupportedOperationException("getByName not implemented in mock for host: "+host);
             }
             
+            public Collection findTXTRecords(String hostname) {
+                List res = new ArrayList();
+                if (hostname == null) {
+                    return res;
+                };
+                if ("2.0.0.127.bl.spamcop.net".equals(hostname)) {
+                    res.add("Blocked - see http://www.spamcop.net/bl.shtml?127.0.0.2");
+                }
+                return res;
+            }
+            
         };
         m_serviceManager.put(DNSServer.ROLE, dns);
         m_serviceManager.put(Store.ROLE, new MockStore());

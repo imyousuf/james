@@ -27,6 +27,7 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.james.services.DNSServer;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.StringTokenizer;
 
 /**
@@ -42,6 +43,8 @@ public class DNSRBLHandler
     private String[] blacklist;
     
     private DNSServer dnsServer = null;
+    
+    private boolean getDetail = false;
 
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
@@ -61,7 +64,7 @@ public class DNSRBLHandler
                     }
                 }
                 if (rblserverCollection != null && rblserverCollection.size() > 0) {
-                    whitelist = (String[]) rblserverCollection.toArray(new String[rblserverCollection.size()]);
+                    setWhitelist((String[]) rblserverCollection.toArray(new String[rblserverCollection.size()]));
                     rblserverCollection.clear();
                 }
             }
@@ -75,10 +78,15 @@ public class DNSRBLHandler
                     }
                 }
                 if (rblserverCollection != null && rblserverCollection.size() > 0) {
-                    blacklist = (String[]) rblserverCollection.toArray(new String[rblserverCollection.size()]);
+                    setBlacklist((String[]) rblserverCollection.toArray(new String[rblserverCollection.size()]));
                     rblserverCollection.clear();
                 }
             }
+        }
+        
+        Configuration configuration = handlerConfiguration.getChild("getDetail",false);
+        if(configuration != null) {
+           getDetail = configuration.getValueAsBoolean();
         }
 
     }
@@ -87,7 +95,7 @@ public class DNSRBLHandler
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
     public void service(ServiceManager serviceMan) throws ServiceException {
-        dnsServer = (DNSServer) serviceMan.lookup(DNSServer.ROLE);
+        setDNSServer((DNSServer) serviceMan.lookup(DNSServer.ROLE));
     }
     
     /*
@@ -99,7 +107,38 @@ public class DNSRBLHandler
         boolean blocklisted = checkDNSRBL(session, session.getRemoteIPAddress());
         session.setBlockListed(blocklisted);
     }
+    
+    /**
+     * Set the whitelist array
+     * @param whitelist The array which contains the whitelist
+     */
+    public void setWhitelist(String[] whitelist) {
+        this.whitelist = whitelist;
+    }
+    
+    /**
+     * Set the blacklist array
+     * @param blacklist The array which contains the blacklist
+     */
+    public void setBlacklist(String[] blacklist) {
+        this.blacklist = blacklist;
+    }
+    
+    /**
+     * Set the DNSServer
+     * @param dnsServer The DNSServer
+     */
+    public void setDNSServer(DNSServer dnsServer) {
+        this.dnsServer = dnsServer;
+    }
 
+    /**
+     * 
+     * @param getDetail
+     */
+    public void setGetDetail(boolean getDetail) {
+        this.getDetail = getDetail;
+    }
 
     /**
      * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#checkDNSRBL(Socket)
@@ -151,6 +190,17 @@ public class DNSRBLHandler
                     dnsServer.getByName(reversedOctets + rblList[i]);
                     if (getLogger().isInfoEnabled()) {
                         getLogger().info("Connection from " + ipAddress + " restricted by " + rblList[i] + " to SMTP AUTH/postmaster/abuse.");
+                    }
+                    
+                    // we should try to retrieve details
+                    if (getDetail) {
+                        Collection txt = dnsServer.findTXTRecords(reversedOctets + rblList[i]);
+                        
+                        // Check if we found a txt record
+                        if (!txt.isEmpty()) {
+                            // Set the detail
+                            session.setBlockListedDetail(txt.iterator().next().toString());
+                        }
                     }
                     return true;
                 } catch (java.net.UnknownHostException uhe) {

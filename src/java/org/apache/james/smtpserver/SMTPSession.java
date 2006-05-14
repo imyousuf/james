@@ -172,6 +172,20 @@ public interface SMTPSession {
     boolean isBlockListed();
 
     /**
+     * Set the BlockListedDetail which will be used in responseString
+     * 
+     * @param detail The detail 
+     */
+    void setBlockListedDetail(String detail);
+    
+    /**
+     * Returns the BlockListedDetail
+     * 
+     * @return The BlockListedDetail
+     */
+    String getBlockListedDetail();
+    
+    /**
      * Returns whether Relaying is allowed or not
      *
      * @return the relaying status
