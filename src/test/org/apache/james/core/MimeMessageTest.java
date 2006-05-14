@@ -315,18 +315,46 @@ public class MimeMessageTest extends TestCase {
         MimeMessage mmorig = getSimpleMessage();
         
         MimeMessage mm = new MimeMessageCopyOnWriteProxy(mmorig);
-        
+
         MimeMessage mm2 = new MimeMessageCopyOnWriteProxy(mm);
         
         mm2.setHeader("Subject", "Modified");
         ContainerUtil.dispose(mm2);
+        System.gc();
+        Thread.sleep(200);
         //((Disposable)mail_dup.getMessage()).dispose();
         
         mm.setHeader("Subject", "Modified");
         
-        ContainerUtil.dispose(mmorig);
         ContainerUtil.dispose(mm);
+        ContainerUtil.dispose(mmorig);
+    }
+    
+    /**
+     * This test throw a NullPointerException when the original message was created by
+     * a MimeMessageInputStreamSource.
+     */
+    public void testMessageCloningViaCoW2() throws Exception {
+        MimeMessage mmorig = getSimpleMessage();
         
+        MimeMessage mm = new MimeMessageCopyOnWriteProxy(mmorig);
+        
+        MimeMessage mm2 = new MimeMessageCopyOnWriteProxy(mm);
+        
+        ContainerUtil.dispose(mm);
+        mm = null;
+        System.gc();
+        Thread.sleep(200);
+
+        try {
+            mm2.writeTo(System.out);
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("Exception while writing the message to output");
+        }
+        
+        ContainerUtil.dispose(mm2);
+        ContainerUtil.dispose(mmorig);
     }
     
 }
