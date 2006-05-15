@@ -59,7 +59,7 @@ public class MockMailServer implements MailServer {
     public void sendMail(Mail mail) throws MessagingException {
         int bodySize = mail.getMessage().getSize();
         try {
-            if (m_maxMessageSizeBytes != 0 && m_maxMessageSizeBytes < bodySize) throw new MessageSizeException();
+            if (m_maxMessageSizeBytes != 0 && m_maxMessageSizeBytes*1024 < bodySize) throw new MessageSizeException();
         } catch (MessageSizeException e) {
             throw new MessagingException("message size exception is nested", e);
         }
