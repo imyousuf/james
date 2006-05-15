@@ -55,12 +55,12 @@ public class EhloCmdHandler extends AbstractLogEnabled implements CommandHandler
     public void configure(Configuration handlerConfiguration) throws ConfigurationException {
         Configuration configuration = handlerConfiguration.getChild("checkValidEhlo",false);
         if(configuration != null) {
-           checkValidEhlo = configuration.getValueAsBoolean();
+           setCheckValidEhlo(configuration.getValueAsBoolean(false));
         }
         
         Configuration configRelay = handlerConfiguration.getChild("checkAuthNetworks",false);
         if(configRelay != null) {
-            checkAuthNetworks = configRelay.getValueAsBoolean();
+            setCheckAuthNetworks(configRelay.getValueAsBoolean(false));
         }
     }
     
@@ -68,7 +68,34 @@ public class EhloCmdHandler extends AbstractLogEnabled implements CommandHandler
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
     public void service(ServiceManager serviceMan) throws ServiceException {
-        dnsServer = (DNSServer) serviceMan.lookup(DNSServer.ROLE);
+        setDnsServer((DNSServer) serviceMan.lookup(DNSServer.ROLE));
+    }
+    
+    /**
+     * Set to true to enable check for valid EHLO
+     * 
+     * @param checkValidEhlo Set to true for enable check
+     */
+    public void setCheckValidEhlo(boolean checkValidEhlo) {
+    	this.checkValidEhlo = checkValidEhlo;
+    }
+    
+    /**
+     * Set to true if AuthNetworks should be included in the EHLO check
+     * 
+     * @param checkAuthNetworks Set to true to enable
+     */
+    public void setCheckAuthNetworks(boolean checkAuthNetworks) {
+    	this.checkAuthNetworks = checkAuthNetworks;
+    }
+    
+    /**
+     * Set the DNSServer
+     * 
+     * @param dnsServer The DNSServer
+     */
+    public void setDnsServer(DNSServer dnsServer) {
+    	this.dnsServer = dnsServer;
     }
 
     /*
