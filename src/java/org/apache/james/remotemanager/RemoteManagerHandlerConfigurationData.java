@@ -17,6 +17,7 @@
 
 package org.apache.james.remotemanager;
 
+import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
@@ -73,5 +74,12 @@ public interface RemoteManagerHandlerConfigurationData {
      * @return the configured prompt, or an empty string when the prompt is not configured.
      */
     String getPrompt();
+
+    /**
+     * Returns the Store
+     * 
+     * @return the Store
+     */
+    Store getStore();
 
 }

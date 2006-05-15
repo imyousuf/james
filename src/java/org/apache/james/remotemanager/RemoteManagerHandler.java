@@ -22,8 +22,13 @@ import org.apache.james.core.AbstractJamesHandler;
 import org.apache.james.services.JamesUser;
 import org.apache.james.services.User;
 import org.apache.james.services.UsersRepository;
+import org.apache.james.services.SpoolRepository;
+
 import org.apache.james.userrepository.DefaultUser;
 import org.apache.mailet.MailAddress;
+import org.apache.mailet.Mail;
+import org.apache.avalon.framework.configuration.DefaultConfiguration;
+
 
 import javax.mail.internet.ParseException;
 
@@ -31,6 +36,8 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.Date;
+
 
 /**
  * Provides a really rude network interface to administer James.
@@ -114,6 +121,21 @@ public class RemoteManagerHandler
      */
     private static final String COMMAND_USER = "USER";
 
+    /**
+     * The text string for the LISTSPOOL command
+     */
+    private static final String COMMAND_LISTSPOOL = "LISTSPOOL";
+ 
+    /**
+     * The text string for the FLUSHSPOOL command
+     */
+    private static final String COMMAND_FLUSHSPOOL = "FLUSHSPOOL";
+ 
+    /**
+     * The text string for the DELETESPOOL command
+     */
+    private static final String COMMAND_DELETESPOOL = "DELETESPOOL";
+    
     /**
      * The text string for the QUIT command
      */
@@ -289,6 +311,12 @@ public class RemoteManagerHandler
             return doUNSETFORWARDING(argument);
         } else if (command.equals(COMMAND_USER)) {
             return doUSER(argument);
+        } else if (command.equals(COMMAND_LISTSPOOL)) {
+            return doLISTSPOOL(argument);
+        } else if (command.equals(COMMAND_FLUSHSPOOL)) {
+            return doFLUSHSPOOL(argument);
+        } else if (command.equals(COMMAND_DELETESPOOL)) {
+            return doDELETESPOOL(argument);
         } else if (command.equals(COMMAND_QUIT)) {
             return doQUIT(argument);
         } else if (command.equals(COMMAND_SHUTDOWN)) {
@@ -511,22 +539,39 @@ public class RemoteManagerHandler
      */
     private boolean doHELP(String argument) {
         out.println("Currently implemented commands:");
-        out.println("help                                    display this help");
-        out.println("listusers                               display existing accounts");
-        out.println("countusers                              display the number of existing accounts");
-        out.println("adduser [username] [password]           add a new user");
-        out.println("verify [username]                       verify if specified user exist");
-        out.println("deluser [username]                      delete existing user");
-        out.println("setpassword [username] [password]       sets a user's password");
-        out.println("setalias [user] [alias]                 locally forwards all email for 'user' to 'alias'");
-        out.println("showalias [username]                    shows a user's current email alias");
-        out.println("unsetalias [user]                       unsets an alias for 'user'");
-        out.println("setforwarding [username] [emailaddress] forwards a user's email to another email address");
-        out.println("showforwarding [username]               shows a user's current email forwarding");
-        out.println("unsetforwarding [username]              removes a forward");
-        out.println("user [repositoryname]                   change to another user repository");
-        out.println("shutdown                                kills the current JVM (convenient when James is run as a daemon)");
-        out.println("quit                                    close connection");
+        out.println("help                                           display this help");
+        out.println("listusers                                      display existing accounts");
+        out.println("countusers                                     display the number of existing accounts");
+        out.println("adduser [username] [password]                  add a new user");
+        out.println("verify [username]                              verify if specified user exist");
+        out.println("deluser [username]                             delete existing user");
+        out.println("setpassword [username] [password]              sets a user's password");
+        out.println("setalias [user] [alias]                        locally forwards all email for 'user' to 'alias'");
+        out.println("showalias [username]                           shows a user's current email alias");
+        out.println("unsetalias [user]                              unsets an alias for 'user'");
+        out.println("setforwarding [username] [emailaddress]        forwards a user's email to another email address");
+        out.println("showforwarding [username]                      shows a user's current email forwarding");
+        out.println("unsetforwarding [username]                     removes a forward");
+        out.println("user [repositoryname]                          change to another user repository");
+        out.println("help                                           display this help");
+        out.println("listusers                                      display existing accounts");
+        out.println("countusers                                     display the number of existing accounts");
+        out.println("adduser [username] [password]                  add a new user");
+        out.println("verify [username]                              verify if specified user exist");
+        out.println("deluser [username]                             delete existing user");
+        out.println("setpassword [username] [password]              sets a user's password");
+        out.println("setalias [user] [alias]                        locally forwards all email for 'user' to 'alias'");
+        out.println("showalias [username]                           shows a user's current email alias");
+        out.println("unsetalias [user]                              unsets an alias for 'user'");
+        out.println("setforwarding [username] [emailaddress]        forwards a user's email to another email address");
+        out.println("showforwarding [username]                      shows a user's current email forwarding");
+        out.println("unsetforwarding [username]                     removes a forward");
+        out.println("user [repositoryname]                          change to another user repository");
+        out.println("listspool [spoolrepositoryname]                list all mails which reside in the spool and have an error state");
+        out.println("flushspool [spoolrepositoryname] ([key])       try to resend the mail assing to the given key. If no key is given all mails get resend");
+        out.println("deletespool [spoolrepositoryname] ([key])      delete the mail assign to the given key. If no key is given all mails get deleted");
+        out.println("shutdown                                       kills the current JVM (convenient when James is run as a daemon)");
+        out.println("quit                                           close connection");
         out.flush();
         return true;
     }
@@ -834,12 +879,260 @@ public class RemoteManagerHandler
         }
         return true;
     }
+    
+    /**
+     * Handler method called upon receipt of a LISTSPOOL command. Returns
+     * whether further commands should be read off the wire.
+     * 
+     * @param argument
+     *            the argument passed in with the command
+     */
+    private boolean doLISTSPOOL(String argument) {
+        int count = 0;
+
+        // check if the command was called correct
+        if ((argument == null) || (argument.trim().equals(""))) {
+            writeLoggedFlushedResponse("Usage: LISTSPOOL [spoolrepositoryname]");
+            return true;
+        }
+
+        String url = argument;
+
+        SpoolRepository spoolRepository;
+        try {
+            // Setup all needed data
+            DefaultConfiguration spoolConf = new DefaultConfiguration("spool",
+                    "generated:RemoteManager.java");
+            spoolConf.setAttribute("destinationURL", url);
+            spoolConf.setAttribute("type", "SPOOL");
+
+            spoolRepository = (SpoolRepository) theConfigData.getStore()
+                    .select(spoolConf);
+
+            // get an iterator of all keys
+            Iterator spoolR = spoolRepository.list();
+
+            while (spoolR.hasNext()) {
+                String key = spoolR.next().toString();
+
+                out.println("Messages in spool:");
+                Mail m = spoolRepository.retrieve(key);
+
+                // Only show email if its in error state.
+                if (m.getState().equals(Mail.ERROR)) {
+                    out.print("k: " + key + " s: " + m.getSender() + " r:");
+                    for (int i = 0; i < m.getRecipients().size(); i++) {
+                        out.print(" " + m.getRecipients());
+                    }
+                    out.println();
+
+                    count++;
+                }
+            }
+            out.println("Number of spooled mails: " + count);
+            out.flush();
+        } catch (Exception e) {
+            out.println("Error opening the spoolrepository " + e.getMessage());
+            out.flush();
+            getLogger().error(
+                    "Error opeing the spoolrepository " + e.getMessage());
+        }
+        return true;
+    }
 
     /**
-     * Handler method called upon receipt of a QUIT command.
+     * Handler method called upon receipt of a LISTSPOOL command.
      * Returns whether further commands should be read off the wire.
      *
      * @param argument the argument passed in with the command
+     */
+    private boolean doFLUSHSPOOL(String argument) {
+        int count = 0;
+        String[] args = null;
+
+        if (argument != null ) args = argument.split(" ");
+        
+        // check if the command was called correct
+        if ((argument == null || argument.trim().equals("")) || (args.length < 1 || args.length > 2 )) {
+            writeLoggedFlushedResponse("Usage: FLUSHSPOOL [spoolrepositoryname] ([key])");
+            return true;
+        }
+
+        SpoolRepository spoolRepository;
+        try {
+
+            // Setup all needed data
+            DefaultConfiguration spoolConf = new DefaultConfiguration("spool",
+                    "generated:RemoteManager.java");
+            spoolConf.setAttribute("destinationURL", args[0]);
+            spoolConf.setAttribute("type", "SPOOL");
+
+            spoolRepository = (SpoolRepository) theConfigData.getStore()
+                    .select(spoolConf);
+
+            // check if an key was given as argument
+            if (args.length == 2) {
+                String key = args[1];
+                if (spoolRepository.lock(key)) {
+
+                    // get the mail and set the error_message to "0" that will force the spoolmanager to try to deliver it now!
+                    Mail m = spoolRepository.retrieve(key);
+
+                    if (m.getState().equals(Mail.ERROR)) {
+                        m.setErrorMessage(0 + "");
+                        m.setLastUpdated(new Date());
+
+                        // store changes
+                        spoolRepository.store(m);
+                        spoolRepository.unlock(key);
+
+                        synchronized (spoolRepository) {
+                            spoolRepository.notify();
+                        }
+                        count++;
+                    } else {
+                        out.println("The mail with key " + key
+                                + " is not in error state!");
+                        out.flush();
+                    }
+                } else {
+                    out.println("Error locking the mail with key:  " + key);
+                    out.flush();
+                }
+
+            } else {
+                // get an iterator of all keys
+                Iterator spoolR = spoolRepository.list();
+
+                while (spoolR.hasNext()) {
+                    String key = spoolR.next().toString();
+
+                    if (spoolRepository.lock(key)) {
+                        // get the mail and set the error_message to "0" that will force the spoolmanager to try to deliver it now!
+                        Mail m = spoolRepository.retrieve(key);
+
+                        if (m.getState().equals(Mail.ERROR)) {
+                            m.setErrorMessage(0 + "");
+                            m.setLastUpdated(new Date());
+
+                            // store changes
+                            spoolRepository.store(m);
+                            spoolRepository.unlock(key);
+
+                            synchronized (spoolRepository) {
+                                spoolRepository.notify();
+                            }
+                            count++;
+                        }
+                    } else {
+                        out.println("Error locking the mail with key:  " + key);
+                        out.flush();
+                    }
+                }
+            }
+            out.println("Number of flushed mails: " + count);
+            out.flush();
+
+        } catch (Exception e) {
+            out.println("Error opening the spoolrepository " + e.getMessage());
+            out.flush();
+            getLogger().error(
+                    "Error opeing the spoolrepository " + e.getMessage());
+        }
+        return true;
+    }
+    
+        /**
+         * Handler method called upon receipt of a DELETESPOOL command. Returns
+         * whether further commands should be read off the wire.
+         * 
+         * @param argument
+         *            the argument passed in with the command
+         */
+    private boolean doDELETESPOOL(String argument) {
+        int count = 0;     
+        String[] args = null;
+
+        if (argument != null ) args = argument.split(" ");
+
+        // check if the command was called correct
+        if ((argument == null || argument.trim().equals("")) || (args.length < 1 || args.length > 2)) {
+            writeLoggedFlushedResponse("Usage: DELETESPOOL [spoolrepositoryname] ([key])");
+            return true;
+        }
+
+        SpoolRepository spoolRepository;
+        try {
+            // Setup all needed data
+            DefaultConfiguration spoolConf = new DefaultConfiguration("spool",
+                    "generated:RemoteManager.java");
+            spoolConf.setAttribute("destinationURL", args[0]);
+            spoolConf.setAttribute("type", "SPOOL");
+
+            spoolRepository = (SpoolRepository) theConfigData.getStore()
+                    .select(spoolConf);
+
+            if (args.length == 2) {
+                String key = args[1];
+                if (spoolRepository.lock(key)) {
+
+                    // remove the mail
+                    spoolRepository.remove(key);
+                    spoolRepository.unlock(key);
+
+                    synchronized (spoolRepository) {
+                        spoolRepository.notify();
+                    }
+                    count++;
+                } else {
+                    out.println("Error locking the mail with key:  " + key);
+                    out.flush();
+                }
+
+            } else {
+                Iterator spoolR = spoolRepository.list();
+
+                while (spoolR.hasNext()) {
+                    String key = spoolR.next().toString();
+
+                    if (spoolRepository.lock(key)) {
+
+                        Mail m = spoolRepository.retrieve(key);
+                        if (m.getState().equals(Mail.ERROR)) {
+
+                            spoolRepository.remove(key);
+                            spoolRepository.unlock(key);
+
+                            synchronized (spoolRepository) {
+                                spoolRepository.notify();
+                            }
+                            count++;
+                        }
+                    } else {
+                        out.println("Error locking the mail with key:  " + key);
+                        out.flush();
+                    }
+                }
+            }
+            out.println("Number of deleted mails: " + count);
+            out.flush();
+
+        } catch (Exception e) {
+            out.println("Error opening the spoolrepository " + e.getMessage());
+            out.flush();
+            getLogger().error(
+                    "Error opeing the spoolrepository " + e.getMessage());
+        }
+        return true;
+    }
+    
+
+    /**
+     * Handler method called upon receipt of a QUIT command. Returns whether
+     * further commands should be read off the wire.
+     * 
+     * @param argument
+     *            the argument passed in with the command
      */
     private boolean doQUIT(String argument) {
         writeLoggedFlushedResponse("Bye");
@@ -847,10 +1140,11 @@ public class RemoteManagerHandler
     }
 
     /**
-     * Handler method called upon receipt of a SHUTDOWN command.
-     * Returns whether further commands should be read off the wire.
-     *
-     * @param argument the argument passed in with the command
+     * Handler method called upon receipt of a SHUTDOWN command. Returns whether
+     * further commands should be read off the wire.
+     * 
+     * @param argument
+     *            the argument passed in with the command
      */
     private boolean doSHUTDOWN(String argument) {
         writeLoggedFlushedResponse("Shutting down, bye bye");
@@ -859,10 +1153,11 @@ public class RemoteManagerHandler
     }
 
     /**
-     * Handler method called upon receipt of an unrecognized command.
-     * Returns whether further commands should be read off the wire.
-     *
-     * @param argument the unknown command
+     * Handler method called upon receipt of an unrecognized command. Returns
+     * whether further commands should be read off the wire.
+     * 
+     * @param argument
+     *            the unknown command
      */
     private boolean doUnknownCommand(String argument) {
         writeLoggedFlushedResponse("Unknown command " + argument);
