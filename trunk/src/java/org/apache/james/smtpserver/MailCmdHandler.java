@@ -55,7 +55,7 @@ public class MailCmdHandler
     public void configure(Configuration handlerConfiguration) throws ConfigurationException {
         Configuration configuration = handlerConfiguration.getChild("checkValidSenderDomain",false);
         if(configuration != null) {
-           checkValidSenderDomain = configuration.getValueAsBoolean();
+           setCheckValidSenderDomain(configuration.getValueAsBoolean(false));
            if (checkValidSenderDomain && dnsServer == null) {
                throw new ConfigurationException("checkValidSenderDomain enabled but no DNSServer service provided to SMTPServer");
            }
@@ -63,7 +63,7 @@ public class MailCmdHandler
         
         Configuration configRelay = handlerConfiguration.getChild("checkAuthClients",false);
         if(configRelay != null) {
-            checkAuthClients = configRelay.getValueAsBoolean();
+            setCheckAuthClients(configRelay.getValueAsBoolean(false));
         }
     }
     
@@ -71,7 +71,34 @@ public class MailCmdHandler
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
     public void service(ServiceManager serviceMan) throws ServiceException {
-        dnsServer = (DNSServer) serviceMan.lookup(DNSServer.ROLE);
+        setDnsServer((DNSServer) serviceMan.lookup(DNSServer.ROLE));
+    }
+    
+    /**
+     * Set the DnsServer
+     * 
+     * @param dnsServer The DnsServer
+     */
+    public void setDnsServer(DNSServer dnsServer) {
+    	this.dnsServer = dnsServer;
+    }
+    
+    /**
+     * Enable checkvalidsenderdomain feature
+     * 
+     * @param checkValidSenderDomain Set to true to enable
+     */
+    public void setCheckValidSenderDomain(boolean checkValidSenderDomain) {
+    	this.checkValidSenderDomain = checkValidSenderDomain;
+    }
+    
+    /**
+     * Enable checking of authorized clients
+     * 
+     * @param checkAuthClients Set to true to enable
+     */
+    public void setCheckAuthClients(boolean checkAuthClients) {
+    	this.checkAuthClients = checkAuthClients;
     }
     
     /**

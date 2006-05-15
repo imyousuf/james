@@ -44,13 +44,31 @@ public class AddHeaderHandler
 
         Configuration configuration = handlerConfiguration.getChild("headername", false);
         if(configuration != null) {
-            headerName = configuration.getValue();
+            setHeaderName(configuration.getValue());
         }
 
         configuration = handlerConfiguration.getChild("headervalue", false);
         if(configuration != null) {
-            headerValue = configuration.getValue();
+            setHeaderValue(configuration.getValue());
         }
+    }
+    
+    /**
+     * Set the header name
+     * 
+     * @param headerName String which represent the header name
+     */
+    public void setHeaderName(String headerName) {
+    	this.headerName = headerName;
+    }
+    
+    /**
+     * Set the header value
+     * 
+     * @param headerValue String wich represetn the header value
+     */
+    public void setHeaderValue(String headerValue) {
+    	this.headerValue = headerValue;
     }
 
     /**

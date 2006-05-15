@@ -49,19 +49,48 @@ public class RcptCmdHandler
     public void configure(Configuration handlerConfiguration) throws ConfigurationException {
         Configuration configuration = handlerConfiguration.getChild("maxRcpt",false);
         if(configuration != null) {
-           maxRcpt = configuration.getValueAsInteger();
+           setMaxRcpt(configuration.getValueAsInteger(0));
         }
         
         Configuration configTarpitRcptCount = handlerConfiguration.getChild("tarpitRcptCount",false);
         if(configTarpitRcptCount != null) {
-           tarpitRcptCount = configTarpitRcptCount.getValueAsInteger();
+           setTarpitRcptCount(configTarpitRcptCount.getValueAsInteger(0));
         }
         
         Configuration configTarpitSleepTime = handlerConfiguration.getChild("tarpitSleepTime",false);
         if(configTarpitSleepTime != null) {
-           tarpitSleepTime = configTarpitSleepTime.getValueAsLong();
+           setTarpitSleepTime(configTarpitSleepTime.getValueAsLong(5000));
         }
     }
+    
+    /**
+     * Set the max rcpt for wich should be accepted
+     *  
+     * @param maxRcpt The max rcpt count
+     */
+    public void setMaxRcpt(int maxRcpt) {
+    	this.maxRcpt = maxRcpt;
+    }
+    
+    /**
+     * Set the tarpit count after which the tarpit sleep time will be activated
+     * 
+     * @param tarpitRcptCount
+     */
+    public void setTarpitRcptCount(int tarpitRcptCount) {
+    	this.tarpitRcptCount = tarpitRcptCount;
+    }
+    
+    /**
+     * Set the tarpit sleep time 
+     * 
+     * @param tarpitSleepTime Time in milliseconds
+     */
+    public void setTarpitSleepTime(long tarpitSleepTime) {
+    	this.tarpitSleepTime = tarpitSleepTime;
+    }
+    
+    
     
     /*
      * handles RCPT command
