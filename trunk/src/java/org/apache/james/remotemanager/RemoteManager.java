@@ -17,6 +17,7 @@
 
 package org.apache.james.remotemanager;
 
+import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.excalibur.pool.ObjectFactory;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -64,6 +65,11 @@ public class RemoteManager
      * The reference to the internal MailServer service
      */
     private MailServer mailServer;
+    
+    /**
+     * There reference to the Store
+     */
+    private Store mailStore;
 
     /**
      * The configuration data to be passed to the handler
@@ -79,6 +85,8 @@ public class RemoteManager
         super.service(componentManager);
         mailServer = (MailServer)componentManager.
             lookup( MailServer.ROLE );
+        mailStore = (Store)componentManager.
+            lookup( "org.apache.avalon.cornerstone.services.store.Store" );
         usersStore = (UsersStore)componentManager.
             lookup( UsersStore.ROLE );
         users = (UsersRepository) componentManager.lookup(UsersRepository.ROLE);
@@ -171,6 +179,15 @@ public class RemoteManager
         public MailServer getMailServer() {
             return RemoteManager.this.mailServer;
         }
+        
+        /**
+         * 
+         * @see org.apache.james.remotemanager.RemoteManagerHandlerConfigurationData#getStore()
+         */
+        public Store getStore() {
+            return RemoteManager.this.mailStore;
+        }
+        
 
         /**
          * @see org.apache.james.remotemanager.RemoteManagerHandlerConfigurationData#getUsersRepository()

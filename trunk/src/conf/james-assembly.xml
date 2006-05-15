@@ -55,6 +55,7 @@
   <block name="dnsserver" class="org.apache.james.dnsserver.DNSServer" />
 
   <block name="remotemanager" class="org.apache.james.remotemanager.RemoteManager" >
+    <provide name="mailstore" role="org.apache.avalon.cornerstone.services.store.Store"/>
     <provide name="users-store" role="org.apache.james.services.UsersStore"/>
     <provide name="localusersrepository" role="org.apache.james.services.UsersRepository"/>
     <provide name="sockets"
