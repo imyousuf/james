@@ -54,12 +54,12 @@ public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler
     public void configure(Configuration handlerConfiguration) throws ConfigurationException {
         Configuration configuration = handlerConfiguration.getChild("checkValidHelo",false);
         if(configuration != null) {
-           checkValidHelo = configuration.getValueAsBoolean();
+           setCheckValidHelo(configuration.getValueAsBoolean(false));
         }
         
         Configuration configRelay = handlerConfiguration.getChild("checkAuthNetworks",false);
         if(configRelay != null) {
-            checkAuthNetworks = configRelay.getValueAsBoolean();
+            setCheckAuthNetworks(configRelay.getValueAsBoolean(false));
         }
         
     }
@@ -70,6 +70,34 @@ public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler
     public void service(ServiceManager serviceMan) throws ServiceException {
         dnsServer = (DNSServer) serviceMan.lookup(DNSServer.ROLE);
     }
+    
+    /**
+     * Set to true to enable check for valid EHLO
+     * 
+     * @param checkValidHelo Set to true for enable check
+     */
+    public void setCheckValidHelo(boolean checkValidHelo) {
+    	this.checkValidHelo = checkValidHelo;
+    }
+    
+    /**
+     * Set to true if AuthNetworks should be included in the EHLO check
+     * 
+     * @param checkAuthNetworks Set to true to enable
+     */
+    public void setCheckAuthNetworks(boolean checkAuthNetworks) {
+    	this.checkAuthNetworks = checkAuthNetworks;
+    }
+    
+    /**
+     * Set the DNSServer
+     * 
+     * @param dnsServer The DNSServer
+     */
+    public void setDnsServer(DNSServer dnsServer) {
+    	this.dnsServer = dnsServer;
+    }
+
 
        
     /*

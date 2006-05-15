@@ -110,6 +110,7 @@ public class DNSRBLHandler
     
     /**
      * Set the whitelist array
+     * 
      * @param whitelist The array which contains the whitelist
      */
     public void setWhitelist(String[] whitelist) {
@@ -118,6 +119,7 @@ public class DNSRBLHandler
     
     /**
      * Set the blacklist array
+     * 
      * @param blacklist The array which contains the blacklist
      */
     public void setBlacklist(String[] blacklist) {
@@ -126,6 +128,7 @@ public class DNSRBLHandler
     
     /**
      * Set the DNSServer
+     * 
      * @param dnsServer The DNSServer
      */
     public void setDNSServer(DNSServer dnsServer) {
@@ -133,8 +136,9 @@ public class DNSRBLHandler
     }
 
     /**
+     * Set for try to get a TXT record for the blocked record. 
      * 
-     * @param getDetail
+     * @param getDetail Set to ture for enable
      */
     public void setGetDetail(boolean getDetail) {
         this.getDetail = getDetail;
