@@ -59,7 +59,7 @@ public class AddHeaderHandler
      * @param headerName String which represent the header name
      */
     public void setHeaderName(String headerName) {
-    	this.headerName = headerName;
+        this.headerName = headerName;
     }
     
     /**
@@ -68,7 +68,7 @@ public class AddHeaderHandler
      * @param headerValue String wich represetn the header value
      */
     public void setHeaderValue(String headerValue) {
-    	this.headerValue = headerValue;
+        this.headerValue = headerValue;
     }
 
     /**

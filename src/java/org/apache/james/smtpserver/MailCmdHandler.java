@@ -80,7 +80,7 @@ public class MailCmdHandler
      * @param dnsServer The DnsServer
      */
     public void setDnsServer(DNSServer dnsServer) {
-    	this.dnsServer = dnsServer;
+        this.dnsServer = dnsServer;
     }
     
     /**
@@ -89,7 +89,7 @@ public class MailCmdHandler
      * @param checkValidSenderDomain Set to true to enable
      */
     public void setCheckValidSenderDomain(boolean checkValidSenderDomain) {
-    	this.checkValidSenderDomain = checkValidSenderDomain;
+        this.checkValidSenderDomain = checkValidSenderDomain;
     }
     
     /**
@@ -98,7 +98,7 @@ public class MailCmdHandler
      * @param checkAuthClients Set to true to enable
      */
     public void setCheckAuthClients(boolean checkAuthClients) {
-    	this.checkAuthClients = checkAuthClients;
+        this.checkAuthClients = checkAuthClients;
     }
     
     /**

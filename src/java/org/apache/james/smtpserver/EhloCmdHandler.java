@@ -77,7 +77,7 @@ public class EhloCmdHandler extends AbstractLogEnabled implements CommandHandler
      * @param checkValidEhlo Set to true for enable check
      */
     public void setCheckValidEhlo(boolean checkValidEhlo) {
-    	this.checkValidEhlo = checkValidEhlo;
+        this.checkValidEhlo = checkValidEhlo;
     }
     
     /**
@@ -86,7 +86,7 @@ public class EhloCmdHandler extends AbstractLogEnabled implements CommandHandler
      * @param checkAuthNetworks Set to true to enable
      */
     public void setCheckAuthNetworks(boolean checkAuthNetworks) {
-    	this.checkAuthNetworks = checkAuthNetworks;
+        this.checkAuthNetworks = checkAuthNetworks;
     }
     
     /**
@@ -95,7 +95,7 @@ public class EhloCmdHandler extends AbstractLogEnabled implements CommandHandler
      * @param dnsServer The DNSServer
      */
     public void setDnsServer(DNSServer dnsServer) {
-    	this.dnsServer = dnsServer;
+        this.dnsServer = dnsServer;
     }
 
     /*
