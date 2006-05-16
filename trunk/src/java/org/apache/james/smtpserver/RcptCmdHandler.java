@@ -69,7 +69,7 @@ public class RcptCmdHandler
      * @param maxRcpt The max rcpt count
      */
     public void setMaxRcpt(int maxRcpt) {
-    	this.maxRcpt = maxRcpt;
+        this.maxRcpt = maxRcpt;
     }
     
     /**
@@ -78,7 +78,7 @@ public class RcptCmdHandler
      * @param tarpitRcptCount
      */
     public void setTarpitRcptCount(int tarpitRcptCount) {
-    	this.tarpitRcptCount = tarpitRcptCount;
+        this.tarpitRcptCount = tarpitRcptCount;
     }
     
     /**
@@ -87,7 +87,7 @@ public class RcptCmdHandler
      * @param tarpitSleepTime Time in milliseconds
      */
     public void setTarpitSleepTime(long tarpitSleepTime) {
-    	this.tarpitSleepTime = tarpitSleepTime;
+        this.tarpitSleepTime = tarpitSleepTime;
     }
     
     
