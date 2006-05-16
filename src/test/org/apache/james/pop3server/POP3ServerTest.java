@@ -19,6 +19,8 @@ package org.apache.james.pop3server;
 import org.apache.avalon.cornerstone.services.sockets.SocketManager;
 import org.apache.avalon.cornerstone.services.threads.ThreadManager;
 import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.commons.net.pop3.POP3Client;
+import org.apache.commons.net.pop3.POP3MessageInfo;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageInputStreamSource;
@@ -35,18 +37,12 @@ import org.apache.james.test.util.Util;
 import org.apache.james.userrepository.MockUsersRepository;
 import org.apache.james.util.connection.SimpleConnectionManager;
 import org.apache.mailet.MailAddress;
-import org.columba.ristretto.io.Source;
-import org.columba.ristretto.pop3.POP3Exception;
-import org.columba.ristretto.pop3.POP3Protocol;
-import org.columba.ristretto.pop3.POP3Response;
-import org.columba.ristretto.pop3.ScanListEntry;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.mail.util.SharedByteArrayInputStream;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.Reader;
 import java.util.ArrayList;
 
 import junit.framework.TestCase;
@@ -64,7 +60,7 @@ public class POP3ServerTest extends TestCase {
     private POP3Server m_pop3Server;
 
     private MockUsersRepository m_usersRepository = new MockUsersRepository();
-    private POP3Protocol m_pop3Protocol = null;
+    private POP3Client m_pop3Protocol = null;
 
     public POP3ServerTest() {
         super("POP3ServerTest");
@@ -102,108 +98,76 @@ public class POP3ServerTest extends TestCase {
 
     protected void tearDown() throws Exception {
         super.tearDown();
-        if (m_pop3Protocol != null) m_pop3Protocol.quit();
+        if (m_pop3Protocol != null) {
+            m_pop3Protocol.sendCommand("quit");
+            m_pop3Protocol.disconnect();
+        }
         m_pop3Server.dispose();
     }
 
-    public void testAuthenticationFail() throws Exception, POP3Exception {
+    public void testAuthenticationFail() throws Exception {
         finishSetUp(m_testConfiguration);
-
-        m_pop3Protocol = new POP3Protocol("127.0.0.1",
-                m_pop3ListenerPort);
-        m_pop3Protocol.openPort();
+        
+        m_pop3Protocol = new POP3Client();
+        m_pop3Protocol.connect("127.0.0.1", m_pop3ListenerPort);
 
         m_usersRepository.addUser("known", "test2");
 
-        int res = 0;
-        try {
-            m_pop3Protocol.userPass("known", "test".toCharArray());
-        } catch (POP3Exception e) {
-            res = e.getResponse().getType();
-        }
-
-        assertEquals(-1, res);
+        m_pop3Protocol.login("known", "test");
+        assertEquals(0, m_pop3Protocol.getState());
+        assertTrue(m_pop3Protocol.getReplyString().startsWith("-ERR"));
     }
 
-    public void testUnknownUser() throws Exception, POP3Exception {
+    public void testUnknownUser() throws Exception {
         finishSetUp(m_testConfiguration);
 
-        m_pop3Protocol = new POP3Protocol("127.0.0.1",
-                m_pop3ListenerPort);
-        m_pop3Protocol.openPort();
+        m_pop3Protocol = new POP3Client();
+        m_pop3Protocol.connect("127.0.0.1", m_pop3ListenerPort);
 
-        int res = 0;
-        try {
-            m_pop3Protocol.userPass("unknown", "test".toCharArray());
-        } catch (POP3Exception e) {
-            res = e.getResponse().getType();
-        }
-
-        assertEquals(-1, res);
+        m_pop3Protocol.login("unknown", "test");
+        assertEquals(0, m_pop3Protocol.getState());
+        assertTrue(m_pop3Protocol.getReplyString().startsWith("-ERR"));
     }
 
-    public void testKnownUserEmptyInbox() throws Exception, POP3Exception {
+    public void testKnownUserEmptyInbox() throws Exception {
         finishSetUp(m_testConfiguration);
 
-        m_pop3Protocol = new POP3Protocol("127.0.0.1",
-                m_pop3ListenerPort);
-        m_pop3Protocol.openPort();
+        m_pop3Protocol = new POP3Client();
+        m_pop3Protocol.connect("127.0.0.1",m_pop3ListenerPort);
 
         m_usersRepository.addUser("foo", "bar");
         m_mailServer.setUserInbox("foo", new MockMailRepository());
 
-        int res = 0;
+        m_pop3Protocol.login("foo", "bar");
+        System.err.println(m_pop3Protocol.getState());
+        assertEquals(1, m_pop3Protocol.getState());
 
-        try {
-            m_pop3Protocol.userPass("foo", "bar".toCharArray());
-        } catch (POP3Exception e) {
-            res = e.getResponse().getType();
-            fail("pass failed");
-        }
-
-        assertEquals(0, res);
-
-        res = 0;
-        ScanListEntry[] entries = null;
-        try {
-            entries = m_pop3Protocol.list();
-        } catch (POP3Exception e) {
-            res = e.getResponse().getType();
-        }
+        POP3MessageInfo[] entries = entries = m_pop3Protocol.listMessages();
+        assertEquals(1, m_pop3Protocol.getState());
 
         assertNotNull(entries);
         assertEquals(entries.length, 0);
-        assertEquals(res, 0);
     }
 
-    public void testNotAsciiCharsInPassword() throws Exception, POP3Exception {
+    public void testNotAsciiCharsInPassword() throws Exception {
         finishSetUp(m_testConfiguration);
 
-        m_pop3Protocol = new POP3Protocol("127.0.0.1",
-                m_pop3ListenerPort);
-        m_pop3Protocol.openPort();
+        m_pop3Protocol = new POP3Client();
+        m_pop3Protocol.connect("127.0.0.1",m_pop3ListenerPort);
 
         String pass = "bar" + (new String(new char[] { 200, 210 })) + "foo";
         m_usersRepository.addUser("foo", pass);
         m_mailServer.setUserInbox("foo", new MockMailRepository());
 
-        int res = 0;
-        try {
-            m_pop3Protocol.userPass("foo", pass.toCharArray());
-        } catch (POP3Exception e) {
-            res = e.getResponse() != null ? e.getResponse().getType() : -1;
-        }
-
-        assertEquals(0, res);
+        m_pop3Protocol.login("foo", pass);
+        assertEquals(1, m_pop3Protocol.getState());
     }
 
-    public void testKnownUserInboxWithMessages() throws Exception,
-            POP3Exception {
+    public void testKnownUserInboxWithMessages() throws Exception {
         finishSetUp(m_testConfiguration);
 
-        m_pop3Protocol = new POP3Protocol("127.0.0.1",
-                m_pop3ListenerPort);
-        m_pop3Protocol.openPort();
+        m_pop3Protocol = new POP3Client();
+        m_pop3Protocol.connect("127.0.0.1",m_pop3ListenerPort);
 
         m_usersRepository.addUser("foo2", "bar2");
         MockMailRepository mailRep = new MockMailRepository();
@@ -212,102 +176,51 @@ public class POP3ServerTest extends TestCase {
 
         m_mailServer.setUserInbox("foo2", mailRep);
 
-        int res = 0;
-        try {
-            m_pop3Protocol.userPass("foo2", "bar2".toCharArray());
-        } catch (POP3Exception e) {
-            res = e.getResponse().getType();
-        }
+        m_pop3Protocol.login("foo2", "bar2");
+        assertEquals(1, m_pop3Protocol.getState());
 
-        assertEquals(0, res);
-
-        res = 0;
-        ScanListEntry[] entries = null;
-        try {
-            entries = m_pop3Protocol.list();
-        } catch (POP3Exception e) {
-            res = e.getResponse().getType();
-        }
+        POP3MessageInfo[] entries = m_pop3Protocol.listMessages();
 
         assertNotNull(entries);
         assertEquals(2, entries.length);
-        assertEquals(res, 0);
+        assertEquals(1, m_pop3Protocol.getState());
 
-        Source i = null;
-        try {
-            i = m_pop3Protocol.top(entries[0].getIndex(), 0);
-        } catch (POP3Exception e) {
-            res = e.getResponse().getType();
-        }
+        Reader r = m_pop3Protocol.retrieveMessageTop(entries[0].number, 0);
+        assertNotNull(r);
+        r.close();
 
-        assertNotNull(i);
-        i.close();
+        Reader r2 = m_pop3Protocol.retrieveMessage(entries[0].number);
+        assertNotNull(r2);
+        r2.close();
 
-        InputStream i2 = null;
-        try {
-            i2 = m_pop3Protocol.retr(entries[0].getIndex());
-        } catch (POP3Exception e) {
-            res = e.getResponse().getType();
-        }
-
-        assertNotNull(i2);
-
-        i2.close();
-
-        boolean deleted = false;
-        try {
-            deleted = m_pop3Protocol.dele(entries[0].getIndex());
-        } catch (POP3Exception e) {
-            res = e.getResponse().getType();
-        }
+        boolean deleted = m_pop3Protocol.deleteMessage(entries[0].number);
 
         assertTrue(deleted);
-        assertEquals(res, 0);
+        assertEquals(1, m_pop3Protocol.getState());
 
-        m_pop3Protocol.quit();
+        m_pop3Protocol.sendCommand("quit");
+        m_pop3Protocol.disconnect();
 
-        m_pop3Protocol.openPort();
+        m_pop3Protocol.connect("127.0.0.1",m_pop3ListenerPort);
 
-        res = 0;
-        try {
-            m_pop3Protocol.userPass("foo2", "bar2".toCharArray());
-        } catch (POP3Exception e) {
-            res = e.getResponse().getType();
-        }
+        m_pop3Protocol.login("foo2", "bar2");
+        assertEquals(1, m_pop3Protocol.getState());
 
-        assertEquals(0, res);
-
-        res = 0;
         entries = null;
 
-        try {
-            int[] stats = m_pop3Protocol.stat();
-            assertEquals(2, stats.length);
-            assertEquals(1, stats[0]);
-            assertEquals(92, stats[1]);
-        } catch (POP3Exception e) {
-            fail("stat failed");
-        }
+        POP3MessageInfo stats = m_pop3Protocol.status();
+        assertEquals(92, stats.size);
+        assertEquals(1, stats.number);
 
-        try {
-            entries = m_pop3Protocol.list();
-        } catch (POP3Exception e) {
-            res = e.getResponse().getType();
-        } finally {
-            assertNotNull(entries);
-            assertEquals(1, entries.length);
-            assertEquals(res, 0);
-        }
+        entries = m_pop3Protocol.listMessages();
 
-        i = null;
-        try {
-            i = m_pop3Protocol.top(entries[0].getIndex(), 0);
-        } catch (POP3Exception e) {
-            res = e.getResponse().getType();
-        } finally {
-            assertNotNull(i);
-            i.close();
-        }
+        assertNotNull(entries);
+        assertEquals(1, entries.length);
+        assertEquals(1, m_pop3Protocol.getState());
+
+        Reader r3 = m_pop3Protocol.retrieveMessageTop(entries[0].number, 0);
+        assertNotNull(r3);
+        r3.close();
     }
 
     private void setupTestMails(MockMailRepository mailRep) throws MessagingException {
@@ -346,69 +259,35 @@ public class POP3ServerTest extends TestCase {
         //do not setupTestMails, this is done later
         m_mailServer.setUserInbox("foo2", mailRep2);
 
-        POP3Protocol pop3Protocol2 = null;
+        POP3Client pop3Protocol2 = null;
         try {
             // open two connections
-            m_pop3Protocol = new POP3Protocol("127.0.0.1",
-                    m_pop3ListenerPort);
-            pop3Protocol2 = new POP3Protocol("127.0.0.1",
-                    m_pop3ListenerPort);
-            m_pop3Protocol.openPort();
-            pop3Protocol2.openPort();
+            m_pop3Protocol = new POP3Client();
+            m_pop3Protocol.connect("127.0.0.1", m_pop3ListenerPort);
+            pop3Protocol2 = new POP3Client();
+            pop3Protocol2.connect("127.0.0.1", m_pop3ListenerPort);
 
-            assertEquals("first connection taken", 1, m_pop3Protocol.getState());
-            assertEquals("second connection taken", 1, pop3Protocol2.getState());
+            assertEquals("first connection taken", 0, m_pop3Protocol.getState());
+            assertEquals("second connection taken", 0, pop3Protocol2.getState());
 
             // open two accounts
-            try {
-                m_pop3Protocol.userPass("foo1", "bar1".toCharArray());
-            } catch (POP3Exception e) {
-                e.getResponse().getType();
-            }
+            m_pop3Protocol.login("foo1", "bar1");
 
-            try {
-                pop3Protocol2.userPass("foo2", "bar2".toCharArray());
-            } catch (POP3Exception e) {
-                e.getResponse().getType();
-            }
+            pop3Protocol2.login("foo2", "bar2");
 
-            ScanListEntry[] entries = null;
-            try {
-                entries = m_pop3Protocol.list();
-                assertEquals("foo1 has mails", 2, entries.length);
-            } catch (POP3Exception e) {
-                e.getResponse().getType();
-            }
+            POP3MessageInfo[] entries = m_pop3Protocol.listMessages();
+            assertEquals("foo1 has mails", 2, entries.length);
 
-            try {
-                entries = pop3Protocol2.list();
-                assertEquals("foo2 has no mails", 0, entries.length);
-            } catch (POP3Exception e) {
-                e.getResponse().getType();
-            }
+            entries = pop3Protocol2.listMessages();
+            assertEquals("foo2 has no mails", 0, entries.length);
+
         } finally {
             // put both to rest, field var is handled by tearDown()
-            if (pop3Protocol2 != null) pop3Protocol2.quit();
+            if (pop3Protocol2 != null) {
+                pop3Protocol2.sendCommand("quit");
+                pop3Protocol2.disconnect();
+            }
         }
     }
 
-}
-
-class MyPOP3Protocol extends POP3Protocol {
-
-    public MyPOP3Protocol(String s, int i) {
-        super(s, i);
-    }
-
-    public MyPOP3Protocol(String s) {
-        super(s);
-    }
-
-    public void sendCommand(String string, String[] strings) throws IOException {
-        super.sendCommand(string, strings);
-    }
-
-    public POP3Response getResponse() throws IOException, POP3Exception {
-        return super.readSingleLineResponse();
-    }
 }
