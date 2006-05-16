@@ -765,7 +765,6 @@ Legal:
         <path id="unittest.class.path">
           <pathelement location="tools/lib/optional.jar"/>
           <pathelement location="tools/lib/junit.jar"/>
-          <pathelement location="tools/lib/ristretto-1.0-all.jar"/>
           <pathelement location="tools/lib/commons-net-1.4.1.jar"/>
           <fileset dir="${lib.dir}">
             <include name="*.jar"/>
