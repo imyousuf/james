@@ -26,7 +26,7 @@ import org.apache.james.test.util.Util;
 public class SMTPTestConfiguration extends DefaultConfiguration {
 
     private int m_smtpListenerPort;
-    private int m_maxMessageSize = 0;
+    private int m_maxMessageSizeKB = 0;
     private String m_authorizedAddresses = "127.0.0.0/8";
     private String m_authorizingMode = "false";
     private boolean m_verifyIdentity = false;
@@ -53,11 +53,11 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
 
     public void setMaxMessageSize(int kilobytes)
     {
-        m_maxMessageSize = kilobytes;
+        m_maxMessageSizeKB = kilobytes;
     }
     
     public int getMaxMessageSize() {
-        return m_maxMessageSize;
+        return m_maxMessageSizeKB;
     }
 
     public String getAuthorizedAddresses() {
@@ -122,7 +122,7 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
         handlerConfig.addChild(Util.getValuedConfiguration("helloName", "myMailServer"));
         handlerConfig.addChild(Util.getValuedConfiguration("connectiontimeout", "360000"));
         handlerConfig.addChild(Util.getValuedConfiguration("authorizedAddresses", m_authorizedAddresses));
-        handlerConfig.addChild(Util.getValuedConfiguration("maxmessagesize", "" + m_maxMessageSize));
+        handlerConfig.addChild(Util.getValuedConfiguration("maxmessagesize", "" + m_maxMessageSizeKB));
         handlerConfig.addChild(Util.getValuedConfiguration("authRequired", m_authorizingMode));
         handlerConfig.addChild(Util.getValuedConfiguration("heloEhloEnforcement", m_heloEhloEnforcement+""));
         if (m_verifyIdentity) handlerConfig.addChild(Util.getValuedConfiguration("verifyIdentity", "" + m_verifyIdentity));

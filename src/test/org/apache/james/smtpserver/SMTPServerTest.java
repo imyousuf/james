@@ -107,7 +107,7 @@ public class SMTPServerTest extends TestCase {
         testConfiguration.init();
         ContainerUtil.configure(m_smtpServer, testConfiguration);
         ContainerUtil.initialize(m_smtpServer);
-        m_mailServer.setMaxMessageSizeBytes(m_testConfiguration.getMaxMessageSize());
+        m_mailServer.setMaxMessageSizeBytes(m_testConfiguration.getMaxMessageSize()*1024);
     }
 
     private MockServiceManager setUpServiceManager() throws Exception {
