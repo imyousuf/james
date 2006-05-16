@@ -28,9 +28,11 @@ import org.apache.james.userrepository.DefaultUser;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.Mail;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
+import org.apache.avalon.framework.service.ServiceException;
 
 
 import javax.mail.internet.ParseException;
+import javax.mail.MessagingException;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -900,14 +902,7 @@ public class RemoteManagerHandler
 
         SpoolRepository spoolRepository;
         try {
-            // Setup all needed data
-            DefaultConfiguration spoolConf = new DefaultConfiguration("spool",
-                    "generated:RemoteManager.java");
-            spoolConf.setAttribute("destinationURL", url);
-            spoolConf.setAttribute("type", "SPOOL");
-
-            spoolRepository = (SpoolRepository) theConfigData.getStore()
-                    .select(spoolConf);
+            spoolRepository = getSpoolRepository(url);
 
             // get an iterator of all keys
             Iterator spoolR = spoolRepository.list();
@@ -920,7 +915,7 @@ public class RemoteManagerHandler
 
                 // Only show email if its in error state.
                 if (m.getState().equals(Mail.ERROR)) {
-                    out.print("k: " + key + " s: " + m.getSender() + " r:");
+                    out.print("key: " + key + " sender: " + m.getSender() + " recipient:");
                     for (int i = 0; i < m.getRecipients().size(); i++) {
                         out.print(" " + m.getRecipients());
                     }
@@ -935,7 +930,7 @@ public class RemoteManagerHandler
             out.println("Error opening the spoolrepository " + e.getMessage());
             out.flush();
             getLogger().error(
-                    "Error opeing the spoolrepository " + e.getMessage());
+                    "Error opening the spoolrepository " + e.getMessage());
         }
         return true;
     }
@@ -959,46 +954,15 @@ public class RemoteManagerHandler
         }
 
         SpoolRepository spoolRepository;
+        String url = args[0];
         try {
 
-            // Setup all needed data
-            DefaultConfiguration spoolConf = new DefaultConfiguration("spool",
-                    "generated:RemoteManager.java");
-            spoolConf.setAttribute("destinationURL", args[0]);
-            spoolConf.setAttribute("type", "SPOOL");
-
-            spoolRepository = (SpoolRepository) theConfigData.getStore()
-                    .select(spoolConf);
+            spoolRepository = getSpoolRepository(url);
 
             // check if an key was given as argument
             if (args.length == 2) {
                 String key = args[1];
-                if (spoolRepository.lock(key)) {
-
-                    // get the mail and set the error_message to "0" that will force the spoolmanager to try to deliver it now!
-                    Mail m = spoolRepository.retrieve(key);
-
-                    if (m.getState().equals(Mail.ERROR)) {
-                        m.setErrorMessage(0 + "");
-                        m.setLastUpdated(new Date());
-
-                        // store changes
-                        spoolRepository.store(m);
-                        spoolRepository.unlock(key);
-
-                        synchronized (spoolRepository) {
-                            spoolRepository.notify();
-                        }
-                        count++;
-                    } else {
-                        out.println("The mail with key " + key
-                                + " is not in error state!");
-                        out.flush();
-                    }
-                } else {
-                    out.println("Error locking the mail with key:  " + key);
-                    out.flush();
-                }
+                if (resendErrorMail(spoolRepository, key)) count++;
 
             } else {
                 // get an iterator of all keys
@@ -1006,112 +970,97 @@ public class RemoteManagerHandler
 
                 while (spoolR.hasNext()) {
                     String key = spoolR.next().toString();
-
-                    if (spoolRepository.lock(key)) {
-                        // get the mail and set the error_message to "0" that will force the spoolmanager to try to deliver it now!
-                        Mail m = spoolRepository.retrieve(key);
-
-                        if (m.getState().equals(Mail.ERROR)) {
-                            m.setErrorMessage(0 + "");
-                            m.setLastUpdated(new Date());
-
-                            // store changes
-                            spoolRepository.store(m);
-                            spoolRepository.unlock(key);
-
-                            synchronized (spoolRepository) {
-                                spoolRepository.notify();
-                            }
-                            count++;
-                        }
-                    } else {
-                        out.println("Error locking the mail with key:  " + key);
-                        out.flush();
-                    }
+                    if (resendErrorMail(spoolRepository, key)) count++;
                 }
             }
             out.println("Number of flushed mails: " + count);
             out.flush();
 
         } catch (Exception e) {
-            out.println("Error opening the spoolrepository " + e.getMessage());
+            out.println("Error accessing the spoolrepository " + e.getMessage());
             out.flush();
             getLogger().error(
-                    "Error opeing the spoolrepository " + e.getMessage());
+                    "Error accessing the spoolrepository " + e.getMessage());
         }
         return true;
     }
-    
-        /**
-         * Handler method called upon receipt of a DELETESPOOL command. Returns
-         * whether further commands should be read off the wire.
-         * 
-         * @param argument
-         *            the argument passed in with the command
-         */
+
+    /**
+     * Resent the mail that belongs to the given key and spoolRepository 
+     * 
+     * @param spoolRepository The spoolRepository
+     * @param key The message key
+     * @return true orf false
+     * @throws MessagingException Get thrown if there happen an error on modify the mail
+     */
+    private boolean resendErrorMail(SpoolRepository spoolRepository, String key) throws MessagingException {
+        if (spoolRepository.lock(key)) {
+
+            // get the mail and set the error_message to "0" that will force the spoolmanager to try to deliver it now!
+            Mail m = spoolRepository.retrieve(key);
+
+            if (m.getState().equals(Mail.ERROR)) {
+                m.setErrorMessage(0 + "");
+                m.setLastUpdated(new Date());
+
+                // store changes
+                spoolRepository.store(m);
+                spoolRepository.unlock(key);
+
+                synchronized (spoolRepository) {
+                    spoolRepository.notify();
+                }
+                return true;
+            } else {
+                out.println("The mail with key " + key
+                        + " is not in error state!");
+                out.flush();
+            }
+        } else {
+            out.println("Error locking the mail with key:  " + key);
+            out.flush();
+        }
+        return false;
+    }
+
+    /**
+     * Handler method called upon receipt of a DELETESPOOL command. Returns
+     * whether further commands should be read off the wire.
+     * 
+     * @param argument
+     *            the argument passed in with the command
+     */
     private boolean doDELETESPOOL(String argument) {
-        int count = 0;     
+        int count = 0;
         String[] args = null;
 
-        if (argument != null ) args = argument.split(" ");
+        if (argument != null)
+            args = argument.split(" ");
 
         // check if the command was called correct
-        if ((argument == null || argument.trim().equals("")) || (args.length < 1 || args.length > 2)) {
+        if ((argument == null || argument.trim().equals(""))
+                || (args.length < 1 || args.length > 2)) {
             writeLoggedFlushedResponse("Usage: DELETESPOOL [spoolrepositoryname] ([key])");
             return true;
         }
 
         SpoolRepository spoolRepository;
+        String url = args[0];
         try {
-            // Setup all needed data
-            DefaultConfiguration spoolConf = new DefaultConfiguration("spool",
-                    "generated:RemoteManager.java");
-            spoolConf.setAttribute("destinationURL", args[0]);
-            spoolConf.setAttribute("type", "SPOOL");
-
-            spoolRepository = (SpoolRepository) theConfigData.getStore()
-                    .select(spoolConf);
+            spoolRepository = getSpoolRepository(url);
 
             if (args.length == 2) {
                 String key = args[1];
-                if (spoolRepository.lock(key)) {
-
-                    // remove the mail
-                    spoolRepository.remove(key);
-                    spoolRepository.unlock(key);
-
-                    synchronized (spoolRepository) {
-                        spoolRepository.notify();
-                    }
+                if (removeMail(spoolRepository, key))
                     count++;
-                } else {
-                    out.println("Error locking the mail with key:  " + key);
-                    out.flush();
-                }
-
             } else {
                 Iterator spoolR = spoolRepository.list();
 
                 while (spoolR.hasNext()) {
                     String key = spoolR.next().toString();
 
-                    if (spoolRepository.lock(key)) {
-
-                        Mail m = spoolRepository.retrieve(key);
-                        if (m.getState().equals(Mail.ERROR)) {
-
-                            spoolRepository.remove(key);
-                            spoolRepository.unlock(key);
-
-                            synchronized (spoolRepository) {
-                                spoolRepository.notify();
-                            }
-                            count++;
-                        }
-                    } else {
-                        out.println("Error locking the mail with key:  " + key);
-                        out.flush();
-                    }
+                    if (removeMail(spoolRepository, key))
+                        count++;
                 }
             }
             out.println("Number of deleted mails: " + count);
@@ -1125,7 +1074,55 @@ public class RemoteManagerHandler
         }
         return true;
     }
-    
+
+    /**
+     * Remove the mail that belongs to the given key and spoolRepository 
+     * @param spoolRepository The spoolRepository
+     * @param key The message key
+     * @return true or false
+     * @throws MessagingException Get thrown if there happen an error on modify the mail
+     */
+    private boolean removeMail(SpoolRepository spoolRepository, String key) throws MessagingException {
+        if (spoolRepository.lock(key)) {
+
+            Mail m = spoolRepository.retrieve(key);
+            if (m.getState().equals(Mail.ERROR)) {
+
+                spoolRepository.remove(key);
+                spoolRepository.unlock(key);
+
+                synchronized (spoolRepository) {
+                    spoolRepository.notify();
+                }
+                return true;
+            }
+        } else {
+            out.println("Error locking the mail with key:  " + key);
+            out.flush();
+        }
+        return false;
+    }
+
+    /**
+     * Retrieve a spoolRepository by the given url
+     * 
+     * @param url The spoolRepository url
+     * @return The spoolRepository
+     * @throws ServiceException Get thrown if the spoolRepository can not retrieved
+     */
+    private SpoolRepository getSpoolRepository(String url) throws ServiceException {
+        SpoolRepository spoolRepository;
+        // Setup all needed data
+        DefaultConfiguration spoolConf = new DefaultConfiguration("spool",
+                "generated:RemoteManager.java");
+        spoolConf.setAttribute("destinationURL", url);
+        spoolConf.setAttribute("type", "SPOOL");
+
+        spoolRepository = (SpoolRepository) theConfigData.getStore()
+                .select(spoolConf);
+        return spoolRepository;
+    }
+
 
     /**
      * Handler method called upon receipt of a QUIT command. Returns whether
