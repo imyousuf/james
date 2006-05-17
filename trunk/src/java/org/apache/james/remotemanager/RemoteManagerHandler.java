@@ -915,7 +915,8 @@ public class RemoteManagerHandler
 
                 // Only show email if its in error state.
                 if (m.getState().equals(Mail.ERROR)) {
-                    out.print("key: " + key + " sender: " + m.getSender() + " recipient:");
+                    out.print("key: " + key + " sender: " + m.getSender()
+                            + " recipient:");
                     for (int i = 0; i < m.getRecipients().size(); i++) {
                         out.print(" " + m.getRecipients());
                     }
@@ -945,10 +946,12 @@ public class RemoteManagerHandler
         int count = 0;
         String[] args = null;
 
-        if (argument != null ) args = argument.split(" ");
-        
+        if (argument != null)
+            args = argument.split(" ");
+
         // check if the command was called correct
-        if ((argument == null || argument.trim().equals("")) || (args.length < 1 || args.length > 2 )) {
+        if ((argument == null || argument.trim().equals(""))
+                || (args.length < 1 || args.length > 2)) {
             writeLoggedFlushedResponse("Usage: FLUSHSPOOL [spoolrepositoryname] ([key])");
             return true;
         }
@@ -962,7 +965,8 @@ public class RemoteManagerHandler
             // check if an key was given as argument
             if (args.length == 2) {
                 String key = args[1];
-                if (resendErrorMail(spoolRepository, key)) count++;
+                if (resendErrorMail(spoolRepository, key))
+                    count++;
 
             } else {
                 // get an iterator of all keys
@@ -970,14 +974,17 @@ public class RemoteManagerHandler
 
                 while (spoolR.hasNext()) {
                     String key = spoolR.next().toString();
-                    if (resendErrorMail(spoolRepository, key)) count++;
+                    if (resendErrorMail(spoolRepository, key))
+                        count++;
                 }
             }
             out.println("Number of flushed mails: " + count);
             out.flush();
 
         } catch (Exception e) {
-            out.println("Error accessing the spoolrepository " + e.getMessage());
+            out
+                    .println("Error accessing the spoolrepository "
+                            + e.getMessage());
             out.flush();
             getLogger().error(
                     "Error accessing the spoolrepository " + e.getMessage());
@@ -993,7 +1000,8 @@ public class RemoteManagerHandler
      * @return true orf false
      * @throws MessagingException Get thrown if there happen an error on modify the mail
      */
-    private boolean resendErrorMail(SpoolRepository spoolRepository, String key) throws MessagingException {
+    private boolean resendErrorMail(SpoolRepository spoolRepository, String key)
+            throws MessagingException {
         if (spoolRepository.lock(key)) {
 
             // get the mail and set the error_message to "0" that will force the spoolmanager to try to deliver it now!
@@ -1012,6 +1020,9 @@ public class RemoteManagerHandler
                 }
                 return true;
             } else {
+
+                spoolRepository.unlock(key);
+
                 out.println("The mail with key " + key
                         + " is not in error state!");
                 out.flush();
@@ -1082,18 +1093,14 @@ public class RemoteManagerHandler
      * @return true or false
      * @throws MessagingException Get thrown if there happen an error on modify the mail
      */
-    private boolean removeMail(SpoolRepository spoolRepository, String key) throws MessagingException {
+    private boolean removeMail(SpoolRepository spoolRepository, String key)
+            throws MessagingException {
         if (spoolRepository.lock(key)) {
 
             Mail m = spoolRepository.retrieve(key);
             if (m.getState().equals(Mail.ERROR)) {
 
                 spoolRepository.remove(key);
-                spoolRepository.unlock(key);
-
-                synchronized (spoolRepository) {
-                    spoolRepository.notify();
-                }
                 return true;
             }
         } else {
@@ -1110,7 +1117,8 @@ public class RemoteManagerHandler
      * @return The spoolRepository
      * @throws ServiceException Get thrown if the spoolRepository can not retrieved
      */
-    private SpoolRepository getSpoolRepository(String url) throws ServiceException {
+    private SpoolRepository getSpoolRepository(String url)
+            throws ServiceException {
         SpoolRepository spoolRepository;
         // Setup all needed data
         DefaultConfiguration spoolConf = new DefaultConfiguration("spool",
@@ -1118,8 +1126,8 @@ public class RemoteManagerHandler
         spoolConf.setAttribute("destinationURL", url);
         spoolConf.setAttribute("type", "SPOOL");
 
-        spoolRepository = (SpoolRepository) theConfigData.getStore()
-                .select(spoolConf);
+        spoolRepository = (SpoolRepository) theConfigData.getStore().select(
+                spoolConf);
         return spoolRepository;
     }
 
