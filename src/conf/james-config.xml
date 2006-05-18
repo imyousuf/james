@@ -724,7 +724,7 @@
             <handler command="HELO" class="org.apache.james.smtpserver.HeloCmdHandler">
                 <!-- If is set to true helo is only accepted if it can be resolved -->
                 <!--
-                <checkValidHelo> false </checkValidHelo>
+                <checkResolvableHelo> false </checkResolvableHelo>
                 -->
                 
                 <!-- If is set to true sender domain will be checked also for clients that -->
@@ -736,7 +736,7 @@
             <handler command="EHLO" class="org.apache.james.smtpserver.EhloCmdHandler">
                 <!-- If is set to true ehlo is only accepted if it can be resolved -->
                 <!--
-                <checkValidEhlo> false </checkValidEhlo>
+                <checkResolvableEhlo> false </checkResolvableEhlo>
                 -->
                 
                 <!-- If is set to true sender domain will be checked also for clients that -->
