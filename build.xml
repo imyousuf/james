@@ -206,6 +206,25 @@ Legal:
           <include name="phoenix.sh"/>
         </fileset>
       </chmod>
+    	
+      <!--
+      ===================================================================
+      Copy files, set permissions and line feeds for sendmail wrapper
+      ===================================================================
+      -->
+    	
+      <copy todir="${dist.bin}">
+        <fileset dir="./src/python/">
+          <include name="sendmail.py"/>
+        </fileset>
+      </copy>
+      
+      <fixcrlf srcdir="${dist.bin}" includes="sendmail.py" eol="lf"/>
+      <chmod perm="+x">
+        <fileset dir="${dist.bin}">
+            <include name="sendmail.py"/>
+        </fileset>
+      </chmod>
 
     </target>
 
