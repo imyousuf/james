@@ -136,10 +136,10 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
                 String cmd = ((DefaultConfiguration) heloConfig[i]).getAttribute("command",null);
                 if (cmd != null) {
                     if ("HELO".equals(cmd)) {
-                        ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkValidHelo",m_heloResolv+""));
+                        ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkResolvableHelo",m_heloResolv+""));
                         ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkAuthNetworks",m_checkAuthNetworks+""));
                     } else if ("EHLO".equals(cmd)) {
-                        ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkValidEhlo",m_ehloResolv+""));
+                        ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkResolvableEhlo",m_ehloResolv+""));
                         ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkAuthNetworks",m_checkAuthNetworks+""));
                     } else if ("MAIL".equals(cmd)) {
                         ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkValidSenderDomain",m_senderDomainResolv+""));

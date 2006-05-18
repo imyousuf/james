@@ -37,9 +37,9 @@ public class EhloCmdHandler extends AbstractLogEnabled implements CommandHandler
     private final static String COMMAND_NAME = "EHLO";
 
     /**
-     * set checkValidHelo to false as default value
+     * set checkResolvableEhlo to false as default value
      */
-    private boolean checkValidEhlo = false;
+    private boolean checkResolvableEhlo = false;
     
     private boolean checkAuthNetworks = false;
     
@@ -47,9 +47,9 @@ public class EhloCmdHandler extends AbstractLogEnabled implements CommandHandler
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
     public void configure(Configuration handlerConfiguration) throws ConfigurationException {
-        Configuration configuration = handlerConfiguration.getChild("checkValidEhlo",false);
+        Configuration configuration = handlerConfiguration.getChild("checkResolvableEhlo",false);
         if(configuration != null) {
-           checkValidEhlo = configuration.getValueAsBoolean();
+            checkResolvableEhlo = configuration.getValueAsBoolean();
         }
         
         Configuration configRelay = handlerConfiguration.getChild("checkAuthNetworks",false);
@@ -80,8 +80,8 @@ public class EhloCmdHandler extends AbstractLogEnabled implements CommandHandler
         StringBuffer responseBuffer = session.getResponseBuffer();
         boolean badEhlo = false;
         
-        // check for helo if its set in config
-        if (checkValidEhlo) {
+        // check for resolvabe helo if its set in config
+        if (checkResolvableEhlo) {
             
             /**
              * don't check if the ip address is allowed to relay. Only check if it is set in the config. ed.
