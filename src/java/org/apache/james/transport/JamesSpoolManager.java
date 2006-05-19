@@ -323,7 +323,10 @@ public class JamesSpoolManager
                     // spool.remove() has a side-effect!  It unlocks the
                     // message so that other threads can work on it!  If
                     // we don't remove it, we must unlock it!
+                    spool.store(mail);
                     spool.unlock(key);
+                    // Do not notify: we simply updated the current mail
+                    // and we are able to reprocess it now.
                 }
                 mail = null;
             } catch (InterruptedException ie) {
