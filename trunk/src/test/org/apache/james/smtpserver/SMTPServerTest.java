@@ -149,6 +149,8 @@ public class SMTPServerTest extends TestCase {
 
             public InetAddress getByName(String host) throws UnknownHostException
             {
+            	if ("127.0.0.1".equals(host)) return InetAddress.getByName("james.apache.org");
+            	
                 return InetAddress.getByName(host);
 //                throw new UnsupportedOperationException("getByName not implemented in mock for host: "+host);
             }
@@ -374,6 +376,35 @@ public class SMTPServerTest extends TestCase {
         smtpProtocol1.quit();
     }
     
+    public void testReverseEqualsHelo() throws Exception {
+        m_testConfiguration.setReverseEqualsHelo();
+        m_testConfiguration.setAuthorizedAddresses("192.168.0.1");
+        finishSetUp(m_testConfiguration);
+
+        SMTPClient smtpProtocol1 = new SMTPClient();
+        smtpProtocol1.connect("127.0.0.1", m_smtpListenerPort);
+
+        assertTrue("first connection taken", smtpProtocol1.isConnected());
+
+        // no message there, yet
+        assertNull("no mail received by mail server", m_mailServer
+                .getLastMail());
+
+        String helo1 = "abgsfe3rsf.de";
+        String helo2 = "james.apache.org";
+
+        smtpProtocol1.sendCommand("helo", helo1);
+        // this should give a 501 code cause the helo not equal reverse of ip
+        assertEquals("expected error: helo not equals reverse of ip", 501,
+                smtpProtocol1.getReplyCode());
+
+        smtpProtocol1.sendCommand("helo", helo2);
+        // helo is resolvable. so this should give a 250 code
+        assertEquals("Helo accepted", 250, smtpProtocol1.getReplyCode());
+
+        smtpProtocol1.quit();
+    }
+    
     public void testSenderDomainResolv() throws Exception {
         m_testConfiguration.setSenderDomainResolv();
         m_testConfiguration.setAuthorizedAddresses("192.168.0.1/32");
@@ -590,6 +621,35 @@ public class SMTPServerTest extends TestCase {
         // this should give a 501 code cause the ehlo could not resolved
         assertEquals("expected error: ehlo could not resolved", 501, smtpProtocol1.getReplyCode());
             
+        smtpProtocol1.sendCommand("ehlo", ehlo2);
+        // ehlo is resolvable. so this should give a 250 code
+        assertEquals("ehlo accepted", 250, smtpProtocol1.getReplyCode());
+
+        smtpProtocol1.quit();
+    }
+    
+    public void testReverseEqualsEhlo() throws Exception {
+        m_testConfiguration.setReverseEqualsEhlo();
+        m_testConfiguration.setAuthorizedAddresses("192.168.0.1");
+        finishSetUp(m_testConfiguration);
+
+        SMTPClient smtpProtocol1 = new SMTPClient();
+        smtpProtocol1.connect("127.0.0.1", m_smtpListenerPort);
+
+        assertTrue("first connection taken", smtpProtocol1.isConnected());
+
+        // no message there, yet
+        assertNull("no mail received by mail server", m_mailServer
+                .getLastMail());
+
+        String ehlo1 = "abgsfe3rsf.de";
+        String ehlo2 = "james.apache.org";
+
+        smtpProtocol1.sendCommand("ehlo", ehlo1);
+        // this should give a 501 code cause the ehlo not equals reverse of ip
+        assertEquals("expected error: ehlo not equals reverse of ip", 501,
+                smtpProtocol1.getReplyCode());
+
         smtpProtocol1.sendCommand("ehlo", ehlo2);
         // ehlo is resolvable. so this should give a 250 code
         assertEquals("ehlo accepted", 250, smtpProtocol1.getReplyCode());

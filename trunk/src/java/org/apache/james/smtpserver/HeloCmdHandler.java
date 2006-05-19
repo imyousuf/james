@@ -27,6 +27,7 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.services.DNSServer;
+import org.apache.james.util.mail.dsn.DSNStatus;
 
 
 /**
@@ -44,6 +45,8 @@ public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler
      */
     private boolean checkResolvableHelo = false;
     
+    private boolean checkReverseEqualsHelo = false;
+    
     private boolean checkAuthNetworks = false;
     
     private DNSServer dnsServer = null;
@@ -55,6 +58,12 @@ public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler
         Configuration configuration = handlerConfiguration.getChild("checkResolvableHelo",false);
         if(configuration != null) {
            setCheckResolvableHelo(configuration.getValueAsBoolean(false));
+        }
+          
+        Configuration config = handlerConfiguration.getChild(
+                "checkReverseEqualsHelo", false);
+        if (config != null) {
+            setCheckReverseEqualsHelo(config.getValueAsBoolean(false));
         }
         
         Configuration configRelay = handlerConfiguration.getChild("checkAuthNetworks",false);
@@ -81,6 +90,16 @@ public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler
     }
     
     /**
+     * Set to true to enable check for reverse equal HELO
+     * 
+     * @param checkReverseEqualsHelo
+     *            Set to true for enable check
+     */
+    public void setCheckReverseEqualsHelo(boolean checkReverseEqualsHelo) {
+        this.checkReverseEqualsHelo = checkReverseEqualsHelo;
+    }
+
+    /**
      * Set to true if AuthNetworks should be included in the EHLO check
      * 
      * @param checkAuthNetworks Set to true to enable
@@ -97,9 +116,7 @@ public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler
     public void setDnsServer(DNSServer dnsServer) {
         this.dnsServer = dnsServer;
     }
-
-
-       
+      
     /*
      * process HELO command
      *
@@ -121,14 +138,14 @@ public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler
         String responseString = null;
         boolean badHelo = false;
                 
-        
-        // check for resolvable HELO if its set in config
-        if (checkResolvableHelo) {
+        /**
+         * don't check if the ip address is allowed to relay. Only check if it is set in the config. ed.
+         */
+        if (!session.isRelayingAllowed() || checkAuthNetworks) {
+
+            // check for resolvable HELO if its set in config
+            if (checkResolvableHelo) {
             
-            /**
-             * don't check if the ip address is allowed to relay. Only check if it is set in the config. ed.
-             */
-            if (!session.isRelayingAllowed() || checkAuthNetworks) {
 
                 // try to resolv the provided helo. If it can not resolved do not accept it.
                 try {
@@ -140,6 +157,35 @@ public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler
                     getLogger().info(responseString);
                 } 
 
+            } else if (checkReverseEqualsHelo) {
+                try {
+                    // get reverse entry
+                    String reverse = dnsServer.getByName(
+                            session.getRemoteIPAddress()).getHostName();
+
+                    if (!argument.equals(reverse)) {
+                        badHelo = true;
+                        responseString = "501 "
+                                + DSNStatus.getStatus(DSNStatus.PERMANENT,
+                                        DSNStatus.DELIVERY_INVALID_ARG)
+                                + " Provided HELO " + argument
+                                + " not equal reverse of "
+                                + session.getRemoteIPAddress();
+
+                        session.writeResponse(responseString);
+                        getLogger().info(responseString);
+                    }
+                } catch (UnknownHostException e) {
+                    badHelo = true;
+                    responseString = "501 "
+                            + DSNStatus.getStatus(DSNStatus.PERMANENT,
+                                    DSNStatus.DELIVERY_INVALID_ARG)
+                            + " Ipaddress " + session.getRemoteIPAddress()
+                            + " can not resolved";
+
+                    session.writeResponse(responseString);
+                    getLogger().info(responseString);
+                }
             }
         }
         

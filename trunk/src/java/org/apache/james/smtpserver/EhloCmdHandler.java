@@ -44,6 +44,8 @@ public class EhloCmdHandler extends AbstractLogEnabled implements CommandHandler
      * set checkResolvableEhlo to false as default value
      */
     private boolean checkResolvableEhlo = false;
+
+    private boolean checkReverseEqualsEhlo = false;
     
     private boolean checkAuthNetworks = false;
     
@@ -56,6 +58,12 @@ public class EhloCmdHandler extends AbstractLogEnabled implements CommandHandler
         Configuration configuration = handlerConfiguration.getChild("checkResolvableEhlo",false);
         if(configuration != null) {
            setCheckResolvableEhlo(configuration.getValueAsBoolean(false));
+        }
+        
+        Configuration config = handlerConfiguration.getChild(
+                "checkReverseEqualsEhlo", false);
+        if (config != null) {
+            setCheckReverseEqualsEhlo(config.getValueAsBoolean(false));
         }
         
         Configuration configRelay = handlerConfiguration.getChild("checkAuthNetworks",false);
@@ -81,10 +89,21 @@ public class EhloCmdHandler extends AbstractLogEnabled implements CommandHandler
     }
     
     /**
-     * Set to true if AuthNetworks should be included in the EHLO check
+     * Set to true to enable check for reverse equal EHLO
      * 
-     * @param checkAuthNetworks Set to true to enable
+     * @param checkReverseEqualsEhlo
+     *            Set to true for enable check
      */
+    public void setCheckReverseEqualsEhlo(boolean checkReverseEqualsEhlo) {
+        this.checkReverseEqualsEhlo = checkReverseEqualsEhlo;
+    }
+
+    /**
+	 * Set to true if AuthNetworks should be included in the EHLO check
+	 * 
+	 * @param checkAuthNetworks
+	 *            Set to true to enable
+	 */
     public void setCheckAuthNetworks(boolean checkAuthNetworks) {
         this.checkAuthNetworks = checkAuthNetworks;
     }
@@ -120,21 +139,48 @@ public class EhloCmdHandler extends AbstractLogEnabled implements CommandHandler
         StringBuffer responseBuffer = session.getResponseBuffer();
         boolean badEhlo = false;
         
-        // check for resolvable EHLO if its set in config
-        if (checkResolvableEhlo) {
-            
-            /**
-             * don't check if the ip address is allowed to relay. Only check if it is set in the config. ed.
-             */
-            if (!session.isRelayingAllowed() || checkAuthNetworks) {
-
-             
+        /**
+         * don't check if the ip address is allowed to relay. Only check if it
+         * is set in the config. ed.
+         */
+        if (!session.isRelayingAllowed() || checkAuthNetworks) {
+            // check for resolvable EHLO if its set in config
+            if (checkResolvableEhlo) {
                 // try to resolv the provided helo. If it can not resolved do not accept it.
                 try {
                     dnsServer.getByName(argument);
                 } catch (UnknownHostException e) {
                     badEhlo = true;
                     responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Provided EHLO " + argument + " can not resolved";
+                    session.writeResponse(responseString);
+                    getLogger().info(responseString);
+                }
+            } else if (checkReverseEqualsEhlo) {
+                try {
+                    // get reverse entry
+                    String reverse = dnsServer.getByName(
+                            session.getRemoteIPAddress()).getHostName();
+
+                    if (!argument.equals(reverse)) {
+                        badEhlo = true;
+                        responseString = "501 "
+                                + DSNStatus.getStatus(DSNStatus.PERMANENT,
+                                        DSNStatus.DELIVERY_INVALID_ARG)
+                                + " Provided EHLO " + argument
+                                + " not equal reverse of "
+                                + session.getRemoteIPAddress();
+
+                        session.writeResponse(responseString);
+                        getLogger().info(responseString);
+                    }
+                } catch (UnknownHostException e) {
+                    badEhlo = true;
+                    responseString = "501 "
+                            + DSNStatus.getStatus(DSNStatus.PERMANENT,
+                                    DSNStatus.DELIVERY_INVALID_ARG)
+                            + " Ipaddress " + session.getRemoteIPAddress()
+                            + " can not resolved";
+
                     session.writeResponse(responseString);
                     getLogger().info(responseString);
                 }

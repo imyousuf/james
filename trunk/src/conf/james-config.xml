@@ -727,6 +727,12 @@
                 <checkResolvableHelo> false </checkResolvableHelo>
                 -->
                 
+                <!-- If is set to true helo is only accepted if it is equal the reverse of the -->
+                <!-- connecting client -->
+                <!--
+                <checkReverseEqualsHelo> false </checkReverseEqualsHelo>
+                -->
+                
                 <!-- If is set to true sender domain will be checked also for clients that -->
                 <!-- are allowed to relay. Default is false. -->
                 <!--
@@ -737,6 +743,12 @@
                 <!-- If is set to true ehlo is only accepted if it can be resolved -->
                 <!--
                 <checkResolvableEhlo> false </checkResolvableEhlo>
+                -->
+                
+                <!-- If is set to true ehlo is only accepted if it is equal the reverse of the -->
+                <!-- connecting client -->
+                <!--
+                <checkReverseEqualsEhlo> false </checkReverseEqualsEhlo>
                 -->
                 
                 <!-- If is set to true sender domain will be checked also for clients that -->
