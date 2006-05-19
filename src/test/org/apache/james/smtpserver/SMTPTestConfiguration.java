@@ -37,6 +37,8 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
     private boolean m_checkAuthNetworks = false;
     private boolean m_checkAuthClients = false;
     private boolean m_heloEhloEnforcement = true;
+    private boolean m_reverseEqualsHelo = false;
+    private boolean m_reverseEqualsEhlo = false;
     private int m_maxRcpt = 0;
 
     
@@ -95,6 +97,14 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
         m_ehloResolv = true; 
     }
     
+    public void setReverseEqualsHelo() {
+        m_reverseEqualsHelo = true; 
+    }
+    
+    public void setReverseEqualsEhlo() {
+        m_reverseEqualsEhlo = true; 
+    }
+    
     public void setSenderDomainResolv() {
         m_senderDomainResolv = true; 
     }
@@ -137,9 +147,11 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
                 if (cmd != null) {
                     if ("HELO".equals(cmd)) {
                         ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkResolvableHelo",m_heloResolv+""));
+                        ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkReverseEqualsHelo",m_reverseEqualsHelo+""));
                         ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkAuthNetworks",m_checkAuthNetworks+""));
                     } else if ("EHLO".equals(cmd)) {
                         ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkResolvableEhlo",m_ehloResolv+""));
+                        ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkReverseEqualsEhlo",m_reverseEqualsEhlo+""));
                         ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkAuthNetworks",m_checkAuthNetworks+""));
                     } else if ("MAIL".equals(cmd)) {
                         ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkValidSenderDomain",m_senderDomainResolv+""));
