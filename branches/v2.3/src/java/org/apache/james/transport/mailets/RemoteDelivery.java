@@ -155,6 +155,10 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             if (state.equals(Mail.ERROR)) {
                 //Test the time...
                 int retries = Integer.parseInt(errorMessage);
+                
+                // If the retries count is 0 we should try to send the mail now!
+                if (retries == 0) return true;
+                
                 long delay = getNextDelay (retries);
                 long timeToProcess = delay + lastUpdated;
 
@@ -1085,7 +1089,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
 
         Session session = Session.getInstance(props, null);
         try {
-            while (!Thread.currentThread().interrupted() && !destroyed) {
+            while (!Thread.interrupted() && !destroyed) {
                 try {
                     Mail mail = (Mail)outgoing.accept(delayFilter);
                     String key = mail.getName();
@@ -1104,6 +1108,13 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                         } else {
                             //Something happened that will delay delivery.  Store any updates
                             outgoing.store(mail);
+                            // This is an update, we have to unlock and notify or this mail
+                            // is kept locked by this thread
+                            outgoing.unlock(key);
+                            // We do not notify because we updated an already existing mail
+                            // and we are now free to handle more mails.
+                            // Furthermore this mail should not be processed now because we
+                            // have a retry time scheduling.
                         }
                         //Clear the object handle to make sure it recycles this object.
                         mail = null;
@@ -1122,7 +1133,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             }
         } finally {
             // Restore the thread state to non-interrupted.
-            Thread.currentThread().interrupted();
+            Thread.interrupted();
         }
     }
 
@@ -1172,7 +1183,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
     private long getNextDelay (int retry_count) {
         if (retry_count > delayTimes.length) {
             return DEFAULT_DELAY_TIME;
-        }
+        } 
         return delayTimes[retry_count-1];
     }
 
