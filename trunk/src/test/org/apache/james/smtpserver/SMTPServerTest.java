@@ -67,6 +67,60 @@ import junit.framework.TestCase;
  * Tests the org.apache.james.smtpserver.SMTPServer unit 
  */
 public class SMTPServerTest extends TestCase {
+    
+    private final class AlterableDNSServer implements DNSServer {
+        
+        private InetAddress localhostByName = null;
+        
+        public Collection findMXRecords(String hostname) {
+            List res = new ArrayList();
+            if (hostname == null) {
+                return res;
+            };
+            if ("james.apache.org".equals(hostname)) {
+                res.add("nagoya.apache.org");
+            }
+            return res;
+        }
+
+        public Iterator getSMTPHostAddresses(String domainName) {
+            throw new UnsupportedOperationException("Unimplemented mock service");
+        }
+
+        public InetAddress[] getAllByName(String host) throws UnknownHostException {
+            return new InetAddress[] {getByName(host)};
+        }
+
+        public InetAddress getByName(String host) throws UnknownHostException {
+            if (getLocalhostByName() != null) {
+                if ("127.0.0.1".equals(host)) return getLocalhostByName();
+            }
+        	
+            return InetAddress.getByName(host);
+//                throw new UnsupportedOperationException("getByName not implemented in mock for host: "+host);
+        }
+
+        public Collection findTXTRecords(String hostname) {
+            List res = new ArrayList();
+            if (hostname == null) {
+                return res;
+            };
+            if ("2.0.0.127.bl.spamcop.net".equals(hostname)) {
+                res.add("Blocked - see http://www.spamcop.net/bl.shtml?127.0.0.2");
+            }
+            return res;
+        }
+
+        public InetAddress getLocalhostByName() {
+            return localhostByName;
+        }
+
+        public void setLocalhostByName(InetAddress localhostByName) {
+            this.localhostByName = localhostByName;
+        }
+    }
+
+
     private int m_smtpListenerPort = Util.getNonPrivilegedPort();
     private MockMailServer m_mailServer;
     private SMTPTestConfiguration m_testConfiguration;
@@ -121,53 +175,8 @@ public class SMTPServerTest extends TestCase {
         m_serviceManager.put(UsersRepository.ROLE, m_usersRepository);
         m_serviceManager.put(SocketManager.ROLE, new MockSocketManager(m_smtpListenerPort));
         m_serviceManager.put(ThreadManager.ROLE, new MockThreadManager());
-        // Mock DNS Server
-        DNSServer dns = new DNSServer() {
-
-            public Collection findMXRecords(String hostname) {
-                List res = new ArrayList();
-                if (hostname == null) {
-                    return res;
-                };
-                if ("james.apache.org".equals(hostname)) {
-                    res.add("nagoya.apache.org");
-                }
-                return res;
-            }
-
-            public Iterator getSMTPHostAddresses(String domainName) {
-                throw new UnsupportedOperationException("Unimplemented mock service");
-            }
-            
-
-            public InetAddress[] getAllByName(String host) throws UnknownHostException
-            {
-                return new InetAddress[] {getByName(host)};
-//                throw new UnsupportedOperationException("getByName not implemented in mock for host: "+host);
-            }
-
-
-            public InetAddress getByName(String host) throws UnknownHostException
-            {
-            	if ("127.0.0.1".equals(host)) return InetAddress.getByName("james.apache.org");
-            	
-                return InetAddress.getByName(host);
-//                throw new UnsupportedOperationException("getByName not implemented in mock for host: "+host);
-            }
-            
-            public Collection findTXTRecords(String hostname) {
-                List res = new ArrayList();
-                if (hostname == null) {
-                    return res;
-                };
-                if ("2.0.0.127.bl.spamcop.net".equals(hostname)) {
-                    res.add("Blocked - see http://www.spamcop.net/bl.shtml?127.0.0.2");
-                }
-                return res;
-            }
-            
-        };
-        m_serviceManager.put(DNSServer.ROLE, dns);
+        m_dnsServer = new AlterableDNSServer();
+        m_serviceManager.put(DNSServer.ROLE, m_dnsServer);
         m_serviceManager.put(Store.ROLE, new MockStore());
         return m_serviceManager;
     }
@@ -379,30 +388,36 @@ public class SMTPServerTest extends TestCase {
     public void testReverseEqualsHelo() throws Exception {
         m_testConfiguration.setReverseEqualsHelo();
         m_testConfiguration.setAuthorizedAddresses("192.168.0.1");
-        finishSetUp(m_testConfiguration);
-
-        SMTPClient smtpProtocol1 = new SMTPClient();
-        smtpProtocol1.connect("127.0.0.1", m_smtpListenerPort);
-
-        assertTrue("first connection taken", smtpProtocol1.isConnected());
-
-        // no message there, yet
-        assertNull("no mail received by mail server", m_mailServer
-                .getLastMail());
-
-        String helo1 = "abgsfe3rsf.de";
-        String helo2 = "james.apache.org";
-
-        smtpProtocol1.sendCommand("helo", helo1);
-        // this should give a 501 code cause the helo not equal reverse of ip
-        assertEquals("expected error: helo not equals reverse of ip", 501,
-                smtpProtocol1.getReplyCode());
-
-        smtpProtocol1.sendCommand("helo", helo2);
-        // helo is resolvable. so this should give a 250 code
-        assertEquals("Helo accepted", 250, smtpProtocol1.getReplyCode());
-
-        smtpProtocol1.quit();
+        // temporary alter the loopback resolution
+        m_dnsServer.setLocalhostByName(InetAddress.getByName("james.apache.org"));
+        try {
+            finishSetUp(m_testConfiguration);
+    
+            SMTPClient smtpProtocol1 = new SMTPClient();
+            smtpProtocol1.connect("127.0.0.1", m_smtpListenerPort);
+    
+            assertTrue("first connection taken", smtpProtocol1.isConnected());
+    
+            // no message there, yet
+            assertNull("no mail received by mail server", m_mailServer
+                    .getLastMail());
+    
+            String helo1 = "abgsfe3rsf.de";
+            String helo2 = "james.apache.org";
+    
+            smtpProtocol1.sendCommand("helo", helo1);
+            // this should give a 501 code cause the helo not equal reverse of ip
+            assertEquals("expected error: helo not equals reverse of ip", 501,
+                    smtpProtocol1.getReplyCode());
+    
+            smtpProtocol1.sendCommand("helo", helo2);
+            // helo is resolvable. so this should give a 250 code
+            assertEquals("Helo accepted", 250, smtpProtocol1.getReplyCode());
+    
+            smtpProtocol1.quit();
+        } finally {
+            m_dnsServer.setLocalhostByName(null);
+        }
     }
     
     public void testSenderDomainResolv() throws Exception {
@@ -631,30 +646,36 @@ public class SMTPServerTest extends TestCase {
     public void testReverseEqualsEhlo() throws Exception {
         m_testConfiguration.setReverseEqualsEhlo();
         m_testConfiguration.setAuthorizedAddresses("192.168.0.1");
-        finishSetUp(m_testConfiguration);
-
-        SMTPClient smtpProtocol1 = new SMTPClient();
-        smtpProtocol1.connect("127.0.0.1", m_smtpListenerPort);
-
-        assertTrue("first connection taken", smtpProtocol1.isConnected());
-
-        // no message there, yet
-        assertNull("no mail received by mail server", m_mailServer
-                .getLastMail());
-
-        String ehlo1 = "abgsfe3rsf.de";
-        String ehlo2 = "james.apache.org";
-
-        smtpProtocol1.sendCommand("ehlo", ehlo1);
-        // this should give a 501 code cause the ehlo not equals reverse of ip
-        assertEquals("expected error: ehlo not equals reverse of ip", 501,
-                smtpProtocol1.getReplyCode());
-
-        smtpProtocol1.sendCommand("ehlo", ehlo2);
-        // ehlo is resolvable. so this should give a 250 code
-        assertEquals("ehlo accepted", 250, smtpProtocol1.getReplyCode());
-
-        smtpProtocol1.quit();
+        // temporary alter the loopback resolution
+        m_dnsServer.setLocalhostByName(InetAddress.getByName("james.apache.org"));
+        try {
+            finishSetUp(m_testConfiguration);
+    
+            SMTPClient smtpProtocol1 = new SMTPClient();
+            smtpProtocol1.connect("127.0.0.1", m_smtpListenerPort);
+    
+            assertTrue("first connection taken", smtpProtocol1.isConnected());
+    
+            // no message there, yet
+            assertNull("no mail received by mail server", m_mailServer
+                    .getLastMail());
+    
+            String ehlo1 = "abgsfe3rsf.de";
+            String ehlo2 = "james.apache.org";
+    
+            smtpProtocol1.sendCommand("ehlo", ehlo1);
+            // this should give a 501 code cause the ehlo not equals reverse of ip
+            assertEquals("expected error: ehlo not equals reverse of ip", 501,
+                    smtpProtocol1.getReplyCode());
+    
+            smtpProtocol1.sendCommand("ehlo", ehlo2);
+            // ehlo is resolvable. so this should give a 250 code
+            assertEquals("ehlo accepted", 250, smtpProtocol1.getReplyCode());
+    
+            smtpProtocol1.quit();
+        } finally {
+            m_dnsServer.setLocalhostByName(null);
+        }
     }
     
     public void testHeloEnforcement() throws Exception {
@@ -951,6 +972,7 @@ public class SMTPServerTest extends TestCase {
     
     InMemorySpoolRepository outgoingSpool;
     private MockServiceManager m_serviceManager;
+    private AlterableDNSServer m_dnsServer;
     
     private Properties getStandardParameters() {
         Properties parameters = new Properties();
