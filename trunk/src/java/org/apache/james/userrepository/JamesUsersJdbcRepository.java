@@ -160,4 +160,16 @@ public class JamesUsersJdbcRepository extends AbstractJdbcUsersRepository
         stmt.setInt(5 + colOffset, (jamesUser.getAliasing() ? 1 : 0));
         stmt.setString(6 + colOffset, jamesUser.getAlias());
     }
+    
+    
+    
+    /**
+     * @see org.apache.james.services.UsersRepository#addUser(java.lang.String, java.lang.String)
+     */
+    public boolean addUser(String username, String password)  {
+        User newbie = new DefaultJamesUser(username, "SHA");
+        newbie.setPassword(password);
+        return addUser(newbie);
+    }
+
 }

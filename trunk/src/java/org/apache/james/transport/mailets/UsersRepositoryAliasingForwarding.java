@@ -21,6 +21,7 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
 import org.apache.james.services.JamesUser;
+import org.apache.james.services.User;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
 import org.apache.mailet.RFC2822Headers;
@@ -188,39 +189,41 @@ public class UsersRepositoryAliasingForwarding extends GenericMailet {
         } else {
             username = recipient.getUser();
         }
-        JamesUser user;
+        User user;
         if (enableAliases || enableForwarding) {
-            user = (JamesUser) usersRepository.getUserByName(username);
-            if (enableAliases && user.getAliasing()) {
-                username = user.getAlias();
-            }
-            // Forwarding takes precedence over local aliases
-            if (enableForwarding && user.getForwarding()) {
-                MailAddress forwardTo = user.getForwardingDestination();
-                if (forwardTo == null) {
-                    StringBuffer errorBuffer = new StringBuffer(128)
-                            .append("Forwarding was enabled for ")
-                            .append(username)
-                            .append(
-                                    " but no forwarding address was set for this account.");
-                    throw new MessagingException(errorBuffer.toString());
+            user = usersRepository.getUserByName(username);
+            if (user instanceof JamesUser) {
+                if (enableAliases && ((JamesUser) user).getAliasing()) {
+                    username = ((JamesUser) user).getAlias();
                 }
-                Collection recipients = new HashSet();
-                recipients.add(forwardTo);
-                try {
-                    getMailetContext().sendMail(sender, recipients, message);
-                    StringBuffer logBuffer = new StringBuffer(128).append(
-                            "Mail for ").append(username).append(
-                            " forwarded to ").append(forwardTo.toString());
-                    getMailetContext().log(logBuffer.toString());
-                    return null;
-                } catch (MessagingException me) {
-                    StringBuffer logBuffer = new StringBuffer(128).append(
-                            "Error forwarding mail to ").append(
-                            forwardTo.toString()).append(
-                            "attempting local delivery");
-                    getMailetContext().log(logBuffer.toString());
-                    throw me;
+                // Forwarding takes precedence over local aliases
+                if (enableForwarding && ((JamesUser) user).getForwarding()) {
+                    MailAddress forwardTo = ((JamesUser) user).getForwardingDestination();
+                    if (forwardTo == null) {
+                        StringBuffer errorBuffer = new StringBuffer(128)
+                                .append("Forwarding was enabled for ")
+                                .append(username)
+                                .append(
+                                        " but no forwarding address was set for this account.");
+                        throw new MessagingException(errorBuffer.toString());
+                    }
+                    Collection recipients = new HashSet();
+                    recipients.add(forwardTo);
+                    try {
+                        getMailetContext().sendMail(sender, recipients, message);
+                        StringBuffer logBuffer = new StringBuffer(128).append(
+                                "Mail for ").append(username).append(
+                                " forwarded to ").append(forwardTo.toString());
+                        getMailetContext().log(logBuffer.toString());
+                        return null;
+                    } catch (MessagingException me) {
+                        StringBuffer logBuffer = new StringBuffer(128).append(
+                                "Error forwarding mail to ").append(
+                                forwardTo.toString()).append(
+                                "attempting local delivery");
+                        getMailetContext().log(logBuffer.toString());
+                        throw me;
+                    }
                 }
             }
         }

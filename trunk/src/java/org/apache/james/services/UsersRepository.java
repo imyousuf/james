@@ -54,6 +54,17 @@ public interface UsersRepository {
      * @param attributes see decription
      */
     void addUser(String name, Object attributes);
+    
+    /**
+     * Adds a user to the repository with the specified password
+     * 
+     * @param username the username of the user to be added
+     * @param password the password of the user to add
+     * @return true if succesful, false otherwise
+     * 
+     * @since James 2.3.0
+     */
+    boolean addUser(String username, String password);
 
     /**
      * Get the user object with the specified user name.  Return null if no
