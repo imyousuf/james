@@ -75,13 +75,23 @@ public class MockUsersRepository implements UsersRepository {
     }
 
     public boolean addUser(String username, String password) {
-        User user;
-        if (m_forceUseJamesUser) {
-            user = new DefaultJamesUser(username, password);
-        } else {
-            user = new DefaultUser(username, password);
+        if (m_users.containsKey(username)) return false;
+        try {
+            String passwordHash = DigestUtil.digestString((password), "SHA");
+
+            User user;
+
+            if (m_forceUseJamesUser) {
+                user = new DefaultJamesUser(username, passwordHash, "SHA");
+            } else {
+                user = new DefaultUser(username, passwordHash, "SHA");
+            }
+           
+            return addUser(user);
+        } catch (Exception e) {
+            e.printStackTrace();  // encoding failed
         }
-        return addUser(user);
+        return false;
     }
 
     public Object getAttributes(String name) {
