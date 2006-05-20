@@ -286,7 +286,7 @@ public class AvalonMailRepository
                             .append(destination)
                             .append("/")
                             .append(mc.getName());
-                    if (wrapper.getSourceId().equals(destinationBuffer.toString()) && !wrapper.isModified()) {
+                    if (destinationBuffer.toString().equals(wrapper.getSourceId()) && !wrapper.isModified()) {
                         //We're trying to save to the same place, and it's not modified... we shouldn't save.
                         //More importantly, if we try to save, we will create a 0-byte file since we're
                         //retrying to retrieve from a file we'll be overwriting.
@@ -324,7 +324,7 @@ public class AvalonMailRepository
             }
 
         } catch (Exception e) {
-            getLogger().error("Exception storing mail: " + e);
+            getLogger().error("Exception storing mail: " + e, e);
             throw new MessagingException("Exception caught while storing Message Container: " + e);
         }
     }

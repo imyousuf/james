@@ -177,7 +177,7 @@ public class ToMultiRepository extends GenericMailet {
             // the sender. Note that this email doesn't include any details
             // regarding the details of the failure(s).
             // In the future we may wish to address this.
-            getMailetContext().sendMail(mail.getSender(), errors, message,
+            getMailetContext().sendMail(mail.getSender(), errors, mail.getMessage(),
                     Mail.ERROR);
         }
         // We always consume this message
