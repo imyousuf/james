@@ -293,7 +293,7 @@ Legal:
       <echo message="Compiling James Java sources"/>
       <available property="jndi.present" classname="javax.naming.InitialContext"/>
       <mkdir dir="${build.classes}"/>
-      <javac destdir="${build.classes}" debug="${debug}" optimize="${optimize}" deprecation="${deprecation}">
+      <javac destdir="${build.classes}" debug="${debug}" optimize="${optimize}" deprecation="${deprecation}" target="${jdk.target}" source="${jdk.source}">
         <classpath refid="project.class.path"/>
         <src path="${build.src}"/>
         <src path="${java.dir}"/>
@@ -317,7 +317,7 @@ Legal:
         <javac destdir="${build.classes}"
                debug="${debug}"
                optimize="${optimize}"
-               deprecation="${deprecation}">
+               deprecation="${deprecation}" target="${jdk.target}" source="${jdk.source}">
             <classpath refid="project.class.path" />
             <src path="${java.proposal.dir}"/>
         </javac>
@@ -795,7 +795,7 @@ Legal:
       <echo message="Compiling James Unit Test Java sources"/>
       <mkdir dir="${build.test}"/>
       <mkdir dir="${build.test.classes}"/>
-      <javac destdir="${build.test.classes}" debug="${debug}" optimize="${optimize}" deprecation="${deprecation}">
+      <javac destdir="${build.test.classes}" debug="${debug}" optimize="${optimize}" deprecation="${deprecation}" target="${jdk.target}" source="${jdk.source}">
         <classpath refid="unittest.class.path"/>
         <classpath refid="project.class.path"/>
         <src path="${junitjava.dir}"/>
