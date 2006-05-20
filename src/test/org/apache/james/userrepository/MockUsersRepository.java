@@ -74,6 +74,16 @@ public class MockUsersRepository implements UsersRepository {
         }
     }
 
+    public boolean addUser(String username, String password) {
+        User user;
+        if (m_forceUseJamesUser) {
+            user = new DefaultJamesUser(username, password);
+        } else {
+            user = new DefaultUser(username, password);
+        }
+        return addUser(user);
+    }
+
     public Object getAttributes(String name) {
         return null;  // trivial implementation
     }
