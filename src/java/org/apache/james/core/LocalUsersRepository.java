@@ -52,6 +52,10 @@ public class LocalUsersRepository implements UsersRepository, Serviceable, Initi
         users.addUser(name,attributes);
     }
 
+    public boolean addUser(String username, String password) {
+        return users.addUser(username, password);
+    }
+
     public User getUserByName(String name) {
         return users.getUserByName(name);
     }

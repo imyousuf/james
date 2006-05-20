@@ -167,6 +167,12 @@ public class UsersFileRepository
         }
     }
 
+    public boolean addUser(String username, String password) {
+        User newbie = new DefaultJamesUser(username, "SHA");
+        newbie.setPassword(password);
+        return addUser(newbie);
+    }
+
     public synchronized User getUserByName(String name) {
         if (contains(name)) {
             try {

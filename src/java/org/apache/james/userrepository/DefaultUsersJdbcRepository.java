@@ -94,5 +94,16 @@ public class DefaultUsersJdbcRepository extends AbstractJdbcUsersRepository
         userUpdate.setString(1, defUser.getHashAlgorithm());
         userUpdate.setString(2, defUser.getHashedPassword());
     }
+    
+    /**
+     * @see org.apache.james.services.UsersRepository#addUser(java.lang.String, java.lang.String)
+     */
+    public boolean addUser(String username, String password)  {
+        User newbie = new DefaultUser(username, "SHA");
+        newbie.setPassword(password);
+        return addUser(newbie);
+    }
+
+
 }
 

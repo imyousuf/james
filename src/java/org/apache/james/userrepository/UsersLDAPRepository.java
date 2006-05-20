@@ -344,6 +344,18 @@ public class UsersLDAPRepository
 //            String userPassword = (String) attributes; // Not yet implemented
 //        }
     }
+    
+    /**
+     * @see org.apache.james.services.UsersRepository#addUser(java.lang.String, java.lang.String)
+     */
+    public boolean addUser(String username, String password) {
+        if (!contains(username)) {
+            addUser(username, password);
+            return contains(username);
+        } else {
+            return false;
+        }
+    }
 
     private void addGroupToUser(String userName) {
         String[] attrIDs = {membersAttr};

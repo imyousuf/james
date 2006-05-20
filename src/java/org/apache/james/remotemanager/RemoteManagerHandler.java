@@ -25,7 +25,6 @@ import org.apache.james.Constants;
 import org.apache.james.services.JamesUser;
 import org.apache.james.services.User;
 import org.apache.james.services.UsersRepository;
-import org.apache.james.userrepository.DefaultUser;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogTarget;
 import org.apache.mailet.MailAddress;
@@ -459,9 +458,7 @@ public class RemoteManagerHandler
             String response = responseBuffer.toString();
             writeLoggedResponse(response);
         } else {
-            DefaultUser user = new DefaultUser(username, "SHA");
-            user.setPassword(passwd);
-            success = users.addUser(user);
+            success = users.addUser(username, passwd);
         }
         if ( success ) {
             StringBuffer responseBuffer =

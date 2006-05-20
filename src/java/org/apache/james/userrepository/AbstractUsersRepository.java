@@ -151,6 +151,15 @@ public abstract class AbstractUsersRepository
     }
 
     /**
+     * @see org.apache.james.services.UsersRepository#addUser(java.lang.String, java.lang.String)
+     */
+    public boolean addUser(String username, String password)  {
+        User newbie = new DefaultJamesUser(username, "SHA");
+        newbie.setPassword(password);
+        return addUser(newbie);
+    }
+
+    /**
      * Update the repository with the specified user object. A user object
      * with this username must already exist.
      *
