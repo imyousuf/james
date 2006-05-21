@@ -10,7 +10,7 @@
 <!-- $Id$ -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <!-- Output method -->
-  <xsl:output method="xhtml" encoding="iso-8859-1" doctype-public="-//W3C//DTD XHTML 1.0 Strict//EN" doctype-system="http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd" indent="yes"/>
+  <xsl:output method="xml" encoding="iso-8859-1" doctype-public="-//W3C//DTD XHTML 1.0 Strict//EN" doctype-system="http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd" indent="yes"/>
   <!-- Defined parameters (overrideable) -->
   <xsl:param name="relative-path" select="'.'"/>
   <!-- Defined variables (non-overrideable) -->
@@ -23,7 +23,7 @@
         <title>
           <xsl:value-of select="$site/title"/> - <xsl:value-of select="properties/title"/>
         </title>
-        <LINK REL ="stylesheet" TYPE="text/css" HREF="stylesheet.css" TITLE="Style" />
+        <LINK TITLE="Style" HREF="stylesheet.css" TYPE="text/css" REL="stylesheet" />
         <xsl:for-each select="properties/author">
           <xsl:variable name="name">
             <xsl:value-of select="."/>
@@ -31,22 +31,21 @@
           <xsl:variable name="email">
             <xsl:value-of select="@email"/>
           </xsl:variable>
-          <meta name="author" value="{$name}"/>
-          <meta name="email" value="{$email}"/>
+          <meta value="{$name}" name="author"/>
+          <meta value="{$email}" name="email"/>
         </xsl:for-each>
         <xsl:if test="properties/base">
           <base href="{properties/base/@href}"/>
         </xsl:if>
       </head>
       <body>
-        <table class="page-header" border="0" width="100%" cellspacing="0">
+        <table cellspacing="0" width="100%" border="0" class="page-header">
           <xsl:comment>PAGE HEADER</xsl:comment>
           <tr>
             <td colspan="2">
               <xsl:comment>ASF LOGO</xsl:comment>
         <a href="http://www.apache.org/">
-          <img src="http://www.apache.org/images/asf_logo_wide.gif"
-             align="left" alt="The ASF" border="0"/>
+          <img border="0" alt="The ASF" align="left" src="http://www.apache.org/images/asf_logo_wide.gif" />
         </a>
         <xsl:if test="$site/logo">
           <xsl:variable name="alt">
@@ -61,32 +60,35 @@
 
           <xsl:comment>PROJECT LOGO</xsl:comment>
           <a href="{$home}">
-            <img src="{$home}{$src}" align="right" alt="{$alt}" border="0"/>
+            <img border="0" alt="{$alt}" align="right" src="{$home}{$src}"/>
           </a>
         </xsl:if>
 
             </td>
           </tr>
         </table>
-        <table border="0" width="100%" cellspacing="4">
+        <table cellspacing="4" width="100%" border="0">
           <tr>
             <xsl:comment>LEFT SIDE NAVIGATION</xsl:comment>
-            <td class="left-navbar" valign="top" nowrap="true">
+            <td nowrap="true" valign="top" class="left-navbar">
+              <table cellpadding="0" cellspacing="0" width="100%" border="0"><tr><td>
+                <a href="http://apachecon.com"><img border="0" alt="ApacheCon Promotion" align="left" src="http://apache.org/images/ac2005us_white_184x80.jpg" /></a>
+              </td></tr></table>  
               <xsl:apply-templates select="$site/body/navbar[@name='lhs']"/>
             </td>
             <xsl:comment>MAIN BODY</xsl:comment>
-            <td class="main-body" valign="top" align="left">
+            <td align="left" valign="top" class="main-body">
               <xsl:apply-templates select="body/section"/>
             </td>
             <xsl:comment>RIGHT SIDE NAVIGATION</xsl:comment>
-            <td class="right-navbar" valign="top" nowrap="true">
+            <td nowrap="true" valign="top" class="right-navbar">
               <xsl:apply-templates select="$site/body/navbar[@name='rhs']"/>
             </td>
           </tr>
           <xsl:comment>FOOTER SEPARATOR</xsl:comment>
           <tr>
             <td colspan="3">
-              <hr noshade="" size="1"/>
+              <hr size="1" noshade=""/>
             </td>
           </tr>
           <tr>
@@ -186,7 +188,7 @@
   
   
 <xsl:template match="*/table">
-<table class="detail-table" cellpadding="0" cellspacing="0" >
+<table cellspacing="0" cellpadding="0" class="detail-table">
   <tbody>
     <xsl:apply-templates/>
   </tbody>
@@ -203,7 +205,7 @@
   </xsl:template>
   
   <xsl:template match="td">
-    <td class="detail-table-content" valign="top" align="left">
+    <td align="left" valign="top" class="detail-table-content">
       <xsl:if test="@colspan">
         <xsl:attribute name="colspan"><xsl:value-of select="@colspan"/></xsl:attribute>
       </xsl:if>
@@ -215,7 +217,7 @@
   </xsl:template>
   <!-- handle th ala site.vsl -->
   <xsl:template match="th">
-    <td class="detail-table-header" valign="top">
+    <td valign="top" class="detail-table-header">
       <xsl:if test="@colspan">
         <xsl:attribute name="colspan"><xsl:value-of select="@colspan"/></xsl:attribute>
       </xsl:if>
