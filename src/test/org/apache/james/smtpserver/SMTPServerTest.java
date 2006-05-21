@@ -95,7 +95,7 @@ public class SMTPServerTest extends TestCase {
             if (getLocalhostByName() != null) {
                 if ("127.0.0.1".equals(host)) return getLocalhostByName();
             }
-        	
+            
             return InetAddress.getByName(host);
 //                throw new UnsupportedOperationException("getByName not implemented in mock for host: "+host);
         }
