@@ -99,11 +99,11 @@ public class EhloCmdHandler extends AbstractLogEnabled implements CommandHandler
     }
 
     /**
-	 * Set to true if AuthNetworks should be included in the EHLO check
-	 * 
-	 * @param checkAuthNetworks
-	 *            Set to true to enable
-	 */
+     * Set to true if AuthNetworks should be included in the EHLO check
+     * 
+     * @param checkAuthNetworks
+     *            Set to true to enable
+     */
     public void setCheckAuthNetworks(boolean checkAuthNetworks) {
         this.checkAuthNetworks = checkAuthNetworks;
     }
