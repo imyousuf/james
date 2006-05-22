@@ -23,9 +23,12 @@ import org.apache.mailet.MailAddress;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 
 public class MockMailContext implements MailetContext {
+    
+    HashMap attributes = new HashMap();
 
     public void bounce(Mail mail, String message) throws MessagingException {
         // trivial implementation
@@ -44,11 +47,11 @@ public class MockMailContext implements MailetContext {
     }
 
     public Object getAttribute(String name) {
-        return null;  // trivial implementation
+        return attributes.get(name);
     }
 
     public Iterator getAttributeNames() {
-        return null;  // trivial implementation
+        return attributes.keySet().iterator();
     }
 
     public int getMajorVersion() {
@@ -60,7 +63,7 @@ public class MockMailContext implements MailetContext {
     }
 
     public String getServerInfo() {
-        return null;  // trivial implementation
+        return "Mock Server";
     }
 
     public boolean isLocalServer(String serverName) {
@@ -101,7 +104,7 @@ public class MockMailContext implements MailetContext {
     }
 
     public void setAttribute(String name, Object object) {
-        // trivial implementation
+        attributes.put(name,object);
     }
 
     public void storeMail(MailAddress sender, MailAddress recipient, MimeMessage msg) throws MessagingException {
