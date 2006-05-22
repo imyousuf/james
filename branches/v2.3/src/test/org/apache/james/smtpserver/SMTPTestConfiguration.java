@@ -26,7 +26,7 @@ import org.apache.james.test.util.Util;
 public class SMTPTestConfiguration extends DefaultConfiguration {
 
     private int m_smtpListenerPort;
-    private int m_maxMessageSize = 0;
+    private int m_maxMessageSizeKB = 0;
     private String m_authorizedAddresses = "127.0.0.0/8";
     private String m_authorizingMode = "false";
     private boolean m_verifyIdentity = false;
@@ -37,6 +37,8 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
     private boolean m_checkAuthNetworks = false;
     private boolean m_checkAuthClients = false;
     private boolean m_heloEhloEnforcement = true;
+    private boolean m_reverseEqualsHelo = false;
+    private boolean m_reverseEqualsEhlo = false;
     private int m_maxRcpt = 0;
 
     
@@ -53,11 +55,11 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
 
     public void setMaxMessageSize(int kilobytes)
     {
-        m_maxMessageSize = kilobytes;
+        m_maxMessageSizeKB = kilobytes;
     }
     
     public int getMaxMessageSize() {
-        return m_maxMessageSize;
+        return m_maxMessageSizeKB;
     }
 
     public String getAuthorizedAddresses() {
@@ -95,6 +97,14 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
         m_ehloResolv = true; 
     }
     
+    public void setReverseEqualsHelo() {
+        m_reverseEqualsHelo = true; 
+    }
+    
+    public void setReverseEqualsEhlo() {
+        m_reverseEqualsEhlo = true; 
+    }
+    
     public void setSenderDomainResolv() {
         m_senderDomainResolv = true; 
     }
@@ -122,7 +132,7 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
         handlerConfig.addChild(Util.getValuedConfiguration("helloName", "myMailServer"));
         handlerConfig.addChild(Util.getValuedConfiguration("connectiontimeout", "360000"));
         handlerConfig.addChild(Util.getValuedConfiguration("authorizedAddresses", m_authorizedAddresses));
-        handlerConfig.addChild(Util.getValuedConfiguration("maxmessagesize", "" + m_maxMessageSize));
+        handlerConfig.addChild(Util.getValuedConfiguration("maxmessagesize", "" + m_maxMessageSizeKB));
         handlerConfig.addChild(Util.getValuedConfiguration("authRequired", m_authorizingMode));
         handlerConfig.addChild(Util.getValuedConfiguration("heloEhloEnforcement", m_heloEhloEnforcement+""));
         if (m_verifyIdentity) handlerConfig.addChild(Util.getValuedConfiguration("verifyIdentity", "" + m_verifyIdentity));
@@ -137,9 +147,11 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
                 if (cmd != null) {
                     if ("HELO".equals(cmd)) {
                         ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkResolvableHelo",m_heloResolv+""));
+                        ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkReverseEqualsHelo",m_reverseEqualsHelo+""));
                         ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkAuthNetworks",m_checkAuthNetworks+""));
                     } else if ("EHLO".equals(cmd)) {
                         ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkResolvableEhlo",m_ehloResolv+""));
+                        ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkReverseEqualsEhlo",m_reverseEqualsEhlo+""));
                         ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkAuthNetworks",m_checkAuthNetworks+""));
                     } else if ("MAIL".equals(cmd)) {
                         ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkValidSenderDomain",m_senderDomainResolv+""));
