@@ -508,7 +508,6 @@ public class MailImpl implements Disposable, Mail {
      * @throws IOException if an error occurs while writing to the stream
      */
     private void writeObject(java.io.ObjectOutputStream out) throws IOException {
-        lastUpdated = new Date();
         out.writeObject(sender);
         out.writeObject(recipients);
         out.writeObject(state);
