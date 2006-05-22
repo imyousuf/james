@@ -46,6 +46,7 @@ public class QuitCmdHandler extends AbstractLogEnabled implements CommandHandler
         if (session.getHandlerState() == POP3Handler.AUTHENTICATION_READY ||  session.getHandlerState() == POP3Handler.AUTHENTICATION_USERSET) {
             responseString = POP3Handler.OK_RESPONSE + " Apache James POP3 Server signing off.";
             session.writeResponse(responseString);
+            session.endSession();
             return;
         }
         List toBeRemoved =  ListUtils.subtract(session.getBackupUserMailbox(), session.getUserMailbox());
