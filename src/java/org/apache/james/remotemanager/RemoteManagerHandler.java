@@ -1004,8 +1004,9 @@ public class RemoteManagerHandler
             Mail m = spoolRepository.retrieve(key);
 
             if (m.getState().equals(Mail.ERROR)) {
-                m.setErrorMessage(0 + "");
-                m.setLastUpdated(new Date());
+               
+                // this will force Remotedelivery to try deliver the mail now!
+                m.setLastUpdated(new Date(0));
 
                 // store changes
                 spoolRepository.store(m);
