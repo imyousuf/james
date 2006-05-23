@@ -67,28 +67,30 @@ Legal:
     -->
 
     <path id="project.class.path">
-      <pathelement location="${dns.jar}"/>
-      <pathelement location="${commons-collections.jar}"/>
-      <pathelement location="${commons-dbcp.jar}"/>
-      <pathelement location="${commons-pool.jar}"/>
-      <pathelement location="${jakarta-oro.jar}"/>
       <pathelement location="${avalon-framework.jar}"/>
       <pathelement location="${avalon-framework-impl.jar}"/>
-      <pathelement location="${excalibur-pool.jar}"/>
-      <pathelement location="${excalibur-pool-impl.jar}"/>
-      <pathelement location="${excalibur-thread.jar}"/>
-      <pathelement location="${excalibur-datasource.jar}"/>
-      <pathelement location="${cornerstone-threads.jar}"/>
-      <pathelement location="${cornerstone-connection.jar}"/>
-      <pathelement location="${cornerstone-connection-impl.jar}"/>
-      <pathelement location="${cornerstone-store.jar}"/>
-      <pathelement location="${cornerstone-scheduler.jar}"/>
-      <pathelement location="${cornerstone-sockets.jar}"/>
-      <pathelement location="${cornerstone-datasources.jar}"/>
-      <pathelement location="${javax-mail.jar}"/>
-      <pathelement location="${javax-activation.jar}"/>
-      <pathelement location="${lib.dir}/bcmail-jdk14-129.jar"/>
-      <pathelement location="${lib.dir}/bcmail-jdk14-129-workaround.jar"/>
+    	<fileset dir="${lib.dir}">
+        <include name="${dns.jar}"/>
+    		<include name="${commons-collections.jar}"/>
+    		<include name="${commons-dbcp.jar}"/>
+    		<include name="${commons-pool.jar}"/>
+    		<include name="${jakarta-oro.jar}"/>
+    		<include name="${excalibur-pool-api.jar}"/>
+    		<include name="${excalibur-pool-impl.jar}"/>
+    		<include name="${excalibur-thread-api.jar}"/>
+    		<include name="${excalibur-datasource.jar}"/>
+    		<include name="${cornerstone-threads-api.jar}"/>
+    		<include name="${cornerstone-connection-api.jar}"/>
+    		<include name="${cornerstone-connection-impl.jar}"/>
+    		<include name="${cornerstone-store-api.jar}"/>
+    		<include name="${cornerstone-scheduler-api.jar}"/>
+    		<include name="${cornerstone-sockets-api.jar}"/>
+    		<include name="${cornerstone-datasources-api.jar}"/>
+    		<include name="${javax-mail.jar}"/>
+    		<include name="${javax-activation.jar}"/>
+    		<include name="${bcmail.jar}"/>
+    		<include name="${bcmail-workaround.jar}"/>
+    	</fileset>
       <pathelement path="${java.class.path}" />
       <pathelement path="${build.classes}" />
     </path>
@@ -148,15 +150,7 @@ Legal:
       <fixcrlf srcdir="${xdocs.dir}" includes="**/*.xml" eol="lf" tab="remove" tablength="4" />
       <fixcrlf srcdir="${conf.dir}" includes="**/*.xml" eol="lf" tab="remove" tablength="4" />
       <fixcrlf srcdir="${metainf.dir}" includes="**/*" eol="lf" tab="remove" tablength="4" />      
-      <fixcrlf srcdir="." includes="build.sh" eol="lf"/>
-      <fixcrlf srcdir="." includes="build.bat" eol="crlf"/>
       <fixcrlf srcdir="." includes="build.xml" eol="lf"/>
-      <chmod perm="+x">
-        <fileset dir=".">
-          <include name="build.sh"/>
-        </fileset>
-      </chmod>
-      <available classname="org.apache.velocity.anakia.AnakiaTask" property="AnakiaTask.present"/>
       <mkdir dir="${build.src}"/>
       <copy todir="${build.src}">
         <fileset dir="${java.dir}">
@@ -181,20 +175,18 @@ Legal:
       <fixcrlf srcdir="${phoenix.dir}/bin" includes="phoenix.sh" eol="lf"/>
       <copy todir="${dist.dir}">
         <fileset dir="${phoenix.dir}">
-          <exclude name="CVS/**"/>
         </fileset>
       </copy>
 
       <copy todir="${dist.dir}/lib" flatten="true">
         <fileset dir="${lib.dir}">
-          <exclude name="CVS/**"/>
-          <include name="excalibur-thread-api-2.1.jar"/>
-          <include name="excalibur-thread-impl-2.1.jar"/>
-          <include name="**/excalibur-pool-impl-2.1.jar"/>
-          <include name="**/excalibur-pool-api-2.1.jar"/>
-          <include name="**/commons-collections-2.1.1.jar"/>
+          <include name="${excalibur-thread-api.jar}"/>
+          <include name="${excalibur-thread-impl.jar}"/>
+          <include name="${excalibur-pool-impl.jar}"/>
+          <include name="${excalibur-pool-api.jar}"/>
+          <include name="${commons-collections.jar}"/>
           <!-- needed by excalibur-pool-impl-2.1.jar -->
-          <include name="concurrent-1.3.4.jar"/>
+          <include name="${concurrent.jar}"/>
         </fileset>
       </copy>
 
@@ -291,7 +283,6 @@ Legal:
 
     <target name="compile-main" depends="prepare">
       <echo message="Compiling James Java sources"/>
-      <available property="jndi.present" classname="javax.naming.InitialContext"/>
       <mkdir dir="${build.classes}"/>
       <javac destdir="${build.classes}" debug="${debug}" optimize="${optimize}" deprecation="${deprecation}" target="${jdk.target}" source="${jdk.source}">
         <classpath refid="project.class.path"/>
@@ -299,7 +290,6 @@ Legal:
         <src path="${java.dir}"/>
         <exclude name="${constants.file}"/>
         <exclude name="${poolconn.file}"/>
-        <exclude name="org/apache/james/userrepository/UsersLDAPRepository.java" unless="jndi.present"/>
       </javac>
       <copy todir="${build.classes}">
         <fileset dir="${java.dir}">
@@ -423,7 +413,6 @@ Legal:
       <echo message="preparing website in ${www.dir}"/>
       <delete>
         <fileset dir="${www.dir}">
-          <exclude name="CVS/**"/>
           <exclude name="rfclist/**"/>
           <exclude name="javadocs/**"/>
           <exclude name="mailet/**"/>
@@ -507,36 +496,35 @@ Legal:
           <include name="mailet-${mailet-version}.jar"/>
           <include name="james-${version}.jar"/>         
         </lib>
-        <lib dir="${lib.dir}">
-          <include name="${avalon-framework.jar}"/>
-          <include name="${avalon-framework-impl.jar}"/>
-          <include name="dnsjava-2.0.1.jar"/>
-          <include name="jakarta-oro-2.0.8.jar"/>
-          <include name="derby.jar"/>
-          <include name="excalibur-datasource-2.1.jar"/>
-          <include name="activation-1.1.jar"/>
-          <include name="mail-1.4.0.jar"/>
-          <include name="commons-dbcp-1.2.1.jar"/>
-          <include name="commons-pool-1.2.jar"/>
-          <include name="bcmail-jdk14-129.jar"/>
-          <include name="excalibur-thread-api-2.1.jar"/>
-          <include name="excalibur-thread-impl-2.1.jar"/>
-          <include name="excalibur-pool-api-2.1.jar"/>
-          <include name="excalibur-pool-impl-2.1.jar"/>
-          <include name="commons-collections-2.1.1.jar"/>
-          <include name="cornerstone-threads-api-2.1.jar"/>
-          <include name="cornerstone-threads-impl-2.1.jar"/>
-          <include name="cornerstone-connection-api-2.1.jar"/>
-          <include name="cornerstone-connection-impl-2.1.jar"/>
-          <include name="cornerstone-store-api-2.1.jar"/>
-          <include name="cornerstone-store-impl-2.1.jar"/>
-          <include name="cornerstone-scheduler-api-2.1.jar"/>
-          <include name="cornerstone-scheduler-impl-2.1.jar"/>
-          <include name="cornerstone-sockets-api-2.1.jar"/>
-          <include name="cornerstone-sockets-impl-2.1-patched.jar"/>
-          <include name="cornerstone-datasources-api-2.1.jar"/>
-          <include name="cornerstone-datasources-impl-2.1-patched.jar"/>
-          <include name="concurrent-1.3.4.jar"/>
+      	<lib dir="${lib.dir}">
+          <include name="${dns.jar}"/>
+          <include name="${jakarta-oro.jar}"/>
+          <include name="${derby.jar}"/>
+          <include name="${excalibur-datasource.jar}"/>
+          <include name="${javax-activation.jar}"/>
+          <include name="${javax-mail.jar}"/>
+          <include name="${commons-dbcp.jar}"/>
+          <include name="${commons-pool.jar}"/>
+          <include name="${bcmail.jar}"/>
+          <include name="${bcmail-workaround.jar}"/>
+          <include name="${excalibur-thread-api.jar}"/>
+          <include name="${excalibur-thread-impl.jar}"/>
+          <include name="${excalibur-pool-api.jar}"/>
+          <include name="${excalibur-pool-impl.jar}"/>
+          <include name="${commons-collections.jar}"/>
+          <include name="${cornerstone-threads-api.jar}"/>
+          <include name="${cornerstone-threads-impl.jar}"/>
+          <include name="${cornerstone-connection-api.jar}"/>
+          <include name="${cornerstone-connection-impl.jar}"/>
+          <include name="${cornerstone-store-api.jar}"/>
+          <include name="${cornerstone-store-impl.jar}"/>
+          <include name="${cornerstone-scheduler-api.jar}"/>
+          <include name="${cornerstone-scheduler-impl.jar}"/>
+          <include name="${cornerstone-sockets-api.jar}"/>
+          <include name="${cornerstone-sockets-impl.jar}"/>
+          <include name="${cornerstone-datasources-api.jar}"/>
+          <include name="${cornerstone-datasources-impl.jar}"/>
+          <include name="${concurrent.jar}"/>
         </lib>
         <zipfileset dir="${conf.dir}" fullpath="conf/sqlResources.xml">
           <include name="sqlResources.xml"/>
