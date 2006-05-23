@@ -551,20 +551,6 @@ public class RemoteManagerHandler
         out.println("showforwarding [username]                      shows a user's current email forwarding");
         out.println("unsetforwarding [username]                     removes a forward");
         out.println("user [repositoryname]                          change to another user repository");
-        out.println("help                                           display this help");
-        out.println("listusers                                      display existing accounts");
-        out.println("countusers                                     display the number of existing accounts");
-        out.println("adduser [username] [password]                  add a new user");
-        out.println("verify [username]                              verify if specified user exist");
-        out.println("deluser [username]                             delete existing user");
-        out.println("setpassword [username] [password]              sets a user's password");
-        out.println("setalias [user] [alias]                        locally forwards all email for 'user' to 'alias'");
-        out.println("showalias [username]                           shows a user's current email alias");
-        out.println("unsetalias [user]                              unsets an alias for 'user'");
-        out.println("setforwarding [username] [emailaddress]        forwards a user's email to another email address");
-        out.println("showforwarding [username]                      shows a user's current email forwarding");
-        out.println("unsetforwarding [username]                     removes a forward");
-        out.println("user [repositoryname]                          change to another user repository");
         out.println("listspool [spoolrepositoryname]                list all mails which reside in the spool and have an error state");
         out.println("flushspool [spoolrepositoryname] ([key])       try to resend the mail assing to the given key. If no key is given all mails get resend");
         out.println("deletespool [spoolrepositoryname] ([key])      delete the mail assign to the given key. If no key is given all mails get deleted");
@@ -572,6 +558,7 @@ public class RemoteManagerHandler
         out.println("quit                                           close connection");
         out.flush();
         return true;
+        
     }
 
     /**
