@@ -183,7 +183,7 @@ public class DNSRBLHandler
                     return false;
                 } catch (java.net.UnknownHostException uhe) {
                     if (getLogger().isInfoEnabled()) {
-                        getLogger().info("unknown host exception thrown:" + rblList[i]);
+                        getLogger().info("IpAddress " + session.getRemoteIPAddress() + " not listed on " + rblList[i]);
                     }
                 }
             }
