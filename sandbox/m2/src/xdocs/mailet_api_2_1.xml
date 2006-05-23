@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+
+<document>
+
+ <properties>
+  <title>James 2.1 - Mailet API</title>
+ </properties>
+
+<body>
+<section name="Mailet API">
+<p>The Mailet API is a simple API used to build mail processing applications.  James is a Mailet 
+container, allowing administrators to deploy Mailets (both custom and pre-made) to carry out a 
+variety of complex mail processing tasks.  In the default configuration James uses Mailets to carry 
+out a number of tasks that are carried out deep in the source code of other mail servers (i.e. list 
+processing, remote and local delivery).</p>
+<p>
+As it stands today, the Mailet API defines interfaces for both Matchers and Mailets.</p>
+<p>Matchers, as their name would suggest, match mail messages against certain conditions.  They 
+return some subset (possibly the entire set) of the original recipients of the message if there 
+is a match.  An inherent part of the Matcher contract is that a Matcher should not induce any changes
+in a message under evaluation.</p>
+<p>Mailets are responsible for actually processing the message.  They may alter the message in any fashion,
+or pass the message to an external API or component.  This can include delivering a message to its destination 
+repository or SMTP server.</p>
+<p>The Mailet API is currently in its second revision.  Although, the Mailet API is expected to undergo substantial changes in the near future, it is our aim that existing Mailets that abided purely by the prior Mailet API interfaces will continue to run with the revised specification.</p>
+<p>The Javadoc for the Mailet API can be found <a href="mailet/index.html">here</a>.</p>
+<p>James bundles a number of Matchers and Mailets in its distribution.  Descriptions of provided matchers 
+can be found <a href="provided_matchers_2_1.html">here</a>, while descriptions of provided mailets can be found 
+<a href="provided_mailets_2_1.html">here</a>.</p>
+</section>
+</body>
+</document>
