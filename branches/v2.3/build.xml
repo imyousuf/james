@@ -518,6 +518,7 @@ Legal:
           <include name="commons-dbcp-1.2.1.jar"/>
           <include name="commons-pool-1.2.jar"/>
           <include name="bcmail-jdk14-129.jar"/>
+          <include name="bcmail-jdk14-129-workaround.jar"/>
           <include name="excalibur-thread-api-2.1.jar"/>
           <include name="excalibur-thread-impl-2.1.jar"/>
           <include name="excalibur-pool-api-2.1.jar"/>
