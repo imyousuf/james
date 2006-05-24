@@ -352,17 +352,7 @@ public class James
         compMgr.put( UsersRepository.ROLE, localusers);
         getLogger().info("Local users repository opened");
 
-        Configuration inboxConf = conf.getChild("inboxRepository");
-        Configuration inboxRepConf = inboxConf.getChild("repository");
-        // we could delete this block. I didn't remove this because I'm not sure
-        // wether we need the "check" of the inbox repository here, or not.
-        try {
-            store.select(inboxRepConf);
-        } catch (Exception e) {
-            getLogger().error("Cannot open private MailRepository");
-            throw e;
-        }
-        inboxRootURL = inboxRepConf.getAttribute("destinationURL");
+        inboxRootURL = conf.getChild("inboxRepository").getChild("repository").getAttribute("destinationURL");
 
         getLogger().info("Private Repository LocalInbox opened");
 
