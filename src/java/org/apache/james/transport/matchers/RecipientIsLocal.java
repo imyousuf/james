@@ -20,7 +20,6 @@ package org.apache.james.transport.matchers;
 import org.apache.mailet.GenericRecipientMatcher;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetContext;
-import java.util.Locale;
 
 /**
  * @version 1.0.0, 24/04/1999
@@ -30,7 +29,6 @@ public class RecipientIsLocal extends GenericRecipientMatcher {
     public boolean matchRecipient(MailAddress recipient) {
         MailetContext mailetContext = getMailetContext();
         //This might change after startup
-        return mailetContext.isLocalServer(recipient.getHost())
-            && mailetContext.isLocalUser(recipient.getUser());
+        return mailetContext.isLocalUser(recipient);
     }
 }

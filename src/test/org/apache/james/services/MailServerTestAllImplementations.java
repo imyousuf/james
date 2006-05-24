@@ -66,7 +66,7 @@ abstract public class MailServerTestAllImplementations extends TestCase {
 
         if (canTestUserExists())
         {
-            assertFalse("this is a fresh user", isUserExisting(mailServer, userName));
+            assertFalse("this is a fresh user", isUserExisting(mailServer, userName+"@localhost"));
         }
         
         boolean allowsPasswordlessUser = allowsPasswordlessUser();

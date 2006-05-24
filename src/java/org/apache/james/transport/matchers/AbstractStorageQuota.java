@@ -81,7 +81,7 @@ abstract public class AbstractStorageQuota extends AbstractQuotaMatcher {
      */    
     protected boolean isRecipientChecked(MailAddress recipient) throws MessagingException {
         MailetContext mailetContext = getMailetContext();
-        return super.isRecipientChecked(recipient) && (mailetContext.isLocalServer(recipient.getHost()) && mailetContext.isLocalUser(recipient.getUser()));
+        return super.isRecipientChecked(recipient) && (mailetContext.isLocalUser(recipient));
     }
 
     /** 

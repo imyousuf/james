@@ -57,6 +57,8 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.ParseException;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.SequenceInputStream;
@@ -708,10 +710,32 @@ public class James
      * @return whether the account has a local inbox
      */
     public boolean isLocalUser(String name) {
+        if (name == null) {
+            return false;
+        }
+        try {
+            if (name.indexOf("@") == -1) {
+                return isLocalUser(new MailAddress(name,"localhost"));
+            } else {
+                return isLocalUser(new MailAddress(name));
+            }
+        } catch (ParseException e) {
+            log("Error checking isLocalUser for user "+name);
+            return false;
+        }
+    }
+    
+    /**
+     * @see org.apache.mailet.MailetContext#isLocalUser(org.apache.mailet.MailAddress)
+     */
+    public boolean isLocalUser(MailAddress mailAddress) {
+        if (!isLocalServer(mailAddress.getHost())) {
+            return false;
+        }
         if (ignoreCase) {
-            return localusers.containsCaseInsensitive(name);
+            return localusers.containsCaseInsensitive(mailAddress.getUser());
         } else {
-            return localusers.contains(name);
+            return localusers.contains(mailAddress.getUser());
         }
     }
 
@@ -750,7 +774,8 @@ public class James
      * @return whether the server is local
      */
     public boolean isLocalServer( final String serverName ) {
-        return serverNames.contains(serverName.toLowerCase(Locale.US));
+        String lowercase = serverName.toLowerCase(Locale.US);
+        return "localhost".equals(serverName) || serverNames.contains(lowercase);
     }
 
     /**

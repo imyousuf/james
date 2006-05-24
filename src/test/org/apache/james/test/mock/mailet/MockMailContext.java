@@ -74,6 +74,10 @@ public class MockMailContext implements MailetContext {
         return false;  // trivial implementation
     }
 
+    public boolean isLocalUser(MailAddress mailAddress) {
+        return false;  // trivial implementation
+    }
+
     public void log(String message) {
         System.out.println(message);
     }
