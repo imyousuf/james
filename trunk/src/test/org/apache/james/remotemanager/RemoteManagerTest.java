@@ -139,6 +139,8 @@ public class RemoteManagerTest extends TestCase {
 
         m_reader = new BufferedReader(new InputStreamReader(m_telnetClient.getInputStream()));
         m_writer = new OutputStreamWriter(m_telnetClient.getOutputStream());
+        
+        readAnswer();
     }
 
     private MockServiceManager setUpServiceManager() {

@@ -887,7 +887,7 @@ public class MessageProcessor extends ProcessorAbstract
      */
     protected boolean isLocalRecipient(MailAddress recipient)
     {
-        return isLocalUser(recipient) && isLocalServer(recipient);
+        return isLocalServer(recipient) && getLocalUsers().containsCaseInsensitive(recipient.getUser());
     }
     
     /**
@@ -899,16 +899,6 @@ public class MessageProcessor extends ProcessorAbstract
     {
         return getServer().isLocalServer(recipient.getHost());
     }
-    
-    /**
-     * Method isLocalUser.
-     * @param recipient
-     * @return boolean
-     */
-    protected boolean isLocalUser(MailAddress recipient)
-    {
-        return getLocalUsers().containsCaseInsensitive(recipient.getUser());
-    }       
     
     /**
      * Method isBlacklistedRecipient.
