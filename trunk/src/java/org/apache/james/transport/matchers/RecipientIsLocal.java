@@ -29,6 +29,6 @@ public class RecipientIsLocal extends GenericRecipientMatcher {
     public boolean matchRecipient(MailAddress recipient) {
         MailetContext mailetContext = getMailetContext();
         //This might change after startup
-        return mailetContext.isLocalUser(recipient);
+        return mailetContext.isLocalEmail(recipient);
     }
 }

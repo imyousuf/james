@@ -147,7 +147,7 @@ public interface MailetContext {
      * @param userAccount - user identifier.
      * @return true if the acount is a local account
      * 
-     * @deprecated use isLocalUser(MailAddress) instead
+     * @deprecated use isLocalEmail(MailAddress) instead
      * 
      * @since James 2.4.0 this method expect to receive also the domain
      * name within the userAccount string (user\@domain).
@@ -163,7 +163,7 @@ public interface MailetContext {
      * 
      * @since James 2.4.0
      */
-    boolean isLocalUser(MailAddress mailAddress);
+    boolean isLocalEmail(MailAddress mailAddress);
 
     /**
      * Writes the specified message to a mailet log file, usually an event

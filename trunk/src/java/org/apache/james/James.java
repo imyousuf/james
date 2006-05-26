@@ -715,9 +715,9 @@ public class James
         }
         try {
             if (name.indexOf("@") == -1) {
-                return isLocalUser(new MailAddress(name,"localhost"));
+                return isLocalEmail(new MailAddress(name,"localhost"));
             } else {
-                return isLocalUser(new MailAddress(name));
+                return isLocalEmail(new MailAddress(name));
             }
         } catch (ParseException e) {
             log("Error checking isLocalUser for user "+name);
@@ -726,9 +726,9 @@ public class James
     }
     
     /**
-     * @see org.apache.mailet.MailetContext#isLocalUser(org.apache.mailet.MailAddress)
+     * @see org.apache.mailet.MailetContext#isLocalEmail(org.apache.mailet.MailAddress)
      */
-    public boolean isLocalUser(MailAddress mailAddress) {
+    public boolean isLocalEmail(MailAddress mailAddress) {
         if (!isLocalServer(mailAddress.getHost())) {
             return false;
         }
