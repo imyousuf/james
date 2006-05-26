@@ -74,7 +74,7 @@ public class MockMailContext implements MailetContext {
         return false;  // trivial implementation
     }
 
-    public boolean isLocalUser(MailAddress mailAddress) {
+    public boolean isLocalEmail(MailAddress mailAddress) {
         return false;  // trivial implementation
     }
 
