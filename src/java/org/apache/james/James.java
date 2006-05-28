@@ -536,11 +536,10 @@ public class James
                     mailboxes.put(userName, userInbox);
                 }
             } catch (Exception e) {
-                if (getLogger().isErrorEnabled())
-                {
-                    getLogger().error("Cannot open user Mailbox" + e);
+                if (getLogger().isErrorEnabled()) {
+                    getLogger().error("Cannot open user Mailbox",e);
                 }
-                throw new RuntimeException("Error in getUserInbox." + e);
+                throw new RuntimeException("Error in getUserInbox.",e);
             }
             return userInbox;
         }
