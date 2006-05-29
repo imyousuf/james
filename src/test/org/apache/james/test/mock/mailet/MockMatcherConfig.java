@@ -35,7 +35,7 @@ public class MockMatcherConfig implements MatcherConfig {
     }
 
     public String getCondition() {
-        return matcherName.split("=")[1];
+        return matcherName.substring(getMatcherName().length() + 1);
     }
 
     public MailetContext getMailetContext() {
@@ -43,7 +43,7 @@ public class MockMatcherConfig implements MatcherConfig {
     }
 
     public String getMatcherName() {
-        return matcherName;
+        return matcherName.split("=")[0];
     }
 
 }
