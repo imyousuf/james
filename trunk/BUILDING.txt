@@ -11,7 +11,7 @@ Steps:
 1) Install Ant (v1.6.5 as of the time of this writing)
 
 2) Add Ant to your path.  For me, I do the following:
-   $ tar ztvf apache-ant-1.6.5-bin.tar.gz
+   $ tar zxvf apache-ant-1.6.5-bin.tar.gz
    $ mv apache-ant-1.6.5 /usr/local
    $ ln -sf /usr/local/apache-ant-1.6.5 /usr/local/ant
    $ ln -sf /usr/local/ant/bin/ant /usr/local/bin/ant
