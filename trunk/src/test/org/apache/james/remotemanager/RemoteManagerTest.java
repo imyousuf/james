@@ -34,14 +34,15 @@ import org.apache.james.test.mock.james.MockMailServer;
 import org.apache.james.test.mock.james.MockUsersStore;
 import org.apache.james.test.util.Util;
 import org.apache.james.userrepository.MockUsersRepository;
+import org.apache.james.util.InternetPrintWriter;
 import org.apache.james.util.connection.SimpleConnectionManager;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -56,14 +57,12 @@ import junit.framework.TestCase;
 
 public class RemoteManagerTest extends TestCase {
     
-    public static final String LINE_SEPARATOR = System.getProperties().getProperty("line.separator"); 
-
     protected int m_remoteManagerListenerPort = Util.getNonPrivilegedPort();
     protected RemoteManager m_remoteManager;
     protected RemoteManagerTestConfiguration m_testConfiguration;
     protected String m_host = "127.0.0.1";
     protected BufferedReader m_reader;
-    protected OutputStreamWriter m_writer;
+    protected InternetPrintWriter m_writer;
     protected TelnetClient m_telnetClient;
     private MockUsersRepository m_mockUsersRepository;
 
@@ -105,31 +104,32 @@ public class RemoteManagerTest extends TestCase {
     }
 
     protected List readAnswer() {
+        return readAnswer(1);
+    }
+    
+    protected List readAnswer(int numLines) {
+        List allAnswerLines = new ArrayList();
         try {
-            while (!m_reader.ready()) { ; }
+            if (numLines > 0) {
+                for (int i = 0; i < numLines; i++) {
+                    allAnswerLines.add(m_reader.readLine());
+                }
+            } else {
+                String line = m_reader.readLine();
+                allAnswerLines.add(line);
+                
+                while (m_reader.ready()) {
+                    allAnswerLines.add(m_reader.readLine());
+                }
+            }
+            return allAnswerLines;
         } catch (IOException e) {
             return null;
         }
-
-        StringBuffer stringBuffer = new StringBuffer();
-        char[] charBuffer = new char[100];
-        List allAnswerLines = new ArrayList();
-        try {
-            int readCount;
-            while ((m_reader.ready() && (readCount = m_reader.read(charBuffer)) > 0)) {
-                stringBuffer.append(charBuffer, 0, readCount);
-            }
-        } catch (IOException e) {
-            fail("reading remote manager answer failed");
-        }
-
-        allAnswerLines.addAll(Arrays.asList(stringBuffer.toString().split(LINE_SEPARATOR)));
-        if ("".equals(getLastLine(allAnswerLines))) allAnswerLines.remove(allAnswerLines.size()-1);
-        return allAnswerLines;
     }
 
     protected void sendCommand(String command) throws IOException {
-        m_writer.write(command + LINE_SEPARATOR);
+        m_writer.println(command);
         m_writer.flush();
     }
 
@@ -137,10 +137,10 @@ public class RemoteManagerTest extends TestCase {
         m_telnetClient = new TelnetClient();
         m_telnetClient.connect(m_host, m_remoteManagerListenerPort);
 
-        m_reader = new BufferedReader(new InputStreamReader(m_telnetClient.getInputStream()));
-        m_writer = new OutputStreamWriter(m_telnetClient.getOutputStream());
+        m_reader = new BufferedReader(new InputStreamReader(new BufferedInputStream(m_telnetClient.getInputStream(), 1024), "ASCII"));
+        m_writer = new InternetPrintWriter(new BufferedOutputStream(m_telnetClient.getOutputStream(), 1024), true);
         
-        readAnswer();
+        readAnswer(3);
     }
 
     private MockServiceManager setUpServiceManager() {
@@ -170,11 +170,13 @@ public class RemoteManagerTest extends TestCase {
         connect();
 
         sendCommand("sindbad");
+        List answers = readAnswer();
         sendCommand(m_testConfiguration.getLoginPassword());
 
-        List answers = readAnswer();
+        // we should receive the fail message and a new Login id.
+        answers = readAnswer(2);
         String last = getLastLine(answers);
-        assertTrue(last.startsWith("Login id:")); // login failed, getting new login prompt
+        assertTrue("Last line does not start with 'Login id:' but with '"+last+"'",last.startsWith("Login id:")); // login failed, getting new login prompt
     }
 
     public void testWrongLoginPassword() throws IOException {
@@ -182,11 +184,12 @@ public class RemoteManagerTest extends TestCase {
         connect();
 
         sendCommand(m_testConfiguration.getLoginName());
+        List answers = readAnswer();
         sendCommand("getmethru");
 
-        List answers = readAnswer();
+        answers = readAnswer(2);
         String last = getLastLine(answers);
-        assertTrue(last.startsWith("Login id:")); // login failed, getting new login prompt
+        assertTrue("Line does not start with 'Login id:' but with '"+last+"'", last.startsWith("Login id:")); // login failed, getting new login prompt
     }
 
     public void testUserCount() throws IOException {
@@ -276,7 +279,7 @@ public class RemoteManagerTest extends TestCase {
         } catch (InterruptedException e) {
             ; // ignore
         }
-        readAnswer();
+        readAnswer(0);
 
         sendCommand("help");
         try {
@@ -297,6 +300,7 @@ public class RemoteManagerTest extends TestCase {
         for (int i = 0; i < users.length; i++) {
             String user = users[i];
             sendCommand("adduser " + user + " test");
+            readAnswer(1);
         }
         
         try {
@@ -304,10 +308,9 @@ public class RemoteManagerTest extends TestCase {
         } catch (InterruptedException e) {
             ; // ignore
         }
-        readAnswer();
 
         sendCommand("listusers");
-        List list = readAnswer();
+        List list = readAnswer(5);
 
         assertEquals("user count line", "Existing accounts " + users.length, list.get(0));
         
@@ -469,25 +472,28 @@ public class RemoteManagerTest extends TestCase {
         connect();
         login();
 
+        String lastLine;
+        
         sendCommand("adduser testPwdUser pwd1");
-        assertTrue(getLastLine(readAnswer()).endsWith(" added"));
+        lastLine = getLastLine(readAnswer());
+        assertTrue(lastLine.endsWith(" added"));
 
         assertTrue("initial password", m_mockUsersRepository.test("testPwdUser", "pwd1"));
         
-         sendCommand("setpassword testPwdUser     ");
-        assertTrue("password changed to empty", m_mockUsersRepository.test("testPwdUser", "pwd1"));
-        readAnswer(); // ignore
+        sendCommand("setpassword testPwdUser     ");
+        lastLine = getLastLine(readAnswer());
+        assertTrue("password changed to empty: "+lastLine, m_mockUsersRepository.test("testPwdUser", "pwd1"));
 
         // change pwd
         sendCommand("setpassword testPwdUser pwd2");
-        assertTrue("password not changed to pwd2", m_mockUsersRepository.test("testPwdUser", "pwd2"));
-        readAnswer(); // ignore
+        lastLine = getLastLine(readAnswer());
+        assertTrue("password not changed to pwd2: "+lastLine, m_mockUsersRepository.test("testPwdUser", "pwd2"));
         
         // assure case sensitivity
         sendCommand("setpassword testPwdUser pWD2");
-        assertFalse("password not changed to pWD2", m_mockUsersRepository.test("testPwdUser", "pwd2"));
-        assertTrue("password not changed to pWD2", m_mockUsersRepository.test("testPwdUser", "pWD2"));
-        readAnswer(); // ignore
+        lastLine = getLastLine(readAnswer());
+        assertFalse("password not changed to pWD2: "+lastLine, m_mockUsersRepository.test("testPwdUser", "pwd2"));
+        assertTrue("password not changed to pWD2: "+lastLine, m_mockUsersRepository.test("testPwdUser", "pWD2"));
         
     }
 }
