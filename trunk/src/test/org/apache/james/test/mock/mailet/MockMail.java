@@ -15,13 +15,13 @@
  * permissions and limitations under the License.                      *
  ***********************************************************************/
 
-
 package org.apache.james.test.mock.mailet;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 
 import javax.mail.MessagingException;
@@ -45,6 +45,8 @@ public class MockMail implements Mail {
     private String errorMessage;
 
     private Date lastUpdated;
+
+    private HashMap attributes = new HashMap();
 
     private static final long serialVersionUID = 1L;
 
@@ -101,27 +103,29 @@ public class MockMail implements Mail {
     }
 
     public Serializable getAttribute(String name) {
-        throw new UnsupportedOperationException("Unimplemented mock service");
+        return (Serializable) attributes.get(name);
     }
 
     public Iterator getAttributeNames() {
-        throw new UnsupportedOperationException("Unimplemented mock service");
+        return attributes.keySet().iterator();
     }
 
     public boolean hasAttributes() {
-        throw new UnsupportedOperationException("Unimplemented mock service");
+        return !attributes.isEmpty();
     }
 
     public Serializable removeAttribute(String name) {
-        throw new UnsupportedOperationException("Unimplemented mock service");
+        return (Serializable) attributes.remove(name);
+
     }
 
     public void removeAllAttributes() {
-        throw new UnsupportedOperationException("Unimplemented mock service");
+        attributes.clear();
     }
 
     public Serializable setAttribute(String name, Serializable object) {
-        throw new UnsupportedOperationException("Unimplemented mock service");
+
+        return (Serializable) attributes.put(name, object);
     }
 
     public long getMessageSize() throws MessagingException {
