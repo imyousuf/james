@@ -21,9 +21,11 @@ import org.apache.james.test.mock.mailet.MockMail;
 import org.apache.james.test.mock.mailet.MockMailContext;
 import org.apache.james.test.mock.mailet.MockMatcherConfig;
 
+import org.apache.mailet.MailAddress;
 import org.apache.mailet.Matcher;
 
 import javax.mail.MessagingException;
+import javax.mail.internet.ParseException;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
@@ -41,10 +43,11 @@ public class AllTest extends TestCase {
         super(arg0);
     }
 
-    private void setupMockedMail() {
+    private void setupMockedMail() throws ParseException {
         mockedMail = new MockMail();
-        mockedMail.setRecipients(Arrays.asList(new String[] {
-                "test@james.apache.org", "test2@james.apache.org" }));
+        mockedMail.setRecipients(Arrays.asList(new MailAddress[] {
+                new MailAddress("test@james.apache.org"),
+                new MailAddress("test2@james.apache.org") }));
 
     }
 

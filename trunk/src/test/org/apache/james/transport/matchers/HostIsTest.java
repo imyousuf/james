@@ -28,7 +28,6 @@ import org.apache.mailet.Matcher;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import javax.mail.internet.ParseException;
 import javax.mail.internet.MimeMessage.RecipientType;
 
 import java.io.UnsupportedEncodingException;
@@ -37,7 +36,7 @@ import java.util.Collection;
 
 import junit.framework.TestCase;
 
-public class HasHeaderTest extends TestCase {
+public class HostIsTest extends TestCase {
 
     private MimeMessage mockedMimeMessage;
 
@@ -45,24 +44,16 @@ public class HasHeaderTest extends TestCase {
 
     private Matcher matcher;
 
-    private final String HEADER_NAME = "JUNIT";
+    private final String HOST_NAME = "james.apache.org";
 
-    private final String HEADER_VALUE = "test-value";
+    private MailAddress[] recipients;
 
-    private String headerName = "defaultHeaderName";
-
-    private String headerValue = "defaultHeaderValue";
-
-    public HasHeaderTest(String arg0) throws UnsupportedEncodingException {
+    public HostIsTest(String arg0) throws UnsupportedEncodingException {
         super(arg0);
     }
 
-    private void setHeaderName(String headerName) {
-        this.headerName = headerName;
-    }
-
-    private void setHeaderValue(String headerValue) {
-        this.headerValue = headerValue;
+    private void setRecipients(MailAddress[] recipients) {
+        this.recipients = recipients;
     }
 
     private void setupMockedMimeMessage() throws MessagingException {
@@ -72,34 +63,32 @@ public class HasHeaderTest extends TestCase {
         mockedMimeMessage = new MockMimeMessage();
         mockedMimeMessage.setFrom(new InternetAddress(sender));
         mockedMimeMessage.setRecipients(RecipientType.TO, rcpt);
-        mockedMimeMessage.setHeader(headerName, headerValue);
         mockedMimeMessage.setSubject("testmail");
         mockedMimeMessage.setText("testtext");
         mockedMimeMessage.saveChanges();
 
     }
 
-    private void setupMockedMail(MimeMessage m) throws ParseException {
+    private void setupMockedMail(MimeMessage m) {
         mockedMail = new MockMail();
         mockedMail.setMessage(m);
-        mockedMail.setRecipients(Arrays.asList(new MailAddress[] {
-                new MailAddress("test@james.apache.org"),
-                new MailAddress("test2@james.apache.org") }));
+        mockedMail.setRecipients(Arrays.asList(recipients));
 
     }
 
     private void setupMatcher() throws MessagingException {
         setupMockedMimeMessage();
-        matcher = new HasHeader();
-        MockMatcherConfig mci = new MockMatcherConfig("HasHeader="
-                + HEADER_NAME, new MockMailContext());
+        matcher = new HostIs();
+        MockMatcherConfig mci = new MockMatcherConfig("HostIs=" + HOST_NAME,
+                new MockMailContext());
         matcher.init(mci);
     }
 
-    // test if the Header was matched
-    public void testHeaderIsMatched() throws MessagingException {
-        setHeaderName(HEADER_NAME);
-        setHeaderValue(HEADER_VALUE);
+    // test if all recipients get returned as matched
+    public void testHostIsMatchedAllRecipients() throws MessagingException {
+        setRecipients(new MailAddress[] {
+                new MailAddress("test@james.apache.org"),
+                new MailAddress("test2@james.apache.org") });
 
         setupMockedMimeMessage();
         setupMockedMail(mockedMimeMessage);
@@ -112,14 +101,34 @@ public class HasHeaderTest extends TestCase {
                 .size());
     }
 
-    // test if the Header was not matched
-    public void testHeaderIsNotMatched() throws MessagingException {
+    // test if one recipients get returned as matched
+    public void testHostIsMatchedOneRecipient() throws MessagingException {
+        setRecipients(new MailAddress[] {
+                new MailAddress("test@james2.apache.org"),
+                new MailAddress("test2@james.apache.org") });
+
         setupMockedMimeMessage();
         setupMockedMail(mockedMimeMessage);
         setupMatcher();
 
         Collection matchedRecipients = matcher.match(mockedMail);
 
-        assertNull(matchedRecipients);
+        assertNotNull(matchedRecipients);
+        assertEquals(matchedRecipients.size(), 1);
+    }
+
+    // test if no recipient get returned cause it not match
+    public void testHostIsNotMatch() throws MessagingException {
+        setRecipients(new MailAddress[] {
+                new MailAddress("test@james2.apache.org"),
+                new MailAddress("test2@james2.apache.org") });
+
+        setupMockedMimeMessage();
+        setupMockedMail(mockedMimeMessage);
+        setupMatcher();
+
+        Collection matchedRecipients = matcher.match(mockedMail);
+
+        assertEquals(matchedRecipients.size(), 0);
     }
 }
