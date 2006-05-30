@@ -27,6 +27,7 @@ import javax.mail.MessagingException;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
+import java.util.Collection;
 
 import junit.framework.TestCase;
 
@@ -59,9 +60,11 @@ public class AllTest extends TestCase {
         setupMockedMail();
         setupMatcher();
 
-        assertTrue(matcher.match(mockedMail) != null);
-        assertEquals(matcher.match(mockedMail).size(), mockedMail
-                .getRecipients().size());
+        Collection matchedRecipients = matcher.match(mockedMail);
+
+        assertNotNull(matchedRecipients);
+        assertEquals(matchedRecipients.size(), mockedMail.getRecipients()
+                .size());
     }
 
 }
