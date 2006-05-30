@@ -22,11 +22,13 @@ import org.apache.james.test.mock.mailet.MockMail;
 import org.apache.james.test.mock.mailet.MockMailContext;
 import org.apache.james.test.mock.mailet.MockMailetConfig;
 import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
 import org.apache.mailet.Mailet;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.ParseException;
 import javax.mail.internet.MimeMessage.RecipientType;
 
 import java.io.UnsupportedEncodingException;
@@ -76,11 +78,11 @@ public class AddHeaderTest extends TestCase {
 
     }
 
-    private void setupMockedMail(MimeMessage m) {
+    private void setupMockedMail(MimeMessage m) throws ParseException {
         mockedMail = new MockMail();
         mockedMail.setMessage(m);
-        mockedMail.setRecipients(Arrays.asList(new String[] {
-                "test@james.apache.org", "test2@james.apache.org" }));
+        mockedMail.setRecipients(Arrays.asList(new MailAddress[] {
+                new MailAddress("test@james.apache.org"), new MailAddress("test2@james.apache.org") }));
 
     }
 
