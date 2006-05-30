@@ -36,7 +36,7 @@ import java.util.Collection;
 
 import junit.framework.TestCase;
 
-public class HasMailAttributeTest extends TestCase {
+public class HasMailAttributeWithValueRegexTest extends TestCase {
 
     private MimeMessage mockedMimeMessage;
 
@@ -52,7 +52,9 @@ public class HasMailAttributeTest extends TestCase {
 
     private String mailAttributeValue = "false";
 
-    public HasMailAttributeTest(String arg0)
+    private String regex = ".*";
+
+    public HasMailAttributeWithValueRegexTest(String arg0)
             throws UnsupportedEncodingException {
         super(arg0);
     }
@@ -63,6 +65,10 @@ public class HasMailAttributeTest extends TestCase {
 
     private void setMailAttributeValue(String mailAttributeValue) {
         this.mailAttributeValue = mailAttributeValue;
+    }
+
+    private void setRegex(String regex) {
+        this.regex = regex;
     }
 
     private void setupMockedMimeMessage() throws MessagingException {
@@ -83,15 +89,16 @@ public class HasMailAttributeTest extends TestCase {
         mockedMail.setMessage(m);
         mockedMail.setRecipients(Arrays.asList(new String[] {
                 "test@james.apache.org", "test2@james.apache.org" }));
-        mockedMail.setAttribute(mailAttributeName, (Serializable) mailAttributeValue);
+        mockedMail.setAttribute(mailAttributeName,
+                (Serializable) mailAttributeValue);
 
     }
 
     private void setupMatcher() throws MessagingException {
         setupMockedMimeMessage();
-        matcher = new HasMailAttribute();
+        matcher = new HasMailAttributeWithValueRegex();
         MockMatcherConfig mci = new MockMatcherConfig("HasMailAttribute="
-                + MAIL_ATTRIBUTE_NAME, new MockMailContext());
+                + MAIL_ATTRIBUTE_NAME + ", " + regex, new MockMailContext());
         matcher.init(mci);
     }
 
@@ -99,6 +106,7 @@ public class HasMailAttributeTest extends TestCase {
     public void testAttributeIsMatched() throws MessagingException {
         setMailAttributeName(MAIL_ATTRIBUTE_NAME);
         setMailAttributeValue(MAIL_ATTRIBUTE_VALUE);
+        setRegex(".*");
 
         setupMockedMimeMessage();
         setupMockedMail(mockedMimeMessage);
@@ -112,7 +120,8 @@ public class HasMailAttributeTest extends TestCase {
     }
 
     // test if the mail attribute was not matched
-    public void testAttributeIsNotMatched() throws MessagingException {
+    public void testHeaderIsNotMatched() throws MessagingException {
+        setRegex("\\d");
         setupMockedMimeMessage();
         setupMockedMail(mockedMimeMessage);
         setupMatcher();
@@ -120,5 +129,29 @@ public class HasMailAttributeTest extends TestCase {
         Collection matchedRecipients = matcher.match(mockedMail);
 
         assertNull(matchedRecipients);
+    }
+
+    // test if an exception was thrown cause the regex was invalid
+    public void testHeaderIsNotMatchedCauseValue() throws MessagingException {
+
+        String invalidRegex = "(!(";
+        String regexException = null;
+        String exception = "Malformed pattern: " + invalidRegex;
+
+        setRegex(invalidRegex);
+        setupMockedMimeMessage();
+        setupMockedMail(mockedMimeMessage);
+
+        try {
+            setupMatcher();
+        } catch (MessagingException m) {
+            regexException = m.getMessage();
+        }
+
+        Collection matchedRecipients = matcher.match(mockedMail);
+
+        assertNull(matchedRecipients);
+        assertEquals(regexException, exception);
+
     }
 }

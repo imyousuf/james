@@ -36,7 +36,7 @@ import java.util.Collection;
 
 import junit.framework.TestCase;
 
-public class HasMailAttributeTest extends TestCase {
+public class HasMailAttributeWithValueTest extends TestCase {
 
     private MimeMessage mockedMimeMessage;
 
@@ -52,7 +52,7 @@ public class HasMailAttributeTest extends TestCase {
 
     private String mailAttributeValue = "false";
 
-    public HasMailAttributeTest(String arg0)
+    public HasMailAttributeWithValueTest(String arg0)
             throws UnsupportedEncodingException {
         super(arg0);
     }
@@ -83,20 +83,22 @@ public class HasMailAttributeTest extends TestCase {
         mockedMail.setMessage(m);
         mockedMail.setRecipients(Arrays.asList(new String[] {
                 "test@james.apache.org", "test2@james.apache.org" }));
-        mockedMail.setAttribute(mailAttributeName, (Serializable) mailAttributeValue);
+        mockedMail.setAttribute(mailAttributeName,
+                (Serializable) mailAttributeValue);
 
     }
 
     private void setupMatcher() throws MessagingException {
         setupMockedMimeMessage();
-        matcher = new HasMailAttribute();
+        matcher = new HasMailAttributeWithValue();
         MockMatcherConfig mci = new MockMatcherConfig("HasMailAttribute="
-                + MAIL_ATTRIBUTE_NAME, new MockMailContext());
+                + MAIL_ATTRIBUTE_NAME + ", " + MAIL_ATTRIBUTE_VALUE,
+                new MockMailContext());
         matcher.init(mci);
     }
 
     // test if the mail attribute was matched
-    public void testAttributeIsMatched() throws MessagingException {
+    public void testHeaderIsMatched() throws MessagingException {
         setMailAttributeName(MAIL_ATTRIBUTE_NAME);
         setMailAttributeValue(MAIL_ATTRIBUTE_VALUE);
 
@@ -112,7 +114,19 @@ public class HasMailAttributeTest extends TestCase {
     }
 
     // test if the mail attribute was not matched
-    public void testAttributeIsNotMatched() throws MessagingException {
+    public void testHeaderIsNotMatched() throws MessagingException {
+        setupMockedMimeMessage();
+        setupMockedMail(mockedMimeMessage);
+        setupMatcher();
+
+        Collection matchedRecipients = matcher.match(mockedMail);
+
+        assertNull(matchedRecipients);
+    }
+
+    // test if the mail attribute was not matched cause diffrent value
+    public void testHeaderIsNotMatchedCauseValue() throws MessagingException {
+        setMailAttributeName(MAIL_ATTRIBUTE_NAME);
         setupMockedMimeMessage();
         setupMockedMail(mockedMimeMessage);
         setupMatcher();
