@@ -153,7 +153,7 @@ public class File_Persistent_Stream_Repository
 
                 for( int i = 0; i < size; i++ )
                 {
-                    IOUtil.shutdownStream( (OutputStream)list.get( 0 ) );
+                    IOUtil.shutdownStream( (OutputStream)list.get( i ) );
                 }
             }
         }
