@@ -18,10 +18,10 @@
 package org.apache.james.transport.matchers;
 
 import org.apache.james.test.mock.javaxmail.MockMimeMessage;
+import org.apache.james.test.mock.mailet.MockMail;
 import org.apache.james.test.mock.mailet.MockMailContext;
 import org.apache.james.test.mock.mailet.MockMatcherConfig;
-import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
+
 import org.apache.mailet.Matcher;
 
 import javax.mail.MessagingException;
@@ -29,12 +29,8 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMessage.RecipientType;
 
-import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
+import java.util.Arrays;
 
 import junit.framework.TestCase;
 
@@ -42,7 +38,7 @@ public class HasHeaderTest extends TestCase {
 
     private MimeMessage mockedMimeMessage;
 
-    private Mail mockedMail;
+    private MockMail mockedMail;
 
     private Matcher matcher;
 
@@ -80,120 +76,12 @@ public class HasHeaderTest extends TestCase {
 
     }
 
-    private void setupMockedMail() {
-        mockedMail = new Mail() {
+    private void setupMockedMail(MimeMessage m) {
+        mockedMail = new MockMail();
+        mockedMail.setMessage(m);
+        mockedMail.setRecipients(Arrays.asList(new String[] {
+                "test@james.apache.org", "test2@james.apache.org" }));
 
-            private static final long serialVersionUID = 1L;
-
-            public String getName() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public void setName(String newName) {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public MimeMessage getMessage() throws MessagingException {
-                return mockedMimeMessage;
-            }
-
-            public Collection getRecipients() {
-                return new ArrayList();
-            }
-
-            public void setRecipients(Collection recipients) {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public MailAddress getSender() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public String getState() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public String getRemoteHost() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public String getRemoteAddr() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public String getErrorMessage() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public void setErrorMessage(String msg) {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public void setMessage(MimeMessage message) {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public void setState(String state) {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public Serializable getAttribute(String name) {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public Iterator getAttributeNames() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public boolean hasAttributes() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public Serializable removeAttribute(String name) {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public void removeAllAttributes() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public Serializable setAttribute(String name, Serializable object) {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public long getMessageSize() throws MessagingException {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public Date getLastUpdated() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public void setLastUpdated(Date lastUpdated) {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-        };
     }
 
     private void setupMatcher() throws MessagingException {
@@ -208,8 +96,9 @@ public class HasHeaderTest extends TestCase {
     public void testHeaderIsMatched() throws MessagingException {
         setHeaderName(HEADER_NAME);
         setHeaderValue(HEADER_VALUE);
-        setupMockedMail();
+
         setupMockedMimeMessage();
+        setupMockedMail(mockedMimeMessage);
         setupMatcher();
 
         assertTrue(matcher.match(mockedMail) != null);
@@ -217,8 +106,8 @@ public class HasHeaderTest extends TestCase {
 
     // test if the Header was matched
     public void testHeaderIsNotMatched() throws MessagingException {
-        setupMockedMail();
         setupMockedMimeMessage();
+        setupMockedMail(mockedMimeMessage);
         setupMatcher();
 
         assertTrue(matcher.match(mockedMail) == null);
