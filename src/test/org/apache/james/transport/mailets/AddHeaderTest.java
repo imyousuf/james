@@ -88,7 +88,7 @@ public class AddHeaderTest extends TestCase {
 
     private void setupMailet() throws MessagingException {
         setupMockedMimeMessage();
-        mailet = new AddHeader();
+        mailet = new SetMimeHeader();
         MockMailetConfig mci = new MockMailetConfig("Test",
                 new MockMailContext());
         mci.setProperty("name", HEADER_NAME);
