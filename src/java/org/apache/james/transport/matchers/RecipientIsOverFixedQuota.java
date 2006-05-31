@@ -17,11 +17,12 @@
 
 package org.apache.james.transport.matchers;
 
-import org.apache.mailet.Mail;
-import org.apache.mailet.MailetContext;
-import org.apache.mailet.MailAddress;
-import javax.mail.MessagingException;
 import java.util.Locale;
+
+import javax.mail.MessagingException;
+
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
 
 /**
  * <P>Checks whether a recipient has exceeded a maximum allowed quota for messages
