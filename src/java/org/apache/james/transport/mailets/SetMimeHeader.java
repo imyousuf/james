@@ -34,7 +34,7 @@ import org.apache.mailet.Mail ;
  *
  * @version 1.0.0, 2002-09-11
  */
-public class AddHeader
+public class SetMimeHeader
        extends GenericMailet {
 
     /**
@@ -80,7 +80,7 @@ public class AddHeader
      * @return a string describing this mailet
      */
     public String getMailetInfo() {
-        return "AddHeader Mailet" ;
+        return "SetMimeHeader Mailet" ;
     }
 
 }
