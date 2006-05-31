@@ -248,7 +248,7 @@
             <ignoreLocalSender>true</ignoreLocalSender>
          </mailet>
      
-         <mailet match="CompareNumericHeaderValue=X-MessageIsSpamProbability > 0.90" class="AddHeader" onMatchException="noMatch">
+         <mailet match="CompareNumericHeaderValue=X-MessageIsSpamProbability > 0.90" class="SetMimeHeader" onMatchException="noMatch">
             <name>X-MessageIsSpam</name>
             <value>true</value>
          </mailet>
@@ -280,7 +280,7 @@
             <onlyTrusted>false</onlyTrusted>
          </mailet>
     
-         <mailet match="HasMailAttribute=org.apache.james.SMIMECheckSignature" class="AddHeader">
+         <mailet match="HasMailAttribute=org.apache.james.SMIMECheckSignature" class="SetMimeHeader">
             <name>X-WasSigned</name>
             <value>true</value>
          </mailet>
@@ -782,7 +782,7 @@
          
             <!-- The message handler configuration -->
             <!-- 
-            <handler class="org.apache.james.smtpserver.AddHeaderHandler">
+            <handler class="org.apache.james.smtpserver.SetMimeHeaderHandler">
                 <headername>SPF-test</headername>
                 <headervalue>passed</headervalue>
             </handler>
