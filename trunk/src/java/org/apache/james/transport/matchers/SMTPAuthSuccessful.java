@@ -19,10 +19,8 @@ package org.apache.james.transport.matchers;
 
 import org.apache.mailet.GenericMatcher;
 import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
 
 import java.util.Collection;
-import java.util.StringTokenizer;
 
 /**
  * <P>Matches mails that are sent by an SMTP authenticated user.</P>

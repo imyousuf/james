@@ -17,11 +17,10 @@
 
 package org.apache.james.transport.matchers;
 
-import org.apache.mailet.RFC2822Headers;
-import org.apache.mailet.Mail;
-import org.apache.oro.text.regex.MalformedPatternException;
-
 import javax.mail.MessagingException;
+
+import org.apache.mailet.RFC2822Headers;
+import org.apache.oro.text.regex.MalformedPatternException;
 
 /**
  * This is based on a sample filter.cfg for a Netscape Mail Server to stop
