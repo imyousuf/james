@@ -20,7 +20,7 @@ import org.apache.mailet.MailetContext;
 import org.apache.mailet.MatcherConfig;
 
 /**
- * MailetConfig over Properties
+ * MatcherConfig
  */
 public class MockMatcherConfig implements MatcherConfig {
 
@@ -35,9 +35,8 @@ public class MockMatcherConfig implements MatcherConfig {
     }
 
     public String getCondition() {
-        if (matcherName.contains("=")) {
+        if (matcherName.indexOf("=") >= 0) {
             return matcherName.substring(getMatcherName().length() + 1);
-
         } else {
             return null;
         }
@@ -48,7 +47,7 @@ public class MockMatcherConfig implements MatcherConfig {
     }
 
     public String getMatcherName() {
-        if (matcherName.contains("=")) {
+        if (matcherName.indexOf("=") >= 0) {
             return matcherName.split("=")[0];
         } else {
             return matcherName;
