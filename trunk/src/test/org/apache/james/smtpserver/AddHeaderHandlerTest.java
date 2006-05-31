@@ -239,7 +239,7 @@ public class AddHeaderHandlerTest extends TestCase {
         setupMockedMimeMessage();
         setupMockedMail(mockedMimeMessage);
 
-        AddHeaderHandler header = new AddHeaderHandler();
+        SetMimeHeaderHandler header = new SetMimeHeaderHandler();
 
         ContainerUtil.enableLogging(header, new MockLogger());
 
@@ -259,7 +259,7 @@ public class AddHeaderHandlerTest extends TestCase {
         setupMockedMimeMessage();
         setupMockedMail(mockedMimeMessage);
 
-        AddHeaderHandler header = new AddHeaderHandler();
+        SetMimeHeaderHandler header = new SetMimeHeaderHandler();
 
         ContainerUtil.enableLogging(header, new MockLogger());
 
