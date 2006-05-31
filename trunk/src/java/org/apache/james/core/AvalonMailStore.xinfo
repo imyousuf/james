@@ -14,9 +14,6 @@
 
   <dependencies>
     <dependency>
-      <service name="org.apache.avalon.cornerstone.services.store.Store" version="1.0"/>
-    </dependency>
-    <dependency>
       <service name="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector" version="1.0"/>
     </dependency>
   </dependencies>

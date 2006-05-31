@@ -20,6 +20,7 @@ package org.apache.james.core;
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.component.Composable;
+import org.apache.avalon.framework.service.DefaultServiceManager;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.Serviceable;
@@ -33,7 +34,6 @@ import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.commons.collections.ReferenceMap;
-import org.apache.james.services.MailRepository;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -92,7 +92,9 @@ public class AvalonMailStore
     public void service( final ServiceManager manager )
         throws ServiceException
     {
-        this.m_manager = manager;
+        DefaultServiceManager def_manager = new DefaultServiceManager(manager);
+        def_manager.put(Store.ROLE, this);
+        m_manager = def_manager;
     }
 
 
@@ -223,7 +225,7 @@ public class AvalonMailStore
         {
             String type = repConf.getAttribute("type");
             String repID = destination + type;
-            MailRepository reply = (MailRepository) repositories.get(repID);
+            Object reply = repositories.get(repID);
             StringBuffer logBuffer = null;
             if (reply != null) {
                 if (getLogger().isDebugEnabled()) {
@@ -269,7 +271,7 @@ public class AvalonMailStore
                 }
 
                 try {
-                    reply = (MailRepository) this.getClass().getClassLoader().loadClass(repClass).newInstance();
+                    reply = this.getClass().getClassLoader().loadClass(repClass).newInstance();
                     ContainerUtil.enableLogging(reply,getLogger());
                     ContainerUtil.contextualize(reply,context);
                     ContainerUtil.service(reply,m_manager);
