@@ -17,15 +17,12 @@
 
 package org.apache.james.mailrepository.filepair;
 
+import org.apache.avalon.cornerstone.services.store.StreamRepository;
+
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import org.apache.avalon.cornerstone.services.store.StreamRepository;
-import org.apache.james.util.io.IOUtil;
 
 /**
  * Implementation of a StreamRepository to a File.
@@ -37,9 +34,6 @@ public class File_Persistent_Stream_Repository
     extends AbstractFileRepository
     implements StreamRepository
 {
-    protected final HashMap m_inputs = new HashMap();
-    protected final HashMap m_outputs = new HashMap();
-
     protected String getExtensionDecorator()
     {
         return ".FileStreamStore";
@@ -52,26 +46,7 @@ public class File_Persistent_Stream_Repository
     {
         try
         {
-            InputStream stream = getInputStream( key );
-
-            final Object o = m_inputs.get( key );
-            if( null == o )
-            {
-                m_inputs.put( key, stream );
-            }
-            else if( o instanceof ArrayList )
-            {
-                ( (ArrayList)o ).add( stream );
-            }
-            else
-            {
-                final ArrayList list = new ArrayList();
-                list.add( o );
-                list.add( stream );
-                m_inputs.put( key, list );
-            }
-
-            return stream;
+            return getInputStream( key );
         }
         catch( final IOException ioe )
         {
@@ -89,26 +64,7 @@ public class File_Persistent_Stream_Repository
         try
         {
             final OutputStream outputStream = getOutputStream( key );
-            final BufferedOutputStream stream = new BufferedOutputStream( outputStream );
-
-            final Object o = m_outputs.get( key );
-            if( null == o )
-            {
-                m_outputs.put( key, stream );
-            }
-            else if( o instanceof ArrayList )
-            {
-                ( (ArrayList)o ).add( stream );
-            }
-            else
-            {
-                final ArrayList list = new ArrayList();
-                list.add( o );
-                list.add( stream );
-                m_outputs.put( key, list );
-            }
-
-            return stream;
+            return new BufferedOutputStream( outputStream );
         }
         catch( final IOException ioe )
         {
@@ -116,49 +72,6 @@ public class File_Persistent_Stream_Repository
             getLogger().warn( message, ioe );
             throw new RuntimeException( message + ": " + ioe );
         }
-    }
-
-    public synchronized void remove( final String key )
-    {
-        Object o = m_inputs.remove( key );
-        if( null != o )
-        {
-            if( o instanceof InputStream )
-            {
-                IOUtil.shutdownStream( (InputStream)o );
-            }
-            else
-            {
-                final ArrayList list = (ArrayList)o;
-                final int size = list.size();
-
-                for( int i = 0; i < size; i++ )
-                {
-                    IOUtil.shutdownStream( (InputStream)list.get( i ) );
-                }
-            }
-        }
-
-        o = m_outputs.remove( key );
-        if( null != o )
-        {
-            if( o instanceof OutputStream )
-            {
-                IOUtil.shutdownStream( (OutputStream)o );
-            }
-            else
-            {
-                final ArrayList list = (ArrayList)o;
-                final int size = list.size();
-
-                for( int i = 0; i < size; i++ )
-                {
-                    IOUtil.shutdownStream( (OutputStream)list.get( i ) );
-                }
-            }
-        }
-
-        super.remove( key );
     }
 
     public long getSize(final String key) {

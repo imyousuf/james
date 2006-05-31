@@ -120,8 +120,6 @@
 
   <!-- The High Level Storage block -->
   <block name="mailstore" class="org.apache.james.core.AvalonMailStore" >
-    <provide name="objectstorage"
-             role="org.apache.avalon.cornerstone.services.store.Store"/>
     <provide name="database-connections"
              role="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector" />
   </block>
@@ -135,7 +133,7 @@
   <!-- The User Storage block -->
   <block name="users-store" class="org.apache.james.core.AvalonUsersStore" >
     <!-- Configure file based user store here, defaults should be fine -->
-    <provide name="objectstorage"
+    <provide name="mailstore"
              role="org.apache.avalon.cornerstone.services.store.Store"/>
     <provide name="database-connections"
              role="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector" />
@@ -150,10 +148,6 @@
   <!-- Configuration for Cornerstone Blocks only after here
        NOTHING BELOW THIS SHOULD NEED CHANGING,
        (unless you want secure sockets (TLS)) -->
-
-  <!-- The Storage block -->
-  <block name="objectstorage"
-         class="org.apache.avalon.cornerstone.blocks.masterstore.RepositoryManager" />
 
   <!-- The Connection Manager block -->
   <block name="connections"
