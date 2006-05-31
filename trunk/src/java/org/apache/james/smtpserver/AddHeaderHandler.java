@@ -23,6 +23,6 @@ package org.apache.james.smtpserver;
  * @deprecated This class was replaced by SetMimeHeaderHandler and is only here for
  *             backwards compatibly. It will be removed in next stable release
  */
-public class AddHeaderHandler {
+public class AddHeaderHandler extends SetMimeHeaderHandler{
 
 }
