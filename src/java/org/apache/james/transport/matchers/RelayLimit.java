@@ -22,6 +22,7 @@ import org.apache.mailet.GenericMatcher;
 import org.apache.mailet.Mail;
 
 import javax.mail.Header;
+import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -34,8 +35,12 @@ import java.util.Enumeration;
 public class RelayLimit extends GenericMatcher {
     int limit = 30;
 
-    public void init() {
-        limit = Integer.parseInt(getCondition());
+    public void init() throws MessagingException {
+        try {
+            limit = Integer.parseInt(getCondition());
+        } catch (NumberFormatException e) {
+            throw new MessagingException("No valid integer: " + getCondition());
+        }
     }
 
     public Collection match(Mail mail) throws javax.mail.MessagingException {
