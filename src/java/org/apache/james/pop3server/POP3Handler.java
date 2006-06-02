@@ -170,7 +170,8 @@ public class POP3Handler
     protected void handleProtocol() throws IOException {
         handlerState = AUTHENTICATION_READY;
         authenticatedUser = "unknown";
-        
+
+        sessionEnded = false;
         resetState();
 
         // Initially greet the connector
