@@ -15,79 +15,69 @@
  * permissions and limitations under the License.                      *
  ***********************************************************************/
 
-package org.apache.james.transport.matchers;
+package org.apache.james.transport.mailets;
 
 import org.apache.james.test.mock.mailet.MockMail;
 import org.apache.james.test.mock.mailet.MockMailContext;
-import org.apache.james.test.mock.mailet.MockMatcherConfig;
-
+import org.apache.james.test.mock.mailet.MockMailetConfig;
+import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
-import org.apache.mailet.Matcher;
+import org.apache.mailet.Mailet;
 
 import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.ParseException;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
-import java.util.Collection;
 
 import junit.framework.TestCase;
 
-public class IsSingleRecipientTest extends TestCase {
+public class SetMailAttributeTest extends TestCase {
 
-    private MockMail mockedMail;
+    private MimeMessage mockedMimeMessage;
 
-    private Matcher matcher;
+    private Mail mockedMail;
 
-    private MailAddress[] recipients;
+    private Mailet mailet;
 
-    public IsSingleRecipientTest(String arg0)
+    private final String ATTRIBUTE_NAME1 = "org.apache.james.junit1";
+
+    private final String ATTRIBUTE_NAME2 = "org.apache.james.junit2";
+
+    public SetMailAttributeTest(String arg0)
             throws UnsupportedEncodingException {
         super(arg0);
     }
 
-    private void setRecipients(MailAddress[] recipients) {
-        this.recipients = recipients;
-    }
-
-    private void setupMockedMail() {
+    private void setupMockedMail(MimeMessage m) throws ParseException {
         mockedMail = new MockMail();
-        mockedMail.setRecipients(Arrays.asList(recipients));
-
+        mockedMail.setMessage(m);
+        mockedMail.setRecipients(Arrays.asList(new MailAddress[] {
+                new MailAddress("test@james.apache.org"),
+                new MailAddress("test2@james.apache.org") }));
     }
 
-    private void setupMatcher() throws MessagingException {
-
-        matcher = new IsSingleRecipient();
-        MockMatcherConfig mci = new MockMatcherConfig("IsSingleRecipient",
+    private void setupMailet() throws MessagingException {
+        mailet = new SetMailAttribute();
+        MockMailetConfig mci = new MockMailetConfig("Test",
                 new MockMailContext());
-        matcher.init(mci);
+        mci.setProperty(ATTRIBUTE_NAME1, "true");
+        mci.setProperty(ATTRIBUTE_NAME2, "true");
+
+        mailet.init(mci);
     }
 
-    // test if matched
-    public void testHostIsMatchedAllRecipients() throws MessagingException {
-        setRecipients(new MailAddress[] { new MailAddress(
-                "test@james.apache.org") });
+    // test if the Header was add
+    public void testMailAttributeAdded() throws MessagingException {
+        setupMockedMail(mockedMimeMessage);
+        setupMailet();
 
-        setupMockedMail();
-        setupMatcher();
+        assertNull(mockedMail.getAttribute(ATTRIBUTE_NAME1));
+        assertNull(mockedMail.getAttribute(ATTRIBUTE_NAME2));
+        mailet.service(mockedMail);
 
-        Collection matchedRecipients = matcher.match(mockedMail);
-
-        assertNotNull(matchedRecipients);
+        assertEquals("true", mockedMail.getAttribute(ATTRIBUTE_NAME1));
+        assertEquals("true", mockedMail.getAttribute(ATTRIBUTE_NAME2));
     }
-
-    // test if not matched
-    public void testHostIsMatchedOneRecipient() throws MessagingException {
-        setRecipients(new MailAddress[] {
-                new MailAddress("test@james2.apache.org"),
-                new MailAddress("test2@james.apache.org") });
-
-        setupMockedMail();
-        setupMatcher();
-
-        Collection matchedRecipients = matcher.match(mockedMail);
-
-        assertNull(matchedRecipients);
-    }
-
 }

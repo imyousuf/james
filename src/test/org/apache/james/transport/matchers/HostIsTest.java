@@ -17,7 +17,6 @@
 
 package org.apache.james.transport.matchers;
 
-import org.apache.james.test.mock.javaxmail.MockMimeMessage;
 import org.apache.james.test.mock.mailet.MockMail;
 import org.apache.james.test.mock.mailet.MockMailContext;
 import org.apache.james.test.mock.mailet.MockMatcherConfig;
@@ -26,9 +25,6 @@ import org.apache.mailet.MailAddress;
 import org.apache.mailet.Matcher;
 
 import javax.mail.MessagingException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMessage.RecipientType;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
@@ -37,8 +33,6 @@ import java.util.Collection;
 import junit.framework.TestCase;
 
 public class HostIsTest extends TestCase {
-
-    private MimeMessage mockedMimeMessage;
 
     private MockMail mockedMail;
 
@@ -56,28 +50,13 @@ public class HostIsTest extends TestCase {
         this.recipients = recipients;
     }
 
-    private void setupMockedMimeMessage() throws MessagingException {
-        String sender = "test@james.apache.org";
-        String rcpt = "test2@james.apache.org";
-
-        mockedMimeMessage = new MockMimeMessage();
-        mockedMimeMessage.setFrom(new InternetAddress(sender));
-        mockedMimeMessage.setRecipients(RecipientType.TO, rcpt);
-        mockedMimeMessage.setSubject("testmail");
-        mockedMimeMessage.setText("testtext");
-        mockedMimeMessage.saveChanges();
-
-    }
-
-    private void setupMockedMail(MimeMessage m) {
+    private void setupMockedMail() {
         mockedMail = new MockMail();
-        mockedMail.setMessage(m);
         mockedMail.setRecipients(Arrays.asList(recipients));
 
     }
 
     private void setupMatcher() throws MessagingException {
-        setupMockedMimeMessage();
         matcher = new HostIs();
         MockMatcherConfig mci = new MockMatcherConfig("HostIs=" + HOST_NAME,
                 new MockMailContext());
@@ -90,8 +69,7 @@ public class HostIsTest extends TestCase {
                 new MailAddress("test@james.apache.org"),
                 new MailAddress("test2@james.apache.org") });
 
-        setupMockedMimeMessage();
-        setupMockedMail(mockedMimeMessage);
+        setupMockedMail();
         setupMatcher();
 
         Collection matchedRecipients = matcher.match(mockedMail);
@@ -107,8 +85,7 @@ public class HostIsTest extends TestCase {
                 new MailAddress("test@james2.apache.org"),
                 new MailAddress("test2@james.apache.org") });
 
-        setupMockedMimeMessage();
-        setupMockedMail(mockedMimeMessage);
+        setupMockedMail();
         setupMatcher();
 
         Collection matchedRecipients = matcher.match(mockedMail);
@@ -123,8 +100,7 @@ public class HostIsTest extends TestCase {
                 new MailAddress("test@james2.apache.org"),
                 new MailAddress("test2@james2.apache.org") });
 
-        setupMockedMimeMessage();
-        setupMockedMail(mockedMimeMessage);
+        setupMockedMail();
         setupMatcher();
 
         Collection matchedRecipients = matcher.match(mockedMail);
