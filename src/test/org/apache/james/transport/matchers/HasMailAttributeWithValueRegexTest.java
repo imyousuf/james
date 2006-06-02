@@ -17,103 +17,36 @@
 
 package org.apache.james.transport.matchers;
 
-import org.apache.james.test.mock.javaxmail.MockMimeMessage;
-import org.apache.james.test.mock.mailet.MockMail;
-import org.apache.james.test.mock.mailet.MockMailContext;
-import org.apache.james.test.mock.mailet.MockMatcherConfig;
-
-import org.apache.mailet.MailAddress;
 import org.apache.mailet.Matcher;
 
 import javax.mail.MessagingException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.ParseException;
-import javax.mail.internet.MimeMessage.RecipientType;
-
-import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
 import java.util.Collection;
 
-import junit.framework.TestCase;
-
-public class HasMailAttributeWithValueRegexTest extends TestCase {
-
-    private MimeMessage mockedMimeMessage;
-
-    private MockMail mockedMail;
-
-    private Matcher matcher;
-
-    private final String MAIL_ATTRIBUTE_NAME = "org.apache.james.test.junit";
-
-    private final String MAIL_ATTRIBUTE_VALUE = "true";
-
-    private String mailAttributeName = "org.apache.james";
-
-    private String mailAttributeValue = "false";
+public class HasMailAttributeWithValueRegexTest extends AbstractHasMailAttributeTest {
 
     private String regex = ".*";
 
-    public HasMailAttributeWithValueRegexTest(String arg0)
-            throws UnsupportedEncodingException {
-        super(arg0);
-    }
-
-    private void setMailAttributeName(String mailAttributeName) {
-        this.mailAttributeName = mailAttributeName;
-    }
-
-    private void setMailAttributeValue(String mailAttributeValue) {
-        this.mailAttributeValue = mailAttributeValue;
+    public HasMailAttributeWithValueRegexTest() {
+        super();
     }
 
     private void setRegex(String regex) {
         this.regex = regex;
     }
 
-    private void setupMockedMimeMessage() throws MessagingException {
-        String sender = "test@james.apache.org";
-        String rcpt = "test2@james.apache.org";
-
-        mockedMimeMessage = new MockMimeMessage();
-        mockedMimeMessage.setFrom(new InternetAddress(sender));
-        mockedMimeMessage.setRecipients(RecipientType.TO, rcpt);
-        mockedMimeMessage.setSubject("testmail");
-        mockedMimeMessage.setText("testtext");
-        mockedMimeMessage.saveChanges();
-
+    protected String getHasMailAttribute() {
+        return MAIL_ATTRIBUTE_NAME + ", " + regex;
     }
 
-    private void setupMockedMail(MimeMessage m) throws ParseException {
-        mockedMail = new MockMail();
-        mockedMail.setMessage(m);
-        mockedMail.setRecipients(Arrays.asList(new MailAddress[] {
-                new MailAddress("test@james.apache.org"),
-                new MailAddress("test2@james.apache.org") }));
-        mockedMail.setAttribute(mailAttributeName,
-                (Serializable) mailAttributeValue);
-
+    protected Matcher createMatcher() {
+        return new HasMailAttributeWithValueRegex();
     }
 
-    private void setupMatcher() throws MessagingException {
-        setupMockedMimeMessage();
-        matcher = new HasMailAttributeWithValueRegex();
-        MockMatcherConfig mci = new MockMatcherConfig("HasMailAttribute="
-                + MAIL_ATTRIBUTE_NAME + ", " + regex, new MockMailContext());
-        matcher.init(mci);
-    }
-
-    // test if the mail attribute was matched
+// test if the mail attribute was matched
     public void testAttributeIsMatched() throws MessagingException {
-        setMailAttributeName(MAIL_ATTRIBUTE_NAME);
-        setMailAttributeValue(MAIL_ATTRIBUTE_VALUE);
+        init();
         setRegex(".*");
-
-        setupMockedMimeMessage();
-        setupMockedMail(mockedMimeMessage);
-        setupMatcher();
+        setupAll();
 
         Collection matchedRecipients = matcher.match(mockedMail);
 
@@ -125,9 +58,7 @@ public class HasMailAttributeWithValueRegexTest extends TestCase {
     // test if the mail attribute was not matched
     public void testHeaderIsNotMatched() throws MessagingException {
         setRegex("\\d");
-        setupMockedMimeMessage();
-        setupMockedMail(mockedMimeMessage);
-        setupMatcher();
+        setupAll();
 
         Collection matchedRecipients = matcher.match(mockedMail);
 

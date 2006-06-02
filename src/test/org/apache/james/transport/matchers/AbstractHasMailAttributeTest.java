@@ -1,0 +1,129 @@
+/***********************************************************************
+ * Copyright (c) 2006 The Apache Software Foundation.             *
+ * All rights reserved.                                                *
+ * ------------------------------------------------------------------- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you *
+ * may not use this file except in compliance with the License. You    *
+ * may obtain a copy of the License at:                                *
+ *                                                                     *
+ *     http://www.apache.org/licenses/LICENSE-2.0                      *
+ *                                                                     *
+ * Unless required by applicable law or agreed to in writing, software *
+ * distributed under the License is distributed on an "AS IS" BASIS,   *
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or     *
+ * implied.  See the License for the specific language governing       *
+ * permissions and limitations under the License.                      *
+ ***********************************************************************/
+
+
+package org.apache.james.transport.matchers;
+
+import junit.framework.TestCase;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.ParseException;
+
+import org.apache.james.test.mock.javaxmail.MockMimeMessage;
+import org.apache.james.test.mock.mailet.MockMail;
+import org.apache.james.test.mock.mailet.MockMatcherConfig;
+import org.apache.james.test.mock.mailet.MockMailContext;
+import org.apache.mailet.MailAddress;
+import org.apache.mailet.Matcher;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.io.Serializable;
+
+public abstract class AbstractHasMailAttributeTest extends TestCase {
+    protected MimeMessage mockedMimeMessage;
+    protected MockMail mockedMail;
+    protected Matcher matcher;
+    protected final String MAIL_ATTRIBUTE_NAME = "org.apache.james.test.junit";
+    protected final String MAIL_ATTRIBUTE_VALUE = "true";
+    protected String mailAttributeName = "org.apache.james";
+    protected String mailAttributeValue = "false";
+
+    public AbstractHasMailAttributeTest() {
+        super(null);
+    }
+
+    protected void setMailAttributeName(String mailAttributeName) {
+        this.mailAttributeName = mailAttributeName;
+    }
+
+    protected void setMailAttributeValue(String mailAttributeValue) {
+        this.mailAttributeValue = mailAttributeValue;
+    }
+
+    protected void setupMockedMimeMessage() throws MessagingException {
+        String sender = "test@james.apache.org";
+        String rcpt = "test2@james.apache.org";
+
+        mockedMimeMessage = new MockMimeMessage();
+        mockedMimeMessage.setFrom(new InternetAddress(sender));
+        mockedMimeMessage.setRecipients(MimeMessage.RecipientType.TO, rcpt);
+        mockedMimeMessage.setSubject("testmail");
+        mockedMimeMessage.setText("testtext");
+        mockedMimeMessage.saveChanges();
+
+    }
+
+    protected void setupMockedMail(MimeMessage m) throws ParseException {
+        mockedMail = new MockMail();
+        mockedMail.setMessage(m);
+        mockedMail.setRecipients(Arrays.asList(new MailAddress[] {
+                new MailAddress("test@james.apache.org"),
+                new MailAddress("test2@james.apache.org") }));
+        mockedMail.setAttribute(mailAttributeName,
+                (Serializable) mailAttributeValue);
+
+    }
+
+    protected void setupMatcher() throws MessagingException {
+        setupMockedMimeMessage();
+        matcher = createMatcher();
+        MockMatcherConfig mci = new MockMatcherConfig("HasMailAttribute="
+                + getHasMailAttribute(),
+                new MockMailContext());
+        matcher.init(mci);
+    }
+
+    // test if the mail attribute was matched
+    public void testAttributeIsMatched() throws MessagingException {
+        init();
+
+        setupAll();
+
+        Collection matchedRecipients = matcher.match(mockedMail);
+
+        assertNotNull(matchedRecipients);
+        assertEquals(matchedRecipients.size(), mockedMail.getRecipients()
+                .size());
+    }
+
+    protected void init() {
+        setMailAttributeName(MAIL_ATTRIBUTE_NAME);
+        setMailAttributeValue(MAIL_ATTRIBUTE_VALUE);
+    }
+
+    protected void setupAll() throws MessagingException {
+        setupMockedMimeMessage();
+        setupMockedMail(mockedMimeMessage);
+        setupMatcher();
+    }
+
+    // test if the mail attribute was not matched
+    public void testAttributeIsNotMatched() throws MessagingException {
+        setupAll();
+
+        Collection matchedRecipients = matcher.match(mockedMail);
+
+        assertNull(matchedRecipients);
+    }
+
+    protected abstract String getHasMailAttribute();
+
+    protected abstract Matcher createMatcher();
+}
