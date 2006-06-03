@@ -18,26 +18,14 @@
 package org.apache.james.transport.matchers;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
 import java.util.Collection;
 
 import javax.mail.MessagingException;
 
-import junit.framework.TestCase;
-
-import org.apache.james.test.mock.mailet.MockMail;
-import org.apache.james.test.mock.mailet.MockMailContext;
-import org.apache.james.test.mock.mailet.MockMatcherConfig;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.Matcher;
 
-public class RecipientIsRegexTest extends TestCase {
-
-    private MockMail mockedMail;
-
-    private Matcher matcher;
-
-    private MailAddress[] recipients;
+public class RecipientIsRegexTest extends AbstractRecipientIsTest {
 
     private String regex = ".*";
 
@@ -46,25 +34,8 @@ public class RecipientIsRegexTest extends TestCase {
         super(arg0);
     }
 
-    private void setRecipients(MailAddress[] recipients) {
-        this.recipients = recipients;
-    }
-
     private void setRegex(String regex) {
         this.regex = regex;
-    }
-
-    private void setupMockedMail() {
-        mockedMail = new MockMail();
-        mockedMail.setRecipients(Arrays.asList(recipients));
-
-    }
-
-    private void setupMatcher() throws MessagingException {
-        matcher = new RecipientIsRegex();
-        MockMatcherConfig mci = new MockMatcherConfig("RecipientIsRegex="
-                + regex, new MockMailContext());
-        matcher.init(mci);
     }
 
     // test if the recipients get returned as matched
@@ -72,8 +43,8 @@ public class RecipientIsRegexTest extends TestCase {
         setRecipients(new MailAddress[] { new MailAddress(
                 "test@james.apache.org") });
         setRegex(".*@.*");
-        setupMockedMail();
-        setupMatcher();
+
+        setupAll();
 
         Collection matchedRecipients = matcher.match(mockedMail);
 
@@ -88,8 +59,8 @@ public class RecipientIsRegexTest extends TestCase {
                 new MailAddress("test@james.apache.org"),
                 new MailAddress("test2@james.apache.org") });
         setRegex("^test@.*");
-        setupMockedMail();
-        setupMatcher();
+
+        setupAll();
 
         Collection matchedRecipients = matcher.match(mockedMail);
 
@@ -103,8 +74,8 @@ public class RecipientIsRegexTest extends TestCase {
                 new MailAddress("test@james2.apache.org"),
                 new MailAddress("test2@james2.apache.org") });
         setRegex(".*\\+");
-        setupMockedMail();
-        setupMatcher();
+
+        setupAll();
 
         Collection matchedRecipients = matcher.match(mockedMail);
 
@@ -121,12 +92,10 @@ public class RecipientIsRegexTest extends TestCase {
         setRecipients(new MailAddress[] {
                 new MailAddress("test@james2.apache.org"),
                 new MailAddress("test2@james2.apache.org") });
-
         setRegex(invalidRegex);
-        setupMockedMail();
 
         try {
-            setupMatcher();
+            setupAll();
             matchedRecipients = matcher.match(mockedMail);
         } catch (MessagingException m) {
             m.printStackTrace();
@@ -136,5 +105,13 @@ public class RecipientIsRegexTest extends TestCase {
         assertNull(matchedRecipients);
         assertEquals(regexException, exception);
 
+    }
+
+    protected String getRecipientName() {
+        return regex;
+    }
+
+    protected Matcher createMatcher() {
+        return new RecipientIsRegex();
     }
 }
