@@ -18,48 +18,23 @@
 package org.apache.james.transport.matchers;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
 import java.util.Collection;
 
 import javax.mail.MessagingException;
 
-import junit.framework.TestCase;
-
-import org.apache.james.test.mock.mailet.MockMail;
-import org.apache.james.test.mock.mailet.MockMailContext;
-import org.apache.james.test.mock.mailet.MockMatcherConfig;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.Matcher;
 
-public class RecipientIsTest extends TestCase {
-    
-    private MockMail mockedMail;
-
-    private Matcher matcher;
+public class RecipientIsTest extends AbstractRecipientIsTest {
 
     private final String RECIPIENT_NAME = "test@james.apache.org";
-
-    private MailAddress[] recipients;
 
     public RecipientIsTest(String arg0) throws UnsupportedEncodingException {
         super(arg0);
     }
 
-    private void setRecipients(MailAddress[] recipients) {
-        this.recipients = recipients;
-    }
-
-    private void setupMockedMail() {
-        mockedMail = new MockMail();
-        mockedMail.setRecipients(Arrays.asList(recipients));
-
-    }
-
-    private void setupMatcher() throws MessagingException {
-        matcher = new RecipientIs();
-        MockMatcherConfig mci = new MockMatcherConfig("RecipientIs="
-                + RECIPIENT_NAME, new MockMailContext());
-        matcher.init(mci);
+    protected String getRecipientName() {
+        return RECIPIENT_NAME;
     }
 
     // test if the recipients get returned as matched
@@ -83,8 +58,7 @@ public class RecipientIsTest extends TestCase {
                 new MailAddress("test@james.apache.org"),
                 new MailAddress("test2@james.apache.org") });
 
-        setupMockedMail();
-        setupMatcher();
+        setupAll();
 
         Collection matchedRecipients = matcher.match(mockedMail);
 
@@ -104,5 +78,10 @@ public class RecipientIsTest extends TestCase {
         Collection matchedRecipients = matcher.match(mockedMail);
 
         assertEquals(matchedRecipients.size(), 0);
+    }
+
+    protected Matcher createMatcher() {
+        // TODO Auto-generated method stub
+        return new RecipientIs();
     }
 }
