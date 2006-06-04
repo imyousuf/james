@@ -18,30 +18,59 @@
 package org.apache.james.transport.matchers;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 import java.util.Collection;
 
 import javax.mail.MessagingException;
+import javax.mail.internet.ParseException;
 
+import junit.framework.TestCase;
+
+import org.apache.james.test.mock.mailet.MockMail;
+import org.apache.james.test.mock.mailet.MockMailContext;
+import org.apache.james.test.mock.mailet.MockMatcherConfig;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.Matcher;
 
-public class RecipientIsTest extends AbstractRecipientIsTest {
+public class SMTPIsAuthNetworkTest extends TestCase {
 
-    private final String RECIPIENT_NAME = "test@james.apache.org";
+    private MockMail mockedMail;
 
-    public RecipientIsTest(String arg0) throws UnsupportedEncodingException {
+    private Matcher matcher;
+
+    private boolean isAuthorized = false;
+
+    private final String MAIL_ATTRIBUTE_NAME = "org.apache.james.SMTPIsAuthNetwork";
+
+    public SMTPIsAuthNetworkTest(String arg0)
+            throws UnsupportedEncodingException {
         super(arg0);
     }
 
-    protected String getRecipientName() {
-        return RECIPIENT_NAME;
+    private void setIsAuthorized(boolean isAuthorized) {
+        this.isAuthorized = isAuthorized;
     }
 
-    // test if the recipients get returned as matched
-    public void testHostIsMatchedAllRecipients() throws MessagingException {
-        setRecipients(new MailAddress[] { new MailAddress(
-                "test@james.apache.org") });
+    private void setupMockedMail() throws ParseException {
+        mockedMail = new MockMail();
+        mockedMail.setRecipients(Arrays.asList(new MailAddress[] {
+                new MailAddress("test@james.apache.org"),
+                new MailAddress("test2@james.apache.org") }));
+        if (isAuthorized) {
+            mockedMail.setAttribute(MAIL_ATTRIBUTE_NAME, "true");
 
+        }
+    }
+
+    private void setupMatcher() throws MessagingException {
+        matcher = new SMTPIsAuthNetwork();
+        MockMatcherConfig mci = new MockMatcherConfig("SMTPIsAuthNetwork",
+                new MockMailContext());
+        matcher.init(mci);
+    }
+
+    public void testIsAuthNetwork() throws MessagingException {
+        setIsAuthorized(true);
         setupMockedMail();
         setupMatcher();
 
@@ -52,35 +81,13 @@ public class RecipientIsTest extends AbstractRecipientIsTest {
                 .size());
     }
 
-    // test if one recipients get returned as matched
-    public void testHostIsMatchedOneRecipient() throws MessagingException {
-        setRecipients(new MailAddress[] {
-                new MailAddress("test@james.apache.org"),
-                new MailAddress("test2@james.apache.org") });
-
-        setupAll();
-
-        Collection matchedRecipients = matcher.match(mockedMail);
-
-        assertNotNull(matchedRecipients);
-        assertEquals(matchedRecipients.size(), 1);
-    }
-
-    // test if no recipient get returned cause it not match
-    public void testHostIsNotMatch() throws MessagingException {
-        setRecipients(new MailAddress[] {
-                new MailAddress("test@james2.apache.org"),
-                new MailAddress("test2@james2.apache.org") });
-
+    public void testIsNotAuthNetwork() throws MessagingException {
+        setIsAuthorized(false);
         setupMockedMail();
         setupMatcher();
 
         Collection matchedRecipients = matcher.match(mockedMail);
 
-        assertEquals(matchedRecipients.size(), 0);
-    }
-
-    protected Matcher createMatcher() {
-        return new RecipientIs();
+        assertNull(matchedRecipients);
     }
 }

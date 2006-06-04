@@ -18,23 +18,21 @@
 
 package org.apache.james.transport.matchers;
 
-import junit.framework.TestCase;
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Collection;
 
 import javax.mail.MessagingException;
-import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.ParseException;
 
-import org.apache.james.test.mock.javaxmail.MockMimeMessage;
+import junit.framework.TestCase;
+
 import org.apache.james.test.mock.mailet.MockMail;
-import org.apache.james.test.mock.mailet.MockMatcherConfig;
 import org.apache.james.test.mock.mailet.MockMailContext;
+import org.apache.james.test.mock.mailet.MockMatcherConfig;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.Matcher;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.io.Serializable;
 
 public abstract class AbstractHasMailAttributeTest extends TestCase {
     protected MimeMessage mockedMimeMessage;
@@ -57,19 +55,6 @@ public abstract class AbstractHasMailAttributeTest extends TestCase {
         this.mailAttributeValue = mailAttributeValue;
     }
 
-    protected void setupMockedMimeMessage() throws MessagingException {
-        String sender = "test@james.apache.org";
-        String rcpt = "test2@james.apache.org";
-
-        mockedMimeMessage = new MockMimeMessage();
-        mockedMimeMessage.setFrom(new InternetAddress(sender));
-        mockedMimeMessage.setRecipients(MimeMessage.RecipientType.TO, rcpt);
-        mockedMimeMessage.setSubject("testmail");
-        mockedMimeMessage.setText("testtext");
-        mockedMimeMessage.saveChanges();
-
-    }
-
     protected void setupMockedMail(MimeMessage m) throws ParseException {
         mockedMail = new MockMail();
         mockedMail.setMessage(m);
@@ -82,7 +67,6 @@ public abstract class AbstractHasMailAttributeTest extends TestCase {
     }
 
     protected void setupMatcher() throws MessagingException {
-        setupMockedMimeMessage();
         matcher = createMatcher();
         MockMatcherConfig mci = new MockMatcherConfig("HasMailAttribute="
                 + getHasMailAttribute(),
@@ -109,7 +93,6 @@ public abstract class AbstractHasMailAttributeTest extends TestCase {
     }
 
     protected void setupAll() throws MessagingException {
-        setupMockedMimeMessage();
         setupMockedMail(mockedMimeMessage);
         setupMatcher();
     }

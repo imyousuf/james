@@ -30,7 +30,6 @@ public class HasMailAttributeTest extends AbstractHasMailAttributeTest {
     }
 
     protected void setupMatcher() throws MessagingException {
-        setupMockedMimeMessage();
         matcher = createMatcher();
         MockMatcherConfig mci = new MockMatcherConfig("HasMailAttribute="
                 + getHasMailAttribute(), new MockMailContext());
