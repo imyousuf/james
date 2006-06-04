@@ -28,7 +28,6 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Vector;
 
 /**
  * An abstract implementation of a listserv.  The underlying implementation must define
