@@ -66,6 +66,11 @@ public class DataCmdHandler
     private final static String SMTP_AUTH_USER_ATTRIBUTE_NAME = "org.apache.james.SMTPAuthUser";
 
     /**
+     * The mail attribute which get set if the client is allowed to relay
+     */
+    private final static String SMTP_AUTH_NETWORK_NAME = "org.apache.james.SMTPIsAuthNetwork";
+
+    /**
      * The character array that indicates termination of an SMTP connection
      */
     private final static char[] SMTPTerminator = { '\r', '\n', '.', '\r', '\n' };
@@ -277,6 +282,11 @@ public class DataCmdHandler
             if (session.getUser() != null) {
                 mail.setAttribute(SMTP_AUTH_USER_ATTRIBUTE_NAME, session.getUser());
             }
+            
+            if (session.isRelayingAllowed()) {
+                mail.setAttribute(SMTP_AUTH_NETWORK_NAME,"true");
+            }
+            
             session.setMail(mail);
         } finally {
             if (recipientCollection != null) {
