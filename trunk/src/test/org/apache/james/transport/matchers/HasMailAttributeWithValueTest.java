@@ -39,7 +39,6 @@ public class HasMailAttributeWithValueTest extends AbstractHasMailAttributeTest 
     // test if the mail attribute was not matched cause diffrent value
     public void testAttributeIsNotMatchedCauseValue() throws MessagingException {
         setMailAttributeName(MAIL_ATTRIBUTE_NAME);
-        setupMockedMimeMessage();
         setupMockedMail(mockedMimeMessage);
         setupMatcher();
 

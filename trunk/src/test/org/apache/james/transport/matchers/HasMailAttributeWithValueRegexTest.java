@@ -73,7 +73,6 @@ public class HasMailAttributeWithValueRegexTest extends AbstractHasMailAttribute
         String exception = "Malformed pattern: " + invalidRegex;
 
         setRegex(invalidRegex);
-        setupMockedMimeMessage();
         setupMockedMail(mockedMimeMessage);
 
         try {
