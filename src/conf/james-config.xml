@@ -151,6 +151,69 @@
          <!-- Important check to avoid looping -->
          <mailet match="RelayLimit=30" class="Null"/>
 
+         <!-- Check for viruses -->
+         <!-- -->
+         <!-- Does an antivirus scan check using a ClamAV daemon (CLAMD). -->
+         <!-- -->
+         <!-- Interacts directly with the daemon using the "stream" method, -->
+         <!-- which should have the lowest possible overhead. -->
+         <!-- The CLAMD daemon will typically reside on localhost, but could reside on a -->
+         <!-- different host. -->
+         <!-- It may also consist on a set of multiple daemons, each residing on a different -->
+         <!-- server and on different IP number. -->
+         <!-- In such case a DNS host name with multiple IP addresses (round-robin load sharing) -->
+         <!-- is supported by the mailet (but on the same port number). -->
+         <!-- -->
+         <!-- Handles the following init parameters: -->
+         <!-- <debug> -->
+         <!-- <host>: the host name of the server where CLAMD runs. It can either be -->
+         <!--     a machine name, such as -->
+         <!--     "java.sun.com", or a textual representation of its -->
+         <!--     IP address. If a literal IP address is supplied, only the -->
+         <!--     validity of the address format is checked. -->
+         <!--     If the machine name resolves to multiple IP addresses, round-robin load sharing will -->
+         <!--     be used. -->
+         <!--     The default is "localhost". -->
+         <!-- <port>: the port on which CLAMD listens. The default is "3310". -->
+         <!-- <maxPings>: the maximum number of connection retries during startup. -->
+         <!--     If the value is "0" no startup test will be done. -->
+         <!--     The default is "6". -->
+         <!-- <pingIntervalMilli>: the interval (in milliseconds) -->
+         <!--     between each connection retry during startup. -->
+         <!--     The default is "30000" (30 seconds). -->
+         <!-- <streamBufferSize>: the BufferedOutputStream buffer size to use  -->
+         <!--     writing to the stream connection. The default is "8192". -->
+         <!--
+         <mailet match="All" class="ClamAVScan" onMailetException="ignore">
+            <debug> true </debug>
+         </mailet> 
+         -->
+
+         <!-- If infected go to virus processor -->
+         <mailet match="HasMailAttributeWithValue=org.apache.james.infected, true" class="ToProcessor">
+            <processor> virus </processor>
+         </mailet>
+
+         <!-- Check attachment extensions for possible viruses -->
+         <!-- The "-z" option requests the check to be non-recursively applied -->
+         <!-- to the contents of any attached '*.zip' file. -->
+         <!-- 
+         <mailet match="AttachmentFileNameIs=-d -z *.exe *.com *.bat *.cmd *.pif *.scr *.vbs *.avi *.mp3 *.mpeg *.shs" class="Bounce" onMatchException="error">
+            <inline>heads</inline>
+            <attachment>none</attachment>
+            <passThrough>false</passThrough>
+            <prefix>[REJECTED]</prefix>
+            <notice>
+The Security Policy of XXX does not allow to forward messages containing attachments having any of the extensions .exe, .com, .bat, .cmd, .pif, .scr, .vbs, .avi, .mp3, .mpeg, .shs, therefore your message has been rejected.
+
+Please don't reply to this e-mail as it has been automatically sent by the antivirus system.
+
+Regards, Postmaster XXX.YYY
+.....................................
+            </notice>
+         </mailet>
+         -->
+
          <!-- "not spam" bayesian analysis feeder. -->
          <!--
          <mailet match="RecipientIs=not.spam@xxx.yyy" class="BayesianAnalysisFeeder">
@@ -166,6 +229,28 @@
             <repositoryPath> db://maildb </repositoryPath>
             <feedType>spam</feedType>
             <maxSize>200000</maxSize>
+         </mailet>
+         -->
+
+         <!-- sample SMIME mailets configuration -->
+         <!-- In order to use SMIME capabilities you need to install the bouncycastle JCE -->
+         <!-- provider in your environment (james/lib) -->
+         <!-- e.g: bcprov-jdk14-129.jar from http://www.bouncycastle.org/latest_releases.html -->
+         <!-- 
+         <mailet match="IsSMIMEEncrypted" class="SMIMEDecrypt">
+            <keyStoreType>pkcs12</keyStoreType>
+            <keyStoreFileName>c:/path.pfx</keyStoreFileName>
+            <keyStorePassword>myKeyStorePass</keyStorePassword>
+            <keyAlias>myKeyAlias</keyAlias>
+            <keyAliasPassword>myKeyPass</keyAliasPassword>
+         </mailet>
+         
+         <mailet match="IsSMIMESigned" class="SMIMECheckSignature">
+            <keyStoreType>pkcs12</keyStoreType>
+            <keyStoreFileName>c:/path.pfx</keyStoreFileName>
+            <keyStorePassword>myKeyStorePass</keyStorePassword>
+            <strip>true</strip>
+            <onlyTrusted>false</onlyTrusted>
          </mailet>
          -->
 
@@ -188,13 +273,30 @@
          </mailet>
          -->
 
+         <!-- Anti-spam processing -->
+         <!-- The following two entries avoid double anti-spam analysis -->
+         <!-- for forwarded messages. -->
+         <!-- Has spam checking already been done? -->
+         <mailet match="HasMailAttribute=spamChecked" class="ToProcessor">
+            <processor> transport </processor>
+         </mailet>
+         <!-- Spam checking will not be done twice -->
+         <mailet match="All" class="SetMailAttribute">
+            <spamChecked>true</spamChecked>
+         </mailet>
+
          <!-- White List:
               If you use block lists, you will probably want to check
               for known permitted senders.  This is particularly true
               if you use more aggressive block lists, such as SPEWS,
               that are prone to block entire subnets without regard
               for non-spamming senders.
-          -->
+         -->
+
+         <!-- Messages from authenticated senders are never spam -->
+         <mailet match="SMTPAuthSuccessful" class="ToProcessor">
+            <processor> transport </processor>
+         </mailet>
 
          <!-- specific known senders -->
          <!--
@@ -247,7 +349,11 @@
             <headerName>X-MessageIsSpamProbability</headerName>
             <ignoreLocalSender>true</ignoreLocalSender>
          </mailet>
-     
+
+         <mailet match="CompareNumericHeaderValue=X-MessageIsSpamProbability > 0.90" class="SetMailAttribute" onMatchException="noMatch">
+            <isSpam>true</isSpam>
+         </mailet>
+
          <mailet match="CompareNumericHeaderValue=X-MessageIsSpamProbability > 0.90" class="SetMimeHeader" onMatchException="noMatch">
             <name>X-MessageIsSpam</name>
             <value>true</value>
@@ -259,33 +365,6 @@
          </mailet>
          -->
 
-         <!-- sample SMIME mailets configuration -->
-         <!-- In order to use SMIME capabilities you need to install the bouncycastle JCE -->
-         <!-- provider in your environment (james/lib) -->
-         <!-- e.g: bcprov-jdk14-129.jar from http://www.bouncycastle.org/latest_releases.html -->
-         <!-- 
-         <mailet match="IsSMIMEEncrypted" class="SMIMEDecrypt">
-            <keyStoreType>pkcs12</keyStoreType>
-            <keyStoreFileName>c:/path.pfx</keyStoreFileName>
-            <keyStorePassword>myKeyStorePass</keyStorePassword>
-            <keyAlias>myKeyAlias</keyAlias>
-            <keyAliasPassword>myKeyPass</keyAliasPassword>
-         </mailet>
-         
-         <mailet match="IsSMIMESigned" class="SMIMECheckSignature">
-            <keyStoreType>pkcs12</keyStoreType>
-            <keyStoreFileName>c:/path.pfx</keyStoreFileName>
-            <keyStorePassword>myKeyStorePass</keyStorePassword>
-            <strip>true</strip>
-            <onlyTrusted>false</onlyTrusted>
-         </mailet>
-    
-         <mailet match="HasMailAttribute=org.apache.james.SMIMECheckSignature" class="SetMimeHeader">
-            <name>X-WasSigned</name>
-            <value>true</value>
-         </mailet>
-          -->
-     
          <!-- Send remaining mails to the transport processor for either local or remote delivery -->
          <mailet match="All" class="ToProcessor">
             <processor> transport </processor>
@@ -327,6 +406,56 @@
         <!--
           &listserverConfig;
         -->
+
+         <mailet match="SMTPAuthSuccessful" class="SetMimeHeader">
+            <name>X-UserIsAuth</name>
+            <value>true</value>
+         </mailet>
+    
+         <mailet match="HasMailAttribute=org.apache.james.SMIMECheckSignature" class="SetMimeHeader">
+            <name>X-WasSigned</name>
+            <value>true</value>
+         </mailet>
+
+         <!-- Add a server-side signature -->
+         <!-- In order to use SMIME capabilities you need to install the bouncycastle JCE -->
+         <!-- provider in your environment (james/lib) -->
+         <!-- e.g: bcprov-jdk14-129.jar from http://www.bouncycastle.org/latest_releases.html -->
+         <!--
+         <mailet match="All" class="SMIMESign" onMailetException="ignore">
+            <keyStoreType>jks</keyStoreType>
+            <keyStoreFileName>path.keystore</keyStoreFileName>
+            <keyStorePassword>myKeyStorePass</keyStorePassword>
+            <keyAlias>myKeyAlias</keyAlias>
+            <keyAliasPassword>myKeyPass</keyAliasPassword>
+            <signerName>XXX Trusted Server</signerName>
+            <rebuildFrom>true</rebuildFrom>
+            <postmasterSigns>true</postmasterSigns>
+            <debug>true</debug>
+         </mailet>
+         -->
+
+         <!-- Check if over quota -->
+         <!--
+         <mailet match="RecipientIsOverFixedQuota=20M" class="Resend">
+            <sender>postmaster</sender>
+            <replyTo>postmaster</replyTo>
+            <reversePath>null</reversePath>
+            <inline>none</inline>
+            <attachment>message</attachment>
+            <prefix>[OVER QUOTA WARNING]</prefix>
+            <message>
+When receiving the attached message, your mailbox is larger than 20 MB, which is the maximum allowed quota. The mailbox will not be blocked, but we ask you to empty it ASAP.
+
+It is likely that you have set, in your mail client account, the option "leave a copy of messages on server". For any help ask your administrators.
+
+Please don't reply to this e-mail as it has been automatically sent by the antivirus system.
+
+Regards, Postmaster XXX.YYY
+.....................................
+            </message>
+         </mailet>
+         -->
 
          <!-- Is the recipient is for a local account, deliver it locally -->
          <mailet match="RecipientIsLocal" class="LocalDelivery"/>
@@ -452,8 +581,33 @@
          </mailet>
       </processor>
 
+      <!-- messages containing viruses. -->
+      <processor name="virus">
+      
+         <!-- To avoid a loop while bouncing -->
+         <mailet match="All" class="SetMailAttribute">
+            <org.apache.james.infected>true, bouncing</org.apache.james.infected>
+         </mailet>
+
+         <!-- If the sender is authenticated, notify the infection -->
+         <mailet match="SMTPAuthSuccessful" class="Bounce">
+            <inline>heads</inline>
+            <attachment>none</attachment>
+            <notice> Warning: We were unable to deliver the message below because it was found infected by virus(es). </notice>
+         </mailet>
+
+         <!-- In any other situation ghost it, -->
+         <!-- as viruses almost always spoof the sender's address -->
+         <mailet match="All" class="Null" />
+      </processor>
+
       <!-- This processor handles messages that are for local domains, where the user is unknown -->
       <processor name="local-address-error">
+         <!-- To avoid bouncing/archiving spam, uncomment this matcher/mailet configuration -->
+         <!--
+         <mailet match="HasMailAttribute=isSpam" class="Null" onMatchException="noMatch"/>
+         -->
+
          <!-- To notify the sender the address was invalid, uncomment this matcher/mailet configuration -->
          <!-- The original message is not attached to keep the bounce processor from deliverying spam -->
          <!--
