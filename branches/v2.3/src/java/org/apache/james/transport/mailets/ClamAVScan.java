@@ -802,7 +802,7 @@ public class ClamAVScan extends GenericMailet {
         
         // if 'socket' is still null then 'maxPings' has been exceeded
         if (socket == null) {
-            throw new ConnectException("maxPings exceeded: " + getMaxPings() + ". Giving up.");
+            throw new ConnectException("maxPings exceeded: " + getMaxPings() + ". Giving up. The clamd daemon seems not to be running");
         }
         
         try {
