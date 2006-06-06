@@ -249,8 +249,8 @@ Regards, Postmaster XXX.YYY
             <keyStoreType>pkcs12</keyStoreType>
             <keyStoreFileName>c:/path.pfx</keyStoreFileName>
             <keyStorePassword>myKeyStorePass</keyStorePassword>
-            <strip>true</strip>
-            <onlyTrusted>false</onlyTrusted>
+            <strip>false</strip>
+            <onlyTrusted>true</onlyTrusted>
          </mailet>
          -->
 
@@ -293,10 +293,20 @@ Regards, Postmaster XXX.YYY
               for non-spamming senders.
          -->
 
-         <!-- Messages from authenticated senders are never spam -->
+         <!-- Messages from authenticated senders never are spam -->
          <mailet match="SMTPAuthSuccessful" class="ToProcessor">
             <processor> transport </processor>
          </mailet>
+
+         <!-- Messages signed by trusted users never are spam -->
+         <!-- Uncommenting the following entry, messages with valid signatures will never be considered spam. -->
+         <!-- This can be a valid policy *if* SMIMECheckSignature was invoked -->
+         <!-- with <onlyTrusted>true</onlyTrusted> set -->
+         <!--
+         <mailet match="HasMailAttribute=org.apache.james.SMIMECheckSignature" class="ToProcessor">
+            <processor> transport </processor>
+         </mailet>
+         -->
 
          <!-- specific known senders -->
          <!--
