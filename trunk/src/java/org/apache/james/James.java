@@ -526,11 +526,12 @@ public class James
                         .append(userName)
                         .append("/");
             String destination = destinationBuffer.toString();
-            DefaultConfiguration mboxConf
-                = new DefaultConfiguration("repository", "generated:AvalonFileRepository.compose()");
-            mboxConf.setAttribute("destinationURL", destination);
-            mboxConf.setAttribute("type", "MAIL");
             try {
+                // Copy the inboxRepository configuration and modify the destinationURL
+                DefaultConfiguration mboxConf = new DefaultConfiguration(conf
+                        .getChild("inboxRepository").getChild("repository"));
+                mboxConf.setAttribute("destinationURL", destination);
+
                 userInbox = (MailRepository) store.select(mboxConf);
                 if (userInbox!=null) {
                     mailboxes.put(userName, userInbox);
