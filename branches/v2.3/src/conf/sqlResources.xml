@@ -266,7 +266,7 @@
     <sql name="createTable" db="mysql">
         CREATE TABLE ${table} (
             message_name varchar (200) NOT NULL,
-            repository_name varchar (255) NOT NULL,
+            repository_name varchar (100) NOT NULL,
             message_state varchar (30) NOT NULL ,
             error_message varchar (200) NULL ,
             sender varchar (255) NULL ,
@@ -510,7 +510,7 @@
     <sql name="createTable" db="mysql">
         CREATE TABLE ${table} (
             message_name varchar (200) NOT NULL,
-            repository_name varchar (255) NOT NULL,
+            repository_name varchar (100) NOT NULL,
             message_state varchar (30) NOT NULL ,
             error_message varchar (200) NULL ,
             sender varchar (255) NULL ,
