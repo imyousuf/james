@@ -190,29 +190,28 @@ public abstract class AbstractRemoteAddrInNetworkTest extends TestCase {
         dnsServer = new DNSServer() {
 
             public Collection findMXRecords(String hostname) {
-                // TODO Auto-generated method stub
-                return null;
+                throw new UnsupportedOperationException(
+                        "Unimplemented mock service");
             }
 
             public Collection findTXTRecords(String hostname) {
-                // TODO Auto-generated method stub
-                return null;
+                throw new UnsupportedOperationException(
+                        "Unimplemented mock service");
             }
 
             public Iterator getSMTPHostAddresses(String domainName) {
-                // TODO Auto-generated method stub
-                return null;
+                throw new UnsupportedOperationException(
+                        "Unimplemented mock service");
             }
 
             public InetAddress[] getAllByName(String host)
                     throws UnknownHostException {
-                // TODO Auto-generated method stub
-                return null;
+                throw new UnsupportedOperationException(
+                        "Unimplemented mock service");
             }
 
             public InetAddress getByName(String host)
                     throws UnknownHostException {
-                // TODO Auto-generated method stub
                 return InetAddress.getByName(host);
             }
 
