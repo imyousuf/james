@@ -106,11 +106,11 @@ public abstract class AbstractNetworkMatcher extends org.apache.mailet.GenericMa
     }
     
     
-    protected void setDNSServer(DNSServer dnsServer) {
+    private void setDNSServer(DNSServer dnsServer) {
         this.dnsServer = dnsServer;
     }
     
-    protected void setServiceManager(ServiceManager compMgr) {
+    private void setServiceManager(ServiceManager compMgr) {
         this.compMgr = compMgr;
     }
 }
