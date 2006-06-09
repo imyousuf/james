@@ -17,7 +17,6 @@
 
 package org.apache.james.transport.matchers;
 
-import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
 import org.apache.james.services.DNSServer;
@@ -58,18 +57,21 @@ public abstract class AbstractNetworkMatcher extends org.apache.mailet.GenericMa
      * The DNSServer
      */
     private DNSServer dnsServer;
+    
+    /**
+     * The ServiceManger
+     */
+    private ServiceManager compMgr;
 
     public void init() throws MessagingException {
         
-        ServiceManager compMgr = (ServiceManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
+        setServiceManager((ServiceManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER));
         
         try {
             // Instantiate DNSServer
-            dnsServer = (DNSServer) compMgr.lookup(DNSServer.ROLE);
-        } catch (ServiceException cnfe) {
-            log("Failed to retrieve DNSServer" + cnfe.getMessage());
+            setDNSServer((DNSServer) compMgr.lookup(DNSServer.ROLE));
         } catch (Exception e) {
-            log("Failed to retrieve DNSServer:" + e.getMessage());
+            throw new MessagingException("Failed to retrieve DNSServer:" + e.getMessage());
         }
         
         Collection nets = allowedNetworks();
@@ -101,5 +103,14 @@ public abstract class AbstractNetworkMatcher extends org.apache.mailet.GenericMa
 
     protected boolean matchNetwork(String addr) {
         return authorizedNetworks == null ? false : authorizedNetworks.matchInetNetwork(addr);
+    }
+    
+    
+    protected void setDNSServer(DNSServer dnsServer) {
+        this.dnsServer = dnsServer;
+    }
+    
+    protected void setServiceManager(ServiceManager compMgr) {
+        this.compMgr = compMgr;
     }
 }
