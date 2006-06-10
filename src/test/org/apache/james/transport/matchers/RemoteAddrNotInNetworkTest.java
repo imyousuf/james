@@ -22,18 +22,18 @@ import java.util.Collection;
 
 import javax.mail.MessagingException;
 
-public class RemoteAddrInNetworkTest extends AbstractRemoteAddrInNetworkTest {
+public class RemoteAddrNotInNetworkTest extends AbstractRemoteAddrInNetworkTest {
 
     private final String ALLOWED_NETWORK = "192.168.200.0/24";
 
-    public RemoteAddrInNetworkTest(String arg0)
+    public RemoteAddrNotInNetworkTest(String arg0)
             throws UnsupportedEncodingException {
         super(arg0);
     }
 
     // test if the recipients get returned as matched
-    public void testRemoteAddrInNetworkMatched() throws MessagingException {
-        setRemoteAddr("192.168.200.1");
+    public void testRemoteAddrNotInNetworkMatched() throws MessagingException {
+        setRemoteAddr("192.168.0.1");
 
         setupAll();
 
@@ -45,8 +45,8 @@ public class RemoteAddrInNetworkTest extends AbstractRemoteAddrInNetworkTest {
     }
 
     // test if no recipient get returned cause it not match
-    public void testRemoteAddrInNetworkNotMatch() throws MessagingException {
-        setRemoteAddr("192.168.1.1");
+    public void testRemoteAddrNotInNetworkNotMatch() throws MessagingException {
+        setRemoteAddr("192.168.200.1");
 
         setupAll();
 
@@ -56,7 +56,7 @@ public class RemoteAddrInNetworkTest extends AbstractRemoteAddrInNetworkTest {
     }
 
     protected AbstractNetworkMatcher createMatcher() {
-        return new RemoteAddrInNetwork();
+        return new RemoteAddrNotInNetwork();
     }
 
     protected String getConfigOption() {
