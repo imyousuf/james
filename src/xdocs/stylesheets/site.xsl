@@ -95,7 +95,7 @@
             <td colspan="3">
               <div class="page-footer">
                 <em>
-        Copyright &#169; 1999-2005, The Apache Software Foundation
+        Copyright &#169; 1999-2006, The Apache Software Foundation
         </em>
               </div>
             </td>
