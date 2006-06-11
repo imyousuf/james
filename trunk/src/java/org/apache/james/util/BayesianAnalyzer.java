@@ -74,7 +74,7 @@ import java.io.StringReader;
  * before calling computeSpamProbability.</P>
  *
  * @version CVS $Revision: $ $Date: $
- * @since 3.0
+ * @since 2.3.0
  */
 
 public class BayesianAnalyzer {
