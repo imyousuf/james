@@ -98,12 +98,29 @@ public class RecipientIsRegexTest extends AbstractRecipientIsTest {
             setupAll();
             matchedRecipients = matcher.match(mockedMail);
         } catch (MessagingException m) {
-            m.printStackTrace();
             regexException = m.getMessage();
         }
 
         assertNull(matchedRecipients);
         assertEquals(regexException, exception);
+
+    }
+
+    // test if an exception was thrown cause the regex was invalid
+    public void testThrowExceptionWithEmptyPattern() throws MessagingException {
+        boolean catchException = false;
+
+        setRecipients(new MailAddress[] {
+                new MailAddress("test@james2.apache.org"),
+                new MailAddress("test2@james2.apache.org") });
+        setRegex("");
+
+        try {
+            setupAll();
+        } catch (MessagingException m) {
+            catchException = true;
+        }
+        assertTrue(catchException);
 
     }
 
