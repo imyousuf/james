@@ -56,7 +56,7 @@ public class SenderIsRegex extends GenericMatcher {
 
     public void init() throws MessagingException {
         String patternString = getCondition();
-        if (patternString == null) {
+        if ((patternString == null) || (patternString.equals(""))) {
             throw new MessagingException("Pattern is missing");
         }
         
