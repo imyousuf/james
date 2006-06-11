@@ -47,7 +47,7 @@ public class RecipientIsRegex extends GenericRecipientMatcher {
 
     public void init() throws javax.mail.MessagingException {
         String patternString = getCondition();
-        if (patternString == null) {
+        if ((patternString == null) || (patternString.equals("")) ) {
             throw new MessagingException("Pattern is missing");
         }
         
