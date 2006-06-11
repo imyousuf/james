@@ -100,7 +100,7 @@ import org.apache.james.util.JDBCBayesianAnalyzer;
  * @see org.apache.james.util.BayesianAnalyzer
  * @see org.apache.james.util.JDBCBayesianAnalyzer
  * @version CVS $Revision: $ $Date: $
- * @since 3.0
+ * @since 2.3.0
  */
 
 public class BayesianAnalysisFeeder
