@@ -37,7 +37,7 @@ import java.sql.DatabaseMetaData;
  * different parts of the code.</p>
 
  * @version CVS $Revision: $ $Date: $
- * @since 3.0
+ * @since 2.3.0
  */
 
 abstract public class JDBCBayesianAnalyzer
