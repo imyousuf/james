@@ -27,12 +27,10 @@ import javax.mail.internet.MimeMessage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.StringTokenizer;
 import java.util.Locale;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipEntry;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
 
