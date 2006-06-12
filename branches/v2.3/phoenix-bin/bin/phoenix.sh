@@ -133,6 +133,9 @@ if [ "$PHOENIX_SECURE" != "false" ] ; then
   JVM_OPTS="$JVM_OPTS -Djava.security.manager"
 fi
 
+# change to the bin directory
+cd $PHOENIX_HOME/bin
+
 # Get the run cmd
 RUN_CMD="$JAVA_HOME/bin/java $JVM_OPTS \
     $JVM_OPTS \
