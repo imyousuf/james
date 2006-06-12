@@ -24,19 +24,16 @@ import org.apache.avalon.excalibur.datasource.*;
 import org.apache.avalon.framework.service.*;
 
 import org.apache.james.*;
-import org.apache.james.core.*;
 import org.apache.james.services.*;
 import org.apache.james.util.*;
 
 import javax.mail.*;
-import javax.mail.internet.*;
 
 import java.util.Collection;
 import java.util.StringTokenizer;
 
 import java.sql.*;
 import java.util.*;
-import java.text.*;
 import java.io.*;
 
 /**
