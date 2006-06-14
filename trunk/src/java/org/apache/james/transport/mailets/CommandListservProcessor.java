@@ -60,6 +60,7 @@ import java.util.Properties;
  *  &lt;autobracket&gt;true&lt;/autobracket&gt;
  *  &lt;listOwner&gt;owner@localhost&lt;/listOwner&gt;
  *  &lt;listName&gt;announce&lt;/listName&gt;
+ *  &lt;addFooter&gt;true&lt;/addFooter&gt;
  * &lt;/mailet&gt;
  *
  * </pre>
@@ -159,6 +160,8 @@ public class CommandListservProcessor extends GenericMailet {
 
     protected boolean specificPostersOnly;
     protected Collection allowedPosters;
+    
+    protected boolean addFooter;
 
     /**
      * Initialize the mailet
@@ -175,6 +178,7 @@ public class CommandListservProcessor extends GenericMailet {
             autoBracket = getBoolean("autobracket", true);
             listOwner = new MailAddress(getString("listOwner", null));
             specificPostersOnly = getBoolean("specifiedpostersonly", false);
+            addFooter = getBoolean("addfooter", true);
             //initialize resources
             initializeResources();
             //init user repos
@@ -210,8 +214,8 @@ public class CommandListservProcessor extends GenericMailet {
                 return;
             }
 
-            //addfooter
-            addFooter(mail);
+            //check if the footer should be added. If yes add it
+            if (addFooter) addFooter(mail);
 
             //prepare the new message
             MimeMessage message = prepareListMessage(mail, listservAddr);
