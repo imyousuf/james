@@ -507,6 +507,8 @@ public class SMTPHandler
             return commandLine;
         } catch (CRLFTerminatedReader.TerminationException te) {
             writeLoggedFlushedResponse("501 Syntax error at character position " + te.position() + ". CR and LF must be CRLF paired.  See RFC 2821 #2.7.1.");
+        } catch (CRLFTerminatedReader.LineLengthExceededException llee) {
+            writeLoggedFlushedResponse("500 Line length exceeded. See RFC 2821 #4.5.3.1.");
         }
     }
 

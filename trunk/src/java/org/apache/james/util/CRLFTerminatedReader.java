@@ -47,6 +47,12 @@ public class CRLFTerminatedReader extends Reader {
         }
     }
 
+    public class LineLengthExceededException extends IOException {
+        public LineLengthExceededException(String s) {
+            super(s);
+        }
+    }
+
     /**
      * Constructs this CRLFTerminatedReader.
      * @param in an InputStream
@@ -98,7 +104,10 @@ public class CRLFTerminatedReader extends Reader {
          */ 
         boolean cr_just_received = false;
 
-        while (true){
+        // Until we add support for specifying a maximum line lenth as
+        // a Service Extension, limit lines to 2K, which is twice what
+        // RFC 2821 4.5.3.1 requires.
+        while (lineBuffer.length() <= 2048) {
             int inChar = read();
 
             if (!cr_just_received){
@@ -135,6 +144,7 @@ public class CRLFTerminatedReader extends Reader {
                 }
             }
         }//while
+        throw new LineLengthExceededException("Exceeded maximum line length");
     }//method readLine()
 
     public int read() throws IOException {
