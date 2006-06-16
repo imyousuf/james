@@ -78,6 +78,13 @@ public class MimeMessageWrapper
      */
     private InputStream sourceIn;
 
+    private MimeMessageWrapper(Session session) throws MessagingException {
+        super(session);
+        this.headers = null;
+        this.modified = false;
+        this.headersModified = false;
+        this.bodyModified = false;
+    }
     
     /**
      * A constructor that instantiates a MimeMessageWrapper based on
@@ -87,11 +94,7 @@ public class MimeMessageWrapper
      * @throws MessagingException 
      */
     public MimeMessageWrapper(Session session, MimeMessageSource source) throws MessagingException {
-        super(session);
-        this.headers = null;
-        this.modified = false;
-        this.headersModified = false;
-        this.bodyModified = false;
+        this(session);
         this.source = source;
     }
 
@@ -108,7 +111,7 @@ public class MimeMessageWrapper
     }
 
     public MimeMessageWrapper(MimeMessage original) throws MessagingException {
-        super(Session.getDefaultInstance(System.getProperties()));
+        this(Session.getDefaultInstance(System.getProperties()));
         flags = original.getFlags();
         
         // if the original is an unmodified MimeMessageWrapped we clone the headers and

@@ -55,6 +55,10 @@ public class MimeMessageTest extends TestCase {
             +"test body";
     }
     
+    protected String getSimpleMessageCleanedSourceHeaderExpected() throws Exception {
+        return "X-Test: foo\r\n"+getSimpleMessageCleanedSource();
+    }
+    
     /*
      * Class under test for String getSubject()
      */
@@ -317,8 +321,9 @@ public class MimeMessageTest extends TestCase {
         MimeMessage mm = new MimeMessageCopyOnWriteProxy(mmorig);
 
         MimeMessage mm2 = new MimeMessageCopyOnWriteProxy(mm);
-        
+
         mm2.setHeader("Subject", "Modified");
+        
         ContainerUtil.dispose(mm2);
         System.gc();
         Thread.sleep(200);
@@ -356,5 +361,25 @@ public class MimeMessageTest extends TestCase {
         ContainerUtil.dispose(mm2);
         ContainerUtil.dispose(mmorig);
     }
+
     
+    /**
+     * This test throw a NullPointerException when the original message was created by
+     * a MimeMessageInputStreamSource.
+     */
+    public void testMessageCloningViaCoWSubjectLost() throws Exception {
+        MimeMessage mmorig = getSimpleMessage();
+        
+        MimeMessage mm = new MimeMessageCopyOnWriteProxy(mmorig);
+
+        mm.setHeader("X-Test", "foo");
+        mm.saveChanges();
+        
+        assertEquals(getSimpleMessageCleanedSourceHeaderExpected(),getCleanedMessageSource(mm));
+
+        ContainerUtil.dispose(mm);
+        ContainerUtil.dispose(mmorig);
+    }
+    
+
 }
