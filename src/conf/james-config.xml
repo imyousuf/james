@@ -1396,6 +1396,11 @@ Regards, Postmaster XXX.YYY
    <!-- Specific factory elements may require some sub-elements.  This is -->
    <!-- factory class dependent. -->
    <!-- -->
+   <!-- In order to use the ssl factory under Java 1.5 and support all Clients -->
+   <!-- (particularly Mozilla Thunderbird) you need to install the Sun JCE -->
+   <!-- provider in your environment (james/lib) -->
+   <!-- e.g: jre/lib/ext/sunjce_provider.jar -->
+   <!--  -->
    <sockets>
       <server-sockets>
          <factory name="plain" class="org.apache.avalon.cornerstone.blocks.sockets.DefaultServerSocketFactory"/>
