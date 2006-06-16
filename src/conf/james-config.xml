@@ -765,7 +765,10 @@ Regards, Postmaster XXX.YYY
       <maxcachesize>50000</maxcachesize>
    </dnsserver>
 
-   <remotemanager>
+   <!-- The RemoteManager server is enabled by default -->
+   <!-- Disabling blocks will stop them from listening, -->
+   <!-- but does not free as many resources as removing them would -->
+   <remotemanager enabled="true">
       <port>4555</port>
       <!--  Uncomment this if you want to bind to a specific inetaddress -->
       <!--
