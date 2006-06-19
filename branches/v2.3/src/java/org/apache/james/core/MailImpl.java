@@ -610,6 +610,7 @@ public class MailImpl implements Disposable, Mail {
         ByteArrayOutputStream b = new ByteArrayOutputStream();
         ObjectOutputStream out = new ObjectOutputStream(b);
         out.writeObject(o);
+        out.flush();
         out.close();
         ByteArrayInputStream bi=new ByteArrayInputStream(b.toByteArray());
         ObjectInputStream in = new ObjectInputStream(bi);
