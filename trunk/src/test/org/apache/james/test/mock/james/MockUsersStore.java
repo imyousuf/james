@@ -32,12 +32,13 @@ public class MockUsersStore implements UsersStore {
     }
 
     public UsersRepository getRepository(String name) {
+        if (!name.equals("LocalUsers")) return null;
         return m_usersRepository;
     }
 
     public Iterator getRepositoryNames() {
         ArrayList repositoryList = new ArrayList();
-        repositoryList.add(m_usersRepository);
+        repositoryList.add("LocalUsers");
         return repositoryList.iterator();
     }
 }

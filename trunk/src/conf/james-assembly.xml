@@ -70,6 +70,7 @@
     <!-- The User Management block  -->
   <block name="usermanagement" class="org.apache.james.management.UserManagement" >
     <provide name="localusersrepository" role="org.apache.james.services.UsersRepository"/>
+    <provide name="users-store" role="org.apache.james.services.UsersStore"/>
   </block>
 
   <!-- POP3 Server -->
