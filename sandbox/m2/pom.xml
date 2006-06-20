@@ -2,17 +2,17 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.livetribe</groupId>
-    <artifactId>livetribe</artifactId>
-    <name>LiveTribe Systems Management Project</name>
-    <version>1.0-SNAPSHOT</version>
+    <groupId>org.apache.james</groupId>
+    <artifactId>james</artifactId>
+    <name>Apache James Project</name>
+    <version>3.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <description>LiveTribe</description>
-    <url>http://www.livetribe.org</url>
+    <description>The Apache Java Enterprise Mail Server (a.k.a. Apache James)</description>
+    <url>http://james.apache.org</url>
 
     <issueManagement>
         <system>jira</system>
-        <url>http://jira.codehaus.org/browse/LIVETRIBE</url>
+        <url>http://issues.apache.org/jira/browse/JAMES</url>
     </issueManagement>
 
     <ciManagement>
@@ -22,35 +22,29 @@
                 <type>mail</type>
                 <sendOnError />
                 <sendOnFailure />
-                <address>dev@livetribe.org</address>
+                <address>server-dev@james.apache.org</address>
             </notifier>
         </notifiers>
     </ciManagement>
 
     <mailingLists>
         <mailingList>
-            <name>LiveTribe Announcement List</name>
-            <subscribe>announce-subscribe@livetribe.org</subscribe>
-            <unsubscribe>announce-unsubscribe@livetribe.org</unsubscribe>
-            <archive>http://archive.livetribe.org/announce</archive>
+            <name>Server User List</name>
+            <subscribe>server-user-subscribe@james.apache.org</subscribe>
+            <unsubscribe>server-user-unsubscribe@james.apache.org</unsubscribe>
+            <archive>http://www.mail-archive.com/server-user@james.apache.org/</archive>
         </mailingList>
         <mailingList>
-            <name>LiveTribe User List</name>
-            <subscribe>user-subscribe@livetribe.org</subscribe>
-            <unsubscribe>user-unsubscribe@livetribe.org</unsubscribe>
-            <archive>http://archive.livetribe.org/user</archive>
+            <name>Server Developer List</name>
+            <subscribe>server-dev-subscribe@james.apache.org</subscribe>
+            <unsubscribe>server-dev-unsubscribe@james.apache.org</unsubscribe>
+            <archive>http://www.mail-archive.com/server-dev@james.apache.org/</archive>
         </mailingList>
         <mailingList>
-            <name>LiveTribe Developer List</name>
-            <subscribe>dev-subscribe@livetribe.org</subscribe>
-            <unsubscribe>dev-unsubscribe@livetribe.org</unsubscribe>
-            <archive>http://archive.livetribe.org/dev</archive>
-        </mailingList>
-        <mailingList>
-            <name>LiveTribe SCM List</name>
-            <subscribe>scm-subscribe@livetribe.org</subscribe>
-            <unsubscribe>scm-unsubscribe@livetribe.org</unsubscribe>
-            <archive>http://archive.livetribe.org/scm</archive>
+            <name>James General List</name>
+            <subscribe>server-general-subscribe@james.apache.org</subscribe>
+            <unsubscribe>server-general-unsubscribe@james.apache.org</unsubscribe>
+            <archive>http://www.mail-archive.com/server-general@james.apache.org/</archive>
         </mailingList>
     </mailingLists>
 
@@ -59,16 +53,6 @@
             <id>maguro</id>
             <name>Alan D. Cabrera</name>
             <timezone>-8</timezone>
-        </developer>
-        <developer>
-            <id>hogstrom</id>
-            <name>Matt Hogstrom</name>
-            <timezone>-5</timezone>
-        </developer>
-        <developer>
-            <id>sbordet</id>
-            <name>Simone Bordet</name>
-            <timezone>1</timezone>
         </developer>
     </developers>
 
@@ -105,21 +89,14 @@
             <plugins>
                 <plugin>
                     <artifactId>maven-release-plugin</artifactId>
-                    <configuration>
-                        <tagBase>https://svn.codehaus.org/livetribe/tags</tagBase>
-                    </configuration>
+                        <configuration>
+                            <remoteRepositoryId>james</remoteRepositoryId>
+                            <remoteRepositoryUrl>scp://minotaur.apache.org/www/james.apache.org/james/dist/james-${version}/m1</remoteRepositoryUrl>
+                        </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
     </build>
-
-    <modules>
-        <module>livetribe-util</module>
-        <module>livetribe-webconsole</module>
-        <module>livetribe-jmx</module>
-        <module>livetribe-slp</module>
-        <module>arm-spec</module>
-    </modules>
 
     <licenses>
         <license>
@@ -129,97 +106,24 @@
         </license>
     </licenses>
 
-    <scm>
-        <connection>scm:svn:https://svn.codehaus.org/livetribe/livetribe/</connection>
-        <developerConnection>
-            scm:svn:svn+ssh://${maven.username}@svn.codehaus.org/home/projects/livetribe/scm/livetribe/</developerConnection>
-        <url>http://svn.livetribe.codehaus.org/livetribe/</url>
-    </scm>
+  <scm>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/james/server</connection>
+    <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/james/server</developerConnection>
+    <url>http://svn.apache.org/repos/asf/james/server</url>
+  </scm>
 
     <organization>
-        <name>LiveTribe</name>
-        <url>http://www.livetribe.org/</url>
+        <name>Apache James Project</name>
+        <url>http://james.apache.org/</url>
     </organization>
 
     <dependencyManagement>
         <dependencies>
 
-            <!-- =============================== -->
-            <!-- Required dependencies -->
-            <!-- =============================== -->
-
-            <dependency>
-                <groupId>antlr</groupId>
-                <artifactId>antlr</artifactId>
-                <version>2.7.2</version>
-            </dependency>
-
-            <dependency>
-                <groupId>activeio</groupId>
-                <artifactId>activeio</artifactId>
-                <version>2.2-SNAPSHOT</version>
-            </dependency>
-
-            <dependency>
-                <groupId>backport-util-concurrent</groupId>
-                <artifactId>backport-util-concurrent</artifactId>
-                <version>2.1</version>
-            </dependency>
-
-            <dependency>
-                <groupId>commons-lang</groupId>
-                <artifactId>commons-lang</artifactId>
-                <version>2.0</version>
-            </dependency>
-
-            <dependency>
-                <groupId>commons-beanutils</groupId>
-                <artifactId>commons-beanutils</artifactId>
-                <version>1.7.0</version>
-            </dependency>
-
             <dependency>
                 <groupId>commons-logging</groupId>
                 <artifactId>commons-logging</artifactId>
                 <version>1.0.4</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.livetribe</groupId>
-                <artifactId>livetribe-util</artifactId>
-                <version>${version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.opengroup</groupId>
-                <artifactId>ARM_4_0</artifactId>
-                <version>1.0</version>
-            </dependency>
-
-            <dependency>
-                <groupId>log4j</groupId>
-                <artifactId>log4j</artifactId>
-                <version>1.2.8</version>
-                <scope>runtime</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>mx4j</groupId>
-                <artifactId>mx4j</artifactId>
-                <version>3.0.1</version>
-                <scope>runtime</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>mx4j</groupId>
-                <artifactId>mx4j-jmx</artifactId>
-                <version>3.0.1</version>
-            </dependency>
-
-            <dependency>
-                <groupId>velocity</groupId>
-                <artifactId>velocity</artifactId>
-                <version>1.4</version>
             </dependency>
 
         </dependencies>
@@ -242,18 +146,18 @@
 
     <distributionManagement>
         <repository>
-            <id>livetribe-repo</id>
-            <name>LiveTribe Central Repository</name>
-            <url>scpexe://repo.livetribe.org/home/projects/livetribe/dist-m2</url>
+            <id>james-repo</id>
+            <name>James Central Repository</name>
+            <url>scp://minotaur.apache.org/www/james.apache.org/dist-m2</url>
         </repository>
         <snapshotRepository>
-            <id>livetribe-snapshots</id>
-            <name>LiveTribe Central Development Repository</name>
-            <url>scpexe://repo.livetribe.org/home/projects/livetribe/dist-m2-snapshot</url>
+            <id>james-snapshots</id>
+            <name>James Central Development Repository</name>
+            <url>scp://minotaur.apache.org/www/james.apache.org/dist-m2-snapshot</url>
         </snapshotRepository>
         <site>
-            <id>livetribe-website</id>
-            <url>scpexe://repo.livetribe.org/home/projects/livetribe/public_html/maven/</url>
+            <id>james-website</id>
+            <url>scp://minotaur.apache.org/www/james.apache.org/public_html/maven/</url>
         </site>
     </distributionManagement>
 
