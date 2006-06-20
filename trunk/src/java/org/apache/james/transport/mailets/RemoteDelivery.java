@@ -24,6 +24,7 @@ import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
 import org.apache.james.services.DNSServer;
 import org.apache.james.services.SpoolRepository;
+import org.apache.james.util.TimeConverter;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.HostAddress;
 import org.apache.mailet.Mail;
@@ -62,7 +63,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Locale;
@@ -102,8 +102,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                                                                  //[attempts*]delay[units]
                                             
     private static Pattern PATTERN = null; //the compiled pattern of the above String
-    private static final HashMap MULTIPLIERS = new HashMap (10); //holds allowed units for delaytime together with
-                                                                //the factor to turn it into the equivalent time in msec
+    
     // The DNSServer
     private DNSServer dnsServer;
     
@@ -118,20 +117,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             PATTERN = compiler.compile(PATTERN_STRING, Perl5Compiler.READ_ONLY_MASK);
         } catch(MalformedPatternException mpe) {
             //this should not happen as the pattern string is hardcoded.
-            System.err.println ("Malformed pattern: " + PATTERN_STRING);
             mpe.printStackTrace (System.err);
         }
-        //add allowed units and their respective multiplier
-        MULTIPLIERS.put ("msec", new Integer (1));
-        MULTIPLIERS.put ("msecs", new Integer (1));
-        MULTIPLIERS.put ("sec",  new Integer (1000));
-        MULTIPLIERS.put ("secs",  new Integer (1000));
-        MULTIPLIERS.put ("minute", new Integer (1000*60));
-        MULTIPLIERS.put ("minutes", new Integer (1000*60));
-        MULTIPLIERS.put ("hour", new Integer (1000*60*60));
-        MULTIPLIERS.put ("hours", new Integer (1000*60*60));
-        MULTIPLIERS.put ("day", new Integer (1000*60*60*24));
-        MULTIPLIERS.put ("days", new Integer (1000*60*60*24));
     }
     
     /**
@@ -1244,11 +1231,10 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             } else {
                 throw new MessagingException(init_string+" does not match "+PATTERN_STRING);
             }
-            if (MULTIPLIERS.get (unit)!=null) {
-                int multiplier = ((Integer)MULTIPLIERS.get (unit)).intValue();
-                delayTime *= multiplier;
-            } else {
-                throw new MessagingException("Unknown unit: "+unit);
+                try {
+                delayTime = TimeConverter.getMilliSeconds(delayTime, unit);
+            } catch (NumberFormatException e) {
+                throw new MessagingException(e.getMessage());
             }
         }
 
