@@ -67,6 +67,11 @@
              role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
   </block>
 
+    <!-- The User Management block  -->
+  <block name="usermanagement" class="org.apache.james.management.UserManagement" >
+    <provide name="localusersrepository" role="org.apache.james.services.UsersRepository"/>
+  </block>
+
   <!-- POP3 Server -->
   <block name="pop3server" class="org.apache.james.pop3server.POP3Server" >
     <provide name="localusersrepository" role="org.apache.james.services.UsersRepository"/>
