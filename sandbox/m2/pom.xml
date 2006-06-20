@@ -1,0 +1,260 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.livetribe</groupId>
+    <artifactId>livetribe</artifactId>
+    <name>LiveTribe Systems Management Project</name>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <description>LiveTribe</description>
+    <url>http://www.livetribe.org</url>
+
+    <issueManagement>
+        <system>jira</system>
+        <url>http://jira.codehaus.org/browse/LIVETRIBE</url>
+    </issueManagement>
+
+    <ciManagement>
+        <system>continuum</system>
+        <notifiers>
+            <notifier>
+                <type>mail</type>
+                <sendOnError />
+                <sendOnFailure />
+                <address>dev@livetribe.org</address>
+            </notifier>
+        </notifiers>
+    </ciManagement>
+
+    <mailingLists>
+        <mailingList>
+            <name>LiveTribe Announcement List</name>
+            <subscribe>announce-subscribe@livetribe.org</subscribe>
+            <unsubscribe>announce-unsubscribe@livetribe.org</unsubscribe>
+            <archive>http://archive.livetribe.org/announce</archive>
+        </mailingList>
+        <mailingList>
+            <name>LiveTribe User List</name>
+            <subscribe>user-subscribe@livetribe.org</subscribe>
+            <unsubscribe>user-unsubscribe@livetribe.org</unsubscribe>
+            <archive>http://archive.livetribe.org/user</archive>
+        </mailingList>
+        <mailingList>
+            <name>LiveTribe Developer List</name>
+            <subscribe>dev-subscribe@livetribe.org</subscribe>
+            <unsubscribe>dev-unsubscribe@livetribe.org</unsubscribe>
+            <archive>http://archive.livetribe.org/dev</archive>
+        </mailingList>
+        <mailingList>
+            <name>LiveTribe SCM List</name>
+            <subscribe>scm-subscribe@livetribe.org</subscribe>
+            <unsubscribe>scm-unsubscribe@livetribe.org</unsubscribe>
+            <archive>http://archive.livetribe.org/scm</archive>
+        </mailingList>
+    </mailingLists>
+
+    <developers>
+        <developer>
+            <id>maguro</id>
+            <name>Alan D. Cabrera</name>
+            <timezone>-8</timezone>
+        </developer>
+        <developer>
+            <id>hogstrom</id>
+            <name>Matt Hogstrom</name>
+            <timezone>-5</timezone>
+        </developer>
+        <developer>
+            <id>sbordet</id>
+            <name>Simone Bordet</name>
+            <timezone>1</timezone>
+        </developer>
+    </developers>
+
+    <repositories>
+        <repository>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <id>central</id>
+            <name>Maven Repository Switchboard</name>
+            <url>http://repo1.maven.org/maven2</url>
+        </repository>
+        <repository>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <id>snapshots</id>
+            <name>Maven SNAPSHOT Repository</name>
+            <url>http://snapshots.maven.codehaus.org/maven2</url>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>snapshots</id>
+            <name>Maven Central Plugins Development Repository</name>
+            <url>http://snapshots.maven.codehaus.org/maven2</url>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <build>
+        <defaultGoal>install</defaultGoal>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <configuration>
+                        <tagBase>https://svn.codehaus.org/livetribe/tags</tagBase>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <modules>
+        <module>livetribe-util</module>
+        <module>livetribe-webconsole</module>
+        <module>livetribe-jmx</module>
+        <module>livetribe-slp</module>
+        <module>arm-spec</module>
+    </modules>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:svn:https://svn.codehaus.org/livetribe/livetribe/</connection>
+        <developerConnection>
+            scm:svn:svn+ssh://${maven.username}@svn.codehaus.org/home/projects/livetribe/scm/livetribe/</developerConnection>
+        <url>http://svn.livetribe.codehaus.org/livetribe/</url>
+    </scm>
+
+    <organization>
+        <name>LiveTribe</name>
+        <url>http://www.livetribe.org/</url>
+    </organization>
+
+    <dependencyManagement>
+        <dependencies>
+
+            <!-- =============================== -->
+            <!-- Required dependencies -->
+            <!-- =============================== -->
+
+            <dependency>
+                <groupId>antlr</groupId>
+                <artifactId>antlr</artifactId>
+                <version>2.7.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>activeio</groupId>
+                <artifactId>activeio</artifactId>
+                <version>2.2-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>backport-util-concurrent</groupId>
+                <artifactId>backport-util-concurrent</artifactId>
+                <version>2.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-lang</groupId>
+                <artifactId>commons-lang</artifactId>
+                <version>2.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-beanutils</groupId>
+                <artifactId>commons-beanutils</artifactId>
+                <version>1.7.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-logging</groupId>
+                <artifactId>commons-logging</artifactId>
+                <version>1.0.4</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.livetribe</groupId>
+                <artifactId>livetribe-util</artifactId>
+                <version>${version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.opengroup</groupId>
+                <artifactId>ARM_4_0</artifactId>
+                <version>1.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>log4j</groupId>
+                <artifactId>log4j</artifactId>
+                <version>1.2.8</version>
+                <scope>runtime</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>mx4j</groupId>
+                <artifactId>mx4j</artifactId>
+                <version>3.0.1</version>
+                <scope>runtime</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>mx4j</groupId>
+                <artifactId>mx4j-jmx</artifactId>
+                <version>3.0.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>velocity</groupId>
+                <artifactId>velocity</artifactId>
+                <version>1.4</version>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+
+        <!-- =============================== -->
+        <!-- Testing dependencies -->
+        <!-- =============================== -->
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>3.8.1</version>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <distributionManagement>
+        <repository>
+            <id>livetribe-repo</id>
+            <name>LiveTribe Central Repository</name>
+            <url>scpexe://repo.livetribe.org/home/projects/livetribe/dist-m2</url>
+        </repository>
+        <snapshotRepository>
+            <id>livetribe-snapshots</id>
+            <name>LiveTribe Central Development Repository</name>
+            <url>scpexe://repo.livetribe.org/home/projects/livetribe/dist-m2-snapshot</url>
+        </snapshotRepository>
+        <site>
+            <id>livetribe-website</id>
+            <url>scpexe://repo.livetribe.org/home/projects/livetribe/public_html/maven/</url>
+        </site>
+    </distributionManagement>
+
+</project>
