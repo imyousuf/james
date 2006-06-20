@@ -111,18 +111,22 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
                            if (getLogger().isErrorEnabled()) {
                                getLogger().error("Failed to add Commandhandler: " + className,ex);
                            }
+                           throw new ConfigurationException("Failed to add Commandhandler: " + className,ex);
                         } catch (IllegalAccessException ex) {
                            if (getLogger().isErrorEnabled()) {
                                getLogger().error("Failed to add Commandhandler: " + className,ex);
                            }
+                           throw new ConfigurationException("Failed to add Commandhandler: " + className,ex);
                         } catch (InstantiationException ex) {
                            if (getLogger().isErrorEnabled()) {
                                getLogger().error("Failed to add Commandhandler: " + className,ex);
                            }
+                           throw new ConfigurationException("Failed to add Commandhandler: " + className,ex);
                         } catch (ServiceException e) {
                             if (getLogger().isErrorEnabled()) {
                                 getLogger().error("Failed to service Commandhandler: " + className,e);
                             }
+                            throw new ConfigurationException("Failed to add Commandhandler: " + className,e);
                         }
                     }
                 }
