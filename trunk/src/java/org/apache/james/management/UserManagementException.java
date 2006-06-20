@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2006 The Apache Software Foundation.             *
+ * Copyright (c) 2006 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -15,27 +15,25 @@
  * permissions and limitations under the License.                      *
  ***********************************************************************/
 
-package org.apache.james;
 
-/**
- * An interface to expose James management functionality through JMX.  At
- * the time of this writing, this interface is just an example.
- * 
- * @deprecated this MBean will be replaced by UserManagementMBean
- * @phoenix:mx-topic name="MainJAMESServerManagement"
- */
-public interface JamesMBean {
+package org.apache.james.management;
 
-    /**
-     * Adds a user to this mail server.
-     *
-     * @deprecated moved to UserManagementMBean 
-     * 
-     * @phoenix:mx-operation
-     * @phoenix:mx-description Add a new user
-     *
-     * @param userName The name of the user being added
-     * @param password The password of the user being added
-     */
-    boolean addUser(String userName, String password);
+public class UserManagementException extends Exception {
+
+    public UserManagementException() {
+        super();
+    }
+
+    public UserManagementException(String message) {
+        super(message);
+    }
+
+    public UserManagementException(Exception e) {
+        super(e);
+    }
+    
+    public UserManagementException(String message, Exception e) {
+        super(message, e);
+    }
+
 }
