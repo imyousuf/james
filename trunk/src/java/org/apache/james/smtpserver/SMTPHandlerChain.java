@@ -17,11 +17,15 @@
 
 package org.apache.james.smtpserver;
 
+import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.avalon.framework.context.Context;
+import org.apache.avalon.framework.context.ContextException;
+import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
@@ -30,6 +34,7 @@ import org.apache.avalon.framework.service.Serviceable;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
@@ -38,7 +43,7 @@ import java.util.Properties;
   * The SMTPHandlerChain is per service object providing access
   * ConnectHandlers, Commandhandlers and message handlers
   */
-public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable, Serviceable {
+public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable, Serviceable, Contextualizable, Initializable {
 
     private HashMap commandHandlerMap = new HashMap();
     private ArrayList messageHandlers = new ArrayList();
@@ -46,12 +51,18 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
 
     private final CommandHandler unknownHandler = new UnknownCmdHandler();
     private ServiceManager serviceManager;
-
+    private Context context;
+    
     private final static String[] mandatoryCommands = { "MAIL" , "RCPT", "DATA"};
 
     public void service(ServiceManager arg0) throws ServiceException {
         serviceManager = arg0;
     }
+    
+    public void contextualize(Context arg0) throws ContextException {
+        context = arg0;
+    }
+
 
 
     /**
@@ -99,6 +110,8 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
 
                             //enable logging
                             ContainerUtil.enableLogging(handler, getLogger());
+                            
+                            ContainerUtil.contextualize(handler,context);
 
                             //servicing the handler
                             ContainerUtil.service(handler,serviceManager);
@@ -153,6 +166,11 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
                                 getLogger().error("Failed to service Commandhandler: " + className,e);
                             }
                             throw new ConfigurationException("Failed to add Commandhandler: " + className,e);
+                        } catch (ContextException e) {
+                            if (getLogger().isErrorEnabled()) {
+                                getLogger().error("Failed to service Commandhandler: " + className,e);
+                            }
+                            throw new ConfigurationException("Failed to add Commandhandler: " + className,e);
                         }
                     }
                 }
@@ -190,6 +208,22 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
 
         }
     }
+    
+    /**
+     * @see org.apache.avalon.framework.activity.Initializable#initialize()
+     */
+    public void initialize() throws Exception {
+        Iterator h = commandHandlerMap.keySet().iterator();
+    
+        while(h.hasNext()) {
+            List handlers = (List) commandHandlerMap.get(h.next());
+            Iterator h2 = handlers.iterator();
+            while (h2.hasNext()) {
+              ContainerUtil.initialize(h2.next());
+            }
+        }
+    }
+
 
     /**
      * Add it to map (key as command name, value is an array list of commandhandlers)
