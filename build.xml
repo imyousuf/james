@@ -517,7 +517,6 @@ Legal:
           <include name="${cornerstone-connection-api.jar}"/>
           <include name="${cornerstone-connection-impl.jar}"/>
           <include name="${cornerstone-store-api.jar}"/>
-          <include name="${cornerstone-store-impl.jar}"/>
           <include name="${cornerstone-scheduler-api.jar}"/>
           <include name="${cornerstone-scheduler-impl.jar}"/>
           <include name="${cornerstone-sockets-api.jar}"/>
