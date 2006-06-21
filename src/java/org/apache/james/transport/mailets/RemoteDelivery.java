@@ -193,7 +193,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
     private SpoolRepository outgoing; // The spool of outgoing mail
     private long[] delayTimes; //holds expanded delayTimes
     private int maxRetries = 5; // default number of retries
-    private long smtpTimeout = 600000;  //default number of ms to timeout on smtp delivery
+    private long smtpTimeout = 180000;  //default number of ms to timeout on smtp delivery
     private boolean sendPartial = false; // If false then ANY address errors will cause the transmission to fail
     private int connectionTimeout = 60000;  // The amount of time JavaMail will wait before giving up on a socket connect()
     private int deliveryThreadCount = 1; // default number of delivery threads
