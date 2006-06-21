@@ -102,7 +102,7 @@ public abstract class AbstractFileRepository
     {
         getLogger().info( "Init " + getClass().getName() + " Store" );
 
-        m_name = RepositoryManager.getName();
+        m_name = "Repository";
         String m_postfix = getExtensionDecorator();
         m_extension = "." + m_name + m_postfix;
         m_filter = new ExtensionFileFilter(m_extension);

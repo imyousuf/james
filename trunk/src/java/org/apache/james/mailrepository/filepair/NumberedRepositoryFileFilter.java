@@ -31,7 +31,7 @@ public class NumberedRepositoryFileFilter implements FilenameFilter {
 
     public NumberedRepositoryFileFilter(final String extension) {
         postfix = extension;
-        prefix = "." + RepositoryManager.getName();
+        prefix = ".Repository";
     }
 
     public boolean accept(final File file, final String name) {
