@@ -27,7 +27,6 @@ import org.apache.james.core.AbstractJamesService;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
-import org.apache.james.management.UserManagement;
 
 import java.util.HashMap;
 
@@ -77,11 +76,6 @@ public class RemoteManager
      */
     private RemoteManagerHandlerConfigurationData theConfigData
         = new RemoteManagerHandlerConfigurationDataImpl();
-
-    /**
-     * Reference to UserManagement functionality
-     */
-    private UserManagement userManagement;
 
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
@@ -207,10 +201,6 @@ public class RemoteManager
          */
         public UsersStore getUserStore() {
             return RemoteManager.this.usersStore;
-        }
-
-        public UserManagement getUserManagement() {
-            return RemoteManager.this.userManagement;
         }
 
         /**

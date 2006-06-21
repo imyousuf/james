@@ -21,7 +21,6 @@ import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
-import org.apache.james.management.UserManagement;
 
 import java.util.HashMap;
 
@@ -60,11 +59,6 @@ public interface RemoteManagerHandlerConfigurationData {
      */
     UsersStore getUserStore();
 
-    /**
-     * Accessor to User Management functionality
-     */
-    UserManagement getUserManagement();
-    
     /**
      * Returns the Administrative Account Data
      *
