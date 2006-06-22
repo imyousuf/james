@@ -17,7 +17,7 @@
 
 package org.apache.james.transport.matchers;
 
-import org.apache.mailet.Matcher;
+import org.apache.mailet.GenericMatcher;
 
 import javax.mail.MessagingException;
 import java.util.Collection;
@@ -32,7 +32,7 @@ public class HasMailAttributeWithValueTest extends AbstractHasMailAttributeTest 
         return MAIL_ATTRIBUTE_NAME + ", " + MAIL_ATTRIBUTE_VALUE;
     }
 
-    protected Matcher createMatcher() {
+    protected GenericMatcher createMatcher() {
         return new HasMailAttributeWithValue();
     }
 
