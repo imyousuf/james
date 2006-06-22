@@ -17,27 +17,43 @@
 
 package org.apache.james.transport.matchers;
 
+import java.util.Collection;
+
+import javax.mail.MessagingException;
+
 import org.apache.mailet.GenericMatcher;
 
-public class SMTPAuthSuccessfulTest extends AbstractHasMailAttributeTest {
+public class SMTPAuthUserIsTest extends AbstractHasMailAttributeTest {
     
     private final String SMTP_AUTH_USER_ATTRIBUTE_NAME = "org.apache.james.SMTPAuthUser";
 
     protected String getHasMailAttribute() {
-        return "";
+        return "test@james.apache.org";
     }
 
     protected GenericMatcher createMatcher() {
-        return new SMTPAuthSuccessful();
+        return new SMTPAuthUserIs();
     }
 
     protected String getConfigOption() {   
-        return "SMTPAuthSuccessful";
+        return "SMTPAuthUserIs=";
     }
     
     protected void init() {
         super.init();
         setMailAttributeName(SMTP_AUTH_USER_ATTRIBUTE_NAME);
+        setMailAttributeValue("test@james.apache.org");
+    }
+    
+    
+    // test if the mail attribute was not matched
+    public void testAttributeIsNotMatched() throws MessagingException {
+        setupAll();
+        setMailAttributeValue("notmatched@james.apache.org");
+
+        Collection matchedRecipients = matcher.match(mockedMail);
+
+        assertNull(matchedRecipients);
     }
 
 }
