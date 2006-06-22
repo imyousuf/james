@@ -15,7 +15,6 @@
  * permissions and limitations under the License.                      *
  ***********************************************************************/
 
-
 package org.apache.james.transport.matchers;
 
 import java.io.Serializable;
@@ -36,11 +35,17 @@ import org.apache.mailet.Matcher;
 
 public abstract class AbstractHasMailAttributeTest extends TestCase {
     protected MimeMessage mockedMimeMessage;
+
     protected MockMail mockedMail;
+
     protected Matcher matcher;
+
     protected final String MAIL_ATTRIBUTE_NAME = "org.apache.james.test.junit";
+
     protected final String MAIL_ATTRIBUTE_VALUE = "true";
+
     protected String mailAttributeName = "org.apache.james";
+
     protected String mailAttributeValue = "false";
 
     public AbstractHasMailAttributeTest() {
@@ -68,9 +73,8 @@ public abstract class AbstractHasMailAttributeTest extends TestCase {
 
     protected void setupMatcher() throws MessagingException {
         matcher = createMatcher();
-        MockMatcherConfig mci = new MockMatcherConfig("HasMailAttribute="
-                + getHasMailAttribute(),
-                new MockMailContext());
+        MockMatcherConfig mci = new MockMatcherConfig(getConfigOption()
+                + getHasMailAttribute(), new MockMailContext());
         matcher.init(mci);
     }
 
@@ -109,4 +113,6 @@ public abstract class AbstractHasMailAttributeTest extends TestCase {
     protected abstract String getHasMailAttribute();
 
     protected abstract Matcher createMatcher();
+
+    protected abstract String getConfigOption();
 }

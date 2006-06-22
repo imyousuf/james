@@ -22,7 +22,8 @@ import org.apache.mailet.Matcher;
 import javax.mail.MessagingException;
 import java.util.Collection;
 
-public class HasMailAttributeWithValueRegexTest extends AbstractHasMailAttributeTest {
+public class HasMailAttributeWithValueRegexTest extends
+        AbstractHasMailAttributeTest {
 
     private String regex = ".*";
 
@@ -42,7 +43,7 @@ public class HasMailAttributeWithValueRegexTest extends AbstractHasMailAttribute
         return new HasMailAttributeWithValueRegex();
     }
 
-// test if the mail attribute was matched
+    // test if the mail attribute was matched
     public void testAttributeIsMatched() throws MessagingException {
         init();
         setRegex(".*");
@@ -86,5 +87,9 @@ public class HasMailAttributeWithValueRegexTest extends AbstractHasMailAttribute
         assertNull(matchedRecipients);
         assertEquals(regexException, exception);
 
+    }
+
+    protected String getConfigOption() {
+        return "HasMailAttributeWithValueRegex=";
     }
 }

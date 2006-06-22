@@ -46,4 +46,8 @@ public class HasMailAttributeWithValueTest extends AbstractHasMailAttributeTest 
 
         assertNull(matchedRecipients);
     }
+
+    protected String getConfigOption() {
+        return "HasMailAttributeWithValue=";
+    }
 }
