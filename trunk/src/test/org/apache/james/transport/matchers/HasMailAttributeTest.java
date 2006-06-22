@@ -17,23 +17,12 @@
 
 package org.apache.james.transport.matchers;
 
-import org.apache.james.test.mock.mailet.MockMailContext;
-import org.apache.james.test.mock.mailet.MockMatcherConfig;
 import org.apache.mailet.Matcher;
-
-import javax.mail.MessagingException;
 
 public class HasMailAttributeTest extends AbstractHasMailAttributeTest {
 
     public HasMailAttributeTest() {
         super();
-    }
-
-    protected void setupMatcher() throws MessagingException {
-        matcher = createMatcher();
-        MockMatcherConfig mci = new MockMatcherConfig("HasMailAttribute="
-                + getHasMailAttribute(), new MockMailContext());
-        matcher.init(mci);
     }
 
     protected Matcher createMatcher() {
@@ -42,6 +31,10 @@ public class HasMailAttributeTest extends AbstractHasMailAttributeTest {
 
     protected String getHasMailAttribute() {
         return MAIL_ATTRIBUTE_NAME;
+    }
+
+    protected String getConfigOption() {
+        return "HasMailAttribute=";
     }
 
 }
