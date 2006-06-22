@@ -30,6 +30,7 @@ import junit.framework.TestCase;
 import org.apache.james.test.mock.mailet.MockMail;
 import org.apache.james.test.mock.mailet.MockMailContext;
 import org.apache.james.test.mock.mailet.MockMatcherConfig;
+import org.apache.mailet.GenericMatcher;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.Matcher;
 
@@ -112,7 +113,7 @@ public abstract class AbstractHasMailAttributeTest extends TestCase {
 
     protected abstract String getHasMailAttribute();
 
-    protected abstract Matcher createMatcher();
+    protected abstract GenericMatcher createMatcher();
 
     protected abstract String getConfigOption();
 }

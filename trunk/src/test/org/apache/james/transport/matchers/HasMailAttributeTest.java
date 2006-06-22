@@ -17,7 +17,7 @@
 
 package org.apache.james.transport.matchers;
 
-import org.apache.mailet.Matcher;
+import org.apache.mailet.GenericMatcher;
 
 public class HasMailAttributeTest extends AbstractHasMailAttributeTest {
 
@@ -25,7 +25,7 @@ public class HasMailAttributeTest extends AbstractHasMailAttributeTest {
         super();
     }
 
-    protected Matcher createMatcher() {
+    protected GenericMatcher createMatcher() {
         return new HasMailAttribute();
     }
 
