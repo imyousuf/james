@@ -87,6 +87,14 @@ public interface SMTPHandlerConfigurationData {
      * @return whether SMTP authentication is on
      */
     boolean useHeloEhloEnforcement();
+    
+    
+    /**
+     * Return the SMTPGreeting which should used.
+     * 
+     * @return the SMTPGreeting
+     */
+    String getSMTPGreeting();
 
     /**
      * Returns the MailServer interface for this service.
