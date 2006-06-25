@@ -99,6 +99,11 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean,
     private boolean heloEhloEnforcement = false;
     
     /**
+     * SMTPGreeting to use 
+     */
+    private String smtpGreeting = null;
+    
+    /**
      * This is a Network Matcher that should be configured to contain
      * authorized networks that bypass SMTP AUTH requirements.
      */
@@ -214,6 +219,9 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean,
             heloEhloEnforcement = handlerConfiguration.getChild("heloEhloEnforcement").getValueAsBoolean(true);
             
             if (authRequiredString.equals("true")) authRequired = AUTH_REQUIRED;
+            
+            // get the smtpGreeting
+            smtpGreeting = handlerConfiguration.getChild("smtpGreeting").getValue(null);
 
             //set the logger
             ContainerUtil.enableLogging(handlerChain,getLogger());
@@ -400,6 +408,14 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean,
          */
         public boolean useHeloEhloEnforcement() {
             return SMTPServer.this.heloEhloEnforcement;
+        }
+        
+        
+        /**
+         * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#getSMTPGreeting()
+         */
+        public String getSMTPGreeting() {
+            return SMTPServer.this.smtpGreeting;
         }
         
         //TODO: IF we create here an interface to get DNSServer

@@ -130,6 +130,11 @@ public class SMTPHandler
     private String blocklistedDetail = null;
 
     /**
+     * The SMTPGreeting
+     */
+    private String smtpGreeting = null;
+    
+    /**
      * The id associated with this particular SMTP interaction.
      */
     private String smtpID;
@@ -175,17 +180,24 @@ public class SMTPHandler
         authRequired = theConfigData.isAuthRequired(remoteIP);
         heloEhloEnforcement = theConfigData.useHeloEhloEnforcement();
         sessionEnded = false;
+        smtpGreeting = theConfigData.getSMTPGreeting();
         resetState();
 
-        // Initially greet the connector
-        // Format is:  Sat, 24 Jan 1998 13:16:09 -0500
+        // if no greeting was configured use a default
+        if (smtpGreeting == null) {
+            // Initially greet the connector
+            // Format is:  Sat, 24 Jan 1998 13:16:09 -0500
 
-        responseBuffer.append("220 ")
-                      .append(theConfigData.getHelloName())
-                      .append(" SMTP Server (")
-                      .append(SOFTWARE_TYPE)
-                      .append(") ready ")
-                      .append(rfc822DateFormat.format(new Date()));
+            responseBuffer.append("220 ")
+                          .append(theConfigData.getHelloName())
+                          .append(" SMTP Server (")
+                          .append(SOFTWARE_TYPE)
+                          .append(") ready ")
+                          .append(rfc822DateFormat.format(new Date()));
+        } else {
+            responseBuffer.append("220 ")
+                          .append(smtpGreeting);
+        }
         String responseString = clearResponseBuffer();
         writeLoggedFlushedResponse(responseString);
 

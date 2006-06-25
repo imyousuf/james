@@ -902,6 +902,12 @@ Regards, Postmaster XXX.YYY
          <!-- 
          <heloEhloEnforcement>true</heloEhloEnforcement>
          -->
+         
+         <!-- This sets the SMTPGreeting which will be used when connect to the smtpserver -->
+         <!-- If none is specified a default is generated -->
+         <!--
+         <smtpGreeting> JAMES SMTP Server </smtpGreeting>
+         -->
 
          <!-- The configuration handler chain -->
          <handlerchain>
