@@ -20,65 +20,56 @@ import org.apache.james.services.SpoolRepository;
 import org.apache.mailet.Mail;
 
 import javax.mail.MessagingException;
-
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.ArrayList;
 
 public class MockSpoolRepository implements SpoolRepository {
-    public ArrayList storedMails = new ArrayList();
+    public Map storedMails = new LinkedHashMap();
 
     public Mail accept() throws InterruptedException {
-        // TODO Auto-generated method stub
-        return null;
+        throw new java.lang.NoSuchMethodError("method not yet implemented");
     }
 
     public Mail accept(long delay) throws InterruptedException {
-        // TODO Auto-generated method stub
-        return null;
+        throw new java.lang.NoSuchMethodError("method not yet implemented");
     }
 
     public Mail accept(AcceptFilter filter) throws InterruptedException {
-        // TODO Auto-generated method stub
-        return null;
+        throw new java.lang.NoSuchMethodError("method not yet implemented");
     }
 
     public void store(Mail mc) throws MessagingException {
-        
+        storedMails.put(mc.getMessage().getMessageID(), mc);
     }
 
     public Iterator list() throws MessagingException {
-        // TODO Auto-generated method stub
-        return null;
+        return new ArrayList(storedMails.keySet()).iterator(); // iterate over clone!
     }
 
     public Mail retrieve(String key) throws MessagingException {
-        // TODO Auto-generated method stub
-        return null;
+        return (Mail)storedMails.get(key);
     }
 
     public void remove(Mail mail) throws MessagingException {
-        // TODO Auto-generated method stub
-        
+        throw new java.lang.NoSuchMethodError("method not yet implemented");
     }
 
     public void remove(Collection mails) throws MessagingException {
-        // TODO Auto-generated method stub
-        
+        throw new java.lang.NoSuchMethodError("method not yet implemented");
     }
 
     public void remove(String key) throws MessagingException {
-        // TODO Auto-generated method stub
-        
+        storedMails.remove(key);
     }
 
     public boolean lock(String key) throws MessagingException {
-        // TODO Auto-generated method stub
-        return false;
+        return true;
     }
 
     public boolean unlock(String key) throws MessagingException {
-        // TODO Auto-generated method stub
-        return false;
+        return true;
     }
 }

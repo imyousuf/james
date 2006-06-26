@@ -54,6 +54,11 @@ public class MockMimeMessage extends MimeMessage {
         super((Session)null);
     }
 
+    public MockMimeMessage(int messageNumber) throws MessagingException {
+        super((Session)null);
+        m_iMessageNumber = messageNumber;
+    }
+
     public MockMimeMessage(MimeMessage mimeMessage) throws MessagingException {
         super(mimeMessage); // trivial implementation
     }
