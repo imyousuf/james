@@ -17,20 +17,17 @@
 
 package org.apache.james.transport.matchers;
 
-import java.io.UnsupportedEncodingException;
-
-import javax.mail.MessagingException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMessage.RecipientType;
-
 import junit.framework.TestCase;
-
 import org.apache.james.test.mock.javaxmail.MockMimeMessage;
 import org.apache.james.test.mock.mailet.MockMail;
 import org.apache.james.test.mock.mailet.MockMailContext;
 import org.apache.james.test.mock.mailet.MockMatcherConfig;
+import org.apache.james.test.util.Util;
 import org.apache.mailet.Matcher;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import java.io.UnsupportedEncodingException;
 
 public abstract class AbstractSubjectIsTest extends TestCase {
 
@@ -58,18 +55,8 @@ public abstract class AbstractSubjectIsTest extends TestCase {
     }
 
     protected void setupMockedMimeMessage() throws MessagingException {
-        String sender = "test@james.apache.org";
-        String rcpt = "test2@james.apache.org";
-
-        mockedMimeMessage = new MockMimeMessage();
-        mockedMimeMessage.setFrom(new InternetAddress(sender));
-        mockedMimeMessage.setRecipients(RecipientType.TO, rcpt);
-        if (subject != null) {
-            mockedMimeMessage.setSubject(subject);
-        }
-        mockedMimeMessage.setText("testtext");
-        mockedMimeMessage.saveChanges();
-
+        mockedMimeMessage = Util.createMimeMessage("test", "test");
+        mockedMimeMessage.setSubject(subject);
     }
 
     protected void setupMatcher() throws MessagingException {

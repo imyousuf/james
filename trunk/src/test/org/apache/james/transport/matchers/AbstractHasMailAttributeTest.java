@@ -30,6 +30,7 @@ import junit.framework.TestCase;
 import org.apache.james.test.mock.mailet.MockMail;
 import org.apache.james.test.mock.mailet.MockMailContext;
 import org.apache.james.test.mock.mailet.MockMatcherConfig;
+import org.apache.james.test.util.Util;
 import org.apache.mailet.GenericMatcher;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.Matcher;
@@ -62,14 +63,9 @@ public abstract class AbstractHasMailAttributeTest extends TestCase {
     }
 
     protected void setupMockedMail(MimeMessage m) throws ParseException {
-        mockedMail = new MockMail();
-        mockedMail.setMessage(m);
-        mockedMail.setRecipients(Arrays.asList(new MailAddress[] {
-                new MailAddress("test@james.apache.org"),
-                new MailAddress("test2@james.apache.org") }));
+        mockedMail = Util.createMockMail2Recipients(m);
         mockedMail.setAttribute(mailAttributeName,
                 (Serializable) mailAttributeValue);
-
     }
 
     protected void setupMatcher() throws MessagingException {

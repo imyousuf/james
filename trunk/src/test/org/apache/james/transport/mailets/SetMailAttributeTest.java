@@ -17,25 +17,17 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.james.test.mock.mailet.MockMail;
+import junit.framework.TestCase;
 import org.apache.james.test.mock.mailet.MockMailContext;
 import org.apache.james.test.mock.mailet.MockMailetConfig;
+import org.apache.james.test.util.Util;
 import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
 import org.apache.mailet.Mailet;
 
 import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.ParseException;
-
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
-
-import junit.framework.TestCase;
 
 public class SetMailAttributeTest extends TestCase {
-
-    private MimeMessage mockedMimeMessage;
 
     private Mail mockedMail;
 
@@ -50,14 +42,6 @@ public class SetMailAttributeTest extends TestCase {
         super(arg0);
     }
 
-    private void setupMockedMail(MimeMessage m) throws ParseException {
-        mockedMail = new MockMail();
-        mockedMail.setMessage(m);
-        mockedMail.setRecipients(Arrays.asList(new MailAddress[] {
-                new MailAddress("test@james.apache.org"),
-                new MailAddress("test2@james.apache.org") }));
-    }
-
     private void setupMailet() throws MessagingException {
         mailet = new SetMailAttribute();
         MockMailetConfig mci = new MockMailetConfig("Test",
@@ -70,7 +54,7 @@ public class SetMailAttributeTest extends TestCase {
 
     // test if the Header was add
     public void testMailAttributeAdded() throws MessagingException {
-        setupMockedMail(mockedMimeMessage);
+        mockedMail = Util.createMockMail2Recipients(null);
         setupMailet();
 
         assertNull(mockedMail.getAttribute(ATTRIBUTE_NAME1));

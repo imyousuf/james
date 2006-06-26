@@ -17,30 +17,18 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.james.test.mock.javaxmail.MockMimeMessage;
+import junit.framework.TestCase;
 import org.apache.james.test.mock.mailet.MockMail;
 import org.apache.james.test.mock.mailet.MockMailContext;
 import org.apache.james.test.mock.mailet.MockMailetConfig;
-import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
+import org.apache.james.test.util.Util;
 import org.apache.mailet.Mailet;
 
 import javax.mail.MessagingException;
-import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import javax.mail.internet.ParseException;
-import javax.mail.internet.MimeMessage.RecipientType;
-
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
-
-import junit.framework.TestCase;
 
 public class SetMimeHeaderTest extends TestCase {
-
-    private MimeMessage mockedMimeMessage;
-
-    private Mail mockedMail;
 
     private Mailet mailet;
 
@@ -64,30 +52,7 @@ public class SetMimeHeaderTest extends TestCase {
         this.headerValue = headerValue;
     }
 
-    private void setupMockedMimeMessage() throws MessagingException {
-        String sender = "test@james.apache.org";
-        String rcpt = "test2@james.apache.org";
-
-        mockedMimeMessage = new MockMimeMessage();
-        mockedMimeMessage.setFrom(new InternetAddress(sender));
-        mockedMimeMessage.setRecipients(RecipientType.TO, rcpt);
-        mockedMimeMessage.setHeader(headerName, headerValue);
-        mockedMimeMessage.setSubject("testmail");
-        mockedMimeMessage.setText("testtext");
-        mockedMimeMessage.saveChanges();
-
-    }
-
-    private void setupMockedMail(MimeMessage m) throws ParseException {
-        mockedMail = new MockMail();
-        mockedMail.setMessage(m);
-        mockedMail.setRecipients(Arrays.asList(new MailAddress[] {
-                new MailAddress("test@james.apache.org"), new MailAddress("test2@james.apache.org") }));
-
-    }
-
     private void setupMailet() throws MessagingException {
-        setupMockedMimeMessage();
         mailet = new SetMimeHeader();
         MockMailetConfig mci = new MockMailetConfig("Test",
                 new MockMailContext());
@@ -99,8 +64,8 @@ public class SetMimeHeaderTest extends TestCase {
 
     // test if the Header was add
     public void testHeaderIsPresent() throws MessagingException {
-        setupMockedMimeMessage();
-        setupMockedMail(mockedMimeMessage);
+        MimeMessage mockedMimeMessage = Util.createMimeMessage(headerName, headerValue);
+        MockMail mockedMail = Util.createMockMail2Recipients(mockedMimeMessage);
         setupMailet();
 
         mailet.service(mockedMail);
@@ -115,8 +80,8 @@ public class SetMimeHeaderTest extends TestCase {
         setHeaderName(HEADER_NAME);
         setHeaderValue(headerValue);
 
-        setupMockedMimeMessage();
-        setupMockedMail(mockedMimeMessage);
+        MimeMessage mockedMimeMessage = Util.createMimeMessage(headerName, headerValue);
+        MockMail mockedMail = Util.createMockMail2Recipients(mockedMimeMessage);
         setupMailet();
 
         mailet.service(mockedMail);
