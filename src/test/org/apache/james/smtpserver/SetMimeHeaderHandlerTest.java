@@ -17,24 +17,18 @@
 
 package org.apache.james.smtpserver;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.HashMap;
-
-import javax.mail.MessagingException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMessage.RecipientType;
-
+import junit.framework.TestCase;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.test.mock.avalon.MockLogger;
-import org.apache.james.test.mock.javaxmail.MockMimeMessage;
-import org.apache.james.test.mock.mailet.MockMail;
+import org.apache.james.test.util.Util;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.mailet.Mail;
 
-import junit.framework.TestCase;
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
 
 public class SetMimeHeaderHandlerTest extends TestCase {
 
@@ -66,25 +60,7 @@ public class SetMimeHeaderHandlerTest extends TestCase {
     }
 
     private void setupMockedMimeMessage() throws MessagingException {
-        String sender = "test@james.apache.org";
-        String rcpt = "test2@james.apache.org";
-
-        mockedMimeMessage = new MockMimeMessage();
-        mockedMimeMessage.setFrom(new InternetAddress(sender));
-        mockedMimeMessage.setRecipients(RecipientType.TO, rcpt);
-        mockedMimeMessage.setHeader(headerName, headerValue);
-        mockedMimeMessage.setSubject("testmail");
-        mockedMimeMessage.setText("testtext");
-        mockedMimeMessage.saveChanges();
-
-    }
-
-    private void setupMockedMail(MimeMessage m) {
-        mockedMail = new MockMail();
-        mockedMail.setMessage(m);
-        mockedMail.setRecipients(Arrays.asList(new String[] {
-                "test@james.apache.org", "test2@james.apache.org" }));
-
+        mockedMimeMessage = Util.createMimeMessage(headerName, headerValue);
     }
 
     private void setupMockedSMTPSession() {
@@ -237,7 +213,7 @@ public class SetMimeHeaderHandlerTest extends TestCase {
         setHeaderValue(HEADER_VALUE);
 
         setupMockedMimeMessage();
-        setupMockedMail(mockedMimeMessage);
+        mockedMail = Util.createMockMail2Recipients(mockedMimeMessage);
 
         SetMimeHeaderHandler header = new SetMimeHeaderHandler();
 
@@ -257,7 +233,7 @@ public class SetMimeHeaderHandlerTest extends TestCase {
         setHeaderValue(headerValue);
 
         setupMockedMimeMessage();
-        setupMockedMail(mockedMimeMessage);
+        mockedMail = Util.createMockMail2Recipients(mockedMimeMessage);
 
         SetMimeHeaderHandler header = new SetMimeHeaderHandler();
 

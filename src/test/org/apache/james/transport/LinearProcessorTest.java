@@ -48,17 +48,15 @@ import java.util.Collection;
 import junit.framework.TestCase;
 
 /**
- * Currently here as a proof of JAMES-421.
- * Fixing code will follow
+ * contains a proof of JAMES-421.
  */
 public class LinearProcessorTest extends TestCase {
-    Collection c;
-    LinearProcessor t;
-    MimeMessage mw = null;
+    LinearProcessor linearProcessor;
+    MimeMessage mimeMessage = null;
     String content = "Subject: test\r\nContent-Transfer-Encoding: plain";
     String sep = "\r\n\r\n";
     String body = "original body\r\n.\r\n";
-    MailetContext       mockContext = new MockMailContext();
+    MailetContext mockContext = new MockMailContext();
 
     public static int counter = 0;
     
@@ -106,7 +104,7 @@ public class LinearProcessorTest extends TestCase {
             mmis = new MimeMessageInputStreamSource("test", new SharedByteArrayInputStream((content+sep+body).getBytes()));
         } catch (MessagingException e) {
         }
-        mw = new MimeMessageCopyOnWriteProxy(mmis);
+        mimeMessage = new MimeMessageCopyOnWriteProxy(mmis);
         setUp();
   }
 
@@ -130,7 +128,7 @@ public class LinearProcessorTest extends TestCase {
     }
     
     public void testCopyOnWrite() throws IOException, MessagingException {
-        t.setSpool(new MockSpoolRepository());
+        linearProcessor.setSpool(new MockSpoolRepository());
         Matcher recipientIs = new RecipientIs();
         recipientIs.init(new DummyMatcherConfig("rec1@domain.com"));
         
@@ -147,19 +145,19 @@ public class LinearProcessorTest extends TestCase {
         changeBody.init(mockMailetConfig);
         
         checkerMailet = new CheckerMailet();
-        t.openProcessorList();
-        t.add(recipientIs,changeBody);
-        t.add(all,changeBody);
-        t.add(all,dumpSystemErr);
-        t.add(all,checkerMailet);
-        t.closeProcessorLists();
+        linearProcessor.openProcessorList();
+        linearProcessor.add(recipientIs,changeBody);
+        linearProcessor.add(all,changeBody);
+        linearProcessor.add(all,dumpSystemErr);
+        linearProcessor.add(all,checkerMailet);
+        linearProcessor.closeProcessorLists();
 
         Collection recipients = new ArrayList();
         recipients.add(new MailAddress("rec1","domain.com"));
         recipients.add(new MailAddress("rec2","domain.com"));
         try {
-            MailImpl m = new MailImpl("mail1",new MailAddress("sender","domain.com"),recipients,mw);
-            t.service(m);
+            MailImpl m = new MailImpl("mail1",new MailAddress("sender","domain.com"),recipients,mimeMessage);
+            linearProcessor.service(m);
             ArrayList a = checkerMailet.receivedMails;
             assertEquals(2,a.size());
             MimeMessage m1 = ((Mail) a.get(0)).getMessage();
@@ -174,7 +172,7 @@ public class LinearProcessorTest extends TestCase {
     }
 
     public void testStateChange() throws IOException, MessagingException {
-        t.setSpool(new MockSpoolRepository() {
+        linearProcessor.setSpool(new MockSpoolRepository() {
             public void store(Mail mc) throws MessagingException {
                 assertEquals("MYSTATE",mc.getState());
                 super.store(mc);
@@ -190,19 +188,19 @@ public class LinearProcessorTest extends TestCase {
         Mailet dumpSystemErr = new DumpSystemErr();
         
         checkerMailet = new CheckerMailet();
-        t.openProcessorList();
-        t.add(recipientIs,dumpSystemErr);
-        t.add(all,dumpSystemErr);
-        t.add(all,checkerMailet);
-        t.closeProcessorLists();
+        linearProcessor.openProcessorList();
+        linearProcessor.add(recipientIs,dumpSystemErr);
+        linearProcessor.add(all,dumpSystemErr);
+        linearProcessor.add(all,checkerMailet);
+        linearProcessor.closeProcessorLists();
 
         Collection recipients = new ArrayList();
         recipients.add(new MailAddress("rec1","domain.com"));
         recipients.add(new MailAddress("rec2","domain.com"));
         try {
-            MailImpl m = new MailImpl("mail1",new MailAddress("sender","domain.com"),recipients,mw);
+            MailImpl m = new MailImpl("mail1",new MailAddress("sender","domain.com"),recipients,mimeMessage);
             m.setState("MYSTATE");
-            t.service(m);
+            linearProcessor.service(m);
             ArrayList a = checkerMailet.receivedMails;
             assertEquals(2,a.size());
             MimeMessage m1 = ((Mail) a.get(0)).getMessage();
@@ -218,13 +216,13 @@ public class LinearProcessorTest extends TestCase {
 
     public void setUp() throws Exception {
         super.setUp();
-        t = new LinearProcessor();
+        linearProcessor = new LinearProcessor();
         Logger l = new ConsoleLogger();
-        ContainerUtil.enableLogging(t, l);
+        ContainerUtil.enableLogging(linearProcessor, l);
     }
     
     public void tearDown() throws Exception {
-        ContainerUtil.dispose(t);
+        ContainerUtil.dispose(linearProcessor);
         super.tearDown();
     }
     

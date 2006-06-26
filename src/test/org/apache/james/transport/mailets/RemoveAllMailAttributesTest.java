@@ -17,25 +17,19 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.james.test.mock.mailet.MockMail;
+import junit.framework.TestCase;
 import org.apache.james.test.mock.mailet.MockMailContext;
 import org.apache.james.test.mock.mailet.MockMailetConfig;
+import org.apache.james.test.util.Util;
 import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
 import org.apache.mailet.Mailet;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.ParseException;
-
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
-
-import junit.framework.TestCase;
 
 public class RemoveAllMailAttributesTest extends TestCase {
-
-    private MimeMessage mockedMimeMessage;
 
     private Mail mockedMail;
 
@@ -47,11 +41,7 @@ public class RemoveAllMailAttributesTest extends TestCase {
     }
 
     private void setupMockedMail(MimeMessage m) throws ParseException {
-        mockedMail = new MockMail();
-        mockedMail.setMessage(m);
-        mockedMail.setRecipients(Arrays.asList(new MailAddress[] {
-                new MailAddress("test@james.apache.org"),
-                new MailAddress("test2@james.apache.org") }));
+        mockedMail = Util.createMockMail2Recipients(m);
         mockedMail.setAttribute("org.apache.james.test.junit", "true");
 
     }
@@ -65,7 +55,7 @@ public class RemoveAllMailAttributesTest extends TestCase {
 
     // test if ToProcessor works
     public void testRemoveAllMailAttributes() throws MessagingException {
-        setupMockedMail(mockedMimeMessage);
+        setupMockedMail(null);
         setupMailet();
 
         // check if the mail has a attribute

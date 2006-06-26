@@ -17,25 +17,18 @@
 
 package org.apache.james.transport.matchers;
 
-import org.apache.james.test.mock.javaxmail.MockMimeMessage;
+import junit.framework.TestCase;
 import org.apache.james.test.mock.mailet.MockMail;
 import org.apache.james.test.mock.mailet.MockMailContext;
 import org.apache.james.test.mock.mailet.MockMatcherConfig;
-
-import org.apache.mailet.MailAddress;
+import org.apache.james.test.util.Util;
 import org.apache.mailet.Matcher;
 
 import javax.mail.MessagingException;
-import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.ParseException;
-import javax.mail.internet.MimeMessage.RecipientType;
-
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
 import java.util.Collection;
-
-import junit.framework.TestCase;
 
 public class FetchedFromTest extends TestCase {
 
@@ -66,26 +59,11 @@ public class FetchedFromTest extends TestCase {
     }
 
     private void setupMockedMimeMessage() throws MessagingException {
-        String sender = "test@james.apache.org";
-        String rcpt = "test2@james.apache.org";
-
-        mockedMimeMessage = new MockMimeMessage();
-        mockedMimeMessage.setFrom(new InternetAddress(sender));
-        mockedMimeMessage.setRecipients(RecipientType.TO, rcpt);
-        mockedMimeMessage.setHeader(headerName, headerValue);
-        mockedMimeMessage.setSubject("testmail");
-        mockedMimeMessage.setText("testtext");
-        mockedMimeMessage.saveChanges();
-
+        mockedMimeMessage = Util.createMimeMessage(headerName, headerValue);
     }
 
     private void setupMockedMail(MimeMessage m) throws ParseException {
-        mockedMail = new MockMail();
-        mockedMail.setMessage(m);
-        mockedMail.setRecipients(Arrays.asList(new MailAddress[] {
-                new MailAddress("test@james.apache.org"),
-                new MailAddress("test2@james.apache.org") }));
-
+        mockedMail = Util.createMockMail2Recipients(m);
     }
 
     private void setupMatcher() throws MessagingException {
