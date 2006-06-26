@@ -26,12 +26,14 @@ import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.services.SpoolManagementService;
 import org.apache.james.services.SpoolRepository;
 import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
 
 import javax.mail.MessagingException;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Collection;
 
 public class SpoolManagement implements Serviceable, SpoolManagementService, SpoolManagementMBean {
 
@@ -66,8 +68,10 @@ public class SpoolManagement implements Serviceable, SpoolManagementService, Spo
             if (m.getState().equals(Mail.ERROR)) {
                 StringBuffer itemInfo = new StringBuffer();
                 itemInfo.append("key: ").append(key).append(" sender: ").append(m.getSender()).append(" recipient:");
-                for (int i = 0; i < m.getRecipients().size(); i++) {
-                    itemInfo.append(" ").append(m.getRecipients());
+                Collection recipients = m.getRecipients();
+                for (Iterator iterator = recipients.iterator(); iterator.hasNext();) {
+                    MailAddress mailAddress = (MailAddress) iterator.next();
+                    itemInfo.append(" ").append(mailAddress);
                 }
                 items.add(itemInfo.toString());
             }
@@ -94,7 +98,7 @@ public class SpoolManagement implements Serviceable, SpoolManagementService, Spo
             Iterator spoolR = spoolRepository.list();
 
             while (spoolR.hasNext()) {
-                key = spoolR.next().toString();
+                key = (String)spoolR.next();
                 count = removeMail(spoolRepository, key, count, lockingFailures);
             }
         }
@@ -107,7 +111,7 @@ public class SpoolManagement implements Serviceable, SpoolManagementService, Spo
         } catch (IllegalStateException e) {
             lockingFailures.add(key);
         } catch (SpoolManagementException e) {
-            return count; 
+            return count;
         }
         return count;
     }
