@@ -18,21 +18,21 @@
 
 package org.apache.james.management;
 
-public class UserManagementException extends ManagementException {
+public class SpoolManagementException extends ManagementException {
 
-    public UserManagementException() {
+    public SpoolManagementException() {
         super();
     }
 
-    public UserManagementException(String message) {
+    public SpoolManagementException(String message) {
         super(message);
     }
 
-    public UserManagementException(Exception e) {
+    public SpoolManagementException(Exception e) {
         super(e);
     }
-    
-    public UserManagementException(String message, Exception e) {
+
+    public SpoolManagementException(String message, Exception e) {
         super(message, e);
     }
 

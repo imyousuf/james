@@ -22,21 +22,15 @@ import org.apache.james.core.AbstractJamesHandler;
 import org.apache.james.services.JamesUser;
 import org.apache.james.services.User;
 import org.apache.james.services.UsersRepository;
-import org.apache.james.services.SpoolRepository;
-
 import org.apache.mailet.MailAddress;
-import org.apache.mailet.Mail;
-import org.apache.avalon.framework.configuration.DefaultConfiguration;
-import org.apache.avalon.framework.service.ServiceException;
 
 import javax.mail.internet.ParseException;
-import javax.mail.MessagingException;
-
 import java.io.IOException;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Locale;
-import java.util.Date;
+import java.util.List;
 
 
 /**
@@ -125,17 +119,17 @@ public class RemoteManagerHandler
      * The text string for the LISTSPOOL command
      */
     private static final String COMMAND_LISTSPOOL = "LISTSPOOL";
- 
+
     /**
      * The text string for the FLUSHSPOOL command
      */
     private static final String COMMAND_FLUSHSPOOL = "FLUSHSPOOL";
- 
+
     /**
      * The text string for the DELETESPOOL command
      */
     private static final String COMMAND_DELETESPOOL = "DELETESPOOL";
-    
+
     /**
      * The text string for the QUIT command
      */
@@ -164,7 +158,7 @@ public class RemoteManagerHandler
     public void setConfigurationData(Object theData) {
         if (theData instanceof RemoteManagerHandlerConfigurationData) {
             theConfigData = (RemoteManagerHandlerConfigurationData) theData;
-    
+
             // Reset the users repository to the default.
             users = theConfigData.getUsersRepository();
         } else {
@@ -231,7 +225,7 @@ public class RemoteManagerHandler
         getLogger().info(infoBuffer.toString());
 
     }
-    
+
     /**
      * @see org.apache.james.core.AbstractJamesHandler#errorHandler(java.lang.RuntimeException)
      */
@@ -267,7 +261,7 @@ public class RemoteManagerHandler
      * wire in handleConnection.  It returns true if expecting additional
      * commands, false otherwise.</p>
      *
-     * @param command the raw command string passed in over the socket
+     * @param rawCommand the raw command string passed in over the socket
      *
      * @return whether additional commands are expected.
      */
@@ -558,7 +552,7 @@ public class RemoteManagerHandler
         out.println("quit                                           close connection");
         out.flush();
         return true;
-        
+
     }
 
     /**
@@ -581,7 +575,7 @@ public class RemoteManagerHandler
             writeLoggedFlushedResponse("Usage: setalias [username] [alias]");
             return true;
         }
-        
+
         User baseuser = users.getUserByName(username);
         if (baseuser == null) {
             writeLoggedFlushedResponse("No such user " + username);
@@ -591,7 +585,7 @@ public class RemoteManagerHandler
             writeLoggedFlushedResponse("Can't set alias for this user type.");
             return true;
         }
-        
+
         JamesUser user = (JamesUser) baseuser;
         JamesUser aliasUser = (JamesUser) users.getUserByName(alias);
         if (aliasUser == null) {
@@ -685,7 +679,7 @@ public class RemoteManagerHandler
      * Handler method called upon receipt of an SHOWALIAS command.
      * Returns whether further commands should be read off the wire.
      *
-     * @param argument the user name
+     * @param username the user name
      */
     private boolean doSHOWALIAS(String username) {
         if ( username == null || username.equals("") ) {
@@ -731,7 +725,7 @@ public class RemoteManagerHandler
      * Handler method called upon receipt of an SHOWFORWARDING command.
      * Returns whether further commands should be read off the wire.
      *
-     * @param argument the user name
+     * @param username the user name
      */
     private boolean doSHOWFORWARDING(String username) {
         if ( username == null || username.equals("") ) {
@@ -864,7 +858,7 @@ public class RemoteManagerHandler
         }
         return true;
     }
-    
+
     /**
      * Handler method called upon receipt of a LISTSPOOL command. Returns
      * whether further commands should be read off the wire.
@@ -883,30 +877,14 @@ public class RemoteManagerHandler
 
         String url = argument;
 
-        SpoolRepository spoolRepository;
         try {
-            spoolRepository = getSpoolRepository(url);
-
-            // get an iterator of all keys
-            Iterator spoolR = spoolRepository.list();
-
-            while (spoolR.hasNext()) {
-                String key = spoolR.next().toString();
-
-                out.println("Messages in spool:");
-                Mail m = spoolRepository.retrieve(key);
-
-                // Only show email if its in error state.
-                if (m.getState().equals(Mail.ERROR)) {
-                    out.print("key: " + key + " sender: " + m.getSender()
-                            + " recipient:");
-                    for (int i = 0; i < m.getRecipients().size(); i++) {
-                        out.print(" " + m.getRecipients());
-                    }
-                    out.println();
-
-                    count++;
-                }
+            List spoolItems = theConfigData.getSpoolManagement().getSpoolItems(url);
+            count = spoolItems.size();
+            if (count > 0) out.println("Messages in spool:");
+            for (Iterator iterator = spoolItems.iterator(); iterator.hasNext();) {
+                String item = (String) iterator.next();
+                out.println(item);
+                out.flush();
             }
             out.println("Number of spooled mails: " + count);
             out.flush();
@@ -939,28 +917,10 @@ public class RemoteManagerHandler
             return true;
         }
 
-        SpoolRepository spoolRepository;
         String url = args[0];
+        String key = args.length == 2 ? args[1] : null;
         try {
-
-            spoolRepository = getSpoolRepository(url);
-
-            // check if an key was given as argument
-            if (args.length == 2) {
-                String key = args[1];
-                if (resendErrorMail(spoolRepository, key))
-                    count++;
-
-            } else {
-                // get an iterator of all keys
-                Iterator spoolR = spoolRepository.list();
-
-                while (spoolR.hasNext()) {
-                    String key = spoolR.next().toString();
-                    if (resendErrorMail(spoolRepository, key))
-                        count++;
-                }
-            }
+            count = theConfigData.getSpoolManagement().resendSpoolItems(url, key, null);
             out.println("Number of flushed mails: " + count);
             out.flush();
 
@@ -976,49 +936,6 @@ public class RemoteManagerHandler
     }
 
     /**
-     * Resent the mail that belongs to the given key and spoolRepository 
-     * 
-     * @param spoolRepository The spoolRepository
-     * @param key The message key
-     * @return true orf false
-     * @throws MessagingException Get thrown if there happen an error on modify the mail
-     */
-    private boolean resendErrorMail(SpoolRepository spoolRepository, String key)
-            throws MessagingException {
-        if (spoolRepository.lock(key)) {
-
-            // get the mail and set the error_message to "0" that will force the spoolmanager to try to deliver it now!
-            Mail m = spoolRepository.retrieve(key);
-
-            if (m.getState().equals(Mail.ERROR)) {
-               
-                // this will force Remotedelivery to try deliver the mail now!
-                m.setLastUpdated(new Date(0));
-
-                // store changes
-                spoolRepository.store(m);
-                spoolRepository.unlock(key);
-
-                synchronized (spoolRepository) {
-                    spoolRepository.notify();
-                }
-                return true;
-            } else {
-
-                spoolRepository.unlock(key);
-
-                out.println("The mail with key " + key
-                        + " is not in error state!");
-                out.flush();
-            }
-        } else {
-            out.println("Error locking the mail with key:  " + key);
-            out.flush();
-        }
-        return false;
-    }
-
-    /**
      * Handler method called upon receipt of a DELETESPOOL command. Returns
      * whether further commands should be read off the wire.
      * 
@@ -1026,7 +943,6 @@ public class RemoteManagerHandler
      *            the argument passed in with the command
      */
     private boolean doDELETESPOOL(String argument) {
-        int count = 0;
         String[] args = null;
 
         if (argument != null)
@@ -1039,82 +955,29 @@ public class RemoteManagerHandler
             return true;
         }
 
-        SpoolRepository spoolRepository;
         String url = args[0];
+        String key = args.length == 2 ? args[1] : null;
+
         try {
-            spoolRepository = getSpoolRepository(url);
+            ArrayList lockingFailures = new ArrayList();
+            int count =  theConfigData.getSpoolManagement().removeSpoolItems(url, key, lockingFailures);
 
-            if (args.length == 2) {
-                String key = args[1];
-                if (removeMail(spoolRepository, key))
-                    count++;
-            } else {
-                Iterator spoolR = spoolRepository.list();
-
-                while (spoolR.hasNext()) {
-                    String key = spoolR.next().toString();
-
-                    if (removeMail(spoolRepository, key))
-                        count++;
-                }
+            for (Iterator iterator = lockingFailures.iterator(); iterator.hasNext();) {
+                String lockFailureKey = (String) iterator.next();
+                out.println("Error locking the mail with key:  " + lockFailureKey);
             }
+            out.flush();
+
             out.println("Number of deleted mails: " + count);
             out.flush();
 
         } catch (Exception e) {
             out.println("Error opening the spoolrepository " + e.getMessage());
             out.flush();
-            getLogger().error(
-                    "Error opeing the spoolrepository " + e.getMessage());
+            getLogger().error("Error opeing the spoolrepository " + e.getMessage());
         }
         return true;
     }
-
-    /**
-     * Remove the mail that belongs to the given key and spoolRepository 
-     * @param spoolRepository The spoolRepository
-     * @param key The message key
-     * @return true or false
-     * @throws MessagingException Get thrown if there happen an error on modify the mail
-     */
-    private boolean removeMail(SpoolRepository spoolRepository, String key)
-            throws MessagingException {
-        if (spoolRepository.lock(key)) {
-
-            Mail m = spoolRepository.retrieve(key);
-            if (m.getState().equals(Mail.ERROR)) {
-
-                spoolRepository.remove(key);
-                return true;
-            }
-        } else {
-            out.println("Error locking the mail with key:  " + key);
-            out.flush();
-        }
-        return false;
-    }
-
-    /**
-     * Retrieve a spoolRepository by the given url
-     * 
-     * @param url The spoolRepository url
-     * @return The spoolRepository
-     * @throws ServiceException Get thrown if the spoolRepository can not retrieved
-     */
-    private SpoolRepository getSpoolRepository(String url)
-            throws ServiceException {
-        SpoolRepository spoolRepository;
-        // Setup all needed data
-        DefaultConfiguration spoolConf = new DefaultConfiguration("spool",
-                "generated:RemoteManager.java");
-        spoolConf.setAttribute("destinationURL", url);
-        spoolConf.setAttribute("type", "SPOOL");
-
-        spoolRepository = (SpoolRepository) theConfigData.getStore().select(
-                spoolConf);
-        return spoolRepository;
-    }
-
 
     /**
      * Handler method called upon receipt of a QUIT command. Returns whether

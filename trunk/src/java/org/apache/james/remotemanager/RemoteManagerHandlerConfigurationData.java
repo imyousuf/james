@@ -19,6 +19,7 @@ package org.apache.james.remotemanager;
 
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.james.services.MailServer;
+import org.apache.james.services.SpoolManagementService;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
 
@@ -58,6 +59,13 @@ public interface RemoteManagerHandlerConfigurationData {
      * @return the local users store
      */
     UsersStore getUserStore();
+
+    /**
+     * Returns the SpoolManagement for this service.
+     *
+     * @return the spool manager
+     */
+    SpoolManagementService getSpoolManagement();
 
     /**
      * Returns the Administrative Account Data
