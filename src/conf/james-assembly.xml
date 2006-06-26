@@ -54,6 +54,11 @@
 
   <block name="dnsserver" class="org.apache.james.dnsserver.DNSServer" />
 
+  <!-- The Spool Management block  -->
+  <block name="spoolmanagement" class="org.apache.james.management.SpoolManagement" >
+      <provide name="mailstore" role="org.apache.avalon.cornerstone.services.store.Store"/>
+  </block>
+
   <block name="remotemanager" class="org.apache.james.remotemanager.RemoteManager" >
     <provide name="mailstore" role="org.apache.avalon.cornerstone.services.store.Store"/>
     <provide name="users-store" role="org.apache.james.services.UsersStore"/>
@@ -65,9 +70,10 @@
     <provide name="James" role="org.apache.james.services.MailServer"/>
     <provide name="thread-manager"
              role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
+    <provide name="spoolmanagement" role="org.apache.james.services.SpoolManagementService"/>
   </block>
 
-    <!-- The User Management block  -->
+  <!-- The User Management block  -->
   <block name="usermanagement" class="org.apache.james.management.UserManagement" >
     <provide name="localusersrepository" role="org.apache.james.services.UsersRepository"/>
     <provide name="users-store" role="org.apache.james.services.UsersStore"/>

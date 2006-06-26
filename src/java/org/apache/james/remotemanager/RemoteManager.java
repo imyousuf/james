@@ -25,6 +25,7 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.core.AbstractJamesService;
 import org.apache.james.services.MailServer;
+import org.apache.james.services.SpoolManagementService;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
 
@@ -57,15 +58,20 @@ public class RemoteManager
     private UsersRepository users;
 
     /**
+     * The reference to the spool management service
+     */
+    private SpoolManagementService spoolManagement;
+
+    /**
      * The service prompt to be displayed when waiting for input.
      */
     private String prompt = "";
-    
+
     /**
      * The reference to the internal MailServer service
      */
     private MailServer mailServer;
-    
+
     /**
      * There reference to the Store
      */
@@ -93,6 +99,7 @@ public class RemoteManager
         if (users == null) {
             throw new ServiceException("","The user repository could not be found.");
         }
+        spoolManagement = (SpoolManagementService) componentManager.lookup(SpoolManagementService.ROLE);
     }
 
     /**
@@ -153,7 +160,7 @@ public class RemoteManager
         }
 
         /**
-         * @see org.apache.avalon.excalibur.pool.ObjectFactory#decommision(Object)
+         * @see org.apache.avalon.excalibur.pool.ObjectFactory#decommission(Object) 
          */
         public void decommission( Object object ) throws Exception {
             return;
@@ -197,10 +204,14 @@ public class RemoteManager
         }
 
         /**
-         * @see org.apache.james.remotemanager.RemoteManagerHandlerConfigurationData#getUsersStore()
+         * @see org.apache.james.remotemanager.RemoteManagerHandlerConfigurationData#getUserStore() 
          */
         public UsersStore getUserStore() {
             return RemoteManager.this.usersStore;
+        }
+
+        public SpoolManagementService getSpoolManagement() {
+            return RemoteManager.this.spoolManagement;
         }
 
         /**

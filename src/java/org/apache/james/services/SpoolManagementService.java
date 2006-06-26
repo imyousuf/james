@@ -16,24 +16,19 @@
  ***********************************************************************/
 
 
-package org.apache.james.management;
+package org.apache.james.services;
 
-public class UserManagementException extends ManagementException {
+import org.apache.avalon.framework.service.ServiceException;
 
-    public UserManagementException() {
-        super();
-    }
+import javax.mail.MessagingException;
+import java.util.List;
 
-    public UserManagementException(String message) {
-        super(message);
-    }
+public interface SpoolManagementService {
+    String ROLE = "org.apache.james.services.SpoolManagementService";
 
-    public UserManagementException(Exception e) {
-        super(e);
-    }
+    public int removeSpoolItems(String spoolRepositoryURL, String key, List lockingFailures) throws ServiceException, MessagingException;
     
-    public UserManagementException(String message, Exception e) {
-        super(message, e);
-    }
+    public int resendSpoolItems(String spoolRepositoryURL, String key, List lockingFailures) throws ServiceException, MessagingException;
 
+    public List getSpoolItems(String spoolRepositoryURL) throws ServiceException, MessagingException;
 }

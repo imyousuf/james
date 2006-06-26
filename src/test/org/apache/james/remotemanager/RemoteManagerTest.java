@@ -266,27 +266,15 @@ public class RemoteManagerTest extends TestCase {
         login();
 
         sendCommand("help");
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            ; // ignore
-        }
+        delay();
         assertTrue("command line is effective", readAnswer().size() > 0);
 
         sendCommand("quit");
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            ; // ignore
-        }
+        delay();
         readAnswer(0);
 
         sendCommand("help");
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            ; // ignore
-        }
+        delay();
         assertNull("connection is closed", m_reader.readLine());
     }   
 
@@ -302,12 +290,8 @@ public class RemoteManagerTest extends TestCase {
             sendCommand("adduser " + user + " test");
             readAnswer(1);
         }
-        
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            ; // ignore
-        }
+
+        delay();
 
         sendCommand("listusers");
         List list = readAnswer(5);
@@ -325,6 +309,14 @@ public class RemoteManagerTest extends TestCase {
         for (int i = 0; i < users.length; i++) {
             String user = users[i];
             assertTrue("name found", readUserNames.contains(user));
+        }
+    }
+
+    private void delay() {
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            ; // ignore
         }
     }
 
