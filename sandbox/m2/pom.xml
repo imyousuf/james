@@ -6,7 +6,7 @@
     <artifactId>james</artifactId>
     <name>Apache James Project</name>
     <version>3.0-SNAPSHOT</version>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
     <description>The Apache Java Enterprise Mail Server (a.k.a. Apache James)</description>
     <url>http://james.apache.org</url>
 
@@ -57,6 +57,17 @@
     </developers>
 
     <repositories>
+        <repository>
+            <id>temp-dist-m1</id>
+            <name>Temporary Repository</name>
+            <url>http://people.apache.org/~adc/maven/dist-m1</url>
+            <layout>legacy</layout>
+            <snapshots>
+                <enabled>true</enabled>
+                <checksumPolicy>ignore</checksumPolicy>
+            </snapshots>
+        </repository>
+
         <repository>
             <snapshots>
                 <enabled>true</enabled>
@@ -117,29 +128,93 @@
         <url>http://james.apache.org/</url>
     </organization>
 
-    <dependencyManagement>
-        <dependencies>
-
-            <dependency>
-                <groupId>commons-logging</groupId>
-                <artifactId>commons-logging</artifactId>
-                <version>1.0.4</version>
-            </dependency>
-
-        </dependencies>
-    </dependencyManagement>
-
     <dependencies>
 
-        <!-- =============================== -->
-        <!-- Testing dependencies -->
-        <!-- =============================== -->
+<!-- NEED TO DEAL WITH THESE JARS -->
+
+        <dependency>
+            <groupId>com.sun.java</groupId>
+            <artifactId>mail</artifactId>
+            <version>1.4.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcmail-jdk14</artifactId>
+            <version>129</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk14</artifactId>
+            <version>133</version>
+        </dependency>
+
+<!-- NEED TO DEAL WITH THESE JARS -->
+
+        <dependency>
+            <groupId>avalon-framework</groupId>            <artifactId>avalon-framework-api</artifactId>            <version>4.3</version>        </dependency>
+
+        <dependency>
+            <groupId>avalon-framework</groupId>            <artifactId>avalon-framework-impl</artifactId>            <version>4.3</version>        </dependency>
+
+        <dependency>
+            <groupId>commons-dbcp</groupId>            <artifactId>commons-dbcp</artifactId>            <version>1.2.1</version>        </dependency>
+
+        <dependency>
+            <groupId>cornerstone-connection</groupId>            <artifactId>cornerstone-connection-api</artifactId>            <version>2.1</version>        </dependency>
+
+        <dependency>
+            <groupId>cornerstone-connection</groupId>            <artifactId>cornerstone-connection-impl</artifactId>            <version>2.1</version>        </dependency>
+
+        <dependency>
+            <groupId>cornerstone-datasources</groupId>            <artifactId>cornerstone-datasources-api</artifactId>            <version>2.1</version>        </dependency>
+
+        <dependency>
+            <groupId>cornerstone-datasources</groupId>            <artifactId>cornerstone-datasources-impl</artifactId>            <version>2.1</version>            <exclusions>
+                <exclusion>
+                    <groupId>d-haven-managed-pool</groupId>
+                    <artifactId>d-haven-managed-pool</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>cornerstone-scheduler</groupId>            <artifactId>cornerstone-scheduler-api</artifactId>            <version>2.1</version>        </dependency>
+
+        <dependency>
+            <groupId>cornerstone-scheduler</groupId>            <artifactId>cornerstone-scheduler-impl</artifactId>            <version>2.1</version>        </dependency>
+
+        <dependency>
+            <groupId>cornerstone-store</groupId>            <artifactId>cornerstone-store-api</artifactId>            <version>2.1</version>        </dependency>
+
+        <dependency>
+            <groupId>cornerstone-store</groupId>            <artifactId>cornerstone-store-impl</artifactId>            <version>2.1</version>        </dependency>
+
+        <dependency>
+            <groupId>dnsjava</groupId>            <artifactId>dnsjava</artifactId>            <version>2.0.1</version>        </dependency>
+
+        <dependency>
+            <groupId>excalibur-thread</groupId>            <artifactId>excalibur-thread-api</artifactId>            <version>2.1</version>        </dependency>
+
+        <dependency>
+            <groupId>excalibur-thread</groupId>            <artifactId>excalibur-thread-impl</artifactId>            <version>2.1</version>        </dependency>
 
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>3.8.1</version>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-activation_1.0.2_spec</artifactId>
+            <version>1.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>oro</groupId>            <artifactId>oro</artifactId>            <version>2.0.8</version>
         </dependency>
 
     </dependencies>
