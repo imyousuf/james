@@ -1,0 +1,111 @@
+/***********************************************************************
+ * Copyright (c) 1999-2006 The Apache Software Foundation.             *
+ * All rights reserved.                                                *
+ * ------------------------------------------------------------------- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you *
+ * may not use this file except in compliance with the License. You    *
+ * may obtain a copy of the License at:                                *
+ *                                                                     *
+ *     http://www.apache.org/licenses/LICENSE-2.0                      *
+ *                                                                     *
+ * Unless required by applicable law or agreed to in writing, software *
+ * distributed under the License is distributed on an "AS IS" BASIS,   *
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or     *
+ * implied.  See the License for the specific language governing       *
+ * permissions and limitations under the License.                      *
+ ***********************************************************************/
+
+package org.apache.james.pop3server;
+
+import org.apache.james.util.ExtraDotOutputStream;
+import org.apache.james.util.watchdog.BytesWrittenResetOutputStream;
+import org.apache.mailet.Mail;
+
+import javax.mail.MessagingException;
+
+import java.io.IOException;
+import java.io.OutputStream;
+
+/**
+  * Handles RETR command
+  */
+public class RetrCmdHandler implements CommandHandler {
+
+    /**
+     * @see org.apache.james.pop3server.CommandHandler#onCommand(POP3Session)
+     */
+    public void onCommand(POP3Session session) {
+        doRETR(session,session.getCommandArgument());
+    }
+
+    /**
+     * Handler method called upon receipt of a RETR command.
+     * This command retrieves a particular mail message from the
+     * mailbox.
+     *
+     * @param command the command parsed by the parseCommand method
+     * @param argument the first argument parsed by the parseCommand method
+     */
+    private void doRETR(POP3Session session,String argument) {
+        String responseString = null;
+        if (session.getHandlerState() == POP3Handler.TRANSACTION) {
+            int num = 0;
+            try {
+                num = Integer.parseInt(argument.trim());
+            } catch (Exception e) {
+                responseString = POP3Handler.ERR_RESPONSE + " Usage: RETR [mail number]";
+                session.writeResponse(responseString);
+                return;
+            }
+            try {
+                Mail mc = (Mail) session.getUserMailbox().get(num);
+                if (mc != POP3Handler.DELETED) {
+                    responseString = POP3Handler.OK_RESPONSE + " Message follows";
+                    session.writeResponse(responseString);
+                    try {
+                        ExtraDotOutputStream edouts =
+                                new ExtraDotOutputStream(session.getOutputStream());
+                        OutputStream nouts = new BytesWrittenResetOutputStream(edouts,
+                                                                  session.getWatchdog(),
+                                                                  session.getConfigurationData().getResetLength());
+                        mc.getMessage().writeTo(nouts);
+                        nouts.flush();
+                        edouts.checkCRLFTerminator();
+                        edouts.flush();
+                    } finally {
+                        session.writeResponse(".");
+                    }
+                } else {
+                    StringBuffer responseBuffer =
+                        new StringBuffer(64)
+                                .append(POP3Handler.ERR_RESPONSE)
+                                .append(" Message (")
+                                .append(num)
+                                .append(") already deleted.");
+                    responseString = responseBuffer.toString();
+                    session.writeResponse(responseString);
+                }
+            } catch (IOException ioe) {
+                responseString = POP3Handler.ERR_RESPONSE + " Error while retrieving message.";
+                session.writeResponse(responseString);
+            } catch (MessagingException me) {
+                responseString = POP3Handler.ERR_RESPONSE + " Error while retrieving message.";
+                session.writeResponse(responseString);
+            } catch (IndexOutOfBoundsException iob) {
+                StringBuffer responseBuffer =
+                    new StringBuffer(64)
+                            .append(POP3Handler.ERR_RESPONSE)
+                            .append(" Message (")
+                            .append(num)
+                            .append(") does not exist.");
+                responseString = responseBuffer.toString();
+                session.writeResponse(responseString);
+            }
+        } else {
+            responseString = POP3Handler.ERR_RESPONSE;
+            session.writeResponse(responseString);
+        }
+    }
+
+
+}
