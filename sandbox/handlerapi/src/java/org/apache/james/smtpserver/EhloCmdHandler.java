@@ -17,105 +17,20 @@
 
 package org.apache.james.smtpserver;
 
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
-import org.apache.james.services.DNSServer;
-import org.apache.james.util.mail.dsn.DSNStatus;
-
-import java.net.UnknownHostException;
 import java.util.ArrayList;
+
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.james.util.mail.dsn.DSNStatus;
 
 /**
   * Handles EHLO command
   */
-public class EhloCmdHandler extends AbstractLogEnabled implements CommandHandler,Configurable,  Serviceable {
+public class EhloCmdHandler extends AbstractLogEnabled implements CommandHandler {
 
     /**
      * The name of the command handled by the command handler
      */
     private final static String COMMAND_NAME = "EHLO";
-
-    /**
-     * set checkResolvableEhlo to false as default value
-     */
-    private boolean checkResolvableEhlo = false;
-
-    private boolean checkReverseEqualsEhlo = false;
-    
-    private boolean checkAuthNetworks = false;
-    
-    private DNSServer dnsServer = null;
-    
-    /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
-     */
-    public void configure(Configuration handlerConfiguration) throws ConfigurationException {
-        Configuration configuration = handlerConfiguration.getChild("checkResolvableEhlo",false);
-        if(configuration != null) {
-           setCheckResolvableEhlo(configuration.getValueAsBoolean(false));
-        }
-        
-        Configuration config = handlerConfiguration.getChild(
-                "checkReverseEqualsEhlo", false);
-        if (config != null) {
-            setCheckReverseEqualsEhlo(config.getValueAsBoolean(false));
-        }
-        
-        Configuration configRelay = handlerConfiguration.getChild("checkAuthNetworks",false);
-        if(configRelay != null) {
-            setCheckAuthNetworks(configRelay.getValueAsBoolean(false));
-        }
-    }
-    
-    /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
-     */
-    public void service(ServiceManager serviceMan) throws ServiceException {
-        setDnsServer((DNSServer) serviceMan.lookup(DNSServer.ROLE));
-    }
-    
-    /**
-     * Set to true to enable check for resolvable EHLO
-     * 
-     * @param checkResolvableEhlo Set to true for enable check
-     */
-    public void setCheckResolvableEhlo(boolean checkResolvableEhlo) {
-        this.checkResolvableEhlo = checkResolvableEhlo;
-    }
-    
-    /**
-     * Set to true to enable check for reverse equal EHLO
-     * 
-     * @param checkReverseEqualsEhlo
-     *            Set to true for enable check
-     */
-    public void setCheckReverseEqualsEhlo(boolean checkReverseEqualsEhlo) {
-        this.checkReverseEqualsEhlo = checkReverseEqualsEhlo;
-    }
-
-    /**
-     * Set to true if AuthNetworks should be included in the EHLO check
-     * 
-     * @param checkAuthNetworks
-     *            Set to true to enable
-     */
-    public void setCheckAuthNetworks(boolean checkAuthNetworks) {
-        this.checkAuthNetworks = checkAuthNetworks;
-    }
-    
-    /**
-     * Set the DNSServer
-     * 
-     * @param dnsServer The DNSServer
-     */
-    public void setDnsServer(DNSServer dnsServer) {
-        this.dnsServer = dnsServer;
-    }
 
     /*
      * processes EHLO command
@@ -137,60 +52,12 @@ public class EhloCmdHandler extends AbstractLogEnabled implements CommandHandler
     private void doEHLO(SMTPSession session, String argument) {
         String responseString = null;
         StringBuffer responseBuffer = session.getResponseBuffer();
-        boolean badEhlo = false;
         
-        /**
-         * don't check if the ip address is allowed to relay. Only check if it
-         * is set in the config. ed.
-         */
-        if (!session.isRelayingAllowed() || checkAuthNetworks) {
-            // check for resolvable EHLO if its set in config
-            if (checkResolvableEhlo) {
-                // try to resolv the provided helo. If it can not resolved do not accept it.
-                try {
-                    dnsServer.getByName(argument);
-                } catch (UnknownHostException e) {
-                    badEhlo = true;
-                    responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Provided EHLO " + argument + " can not resolved";
-                    session.writeResponse(responseString);
-                    getLogger().info(responseString);
-                }
-            } else if (checkReverseEqualsEhlo) {
-                try {
-                    // get reverse entry
-                    String reverse = dnsServer.getByName(
-                            session.getRemoteIPAddress()).getHostName();
-
-                    if (!argument.equals(reverse)) {
-                        badEhlo = true;
-                        responseString = "501 "
-                                + DSNStatus.getStatus(DSNStatus.PERMANENT,
-                                        DSNStatus.DELIVERY_INVALID_ARG)
-                                + " Provided EHLO " + argument
-                                + " not equal reverse of "
-                                + session.getRemoteIPAddress();
-
-                        session.writeResponse(responseString);
-                        getLogger().info(responseString);
-                    }
-                } catch (UnknownHostException e) {
-                    badEhlo = true;
-                    responseString = "501 "
-                            + DSNStatus.getStatus(DSNStatus.PERMANENT,
-                                    DSNStatus.DELIVERY_INVALID_ARG)
-                            + " Ipaddress " + session.getRemoteIPAddress()
-                            + " can not resolved";
-
-                    session.writeResponse(responseString);
-                    getLogger().info(responseString);
-                }
-            }
-        }
-        
+     
         if (argument == null) {
             responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Domain address required: " + COMMAND_NAME;
             session.writeResponse(responseString);
-        } else if (!badEhlo){
+        } else {
             session.resetState();
             session.getState().put(SMTPSession.CURRENT_HELO_MODE, COMMAND_NAME);
 

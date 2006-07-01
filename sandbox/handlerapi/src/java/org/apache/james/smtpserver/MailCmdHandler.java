@@ -17,89 +17,23 @@
 
 package org.apache.james.smtpserver;
 
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
-import org.apache.james.services.DNSServer;
-import org.apache.james.util.mail.dsn.DSNStatus;
-import org.apache.mailet.MailAddress;
-
-import java.util.Collection;
 import java.util.Locale;
 import java.util.StringTokenizer;
+
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.james.util.mail.dsn.DSNStatus;
+import org.apache.mailet.MailAddress;
 
 /**
   * Handles MAIL command
   */
 public class MailCmdHandler
     extends AbstractLogEnabled
-    implements CommandHandler,Configurable, Serviceable {
+    implements CommandHandler {
 
     private final static String MAIL_OPTION_SIZE = "SIZE";
 
     private final static String MESG_SIZE = "MESG_SIZE"; // The size of the message
-
-    private boolean checkValidSenderDomain = false;
-    
-    private boolean checkAuthClients = false;
-    
-    private DNSServer dnsServer = null;
-    
-    /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
-     */
-    public void configure(Configuration handlerConfiguration) throws ConfigurationException {
-        Configuration configuration = handlerConfiguration.getChild("checkValidSenderDomain",false);
-        if(configuration != null) {
-           setCheckValidSenderDomain(configuration.getValueAsBoolean(false));
-           if (checkValidSenderDomain && dnsServer == null) {
-               throw new ConfigurationException("checkValidSenderDomain enabled but no DNSServer service provided to SMTPServer");
-           }
-        }
-        
-        Configuration configRelay = handlerConfiguration.getChild("checkAuthClients",false);
-        if(configRelay != null) {
-            setCheckAuthClients(configRelay.getValueAsBoolean(false));
-        }
-    }
-    
-    /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
-     */
-    public void service(ServiceManager serviceMan) throws ServiceException {
-        setDnsServer((DNSServer) serviceMan.lookup(DNSServer.ROLE));
-    }
-    
-    /**
-     * Set the DnsServer
-     * 
-     * @param dnsServer The DnsServer
-     */
-    public void setDnsServer(DNSServer dnsServer) {
-        this.dnsServer = dnsServer;
-    }
-    
-    /**
-     * Enable checkvalidsenderdomain feature
-     * 
-     * @param checkValidSenderDomain Set to true to enable
-     */
-    public void setCheckValidSenderDomain(boolean checkValidSenderDomain) {
-        this.checkValidSenderDomain = checkValidSenderDomain;
-    }
-    
-    /**
-     * Enable checking of authorized clients
-     * 
-     * @param checkAuthClients Set to true to enable
-     */
-    public void setCheckAuthClients(boolean checkAuthClients) {
-        this.checkAuthClients = checkAuthClients;
-    }
     
     /**
      * handles MAIL command
@@ -122,7 +56,6 @@ public class MailCmdHandler
         String responseString = null;
         StringBuffer responseBuffer = session.getResponseBuffer();
         String sender = null;
-        boolean badSenderDomain = false;
         
         if ((argument != null) && (argument.indexOf(":") > 0)) {
             int colonIndex = argument.indexOf(":");
@@ -223,39 +156,14 @@ public class MailCmdHandler
                     return;
                 }
             }
+         
             
-            if (checkValidSenderDomain == true) {
-                
-                /**
-                 * don't check if the ip address is allowed to relay. Only check if it is set in the config. 
-                 */
-                if (checkAuthClients || !session.isRelayingAllowed()) {
-     
-                    // Maybe we should build a static method in org.apache.james.dnsserver.DNSServer ?
-                    Collection records;
-                
-                    records = dnsServer.findMXRecords(senderAddress.getHost());
-                    if (records == null || records.size() == 0) {
-                        badSenderDomain = true;
-                    }
-                
-                    // try to resolv the provided domain in the senderaddress. If it can not resolved do not accept it.
-                    if (badSenderDomain) {
-                        responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_SYNTAX_SENDER)+ " sender " + senderAddress + " contains a domain with no valid MX records";
-                        session.writeResponse(responseString);
-                        getLogger().info(responseString);
-                    }
-                }
-            }
-            
-            if (!badSenderDomain) {
-                session.getState().put(SMTPSession.SENDER, senderAddress);
-                responseBuffer.append("250 "+DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.ADDRESS_OTHER)+" Sender <")
-                              .append(sender)
-                              .append("> OK");
-                responseString = session.clearResponseBuffer();
-                session.writeResponse(responseString);
-            }
+            session.getState().put(SMTPSession.SENDER, senderAddress);
+            responseBuffer.append("250 "+DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.ADDRESS_OTHER)+" Sender <")
+                          .append(sender)
+                          .append("> OK");
+            responseString = session.clearResponseBuffer();
+            session.writeResponse(responseString);
         }
     }
 

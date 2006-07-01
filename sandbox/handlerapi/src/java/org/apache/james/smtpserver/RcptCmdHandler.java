@@ -17,81 +17,21 @@
 
 package org.apache.james.smtpserver;
 
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Locale;
+import java.util.StringTokenizer;
+
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.MailAddress;
-import java.util.Collection;
-import java.util.ArrayList;
-import java.util.StringTokenizer;
-import java.util.Locale;
 
 /**
   * Handles RCPT command
   */
-public class RcptCmdHandler
-    extends AbstractLogEnabled
-    implements CommandHandler,Configurable {
+public class RcptCmdHandler extends AbstractLogEnabled implements
+        CommandHandler {
 
-    /**
-     * The keys used to store sender and recepients in the SMTPSession state
-     */
-    private final static String RCPTCOUNT = "RCPT_COUNT";
-    private int maxRcpt = 0;
-    private int tarpitRcptCount = 0;
-    private long tarpitSleepTime = 5000;
-    
-    /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
-     */
-    public void configure(Configuration handlerConfiguration) throws ConfigurationException {
-        Configuration configuration = handlerConfiguration.getChild("maxRcpt",false);
-        if(configuration != null) {
-           setMaxRcpt(configuration.getValueAsInteger(0));
-        }
-        
-        Configuration configTarpitRcptCount = handlerConfiguration.getChild("tarpitRcptCount",false);
-        if(configTarpitRcptCount != null) {
-           setTarpitRcptCount(configTarpitRcptCount.getValueAsInteger(0));
-        }
-        
-        Configuration configTarpitSleepTime = handlerConfiguration.getChild("tarpitSleepTime",false);
-        if(configTarpitSleepTime != null) {
-           setTarpitSleepTime(configTarpitSleepTime.getValueAsLong(5000));
-        }
-    }
-    
-    /**
-     * Set the max rcpt for wich should be accepted
-     *  
-     * @param maxRcpt The max rcpt count
-     */
-    public void setMaxRcpt(int maxRcpt) {
-        this.maxRcpt = maxRcpt;
-    }
-    
-    /**
-     * Set the tarpit count after which the tarpit sleep time will be activated
-     * 
-     * @param tarpitRcptCount
-     */
-    public void setTarpitRcptCount(int tarpitRcptCount) {
-        this.tarpitRcptCount = tarpitRcptCount;
-    }
-    
-    /**
-     * Set the tarpit sleep time 
-     * 
-     * @param tarpitSleepTime Time in milliseconds
-     */
-    public void setTarpitSleepTime(long tarpitSleepTime) {
-        this.tarpitSleepTime = tarpitSleepTime;
-    }
-    
-    
-    
     /*
      * handles RCPT command
      *
@@ -113,8 +53,6 @@ public class RcptCmdHandler
     private void doRCPT(SMTPSession session, String argument) {
         String responseString = null;
         StringBuffer responseBuffer = session.getResponseBuffer();
-        boolean maxRcptReached = false;
-        boolean useTarpit = false;
         
         String recipient = null;
         if ((argument != null) && (argument.indexOf(":") > 0)) {
@@ -280,58 +218,16 @@ public class RcptCmdHandler
               }
               optionTokenizer = null;
             }
+    
             
-            // check if we should check for max recipients
-            if (maxRcpt > 0) {
-                int rcptCount = 0;
+            rcptColl.add(recipientAddress);
+            session.getState().put(SMTPSession.RCPT_LIST, rcptColl);
+            responseBuffer.append("250 "+DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.ADDRESS_VALID)+" Recipient <")
+                          .append(recipient)
+                          .append("> OK");
+            responseString = session.clearResponseBuffer();
+            session.writeResponse(responseString);
             
-                // check if the key exists
-                rcptCount = getRcptCount(session);
-                
-                rcptCount++;
-        
-                // check if the max recipients has reached
-                if (rcptCount > maxRcpt) {
-                    maxRcptReached = true;
-                    responseString = "452 "+DSNStatus.getStatus(DSNStatus.NETWORK,DSNStatus.DELIVERY_TOO_MANY_REC)+" Requested action not taken: max recipients reached";
-                    session.writeResponse(responseString);
-                    getLogger().error(responseString);
-                }
-                
-                // put the recipient cound in session hashtable
-                session.getState().put(RCPTCOUNT,Integer.toString(rcptCount));
-            }
-            
-            // check if we should use tarpit
-            if (tarpitRcptCount > 0) {
-                int rcptCount = 0;
-                rcptCount = getRcptCount(session);
-                rcptCount++;
-                
-                if (rcptCount > tarpitRcptCount) {
-                    useTarpit = true;                   
-                }
-                
-                // put the recipient cound in session hashtable
-                session.getState().put(RCPTCOUNT,Integer.toString(rcptCount));
-                 
-            }
-            
-            if (maxRcptReached == false) {
-                rcptColl.add(recipientAddress);
-                session.getState().put(SMTPSession.RCPT_LIST, rcptColl);
-                responseBuffer.append("250 "+DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.ADDRESS_VALID)+" Recipient <")
-                              .append(recipient)
-                              .append("> OK");
-                responseString = session.clearResponseBuffer();
-                
-                if (useTarpit == true) {
-                    try {
-                        sleep(tarpitSleepTime);
-                    } catch (InterruptedException e) { }
-                }
-                session.writeResponse(responseString);
-            }
         }
     }
 
@@ -348,22 +244,4 @@ public class RcptCmdHandler
         }
         return sb.toString();
     } 
-    
-    
-    private int getRcptCount(SMTPSession session) {
-        int startCount = 0;
-        
-        // check if the key exists
-        if (session.getState().get(RCPTCOUNT) != null) {
-            Integer rcptCountInteger = Integer.valueOf(session.getState().get(RCPTCOUNT).toString());
-            return rcptCountInteger.intValue();
-        } else {
-            return startCount;
-        }
-    }
-    
-    
-    public void sleep(float timeInMillis) throws InterruptedException {
-        Thread.sleep( (long) timeInMillis );
-    }
 }
