@@ -54,8 +54,6 @@ public class EhloBaseFilterCmdHandler extends AbstractLogEnabled implements Comm
             
             // After this filter match we should not call any other handler!
             session.getState().put(SMTPSession.STOP_HANDLER_PROCESSING, "true");
-            return;
-            
         }
     }
 

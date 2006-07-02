@@ -932,7 +932,61 @@ Regards, Postmaster XXX.YYY
             -->            
             
             <!-- The command handler configuration -->
+            
+            <!-- The basic command handler checks -->
             <handler class="org.apache.james.smtpserver.core.BaseFilterCmdHandler"></handler>
+            
+            <!-- The filter handler configuration -->
+
+            <!-- checks for resolvable HELO/EHLO before accept the HELO/EHLO -->
+            <!-- If checkAuthNetworks is set to true sender domain will be checked also for clients that -->
+            <!-- are allowed to relay. Default is false. -->
+            <!--
+            <handler class="org.apache.james.smtpserver.fastfailfilter.ResolvableEhloHeloHandler" command="EHLO,HELO">
+                 <checkAuthNetworks> false </checkAuthNetworks>
+            </handler>  
+            -->
+            
+            <!-- Checks HELO/EHLO is equal the reverse of the connecting client before accept it -->
+            <!-- If checkAuthNetworks is set to true sender domain will be checked also for clients that -->
+            <!-- are allowed to relay. Default is false. -->
+            <!--
+            <handler class="org.apache.james.smtpserver.fastfailfilter.ReverseEqualsEhloHeloHandler" command="EHLO,HELO">
+                <checkAuthClients> false </checkAuthClients>
+            </handler>
+            -->
+            
+            <!-- If activated mail is only accepted if the sender contains -->
+            <!-- a resolvable domain having a valid MX Record or A Record associated! -->
+            <!-- If checkAuthNetworks is set to true sender domain will be checked also for clients that -->
+            <!-- are allowed to relay. Default is false. -->
+            <!--
+            <handler class="org.apache.james.smtpserver.fastfailfilter.ValidSenderDomainHandler" command="MAIL">
+                <checkAuthClients> false </checkAuthClients>
+            </handler>
+            -->
+            
+            <!-- If activated you can limit the maximal recipients -->
+            <!-- 
+            <handler class="org.apache.james.smtpserver.fastfailfilter.MaxRcptHandler" command="RCPT">
+                <maxRcpt> 10 </maxRcpt>                
+            </handler>
+            -->
+            
+            <!-- If is set to a bigger value as 0 you can set the recipients after which -->
+            <!-- tarpitting get activated. -->
+            <!-- Tarpitting is a method to insert a small sleep after each rcpt. For more -->
+            <!-- infos read this: http://www.palomine.net/qmail/tarpit.html . -->
+            <!-- Default is set to 0 (disabled). -->
+            <!-- You can also configure the time to sleep in milliseconds -->
+            <!--
+            <handler class="org.apache.james.smtpserver.fastfailfilter.TarpitHandler" command="RCPT">
+                <tarpitRcptCount> 5 </tarpitRcptCount>
+                 <tarpitSleepTime> 5000 </tarpitSleepTime>
+            </handler>
+            -->
+            
+            <!-- The basic command handlers -->
             <handler class="org.apache.james.smtpserver.core.BaseCmdHandler"></handler>
             
             <!-- The message handler configuration -->

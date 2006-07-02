@@ -235,10 +235,15 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
         // if it is a command handler add it to the map with key as command name
         if (handler instanceof CommandHandler) {
             String commandName = config.getAttribute("command");
-            commandName = commandName.toUpperCase(Locale.US);
-            addToMap(commandName, (CommandHandler) handler);
-            if (getLogger().isInfoEnabled()) {
-                getLogger().info("Added Commandhandler: " + className);
+            String cmds[] = commandName.split(",");
+
+            for (int i = 0; i < cmds.length; i++) {
+                commandName = cmds[i].trim().toUpperCase(Locale.US);
+                addToMap(commandName, (CommandHandler) handler);
+                if (getLogger().isInfoEnabled()) {
+                    getLogger().info("Added Commandhandler: " + className);
+                }
+
             }
 
         }

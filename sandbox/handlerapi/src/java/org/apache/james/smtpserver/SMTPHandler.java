@@ -270,7 +270,7 @@ public class SMTPHandler
                   ((CommandHandler)commandHandlers.get(i)).onCommand(this);
                   theWatchdog.reset();
                   //if the response is received, stop processing of command handlers
-                  if(mode != COMMAND_MODE) {
+                  if(mode != COMMAND_MODE || getState().get(SMTPSession.STOP_HANDLER_PROCESSING) != null) {
                       
                       // remove the blockin state
                       getState().remove(SMTPSession.STOP_HANDLER_PROCESSING);
