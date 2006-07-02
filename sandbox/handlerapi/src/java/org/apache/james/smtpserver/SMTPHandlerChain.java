@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -106,46 +107,7 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
                     if(className != null) {
                         //load the handler
                         try {
-                            Object handler = classLoader.loadClass(className).newInstance();
-
-                            //enable logging
-                            ContainerUtil.enableLogging(handler, getLogger());
-                            
-                            ContainerUtil.contextualize(handler,context);
-
-                            //servicing the handler
-                            ContainerUtil.service(handler,serviceManager);
-
-                            //configure the handler
-                            ContainerUtil.configure(handler,children[i]);
-
-                            //if it is a connect handler add it to list of connect handlers
-                            if(handler instanceof ConnectHandler) {
-                                connectHandlers.add((ConnectHandler)handler);
-                                if (getLogger().isInfoEnabled()) {
-                                    getLogger().info("Added ConnectHandler: " + className);
-                                }
-                            }
-
-                            //if it is a command handler add it to the map with key as command name
-                            if(handler instanceof CommandHandler) {
-                                String commandName = children[i].getAttribute("command");
-                                commandName = commandName.toUpperCase(Locale.US);
-                                addToMap(commandName, (CommandHandler)handler);
-                                if (getLogger().isInfoEnabled()) {
-                                    getLogger().info("Added Commandhandler: " + className);
-                                }
-
-                            }
-
-                            //if it is a message handler add it to list of message handlers
-                            if(handler instanceof MessageHandler) {
-                                messageHandlers.add((MessageHandler)handler);
-                                if (getLogger().isInfoEnabled()) {
-                                    getLogger().info("Added MessageHandler: " + className);
-                                }
-                            }
-
+                            loadClass(classLoader,className,children[i]);
                         } catch (ClassNotFoundException ex) {
                            if (getLogger().isErrorEnabled()) {
                                getLogger().error("Failed to add Commandhandler: " + className,ex);
@@ -224,6 +186,71 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
         }
     }
 
+    private void loadClass(ClassLoader classLoader, String className,
+            Configuration config) throws ConfigurationException,
+            InstantiationException, IllegalAccessException,
+            ClassNotFoundException, ContextException, ServiceException {
+        Object handler = classLoader.loadClass(className).newInstance();
+
+        // enable logging
+        ContainerUtil.enableLogging(handler, getLogger());
+
+        ContainerUtil.contextualize(handler, context);
+
+        // servicing the handler
+        ContainerUtil.service(handler, serviceManager);
+
+        // configure the handler
+        ContainerUtil.configure(handler, config);
+
+        // if it is a connect handler add it to list of connect handlers
+        if (handler instanceof ConnectHandler) {
+            connectHandlers.add((ConnectHandler) handler);
+            if (getLogger().isInfoEnabled()) {
+                getLogger().info("Added ConnectHandler: " + className);
+            }
+        }
+
+        // if it is a commands handler add it to the map with key as command
+        // name
+        if (handler instanceof CommandsHandler) {
+            Map c = ((CommandsHandler) handler).getCommands();
+
+            Iterator cmdKeys = c.keySet().iterator();
+
+            while (cmdKeys.hasNext()) {
+                String commandName = cmdKeys.next().toString();
+                String cName = c.get(commandName).toString();
+
+                DefaultConfiguration cmdConf = new DefaultConfiguration(
+                        "handler");
+                cmdConf.setAttribute("command", commandName);
+                cmdConf.setAttribute("class", cName);
+
+                loadClass(classLoader, cName, cmdConf);
+            }
+
+        }
+
+        // if it is a command handler add it to the map with key as command name
+        if (handler instanceof CommandHandler) {
+            String commandName = config.getAttribute("command");
+            commandName = commandName.toUpperCase(Locale.US);
+            addToMap(commandName, (CommandHandler) handler);
+            if (getLogger().isInfoEnabled()) {
+                getLogger().info("Added Commandhandler: " + className);
+            }
+
+        }
+
+        // if it is a message handler add it to list of message handlers
+        if (handler instanceof MessageHandler) {
+            messageHandlers.add((MessageHandler) handler);
+            if (getLogger().isInfoEnabled()) {
+                getLogger().info("Added MessageHandler: " + className);
+            }
+        }
+    }
 
     /**
      * Add it to map (key as command name, value is an array list of commandhandlers)
