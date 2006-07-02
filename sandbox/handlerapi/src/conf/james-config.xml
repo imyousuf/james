@@ -932,6 +932,7 @@ Regards, Postmaster XXX.YYY
             -->            
             
             <!-- The command handler configuration -->
+            <handler class="org.apache.james.smtpserver.core.BaseFilterCmdHandler"></handler>
             <handler class="org.apache.james.smtpserver.core.BaseCmdHandler"></handler>
             
             <!-- The message handler configuration -->

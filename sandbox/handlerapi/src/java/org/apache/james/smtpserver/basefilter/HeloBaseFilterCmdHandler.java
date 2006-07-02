@@ -15,63 +15,48 @@
  * permissions and limitations under the License.                      *
  ***********************************************************************/
 
-package org.apache.james.smtpserver;
+package org.apache.james.smtpserver.basefilter;
 
-import java.util.ArrayList;
-import java.util.Collection;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.util.mail.dsn.DSNStatus;
-import org.apache.mailet.MailAddress;
+import org.apache.james.smtpserver.CommandHandler;
+import org.apache.james.smtpserver.SMTPSession;
+
 
 /**
-  * Handles RCPT command
+  * Handles HELO command
   */
-public class RcptCmdHandler extends AbstractLogEnabled implements
-        CommandHandler {
+public class HeloBaseFilterCmdHandler extends AbstractLogEnabled implements CommandHandler {
 
     /**
-     * handles RCPT command
+     * The name of the command handled by the command handler
+     */
+    private final static String COMMAND_NAME = "HELO";
+      
+    /**
+     * process HELO command
      *
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
     **/
     public void onCommand(SMTPSession session) {
-        doRCPT(session, session.getCommandArgument());
+        doHELO(session, session.getCommandArgument());
     }
 
-
     /**
-     * Handler method called upon receipt of a RCPT command.
-     * Reads recipient.  Does some connection validation.
-     *
-     *
      * @param session SMTP session object
      * @param argument the argument passed in with the command by the SMTP client
      */
-    private void doRCPT(SMTPSession session, String argument) {
-        
-        if (session.getState().get(SMTPSession.STOP_HANDLER_PROCESSING) != null) return;
-        
+    private void doHELO(SMTPSession session, String argument) {
         String responseString = null;
-        StringBuffer responseBuffer = session.getResponseBuffer();
-
-        Collection rcptColl = (Collection) session.getState().get(
-                SMTPSession.RCPT_LIST);
-        if (rcptColl == null) {
-            rcptColl = new ArrayList();
-        }
-        MailAddress recipientAddress = (MailAddress) session.getState().get(
-                SMTPSession.CURRENT_RECIPIENT);
-        rcptColl.add(recipientAddress);
-        session.getState().put(SMTPSession.RCPT_LIST, rcptColl);
-        responseBuffer.append(
-                "250 "
-                        + DSNStatus.getStatus(DSNStatus.SUCCESS,
-                                DSNStatus.ADDRESS_VALID) + " Recipient <")
-                .append(recipientAddress).append("> OK");
-        responseString = session.clearResponseBuffer();
-        session.writeResponse(responseString);
+              
+        if (argument == null) {
+            responseString = "501 Domain address required: " + COMMAND_NAME;
+            session.writeResponse(responseString);
+            getLogger().info(responseString);
             
-        
+            // After this filter match we should not call any other handler!
+            session.getState().put(SMTPSession.STOP_HANDLER_PROCESSING, "true");
+         
+        }
     }
 }

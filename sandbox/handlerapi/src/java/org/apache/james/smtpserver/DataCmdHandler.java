@@ -94,91 +94,86 @@ public class DataCmdHandler
      * @param argument the argument passed in with the command by the SMTP client
      */
     private void doDATA(SMTPSession session, String argument) {
+        
+        if (session.getState().get(SMTPSession.STOP_HANDLER_PROCESSING) != null) return;
+        
         String responseString = null;
-        if ((argument != null) && (argument.length() > 0)) {
-            responseString = "500 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Unexpected argument provided with DATA command";
-            session.writeResponse(responseString);
-        }
-        if (!session.getState().containsKey(SMTPSession.SENDER)) {
-            responseString = "503 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" No sender specified";
-            session.writeResponse(responseString);
-        } else if (!session.getState().containsKey(SMTPSession.RCPT_LIST)) {
-            responseString = "503 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" No recipients specified";
-            session.writeResponse(responseString);
-        } else {
-            responseString = "354 Ok Send data ending with <CRLF>.<CRLF>";
-            session.writeResponse(responseString);
-            InputStream msgIn = new CharTerminatedInputStream(session.getInputStream(), SMTPTerminator);
-            try {
-                msgIn = new BytesReadResetInputStream(msgIn,
-                                                      session.getWatchdog(),
-                                                      session.getConfigurationData().getResetLength());
+        responseString = "354 Ok Send data ending with <CRLF>.<CRLF>";
+        session.writeResponse(responseString);
+        InputStream msgIn = new CharTerminatedInputStream(session
+                .getInputStream(), SMTPTerminator);
+        try {
+            msgIn = new BytesReadResetInputStream(msgIn, session.getWatchdog(),
+                    session.getConfigurationData().getResetLength());
 
-                // if the message size limit has been set, we'll
-                // wrap msgIn with a SizeLimitedInputStream
-                long maxMessageSize = session.getConfigurationData().getMaxMessageSize();
-                if (maxMessageSize > 0) {
-                    if (getLogger().isDebugEnabled()) {
-                        StringBuffer logBuffer =
-                            new StringBuffer(128)
-                                    .append("Using SizeLimitedInputStream ")
-                                    .append(" with max message size: ")
-                                    .append(maxMessageSize);
-                        getLogger().debug(logBuffer.toString());
-                    }
-                    msgIn = new SizeLimitedInputStream(msgIn, maxMessageSize);
+            // if the message size limit has been set, we'll
+            // wrap msgIn with a SizeLimitedInputStream
+            long maxMessageSize = session.getConfigurationData()
+                    .getMaxMessageSize();
+            if (maxMessageSize > 0) {
+                if (getLogger().isDebugEnabled()) {
+                    StringBuffer logBuffer = new StringBuffer(128).append(
+                            "Using SizeLimitedInputStream ").append(
+                            " with max message size: ").append(maxMessageSize);
+                    getLogger().debug(logBuffer.toString());
                 }
-                // Removes the dot stuffing
-                msgIn = new DotStuffingInputStream(msgIn);
-                // Parse out the message headers
-                MailHeaders headers = new MailHeaders(msgIn);
-                headers = processMailHeaders(session, headers);
-                processMail(session, headers, msgIn);
-                headers = null;
-            } catch (MessagingException me) {
-                // Grab any exception attached to this one.
-                Exception e = me.getNextException();
-                // If there was an attached exception, and it's a
-                // MessageSizeException
-                if (e != null && e instanceof MessageSizeException) {
-                    // Add an item to the state to suppress
-                    // logging of extra lines of data
-                    // that are sent after the size limit has
-                    // been hit.
-                    session.getState().put(SMTPSession.MESG_FAILED, Boolean.TRUE);
-                    // then let the client know that the size
-                    // limit has been hit.
-                    responseString = "552 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SYSTEM_MSG_TOO_BIG)+" Error processing message: "
-                                + e.getMessage();
-                    StringBuffer errorBuffer =
-                        new StringBuffer(256)
-                            .append("Rejected message from ")
-                            .append(session.getState().get(SMTPSession.SENDER).toString())
-                            .append(" from host ")
-                            .append(session.getRemoteHost())
-                            .append(" (")
-                            .append(session.getRemoteIPAddress())
-                            .append(") exceeding system maximum message size of ")
-                            .append(session.getConfigurationData().getMaxMessageSize());
-                    getLogger().error(errorBuffer.toString());
-                } else {
-                    responseString = "451 "+DSNStatus.getStatus(DSNStatus.TRANSIENT,DSNStatus.UNDEFINED_STATUS)+" Error processing message: "
-                                + me.getMessage();
-                    getLogger().error("Unknown error occurred while processing DATA.", me);
+                msgIn = new SizeLimitedInputStream(msgIn, maxMessageSize);
+            }
+            // Removes the dot stuffing
+            msgIn = new DotStuffingInputStream(msgIn);
+            // Parse out the message headers
+            MailHeaders headers = new MailHeaders(msgIn);
+            headers = processMailHeaders(session, headers);
+            processMail(session, headers, msgIn);
+            headers = null;
+        } catch (MessagingException me) {
+            // Grab any exception attached to this one.
+            Exception e = me.getNextException();
+            // If there was an attached exception, and it's a
+            // MessageSizeException
+            if (e != null && e instanceof MessageSizeException) {
+                // Add an item to the state to suppress
+                // logging of extra lines of data
+                // that are sent after the size limit has
+                // been hit.
+                session.getState().put(SMTPSession.MESG_FAILED, Boolean.TRUE);
+                // then let the client know that the size
+                // limit has been hit.
+                responseString = "552 "
+                        + DSNStatus.getStatus(DSNStatus.PERMANENT,
+                                DSNStatus.SYSTEM_MSG_TOO_BIG)
+                        + " Error processing message: " + e.getMessage();
+                StringBuffer errorBuffer = new StringBuffer(256).append(
+                        "Rejected message from ").append(
+                        session.getState().get(SMTPSession.SENDER).toString())
+                        .append(" from host ").append(session.getRemoteHost())
+                        .append(" (").append(session.getRemoteIPAddress())
+                        .append(") exceeding system maximum message size of ")
+                        .append(
+                                session.getConfigurationData()
+                                        .getMaxMessageSize());
+                getLogger().error(errorBuffer.toString());
+            } else {
+                responseString = "451 "
+                        + DSNStatus.getStatus(DSNStatus.TRANSIENT,
+                                DSNStatus.UNDEFINED_STATUS)
+                        + " Error processing message: " + me.getMessage();
+                getLogger().error(
+                        "Unknown error occurred while processing DATA.", me);
+            }
+            session.writeResponse(responseString);
+            return;
+        } finally {
+            if (msgIn != null) {
+                try {
+                    msgIn.close();
+                } catch (Exception e) {
+                    // Ignore close exception
                 }
-                session.writeResponse(responseString);
-                return;
-            } finally {
-                if (msgIn != null) {
-                    try {
-                        msgIn.close();
-                    } catch (Exception e) {
-                        // Ignore close exception
-                    }
-                    msgIn = null;
-                }
+                msgIn = null;
             }
         }
+
     }
 
 

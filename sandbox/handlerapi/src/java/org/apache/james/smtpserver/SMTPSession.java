@@ -38,6 +38,7 @@ public interface SMTPSession {
     public final static String RCPT_LIST = "RCPT_LIST";   // The message recipients
     public final static String CURRENT_HELO_MODE = "CURRENT_HELO_MODE"; // HELO or EHLO
     public final static String STOP_HANDLER_PROCESSING = "STOP_HANDLER_PROCESSING";
+    public static final Object CURRENT_RECIPIENT = "CURRENT_RECIPIENT";
 
     /**
      * Writes response string to the client

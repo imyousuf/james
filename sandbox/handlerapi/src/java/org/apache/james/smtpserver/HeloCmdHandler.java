@@ -31,7 +31,7 @@ public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler
      */
     private final static String COMMAND_NAME = "HELO";
       
-    /*
+    /**
      * process HELO command
      *
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
@@ -41,34 +41,24 @@ public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler
     }
 
     /**
-     * Handler method called upon receipt of a HELO command.
-     * Responds with a greeting and informs the client whether
-     * client authentication is required.
-     *
      * @param session SMTP session object
      * @param argument the argument passed in with the command by the SMTP client
      */
     private void doHELO(SMTPSession session, String argument) {
         String responseString = null;
-              
-        if (argument == null) {
-            responseString = "501 Domain address required: " + COMMAND_NAME;
-            session.writeResponse(responseString);
-            getLogger().info(responseString);
-        } else {
-            session.resetState();
-            session.getState().put(SMTPSession.CURRENT_HELO_MODE, COMMAND_NAME);
-            session.getResponseBuffer().append("250 ")
-                          .append(session.getConfigurationData().getHelloName())
-                          .append(" Hello ")
-                          .append(argument)
-                          .append(" (")
-                          .append(session.getRemoteHost())
-                          .append(" [")
-                          .append(session.getRemoteIPAddress())
-                          .append("])");
-            responseString = session.clearResponseBuffer();
-            session.writeResponse(responseString);
-        }
+
+        if (session.getState().get(SMTPSession.STOP_HANDLER_PROCESSING) != null)
+            return;
+
+        session.resetState();
+        session.getState().put(SMTPSession.CURRENT_HELO_MODE, COMMAND_NAME);
+        session.getResponseBuffer().append("250 ").append(
+                session.getConfigurationData().getHelloName())
+                .append(" Hello ").append(argument).append(" (").append(
+                        session.getRemoteHost()).append(" [").append(
+                        session.getRemoteIPAddress()).append("])");
+        responseString = session.clearResponseBuffer();
+        session.writeResponse(responseString);
     }
+    
 }
