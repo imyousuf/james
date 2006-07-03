@@ -137,33 +137,50 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
         handlerConfig.addChild(Util.getValuedConfiguration("heloEhloEnforcement", m_heloEhloEnforcement+""));
         if (m_verifyIdentity) handlerConfig.addChild(Util.getValuedConfiguration("verifyIdentity", "" + m_verifyIdentity));
         
-        handlerConfig.addChild(Util.createSMTPHandlerChainConfiguration());
+        //handlerConfig.addChild(Util.createSMTPHandlerChainConfiguration());
         
-        // Add Configuration for Helo checks and Ehlo checks
-        Configuration[] heloConfig = handlerConfig.getChild("handlerchain").getChildren("handler");
-        for (int i = 0; i < heloConfig.length; i++) {
-            if (heloConfig[i] instanceof DefaultConfiguration) {
-                String cmd = ((DefaultConfiguration) heloConfig[i]).getAttribute("command",null);
-                if (cmd != null) {
-                    if ("HELO".equals(cmd)) {
-                        ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkResolvableHelo",m_heloResolv+""));
-                        ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkReverseEqualsHelo",m_reverseEqualsHelo+""));
-                        ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkAuthNetworks",m_checkAuthNetworks+""));
-                    } else if ("EHLO".equals(cmd)) {
-                        ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkResolvableEhlo",m_ehloResolv+""));
-                        ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkReverseEqualsEhlo",m_reverseEqualsEhlo+""));
-                        ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkAuthNetworks",m_checkAuthNetworks+""));
-                    } else if ("MAIL".equals(cmd)) {
-                        ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkValidSenderDomain",m_senderDomainResolv+""));
-                        ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkAuthClients",m_checkAuthClients+""));
-                    } else if ("RCPT".equals(cmd)) {
-                        ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("maxRcpt",m_maxRcpt+""));
-                    }
-                }
-            }
+        //handlerConfig.addChild( new DefaultConfiguration("handlerchain"));
+        
+        DefaultConfiguration config = new DefaultConfiguration("handlerchain");
+        config.addChild(createHandler("org.apache.james.smtpserver.core.BaseFilterCmdHandler",null));
+        
+        if (m_heloResolv || m_ehloResolv) {
+            DefaultConfiguration d = createHandler("org.apache.james.smtpserver.fastfailfilter.ResolvableEhloHeloHandler",null);
+            d.setAttribute("command","EHLO,HELO");
+            d.addChild(Util.getValuedConfiguration("checkAuthNetworks",m_checkAuthNetworks+""));
+            config.addChild(d);
         }
-        
+        if (m_reverseEqualsHelo || m_reverseEqualsEhlo) {
+            DefaultConfiguration d = createHandler("org.apache.james.smtpserver.fastfailfilter.ReverseEqualsEhloHeloHandler",null);
+            d.setAttribute("command","EHLO,HELO");
+            d.addChild(Util.getValuedConfiguration("checkAuthNetworks",m_checkAuthNetworks+""));
+            config.addChild(d);
+        }
+        if (m_senderDomainResolv) {
+            DefaultConfiguration d = createHandler("org.apache.james.smtpserver.fastfailfilter.ValidSenderDomainHandler",null);
+            d.setAttribute("command","MAIL");
+            d.addChild(Util.getValuedConfiguration("checkAuthClients",m_checkAuthClients+""));
+            config.addChild(d);
+        }
+        if (m_maxRcpt > 0) {
+            DefaultConfiguration d = createHandler("org.apache.james.smtpserver.fastfailfilter.MaxRcptHandler",null);
+            d.setAttribute("command","RCPT");
+            d.addChild(Util.getValuedConfiguration("maxRcpt",m_maxRcpt+""));
+            config.addChild(d);
+        }
+        config.addChild(createHandler("org.apache.james.smtpserver.core.BaseCmdHandler",null));
+        config.addChild(createHandler("org.apache.james.smtpserver.SendMailHandler",null));
+        handlerConfig.addChild(config);
         addChild(handlerConfig);
+    }
+    
+    private DefaultConfiguration createHandler(String className,String commandName) {
+        DefaultConfiguration d = new DefaultConfiguration("handler");
+        if (commandName != null) {
+            d.setAttribute("command",commandName);
+        }
+        d.setAttribute("class",className);
+        return d;
     }
 
 }
