@@ -21,6 +21,15 @@ users to upgrade to the current Release Build of James.</p>
 <subsection name="Table of Contents">
 <p>
     <ul name="Older Documentation">
+        <li> <a href="adding_users_2_1.html">Adding Users (version 2.1)</a></li>
+        <li> <a href="anouncement_2_1.html">Announcement (version 2.1)</a></li>
+        
+        <li> <a href="install.html">Install (version 2.0)</a></li>
+        <li> <a href="configuration_v2_0.html">Configuration (version 2.0)</a></li>
+        <li> <a href="usingJDBC_v2.0.html">Using JDBC (version 2.0)</a></li>
+        <li> <a href="usingLDAP_v1_2.html">Using LDAP (version 1.2)</a></li>
+        <li> <a href="usingTLS_v1_2.html">Using TLS (version 1.2)</a></li>
+    
         <li> <a href="architecture_v2_0.html">Architecture (version 2.0)</a></li>
         <li> <a href="install.html">Install (version 2.0)</a></li>
         <li> <a href="configuration_v2_0.html">Configuration (version 2.0)</a></li>
