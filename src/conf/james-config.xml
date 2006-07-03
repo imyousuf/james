@@ -62,11 +62,9 @@
 
       <!-- The inbox repository is the location for users inboxes -->
       <!-- Default setting: file based repository - enter path ( use  "file:///" for absolute) -->
-      <!--
       <inboxRepository>
          <repository destinationURL="file://var/mail/inboxes/" type="MAIL"/>
       </inboxRepository>
-      -->
 
       <!-- Alternative inbox repository definition for DB use. -->
       <!-- The format for the destinationURL is "db://<data-source>/<table>" -->
@@ -81,11 +79,11 @@
 
       <!-- Alternative inbox repository definition for DB use. -->
       <!-- Stores message body in file system, rest in database -->
-      <!-- TEMPORARY DEFAULT: dbfile using Derby  -->
+      <!-- 
       <inboxRepository>
          <repository destinationURL="dbfile://maildb/inbox/" type="MAIL"/>
       </inboxRepository>
-      <!-- TEMPORARY DEFAULT: dbfile using Derby  -->
+      -->
 
       <!-- Alternative inbox repository definition for mbox use. -->
       <!-- This method uses UNIX standard mbox files and is meant for people using mbox files -->
@@ -1235,11 +1233,10 @@ Regards, Postmaster XXX.YYY
 
       <!-- Default: File-based user repositories  Use these configurations to store user info in the filesystem  -->
       <!-- The LocalUsers repository, for storing James' User info. -->
-      <!--
       <repository name="LocalUsers" class="org.apache.james.userrepository.UsersFileRepository">
          <destination URL="file://var/users/"/>
       </repository>
-      -->
+
 
       <!-- Database backed user repositories -->
       <!-- -->
@@ -1248,11 +1245,11 @@ Regards, Postmaster XXX.YYY
       <!--       in the <database-connections> configuration section. -->
 
       <!-- The LocalUsers repository, for storing James' User info. -->
-      <!-- TEMPORARY DEFAULT: db using Derby  -->
+      <!-- 
       <repository name="LocalUsers" class="org.apache.james.userrepository.JamesUsersJdbcRepository" destinationURL="db://maildb/users">
          <sqlFile>file://conf/sqlResources.xml</sqlFile>
       </repository>
-      <!-- TEMPORARY DEFAULT: db using Derby  -->
+      -->
 
       <!-- This is an example configuration including configuration for a list server. -->
       <!-- CHECKME: before uncommenting this, edit the configuration file's contents   -->
