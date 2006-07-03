@@ -930,12 +930,7 @@ Regards, Postmaster XXX.YYY
                </rblservers>
             </handler>            
             -->            
-            
-            <!-- The command handler configuration -->
-            
-            <!-- The basic command handler checks -->
-            <handler class="org.apache.james.smtpserver.core.BaseFilterCmdHandler"></handler>
-            
+
             <!-- The filter handler configuration -->
 
             <!-- checks for resolvable HELO/EHLO before accept the HELO/EHLO -->
@@ -985,10 +980,7 @@ Regards, Postmaster XXX.YYY
                  <tarpitSleepTime> 5000 </tarpitSleepTime>
             </handler>
             -->
-            
-            <!-- The basic command handlers -->
-            <handler class="org.apache.james.smtpserver.core.BaseCmdHandler"></handler>
-            
+         
             <!-- The message handler configuration -->
             <!-- 
             <handler class="org.apache.james.smtpserver.SetMimeHeaderHandler">

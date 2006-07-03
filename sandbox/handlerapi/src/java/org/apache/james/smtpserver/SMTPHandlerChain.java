@@ -30,6 +30,8 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
+import org.apache.james.smtpserver.core.BaseCmdHandler;
+import org.apache.james.smtpserver.core.BaseFilterCmdHandler;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -68,79 +70,72 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
 
     /**
      * loads the various handlers from the configuration
-     * @param configuration configuration under handlerchain node
+     * 
+     * @param configuration
+     *            configuration under handlerchain node
      */
-    public void configure(Configuration configuration) throws  ConfigurationException {
+    public void configure(Configuration configuration)
+            throws ConfigurationException {
         addToMap(UnknownCmdHandler.UNKNOWN_COMMAND, unknownHandler);
-        if(configuration == null || configuration.getChildren("handler") == null || configuration.getChildren("handler").length == 0) {
+        if (configuration == null
+                || configuration.getChildren("handler") == null
+                || configuration.getChildren("handler").length == 0) {
             configuration = new DefaultConfiguration("handlerchain");
             Properties cmds = new Properties();
-            cmds.setProperty("AUTH",AuthCmdHandler.class.getName());
-            cmds.setProperty("DATA",DataCmdHandler.class.getName());
-            cmds.setProperty("EHLO",EhloCmdHandler.class.getName());
-            cmds.setProperty("EXPN",ExpnCmdHandler.class.getName());
-            cmds.setProperty("HELO",HeloCmdHandler.class.getName());
-            cmds.setProperty("HELP",HelpCmdHandler.class.getName());
-            cmds.setProperty("MAIL",MailCmdHandler.class.getName());
-            cmds.setProperty("NOOP",NoopCmdHandler.class.getName());
-            cmds.setProperty("QUIT",QuitCmdHandler.class.getName());
-            cmds.setProperty("RCPT" ,RcptCmdHandler.class.getName());
-            cmds.setProperty("RSET",RsetCmdHandler.class.getName());
-            cmds.setProperty("VRFY",VrfyCmdHandler.class.getName());
-            cmds.setProperty("Default SendMailHandler",SendMailHandler.class.getName());
+            cmds.setProperty("Default BaseFilterHandler",
+                    BaseFilterCmdHandler.class.getName());
+            cmds.setProperty("Default BaseHandler", BaseCmdHandler.class
+                    .getName());
+            cmds.setProperty("Default SendMailHandler", SendMailHandler.class
+                    .getName());
             Enumeration e = cmds.keys();
             while (e.hasMoreElements()) {
                 String cmdName = (String) e.nextElement();
                 String className = cmds.getProperty(cmdName);
-                DefaultConfiguration cmdConf = new DefaultConfiguration("handler");
-                cmdConf.setAttribute("command",cmdName);
-                cmdConf.setAttribute("class",className);
-                ((DefaultConfiguration) configuration).addChild(cmdConf);
+                ((DefaultConfiguration) configuration).addChild(addHandler(
+                        cmdName, className));
             }
         }
-        if(configuration != null) {
+        if (configuration != null) {
             Configuration[] children = configuration.getChildren("handler");
-            if ( children != null ) {
-                ClassLoader classLoader = getClass().getClassLoader();
-                for ( int i = 0 ; i < children.length ; i++ ) {
+            ClassLoader classLoader = getClass().getClassLoader();
+
+            // load the BaseFilterCmdHandler
+            loadClass(classLoader, BaseFilterCmdHandler.class.getName(),
+                    addHandler(null, BaseFilterCmdHandler.class.getName()));
+
+            // load the configured handlers
+            if (children != null) {
+                for (int i = 0; i < children.length; i++) {
                     String className = children[i].getAttribute("class");
-                    if(className != null) {
-                        //load the handler
-                        try {
-                            loadClass(classLoader,className,children[i]);
-                        } catch (ClassNotFoundException ex) {
-                           if (getLogger().isErrorEnabled()) {
-                               getLogger().error("Failed to add Commandhandler: " + className,ex);
-                           }
-                           throw new ConfigurationException("Failed to add Commandhandler: " + className,ex);
-                        } catch (IllegalAccessException ex) {
-                           if (getLogger().isErrorEnabled()) {
-                               getLogger().error("Failed to add Commandhandler: " + className,ex);
-                           }
-                           throw new ConfigurationException("Failed to add Commandhandler: " + className,ex);
-                        } catch (InstantiationException ex) {
-                           if (getLogger().isErrorEnabled()) {
-                               getLogger().error("Failed to add Commandhandler: " + className,ex);
-                           }
-                           throw new ConfigurationException("Failed to add Commandhandler: " + className,ex);
-                        } catch (ServiceException e) {
-                            if (getLogger().isErrorEnabled()) {
-                                getLogger().error("Failed to service Commandhandler: " + className,e);
-                            }
-                            throw new ConfigurationException("Failed to add Commandhandler: " + className,e);
-                        } catch (ContextException e) {
-                            if (getLogger().isErrorEnabled()) {
-                                getLogger().error("Failed to service Commandhandler: " + className,e);
-                            }
-                            throw new ConfigurationException("Failed to add Commandhandler: " + className,e);
+                    if (className != null) {
+
+                        // ignore base handlers.
+                        if (!className.equals(BaseFilterCmdHandler.class
+                                .getName())
+                                && !className.equals(BaseCmdHandler.class
+                                        .getName())
+                                && !className.equals(SendMailHandler.class
+                                        .getName())) {
+
+                            // load the handler
+                            loadClass(classLoader, className, children[i]);
                         }
                     }
                 }
+
+                // load the BaseCmdHandler and SendMailHandler
+                loadClass(classLoader, BaseCmdHandler.class.getName(),
+                        addHandler(null, BaseCmdHandler.class.getName()));
+                loadClass(classLoader, SendMailHandler.class.getName(),
+                        addHandler(null, SendMailHandler.class.getName()));
             }
         }
 
-        //the size must be greater than 1 because we added UnknownCmdHandler to the map
-        if(commandHandlerMap.size() < 2) {
+        // the size must be greater than 1 because we added UnknownCmdHandler to
+        // the map
+
+        if (commandHandlerMap.size() < 2) {
             if (getLogger().isErrorEnabled()) {
                 getLogger().error("No commandhandlers configured");
             }
@@ -148,27 +143,33 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
         } else {
             boolean found = true;
             for (int i = 0; i < mandatoryCommands.length; i++) {
-                if(!commandHandlerMap.containsKey(mandatoryCommands[i])) {
+                if (!commandHandlerMap.containsKey(mandatoryCommands[i])) {
                     if (getLogger().isErrorEnabled()) {
-                        getLogger().error("No commandhandlers configured for the command:" + mandatoryCommands[i]);
+                        getLogger().error(
+                                "No commandhandlers configured for the command:"
+                                        + mandatoryCommands[i]);
                     }
                     found = false;
                     break;
                 }
             }
 
-            if(!found) {
-                throw new ConfigurationException("No commandhandlers configured for mandatory commands");
+            if (!found) {
+                throw new ConfigurationException(
+                        "No commandhandlers configured for mandatory commands");
             }
-            
+
             if (messageHandlers.size() == 0) {
                 if (getLogger().isErrorEnabled()) {
-                    getLogger().error("No messageHandler configured. Check that SendMailHandler is configured in the SMTPHandlerChain");
+                    getLogger()
+                            .error(
+                                    "No messageHandler configured. Check that SendMailHandler is configured in the SMTPHandlerChain");
                 }
                 throw new ConfigurationException("No messageHandler configured");
             }
 
         }
+
     }
     
     /**
@@ -186,75 +187,133 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
         }
     }
 
+    /**
+     * Load and add the classes to the handler map
+     * 
+     * @param classLoader The classLoader to use
+     * @param className The class name 
+     * @param config The configuration 
+     * @throws ConfigurationException Get thrown on error
+     */
     private void loadClass(ClassLoader classLoader, String className,
-            Configuration config) throws ConfigurationException,
-            InstantiationException, IllegalAccessException,
-            ClassNotFoundException, ContextException, ServiceException {
-        Object handler = classLoader.loadClass(className).newInstance();
+            Configuration config) throws ConfigurationException {
+        try {
+            Object handler = classLoader.loadClass(className).newInstance();
 
-        // enable logging
-        ContainerUtil.enableLogging(handler, getLogger());
+            // enable logging
+            ContainerUtil.enableLogging(handler, getLogger());
 
-        ContainerUtil.contextualize(handler, context);
+            ContainerUtil.contextualize(handler, context);
 
-        // servicing the handler
-        ContainerUtil.service(handler, serviceManager);
+            // servicing the handler
+            ContainerUtil.service(handler, serviceManager);
 
-        // configure the handler
-        ContainerUtil.configure(handler, config);
+            // configure the handler
+            ContainerUtil.configure(handler, config);
 
-        // if it is a connect handler add it to list of connect handlers
-        if (handler instanceof ConnectHandler) {
-            connectHandlers.add((ConnectHandler) handler);
-            if (getLogger().isInfoEnabled()) {
-                getLogger().info("Added ConnectHandler: " + className);
-            }
-        }
-
-        // if it is a commands handler add it to the map with key as command
-        // name
-        if (handler instanceof CommandsHandler) {
-            Map c = ((CommandsHandler) handler).getCommands();
-
-            Iterator cmdKeys = c.keySet().iterator();
-
-            while (cmdKeys.hasNext()) {
-                String commandName = cmdKeys.next().toString();
-                String cName = c.get(commandName).toString();
-
-                DefaultConfiguration cmdConf = new DefaultConfiguration(
-                        "handler");
-                cmdConf.setAttribute("command", commandName);
-                cmdConf.setAttribute("class", cName);
-
-                loadClass(classLoader, cName, cmdConf);
-            }
-
-        }
-
-        // if it is a command handler add it to the map with key as command name
-        if (handler instanceof CommandHandler) {
-            String commandName = config.getAttribute("command");
-            String cmds[] = commandName.split(",");
-
-            for (int i = 0; i < cmds.length; i++) {
-                commandName = cmds[i].trim().toUpperCase(Locale.US);
-                addToMap(commandName, (CommandHandler) handler);
+            // if it is a connect handler add it to list of connect handlers
+            if (handler instanceof ConnectHandler) {
+                connectHandlers.add((ConnectHandler) handler);
                 if (getLogger().isInfoEnabled()) {
-                    getLogger().info("Added Commandhandler: " + className);
+                    getLogger().info("Added ConnectHandler: " + className);
+                }
+            }
+
+            // if it is a commands handler add it to the map with key as command
+            // name
+            if (handler instanceof CommandsHandler) {
+                Map c = ((CommandsHandler) handler).getCommands();
+
+                Iterator cmdKeys = c.keySet().iterator();
+
+                while (cmdKeys.hasNext()) {
+                    String commandName = cmdKeys.next().toString();
+                    String cName = c.get(commandName).toString();
+
+                    DefaultConfiguration cmdConf = new DefaultConfiguration(
+                            "handler");
+                    cmdConf.setAttribute("command", commandName);
+                    cmdConf.setAttribute("class", cName);
+
+                    loadClass(classLoader, cName, cmdConf);
                 }
 
             }
 
-        }
+            // if it is a command handler add it to the map with key as command
+            // name
+            if (handler instanceof CommandHandler) {
+                String commandName = config.getAttribute("command");
+                String cmds[] = commandName.split(",");
 
-        // if it is a message handler add it to list of message handlers
-        if (handler instanceof MessageHandler) {
-            messageHandlers.add((MessageHandler) handler);
-            if (getLogger().isInfoEnabled()) {
-                getLogger().info("Added MessageHandler: " + className);
+                for (int i = 0; i < cmds.length; i++) {
+                    commandName = cmds[i].trim().toUpperCase(Locale.US);
+                    addToMap(commandName, (CommandHandler) handler);
+                    if (getLogger().isInfoEnabled()) {
+                        getLogger().info("Added Commandhandler: " + className);
+                    }
+
+                }
+
             }
+
+            // if it is a message handler add it to list of message handlers
+            if (handler instanceof MessageHandler) {
+                messageHandlers.add((MessageHandler) handler);
+                if (getLogger().isInfoEnabled()) {
+                    getLogger().info("Added MessageHandler: " + className);
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            if (getLogger().isErrorEnabled()) {
+                getLogger().error("Failed to add Commandhandler: " + className,
+                        ex);
+            }
+            throw new ConfigurationException("Failed to add Commandhandler: "
+                    + className, ex);
+        } catch (IllegalAccessException ex) {
+            if (getLogger().isErrorEnabled()) {
+                getLogger().error("Failed to add Commandhandler: " + className,
+                        ex);
+            }
+            throw new ConfigurationException("Failed to add Commandhandler: "
+                    + className, ex);
+        } catch (InstantiationException ex) {
+            if (getLogger().isErrorEnabled()) {
+                getLogger().error("Failed to add Commandhandler: " + className,
+                        ex);
+            }
+            throw new ConfigurationException("Failed to add Commandhandler: "
+                    + className, ex);
+        } catch (ServiceException e) {
+            if (getLogger().isErrorEnabled()) {
+                getLogger().error(
+                        "Failed to service Commandhandler: " + className, e);
+            }
+            throw new ConfigurationException("Failed to add Commandhandler: "
+                    + className, e);
+        } catch (ContextException e) {
+            if (getLogger().isErrorEnabled()) {
+                getLogger().error(
+                        "Failed to service Commandhandler: " + className, e);
+            }
+            throw new ConfigurationException("Failed to add Commandhandler: "
+                    + className, e);
         }
+    }
+
+    /**
+     * Return a DefaultConfiguration build on the given command name and classname
+     * 
+     * @param cmdName The command name
+     * @param className The class name
+     * @return DefaultConfiguration
+     */
+    private DefaultConfiguration addHandler(String cmdName, String className) {
+        DefaultConfiguration cmdConf = new DefaultConfiguration("handler");
+        cmdConf.setAttribute("command",cmdName);
+        cmdConf.setAttribute("class",className);
+        return cmdConf;
     }
 
     /**
