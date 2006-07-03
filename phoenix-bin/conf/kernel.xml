@@ -52,7 +52,17 @@
         <component role="org.apache.avalon.phoenix.interfaces.SystemManager"
             class="org.apache.avalon.phoenix.components.manager.MX4JSystemManager"
             logger="manager">
-	-->
+        -->
+        
+        <!--
+            To use a MBean server not managed by Phoenix, use the HostedSystemManager.
+        -->
+        <!--
+        <component role="org.apache.avalon.phoenix.interfaces.SystemManager"
+            class="org.apache.avalon.phoenix.components.manager.HostedSystemManager"
+            logger="manager">
+        -->
+        
             <!--
               By default the Mx4J Http Adaptor will bind a webserver to a
               single network interface, localhost. If you wish to restrict it to
