@@ -215,39 +215,96 @@ public class James
 
         getLogger().info("JAMES init...");
 
+        initializeServices();
+
+        initializeServernamesAndPostmaster();
+
+        Configuration userNamesConf = conf.getChild("usernames");
+        ignoreCase = userNamesConf.getAttributeAsBoolean("ignoreCase", false);
+        boolean enableAliases = userNamesConf.getAttributeAsBoolean("enableAliases", false);
+        boolean enableForwarding = userNamesConf.getAttributeAsBoolean("enableForwarding", false);
+        attributes.put(Constants.DEFAULT_ENABLE_ALIASES,new Boolean(enableAliases));
+        attributes.put(Constants.DEFAULT_ENABLE_FORWARDING,new Boolean(enableForwarding));
+        attributes.put(Constants.DEFAULT_IGNORE_USERNAME_CASE,new Boolean(ignoreCase));
+
+        compMgr.put( UsersRepository.ROLE, localusers);
+        getLogger().info("Local users repository opened");
+
+        inboxRootURL = conf.getChild("inboxRepository").getChild("repository").getAttribute("destinationURL");
+
+        getLogger().info("Private Repository LocalInbox opened");
+
+        // Add this to comp
+        compMgr.put( MailServer.ROLE, this);
+
+        // For mailet engine provide MailetContext
+        //compMgr.put("org.apache.mailet.MailetContext", this);
+        // For AVALON aware mailets and matchers, we put the Component object as
+        // an attribute
+        attributes.put(Constants.AVALON_COMPONENT_MANAGER, compMgr);
+
+        //Temporary get out to allow complex mailet config files to stop blocking sergei sozonoff's work on bouce processing
+        java.io.File configDir = AvalonContextUtilities.getFile(myContext, "file://conf/");
+        attributes.put("confDir", configDir.getCanonicalPath());
+
+        initializeLocalDeliveryMailet();
+
+        System.out.println(SOFTWARE_NAME_VERSION);
+        getLogger().info("JAMES ...init end");
+    }
+
+    private void initializeServices() throws Exception {
         // TODO: This should retrieve a more specific named thread pool from
         // Context that is set up in server.xml
         try {
-            store = (Store) compMgr.lookup( Store.ROLE );
+            Store store = (Store) compMgr.lookup( Store.ROLE );
+            setStore(store);
+            if (getLogger().isDebugEnabled()) {
+                getLogger().debug("Using Store: " + store.toString());
+            }
         } catch (Exception e) {
             if (getLogger().isWarnEnabled()) {
                 getLogger().warn("Can't get Store: " + e);
             }
         }
-        if (getLogger().isDebugEnabled()) {
-            getLogger().debug("Using Store: " + store.toString());
-        }
+
         try {
-            spool = (SpoolRepository) compMgr.lookup( SpoolRepository.ROLE );
+            SpoolRepository spool = (SpoolRepository) compMgr.lookup(SpoolRepository.ROLE);
+            setSpool(spool);
+            if (getLogger().isDebugEnabled()) {
+                getLogger().debug("Using SpoolRepository: " + spool.toString());
+            }
         } catch (Exception e) {
             if (getLogger().isWarnEnabled()) {
                 getLogger().warn("Can't get spoolRepository: " + e);
             }
         }
-        if (getLogger().isDebugEnabled()) {
-            getLogger().debug("Using SpoolRepository: " + spool.toString());
-        }
+
         try {
-            usersStore = (UsersStore) compMgr.lookup( UsersStore.ROLE );
+            UsersStore usersStore = (UsersStore) compMgr.lookup( UsersStore.ROLE );
+            setUsersStore(usersStore);
+            if (getLogger().isDebugEnabled()) {
+                getLogger().debug("Using UsersStore: " + usersStore.toString());
+            }
         } catch (Exception e) {
             if (getLogger().isWarnEnabled()) {
                 getLogger().warn("Can't get Store: " + e);
             }
         }
-        if (getLogger().isDebugEnabled()) {
-            getLogger().debug("Using UsersStore: " + usersStore.toString());
-        }
 
+        try {
+            UsersRepository localusers = (UsersRepository) compMgr.lookup(UsersRepository.ROLE);
+            setLocalusers(localusers);
+            if (getLogger().isDebugEnabled()) {
+                getLogger().debug("Using LocalUsersRepository: " + localusers.toString());
+            }
+        } catch (Exception e) {
+            getLogger().error("Cannot open private UserRepository");
+            throw e;
+        }
+    }
+
+    private void initializeServernamesAndPostmaster() throws ConfigurationException, ParseException {
         String hostName = null;
         try {
             hostName = InetAddress.getLocalHost().getHostName();
@@ -267,21 +324,21 @@ public class James
         }
 
         final Configuration[] serverNameConfs =
-            conf.getChild( "servernames" ).getChildren( "servername" );
+                conf.getChild( "servernames" ).getChildren( "servername" );
         for ( int i = 0; i < serverNameConfs.length; i++ ) {
             serverNames.add( serverNameConfs[i].getValue().toLowerCase(Locale.US));
 
             if (serverConf.getAttributeAsBoolean("autodetectIP", true)) {
                 try {
                     /* This adds the IP address(es) for each host to support
-                     * support <user@address-literal> - RFC 2821, sec 4.1.3.
-                     * It might be proper to use the actual IP addresses
-                     * available on this server, but we can't do that
-                     * without NetworkInterface from JDK 1.4.  Because of
-                     * Virtual Hosting considerations, we may need to modify
-                     * this to keep hostname and IP associated, rather than
-                     * just both in the set.
-                     */
+                    * support <user@address-literal> - RFC 2821, sec 4.1.3.
+                    * It might be proper to use the actual IP addresses
+                    * available on this server, but we can't do that
+                    * without NetworkInterface from JDK 1.4.  Because of
+                    * Virtual Hosting considerations, we may need to modify
+                    * this to keep hostname and IP associated, rather than
+                    * just both in the set.
+                    */
                     InetAddress[] addrs = InetAddress.getAllByName(serverNameConfs[i].getValue());
                     for (int j = 0; j < addrs.length ; j++) {
                         serverNames.add(addrs[j].getHostAddress());
@@ -301,7 +358,7 @@ public class James
                 getLogger().info("Handling mail for: " + i.next());
             }
         }
-        
+
         String defaultDomain = (String) serverNames.iterator().next();
         context.put(Constants.DEFAULT_DOMAIN, defaultDomain);
         attributes.put(Constants.DEFAULT_DOMAIN, defaultDomain);
@@ -328,49 +385,15 @@ public class James
 
         if (!isLocalServer(postmaster.getHost())) {
             StringBuffer warnBuffer
-                = new StringBuffer(320)
-                        .append("The specified postmaster address ( ")
-                        .append(postmaster)
-                        .append(" ) is not a local address.  This is not necessarily a problem, but it does mean that emails addressed to the postmaster will be routed to another server.  For some configurations this may cause problems.");
+                    = new StringBuffer(320)
+                    .append("The specified postmaster address ( ")
+                    .append(postmaster)
+                    .append(" ) is not a local address.  This is not necessarily a problem, but it does mean that emails addressed to the postmaster will be routed to another server.  For some configurations this may cause problems.");
             getLogger().warn(warnBuffer.toString());
         }
+    }
 
-        Configuration userNamesConf = conf.getChild("usernames");
-        ignoreCase = userNamesConf.getAttributeAsBoolean("ignoreCase", false);
-        boolean enableAliases = userNamesConf.getAttributeAsBoolean("enableAliases", false);
-        boolean enableForwarding = userNamesConf.getAttributeAsBoolean("enableForwarding", false);
-        attributes.put(Constants.DEFAULT_ENABLE_ALIASES,new Boolean(enableAliases));
-        attributes.put(Constants.DEFAULT_ENABLE_FORWARDING,new Boolean(enableForwarding));
-        attributes.put(Constants.DEFAULT_IGNORE_USERNAME_CASE,new Boolean(ignoreCase));
-
-        //Get localusers
-        try {
-            localusers = (UsersRepository) compMgr.lookup(UsersRepository.ROLE);
-        } catch (Exception e) {
-            getLogger().error("Cannot open private UserRepository");
-            throw e;
-        }
-        //}
-        compMgr.put( UsersRepository.ROLE, localusers);
-        getLogger().info("Local users repository opened");
-
-        inboxRootURL = conf.getChild("inboxRepository").getChild("repository").getAttribute("destinationURL");
-
-        getLogger().info("Private Repository LocalInbox opened");
-
-        // Add this to comp
-        compMgr.put( MailServer.ROLE, this);
-
-        // For mailet engine provide MailetContext
-        //compMgr.put("org.apache.mailet.MailetContext", this);
-        // For AVALON aware mailets and matchers, we put the Component object as
-        // an attribute
-        attributes.put(Constants.AVALON_COMPONENT_MANAGER, compMgr);
-
-        //Temporary get out to allow complex mailet config files to stop blocking sergei sozonoff's work on bouce processing
-        java.io.File configDir = AvalonContextUtilities.getFile(myContext, "file://conf/");
-        attributes.put("confDir", configDir.getCanonicalPath());
-
+    private void initializeLocalDeliveryMailet() throws MessagingException {
         // We can safely remove this and the localDeliveryField when we 
         // remove the storeMail method from James and from the MailetContext
         DefaultConfiguration conf = new DefaultConfiguration("mailet", "generated:James.initialize()");
@@ -380,9 +403,22 @@ public class James
         configImpl.setMailetContext(this);
         localDeliveryMailet = new LocalDelivery();
         localDeliveryMailet.init(configImpl);
+    }
 
-        System.out.println(SOFTWARE_NAME_VERSION);
-        getLogger().info("JAMES ...init end");
+    public void setStore(Store store) {
+        this.store = store;
+    }
+
+    public void setSpool(SpoolRepository spool) {
+        this.spool = spool;
+    }
+
+    public void setUsersStore(UsersStore usersStore) {
+        this.usersStore = usersStore;
+    }
+
+    public void setLocalusers(UsersRepository localusers) {
+        this.localusers = localusers;
     }
 
     /**
@@ -588,14 +624,7 @@ public class James
      * @param host
      */
     public Collection getMailServers(String host) {
-        DNSServer dnsServer = null;
-        try {
-            dnsServer = (DNSServer) compMgr.lookup( DNSServer.ROLE );
-        } catch ( final ServiceException cme ) {
-            getLogger().error("Fatal configuration error - DNS Servers lost!", cme );
-            throw new RuntimeException("Fatal configuration error - DNS Servers lost!");
-        }
-        return dnsServer.findMXRecords(host);
+        return lookupDNSServer().findMXRecords(host);
     }
 
     public Object getAttribute(String key) {
@@ -851,20 +880,24 @@ public class James
      * found for domainName, the Iterator returned will be empty and the
      * first call to hasNext() will return false.
      *
-     * @see org.apache.james.DNSServer#getSMTPHostAddresses(String)
+     * @see org.apache.james.services.DNSServer#getSMTPHostAddresses(String)
      * @since Mailet API v2.2.0a16-unstable
      * @param domainName - the domain for which to find mail servers
      * @return an Iterator over HostAddress instances, sorted by priority
      */
     public Iterator getSMTPHostAddresses(String domainName) {
-        DNSServer dnsServer = null;
+        return lookupDNSServer().getSMTPHostAddresses(domainName);
+    }
+
+    protected DNSServer lookupDNSServer() {
+        DNSServer dnsServer;
         try {
             dnsServer = (DNSServer) compMgr.lookup( DNSServer.ROLE );
         } catch ( final ServiceException cme ) {
             getLogger().error("Fatal configuration error - DNS Servers lost!", cme );
             throw new RuntimeException("Fatal configuration error - DNS Servers lost!");
         }
-        return dnsServer.getSMTPHostAddresses(domainName);
+        return dnsServer;
     }
 
     /**
@@ -882,9 +915,9 @@ public class James
         }
         if (msg == null) {
             throw new IllegalArgumentException("Mail message to be spooled cannot be null.");
-        } 
+        }
         Collection recipients = new HashSet();
-        recipients.add(recipient); 
+        recipients.add(recipient);
         MailImpl m = new MailImpl(getId(),sender,recipients,msg);
         localDeliveryMailet.service(m);
     }
