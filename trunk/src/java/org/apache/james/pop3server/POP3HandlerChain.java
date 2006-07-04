@@ -49,8 +49,8 @@ public class POP3HandlerChain extends AbstractLogEnabled implements Configurable
 
     private final static String[] mandatoryCommands = { "USER" , "PASS", "LIST"};
 
-    public void service(ServiceManager arg0) throws ServiceException {
-        serviceManager = arg0;
+    public void service(ServiceManager serviceManager) throws ServiceException {
+        this.serviceManager = serviceManager;
     }
 
 
@@ -188,7 +188,7 @@ public class POP3HandlerChain extends AbstractLogEnabled implements Configurable
     /**
      * Returns all the configured commandhandlers for the specified command
      *
-     * @param commandName the command name which will be key
+     * @param command the command name which will be key
      * @return List of commandhandlers
      */
     List getCommandHandlers(String command) {
