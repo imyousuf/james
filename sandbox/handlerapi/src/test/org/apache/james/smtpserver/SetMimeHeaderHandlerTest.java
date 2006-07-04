@@ -204,6 +204,11 @@ public class SetMimeHeaderHandlerTest extends TestCase {
                 throw new UnsupportedOperationException(
                         "Unimplemented mock service");
             }
+
+            public int getRcptCount() {
+                throw new UnsupportedOperationException(
+                        "Unimplemented mock service");
+            }
         };
     }
 

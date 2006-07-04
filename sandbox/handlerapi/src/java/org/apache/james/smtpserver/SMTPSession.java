@@ -235,6 +235,13 @@ public interface SMTPSession {
      * @return SMTP session id
      */
     String getSessionID();
+    
+    /**
+     * Returns the recipient count
+     * 
+     * @return recipient count
+     */
+    int getRcptCount();
 
 }
 

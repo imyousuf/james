@@ -258,6 +258,11 @@ public class DNSRBLHandlerTest extends TestCase {
                         "Unimplemented mock service");
             }
 
+            public int getRcptCount() {
+                throw new UnsupportedOperationException(
+                        "Unimplemented mock service");
+            }
+
         };
     }
 

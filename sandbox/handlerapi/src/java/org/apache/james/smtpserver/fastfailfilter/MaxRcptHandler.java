@@ -18,7 +18,6 @@
 package org.apache.james.smtpserver.fastfailfilter;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import org.apache.avalon.framework.configuration.Configurable;
@@ -59,19 +58,6 @@ public class MaxRcptHandler extends AbstractLogEnabled implements
         this.maxRcpt = maxRcpt;
     }
 
-    // TODO: move this to a util class or something simular
-    private int getRcptCount(SMTPSession session) {
-        int startCount = 0;
-
-        // check if the key exists
-        if (session.getState().get(SMTPSession.RCPT_LIST) != null) {
-            return ((Collection) session.getState().get(SMTPSession.RCPT_LIST))
-                    .size();
-        } else {
-            return startCount;
-        }
-    }
-
     /**
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
@@ -79,7 +65,7 @@ public class MaxRcptHandler extends AbstractLogEnabled implements
         String responseString = null;
         int rcptCount = 0;
 
-        rcptCount = getRcptCount(session) + 1;
+        rcptCount = session.getRcptCount() + 1;
 
         // check if the max recipients has reached
         if (rcptCount > maxRcpt) {

@@ -28,6 +28,7 @@ import org.apache.mailet.dates.RFC822DateFormat;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -553,6 +554,20 @@ public class SMTPHandler
      */
     public void abortMessage() {
         mode = MESSAGE_ABORT_MODE;
+    }
+    
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#getRcptCount()
+     */
+    public int getRcptCount() {
+        int count = 0;
+
+        // check if the key exists
+        if (state.get(SMTPSession.RCPT_LIST) != null) {
+            count = ((Collection) state.get(SMTPSession.RCPT_LIST)).size();
+        }
+
+        return count;
     }
 
 }

@@ -18,7 +18,6 @@
 package org.apache.james.smtpserver.fastfailfilter;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import org.apache.avalon.framework.configuration.Configurable;
@@ -82,19 +81,6 @@ public class TarpitHandler extends AbstractLogEnabled implements
         this.tarpitSleepTime = tarpitSleepTime;
     }
 
-    //TODO: Move to util class
-    private int getRcptCount(SMTPSession session) {
-        int startCount = 0;
-
-        // check if the key exists
-        if (session.getState().get(SMTPSession.RCPT_LIST) != null) {
-            return ((Collection) session.getState().get(SMTPSession.RCPT_LIST))
-                    .size();
-        } else {
-            return startCount;
-        }
-    }
-
     /**
      * Add a sleep for the given milliseconds
      * 
@@ -112,7 +98,7 @@ public class TarpitHandler extends AbstractLogEnabled implements
     public void onCommand(SMTPSession session) {
 
         int rcptCount = 0;
-        rcptCount = getRcptCount(session);
+        rcptCount = session.getRcptCount();
         rcptCount++;
 
         if (rcptCount > tarpitRcptCount) {
