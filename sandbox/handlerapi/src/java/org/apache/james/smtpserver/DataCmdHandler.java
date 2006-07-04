@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.SequenceInputStream;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
@@ -298,6 +299,16 @@ public class DataCmdHandler
             headersIn = null;
         }
 
+    }
+    
+    /**
+     * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
+     */
+    public List getImplCommands() {
+        ArrayList implCommands = new ArrayList();
+        implCommands.add("DATA");
+        
+        return implCommands;
     }
 
 }

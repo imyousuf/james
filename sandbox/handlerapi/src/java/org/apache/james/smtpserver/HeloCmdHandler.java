@@ -18,6 +18,9 @@
 package org.apache.james.smtpserver;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 
 
@@ -59,6 +62,16 @@ public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler
                         session.getRemoteIPAddress()).append("])");
         responseString = session.clearResponseBuffer();
         session.writeResponse(responseString);
+    }
+    
+    /**
+     * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
+     */
+    public List getImplCommands() {
+        ArrayList implCommands = new ArrayList();
+        implCommands.add("HELO");
+        
+        return implCommands;
     }
     
 }

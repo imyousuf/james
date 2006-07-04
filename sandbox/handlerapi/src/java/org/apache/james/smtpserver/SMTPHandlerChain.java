@@ -245,12 +245,23 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
             if (handler instanceof CommandHandler) {
                 String commandName = config.getAttribute("command");
                 String cmds[] = commandName.split(",");
+                List implCmds = ((CommandHandler) handler).getImplCommands();
 
                 for (int i = 0; i < cmds.length; i++) {
                     commandName = cmds[i].trim().toUpperCase(Locale.US);
-                    addToMap(commandName, (CommandHandler) handler);
-                    if (getLogger().isInfoEnabled()) {
-                        getLogger().info("Added Commandhandler: " + className);
+
+                    // Check if the commandHandler implement the configured command
+                    if (implCmds.contains(commandName)) {
+                        addToMap(commandName, (CommandHandler) handler);
+                        if (getLogger().isInfoEnabled()) {
+                            getLogger().info(
+                                    "Added Commandhandler: " + className);
+                        }
+                    } else {
+                        // The Configured command is not implemented. Throw an exception
+                        throw new ConfigurationException("Commandhandler "
+                                + className + " not implement the command "
+                                + commandName);
                     }
 
                 }

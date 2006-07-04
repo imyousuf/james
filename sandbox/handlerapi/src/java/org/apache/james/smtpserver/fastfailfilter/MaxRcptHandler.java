@@ -17,7 +17,9 @@
 
 package org.apache.james.smtpserver.fastfailfilter;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
@@ -91,5 +93,15 @@ public class MaxRcptHandler extends AbstractLogEnabled implements
             // After this filter match we should not call any other handler!
             session.getState().put(SMTPSession.STOP_HANDLER_PROCESSING, "true");
         }
+    }
+    
+    /**
+     * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
+     */
+    public List getImplCommands() {
+        ArrayList implCommands = new ArrayList();
+        implCommands.add("RCPT");
+        
+        return implCommands;
     }
 }

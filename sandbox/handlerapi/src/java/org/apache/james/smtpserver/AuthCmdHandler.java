@@ -19,6 +19,9 @@ package org.apache.james.smtpserver;
 
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
 import org.apache.james.util.Base64;
@@ -269,4 +272,14 @@ public class AuthCmdHandler
     }
 
 
+
+    /**
+     * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
+     */
+    public List getImplCommands() {
+        ArrayList implCommands = new ArrayList();
+        implCommands.add("AUTH");
+        
+        return implCommands;
+    }
 }

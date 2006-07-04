@@ -17,6 +17,8 @@
 
 package org.apache.james.smtpserver;
 
+import java.util.List;
+
 /**
  * Custom command handlers must implement this interface
  * The command handlers will be Server wide common to all the SMTPHandlers,
@@ -24,9 +26,15 @@ package org.apache.james.smtpserver;
  * in the SMTPSession object
  */
  public interface CommandHandler {
-    /*
+    /**
      * Handle the command
     **/
     void onCommand(SMTPSession session);
 
+    /**
+     * Return a List of implemented commands
+     * 
+     * @return List which contains implemented commands
+     */
+    List getImplCommands();
 }

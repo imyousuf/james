@@ -17,6 +17,9 @@
 
 package org.apache.james.smtpserver;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.james.util.mail.dsn.DSNStatus;
 
 /**
@@ -49,6 +52,16 @@ public class UnknownCmdHandler implements CommandHandler {
         String responseString = session.clearResponseBuffer();
 
         session.writeResponse(responseString);
+    }
+    
+    /**
+     * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
+     */
+    public List getImplCommands() {
+        ArrayList implCommands = new ArrayList();
+        implCommands.add("UNKNOWN");
+        
+        return implCommands;
     }
 
 }

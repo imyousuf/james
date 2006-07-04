@@ -18,6 +18,9 @@
 package org.apache.james.smtpserver.basefilter;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
@@ -58,5 +61,15 @@ public class HeloBaseFilterCmdHandler extends AbstractLogEnabled implements Comm
             session.getState().put(SMTPSession.STOP_HANDLER_PROCESSING, "true");
          
         }
+    }
+    
+    /**
+     * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
+     */
+    public List getImplCommands() {
+        ArrayList implCommands = new ArrayList();
+        implCommands.add("HELO");
+        
+        return implCommands;
     }
 }

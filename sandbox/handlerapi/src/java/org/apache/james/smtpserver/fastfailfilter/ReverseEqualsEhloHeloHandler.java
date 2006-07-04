@@ -30,6 +30,8 @@ import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
 
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ReverseEqualsEhloHeloHandler extends AbstractLogEnabled
         implements CommandHandler, Configurable, Serviceable {
@@ -123,5 +125,16 @@ public class ReverseEqualsEhloHeloHandler extends AbstractLogEnabled
                         "true");
             }
         }
+    }
+    
+    /**
+     * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
+     */
+    public List getImplCommands() {
+        ArrayList implCommands = new ArrayList();
+        implCommands.add("EHLO");
+        implCommands.add("HELO");
+        
+        return implCommands;
     }
 }

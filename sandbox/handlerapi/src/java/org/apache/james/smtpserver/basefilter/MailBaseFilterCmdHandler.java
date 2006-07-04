@@ -17,6 +17,8 @@
 
 package org.apache.james.smtpserver.basefilter;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
@@ -240,6 +242,16 @@ public class MailBaseFilterCmdHandler
             session.getState().put(MESG_SIZE, new Integer(size));
         }
         return true;
+    }
+    
+    /**
+     * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
+     */
+    public List getImplCommands() {
+        ArrayList implCommands = new ArrayList();
+        implCommands.add("MAIL");
+        
+        return implCommands;
     }
 
 

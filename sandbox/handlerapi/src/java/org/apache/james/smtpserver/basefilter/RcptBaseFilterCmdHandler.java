@@ -19,6 +19,7 @@ package org.apache.james.smtpserver.basefilter;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
@@ -269,4 +270,14 @@ public class RcptBaseFilterCmdHandler extends AbstractLogEnabled implements
         }
         return sb.toString();
     } 
+    
+    /**
+     * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
+     */
+    public List getImplCommands() {
+        ArrayList implCommands = new ArrayList();
+        implCommands.add("RCPT");
+        
+        return implCommands;
+    }
 }
