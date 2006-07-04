@@ -3,7 +3,7 @@
 <document>
 
  <properties>
-  <title>James 2.1 - Provided Mailets</title>
+  <title>James 2.3 - Provided Mailets</title>
  </properties>
 
 <body>
@@ -135,6 +135,29 @@ The default is <i>30000</i> (30 seconds)</li>
 default is <i>8192</i>.</li>
 <li><strong>debug</strong> - If set true you can enable debugging. Possible values: <i>true</i>, <i>false</i>. 
 Default <i>false</i>.</li>
+</ul>
+</p>
+</subsection>
+
+<subsection name="DSNBounce">
+<p>Description: Generates a Delivery Status Notification (DSN). Note that this is different than a mail-client's
+reply, which would use the Reply-To or From header.Bounced messages are attached in their entirety (headers and
+content) and the resulting MIME part type is "message/rfc822".
+The reverse-path and the Return-Path header of the response is set to <i>null</i> (<i>&lt;&gt;</i>),
+meaning that no reply should be sent.
+A sender of the notification message can optionally be specified.
+If one is not specified, the postmaster's address will be used.</p>
+<p>Parameters:
+<ul>
+<li><strong>sender</strong> - An address, postmaster,sender or unaltered. Default is <i>postmaster</i></li>
+<li><strong>prefix</strong>  - Optional subject prefix prepended to the original message.</li>
+<li><strong>attachment</strong> - Values are message, heads or none. Default is <i>message</i>. 
+test will be done.</li>
+<li><strong>messageString</strong> - the message sent in the bounce, the first occurrence of the pattern [machine] is replaced with the name of the executing machine, default=Hi. This is the James mail server at [machine] .... </li> 
+<li><strong>passThrough</strong> (optional) - a boolean value (true/false) indicating whether
+processing should continue on the message is on.  If false, the original message is GHOSTed.  Defaults to false.</li>
+<li><strong>debug</strong> - If set true you can enable debugging. Possible values: <i>true</i>, <i>false</i>. 
+Default <i>false</i>.</li> 
 </ul>
 </p>
 </subsection>
