@@ -32,7 +32,7 @@ import org.apache.james.util.mail.dsn.DSNStatus;
 public class DataBaseFilterCmdHandler
     extends AbstractLogEnabled
     implements CommandHandler {
-   
+
     /**
      * process DATA command
      *
@@ -54,22 +54,20 @@ public class DataBaseFilterCmdHandler
             session.writeResponse(responseString);
             
             //TODO: Check if this should been!
-            // After this filter match we should not call any other handler!
-            //session.getState().put(SMTPSession.STOP_HANDLER_PROCESSING, "true");
         }
         if (!session.getState().containsKey(SMTPSession.SENDER)) {
             responseString = "503 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" No sender specified";
             session.writeResponse(responseString);
             
             // After this filter match we should not call any other handler!
-            session.getState().put(SMTPSession.STOP_HANDLER_PROCESSING, "true");
+            session.setStopHandlerProcessing(true);
             
         } else if (!session.getState().containsKey(SMTPSession.RCPT_LIST)) {
             responseString = "503 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" No recipients specified";
             session.writeResponse(responseString);
             
             // After this filter match we should not call any other handler!
-            session.getState().put(SMTPSession.STOP_HANDLER_PROCESSING, "true");
+            session.setStopHandlerProcessing(true);
         }
     }
     

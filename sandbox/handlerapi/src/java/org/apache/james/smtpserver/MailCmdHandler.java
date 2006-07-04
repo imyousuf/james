@@ -30,6 +30,7 @@ import org.apache.mailet.MailAddress;
 public class MailCmdHandler
     extends AbstractLogEnabled
     implements CommandHandler {
+
     
     /**
      * handles MAIL command
@@ -49,10 +50,7 @@ public class MailCmdHandler
      * @param argument the argument passed in with the command by the SMTP client
      */
     private void doMAIL(SMTPSession session, String argument) {
-        
-        if (session.getState().get(SMTPSession.STOP_HANDLER_PROCESSING) != null) return;
-        
-        
+      
         StringBuffer responseBuffer = session.getResponseBuffer();
         String responseString = null;
 

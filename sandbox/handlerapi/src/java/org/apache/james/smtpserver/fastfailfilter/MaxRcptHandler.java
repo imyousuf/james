@@ -77,7 +77,7 @@ public class MaxRcptHandler extends AbstractLogEnabled implements
             getLogger().error(responseString);
 
             // After this filter match we should not call any other handler!
-            session.getState().put(SMTPSession.STOP_HANDLER_PROCESSING, "true");
+            session.setStopHandlerProcessing(true);
         }
     }
     
@@ -90,4 +90,5 @@ public class MaxRcptHandler extends AbstractLogEnabled implements
         
         return implCommands;
     }
+
 }

@@ -158,6 +158,8 @@ public class SMTPHandler
      * The per-handler response buffer used to marshal responses.
      */
     private StringBuffer responseBuffer = new StringBuffer(256);
+    
+    private boolean stopHandlerProcessing = false;
 
     /**
      * Set the configuration data for the handler
@@ -268,13 +270,13 @@ public class SMTPHandler
           } else {
               int count = commandHandlers.size();
               for(int i = 0; i < count; i++) {
+                  setStopHandlerProcessing(false);
                   ((CommandHandler)commandHandlers.get(i)).onCommand(this);
+                  
                   theWatchdog.reset();
+                  
                   //if the response is received, stop processing of command handlers
-                  if(mode != COMMAND_MODE || getState().get(SMTPSession.STOP_HANDLER_PROCESSING) != null) {
-                      
-                      // remove the blockin state
-                      getState().remove(SMTPSession.STOP_HANDLER_PROCESSING);
+                  if(mode != COMMAND_MODE || getStopHandlerProcessing()) {
                       break;
                   }
               }
@@ -568,6 +570,20 @@ public class SMTPHandler
         }
 
         return count;
+    }
+    
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#setStopHandlerProcessing(boolean)
+     */
+    public void setStopHandlerProcessing(boolean stopHandlerProcessing) {
+        this.stopHandlerProcessing = stopHandlerProcessing;
+    }
+    
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#getStopHandlerProcessing()
+     */
+    public boolean getStopHandlerProcessing() {
+        return stopHandlerProcessing;
     }
 
 }

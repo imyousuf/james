@@ -45,7 +45,6 @@ public class AuthCmdHandler
      */
     private final static String AUTH_TYPE_LOGIN = "LOGIN";
 
-
     /**
      * handles AUTH command
      *
@@ -281,5 +280,5 @@ public class AuthCmdHandler
         implCommands.add("AUTH");
         
         return implCommands;
-    }
+    }  
 }

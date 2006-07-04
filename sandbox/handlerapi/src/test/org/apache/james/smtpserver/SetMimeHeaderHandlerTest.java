@@ -209,6 +209,16 @@ public class SetMimeHeaderHandlerTest extends TestCase {
                 throw new UnsupportedOperationException(
                         "Unimplemented mock service");
             }
+
+            public void setStopHandlerProcessing(boolean b) {
+                throw new UnsupportedOperationException(
+                "Unimplemented mock service");
+            }
+
+            public boolean getStopHandlerProcessing() {
+                throw new UnsupportedOperationException(
+                "Unimplemented mock service");
+            }
         };
     }
 

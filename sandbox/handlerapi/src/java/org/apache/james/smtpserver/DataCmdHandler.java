@@ -95,9 +95,7 @@ public class DataCmdHandler
      * @param argument the argument passed in with the command by the SMTP client
      */
     private void doDATA(SMTPSession session, String argument) {
-        
-        if (session.getState().get(SMTPSession.STOP_HANDLER_PROCESSING) != null) return;
-        
+
         String responseString = null;
         responseString = "354 Ok Send data ending with <CRLF>.<CRLF>";
         session.writeResponse(responseString);

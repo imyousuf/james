@@ -58,7 +58,7 @@ public class HeloBaseFilterCmdHandler extends AbstractLogEnabled implements Comm
             getLogger().info(responseString);
             
             // After this filter match we should not call any other handler!
-            session.getState().put(SMTPSession.STOP_HANDLER_PROCESSING, "true");
+            session.setStopHandlerProcessing(true);
          
         }
     }
@@ -72,4 +72,5 @@ public class HeloBaseFilterCmdHandler extends AbstractLogEnabled implements Comm
         
         return implCommands;
     }
+    
 }

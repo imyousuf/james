@@ -31,7 +31,7 @@ public class ExpnCmdHandler implements CommandHandler {
      * The name of the command handled by the command handler
      */
     private final static String COMMAND_NAME = "EXPN";
-
+    
     /**
      * Handler method called upon receipt of a EXPN command.
      * This method informs the client that the command is

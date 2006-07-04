@@ -50,9 +50,7 @@ public class RcptCmdHandler extends AbstractLogEnabled implements
      * @param argument the argument passed in with the command by the SMTP client
      */
     private void doRCPT(SMTPSession session, String argument) {
-        
-        if (session.getState().get(SMTPSession.STOP_HANDLER_PROCESSING) != null) return;
-        
+       
         String responseString = null;
         StringBuffer responseBuffer = session.getResponseBuffer();
 
@@ -84,5 +82,5 @@ public class RcptCmdHandler extends AbstractLogEnabled implements
         
         return implCommands;
     }
-    
+
 }

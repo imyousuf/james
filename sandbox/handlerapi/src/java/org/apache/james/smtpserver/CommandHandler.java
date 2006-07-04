@@ -26,6 +26,7 @@ import java.util.List;
  * in the SMTPSession object
  */
  public interface CommandHandler {
+     
     /**
      * Handle the command
     **/
@@ -37,4 +38,5 @@ import java.util.List;
      * @return List which contains implemented commands
      */
     List getImplCommands();
+    
 }

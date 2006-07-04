@@ -37,8 +37,7 @@ public interface SMTPSession {
     public final static String SENDER = "SENDER_ADDRESS";     // Sender's email address
     public final static String RCPT_LIST = "RCPT_LIST";   // The message recipients
     public final static String CURRENT_HELO_MODE = "CURRENT_HELO_MODE"; // HELO or EHLO
-    public final static String STOP_HANDLER_PROCESSING = "STOP_HANDLER_PROCESSING";
-    public static final Object CURRENT_RECIPIENT = "CURRENT_RECIPIENT";
+    public static final Object CURRENT_RECIPIENT = "CURRENT_RECIPIENT"; // Current recipient
 
     /**
      * Writes response string to the client
@@ -242,6 +241,10 @@ public interface SMTPSession {
      * @return recipient count
      */
     int getRcptCount();
+
+    void setStopHandlerProcessing(boolean b);
+    
+    boolean getStopHandlerProcessing();
 
 }
 

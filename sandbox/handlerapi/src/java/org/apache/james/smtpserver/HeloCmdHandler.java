@@ -32,7 +32,7 @@ public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler
     /**
      * The name of the command handled by the command handler
      */
-    private final static String COMMAND_NAME = "HELO";
+    private final static String COMMAND_NAME = "HELO";   
       
     /**
      * process HELO command
@@ -49,9 +49,6 @@ public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler
      */
     private void doHELO(SMTPSession session, String argument) {
         String responseString = null;
-
-        if (session.getState().get(SMTPSession.STOP_HANDLER_PROCESSING) != null)
-            return;
 
         session.resetState();
         session.getState().put(SMTPSession.CURRENT_HELO_MODE, COMMAND_NAME);
@@ -72,6 +69,5 @@ public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler
         implCommands.add("HELO");
         
         return implCommands;
-    }
-    
+    } 
 }

@@ -31,6 +31,8 @@ public class UnknownCmdHandler implements CommandHandler {
      * The name of the command handled by the command handler
      */
     public static final String UNKNOWN_COMMAND = "UNKNOWN";
+    
+    private boolean stopHandlerProcessing = true;
 
     /**
      * Handler method called upon receipt of an unrecognized command.
@@ -62,6 +64,13 @@ public class UnknownCmdHandler implements CommandHandler {
         implCommands.add("UNKNOWN");
         
         return implCommands;
+    }
+    
+    /**
+     * @see org.apache.james.smtpserver.CommandHandler#stopHandlerProcessing()
+     */
+    public boolean stopHandlerProcessing() {
+        return stopHandlerProcessing ;
     }
 
 }

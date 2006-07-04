@@ -108,8 +108,7 @@ public class ReverseEqualsEhloHeloHandler extends AbstractLogEnabled
                     getLogger().info(responseString);
 
                     // After this filter match we should not call any other handler!
-                    session.getState().put(SMTPSession.STOP_HANDLER_PROCESSING,
-                            "true");
+                    session.setStopHandlerProcessing(true);
                 }
             } catch (UnknownHostException e) {
                 responseString = "501 "
@@ -121,8 +120,7 @@ public class ReverseEqualsEhloHeloHandler extends AbstractLogEnabled
                 getLogger().info(responseString);
 
                 // After this filter match we should not call any other handler!
-                session.getState().put(SMTPSession.STOP_HANDLER_PROCESSING,
-                        "true");
+                session.setStopHandlerProcessing(true);
             }
         }
     }
@@ -137,4 +135,5 @@ public class ReverseEqualsEhloHeloHandler extends AbstractLogEnabled
         
         return implCommands;
     }
+
 }

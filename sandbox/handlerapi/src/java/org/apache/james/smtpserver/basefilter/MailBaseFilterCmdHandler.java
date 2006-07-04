@@ -38,7 +38,7 @@ public class MailBaseFilterCmdHandler
     private final static String MAIL_OPTION_SIZE = "SIZE";
 
     private final static String MESG_SIZE = "MESG_SIZE"; // The size of the message
-    
+
     /**
      * handles MAIL command
      *
@@ -67,14 +67,14 @@ public class MailBaseFilterCmdHandler
             session.writeResponse(responseString);
             
             // After this filter match we should not call any other handler!
-            session.getState().put(SMTPSession.STOP_HANDLER_PROCESSING, "true");
+            session.setStopHandlerProcessing(true);
             
         } else if (!session.getState().containsKey(SMTPSession.CURRENT_HELO_MODE) && session.useHeloEhloEnforcement()) {
             responseString = "503 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" Need HELO or EHLO before MAIL";
             session.writeResponse(responseString);
             
             // After this filter match we should not call any other handler!
-            session.getState().put(SMTPSession.STOP_HANDLER_PROCESSING, "true");
+            session.setStopHandlerProcessing(true);
             
         } else if (argument == null || !argument.toUpperCase(Locale.US).equals("FROM")
                    || sender == null) {
@@ -82,7 +82,7 @@ public class MailBaseFilterCmdHandler
             session.writeResponse(responseString);
         
             // After this filter match we should not call any other handler!
-            session.getState().put(SMTPSession.STOP_HANDLER_PROCESSING, "true");
+            session.setStopHandlerProcessing(true);
             
         } else {
             sender = sender.trim();
@@ -139,7 +139,7 @@ public class MailBaseFilterCmdHandler
                     getLogger().error(errorBuffer.toString());
                 }
                 // After this filter match we should not call any other handler!
-                session.getState().put(SMTPSession.STOP_HANDLER_PROCESSING, "true");
+                session.setStopHandlerProcessing(true);
                 
                 return;
             }
@@ -170,7 +170,7 @@ public class MailBaseFilterCmdHandler
                     }
                     
                     // After this filter match we should not call any other handler!
-                    session.getState().put(SMTPSession.STOP_HANDLER_PROCESSING, "true");
+                    session.setStopHandlerProcessing(true);
                     
                     return;
                 }
@@ -200,7 +200,7 @@ public class MailBaseFilterCmdHandler
             getLogger().error("Rejected syntactically incorrect value for SIZE parameter.");
             
             // After this filter match we should not call any other handler!
-            session.getState().put(SMTPSession.STOP_HANDLER_PROCESSING, "true");
+            session.setStopHandlerProcessing(true);
             
             return false;
         }
@@ -233,7 +233,7 @@ public class MailBaseFilterCmdHandler
             getLogger().error(errorBuffer.toString());
             
             // After this filter match we should not call any other handler!
-            session.getState().put(SMTPSession.STOP_HANDLER_PROCESSING, "true");
+            session.setStopHandlerProcessing(true);
             
             return false;
         } else {
@@ -253,6 +253,5 @@ public class MailBaseFilterCmdHandler
         
         return implCommands;
     }
-
 
 }
