@@ -3,7 +3,7 @@
 <document>
 
  <properties>
-  <title>James 2.13 - Table of Contents</title>
+  <title>James 2.3 - Table of Contents</title>
  </properties>
 
 <body>
@@ -22,7 +22,7 @@ strengths, and can allow administrators to produce powerful applications surpris
 <p>
 James is built on top of trunk version of the <a href="http://avalon.apache.org/">Avalon Application Framework</a>.  This 
 framework encourages a set of good development practices such as Component Oriented Programming and 
-Inversion of Control.  The standard distribution of James includes version 4.0.1 of the 
+Inversion of Control.  The standard distribution of James includes  
 <a href="http://avalon.apache.org/phoenix">Phoenix Avalon Framework container</a>.  This stable 
 and robust container provides a strong foundation for the James server.
 </p>
@@ -53,7 +53,6 @@ IV. Configuring James
 <li><a href="pop3_configuration_2_3.html">POP3 Server Configuration</a></li>
 <li><a href="smtp_configuration_2_3.html">SMTP Server Configuration</a></li>
 <li><a href="nntp_configuration_2_3.html">NNTP Server Configuration</a></li>
-<li><a href="fetchpop_configuration_2_3.html">FetchPOP Configuration <i>(deprecated)</i></a></li>
 <li><a href="fetchmail_configuration_2_3.html">fetchMail Configuration</a></li>
 <li><a href="remotemanager_configuration_2_1.html">RemoteManager Configuration</a></li>
 <li><a href="repositories_2_3.html">Repository Configuration</a></li>

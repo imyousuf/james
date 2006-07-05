@@ -59,7 +59,7 @@ be appropriate for real-world servers.  There are a few issues that should be ad
 </p>
 <ul>
 <li>RemoteManager Administrator Account - Before the RemoteManager service can be used to add users to this server 
-installation an administrator account must be created.  More information can be found <a href="remotemanager_configuration_2_1.html">here</a>.</li>
+installation an administrator account must be created.  More information can be found <a href="remotemanager_configuration_2_3.html">here</a>.</li>
 <li>DNS Servers - James needs to have access to a DNS server for domain resolution.  The out of the box 
 configuration assumes that there is a DNS server on localhost.  In general administrators will have to change 
 the configuration to point to a valid DNS server.  This can be done by adjusting the dnsserver configuration 

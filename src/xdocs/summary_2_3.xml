@@ -58,7 +58,7 @@ supports some additional features such as NNTP authentication and encrypted clie
 <p>More information on configuring the NNTP service can be found <a href="nntp_configuration_2_3.html">here</a>.</p>
 
 </section>
-<section name="FetchPOP">
+<section name="FetchMail">
 
 <p>FetchMail, unlike the other James components, is not an implementation of an RFC.  Instead, it's a 
 component that allows the administrator to configure James to retrieve email from a number of POP3 
