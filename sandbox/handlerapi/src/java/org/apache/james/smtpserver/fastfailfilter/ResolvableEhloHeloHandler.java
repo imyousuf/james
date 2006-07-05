@@ -17,24 +17,22 @@
 
 package org.apache.james.smtpserver.fastfailfilter;
 
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
-import org.apache.james.services.DNSServer;
-import org.apache.james.smtpserver.CommandHandler;
-import org.apache.james.smtpserver.SMTPSession;
-import org.apache.james.util.mail.dsn.DSNStatus;
-
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ResolvableEhloHeloHandler extends AbstractLogEnabled
-        implements CommandHandler, Configurable, Serviceable {
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.Serviceable;
+import org.apache.james.services.DNSServer;
+import org.apache.james.smtpserver.AbstractCommandHandler;
+import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.util.mail.dsn.DSNStatus;
+
+public class ResolvableEhloHeloHandler extends AbstractCommandHandler implements Configurable, Serviceable {
 
     private boolean checkAuthNetworks = false;
 
@@ -105,7 +103,7 @@ public class ResolvableEhloHeloHandler extends AbstractLogEnabled
                 getLogger().info(responseString);
 
                 // After this filter match we should not call any other handler!
-                session.setStopHandlerProcessing(true);
+                setStopHandlerProcessing(true);
             }
         }
     }

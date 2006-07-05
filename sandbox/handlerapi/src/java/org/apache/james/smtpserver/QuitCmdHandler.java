@@ -25,7 +25,7 @@ import org.apache.james.util.mail.dsn.DSNStatus;
 /**
   * Handles QUIT command
   */
-public class QuitCmdHandler implements CommandHandler {
+public class QuitCmdHandler extends AbstractCommandHandler {
 
     /**
      * The name of the command handled by the command handler

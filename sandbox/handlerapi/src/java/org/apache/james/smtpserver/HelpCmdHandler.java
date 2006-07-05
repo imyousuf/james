@@ -25,7 +25,7 @@ import org.apache.james.util.mail.dsn.DSNStatus;
 /**
   * Handles HELP command
   */
-public class HelpCmdHandler implements CommandHandler {
+public class HelpCmdHandler extends AbstractCommandHandler {
     /**
      * The name of the command handled by the command handler
      */

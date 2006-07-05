@@ -20,16 +20,13 @@ package org.apache.james.smtpserver.fastfailfilter;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.smtpserver.CommandHandler;
+import org.apache.james.smtpserver.AbstractCommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
 
-public class MaxRcptHandler extends AbstractLogEnabled implements
-        CommandHandler, Configurable {
+public class MaxRcptHandler extends AbstractCommandHandler {
 
     private int maxRcpt = 0;
 
@@ -77,7 +74,7 @@ public class MaxRcptHandler extends AbstractLogEnabled implements
             getLogger().error(responseString);
 
             // After this filter match we should not call any other handler!
-            session.setStopHandlerProcessing(true);
+            setStopHandlerProcessing(true);
         }
     }
     
@@ -90,5 +87,4 @@ public class MaxRcptHandler extends AbstractLogEnabled implements
         
         return implCommands;
     }
-
 }

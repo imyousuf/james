@@ -52,7 +52,7 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
     private ArrayList messageHandlers = new ArrayList();
     private ArrayList connectHandlers = new ArrayList();
 
-    private final CommandHandler unknownHandler = new UnknownCmdHandler();
+    private final AbstractCommandHandler unknownHandler = new UnknownCmdHandler();
     private ServiceManager serviceManager;
     private Context context;
     
@@ -242,17 +242,17 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
 
             // if it is a command handler add it to the map with key as command
             // name
-            if (handler instanceof CommandHandler) {
+            if (handler instanceof AbstractCommandHandler) {
                 String commandName = config.getAttribute("command");
                 String cmds[] = commandName.split(",");
-                List implCmds = ((CommandHandler) handler).getImplCommands();
+                List implCmds = ((AbstractCommandHandler) handler).getImplCommands();
 
                 for (int i = 0; i < cmds.length; i++) {
                     commandName = cmds[i].trim().toUpperCase(Locale.US);
 
                     // Check if the commandHandler implement the configured command
                     if (implCmds.contains(commandName)) {
-                        addToMap(commandName, (CommandHandler) handler);
+                        addToMap(commandName, (AbstractCommandHandler) handler);
                         if (getLogger().isInfoEnabled()) {
                             getLogger().info(
                                     "Added Commandhandler: " + className);
@@ -333,7 +333,7 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
      * @param commandName the command name which will be key
      * @param cmdHandler The commandhandler object
      */
-    private void addToMap(String commandName, CommandHandler cmdHandler) {
+    private void addToMap(String commandName, AbstractCommandHandler cmdHandler) {
         ArrayList handlers = (ArrayList)commandHandlerMap.get(commandName);
         if(handlers == null) {
             handlers = new ArrayList();

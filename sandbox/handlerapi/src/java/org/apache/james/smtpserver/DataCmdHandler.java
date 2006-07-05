@@ -17,7 +17,19 @@
 
 package org.apache.james.smtpserver;
 
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.SequenceInputStream;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.List;
+
+import javax.mail.MessagingException;
+
 import org.apache.james.Constants;
 import org.apache.james.core.MailHeaders;
 import org.apache.james.core.MailImpl;
@@ -30,26 +42,12 @@ import org.apache.mailet.MailAddress;
 import org.apache.mailet.RFC2822Headers;
 import org.apache.mailet.dates.RFC822DateFormat;
 
-import javax.mail.MessagingException;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.SequenceInputStream;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.List;
-
 
 /**
   * handles DATA command
  */
 public class DataCmdHandler
-    extends AbstractLogEnabled
-    implements CommandHandler {
+    extends AbstractCommandHandler {
 
     private final static String SOFTWARE_TYPE = "JAMES SMTP Server "
                                                  + Constants.SOFTWARE_VERSION;

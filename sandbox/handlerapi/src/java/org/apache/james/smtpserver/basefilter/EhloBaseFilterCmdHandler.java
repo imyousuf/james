@@ -20,15 +20,14 @@ package org.apache.james.smtpserver.basefilter;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.smtpserver.CommandHandler;
+import org.apache.james.smtpserver.AbstractCommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
 
 /**
   * Handles EHLO command
   */
-public class EhloBaseFilterCmdHandler extends AbstractLogEnabled implements CommandHandler {
+public class EhloBaseFilterCmdHandler extends AbstractCommandHandler {
 
     /**
      * The name of the command handled by the command handler
@@ -56,7 +55,7 @@ public class EhloBaseFilterCmdHandler extends AbstractLogEnabled implements Comm
             session.writeResponse(responseString);
             
             // After this filter match we should not call any other handler!
-            session.setStopHandlerProcessing(true);
+            setStopHandlerProcessing(true);
         }
     }
     

@@ -241,10 +241,5 @@ public interface SMTPSession {
      * @return recipient count
      */
     int getRcptCount();
-
-    void setStopHandlerProcessing(boolean b);
-    
-    boolean getStopHandlerProcessing();
-
 }
 

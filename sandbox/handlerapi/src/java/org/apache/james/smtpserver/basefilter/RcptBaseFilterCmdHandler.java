@@ -23,8 +23,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.smtpserver.CommandHandler;
+import org.apache.james.smtpserver.AbstractCommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.MailAddress;
@@ -32,8 +31,7 @@ import org.apache.mailet.MailAddress;
 /**
   * Handles RCPT command
   */
-public class RcptBaseFilterCmdHandler extends AbstractLogEnabled implements
-        CommandHandler {
+public class RcptBaseFilterCmdHandler extends AbstractCommandHandler {
 
 
     /**
@@ -64,7 +62,7 @@ public class RcptBaseFilterCmdHandler extends AbstractLogEnabled implements
             session.writeResponse(responseString);
             
             // After this filter match we should not call any other handler!
-            session.setStopHandlerProcessing(true);
+            setStopHandlerProcessing(true);
             
         } else if (argument == null || !argument.toUpperCase(Locale.US).equals("TO")
                    || recipient == null) {
@@ -72,7 +70,7 @@ public class RcptBaseFilterCmdHandler extends AbstractLogEnabled implements
             session.writeResponse(responseString);
             
             // After this filter match we should not call any other handler!
-            session.setStopHandlerProcessing(true);
+            setStopHandlerProcessing(true);
             
         } else {
             Collection rcptColl = (Collection) session.getState().get(SMTPSession.RCPT_LIST);
@@ -103,7 +101,7 @@ public class RcptBaseFilterCmdHandler extends AbstractLogEnabled implements
                 }
                 
                 // After this filter match we should not call any other handler!
-                session.setStopHandlerProcessing(true);
+                setStopHandlerProcessing(true);
                 
                 return;
             }
@@ -135,7 +133,7 @@ public class RcptBaseFilterCmdHandler extends AbstractLogEnabled implements
                 }
                 
                 // After this filter match we should not call any other handler!
-                session.setStopHandlerProcessing(true);
+                setStopHandlerProcessing(true);
                 
                 return;
             }
@@ -153,7 +151,7 @@ public class RcptBaseFilterCmdHandler extends AbstractLogEnabled implements
                 session.writeResponse(responseString);
                 
                 // After this filter match we should not call any other handler!
-                session.setStopHandlerProcessing(true);
+                setStopHandlerProcessing(true);
                 
                 return;
             }
@@ -172,7 +170,7 @@ public class RcptBaseFilterCmdHandler extends AbstractLogEnabled implements
                         getLogger().error(sb.toString());
                         
                         // After this filter match we should not call any other handler!
-                        session.setStopHandlerProcessing(true);
+                        setStopHandlerProcessing(true);
                         
                         return;
                     }
@@ -198,7 +196,7 @@ public class RcptBaseFilterCmdHandler extends AbstractLogEnabled implements
                             }
                             
                             // After this filter match we should not call any other handler!
-                            session.setStopHandlerProcessing(true);
+                            setStopHandlerProcessing(true);
                             
                             return;
                         }
@@ -218,7 +216,7 @@ public class RcptBaseFilterCmdHandler extends AbstractLogEnabled implements
                     getLogger().error(errorBuffer.toString());
                     
                     // After this filter match we should not call any other handler!
-                    session.setStopHandlerProcessing(true);
+                    setStopHandlerProcessing(true);
                     
                     return;
                 }
@@ -248,7 +246,7 @@ public class RcptBaseFilterCmdHandler extends AbstractLogEnabled implements
                   }
                   
                   // After this filter match we should not call any other handler!
-                  session.setStopHandlerProcessing(true);
+                  setStopHandlerProcessing(true);
                   
               }
               optionTokenizer = null;
