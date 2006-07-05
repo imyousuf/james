@@ -232,8 +232,12 @@ public class SMTPHandler
         if(connectHandlers != null) {
             int count = connectHandlers.size();
             for(int i = 0; i < count; i++) {
-                ((ConnectHandler)connectHandlers.get(i)).onConnect(this);
-                if(sessionEnded) {
+                AbstractConnectHandler aHandler = (AbstractConnectHandler)connectHandlers.get(i);
+                aHandler.setStopHandlerProcessing(false);
+                aHandler.onConnect(this);
+                boolean stopHandlerProcessing = aHandler.stopHandlerProcessing();
+
+                if(sessionEnded || stopHandlerProcessing) {
                     break;
                 }
             }
@@ -289,9 +293,13 @@ public class SMTPHandler
               List messageHandlers = handlerChain.getMessageHandlers();
               int count = messageHandlers.size();
               for(int i =0; i < count; i++) {
-                  ((MessageHandler)messageHandlers.get(i)).onMessage(this);
+                  AbstractMessageHandler aHandler = (AbstractMessageHandler)messageHandlers.get(i);
+                  aHandler.setStopHandlerProcessing(false);
+                  aHandler.onMessage(this);
+                  boolean stopHandlerProcessing = aHandler.stopHandlerProcessing();
+
                   //if the response is received, stop processing of command handlers
-                  if(mode == MESSAGE_ABORT_MODE) {
+                  if(mode == MESSAGE_ABORT_MODE || stopHandlerProcessing) {
                       break;
                   }
               }

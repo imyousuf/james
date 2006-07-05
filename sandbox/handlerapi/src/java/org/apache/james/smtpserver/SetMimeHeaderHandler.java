@@ -28,8 +28,7 @@ import javax.mail.internet.MimeMessage;
   * Adds the header to the message
   */
 public class SetMimeHeaderHandler
-    extends AbstractLogEnabled
-    implements MessageHandler, Configurable {
+    extends AbstractMessageHandler {
 
     /**
      * The header name and value that needs to be added

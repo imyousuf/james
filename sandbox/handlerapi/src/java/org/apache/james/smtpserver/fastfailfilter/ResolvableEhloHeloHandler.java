@@ -21,22 +21,16 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
-import org.apache.james.services.DNSServer;
 import org.apache.james.smtpserver.AbstractCommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
 
-public class ResolvableEhloHeloHandler extends AbstractCommandHandler implements Configurable, Serviceable {
+public class ResolvableEhloHeloHandler extends AbstractCommandHandler {
 
     private boolean checkAuthNetworks = false;
 
-    private DNSServer dnsServer = null;
 
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
@@ -51,13 +45,6 @@ public class ResolvableEhloHeloHandler extends AbstractCommandHandler implements
     }
 
     /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
-     */
-    public void service(ServiceManager serviceMan) throws ServiceException {
-        setDnsServer((DNSServer) serviceMan.lookup(DNSServer.ROLE));
-    }
-
-    /**
      * Set to true if AuthNetworks should be included in the EHLO check
      * 
      * @param checkAuthNetworks
@@ -65,16 +52,6 @@ public class ResolvableEhloHeloHandler extends AbstractCommandHandler implements
      */
     public void setCheckAuthNetworks(boolean checkAuthNetworks) {
         this.checkAuthNetworks = checkAuthNetworks;
-    }
-
-    /**
-     * Set the DNSServer
-     * 
-     * @param dnsServer
-     *            The DNSServer
-     */
-    public void setDnsServer(DNSServer dnsServer) {
-        this.dnsServer = dnsServer;
     }
 
     /**
@@ -92,7 +69,7 @@ public class ResolvableEhloHeloHandler extends AbstractCommandHandler implements
             // try to resolv the provided helo. If it can not resolved do not
             // accept it.
             try {
-                dnsServer.getByName(argument);
+                getDnsServer().getByName(argument);
             } catch (UnknownHostException e) {
                 responseString = "501 "
                         + DSNStatus.getStatus(DSNStatus.PERMANENT,

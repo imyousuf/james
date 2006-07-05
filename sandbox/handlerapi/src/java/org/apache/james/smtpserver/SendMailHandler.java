@@ -34,8 +34,7 @@ import java.util.Collection;
   * Adds the header to the message
   */
 public class SendMailHandler
-    extends AbstractLogEnabled
-    implements MessageHandler, Serviceable {
+    extends AbstractMessageHandler {
 
     private MailServer mailServer;
 
@@ -43,6 +42,8 @@ public class SendMailHandler
      * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
      */
     public void service(ServiceManager serviceManager) throws ServiceException {
+        
+        //TODO: Maybe we should move this to AbstractGeneralHandler
         mailServer = (MailServer) serviceManager.lookup(MailServer.ROLE);
     }
 

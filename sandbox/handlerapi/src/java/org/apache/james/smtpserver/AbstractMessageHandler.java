@@ -18,15 +18,16 @@
 package org.apache.james.smtpserver;
 
 /**
- * Custom message handlers must implement this interface
+ * Custom message handlers must extend this class.
  * The message handlers will be server-wide common to all the SMTPHandlers,
  * therefore the handlers must store all the state information
  * in the SMTPSession object
  */
-public interface MessageHandler {
-    /*
+public abstract class AbstractMessageHandler extends AbstractGeneralHandler {
+    
+    /**
      * Handle Message
     **/
-    void onMessage(SMTPSession session);
+    public abstract void onMessage(SMTPSession session);
 
 }

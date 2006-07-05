@@ -21,22 +21,16 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
-import org.apache.james.services.DNSServer;
 import org.apache.james.smtpserver.AbstractCommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
 
-public class ReverseEqualsEhloHeloHandler extends AbstractCommandHandler implements Configurable, Serviceable {
+public class ReverseEqualsEhloHeloHandler extends AbstractCommandHandler {
 
     private boolean checkAuthNetworks = false;
 
-    private DNSServer dnsServer = null;
 
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
@@ -50,14 +44,6 @@ public class ReverseEqualsEhloHeloHandler extends AbstractCommandHandler impleme
         }
     }
 
-
-    /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
-     */
-    public void service(ServiceManager serviceMan) throws ServiceException {
-        setDnsServer((DNSServer) serviceMan.lookup(DNSServer.ROLE));
-    }
-
     /**
      * Set to true if AuthNetworks should be included in the EHLO check
      * 
@@ -68,15 +54,6 @@ public class ReverseEqualsEhloHeloHandler extends AbstractCommandHandler impleme
         this.checkAuthNetworks = checkAuthNetworks;
     }
 
-    /**
-     * Set the DNSServer
-     * 
-     * @param dnsServer
-     *            The DNSServer
-     */
-    public void setDnsServer(DNSServer dnsServer) {
-        this.dnsServer = dnsServer;
-    }
 
     /**
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
@@ -92,7 +69,7 @@ public class ReverseEqualsEhloHeloHandler extends AbstractCommandHandler impleme
         if (!session.isRelayingAllowed() || checkAuthNetworks) {
             try {
                 // get reverse entry
-                String reverse = dnsServer.getByName(
+                String reverse = getDnsServer().getByName(
                         session.getRemoteIPAddress()).getHostName();
 
                 if (!argument.equals(reverse)) {

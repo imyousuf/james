@@ -212,8 +212,8 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
             ContainerUtil.configure(handler, config);
 
             // if it is a connect handler add it to list of connect handlers
-            if (handler instanceof ConnectHandler) {
-                connectHandlers.add((ConnectHandler) handler);
+            if (handler instanceof AbstractConnectHandler) {
+                connectHandlers.add((AbstractConnectHandler) handler);
                 if (getLogger().isInfoEnabled()) {
                     getLogger().info("Added ConnectHandler: " + className);
                 }
@@ -269,8 +269,8 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
             }
 
             // if it is a message handler add it to list of message handlers
-            if (handler instanceof MessageHandler) {
-                messageHandlers.add((MessageHandler) handler);
+            if (handler instanceof AbstractMessageHandler) {
+                messageHandlers.add((AbstractMessageHandler) handler);
                 if (getLogger().isInfoEnabled()) {
                     getLogger().info("Added MessageHandler: " + className);
                 }
