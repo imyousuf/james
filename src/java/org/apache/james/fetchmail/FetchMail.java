@@ -651,50 +651,50 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
         fieldConfiguration = configuration;
     }
 
-/**
- * Sets the server.
- * @param server The server to set
- */
-protected void setServer(MailServer server)
-{
-    fieldServer = server;
-}
-
-/**
- * Returns the localUsers.
- * @return UsersRepository
- */
-protected UsersRepository getLocalUsers()
-{
-    return fieldLocalUsers;
-}
-
-/**
- * Sets the localUsers.
- * @param localUsers The localUsers to set
- */
-protected void setLocalUsers(UsersRepository localUsers)
-{
-    fieldLocalUsers = localUsers;
-}
-
-/**
- * Returns the DNSServer.
- * @return DNSServer 
- */
-protected DNSServer getDNSServer()
-{
-    return dnsServer;
-}
-
-/**
- * Sets the DNSServer.
- * @param dnsServer The DNSServer to set
- */
-protected void setDNSServer(DNSServer dnsServer)
-{
-    this.dnsServer = dnsServer;
-}
+    /**
+     * Sets the server.
+     * @param server The server to set
+     */
+    protected void setServer(MailServer server)
+    {
+        fieldServer = server;
+    }
+    
+    /**
+     * Returns the localUsers.
+     * @return UsersRepository
+     */
+    protected UsersRepository getLocalUsers()
+    {
+        return fieldLocalUsers;
+    }
+    
+    /**
+     * Sets the localUsers.
+     * @param localUsers The localUsers to set
+     */
+    protected void setLocalUsers(UsersRepository localUsers)
+    {
+        fieldLocalUsers = localUsers;
+    }
+    
+    /**
+     * Returns the DNSServer.
+     * @return DNSServer 
+     */
+    protected DNSServer getDNSServer()
+    {
+        return dnsServer;
+    }
+    
+    /**
+     * Sets the DNSServer.
+     * @param dnsServer The DNSServer to set
+     */
+    protected void setDNSServer(DNSServer dnsServer)
+    {
+        this.dnsServer = dnsServer;
+    }
 
 
     /**
@@ -916,7 +916,7 @@ protected void setDNSServer(DNSServer dnsServer)
 
     /**
      * Sets the ParsedDynamicAccountParameters.
-     * @param ParsedDynamicAccountParameters The ParsedDynamicAccountParametersto set
+     * @param parsedDynamicAccountParameters The ParsedDynamicAccountParameters to set
      */
     protected void setParsedDynamicAccountParameters(List parsedDynamicAccountParameters)
     {
