@@ -67,6 +67,10 @@ public class FetchScheduler
 
     private ArrayList theFetchTaskNames = new ArrayList();
 
+    public void setScheduler(TimeScheduler scheduler) {
+        this.scheduler = scheduler;
+    }
+
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service( ServiceManager )
      */
@@ -91,33 +95,37 @@ public class FetchScheduler
         enabled = conf.getAttributeAsBoolean("enabled", false);
         if (enabled)
         {
-            scheduler = (TimeScheduler) m_manager.lookup(TimeScheduler.ROLE);
+            TimeScheduler scheduler = (TimeScheduler) m_manager.lookup(TimeScheduler.ROLE);
+            setScheduler(scheduler);
+
             Configuration[] fetchConfs = conf.getChildren("fetch");
             for (int i = 0; i < fetchConfs.length; i++)
             {
-                FetchMail fetcher = new FetchMail();
+                // read configuration
                 Configuration fetchConf = fetchConfs[i];
                 String fetchTaskName = fetchConf.getAttribute("name");
+                Integer interval = new Integer(fetchConf.getChild("interval").getValue());
+
+                FetchMail fetcher = new FetchMail();
+                
+                // avalon specific initialization
                 ContainerUtil.enableLogging(fetcher,getLogger().getChildLogger(fetchTaskName));
                 ContainerUtil.service(fetcher,m_manager);
                 ContainerUtil.configure(fetcher,fetchConf);
-                Integer interval =
-                    new Integer(fetchConf.getChild("interval").getValue());
-                PeriodicTimeTrigger fetchTrigger =
-                    new PeriodicTimeTrigger(0, interval.intValue());
 
+                // initialize scheduling
+                PeriodicTimeTrigger fetchTrigger =
+                        new PeriodicTimeTrigger(0, interval.intValue());
                 scheduler.addTrigger(fetchTaskName, fetchTrigger, fetcher);
                 theFetchTaskNames.add(fetchTaskName);
             }
 
-            if (getLogger().isInfoEnabled())
-                getLogger().info("FetchMail Started");
+            if (getLogger().isInfoEnabled()) getLogger().info("FetchMail Started");
             System.out.println("FetchMail Started");
         }
         else
         {
-            if (getLogger().isInfoEnabled())
-                getLogger().info("FetchMail Disabled");
+            if (getLogger().isInfoEnabled()) getLogger().info("FetchMail Disabled");
             System.out.println("FetchMail Disabled");
         }
     }

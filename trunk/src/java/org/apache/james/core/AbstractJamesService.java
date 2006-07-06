@@ -149,7 +149,7 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
     /**
      * The component manager used by this service.
      */
-    private ServiceManager compMgr;
+    private ServiceManager componentManager;
 
     /**
      * Whether this service is enabled.
@@ -177,14 +177,19 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
      */
     protected WatchdogFactory theWatchdogFactory = null;
 
+    public void setConnectionManager(JamesConnectionManager connectionManager) {
+        this.connectionManager = connectionManager;
+    }
+
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
     public void service(ServiceManager comp) throws ServiceException {
         super.service( comp );
-        compMgr               = comp;
-        connectionManager =
-            (JamesConnectionManager)compMgr.lookup(JamesConnectionManager.ROLE);
+        componentManager = comp;
+        JamesConnectionManager connectionManager =
+            (JamesConnectionManager)componentManager.lookup(JamesConnectionManager.ROLE);
+        setConnectionManager(connectionManager);
     }
 
     /**
@@ -259,6 +264,50 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
             throw new ConfigurationException( "Malformed bind parameter in configuration of service " + getServiceType(), unhe );
         }
 
+        configureHelloName(handlerConfiguration);
+
+        timeout = handlerConfiguration.getChild(TIMEOUT_NAME).getValueAsInteger(DEFAULT_TIMEOUT);
+
+        infoBuffer =
+            new StringBuffer(64)
+                    .append(getServiceType())
+                    .append(" handler connection timeout is: ")
+                    .append(timeout);
+        getLogger().info(infoBuffer.toString());
+
+        backlog = conf.getChild(BACKLOG_NAME).getValueAsInteger(DEFAULT_BACKLOG);
+
+        infoBuffer =
+                    new StringBuffer(64)
+                    .append(getServiceType())
+                    .append(" connection backlog is: ")
+                    .append(backlog);
+        getLogger().info(infoBuffer.toString());
+
+        String connectionLimitString = conf.getChild("connectionLimit").getValue(null);
+        if (connectionLimitString != null) {
+            try {
+                connectionLimit = new Integer(connectionLimitString);
+            } catch (NumberFormatException nfe) {
+                getLogger().error("Connection limit value is not properly formatted.", nfe);
+            }
+            if (connectionLimit.intValue() < 0) {
+                getLogger().error("Connection limit value cannot be less than zero.");
+                throw new ConfigurationException("Connection limit value cannot be less than zero.");
+            }
+        } else {
+            connectionLimit = new Integer(connectionManager.getMaximumNumberOfOpenConnections());
+        }
+        infoBuffer = new StringBuffer(128)
+            .append(getServiceType())
+            .append(" will allow a maximum of ")
+            .append(connectionLimit.intValue())
+            .append(" connections.");
+        getLogger().info(infoBuffer.toString());
+    }
+
+    private void configureHelloName(Configuration handlerConfiguration) {
+        StringBuffer infoBuffer;
         String hostName = null;
         try {
             hostName = InetAddress.getLocalHost().getHostName();
@@ -286,47 +335,6 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
                     .append(" handler hello name is: ")
                     .append(helloName);
         getLogger().info(infoBuffer.toString());
-
-        timeout = handlerConfiguration.getChild(TIMEOUT_NAME).getValueAsInteger(DEFAULT_TIMEOUT);
-
-        infoBuffer =
-            new StringBuffer(64)
-                    .append(getServiceType())
-                    .append(" handler connection timeout is: ")
-                    .append(timeout);
-        getLogger().info(infoBuffer.toString());
-
-        backlog = conf.getChild(BACKLOG_NAME).getValueAsInteger(DEFAULT_BACKLOG);
-
-        infoBuffer =
-                    new StringBuffer(64)
-                    .append(getServiceType())
-                    .append(" connection backlog is: ")
-                    .append(backlog);
-        getLogger().info(infoBuffer.toString());
-
-        if (connectionManager instanceof JamesConnectionManager) {
-            String connectionLimitString = conf.getChild("connectionLimit").getValue(null);
-            if (connectionLimitString != null) {
-                try {
-                    connectionLimit = new Integer(connectionLimitString);
-                } catch (NumberFormatException nfe) {
-                    getLogger().error("Connection limit value is not properly formatted.", nfe);
-                }
-                if (connectionLimit.intValue() < 0) {
-                    getLogger().error("Connection limit value cannot be less than zero.");
-                    throw new ConfigurationException("Connection limit value cannot be less than zero.");
-                }
-            } else {
-                connectionLimit = new Integer(((JamesConnectionManager)connectionManager).getMaximumNumberOfOpenConnections());
-            }
-            infoBuffer = new StringBuffer(128)
-                .append(getServiceType())
-                .append(" will allow a maximum of ")
-                .append(connectionLimit.intValue())
-                .append(" connections.");
-            getLogger().info(infoBuffer.toString());
-        }
     }
 
     /**
@@ -340,25 +348,44 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
         }
         getLogger().debug(getServiceType() + " init...");
 
-        SocketManager socketManager = (SocketManager) compMgr.lookup(SocketManager.ROLE);
+        // keeping these looked up services locally, because they are only needed beyond initialization
+        ThreadManager threadManager = (ThreadManager) componentManager.lookup(ThreadManager.ROLE);
+        SocketManager socketManager = (SocketManager) componentManager.lookup(SocketManager.ROLE);
+        
+        initializeThreadPool(threadManager);
 
-        ThreadManager threadManager = (ThreadManager) compMgr.lookup(ThreadManager.ROLE);
+        initializeServerSocket(socketManager);
 
+        getLogger().debug(getServiceType() + " ...init end");
+
+        initializeHandlerPool();
+        
+        // do avalon specific preparations
+        ContainerUtil.enableLogging(theHandlerPool, getLogger());
+        ContainerUtil.initialize(theHandlerPool);
+
+        theWatchdogFactory = getWatchdogFactory();
+
+    }
+
+    private void initializeThreadPool(ThreadManager threadManager) {
         if (threadGroup != null) {
             threadPool = threadManager.getThreadPool(threadGroup);
         } else {
             threadPool = threadManager.getDefaultThreadPool();
         }
+    }
 
+    private void initializeServerSocket(SocketManager socketManager) throws Exception {
         ServerSocketFactory factory = socketManager.getServerSocketFactory(serverSocketType);
         ServerSocket serverSocket = factory.createServerSocket(port, backlog, bindTo);
-    
+
         if (null == connectionName) {
             final StringBuffer sb = new StringBuffer();
             sb.append(serverSocketType);
             sb.append(':');
             sb.append(port);
-    
+
             if (null != bindTo) {
                 sb.append('/');
                 sb.append(bindTo);
@@ -366,30 +393,27 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
             connectionName = sb.toString();
         }
 
-        if ((connectionLimit != null) &&
-            (connectionManager instanceof JamesConnectionManager)) {
+        if ((connectionLimit != null)) {
             if (null != threadPool) {
-                ((JamesConnectionManager)connectionManager).connect(connectionName, serverSocket, this, threadPool, connectionLimit.intValue());
-            }
-            else {
-                ((JamesConnectionManager)connectionManager).connect(connectionName, serverSocket, this, connectionLimit.intValue()); // default pool
+                connectionManager.connect(connectionName, serverSocket, this, threadPool, connectionLimit.intValue());
+            } else {
+                connectionManager.connect(connectionName, serverSocket, this, connectionLimit.intValue()); // default pool
             }
         } else {
             if (null != threadPool) {
                 connectionManager.connect(connectionName, serverSocket, this, threadPool);
-            }
-            else {
+            } else {
                 connectionManager.connect(connectionName, serverSocket, this); // default pool
             }
         }
+    }
 
-        getLogger().debug(getServiceType() + " ...init end");
-
+    private void initializeHandlerPool() throws Exception {
         StringBuffer logBuffer =
-            new StringBuffer(64)
-                .append(getServiceType())
-                .append(" started ")
-                .append(connectionName);
+                new StringBuffer(64)
+                        .append(getServiceType())
+                        .append(" started ")
+                        .append(connectionName);
         String logString = logBuffer.toString();
         System.out.println(logString);
         getLogger().info(logString);
@@ -405,11 +429,6 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
             theHandlerPool = new DefaultPool(theHandlerFactory, null, 5, 30);
             getLogger().debug("Using an unbounded pool for "+getServiceType()+" handlers.");
         }
-        ContainerUtil.enableLogging(theHandlerPool, getLogger());
-        ContainerUtil.initialize(theHandlerPool);
-
-        theWatchdogFactory = getWatchdogFactory();
-
     }
 
     /**
@@ -455,7 +474,7 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
             getLogger().warn(warnBuffer.toString(), e);
         }
 
-        compMgr = null;
+        componentManager = null;
 
         connectionManager = null;
         threadPool = null;
@@ -463,7 +482,7 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
         // This is needed to make sure sockets are promptly closed on Windows 2000
         // TODO: Check this - shouldn't need to explicitly gc to force socket closure
         System.gc();
-    
+
         getLogger().debug(getServiceType() + " ...dispose end");
     }
 

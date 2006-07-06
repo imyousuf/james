@@ -87,7 +87,7 @@ public class AvalonMailStore
     }
 
     /**
-     * @see org.apache.avalon.framework.service.Servicable#service(ServiceManager)
+     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
     public void service( final ServiceManager manager )
         throws ServiceException

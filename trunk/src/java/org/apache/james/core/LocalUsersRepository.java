@@ -32,9 +32,14 @@ public class LocalUsersRepository implements UsersRepository, Serviceable, Initi
     private UsersStore usersStore;
     private UsersRepository users;
 
+    public void setUsersStore(UsersStore usersStore) {
+        this.usersStore = usersStore;
+    }
+
     public void service(ServiceManager serviceManager) throws ServiceException {
-        usersStore =
+        UsersStore usersStore =
            (UsersStore) serviceManager.lookup(UsersStore.ROLE);
+        setUsersStore(usersStore);
     }
 
     public void initialize() throws Exception {
