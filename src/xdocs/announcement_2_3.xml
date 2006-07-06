@@ -19,13 +19,14 @@ API.  With its Mailet pipeline architecture, James can be used not only to provi
 services, but also to implement custom e-mail applications.</p>
 
 <p>The James mail server is deployed in production environments and has proven itself to be a robust 
-and high performance mail solution.  Tests indicate that version 2.1 is able to maintain a constant 
+and high performance mail solution.  Tests indicate that version 2.3 is able to maintain a constant 
 mail throughput rate of thousands of messages/minute for continuous periods.</p>
 
 <p>The James Community is also happy to announce the beginning of the design phase for James version 
 3.0.  Features tentatively slated for that version include enhancements to nearly every area of 
 functionality, including full IMAP support, improved mailing list capabilities, fastfail support, 
-smtp-api for developing own fastfail filters and the next revision of the Mailet API.  This is expected to be an exciting time in James development.  We are actively 
+smtp-api for developing own fastfail filters and the next revision of the Mailet API.  This is expected
+to be an exciting time in James development.  We are actively 
 looking for eager, capable developers to contribute to James.  If you're interesting in contributing 
 to the James project, please subscribe to the James developer mailing list.</p>
 

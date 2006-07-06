@@ -6,10 +6,9 @@
   </properties>
   <body>
     <section name="This list">
-      <p>Special thanks go to the following people for their contributions to this project.  We also appreciate documentation, feedback, and bug reports.  This is a living document that describes the key contributors to James. Last Updated January 2004.</p>
+      <p>Special thanks go to the following people for their contributions to this project.  We also appreciate documentation, feedback, and bug reports.  This is a living document that describes the key contributors to James. Last Updated July 2006.</p>
     </section>
     <section name="Active Commiters">
-      
       <p>
         <b>Serge Knystautas (sergek at lokitech.com) (SK)</b>
         <br/> Serge was the original donator of the James code, which has since been massively improved by people smarter than him.  He tries to answer questions on the listserv and make code contributions when he does get a rare bit of free time.</p>
@@ -18,12 +17,11 @@
       </p>
       <p>
         <b>Danny Angus (danny at apache.org) (DA)</b>
-        <br/> Danny is a member of the Apache Software Foundation and married father of two by night, and by day works as lead technical consultant for the <a href="http://www.slc.co.uk">Student Loans Company ltd</a>.</p>
-      
+        <br/> Danny is a member of the Apache Software Foundation and married father of two by night, and by day works as lead technical consultant for the <a href="http://www.slc.co.uk">Student Loans Company ltd</a>.
+      </p>
       <p>
         <b>Noel J. Bergman (noel at devtech.com) (NjB)</b>
       </p>
-      
       <p>
         <b>Vincenzo Gianferrari Pini (vincenzo.gianferraripini at praxis.it) [VGP]</b>
       </p>

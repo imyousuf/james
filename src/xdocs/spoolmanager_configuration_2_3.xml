@@ -13,12 +13,16 @@ The spoolmanager tag defines the boundaries of the configuration block.  The beh
 the SpoolManager, most importantly the routing of mail messages through the processor tree,
 is controlled by this block.</p>
 
-<p>The spoolmanager tag has a few simple children.  These are:</p>
+<p>The spoolmanager tag has only one children.  It is:</p>
 <ul>
 <li><strong>threads</strong> - This is a required positive integer element.  It specifies 
 the number of threads the SpoolManager will use to process messages in the spool.  This 
 parameter tends to substantially impact performance, so it is advisable to tune it in production 
 configurations.</li>
+</ul>
+
+<p>Spoolmanager depends on mailet and matcher packages, configured by these tags:</p>
+<ul>
 <li><strong>mailetpackages</strong> - This is a required container tag.  It contains some number 
 of <strong>mailetpackage</strong> children.  The body of each of these <strong>mailetpackage</strong> 
 elements is a Java package name.  It is these packages that contain the classes to be instantiated
