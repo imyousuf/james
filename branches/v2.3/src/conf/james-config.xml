@@ -1195,10 +1195,10 @@ Regards, Postmaster XXX.YYY
                  This, alone, may be reason for you to give it a try.
       -->
       
-      <!-- Out of the box default configuration uses Apache Derby as the default -->
-      <!-- database, which is easy to embed - but we support all the major SQL   -->
-      <!-- databases - just reconfigure your JDBC configuration                  -->
-      <!-- -->
+      <!-- Default James distribution includes Apache Derby database, -->
+      <!-- which is easy to embed - but we support all the major SQL   -->
+      <!-- databases - just reconfigure your JDBC configuration -->
+      <!--
       <data-source name="maildb" class="org.apache.james.util.dbcp.JdbcDataSource">
          <driver>org.apache.derby.jdbc.EmbeddedDriver</driver>
          <dburl>jdbc:derby:../apps/james/var/derbydb;create=true</dburl>
@@ -1207,7 +1207,7 @@ Regards, Postmaster XXX.YYY
          <poolPreparedStatements>true</poolPreparedStatements>
          <max>20</max>
       </data-source>
-      <!-- -->
+      -->
 
       <!-- JDBC driver .jar libraries for other RDBMS can be placed in ~james/lib/  -->
 
