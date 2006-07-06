@@ -544,6 +544,9 @@ Legal:
         <zipfileset dir="${conf.dir}" fullpath="conf/james-fetchmail.xml">
           <include name="james-fetchmail.xml"/>
         </zipfileset>
+        <zipfileset dir="${conf.dir}" fullpath="conf/james-smtphandlerchain.xml">
+          <include name="james-smtphandlerchain.xml"/>
+        </zipfileset>
         <zipfileset dir="${conf.dir}" fullpath="conf/miResources.xml">
           <include name="miResources.xml"/>
         </zipfileset>
