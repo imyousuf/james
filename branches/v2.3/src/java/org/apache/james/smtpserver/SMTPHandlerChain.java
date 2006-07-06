@@ -18,13 +18,16 @@
 package org.apache.james.smtpserver;
 
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Properties;
 
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.LogEnabled;
@@ -58,6 +61,32 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
      */
     public void configure(Configuration configuration) throws  ConfigurationException {
         addToMap(UnknownCmdHandler.UNKNOWN_COMMAND, unknownHandler);
+        if(configuration == null || configuration.getChildren("handler") == null || configuration.getChildren("handler").length == 0) {
+            configuration = new DefaultConfiguration("handlerchain");
+            Properties cmds = new Properties();
+            cmds.setProperty("AUTH",AuthCmdHandler.class.getName());
+            cmds.setProperty("DATA",DataCmdHandler.class.getName());
+            cmds.setProperty("EHLO",EhloCmdHandler.class.getName());
+            cmds.setProperty("EXPN",ExpnCmdHandler.class.getName());
+            cmds.setProperty("HELO",HeloCmdHandler.class.getName());
+            cmds.setProperty("HELP",HelpCmdHandler.class.getName());
+            cmds.setProperty("MAIL",MailCmdHandler.class.getName());
+            cmds.setProperty("NOOP",NoopCmdHandler.class.getName());
+            cmds.setProperty("QUIT",QuitCmdHandler.class.getName());
+            cmds.setProperty("RCPT" ,RcptCmdHandler.class.getName());
+            cmds.setProperty("RSET",RsetCmdHandler.class.getName());
+            cmds.setProperty("VRFY",VrfyCmdHandler.class.getName());
+            cmds.setProperty("Default SendMailHandler",SendMailHandler.class.getName());
+            Enumeration e = cmds.keys();
+            while (e.hasMoreElements()) {
+                String cmdName = (String) e.nextElement();
+                String className = cmds.getProperty(cmdName);
+                DefaultConfiguration cmdConf = new DefaultConfiguration("handler");
+                cmdConf.setAttribute("command",cmdName);
+                cmdConf.setAttribute("class",className);
+                ((DefaultConfiguration) configuration).addChild(cmdConf);
+            }
+        }
         if(configuration != null) {
             Configuration[] children = configuration.getChildren("handler");
             if ( children != null ) {
