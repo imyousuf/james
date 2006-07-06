@@ -13,7 +13,7 @@
 
 <section name="TODO">
 <p>This is a living document that will give new and existing volunteers some areas where we need help.  As always, any help is appreciated, be it documentation, code, suggestions, or feedback.
-Last Updated  January 2005.</p>
+Last Updated July 2006.</p>
 </section>
 
 <section name="Cross-Service Issues">
@@ -36,12 +36,10 @@ within a fixed period of the POP3 authentication.</p>
 </section>
 
 <section name="SMTP Service">
-<p>Add support for the enhanced status codes extension (<a href="http://www.faqs.org/rfcs/rfc2034.html">RFC 2034</a>).</p>
 <p>Add support for the 8BITMIME extension.</p>
 <p>Expand the SMTP server so it supports a variety of SASL authentication mechanisms.</p>
 <p>Complete support for delivery service notification (<a href="http://www.faqs.org/rfcs/rfc1891.html">RFC 1891</a>).</p>
 <p>Discuss optional support for VRFY and EXPN.</p>
-<p>Discuss some form of spam filtering that would allow filtering before messages are fully read in from the network.</p>
 </section>
 
 <section name="IMAP Service">
@@ -76,7 +74,6 @@ and a full suite of mail-driven commands.</p>
 </section>
 <section name="SpoolManager">
 <p>Add support for better mailet router/processing (maybe like RequestDispatcher) - Use Stage/Pipeline pattern</p>
-<p>Get classloaders working so custom mailets don't have to be in james.jar (SK: I suggest adding support for apps/james/classes and apps/james/lib directories and have the MailetLoader and MatcherLoader use these in addition to system level classpath).</p>
 <p>Add support for deployable message processing apps using Camelot pattern</p>
 </section>
 
@@ -93,4 +90,3 @@ and a full suite of mail-driven commands.</p>
 
 </body>
 </document>
-

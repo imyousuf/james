@@ -17,19 +17,19 @@ distribution yourself.
 <a href="http://james.apache.org/download.cgi">James release mirrors</a>.
 Simply choose the version of James you'd like to download, and pick the source distribution appropriate for your platform.
 </p>
-<p>2. Get the source code using CVS - this method gives you access to the cutting edge code 
-base.  Instructions on how to use CVS to get the James source code (the jakarta-james distribution) 
-can be found <a href="http://jakarta.apache.org/site/cvsindex.html">here</a>.
+<p>2. Get the source code using SVN - this method gives you access to the cutting edge code 
+base.  Instructions on how to use SVN to get the James source code (the jakarta-james distribution) 
+can be found <a href="http://www.apache.org/dev/version-control.html">here</a>.
+James server repository is <a href="http://svn.apache.org/repos/asf/james/server/">here</a>.
 </p>
 </section>
 <section name="Required Tools">
 <p>To run the build you need two third-party tools.</p>
-<p>1. Java Development Kit - You must have a JDK of Java version 1.3 or higher installed to build the 
+<p>1. Java Development Kit - You must have a JDK of Java version 1.4 or higher installed to build the 
 James distribution.  The exact JDKs available depend on the platform.  A JDK must be downloaded and
 installed before the build can run.</p>
-<p>2. Ant - This is a Java-tailored, XML-configured, extensible build or make system.  The James 
-source tree includes Ant v1.5.  You can get the latest version of Ant 
-<a href="http://ant.apache.org/">here</a>. </p>
+<p>2. Ant - This is a Java-tailored, XML-configured, extensible build or make system. You need ant (1.6+) in order
+to build James. You can get the latest version of Ant <a href="http://ant.apache.org/">here</a>. </p>
 </section>
 <section name="Building the Distribution">
 <p>In the top level directory of the source distribution you can use  ant, simple set the environment variable
@@ -43,6 +43,7 @@ JAVA_HOME to the base directory of the  JDK.  Then run the build with any of the
 <li>usage - prints out the usage instructions for the script.</li>
 <li>website - builds the entirety of the James website.</li>
 <li>xdocs - creates the documentaion for James.</li>
+<li>run-unit-tests - run unit tests for James.</li>
 </ul>
 </p>
 <p>All build products are output in the dist subdirectory of the James source distribution directory.  There 
