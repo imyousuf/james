@@ -32,20 +32,18 @@ import org.apache.mailet.Mail;
 /**
  * This MessageHandler could be used to check message against spamd before
  * accept the email. So its possible to reject a message on smtplevel if a
- * configured hits amount is reached. The handler add the follow attributes 
- * to the mail object:<br>
+ * configured hits amount is reached. The handler add the follow attributes to
+ * the mail object:<br>
  * org.apache.james.spamassassin.status - Holds the status
- * org.apache.james.spamassassin.flag   - Holds the flag
- * <br>
+ * org.apache.james.spamassassin.flag - Holds the flag <br>
  * 
  * Sample Configuration: <br>
  * <br>
  * &lt;handler class="org.apache.james.smtpserver.SpamAssassinHandler"&gt;
  * &lt;spamdHost&gt;localhost&lt;/spamdHost&gt;
  * &lt;spamdPort&gt;783&lt;/spamdPort&gt; <br>
- * &lt;spamdRejectionHits&gt;15.0&lt;/spamdRejectionHits&gt; 
- * &lt;checkAuthNetworks&gt;false&lt;/checkAuthNetworks&gt;
- * &lt;/handler&gt;
+ * &lt;spamdRejectionHits&gt;15.0&lt;/spamdRejectionHits&gt;
+ * &lt;checkAuthNetworks&gt;false&lt;/checkAuthNetworks&gt; &lt;/handler&gt;
  */
 public class SpamAssassinHandler extends AbstractLogEnabled implements
         MessageHandler, Configurable {
@@ -97,7 +95,8 @@ public class SpamAssassinHandler extends AbstractLogEnabled implements
     /**
      * Set to true if AuthNetworks should be included in the EHLO check
      * 
-     * @param checkAuthNetworks Set to true to enable
+     * @param checkAuthNetworks
+     *            Set to true to enable
      */
     public void setCheckAuthNetworks(boolean checkAuthNetworks) {
         this.checkAuthNetworks = checkAuthNetworks;
@@ -172,7 +171,7 @@ public class SpamAssassinHandler extends AbstractLogEnabled implements
                         String responseString = "554 "
                                 + DSNStatus.getStatus(DSNStatus.PERMANENT,
                                         DSNStatus.SECURITY_OTHER)
-                                + " This message extends the spam hits treshold. Please contact the Postmaster if the email is ham. Message rejected";
+                                + " This message reach the spam hits treshold. Please contact the Postmaster if the email is not SPAM. Message rejected";
                         StringBuffer buffer = new StringBuffer(256).append(
                                 "Rejected message from ").append(
                                 session.getState().get(SMTPSession.SENDER)
