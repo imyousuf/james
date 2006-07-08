@@ -16,6 +16,8 @@
  ***********************************************************************/
 package org.apache.james.transport.mailets;
 
+import java.util.Iterator;
+
 import org.apache.james.util.SpamAssassinInvoker;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
@@ -42,8 +44,6 @@ public class SpamAssassin extends GenericMailet {
     String spamdHost;
 
     int spamdPort;
-
-    String subjectPrefix;
 
     public void init() throws MessagingException {
         spamdHost = getInitParameter("spamdHost");
@@ -73,23 +73,16 @@ public class SpamAssassin extends GenericMailet {
             // Invoke spamassian connection and scan the message
             SpamAssassinInvoker sa = new SpamAssassinInvoker(spamdHost,
                     spamdPort);
-            boolean spam = sa.scanMail(message);
-            String hits = sa.getHits();
-            String required = sa.getRequiredHits();
+            sa.scanMail(message);
 
-            // message was spam
-            if (spam) {
-                // add headers
-                message.setHeader("X-Spam-Flag", "YES");
-                message.setHeader("X-Spam-Status", new StringBuffer(
-                        "Yes, hits=").append(hits).append(" required=").append(
-                        required).toString());
-            } else {
-                // add headers
-                message.setHeader("X-Spam-Status",
-                        new StringBuffer("No, hits=").append(hits).append(
-                                " required=").append(required).toString());
+            Iterator headers = sa.getHeaders().keySet().iterator();
+
+            // Add headers 
+            while (headers.hasNext()) {
+                String key = headers.next().toString();
+                message.setHeader(key, (String) sa.getHeaders().get(key));
             }
+
             message.saveChanges();
         } catch (MessagingException e) {
             log(e.getMessage());

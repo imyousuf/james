@@ -24,6 +24,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.StringTokenizer;
 
 /**
@@ -41,6 +42,8 @@ public class SpamAssassinInvoker {
     String hits = "?";
 
     String required = "?";
+
+    HashMap headers = new HashMap();
 
     public SpamAssassinInvoker(String spamdHost, int spamdPort) {
         this.spamdHost = spamdHost;
@@ -88,9 +91,20 @@ public class SpamAssassinInvoker {
                     required = t.nextToken();
 
                     if (spam) {
+                        // message was spam
+                        headers.put("X-Spam-Flag", "YES");
+                        headers.put("X-Spam-Status", new StringBuffer(
+                                "Yes, hits=").append(hits).append(" required=")
+                                .append(required).toString());
+
                         // spam detected
                         return true;
                     } else {
+                        // add headers
+                        headers.put("X-Spam-Status", new StringBuffer(
+                                "No, hits=").append(hits).append(" required=")
+                                .append(required).toString());
+
                         return false;
                     }
                 }
@@ -133,5 +147,14 @@ public class SpamAssassinInvoker {
      */
     public String getRequiredHits() {
         return required;
+    }
+
+    /**
+     * Return the headers which spamd should add
+     * 
+     * @return headers HashMap of headers to add
+     */
+    public HashMap getHeaders() {
+        return headers;
     }
 }
