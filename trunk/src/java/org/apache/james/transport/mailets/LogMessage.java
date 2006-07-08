@@ -45,6 +45,7 @@ public class LogMessage extends GenericMailet {
     private boolean headers = true;
     private boolean body = true;
     private int bodyMax = 0;
+    private String comment = null;
 
     /**
      * Initialize the mailet, loading configuration information.
@@ -54,7 +55,8 @@ public class LogMessage extends GenericMailet {
             passThrough = (getInitParameter("passThrough") == null) ? true : new Boolean(getInitParameter("passThrough")).booleanValue();
             headers = (getInitParameter("headers") == null) ? true : new Boolean(getInitParameter("headers")).booleanValue();
             passThrough = (getInitParameter("body") == null) ? true : new Boolean(getInitParameter("body")).booleanValue();
-        bodyMax = (getInitParameter("maxBody") == null) ? 0 : Integer.parseInt(getInitParameter("maxBody"));
+            bodyMax = (getInitParameter("maxBody") == null) ? 0 : Integer.parseInt(getInitParameter("maxBody"));
+        comment = getInitParameter("comment");
         } catch (Exception e) {
             // Ignore exception, default to true
         }
@@ -68,6 +70,7 @@ public class LogMessage extends GenericMailet {
     public void service(Mail genericmail) {
         MailImpl mail = (MailImpl)genericmail;
         log(new StringBuffer(160).append("Logging mail ").append(mail.getName()).toString());
+        if (comment != null) log(comment);
         try {
             if (headers) log(getMessageHeaders(mail.getMessage()));
             if (body) {
