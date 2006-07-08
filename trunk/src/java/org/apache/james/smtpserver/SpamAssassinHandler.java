@@ -28,13 +28,34 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.util.SpamAssassinInvoker;
 import org.apache.james.util.mail.dsn.DSNStatus;
 
+/**
+ * This MessageHandler could be used to check message against spamd before
+ * accept the email. So its possible to reject a message on smtplevel if a
+ * configured hits amount is reached.<br>
+ * 
+ * Sample Configuration: <br>
+ * <br>
+ * &lt;handler class="org.apache.james.smtpserver.SpamAssassinHandler"&gt;
+ * &lt;spamdHost&gt;localhost&lt;/spamdHost&gt;
+ * &lt;spamdPort&gt;783&lt;/spamdPort&gt; <br>
+ * &lt;spamdRejectionHits&gt;15.0&lt;/spamdRejectionHits&gt; &lt;/handler&gt;
+ */
 public class SpamAssassinHandler extends AbstractLogEnabled implements
         MessageHandler, Configurable {
 
+    /**
+     * The port spamd is listen on
+     */
     private int spamdPort = 783;
 
+    /**
+     * The host spamd is runnin on
+     */
     private String spamdHost = "localhost";
 
+    /**
+     * The hits on which the message get rejected
+     */
     private double spamdRejectionHits = 0.0;
 
     /**
