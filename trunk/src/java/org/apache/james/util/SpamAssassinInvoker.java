@@ -33,17 +33,19 @@ import java.util.StringTokenizer;
  */
 public class SpamAssassinInvoker {
 
-    String spamdHost;
+    public final static String STATUS_MAIL_ATTRIBUTE_NAME = "org.apache.james.spamassassin.status";
 
-    int spamdPort;
+    public final static String FLAG_MAIL_ATTRIBUTE_NAME = "org.apache.james.spamassassin.flag";
 
-    String subjectPrefix;
+    private String spamdHost;
 
-    String hits = "?";
+    private int spamdPort;
 
-    String required = "?";
+    private String hits = "?";
 
-    HashMap headers = new HashMap();
+    private String required = "?";
+
+    private HashMap headers = new HashMap();
 
     public SpamAssassinInvoker(String spamdHost, int spamdPort) {
         this.spamdHost = spamdHost;
@@ -51,11 +53,13 @@ public class SpamAssassinInvoker {
     }
 
     /**
-     * Scan a MimeMessage for spam by passing it to spamd. 
+     * Scan a MimeMessage for spam by passing it to spamd.
      * 
-     * @param message The MimeMessage to scan 
+     * @param message
+     *            The MimeMessage to scan
      * @return true if spam otherwise false
-     * @throws MessagingException if an error on scanning is detected
+     * @throws MessagingException
+     *             if an error on scanning is detected
      */
     public boolean scanMail(MimeMessage message) throws MessagingException {
         Socket socket = null;
@@ -92,18 +96,20 @@ public class SpamAssassinInvoker {
 
                     if (spam) {
                         // message was spam
-                        headers.put("X-Spam-Flag", "YES");
-                        headers.put("X-Spam-Status", new StringBuffer(
-                                "Yes, hits=").append(hits).append(" required=")
-                                .append(required).toString());
+                        headers.put(FLAG_MAIL_ATTRIBUTE_NAME, "YES");
+                        headers.put(STATUS_MAIL_ATTRIBUTE_NAME,
+                                new StringBuffer("Yes, hits=").append(hits)
+                                        .append(" required=").append(required)
+                                        .toString());
 
                         // spam detected
                         return true;
                     } else {
                         // add headers
-                        headers.put("X-Spam-Status", new StringBuffer(
-                                "No, hits=").append(hits).append(" required=")
-                                .append(required).toString());
+                        headers.put(STATUS_MAIL_ATTRIBUTE_NAME,
+                                new StringBuffer("No, hits=").append(hits)
+                                        .append(" required=").append(required)
+                                        .toString());
 
                         return false;
                     }
@@ -150,11 +156,11 @@ public class SpamAssassinInvoker {
     }
 
     /**
-     * Return the headers which spamd should add
+     * Return the headers as attributes which spamd generates
      * 
      * @return headers HashMap of headers to add
      */
-    public HashMap getHeaders() {
+    public HashMap getHeadersAsAttribute() {
         return headers;
     }
 }
