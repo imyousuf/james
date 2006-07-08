@@ -64,14 +64,19 @@ public class MailStoreSpoolRepository
      * The repository configuration
      */
     private Configuration configuration;
+
     
+    private void setStore(Store store) {
+        mailStore = store;
+    }
+
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
      */
     public void service(ServiceManager serviceManager) throws ServiceException {
-        mailStore = (Store) serviceManager.lookup(Store.ROLE);
+        Store mailStore = (Store) serviceManager.lookup(Store.ROLE);
+        setStore(mailStore);
     }
-
 
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(org.apache.avalon.framework.configuration.Configuration)
@@ -118,7 +123,7 @@ public class MailStoreSpoolRepository
     }
 
     /**
-     * @see org.apache.james.services.MailRepository#store(org.apache.james.core.MailImpl)
+     * @see org.apache.james.services.MailRepository#store(org.apache.mailet.Mail)
      */
     public void store(Mail mc) throws MessagingException {
         spoolRep.store(mc);
@@ -139,7 +144,7 @@ public class MailStoreSpoolRepository
     }
 
     /**
-     * @see org.apache.james.services.MailRepository#remove(org.apache.james.core.MailImpl)
+     * @see org.apache.james.services.MailRepository#remove(org.apache.mailet.Mail)
      */
     public void remove(Mail mail) throws MessagingException {
         spoolRep.remove(mail);

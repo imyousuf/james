@@ -67,20 +67,24 @@ public class AvalonMailRepository
     protected final static boolean DEEP_DEBUG = false;
 
     private Lock lock;
-    private Store store;
-    private StreamRepository sr;
-    private ObjectRepository or;
+    private Store store; // variable is not used beyond initialization
+    private StreamRepository streamRepository;
+    private ObjectRepository objectRepository;
     private String destination;
     private Set keys;
     private boolean fifo;
     private boolean cacheKeys; // experimental: for use with write mostly repositories such as spam and error
 
+    private void setStore(Store store) {
+        this.store = store;
+    }
+
     /**
-     * @see org.apache.avalon.framework.service.Serviceable#compose(ServiceManager )
+     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager )
      */
     public void service( final ServiceManager componentManager )
             throws ServiceException {
-        store = (Store)componentManager.lookup( Store.ROLE );
+        setStore((Store)componentManager.lookup( Store.ROLE ));
     }
 
     /**
@@ -111,36 +115,19 @@ public class AvalonMailRepository
     public void initialize()
             throws Exception {
         try {
-            //prepare Configurations for object and stream repositories
-            DefaultConfiguration objectConfiguration
-                = new DefaultConfiguration( "repository",
-                                            "generated:AvalonFileRepository.compose()" );
+            objectRepository = (ObjectRepository) selectRepository(store, "OBJECT");
+            streamRepository = (StreamRepository) selectRepository(store, "STREAM");
 
-            objectConfiguration.setAttribute("destinationURL", destination);
-            objectConfiguration.setAttribute("type", "OBJECT");
-            objectConfiguration.setAttribute("model", "SYNCHRONOUS");
-
-            DefaultConfiguration streamConfiguration
-                = new DefaultConfiguration( "repository",
-                                            "generated:AvalonFileRepository.compose()" );
-
-            streamConfiguration.setAttribute( "destinationURL", destination );
-            streamConfiguration.setAttribute( "type", "STREAM" );
-            streamConfiguration.setAttribute( "model", "SYNCHRONOUS" );
-
-            sr = (StreamRepository) store.select(streamConfiguration);
-            or = (ObjectRepository) store.select(objectConfiguration);
             lock = new Lock();
             if (cacheKeys) keys = Collections.synchronizedSet(new HashSet());
 
-
             //Finds non-matching pairs and deletes the extra files
             HashSet streamKeys = new HashSet();
-            for (Iterator i = sr.list(); i.hasNext(); ) {
+            for (Iterator i = streamRepository.list(); i.hasNext(); ) {
                 streamKeys.add(i.next());
             }
             HashSet objectKeys = new HashSet();
-            for (Iterator i = or.list(); i.hasNext(); ) {
+            for (Iterator i = objectRepository.list(); i.hasNext(); ) {
                 objectKeys.add(i.next());
             }
 
@@ -162,14 +149,14 @@ public class AvalonMailRepository
                 // Next get a list from the object repository
                 // and use that for the list of keys
                 keys.clear();
-                for (Iterator i = or.list(); i.hasNext(); ) {
+                for (Iterator i = objectRepository.list(); i.hasNext(); ) {
                     keys.add(i.next());
                 }
             }
             if (getLogger().isDebugEnabled()) {
                 StringBuffer logBuffer =
                     new StringBuffer(128)
-                            .append(this.getClass().getName())
+                            .append(getClass().getName())
                             .append(" created in ")
                             .append(destination);
                 getLogger().debug(logBuffer.toString());
@@ -179,6 +166,17 @@ public class AvalonMailRepository
             getLogger().error( message, e );
             throw e;
         }
+    }
+
+    private Object selectRepository(Store store, String type) throws ServiceException {
+        DefaultConfiguration objectConfiguration
+            = new DefaultConfiguration( "repository",
+                                        "generated:AvalonFileRepository.compose()" );
+
+        objectConfiguration.setAttribute("destinationURL", destination);
+        objectConfiguration.setAttribute("type", type);
+        objectConfiguration.setAttribute("model", "SYNCHRONOUS");
+        return store.select(objectConfiguration);
     }
 
     /**
@@ -296,14 +294,14 @@ public class AvalonMailRepository
                 if (saveStream) {
                     OutputStream out = null;
                     try {
-                        out = sr.put(key);
+                        out = streamRepository.put(key);
                         mc.getMessage().writeTo(out);
                     } finally {
                         if (out != null) out.close();
                     }
                 }
                 //Always save the header information
-                or.put(key, mc);
+                objectRepository.put(key, mc);
             } finally {
                 if (!wasLocked) {
                     // If it wasn't locked, we need to unlock now
@@ -343,7 +341,7 @@ public class AvalonMailRepository
         try {
             Mail mc = null;
             try {
-                mc = (Mail) or.get(key);
+                mc = (Mail) objectRepository.get(key);
             } 
             catch (RuntimeException re){
                 StringBuffer exceptionBuffer = new StringBuffer(128);
@@ -359,7 +357,7 @@ public class AvalonMailRepository
                 getLogger().warn(exceptionBuffer.toString());
                 return null;
             }
-            MimeMessageAvalonSource source = new MimeMessageAvalonSource(sr, destination, key);
+            MimeMessageAvalonSource source = new MimeMessageAvalonSource(streamRepository, destination, key);
             mc.setMessage(new MimeMessageCopyOnWriteProxy(source));
 
             return mc;
@@ -401,8 +399,8 @@ public class AvalonMailRepository
         if (lock(key)) {
             try {
                 if (keys != null) keys.remove(key);
-                sr.remove(key);
-                or.remove(key);
+                streamRepository.remove(key);
+                objectRepository.remove(key);
             } finally {
                 unlock(key);
             }
@@ -430,7 +428,7 @@ public class AvalonMailRepository
             clone = new ArrayList(keys);
         } else {
             clone = new ArrayList();
-            for (Iterator i = or.list(); i.hasNext(); ) {
+            for (Iterator i = objectRepository.list(); i.hasNext(); ) {
                 clone.add(i.next());
             }
         }

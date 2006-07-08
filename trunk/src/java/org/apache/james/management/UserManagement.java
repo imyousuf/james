@@ -42,6 +42,14 @@ public class UserManagement implements UserManagementMBean, Serviceable {
     private UsersRepository localUsers;
     private UsersStore usersStore;
 
+    public void setLocalUsers(UsersRepository localUsers) {
+        this.localUsers = localUsers;
+    }
+
+    public void setUsersStore(UsersStore usersStore) {
+        this.usersStore = usersStore;
+    }
+
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
      */
@@ -51,10 +59,12 @@ public class UserManagement implements UserManagementMBean, Serviceable {
         if (localUsers == null) {
             throw new ServiceException("","The local user repository could not be found.");
         }
+        setLocalUsers(localUsers);
         usersStore = (UsersStore)componentManager.lookup( UsersStore.ROLE );
         if (usersStore == null) {
             throw new ServiceException("","The user store containing the user repositories could not be found.");
         }
+        setUsersStore(usersStore);
     }
 
     private JamesUser getJamesUser(String userName, String repositoryName) throws UserManagementException {

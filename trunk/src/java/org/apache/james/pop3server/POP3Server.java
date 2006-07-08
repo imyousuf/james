@@ -68,15 +68,25 @@ public class POP3Server extends AbstractJamesService implements POP3ServerMBean 
 
     private ServiceManager serviceManager;
 
+    public void setMailServer(MailServer mailServer) {
+        this.mailServer = mailServer;
+    }
+
+    public void setUsers(UsersRepository users) {
+        this.users = users;
+    }
+
     /**
-     * @see org.apache.avalon.framework.service.Serviceable#compose(ServiceManager)
+     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager) 
      */
     public void service( final ServiceManager componentManager )
         throws ServiceException {
         super.service(componentManager);
         serviceManager = componentManager;
-        mailServer = (MailServer)componentManager.lookup( MailServer.ROLE );
-        users = (UsersRepository)componentManager.lookup( UsersRepository.ROLE );
+        MailServer mailServer = (MailServer)componentManager.lookup( MailServer.ROLE );
+        setMailServer(mailServer);
+        UsersRepository users = (UsersRepository)componentManager.lookup( UsersRepository.ROLE );
+        setUsers(users);
     }
 
     /**
@@ -159,7 +169,7 @@ public class POP3Server extends AbstractJamesService implements POP3ServerMBean 
         }
 
         /**
-         * @see org.apache.avalon.excalibur.pool.ObjectFactory#decommision(Object)
+         * @see org.apache.avalon.excalibur.pool.ObjectFactory#decommission(Object) 
          */
         public void decommission( Object object ) throws Exception {
             return;

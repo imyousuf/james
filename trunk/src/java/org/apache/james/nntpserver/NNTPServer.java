@@ -40,12 +40,20 @@ public class NNTPServer extends AbstractJamesService implements NNTPServerMBean 
     /**
      * The repository that stores the news articles for this NNTP server.
      */
-    private NNTPRepository repo;
+    private NNTPRepository repository;
 
     /**
      * The repository that stores the local users.  Used for authentication.
      */
     private UsersRepository userRepository = null;
+
+    public void setUserRepository(UsersRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    public void setRepository(NNTPRepository repository) {
+        this.repository = repository;
+    }
 
     /**
      * The configuration data to be passed to the handler
@@ -59,11 +67,12 @@ public class NNTPServer extends AbstractJamesService implements NNTPServerMBean 
     public void service( final ServiceManager componentManager )
         throws ServiceException {
         super.service(componentManager);
-        userRepository = (UsersRepository)componentManager.lookup(UsersRepository.ROLE);
+        UsersRepository userRepository = (UsersRepository)componentManager.lookup(UsersRepository.ROLE);
+        setUserRepository(userRepository);
 
-        repo = (NNTPRepository)componentManager
+        NNTPRepository repo = (NNTPRepository)componentManager
             .lookup("org.apache.james.nntpserver.repository.NNTPRepository");
-
+        setRepository(repo);
     }
 
     /**
@@ -121,7 +130,7 @@ public class NNTPServer extends AbstractJamesService implements NNTPServerMBean 
         }
 
         /**
-         * @see org.apache.avalon.excalibur.pool.ObjectFactory#decommision(Object)
+         * @see org.apache.avalon.excalibur.pool.ObjectFactory#decommission(Object) 
          */
         public void decommission( Object object ) throws Exception {
             return;
@@ -135,31 +144,31 @@ public class NNTPServer extends AbstractJamesService implements NNTPServerMBean 
         implements NNTPHandlerConfigurationData {
 
         /**
-         * @see org.apache.james.smtpserver.NNTPHandlerConfigurationData#getHelloName()
+         * @see org.apache.james.nntpserver.NNTPHandlerConfigurationData#getHelloName()
          */
         public String getHelloName() {
             return NNTPServer.this.helloName;
         }
 
         /**
-         * @see org.apache.james.smtpserver.NNTPHandlerConfigurationData#isAuthRequired()
+         * @see org.apache.james.nntpserver.NNTPHandlerConfigurationData#isAuthRequired()
          */
         public boolean isAuthRequired() {
             return NNTPServer.this.authRequired;
         }
 
         /**
-         * @see org.apache.james.smtpserver.NNTPHandlerConfigurationData#getUsersRepository()
+         * @see org.apache.james.nntpserver.NNTPHandlerConfigurationData#getUsersRepository()
          */
         public UsersRepository getUsersRepository() {
             return NNTPServer.this.userRepository;
         }
 
         /**
-         * @see org.apache.james.smtpserver.NNTPHandlerConfigurationData#getNNTPRepository()
+         * @see org.apache.james.nntpserver.NNTPHandlerConfigurationData#getNNTPRepository()
          */
         public NNTPRepository getNNTPRepository() {
-            return NNTPServer.this.repo;
+            return NNTPServer.this.repository;
         }
 
     }

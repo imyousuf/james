@@ -75,7 +75,27 @@ public class RemoteManager
     /**
      * There reference to the Store
      */
-    private Store mailStore;
+    private Store store;
+
+    public void setUsersStore(UsersStore usersStore) {
+        this.usersStore = usersStore;
+    }
+
+    public void setUsers(UsersRepository users) {
+        this.users = users;
+    }
+
+    public void setSpoolManagement(SpoolManagementService spoolManagement) {
+        this.spoolManagement = spoolManagement;
+    }
+
+    public void setMailServer(MailServer mailServer) {
+        this.mailServer = mailServer;
+    }
+
+    public void setStore(Store store) {
+        this.store = store;
+    }
 
     /**
      * The configuration data to be passed to the handler
@@ -89,17 +109,21 @@ public class RemoteManager
     public void service( final ServiceManager componentManager )
         throws ServiceException {
         super.service(componentManager);
-        mailServer = (MailServer)componentManager.
-            lookup( MailServer.ROLE );
-        mailStore = (Store)componentManager.
+        MailServer mailServer = (MailServer)componentManager.lookup(MailServer.ROLE );
+        setMailServer(mailServer);
+        Store store = (Store)componentManager.
             lookup( "org.apache.avalon.cornerstone.services.store.Store" );
-        usersStore = (UsersStore)componentManager.
-            lookup( UsersStore.ROLE );
-        users = (UsersRepository) componentManager.lookup(UsersRepository.ROLE);
+        setStore(store);
+        UsersStore usersStore = (UsersStore)componentManager. lookup(UsersStore.ROLE );
+        setUsersStore(usersStore);
+        UsersRepository users = (UsersRepository) componentManager.lookup(UsersRepository.ROLE);
         if (users == null) {
             throw new ServiceException("","The user repository could not be found.");
         }
-        spoolManagement = (SpoolManagementService) componentManager.lookup(SpoolManagementService.ROLE);
+        setUsers(users);
+        SpoolManagementService spoolManagement = 
+            (SpoolManagementService) componentManager.lookup(SpoolManagementService.ROLE);
+        setSpoolManagement(spoolManagement);
     }
 
     /**
@@ -192,7 +216,7 @@ public class RemoteManager
          * @see org.apache.james.remotemanager.RemoteManagerHandlerConfigurationData#getStore()
          */
         public Store getStore() {
-            return RemoteManager.this.mailStore;
+            return RemoteManager.this.store;
         }
         
 

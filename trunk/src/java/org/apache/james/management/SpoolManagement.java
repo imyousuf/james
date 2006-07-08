@@ -39,8 +39,13 @@ public class SpoolManagement implements Serviceable, SpoolManagementService, Spo
 
     private Store mailStore;
 
+    public void setStore(Store mailStore) {
+        this.mailStore = mailStore;
+    }
+
     public void service(ServiceManager serviceManager) throws ServiceException {
-        mailStore = (Store)serviceManager.lookup("org.apache.avalon.cornerstone.services.store.Store" );
+        Store mailStore = (Store)serviceManager.lookup("org.apache.avalon.cornerstone.services.store.Store" );
+        setStore(mailStore);
     }
 
     public String[] listSpoolItems(String spoolRepositoryURL) throws SpoolManagementException {

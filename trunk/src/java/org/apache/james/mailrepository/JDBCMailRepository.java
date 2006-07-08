@@ -96,11 +96,6 @@ public class JDBCMailRepository
     private static final boolean DEEP_DEBUG = false;
 
     /**
-     * The Avalon componentManager used by the instance
-     */
-    private ServiceManager componentManager;
-
-    /**
      * The Avalon context used by the instance
      */
     protected Context context;
@@ -142,6 +137,11 @@ public class JDBCMailRepository
     protected DataSourceComponent datasource;
 
     /**
+     * The store where the repository is selected from
+     */
+    protected Store store; 
+    
+    /**
      * The name of the datasource used by this repository
      */
     protected String datasourceName;
@@ -166,6 +166,14 @@ public class JDBCMailRepository
      */
     private int inMemorySizeLimit;
 
+    public void setStore(Store store) {
+        this.store = store;
+    }
+
+    public void setDatasources(DataSourceSelector datasources) {
+        this.datasources = datasources;
+    }
+
     /**
      * @see org.apache.avalon.framework.context.Contextualizable#contextualize(Context)
      */
@@ -175,7 +183,7 @@ public class JDBCMailRepository
     }
 
     /**
-     * @see org.apache.avalon.framework.service.Servicable#service(ServiceManager)
+     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
     public void service( final ServiceManager componentManager )
         throws ServiceException {
@@ -188,9 +196,10 @@ public class JDBCMailRepository
             getLogger().debug(logBuffer.toString());
         }
         // Get the DataSourceSelector service
-        datasources = (DataSourceSelector)componentManager.lookup( DataSourceSelector.ROLE );
-        this.componentManager = componentManager;
-
+        DataSourceSelector datasources = (DataSourceSelector)componentManager.lookup( DataSourceSelector.ROLE );
+        setDatasources(datasources);
+        Store store = (Store)componentManager.lookup(Store.ROLE);
+        setStore(store);
     }
 
     /**
@@ -268,7 +277,6 @@ public class JDBCMailRepository
         }
         try {
             if (filestore != null) {
-                Store store = (Store)componentManager.lookup(Store.ROLE);
                 //prepare Configurations for stream repositories
                 DefaultConfiguration streamConfiguration
                     = new DefaultConfiguration( "repository",
