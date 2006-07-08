@@ -71,16 +71,16 @@ public class LogMessage extends GenericMailet {
         try {
             if (headers) log(getMessageHeaders(mail.getMessage()));
             if (body) {
-        int len = bodyMax > 0 ? bodyMax : mail.getMessage().getSize();
-        StringBuffer text = new StringBuffer(len);
-        InputStream is = mail.getMessage().getRawInputStream();
-        byte[] buf = new byte[1024];
-        int read = 0;
-        while (text.length() < len && (read = is.read(buf)) > -1) {
-            text.append(new String(buf, 0, Math.min(read, len - text.length())));
-        }
-        log(text.toString());
-        }
+                int len = bodyMax > 0 ? bodyMax : mail.getMessage().getSize();
+                StringBuffer text = new StringBuffer(len);
+                InputStream is = mail.getMessage().getRawInputStream();
+                byte[] buf = new byte[1024];
+                int read = 0;
+                while (text.length() < len && (read = is.read(buf)) > -1) {
+                    text.append(new String(buf, 0, Math.min(read, len - text.length())));
+                }
+                log(text.toString());
+            }
         }
         catch (MessagingException e) {
             log("Error logging message.", e);
