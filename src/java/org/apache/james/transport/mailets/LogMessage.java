@@ -25,6 +25,9 @@ import org.apache.james.core.MailImpl;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 
+import java.io.InputStream;
+import java.lang.StringBuffer;
+
 /**
  * Logs Message Headers and/or Body.
  * If the "passThrough" in confs is true the mail will be left untouched in
@@ -51,7 +54,7 @@ public class LogMessage extends GenericMailet {
             passThrough = (getInitParameter("passThrough") == null) ? true : new Boolean(getInitParameter("passThrough")).booleanValue();
             headers = (getInitParameter("headers") == null) ? true : new Boolean(getInitParameter("headers")).booleanValue();
             passThrough = (getInitParameter("body") == null) ? true : new Boolean(getInitParameter("body")).booleanValue();
-	    bodyMax = (getInitParameter("maxBody") == null) ? 0 : Integer.parseInt(getInitParameter("maxBody"));
+        bodyMax = (getInitParameter("maxBody") == null) ? 0 : Integer.parseInt(getInitParameter("maxBody"));
         } catch (Exception e) {
             // Ignore exception, default to true
         }
@@ -68,18 +71,22 @@ public class LogMessage extends GenericMailet {
         try {
             if (headers) log(getMessageHeaders(mail.getMessage()));
             if (body) {
-		int len = bodyMax > 0 ? bodyMax : mail.getMessage().getSize();
-		StringBuffer text = new StringBuffer(len);
-		InputStream is = mail.getMessage().getRawInputStream();
-		byte[] buf = new byte[1024];
-		while (text.length() < len && read = is.read(buf) > -1) {
-		    text.append(buf, 0, Math.min(read, len - text.length()));
-		}
-		log(text.toString());
-	    }
+        int len = bodyMax > 0 ? bodyMax : mail.getMessage().getSize();
+        StringBuffer text = new StringBuffer(len);
+        InputStream is = mail.getMessage().getRawInputStream();
+        byte[] buf = new byte[1024];
+        int read = 0;
+        while (text.length() < len && (read = is.read(buf)) > -1) {
+            text.append(new String(buf, 0, Math.min(read, len - text.length())));
+        }
+        log(text.toString());
+        }
         }
         catch (MessagingException e) {
-            log("Error logging headers.");
+            log("Error logging message.", e);
+        }
+        catch (java.io.IOException e) {
+            log("Error logging message.", e);
         }
         if (!passThrough) {
             mail.setState(Mail.GHOST);
