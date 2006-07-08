@@ -32,6 +32,7 @@ import org.apache.james.services.MailProcessor;
 import org.apache.james.services.MailetLoader;
 import org.apache.james.services.MatcherLoader;
 import org.apache.james.services.SpoolRepository;
+import org.apache.james.util.MatcherInverter;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.GenericMatcher;
 import org.apache.mailet.Mail;
@@ -573,11 +574,28 @@ public class LinearProcessor
         {
             Configuration c = mailetConfs[j];
             String mailetClassName = c.getAttribute("class");
-            String matcherName = c.getAttribute("match");
+            String matcherName = c.getAttribute("match",null);
+            String invertedMatcherName = c.getAttribute("notmatch",null);
+
             Mailet mailet = null;
             Matcher matcher = null;
             try {
-                matcher = matchLoader.getMatcher(matcherName);
+
+                if (matcherName != null && invertedMatcherName != null) {
+                    // if no matcher is configured throw an Exception
+                    throw new ConfigurationException(
+                            "Please configure only match or nomatch per mailet");
+                } else if (matcherName != null) {
+                    matcher = matchLoader.getMatcher(matcherName);
+                } else if (invertedMatcherName != null) {
+                    matcher = new MatcherInverter(matchLoader
+                            .getMatcher(invertedMatcherName));
+                   
+                } else {
+                    // default matcher is All
+                    matcher = matchLoader.getMatcher("All");
+                }
+                
                 //The matcher itself should log that it's been inited.
                 if (getLogger().isInfoEnabled()) {
                     StringBuffer infoBuffer =
