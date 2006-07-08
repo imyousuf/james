@@ -56,7 +56,7 @@ public class LogMessage extends GenericMailet {
             headers = (getInitParameter("headers") == null) ? true : new Boolean(getInitParameter("headers")).booleanValue();
             passThrough = (getInitParameter("body") == null) ? true : new Boolean(getInitParameter("body")).booleanValue();
             bodyMax = (getInitParameter("maxBody") == null) ? 0 : Integer.parseInt(getInitParameter("maxBody"));
-        comment = getInitParameter("comment");
+            comment = getInitParameter("comment");
         } catch (Exception e) {
             // Ignore exception, default to true
         }
