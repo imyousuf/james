@@ -35,7 +35,7 @@ import javax.mail.internet.MimeMessage;
  * <br>
  * Sample Configuration: <br>
  * <br>
- * &lt;mailet match="All" class="SpamAssassin"&gt;
+ * &lt;mailet notmatch="SenderHostIsLocal" class="SpamAssassin"&gt;
  * &lt;spamdHost&gt;localhost&lt;/spamdHost&gt;
  * &lt;spamdPort&gt;783&lt;/spamdPort&gt; <br>
  */
@@ -45,6 +45,9 @@ public class SpamAssassin extends GenericMailet {
 
     int spamdPort;
 
+    /**
+     * @see org.apache.mailet.GenericMailet#init()
+     */
     public void init() throws MessagingException {
         spamdHost = getInitParameter("spamdHost");
         if (spamdHost == null || spamdHost.equals("")) {
@@ -66,6 +69,9 @@ public class SpamAssassin extends GenericMailet {
         }
     }
 
+    /**
+     * @see org.apache.mailet.GenericMailet#service(Mail)
+     */
     public void service(Mail mail) {
         try {
             MimeMessage message = mail.getMessage();
@@ -89,7 +95,10 @@ public class SpamAssassin extends GenericMailet {
         }
 
     }
-
+    
+    /**
+     * @see org.apache.mailet.GenericMailet#getMailetInfo()
+     */
     public String getMailetInfo() {
         return "Checks message against SpamAssassin";
     }
