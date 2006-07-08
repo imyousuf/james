@@ -32,6 +32,9 @@ import javax.mail.internet.MimeMessage;
  * the threshold score for spam (usually 5.0). If the message exceeds the
  * threshold, the header X-Spam-Flag will be added with the value of YES. The
  * default host for spamd is localhost and the default port is 783. <br>
+ * 
+ * org.apache.james.spamassassin.status - Holds the status
+ * org.apache.james.spamassassin.flag   - Holds the flag
  * <br>
  * Sample Configuration: <br>
  * <br>
@@ -81,12 +84,12 @@ public class SpamAssassin extends GenericMailet {
                     spamdPort);
             sa.scanMail(message);
 
-            Iterator headers = sa.getHeaders().keySet().iterator();
+            Iterator headers = sa.getHeadersAsAttribute().keySet().iterator();
 
-            // Add headers 
+            // Add headers as attribute to mail object
             while (headers.hasNext()) {
                 String key = headers.next().toString();
-                message.setHeader(key, (String) sa.getHeaders().get(key));
+                mail.setAttribute(key, (String) sa.getHeadersAsAttribute().get(key));
             }
 
             message.saveChanges();
