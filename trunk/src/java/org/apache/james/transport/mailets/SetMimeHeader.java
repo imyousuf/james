@@ -17,6 +17,7 @@
 
 package org.apache.james.transport.mailets;
 
+import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage ;
 
 import org.apache.mailet.GenericMailet ;
@@ -50,9 +51,15 @@ public class SetMimeHeader
     /**
      * Initialize the mailet.
      */
-    public void init() {
+    public void init() throws MessagingException {
         headerName = getInitParameter("name");
         headerValue = getInitParameter("value");
+        
+        // Check if needed config values are used
+        if (headerName == null || headerName.equals("") || headerValue == null
+                || headerValue.equals("")) {
+            throw new MessagingException("Please configure a name and a value");
+        }
     }
 
     /**
