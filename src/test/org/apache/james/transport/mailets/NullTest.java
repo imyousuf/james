@@ -58,8 +58,8 @@ public class NullTest extends TestCase {
         mailet = new Null();
     }
 
-    // test if ToProcessor works
-    public void testValidToProcessor() throws MessagingException {
+    // test if the right state was set
+    public void testNullMailet() throws MessagingException {
         setupMockedMail(mockedMimeMessage);
         setupMailet();
 
