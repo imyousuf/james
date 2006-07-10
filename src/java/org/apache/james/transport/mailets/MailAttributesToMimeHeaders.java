@@ -63,8 +63,6 @@ public class MailAttributesToMimeHeaders extends GenericMailet {
                     throw new MessagingException(
                             "Invalid config. Please use \"attributeName; headerName\"");
                 } else {
-                    System.out.println("in here: " + parameters[0].trim()
-                            + " ," + parameters[1].trim());
                     // Add it to the map
                     map.put(parameters[0].trim(), parameters[1].trim());
                 }
