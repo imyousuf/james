@@ -410,10 +410,16 @@ public class MimeMessageWrapper
 
 
     private synchronized void checkModifyHeaders() throws MessagingException {
+        // Disable only-header loading optimizations for JAMES-559
+        if (!messageParsed) {
+            loadMessage();
+        }
+        // End JAMES-559
         if (headers == null) {
             loadHeaders();
         }
         modified = true;
+        saved = false;
         headersModified = true;
     }
 
@@ -446,6 +452,7 @@ public class MimeMessageWrapper
      */
     public synchronized void setDataHandler(DataHandler arg0) throws MessagingException {
         modified = true;
+        saved = false;
         bodyModified = true;
         super.setDataHandler(arg0);
     }
