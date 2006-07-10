@@ -125,6 +125,7 @@ public class MimeMessageWrapperTest extends MimeMessageFromStreamTest {
         assertFalse(mw.isModified());
     }
 
+    /** this is commented out due optimisation reverts (JAMES-559) 
     public void testDeferredMessageLoadingWhileWriting() throws MessagingException, IOException {
         mw.setMessageLoadable(false);
         assertEquals("foo",mw.getSubject());
@@ -136,6 +137,7 @@ public class MimeMessageWrapperTest extends MimeMessageFromStreamTest {
         mw.setMessageLoadable(true);
         
     }
+    */
 
     public void testDeferredHeaderLoading() throws MessagingException, IOException {
         mw.setHeadersLoadable(false);

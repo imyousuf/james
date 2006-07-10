@@ -108,5 +108,69 @@ public class AvalonMailRepositoryTest extends TestCase {
         mr.remove("mail1");
 
     }
+
+
+    /**
+     * This test has been written as a proof to:
+     * http://issues.apache.org/jira/browse/JAMES-559
+     */
+    public void testJames559WithoutSaveChanges() throws Exception {
+        AvalonMailRepository mr = new AvalonMailRepository();
+        MockStore mockStore = new MockStore();
+        File_Persistent_Stream_Repository file_Persistent_Stream_Repository = new File_Persistent_Stream_Repository();
+        MockContext mockContext = new MockContext(new File("."));
+        file_Persistent_Stream_Repository.contextualize(mockContext);
+        file_Persistent_Stream_Repository.enableLogging(new MockLogger());
+        DefaultConfiguration defaultConfiguration2 = new DefaultConfiguration("conf");
+        defaultConfiguration2.setAttribute("destinationURL", "file://var/mr");
+        file_Persistent_Stream_Repository.configure(defaultConfiguration2);
+        file_Persistent_Stream_Repository.initialize();
+        mockStore.add("STREAM.mr", file_Persistent_Stream_Repository);
+        File_Persistent_Object_Repository file_Persistent_Object_Repository = new File_Persistent_Object_Repository();
+        file_Persistent_Object_Repository.contextualize(mockContext);
+        file_Persistent_Object_Repository.enableLogging(new MockLogger());
+        DefaultConfiguration defaultConfiguration22 = new DefaultConfiguration("conf");
+        defaultConfiguration22.setAttribute("destinationURL", "file://var/mr");
+        file_Persistent_Object_Repository.configure(defaultConfiguration22);
+        file_Persistent_Object_Repository.initialize();
+        mockStore.add("OBJECT.mr", file_Persistent_Object_Repository);
+        mr.setStore(mockStore);
+
+        mr.enableLogging(new MockLogger());
+        DefaultConfiguration defaultConfiguration = new DefaultConfiguration("ReposConf");
+        defaultConfiguration.setAttribute("destinationURL","file://var/mr");
+        defaultConfiguration.setAttribute("type","MAIL");
+        mr.configure(defaultConfiguration);
+        mr.initialize();
+
+        MimeMessageInputStreamSource mmis = null;
+        try {
+            mmis = new MimeMessageInputStreamSource("test", new SharedByteArrayInputStream((content+sep+body).getBytes()));
+        } catch (MessagingException e) {
+        }
+        MimeMessage mimeMessage = new MimeMessageCopyOnWriteProxy(mmis);
+        Collection recipients = new ArrayList();
+        recipients.add(new MailAddress("rec1","domain.com"));
+        recipients.add(new MailAddress("rec2","domain.com"));
+        MailImpl m = new MailImpl("mail1",new MailAddress("sender","domain.com"),recipients,mimeMessage);
+        mr.store(m);
+        
+        Mail m2 = mr.retrieve("mail1");
+        m2.getMessage().setHeader("X-Header", "foobar");
+        
+        mr.store(m2);
+        // ALWAYS remember to dispose mails!
+        ContainerUtil.dispose(m2);
+        
+        m2 = mr.retrieve("mail1");
+        assertEquals(m.getMessage().getContent().toString(),m2.getMessage().getContent().toString());
+        
+        m.dispose();
+        ContainerUtil.dispose(m2);
+        
+        mr.remove("mail1");
+
+    }
+
 }
 
