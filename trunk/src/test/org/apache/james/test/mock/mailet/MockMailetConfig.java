@@ -30,6 +30,7 @@ public class MockMailetConfig extends Properties implements MailetConfig {
     private String mailetName;
     private MailetContext mc;
 
+    
     public MockMailetConfig(String mailetName, MailetContext mc) {
         super();
         this.mailetName = mailetName;
@@ -58,4 +59,14 @@ public class MockMailetConfig extends Properties implements MailetConfig {
         return mailetName;
     }
 
+    // Override setProperty to work like it should in this MockMailetConfig
+    public Object setProperty(String key, String value) {
+        String oldValue = getProperty(key);
+        String newValue = value;
+
+        if (oldValue != null) {
+            newValue = oldValue + "," + value;
+        }
+        return super.setProperty(key, newValue);
+    }
 }
