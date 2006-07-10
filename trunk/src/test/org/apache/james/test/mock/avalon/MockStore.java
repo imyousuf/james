@@ -47,10 +47,15 @@ public class MockStore implements Store {
         if (object instanceof Configuration) {
             Configuration repConf = (Configuration) object;
             try {
+                String type = repConf.getAttribute("type");
+                String prefix = "";
+                if (!"MAIL".equals(type) && !"SPOOL".equals(type)) {
+                    prefix = type+".";
+                }
                 String attribute = repConf.getAttribute("destinationURL");
                 String[] strings = attribute.split("/");
                 if (strings.length > 0) {
-                    object = strings[strings.length-1];
+                    return prefix+strings[strings.length-1];
                 }
             } catch (ConfigurationException e) {
                 throw new RuntimeException("test configuration setup failed");
