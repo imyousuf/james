@@ -112,7 +112,7 @@ public class UsersRepositoryAliasingForwarding extends GenericMailet {
                 // remaining recipients
                 if (username == null) {
                     i.remove();
-                } else if (username.equals(recipient.getUser())) {
+                } else if (!username.equals(recipient.getUser())) {
                     i.remove();
                     // if the username has been changed we add a new recipient
                     // with the new name.
