@@ -17,7 +17,22 @@
 
 package org.apache.james.mailrepository.filepair;
 
+import org.apache.avalon.cornerstone.services.store.Repository;
+import org.apache.avalon.framework.activity.Initializable;
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.context.Context;
+import org.apache.avalon.framework.context.ContextException;
+import org.apache.avalon.framework.context.Contextualizable;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.Serviceable;
+import org.apache.james.util.io.ExtensionFileFilter;
+
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -25,21 +40,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
-import org.apache.avalon.cornerstone.services.store.Repository;
-import org.apache.james.util.io.ExtensionFileFilter;
-import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.context.Context;
-import org.apache.avalon.framework.context.Contextualizable;
-import org.apache.avalon.framework.context.ContextException;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
-
-import javax.mail.util.SharedFileInputStream;
 
 /**
  * This an abstract class implementing functionality for creating a file-store.
@@ -258,7 +258,12 @@ public abstract class AbstractFileRepository
     protected InputStream getInputStream( final String key )
         throws IOException
     {
-        return new SharedFileInputStream( encode( key ) );
+        // This was changed to SharedFileInputStream but reverted to 
+        // fix JAMES-559. Usign SharedFileInputStream should be a good
+        // performance improvement, but more checks have to be done
+        // on the repository side to avoid concurrency in reading and
+        // writing the same file.
+        return new FileInputStream( encode( key ) );
     }
 
     protected OutputStream getOutputStream( final String key )
@@ -266,7 +271,7 @@ public abstract class AbstractFileRepository
     {
         return new FileOutputStream( getFile( key ) );
     }
-
+    
     /**
      * Remove the object associated to the given key.
      */

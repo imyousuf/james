@@ -75,7 +75,7 @@ public class AvalonMailRepository
     private boolean fifo;
     private boolean cacheKeys; // experimental: for use with write mostly repositories such as spam and error
 
-    private void setStore(Store store) {
+    void setStore(Store store) {
         this.store = store;
     }
 
