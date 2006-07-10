@@ -57,5 +57,16 @@ public class MockMailetConfig extends Properties implements MailetConfig {
     public String getMailetName() {
         return mailetName;
     }
+    
+    // Override setProperty to work like it should in this MockMailetConfig
+    public Object setProperty(String key, String value) {
+        String oldValue = getProperty(key);
+        String newValue = value;
+
+        if (oldValue != null) {
+            newValue = oldValue + "," + value;
+        }
+        return super.setProperty(key, newValue);
+    }
 
 }
