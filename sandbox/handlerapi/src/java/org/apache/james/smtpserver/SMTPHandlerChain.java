@@ -34,6 +34,7 @@ import org.apache.james.smtpserver.core.BaseCmdHandler;
 import org.apache.james.smtpserver.core.BaseFilterCmdHandler;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -245,7 +246,7 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
             if (handler instanceof CommandHandler) {
                 String commandName = config.getAttribute("command");
                 String cmds[] = commandName.split(",");
-                List implCmds = ((CommandHandler) handler).getImplCommands();
+                Collection implCmds = ((CommandHandler) handler).getImplCommands();
 
                 for (int i = 0; i < cmds.length; i++) {
                     commandName = cmds[i].trim().toUpperCase(Locale.US);

@@ -302,8 +302,8 @@ public class DataCmdHandler
     /**
      * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
      */
-    public List getImplCommands() {
-        ArrayList implCommands = new ArrayList();
+    public Collection getImplCommands() {
+        Collection implCommands = new ArrayList();
         implCommands.add("DATA");
         
         return implCommands;

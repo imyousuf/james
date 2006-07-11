@@ -18,7 +18,7 @@
 package org.apache.james.smtpserver;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 import org.apache.james.util.mail.dsn.DSNStatus;
 
@@ -45,8 +45,8 @@ public class HelpCmdHandler implements CommandHandler {
     /**
      * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
      */
-    public List getImplCommands() {
-        ArrayList implCommands = new ArrayList();
+    public Collection getImplCommands() {
+        Collection implCommands = new ArrayList();
         implCommands.add("HELP");
         
         return implCommands;

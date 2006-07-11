@@ -18,7 +18,7 @@
 package org.apache.james.smtpserver;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 import org.apache.james.util.mail.dsn.DSNStatus;
 
@@ -28,7 +28,6 @@ import org.apache.james.util.mail.dsn.DSNStatus;
 public class VrfyCmdHandler implements CommandHandler {
 
     private final String COMMAND_NAME = "VRFY";
-    private boolean stopHandlerProcessing = true;
 
     /**
      * Handler method called upon receipt of a VRFY command.
@@ -45,18 +44,11 @@ public class VrfyCmdHandler implements CommandHandler {
     /**
      * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
      */
-    public List getImplCommands() {
-        ArrayList implCommands = new ArrayList();
+    public Collection getImplCommands() {
+        Collection implCommands = new ArrayList();
         implCommands.add("VRFY");
         
         return implCommands;
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.CommandHandler#stopHandlerProcessing()
-     */
-    public boolean stopHandlerProcessing() {
-        return stopHandlerProcessing ;
     }
 
 }

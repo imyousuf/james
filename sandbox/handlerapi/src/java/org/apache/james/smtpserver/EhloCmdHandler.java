@@ -18,7 +18,7 @@
 package org.apache.james.smtpserver;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 
@@ -98,8 +98,8 @@ public class EhloCmdHandler extends AbstractLogEnabled implements
     /**
      * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
      */
-    public List getImplCommands() {
-        ArrayList implCommands = new ArrayList();
+    public Collection getImplCommands() {
+        Collection implCommands = new ArrayList();
         implCommands.add("EHLO");
         
         return implCommands;

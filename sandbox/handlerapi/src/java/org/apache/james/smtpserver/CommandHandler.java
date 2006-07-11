@@ -17,7 +17,7 @@
 
 package org.apache.james.smtpserver;
 
-import java.util.List;
+import java.util.Collection;
 
 /**
  * Custom command handlers must implement this interface
@@ -33,10 +33,10 @@ import java.util.List;
     void onCommand(SMTPSession session);
 
     /**
-     * Return a List of implemented commands
+     * Return a Collection of implemented commands
      * 
-     * @return List which contains implemented commands
+     * @return Collection which contains implemented commands
      */
-    List getImplCommands();
+    Collection getImplCommands();
     
 }
