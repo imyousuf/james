@@ -20,10 +20,13 @@ package org.apache.james.smtpserver;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+
 /**
  * Handles EHLO command
  */
-public class EhloCmdHandler extends AbstractCommandHandler {
+public class EhloCmdHandler extends AbstractLogEnabled implements
+        CommandHandler {
 
     /**
      * The name of the command handled by the command handler

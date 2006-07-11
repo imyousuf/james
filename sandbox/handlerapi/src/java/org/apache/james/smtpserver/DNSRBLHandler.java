@@ -17,24 +17,32 @@
 
 package org.apache.james.smtpserver;
 
-import java.net.Socket;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.Serviceable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.james.services.DNSServer;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.StringTokenizer;
-
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
 
 /**
   * Connect handler for DNSRBL processing
   */
 public class DNSRBLHandler
-    extends AbstractConnectHandler {
+    extends AbstractLogEnabled
+    implements ConnectHandler, Configurable, Serviceable {
     /**
      * The lists of rbl servers to be checked to limit spam
      */
     private String[] whitelist;
     private String[] blacklist;
+    
+    private DNSServer dnsServer = null;
     
     private boolean getDetail = false;
 
@@ -83,6 +91,12 @@ public class DNSRBLHandler
 
     }
 
+    /**
+     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
+     */
+    public void service(ServiceManager serviceMan) throws ServiceException {
+        setDNSServer((DNSServer) serviceMan.lookup(DNSServer.ROLE));
+    }
     
     /*
      * check if the remote Ip address is block listed
@@ -112,6 +126,14 @@ public class DNSRBLHandler
         this.blacklist = blacklist;
     }
     
+    /**
+     * Set the DNSServer
+     * 
+     * @param dnsServer The DNSServer
+     */
+    public void setDNSServer(DNSServer dnsServer) {
+        this.dnsServer = dnsServer;
+    }
 
     /**
      * Set for try to get a TXT record for the blocked record. 
@@ -154,7 +176,7 @@ public class DNSRBLHandler
             if (whitelist != null) {
                 String[] rblList = whitelist;
                 for (int i = 0 ; i < rblList.length ; i++) try {
-                    getDnsServer().getByName(reversedOctets + rblList[i]);
+                    dnsServer.getByName(reversedOctets + rblList[i]);
                     if (getLogger().isInfoEnabled()) {
                         getLogger().info("Connection from " + ipAddress + " whitelisted by " + rblList[i]);
                     }
@@ -169,14 +191,14 @@ public class DNSRBLHandler
             if (blacklist != null) {
                 String[] rblList = blacklist;
                 for (int i = 0 ; i < rblList.length ; i++) try {
-                    getDnsServer().getByName(reversedOctets + rblList[i]);
+                    dnsServer.getByName(reversedOctets + rblList[i]);
                     if (getLogger().isInfoEnabled()) {
                         getLogger().info("Connection from " + ipAddress + " restricted by " + rblList[i] + " to SMTP AUTH/postmaster/abuse.");
                     }
                     
                     // we should try to retrieve details
                     if (getDetail) {
-                        Collection txt = getDnsServer().findTXTRecords(reversedOctets + rblList[i]);
+                        Collection txt = dnsServer.findTXTRecords(reversedOctets + rblList[i]);
                         
                         // Check if we found a txt record
                         if (!txt.isEmpty()) {

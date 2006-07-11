@@ -19,45 +19,24 @@ package org.apache.james.smtpserver;
 
 import java.util.List;
 
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-
 /**
- * Custom CommandHandlers must extend this class.
+ * Custom command handlers must implement this interface
+ * The command handlers will be Server wide common to all the SMTPHandlers,
+ * therefore the command handlers must store all the state information
+ * in the SMTPSession object
  */
-public abstract class AbstractCommandHandler extends AbstractLogEnabled {
-
-    /**
-     * If set to true all handler processing is stopped (fastfail)
-     */
-    private boolean stopHandlerProcessing = false;
-    
-    
-    /**
-     * Method to set if a after the handler no other command handlers should processed
-     * @param stopHandlerProcessing true or false
-     */
-    public void setStopHandlerProcessing(boolean stopHandlerProcessing) {
-        this.stopHandlerProcessing = stopHandlerProcessing;
-    }
-    
-    /**
-     * Return if the processing of other commandHandlers should be done
-     * @return true or false
-     */
-    public boolean stopHandlerProcessing() {
-        return stopHandlerProcessing;
-    }
-    
+ public interface CommandHandler {
+     
     /**
      * Handle the command
     **/
-    public abstract void onCommand(SMTPSession session);
+    void onCommand(SMTPSession session);
 
     /**
      * Return a List of implemented commands
      * 
      * @return List which contains implemented commands
      */
-    public abstract List getImplCommands();
+    List getImplCommands();
     
 }

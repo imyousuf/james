@@ -25,7 +25,7 @@ import org.apache.james.util.mail.dsn.DSNStatus;
 /**
   * Handles NOOP command
   */
-public class NoopCmdHandler extends AbstractCommandHandler {
+public class NoopCmdHandler implements CommandHandler {
 
     /**
      * The name of the command handled by the command handler

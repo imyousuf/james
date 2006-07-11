@@ -21,13 +21,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.MailAddress;
 
 /**
   * Handles RCPT command
   */
-public class RcptCmdHandler extends AbstractCommandHandler {
+public class RcptCmdHandler extends AbstractLogEnabled implements
+        CommandHandler {
 
     /**
      * handles RCPT command

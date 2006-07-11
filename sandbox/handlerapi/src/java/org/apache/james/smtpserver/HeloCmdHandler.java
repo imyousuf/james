@@ -21,11 +21,13 @@ package org.apache.james.smtpserver;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+
 
 /**
   * Handles HELO command
   */
-public class HeloCmdHandler extends AbstractCommandHandler {
+public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler {
 
     /**
      * The name of the command handled by the command handler

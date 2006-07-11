@@ -25,7 +25,7 @@ import org.apache.james.util.mail.dsn.DSNStatus;
 /**
   * Handles RSET command
   */
-public class RsetCmdHandler extends AbstractCommandHandler {
+public class RsetCmdHandler implements CommandHandler {
     /**
      * The name of the command handled by the command handler
      */

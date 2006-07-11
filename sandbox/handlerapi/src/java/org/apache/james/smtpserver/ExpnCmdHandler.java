@@ -25,7 +25,7 @@ import org.apache.james.util.mail.dsn.DSNStatus;
 /**
   * Handles EXPN command
   */
-public class ExpnCmdHandler extends AbstractCommandHandler {
+public class ExpnCmdHandler implements CommandHandler {
 
     /**
      * The name of the command handled by the command handler

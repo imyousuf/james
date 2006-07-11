@@ -17,20 +17,28 @@
 
 package org.apache.james.smtpserver.fastfailfilter;
 
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.Serviceable;
+import org.apache.james.services.DNSServer;
+import org.apache.james.smtpserver.CommandHandler;
+import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.util.mail.dsn.DSNStatus;
+
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.james.smtpserver.AbstractCommandHandler;
-import org.apache.james.smtpserver.SMTPSession;
-import org.apache.james.util.mail.dsn.DSNStatus;
-
-public class ReverseEqualsEhloHeloHandler extends AbstractCommandHandler {
+public class ReverseEqualsEhloHeloHandler extends AbstractLogEnabled
+        implements CommandHandler, Configurable, Serviceable {
 
     private boolean checkAuthNetworks = false;
 
+    private DNSServer dnsServer = null;
 
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
@@ -45,6 +53,13 @@ public class ReverseEqualsEhloHeloHandler extends AbstractCommandHandler {
     }
 
     /**
+     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
+     */
+    public void service(ServiceManager serviceMan) throws ServiceException {
+        setDnsServer((DNSServer) serviceMan.lookup(DNSServer.ROLE));
+    }
+
+    /**
      * Set to true if AuthNetworks should be included in the EHLO check
      * 
      * @param checkAuthNetworks
@@ -54,6 +69,15 @@ public class ReverseEqualsEhloHeloHandler extends AbstractCommandHandler {
         this.checkAuthNetworks = checkAuthNetworks;
     }
 
+    /**
+     * Set the DNSServer
+     * 
+     * @param dnsServer
+     *            The DNSServer
+     */
+    public void setDnsServer(DNSServer dnsServer) {
+        this.dnsServer = dnsServer;
+    }
 
     /**
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
@@ -69,7 +93,7 @@ public class ReverseEqualsEhloHeloHandler extends AbstractCommandHandler {
         if (!session.isRelayingAllowed() || checkAuthNetworks) {
             try {
                 // get reverse entry
-                String reverse = getDnsServer().getByName(
+                String reverse = dnsServer.getByName(
                         session.getRemoteIPAddress()).getHostName();
 
                 if (!argument.equals(reverse)) {
@@ -84,7 +108,7 @@ public class ReverseEqualsEhloHeloHandler extends AbstractCommandHandler {
                     getLogger().info(responseString);
 
                     // After this filter match we should not call any other handler!
-                    setStopHandlerProcessing(true);
+                    session.setStopHandlerProcessing(true);
                 }
             } catch (UnknownHostException e) {
                 responseString = "501 "
@@ -96,7 +120,7 @@ public class ReverseEqualsEhloHeloHandler extends AbstractCommandHandler {
                 getLogger().info(responseString);
 
                 // After this filter match we should not call any other handler!
-                setStopHandlerProcessing(true);
+                session.setStopHandlerProcessing(true);
             }
         }
     }
@@ -113,4 +137,3 @@ public class ReverseEqualsEhloHeloHandler extends AbstractCommandHandler {
     }
 
 }
-

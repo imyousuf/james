@@ -158,6 +158,8 @@ public class SMTPHandler
      * The per-handler response buffer used to marshal responses.
      */
     private StringBuffer responseBuffer = new StringBuffer(256);
+    
+    private boolean stopHandlerProcessing = false;
 
     /**
      * Set the configuration data for the handler
@@ -232,12 +234,8 @@ public class SMTPHandler
         if(connectHandlers != null) {
             int count = connectHandlers.size();
             for(int i = 0; i < count; i++) {
-                AbstractConnectHandler aHandler = (AbstractConnectHandler)connectHandlers.get(i);
-                aHandler.setStopHandlerProcessing(false);
-                aHandler.onConnect(this);
-                boolean stopHandlerProcessing = aHandler.stopHandlerProcessing();
-
-                if(sessionEnded || stopHandlerProcessing) {
+                ((ConnectHandler)connectHandlers.get(i)).onConnect(this);
+                if(sessionEnded) {
                     break;
                 }
             }
@@ -272,15 +270,13 @@ public class SMTPHandler
           } else {
               int count = commandHandlers.size();
               for(int i = 0; i < count; i++) {
-                  AbstractCommandHandler aHandler = (AbstractCommandHandler)commandHandlers.get(i);
-                  aHandler.setStopHandlerProcessing(false);
-                  aHandler.onCommand(this);
-                  boolean stopHandlerProcessing = aHandler.stopHandlerProcessing();
+                  setStopHandlerProcessing(false);
+                  ((CommandHandler)commandHandlers.get(i)).onCommand(this);
                   
                   theWatchdog.reset();
                   
                   //if the response is received, stop processing of command handlers
-                  if(mode != COMMAND_MODE || stopHandlerProcessing) {
+                  if(mode != COMMAND_MODE || getStopHandlerProcessing()) {
                       break;
                   }
               }
@@ -293,13 +289,9 @@ public class SMTPHandler
               List messageHandlers = handlerChain.getMessageHandlers();
               int count = messageHandlers.size();
               for(int i =0; i < count; i++) {
-                  AbstractMessageHandler aHandler = (AbstractMessageHandler)messageHandlers.get(i);
-                  aHandler.setStopHandlerProcessing(false);
-                  aHandler.onMessage(this);
-                  boolean stopHandlerProcessing = aHandler.stopHandlerProcessing();
-
+                  ((MessageHandler)messageHandlers.get(i)).onMessage(this);
                   //if the response is received, stop processing of command handlers
-                  if(mode == MESSAGE_ABORT_MODE || stopHandlerProcessing) {
+                  if(mode == MESSAGE_ABORT_MODE) {
                       break;
                   }
               }
@@ -579,4 +571,19 @@ public class SMTPHandler
 
         return count;
     }
+    
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#setStopHandlerProcessing(boolean)
+     */
+    public void setStopHandlerProcessing(boolean stopHandlerProcessing) {
+        this.stopHandlerProcessing = stopHandlerProcessing;
+    }
+    
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#getStopHandlerProcessing()
+     */
+    public boolean getStopHandlerProcessing() {
+        return stopHandlerProcessing;
+    }
+
 }

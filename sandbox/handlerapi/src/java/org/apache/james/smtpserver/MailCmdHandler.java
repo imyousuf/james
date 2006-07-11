@@ -20,6 +20,7 @@ package org.apache.james.smtpserver;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.MailAddress;
 
@@ -27,7 +28,8 @@ import org.apache.mailet.MailAddress;
   * Handles MAIL command
   */
 public class MailCmdHandler
-    extends AbstractCommandHandler{
+    extends AbstractLogEnabled
+    implements CommandHandler {
 
     
     /**

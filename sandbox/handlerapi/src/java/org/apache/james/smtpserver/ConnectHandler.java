@@ -18,16 +18,15 @@
 package org.apache.james.smtpserver;
 
 /**
- * Custom connect handlers must extend this class
+ * Custom connect handlers must implement this interface
  * The connect handlers will be server-wide common to all the SMTPHandlers,
  * therefore the handlers must store all the state information
  * in the SMTPSession object
  */
-public abstract class AbstractConnectHandler extends AbstractGeneralHandler{
-    
-    /**
+public interface ConnectHandler {
+    /*
      * Handle connection
     **/
-    public abstract void onConnect(SMTPSession session);
+    void onConnect(SMTPSession session);
 
 }

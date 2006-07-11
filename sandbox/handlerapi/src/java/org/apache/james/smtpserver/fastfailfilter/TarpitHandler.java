@@ -20,12 +20,15 @@ package org.apache.james.smtpserver.fastfailfilter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.james.smtpserver.AbstractCommandHandler;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
 
-public class TarpitHandler extends AbstractCommandHandler {
+public class TarpitHandler extends AbstractLogEnabled implements
+        CommandHandler, Configurable {
 
     private int tarpitRcptCount = 0;
 

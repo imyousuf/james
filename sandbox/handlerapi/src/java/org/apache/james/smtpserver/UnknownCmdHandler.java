@@ -25,7 +25,7 @@ import org.apache.james.util.mail.dsn.DSNStatus;
 /**
   * Default command handler for handling unknown commands
   */
-public class UnknownCmdHandler extends AbstractCommandHandler {
+public class UnknownCmdHandler implements CommandHandler {
 
     /**
      * The name of the command handled by the command handler

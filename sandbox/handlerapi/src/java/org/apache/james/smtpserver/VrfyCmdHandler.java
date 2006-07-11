@@ -25,9 +25,10 @@ import org.apache.james.util.mail.dsn.DSNStatus;
 /**
   * Command handler for handling VRFY command
   */
-public class VrfyCmdHandler extends AbstractCommandHandler {
+public class VrfyCmdHandler implements CommandHandler {
 
     private final String COMMAND_NAME = "VRFY";
+    private boolean stopHandlerProcessing = true;
 
     /**
      * Handler method called upon receipt of a VRFY command.
@@ -50,4 +51,12 @@ public class VrfyCmdHandler extends AbstractCommandHandler {
         
         return implCommands;
     }
+
+    /**
+     * @see org.apache.james.smtpserver.CommandHandler#stopHandlerProcessing()
+     */
+    public boolean stopHandlerProcessing() {
+        return stopHandlerProcessing ;
+    }
+
 }

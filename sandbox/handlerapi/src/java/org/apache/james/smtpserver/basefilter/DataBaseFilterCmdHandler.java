@@ -20,7 +20,8 @@ package org.apache.james.smtpserver.basefilter;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.james.smtpserver.AbstractCommandHandler;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
 
@@ -29,7 +30,8 @@ import org.apache.james.util.mail.dsn.DSNStatus;
   * handles DATA command
  */
 public class DataBaseFilterCmdHandler
-    extends AbstractCommandHandler {
+    extends AbstractLogEnabled
+    implements CommandHandler {
 
     /**
      * process DATA command
@@ -58,14 +60,14 @@ public class DataBaseFilterCmdHandler
             session.writeResponse(responseString);
             
             // After this filter match we should not call any other handler!
-            setStopHandlerProcessing(true);
+            session.setStopHandlerProcessing(true);
             
         } else if (!session.getState().containsKey(SMTPSession.RCPT_LIST)) {
             responseString = "503 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" No recipients specified";
             session.writeResponse(responseString);
             
             // After this filter match we should not call any other handler!
-            setStopHandlerProcessing(true);
+            session.setStopHandlerProcessing(true);
         }
     }
     

@@ -21,14 +21,15 @@ package org.apache.james.smtpserver.basefilter;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.james.smtpserver.AbstractCommandHandler;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
 
 
 /**
   * Handles HELO command
   */
-public class HeloBaseFilterCmdHandler extends AbstractCommandHandler {
+public class HeloBaseFilterCmdHandler extends AbstractLogEnabled implements CommandHandler {
 
     /**
      * The name of the command handled by the command handler
@@ -57,7 +58,7 @@ public class HeloBaseFilterCmdHandler extends AbstractCommandHandler {
             getLogger().info(responseString);
             
             // After this filter match we should not call any other handler!
-            setStopHandlerProcessing(true);
+            session.setStopHandlerProcessing(true);
          
         }
     }

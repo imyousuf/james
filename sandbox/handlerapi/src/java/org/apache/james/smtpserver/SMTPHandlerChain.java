@@ -52,7 +52,7 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
     private ArrayList messageHandlers = new ArrayList();
     private ArrayList connectHandlers = new ArrayList();
 
-    private final AbstractCommandHandler unknownHandler = new UnknownCmdHandler();
+    private final CommandHandler unknownHandler = new UnknownCmdHandler();
     private ServiceManager serviceManager;
     private Context context;
     
@@ -212,8 +212,8 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
             ContainerUtil.configure(handler, config);
 
             // if it is a connect handler add it to list of connect handlers
-            if (handler instanceof AbstractConnectHandler) {
-                connectHandlers.add((AbstractConnectHandler) handler);
+            if (handler instanceof ConnectHandler) {
+                connectHandlers.add((ConnectHandler) handler);
                 if (getLogger().isInfoEnabled()) {
                     getLogger().info("Added ConnectHandler: " + className);
                 }
@@ -242,17 +242,17 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
 
             // if it is a command handler add it to the map with key as command
             // name
-            if (handler instanceof AbstractCommandHandler) {
+            if (handler instanceof CommandHandler) {
                 String commandName = config.getAttribute("command");
                 String cmds[] = commandName.split(",");
-                List implCmds = ((AbstractCommandHandler) handler).getImplCommands();
+                List implCmds = ((CommandHandler) handler).getImplCommands();
 
                 for (int i = 0; i < cmds.length; i++) {
                     commandName = cmds[i].trim().toUpperCase(Locale.US);
 
                     // Check if the commandHandler implement the configured command
                     if (implCmds.contains(commandName)) {
-                        addToMap(commandName, (AbstractCommandHandler) handler);
+                        addToMap(commandName, (CommandHandler) handler);
                         if (getLogger().isInfoEnabled()) {
                             getLogger().info(
                                     "Added Commandhandler: " + className);
@@ -269,8 +269,8 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
             }
 
             // if it is a message handler add it to list of message handlers
-            if (handler instanceof AbstractMessageHandler) {
-                messageHandlers.add((AbstractMessageHandler) handler);
+            if (handler instanceof MessageHandler) {
+                messageHandlers.add((MessageHandler) handler);
                 if (getLogger().isInfoEnabled()) {
                     getLogger().info("Added MessageHandler: " + className);
                 }
@@ -333,7 +333,7 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
      * @param commandName the command name which will be key
      * @param cmdHandler The commandhandler object
      */
-    private void addToMap(String commandName, AbstractCommandHandler cmdHandler) {
+    private void addToMap(String commandName, CommandHandler cmdHandler) {
         ArrayList handlers = (ArrayList)commandHandlerMap.get(commandName);
         if(handlers == null) {
             handlers = new ArrayList();

@@ -17,21 +17,23 @@
 
 package org.apache.james.smtpserver;
 
-import java.io.IOException;
+import org.apache.james.util.mail.dsn.DSNStatus;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
-
 import org.apache.james.util.Base64;
-import org.apache.james.util.mail.dsn.DSNStatus;
+import java.io.IOException;
 
 
 /**
   * handles AUTH command
   */
 public class AuthCmdHandler
-    extends AbstractCommandHandler {
+    extends AbstractLogEnabled
+    implements CommandHandler {
 
     /**
      * The text string for the SMTP AUTH type PLAIN.
