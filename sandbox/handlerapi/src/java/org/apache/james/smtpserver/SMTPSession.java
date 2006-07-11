@@ -242,8 +242,18 @@ public interface SMTPSession {
      */
     int getRcptCount();
 
+    /**
+     * Set to true if the handlerprocessing should be stopped
+     * 
+     * @param b true or false
+     */
     void setStopHandlerProcessing(boolean b);
     
+    /**
+     * Return if handlerprocessing should be stopped
+     * 
+     * @return true or false
+     */
     boolean getStopHandlerProcessing();
 
 }
