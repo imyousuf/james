@@ -218,8 +218,6 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean,
             
             heloEhloEnforcement = handlerConfiguration.getChild("heloEhloEnforcement").getValueAsBoolean(true);
             
-            if (authRequiredString.equals("true")) authRequired = AUTH_REQUIRED;
-            
             // get the smtpGreeting
             smtpGreeting = handlerConfiguration.getChild("smtpGreeting").getValue(null);
 
