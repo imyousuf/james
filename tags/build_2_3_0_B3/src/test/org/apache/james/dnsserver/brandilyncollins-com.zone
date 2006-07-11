@@ -1,0 +1,5 @@
+brandilyncollins.com.		14440	IN	SOA	ns1.hyperdrivedns.net. admin.hyperdrivedns.com. 2004121207 14400 7200 3600000 86400
+brandilyncollins.com.		14400	IN	MX	0 mail.brandilyncollins.com.
+brandilyncollins.com.		14400	IN	NS	ns1.hyperdrivedns.net.
+mail.brandilyncollins.com.	14400	IN	CNAME	mail2.brandilyncollins.com.
+mail2.brandilyncollins.com.	14400	IN	A	201.202.203.204
