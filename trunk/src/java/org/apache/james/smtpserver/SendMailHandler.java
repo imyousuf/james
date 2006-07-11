@@ -39,16 +39,20 @@ public class SendMailHandler
 
     private MailServer mailServer;
 
+    public void setMailServer(MailServer mailServer) {
+        this.mailServer = mailServer;
+    }
+
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
      */
     public void service(ServiceManager serviceManager) throws ServiceException {
-        mailServer = (MailServer) serviceManager.lookup(MailServer.ROLE);
+        setMailServer((MailServer) serviceManager.lookup(MailServer.ROLE));
     }
 
     /**
      * Adds header to the message
-     * @see org.apache.james.smtpserver#onMessage(SMTPSession)
+     * @see org.apache.james.smtpserver.MessageHandler#onMessage(SMTPSession)
      */
     public void onMessage(SMTPSession session) {
         getLogger().info("sending mail");

@@ -101,11 +101,12 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
     private String m_updateUserSql;
     private String m_deleteUserSql;
 
-    // Creates a single table with "username" the Primary Key.
-    private String m_createUserTableSql;
-
     // The JDBCUtil helper class
     private JDBCUtil theJDBCUtil;
+
+    public void setDatasources(DataSourceSelector datasources) {
+        m_datasources = datasources;
+    }
 
     /**
      * @see org.apache.avalon.framework.context.Contextualizable#contextualize(Context)
@@ -116,7 +117,7 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
     }
 
     /**
-     * @see org.apache.avalon.framework.service.Serviceable#compose(ServiceManager)
+     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager) 
      */
     public void service( final ServiceManager componentManager )
         throws ServiceException
@@ -131,8 +132,7 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
             getLogger().debug( logBuffer.toString() );
         }
 
-        m_datasources =
-            (DataSourceSelector)componentManager.lookup( DataSourceSelector.ROLE );
+        setDatasources((DataSourceSelector)componentManager.lookup( DataSourceSelector.ROLE ));
     }
 
     /**
@@ -301,7 +301,7 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
             m_deleteUserSql = sqlStatements.getSqlString("delete", true);
 
             // Creates a single table with "username" the Primary Key.
-            m_createUserTableSql = sqlStatements.getSqlString("createTable", true);
+            String createUserTableSql = sqlStatements.getSqlString("createTable", true);
 
             // Check if the required table exists. If not, create it.
             // The table name is defined in the SqlResources.
@@ -327,7 +327,7 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
                 PreparedStatement createStatement = null;
                 try {
                     createStatement =
-                        conn.prepareStatement(m_createUserTableSql);
+                        conn.prepareStatement(createUserTableSql);
                     createStatement.execute();
                 } finally {
                     theJDBCUtil.closeJDBCStatement(createStatement);

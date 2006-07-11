@@ -130,6 +130,21 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean,
 
     private ServiceManager serviceManager;
 
+    public void setMailetContext(MailetContext mailetcontext) {
+        this.mailetcontext = mailetcontext;
+    }
+
+    public void setUsers(UsersRepository users) {
+        this.users = users;
+    }
+
+    public void setMailServer(MailServer mailServer) {
+        this.mailServer = mailServer;
+    }
+
+    public void setDNSServer(DNSServer dnsServer) {
+        this.dnsServer = dnsServer;
+    }
 
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
@@ -137,10 +152,10 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean,
     public void service( final ServiceManager manager ) throws ServiceException {
         super.service( manager );
         serviceManager = manager;
-        mailetcontext = (MailetContext) manager.lookup("org.apache.mailet.MailetContext");
-        mailServer = (MailServer) manager.lookup(MailServer.ROLE);
-        users = (UsersRepository) manager.lookup(UsersRepository.ROLE);
-        dnsServer = (DNSServer) manager.lookup(DNSServer.ROLE); 
+        setMailetContext((MailetContext) manager.lookup("org.apache.mailet.MailetContext"));
+        setMailServer((MailServer)manager.lookup(MailServer.ROLE));
+        setUsers((UsersRepository)manager.lookup(UsersRepository.ROLE));
+        setDNSServer((DNSServer)manager.lookup(DNSServer.ROLE)); 
     }
 
     /**
@@ -150,54 +165,11 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean,
         super.configure(configuration);
         if (isEnabled()) {
             mailetcontext.setAttribute(Constants.HELLO_NAME, helloName);
+            
             Configuration handlerConfiguration = configuration.getChild("handler");
-            String authRequiredString = handlerConfiguration.getChild("authRequired").getValue("false").trim().toLowerCase();
-            if (authRequiredString.equals("true")) authRequired = AUTH_REQUIRED;
-            else if (authRequiredString.equals("announce")) authRequired = AUTH_ANNOUNCE;
-            else authRequired = AUTH_DISABLED;
-            verifyIdentity = handlerConfiguration.getChild("verifyIdentity").getValueAsBoolean(false);
-            if (authRequired != AUTH_DISABLED) {
-                if (verifyIdentity) {
-                    getLogger().info("This SMTP server requires authentication and verifies that the authentication credentials match the sender address.");
-                } else {
-                    getLogger().info("This SMTP server requires authentication, but doesn't verify that the authentication credentials match the sender address.");
-                }
-            } else {
-                getLogger().info("This SMTP server does not require authentication.");
-            }
+            configureAuthorization(handlerConfiguration);
 
-            String authorizedAddresses = handlerConfiguration.getChild("authorizedAddresses").getValue(null);
-            if (authRequired == AUTH_DISABLED && authorizedAddresses == null) {
-                /* if SMTP AUTH is not requred then we will use
-                 * authorizedAddresses to determine whether or not to
-                 * relay e-mail.  Therefore if SMTP AUTH is not
-                 * required, we will not relay e-mail unless the
-                 * sending IP address is authorized.
-                 *
-                 * Since this is a change in behavior for James v2,
-                 * create a default authorizedAddresses network of
-                 * 0.0.0.0/0, which matches all possible addresses, thus
-                 * preserving the current behavior.
-                 *
-                 * James v3 should require the <authorizedAddresses>
-                 * element.
-                 */
-                authorizedAddresses = "0.0.0.0/0.0.0.0";
-            }
-
-            if (authorizedAddresses != null) {
-                java.util.StringTokenizer st = new java.util.StringTokenizer(authorizedAddresses, ", ", false);
-                java.util.Collection networks = new java.util.ArrayList();
-                while (st.hasMoreTokens()) {
-                    String addr = st.nextToken();
-                    networks.add(addr);
-                }
-                authorizedNetworks = new NetMatcher(networks,dnsServer);
-            }
-
-            if (authorizedNetworks != null) {
-                getLogger().info("Authorized addresses: " + authorizedNetworks.toString());
-            }
+            configureAuthorizedAddresses(handlerConfiguration);
 
             // get the message size limit from the conf file and multiply
             // by 1024, to put it in bytes
@@ -241,7 +213,59 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean,
         }
         theHandlerFactory = new SMTPHandlerFactory();
     }
-    
+
+    private void configureAuthorization(Configuration handlerConfiguration) {
+        String authRequiredString = handlerConfiguration.getChild("authRequired").getValue("false").trim().toLowerCase();
+        if (authRequiredString.equals("true")) authRequired = AUTH_REQUIRED;
+        else if (authRequiredString.equals("announce")) authRequired = AUTH_ANNOUNCE;
+        else authRequired = AUTH_DISABLED;
+        verifyIdentity = handlerConfiguration.getChild("verifyIdentity").getValueAsBoolean(false);
+        if (authRequired != AUTH_DISABLED) {
+            if (verifyIdentity) {
+                getLogger().info("This SMTP server requires authentication and verifies that the authentication credentials match the sender address.");
+            } else {
+                getLogger().info("This SMTP server requires authentication, but doesn't verify that the authentication credentials match the sender address.");
+            }
+        } else {
+            getLogger().info("This SMTP server does not require authentication.");
+        }
+    }
+
+    private void configureAuthorizedAddresses(Configuration handlerConfiguration) {
+        String authorizedAddresses = handlerConfiguration.getChild("authorizedAddresses").getValue(null);
+        if (authRequired == AUTH_DISABLED && authorizedAddresses == null) {
+            /* if SMTP AUTH is not requred then we will use
+            * authorizedAddresses to determine whether or not to
+            * relay e-mail.  Therefore if SMTP AUTH is not
+            * required, we will not relay e-mail unless the
+            * sending IP address is authorized.
+            *
+            * Since this is a change in behavior for James v2,
+            * create a default authorizedAddresses network of
+            * 0.0.0.0/0, which matches all possible addresses, thus
+            * preserving the current behavior.
+            *
+            * James v3 should require the <authorizedAddresses>
+            * element.
+            */
+            authorizedAddresses = "0.0.0.0/0.0.0.0";
+        }
+
+        if (authorizedAddresses != null) {
+            java.util.StringTokenizer st = new java.util.StringTokenizer(authorizedAddresses, ", ", false);
+            java.util.Collection networks = new java.util.ArrayList();
+            while (st.hasMoreTokens()) {
+                String addr = st.nextToken();
+                networks.add(addr);
+            }
+            authorizedNetworks = new NetMatcher(networks,dnsServer);
+        }
+
+        if (authorizedNetworks != null) {
+            getLogger().info("Authorized addresses: " + authorizedNetworks.toString());
+        }
+    }
+
     /**
      * @see org.apache.james.core.AbstractJamesService#initialize()
      */
@@ -316,7 +340,7 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean,
         }
 
         /**
-         * @see org.apache.avalon.excalibur.pool.ObjectFactory#decommision(Object)
+         * @see org.apache.avalon.excalibur.pool.ObjectFactory#decommission(Object) 
          */
         public void decommission( Object object ) throws Exception {
             return;
@@ -402,7 +426,7 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean,
         }
         
         /**
-         * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#useHeloEnforcement()
+         * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#useHeloEhloEnforcement()
          */
         public boolean useHeloEhloEnforcement() {
             return SMTPServer.this.heloEhloEnforcement;

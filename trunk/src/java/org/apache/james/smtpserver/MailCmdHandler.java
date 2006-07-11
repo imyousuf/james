@@ -71,15 +71,15 @@ public class MailCmdHandler
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
     public void service(ServiceManager serviceMan) throws ServiceException {
-        setDnsServer((DNSServer) serviceMan.lookup(DNSServer.ROLE));
+        setDNSServer((DNSServer) serviceMan.lookup(DNSServer.ROLE));
     }
     
     /**
-     * Set the DnsServer
+     * Set the DNSServer
      * 
-     * @param dnsServer The DnsServer
+     * @param dnsServer The DNSServer
      */
-    public void setDnsServer(DNSServer dnsServer) {
+    public void setDNSServer(DNSServer dnsServer) {
         this.dnsServer = dnsServer;
     }
     

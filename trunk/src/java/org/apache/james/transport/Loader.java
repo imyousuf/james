@@ -56,6 +56,10 @@ public abstract class Loader extends AbstractLogEnabled implements Contextualiza
      */
     protected MailetContext mailetContext;
 
+    public void setMailetContext(MailetContext mailetContext) {
+        this.mailetContext = mailetContext;
+    }
+
     /**
      * @see org.apache.avalon.framework.context.Contextualizable#contextualize(Context)
      */
@@ -98,7 +102,7 @@ public abstract class Loader extends AbstractLogEnabled implements Contextualiza
      * @see org.apache.avalon.framework.activity.Initializable#initialize()
      */
     public void initialize() throws Exception {
-        mailetContext = (MailetContext) serviceManager.lookup("org.apache.mailet.MailetContext");
+        setMailetContext((MailetContext) serviceManager.lookup("org.apache.mailet.MailetContext"));
     }
         
     /**

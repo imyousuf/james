@@ -77,7 +77,8 @@ public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
     public void service(ServiceManager serviceMan) throws ServiceException {
-        dnsServer = (DNSServer) serviceMan.lookup(DNSServer.ROLE);
+        DNSServer dnsServer = (DNSServer) serviceMan.lookup(DNSServer.ROLE);
+        setDNSServer(dnsServer);
     }
     
     /**
@@ -113,7 +114,7 @@ public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler
      * 
      * @param dnsServer The DNSServer
      */
-    public void setDnsServer(DNSServer dnsServer) {
+    public void setDNSServer(DNSServer dnsServer) {
         this.dnsServer = dnsServer;
     }
       
