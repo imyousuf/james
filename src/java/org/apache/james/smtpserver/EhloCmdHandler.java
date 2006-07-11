@@ -76,7 +76,7 @@ public class EhloCmdHandler extends AbstractLogEnabled implements CommandHandler
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
     public void service(ServiceManager serviceMan) throws ServiceException {
-        setDNSServer((DNSServer) serviceMan.lookup(DNSServer.ROLE));
+        setDnsServer((DNSServer) serviceMan.lookup(DNSServer.ROLE));
     }
     
     /**
@@ -113,7 +113,7 @@ public class EhloCmdHandler extends AbstractLogEnabled implements CommandHandler
      * 
      * @param dnsServer The DNSServer
      */
-    public void setDNSServer(DNSServer dnsServer) {
+    public void setDnsServer(DNSServer dnsServer) {
         this.dnsServer = dnsServer;
     }
 
