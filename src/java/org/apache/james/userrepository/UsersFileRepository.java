@@ -57,12 +57,16 @@ public class UsersFileRepository
     protected static boolean DEEP_DEBUG = false;
 
     private Store store;
-    private ObjectRepository or;
+    private ObjectRepository objectRepository;
 
     /**
      * The destination URL used to define the repository.
      */
     private String destination;
+
+    public void setStore(Store store) {
+        this.store = store;
+    }
 
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
@@ -71,7 +75,7 @@ public class UsersFileRepository
         throws ServiceException {
 
         try {
-            store = (Store)componentManager.lookup( Store.ROLE );
+            setStore((Store)componentManager.lookup( Store.ROLE ));
         } catch (Exception e) {
             final String message = "Failed to retrieve Store component:" + e.getMessage();
             getLogger().error( message, e );
@@ -108,7 +112,7 @@ public class UsersFileRepository
             objectConfiguration.setAttribute( "type", "OBJECT" );
             objectConfiguration.setAttribute( "model", "SYNCHRONOUS" );
 
-            or = (ObjectRepository)store.select( objectConfiguration );
+            objectRepository = (ObjectRepository)store.select( objectConfiguration );
             if (getLogger().isDebugEnabled()) {
                 StringBuffer logBuffer =
                     new StringBuffer(192)
@@ -131,7 +135,7 @@ public class UsersFileRepository
      * @return Iterator over a collection of Strings, each being one user in the repository.
      */
     public Iterator list() {
-        return or.list();
+        return objectRepository.list();
     }
 
     /**
@@ -148,7 +152,7 @@ public class UsersFileRepository
             return false;
         }
         try {
-            or.put(username, user);
+            objectRepository.put(username, user);
         } catch (Exception e) {
             throw new RuntimeException("Exception caught while storing user: " + e );
         }
@@ -176,7 +180,7 @@ public class UsersFileRepository
     public synchronized User getUserByName(String name) {
         if (contains(name)) {
             try {
-                return (User)or.get(name);
+                return (User)objectRepository.get(name);
             } catch (Exception e) {
                 throw new RuntimeException("Exception while retrieving user: "
                                            + e.getMessage());
@@ -211,7 +215,7 @@ public class UsersFileRepository
             return false;
         }
         try {
-            or.put(username, user);
+            objectRepository.put(username, user);
         } catch (Exception e) {
             throw new RuntimeException("Exception caught while storing user: " + e );
         }
@@ -219,11 +223,11 @@ public class UsersFileRepository
     }
 
     public synchronized void removeUser(String name) {
-        or.remove(name);
+        objectRepository.remove(name);
     }
 
     public boolean contains(String name) {
-        return or.containsKey(name);
+        return objectRepository.containsKey(name);
     }
 
     public boolean containsCaseInsensitive(String name) {
@@ -240,7 +244,7 @@ public class UsersFileRepository
         User user;
         try {
             if (contains(name)) {
-                user = (User) or.get(name);
+                user = (User) objectRepository.get(name);
             } else {
                return false;
             }

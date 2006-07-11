@@ -98,13 +98,16 @@ public class JamesSpoolManager
      */
     private MailProcessor processorList;
 
+    public void setSpool(SpoolRepository spool) {
+        this.spool = spool;
+    }
+
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
     public void service(ServiceManager comp) throws ServiceException {
-        // threadManager = (ThreadManager) comp.lookup(ThreadManager.ROLE);
         compMgr = comp;
-        spool = (SpoolRepository) compMgr.lookup(SpoolRepository.ROLE);
+        setSpool((SpoolRepository) compMgr.lookup(SpoolRepository.ROLE));
     }
 
     /**
@@ -254,7 +257,6 @@ public class JamesSpoolManager
      * This implementation shuts down the LinearProcessors managed by this
      * JamesSpoolManager
      *
-     * @throws Exception if an error is encountered during shutdown
      */
     public void dispose() {
         getLogger().info("JamesSpoolManager dispose...");

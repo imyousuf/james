@@ -86,6 +86,11 @@ public class SimpleConnectionManager
      * Whether the SimpleConnectionManager has been disposed.
      */
     private volatile boolean disposed = false;
+
+    public void setThreadManager(ThreadManager threadManager) {
+        this.threadManager = threadManager;
+    }
+
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
@@ -125,7 +130,7 @@ public class SimpleConnectionManager
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
     public void service(ServiceManager componentManager) throws ServiceException {
-        threadManager = (ThreadManager)componentManager.lookup(ThreadManager.ROLE);
+        setThreadManager((ThreadManager)componentManager.lookup(ThreadManager.ROLE));
     }
     /**
      * Disconnects all the underlying ServerConnections

@@ -116,8 +116,6 @@ public class LinearProcessor
     private volatile boolean listsClosed;  // Whether the matcher/mailet lists have been closed.
     private SpoolRepository spool;  // The spool on which this processor is acting
 
-    private ServiceManager compMgr;
-
     private MailetLoader mailetLoader;
 
     private MatcherLoader matchLoader;
@@ -136,6 +134,14 @@ public class LinearProcessor
         this.spool = spool;
     }
 
+    public void setMailetLoader(MailetLoader mailetLoader) {
+        this.mailetLoader = mailetLoader;
+    }
+
+    public void setMatchLoader(MatcherLoader matchLoader) {
+        this.matchLoader = matchLoader;
+    }
+
     /**
      * <p>The dispose operation is called at the end of a components lifecycle.
      * Instances of this class use this method to release and destroy any
@@ -144,7 +150,6 @@ public class LinearProcessor
      * <p>This implementation disposes of all the mailet instances added to the
      * processor</p>
      *
-     * @throws Exception if an error is encountered during shutdown
      */
     public void dispose() {
         Iterator it = mailets.iterator();
@@ -615,9 +620,9 @@ public class LinearProcessor
                                 .append(": ")
                                 .append(ex.toString());
                     getLogger().error( errorBuffer.toString(), ex );
-        if (ex.getNextException() != null) {
-        getLogger().error( "Caused by nested exception: ", ex.getNextException());
-        }
+                    if (ex.getNextException() != null) {
+                        getLogger().error( "Caused by nested exception: ", ex.getNextException());
+                    }
                 }
                 System.err.println("Unable to init matcher " + matcherName);
                 System.err.println("Check spool manager logs for more details.");
@@ -644,13 +649,12 @@ public class LinearProcessor
                                 .append(": ")
                                 .append(ex.toString());
                     getLogger().error( errorBuffer.toString(), ex );
-        if (ex.getNextException() != null) {
-        getLogger().error( "Caused by nested exception: ", ex.getNextException());
-        }
+                    if (ex.getNextException() != null) {
+                        getLogger().error( "Caused by nested exception: ", ex.getNextException());
+                    }
                 }
                 System.err.println("Unable to init mailet " + mailetClassName);
                 System.err.println("Check spool manager logs for more details.");
-                //System.exit(1);
                 throw new ConfigurationException("Unable to init mailet",c,ex);
             }
             //Add this pair to the processor
@@ -669,10 +673,8 @@ public class LinearProcessor
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
     public void service(ServiceManager comp) throws ServiceException {
-        compMgr = comp;
-        mailetLoader = (MailetLoader) compMgr.lookup(MailetLoader.ROLE);
-        matchLoader = (MatcherLoader) compMgr.lookup(MatcherLoader.ROLE);
-        spool = (SpoolRepository) compMgr.lookup(SpoolRepository.ROLE);
-        setSpool(spool);
+        setMailetLoader((MailetLoader) comp.lookup(MailetLoader.ROLE));
+        setMatchLoader((MatcherLoader) comp.lookup(MatcherLoader.ROLE));
+        setSpool( (SpoolRepository) comp.lookup(SpoolRepository.ROLE));
     }
 }
