@@ -18,7 +18,6 @@
 package org.apache.james.remotemanager;
 
 import org.apache.avalon.cornerstone.services.store.Store;
-import org.apache.avalon.excalibur.pool.ObjectFactory;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.service.ServiceException;
@@ -146,7 +145,6 @@ public class RemoteManager
             if (prompt == null) prompt = ""; 
             else if (!prompt.equals("") && !prompt.endsWith(" ")) prompt += " "; 
         }
-        theHandlerFactory = new RemoteManagerHandlerFactory();
     }
 
     /**
@@ -162,33 +160,19 @@ public class RemoteManager
     public String getServiceType() {
         return "Remote Manager Service";
     }
-
+    
     /**
-     * The factory for producing handlers.
+     * @see org.apache.avalon.excalibur.pool.ObjectFactory#newInstance()
      */
-    private static class RemoteManagerHandlerFactory
-        implements ObjectFactory {
-
-        /**
-         * @see org.apache.avalon.excalibur.pool.ObjectFactory#newInstance()
-         */
-        public Object newInstance() throws Exception {
-            return new RemoteManagerHandler();
-        }
-
-        /**
-         * @see org.apache.avalon.excalibur.pool.ObjectFactory#getCreatedClass()
-         */
-        public Class getCreatedClass() {
-            return RemoteManagerHandler.class;
-        }
-
-        /**
-         * @see org.apache.avalon.excalibur.pool.ObjectFactory#decommission(Object) 
-         */
-        public void decommission( Object object ) throws Exception {
-            return;
-        }
+    public Object newInstance() throws Exception {
+        return new RemoteManagerHandler();
+    }
+    
+    /**
+    * @see org.apache.avalon.excalibur.pool.ObjectFactory#getCreatedClass()
+    */
+    public Class getCreatedClass() {
+        return RemoteManagerHandler.class;
     }
 
     /**

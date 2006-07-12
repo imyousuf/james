@@ -17,8 +17,6 @@
 
 package org.apache.james.pop3server;
 
-import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
-import org.apache.avalon.excalibur.pool.ObjectFactory;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.container.ContainerUtil;
@@ -116,7 +114,6 @@ public class POP3Server extends AbstractJamesService implements POP3ServerMBean 
             ContainerUtil.configure(handlerChain,handlerConfiguration.getChild("handlerchain"));
 
         }
-        theHandlerFactory = new POP3HandlerFactory();
     }
 
     /**
@@ -135,13 +132,11 @@ public class POP3Server extends AbstractJamesService implements POP3ServerMBean 
 
 
     /**
-     * @see org.apache.avalon.cornerstone.services.connection.AbstractHandlerFactory#newHandler()
+     * @see org.apache.avalon.excalibur.pool.ObjectFactory#newInstance()
      */
-    protected ConnectionHandler newHandler()
-            throws Exception {
+     public Object newInstance() throws Exception {
+        POP3Handler theHandler = new POP3Handler();
         
-        POP3Handler theHandler = (POP3Handler) super.newHandler();
-
         //pass the handler chain to every POP3handler
         theHandler.setHandlerChain(handlerChain);
 
@@ -149,32 +144,11 @@ public class POP3Server extends AbstractJamesService implements POP3ServerMBean 
     }
 
     /**
-     * The factory for producing handlers.
+     * @see org.apache.avalon.excalibur.pool.ObjectFactory#getCreatedClass()
      */
-    private static class POP3HandlerFactory
-        implements ObjectFactory {
-
-        /**
-         * @see org.apache.avalon.excalibur.pool.ObjectFactory#newInstance()
-         */
-        public Object newInstance() throws Exception {
-            return new POP3Handler();
-        }
-
-        /**
-         * @see org.apache.avalon.excalibur.pool.ObjectFactory#getCreatedClass()
-         */
-        public Class getCreatedClass() {
-            return POP3Handler.class;
-        }
-
-        /**
-         * @see org.apache.avalon.excalibur.pool.ObjectFactory#decommission(Object) 
-         */
-        public void decommission( Object object ) throws Exception {
-            return;
-        }
-    }
+     public Class getCreatedClass() {
+         return POP3Handler.class;
+     }
 
     /**
      * A class to provide POP3 handler configuration to the handlers

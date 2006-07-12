@@ -53,7 +53,7 @@ import java.net.UnknownHostException;
  *
  */
 public abstract class AbstractJamesService extends AbstractHandlerFactory
-    implements Serviceable, Configurable, Disposable, Initializable, ConnectionHandlerFactory {
+    implements Serviceable, Configurable, Disposable, Initializable, ConnectionHandlerFactory, ObjectFactory {
 
     /**
      * The default value for the connection timeout.
@@ -166,11 +166,6 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
      * The pool used to provide Protocol Handler objects
      */
     protected Pool theHandlerPool = null;
-
-    /**
-     * The factory used to provide Handler objects
-     */
-    protected ObjectFactory theHandlerFactory = null;
 
     /**
      * The factory used to generate Watchdog objects
@@ -419,14 +414,14 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
         getLogger().info(logString);
 
         if (connectionLimit != null) {
-            theHandlerPool = new HardResourceLimitingPool(theHandlerFactory, 5, connectionLimit.intValue());
+            theHandlerPool = new HardResourceLimitingPool((ObjectFactory) this, 5, connectionLimit.intValue());
             if (getLogger().isDebugEnabled()) {
                 getLogger().debug("Using a bounded pool for "+getServiceType()+" handlers with upper limit " + connectionLimit.intValue());
             }
         } else {
             // NOTE: The maximum here is not a real maximum.  The handler pool will continue to
             //       provide handlers beyond this value.
-            theHandlerPool = new DefaultPool(theHandlerFactory, null, 5, 30);
+            theHandlerPool = new DefaultPool((ObjectFactory) this, null, 5, 30);
             getLogger().debug("Using an unbounded pool for "+getServiceType()+" handlers.");
         }
     }
@@ -613,6 +608,13 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
     */  
     public String  getSocketType() {
         return serverSocketType;
+    }
+    
+    /**
+    * @see org.apache.avalon.excalibur.pool.ObjectFactory#decommision(Object)
+    */
+    public void decommission( Object object ) throws Exception {
+        return;
     }
 }
 
