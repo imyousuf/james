@@ -17,7 +17,6 @@
 
 package org.apache.james.nntpserver;
 
-import org.apache.avalon.excalibur.pool.ObjectFactory;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.service.ServiceException;
@@ -92,7 +91,6 @@ public class NNTPServer extends AbstractJamesService implements NNTPServerMBean 
                 }
             }
         }
-        theHandlerFactory = new NNTPHandlerFactory();
     }
 
     /**
@@ -109,33 +107,21 @@ public class NNTPServer extends AbstractJamesService implements NNTPServerMBean 
         return "NNTP Service";
     }
 
+
     /**
-     * The factory for producing handlers.
+     * @see org.apache.avalon.excalibur.pool.ObjectFactory#newInstance()
      */
-    private static class NNTPHandlerFactory
-        implements ObjectFactory {
-
-        /**
-         * @see org.apache.avalon.excalibur.pool.ObjectFactory#newInstance()
-         */
-        public Object newInstance() throws Exception {
-            return new NNTPHandler();
-        }
-
-        /**
-         * @see org.apache.avalon.excalibur.pool.ObjectFactory#getCreatedClass()
-         */
-        public Class getCreatedClass() {
-            return NNTPHandler.class;
-        }
-
-        /**
-         * @see org.apache.avalon.excalibur.pool.ObjectFactory#decommission(Object) 
-         */
-        public void decommission( Object object ) throws Exception {
-            return;
-        }
+    public Object newInstance() throws Exception {
+        return new NNTPHandler();
     }
+
+    /**
+     * @see org.apache.avalon.excalibur.pool.ObjectFactory#getCreatedClass()
+     */
+    public Class getCreatedClass() {
+        return NNTPHandler.class;
+    }
+          
 
     /**
      * A class to provide NNTP handler configuration to the handlers
