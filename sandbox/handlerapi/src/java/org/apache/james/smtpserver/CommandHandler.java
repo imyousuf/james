@@ -19,6 +19,7 @@ package org.apache.james.smtpserver;
 
 import java.util.Collection;
 
+
 /**
  * Custom command handlers must implement this interface
  * The command handlers will be Server wide common to all the SMTPHandlers,

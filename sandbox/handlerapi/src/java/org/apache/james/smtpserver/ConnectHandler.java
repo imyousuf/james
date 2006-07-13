@@ -17,6 +17,7 @@
 
 package org.apache.james.smtpserver;
 
+
 /**
  * Custom connect handlers must implement this interface
  * The connect handlers will be server-wide common to all the SMTPHandlers,
