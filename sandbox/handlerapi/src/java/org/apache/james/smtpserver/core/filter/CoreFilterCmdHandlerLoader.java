@@ -15,7 +15,7 @@
  * permissions and limitations under the License.                      *
  ***********************************************************************/
 
-package org.apache.james.smtpserver.core;
+package org.apache.james.smtpserver.core.filter;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,11 +28,11 @@ import org.apache.james.smtpserver.CommandsHandler;
  */
 public class CoreFilterCmdHandlerLoader implements CommandsHandler {
 
-    private final Object DATABASEFILTERCMDHANDLER = "org.apache.james.smtpserver.basefilter.DataBaseFilterCmdHandler";
-    private final Object EHLOBASEFILTERCMDHANDLER = "org.apache.james.smtpserver.basefilter.EhloBaseFilterCmdHandler";
-    private final Object HELOBASEFILTERCMDHANDLER = "org.apache.james.smtpserver.basefilter.HeloBaseFilterCmdHandler";
-    private final Object MAILBASEFILTERCMDHANDLER = "org.apache.james.smtpserver.basefilter.MailBaseFilterCmdHandler";
-    private final Object RCPTBASEFILTERCMDHANDLER = "org.apache.james.smtpserver.basefilter.RcptBaseFilterCmdHandler";
+    private final Object DATABASEFILTERCMDHANDLER = DataFilterCmdHandler.class.getName();
+    private final Object EHLOBASEFILTERCMDHANDLER = EhloFilterCmdHandler.class.getName();
+    private final Object HELOBASEFILTERCMDHANDLER = HeloFilterCmdHandler.class.getName();
+    private final Object MAILBASEFILTERCMDHANDLER = MailFilterCmdHandler.class.getName();
+    private final Object RCPTBASEFILTERCMDHANDLER = RcptFilterCmdHandler.class.getName();
    
     /**
      * @see org.apache.james.smtpserver.CommandsHandler#getCommands()

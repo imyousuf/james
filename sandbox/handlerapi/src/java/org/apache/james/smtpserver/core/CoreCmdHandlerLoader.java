@@ -22,24 +22,23 @@ import java.util.Map;
 
 import org.apache.james.smtpserver.CommandsHandler;
 
-
 /**
  * This class represent the base command handlers which are shipped with james.
  */
 public class CoreCmdHandlerLoader implements CommandsHandler {
 
-    private final Object AUTHCMDHANDLER = "org.apache.james.smtpserver.AuthCmdHandler";
-    private final Object DATACMDHANDLER = "org.apache.james.smtpserver.DataCmdHandler";
-    private final Object EHLOCMDHANDLER = "org.apache.james.smtpserver.EhloCmdHandler";
-    private final Object EXPNCMDHANDLER = "org.apache.james.smtpserver.ExpnCmdHandler";
-    private final Object HELOCMDHANDLER = "org.apache.james.smtpserver.HeloCmdHandler";
-    private final Object HELPCMDHANDLER = "org.apache.james.smtpserver.HelpCmdHandler";
-    private final Object MAILCMDHANDLER = "org.apache.james.smtpserver.MailCmdHandler";
-    private final Object NOOPCMDHANDLER = "org.apache.james.smtpserver.NoopCmdHandler";
-    private final Object QUITCMDHANDLER = "org.apache.james.smtpserver.QuitCmdHandler";
-    private final Object RCPTCMDHANDLER = "org.apache.james.smtpserver.RcptCmdHandler";
-    private final Object RSETCMDHANDLER = "org.apache.james.smtpserver.RsetCmdHandler";
-    private final Object VRFYCMDHANDLER = "org.apache.james.smtpserver.VrfyCmdHandler";
+    private final Object AUTHCMDHANDLER = AuthCmdHandler.class.getName();
+    private final Object DATACMDHANDLER = DataCmdHandler.class.getName();
+    private final Object EHLOCMDHANDLER = EhloCmdHandler.class.getName();
+    private final Object EXPNCMDHANDLER = ExpnCmdHandler.class.getName();
+    private final Object HELOCMDHANDLER = HeloCmdHandler.class.getName();
+    private final Object HELPCMDHANDLER = HelpCmdHandler.class.getName();
+    private final Object MAILCMDHANDLER = MailCmdHandler.class.getName();
+    private final Object NOOPCMDHANDLER = NoopCmdHandler.class.getName();
+    private final Object QUITCMDHANDLER = QuitCmdHandler.class.getName();
+    private final Object RCPTCMDHANDLER = RcptCmdHandler.class.getName();
+    private final Object RSETCMDHANDLER = RsetCmdHandler.class.getName();
+    private final Object VRFYCMDHANDLER = VrfyCmdHandler.class.getName();
    
     /**
      * @see org.apache.james.smtpserver.CommandsHandler#getCommands()

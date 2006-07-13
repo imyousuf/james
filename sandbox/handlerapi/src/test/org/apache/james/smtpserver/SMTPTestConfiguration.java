@@ -18,9 +18,11 @@
 
 package org.apache.james.smtpserver;
 
-import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.james.smtpserver.core.filter.CoreFilterCmdHandlerLoader;
+import org.apache.james.smtpserver.core.filter.fastfail.*;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
+import org.apache.james.smtpserver.core.CoreCmdHandlerLoader;
 import org.apache.james.test.util.Util;
 
 public class SMTPTestConfiguration extends DefaultConfiguration {
@@ -142,34 +144,34 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
         //handlerConfig.addChild( new DefaultConfiguration("handlerchain"));
         
         DefaultConfiguration config = new DefaultConfiguration("handlerchain");
-        config.addChild(createHandler("org.apache.james.smtpserver.core.BaseFilterCmdHandler",null));
+        config.addChild(createHandler(CoreFilterCmdHandlerLoader.class.getName(),null));
         
         if (m_heloResolv || m_ehloResolv) {
-            DefaultConfiguration d = createHandler("org.apache.james.smtpserver.fastfailfilter.ResolvableEhloHeloHandler",null);
+            DefaultConfiguration d = createHandler(ResolvableEhloHeloHandler.class.getName(),null);
             d.setAttribute("command","EHLO,HELO");
             d.addChild(Util.getValuedConfiguration("checkAuthNetworks",m_checkAuthNetworks+""));
             config.addChild(d);
         }
         if (m_reverseEqualsHelo || m_reverseEqualsEhlo) {
-            DefaultConfiguration d = createHandler("org.apache.james.smtpserver.fastfailfilter.ReverseEqualsEhloHeloHandler",null);
+            DefaultConfiguration d = createHandler(ReverseEqualsEhloHeloHandler.class.getName(),null);
             d.setAttribute("command","EHLO,HELO");
             d.addChild(Util.getValuedConfiguration("checkAuthNetworks",m_checkAuthNetworks+""));
             config.addChild(d);
         }
         if (m_senderDomainResolv) {
-            DefaultConfiguration d = createHandler("org.apache.james.smtpserver.fastfailfilter.ValidSenderDomainHandler",null);
+            DefaultConfiguration d = createHandler(ValidSenderDomainHandler.class.getName(),null);
             d.setAttribute("command","MAIL");
             d.addChild(Util.getValuedConfiguration("checkAuthClients",m_checkAuthClients+""));
             config.addChild(d);
         }
         if (m_maxRcpt > 0) {
-            DefaultConfiguration d = createHandler("org.apache.james.smtpserver.fastfailfilter.MaxRcptHandler",null);
+            DefaultConfiguration d = createHandler(MaxRcptHandler.class.getName(),null);
             d.setAttribute("command","RCPT");
             d.addChild(Util.getValuedConfiguration("maxRcpt",m_maxRcpt+""));
             config.addChild(d);
         }
-        config.addChild(createHandler("org.apache.james.smtpserver.core.BaseCmdHandler",null));
-        config.addChild(createHandler("org.apache.james.smtpserver.SendMailHandler",null));
+        config.addChild(createHandler(CoreCmdHandlerLoader.class.getName(),null));
+        config.addChild(createHandler(org.apache.james.smtpserver.core.SendMailHandler.class.getName(),null));
         handlerConfig.addChild(config);
         addChild(handlerConfig);
     }

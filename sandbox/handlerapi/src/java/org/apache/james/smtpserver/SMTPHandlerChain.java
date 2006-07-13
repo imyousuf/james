@@ -31,9 +31,9 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.smtpserver.core.CoreCmdHandlerLoader;
-import org.apache.james.smtpserver.core.CoreFilterCmdHandlerLoader;
 import org.apache.james.smtpserver.core.SendMailHandler;
 import org.apache.james.smtpserver.core.UnknownCmdHandler;
+import org.apache.james.smtpserver.core.filter.CoreFilterCmdHandlerLoader;
 
 import java.util.ArrayList;
 import java.util.Collection;
