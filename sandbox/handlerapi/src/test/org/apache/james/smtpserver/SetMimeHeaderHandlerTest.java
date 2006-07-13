@@ -19,6 +19,7 @@ package org.apache.james.smtpserver;
 
 import junit.framework.TestCase;
 import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.james.smtpserver.core.SetMimeHeaderHandler;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.util.Util;
 import org.apache.james.util.watchdog.Watchdog;
