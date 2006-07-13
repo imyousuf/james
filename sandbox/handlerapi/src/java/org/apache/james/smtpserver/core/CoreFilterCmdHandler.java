@@ -22,10 +22,11 @@ import java.util.Map;
 
 import org.apache.james.smtpserver.CommandsHandler;
 
+
 /**
  * This class represent the base filter command handlers which are shipped with james.
  */
-public class BaseFilterCmdHandler implements CommandsHandler {
+public class CoreFilterCmdHandler implements CommandsHandler {
 
     private final Object DATABASEFILTERCMDHANDLER = "org.apache.james.smtpserver.basefilter.DataBaseFilterCmdHandler";
     private final Object EHLOBASEFILTERCMDHANDLER = "org.apache.james.smtpserver.basefilter.EhloBaseFilterCmdHandler";
