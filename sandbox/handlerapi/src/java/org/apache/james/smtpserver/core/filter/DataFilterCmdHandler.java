@@ -29,7 +29,7 @@ import org.apache.james.util.mail.dsn.DSNStatus;
 /**
   * handles DATA command
  */
-public class DataBaseFilterCmdHandler
+public class DataFilterCmdHandler
     extends AbstractLogEnabled
     implements CommandHandler {
 

@@ -26,7 +26,7 @@ import org.apache.james.smtpserver.CommandsHandler;
 /**
  * This class represent the base command handlers which are shipped with james.
  */
-public class CoreCmdHandler implements CommandsHandler {
+public class CoreCmdHandlerLoader implements CommandsHandler {
 
     private final Object AUTHCMDHANDLER = "org.apache.james.smtpserver.AuthCmdHandler";
     private final Object DATACMDHANDLER = "org.apache.james.smtpserver.DataCmdHandler";

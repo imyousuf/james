@@ -32,7 +32,7 @@ import org.apache.mailet.MailAddress;
 /**
   * Handles MAIL command
   */
-public class MailBaseFilterCmdHandler
+public class MailFilterCmdHandler
     extends AbstractLogEnabled
     implements CommandHandler {
 

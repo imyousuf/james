@@ -17,49 +17,46 @@
 
 package org.apache.james.smtpserver.core.filter;
 
-
 import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
-
+import org.apache.james.util.mail.dsn.DSNStatus;
 
 /**
-  * Handles HELO command
+  * Handles EHLO command
   */
-public class HeloBaseFilterCmdHandler extends AbstractLogEnabled implements CommandHandler {
+public class EhloFilterCmdHandler extends AbstractLogEnabled implements CommandHandler {
 
     /**
      * The name of the command handled by the command handler
      */
-    private final static String COMMAND_NAME = "HELO";
-      
+    private final static String COMMAND_NAME = "EHLO";
+
     /**
-     * process HELO command
+     * processes EHLO command
      *
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
     **/
     public void onCommand(SMTPSession session) {
-        doHELO(session, session.getCommandArgument());
+        doEHLO(session, session.getCommandArgument());
     }
 
     /**
      * @param session SMTP session object
      * @param argument the argument passed in with the command by the SMTP client
      */
-    private void doHELO(SMTPSession session, String argument) {
-        String responseString = null;
-              
+    private void doEHLO(SMTPSession session, String argument) {
+        String responseString = null;        
+     
         if (argument == null) {
-            responseString = "501 Domain address required: " + COMMAND_NAME;
+            responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Domain address required: " + COMMAND_NAME;
             session.writeResponse(responseString);
-            getLogger().info(responseString);
             
             // After this filter match we should not call any other handler!
             session.setStopHandlerProcessing(true);
-         
         }
     }
     
@@ -68,9 +65,9 @@ public class HeloBaseFilterCmdHandler extends AbstractLogEnabled implements Comm
      */
     public Collection getImplCommands() {
         Collection implCommands = new ArrayList();
-        implCommands.add("HELO");
+        implCommands.add("EHLO");
         
         return implCommands;
     }
-    
+
 }

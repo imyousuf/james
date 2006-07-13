@@ -32,7 +32,7 @@ import org.apache.mailet.MailAddress;
 /**
   * Handles RCPT command
   */
-public class RcptBaseFilterCmdHandler extends AbstractLogEnabled implements
+public class RcptFilterCmdHandler extends AbstractLogEnabled implements
         CommandHandler {
 
 
