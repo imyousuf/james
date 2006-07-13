@@ -919,7 +919,7 @@ Regards, Postmaster XXX.YYY
             <!-- why the ip was blocked. Default to false -->            
             <!--
             
-            <handler class="org.apache.james.smtpserver.DNSRBLHandler">
+            <handler class="org.apache.james.smtpserver.core.DNSRBLHandler">
                <getDetail> false </getDetail>
                <rblservers>
                   <whitelist> query.bondedsender.org </whitelist>
@@ -937,7 +937,7 @@ Regards, Postmaster XXX.YYY
             <!-- If checkAuthNetworks is set to true sender domain will be checked also for clients that -->
             <!-- are allowed to relay. Default is false. -->
             <!--
-            <handler class="org.apache.james.smtpserver.fastfailfilter.ResolvableEhloHeloHandler" command="EHLO,HELO">
+            <handler class="org.apache.james.smtpserver.core.filter.fastfail.ResolvableEhloHeloHandler" command="EHLO,HELO">
                  <checkAuthNetworks> false </checkAuthNetworks>
             </handler>  
             -->
@@ -946,7 +946,7 @@ Regards, Postmaster XXX.YYY
             <!-- If checkAuthNetworks is set to true sender domain will be checked also for clients that -->
             <!-- are allowed to relay. Default is false. -->
             <!--
-            <handler class="org.apache.james.smtpserver.fastfailfilter.ReverseEqualsEhloHeloHandler" command="EHLO,HELO">
+            <handler class="org.apache.james.smtpserver.core.filter.fastfail.ReverseEqualsEhloHeloHandler" command="EHLO,HELO">
                 <checkAuthClients> false </checkAuthClients>
             </handler>
             -->
@@ -956,14 +956,14 @@ Regards, Postmaster XXX.YYY
             <!-- If checkAuthNetworks is set to true sender domain will be checked also for clients that -->
             <!-- are allowed to relay. Default is false. -->
             <!--
-            <handler class="org.apache.james.smtpserver.fastfailfilter.ValidSenderDomainHandler" command="MAIL">
+            <handler class="org.apache.james.smtpserver.core.filter.fastfail.ValidSenderDomainHandler" command="MAIL">
                 <checkAuthClients> false </checkAuthClients>
             </handler>
             -->
             
             <!-- If activated you can limit the maximal recipients -->
             <!-- 
-            <handler class="org.apache.james.smtpserver.fastfailfilter.MaxRcptHandler" command="RCPT">
+            <handler class="org.apache.james.smtpserver.core.filter.fastfail.MaxRcptHandler" command="RCPT">
                 <maxRcpt> 10 </maxRcpt>                
             </handler>
             -->
@@ -975,7 +975,7 @@ Regards, Postmaster XXX.YYY
             <!-- Default is set to 0 (disabled). -->
             <!-- You can also configure the time to sleep in milliseconds -->
             <!--
-            <handler class="org.apache.james.smtpserver.fastfailfilter.TarpitHandler" command="RCPT">
+            <handler class="org.apache.james.smtpserver.core.filter.fastfail.TarpitHandler" command="RCPT">
                 <tarpitRcptCount> 5 </tarpitRcptCount>
                  <tarpitSleepTime> 5000 </tarpitSleepTime>
             </handler>
@@ -983,7 +983,7 @@ Regards, Postmaster XXX.YYY
          
             <!-- The message handler configuration -->
             <!-- 
-            <handler class="org.apache.james.smtpserver.SetMimeHeaderHandler">
+            <handler class="org.apache.james.smtpserver.core.SetMimeHeaderHandler">
                 <headername>SPF-test</headername>
                 <headervalue>passed</headervalue>
             </handler>
@@ -992,7 +992,7 @@ Regards, Postmaster XXX.YYY
             <!--  The default message receiving handler -->
             <!--  The default behaviour is to put the message in the root processor of -->
             <!--  the spooler -->
-            <handler class="org.apache.james.smtpserver.SendMailHandler">
+            <handler class="org.apache.james.smtpserver.core.SendMailHandler">
             </handler>
          </handlerchain>
             
