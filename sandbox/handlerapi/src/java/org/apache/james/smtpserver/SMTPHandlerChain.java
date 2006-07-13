@@ -30,8 +30,8 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
-import org.apache.james.smtpserver.core.CoreCmdHandler;
-import org.apache.james.smtpserver.core.CoreFilterCmdHandler;
+import org.apache.james.smtpserver.core.CoreCmdHandlerLoader;
+import org.apache.james.smtpserver.core.CoreFilterCmdHandlerLoader;
 import org.apache.james.smtpserver.core.SendMailHandler;
 import org.apache.james.smtpserver.core.UnknownCmdHandler;
 
@@ -85,9 +85,9 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
                 || configuration.getChildren("handler").length == 0) {
             configuration = new DefaultConfiguration("handlerchain");
             Properties cmds = new Properties();
-            cmds.setProperty("Default BaseFilterHandler",
-                    CoreFilterCmdHandler.class.getName());
-            cmds.setProperty("Default BaseHandler", CoreCmdHandler.class
+            cmds.setProperty("Default CoreCmdFilterHandlerLoader",
+                    CoreFilterCmdHandlerLoader.class.getName());
+            cmds.setProperty("Default CoreCmdHandlerLoader", CoreCmdHandlerLoader.class
                     .getName());
             cmds.setProperty("Default SendMailHandler", SendMailHandler.class
                     .getName());
@@ -104,8 +104,8 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
             ClassLoader classLoader = getClass().getClassLoader();
 
             // load the BaseFilterCmdHandler
-            loadClass(classLoader, CoreFilterCmdHandler.class.getName(),
-                    addHandler(null, CoreFilterCmdHandler.class.getName()));
+            loadClass(classLoader, CoreFilterCmdHandlerLoader.class.getName(),
+                    addHandler(null, CoreFilterCmdHandlerLoader.class.getName()));
 
             // load the configured handlers
             if (children != null) {
@@ -114,9 +114,9 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
                     if (className != null) {
 
                         // ignore base handlers.
-                        if (!className.equals(CoreFilterCmdHandler.class
+                        if (!className.equals(CoreFilterCmdHandlerLoader.class
                                 .getName())
-                                && !className.equals(CoreCmdHandler.class
+                                && !className.equals(CoreCmdHandlerLoader.class
                                         .getName())
                                 && !className.equals(SendMailHandler.class
                                         .getName())) {
@@ -128,8 +128,8 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
                 }
 
                 // load the BaseCmdHandler and SendMailHandler
-                loadClass(classLoader, CoreCmdHandler.class.getName(),
-                        addHandler(null, CoreCmdHandler.class.getName()));
+                loadClass(classLoader, CoreCmdHandlerLoader.class.getName(),
+                        addHandler(null, CoreCmdHandlerLoader.class.getName()));
                 loadClass(classLoader, SendMailHandler.class.getName(),
                         addHandler(null, SendMailHandler.class.getName()));
             }
