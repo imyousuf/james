@@ -54,7 +54,7 @@ IV. Configuring James
 <li><a href="smtp_configuration_2_3.html">SMTP Server Configuration</a></li>
 <li><a href="nntp_configuration_2_3.html">NNTP Server Configuration</a></li>
 <li><a href="fetchmail_configuration_2_3.html">fetchMail Configuration</a></li>
-<li><a href="remotemanager_configuration_2_1.html">RemoteManager Configuration</a></li>
+<li><a href="remotemanager_configuration_2_3.html">RemoteManager Configuration</a></li>
 <li><a href="repositories_2_3.html">Repository Configuration</a></li>
 <li><a href="spoolmanager_configuration_2_3.html">SpoolManager Configuration</a></li>
 <li><a href="serverwide_configuration_2_3.html">Server-wide Configuration</a></li>
