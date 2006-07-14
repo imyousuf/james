@@ -151,7 +151,6 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
             DefaultConfiguration handler = new DefaultConfiguration("handler");
             handler.setAttribute("class", DNSRBLHandler.class.getName());
             handlerChain.addChild(handler);
-            handlerConfig.addChild(handlerChain);
         }
         
         // Add Configuration for Helo checks and Ehlo checks
