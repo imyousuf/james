@@ -40,6 +40,7 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
     private boolean m_reverseEqualsHelo = false;
     private boolean m_reverseEqualsEhlo = false;
     private int m_maxRcpt = 0;
+    private boolean m_useRBL = false;
 
     
     public SMTPTestConfiguration(int smtpListenerPort) {
@@ -120,6 +121,10 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
     public void setHeloEhloEnforcement(boolean heloEhloEnforcement) {
         m_heloEhloEnforcement = heloEhloEnforcement; 
     }
+    
+    public void useRBL(boolean useRBL) {
+        m_useRBL = useRBL; 
+    }
 
     public void init() throws ConfigurationException {
 
@@ -137,7 +142,17 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
         handlerConfig.addChild(Util.getValuedConfiguration("heloEhloEnforcement", m_heloEhloEnforcement+""));
         if (m_verifyIdentity) handlerConfig.addChild(Util.getValuedConfiguration("verifyIdentity", "" + m_verifyIdentity));
         
+        
         handlerConfig.addChild(Util.createSMTPHandlerChainConfiguration());
+        
+        if (m_useRBL) {
+            DefaultConfiguration handlerChain = (DefaultConfiguration) handlerConfig
+                    .getChild("handlerchain");
+            DefaultConfiguration handler = new DefaultConfiguration("handler");
+            handler.setAttribute("class", DNSRBLHandler.class.getName());
+            handlerChain.addChild(handler);
+            handlerConfig.addChild(handlerChain);
+        }
         
         // Add Configuration for Helo checks and Ehlo checks
         Configuration[] heloConfig = handlerConfig.getChild("handlerchain").getChildren("handler");
@@ -158,6 +173,21 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
                         ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkAuthClients",m_checkAuthClients+""));
                     } else if ("RCPT".equals(cmd)) {
                         ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("maxRcpt",m_maxRcpt+""));
+                    }
+                } else {
+                    String className = ((DefaultConfiguration) heloConfig[i])
+                            .getAttribute("class", null);
+
+                    if (DNSRBLHandler.class.getName().equals(className)) {
+                        DefaultConfiguration d = (DefaultConfiguration) heloConfig[i];
+
+                        DefaultConfiguration blacklist = new DefaultConfiguration(
+                                "blacklist");
+                        blacklist.setValue("bl.spamcop.net");
+                        DefaultConfiguration rblServers = new DefaultConfiguration(
+                                "rblservers");
+                        rblServers.addChild(blacklist);
+                        d.addChild(rblServers);
                     }
                 }
             }

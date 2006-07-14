@@ -96,6 +96,10 @@ public class SMTPServerTest extends TestCase {
                 if ("127.0.0.1".equals(host)) return getLocalhostByName();
             }
             
+            if ("1.0.0.127.bl.spamcop.net".equals(host)) {
+                return getLocalhostByName();
+            }
+            
             return InetAddress.getByName(host);
 //                throw new UnsupportedOperationException("getByName not implemented in mock for host: "+host);
         }
@@ -1068,5 +1072,57 @@ public class SMTPServerTest extends TestCase {
 
     }
     
-    
+    // Check if auth users get not rejected cause rbl. See JAMES-566
+    public void testDNSRBLNotRejectAuthUser() throws Exception {
+        m_testConfiguration.setAuthorizedAddresses("192.168.0.1/32");
+        m_testConfiguration.setAuthorizingAnnounce();
+        m_testConfiguration.useRBL(true);
+        finishSetUp(m_testConfiguration);
+
+        m_dnsServer.setLocalhostByName(InetAddress.getByName("127.0.0.1"));
+
+        SMTPClient smtpProtocol = new SMTPClient();
+        smtpProtocol.connect("127.0.0.1", m_smtpListenerPort);
+
+        smtpProtocol.sendCommand("ehlo", InetAddress.getLocalHost().toString());
+        String[] capabilityRes = smtpProtocol.getReplyStrings();
+
+        List capabilitieslist = new ArrayList();
+        for (int i = 1; i < capabilityRes.length; i++) {
+            capabilitieslist.add(capabilityRes[i].substring(4));
+        }
+
+        assertTrue("anouncing auth required", capabilitieslist
+                .contains("AUTH LOGIN PLAIN"));
+        // is this required or just for compatibility? assertTrue("anouncing
+        // auth required", capabilitieslist.contains("AUTH=LOGIN PLAIN"));
+
+        String userName = "test_user_smtp";
+        String sender = "test_user_smtp@localhost";
+
+        smtpProtocol.setSender(sender);
+
+        smtpProtocol.sendCommand("AUTH PLAIN");
+
+        m_usersRepository.addUser(userName, "pwd");
+
+        smtpProtocol.sendCommand("AUTH PLAIN");
+
+        smtpProtocol.sendCommand("AUTH PLAIN");
+        smtpProtocol.sendCommand(Base64.encodeAsString("\0" + userName
+                + "\0pwd\0"));
+        assertEquals("authenticated", 235, smtpProtocol.getReplyCode());
+
+        smtpProtocol.addRecipient("mail@sample.com");
+        assertEquals("authenticated.. not reject", 250, smtpProtocol
+                .getReplyCode());
+
+        smtpProtocol.sendShortMessageData("Subject: test\r\n\r\nTest body\r\n");
+
+        smtpProtocol.quit();
+
+        // mail was propagated by SMTPServer
+        assertNotNull("mail received by mail server", m_mailServer
+                .getLastMail());
+    }
 }
