@@ -1102,11 +1102,7 @@ public class SMTPServerTest extends TestCase {
 
         smtpProtocol.setSender(sender);
 
-        smtpProtocol.sendCommand("AUTH PLAIN");
-
         m_usersRepository.addUser(userName, "pwd");
-
-        smtpProtocol.sendCommand("AUTH PLAIN");
 
         smtpProtocol.sendCommand("AUTH PLAIN");
         smtpProtocol.sendCommand(Base64.encodeAsString("\0" + userName
