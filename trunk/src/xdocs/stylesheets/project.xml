@@ -41,6 +41,7 @@
         <item name="Japanese (web)" href="http://james.terra-intl.com/"/>
       </menu>
       <menu name="Related Projects">
+        <item name="jSPF" href="http://james.apache.org/jspf/index.html"/>
         <item name="Jakarta" href="http://jakarta.apache.org/index.html"/>
         <item name="Ant" href="http://ant.apache.org/index.html"/>
         <item name="Avalon" href="http://avalon.apache.org/index.html"/>
