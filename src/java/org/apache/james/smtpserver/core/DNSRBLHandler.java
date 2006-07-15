@@ -26,7 +26,6 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.james.services.DNSServer;
 import org.apache.james.smtpserver.ConnectHandler;
-import org.apache.james.smtpserver.SMTPHandlerConfigurationData;
 import org.apache.james.smtpserver.SMTPSession;
 
 import java.util.ArrayList;

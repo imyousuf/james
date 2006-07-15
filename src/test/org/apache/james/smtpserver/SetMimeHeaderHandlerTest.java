@@ -19,6 +19,7 @@ package org.apache.james.smtpserver;
 
 import junit.framework.TestCase;
 import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.james.smtpserver.core.SetMimeHeaderHandler;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.util.Util;
 import org.apache.james.util.watchdog.Watchdog;
@@ -203,6 +204,21 @@ public class SetMimeHeaderHandlerTest extends TestCase {
             public String getSessionID() {
                 throw new UnsupportedOperationException(
                         "Unimplemented mock service");
+            }
+
+            public int getRcptCount() {
+                // TODO Auto-generated method stub
+                return 0;
+            }
+
+            public void setStopHandlerProcessing(boolean b) {
+                // TODO Auto-generated method stub
+                
+            }
+
+            public boolean getStopHandlerProcessing() {
+                // TODO Auto-generated method stub
+                return false;
             }
         };
     }

@@ -14,7 +14,7 @@
  * implied.  See the License for the specific language governing       *
  * permissions and limitations under the License.                      *
  ***********************************************************************/
-package org.apache.james.smtpserver;
+package org.apache.james.smtpserver.core;
 
 import java.util.Iterator;
 
@@ -25,6 +25,8 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.james.smtpserver.MessageHandler;
+import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.SpamAssassinInvoker;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.Mail;
