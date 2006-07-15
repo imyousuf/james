@@ -72,7 +72,8 @@
             <xsl:comment>LEFT SIDE NAVIGATION</xsl:comment>
             <td nowrap="true" valign="top" class="left-navbar">
               <table cellpadding="0" cellspacing="0" width="100%" border="0"><tr><td>
-                <a href="http://apachecon.com"><img border="0" alt="ApacheCon Promotion" align="left" src="http://apache.org/images/ac2005us_white_184x80.jpg" /></a>
+                <!-- <a href="http://apachecon.com"><img border="0" alt="ApacheCon Promotion" align="left" src="http://apache.org/images/ac2005us_white_184x80.jpg" /></a> -->
+                <a href="http://apachecon.com"><img border="0" alt="ApacheCon Promotion" align="left" src="http://www.apache.org/ads/ApacheCon/234x60-2006-us.gif" /></a>
               </td></tr></table>  
               <xsl:apply-templates select="$site/body/navbar[@name='lhs']"/>
             </td>
