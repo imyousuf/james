@@ -29,6 +29,7 @@ import java.util.List;
 
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.services.DNSServer;
+import org.apache.james.smtpserver.core.DNSRBLHandler;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.mailet.Mail;
@@ -256,6 +257,21 @@ public class DNSRBLHandlerTest extends TestCase {
             public String getSessionID() {
                 throw new UnsupportedOperationException(
                         "Unimplemented mock service");
+            }
+
+            public int getRcptCount() {
+                // TODO Auto-generated method stub
+                return 0;
+            }
+
+            public void setStopHandlerProcessing(boolean b) {
+                // TODO Auto-generated method stub
+                
+            }
+
+            public boolean getStopHandlerProcessing() {
+                // TODO Auto-generated method stub
+                return false;
             }
 
         };

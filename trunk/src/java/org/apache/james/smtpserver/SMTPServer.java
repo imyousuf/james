@@ -241,7 +241,6 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean,
         } else {
             mailetcontext.setAttribute(Constants.HELLO_NAME, "localhost");
         }
-        theHandlerFactory = new SMTPHandlerFactory();
     }
     
     /**
@@ -284,46 +283,24 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean,
     }
 
     /**
-     * @see org.apache.avalon.cornerstone.services.connection.AbstractHandlerFactory#newHandler()
+     * @see org.apache.avalon.excalibur.pool.ObjectFactory#newInstance()
      */
-    protected ConnectionHandler newHandler()
-            throws Exception {
-        
-        SMTPHandler theHandler = (SMTPHandler) super.newHandler();
-
+    public Object newInstance() throws Exception {
+        SMTPHandler theHandler = new SMTPHandler();
         //pass the handler chain to every SMTPhandler
         theHandler.setHandlerChain(handlerChain);
-
+        
         return theHandler;
     }
-
+    
     /**
-     * The factory for producing handlers.
+     * @see org.apache.avalon.excalibur.pool.ObjectFactory#getCreatedClass()
      */
-    private static class SMTPHandlerFactory
-        implements ObjectFactory {
-
-        /**
-         * @see org.apache.avalon.excalibur.pool.ObjectFactory#newInstance()
-         */
-        public Object newInstance() throws Exception {
-            return new SMTPHandler();
-        }
-
-        /**
-         * @see org.apache.avalon.excalibur.pool.ObjectFactory#getCreatedClass()
-         */
-        public Class getCreatedClass() {
-            return SMTPHandler.class;
-        }
-
-        /**
-         * @see org.apache.avalon.excalibur.pool.ObjectFactory#decommision(Object)
-         */
-        public void decommission( Object object ) throws Exception {
-            return;
-        }
+    public Class getCreatedClass() {
+        return SMTPHandler.class;
     }
+
+
 
     /**
      * A class to provide SMTP handler configuration to the handlers
