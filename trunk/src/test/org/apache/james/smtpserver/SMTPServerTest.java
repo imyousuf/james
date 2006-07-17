@@ -1121,4 +1121,34 @@ public class SMTPServerTest extends TestCase {
         assertNotNull("mail received by mail server", m_mailServer
                 .getLastMail());
     }
+    
+   
+    public void testDNSRBLRejectWorks() throws Exception {
+        m_testConfiguration.setAuthorizedAddresses("192.168.0.1/32");
+        m_testConfiguration.useRBL(true);
+        finishSetUp(m_testConfiguration);
+
+        m_dnsServer.setLocalhostByName(InetAddress.getByName("127.0.0.1"));
+
+        SMTPClient smtpProtocol = new SMTPClient();
+        smtpProtocol.connect("127.0.0.1", m_smtpListenerPort);
+
+        smtpProtocol.sendCommand("ehlo", InetAddress.getLocalHost().toString());
+
+        String sender = "test_user_smtp@localhost";
+
+        smtpProtocol.setSender(sender);
+
+        smtpProtocol.addRecipient("mail@sample.com");
+        assertEquals("reject", 550, smtpProtocol
+                .getReplyCode());
+
+        smtpProtocol.sendShortMessageData("Subject: test\r\n\r\nTest body\r\n");
+
+        smtpProtocol.quit();
+
+        // mail was rejected by SMTPServer
+        assertNull("mail reject by mail server", m_mailServer
+                .getLastMail());
+    }
 }
