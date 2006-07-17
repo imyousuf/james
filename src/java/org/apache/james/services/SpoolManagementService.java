@@ -28,9 +28,12 @@ import java.util.List;
 public interface SpoolManagementService {
     String ROLE = "org.apache.james.services.SpoolManagementService";
 
-    public int removeSpoolItems(String spoolRepositoryURL, String key, List lockingFailures, SpoolFilter filter) throws ServiceException, MessagingException;
+    public int removeSpoolItems(String spoolRepositoryURL, String key, List lockingFailures, SpoolFilter filter) 
+            throws ServiceException, MessagingException;
     
-    public int resendSpoolItems(String spoolRepositoryURL, String key, List lockingFailures, SpoolFilter filter) throws ServiceException, MessagingException, SpoolManagementException;
+    public int resendSpoolItems(String spoolRepositoryURL, String key, List lockingFailures, SpoolFilter filter) 
+            throws ServiceException, MessagingException, SpoolManagementException;
 
-    public List getSpoolItems(String spoolRepositoryURL, SpoolFilter filter) throws ServiceException, MessagingException, SpoolManagementException;
+    public List getSpoolItems(String spoolRepositoryURL, SpoolFilter filter) 
+            throws ServiceException, MessagingException, SpoolManagementException;
 }

@@ -27,10 +27,10 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * immutual collection of filers used to specify which mail should be processed by SpoolManagement
+ * immutual collection of filters used to specify which mail should be processed by SpoolManagement
  * criterias are:
  * exact state match
- * all headers match all related headerValue regular expressions
+ * headerValue regular expressions match all related headers 
  */
 public class SpoolFilter {
 
@@ -105,7 +105,9 @@ public class SpoolFilter {
         String headerValueRegex = getHeaderValueRegex(header);
         if (headerValueRegex == null) return null;
         try {
-            return compiler.compile(headerValueRegex, Perl5Compiler.READ_ONLY_MASK);
+            Pattern pattern = compiler.compile(headerValueRegex, Perl5Compiler.READ_ONLY_MASK);
+            headerFiltersCompiled.put(header, pattern); // cache
+            return pattern;
         } catch (MalformedPatternException e) {
             throw new SpoolManagementException("failed to compile regular expression", e);
         }
