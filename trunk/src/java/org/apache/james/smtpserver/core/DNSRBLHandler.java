@@ -51,9 +51,11 @@ public class DNSRBLHandler
     
     private boolean getDetail = false;
     
-    private boolean blocklisted = false;
-    
     private String blocklistedDetail = null;
+    
+    public static final String RBL_BLOCKLISTED_MAIL_ATTRIBUTE_NAME = "org.apache.james.smtpserver.rbl.blocklisted";
+    
+    public static final String RBL_DETAIL_MAIL_ATTRIBUTE_NAME = "org.apache.james.smtpserver.rbl.detail";
 
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
@@ -107,13 +109,13 @@ public class DNSRBLHandler
         setDNSServer((DNSServer) serviceMan.lookup(DNSServer.ROLE));
     }
     
-    /*
+    /**
      * check if the remote Ip address is block listed
      *
      * @see org.apache.james.smtpserver.ConnectHandler#onConnect(SMTPSession)
     **/
     public void onConnect(SMTPSession session) {
-        blocklisted = checkDNSRBL(session, session.getRemoteIPAddress());
+        checkDNSRBL(session, session.getRemoteIPAddress());
     }
     
     /**
@@ -151,36 +153,18 @@ public class DNSRBLHandler
     public void setGetDetail(boolean getDetail) {
         this.getDetail = getDetail;
     }
-    
-    /**
-     * Return true if the ip is blocklisted
-     * 
-     * @return true uf blocklisted
-     */
-    public boolean isBlocklisted() {
-        return blocklisted;
-    }
-    
-    /**
-     * Return the details
-     * 
-     * @return blocklistDetail
-     */
-    public String getBlocklistedDetail() {
-        return blocklistedDetail;
-    }
 
     /**
-     * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#checkDNSRBL(Socket)
-     */
-    /*
+     *
      * This checks DNSRBL whitelists and blacklists.  If the remote IP is whitelisted
      * it will be permitted to send e-mail, otherwise if the remote IP is blacklisted,
      * the sender will only be permitted to send e-mail to postmaster (RFC 2821) or
      * abuse (RFC 2142), unless authenticated.
+     * 
+     * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#checkDNSRBL(Socket)
      */
 
-    public boolean checkDNSRBL(SMTPSession session, String ipAddress) {
+    public void checkDNSRBL(SMTPSession session, String ipAddress) {
         
         /*
          * don't check against rbllists if the client is allowed to relay..
@@ -188,7 +172,8 @@ public class DNSRBLHandler
          */
         if (session.isRelayingAllowed()) {
             getLogger().info("Ipaddress " + session.getRemoteIPAddress() + " is allowed to relay. Don't check it");
-            return false;
+            session.getState().put(RBL_BLOCKLISTED_MAIL_ATTRIBUTE_NAME, "false");
+            return;
         }
         
         if (whitelist != null || blacklist != null) {
@@ -206,7 +191,9 @@ public class DNSRBLHandler
                     if (getLogger().isInfoEnabled()) {
                         getLogger().info("Connection from " + ipAddress + " whitelisted by " + rblList[i]);
                     }
-                    return false;
+                    
+                    session.getState().put(RBL_BLOCKLISTED_MAIL_ATTRIBUTE_NAME, "false");
+                    return;
                 } catch (java.net.UnknownHostException uhe) {
                     if (getLogger().isInfoEnabled()) {
                         getLogger().info("IpAddress " + session.getRemoteIPAddress() + " not listed on " + rblList[i]);
@@ -229,10 +216,14 @@ public class DNSRBLHandler
                         // Check if we found a txt record
                         if (!txt.isEmpty()) {
                             // Set the detail
-                            blocklistedDetail = txt.iterator().next().toString();
+                            String blocklistedDetail = txt.iterator().next().toString();
+                            
+                            session.getState().put(RBL_DETAIL_MAIL_ATTRIBUTE_NAME, blocklistedDetail);
                         }
                     }
-                    return true;
+                    
+                    session.getState().put(RBL_BLOCKLISTED_MAIL_ATTRIBUTE_NAME, "true");
+                    return;
                 } catch (java.net.UnknownHostException uhe) {
                     // if it is unknown, it isn't blocked
                     if (getLogger().isInfoEnabled()) {
@@ -241,7 +232,8 @@ public class DNSRBLHandler
                 }
             }
         }
-        return false;
+        // default state
+        session.getState().put(RBL_BLOCKLISTED_MAIL_ATTRIBUTE_NAME, "false");
     }
 
     /**
@@ -258,10 +250,11 @@ public class DNSRBLHandler
      */
     public void onCommand(SMTPSession session) {
         String responseString = null;
+        String blocklisted = (String) session.getState().get(RBL_BLOCKLISTED_MAIL_ATTRIBUTE_NAME);
         MailAddress recipientAddress = (MailAddress) session.getState().get(
                 SMTPSession.CURRENT_RECIPIENT);
 
-        if (blocklisted && // was found in the RBL
+        if (blocklisted.equals("true") && // was found in the RBL
                 !(session.isRelayingAllowed() || (session.isAuthRequired() && session
                         .getUser() != null)) && // Not (either an authorized IP
                                                 // or (SMTP AUTH is enabled and
