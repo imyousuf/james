@@ -18,6 +18,7 @@
 package org.apache.james.remotemanager;
 
 import org.apache.james.Constants;
+import org.apache.james.management.SpoolFilter;
 import org.apache.james.core.AbstractJamesHandler;
 import org.apache.james.services.JamesUser;
 import org.apache.james.services.User;
@@ -878,7 +879,7 @@ public class RemoteManagerHandler
         String url = argument;
 
         try {
-            List spoolItems = theConfigData.getSpoolManagement().getSpoolItems(url);
+            List spoolItems = theConfigData.getSpoolManagement().getSpoolItems(url, SpoolFilter.ERRORMAIL_FILTER);
             count = spoolItems.size();
             if (count > 0) out.println("Messages in spool:");
             for (Iterator iterator = spoolItems.iterator(); iterator.hasNext();) {
@@ -920,7 +921,7 @@ public class RemoteManagerHandler
         String url = args[0];
         String key = args.length == 2 ? args[1] : null;
         try {
-            count = theConfigData.getSpoolManagement().resendSpoolItems(url, key, null);
+            count = theConfigData.getSpoolManagement().resendSpoolItems(url, key, null, SpoolFilter.ERRORMAIL_FILTER);
             out.println("Number of flushed mails: " + count);
             out.flush();
 
@@ -960,7 +961,7 @@ public class RemoteManagerHandler
 
         try {
             ArrayList lockingFailures = new ArrayList();
-            int count =  theConfigData.getSpoolManagement().removeSpoolItems(url, key, lockingFailures);
+            int count =  theConfigData.getSpoolManagement().removeSpoolItems(url, key, lockingFailures, SpoolFilter.ERRORMAIL_FILTER);
 
             for (Iterator iterator = lockingFailures.iterator(); iterator.hasNext();) {
                 String lockFailureKey = (String) iterator.next();

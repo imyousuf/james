@@ -27,14 +27,21 @@ import org.apache.james.services.SpoolManagementService;
 import org.apache.james.services.SpoolRepository;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
+import org.apache.oro.text.regex.Pattern;
+import org.apache.oro.text.regex.Perl5Matcher;
 
 import javax.mail.MessagingException;
+import javax.mail.Address;
+import javax.mail.internet.MimeMessage;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ArrayList;
-import java.util.Collection;
 
+/**
+ * high-level management of spool contents like list, remove, resend
+ */
 public class SpoolManagement implements Serviceable, SpoolManagementService, SpoolManagementMBean {
 
     private Store mailStore;
@@ -48,17 +55,88 @@ public class SpoolManagement implements Serviceable, SpoolManagementService, Spo
         setStore(mailStore);
     }
 
-    public String[] listSpoolItems(String spoolRepositoryURL) throws SpoolManagementException {
+    public String[] listSpoolItems(String spoolRepositoryURL, String state, String header, String headerValueRegex) 
+            throws SpoolManagementException {
+        return listSpoolItems(spoolRepositoryURL, new SpoolFilter(state, header, headerValueRegex));
+    }
+
+    public String[] listSpoolItems(String spoolRepositoryURL, SpoolFilter filter) throws SpoolManagementException {
         List spoolItems;
         try {
-            spoolItems = getSpoolItems(spoolRepositoryURL);
+            spoolItems = getSpoolItems(spoolRepositoryURL, filter);
         } catch (Exception e) {
              throw new SpoolManagementException(e);
         }
         return (String[]) spoolItems.toArray(new String[]{});
     }
 
-    public List getSpoolItems(String spoolRepositoryURL) throws ServiceException, MessagingException {
+
+    protected boolean filterMatches(Mail mail, SpoolFilter filter) throws SpoolManagementException {
+        if (filter == null || !filter.doFilter()) return true;
+
+        if (filter.doFilterState() && !mail.getState().equalsIgnoreCase(filter.getState())) return false;
+        
+        if (filter.doFilterHeader()) {
+
+            Perl5Matcher matcher = new Perl5Matcher();
+            
+            // check, if there is a match for every header/regex pair
+            Iterator headers = filter.getHeaders();
+            while (headers.hasNext()) {
+                String header = (String) headers.next();
+                
+                String[] headerValues;
+                try {
+                    headerValues = mail.getMessage().getHeader(header);
+                    if (headerValues == null) {
+                        if (header.equalsIgnoreCase("to")) {
+                            headerValues = addressesToStrings(mail.getMessage().getRecipients(MimeMessage.RecipientType.TO));
+                        }
+                        else if (header.equalsIgnoreCase("cc")) { 
+                            headerValues = addressesToStrings(mail.getMessage().getRecipients(MimeMessage.RecipientType.CC));
+                        }
+                        else if (header.equalsIgnoreCase("bcc")) { 
+                            headerValues = addressesToStrings(mail.getMessage().getRecipients(MimeMessage.RecipientType.BCC));
+                        }
+                        else if (header.equalsIgnoreCase("from")) { 
+                            headerValues = new String[]{mail.getMessage().getSender().toString()};
+                        }
+                    }
+                } catch (MessagingException e) {
+                    throw new SpoolManagementException("could not filter mail by headers", e);
+                }
+                if (headerValues == null) return false; // no header for this criteria
+
+                Pattern pattern = filter.getHeaderValueRegexCompiled(header);
+
+                // the regex must match at least one entry for the header
+                boolean matched = false;
+                for (int i = 0; i < headerValues.length; i++) {
+                    String headerValue = headerValues[i];
+                    if (matcher.matches(headerValue, pattern)) {
+                        matched = true;
+                        break;
+                    }
+                }
+                if (!matched) return false;
+            }
+        }
+            
+        return true;
+    }
+
+    private String[] addressesToStrings(Address[] addresses) {
+        if (addresses == null) return null;
+        if (addresses.length == 0) return new String[]{};
+        String[] addressStrings = new String[addresses.length];
+        for (int i = 0; i < addresses.length; i++) {
+            addressStrings[i] = addresses[i].toString();
+        }
+        return addressStrings;
+    }
+
+    public List getSpoolItems(String spoolRepositoryURL, SpoolFilter filter)
+            throws ServiceException, MessagingException, SpoolManagementException {
         SpoolRepository spoolRepository = getSpoolRepository(spoolRepositoryURL);
 
         List items = new ArrayList();
@@ -69,8 +147,7 @@ public class SpoolManagement implements Serviceable, SpoolManagementService, Spo
             String key = spoolR.next().toString();
             Mail m = spoolRepository.retrieve(key);
 
-            // Only show email if its in error state.
-            if (m.getState().equals(Mail.ERROR)) {
+            if (filterMatches(m, filter)) {
                 StringBuffer itemInfo = new StringBuffer();
                 itemInfo.append("key: ").append(key).append(" sender: ").append(m.getSender()).append(" recipient:");
                 Collection recipients = m.getRecipients();
@@ -85,34 +162,39 @@ public class SpoolManagement implements Serviceable, SpoolManagementService, Spo
         return items;
     }
 
-    public int removeSpoolItems(String spoolRepositoryURL, String key) throws SpoolManagementException {
+    public int removeSpoolItems(String spoolRepositoryURL, String key, String state, String header, String headerValueRegex) 
+            throws SpoolManagementException {
+        return removeSpoolItems(spoolRepositoryURL, key, new SpoolFilter(state, header, headerValueRegex));
+    }
+
+    public int removeSpoolItems(String spoolRepositoryURL, String key, SpoolFilter filter) throws SpoolManagementException {
         try {
-            return removeSpoolItems(spoolRepositoryURL, key, null);
+            return removeSpoolItems(spoolRepositoryURL, key, null, filter);
         } catch (Exception e) {
             throw new SpoolManagementException(e);
         }
     }
 
-    public int removeSpoolItems(String spoolRepositoryURL, String key, List lockingFailures) throws ServiceException, MessagingException {
+    public int removeSpoolItems(String spoolRepositoryURL, String key, List lockingFailures, SpoolFilter filter) throws ServiceException, MessagingException {
         int count = 0;
         SpoolRepository spoolRepository = getSpoolRepository(spoolRepositoryURL);
 
         if (key != null) {
-            count = removeMail(spoolRepository, key, count, lockingFailures);
+            count = removeMail(spoolRepository, key, count, lockingFailures, filter);
         } else {
             Iterator spoolR = spoolRepository.list();
 
             while (spoolR.hasNext()) {
                 key = (String)spoolR.next();
-                count = removeMail(spoolRepository, key, count, lockingFailures);
+                count = removeMail(spoolRepository, key, count, lockingFailures, filter);
             }
         }
         return count;
     }
 
-    private int removeMail(SpoolRepository spoolRepository, String key, int count, List lockingFailures) throws MessagingException {
+    private int removeMail(SpoolRepository spoolRepository, String key, int count, List lockingFailures, SpoolFilter filter) throws MessagingException {
         try {
-            if (removeMail(spoolRepository, key)) count++;
+            if (removeMail(spoolRepository, key, filter)) count++;
         } catch (IllegalStateException e) {
             lockingFailures.add(key);
         } catch (SpoolManagementException e) {
@@ -121,22 +203,27 @@ public class SpoolManagement implements Serviceable, SpoolManagementService, Spo
         return count;
     }
 
-    public int resendSpoolItems(String spoolRepositoryURL, String key) throws SpoolManagementException {
+    public int resendSpoolItems(String spoolRepositoryURL, String key, SpoolFilter filter) throws SpoolManagementException {
         try {
-            return resendSpoolItems(spoolRepositoryURL, key, null);
+            return resendSpoolItems(spoolRepositoryURL, key, null, filter);
         } catch (Exception e) {
             throw new SpoolManagementException(e);
         }
     }
 
-    public int resendSpoolItems(String spoolRepositoryURL, String key, List lockingFailures) throws ServiceException, MessagingException {
+    public int resendSpoolItems(String spoolRepositoryURL, String key, String state, String header, String headerValueRegex) throws SpoolManagementException {
+        return resendSpoolItems(spoolRepositoryURL, key, new SpoolFilter(state, header, headerValueRegex));
+    }
+
+    public int resendSpoolItems(String spoolRepositoryURL, String key, List lockingFailures, SpoolFilter filter)
+            throws ServiceException, MessagingException, SpoolManagementException {
         int count = 0;
         SpoolRepository spoolRepository = getSpoolRepository(spoolRepositoryURL);
 
         // check if an key was given as argument
         if (key != null) {
             try {
-                if (resendErrorMail(spoolRepository, key)) count++;
+                if (resendMail(spoolRepository, key, filter)) count++;
             } catch (IllegalStateException e) {
                 if (lockingFailures != null) lockingFailures.add(key);
             }
@@ -147,7 +234,7 @@ public class SpoolManagement implements Serviceable, SpoolManagementService, Spo
             while (spoolR.hasNext()) {
                 key = spoolR.next().toString();
                 try {
-                    if (resendErrorMail(spoolRepository, key)) count++;
+                    if (resendMail(spoolRepository, key, filter)) count++;
                 } catch (IllegalStateException e) {
                     if (lockingFailures != null) lockingFailures.add(key);
                 }
@@ -161,17 +248,18 @@ public class SpoolManagement implements Serviceable, SpoolManagementService, Spo
      * 
      * @param spoolRepository The spoolRepository
      * @param key The message key
-     * @return true orf false
+     * @param filter
+     * @return true or false
      * @throws MessagingException Get thrown if there happen an error on modify the mail
      */
-    private boolean resendErrorMail(SpoolRepository spoolRepository, String key)
-            throws MessagingException, IllegalStateException {
+    private boolean resendMail(SpoolRepository spoolRepository, String key, SpoolFilter filter)
+            throws MessagingException, IllegalStateException, SpoolManagementException {
         if (!spoolRepository.lock(key)) throw new IllegalStateException("locking failure");
 
         // get the mail and set the error_message to "0" that will force the spoolmanager to try to deliver it now!
         Mail m = spoolRepository.retrieve(key);
 
-        if (m.getState().equals(Mail.ERROR)) {
+        if (filterMatches(m, filter)) {
 
             // this will force Remotedelivery to try deliver the mail now!
             m.setLastUpdated(new Date(0));
@@ -194,15 +282,17 @@ public class SpoolManagement implements Serviceable, SpoolManagementService, Spo
      * Remove the mail that belongs to the given key and spoolRepository 
      * @param spoolRepository The spoolRepository
      * @param key The message key
+     * @param filter
      * @return true or false
      * @throws MessagingException Get thrown if there happen an error on modify the mail
      */
-    private boolean removeMail(SpoolRepository spoolRepository, String key) throws MessagingException, SpoolManagementException {
+    private boolean removeMail(SpoolRepository spoolRepository, String key, SpoolFilter filter) 
+            throws MessagingException, SpoolManagementException {
         if (!spoolRepository.lock(key)) throw new IllegalStateException("locking failure");
 
         Mail m = spoolRepository.retrieve(key);
         if (m == null) throw new SpoolManagementException("mail not available having key " + key);
-        if (!m.getState().equals(Mail.ERROR)) return false;
+        if (!filterMatches(m, filter)) return false;
 
         spoolRepository.remove(key);
         return true;

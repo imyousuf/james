@@ -90,7 +90,13 @@ public class MockMimeMessage extends MimeMessage {
     }
 
     public Address[] getRecipients(Message.RecipientType recipientType) throws MessagingException {
-        return (Address[]) getRecipientsList(recipientType).toArray();
+        List recipientsList = getRecipientsList(recipientType);
+        List recipientAddresses = new ArrayList();
+        for (Iterator iterator = recipientsList.iterator(); iterator.hasNext();) {
+            String recipient = (String) iterator.next();
+            recipientAddresses.add(new InternetAddress(recipient));
+        }
+        return (Address[]) (recipientAddresses.toArray(new Address[]{}));
     }
 
     private List getRecipientsList(Message.RecipientType recipientType) {
