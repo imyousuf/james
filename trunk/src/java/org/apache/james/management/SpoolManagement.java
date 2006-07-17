@@ -55,11 +55,27 @@ public class SpoolManagement implements Serviceable, SpoolManagementService, Spo
         setStore(mailStore);
     }
 
+    /**
+     * Lists all mails from the given repository matching the given filter criteria 
+     * @param spoolRepositoryURL the spool whose item are listed
+     * @param state if not NULL, only mails with matching state are returned
+     * @param header if not NULL, only mails with at least one header with a value matching headerValueRegex are returned
+     * @param headerValueRegex the regular expression the header must match
+     * @return String array, each line describing one matching mail from the spool 
+     * @throws SpoolManagementException
+     */
     public String[] listSpoolItems(String spoolRepositoryURL, String state, String header, String headerValueRegex) 
             throws SpoolManagementException {
         return listSpoolItems(spoolRepositoryURL, new SpoolFilter(state, header, headerValueRegex));
     }
 
+    /**
+     * Lists all mails from the given repository matching the given filter criteria 
+     * @param spoolRepositoryURL the spool whose item are listed
+     * @param filter the criteria against which all mails are matched
+     * @return String array, each line describing one matching mail from the spool 
+     * @throws SpoolManagementException
+     */
     public String[] listSpoolItems(String spoolRepositoryURL, SpoolFilter filter) throws SpoolManagementException {
         List spoolItems;
         try {
@@ -70,7 +86,12 @@ public class SpoolManagement implements Serviceable, SpoolManagementService, Spo
         return (String[]) spoolItems.toArray(new String[]{});
     }
 
-
+    /**
+     * @param mail
+     * @param filter
+     * @return TRUE, if given mail matches all given filter criteria
+     * @throws SpoolManagementException
+     */
     protected boolean filterMatches(Mail mail, SpoolFilter filter) throws SpoolManagementException {
         if (filter == null || !filter.doFilter()) return true;
 
@@ -89,6 +110,7 @@ public class SpoolManagement implements Serviceable, SpoolManagementService, Spo
                 try {
                     headerValues = mail.getMessage().getHeader(header);
                     if (headerValues == null) {
+                        // some headers need special retrieval
                         if (header.equalsIgnoreCase("to")) {
                             headerValues = addressesToStrings(mail.getMessage().getRecipients(MimeMessage.RecipientType.TO));
                         }
@@ -135,6 +157,12 @@ public class SpoolManagement implements Serviceable, SpoolManagementService, Spo
         return addressStrings;
     }
 
+    /**
+     * @param spoolRepositoryURL
+     * @param filter
+     * @return List<Mail> all matching mails from the given spool
+     * @throws SpoolManagementException
+     */
     public List getSpoolItems(String spoolRepositoryURL, SpoolFilter filter)
             throws ServiceException, MessagingException, SpoolManagementException {
         SpoolRepository spoolRepository = getSpoolRepository(spoolRepositoryURL);
@@ -167,6 +195,14 @@ public class SpoolManagement implements Serviceable, SpoolManagementService, Spo
         return removeSpoolItems(spoolRepositoryURL, key, new SpoolFilter(state, header, headerValueRegex));
     }
 
+    /**
+     * Removes all mails from the given repository matching the filter 
+     * @param spoolRepositoryURL the spool whose item are listed
+     * @param key ID of the mail to be removed. if not NULL, all other filters are ignored
+     * @param filter the criteria against which all mails are matched. only applied if key is NULL.
+     * @return number of removed mails
+     * @throws SpoolManagementException
+     */
     public int removeSpoolItems(String spoolRepositoryURL, String key, SpoolFilter filter) throws SpoolManagementException {
         try {
             return removeSpoolItems(spoolRepositoryURL, key, null, filter);
@@ -175,12 +211,21 @@ public class SpoolManagement implements Serviceable, SpoolManagementService, Spo
         }
     }
 
+    /**
+     * Removes all mails from the given repository matching the filter 
+     * @param spoolRepositoryURL the spool whose item are listed
+     * @param key ID of the mail to be removed. if not NULL, all other filters are ignored
+     * @param lockingFailures is populated with a list of mails which could not be processed because
+     * a lock could not be obtained
+     * @param filter the criteria against which all mails are matched. only applied if key is NULL.
+     * @return number of removed mails
+     */
     public int removeSpoolItems(String spoolRepositoryURL, String key, List lockingFailures, SpoolFilter filter) throws ServiceException, MessagingException {
         int count = 0;
         SpoolRepository spoolRepository = getSpoolRepository(spoolRepositoryURL);
 
         if (key != null) {
-            count = removeMail(spoolRepository, key, count, lockingFailures, filter);
+            count = removeMail(spoolRepository, key, count, lockingFailures, null);
         } else {
             Iterator spoolR = spoolRepository.list();
 
@@ -211,10 +256,30 @@ public class SpoolManagement implements Serviceable, SpoolManagementService, Spo
         }
     }
 
+    /**
+     * Tries to resend all mails from the given repository matching the given filter criteria 
+     * @param spoolRepositoryURL the spool whose item are about to be resend
+     * @param key ID of the mail to be resend. if not NULL, all other filters are ignored
+     * @param state if not NULL, only mails with matching state are resend
+     * @param header if not NULL, only mails with at least one header with a value matching headerValueRegex are resend
+     * @param headerValueRegex the regular expression the header must match
+     * @return int number of resent mails 
+     * @throws SpoolManagementException
+     */
     public int resendSpoolItems(String spoolRepositoryURL, String key, String state, String header, String headerValueRegex) throws SpoolManagementException {
         return resendSpoolItems(spoolRepositoryURL, key, new SpoolFilter(state, header, headerValueRegex));
     }
 
+    /**
+     * Tries to resend all mails from the given repository matching the given filter criteria 
+     * @param spoolRepositoryURL the spool whose item are about to be resend
+     * @param key ID of the mail to be resend. if not NULL, all other filters are ignored
+     * @param lockingFailures is populated with a list of mails which could not be processed because
+     * a lock could not be obtained
+     * @param filter the criteria against which all mails are matched. only applied if key is NULL.
+     * @return int number of resent mails 
+     * @throws SpoolManagementException
+     */
     public int resendSpoolItems(String spoolRepositoryURL, String key, List lockingFailures, SpoolFilter filter)
             throws ServiceException, MessagingException, SpoolManagementException {
         int count = 0;
