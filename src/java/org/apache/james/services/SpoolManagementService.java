@@ -19,6 +19,8 @@
 package org.apache.james.services;
 
 import org.apache.avalon.framework.service.ServiceException;
+import org.apache.james.management.SpoolManagementException;
+import org.apache.james.management.SpoolFilter;
 
 import javax.mail.MessagingException;
 import java.util.List;
@@ -26,9 +28,9 @@ import java.util.List;
 public interface SpoolManagementService {
     String ROLE = "org.apache.james.services.SpoolManagementService";
 
-    public int removeSpoolItems(String spoolRepositoryURL, String key, List lockingFailures) throws ServiceException, MessagingException;
+    public int removeSpoolItems(String spoolRepositoryURL, String key, List lockingFailures, SpoolFilter filter) throws ServiceException, MessagingException;
     
-    public int resendSpoolItems(String spoolRepositoryURL, String key, List lockingFailures) throws ServiceException, MessagingException;
+    public int resendSpoolItems(String spoolRepositoryURL, String key, List lockingFailures, SpoolFilter filter) throws ServiceException, MessagingException, SpoolManagementException;
 
-    public List getSpoolItems(String spoolRepositoryURL) throws ServiceException, MessagingException;
+    public List getSpoolItems(String spoolRepositoryURL, SpoolFilter filter) throws ServiceException, MessagingException, SpoolManagementException;
 }
