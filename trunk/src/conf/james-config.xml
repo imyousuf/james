@@ -912,15 +912,16 @@ Regards, Postmaster XXX.YYY
          <!-- The configuration handler chain -->
          <!-- The configuration handler chain -->
          <handlerchain>
-            
-            <!-- The connect handler configuration -->
+
+            <!-- Load the core filter command handlers-->
+            <handler class="org.apache.james.smtpserver.core.filter.CoreFilterCmdHandlerLoader"></handler>        
 
             <!-- This command handler check against RBL-Lists -->
             <!-- If getDetail is set to true it try to retrieve information from TXT Record -->
             <!-- why the ip was blocked. Default to false -->            
             <!--
             
-            <handler class="org.apache.james.smtpserver.core.DNSRBLHandler">
+            <handler class="org.apache.james.smtpserver.core.DNSRBLHandler" command="RCPT">
                <getDetail> false </getDetail>
                <rblservers>
                   <whitelist> query.bondedsender.org </whitelist>
@@ -932,8 +933,6 @@ Regards, Postmaster XXX.YYY
             </handler>            
             -->    
             
-            <!-- Load the core filter command handlers-->
-            <handler class="org.apache.james.smtpserver.core.filter.CoreFilterCmdHandlerLoader"></handler>        
 
             <!-- The filter handler configuration -->
 

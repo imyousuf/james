@@ -140,23 +140,7 @@ public class RcptFilterCmdHandler extends AbstractLogEnabled implements
                 return;
             }
 
-            if (session.isBlockListed() &&                                                // was found in the RBL
-                !(session.isRelayingAllowed() || (session.isAuthRequired() && session.getUser() != null)) &&  // Not (either an authorized IP or (SMTP AUTH is enabled and not authenticated))
-                !(recipientAddress.getUser().equalsIgnoreCase("postmaster") || recipientAddress.getUser().equalsIgnoreCase("abuse"))) {
-                
-                // trying to send e-mail to other than postmaster or abuse
-                if (session.getBlockListedDetail() != null) {
-                    responseString = "530 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH)+" " + session.getBlockListedDetail();
-                } else {
-                    responseString = "530 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH)+" Rejected: unauthenticated e-mail from " + session.getRemoteIPAddress() + " is restricted.  Contact the postmaster for details.";
-                }
-                session.writeResponse(responseString);
-                
-                // After this filter match we should not call any other handler!
-                session.setStopHandlerProcessing(true);
-                
-                return;
-            }
+            
 
             if (session.isAuthRequired() && !session.isRelayingAllowed()) {
                 // Make sure the mail is being sent locally if not
