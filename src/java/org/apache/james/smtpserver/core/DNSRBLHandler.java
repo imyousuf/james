@@ -25,8 +25,11 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.james.services.DNSServer;
+import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.ConnectHandler;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.util.mail.dsn.DSNStatus;
+import org.apache.mailet.MailAddress;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,7 +40,7 @@ import java.util.StringTokenizer;
   */
 public class DNSRBLHandler
     extends AbstractLogEnabled
-    implements ConnectHandler, Configurable, Serviceable {
+    implements ConnectHandler, CommandHandler, Configurable, Serviceable {
     /**
      * The lists of rbl servers to be checked to limit spam
      */
@@ -47,6 +50,10 @@ public class DNSRBLHandler
     private DNSServer dnsServer = null;
     
     private boolean getDetail = false;
+    
+    private boolean blocklisted = false;
+    
+    private String blocklistedDetail = null;
 
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
@@ -106,8 +113,7 @@ public class DNSRBLHandler
      * @see org.apache.james.smtpserver.ConnectHandler#onConnect(SMTPSession)
     **/
     public void onConnect(SMTPSession session) {
-        boolean blocklisted = checkDNSRBL(session, session.getRemoteIPAddress());
-        session.setBlockListed(blocklisted);
+        blocklisted = checkDNSRBL(session, session.getRemoteIPAddress());
     }
     
     /**
@@ -144,6 +150,24 @@ public class DNSRBLHandler
      */
     public void setGetDetail(boolean getDetail) {
         this.getDetail = getDetail;
+    }
+    
+    /**
+     * Return true if the ip is blocklisted
+     * 
+     * @return true uf blocklisted
+     */
+    public boolean isBlocklisted() {
+        return blocklisted;
+    }
+    
+    /**
+     * Return the details
+     * 
+     * @return blocklistDetail
+     */
+    public String getBlocklistedDetail() {
+        return blocklistedDetail;
     }
 
     /**
@@ -205,7 +229,7 @@ public class DNSRBLHandler
                         // Check if we found a txt record
                         if (!txt.isEmpty()) {
                             // Set the detail
-                            session.setBlockListedDetail(txt.iterator().next().toString());
+                            blocklistedDetail = txt.iterator().next().toString();
                         }
                     }
                     return true;
@@ -220,4 +244,49 @@ public class DNSRBLHandler
         return false;
     }
 
+    /**
+     * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
+     */
+    public Collection getImplCommands() {
+        Collection commands = new ArrayList();
+        commands.add("RCPT");
+        return commands;
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
+     */
+    public void onCommand(SMTPSession session) {
+        String responseString = null;
+        MailAddress recipientAddress = (MailAddress) session.getState().get(
+                SMTPSession.CURRENT_RECIPIENT);
+
+        if (blocklisted && // was found in the RBL
+                !(session.isRelayingAllowed() || (session.isAuthRequired() && session
+                        .getUser() != null)) && // Not (either an authorized IP
+                                                // or (SMTP AUTH is enabled and
+                                                // not authenticated))
+                !(recipientAddress.getUser().equalsIgnoreCase("postmaster") || recipientAddress
+                        .getUser().equalsIgnoreCase("abuse"))) {
+
+            // trying to send e-mail to other than postmaster or abuse
+            if (blocklistedDetail != null) {
+                responseString = "530 "
+                        + DSNStatus.getStatus(DSNStatus.PERMANENT,
+                                DSNStatus.SECURITY_AUTH) + " "
+                        + blocklistedDetail;
+            } else {
+                responseString = "530 "
+                        + DSNStatus.getStatus(DSNStatus.PERMANENT,
+                                DSNStatus.SECURITY_AUTH)
+                        + " Rejected: unauthenticated e-mail from "
+                        + session.getRemoteIPAddress()
+                        + " is restricted.  Contact the postmaster for details.";
+            }
+            session.writeResponse(responseString);
+
+            // After this filter match we should not call any other handler!
+            session.setStopHandlerProcessing(true);
+        }
+    }
 }

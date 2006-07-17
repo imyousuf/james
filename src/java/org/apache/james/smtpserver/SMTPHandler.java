@@ -433,35 +433,6 @@ public class SMTPHandler
     public SMTPHandlerConfigurationData getConfigurationData() {
         return theConfigData;
     }
-
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#isBlockListed()
-     */
-    public boolean isBlockListed() {
-        return blocklisted;
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#setBlockListed(boolean)
-     */
-    public void setBlockListed(boolean blocklisted ) {
-        this.blocklisted = blocklisted;
-    }
-    
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#getBlockListedDetail()
-     */
-    public String getBlockListedDetail() {
-        return blocklistedDetail;
-    }
-    
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#setBlockListedDetail(String)
-     */
-    public void setBlockListedDetail(String blocklistedDetail) {
-        this.blocklistedDetail = blocklistedDetail;
-    }
-
     /**
      * @see org.apache.james.smtpserver.SMTPSession#isRelayingAllowed()
      */
