@@ -212,13 +212,23 @@ public class SetMimeHeaderHandlerTest extends TestCase {
             }
 
             public void setStopHandlerProcessing(boolean b) {
-                // TODO Auto-generated method stub
-                
+                throw new UnsupportedOperationException(
+                "Unimplemented mock service");     
             }
 
             public boolean getStopHandlerProcessing() {
-                // TODO Auto-generated method stub
-                return false;
+                throw new UnsupportedOperationException(
+                "Unimplemented mock service");
+            }
+
+            public HashMap getConnectionState() {
+                throw new UnsupportedOperationException(
+                "Unimplemented mock service");
+            }
+
+            public void resetConnectionState() {
+                throw new UnsupportedOperationException(
+                "Unimplemented mock service");
             }
         };
     }

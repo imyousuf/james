@@ -52,8 +52,7 @@ public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler
     private void doHELO(SMTPSession session, String argument) {
         String responseString = null;
 
-        session.resetState();
-        session.getState().put(SMTPSession.CURRENT_HELO_MODE, COMMAND_NAME);
+        session.getConnectionState().put(SMTPSession.CURRENT_HELO_MODE, COMMAND_NAME);
         session.getResponseBuffer().append("250 ").append(
                 session.getConfigurationData().getHelloName())
                 .append(" Hello ").append(argument).append(" (").append(

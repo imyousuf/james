@@ -50,7 +50,9 @@ public class HeloFilterCmdHandler extends AbstractLogEnabled implements CommandH
      * @param argument the argument passed in with the command by the SMTP client
      */
     private void doHELO(SMTPSession session, String argument) {
-        String responseString = null;
+        String responseString = null;        
+
+        session.resetState();
               
         if (argument == null) {
             responseString = "501 Domain address required: " + COMMAND_NAME;
@@ -60,6 +62,9 @@ public class HeloFilterCmdHandler extends AbstractLogEnabled implements CommandH
             // After this filter match we should not call any other handler!
             session.setStopHandlerProcessing(true);
          
+        } else {
+            // store provided name
+            session.getState().put(SMTPSession.CURRENT_HELO_NAME,argument);
         }
     }
     

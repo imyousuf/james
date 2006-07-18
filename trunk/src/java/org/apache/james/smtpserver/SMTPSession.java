@@ -37,6 +37,7 @@ public interface SMTPSession {
     public final static String SENDER = "SENDER_ADDRESS";     // Sender's email address
     public final static String RCPT_LIST = "RCPT_LIST";   // The message recipients
     public final static String CURRENT_HELO_MODE = "CURRENT_HELO_MODE"; // HELO or EHLO
+    public final static String CURRENT_HELO_NAME = "CURRENT_HELO_NAME"; 
     public static final Object CURRENT_RECIPIENT = "CURRENT_RECIPIENT"; // Current recipient
 
     /**
@@ -139,9 +140,9 @@ public interface SMTPSession {
     boolean isSessionEnded();
 
     /**
-     * Returns Map that consists of the state of the SMTPSession
+     * Returns Map that consists of the state of the SMTPSession per mail
      *
-     * @return map of the current SMTPSession state
+     * @return map of the current SMTPSession state per mail
      */
     HashMap getState();
 
@@ -227,6 +228,19 @@ public interface SMTPSession {
      * @return true or false
      */
     boolean getStopHandlerProcessing();
+    
+    
+    /**
+     * Reset the Connection state
+     */
+    void resetConnectionState();
+    
+    /**
+     * Returns Map that consists of the state of the SMTPSession per connection
+     *
+     * @return map of the current SMTPSession state per connection
+     */
+    HashMap getConnectionState();
 
 }
 

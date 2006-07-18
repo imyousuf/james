@@ -53,13 +53,9 @@ public class RsetCmdHandler implements CommandHandler {
     private void doRSET(SMTPSession session, String argument) {
         String responseString = "";
         if ((argument == null) || (argument.length() == 0)) {
-            // remember the ehlo mode
-            Object currentHeloMode = session.getState().get(SMTPSession.CURRENT_HELO_MODE);
+
             session.resetState();
-            // start again with the old helo mode
-            if (currentHeloMode != null) {
-                session.getState().put(SMTPSession.CURRENT_HELO_MODE,currentHeloMode);
-            }
+
             responseString = "250 "+DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.UNDEFINED_STATUS)+" OK";
         } else {
             responseString = "500 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Unexpected argument provided with RSET command";
