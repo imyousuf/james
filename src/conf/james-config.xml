@@ -921,7 +921,7 @@ Regards, Postmaster XXX.YYY
             <!-- why the ip was blocked. Default to false -->            
             <!--
             
-            <handler class="org.apache.james.smtpserver.core.DNSRBLHandler" command="RCPT">
+            <handler class="org.apache.james.smtpserver.core.filter.fastfail.DNSRBLHandler" command="RCPT">
                <getDetail> false </getDetail>
                <rblservers>
                   <whitelist> query.bondedsender.org </whitelist>

@@ -29,7 +29,7 @@ import java.util.List;
 
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.services.DNSServer;
-import org.apache.james.smtpserver.core.DNSRBLHandler;
+import org.apache.james.smtpserver.core.filter.fastfail.DNSRBLHandler;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.mailet.Mail;
