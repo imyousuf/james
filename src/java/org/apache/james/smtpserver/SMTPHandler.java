@@ -120,15 +120,6 @@ public class SMTPHandler
      */
     private boolean heloEhloEnforcement;
     
-    /**
-     * TEMPORARY: is the sending address blocklisted
-     */
-    private boolean blocklisted;
-    
-    /**
-     * The blocklisted detail
-     */
-    private String blocklistedDetail = null;
 
     /**
      * The SMTPGreeting
@@ -154,6 +145,11 @@ public class SMTPHandler
      */
     private HashMap state = new HashMap();
 
+    /**
+     * The hash map holds states which should be used in the whole connection
+     */
+    private HashMap connectionState = new HashMap();
+    
     /**
      * The per-handler response buffer used to marshal responses.
      */
@@ -185,6 +181,7 @@ public class SMTPHandler
         sessionEnded = false;
         smtpGreeting = theConfigData.getSMTPGreeting();
         resetState();
+        resetConnectionState();
 
         // if no greeting was configured use a default
         if (smtpGreeting == null) {
@@ -323,6 +320,7 @@ public class SMTPHandler
      */
     protected void resetHandler() {
         resetState();
+        resetConnectionState();
 
         clearResponseBuffer();
 
@@ -555,6 +553,14 @@ public class SMTPHandler
      */
     public boolean getStopHandlerProcessing() {
         return stopHandlerProcessing;
+    }
+    
+    public void resetConnectionState() {
+        connectionState.clear();
+    }
+    
+    public HashMap getConnectionState() {
+        return connectionState;
     }
 
 }

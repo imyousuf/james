@@ -19,7 +19,6 @@ package org.apache.james.smtpserver.core.filter;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
@@ -70,7 +69,7 @@ public class MailFilterCmdHandler
             // After this filter match we should not call any other handler!
             session.setStopHandlerProcessing(true);
             
-        } else if (!session.getState().containsKey(SMTPSession.CURRENT_HELO_MODE) && session.useHeloEhloEnforcement()) {
+        } else if (!session.getConnectionState().containsKey(SMTPSession.CURRENT_HELO_MODE) && session.useHeloEhloEnforcement()) {
             responseString = "503 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" Need HELO or EHLO before MAIL";
             session.writeResponse(responseString);
             

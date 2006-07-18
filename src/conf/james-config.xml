@@ -931,6 +931,15 @@ Regards, Postmaster XXX.YYY
                   <blacklist> relays.ordb.org </blacklist>
                </rblservers>
             </handler>            
+            --> 
+            <!-- This command handler can be used to reject emails with not match the SPF record of the sender domain --> 
+            <!-- If checkAuthNetworks is set to true sender domain will be checked also for clients that -->
+            <!-- are allowed to relay. Default is false. -->  
+            <!--
+            <handler class="org.apache.james.smtpserver.core.filter.fastfail" command="MAIL,RCPT">
+                <checkAuthClients> false </checkAuthClients>
+                <blockSoftFail> false </blockSoftFail>
+            </handler>
             -->    
             
 

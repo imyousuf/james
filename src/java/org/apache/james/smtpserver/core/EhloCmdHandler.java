@@ -55,8 +55,7 @@ public class EhloCmdHandler extends AbstractLogEnabled implements
     private void doEHLO(SMTPSession session, String argument) {
         StringBuffer responseBuffer = session.getResponseBuffer();
 
-        session.resetState();
-        session.getState().put(SMTPSession.CURRENT_HELO_MODE, COMMAND_NAME);
+        session.getConnectionState().put(SMTPSession.CURRENT_HELO_MODE, COMMAND_NAME);
 
         ArrayList esmtpextensions = new ArrayList();
 

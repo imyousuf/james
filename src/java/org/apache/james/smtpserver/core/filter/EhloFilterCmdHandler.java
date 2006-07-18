@@ -51,12 +51,17 @@ public class EhloFilterCmdHandler extends AbstractLogEnabled implements CommandH
     private void doEHLO(SMTPSession session, String argument) {
         String responseString = null;        
      
+        session.resetState();
+        
         if (argument == null) {
             responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Domain address required: " + COMMAND_NAME;
             session.writeResponse(responseString);
             
             // After this filter match we should not call any other handler!
             session.setStopHandlerProcessing(true);
+        } else {
+            // store provided name
+            session.getState().put(SMTPSession.CURRENT_HELO_NAME,argument);
         }
     }
     
