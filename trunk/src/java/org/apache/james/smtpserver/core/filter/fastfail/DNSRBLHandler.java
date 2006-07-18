@@ -15,7 +15,7 @@
  * permissions and limitations under the License.                      *
  ***********************************************************************/
 
-package org.apache.james.smtpserver.core;
+package org.apache.james.smtpserver.core.filter.fastfail;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
