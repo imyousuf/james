@@ -17,14 +17,19 @@
 
 package org.apache.james.core;
 
+import org.apache.avalon.framework.activity.Disposable;
+import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.james.util.InternetPrintWriter;
+import org.apache.james.util.io.IOUtil;
+
 import javax.activation.DataHandler;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.InternetHeaders;
 import javax.mail.internet.MimeMessage;
+import javax.mail.util.SharedByteArrayInputStream;
 
 import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,14 +39,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.Enumeration;
-
-import org.apache.avalon.framework.activity.Disposable;
-import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.james.util.InternetPrintWriter;
-import org.apache.james.util.io.IOUtil;
-import org.apache.mailet.RFC2822Headers;
-
-import javax.mail.util.SharedByteArrayInputStream;
 
 /**
  * This object wraps a MimeMessage, only loading the underlying MimeMessage
@@ -486,13 +483,9 @@ public class MimeMessageWrapper
      * @see javax.mail.internet.MimeMessage#createInternetHeaders(java.io.InputStream)
      */
     protected synchronized InternetHeaders createInternetHeaders(InputStream is) throws MessagingException {
-
-        // Keep this: skip the headers from the stream
-        // we could put that code in the else and simple write an "header" skipping
-        // reader for the others.
-
-        
-        /* InternetHeaders can be a bit awkward to work with due to
+        /* This code is no more needed: see JAMES-570 and new tests
+           
+         * InternetHeaders can be a bit awkward to work with due to
          * its own internal handling of header order.  This hack may
          * not always be necessary, but for now we are trying to
          * ensure that there is a Return-Path header, even if just a
@@ -501,13 +494,19 @@ public class MimeMessageWrapper
          * headers, and ensure that ours is on the top. addHeader
          * handles header order, but not setHeader. This may change in
          * future JavaMail.  But if there are other Return-Path header
-         * values, let's drop our placeholder. */
+         * values, let's drop our placeholder.
 
         MailHeaders newHeaders = new MailHeaders(new ByteArrayInputStream((RFC2822Headers.RETURN_PATH + ": placeholder").getBytes()));
         newHeaders.setHeader(RFC2822Headers.RETURN_PATH, null);
         newHeaders.load(is);
         String[] returnPathHeaders = newHeaders.getHeader(RFC2822Headers.RETURN_PATH);
         if (returnPathHeaders.length > 1) newHeaders.setHeader(RFC2822Headers.RETURN_PATH, returnPathHeaders[1]);
+        */
+        
+        // Keep this: skip the headers from the stream
+        // we could put that code in the else and simple write an "header" skipping
+        // reader for the others.
+        MailHeaders newHeaders = new MailHeaders(is);
         
         if (headers != null) {
             return headers;
