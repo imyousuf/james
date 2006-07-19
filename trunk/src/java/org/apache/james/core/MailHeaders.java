@@ -55,7 +55,8 @@ public class MailHeaders extends InternetHeaders implements Serializable, Clonea
      *                            based on the stream
      */
     public MailHeaders(InputStream in) throws MessagingException {
-        super(in);
+        super();
+        load(in);
     }
 
     /**
@@ -97,6 +98,44 @@ public class MailHeaders extends InternetHeaders implements Serializable, Clonea
     public boolean isSet(String name) {
         String[] value = super.getHeader(name);
         return (value != null && value.length != 0);
+    }
+
+    /**
+     * If the new header is a Return-Path we get sure that we add it to the top
+     * Javamail, at least until 1.4.0 does the wrong thing if it loaded a stream with 
+     * a return-path in the middle.
+     *
+     * @see javax.mail.internet.InternetHeaders#addHeader(java.lang.String, java.lang.String)
+     */
+    public void addHeader(String arg0, String arg1) {
+        if (RFC2822Headers.RETURN_PATH.equalsIgnoreCase(arg0)) {
+            System.out.println("AAAA");
+            headers.add(0, new InternetHeader(arg0, arg1));
+        } else {
+            System.out.println("BBBB");
+            super.addHeader(arg0, arg1);
+        }
+    }
+
+    /**
+     * If the new header is a Return-Path we get sure that we add it to the top
+     * Javamail, at least until 1.4.0 does the wrong thing if it loaded a stream with 
+     * a return-path in the middle.
+     *
+     * @see javax.mail.internet.InternetHeaders#setHeader(java.lang.String, java.lang.String)
+     */
+    public void setHeader(String arg0, String arg1) {
+        if (RFC2822Headers.RETURN_PATH.equalsIgnoreCase(arg0)) {
+            System.out.println("CCCC");
+            super.removeHeader(arg0);
+        }
+        System.out.println("DDDD");
+        super.setHeader(arg0, arg1);
+    }
+
+    protected Object clone() throws CloneNotSupportedException {
+        // TODO Auto-generated method stub
+        return super.clone();
     }
 
     /**

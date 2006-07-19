@@ -17,6 +17,7 @@
 package org.apache.james.core;
 
 import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.mailet.RFC2822Headers;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -27,6 +28,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Enumeration;
 
 /**
  * Test the subject folding issue.
@@ -213,6 +215,30 @@ public class MimeMessageWrapperTest extends MimeMessageFromStreamTest {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+    }
+
+    
+    public void testReplaceReturnPathOnBadMessage() throws Exception {
+        MimeMessage message = getMessageWithBadReturnPath();
+        message.setHeader(RFC2822Headers.RETURN_PATH, "<test@test.de>");
+        Enumeration e =  message.getMatchingHeaderLines(new String[] {"Return-Path"});
+        assertEquals("Return-Path: <test@test.de>",e.nextElement());
+        assertFalse(e.hasMoreElements());
+        Enumeration h =  message.getAllHeaderLines();
+        assertEquals("Return-Path: <test@test.de>",h.nextElement());
+        assertFalse(h.nextElement().toString().startsWith("Return-Path:"));
+    }
+    
+    public void testAddReturnPathOnBadMessage() throws Exception {
+        MimeMessage message = getMessageWithBadReturnPath();
+        message.addHeader(RFC2822Headers.RETURN_PATH, "<test@test.de>");
+        // test that we have now 2 return-paths
+        Enumeration e = message.getMatchingHeaderLines(new String[] {"Return-Path"});
+        assertEquals("Return-Path: <test@test.de>",e.nextElement());
+        assertEquals("Return-Path: <mybadreturn@example.com>",e.nextElement());
+        // test that return-path is the first line
+        Enumeration h =  message.getAllHeaderLines();
+        assertEquals("Return-Path: <test@test.de>",h.nextElement());
     }
 
 }
