@@ -109,10 +109,8 @@ public class MailHeaders extends InternetHeaders implements Serializable, Clonea
      */
     public void addHeader(String arg0, String arg1) {
         if (RFC2822Headers.RETURN_PATH.equalsIgnoreCase(arg0)) {
-            System.out.println("AAAA");
             headers.add(0, new InternetHeader(arg0, arg1));
         } else {
-            System.out.println("BBBB");
             super.addHeader(arg0, arg1);
         }
     }
@@ -126,10 +124,8 @@ public class MailHeaders extends InternetHeaders implements Serializable, Clonea
      */
     public void setHeader(String arg0, String arg1) {
         if (RFC2822Headers.RETURN_PATH.equalsIgnoreCase(arg0)) {
-            System.out.println("CCCC");
             super.removeHeader(arg0);
         }
-        System.out.println("DDDD");
         super.setHeader(arg0, arg1);
     }
 
