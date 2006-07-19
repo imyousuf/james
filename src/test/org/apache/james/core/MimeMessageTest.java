@@ -29,6 +29,7 @@ import javax.mail.internet.MimeMultipart;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.Properties;
 
 import junit.framework.TestCase;
@@ -48,6 +49,26 @@ public class MimeMessageTest extends TestCase {
     
     protected String getSimpleMessageCleanedSource() throws Exception {
         return "Subject: test\r\n"
+            +"MIME-Version: 1.0\r\n"
+            +"Content-Type: text/plain; charset=us-ascii\r\n"
+            +"Content-Transfer-Encoding: 7bit\r\n"
+            +"\r\n"
+            +"test body";
+    }
+    
+
+    protected MimeMessage getMessageWithBadReturnPath() throws Exception {
+        MimeMessage mmCreated = new MimeMessage(Session.getDefaultInstance(new Properties()));
+        mmCreated.setSubject("test");
+        mmCreated.setHeader(RFC2822Headers.RETURN_PATH, "<mybadreturn@example.com>");
+        mmCreated.setText("test body");
+        mmCreated.saveChanges();
+        return mmCreated;
+    }
+    
+    protected String getMessageWithBadReturnPathSource() throws Exception {
+        return "Subject: test\r\n"
+            +"Return-Path: <mybadreturn@example.com>\r\n"
             +"MIME-Version: 1.0\r\n"
             +"Content-Type: text/plain; charset=us-ascii\r\n"
             +"Content-Transfer-Encoding: 7bit\r\n"
@@ -244,10 +265,6 @@ public class MimeMessageTest extends TestCase {
 
         String res = out2.toString();
 
-        // we put a "Return-Path: null" placeholder in MimeMessageWrapper.
-        // if noone write it, we should consider it equals.
-        if (res.startsWith("Return-Path: null")) res = res.substring(19);
-        
         int p = res.indexOf("\r\n\r\n");
         if (p > 0) {
             String head = res.substring(0,p);
@@ -381,5 +398,17 @@ public class MimeMessageTest extends TestCase {
         ContainerUtil.dispose(mmorig);
     }
     
+    public void testReturnPath() throws Exception {
+        MimeMessage message = getSimpleMessage();
+        assertNull(message.getHeader(RFC2822Headers.RETURN_PATH));
+    }
+    
+    public void testHeaderOrder() throws Exception {
+        MimeMessage message = getSimpleMessage();
+        message.setHeader(RFC2822Headers.RETURN_PATH, "<test@test.de>");
+        Enumeration h =  message.getAllHeaderLines();
+        
+        assertEquals(h.nextElement(),"Return-Path: <test@test.de>");
+    }
 
 }
