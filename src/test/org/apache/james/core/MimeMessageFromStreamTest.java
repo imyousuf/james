@@ -36,6 +36,10 @@ public class MimeMessageFromStreamTest extends MimeMessageTest {
         return getMessageFromSources(getSimpleMessageCleanedSource());
     }
 
+    protected MimeMessage getMessageWithBadReturnPath() throws Exception {
+        return getMessageFromSources(getMessageWithBadReturnPathSource());
+    }
+
     protected MimeMessage getMissingEncodingAddHeaderMessage() throws Exception {
         return getMessageFromSources(getMissingEncodingAddHeaderSource());
     }
