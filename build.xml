@@ -175,6 +175,7 @@ Legal:
       <echo message="Phoenix distribution present - adjusting linefeeds and permissions, copying files"/>
       <property name="dist.bin" value="${dist.dir}/bin"/>
       <fixcrlf srcdir="${phoenix.dir}/bin" includes="phoenix.sh" eol="lf"/>
+      
       <copy todir="${dist.dir}">
         <fileset dir="${phoenix.dir}">
         </fileset>
@@ -192,12 +193,14 @@ Legal:
         </fileset>
       </copy>
 
+      <fixcrlf srcdir="${phoenix.dir}/bin" includes="james-server.sh" eol="lf"/>
       <fixcrlf srcdir="${dist.bin}" includes="run.sh" eol="lf"/>
       <fixcrlf srcdir="${dist.bin}" includes="run.bat" eol="crlf"/>
       <chmod perm="+x">
         <fileset dir="${dist.bin}">
           <include name="run.sh"/>
           <include name="phoenix.sh"/>
+          <include name="james-server.sh"/>
         </fileset>
       </chmod>
     	
