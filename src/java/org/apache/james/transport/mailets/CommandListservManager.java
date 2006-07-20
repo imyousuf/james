@@ -296,7 +296,7 @@ public class CommandListservManager extends GenericMailet implements ICommandLis
         if (command == null) {
             //don't recognize the command
             onError(mail,
-                    "unkown command",
+                    "unknown command",
                     xmlResources.getString("command.not.understood", getStandardProperties()));
         }
         command.onCommand(mail);

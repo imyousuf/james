@@ -68,7 +68,7 @@ public class ErrorCommand extends BaseCommand {
      * @throws MessagingException
      */
     public void onCommand(Mail mail) throws MessagingException {
-        onError(mail, "an unkown error occurred", "an unkown error occurred");
+        onError(mail, "an unknown error occurred", "an unknown error occurred");
     }
 
     /**
