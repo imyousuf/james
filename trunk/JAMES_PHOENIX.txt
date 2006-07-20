@@ -12,6 +12,8 @@ Here are the differences between the svn version and this one:
 
 - upgraded wrapper.* files to 3.2.0 release (http://wrapper.tanukisoftware.org/)
 
+-add new jar for invoke phoenix via commonns daemon.
+
 Changed the build.xml to reflect the changes.
 
 Rebuilt.
