@@ -763,6 +763,12 @@ Regards, Postmaster XXX.YYY
 
       <!-- Maximum number of entries to maintain in the DNS cache -->
       <maxcachesize>50000</maxcachesize>
+      
+      <!-- Uncomment this if you want James to try a single server for each -->
+      <!-- multihomed mx host. -->
+      <!--
+      <singleIPperMX> true </singleIPperMX>
+      -->
    </dnsserver>
 
    <!-- The RemoteManager server is enabled by default -->

@@ -96,6 +96,12 @@ public class DNSServer
     private Comparator mxComparator = new MXRecordComparator();
 
     /**
+     * If true than the DNS server will return only a single IP per each MX record
+     * when looking up SMTPServers
+     */
+    private boolean singleIPPerMX;
+
+    /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
     public void configure( final Configuration configuration )
@@ -115,6 +121,8 @@ public class DNSServer
             }
         }
 
+        singleIPPerMX = configuration.getChild( "singleIPperMX" ).getValueAsBoolean( false ); 
+        
         // Get the DNS servers that this service will use for lookups
         final Configuration serversConfiguration = configuration.getChild( "servers" );
         final Configuration[] serverConfigurations =
@@ -438,7 +446,11 @@ public class DNSServer
                     final String nextHostname = (String)mxHosts.next();
                     InetAddress[] addrs = null;
                     try {
-                        addrs = getAllByName(nextHostname);
+                        if (singleIPPerMX) {
+                            addrs = new InetAddress[] {getByName(nextHostname)};
+                        } else {
+                            addrs = getAllByName(nextHostname);
+                        }
                     } catch (UnknownHostException uhe) {
                         // this should never happen, since we just got
                         // this host from mxHosts, which should have
