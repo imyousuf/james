@@ -125,8 +125,8 @@ public class DNSRBLHandler
                     }
                     return false;
                 } catch (java.net.UnknownHostException uhe) {
-                    if (getLogger().isInfoEnabled()) {
-                        getLogger().info("unknown host exception thrown:" + rblList[i]);
+                    if (getLogger().isDebugEnabled()) {
+                        getLogger().debug("unknown host exception thrown:" + rblList[i]);
                     }
                 }
             }
@@ -141,8 +141,8 @@ public class DNSRBLHandler
                     return true;
                 } catch (java.net.UnknownHostException uhe) {
                     // if it is unknown, it isn't blocked
-                    if (getLogger().isInfoEnabled()) {
-                        getLogger().info("unknown host exception thrown:" + rblList[i]);
+                    if (getLogger().isDebugEnabled()) {
+                        getLogger().debug("unknown host exception thrown:" + rblList[i]);
                     }
                 }
             }
