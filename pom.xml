@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.apache.james</groupId>
+  <artifactId>james-server</artifactId>
+  <name>Apache James Server</name>
+  <version>1</version>
+  <description>
+    Apache James Server
+  </description>
+  <url>http://james.apache.org/server</url>
+  <inceptionYear>2006</inceptionYear>
+
+  <dependencies>
+  </dependencies>
+
+  <organization>
+    <name>Apache Software Foundation</name>
+    <url>http://www.apache.org</url>
+  </organization>
+
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <issueManagement>
+    <system>JIRA</system>
+    <url>http://issues.apache.org/jira/browse/JAMES</url>
+  </issueManagement>
+
+  <scm>
+    <connection>
+      scm:svn:http://svn.apache.org/repos/asf/james/server/trunk
+    </connection>
+    <developerConnection>
+      scm:svn:https://svn.apache.org/repos/asf/james/server/trunk
+    </developerConnection>
+    <url>
+      http://svn.apache.org/viewcvs.cgi/james/server/trunk/?root=Apache-SVN
+    </url>
+  </scm>
+
+  <mailingLists>
+    <mailingList>
+      <name>Apache James Developement</name>
+      <subscribe>server-dev-subscribe@james.apache.org</subscribe>
+      <unsubscribe>
+        server-dev-unsubscribe@james.apache.org
+      </unsubscribe>
+      <post>server-dev@james.apache.org</post>
+      <archive>
+        http://mail-archives.apache.org/mod_mbox/james-server-dev/
+      </archive>
+    </mailingList>
+  </mailingLists>
+
+</project>

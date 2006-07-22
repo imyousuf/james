@@ -23,7 +23,7 @@
 <section name="Version 2.3.0b3">
 <p>Released 15 July 2006</p>
 <p>Detail</p>
-<h2>Bug</h2>
+<subsection name="Bug"></subsection>
 <ul>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-554'>JAMES-554</a>] - Set the right svn property for excutable files</li>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-559'>JAMES-559</a>] - Message body get lost after call saveChanges() and move to other processor</li>
@@ -34,22 +34,22 @@
 <section name="Version 2.3.0b2">
 <p>Unreleased</p>
 <p>Detail</p>
-<h2>Bug</h2>
+<subsection name="Bug"></subsection>
 <ul>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-527'>JAMES-527</a>] - data-source for default derby maildb is configured with a relative path</li>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-535'>JAMES-535</a>] - Denial of service (CPU consumption) via a long argument to the MAIL command.</li>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-538'>JAMES-538</a>] - Original headers are lost when trying to alter headers of a cloned message</li>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-540'>JAMES-540</a>] - catch lifecycle problems for handlers</li>
 </ul>
-<h2>Improvement</h2>
+<subsection name="Improvement"></subsection>
 <ul>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-553'>JAMES-553</a>] - Upgrade to Derby 10.1.3.1</li>
 </ul>
-<h2>New Feature</h2>
+<subsection name="New Feature"></subsection>
 <ul>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-537'>JAMES-537</a>] - Add ConfigOption to disable the RemoteManager</li>
 </ul>
-<h2>Task</h2>
+<subsection name="Task"></subsection>
 <ul>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-496'>JAMES-496</a>] - Add a default hardcoded configuration for the SMTPHandlerChain</li>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-529'>JAMES-529</a>] - Add a GenericAddFooter for use in AddFooter and CommandListservFooter</li>
@@ -59,7 +59,7 @@
 <section name="Version 2.3.0b1">
 <p>Released 9 June 2006</p>
 <p>Details</p>
-<h2>Bug</h2>
+<subsection name="Bug"></subsection>
 <ul>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-499'>JAMES-499</a>] - Inconsistent usage of the lastUpdated field for Mail objects</li>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-505'>JAMES-505</a>] - ClassCastException in UsersRepositoryAliasingForwarding using file based users store</li>
@@ -68,14 +68,14 @@
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-524'>JAMES-524</a>] - James fails to create mysql tables with mysql-4.1.</li>
 </ul>
                 
-<h2>Task</h2>
+<subsection name="Task"></subsection>
 <ul>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-513'>JAMES-513</a>] - Rename AddHeader and AddHeaderHandler</li>
 </ul>
 </section>
 <section name="Version 2.3.0a3">
 <p>Details</p>
-<h2>Bug</h2>
+<subsection name="Bug"></subsection>
 <ul>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-456'>JAMES-456</a>] - AddFooter mailet javax.mail.internet.ParseException</li>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-474'>JAMES-474</a>] - NullPointerException and bodymessage lost with weird configurations in message spooling</li>
@@ -88,7 +88,7 @@
 </section>
 <section name="Version 2.3.0a2">
 <p>Details</p>
-<h2>Bug</h2>
+<subsection name="Bug"></subsection>
 <ul>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-368'>JAMES-368</a>] - AddFooter couldn't process mails which MimeType is multipart/related</li>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-419'>JAMES-419</a>] - NPE during 8bit conversion of non-mime messages</li>
@@ -111,7 +111,7 @@
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-482'>JAMES-482</a>] - incorrect state on duplicate mail (LinearProcessor)</li>
 </ul>
     
-<h2>Improvement</h2>
+<subsection name="Improvement"></subsection>
 <ul>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-158'>JAMES-158</a>] - Stream body in JDBCMailRepository.store(Mail)</li>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-299'>JAMES-299</a>] - Support for SMTP auth to gateway server in RemoteDelivery mailet</li>
@@ -126,7 +126,7 @@
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-478'>JAMES-478</a>] - Only check against RBL if the client is not allowed to relay</li>
 </ul>
     
-<h2>New Feature</h2>
+<subsection name="New Feature"></subsection>
 <ul>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-427'>JAMES-427</a>] - [PATCH] Introduce Unit Testing</li>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-437'>JAMES-437</a>] - add failed recipient address to log when authorization fails</li>
@@ -135,12 +135,12 @@
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-471'>JAMES-471</a>] - Tarpit support</li>
 </ul>
         
-<h2>Task</h2>
+<subsection name="Task"></subsection>
 <ul>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-416'>JAMES-416</a>] - Upgrade to javamail-1.3.3</li>
 </ul>
         
-<h2>Wish</h2>
+<subsection name="Wish"></subsection>
 <ul>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-451'>JAMES-451</a>] - Check for valid domain in HELO</li>
 </ul>
@@ -164,7 +164,7 @@ James 2.3.0a1 is "storage" compatible with 2.2.0 (It uses the same files/db form
 </ul>
 </p>
 <p>Details</p>
-<h2>Bug</h2>
+<subsection name="Bug"></subsection>
 <ul>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-138'>JAMES-138</a>] - Don't keep all mailboxes in-memory forever</li>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-152'>JAMES-152</a>] - When a Received header is invalid mail may be created with a null remote address and host name</li>
@@ -211,7 +211,7 @@ James 2.3.0a1 is "storage" compatible with 2.2.0 (It uses the same files/db form
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-436'>JAMES-436</a>] - James trunk cannot be built with jdk1.4</li>
 </ul>
     
-<h2>Improvement</h2>
+<subsection name="Improvement"></subsection>
 <ul>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-270'>JAMES-270</a>] - Add MailAttributes to indicate when default values have been applied</li>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-303'>JAMES-303</a>] - AttachmentFileNameIs matcher should be able to analyze zip file attachments</li>
@@ -236,7 +236,7 @@ James 2.3.0a1 is "storage" compatible with 2.2.0 (It uses the same files/db form
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-414'>JAMES-414</a>] - Add more flexibility to LocalDelivery</li>
 </ul>
     
-<h2>New Feature</h2>
+<subsection name="New Feature"></subsection>
 <ul>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-257'>JAMES-257</a>] - S/MIME Matchers/Mailets</li>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-258'>JAMES-258</a>] - Add Bayesian Filtering</li>
@@ -245,7 +245,7 @@ James 2.3.0a1 is "storage" compatible with 2.2.0 (It uses the same files/db form
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-423'>JAMES-423</a>] - Give the remote manager a service promt</li>
 </ul>
         
-<h2>Task</h2>
+<subsection name="Task"></subsection>
 <ul>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-149'>JAMES-149</a>] - Add soft-fail to unresolved received from domains</li>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-190'>JAMES-190</a>] - Apache license 2.0</li>
@@ -280,7 +280,7 @@ Below are some highlights of features and changes already available:
 </p>
 <p>Details</p>
 
-<h2>Bug</h2>
+<subsection name="Bug"></subsection>
 <ul>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-9'>JAMES-9</a>] - JamesSpoolManager doesn't shutdown gracefully</li>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-62'>JAMES-62</a>] - Spooler loops and add message many times</li>
@@ -345,7 +345,7 @@ Below are some highlights of features and changes already available:
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-294'>JAMES-294</a>] - Database Pool becomes exhausted after a short time when heavily polled</li>
 </ul>
     
-<h2>Improvement</h2>
+<subsection name="Improvement"></subsection>
 <ul>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-99'>JAMES-99</a>] - RFC1894 format notification</li>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-161'>JAMES-161</a>] - Quota framework</li>
@@ -381,7 +381,7 @@ Below are some highlights of features and changes already available:
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-283'>JAMES-283</a>] - James should use default backLog value when creating a ServerSocket</li>
 </ul>
     
-<h2>New Feature</h2>
+<subsection name="New Feature"></subsection>
 <ul>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-164'>JAMES-164</a>] - Matcher: AttachmentFileNameIs</li>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-165'>JAMES-165</a>] - Matcher: RecipientIs with regex support</li>
@@ -404,7 +404,7 @@ Below are some highlights of features and changes already available:
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-289'>JAMES-289</a>] - Ingres db repository support should be added</li>
 </ul>
         
-<h2>Task</h2>
+<subsection name="Task"></subsection>
 <ul>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-149'>JAMES-149</a>] - Add soft-fail to unresolved received from domains</li>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-190'>JAMES-190</a>] - Apache license 2.0</li>
