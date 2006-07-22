@@ -195,8 +195,8 @@ public class DNSRBLHandler
                     session.getConnectionState().put(RBL_BLOCKLISTED_MAIL_ATTRIBUTE_NAME, "false");
                     return;
                 } catch (java.net.UnknownHostException uhe) {
-                    if (getLogger().isInfoEnabled()) {
-                        getLogger().info("IpAddress " + session.getRemoteIPAddress() + " not listed on " + rblList[i]);
+                    if (getLogger().isDebugEnabled()) {
+                        getLogger().debug("IpAddress " + session.getRemoteIPAddress() + " not listed on " + rblList[i]);
                     }
                 }
             }
@@ -226,8 +226,8 @@ public class DNSRBLHandler
                     return;
                 } catch (java.net.UnknownHostException uhe) {
                     // if it is unknown, it isn't blocked
-                    if (getLogger().isInfoEnabled()) {
-                        getLogger().info("unknown host exception thrown:" + rblList[i]);
+                    if (getLogger().isDebugEnabled()) {
+                        getLogger().debug("unknown host exception thrown:" + rblList[i]);
                     }
                 }
             }
