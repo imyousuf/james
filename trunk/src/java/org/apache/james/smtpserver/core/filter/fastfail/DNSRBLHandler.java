@@ -255,10 +255,9 @@ public class DNSRBLHandler
                 SMTPSession.CURRENT_RECIPIENT);
 
         if (blocklisted.equals("true") && // was found in the RBL
-                ((session.isAuthRequired() && session
-                        .getUser() != null)) && // Not (either an authorized IP
-                                                // or (SMTP AUTH is enabled and
-                                                // not authenticated))
+                !(session.isAuthRequired() && session
+                        .getUser() != null) && // Not (SMTP AUTH is enabled and
+                                                // not authenticated)
                 !(recipientAddress.getUser().equalsIgnoreCase("postmaster") || recipientAddress
                         .getUser().equalsIgnoreCase("abuse"))) {
 

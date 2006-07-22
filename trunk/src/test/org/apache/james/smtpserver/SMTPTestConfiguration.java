@@ -18,7 +18,6 @@
 
 package org.apache.james.smtpserver;
 
-import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.james.smtpserver.core.CoreCmdHandlerLoader;
@@ -151,38 +150,22 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
  
         DefaultConfiguration config = new DefaultConfiguration("handlerchain");
 
+        // add the rbl handler
         if (m_useRBL) {
-            DefaultConfiguration handlerChain = (DefaultConfiguration) handlerConfig
-                    .getChild("handlerchain");
             DefaultConfiguration handler = new DefaultConfiguration("handler");
             handler.setAttribute("class", DNSRBLHandler.class.getName());
             handler.setAttribute("command", "RCPT");
-            handlerChain.addChild(handler);
-        }
-        // Add Configuration for Helo checks and Ehlo checks
-        Configuration[] heloConfig = handlerConfig.getChild("handlerchain")
-                .getChildren("handler");
-        for (int i = 0; i < heloConfig.length; i++) {
-            if (heloConfig[i] instanceof DefaultConfiguration) {
-                String cmd = ((DefaultConfiguration) heloConfig[i])
-                        .getAttribute("command", null);
-                if (cmd == null) {
-                    String className = ((DefaultConfiguration) heloConfig[i])
-                            .getAttribute("class", null);
 
-                    if (DNSRBLHandler.class.getName().equals(className)) {
-                        DefaultConfiguration d = (DefaultConfiguration) heloConfig[i];
+            DefaultConfiguration blacklist = new DefaultConfiguration(
+                    "blacklist");
+            blacklist.setValue("bl.spamcop.net");
+            DefaultConfiguration rblServers = new DefaultConfiguration(
+                    "rblservers");
+            rblServers.addChild(blacklist);
 
-                        DefaultConfiguration blacklist = new DefaultConfiguration(
-                                "blacklist");
-                        blacklist.setValue("bl.spamcop.net");
-                        DefaultConfiguration rblServers = new DefaultConfiguration(
-                                "rblservers");
-                        rblServers.addChild(blacklist);
-                        d.addChild(rblServers);
-                    }
-                }
-            }
+            handler.addChild(rblServers);
+            config.addChild(handler);
+
         }
 
         config.addChild(createHandler(CoreFilterCmdHandlerLoader.class
