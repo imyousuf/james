@@ -46,12 +46,7 @@ public class RoaminUsersHelper {
      * @return true if authorized. Else false
      */
     public static synchronized boolean isAuthorized(String ipAddress) {
-
-        if (ipMap.containsKey(ipAddress)) {
-            return true;
-
-        }
-        return false;
+        return ipMap.containsKey(ipAddress);
     }
 
     /**
