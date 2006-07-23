@@ -220,4 +220,20 @@ public class RoaminUsersHandlerTest extends TestCase {
             //ignore
         }
     }
+    
+    public void testThrowException() {
+        boolean exception = false;
+        RoaminUsersHandler handler = new RoaminUsersHandler();
+
+        ContainerUtil.enableLogging(handler, new MockLogger());
+        setupMockedSMTPSession();     
+
+        try {
+            handler.setExpireTime("1 unit");
+        } catch (NumberFormatException e) {
+            exception = true;
+        }
+        assertTrue(exception);
+    }
+    
 }

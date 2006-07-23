@@ -69,7 +69,7 @@ public class RoaminUsersHandler implements ConnectHandler, Configurable {
     public void onConnect(SMTPSession session) {
 
         // some kind of random cleanup process
-        if (Math.random() > 0.8) {
+        if (Math.random() > 0.99) {
             RoaminUsersHelper.removeExpiredIP(expireTime);
         }
 
