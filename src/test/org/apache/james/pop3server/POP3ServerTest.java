@@ -35,6 +35,7 @@ import org.apache.james.test.mock.james.MockMailRepository;
 import org.apache.james.test.mock.james.MockMailServer;
 import org.apache.james.test.util.Util;
 import org.apache.james.userrepository.MockUsersRepository;
+import org.apache.james.util.RoaminUsersHelper;
 import org.apache.james.util.connection.SimpleConnectionManager;
 import org.apache.mailet.MailAddress;
 
@@ -288,6 +289,21 @@ public class POP3ServerTest extends TestCase {
                 pop3Protocol2.disconnect();
             }
         }
+    }
+    
+    public void testIpStored() throws Exception {
+        finishSetUp(m_testConfiguration);
+
+        m_pop3Protocol = new POP3Client();
+        m_pop3Protocol.connect("127.0.0.1",m_pop3ListenerPort);
+
+        String pass = "password";
+        m_usersRepository.addUser("foo", pass);
+        m_mailServer.setUserInbox("foo", new MockMailRepository());
+
+        m_pop3Protocol.login("foo", pass);
+        assertEquals(1, m_pop3Protocol.getState());
+        assertTrue(RoaminUsersHelper.isAuthorized("127.0.0.1"));
     }
 
 }

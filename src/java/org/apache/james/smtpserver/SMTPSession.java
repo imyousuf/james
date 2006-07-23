@@ -165,6 +165,13 @@ public interface SMTPSession {
      * @return the relaying status
      */
     boolean isRelayingAllowed();
+    
+    /**
+     * Set if reallying is allowed
+     * 
+     * @param relayingAllowed
+     */
+    void setRelayingAllowed(boolean relayingAllowed);
 
     /**
      * Returns whether Authentication is required or not

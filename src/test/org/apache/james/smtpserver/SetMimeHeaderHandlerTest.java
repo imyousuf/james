@@ -151,26 +151,6 @@ public class SetMimeHeaderHandlerTest extends TestCase {
                         "Unimplemented mock service");
             }
 
-            public void setBlockListed(boolean blocklisted) {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public boolean isBlockListed() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public void setBlockListedDetail(String detail) {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public String getBlockListedDetail() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
             public boolean isRelayingAllowed() {
                 throw new UnsupportedOperationException(
                         "Unimplemented mock service");
@@ -227,6 +207,11 @@ public class SetMimeHeaderHandlerTest extends TestCase {
             }
 
             public void resetConnectionState() {
+                throw new UnsupportedOperationException(
+                "Unimplemented mock service");
+            }
+
+            public void setRelayingAllowed(boolean relayingAllowed) {
                 throw new UnsupportedOperationException(
                 "Unimplemented mock service");
             }
