@@ -17,6 +17,7 @@
 package org.apache.james.util;
 
 import java.util.Collections;
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -33,7 +34,7 @@ public class RoaminUsersHelper {
     /**
      * The map in which the ipAddresses and timestamp stored
      */
-    public static Map ipMap =  Collections.synchronizedMap(new HashMap());
+    public static Map ipMap = Collections.synchronizedMap(new HashMap());
 
     /**
      * Default expire time in ms (1 hour)
@@ -58,7 +59,10 @@ public class RoaminUsersHelper {
      *            The ipAddress
      */
     public static void addIPAddress(String ipAddress) {
-        ipMap.put(ipAddress, Long.toString(System.currentTimeMillis()));
+        try {
+            ipMap.put(ipAddress, Long.toString(System.currentTimeMillis()));
+        } catch (ConcurrentModificationException e) {
+        }
     }
 
     /**
@@ -86,7 +90,10 @@ public class RoaminUsersHelper {
 
             // remove the ip from the map when it is expired
             if ((currTime - clearTime) > storedTime) {
-                ipMap.remove(key);
+                try {
+                    ipMap.remove(key);
+                } catch (ConcurrentModificationException e) {
+                }
             }
         }
     }
