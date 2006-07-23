@@ -221,7 +221,7 @@ public class RoaminUsersHandlerTest extends TestCase {
         }
     }
     
-    public void testThrowException() {
+    public void testThrowExceptionOnIllegalExpireTime() {
         boolean exception = false;
         RoaminUsersHandler handler = new RoaminUsersHandler();
 
@@ -234,6 +234,21 @@ public class RoaminUsersHandlerTest extends TestCase {
             exception = true;
         }
         assertTrue(exception);
+    }
+    
+    public void testValidExpireTime() {
+        boolean exception = false;
+        RoaminUsersHandler handler = new RoaminUsersHandler();
+
+        ContainerUtil.enableLogging(handler, new MockLogger());
+        setupMockedSMTPSession();     
+
+        try {
+            handler.setExpireTime("1 hour");
+        } catch (NumberFormatException e) {
+            exception = true;
+        }
+        assertFalse(exception);
     }
     
 }
