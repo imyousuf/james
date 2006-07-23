@@ -437,6 +437,13 @@ public class SMTPHandler
     public boolean isRelayingAllowed() {
         return relayingAllowed;
     }
+    
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#setRelayingAllowed(boolean relayingAllowed)
+     */
+    public void setRelayingAllowed(boolean relayingAllowed) {
+        this.relayingAllowed = relayingAllowed;
+    }
 
     /**
      * @see org.apache.james.smtpserver.SMTPSession#isAuthRequired()

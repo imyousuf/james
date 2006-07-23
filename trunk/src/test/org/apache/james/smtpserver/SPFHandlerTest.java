@@ -294,6 +294,11 @@ public class SPFHandlerTest extends TestCase {
                 connectionState.clear();
             }
 
+            public void setRelayingAllowed(boolean relayingAllowed) {
+                throw new UnsupportedOperationException(
+                "Unimplemented mock service");
+            }
+
         };
     }
 

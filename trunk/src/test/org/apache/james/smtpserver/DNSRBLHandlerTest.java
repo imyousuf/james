@@ -246,7 +246,6 @@ public class DNSRBLHandlerTest extends TestCase {
             }
 
             public int getRcptCount() {
-                // TODO Auto-generated method stub
                 return 0;
             }
 
@@ -264,6 +263,11 @@ public class DNSRBLHandlerTest extends TestCase {
 
             public void resetConnectionState() {
                 connectionState.clear();
+            }
+
+            public void setRelayingAllowed(boolean relayingAllowed) {
+                throw new UnsupportedOperationException(
+                "Unimplemented mock service");
             }
 
         };

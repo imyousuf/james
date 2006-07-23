@@ -922,11 +922,15 @@ Regards, Postmaster XXX.YYY
             <!-- Load the core filter command handlers-->
             <handler class="org.apache.james.smtpserver.core.filter.CoreFilterCmdHandlerLoader"></handler>        
 
+            <!-- This connect handler can be used to enable RoaminUsers support (pop-before-smtp) -->
+            <!--
+            <handler class="org.apache.james.smtpserver.core.RoaminUsersHandler"></handler>
+            -->
+            
             <!-- This command handler check against RBL-Lists -->
             <!-- If getDetail is set to true it try to retrieve information from TXT Record -->
             <!-- why the ip was blocked. Default to false -->            
             <!--
-            
             <handler class="org.apache.james.smtpserver.core.filter.fastfail.DNSRBLHandler" command="RCPT">
                <getDetail> false </getDetail>
                <rblservers>
