@@ -40,7 +40,7 @@
     <menu name="Documentation 2.3B">
       <item name="James" href="/documentation_2_3.html"/>
       <item name="Design" href="/design_objectives_2_3.html"/>
-      <item name="James Javadocs" href="/javadocs/index.html"/>
+      <item name="James Javadocs" href="/apidocs/index.html"/>
       <item name="Useful RFCs" href="/rfclist.html"/>
     </menu>
     
