@@ -60,7 +60,7 @@ public class RoaminUsersHandler implements ConnectHandler, Configurable {
     public void setExpireTime(String rawExpireTime) {
         if (rawExpireTime != null) {
             this.expireTime = TimeConverter.getMilliSeconds(rawExpireTime);
-        } 
+        }
     }
 
     /**
@@ -74,7 +74,8 @@ public class RoaminUsersHandler implements ConnectHandler, Configurable {
         }
 
         // Check if the ip is allowed to relay
-        if (RoaminUsersHelper.isAuthorized(session.getRemoteIPAddress())) {
+        if (!session.isRelayingAllowed()
+                && RoaminUsersHelper.isAuthorized(session.getRemoteIPAddress())) {
             session.setRelayingAllowed(true);
         }
     }

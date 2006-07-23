@@ -16,8 +16,10 @@
  ***********************************************************************/
 package org.apache.james.util;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Helper class which is used to store ipAddresses and timestamps for pop before
@@ -31,7 +33,7 @@ public class RoaminUsersHelper {
     /**
      * The map in which the ipAddresses and timestamp stored
      */
-    public static HashMap ipMap = new HashMap();
+    public static Map ipMap =  Collections.synchronizedMap(new HashMap());
 
     /**
      * Default expire time in ms (1 hour)
@@ -45,7 +47,7 @@ public class RoaminUsersHelper {
      *            The ipAddress
      * @return true if authorized. Else false
      */
-    public static synchronized boolean isAuthorized(String ipAddress) {
+    public static boolean isAuthorized(String ipAddress) {
         return ipMap.containsKey(ipAddress);
     }
 
@@ -55,14 +57,14 @@ public class RoaminUsersHelper {
      * @param ipAddress
      *            The ipAddress
      */
-    public static synchronized void addIPAddress(String ipAddress) {
+    public static void addIPAddress(String ipAddress) {
         ipMap.put(ipAddress, Long.toString(System.currentTimeMillis()));
     }
 
     /**
      * @see #removeExpiredIP(String, long)
      */
-    public static synchronized void removeExpiredIP() {
+    public static void removeExpiredIP() {
         removeExpiredIP(EXPIRE_TIME);
     }
 
@@ -74,7 +76,7 @@ public class RoaminUsersHelper {
      *            The time in milliseconds after which an ipAddress should be
      *            handled as expired
      */
-    public static synchronized void removeExpiredIP(long clearTime) {
+    public static void removeExpiredIP(long clearTime) {
         Iterator storedIP = ipMap.keySet().iterator();
         long currTime = System.currentTimeMillis();
 
@@ -92,7 +94,7 @@ public class RoaminUsersHelper {
     /**
      * Remove all ipAddresses from the authorized map
      */
-    public static synchronized void clearIP() {
+    public static void clearIP() {
         ipMap.clear();
     }
 }
