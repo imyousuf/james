@@ -32,7 +32,7 @@ public class RoaminUsersHandler implements ConnectHandler, Configurable {
     /**
      * The time after which ipAddresses should be handled as expired
      */
-    private long expireTime;
+    private long expireTime = RoaminUsersHelper.EXPIRE_TIME;
 
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
@@ -60,9 +60,7 @@ public class RoaminUsersHandler implements ConnectHandler, Configurable {
     public void setExpireTime(String rawExpireTime) {
         if (rawExpireTime != null) {
             this.expireTime = TimeConverter.getMilliSeconds(rawExpireTime);
-        } else {
-            this.expireTime = RoaminUsersHelper.EXPIRE_TIME;
-        }
+        } 
     }
 
     /**
