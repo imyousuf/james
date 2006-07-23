@@ -923,8 +923,11 @@ Regards, Postmaster XXX.YYY
             <handler class="org.apache.james.smtpserver.core.filter.CoreFilterCmdHandlerLoader"></handler>        
 
             <!-- This connect handler can be used to enable RoaminUsers support (pop-before-smtp) -->
+            <!-- The expireTime is the time after which an ipAddress is handled as expired -->
             <!--
-            <handler class="org.apache.james.smtpserver.core.RoaminUsersHandler"></handler>
+            <handler class="org.apache.james.smtpserver.core.RoaminUsersHandler">
+            <expireTime> 1 hour </expireTime>
+            </handler>
             -->
             
             <!-- This command handler check against RBL-Lists -->

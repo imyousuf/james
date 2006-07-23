@@ -22,6 +22,7 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.james.smtpserver.ConnectHandler;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.RoaminUsersHelper;
+import org.apache.james.util.TimeConverter;
 
 /**
  * This ConnectHandler can be used to activate pop-before-smtp
@@ -40,17 +41,28 @@ public class RoaminUsersHandler implements ConnectHandler, Configurable {
         Configuration config = arg0.getChild("expireTime", false);
 
         if (config != null) {
-            setExpireTime(config.getValueAsLong(RoaminUsersHelper.EXPIRE_TIME));
+            try {
+                setExpireTime(config.getValue(null));
+            } catch (NumberFormatException e) {
+                throw new ConfigurationException(
+                        "Please configure a valid expireTime: "
+                                + e.getMessage());
+            }
         }
     }
 
     /**
      * Set the time after which an ipAddresses should be handled as expired
      * 
-     * @param expireTime The time in ms
+     * @param expireTime
+     *            The time
      */
-    public void setExpireTime(long expireTime) {
-        this.expireTime = expireTime;
+    public void setExpireTime(String rawExpireTime) {
+        if (rawExpireTime != null) {
+            this.expireTime = TimeConverter.getMilliSeconds(rawExpireTime);
+        } else {
+            this.expireTime = RoaminUsersHelper.EXPIRE_TIME;
+        }
     }
 
     /**
@@ -59,7 +71,7 @@ public class RoaminUsersHandler implements ConnectHandler, Configurable {
     public void onConnect(SMTPSession session) {
 
         // some kind of random cleanup process
-        if (Math.random() > 0.5) {
+        if (Math.random() > 0.8) {
             RoaminUsersHelper.removeExpiredIP(expireTime);
         }
 
