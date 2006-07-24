@@ -24,8 +24,6 @@ import java.util.HashMap;
 
 import java.util.List;
 
-import javax.mail.internet.ParseException;
-
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.jspf.core.DNSService;
 import org.apache.james.jspf.exceptions.NoneException;
@@ -313,15 +311,18 @@ public class SPFHandlerTest extends TestCase {
         spf.onMessage(mockedSMTPSession);
     }
 
-    public void testSPFpass() throws ParseException {
+    public void testSPFpass() throws Exception {
         setupMockedSMTPSession("192.168.100.1", "spf1.james.apache.org",
                 new MailAddress("test@spf1.james.apache.org"), new MailAddress(
                         "test@localhost"));
         SPFHandler spf = new SPFHandler();
 
-        ContainerUtil.enableLogging(spf, new MockLogger());
 
+        ContainerUtil.enableLogging(spf, new MockLogger());
+        
         spf.setDNSService(mockedDnsService);
+        
+        spf.initialize();
 
         runHandlers(spf, mockedSMTPSession);
 
@@ -339,15 +340,17 @@ public class SPFHandlerTest extends TestCase {
         assertFalse(mockedSMTPSession.getStopHandlerProcessing());
     }
 
-    public void testSPFfail() throws ParseException {
+    public void testSPFfail() throws Exception {
         setupMockedSMTPSession("192.168.100.1", "spf2.james.apache.org",
                 new MailAddress("test@spf2.james.apache.org"), new MailAddress(
                         "test@localhost"));
         SPFHandler spf = new SPFHandler();
 
         ContainerUtil.enableLogging(spf, new MockLogger());
-
-        spf.setDNSService(mockedDnsService);
+        
+        spf.setDNSService(mockedDnsService);     
+        
+        spf.initialize();
 
         runHandlers(spf, mockedSMTPSession);
 
@@ -362,15 +365,17 @@ public class SPFHandlerTest extends TestCase {
         assertTrue(mockedSMTPSession.getStopHandlerProcessing());
     }
 
-    public void testSPFsoftFail() throws ParseException {
+    public void testSPFsoftFail() throws Exception {
         setupMockedSMTPSession("192.168.100.1", "spf3.james.apache.org",
                 new MailAddress("test@spf3.james.apache.org"), new MailAddress(
                         "test@localhost"));
         SPFHandler spf = new SPFHandler();
 
         ContainerUtil.enableLogging(spf, new MockLogger());
-
+        
         spf.setDNSService(mockedDnsService);
+        
+        spf.initialize();
 
         runHandlers(spf, mockedSMTPSession);
 
@@ -388,15 +393,18 @@ public class SPFHandlerTest extends TestCase {
         assertFalse(mockedSMTPSession.getStopHandlerProcessing());
     }
 
-    public void testSPFsoftFailRejectEnabled() throws ParseException {
+    public void testSPFsoftFailRejectEnabled() throws Exception {
         setupMockedSMTPSession("192.168.100.1", "spf3.james.apache.org",
                 new MailAddress("test@spf3.james.apache.org"), new MailAddress(
                         "test@localhost"));
         SPFHandler spf = new SPFHandler();
 
         ContainerUtil.enableLogging(spf, new MockLogger());
-
+       
         spf.setDNSService(mockedDnsService);
+       
+        spf.initialize();
+        
         spf.setBlockSoftFail(true);
 
         setCommand("MAIL");
@@ -416,15 +424,18 @@ public class SPFHandlerTest extends TestCase {
         assertTrue(mockedSMTPSession.getStopHandlerProcessing());
     }
 
-    public void testSPFpermError() throws ParseException {
+    public void testSPFpermError() throws Exception {
         setupMockedSMTPSession("192.168.100.1", "spf4.james.apache.org",
                 new MailAddress("test@spf4.james.apache.org"), new MailAddress(
                         "test@localhost"));
         SPFHandler spf = new SPFHandler();
 
         ContainerUtil.enableLogging(spf, new MockLogger());
-
+        
         spf.setDNSService(mockedDnsService);
+        
+        spf.initialize();
+        
         spf.setBlockSoftFail(true);
 
         runHandlers(spf, mockedSMTPSession);
@@ -440,16 +451,18 @@ public class SPFHandlerTest extends TestCase {
         assertTrue(mockedSMTPSession.getStopHandlerProcessing());
     }
 
-    public void testSPFtempError() throws ParseException {
+    public void testSPFtempError() throws Exception {
         setupMockedSMTPSession("192.168.100.1", "spf5.james.apache.org",
                 new MailAddress("test@spf5.james.apache.org"), new MailAddress(
                         "test@localhost"));
         SPFHandler spf = new SPFHandler();
 
         ContainerUtil.enableLogging(spf, new MockLogger());
-
+        
         spf.setDNSService(mockedDnsService);
 
+        spf.initialize();
+        
         runHandlers(spf, mockedSMTPSession);
 
         assertNull("no reject", mockedSMTPSession.getState().get(
@@ -463,7 +476,7 @@ public class SPFHandlerTest extends TestCase {
         assertTrue(mockedSMTPSession.getStopHandlerProcessing());
     }
 
-    public void testSPFNoRecord() throws ParseException {
+    public void testSPFNoRecord() throws Exception {
         setupMockedSMTPSession("192.168.100.1", "spf6.james.apache.org",
                 new MailAddress("test@spf6.james.apache.org"), new MailAddress(
                         "test@localhost"));
@@ -473,6 +486,8 @@ public class SPFHandlerTest extends TestCase {
 
         spf.setDNSService(mockedDnsService);
 
+        spf.initialize();
+        
         runHandlers(spf, mockedSMTPSession);
 
         assertNull("no reject", mockedSMTPSession.getState().get(
@@ -489,7 +504,7 @@ public class SPFHandlerTest extends TestCase {
         assertFalse(mockedSMTPSession.getStopHandlerProcessing());
     }
 
-    public void testSPFpermErrorNotRejectPostmaster() throws ParseException {
+    public void testSPFpermErrorNotRejectPostmaster() throws Exception {
         setupMockedSMTPSession("192.168.100.1", "spf4.james.apache.org",
                 new MailAddress("test@spf4.james.apache.org"), new MailAddress(
                         "postmaster@localhost"));
@@ -498,6 +513,9 @@ public class SPFHandlerTest extends TestCase {
         ContainerUtil.enableLogging(spf, new MockLogger());
 
         spf.setDNSService(mockedDnsService);
+        
+        spf.initialize();
+        
         spf.setBlockSoftFail(true);
 
         runHandlers(spf, mockedSMTPSession);
@@ -513,13 +531,15 @@ public class SPFHandlerTest extends TestCase {
         assertFalse(mockedSMTPSession.getStopHandlerProcessing());
     }
 
-    public void testSPFpermErrorNotRejectAbuse() throws ParseException {
+    public void testSPFpermErrorNotRejectAbuse() throws Exception {
         setupMockedSMTPSession("192.168.100.1", "spf4.james.apache.org",
                 new MailAddress("test@spf4.james.apache.org"), new MailAddress(
                         "abuse@localhost"));
         SPFHandler spf = new SPFHandler();
 
         ContainerUtil.enableLogging(spf, new MockLogger());
+        
+        spf.initialize();
 
         spf.setDNSService(mockedDnsService);
         spf.setBlockSoftFail(true);

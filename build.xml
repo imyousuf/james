@@ -91,7 +91,6 @@ Legal:
     		<include name="${bcmail.jar}"/>
     		<include name="${bcmail-workaround.jar}"/>
     		<include name="${jspf.jar}"/>
-    		<include name="${log4j.jar}"/>
     	</fileset>
       <pathelement path="${java.class.path}" />
       <pathelement path="${build.classes}" />
@@ -530,7 +529,6 @@ Legal:
           <include name="${cornerstone-datasources-impl.jar}"/>
           <include name="${concurrent.jar}"/>
           <include name="${jspf.jar}"/>
-          <include name="${log4j.jar}"/>
         </lib>
         <zipfileset dir="${conf.dir}" fullpath="conf/sqlResources.xml">
           <include name="sqlResources.xml"/>
