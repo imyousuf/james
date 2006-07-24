@@ -949,8 +949,8 @@ Regards, Postmaster XXX.YYY
             <!-- If checkAuthNetworks is set to true sender domain will be checked also for clients that -->
             <!-- are allowed to relay. Default is false. -->  
             <!--
-            <handler class="org.apache.james.smtpserver.core.filter.fastfail" command="MAIL,RCPT">
-                <checkAuthClients> false </checkAuthClients>
+            <handler class="org.apache.james.smtpserver.core.filter.fastfail.SPFHandler" command="MAIL,RCPT">
+                <checkAuthNetworks> false </checkAuthNetworks>
                 <blockSoftFail> false </blockSoftFail>
             </handler>
             -->    

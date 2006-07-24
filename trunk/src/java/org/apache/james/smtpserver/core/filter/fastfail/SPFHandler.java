@@ -20,6 +20,7 @@ package org.apache.james.smtpserver.core.filter.fastfail;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -42,12 +43,13 @@ import org.apache.mailet.MailAddress;
  * 
  * Sample Configuration: <br>
  * <br>
- * &lt;handler class="org.apache.james.smtpserver.core.SPFHandler"
- * command="MAIL,RCPT"&gt; &lt;blockSoftFail&gt;false&lt;/blockSoftFail&gt;
+ * &lt;handler class="org.apache.james.smtpserver.core.SPFHandler" command="MAIL,RCPT"&gt;
+ * &lt;blockSoftFail&gt;false&lt;/blockSoftFail&gt;
+ * &lt;checkAuthNetworks&gt;false&lt/checkAuthNetworks&gt; 
  * &lt;/handler&gt;
  */
 public class SPFHandler extends AbstractLogEnabled implements CommandHandler,
-        MessageHandler, Configurable {
+        MessageHandler, Configurable,Initializable {
 
     public static final String SPF_BLOCKLISTED = "SPF_BLOCKLISTED";
 
@@ -68,6 +70,10 @@ public class SPFHandler extends AbstractLogEnabled implements CommandHandler,
 
     private boolean checkAuthNetworks = false;
 
+    private SPF spf;
+
+
+    
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
@@ -84,6 +90,18 @@ public class SPFHandler extends AbstractLogEnabled implements CommandHandler,
             setCheckAuthNetworks(configRelay.getValueAsBoolean(false));
         }
 
+    }
+    
+
+    /**
+     * @see org.apache.avalon.framework.activity.Initializable#initialize()
+     */
+    public void initialize() throws Exception {
+        if (dnsService == null) {
+            spf = new SPF(new SPFLogger(getLogger()));
+        } else {
+            spf = new SPF(dnsService, new SPFLogger(getLogger()));
+        }
     }
 
     /**
@@ -144,8 +162,7 @@ public class SPFHandler extends AbstractLogEnabled implements CommandHandler,
 
         // We have no Sender or HELO/EHLO yet return false
         if (sender == null || heloEhlo == null) {
-            getLogger().info("No Sender or HELO present");
-            System.out.println("sender: " + sender + " helo: " + heloEhlo);
+            getLogger().info("No Sender or HELO/EHLO present");
         } else {
             // No checks for authorized cliends
             if (session.isRelayingAllowed() && checkAuthNetworks == false) {
@@ -154,14 +171,7 @@ public class SPFHandler extends AbstractLogEnabled implements CommandHandler,
                                 + " is allowed to relay. Don't check it");
             } else {
 
-                SPF spf;
-
                 String ip = session.getRemoteIPAddress();
-                if (dnsService == null) {
-                    spf = new SPF();
-                } else {
-                    spf = new SPF(dnsService);
-                }
 
                 SPFResult result = spf
                         .checkSPF(ip, sender.toString(), heloEhlo);
@@ -216,7 +226,7 @@ public class SPFHandler extends AbstractLogEnabled implements CommandHandler,
                 && (recipientAddress.getUser().equalsIgnoreCase("postmaster")
                         || recipientAddress.getUser().equalsIgnoreCase("abuse") || ((session
                         .isAuthRequired() && session.getUser() != null)))) {
-            System.out.println("HERE2 " + blocklisted);
+            
             //remove invalid data
             session.getState().remove(SPF_BLOCKLISTED);
             session.getState().remove(SPF_DETAIL);
@@ -267,5 +277,134 @@ public class SPFHandler extends AbstractLogEnabled implements CommandHandler,
         // Store the spf header as attribute for later using
         mail.setAttribute(SPF_HEADER_MAIL_ATTRIBUTE_NAME, (String) session
                 .getState().get(SPF_HEADER));
+    }
+    
+    /**
+     * Inner class to provide a wrapper for loggin to avalon
+     */
+    class SPFLogger implements org.apache.james.jspf.core.Logger {
+
+        /**
+         * Avalon Logger
+         */
+        org.apache.avalon.framework.logger.Logger logger;
+
+        SPFLogger(org.apache.avalon.framework.logger.Logger logger) {
+            this.logger = logger;
+        }
+        
+        
+        /**
+         * @see org.apache.james.jspf.core.Logger#debug(String)
+         */
+        public void debug(String arg0) {
+            logger.debug(arg0);
+        }
+
+        /**
+         * @see org.apache.james.jspf.core.Logger#debug(String, Throwable)
+         */
+        public void debug(String arg0, Throwable arg1) {
+            logger.debug(arg0, arg1);
+        }
+
+        /**
+         * @see org.apache.james.jspf.core.Logger#error(String)
+         */
+        public void error(String arg0) {
+            logger.error(arg0);
+        }
+
+        /**
+         * @see org.apache.james.jspf.core.Logger#error(String, Throwable)
+         */
+        public void error(String arg0, Throwable arg1) {
+            logger.error(arg0, arg1);
+        }
+
+        /**
+         * @see org.apache.james.jspf.core.Logger#fatalError(String)
+         */
+        public void fatalError(String arg0) {
+            logger.fatalError(arg0);
+        }
+
+        /**
+         * @see org.apache.james.jspf.core.Logger#fatalError(String, Throwable)
+         */
+        public void fatalError(String arg0, Throwable arg1) {
+            logger.fatalError(arg0, arg1);
+        }
+
+        /**
+         * @see org.apache.james.jspf.core.Logger#info(String)
+         */
+        public void info(String arg0) {
+            logger.info(arg0);
+        }
+
+        /**
+         * @see org.apache.james.jspf.core.Logger#info(String, Throwable)
+         */
+        public void info(String arg0, Throwable arg1) {
+            logger.info(arg0, arg1);
+        }
+
+        /**
+         * @see org.apache.james.jspf.core.Logger#isDebugEnabled()
+         */
+        public boolean isDebugEnabled() {
+            return logger.isDebugEnabled();
+        }
+
+        /**
+         * @see org.apache.james.jspf.core.Logger#isErrorEnabled()
+         */
+        public boolean isErrorEnabled() {
+            return logger.isErrorEnabled();
+        }
+
+        /**
+         * @see org.apache.james.jspf.core.Logger#isFatalErrorEnabled()
+         */
+        public boolean isFatalErrorEnabled() {
+            return logger.isFatalErrorEnabled();
+        }
+
+        /**
+         * @see org.apache.james.jspf.core.Logger#isInfoEnabled()
+         */
+        public boolean isInfoEnabled() {
+            return logger.isInfoEnabled();
+        }
+
+        /**
+         * @see org.apache.james.jspf.core.Logger#isWarnEnabled()
+         */
+        public boolean isWarnEnabled() {
+            return logger.isWarnEnabled();
+        }
+
+        /**
+         * @see org.apache.james.jspf.core.Logger#warn(String)
+         */
+        public void warn(String arg0) {
+            logger.warn(arg0);
+        }
+
+        /**
+         * @see org.apache.james.jspf.core.Logger#warn(String, Throwable)
+         */
+        public void warn(String arg0, Throwable arg1) {
+            logger.warn(arg0, arg1);
+        }
+
+        /**
+         * @see org.apache.james.jspf.core.Logger#getChildLogger(String)
+         */
+        public org.apache.james.jspf.core.Logger getChildLogger(String arg0) {
+            return new SPFLogger(logger.getChildLogger(arg0));
+        }
+        
     }
 }
