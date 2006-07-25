@@ -35,7 +35,7 @@ import org.apache.james.test.mock.james.MockMailRepository;
 import org.apache.james.test.mock.james.MockMailServer;
 import org.apache.james.test.util.Util;
 import org.apache.james.userrepository.MockUsersRepository;
-import org.apache.james.util.RoaminUsersHelper;
+import org.apache.james.util.POP3BeforeSMTPHelper;
 import org.apache.james.util.connection.SimpleConnectionManager;
 import org.apache.mailet.MailAddress;
 
@@ -303,7 +303,7 @@ public class POP3ServerTest extends TestCase {
 
         m_pop3Protocol.login("foo", pass);
         assertEquals(1, m_pop3Protocol.getState());
-        assertTrue(RoaminUsersHelper.isAuthorized("127.0.0.1"));
+        assertTrue(POP3BeforeSMTPHelper.isAuthorized("127.0.0.1"));
     }
 
 }

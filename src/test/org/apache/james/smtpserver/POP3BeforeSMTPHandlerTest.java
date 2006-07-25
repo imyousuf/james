@@ -22,15 +22,15 @@ import java.io.InputStream;
 import java.util.HashMap;
 
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.james.smtpserver.core.RoaminUsersHandler;
+import org.apache.james.smtpserver.core.POP3BeforeSMTPHandler;
 import org.apache.james.test.mock.avalon.MockLogger;
-import org.apache.james.util.RoaminUsersHelper;
+import org.apache.james.util.POP3BeforeSMTPHelper;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.mailet.Mail;
 
 import junit.framework.TestCase;
 
-public class RoaminUsersHandlerTest extends TestCase {
+public class POP3BeforeSMTPHandlerTest extends TestCase {
 
     private SMTPSession mockedSession;
 
@@ -190,11 +190,11 @@ public class RoaminUsersHandlerTest extends TestCase {
 
     public void testAuthWorks() {
 
-        RoaminUsersHandler handler = new RoaminUsersHandler();
+        POP3BeforeSMTPHandler handler = new POP3BeforeSMTPHandler();
 
         ContainerUtil.enableLogging(handler, new MockLogger());
         setupMockedSMTPSession();
-        RoaminUsersHelper.addIPAddress("192.168.200.1");
+        POP3BeforeSMTPHelper.addIPAddress("192.168.200.1");
 
         assertFalse(mockedSession.isRelayingAllowed());
         handler.onConnect(mockedSession);
@@ -203,16 +203,16 @@ public class RoaminUsersHandlerTest extends TestCase {
 
     public void testIPGetRemoved() {
         long sleepTime = 100;
-        RoaminUsersHandler handler = new RoaminUsersHandler();
+        POP3BeforeSMTPHandler handler = new POP3BeforeSMTPHandler();
 
         ContainerUtil.enableLogging(handler, new MockLogger());
         setupMockedSMTPSession();
-        RoaminUsersHelper.addIPAddress("192.168.200.1");
+        POP3BeforeSMTPHelper.addIPAddress("192.168.200.1");
         assertFalse(mockedSession.isRelayingAllowed());
 
         try {
             Thread.sleep(sleepTime);
-            RoaminUsersHelper.removeExpiredIP(10);
+            POP3BeforeSMTPHelper.removeExpiredIP(10);
             handler.onConnect(mockedSession);
             assertFalse(mockedSession.isRelayingAllowed());
 
@@ -223,7 +223,7 @@ public class RoaminUsersHandlerTest extends TestCase {
     
     public void testThrowExceptionOnIllegalExpireTime() {
         boolean exception = false;
-        RoaminUsersHandler handler = new RoaminUsersHandler();
+        POP3BeforeSMTPHandler handler = new POP3BeforeSMTPHandler();
 
         ContainerUtil.enableLogging(handler, new MockLogger());
         setupMockedSMTPSession();     
@@ -238,7 +238,7 @@ public class RoaminUsersHandlerTest extends TestCase {
     
     public void testValidExpireTime() {
         boolean exception = false;
-        RoaminUsersHandler handler = new RoaminUsersHandler();
+        POP3BeforeSMTPHandler handler = new POP3BeforeSMTPHandler();
 
         ContainerUtil.enableLogging(handler, new MockLogger());
         setupMockedSMTPSession();     
