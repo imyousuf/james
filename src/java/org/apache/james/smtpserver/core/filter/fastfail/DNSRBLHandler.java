@@ -61,6 +61,7 @@ public class DNSRBLHandler
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
     public void configure(Configuration handlerConfiguration) throws ConfigurationException {
+        boolean validConfig = false;
 
         Configuration rblserverConfiguration = handlerConfiguration.getChild("rblservers", false);
         if ( rblserverConfiguration != null ) {
@@ -77,6 +78,7 @@ public class DNSRBLHandler
                 if (rblserverCollection != null && rblserverCollection.size() > 0) {
                     setWhitelist((String[]) rblserverCollection.toArray(new String[rblserverCollection.size()]));
                     rblserverCollection.clear();
+                    validConfig = true;
                 }
             }
             children = rblserverConfiguration.getChildren("blacklist");
@@ -91,8 +93,14 @@ public class DNSRBLHandler
                 if (rblserverCollection != null && rblserverCollection.size() > 0) {
                     setBlacklist((String[]) rblserverCollection.toArray(new String[rblserverCollection.size()]));
                     rblserverCollection.clear();
+                    validConfig = true;
                 }
             }
+        }
+        
+        // Throw an ConfiigurationException on invalid config
+        if (validConfig == false){
+            throw new ConfigurationException("Please configure whitelist or blacklist");
         }
         
         Configuration configuration = handlerConfiguration.getChild("getDetail",false);
