@@ -21,18 +21,18 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.james.smtpserver.ConnectHandler;
 import org.apache.james.smtpserver.SMTPSession;
-import org.apache.james.util.RoaminUsersHelper;
+import org.apache.james.util.POP3BeforeSMTPHelper;
 import org.apache.james.util.TimeConverter;
 
 /**
  * This ConnectHandler can be used to activate pop-before-smtp
  */
-public class RoaminUsersHandler implements ConnectHandler, Configurable {
+public class POP3BeforeSMTPHandler implements ConnectHandler, Configurable {
 
     /**
      * The time after which ipAddresses should be handled as expired
      */
-    private long expireTime = RoaminUsersHelper.EXPIRE_TIME;
+    private long expireTime = POP3BeforeSMTPHelper.EXPIRE_TIME;
 
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
@@ -70,12 +70,12 @@ public class RoaminUsersHandler implements ConnectHandler, Configurable {
 
         // some kind of random cleanup process
         if (Math.random() > 0.99) {
-            RoaminUsersHelper.removeExpiredIP(expireTime);
+            POP3BeforeSMTPHelper.removeExpiredIP(expireTime);
         }
 
         // Check if the ip is allowed to relay
         if (!session.isRelayingAllowed()
-                && RoaminUsersHelper.isAuthorized(session.getRemoteIPAddress())) {
+                && POP3BeforeSMTPHelper.isAuthorized(session.getRemoteIPAddress())) {
             session.setRelayingAllowed(true);
         }
     }

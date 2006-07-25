@@ -19,7 +19,7 @@ package org.apache.james.pop3server;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.services.MailRepository;
-import org.apache.james.util.RoaminUsersHelper;
+import org.apache.james.util.POP3BeforeSMTPHelper;
 
 /**
   * Handles PASS command
@@ -54,7 +54,7 @@ public class PassCmdHandler extends AbstractLogEnabled implements CommandHandler
                     session.stat();
                     
                     // Store the ipAddress to use it later for pop before smtp 
-                    RoaminUsersHelper.addIPAddress(session.getRemoteIPAddress());
+                    POP3BeforeSMTPHelper.addIPAddress(session.getRemoteIPAddress());
                     
                     StringBuffer responseBuffer =
                         new StringBuffer(64)

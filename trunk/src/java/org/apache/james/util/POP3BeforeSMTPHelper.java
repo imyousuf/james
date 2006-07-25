@@ -17,7 +17,6 @@
 package org.apache.james.util;
 
 import java.util.Collections;
-import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -26,9 +25,9 @@ import java.util.Map;
  * Helper class which is used to store ipAddresses and timestamps for pop before
  * smtp support.
  */
-public class RoaminUsersHelper {
+public class POP3BeforeSMTPHelper {
 
-    private RoaminUsersHelper() {
+    private POP3BeforeSMTPHelper() {
     }
 
     /**
@@ -59,10 +58,7 @@ public class RoaminUsersHelper {
      *            The ipAddress
      */
     public static void addIPAddress(String ipAddress) {
-        try {
-            ipMap.put(ipAddress, Long.toString(System.currentTimeMillis()));
-        } catch (ConcurrentModificationException e) {
-        }
+        ipMap.put(ipAddress, Long.toString(System.currentTimeMillis()));
     }
 
     /**
@@ -81,18 +77,21 @@ public class RoaminUsersHelper {
      *            handled as expired
      */
     public static void removeExpiredIP(long clearTime) {
-        Iterator storedIP = ipMap.keySet().iterator();
-        long currTime = System.currentTimeMillis();
+        synchronized (ipMap) {
+            Iterator storedIP = ipMap.keySet().iterator();
+            long currTime = System.currentTimeMillis();
 
-        while (storedIP.hasNext()) {
-            String key = storedIP.next().toString();
-            long storedTime = Long.parseLong((String) ipMap.get(key));
+            while (storedIP.hasNext()) {
+                String key = storedIP.next().toString();
+                long storedTime = Long.parseLong((String) ipMap.get(key));
 
-            // remove the ip from the map when it is expired
-            if ((currTime - clearTime) > storedTime) {
-                try {
+                // remove the ip from the map when it is expired
+                if ((currTime - clearTime) > storedTime) {
+                    // remove the entry from the iterator first to get sure that we not get 
+                    // a ConcurrentModificationException
+                    storedIP.remove();
+
                     ipMap.remove(key);
-                } catch (ConcurrentModificationException e) {
                 }
             }
         }
