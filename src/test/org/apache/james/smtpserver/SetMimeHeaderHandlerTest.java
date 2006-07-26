@@ -22,14 +22,10 @@ import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.smtpserver.core.SetMimeHeaderHandler;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.util.Util;
-import org.apache.james.util.watchdog.Watchdog;
 import org.apache.mailet.Mail;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
 
 public class SetMimeHeaderHandlerTest extends TestCase {
 
@@ -65,156 +61,16 @@ public class SetMimeHeaderHandlerTest extends TestCase {
     }
 
     private void setupMockedSMTPSession() {
-        mockedSMTPSession = new SMTPSession() {
-
-            public void writeResponse(String respString) {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public String readCommandLine() throws IOException {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public StringBuffer getResponseBuffer() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public String clearResponseBuffer() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public InputStream getInputStream() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public String getCommandName() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public String getCommandArgument() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
+        mockedSMTPSession = new AbstractSMTPSession() {
 
             public Mail getMail() {
                 return mockedMail;
             }
 
-            public void setMail(Mail mail) {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public String getRemoteHost() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public String getRemoteIPAddress() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public void abortMessage() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public void endSession() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public boolean isSessionEnded() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public HashMap getState() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public void resetState() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public SMTPHandlerConfigurationData getConfigurationData() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public boolean isRelayingAllowed() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public boolean isAuthRequired() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public boolean useHeloEhloEnforcement() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public String getUser() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public void setUser(String user) {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public Watchdog getWatchdog() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public String getSessionID() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
             public int getRcptCount() {
-                // TODO Auto-generated method stub
                 return 0;
             }
 
-            public void setStopHandlerProcessing(boolean b) {
-                throw new UnsupportedOperationException(
-                "Unimplemented mock service");     
-            }
-
-            public boolean getStopHandlerProcessing() {
-                throw new UnsupportedOperationException(
-                "Unimplemented mock service");
-            }
-
-            public HashMap getConnectionState() {
-                throw new UnsupportedOperationException(
-                "Unimplemented mock service");
-            }
-
-            public void resetConnectionState() {
-                throw new UnsupportedOperationException(
-                "Unimplemented mock service");
-            }
-
-            public void setRelayingAllowed(boolean relayingAllowed) {
-                throw new UnsupportedOperationException(
-                "Unimplemented mock service");
-            }
         };
     }
 

@@ -17,9 +17,6 @@
 
 package org.apache.james.smtpserver;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 import java.util.HashMap;
 
 import java.util.List;
@@ -32,7 +29,6 @@ import org.apache.james.jspf.exceptions.TempErrorException;
 import org.apache.james.smtpserver.core.filter.fastfail.SPFHandler;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.mailet.MockMail;
-import org.apache.james.util.watchdog.Watchdog;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
@@ -147,7 +143,7 @@ public class SPFHandlerTest extends TestCase {
      */
     private void setupMockedSMTPSession(final String ip, final String helo,
             final MailAddress sender, final MailAddress recipient) {
-        mockedSMTPSession = new SMTPSession() {
+        mockedSMTPSession = new AbstractSMTPSession() {
             HashMap state = new HashMap();
 
             HashMap connectionState = new HashMap();
@@ -160,66 +156,16 @@ public class SPFHandlerTest extends TestCase {
                 // Do nothing
             }
 
-            public String readCommandLine() throws IOException {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public StringBuffer getResponseBuffer() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public String clearResponseBuffer() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public InputStream getInputStream() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
             public String getCommandName() {
                 return command;
-            }
-
-            public String getCommandArgument() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
             }
 
             public Mail getMail() {
                 return mail;
             }
 
-            public void setMail(Mail mail) {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public String getRemoteHost() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
             public String getRemoteIPAddress() {
                 return ip;
-            }
-
-            public void abortMessage() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public void endSession() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public boolean isSessionEnded() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
             }
 
             public HashMap getState() {
@@ -229,47 +175,12 @@ public class SPFHandlerTest extends TestCase {
                 return state;
             }
 
-            public void resetState() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public SMTPHandlerConfigurationData getConfigurationData() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
             public boolean isRelayingAllowed() {
                 return relaying;
             }
 
             public boolean isAuthRequired() {
                 return false;
-            }
-
-            public boolean useHeloEhloEnforcement() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public String getUser() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public void setUser(String user) {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public Watchdog getWatchdog() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public String getSessionID() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
             }
 
             public int getRcptCount() {
@@ -290,11 +201,6 @@ public class SPFHandlerTest extends TestCase {
 
             public void resetConnectionState() {
                 connectionState.clear();
-            }
-
-            public void setRelayingAllowed(boolean relayingAllowed) {
-                throw new UnsupportedOperationException(
-                "Unimplemented mock service");
             }
 
         };
