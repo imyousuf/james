@@ -18,6 +18,10 @@
 package org.apache.mailet;
 
 import javax.mail.MessagingException;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 
 /**
@@ -207,6 +211,61 @@ public abstract class GenericMailet implements Mailet, MailetConfig {
      * @throws javax.mail.MessagingException - if an exception occurs that interferes with the mailet's normal operation
      */
     public abstract void service(Mail mail) throws javax.mail.MessagingException;
+    
+    
+    
+    /**
+     * Utility method: Checks if there are unallowed init parameters specified in the 
+     * configuration file against the String[] allowedInitParameters.
+     * @param allowedArray array of strings containing the allowed parameter names
+     * @throws MessagingException if an unknown parameter name is found
+     */
+    protected final void checkInitParameters(String[] allowedArray) throws MessagingException {
+        // if null then no check is requested
+        if (allowedArray == null) {
+            return;
+        }
+        
+        Collection allowed = new HashSet();
+        Collection bad = new ArrayList();
+        
+        for (int i = 0; i < allowedArray.length; i++) {
+            allowed.add(allowedArray[i]);
+        }
+        
+        Iterator iterator = getInitParameterNames();
+        while (iterator.hasNext()) {
+            String parameter = (String) iterator.next();
+            if (!allowed.contains(parameter)) {
+                bad.add(parameter);
+            }
+        }
+        
+        if (bad.size() > 0) {
+            throw new MessagingException("Unexpected init parameters found: "
+                    + arrayToString(bad.toArray()));
+        }
+    }
+    
+    /**
+     * Utility method for obtaining a string representation of an array of Objects.
+     */
+    protected final String arrayToString(Object[] array) {
+        if (array == null) {
+            return "null";
+        }
+        StringBuffer sb = new StringBuffer(1024);
+        sb.append("[");
+        for (int i = 0; i < array.length; i++) {
+            if (i > 0) {
+                sb.append(",");
+            }
+            sb.append(array[i]);
+        }
+        sb.append("]");
+        return sb.toString();
+    }
+
 }
 
 

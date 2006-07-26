@@ -552,25 +552,6 @@ public class DSNBounce extends AbstractNotify {
     }
 
     /**
-     * Utility method for obtaining a string representation of an array of Objects.
-     */
-    private String arrayToString(Object[] array) {
-        if (array == null) {
-            return "null";
-        }
-        StringBuffer sb = new StringBuffer(1024);
-        sb.append("[");
-        for (int i = 0; i < array.length; i++) {
-            if (i > 0) {
-                sb.append(",");
-            }
-            sb.append(array[i]);
-        }
-        sb.append("]");
-        return sb.toString();
-    }
-
-    /**
      * Create a unique new primary key name.
      *
      * @param mail the mail to use as the basis for the new mail name

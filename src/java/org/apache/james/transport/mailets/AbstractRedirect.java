@@ -1140,25 +1140,6 @@ public abstract class AbstractRedirect extends GenericMailet {
     }
 
     /**
-     * Utility method for obtaining a string representation of an array of Objects.
-     */
-    private String arrayToString(Object[] array) {
-        if (array == null) {
-            return "null";
-        }
-        StringBuffer sb = new StringBuffer(1024);
-        sb.append("[");
-        for (int i = 0; i < array.length; i++) {
-            if (i > 0) {
-                sb.append(",");
-            }
-            sb.append(array[i]);
-        }
-        sb.append("]");
-        return sb.toString();
-    }
-
-    /**
      * Utility method for obtaining a string representation of a
      * Message's headers
      */
@@ -1414,37 +1395,6 @@ public abstract class AbstractRedirect extends GenericMailet {
         if (getFakeDomainCheck(mail)) {
             return mail.getSender() == null || getMailetContext().getMailServers(mail.getSender().getHost()).size() != 0;
         } else return true;
-    }
-    
-    /**
-     * Checks if there are unallowed init parameters specified in the configuration file
-     * against the String[] allowedInitParameters.
-     */
-    private void checkInitParameters(String[] allowedArray) throws MessagingException {
-        // if null then no check is requested
-        if (allowedArray == null) {
-            return;
-        }
-        
-        Collection allowed = new HashSet();
-        Collection bad = new ArrayList();
-        
-        for (int i = 0; i < allowedArray.length; i++) {
-            allowed.add(allowedArray[i]);
-        }
-        
-        Iterator iterator = getInitParameterNames();
-        while (iterator.hasNext()) {
-            String parameter = (String) iterator.next();
-            if (!allowed.contains(parameter)) {
-                bad.add(parameter);
-            }
-        }
-        
-        if (bad.size() > 0) {
-            throw new MessagingException("Unexpected init parameters found: "
-                                         + arrayToString(bad.toArray()));
-        }
     }
 
     /**
