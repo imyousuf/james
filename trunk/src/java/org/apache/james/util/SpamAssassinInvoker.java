@@ -34,8 +34,14 @@ import java.util.StringTokenizer;
  */
 public class SpamAssassinInvoker {
 
+    /**
+     * The mail attribute under which the status get stored
+     */
     public final static String STATUS_MAIL_ATTRIBUTE_NAME = "org.apache.james.spamassassin.status";
 
+    /**
+     * The mail attribute under which the flag get stored
+     */
     public final static String FLAG_MAIL_ATTRIBUTE_NAME = "org.apache.james.spamassassin.flag";
 
     private String spamdHost;
@@ -48,6 +54,12 @@ public class SpamAssassinInvoker {
 
     private HashMap headers = new HashMap();
 
+    /**
+     * Init the spamassassin invoker
+     * 
+     * @param spamdHost The host on which spamd runs
+     * @param spamdPort The port on which spamd listen
+     */
     public SpamAssassinInvoker(String spamdHost, int spamdPort) {
         this.spamdHost = spamdHost;
         this.spamdPort = spamdPort;
@@ -75,6 +87,7 @@ public class SpamAssassinInvoker {
                     .getInputStream()));
             out.write("CHECK SPAMC/1.2\r\n\r\n".getBytes());
 
+            // pass the message to spamd
             message.writeTo(out);
             out.flush();
             socket.shutdownOutput();
@@ -134,6 +147,7 @@ public class SpamAssassinInvoker {
                 out.close();
                 socket.close();
             } catch (Exception e) {
+                // Should never happin
             }
 
         }
@@ -160,7 +174,7 @@ public class SpamAssassinInvoker {
     /**
      * Return the headers as attributes which spamd generates
      * 
-     * @return headers Map of headers to add
+     * @return headers Map of headers to add as attributes
      */
     public Map getHeadersAsAttribute() {
         return headers;
