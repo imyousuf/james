@@ -27,7 +27,7 @@ import java.net.Socket;
 public class MockSpamd implements Runnable {
 
     // The GTUBE teststring
-    public final static String GTUBE = "XJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X";
+    public final static String GTUBE = "-SPAM-";
 
     public final static String NOT_SPAM = "Spam: False ; 3 / 5";
 
