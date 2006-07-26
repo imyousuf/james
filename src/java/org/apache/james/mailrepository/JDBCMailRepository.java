@@ -18,28 +18,21 @@
 package org.apache.james.mailrepository;
 
 import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
-import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.cornerstone.services.store.StreamRepository;
 import org.apache.avalon.excalibur.datasource.DataSourceComponent;
-import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.service.Serviceable;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.context.AvalonContextUtilities;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageWrapper;
-import org.apache.james.services.MailRepository;
 import org.apache.james.util.JDBCUtil;
-import org.apache.james.util.Lock;
 import org.apache.james.util.SqlResources;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
@@ -61,7 +54,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -87,24 +79,13 @@ import java.util.StringTokenizer;
  * @version CVS $Revision$ $Date$
  */
 public class JDBCMailRepository
-    extends AbstractLogEnabled
-    implements MailRepository, Contextualizable, Serviceable, Configurable, Initializable {
-
-    /**
-     * Whether 'deep debugging' is turned on.
-     */
-    private static final boolean DEEP_DEBUG = false;
+    extends AbstractMailRepository
+    implements Contextualizable {
 
     /**
      * The Avalon context used by the instance
      */
     protected Context context;
-
-    /**
-     * A lock used to control access to repository elements, locking access
-     * based on the key 
-     */
-    private Lock lock;
 
     /**
      * The table name parsed from the destination URL
@@ -137,11 +118,6 @@ public class JDBCMailRepository
     protected DataSourceComponent datasource;
 
     /**
-     * The store where the repository is selected from
-     */
-    protected Store store; 
-    
-    /**
      * The name of the datasource used by this repository
      */
     protected String datasourceName;
@@ -166,10 +142,6 @@ public class JDBCMailRepository
      */
     private int inMemorySizeLimit;
 
-    public void setStore(Store store) {
-        this.store = store;
-    }
-
     public void setDatasources(DataSourceSelector datasources) {
         this.datasources = datasources;
     }
@@ -187,6 +159,7 @@ public class JDBCMailRepository
      */
     public void service( final ServiceManager componentManager )
         throws ServiceException {
+        super.service(componentManager);
         StringBuffer logBuffer = null;
         if (getLogger().isDebugEnabled()) {
             logBuffer =
@@ -198,8 +171,6 @@ public class JDBCMailRepository
         // Get the DataSourceSelector service
         DataSourceSelector datasources = (DataSourceSelector)componentManager.lookup( DataSourceSelector.ROLE );
         setDatasources(datasources);
-        Store store = (Store)componentManager.lookup(Store.ROLE);
-        setStore(store);
     }
 
     /**
@@ -292,7 +263,6 @@ public class JDBCMailRepository
                 }
             }
 
-            lock = new Lock();
             if (getLogger().isDebugEnabled()) {
                 StringBuffer logBuffer =
                     new StringBuffer(128)
@@ -319,6 +289,7 @@ public class JDBCMailRepository
      * @throws Exception if an error occurs
      */
     public void initialize() throws Exception {
+        super.initialize();
         StringBuffer logBuffer = null;
         if (getLogger().isDebugEnabled()) {
             getLogger().debug(this.getClass().getName() + ".initialize()");
@@ -490,81 +461,20 @@ public class JDBCMailRepository
     }
 
     /**
-     * Releases a lock on a message identified by a key
-     *
-     * @param key the key of the message to be unlocked
-     *
-     * @return true if successfully released the lock, false otherwise
+     * @param mc mail to be stored
+     * @throws SQLException
+     * @throws IOException
+     * @throws MessagingException
      */
-    public boolean unlock(String key) {
-        if (lock.unlock(key)) {
-            if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
-                StringBuffer debugBuffer =
-                    new StringBuffer(256)
-                            .append("Unlocked ")
-                            .append(key)
-                            .append(" for ")
-                            .append(Thread.currentThread().getName())
-                            .append(" @ ")
-                            .append(new java.util.Date(System.currentTimeMillis()));
-                getLogger().debug(debugBuffer.toString());
-            }
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Obtains a lock on a message identified by a key
-     *
-     * @param key the key of the message to be locked
-     *
-     * @return true if successfully obtained the lock, false otherwise
-     */
-    public boolean lock(String key) {
-        if (lock.lock(key)) {
-            if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
-                StringBuffer debugBuffer =
-                    new StringBuffer(256)
-                            .append("Locked ")
-                            .append(key)
-                            .append(" for ")
-                            .append(Thread.currentThread().getName())
-                            .append(" @ ")
-                            .append(new java.util.Date(System.currentTimeMillis()));
-                getLogger().debug(debugBuffer.toString());
-            }
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Store this message to the database.  Optionally stores the message
-     * body to the filesystem and only writes the headers to the database.
-     */
-    public void store(Mail mc) throws MessagingException {
+    protected void internalStore(Mail mc) throws IOException, MessagingException {
         Connection conn = null;
-        boolean wasLocked = true;
-        String key = mc.getName();
         try {
-            synchronized(this) {
-                  wasLocked = lock.isLocked(key);
-    
-                  if (!wasLocked) {
-                      //If it wasn't locked, we want a lock during the store
-                      lock(key);
-                  }
-            }
             conn = datasource.getConnection();
-
             //Need to determine whether need to insert this record, or update it.
-
+    
             //Begin a transaction
             conn.setAutoCommit(false);
-
+    
             PreparedStatement checkMessageExists = null;
             ResultSet rsExists = null;
             boolean exists = false;
@@ -579,11 +489,11 @@ public class JDBCMailRepository
                 theJDBCUtil.closeJDBCResultSet(rsExists);
                 theJDBCUtil.closeJDBCStatement(checkMessageExists);
             }
-
+    
             if (exists) {
                 //Update the existing record
                 PreparedStatement updateMessage = null;
-
+    
                 try {
                     updateMessage =
                         conn.prepareStatement(sqlQueries.getSqlString("updateMessageSQL", true));
@@ -614,7 +524,7 @@ public class JDBCMailRepository
                     updateMessage = null;
                     theJDBCUtil.closeJDBCStatement(localUpdateMessage);
                 }
-
+    
                 //Determine whether attributes are used and available for storing
                 if (jdbcMailAttributesReady && mc.hasAttributes()) {
                     String updateMessageAttrSql =
@@ -659,7 +569,7 @@ public class JDBCMailRepository
                         theJDBCUtil.closeJDBCStatement(updateMessageAttr);
                     }
                 }
-
+    
                 //Determine whether the message body has changed, and possibly avoid
                 //  updating the database.
                 MimeMessage messageBody = mc.getMessage();
@@ -691,7 +601,7 @@ public class JDBCMailRepository
                     }
                 }
                 
-
+    
             } else {
                 //Insert the record into the database
                 PreparedStatement insertMessage = null;
@@ -720,9 +630,9 @@ public class JDBCMailRepository
                     insertMessage.setString(7, mc.getRemoteHost());
                     insertMessage.setString(8, mc.getRemoteAddr());
                     insertMessage.setTimestamp(9, new java.sql.Timestamp(mc.getLastUpdated().getTime()));
-
+    
                     MessageInputStream is = new MessageInputStream(mc, sr, inMemorySizeLimit);
-
+    
                     insertMessage.setBinaryStream(10, is, (int) is.getSize());
                     
                     //Store attributes
@@ -760,23 +670,14 @@ public class JDBCMailRepository
                     theJDBCUtil.closeJDBCStatement(insertMessage);
                 }
             }
-
-
+    
+    
             conn.commit();
             conn.setAutoCommit(true);
-
-        } catch (Exception e) {
-            getLogger().error("Exception caught while storing mail Container",e);
-            throw new MessagingException("Exception caught while storing mail Container: ",e);
+        } catch (SQLException e) {
+            throw new IOException(e.getMessage());
         } finally {
             theJDBCUtil.closeJDBCConnection(conn);
-            if (!wasLocked) {
-                // If it wasn't locked, we need to unlock now
-                unlock(key);
-                synchronized (this) {
-                    notify();
-                }
-            }
         }
     }
 
@@ -932,55 +833,28 @@ public class JDBCMailRepository
     }
 
     /**
-     * Removes a specified message
-     *
-     * @param mail the message to be removed from the repository
-     */
-    public void remove(Mail mail) throws MessagingException {
-        remove(mail.getName());
-    }
-
-    /**
-     * Removes a Collection of mails from the repository
-     * @param mails The Collection of <code>MailImpl</code>'s to delete
+     * @param key
      * @throws MessagingException
-     * @since 2.2.0
      */
-    public void remove(Collection mails) throws MessagingException {
-        Iterator delList = mails.iterator();
-        while (delList.hasNext()) {
-            remove((Mail)delList.next());
-        }
-    }
+    protected void internalRemove(String key) throws MessagingException {
+        Connection conn = null;
+        PreparedStatement removeMessage = null;
+        try {
+            conn = datasource.getConnection();
+            removeMessage =
+                conn.prepareStatement(sqlQueries.getSqlString("removeMessageSQL", true));
+            removeMessage.setString(1, key);
+            removeMessage.setString(2, repositoryName);
+            removeMessage.execute();
 
-    /**
-     * Removes a message identified by a key.
-     *
-     * @param key the key of the message to be removed from the repository
-     */
-    public void remove(String key) throws MessagingException {
-        //System.err.println("removing " + key);
-        if (lock(key)) {
-            Connection conn = null;
-            PreparedStatement removeMessage = null;
-            try {
-                conn = datasource.getConnection();
-                removeMessage =
-                    conn.prepareStatement(sqlQueries.getSqlString("removeMessageSQL", true));
-                removeMessage.setString(1, key);
-                removeMessage.setString(2, repositoryName);
-                removeMessage.execute();
-
-                if (sr != null) {
-                    sr.remove(key);
-                }
-            } catch (Exception me) {
-                throw new MessagingException("Exception while removing mail: " + me.getMessage());
-            } finally {
-                theJDBCUtil.closeJDBCStatement(removeMessage);
-                theJDBCUtil.closeJDBCConnection(conn);
-                unlock(key);
+            if (sr != null) {
+                sr.remove(key);
             }
+        } catch (Exception me) {
+            throw new MessagingException("Exception while removing mail: " + me.getMessage());
+        } finally {
+            theJDBCUtil.closeJDBCStatement(removeMessage);
+            theJDBCUtil.closeJDBCConnection(conn);
         }
     }
 
