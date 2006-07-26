@@ -1,15 +1,38 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="ISO-8859-15"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.    
+-->
 <project>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.james</groupId>
   <artifactId>james-server</artifactId>
-  <name>Apache James Project</name>
+  <name>Apache JAMES Server Project</name>
   <version>3.0-SNAPSHOT</version>
   <packaging>jar</packaging>
   <description>
-    The Apache Java Enterprise Mail Server (a.k.a. Apache James)
+    The Apache Java Enterprise Mail Server (a.k.a. JAMES Server)
   </description>
-  <url>http://james.apache.org/server</url>
+  <parent>
+    <groupId>org.apache.james</groupId>
+    <artifactId>james-project</artifactId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
+  <url>http://james.apache.org/server/index.html</url>
   <inceptionYear>2002</inceptionYear>
 
   <issueManagement>
@@ -32,120 +55,36 @@
   <mailingLists>
     <mailingList>
       <name>Server User List</name>
-      <subscribe>
-        server-user-subscribe@james.apache.org
-      </subscribe>
-      <unsubscribe>
-        server-user-unsubscribe@james.apache.org
-      </unsubscribe>
-      <archive>
-        http://www.mail-archive.com/server-user@james.apache.org/
-      </archive>
+      <subscribe>server-user-subscribe@james.apache.org</subscribe>
+      <unsubscribe>server-user-unsubscribe@james.apache.org</unsubscribe>
+      <archive>http://www.mail-archive.com/server-user@james.apache.org/</archive>
     </mailingList>
     <mailingList>
       <name>Server Developer List</name>
       <subscribe>server-dev-subscribe@james.apache.org</subscribe>
-      <unsubscribe>
-        server-dev-unsubscribe@james.apache.org
-      </unsubscribe>
+      <unsubscribe>server-dev-unsubscribe@james.apache.org</unsubscribe>
       <post>server-dev@james.apache.org</post>
-      <archive>
-        http://www.mail-archive.com/server-dev@james.apache.org/
-      </archive>
+      <archive>http://www.mail-archive.com/server-dev@james.apache.org/</archive>
     </mailingList>
     <mailingList>
       <name>James General List</name>
-      <subscribe>
-        server-general-subscribe@james.apache.org
-      </subscribe>
-      <unsubscribe>
-        server-general-unsubscribe@james.apache.org
-      </unsubscribe>
-      <archive>
-        http://www.mail-archive.com/server-general@james.apache.org/
-      </archive>
+      <subscribe>server-general-subscribe@james.apache.org</subscribe>
+      <unsubscribe>server-general-unsubscribe@james.apache.org</unsubscribe>
+      <archive>http://www.mail-archive.com/server-general@james.apache.org/</archive>
     </mailingList>
   </mailingLists>
 
-  <developers>
-    <developer>
-      <id>bago</id>
-      <name>Stefano Bagnara</name>
-      <email>apache@bago.org</email>
-      <timezone>2</timezone>
-      <roles>
-        <role>Developer</role>
-      </roles>
-    </developer>
-    <developer>
-      <id>norman</id>
-      <name>Norman Maurer</name>
-      <email>nm@byteaction.de</email>
-      <timezone>2</timezone>
-      <roles>
-        <role>Developer</role>
-      </roles>
-    </developer>
-    <developer>
-      <id>serge</id>
-      <name>Serge Knystautas</name>
-      <email>sergek at lokitech.com</email>
-      <timezone></timezone>
-      <roles>
-        <role>Developer</role>
-      </roles>
-    </developer>
-    <developer>
-      <id>benrdf</id>
-      <name>Bernd Fondermann</name>
-      <email>bf_jak at brainlounge.de</email>
-      <timezone></timezone>
-      <roles>
-        <role>Developer</role>
-      </roles>
-    </developer>
-    <developer>
-      <id>steve</id>
-      <name>Steve Brewin</name>
-      <email>sbrewin at synsys.com</email>
-      <timezone></timezone>
-      <roles>
-        <role>Developer</role>
-      </roles>
-    </developer>
-    <developer>
-      <id>soeren</id>
-      <name>Soeren Hilmer</name>
-      <email>sh at widetrail.dk</email>
-      <timezone></timezone>
-      <roles>
-        <role>Developer</role>
-      </roles>
-    </developer>
-    <developer>
-      <id>noel</id>
-      <name>Noel J. Bergman</name>
-      <email>noel at devtech.com</email>
-      <timezone></timezone>
-      <roles>
-        <role>Developer</role>
-      </roles>
-    </developer>
-    <developer>
-      <id>danny</id>
-      <name>Danny Angus</name>
-      <email>danny at apache.org</email>
-      <timezone></timezone>
-      <roles>
-        <role>Developer</role>
-      </roles>
-    </developer>
-    <developer>
-      <id>adc</id>
-      <name>Alan D. Cabrera</name>
-      <timezone>-8</timezone>
-    </developer>
-  </developers>
+  <scm>
+    <connection>
+      scm:svn:http://svn.apache.org/repos/asf/james/server
+    </connection>
+    <developerConnection>
+      scm:svn:https://${maven.username}@svn.apache.org/repos/asf/james/server
+    </developerConnection>
+    <url>
+      http://svn.apache.org/viewcvs.cgi/james/server/?root=Apache-SVN
+    </url>
+  </scm>
 
   <repositories>
     <repository>
@@ -158,77 +97,11 @@
         <checksumPolicy>ignore</checksumPolicy>
       </snapshots>
     </repository>
-
-    <repository>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-      <id>central</id>
-      <name>Maven Repository Switchboard</name>
-      <url>http://repo1.maven.org/maven2</url>
-    </repository>
-    <repository>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-      <id>snapshots</id>
-      <name>Maven SNAPSHOT Repository</name>
-      <url>http://snapshots.maven.codehaus.org/maven2</url>
-    </repository>
   </repositories>
-
-  <pluginRepositories>
-    <pluginRepository>
-      <id>snapshots</id>
-      <name>Maven Central Plugins Development Repository</name>
-      <url>http://snapshots.maven.codehaus.org/maven2</url>
-    </pluginRepository>
-  </pluginRepositories>
-  <!--
-    <build>
-    <defaultGoal>install</defaultGoal>
-    <pluginManagement>
-    <plugins>
-    <plugin>
-    <artifactId>maven-release-plugin</artifactId>
-    <configuration>
-    <remoteRepositoryId>james</remoteRepositoryId>
-    <remoteRepositoryUrl>scp://minotaur.apache.org/www/james.apache.org/james/dist/james-${version}/m1</remoteRepositoryUrl>
-    </configuration>
-    </plugin>
-    </plugins>
-    </pluginManagement>
-    </build>
-  -->
-  <licenses>
-    <license>
-      <name>The Apache Software License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-      <distribution>repo</distribution>
-    </license>
-  </licenses>
-
-
-  <scm>
-    <connection>
-      scm:svn:http://svn.apache.org/repos/asf/james/server
-    </connection>
-    <developerConnection>
-      scm:svn:https://${maven.username}@svn.apache.org/repos/asf/james/server
-    </developerConnection>
-    <url>
-      http://svn.apache.org/viewcvs.cgi/james/server/trunk/?root=Apache-SVN
-    </url>
-  </scm>
 
   <dependencies verbose="true">
 
     <!-- NEED TO DEAL WITH THESE JARS -->
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>jspf</artifactId>
-      <version>0.9b1</version>
-    </dependency>
     <dependency>
       <groupId>org.bouncycastle</groupId>
       <artifactId>bcmail-jdk14</artifactId>
@@ -239,21 +112,20 @@
       <artifactId>bcmail-jdk14-workaround</artifactId>
       <version>129</version>
     </dependency>
-
     <!-- NEED TO DEAL WITH THESE JARS -->
+    
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>jspf</artifactId>
+      <version>0.9-SNAPSHOT</version>
+    </dependency>
 
     <dependency>
       <groupId>javax.mail</groupId>
       <artifactId>mail</artifactId>
       <version>1.4</version>
     </dependency>
-<!--
-    <dependency>
-      <groupId>javax.activation</groupId>
-      <artifactId>activation</artifactId>
-      <version>1.1</version>
-    </dependency>
--->
+
     <dependency>
       <groupId>avalon-framework</groupId>
       <artifactId>avalon-framework-api</artifactId>
@@ -337,14 +209,6 @@
       <groupId>cornerstone-datasources</groupId>
       <artifactId>cornerstone-datasources-api</artifactId>
       <version>2.1</version>
-      <!--
-        <exclusions>
-        <exclusion>
-        <groupId>excalibur-datasource</groupId>
-        <artifactId>excalibur-datasource</artifactId>
-        </exclusion>
-        </exclusions>
-      -->
     </dependency>
 
     <dependency>
@@ -370,9 +234,7 @@
         </exclusion>
         <exclusion>
           <groupId>excalibur-fortress</groupId>
-          <artifactId>
-            excalibur-fortress-container-api
-          </artifactId>
+          <artifactId>excalibur-fortress-container-api</artifactId>
         </exclusion>
         <exclusion>
           <groupId>excalibur-logger</groupId>
@@ -474,6 +336,7 @@
       <version>3.8.1</version>
       <scope>test</scope>
     </dependency>
+    
     <dependency>
       <groupId>oro</groupId>
       <artifactId>oro</artifactId>
@@ -486,30 +349,18 @@
     <repository>
       <id>james-repo</id>
       <name>James Central Repository</name>
-      <url>
-        scp://minotaur.apache.org/www/james.apache.org/dist-m2
-      </url>
+      <url>scp://minotaur.apache.org/www/james.apache.org/dist-m2</url>
     </repository>
     <snapshotRepository>
       <id>james-snapshots</id>
       <name>James Central Development Repository</name>
-      <url>
-        scp://minotaur.apache.org/www/james.apache.org/dist-m2-snapshot
-      </url>
+      <url>scp://minotaur.apache.org/www/james.apache.org/dist-m2-snapshot</url>
     </snapshotRepository>
     <site>
       <id>james-website</id>
-      <url>
-        scp://minotaur.apache.org/www/james.apache.org/public_html/maven/
-      </url>
+      <url>scp://minotaur.apache.org/www/james.apache.org/public_html/maven/</url>
     </site>
   </distributionManagement>
-
-  <parent>
-    <artifactId>apache</artifactId>
-    <groupId>org.apache</groupId>
-    <version>3</version>
-  </parent>
 
   <build>
     <sourceDirectory>src/java</sourceDirectory>
@@ -530,10 +381,12 @@
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
       </plugin>
+      <!-- Removed because it seems to have bugs.
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>surefire-report-maven-plugin</artifactId>
       </plugin>
+      -->
       <plugin>
         <artifactId>maven-javadoc-plugin</artifactId>
       </plugin>
@@ -542,7 +395,6 @@
         <artifactId>jxr-maven-plugin</artifactId>
       </plugin>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-pmd-plugin</artifactId>
         <configuration>
           <targetjdk>1.4</targetjdk>
@@ -556,14 +408,16 @@
           <minimumTokens>100</minimumTokens>
         </configuration>
       </plugin>
+      <!--
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>taglist-maven-plugin</artifactId>
       </plugin>
+      -->
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
       </plugin>
     </plugins>
   </reporting>
+
 </project>
