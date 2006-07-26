@@ -20,6 +20,19 @@
 <li>And <a href="http://wiki.apache.org/james/JamesV3">more</a></li>
 </ul>
 </section>
+<section name="Version 2.3.0rc1">
+<p>Released 25 July 2006</p>
+<p>Detail</p>
+<subsection name="Bug"></subsection>
+<ul>
+<li>[<a href='http://issues.apache.org/jira/browse/JAMES-566'>JAMES-566</a>] - Fastfail DNSRBL blacklisted messages are rejected even if the sender user is successfully SMTP AUTHenticated</li>
+<li>[<a href='http://issues.apache.org/jira/browse/JAMES-570'>JAMES-570</a>] - James insert a Return-Path: null in outgoing email</li>
+</ul>
+<subsection name="Task"></subsection>
+<ul>
+<li>[<a href='http://issues.apache.org/jira/browse/JAMES-568'>JAMES-568</a>] - reorganize download area structure</li>
+</ul>
+</section>
 <section name="Version 2.3.0b3">
 <p>Released 15 July 2006</p>
 <p>Detail</p>

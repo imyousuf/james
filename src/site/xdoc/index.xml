@@ -103,8 +103,8 @@ users are urged to upgrade to v2.2.0 as soon as possible</b>.</p>
         </tr>
         <tr>
           <td>FetchPOP</td>
-          <td>Experimental</td>
-          <td>2.1</td>
+          <td>Deprecated</td>
+          <td>2.3</td>
           <td>2.1</td>
         </tr>
       </table>
