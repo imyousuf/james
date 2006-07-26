@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 /**
@@ -106,6 +107,7 @@ public class SpamAssassinInvoker {
                         return true;
                     } else {
                         // add headers
+                        headers.put(FLAG_MAIL_ATTRIBUTE_NAME, "NO");
                         headers.put(STATUS_MAIL_ATTRIBUTE_NAME,
                                 new StringBuffer("No, hits=").append(hits)
                                         .append(" required=").append(required)
@@ -140,7 +142,7 @@ public class SpamAssassinInvoker {
     /**
      * Return the hits which was returned by spamd
      * 
-     * @return hits
+     * @return hits The hits which was detected
      */
     public String getHits() {
         return hits;
@@ -149,7 +151,7 @@ public class SpamAssassinInvoker {
     /**
      * Return the required hits
      * 
-     * @return required
+     * @return required The required hits before a message is handled as spam
      */
     public String getRequiredHits() {
         return required;
@@ -158,9 +160,9 @@ public class SpamAssassinInvoker {
     /**
      * Return the headers as attributes which spamd generates
      * 
-     * @return headers HashMap of headers to add
+     * @return headers Map of headers to add
      */
-    public HashMap getHeadersAsAttribute() {
+    public Map getHeadersAsAttribute() {
         return headers;
     }
 }
