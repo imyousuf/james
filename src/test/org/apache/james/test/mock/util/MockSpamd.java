@@ -23,10 +23,14 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-// Mocked SPAMD Daemon
+/**
+ * This class can be used to run a mocked SPAMD daemom
+ */
 public class MockSpamd implements Runnable {
 
-    // The GTUBE teststring
+    /**
+     * Mailcontent which is 100% spam
+     */
     public final static String GTUBE = "-SPAM-";
 
     public final static String NOT_SPAM = "Spam: False ; 3 / 5";
@@ -41,17 +45,25 @@ public class MockSpamd implements Runnable {
 
     ServerSocket socket;
 
-    boolean stopped = false;
-
+    /**
+     * Init the mocked SPAMD daemon
+     * 
+     * @param port The port on which the mocked SPAMD daemon will be bind
+     * @throws IOException 
+     */
     public MockSpamd(int port) throws IOException {  
         socket = new ServerSocket(port);
     }
 
+    /**
+     * @see java.lang.Runnable#run()
+     */
     public void run() {
         boolean spam = false;
         
         try {
 
+            // Accept connections
             spamd = socket.accept();
 
             in = new BufferedReader(new InputStreamReader(spamd
@@ -60,6 +72,7 @@ public class MockSpamd implements Runnable {
 
             String line = null;
 
+            // Parse the message
             while ((line = in.readLine()) != null) {
                 if (line.indexOf(GTUBE) >= 0) {
                     spam = true;
@@ -79,6 +92,7 @@ public class MockSpamd implements Runnable {
             socket.close();
             
         } catch (IOException e) {
+            // Should not happen
             e.printStackTrace();
         }
 
