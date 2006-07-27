@@ -69,6 +69,8 @@ public class RemoveMailAttribute extends GenericMailet {
                 String attribute_name = st.nextToken().trim() ;
                 attributesToRemove.add(attribute_name);
             }
+        } else {
+            throw new MailetException("Please configure at least one attribute to remove");
         }
     }
 
