@@ -21,6 +21,7 @@
 
 package org.apache.james.transport.mailets;
 
+import org.apache.james.util.mailet.MailetUtil;
 import org.apache.mailet.RFC2822Headers;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
@@ -86,78 +87,6 @@ public abstract class GenericListserv extends GenericMailet {
         return true; // preserve old behavior unless subclass overrides.
     }
 
-    /**
-     * <p>This takes the subject string and reduces (normailzes) it.
-     * Multiple "Re:" entries are reduced to one, and capitalized.  The
-     * prefix is always moved/placed at the beginning of the line, and
-     * extra blanks are reduced, so that the output is always of the
-     * form:</p>
-     * <code>
-     * &lt;prefix&gt; + &lt;one-optional-"Re:"*gt; + &lt;remaining subject&gt;
-     * </code>
-     * <p>I have done extensive testing of this routine with a standalone
-     * driver, and am leaving the commented out debug messages so that
-     * when someone decides to enhance this method, it can be yanked it
-     * from this file, embedded it with a test driver, and the comments
-     * enabled.</p>
-     */
-    static private String normalizeSubject(final String subj, final String prefix) {
-        // JDK IMPLEMENTATION NOTE!  When we require JDK 1.4+, all
-        // occurrences of subject.toString.().indexOf(...) can be
-        // replaced by subject.indexOf(...).
-
-        StringBuffer subject = new StringBuffer(subj);
-        int prefixLength = prefix.length();
-
-        // System.err.println("In:  " + subject);
-
-        // If the "prefix" is not at the beginning the subject line, remove it
-        int index = subject.toString().indexOf(prefix);
-        if (index != 0) {
-            // System.err.println("(p) index: " + index + ", subject: " + subject);
-            if (index > 0) {
-                subject.delete(index, index + prefixLength);
-            }
-            subject.insert(0, prefix); // insert prefix at the front
-        }
-
-        // Replace Re: with RE:
-        String match = "Re:";
-        index = subject.toString().indexOf(match, prefixLength);
-
-        while(index > -1) {
-            // System.err.println("(a) index: " + index + ", subject: " + subject);
-            subject.replace(index, index + match.length(), "RE:");
-            index = subject.toString().indexOf(match, prefixLength);
-            // System.err.println("(b) index: " + index + ", subject: " + subject);
-        }
-
-        // Reduce them to one at the beginning
-        match ="RE:";
-        int indexRE = subject.toString().indexOf(match, prefixLength) + match.length();
-        index = subject.toString().indexOf(match, indexRE);
-        while(index > 0) {
-            // System.err.println("(c) index: " + index + ", subject: " + subject);
-            subject.delete(index, index + match.length());
-            index = subject.toString().indexOf(match, indexRE);
-            // System.err.println("(d) index: " + index + ", subject: " + subject);
-        }
-
-        // Reduce blanks
-        match = "  ";
-        index = subject.toString().indexOf(match, prefixLength);
-        while(index > -1) {
-            // System.err.println("(e) index: " + index + ", subject: " + subject);
-            subject.replace(index, index + match.length(), " ");
-            index = subject.toString().indexOf(match, prefixLength);
-            // System.err.println("(f) index: " + index + ", subject: " + subject);
-        }
-
-
-        // System.err.println("Out: " + subject);
-
-        return subject.toString();
-    }
     
     /**
      * Processes the message.  Assumes it is the only recipient of this forked message.
@@ -216,7 +145,7 @@ public abstract class GenericListserv extends GenericMailet {
                 if (subj == null) {
                     subj = "";
                 }
-                subj = normalizeSubject(subj, prefix);
+                subj = MailetUtil.normalizeSubject(subj, prefix);
                 AbstractRedirect.changeSubject(message, subj);
             }
 
