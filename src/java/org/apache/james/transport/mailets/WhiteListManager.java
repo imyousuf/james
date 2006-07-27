@@ -750,7 +750,7 @@ public class WhiteListManager extends GenericMailet {
      * for finding the conf/sqlResources.xml file
      * @throws Exception If any error occurs
      */
-    public void initSqlQueries(Connection conn, org.apache.mailet.MailetContext mailetContext) throws Exception {
+    private void initSqlQueries(Connection conn, org.apache.mailet.MailetContext mailetContext) throws Exception {
         try {
             if (conn.getAutoCommit()) {
                 conn.setAutoCommit(false);
