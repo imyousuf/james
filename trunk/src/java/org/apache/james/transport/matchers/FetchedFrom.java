@@ -37,6 +37,10 @@ import java.util.Collection;
  */
 
 public class FetchedFrom extends GenericMatcher {
+    
+    /**
+     * @see org.apache.mailet.GenericMatcher#match(Mail)
+     */
     public Collection match(Mail mail) throws javax.mail.MessagingException {
         MimeMessage message = mail.getMessage();
         String fetch = message.getHeader("X-fetched-from", null);

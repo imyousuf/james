@@ -85,6 +85,9 @@ public class AttachmentFileNameIs extends GenericMatcher {
     /** True if unzip is requested. */
     protected boolean unzipIsRequested;
     
+    /**
+     * @see org.apache.mailet.GenericMatcher#init()
+     */
     public void init() throws MessagingException {
         /* sets up fileNameMasks variable by parsing the condition */
         

@@ -16,9 +16,6 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
-
-
 package org.apache.james.transport.matchers;
 
 import org.apache.mailet.GenericMatcher;
@@ -30,6 +27,10 @@ import java.util.Collection;
  * @version 1.0.0, 24/04/1999
  */
 public class All extends GenericMatcher {
+    
+    /**
+     * @see org.apache.mailet.GenericMatcher#match(Mail)
+     */
     public Collection match(Mail mail) {
         return mail.getRecipients();
     }

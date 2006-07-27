@@ -102,14 +102,8 @@ public class IsInWhiteList extends GenericMatcher {
     }
 
     /**
-     * Setter for property sqlParameters.
-     * @param sqlParameters New value of property sqlParameters.
+     * @see org.apache.mailet.GenericMailet#init()
      */
-    private void setSqlParameters(Map sqlParameters) {
-
-        this.sqlParameters = sqlParameters;
-    }
-
     public void init() throws javax.mail.MessagingException {
         String repositoryPath = null;
         StringTokenizer st = new StringTokenizer(getCondition(), ", \t", false);
@@ -153,6 +147,9 @@ public class IsInWhiteList extends GenericMatcher {
         selectByPK = sqlQueries.getSqlString("selectByPK", true);
     }
 
+    /**
+     * @see org.apache.mailet.GenericMatcher#match(Mail)
+     */
     public Collection match(Mail mail) throws MessagingException {
         // check if it's a local sender
         MailAddress senderMailAddress = mail.getSender();
@@ -253,7 +250,7 @@ public class IsInWhiteList extends GenericMatcher {
      * for finding the conf/sqlResources.xml file
      * @throws Exception If any error occurs
      */
-    public void initSqlQueries(Connection conn, org.apache.mailet.MailetContext mailetContext) throws Exception {
+    private void initSqlQueries(Connection conn, org.apache.mailet.MailetContext mailetContext) throws Exception {
         try {
             if (conn.getAutoCommit()) {
                 conn.setAutoCommit(false);

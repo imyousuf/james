@@ -72,7 +72,6 @@ abstract public class AbstractQuotaMatcher extends GenericMatcher {
      * @return true if over quota
      */
     protected boolean isOverQuota(MailAddress address, Mail mail) {
-        String user = address.getUser();
         try {
             boolean over = getQuota(address, mail) < getUsed(address, mail);
             if (over) log(address + " is over quota.");
