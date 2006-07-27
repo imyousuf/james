@@ -29,6 +29,10 @@ import javax.mail.MessagingException;
  *
  */
 public class FileRegexMatcher extends GenericRegexMatcher {
+    
+    /**
+     * @see org.apache.james.transport.matchers.GenericRegexMatcher#init()
+     */
     public void init() throws MessagingException {
         try {
             java.io.RandomAccessFile patternSource = new java.io.RandomAccessFile(getCondition(), "r");

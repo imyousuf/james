@@ -56,8 +56,14 @@ abstract public class GenericRegexMatcher extends GenericMatcher {
         }
     }
 
+    /**
+     * @see org.apache.mailet.GenericMatcher#GenericMatcher()
+     */
     abstract public void init() throws MessagingException;
 
+    /**
+     * @see org.apache.mailet.GenericMatcher#match(Mail)
+     */
     public Collection match(Mail mail) throws MessagingException {
         MimeMessage message = mail.getMessage();
         Perl5Matcher matcher = new Perl5Matcher();
