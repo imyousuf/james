@@ -29,17 +29,11 @@ import org.apache.james.util.JDBCBayesianAnalyzer;
 import org.apache.james.util.JDBCUtil;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
 import org.apache.mailet.RFC2822Headers;
-import org.apache.mailet.dates.RFC822DateFormat;
 
-import javax.mail.Message;
 import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
+
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -47,9 +41,7 @@ import java.io.StringReader;
 import java.sql.Connection;
 import java.text.DecimalFormat;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
 
 /**
  * <P>Spam detection mailet using bayesian analysis techniques.</P>
@@ -140,9 +132,6 @@ extends GenericMailet {
     private String headerName;
     private boolean ignoreLocalSender = false;
         
-    /** The date format object used to generate RFC 822 compliant date headers. */
-    private RFC822DateFormat rfc822DateFormat = new RFC822DateFormat();
-    
     /**
      * Return a string describing this mailet.
      *
@@ -388,62 +377,7 @@ extends GenericMailet {
             }
         } catch (MessagingException ex) {}
     }
-    
-    private void sendReplyFromPostmaster(Mail mail, String stringContent) throws MessagingException {
-        try {
-            MailAddress notifier = getMailetContext().getPostmaster();
-            
-            MailAddress senderMailAddress = mail.getSender();
-            
-            MimeMessage message = mail.getMessage();
-            //Create the reply message
-            MimeMessage reply = new MimeMessage(Session.getDefaultInstance(System.getProperties(), null));
-            
-            //Create the list of recipients in the Address[] format
-            InternetAddress[] rcptAddr = new InternetAddress[1];
-            rcptAddr[0] = senderMailAddress.toInternetAddress();
-            reply.setRecipients(Message.RecipientType.TO, rcptAddr);
-            
-            //Set the sender...
-            reply.setFrom(notifier.toInternetAddress());
-            
-            //Create the message body
-            MimeMultipart multipart = new MimeMultipart();
-            //Add message as the first mime body part
-            MimeBodyPart part = new MimeBodyPart();
-            part.setContent(stringContent, "text/plain");
-            part.setHeader(RFC2822Headers.CONTENT_TYPE, "text/plain");
-            multipart.addBodyPart(part);
-            
-            reply.setContent(multipart);
-            reply.setHeader(RFC2822Headers.CONTENT_TYPE, multipart.getContentType());
-            
-            //Create the list of recipients in our MailAddress format
-            Set recipients = new HashSet();
-            recipients.add(senderMailAddress);
-            
-            //Set additional headers
-            if (reply.getHeader(RFC2822Headers.DATE)==null){
-                reply.setHeader(RFC2822Headers.DATE, rfc822DateFormat.format(new java.util.Date()));
-            }
-            String subject = message.getSubject();
-            if (subject == null) {
-                subject = "";
-            }
-            if (subject.indexOf("Re:") == 0){
-                reply.setSubject(subject);
-            } else {
-                reply.setSubject("Re:" + subject);
-            }
-            reply.setHeader(RFC2822Headers.IN_REPLY_TO, message.getMessageID());
-            
-            //Send it off...
-            getMailetContext().sendMail(notifier, recipients, reply);
-        } catch (Exception e) {
-            log("Exception found sending reply", e);
-        }
-    }
-    
+       
     /**
      * Saves changes resetting the original message id.
      */

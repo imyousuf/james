@@ -29,7 +29,6 @@ import org.apache.avalon.excalibur.datasource.*;
 import org.apache.avalon.framework.service.*;
 
 import org.apache.james.*;
-import org.apache.james.core.*;
 import org.apache.james.services.*;
 import org.apache.james.util.*;
 
@@ -38,7 +37,6 @@ import javax.mail.internet.*;
 
 import java.sql.*;
 import java.util.*;
-import java.text.*;
 import java.io.*;
 
 /** <P>Manages for each local user a "white list" of remote addresses whose messages
@@ -148,15 +146,6 @@ public class WhiteListManager extends GenericMailet {
     private Map getSqlParameters() {
 
         return this.sqlParameters;
-    }
-
-    /**
-     * Setter for property sqlParameters.
-     * @param sqlParameters New value of property sqlParameters.
-     */
-    private void setSqlParameters(Map sqlParameters) {
-
-        this.sqlParameters = sqlParameters;
     }
 
     /** Initializes the mailet.
@@ -777,7 +766,7 @@ public class WhiteListManager extends GenericMailet {
     }
     
     private void checkTables(Connection conn) throws SQLException {
-        DatabaseMetaData dbMetaData = conn.getMetaData();
+
         // Need to ask in the case that identifiers are stored, ask the DatabaseMetaInfo.
         // Try UPPER, lower, and MixedCase, to see if the table is there.
         
