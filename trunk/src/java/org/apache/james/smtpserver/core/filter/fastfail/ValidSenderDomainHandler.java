@@ -90,6 +90,9 @@ public class ValidSenderDomainHandler
        String responseString = null;
         MailAddress senderAddress = (MailAddress) session.getState().get(SMTPSession.SENDER);
         
+        // null sender so return
+        if (senderAddress == null) return;
+        
         /**
          * don't check if the ip address is allowed to relay. Only check if it is set in the config. 
          */
