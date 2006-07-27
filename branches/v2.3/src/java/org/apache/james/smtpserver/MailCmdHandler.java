@@ -197,7 +197,8 @@ public class MailCmdHandler
                 }
             }
             
-            if (checkValidSenderDomain == true) {
+            // check only if its no null sender
+            if (checkValidSenderDomain == true && sender != null) {
                 
                 /**
                  * don't check if the ip address is allowed to relay. Only check if it is set in the config. 
