@@ -28,6 +28,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.services.DNSServer;
 import org.apache.james.smtpserver.core.filter.fastfail.DNSRBLHandler;
@@ -267,6 +270,18 @@ public class DNSRBLHandlerTest extends TestCase {
         rbl.onConnect(mockedSMTPSession);
         assertNull(mockedSMTPSession.getConnectionState().get(RBL_DETAIL_MAIL_ATTRIBUTE_NAME));
         assertEquals("false",mockedSMTPSession.getConnectionState().get(RBL_BLOCKLISTED_MAIL_ATTRIBUTE_NAME));
+    }
+    
+    public void testInvalidConfig() {
+        boolean exception = false;
+        DNSRBLHandler rbl = new DNSRBLHandler();
+        try {
+            rbl.configure((Configuration) new DefaultConfiguration("rblserver"));
+        } catch (ConfigurationException e) {
+            exception = true;
+        }
+        
+        assertTrue("Invalid config",exception);
     }
 
 }

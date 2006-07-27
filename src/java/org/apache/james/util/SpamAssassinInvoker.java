@@ -141,10 +141,10 @@ public class SpamAssassinInvoker {
                             + spamdHost);
         } catch (IOException e1) {
             throw new MessagingException("Error communicating with spamd on "
-                    + spamdHost + ":" + spamdPort + "Exception:" + e1);
+                    + spamdHost + ":" + spamdPort + " Exception: " + e1);
         } catch (MessagingException e1) {
             throw new MessagingException("Error communicating with spamd on "
-                    + spamdHost + ":" + spamdPort + "Exception:" + e1);
+                    + spamdHost + ":" + spamdPort + " Exception: " + e1);
         } finally {
             try {
                 in.close();
