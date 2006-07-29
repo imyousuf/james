@@ -419,13 +419,21 @@ public class SMTPServerTest extends TestCase {
     
             String helo1 = "abgsfe3rsf.de";
             String helo2 = "james.apache.org";
+            String mail = "sender";
+            String rcpt = "recipient";
     
             smtpProtocol1.sendCommand("helo", helo1);
+            smtpProtocol1.setSender(mail);
+            smtpProtocol1.addRecipient(rcpt);
+            
             // this should give a 501 code cause the helo not equal reverse of ip
             assertEquals("expected error: helo not equals reverse of ip", 501,
                     smtpProtocol1.getReplyCode());
     
             smtpProtocol1.sendCommand("helo", helo2);
+            smtpProtocol1.setSender(mail);
+            smtpProtocol1.addRecipient(rcpt);
+            
             // helo is resolvable. so this should give a 250 code
             assertEquals("Helo accepted", 250, smtpProtocol1.getReplyCode());
     
@@ -692,13 +700,21 @@ public class SMTPServerTest extends TestCase {
     
             String ehlo1 = "abgsfe3rsf.de";
             String ehlo2 = "james.apache.org";
-    
+            String mail = "sender";
+            String rcpt = "recipient";
+            
             smtpProtocol1.sendCommand("ehlo", ehlo1);
+            smtpProtocol1.setSender(mail);
+            smtpProtocol1.addRecipient(rcpt);
+            
             // this should give a 501 code cause the ehlo not equals reverse of ip
             assertEquals("expected error: ehlo not equals reverse of ip", 501,
                     smtpProtocol1.getReplyCode());
     
             smtpProtocol1.sendCommand("ehlo", ehlo2);
+            smtpProtocol1.setSender(mail);
+            smtpProtocol1.addRecipient(rcpt);
+            
             // ehlo is resolvable. so this should give a 250 code
             assertEquals("ehlo accepted", 250, smtpProtocol1.getReplyCode());
     
