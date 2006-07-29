@@ -138,7 +138,6 @@ public class ResolvableEhloHeloHandler extends AbstractLogEnabled implements
             try {
                 dnsServer.getByName(argument);
             } catch (UnknownHostException e) {
-                session.setStopHandlerProcessing(false);
                 session.getState().put(BAD_EHLO_HELO, "true");
             }
         }
