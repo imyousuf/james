@@ -184,7 +184,6 @@ public class DNSRBLHandler
          */
         if (session.isRelayingAllowed()) {
             getLogger().info("Ipaddress " + session.getRemoteIPAddress() + " is allowed to relay. Don't check it");
-            session.getConnectionState().put(RBL_BLOCKLISTED_MAIL_ATTRIBUTE_NAME, "false");
             return;
         }
         
@@ -204,7 +203,6 @@ public class DNSRBLHandler
                         getLogger().info("Connection from " + ipAddress + " whitelisted by " + rblList[i]);
                     }
                     
-                    session.getConnectionState().put(RBL_BLOCKLISTED_MAIL_ATTRIBUTE_NAME, "false");
                     return;
                 } catch (java.net.UnknownHostException uhe) {
                     if (getLogger().isDebugEnabled()) {
@@ -244,8 +242,6 @@ public class DNSRBLHandler
                 }
             }
         }
-        // default state
-        session.getConnectionState().put(RBL_BLOCKLISTED_MAIL_ATTRIBUTE_NAME, "false");
     }
 
     /**

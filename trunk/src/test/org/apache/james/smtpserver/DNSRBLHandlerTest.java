@@ -182,9 +182,9 @@ public class DNSRBLHandlerTest extends TestCase {
         rbl.setBlacklist(new String[] { "bl.spamcop.net" });
         rbl.setGetDetail(true);
         rbl.onConnect(mockedSMTPSession);
-        assertEquals("Blocked - see http://www.spamcop.net/bl.shtml?127.0.0.2",
+        assertEquals("Details","Blocked - see http://www.spamcop.net/bl.shtml?127.0.0.2",
                mockedSMTPSession.getConnectionState().get(RBL_DETAIL_MAIL_ATTRIBUTE_NAME));
-        assertEquals("true",mockedSMTPSession.getConnectionState().get(RBL_BLOCKLISTED_MAIL_ATTRIBUTE_NAME));
+        assertNotNull("Blocked",mockedSMTPSession.getConnectionState().get(RBL_BLOCKLISTED_MAIL_ATTRIBUTE_NAME));
     }
 
     // ip is blacklisted and has txt details but we don'T want to retrieve the txt record
@@ -199,8 +199,8 @@ public class DNSRBLHandlerTest extends TestCase {
         rbl.setBlacklist(new String[] { "bl.spamcop.net" });
         rbl.setGetDetail(false);
         rbl.onConnect(mockedSMTPSession);
-        assertNull(mockedSMTPSession.getConnectionState().get(RBL_DETAIL_MAIL_ATTRIBUTE_NAME));
-        assertEquals("true",mockedSMTPSession.getConnectionState().get(RBL_BLOCKLISTED_MAIL_ATTRIBUTE_NAME));
+        assertNull("No details",mockedSMTPSession.getConnectionState().get(RBL_DETAIL_MAIL_ATTRIBUTE_NAME));
+        assertNotNull("Blocked",mockedSMTPSession.getConnectionState().get(RBL_BLOCKLISTED_MAIL_ATTRIBUTE_NAME));
     }
 
     // ip is allowed to relay
@@ -217,8 +217,8 @@ public class DNSRBLHandlerTest extends TestCase {
         rbl.setBlacklist(new String[] { "bl.spamcop.net" });
         rbl.setGetDetail(true);
         rbl.onConnect(mockedSMTPSession);
-        assertNull(mockedSMTPSession.getConnectionState().get(RBL_DETAIL_MAIL_ATTRIBUTE_NAME));
-        assertEquals("false",mockedSMTPSession.getConnectionState().get(RBL_BLOCKLISTED_MAIL_ATTRIBUTE_NAME));
+        assertNull("No details",mockedSMTPSession.getConnectionState().get(RBL_DETAIL_MAIL_ATTRIBUTE_NAME));
+        assertNull("Not blocked",mockedSMTPSession.getConnectionState().get(RBL_BLOCKLISTED_MAIL_ATTRIBUTE_NAME));
     }
 
     // ip not on blacklist
@@ -234,8 +234,8 @@ public class DNSRBLHandlerTest extends TestCase {
         rbl.setBlacklist(new String[] { "bl.spamcop.net" });
         rbl.setGetDetail(true);
         rbl.onConnect(mockedSMTPSession);
-        assertNull(mockedSMTPSession.getConnectionState().get(RBL_DETAIL_MAIL_ATTRIBUTE_NAME));
-        assertEquals("false",mockedSMTPSession.getConnectionState().get(RBL_BLOCKLISTED_MAIL_ATTRIBUTE_NAME));
+        assertNull("No details",mockedSMTPSession.getConnectionState().get(RBL_DETAIL_MAIL_ATTRIBUTE_NAME));
+        assertNull("Not blocked",mockedSMTPSession.getConnectionState().get(RBL_BLOCKLISTED_MAIL_ATTRIBUTE_NAME));
     }
 
     // ip on blacklist without txt details
@@ -252,7 +252,7 @@ public class DNSRBLHandlerTest extends TestCase {
         rbl.setGetDetail(true);
         rbl.onConnect(mockedSMTPSession);
         assertNull(mockedSMTPSession.getConnectionState().get(RBL_DETAIL_MAIL_ATTRIBUTE_NAME));
-        assertEquals("true",mockedSMTPSession.getConnectionState().get(RBL_BLOCKLISTED_MAIL_ATTRIBUTE_NAME));
+        assertNotNull("Blocked",mockedSMTPSession.getConnectionState().get(RBL_BLOCKLISTED_MAIL_ATTRIBUTE_NAME));
     }
 
     // ip on whitelist
@@ -269,7 +269,7 @@ public class DNSRBLHandlerTest extends TestCase {
         rbl.setGetDetail(true);
         rbl.onConnect(mockedSMTPSession);
         assertNull(mockedSMTPSession.getConnectionState().get(RBL_DETAIL_MAIL_ATTRIBUTE_NAME));
-        assertEquals("false",mockedSMTPSession.getConnectionState().get(RBL_BLOCKLISTED_MAIL_ATTRIBUTE_NAME));
+        assertNull("Not blocked",mockedSMTPSession.getConnectionState().get(RBL_BLOCKLISTED_MAIL_ATTRIBUTE_NAME));
     }
     
     public void testInvalidConfig() {
