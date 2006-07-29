@@ -37,6 +37,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -425,7 +426,7 @@ public class SMTPHandler
     /**
      * @see org.apache.james.smtpserver.SMTPSession#getState()
      */
-    public HashMap getState() {
+    public Map getState() {
         return state;
     }
 
@@ -570,7 +571,7 @@ public class SMTPHandler
         connectionState.clear();
     }
     
-    public HashMap getConnectionState() {
+    public Map getConnectionState() {
         return connectionState;
     }
 

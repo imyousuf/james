@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.services.DNSServer;
@@ -77,7 +78,7 @@ public class ValidSenderDomainHandlerTest extends TestCase {
         SMTPSession session = new AbstractSMTPSession() {
             HashMap state = new HashMap();
             
-            public HashMap getState() {
+            public Map getState() {
 
                 state.put(SMTPSession.SENDER, sender);
 

@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -135,7 +136,7 @@ public class DNSRBLHandlerTest extends TestCase {
                 return remoteIp;
             }
 
-            public HashMap getState() {
+            public Map getState() {
                 return state;
             }
 
@@ -159,7 +160,7 @@ public class DNSRBLHandlerTest extends TestCase {
                 return stopHandler;
             }
 
-            public HashMap getConnectionState() {       
+            public Map getConnectionState() {       
                 return connectionState;
             }
 
