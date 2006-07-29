@@ -25,7 +25,7 @@ import org.apache.mailet.Mail;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Abstract class to simplify the mocks
@@ -77,7 +77,7 @@ public class AbstractSMTPSession implements SMTPSession {
     /**
      * @see org.apache.james.smtpserver.SMTPSession#getConnectionState()
      */
-    public HashMap getConnectionState() {
+    public Map getConnectionState() {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
     }
 
@@ -133,7 +133,7 @@ public class AbstractSMTPSession implements SMTPSession {
     /**
      * @see org.apache.james.smtpserver.SMTPSession#getState()
      */
-    public HashMap getState() {
+    public Map getState() {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
     }
 

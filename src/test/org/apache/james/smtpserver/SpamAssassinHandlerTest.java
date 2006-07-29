@@ -22,6 +22,7 @@ package org.apache.james.smtpserver;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -76,7 +77,7 @@ public class SpamAssassinHandlerTest extends TestCase {
                 return ipAddress;
             }
 
-            public HashMap getState() {
+            public Map getState() {
                 state.put(SMTPSession.SENDER, "sender@james.apache.org");
                 return state;
             }

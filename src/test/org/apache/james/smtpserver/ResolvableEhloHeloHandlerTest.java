@@ -24,6 +24,7 @@ package org.apache.james.smtpserver;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.mail.internet.ParseException;
 
@@ -88,7 +89,7 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
                 return user;
             }
             
-            public HashMap getConnectionState() {
+            public Map getConnectionState() {
                 return connectionMap;
             }
             
@@ -108,7 +109,7 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
                 return stop;
             }
             
-            public HashMap getState() {
+            public Map getState() {
                 map.put(SMTPSession.CURRENT_RECIPIENT, recipient);
                 return map;
             }

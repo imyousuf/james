@@ -21,6 +21,7 @@
 package org.apache.james.smtpserver;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import java.util.List;
 
@@ -171,7 +172,7 @@ public class SPFHandlerTest extends TestCase {
                 return ip;
             }
 
-            public HashMap getState() {
+            public Map getState() {
                 state.put(SMTPSession.CURRENT_HELO_NAME, helo);
                 state.put(SMTPSession.SENDER, sender);
                 state.put(SMTPSession.CURRENT_RECIPIENT, recipient);
@@ -198,7 +199,7 @@ public class SPFHandlerTest extends TestCase {
                 return stopHandler;
             }
 
-            public HashMap getConnectionState() {
+            public Map getConnectionState() {
                 return connectionState;
             }
 

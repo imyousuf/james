@@ -27,7 +27,7 @@ import org.apache.mailet.Mail;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  * All the handlers access this interface to communicate with
@@ -148,7 +148,7 @@ public interface SMTPSession {
      *
      * @return map of the current SMTPSession state per mail
      */
-    HashMap getState();
+    Map getState();
 
     /**
      * Resets message-specific, but not authenticated user, state.
@@ -251,7 +251,7 @@ public interface SMTPSession {
      *
      * @return map of the current SMTPSession state per connection
      */
-    HashMap getConnectionState();
+    Map getConnectionState();
 
 }
 
