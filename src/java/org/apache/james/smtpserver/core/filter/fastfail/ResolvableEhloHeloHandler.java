@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.smtpserver.core.filter.fastfail;
 
 import org.apache.avalon.framework.configuration.Configurable;
@@ -32,15 +30,23 @@ import org.apache.james.services.DNSServer;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
+import org.apache.mailet.MailAddress;
 
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class ResolvableEhloHeloHandler extends AbstractLogEnabled
-        implements CommandHandler, Configurable, Serviceable {
+/**
+ * This CommandHandler can be used to reject not resolvable EHLO/HELO
+ */
+public class ResolvableEhloHeloHandler extends AbstractLogEnabled implements
+        CommandHandler, Configurable, Serviceable {
+
+    public final static String BAD_EHLO_HELO = "BAD_EHLO_HELO";
 
     private boolean checkAuthNetworks = false;
+
+    private boolean checkAuthUsers = false;
 
     private DNSServer dnsServer = null;
 
@@ -54,6 +60,12 @@ public class ResolvableEhloHeloHandler extends AbstractLogEnabled
         if (configRelay != null) {
             setCheckAuthNetworks(configRelay.getValueAsBoolean(false));
         }
+
+        Configuration configAuthUser = handlerConfiguration.getChild(
+                "checkAuthUsers", false);
+        if (configAuthUser != null) {
+            setCheckAuthUsers(configAuthUser.getValueAsBoolean(false));
+        }
     }
 
     /**
@@ -64,13 +76,23 @@ public class ResolvableEhloHeloHandler extends AbstractLogEnabled
     }
 
     /**
-     * Set to true if AuthNetworks should be included in the EHLO check
+     * Set to true if AuthNetworks should be included in the EHLO/HELO check
      * 
      * @param checkAuthNetworks
      *            Set to true to enable
      */
     public void setCheckAuthNetworks(boolean checkAuthNetworks) {
         this.checkAuthNetworks = checkAuthNetworks;
+    }
+
+    /**
+     * Set to true if Auth users should be included in the EHLO/HELO check
+     * 
+     * @param checkAuthNetworks
+     *            Set to true to enable
+     */
+    public void setCheckAuthUsers(boolean checkAuthUsers) {
+        this.checkAuthUsers = checkAuthUsers;
     }
 
     /**
@@ -88,8 +110,24 @@ public class ResolvableEhloHeloHandler extends AbstractLogEnabled
      */
     public void onCommand(SMTPSession session) {
         String argument = session.getCommandArgument();
-        String responseString = null;
+        String command = session.getCommandName();
+        if (command.equals("HELO")
+                || command.equals("EHLO")) {
+            checkEhloHelo(session, argument);
+        } else if (command.equals("RCPT")) {
+            reject(session, argument);
+        }
+    }
 
+    /**
+     * Check if EHLO/HELO is resolvable
+     * 
+     * @param session
+     *            The SMTPSession
+     * @param argument
+     *            The argument
+     */
+    private void checkEhloHelo(SMTPSession session, String argument) {
         /**
          * don't check if the ip address is allowed to relay. Only check if it
          * is set in the config.
@@ -100,20 +138,43 @@ public class ResolvableEhloHeloHandler extends AbstractLogEnabled
             try {
                 dnsServer.getByName(argument);
             } catch (UnknownHostException e) {
-                responseString = "501 "
-                        + DSNStatus.getStatus(DSNStatus.PERMANENT,
-                                DSNStatus.DELIVERY_INVALID_ARG)
-                        + " Provided EHLO/HELO " + argument
-                        + " can not resolved";
-                session.writeResponse(responseString);
-                getLogger().info(responseString);
-
-                // After this filter match we should not call any other handler!
-                session.setStopHandlerProcessing(true);
+                session.getState().put(BAD_EHLO_HELO, "true");
             }
         }
     }
-    
+
+    /**
+     * Reject on invalid EHLO/HELO
+     * 
+     * @param session
+     *            The SMTPSession
+     * @param argument
+     *            The argument
+     */
+    private void reject(SMTPSession session, String argument) {
+        MailAddress rcpt = (MailAddress) session.getState().get(
+                SMTPSession.CURRENT_RECIPIENT);
+
+        // not reject it
+        if (session.getState().get(BAD_EHLO_HELO) == null
+                || rcpt.getUser().equalsIgnoreCase("postmaster")
+                || rcpt.getUser().equalsIgnoreCase("abuse"))
+            return;
+
+        // Check if the client was authenticated
+        if (!(session.isAuthRequired() && session.getUser() != null && !checkAuthUsers)) {
+            String responseString = "501 "
+                    + DSNStatus.getStatus(DSNStatus.PERMANENT,
+                            DSNStatus.DELIVERY_INVALID_ARG)
+                    + " Provided EHLO/HELO " + argument + " can not resolved";
+            session.writeResponse(responseString);
+            getLogger().info(responseString);
+
+            // After this filter match we should not call any other handler!
+            session.setStopHandlerProcessing(true);
+        }
+    }
+
     /**
      * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
      */
@@ -121,8 +182,9 @@ public class ResolvableEhloHeloHandler extends AbstractLogEnabled
         Collection implCommands = new ArrayList();
         implCommands.add("EHLO");
         implCommands.add("HELO");
-        
+        implCommands.add("RCPT");
+
         return implCommands;
     }
- 
+
 }

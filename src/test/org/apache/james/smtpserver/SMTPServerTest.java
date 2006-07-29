@@ -367,12 +367,20 @@ public class SMTPServerTest extends TestCase {
 
         String helo1 = "abgsfe3rsf.de";
         String helo2 = "james.apache.org";
+        String mail = "sender@james.apache.org";
+        String rcpt = "rcpt@localhost";
         
         smtpProtocol1.sendCommand("helo",helo1);
+        smtpProtocol1.setSender(mail);
+        smtpProtocol1.addRecipient(rcpt);
+        
         // this should give a 501 code cause the helo could not resolved
         assertEquals("expected error: helo could not resolved", 501, smtpProtocol1.getReplyCode());
             
         smtpProtocol1.sendCommand("helo", helo2);
+        smtpProtocol1.setSender(mail);
+        smtpProtocol1.addRecipient(rcpt);
+        
         // helo is resolvable. so this should give a 250 code
         assertEquals("Helo accepted", 250, smtpProtocol1.getReplyCode());
 
@@ -597,12 +605,20 @@ public class SMTPServerTest extends TestCase {
 
         String ehlo1 = "abgsfe3rsf.de";
         String ehlo2 = "james.apache.org";
+        String mail = "test@account";
+        String rcpt = "test";
         
         smtpProtocol1.sendCommand("ehlo", ehlo1);
+        smtpProtocol1.setSender(mail);
+        smtpProtocol1.addRecipient(rcpt);
+        
         // this should give a 501 code cause the ehlo could not resolved
         assertEquals("expected error: ehlo could not resolved", 501, smtpProtocol1.getReplyCode());
             
         smtpProtocol1.sendCommand("ehlo", ehlo2);
+        smtpProtocol1.setSender(mail);
+        smtpProtocol1.addRecipient(rcpt);
+        
         // ehlo is resolvable. so this should give a 250 code
         assertEquals("ehlo accepted", 250, smtpProtocol1.getReplyCode());
 
@@ -638,12 +654,19 @@ public class SMTPServerTest extends TestCase {
 
         String ehlo1 = "abgsfe3rsf.de";
         String ehlo2 = "james.apache.org";
+        String mail = "sender@localhost";
+        String rcpt = "test";
         
         smtpProtocol1.sendCommand("ehlo", ehlo1);
+        smtpProtocol1.setSender(mail);
+        smtpProtocol1.addRecipient(rcpt);
+        
         // this should give a 501 code cause the ehlo could not resolved
         assertEquals("expected error: ehlo could not resolved", 501, smtpProtocol1.getReplyCode());
             
         smtpProtocol1.sendCommand("ehlo", ehlo2);
+        smtpProtocol1.setSender(mail);
+        smtpProtocol1.addRecipient(rcpt);
         // ehlo is resolvable. so this should give a 250 code
         assertEquals("ehlo accepted", 250, smtpProtocol1.getReplyCode());
 

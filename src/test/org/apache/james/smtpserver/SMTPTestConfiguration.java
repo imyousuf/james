@@ -177,7 +177,7 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
         if (m_heloResolv || m_ehloResolv) {
             DefaultConfiguration d = createHandler(
                     ResolvableEhloHeloHandler.class.getName(), null);
-            d.setAttribute("command", "EHLO,HELO");
+            d.setAttribute("command", "EHLO,HELO,RCPT");
             d.addChild(Util.getValuedConfiguration("checkAuthNetworks",
                     m_checkAuthNetworks + ""));
             config.addChild(d);
