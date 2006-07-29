@@ -185,7 +185,7 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
         if (m_reverseEqualsHelo || m_reverseEqualsEhlo) {
             DefaultConfiguration d = createHandler(
                     ReverseEqualsEhloHeloHandler.class.getName(), null);
-            d.setAttribute("command", "EHLO,HELO");
+            d.setAttribute("command", "EHLO,HELO,RCPT");
             d.addChild(Util.getValuedConfiguration("checkAuthNetworks",
                     m_checkAuthNetworks + ""));
             config.addChild(d);
