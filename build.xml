@@ -128,7 +128,6 @@
       <echo message="Preparing code"/>
 
       <tstamp/>
-      <available property="jdbc3.present" classname="java.sql.Savepoint"/>
       <available file="${phoenix.dir}/bin" type="dir" property="phoenix.bin.present"/>
       <mkdir dir="${dist.dir}"/>
       <copy todir="${dist.dir}">
@@ -150,7 +149,6 @@
       <copy todir="${build.src}">
         <fileset dir="${java.dir}">
           <include name="${constants.file}"/>
-          <include name="${poolconn.file}"/>
         </fileset>
       </copy>
       <replace file="${build.src}/${constants.file}" token="@@VERSION@@" value="${version}"/>
@@ -256,21 +254,10 @@
 
     <!--
     ===================================================================
-                                   jdbc3
-    ===================================================================
-    -->
-    <target name="prepare-jdbc3" depends="prepare-common" unless="jdbc3.present">
-        <echo message="JDBC v3 not in classpath - making code compliant with older JDBC"/>
-        <replace file="${build.src}/${poolconn.file}" token="/*-- JDBC_3_ANT_KEY */" value="/* JDBC_3_ANT_KEY"/>
-        <replace file="${build.src}/${poolconn.file}" token="/* JDBC_3_ANT_KEY --*/" value="JDBC_3_ANT_KEY */"/>
-    </target>
-
-    <!--
-    ===================================================================
                                   Prepare target
     ===================================================================
     -->
-    <target name="prepare" depends="prepare-common,prepare-phoenix,prepare-jdbc3,prepare-mxinfo,prepare-metainf"/>
+    <target name="prepare" depends="prepare-common,prepare-phoenix,prepare-mxinfo,prepare-metainf"/>
 
     <!--
     ===================================================================
@@ -287,7 +274,6 @@
         <src path="${build.src}"/>
         <src path="${java.dir}"/>
         <exclude name="${constants.file}"/>
-        <exclude name="${poolconn.file}"/>
       </javac>
       <copy todir="${build.classes}">
         <fileset dir="${java.dir}">
@@ -778,19 +764,18 @@
     </target>
         
     <target name="compile-unit-tests" depends="unit-tests-classpath">
-      <echo message="Compiling James Unit Test Java sources"/>
-      <mkdir dir="${build.test}"/>
-      <mkdir dir="${build.test.classes}"/>
-      <javac destdir="${build.test.classes}" debug="${debug}" optimize="${optimize}" deprecation="${deprecation}" target="${jdk.target}" source="${jdk.source}">
-        <classpath refid="unittest.class.path"/>
-        <classpath refid="project.class.path"/>
-        <src path="${junitjava.dir}"/>
-        <exclude name="${constants.file}"/>
-        <exclude name="${poolconn.file}"/>
-      </javac>
-    	<copy todir="${build.test.classes}">
-    		<fileset dir="${junitjava.dir}" includes="**/*.zone" />
-    	</copy>
+        <echo message="Compiling James Unit Test Java sources"/>
+        <mkdir dir="${build.test}"/>
+        <mkdir dir="${build.test.classes}"/>
+        <javac destdir="${build.test.classes}" debug="${debug}" optimize="${optimize}" deprecation="${deprecation}" target="${jdk.target}" source="${jdk.source}">
+          <classpath refid="unittest.class.path"/>
+          <classpath refid="project.class.path"/>
+          <src path="${junitjava.dir}"/>
+          <exclude name="${constants.file}"/>
+        </javac>
+        <copy todir="${build.test.classes}">
+          <fileset dir="${junitjava.dir}" includes="**/*.zone" />
+        </copy>
     </target>
 
     <target name="run-unit-tests" depends="unit-tests-classpath, compile-unit-tests">
