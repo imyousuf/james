@@ -963,8 +963,9 @@ Regards, Postmaster XXX.YYY
             <!-- If checkAuthNetworks is set to true sender domain will be checked also for clients that -->
             <!-- are allowed to relay. Default is false. -->
             <!--
-            <handler class="org.apache.james.smtpserver.core.filter.fastfail.ResolvableEhloHeloHandler" command="EHLO,HELO">
+            <handler class="org.apache.james.smtpserver.core.filter.fastfail.ResolvableEhloHeloHandler" command="EHLO,HELO,RCPT">
                  <checkAuthNetworks> false </checkAuthNetworks>
+                 <checkAuthUsers> false </checkAuthUsers>
             </handler>  
             -->
             
