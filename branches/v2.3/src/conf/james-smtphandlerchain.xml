@@ -19,6 +19,7 @@
    <!-- The command handler configuration -->
    <handler command="HELO" class="org.apache.james.smtpserver.HeloCmdHandler">
        <!-- If is set to true helo is only accepted if it can be resolved -->
+       <!-- WARNING: This check will reject on invalid HELO even if the user is authenticated-->
        <!--
        <checkResolvableHelo> false </checkResolvableHelo>
        -->
@@ -30,7 +31,8 @@
        -->
    </handler>
    <handler command="EHLO" class="org.apache.james.smtpserver.EhloCmdHandler">
-       <!-- If is set to true ehlo is only accepted if it can be resolved -->
+       <!-- If is set to true EHLO is only accepted if it can be resolved -->
+       <!-- WARNING: This check will reject on invalid EHLO even if the user is authenticated-->
        <!--
        <checkResolvableEhlo> false </checkResolvableEhlo>
        -->
