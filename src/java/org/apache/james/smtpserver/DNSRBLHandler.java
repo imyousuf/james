@@ -128,9 +128,8 @@ public class DNSRBLHandler
                        behavior from the blocklists.  Also, it might help them to know what IP is
                        returned, since zones often use that to indicate interesting information.
 
-                       At some point, we may wish to do something more interesting with both the A
-                       and TXT records from block lists, at which point this code can probably be
-                       removed.
+                       The next version of this code already handles the associated TXT record,
+                       so this code is just temporary for this release.
                      */
                     if (getLogger().isDebugEnabled()) {
                         getLogger().debug("Whitelist addr = " + addr.toString());
@@ -156,9 +155,8 @@ public class DNSRBLHandler
                        behavior from the blocklists.  Also, it might help them to know what IP is
                        returned, since zones often use that to indicate interesting information.
 
-                       At some point, we may wish to do something more interesting with both the A
-                       and TXT records from block lists, at which point this code can probably be
-                       removed.
+                       The next version of this code already handles the associated TXT record,
+                       so this code is just temporary for this release.
                      */
                     if (getLogger().isDebugEnabled()) {
                         getLogger().debug("Blacklist addr = " + addr.toString());
