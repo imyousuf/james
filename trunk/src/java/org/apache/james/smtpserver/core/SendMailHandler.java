@@ -58,7 +58,7 @@ public class SendMailHandler
      * @see org.apache.james.smtpserver#onMessage(SMTPSession)
      */
     public void onMessage(SMTPSession session) {
-        getLogger().info("sending mail");
+        getLogger().debug("sending mail");
 
         Mail mail = session.getMail();
         
