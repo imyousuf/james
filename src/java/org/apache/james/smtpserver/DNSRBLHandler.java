@@ -119,14 +119,27 @@ public class DNSRBLHandler
             if (whitelist != null) {
                 String[] rblList = whitelist;
                 for (int i = 0 ; i < rblList.length ; i++) try {
-                    org.apache.james.dnsserver.DNSServer.getByName(reversedOctets + rblList[i]);
+                    java.net.InetAddress addr = org.apache.james.dnsserver.DNSServer.getByName(reversedOctets + rblList[i]);
                     if (getLogger().isInfoEnabled()) {
                         getLogger().info("Connection from " + ipAddress + " whitelisted by " + rblList[i]);
                     }
+ 
+                    /* Ihis code may be helpful if admins need to debug why they are getting weird
+                       behavior from the blocklists.  Also, it might help them to know what IP is
+                       returned, since zones often use that to indicate interesting information.
+
+                       At some point, we may wish to do something more interesting with both the A
+                       and TXT records from block lists, at which point this code can probably be
+                       removed.
+                     */
+                    if (getLogger().isDebugEnabled()) {
+                        getLogger().debug("Whitelist addr = " + addr.toString());
+                    }
+
                     return false;
                 } catch (java.net.UnknownHostException uhe) {
                     if (getLogger().isDebugEnabled()) {
-                        getLogger().debug("unknown host exception thrown:" + rblList[i]);
+                        getLogger().debug("unknown host exception thrown:" + reversedOctets + rblList[i]);
                     }
                 }
             }
@@ -134,15 +147,28 @@ public class DNSRBLHandler
             if (blacklist != null) {
                 String[] rblList = blacklist;
                 for (int i = 0 ; i < rblList.length ; i++) try {
-                    org.apache.james.dnsserver.DNSServer.getByName(reversedOctets + rblList[i]);
+                    java.net.InetAddress addr = org.apache.james.dnsserver.DNSServer.getByName(reversedOctets + rblList[i]);
                     if (getLogger().isInfoEnabled()) {
                         getLogger().info("Connection from " + ipAddress + " restricted by " + rblList[i] + " to SMTP AUTH/postmaster/abuse.");
                     }
+
+                    /* Ihis code may be helpful if admins need to debug why they are getting weird
+                       behavior from the blocklists.  Also, it might help them to know what IP is
+                       returned, since zones often use that to indicate interesting information.
+
+                       At some point, we may wish to do something more interesting with both the A
+                       and TXT records from block lists, at which point this code can probably be
+                       removed.
+                     */
+                    if (getLogger().isDebugEnabled()) {
+                        getLogger().debug("Blacklist addr = " + addr.toString());
+                    }
+
                     return true;
                 } catch (java.net.UnknownHostException uhe) {
                     // if it is unknown, it isn't blocked
                     if (getLogger().isDebugEnabled()) {
-                        getLogger().debug("unknown host exception thrown:" + rblList[i]);
+                        getLogger().debug("unknown host exception thrown:" + reversedOctets + rblList[i]);
                     }
                 }
             }
