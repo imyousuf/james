@@ -287,7 +287,7 @@ public class SMTPHandler
 
           //handle messages
           if(mode == MESSAGE_RECEIVED_MODE) {
-              getLogger().info("executing message handlers");
+              getLogger().debug("executing message handlers");
               List messageHandlers = handlerChain.getMessageHandlers();
               int count = messageHandlers.size();
               for(int i =0; i < count; i++) {
