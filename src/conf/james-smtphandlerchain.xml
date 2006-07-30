@@ -4,14 +4,38 @@
 <handlerchain>
    
    <!-- The connect handler configuration -->
+
+   <!-- STOP - before you uncomment out the DNS RBL handler,
+        please take a moment to review each block list.  We
+        have included some that various JAMES committers use,
+        but you must decide which, if any, are appropriate
+        for your environment.  The mail servers hosting
+        @apache.org mailing lists, for example, use a
+        slightly different list than we have included below.
+        And it is likely that most JAMES committes also have
+        slightly different sets of lists.  The SpamAssassin
+        user's list would be one good place to discuss the
+        measured quality of various block lists.
+
+        NOTA BENE: the domain names, below, are terminated
+        with '.' to ensure that they are absolute names in
+        DNS lookups.  Under some circumstances, names that
+        are not explicitly absolute could be treated as
+        relative names, leading to incorrect results.  This
+        has been observed on *nix and MS-Windows platforms
+        by users of multiple mail servers, and is not JAMES
+        specific.  If you are unsure what this means for you,
+        please speak with your local system/network admins.
+   -->
    <!--            
    <handler class="org.apache.james.smtpserver.DNSRBLHandler">
       <rblservers>
-         <whitelist> query.bondedsender.org </whitelist>
-         <blacklist> sbl-xbl.spamhaus.org </blacklist>
-         <blacklist> list.dsbl.org </blacklist>
-         <blacklist> dul.dnsbl.sorbs.net </blacklist>
-         <blacklist> relays.ordb.org </blacklist>
+         <whitelist> query.bondedsender.org. </whitelist>
+
+         <blacklist> sbl-xbl.spamhaus.org. </blacklist>
+         <blacklist> dul.dnsbl.sorbs.net. </blacklist>
+         <blacklist> list.dsbl.org. </blacklist>
+         <blacklist> relays.ordb.org. </blacklist>
       </rblservers>
    </handler>            
    -->            
