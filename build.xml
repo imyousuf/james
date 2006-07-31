@@ -61,40 +61,39 @@
     -->
 
     <path id="project.class.path">
-      <pathelement location="${avalon-framework.jar}"/>
-      <pathelement location="${avalon-framework-impl.jar}"/>
-    	<fileset dir="${lib.dir}">
-        <include name="${dns.jar}"/>
-    		<include name="${commons-collections.jar}"/>
-    		<include name="${commons-dbcp.jar}"/>
-    		<include name="${commons-pool.jar}"/>
-    		<include name="${jakarta-oro.jar}"/>
-    		<include name="${excalibur-pool-api.jar}"/>
-    		<include name="${excalibur-pool-impl.jar}"/>
-    		<include name="${excalibur-thread-api.jar}"/>
-    		<include name="${excalibur-datasource.jar}"/>
-    		<include name="${cornerstone-threads-api.jar}"/>
-    		<include name="${cornerstone-connection-api.jar}"/>
-    		<include name="${cornerstone-connection-impl.jar}"/>
-    		<include name="${cornerstone-store-api.jar}"/>
-    		<include name="${cornerstone-scheduler-api.jar}"/>
-    		<include name="${cornerstone-sockets-api.jar}"/>
-    		<include name="${cornerstone-datasources-api.jar}"/>
-    		<include name="${javax-mail.jar}"/>
-    		<include name="${javax-activation.jar}"/>
-    		<include name="${bcmail.jar}"/>
-    		<include name="${bcmail-workaround.jar}"/>
-    		<include name="${jspf.jar}"/>
-    	</fileset>
-      <pathelement path="${java.class.path}" />
-      <pathelement path="${build.classes}" />
+        <fileset dir="${lib.dir}">
+            <include name="${avalon-framework.jar}"/>
+            <include name="${avalon-framework-impl.jar}"/>
+            <include name="${dns.jar}"/>
+            <include name="${commons-collections.jar}"/>
+            <include name="${commons-dbcp.jar}"/>
+            <include name="${commons-pool.jar}"/>
+            <include name="${jakarta-oro.jar}"/>
+            <include name="${excalibur-pool-api.jar}"/>
+            <include name="${excalibur-pool-impl.jar}"/>
+            <include name="${excalibur-thread-api.jar}"/>
+            <include name="${excalibur-datasource.jar}"/>
+            <include name="${cornerstone-threads-api.jar}"/>
+            <include name="${cornerstone-connection-api.jar}"/>
+            <include name="${cornerstone-connection-impl.jar}"/>
+            <include name="${cornerstone-store-api.jar}"/>
+            <include name="${cornerstone-scheduler-api.jar}"/>
+            <include name="${cornerstone-sockets-api.jar}"/>
+            <include name="${cornerstone-datasources-api.jar}"/>
+            <include name="${javax-mail.jar}"/>
+            <include name="${javax-activation.jar}"/>
+            <include name="${bcmail.jar}"/>
+            <include name="${bcmail-workaround.jar}"/>
+            <include name="${jspf.jar}"/>
+        </fileset>
+        <pathelement path="${java.class.path}" />
+        <pathelement path="${build.classes}" />
     </path>
 
     <path id="tools.class.path">
         <fileset dir="${tools.lib.dir}">
             <include name="*.jar"/>
         </fileset>
-      	<pathelement location="${phoenix-client.jar}"/>
     </path>
 
     <taskdef name="sar" classname="org.apache.avalon.phoenix.tools.tasks.Sar">
@@ -125,35 +124,35 @@
     -->
     <target name="prepare-common" depends="check-dependencies">
 
-      <echo message="Preparing code"/>
-
-      <tstamp/>
-      <available file="${phoenix.dir}/bin" type="dir" property="phoenix.bin.present"/>
-      <mkdir dir="${dist.dir}"/>
-      <copy todir="${dist.dir}">
-        <fileset dir=".">
-          <include name="LICENSE.txt"/>
-          <include name="README"/>
-        </fileset>
-      </copy>
-      <fixcrlf srcdir="${java.dir}" includes="**/*.java" eol="lf" tab="remove" tablength="4" />
-      <fixcrlf srcdir="${java.dir}" includes="**/*.minfo" eol="lf" tab="remove" tablength="4" />
-      <fixcrlf srcdir="${java.dir}" includes="**/*.xinfo" eol="lf" tab="remove" tablength="4" />
-      <fixcrlf srcdir="${java.dir}" includes="**/*.html" eol="lf" tab="remove" tablength="4" />
-      <fixcrlf srcdir="${junitjava.dir}" includes="**/*.java" eol="lf" tab="remove" tablength="4" />
-      <fixcrlf srcdir="${xdocs.dir}" includes="**/*.xml" eol="lf" tab="remove" tablength="4" />
-      <fixcrlf srcdir="${conf.dir}" includes="**/*.xml" eol="lf" tab="remove" tablength="4" />
-      <fixcrlf srcdir="${metainf.dir}" includes="**/*" eol="lf" tab="remove" tablength="4" />      
-      <fixcrlf srcdir="." includes="build.xml" eol="lf"/>
-      <mkdir dir="${build.src}"/>
-      <copy todir="${build.src}">
-        <fileset dir="${java.dir}">
-          <include name="${constants.file}"/>
-        </fileset>
-      </copy>
-      <replace file="${build.src}/${constants.file}" token="@@VERSION@@" value="${version}"/>
-      <replace file="${build.src}/${constants.file}" token="@@NAME@@" value="${Name}"/>
-      <replace file="${build.src}/${constants.file}" token="@@DATE@@" value="${TODAY}"/>
+        <echo message="Preparing code"/>
+  
+        <tstamp/>
+        <available file="${james.dir}/${phoenix.dir}/bin" type="dir" property="phoenix.bin.present"/>
+        <mkdir dir="${dist.dir}"/>
+        <copy todir="${dist.dir}">
+            <fileset dir=".">
+                <include name="LICENSE.txt"/>
+                <include name="README"/>
+            </fileset>
+        </copy>
+        <fixcrlf srcdir="${java.dir}" includes="**/*.java" eol="lf" tab="remove" tablength="4" />
+        <fixcrlf srcdir="${java.dir}" includes="**/*.minfo" eol="lf" tab="remove" tablength="4" />
+        <fixcrlf srcdir="${java.dir}" includes="**/*.xinfo" eol="lf" tab="remove" tablength="4" />
+        <fixcrlf srcdir="${java.dir}" includes="**/*.html" eol="lf" tab="remove" tablength="4" />
+        <fixcrlf srcdir="${junitjava.dir}" includes="**/*.java" eol="lf" tab="remove" tablength="4" />
+        <fixcrlf srcdir="${xdocs.dir}" includes="**/*.xml" eol="lf" tab="remove" tablength="4" />
+        <fixcrlf srcdir="${conf.dir}" includes="**/*.xml" eol="lf" tab="remove" tablength="4" />
+        <fixcrlf srcdir="${metainf.dir}" includes="**/*" eol="lf" tab="remove" tablength="4" />      
+        <fixcrlf srcdir="." includes="build.xml" eol="lf"/>
+        <mkdir dir="${build.src}"/>
+        <copy todir="${build.src}">
+            <fileset dir="${java.dir}">
+                <include name="${constants.file}"/>
+            </fileset>
+        </copy>
+        <replace file="${build.src}/${constants.file}" token="@@VERSION@@" value="${version}"/>
+        <replace file="${build.src}/${constants.file}" token="@@NAME@@" value="${Name}"/>
+        <replace file="${build.src}/${constants.file}" token="@@DATE@@" value="${TODAY}"/>
 
     </target>
 
@@ -163,56 +162,56 @@
     ===================================================================
     -->
     <target name="prepare-phoenix" depends="prepare-common" if="phoenix.bin.present">
-      <echo message="Phoenix distribution present - adjusting linefeeds and permissions, copying files"/>
-      <property name="dist.bin" value="${dist.dir}/bin"/>
-      <fixcrlf srcdir="${phoenix.dir}/bin" includes="phoenix.sh" eol="lf"/>
-      
-      <copy todir="${dist.dir}">
-        <fileset dir="${phoenix.dir}">
-        </fileset>
-      </copy>
-
-      <copy todir="${dist.dir}/lib" flatten="true">
-        <fileset dir="${lib.dir}">
-          <include name="${excalibur-thread-api.jar}"/>
-          <include name="${excalibur-thread-impl.jar}"/>
-          <include name="${excalibur-pool-impl.jar}"/>
-          <include name="${excalibur-pool-api.jar}"/>
-          <include name="${commons-collections.jar}"/>
-          <!-- needed by excalibur-pool-impl-2.1.jar -->
-          <include name="${concurrent.jar}"/>
-        </fileset>
-      </copy>
-
-      <fixcrlf srcdir="${phoenix.dir}/bin" includes="james-server.sh" eol="lf"/>
-      <fixcrlf srcdir="${dist.bin}" includes="run.sh" eol="lf"/>
-      <fixcrlf srcdir="${dist.bin}" includes="run.bat" eol="crlf"/>
-      <chmod perm="+x">
-        <fileset dir="${dist.bin}">
-          <include name="run.sh"/>
-          <include name="phoenix.sh"/>
-          <include name="james-server.sh"/>
-        </fileset>
-      </chmod>
-    	
-      <!--
-      ===================================================================
-      Copy files, set permissions and line feeds for sendmail wrapper
-      ===================================================================
-      -->
-    	
-      <copy todir="${dist.bin}">
-        <fileset dir="./src/python/">
-          <include name="sendmail.py"/>
-        </fileset>
-      </copy>
-      
-      <fixcrlf srcdir="${dist.bin}" includes="sendmail.py" eol="lf"/>
-      <chmod perm="+x">
-        <fileset dir="${dist.bin}">
+        <echo message="Phoenix distribution present - adjusting linefeeds and permissions, copying files"/>
+        <property name="dist.bin" value="${dist.dir}/bin"/>
+        <fixcrlf srcdir="${james.dir}/${phoenix.dir}/bin" includes="phoenix.sh" eol="lf"/>
+        
+        <copy todir="${dist.dir}">
+            <fileset dir="${phoenix.dir}">
+            </fileset>
+        </copy>
+       
+        <copy todir="${dist.dir}/lib" flatten="true">
+            <fileset dir="${lib.dir}">
+                <include name="${excalibur-thread-api.jar}"/>
+                <include name="${excalibur-thread-impl.jar}"/>
+                <include name="${excalibur-pool-impl.jar}"/>
+                <include name="${excalibur-pool-api.jar}"/>
+                <include name="${commons-collections.jar}"/>
+                <!-- needed by excalibur-pool-impl-2.1.jar -->
+                <include name="${concurrent.jar}"/>
+            </fileset>
+        </copy>
+       
+        <fixcrlf srcdir="${james.dir}/${phoenix.dir}/bin" includes="james-server.sh" eol="lf"/>
+        <fixcrlf srcdir="${dist.bin}" includes="run.sh" eol="lf"/>
+        <fixcrlf srcdir="${dist.bin}" includes="run.bat" eol="crlf"/>
+        <chmod perm="+x">
+            <fileset dir="${dist.bin}">
+                <include name="run.sh"/>
+                <include name="phoenix.sh"/>
+                <include name="james-server.sh"/>
+            </fileset>
+        </chmod>
+          
+        <!--
+        ===================================================================
+        Copy files, set permissions and line feeds for sendmail wrapper
+        ===================================================================
+        -->
+          
+        <copy todir="${dist.bin}">
+          <fileset dir="./src/python/">
             <include name="sendmail.py"/>
-        </fileset>
-      </chmod>
+          </fileset>
+        </copy>
+        
+        <fixcrlf srcdir="${dist.bin}" includes="sendmail.py" eol="lf"/>
+        <chmod perm="+x">
+          <fileset dir="${dist.bin}">
+              <include name="sendmail.py"/>
+          </fileset>
+        </chmod>
 
     </target>
 
@@ -228,7 +227,7 @@
             <classpath refid="tools.class.path"/>
         </taskdef>
 
-    	<mkdir dir="${build.classes}" />
+        <mkdir dir="${build.classes}" />
 
         <generatemeta dest="${build.classes}">
             <fileset dir="${java.dir}">
@@ -267,21 +266,21 @@
     <target name="compile" depends="compile-main, compile-proposal"/>
 
     <target name="compile-main" depends="prepare">
-      <echo message="Compiling James Java sources"/>
-      <mkdir dir="${build.classes}"/>
-      <javac destdir="${build.classes}" debug="${debug}" optimize="${optimize}" deprecation="${deprecation}" target="${jdk.target}" source="${jdk.source}">
-        <classpath refid="project.class.path"/>
-        <src path="${build.src}"/>
-        <src path="${java.dir}"/>
-        <exclude name="${constants.file}"/>
-      </javac>
-      <copy todir="${build.classes}">
-        <fileset dir="${java.dir}">
-          <include name="**/*.properties"/>
-          <include name="**/*.xinfo"/>
-          <include name="**/*.mxinfo"/>
-        </fileset>
-      </copy>
+        <echo message="Compiling James Java sources"/>
+        <mkdir dir="${build.classes}"/>
+        <javac destdir="${build.classes}" debug="${debug}" optimize="${optimize}" deprecation="${deprecation}" target="${jdk.target}" source="${jdk.source}">
+            <classpath refid="project.class.path"/>
+            <src path="${build.src}"/>
+            <src path="${java.dir}"/>
+            <exclude name="${constants.file}"/>
+        </javac>
+        <copy todir="${build.classes}">
+            <fileset dir="${java.dir}">
+                <include name="**/*.properties"/>
+                <include name="**/*.xinfo"/>
+                <include name="**/*.mxinfo"/>
+            </fileset>
+        </copy>
     </target>
 
     <!-- Compiles the proposal source, only if proposal.name is specified. -->
@@ -312,48 +311,48 @@
     ===================================================================
     -->
     <target name="javadocs">
-
-      <echo message="Making James Javadocs"/>
-
-      <delete dir="${build.javadocs}"/>
-      <mkdir dir="${build.javadocs}"/>
-      <javadoc packagenames="org.apache.*" sourcepath="${java.dir}" destdir="${build.javadocs}">
-        <classpath refid="project.class.path"/>
-        <doclet name="com.sun.tools.doclets.standard.Standard">
-          <param name="-author"/>
-          <param name="-version"/>
-          <param name="-use"/>
-          <param name="-breakiterator"/>
-          <param name="-link" value="http://java.sun.com/j2se/1.4/docs/api"/>
-          <param name="-link" value="http://java.sun.com/j2ee/sdk_1.3/techdocs/api"/>
-          <param name="-link" value="http://avalon.apache.org/api"/>
-          <param name="-link" value="http://avalon.apache.org/phoenix/api"/>
-          <param name="-link" value="http://avalon.apache.org/cornerstone/api"/>
-          <param name="-link" value="http://avalon.apache.org/logkit/api"/>
-          <param name="-doctitle" value="${Name} ${version}"/>
-          <param name="-windowtitle" value="${Name} API"/>
-          <param name="-bottom" value="&quot;Copyright &#169; ${year} Apache Jakarta Project. All Rights Reserved.&quot;"/>
-        </doclet>
-      </javadoc>
-      <echo message="Making Mailet Javadocs"/>
-      <javadoc packagenames="org.apache.mailet.*" sourcepath="${java.dir}" destdir="${build.dir}/mailet">
-        <classpath refid="project.class.path"/>
-        <doclet name="com.sun.tools.doclets.standard.Standard">
-          <param name="-author"/>
-          <param name="-version"/>
-          <param name="-breakiterator"/>
-          <param name="-use"/>
-          <param name="-link" value="http://java.sun.com/j2se/1.4/docs/api"/>
-          <param name="-link" value="http://java.sun.com/j2ee/sdk_1.3/techdocs/api"/>
-          <param name="-link" value="http://avalon.apache.org/api"/>
-          <param name="-link" value="http://avalon.apache.org/phoenix/api"/>
-          <param name="-link" value="http://avalon.apache.org/cornerstone/api"/>
-          <param name="-link" value="http://avalon.apache.org/logkit/api"/>
-          <param name="-doctitle" value="Apache Jakarta Mailet API"/>
-          <param name="-windowtitle" value="Apache Jakarta Mailet API"/>
-          <param name="-bottom" value="&quot;Copyright &#169; ${year} Apache Jakarta Project. All Rights Reserved.&quot;"/>
-        </doclet>
-      </javadoc>
+      
+        <echo message="Making James Javadocs"/>
+      
+        <delete dir="${build.javadocs}"/>
+        <mkdir dir="${build.javadocs}"/>
+        <javadoc packagenames="org.apache.*" sourcepath="${java.dir}" destdir="${build.javadocs}">
+            <classpath refid="project.class.path"/>
+            <doclet name="com.sun.tools.doclets.standard.Standard">
+                <param name="-author"/>
+                <param name="-version"/>
+                <param name="-use"/>
+                <param name="-breakiterator"/>
+                <param name="-link" value="http://java.sun.com/j2se/1.4/docs/api"/>
+                <param name="-link" value="http://java.sun.com/j2ee/sdk_1.3/techdocs/api"/>
+                <param name="-link" value="http://avalon.apache.org/api"/>
+                <param name="-link" value="http://avalon.apache.org/phoenix/api"/>
+                <param name="-link" value="http://avalon.apache.org/cornerstone/api"/>
+                <param name="-link" value="http://avalon.apache.org/logkit/api"/>
+                <param name="-doctitle" value="${Name} ${version}"/>
+                <param name="-windowtitle" value="${Name} API"/>
+                <param name="-bottom" value="&quot;Copyright &#169; ${year} Apache Jakarta Project. All Rights Reserved.&quot;"/>
+            </doclet>
+        </javadoc>
+        <echo message="Making Mailet Javadocs"/>
+        <javadoc packagenames="org.apache.mailet.*" sourcepath="${java.dir}" destdir="${build.dir}/mailet">
+            <classpath refid="project.class.path"/>
+            <doclet name="com.sun.tools.doclets.standard.Standard">
+                <param name="-author"/>
+                <param name="-version"/>
+                <param name="-breakiterator"/>
+                <param name="-use"/>
+                <param name="-link" value="http://java.sun.com/j2se/1.4/docs/api"/>
+                <param name="-link" value="http://java.sun.com/j2ee/sdk_1.3/techdocs/api"/>
+                <param name="-link" value="http://avalon.apache.org/api"/>
+                <param name="-link" value="http://avalon.apache.org/phoenix/api"/>
+                <param name="-link" value="http://avalon.apache.org/cornerstone/api"/>
+                <param name="-link" value="http://avalon.apache.org/logkit/api"/>
+                <param name="-doctitle" value="Apache Jakarta Mailet API"/>
+                <param name="-windowtitle" value="Apache Jakarta Mailet API"/>
+                <param name="-bottom" value="&quot;Copyright &#169; ${year} Apache Jakarta Project. All Rights Reserved.&quot;"/>
+            </doclet>
+        </javadoc>
     </target>
 
     <!--
@@ -362,29 +361,29 @@
     ===================================================================
     -->
     <target name="xdocs" depends="prepare">
-      <mkdir dir="${build.docs}" />
-      <style style="${docs.src}/stylesheets/site.xsl"
-                basedir="${docs.src}/"
-                destdir="${build.docs}/"
-                includes="**/*.xml" >
-      </style>
-      <copy todir="${build.docs}" filtering="no">
-        <fileset dir="${docs.src}">
-          <include name="**/*.css"/>
-        </fileset>
-      </copy>
-      <copy todir="${build.docs}/images" filtering="no">
-        <fileset dir="${docs.src}/images">
-          <include name="**/*.gif"/>
-          <include name="**/*.jpeg"/>
-          <include name="**/*.jpg"/>
-          <include name="**/*.png"/>
-        </fileset>
-      </copy>
-      <mkdir dir="${dist.dir}/docs"/>
-      <copy todir="${dist.dir}/docs" filtering="no">
-        <fileset dir="${build.docs}"/>
-      </copy>
+        <mkdir dir="${build.docs}" />
+        <style style="${docs.src}/stylesheets/site.xsl"
+                  basedir="${docs.src}/"
+                  destdir="${build.docs}/"
+                  includes="**/*.xml" >
+        </style>
+        <copy todir="${build.docs}" filtering="no">
+            <fileset dir="${docs.src}">
+                <include name="**/*.css"/>
+            </fileset>
+        </copy>
+        <copy todir="${build.docs}/images" filtering="no">
+            <fileset dir="${docs.src}/images">
+                <include name="**/*.gif"/>
+                <include name="**/*.jpeg"/>
+                <include name="**/*.jpg"/>
+                <include name="**/*.png"/>
+            </fileset>
+        </copy>
+        <mkdir dir="${dist.dir}/docs"/>
+        <copy todir="${dist.dir}/docs" filtering="no">
+            <fileset dir="${build.docs}"/>
+        </copy>
     </target>
 
     <!--
@@ -394,26 +393,26 @@
     -->
     <target name="website" depends="xdocs,javadocs">
 
-      <echo message="preparing website in ${www.dir}"/>
-      <delete>
-        <fileset dir="${www.dir}">
-          <exclude name="rfclist/**"/>
-          <exclude name="javadocs/**"/>
-          <exclude name="mailet/**"/>
-        </fileset>
-      </delete>
-      <mkdir dir="${www.dir}"/>
-      <copy todir="${www.dir}" filtering="no">
-        <fileset dir="${build.docs}"/>
-      </copy>
-      <copy todir="${www.dir}" filtering="no">
-        <fileset dir="${build.dir}">
-          <include name="javadocs/**"/>
-          <include name="mailet/**"/>
-        </fileset>
-      </copy>
-      <fixcrlf srcdir="${www.dir}" includes="**/*.html" eol="lf" tab="remove" tablength="4" />
-      <fixcrlf srcdir="${www.dir}" includes="**/*.css" eol="lf" tab="remove" tablength="4" />
+        <echo message="preparing website in ${www.dir}"/>
+        <delete>
+            <fileset dir="${www.dir}">
+                <exclude name="rfclist/**"/>
+                <exclude name="javadocs/**"/>
+                <exclude name="mailet/**"/>
+            </fileset>
+        </delete>
+        <mkdir dir="${www.dir}"/>
+        <copy todir="${www.dir}" filtering="no">
+            <fileset dir="${build.docs}"/>
+        </copy>
+        <copy todir="${www.dir}" filtering="no">
+            <fileset dir="${build.dir}">
+                <include name="javadocs/**"/>
+                <include name="mailet/**"/>
+            </fileset>
+        </copy>
+        <fixcrlf srcdir="${www.dir}" includes="**/*.html" eol="lf" tab="remove" tablength="4" />
+        <fixcrlf srcdir="${www.dir}" includes="**/*.css" eol="lf" tab="remove" tablength="4" />
     </target>
 
     <!--
@@ -438,27 +437,27 @@
 
     <target name="jar" depends="compile">
 
-      <mkdir dir="${build.lib}"/>
-
-      <!-- Make mailet api jar-->
-      <echo message="Making Mailet API Jar (mailet-api-${mailet-api-version}.jar)"/>
-      <jar jarfile="${build.lib}/mailet-api-${mailet-api-version}.jar"
-               basedir="${build.classes}"
-               includes="org/apache/mailet/Mailet.class,org/apache/mailet/MailetConfig.class,org/apache/mailet/Mail.class,org/apache/mailet/MailetContext.class,org/apache/mailet/MailAddress.class,org/apache/mailet/MailRepository,org/apache/mailet/SpoolRepository,org/apache/mailet/UserRepository,org/apache/mailet/Datasource,org/apache/mailet/User,org/apache/mailet/MailetException"/>
-
-      <!-- Make mailet implementation jar-->
-      <echo message="Making Mailet Jar (mailet-${mailet-version}.jar)"/>
-      <jar jarfile="${build.lib}/mailet-${mailet-version}.jar"
-               basedir="${build.classes}"
-               includes="org/apache/mailet/**"
-               excludes="org/apache/mailet/Mailet.class,org/apache/mailet/MailetConfig.class,org/apache/mailet/Mail.class,org/apache/mailet/MailetContext.class,org/apache/mailet/MailAddress.class,org/apache/mailet/MailRepository,org/apache/mailet/SpoolRepository,org/apache/mailet/UserRepository,org/apache/mailet/Datasource,org/apache/mailet/User,org/apache/mailet/MailetException"/>
-
-      <!-- Make james jar-->
-      <echo message="Making James Jar (james-${version}.jar)"/>
-      <jar jarfile="${build.lib}/${name}-${version}.jar" basedir="${build.classes}" manifest="${src.dir}/Manifest.mf">
-          <include name="org/apache/james/**"/>
-          <metainf dir="${build.metainf}"/>        
-      </jar>
+        <mkdir dir="${build.lib}"/>
+       
+        <!-- Make mailet api jar-->
+        <echo message="Making Mailet API Jar (mailet-api-${mailet-api-version}.jar)"/>
+        <jar jarfile="${build.lib}/mailet-api-${mailet-api-version}.jar"
+                 basedir="${build.classes}"
+                 includes="org/apache/mailet/Mailet.class,org/apache/mailet/MailetConfig.class,org/apache/mailet/Mail.class,org/apache/mailet/MailetContext.class,org/apache/mailet/MailAddress.class,org/apache/mailet/MailRepository,org/apache/mailet/SpoolRepository,org/apache/mailet/UserRepository,org/apache/mailet/Datasource,org/apache/mailet/User,org/apache/mailet/MailetException"/>
+       
+        <!-- Make mailet implementation jar-->
+        <echo message="Making Mailet Jar (mailet-${mailet-version}.jar)"/>
+        <jar jarfile="${build.lib}/mailet-${mailet-version}.jar"
+                 basedir="${build.classes}"
+                 includes="org/apache/mailet/**"
+                 excludes="org/apache/mailet/Mailet.class,org/apache/mailet/MailetConfig.class,org/apache/mailet/Mail.class,org/apache/mailet/MailetContext.class,org/apache/mailet/MailAddress.class,org/apache/mailet/MailRepository,org/apache/mailet/SpoolRepository,org/apache/mailet/UserRepository,org/apache/mailet/Datasource,org/apache/mailet/User,org/apache/mailet/MailetException"/>
+       
+        <!-- Make james jar-->
+        <echo message="Making James Jar (james-${version}.jar)"/>
+        <jar jarfile="${build.lib}/${name}-${version}.jar" basedir="${build.classes}" manifest="${src.dir}/Manifest.mf">
+            <include name="org/apache/james/**"/>
+            <metainf dir="${build.metainf}"/>        
+        </jar>
 
     </target>
 
@@ -470,65 +469,65 @@
 
     <target name="sar" depends="jar">
 
-      <echo message="Making James Sarfile (james.sar)"/>
-
-      <!-- Make sar file-->
-      <sar sarfile="${build.lib}/${name}.sar" config="${conf.dir}/james-config.xml"
-             environment="${conf.dir}/james-server.xml" assembly="${conf.dir}/james-assembly.xml">
-        <lib dir="${build.lib}/">
-          <include name="mailet-api-${mailet-api-version}.jar"/>
-          <include name="mailet-${mailet-version}.jar"/>
-          <include name="james-${version}.jar"/>         
-        </lib>
-      	<lib dir="${lib.dir}">
-          <include name="${dns.jar}"/>
-          <include name="${jakarta-oro.jar}"/>
-          <include name="${derby.jar}"/>
-          <include name="${excalibur-datasource.jar}"/>
-          <include name="${javax-activation.jar}"/>
-          <include name="${javax-mail.jar}"/>
-          <include name="${commons-dbcp.jar}"/>
-          <include name="${commons-pool.jar}"/>
-          <include name="${bcmail.jar}"/>
-          <include name="${bcmail-workaround.jar}"/>
-          <include name="${excalibur-thread-api.jar}"/>
-          <include name="${excalibur-thread-impl.jar}"/>
-          <include name="${excalibur-pool-api.jar}"/>
-          <include name="${excalibur-pool-impl.jar}"/>
-          <include name="${commons-collections.jar}"/>
-          <include name="${cornerstone-threads-api.jar}"/>
-          <include name="${cornerstone-threads-impl.jar}"/>
-          <include name="${cornerstone-connection-api.jar}"/>
-          <include name="${cornerstone-connection-impl.jar}"/>
-          <include name="${cornerstone-store-api.jar}"/>
-          <include name="${cornerstone-scheduler-api.jar}"/>
-          <include name="${cornerstone-scheduler-impl.jar}"/>
-          <include name="${cornerstone-sockets-api.jar}"/>
-          <include name="${cornerstone-sockets-impl.jar}"/>
-          <include name="${cornerstone-datasources-api.jar}"/>
-          <include name="${cornerstone-datasources-impl.jar}"/>
-          <include name="${concurrent.jar}"/>
-          <include name="${jspf.jar}"/>
-        </lib>
-        <zipfileset dir="${conf.dir}" fullpath="conf/sqlResources.xml">
-          <include name="sqlResources.xml"/>
-        </zipfileset>
-        <zipfileset dir="${conf.dir}" fullpath="conf/james-fetchmail.xml">
-          <include name="james-fetchmail.xml"/>
-        </zipfileset>
-        <zipfileset dir="${conf.dir}" fullpath="conf/miResources.xml">
-          <include name="miResources.xml"/>
-        </zipfileset>
-        <zipfileset dir="${conf.dir}" fullpath="conf/james-listmanager.xml">
-          <include name="james-listmanager.xml"/>
-        </zipfileset>
-        <zipfileset dir="${conf.dir}" fullpath="conf/james-liststores.xml">
-          <include name="james-liststores.xml"/>
-        </zipfileset>
-        <zipfileset dir="${conf.dir}/samples/fetchmail" prefix="conf/samples/fetchmail">
-          <include name="*.xml"/>
-        </zipfileset>
-      </sar>
+        <echo message="Making James Sarfile (james.sar)"/>
+      
+        <!-- Make sar file-->
+        <sar sarfile="${build.lib}/${name}.sar" config="${conf.dir}/james-config.xml"
+               environment="${conf.dir}/james-server.xml" assembly="${conf.dir}/james-assembly.xml">
+            <lib dir="${build.lib}/">
+                <include name="mailet-api-${mailet-api-version}.jar"/>
+                <include name="mailet-${mailet-version}.jar"/>
+                <include name="james-${version}.jar"/>         
+            </lib>
+            <lib dir="${lib.dir}">
+                <include name="${dns.jar}"/>
+                <include name="${jakarta-oro.jar}"/>
+                <include name="${derby.jar}"/>
+                <include name="${excalibur-datasource.jar}"/>
+                <include name="${javax-activation.jar}"/>
+                <include name="${javax-mail.jar}"/>
+                <include name="${commons-dbcp.jar}"/>
+                <include name="${commons-pool.jar}"/>
+                <include name="${bcmail.jar}"/>
+                <include name="${bcmail-workaround.jar}"/>
+                <include name="${excalibur-thread-api.jar}"/>
+                <include name="${excalibur-thread-impl.jar}"/>
+                <include name="${excalibur-pool-api.jar}"/>
+                <include name="${excalibur-pool-impl.jar}"/>
+                <include name="${commons-collections.jar}"/>
+                <include name="${cornerstone-threads-api.jar}"/>
+                <include name="${cornerstone-threads-impl.jar}"/>
+                <include name="${cornerstone-connection-api.jar}"/>
+                <include name="${cornerstone-connection-impl.jar}"/>
+                <include name="${cornerstone-store-api.jar}"/>
+                <include name="${cornerstone-scheduler-api.jar}"/>
+                <include name="${cornerstone-scheduler-impl.jar}"/>
+                <include name="${cornerstone-sockets-api.jar}"/>
+                <include name="${cornerstone-sockets-impl.jar}"/>
+                <include name="${cornerstone-datasources-api.jar}"/>
+                <include name="${cornerstone-datasources-impl.jar}"/>
+                <include name="${concurrent.jar}"/>
+                <include name="${jspf.jar}"/>
+            </lib>
+            <zipfileset dir="${conf.dir}" fullpath="conf/sqlResources.xml">
+                <include name="sqlResources.xml"/>
+            </zipfileset>
+            <zipfileset dir="${conf.dir}" fullpath="conf/james-fetchmail.xml">
+                <include name="james-fetchmail.xml"/>
+            </zipfileset>
+            <zipfileset dir="${conf.dir}" fullpath="conf/miResources.xml">
+                <include name="miResources.xml"/>
+            </zipfileset>
+            <zipfileset dir="${conf.dir}" fullpath="conf/james-listmanager.xml">
+                <include name="james-listmanager.xml"/>
+            </zipfileset>
+            <zipfileset dir="${conf.dir}" fullpath="conf/james-liststores.xml">
+                <include name="james-liststores.xml"/>
+            </zipfileset>
+            <zipfileset dir="${conf.dir}/samples/fetchmail" prefix="conf/samples/fetchmail">
+                <include name="*.xml"/>
+            </zipfileset>
+        </sar>
     </target>
 
     <!--
@@ -538,17 +537,17 @@
     -->
     <target name="dist-lite" depends="sar">
 
-      <echo message="Installing James to ${dist.dir}"/>
-
-      <!--installs sar into ./dist/ ready to test-->
-      <copy file="${build.lib}/${name}.sar" todir="${dist.dir}/apps"/>
-
-      <!-- Make mailet.jar-->
-      <!-- jar jarfile="${build.lib}/mailet.jar"
-               basedir="${build.classes}"
-               manifest="${src.dir}/Manifest.mf"
-               includes="org/apache/mailet/**"/ -->
-          <!-- copy file="${build.lib}/mailet.jar" todir="${dist.dir}/lib"/ -->
+        <echo message="Installing James to ${dist.dir}"/>
+      
+        <!--installs sar into ./dist/ ready to test-->
+        <copy file="${build.lib}/${name}.sar" todir="${dist.dir}/apps"/>
+      
+        <!-- Make mailet.jar-->
+        <!-- jar jarfile="${build.lib}/mailet.jar"
+                 basedir="${build.classes}"
+                 manifest="${src.dir}/Manifest.mf"
+                 includes="org/apache/mailet/**"/ -->
+            <!-- copy file="${build.lib}/mailet.jar" todir="${dist.dir}/lib"/ -->
     </target>
 
     <!--
@@ -562,34 +561,34 @@
     </target>
 
     <target name="dist-bin-phoenix" depends="dist-bin-common" if="phoenix.bin.present">
-      <echo message ="Building binary w/Phoenix distributions"/>
-      <zip zipfile="${dist.binary.dir}/${name}-binary-${version}.zip">
-        <fileset dir="dist">
-          <include name="${name}-${version}/**"/>
-          <exclude name="${name}-${version}/downloads/**"/>
-          <include name="release-notes.txt"/>
-          <include name="LICENSE.txt"/>
-        </fileset>
-      </zip>
-      <tar longfile="gnu" tarfile="${dist.binary.dir}/${name}-binary-${version}.tar">
-        <tarfileset dir="dist" username="${name}" group="${name}">
-          <include name="${name}-${version}/**"/>
-          <exclude name="${name}-${version}/downloads/**"/>
-          <include name="release-notes.txt"/>
-          <include name="LICENSE.txt"/>
-        </tarfileset>
-      </tar>
-      <gzip zipfile="${dist.binary.dir}/${name}-binary-${version}.tar.gz" src="${dist.binary.dir}/${name}-binary-${version}.tar"/>
-      <delete file="${dist.binary.dir}/${name}-binary-${version}.tar"/>
+        <echo message ="Building binary w/Phoenix distributions"/>
+        <zip zipfile="${dist.binary.dir}/${name}-binary-${version}.zip">
+            <fileset dir="dist">
+                <include name="${name}-${version}/**"/>
+                <exclude name="${name}-${version}/downloads/**"/>
+                <include name="release-notes.txt"/>
+                <include name="LICENSE.txt"/>
+            </fileset>
+        </zip>
+        <tar longfile="gnu" tarfile="${dist.binary.dir}/${name}-binary-${version}.tar">
+            <tarfileset dir="dist" username="${name}" group="${name}">
+                <include name="${name}-${version}/**"/>
+                <exclude name="${name}-${version}/downloads/**"/>
+                <include name="release-notes.txt"/>
+                <include name="LICENSE.txt"/>
+            </tarfileset>
+        </tar>
+        <gzip zipfile="${dist.binary.dir}/${name}-binary-${version}.tar.gz" src="${dist.binary.dir}/${name}-binary-${version}.tar"/>
+        <delete file="${dist.binary.dir}/${name}-binary-${version}.tar"/>
     </target>
 
     <!-- target name="dist-bin-common" depends="dist-lite,xdocs,javadocs" -->
     <target name="dist-bin-common" depends="dist-lite">
-      <echo message ="Building binary distributions"/>
-      <property name="dist.binary.dir" value="${dist.dir}/downloads/bin"/>
-      <mkdir dir="${dist.binary.dir}"/>
-      <!-- Sar only-->
-      <copy file="${dist.dir}/apps/${name}.sar" todir="${dist.binary.dir}"/>
+        <echo message ="Building binary distributions"/>
+        <property name="dist.binary.dir" value="${dist.dir}/downloads/bin"/>
+        <mkdir dir="${dist.binary.dir}"/>
+        <!-- Sar only-->
+        <copy file="${dist.dir}/apps/${name}.sar" todir="${dist.binary.dir}"/>
     </target>
 
     <target name="dist-bin" depends="dist-bin-common,dist-bin-phoenix-warn,dist-bin-phoenix"/>
@@ -608,12 +607,7 @@
         <echo message ="Building source distributions with Phoenix binaries"/>
         <zip zipfile="${dist.source.dir}/${name}-with-phoenix-${version}-src.zip">
             <fileset dir=".">
-                <include name="${dist.dir}/**"/>
-                <exclude name="${dist.dir}/downloads/**"/>
-                <exclude name="${dist.dir}/apps/*.sar"/>
-                <exclude name=""/>
                 <include name="*.txt"/>
-                <include name="*.xml"/>
                 <include name="KEYS"/>
                 <include name="README"/>
                 <include name="LICENSE.txt"/>
@@ -621,19 +615,15 @@
                 <include name="build.*"/>
                 <include name="lib/**"/>
                 <include name="${phoenix.dir}/**"/>
-                <include name="proposals/**"/>
                 <include name="src/**"/>
                 <include name="tools/**"/>
-                <include name="www/**"/>
+                <include name="*.properties" />
+                <include name="*.ent" />
             </fileset>
         </zip>
         <tar longfile="gnu" tarfile="${dist.source.dir}/${name}-with-phoenix-${version}-src.tar">
             <tarfileset dir="." username="${name}" group="${name}">
-                <include name="${dist.dir}/**"/>
-                <exclude name="${dist.dir}/downloads/**"/>
-                <exclude name="${dist.dir}/apps/*.sar"/>
                 <include name="*.txt"/>
-                <include name="*.xml"/>
                 <include name="KEYS"/>
                 <include name="README"/>
                 <include name="LICENSE.txt"/>
@@ -641,10 +631,10 @@
                 <include name="build.*"/>
                 <include name="lib/**"/>
                 <include name="${phoenix.dir}/**"/>
-                <include name="proposals/**"/>
                 <include name="src/**"/>
                 <include name="tools/**"/>
-                <include name="www/**"/>
+                <include name="*.properties" />
+                <include name="*.ent" />
             </tarfileset>
         </tar>
         <gzip zipfile="${dist.source.dir}/${name}-with-phoenix-${version}-src.tar.gz"
@@ -661,34 +651,30 @@
             <fileset dir=".">
                 <include name="src/**"/>
                 <include name="lib/**"/>
-                <include name="${phoenix.lib.dir}/**"/>
-                <include name="proposals/**"/>
-                <include name="www/**"/>
                 <include name="tools/**"/>
-                <include name="*.xml"/>
                 <include name="*.txt"/>
                 <include name="README"/>
                 <include name="KEYS"/>
                 <include name="LICENSE.txt"/>
                 <include name="NOTICE.txt"/>
                 <include name="build.*"/>
+                <include name="*.properties" />
+                <include name="*.ent" />
             </fileset>
         </zip>
         <tar longfile="gnu" tarfile="${dist.source.dir}/${dist.name}-src.tar">
             <tarfileset dir="." username="${name}" group="${name}">
                 <include name="src/**"/>
                 <include name="lib/**"/>
-                <include name="${phoenix.lib.dir}/**"/>
-                <include name="proposals/**"/>
-                <include name="www/**"/>
                 <include name="tools/**"/>
-                <include name="*.xml"/>
                 <include name="*.txt"/>
                 <include name="README"/>
                 <include name="KEYS"/>
                 <include name="LICENSE.txt"/>
                 <include name="NOTICE.txt"/>
                 <include name="build.*"/>
+                <include name="*.properties" />
+                <include name="*.ent" />
             </tarfileset>
         </tar>
         <gzip zipfile="${dist.source.dir}/${dist.name}-src.tar.gz" src="${dist.source.dir}/${dist.name}-src.tar"/>
@@ -754,12 +740,12 @@
     -->
     <target name="unit-tests-classpath" depends="prepare">
         <path id="unittest.class.path">
-          <pathelement location="tools/lib/optional.jar"/>
-          <pathelement location="tools/lib/junit.jar"/>
-          <pathelement location="tools/lib/commons-net-1.4.1.jar"/>
-          <fileset dir="${lib.dir}">
-            <include name="*.jar"/>
-          </fileset>
+            <pathelement location="tools/lib/optional.jar"/>
+            <pathelement location="tools/lib/junit.jar"/>
+            <pathelement location="tools/lib/commons-net-1.4.1.jar"/>
+            <fileset dir="${lib.dir}">
+                <include name="*.jar"/>
+            </fileset>
         </path>
     </target>
         
@@ -768,13 +754,13 @@
         <mkdir dir="${build.test}"/>
         <mkdir dir="${build.test.classes}"/>
         <javac destdir="${build.test.classes}" debug="${debug}" optimize="${optimize}" deprecation="${deprecation}" target="${jdk.target}" source="${jdk.source}">
-          <classpath refid="unittest.class.path"/>
-          <classpath refid="project.class.path"/>
-          <src path="${junitjava.dir}"/>
-          <exclude name="${constants.file}"/>
+            <classpath refid="unittest.class.path"/>
+            <classpath refid="project.class.path"/>
+            <src path="${junitjava.dir}"/>
+            <exclude name="${constants.file}"/>
         </javac>
         <copy todir="${build.test.classes}">
-          <fileset dir="${junitjava.dir}" includes="**/*.zone" />
+            <fileset dir="${junitjava.dir}" includes="**/*.zone" />
         </copy>
     </target>
 
