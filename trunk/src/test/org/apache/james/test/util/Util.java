@@ -83,6 +83,7 @@ public class Util {
                 if (PORT_LAST_USED > PORT_RANGE_END) PORT_LAST_USED = PORT_RANGE_START;
                 ServerSocket ss;
                 ss = new ServerSocket(PORT_LAST_USED);
+                ss.setReuseAddress(true);
                 ss.close();
                 break;
             } catch (IOException e) {
