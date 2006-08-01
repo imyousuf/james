@@ -17,7 +17,7 @@
   specific language governing permissions and limitations
   under the License.    
 -->
-<!-------------------------------------------------------------
+<!--
  | DISCLAIMER DISCLAIMER DISCLAIMER DISCLAIMER DISCLAIMER 
  | 
  | This file is only intended to be used to build the james-server
@@ -25,7 +25,7 @@
  | application.
  | 
  | DISCLAIMER DISCLAIMER DISCLAIMER DISCLAIMER DISCLAIMER 
- |-->
+ -->
 <project>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.james</groupId>
