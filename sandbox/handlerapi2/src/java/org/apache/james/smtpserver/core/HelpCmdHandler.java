@@ -24,6 +24,7 @@ package org.apache.james.smtpserver.core;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.apache.james.smtpserver.Chain;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
@@ -43,9 +44,9 @@ public class HelpCmdHandler implements CommandHandler {
      *
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
     **/
-    public void onCommand(SMTPSession session) {
+    public void onCommand(SMTPSession session, Chain chain) {
         String responseString = "502 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SYSTEM_NOT_CAPABLE)+" HELP is not supported";
-        session.writeResponse(responseString);
+        session.getSMTPResponse().store(responseString);
     }
 
     /**

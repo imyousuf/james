@@ -28,6 +28,7 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.james.smtpserver.Chain;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
@@ -45,8 +46,20 @@ public class RcptFilterCmdHandler extends AbstractLogEnabled implements
      *
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
     **/
-    public void onCommand(SMTPSession session) {
-        doRCPT(session, session.getCommandArgument());
+    public void onCommand(SMTPSession session, Chain chain) {
+	    
+        System.err.println("ADDRESS: ");
+        
+       String response =  doRCPT(session);
+       
+       if (response == null) {
+           // call the next handler in chain
+           chain.doChain(session);
+           
+       } else {        
+           // store the response
+           session.getSMTPResponse().store(response);
+       }
     }
 
 
@@ -54,7 +67,9 @@ public class RcptFilterCmdHandler extends AbstractLogEnabled implements
      * @param session SMTP session object
      * @param argument the argument passed in with the command by the SMTP client
      */
-    private void doRCPT(SMTPSession session, String argument) {
+    private String doRCPT(SMTPSession session) {
+        
+	String argument = session.getCommandArgument();
         String responseString = null;
         
         String recipient = null;
@@ -65,18 +80,12 @@ public class RcptFilterCmdHandler extends AbstractLogEnabled implements
         }
         if (!session.getState().containsKey(SMTPSession.SENDER)) {
             responseString = "503 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" Need MAIL before RCPT";
-            session.writeResponse(responseString);
-            
-            // After this filter match we should not call any other handler!
-            session.setStopHandlerProcessing(true);
+            return responseString;
             
         } else if (argument == null || !argument.toUpperCase(Locale.US).equals("TO")
                    || recipient == null) {
             responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_SYNTAX)+" Usage: RCPT TO:<recipient>";
-            session.writeResponse(responseString);
-            
-            // After this filter match we should not call any other handler!
-            session.setStopHandlerProcessing(true);
+            return responseString;
             
         } else {
             Collection rcptColl = (Collection) session.getState().get(SMTPSession.RCPT_LIST);
@@ -96,7 +105,6 @@ public class RcptFilterCmdHandler extends AbstractLogEnabled implements
             }
             if (!recipient.startsWith("<") || !recipient.endsWith(">")) {
                 responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_SYNTAX)+" Syntax error in parameters or arguments";
-                session.writeResponse(responseString);
                 if (getLogger().isErrorEnabled()) {
                     StringBuffer errorBuffer =
                         new StringBuffer(192)
@@ -106,10 +114,7 @@ public class RcptFilterCmdHandler extends AbstractLogEnabled implements
                     getLogger().error(errorBuffer.toString());
                 }
                 
-                // After this filter match we should not call any other handler!
-                session.setStopHandlerProcessing(true);
-                
-                return;
+                return responseString;
             }
             MailAddress recipientAddress = null;
             //Remove < and >
@@ -127,7 +132,6 @@ public class RcptFilterCmdHandler extends AbstractLogEnabled implements
                  *     (e.g., mailbox syntax incorrect)
                  */
                 responseString = "553 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_SYNTAX)+" Syntax error in recipient address";
-                session.writeResponse(responseString);
 
                 if (getLogger().isErrorEnabled()) {
                     StringBuffer errorBuffer =
@@ -137,11 +141,8 @@ public class RcptFilterCmdHandler extends AbstractLogEnabled implements
                                 .append(pe.getMessage());
                     getLogger().error(errorBuffer.toString());
                 }
-                
-                // After this filter match we should not call any other handler!
-                session.setStopHandlerProcessing(true);
-                
-                return;
+
+                return responseString;
             }
 
             
@@ -153,16 +154,13 @@ public class RcptFilterCmdHandler extends AbstractLogEnabled implements
                     String toDomain = recipientAddress.getHost();
                     if (!session.getConfigurationData().getMailServer().isLocalServer(toDomain)) {
                         responseString = "530 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH)+" Authentication Required";
-                        session.writeResponse(responseString);
+
                         StringBuffer sb = new StringBuffer(128);
                         sb.append("Rejected message - authentication is required for mail request");
                         sb.append(getContext(session,recipientAddress,recipient));
                         getLogger().error(sb.toString());
-                        
-                        // After this filter match we should not call any other handler!
-                        session.setStopHandlerProcessing(true);
-                        
-                        return;
+
+                        return responseString;
                     }
                 } else {
                     // Identity verification checking
@@ -173,7 +171,7 @@ public class RcptFilterCmdHandler extends AbstractLogEnabled implements
                         if ((senderAddress == null) || (!authUser.equals(senderAddress.getUser())) ||
                             (!session.getConfigurationData().getMailServer().isLocalServer(senderAddress.getHost()))) {
                             responseString = "503 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH)+" Incorrect Authentication for Specified Email Address";
-                            session.writeResponse(responseString);
+                            
                             if (getLogger().isErrorEnabled()) {
                                 StringBuffer errorBuffer =
                                     new StringBuffer(128)
@@ -184,11 +182,8 @@ public class RcptFilterCmdHandler extends AbstractLogEnabled implements
                                         .append(getContext(session,recipientAddress,recipient));
                                 getLogger().error(errorBuffer.toString());
                             }
-                            
-                            // After this filter match we should not call any other handler!
-                            session.setStopHandlerProcessing(true);
-                            
-                            return;
+
+                            return responseString;
                         }
                     }
                 }
@@ -196,7 +191,7 @@ public class RcptFilterCmdHandler extends AbstractLogEnabled implements
                 String toDomain = recipientAddress.getHost();
                 if (!session.getConfigurationData().getMailServer().isLocalServer(toDomain)) {
                     responseString = "550 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH)+" Requested action not taken: relaying denied";
-                    session.writeResponse(responseString);
+
                     StringBuffer errorBuffer = new StringBuffer(128)
                         .append("Rejected message - ")
                         .append(session.getRemoteIPAddress())
@@ -204,11 +199,8 @@ public class RcptFilterCmdHandler extends AbstractLogEnabled implements
                         .append(toDomain)
                         .append(getContext(session,recipientAddress,recipient));
                     getLogger().error(errorBuffer.toString());
-                    
-                    // After this filter match we should not call any other handler!
-                    session.setStopHandlerProcessing(true);
-                    
-                    return;
+
+                    return responseString;
                 }
             }
             if (rcptOptionString != null) {
@@ -235,15 +227,13 @@ public class RcptFilterCmdHandler extends AbstractLogEnabled implements
                       getLogger().debug(debugBuffer.toString());
                   }
                   
-                  // After this filter match we should not call any other handler!
-                  session.setStopHandlerProcessing(true);
-                  
               }
               optionTokenizer = null;
             }
-    
+
             session.getState().put(SMTPSession.CURRENT_RECIPIENT,recipientAddress);
         }
+        return null;
     }
 
 

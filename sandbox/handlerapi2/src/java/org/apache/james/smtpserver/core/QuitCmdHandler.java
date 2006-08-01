@@ -24,6 +24,7 @@ package org.apache.james.smtpserver.core;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.apache.james.smtpserver.Chain;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
@@ -43,8 +44,9 @@ public class QuitCmdHandler implements CommandHandler {
      *
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
-    public void onCommand(SMTPSession session) {
-        doQUIT(session, session.getCommandArgument());
+    public void onCommand(SMTPSession session, Chain chain) {
+        session.getSMTPResponse().store(doQUIT(session));
+        session.endSession();
 
     }
 
@@ -57,9 +59,10 @@ public class QuitCmdHandler implements CommandHandler {
      * @param session SMTP session object
      * @param argument the argument passed in with the command by the SMTP client
      */
-    private void doQUIT(SMTPSession session, String argument) {
-
+    private String doQUIT(SMTPSession session) {
         String responseString = "";
+        String argument = session.getCommandArgument();
+        
         if ((argument == null) || (argument.length() == 0)) {
             session.getResponseBuffer().append("221 "+DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.UNDEFINED_STATUS)+" ")
                           .append(session.getConfigurationData().getHelloName())
@@ -68,8 +71,8 @@ public class QuitCmdHandler implements CommandHandler {
         } else {
             responseString = "500 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Unexpected argument provided with QUIT command";
         }
-        session.writeResponse(responseString);
-        session.endSession();
+        return responseString;
+
     }
 
     /**

@@ -23,8 +23,10 @@ package org.apache.james.smtpserver.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.james.smtpserver.Chain;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
 
@@ -44,8 +46,14 @@ public class EhloCmdHandler extends AbstractLogEnabled implements
      *
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      **/
-    public void onCommand(SMTPSession session) {
-        doEHLO(session, session.getCommandArgument());
+    public void onCommand(SMTPSession session,Chain chain) {
+        Iterator response =  doEHLO(session).iterator();
+        
+        
+        while (response.hasNext()) {
+            // store the response
+            session.getSMTPResponse().append(response.next().toString());
+        }
     }
 
     /**
@@ -56,7 +64,10 @@ public class EhloCmdHandler extends AbstractLogEnabled implements
      * @param session SMTP session object
      * @param argument the argument passed in with the command by the SMTP client
      */
-    private void doEHLO(SMTPSession session, String argument) {
+    private Collection doEHLO(SMTPSession session) {
+	String argument = session.getCommandArgument();
+	Collection response = new ArrayList();
+	
         StringBuffer responseBuffer = session.getResponseBuffer();
 
         session.getConnectionState().put(SMTPSession.CURRENT_HELO_MODE, COMMAND_NAME);
@@ -90,14 +101,14 @@ public class EhloCmdHandler extends AbstractLogEnabled implements
             if (i == esmtpextensions.size() - 1) {
                 responseBuffer.append("250 ");
                 responseBuffer.append((String) esmtpextensions.get(i));
-                session.writeResponse(session.clearResponseBuffer());
+                response.add(session.clearResponseBuffer());
             } else {
                 responseBuffer.append("250-");
                 responseBuffer.append((String) esmtpextensions.get(i));
-                session.writeResponse(session.clearResponseBuffer());
+                response.add(session.clearResponseBuffer());
             }
         }
-
+        return response;
     }
     
     /**

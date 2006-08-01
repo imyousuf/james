@@ -26,6 +26,7 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.services.MailServer;
+import org.apache.james.smtpserver.Chain;
 import org.apache.james.smtpserver.MessageHandler;
 import org.apache.james.smtpserver.MessageSizeException;
 import org.apache.james.smtpserver.SMTPSession;
@@ -57,8 +58,14 @@ public class SendMailHandler
      * Adds header to the message
      * @see org.apache.james.smtpserver#onMessage(SMTPSession)
      */
-    public void onMessage(SMTPSession session) {
-        getLogger().debug("sending mail");
+    public void onMessage(SMTPSession session, Chain chain) {
+	System.err.println("YOOOO");
+	session.getSMTPResponse().store(processMail(session));
+    }
+    
+    private String processMail(SMTPSession session) {
+
+	getLogger().debug("sending mail");
 
         Mail mail = session.getMail();
         
@@ -112,13 +119,11 @@ public class SendMailHandler
                    responseString = "451 "+DSNStatus.getStatus(DSNStatus.TRANSIENT,DSNStatus.UNDEFINED_STATUS)+" Error processing message.";
                    getLogger().error("Unknown error occurred while processing DATA.", me);
               }
-              session.writeResponse(responseString);
-              return;
+              return responseString;
          }
          responseString = "250 "+DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.CONTENT_OTHER)+" Message received";
-         session.writeResponse(responseString);
-
-    
+         return responseString;
+   
     }
 
 }

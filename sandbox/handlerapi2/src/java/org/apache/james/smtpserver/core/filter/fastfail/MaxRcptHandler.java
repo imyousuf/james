@@ -28,6 +28,7 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.james.smtpserver.Chain;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
@@ -65,34 +66,46 @@ public class MaxRcptHandler extends AbstractLogEnabled implements
     /**
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
-    public void onCommand(SMTPSession session) {
-        String responseString = null;
-        int rcptCount = 0;
+    public void onCommand(SMTPSession session, Chain chain) {
+	String response = doRCPT(session);
 
-        rcptCount = session.getRcptCount() + 1;
+	if (response == null) {
+	    // call the next handler in chain
+	    chain.doChain(session);
 
-        // check if the max recipients has reached
-        if (rcptCount > maxRcpt) {
-            responseString = "452 "
-                    + DSNStatus.getStatus(DSNStatus.NETWORK,
-                            DSNStatus.DELIVERY_TOO_MANY_REC)
-                    + " Requested action not taken: max recipients reached";
-            session.writeResponse(responseString);
-            getLogger().error(responseString);
-
-            // After this filter match we should not call any other handler!
-            session.setStopHandlerProcessing(true);
-        }
+	} else {
+	    // store the response
+	    session.getSMTPResponse().store(response);
+	}
     }
-    
+
+    private String doRCPT(SMTPSession session) {
+	String responseString = null;
+	int rcptCount = 0;
+
+	rcptCount = session.getRcptCount() + 1;
+
+	// check if the max recipients has reached
+	if (rcptCount > maxRcpt) {
+	    responseString = "452 "
+		    + DSNStatus.getStatus(DSNStatus.NETWORK,
+			    DSNStatus.DELIVERY_TOO_MANY_REC)
+		    + " Requested action not taken: max recipients reached";
+
+	    getLogger().error(responseString);
+	}
+
+	return responseString;
+    }
+
     /**
      * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
      */
     public Collection getImplCommands() {
-        Collection implCommands = new ArrayList();
-        implCommands.add("RCPT");
-        
-        return implCommands;
+	Collection implCommands = new ArrayList();
+	implCommands.add("RCPT");
+
+	return implCommands;
     }
 
 }

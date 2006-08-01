@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.james.smtpserver.Chain;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
 
@@ -45,15 +46,20 @@ public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler
      *
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
     **/
-    public void onCommand(SMTPSession session) {
-        doHELO(session, session.getCommandArgument());
+    public void onCommand(SMTPSession session,Chain chain) {
+        String response = doHELO(session);
+        
+        if (response != null) {
+            session.getSMTPResponse().store(response);
+        }
     }
 
     /**
      * @param session SMTP session object
      * @param argument the argument passed in with the command by the SMTP client
      */
-    private void doHELO(SMTPSession session, String argument) {
+    private String doHELO(SMTPSession session) {
+	String argument = session.getCommandArgument();
         String responseString = null;
 
         session.getConnectionState().put(SMTPSession.CURRENT_HELO_MODE, COMMAND_NAME);
@@ -63,7 +69,8 @@ public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler
                         session.getRemoteHost()).append(" [").append(
                         session.getRemoteIPAddress()).append("])");
         responseString = session.clearResponseBuffer();
-        session.writeResponse(responseString);
+        
+        return responseString;
     }
     
     /**

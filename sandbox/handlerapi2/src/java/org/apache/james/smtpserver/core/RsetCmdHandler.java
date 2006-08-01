@@ -24,6 +24,7 @@ package org.apache.james.smtpserver.core;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.apache.james.smtpserver.Chain;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
@@ -42,8 +43,8 @@ public class RsetCmdHandler implements CommandHandler {
      *
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
     **/
-    public void onCommand(SMTPSession session) {
-        doRSET(session, session.getCommandArgument());
+    public void onCommand(SMTPSession session, Chain chain) {
+        session.getSMTPResponse().store(doRSET(session, session.getCommandArgument()));
     }
 
 
@@ -54,7 +55,7 @@ public class RsetCmdHandler implements CommandHandler {
      * @param session SMTP session object
      * @param argument the argument passed in with the command by the SMTP client
      */
-    private void doRSET(SMTPSession session, String argument) {
+    private String doRSET(SMTPSession session, String argument) {
         String responseString = "";
         if ((argument == null) || (argument.length() == 0)) {
 
@@ -64,7 +65,7 @@ public class RsetCmdHandler implements CommandHandler {
         } else {
             responseString = "500 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Unexpected argument provided with RSET command";
         }
-        session.writeResponse(responseString);
+        return responseString;
     }
 
     /**

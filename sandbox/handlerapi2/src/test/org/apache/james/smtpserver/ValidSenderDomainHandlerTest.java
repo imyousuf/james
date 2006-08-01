@@ -36,12 +36,7 @@ import org.apache.mailet.MailAddress;
 import junit.framework.TestCase;
 
 public class ValidSenderDomainHandlerTest extends TestCase {
-    
-    private String response = null;
-
-    public void setUp() {
-        response = null;
-    }
+   
     
     private DNSServer setupDNSServer() {
         DNSServer dns = new DNSServer(){
@@ -77,6 +72,7 @@ public class ValidSenderDomainHandlerTest extends TestCase {
     private SMTPSession setupMockedSession(final MailAddress sender) {
         SMTPSession session = new AbstractSMTPSession() {
             HashMap state = new HashMap();
+            SMTPResponse response = new SMTPResponse();
             
             public Map getState() {
 
@@ -89,16 +85,12 @@ public class ValidSenderDomainHandlerTest extends TestCase {
                 return false;
             }
             
-            public void writeResponse(String resp) {
-                response = resp;
+            public SMTPResponse getSMTPResponse() {
+        	return response;
             }
             
         };
         return session;
-    }
-    
-    private String getResponse() {
-        return response;
     }
     
     // Test for JAMES-580
@@ -106,9 +98,11 @@ public class ValidSenderDomainHandlerTest extends TestCase {
         ValidSenderDomainHandler handler = new ValidSenderDomainHandler();
         ContainerUtil.enableLogging(handler, new MockLogger());
         
-        handler.setDnsServer(setupDNSServer());
-        handler.onCommand(setupMockedSession(null));
+        SMTPSession session = setupMockedSession(null);
         
-        assertNull("Not blocked cause its a nullsender",getResponse());
+        handler.setDnsServer(setupDNSServer());
+        handler.onCommand(session,new Chain(null));
+        
+        assertTrue("Not blocked cause its a nullsender",session.getSMTPResponse().retrieve().size() == 0);
     }
 }

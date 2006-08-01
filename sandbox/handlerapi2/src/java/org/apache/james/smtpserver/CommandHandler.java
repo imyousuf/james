@@ -35,7 +35,7 @@ import java.util.Collection;
     /**
      * Handle the command
     **/
-    void onCommand(SMTPSession session);
+    void onCommand(SMTPSession session,Chain chain);
 
     /**
      * Return a Collection of implemented commands

@@ -19,43 +19,52 @@
 
 
 
-package org.apache.james.smtpserver.core;
 
-import java.util.ArrayList;
-import java.util.Collection;
+package org.apache.james.smtpserver;
 
-import org.apache.james.smtpserver.Chain;
-import org.apache.james.smtpserver.CommandHandler;
-import org.apache.james.smtpserver.SMTPSession;
-import org.apache.james.util.mail.dsn.DSNStatus;
+import java.util.Iterator;
 
 /**
-  * Command handler for handling VRFY command
-  */
-public class VrfyCmdHandler implements CommandHandler {
+ * The Chain which contain the handlers for the current command or state
+ * 
+ */
+public class Chain {
 
-    private final String COMMAND_NAME = "VRFY";
+    private Iterator handlers;
 
     /**
-     * Handler method called upon receipt of a VRFY command.
-     * This method informs the client that the command is
-     * not implemented.
-     *
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
-    **/
-    public void onCommand(SMTPSession session, Chain chain) {
-        String responseString = "502 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SYSTEM_NOT_CAPABLE)+" VRFY is not supported";
-        session.getSMTPResponse().store(responseString);
-    }
-    
-    /**
-     * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
+     * The Chain which contain the handlers for the current command or state
+     * 
+     * @param handlers The iterator which contains all handler for the current command or state
      */
-    public Collection getImplCommands() {
-        Collection implCommands = new ArrayList();
-        implCommands.add("VRFY");
-        
-        return implCommands;
+    public Chain(Iterator handlers) {
+	this.handlers = handlers;
     }
 
+    /**
+     * Call the next handler in the chain
+     * 
+     * @param session The SMTPSession
+     */
+    public void doChain(SMTPSession session) {
+	
+	// should never happen
+	if (handlers == null)
+	    return;
+	
+	if (handlers.hasNext()) {
+	    Object handler = handlers.next();
+
+	    if (handler instanceof ConnectHandler) {
+		((ConnectHandler) handler).onConnect(session, this);
+	    } else if (handler instanceof CommandHandler) {
+		// reset the idle timeout
+		session.getWatchdog().reset();
+
+		((CommandHandler) handler).onCommand(session, this);
+	    } else if (handler instanceof MessageHandler) {
+		((MessageHandler) handler).onMessage(session, this);
+	    }
+	}
+    }
 }

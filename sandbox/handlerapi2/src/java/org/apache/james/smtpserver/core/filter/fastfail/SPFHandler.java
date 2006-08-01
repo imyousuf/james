@@ -33,6 +33,7 @@ import org.apache.james.jspf.SPF;
 import org.apache.james.jspf.SPF1Utils;
 import org.apache.james.jspf.SPFResult;
 import org.apache.james.jspf.core.DNSService;
+import org.apache.james.smtpserver.Chain;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.MessageHandler;
 import org.apache.james.smtpserver.SMTPSession;
@@ -142,12 +143,22 @@ public class SPFHandler extends AbstractLogEnabled implements CommandHandler,
      * 
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
-    public void onCommand(SMTPSession session) {
+    public void onCommand(SMTPSession session,Chain chain) {
         if (session.getCommandName().equals("MAIL")) {
             doSPFCheck(session);
+            chain.doChain(session);
+            
         } else if (session.getCommandName().equals("RCPT")) {
-            rejectSession(session);
-
+            String response = rejectSession(session);
+            
+            if (response == null) {
+                // call the next handler in chain
+                chain.doChain(session);
+                
+            } else {        
+                // store the response
+                session.getSMTPResponse().store(response);
+            }
         }
     }
 
@@ -166,13 +177,14 @@ public class SPFHandler extends AbstractLogEnabled implements CommandHandler,
 
         // We have no Sender or HELO/EHLO yet return false
         if (sender == null || heloEhlo == null) {
-            getLogger().info("No Sender or HELO/EHLO present");
+            return;
         } else {
             // No checks for authorized cliends
             if (session.isRelayingAllowed() && checkAuthNetworks == false) {
                 getLogger().info(
                         "Ipaddress " + session.getRemoteIPAddress()
                                 + " is allowed to relay. Don't check it");
+                return;
             } else {
 
                 String ip = session.getRemoteIPAddress();
@@ -217,7 +229,7 @@ public class SPFHandler extends AbstractLogEnabled implements CommandHandler,
      * @param session
      *            The SMTPSession
      */
-    private void rejectSession(SMTPSession session) {
+    private String rejectSession(SMTPSession session) {
         MailAddress recipientAddress = (MailAddress) session.getState().get(
                 SMTPSession.CURRENT_RECIPIENT);
         String blocklisted = (String) session.getState().get(SPF_BLOCKLISTED);
@@ -236,6 +248,8 @@ public class SPFHandler extends AbstractLogEnabled implements CommandHandler,
             session.getState().remove(SPF_DETAIL);
             session.getState().remove(SPF_TEMPBLOCKLISTED);
             session.getState().remove(SPF_HEADER);
+            
+            return null;
         } else {
             // Check if session is blocklisted
             if (blocklisted != null && blocklisted.equals("true")) {
@@ -244,9 +258,7 @@ public class SPFHandler extends AbstractLogEnabled implements CommandHandler,
                         + DSNStatus.getStatus(DSNStatus.PERMANENT,
                                 DSNStatus.SECURITY_AUTH) + " "
                         + blocklistedDetail;
-                session.writeResponse(responseString);
-
-                session.setStopHandlerProcessing(true);
+               return responseString;
 
             } else if (tempBlocklisted != null
                     && tempBlocklisted.equals("true")) {
@@ -254,11 +266,10 @@ public class SPFHandler extends AbstractLogEnabled implements CommandHandler,
                         + DSNStatus.getStatus(DSNStatus.TRANSIENT,
                                 DSNStatus.NETWORK_DIR_SERVER) + " "
                         + "Temporary rejected: Problem on SPF lookup";
-                session.writeResponse(responseString);
-                session.setStopHandlerProcessing(true);
+                return responseString;
             }
         }
-
+        return null;
     }
 
     /**
@@ -275,7 +286,12 @@ public class SPFHandler extends AbstractLogEnabled implements CommandHandler,
     /**
      * @see org.apache.james.smtpserver.MessageHandler#onMessage(SMTPSession)
      */
-    public void onMessage(SMTPSession session) {
+    public void onMessage(SMTPSession session,Chain chain) {
+	addHeader(session);
+	chain.doChain(session);
+    }
+    
+    private void addHeader(SMTPSession session) {
         Mail mail = session.getMail();
 
         // Store the spf header as attribute for later using

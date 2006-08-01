@@ -24,6 +24,7 @@ package org.apache.james.smtpserver.core;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.apache.james.smtpserver.Chain;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
@@ -46,11 +47,19 @@ public class UnknownCmdHandler implements CommandHandler {
      *
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
     **/
-    public void onCommand(SMTPSession session) {
+    public void onCommand(SMTPSession session,Chain chain) {
+	String response = doUNKNOWN(session);
+	
+	if (response != null) {
+	    session.getSMTPResponse().store(response);
+	}
+    }
+    
+    private String doUNKNOWN(SMTPSession session) {
 
         //If there was message failure, don't consider it as an unknown command
         if (session.getState().get(SMTPSession.MESG_FAILED) != null) {
-            return;
+            return null;
         }
 
         session.getResponseBuffer().append("500 "+DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.DELIVERY_INVALID_CMD))
@@ -59,7 +68,7 @@ public class UnknownCmdHandler implements CommandHandler {
                       .append(" unrecognized.");
         String responseString = session.clearResponseBuffer();
 
-        session.writeResponse(responseString);
+        return responseString;
     }
     
     /**

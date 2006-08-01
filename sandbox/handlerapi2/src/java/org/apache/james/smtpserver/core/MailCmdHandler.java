@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.james.smtpserver.Chain;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
@@ -43,8 +44,8 @@ public class MailCmdHandler
      *
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
-    public void onCommand(SMTPSession session) {
-        doMAIL(session, session.getCommandArgument());
+    public void onCommand(SMTPSession session,Chain chain) {
+        session.getSMTPResponse().store(doMAIL(session, session.getCommandArgument()));
     }
 
 
@@ -55,7 +56,7 @@ public class MailCmdHandler
      * @param session SMTP session object
      * @param argument the argument passed in with the command by the SMTP client
      */
-    private void doMAIL(SMTPSession session, String argument) {
+    private String doMAIL(SMTPSession session, String argument) {
       
         StringBuffer responseBuffer = session.getResponseBuffer();
         String responseString = null;
@@ -68,7 +69,7 @@ public class MailCmdHandler
                                 DSNStatus.ADDRESS_OTHER) + " Sender <").append(
                 sender).append("> OK");
         responseString = session.clearResponseBuffer();
-        session.writeResponse(responseString);
+        return responseString;
         
     }
     

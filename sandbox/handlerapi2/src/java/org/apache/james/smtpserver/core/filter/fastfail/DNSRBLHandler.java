@@ -29,6 +29,7 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.james.services.DNSServer;
+import org.apache.james.smtpserver.Chain;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.ConnectHandler;
 import org.apache.james.smtpserver.SMTPSession;
@@ -102,7 +103,7 @@ public class DNSRBLHandler
             }
         }
         
-        // Throw an ConfiigurationException on invalid config
+        // Throw an ConfigurationException on invalid config
         if (validConfig == false){
             throw new ConfigurationException("Please configure whitelist or blacklist");
         }
@@ -126,8 +127,9 @@ public class DNSRBLHandler
      *
      * @see org.apache.james.smtpserver.ConnectHandler#onConnect(SMTPSession)
     **/
-    public void onConnect(SMTPSession session) {
-        checkDNSRBL(session, session.getRemoteIPAddress());
+    public void onConnect(SMTPSession session, Chain chain) {
+        checkDNSRBL(session);
+        chain.doChain(session);
     }
     
     /**
@@ -176,8 +178,8 @@ public class DNSRBLHandler
      * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#checkDNSRBL(Socket)
      */
 
-    public void checkDNSRBL(SMTPSession session, String ipAddress) {
-        
+    public void checkDNSRBL(SMTPSession session) {
+        String ipAddress = session.getRemoteIPAddress();
         /*
          * don't check against rbllists if the client is allowed to relay..
          * This whould make no sense.
@@ -256,37 +258,54 @@ public class DNSRBLHandler
     /**
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
-    public void onCommand(SMTPSession session) {
-        String responseString = null;
-        String blocklisted = (String) session.getConnectionState().get(RBL_BLOCKLISTED_MAIL_ATTRIBUTE_NAME);
-        MailAddress recipientAddress = (MailAddress) session.getState().get(
-                SMTPSession.CURRENT_RECIPIENT);
+    public void onCommand(SMTPSession session, Chain chain) {
+	String response = doRCPT(session);
 
-        if (blocklisted.equals("true") && // was found in the RBL
-                !(session.isAuthRequired() && session
-                        .getUser() != null) && // Not (SMTP AUTH is enabled and
-                                                // not authenticated)
-                !(recipientAddress.getUser().equalsIgnoreCase("postmaster") || recipientAddress
-                        .getUser().equalsIgnoreCase("abuse"))) {
+	if (response == null) {
+	    // call the next handler in chain
+	    chain.doChain(session);
 
-            // trying to send e-mail to other than postmaster or abuse
-            if (blocklistedDetail != null) {
-                responseString = "530 "
-                        + DSNStatus.getStatus(DSNStatus.PERMANENT,
-                                DSNStatus.SECURITY_AUTH) + " "
-                        + blocklistedDetail;
-            } else {
-                responseString = "530 "
-                        + DSNStatus.getStatus(DSNStatus.PERMANENT,
-                                DSNStatus.SECURITY_AUTH)
-                        + " Rejected: unauthenticated e-mail from "
-                        + session.getRemoteIPAddress()
-                        + " is restricted.  Contact the postmaster for details.";
-            }
-            session.writeResponse(responseString);
+	} else {
+	    // store the response
+	    session.getSMTPResponse().store(response);
+	}
+    }
 
-            // After this filter match we should not call any other handler!
-            session.setStopHandlerProcessing(true);
-        }
+    /**
+     * RCPT
+     * 
+     * @param session The SMTPSession
+     * @return responseString The responseString which should be returned 
+     */
+    private String doRCPT(SMTPSession session) {
+	String responseString = null;
+	String blocklisted = (String) session.getConnectionState().get(
+		RBL_BLOCKLISTED_MAIL_ATTRIBUTE_NAME);
+	MailAddress recipientAddress = (MailAddress) session.getState().get(
+		SMTPSession.CURRENT_RECIPIENT);
+
+	if (blocklisted != null && // was found in the RBL
+		!(session.isAuthRequired() && session.getUser() != null) && // Not (SMTP AUTH is enabled and
+		// not authenticated)
+		!(recipientAddress.getUser().equalsIgnoreCase("postmaster") || recipientAddress
+			.getUser().equalsIgnoreCase("abuse"))) {
+
+	    // trying to send e-mail to other than postmaster or abuse
+	    if (blocklistedDetail != null) {
+		responseString = "530 "
+			+ DSNStatus.getStatus(DSNStatus.PERMANENT,
+				DSNStatus.SECURITY_AUTH) + " "
+			+ blocklistedDetail;
+	    } else {
+		responseString = "530 "
+			+ DSNStatus.getStatus(DSNStatus.PERMANENT,
+				DSNStatus.SECURITY_AUTH)
+			+ " Rejected: unauthenticated e-mail from "
+			+ session.getRemoteIPAddress()
+			+ " is restricted.  Contact the postmaster for details.";
+	    }
+	    return responseString;
+	}
+	return null;
     }
 }

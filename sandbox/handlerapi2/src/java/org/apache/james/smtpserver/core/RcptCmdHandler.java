@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.james.smtpserver.Chain;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
@@ -41,8 +42,8 @@ public class RcptCmdHandler extends AbstractLogEnabled implements
      *
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
     **/
-    public void onCommand(SMTPSession session) {
-        doRCPT(session, session.getCommandArgument());
+    public void onCommand(SMTPSession session,Chain chain) {
+        session.getSMTPResponse().store(doRCPT(session));
     }
 
 
@@ -54,7 +55,7 @@ public class RcptCmdHandler extends AbstractLogEnabled implements
      * @param session SMTP session object
      * @param argument the argument passed in with the command by the SMTP client
      */
-    private void doRCPT(SMTPSession session, String argument) {
+    private String doRCPT(SMTPSession session) {
        
         String responseString = null;
         StringBuffer responseBuffer = session.getResponseBuffer();
@@ -74,7 +75,7 @@ public class RcptCmdHandler extends AbstractLogEnabled implements
                                 DSNStatus.ADDRESS_VALID) + " Recipient <")
                 .append(recipientAddress).append("> OK");
         responseString = session.clearResponseBuffer();
-        session.writeResponse(responseString);
+        return responseString;
              
     }
     

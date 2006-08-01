@@ -47,17 +47,11 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
     
     public final static String RCPT = "RCPT";
     
-    private String response = null;
     
     private String command = null;
     
     public void setUp() {
-        response = null;
         command = null;
-    }
-    
-    private String getResponse() {
-        return response;
     }
     
     private void setCommand(String command) {
@@ -69,9 +63,9 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         
         SMTPSession session = new AbstractSMTPSession() {
 
-            boolean stop = false;
             HashMap connectionMap = new HashMap();
             HashMap map = new HashMap();
+            SMTPResponse response = new SMTPResponse();
             
             public String getCommandArgument() {
                 return argument;
@@ -93,25 +87,18 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
                 return connectionMap;
             }
             
-            public void writeResponse(String resp) {
-                response = resp;
-            }
             
             public boolean isRelayingAllowed() {
                 return relaying;
             }
             
-            public void setStopHandlerProcessing(boolean stop) {
-                this.stop = stop;
-            }
-            
-            public boolean getStopHandlerProcessing() {
-                return stop;
-            }
-            
             public Map getState() {
                 map.put(SMTPSession.CURRENT_RECIPIENT, recipient);
                 return map;
+            }
+            
+            public SMTPResponse getSMTPResponse() {
+        	return response;
             }
             
             
@@ -142,16 +129,14 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         
         // helo
         setCommand(HELO);
-        handler.onCommand(session);
+        handler.onCommand(session, new Chain(null));
         assertNotNull("Invalid HELO",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
         
         
         // rcpt
         setCommand(RCPT);
-        handler.onCommand(session);
-        assertNotNull("Reject", getResponse());
-        
-        assertTrue("Stop handler processing",session.getStopHandlerProcessing());
+        handler.onCommand(session, new Chain(null));
+        assertTrue("Reject", session.getSMTPResponse().retrieve().size() > 0);
     }
     
     
@@ -165,16 +150,15 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         
         // helo
         setCommand(HELO);
-        handler.onCommand(session);
+        handler.onCommand(session, new Chain(null));
         assertNull("Valid HELO",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
         
         
         // rcpt
         setCommand(RCPT);
-        handler.onCommand(session);
-        assertNull("Not reject", getResponse());
-        
-        assertFalse("Not stop handler processing",session.getStopHandlerProcessing());
+        handler.onCommand(session, new Chain(null));
+        assertTrue("Not Reject", session.getSMTPResponse().retrieve().size() == 0);
+
     }
     
     public void testNotRejectInvalidHeloAuthUser() throws ParseException {
@@ -187,16 +171,14 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         
         // helo
         setCommand(HELO);
-        handler.onCommand(session);
+        handler.onCommand(session, new Chain(null));
         assertNotNull("Value stored",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
         
         
         // rcpt
         setCommand(RCPT);
-        handler.onCommand(session);
-        assertNull("Not reject", getResponse());
-        
-        assertFalse("Not stop handler processing",session.getStopHandlerProcessing());
+        handler.onCommand(session, new Chain(null));
+        assertTrue("Not reject", session.getSMTPResponse().retrieve().size() == 0);
     }
     
     public void testRejectInvalidHeloAuthUser() throws ParseException {
@@ -210,16 +192,15 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         
         // helo
         setCommand(HELO);
-        handler.onCommand(session);
+        handler.onCommand(session, new Chain(null));
         assertNotNull("Value stored",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
         
         
         // rcpt
         setCommand(RCPT);
-        handler.onCommand(session);
-        assertNotNull("reject", getResponse());
-        
-        assertTrue("stop handler processing",session.getStopHandlerProcessing());
+        handler.onCommand(session, new Chain(null));
+        assertTrue("Reject", session.getSMTPResponse().retrieve().size() > 0);
+
     }
     
     public void testNotRejectRelay() throws ParseException {
@@ -232,16 +213,15 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         
         // helo
         setCommand(HELO);
-        handler.onCommand(session);
+        handler.onCommand(session, new Chain(null));
         assertNull("Value not stored",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
         
         
         // rcpt
         setCommand(RCPT);
-        handler.onCommand(session);
-        assertNull("Not reject", getResponse());
+        handler.onCommand(session, new Chain(null));
+        assertTrue("Not reject", session.getSMTPResponse().retrieve().size() == 0);
         
-        assertFalse("Not stop handler processing",session.getStopHandlerProcessing());
     }
     
     public void testRejectRelay() throws ParseException {
@@ -255,16 +235,15 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         
         // helo
         setCommand(HELO);
-        handler.onCommand(session);
+        handler.onCommand(session, new Chain(null));
         assertNotNull("Value stored",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
         
         
         // rcpt
         setCommand(RCPT);
-        handler.onCommand(session);
-        assertNotNull("Reject", getResponse());
-        
-        assertTrue("Stop handler processing",session.getStopHandlerProcessing());
+        handler.onCommand(session, new Chain(null));
+        assertTrue("Reject", session.getSMTPResponse().retrieve().size() > 0);
+
     }
     
     public void testNotRejectInvalidHeloPostmaster() throws ParseException {
@@ -277,16 +256,15 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         
         // helo
         setCommand(HELO);
-        handler.onCommand(session);
+        handler.onCommand(session, new Chain(null));
         assertNotNull("stored",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
         
         
         // rcpt
         setCommand(RCPT);
-        handler.onCommand(session);
-        assertNull("Not Reject", getResponse());
+        handler.onCommand(session, new Chain(null));
+        assertTrue("Not reject", session.getSMTPResponse().retrieve().size() == 0);
         
-        assertFalse("Not stop handler processing",session.getStopHandlerProcessing());
     }
     
     public void testNotRejectInvalidHeloAbuse() throws ParseException {
@@ -299,15 +277,14 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         
         // helo
         setCommand(HELO);
-        handler.onCommand(session);
+        handler.onCommand(session, new Chain(null));
         assertNotNull("stored",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
         
         
         // rcpt
         setCommand(RCPT);
-        handler.onCommand(session);
-        assertNull("Not Reject", getResponse());
-        
-        assertFalse("Not stop handler processing",session.getStopHandlerProcessing());
+        handler.onCommand(session, new Chain(null));
+        assertTrue("Not reject", session.getSMTPResponse().retrieve().size() == 0);
+
     }
 }

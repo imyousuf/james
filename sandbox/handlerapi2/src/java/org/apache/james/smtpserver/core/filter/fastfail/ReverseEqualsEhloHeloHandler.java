@@ -27,6 +27,7 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.services.DNSServer;
+import org.apache.james.smtpserver.Chain;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
@@ -105,13 +106,25 @@ public class ReverseEqualsEhloHeloHandler extends AbstractLogEnabled implements
     /**
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
-    public void onCommand(SMTPSession session) {
+    public void onCommand(SMTPSession session,Chain chain) {
         String argument = session.getCommandArgument();
         String command = session.getCommandName();
         if (command.equals("HELO") || command.equals("EHLO")) {
             checkEhloHelo(session, argument);
+            
+            chain.doChain(session);
+            
         } else if (command.equals("RCPT")) {
-            reject(session, argument);
+            String response = reject(session, argument);
+            
+            if (response == null) {
+                // call the next handler in chain
+                chain.doChain(session);
+                
+            } else {        
+                // store the response
+                session.getSMTPResponse().store(response);
+            }
         }
     }
 
@@ -152,7 +165,7 @@ public class ReverseEqualsEhloHeloHandler extends AbstractLogEnabled implements
      * @param session The SMTPSession
      * @param argument The argument
      */
-    private void reject(SMTPSession session, String argument) {
+    private String reject(SMTPSession session, String argument) {
         MailAddress rcpt = (MailAddress) session.getState().get(
                 SMTPSession.CURRENT_RECIPIENT);
 
@@ -160,7 +173,7 @@ public class ReverseEqualsEhloHeloHandler extends AbstractLogEnabled implements
         if (session.getState().get(BAD_EHLO_HELO) == null
                 || rcpt.getUser().equalsIgnoreCase("postmaster")
                 || rcpt.getUser().equalsIgnoreCase("abuse"))
-            return;
+            return null;
 
         // Check if the client was authenticated
         if (!(session.isAuthRequired() && session.getUser() != null && !checkAuthUsers)) {
@@ -170,12 +183,12 @@ public class ReverseEqualsEhloHeloHandler extends AbstractLogEnabled implements
                     + argument + " not equal reverse of "
                     + session.getRemoteIPAddress();
 
-            session.writeResponse(responseString);
             getLogger().info(responseString);
-
-            // After this filter match we should not call any other handler!
-            session.setStopHandlerProcessing(true);
+            
+            return responseString;
         }
+        
+        return null;
     }
 
     /**

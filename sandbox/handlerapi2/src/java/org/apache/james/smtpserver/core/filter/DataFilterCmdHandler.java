@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.james.smtpserver.Chain;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
@@ -42,8 +43,9 @@ public class DataFilterCmdHandler
      *
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
-    public void onCommand(SMTPSession session) {
+    public void onCommand(SMTPSession session,Chain chain) {
         doDATA(session, session.getCommandArgument());
+        chain.doChain(session);
     }
 
 
@@ -63,15 +65,9 @@ public class DataFilterCmdHandler
             responseString = "503 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" No sender specified";
             session.writeResponse(responseString);
             
-            // After this filter match we should not call any other handler!
-            session.setStopHandlerProcessing(true);
-            
         } else if (!session.getState().containsKey(SMTPSession.RCPT_LIST)) {
             responseString = "503 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" No recipients specified";
             session.writeResponse(responseString);
-            
-            // After this filter match we should not call any other handler!
-            session.setStopHandlerProcessing(true);
         }
     }
     

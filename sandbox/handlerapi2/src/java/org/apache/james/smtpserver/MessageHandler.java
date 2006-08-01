@@ -31,6 +31,6 @@ public interface MessageHandler {
     /*
      * Handle Message
     **/
-    void onMessage(SMTPSession session);
+    void onMessage(SMTPSession session, Chain chain);
 
 }

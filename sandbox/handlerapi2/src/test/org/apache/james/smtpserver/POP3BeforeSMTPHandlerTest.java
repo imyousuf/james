@@ -59,7 +59,7 @@ public class POP3BeforeSMTPHandlerTest extends TestCase {
         POP3BeforeSMTPHelper.addIPAddress("192.168.200.1");
 
         assertFalse(mockedSession.isRelayingAllowed());
-        handler.onConnect(mockedSession);
+        handler.onConnect(mockedSession, new Chain(null));
         assertTrue(mockedSession.isRelayingAllowed());
     }
 
@@ -75,7 +75,7 @@ public class POP3BeforeSMTPHandlerTest extends TestCase {
         try {
             Thread.sleep(sleepTime);
             POP3BeforeSMTPHelper.removeExpiredIP(10);
-            handler.onConnect(mockedSession);
+            handler.onConnect(mockedSession, new Chain(null));
             assertFalse(mockedSession.isRelayingAllowed());
 
         } catch (InterruptedException e) {

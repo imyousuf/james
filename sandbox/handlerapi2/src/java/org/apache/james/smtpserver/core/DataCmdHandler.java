@@ -26,6 +26,7 @@ import org.apache.james.Constants;
 import org.apache.james.core.MailHeaders;
 import org.apache.james.core.MailImpl;
 import org.apache.james.fetchmail.ReaderInputStream;
+import org.apache.james.smtpserver.Chain;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.MessageSizeException;
 import org.apache.james.smtpserver.SMTPSession;
@@ -89,7 +90,7 @@ public class DataCmdHandler
      *
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
-    public void onCommand(SMTPSession session) {
+    public void onCommand(SMTPSession session,Chain chain) {
         doDATA(session, session.getCommandArgument());
     }
 
@@ -107,6 +108,7 @@ public class DataCmdHandler
         String responseString = null;
         responseString = "354 Ok Send data ending with <CRLF>.<CRLF>";
         session.writeResponse(responseString);
+        
         InputStream msgIn = new CharTerminatedInputStream(session
                 .getInputStream(), SMTPTerminator);
         try {

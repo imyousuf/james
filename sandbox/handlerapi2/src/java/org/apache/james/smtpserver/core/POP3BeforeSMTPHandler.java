@@ -23,6 +23,7 @@ package org.apache.james.smtpserver.core;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.james.smtpserver.Chain;
 import org.apache.james.smtpserver.ConnectHandler;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.POP3BeforeSMTPHelper;
@@ -70,7 +71,7 @@ public class POP3BeforeSMTPHandler implements ConnectHandler, Configurable {
     /**
      * @see org.apache.james.smtpserver.ConnectHandler#onConnect(SMTPSession)
      */
-    public void onConnect(SMTPSession session) {
+    public void onConnect(SMTPSession session,Chain chain) {
 
         // some kind of random cleanup process
         if (Math.random() > 0.99) {
@@ -82,6 +83,8 @@ public class POP3BeforeSMTPHandler implements ConnectHandler, Configurable {
                 && POP3BeforeSMTPHelper.isAuthorized(session.getRemoteIPAddress())) {
             session.setRelayingAllowed(true);
         }
+        
+        chain.doChain(session);
     }
 
 }

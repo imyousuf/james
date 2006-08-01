@@ -45,13 +45,6 @@ public interface SMTPSession {
     public static final Object CURRENT_RECIPIENT = "CURRENT_RECIPIENT"; // Current recipient
 
     /**
-     * Writes response string to the client
-     *
-     * @param respString String that needs to send to the client
-     */
-    void writeResponse(String respString);
-
-    /**
      * Reads a line of characters off the command line.
      *
      * @return the trimmed input line
@@ -225,21 +218,6 @@ public interface SMTPSession {
      * @return recipient count
      */
     int getRcptCount();
-
-    /**
-     * Set to true if the handlerprocessing should be stopped
-     * 
-     * @param b true or false
-     */
-    void setStopHandlerProcessing(boolean b);
-    
-    /**
-     * Return if handlerprocessing should be stopped
-     * 
-     * @return true or false
-     */
-    boolean getStopHandlerProcessing();
-    
     
     /**
      * Reset the Connection state
@@ -253,5 +231,13 @@ public interface SMTPSession {
      */
     Map getConnectionState();
 
+    /**
+     * The SMTPResponse 
+     * 
+     * @return SMTPResponse
+     */
+    SMTPResponse getSMTPResponse();
+    
+    void writeResponse(String resp);
 }
 

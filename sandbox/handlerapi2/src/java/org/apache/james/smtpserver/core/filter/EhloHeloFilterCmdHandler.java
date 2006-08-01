@@ -21,55 +21,59 @@
 
 package org.apache.james.smtpserver.core.filter;
 
-
 import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.james.smtpserver.Chain;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
-
+import org.apache.james.util.mail.dsn.DSNStatus;
 
 /**
-  * Handles HELO command
+  * Handles EHLO command
   */
-public class HeloFilterCmdHandler extends AbstractLogEnabled implements CommandHandler {
+public class EhloHeloFilterCmdHandler extends AbstractLogEnabled implements CommandHandler {
+
 
     /**
-     * The name of the command handled by the command handler
-     */
-    private final static String COMMAND_NAME = "HELO";
-      
-    /**
-     * process HELO command
+     * processes EHLO command
      *
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
-    **/
-    public void onCommand(SMTPSession session) {
-        doHELO(session, session.getCommandArgument());
+     **/
+    public void onCommand(SMTPSession session, Chain chain) {
+        String response = doEHLO(session);
+        
+        if (response == null) {
+            // call the next handler in chain
+            chain.doChain(session);
+            
+        } else {        
+            // store the response
+            session.getSMTPResponse().store(response);
+        }
     }
 
     /**
+     * Check EHLO is present
+     * 
      * @param session SMTP session object
-     * @param argument the argument passed in with the command by the SMTP client
+     * @return responseString The response which should be passed to the client
      */
-    private void doHELO(SMTPSession session, String argument) {
-        String responseString = null;        
-
+    private String doEHLO(SMTPSession session) {
+        String argument = session.getCommandArgument();
+        
+        // reset the state
         session.resetState();
-              
+        
         if (argument == null) {
-            responseString = "501 Domain address required: " + COMMAND_NAME;
-            session.writeResponse(responseString);
-            getLogger().info(responseString);
-            
-            // After this filter match we should not call any other handler!
-            session.setStopHandlerProcessing(true);
-         
+            String responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Domain address required: " + session.getCommandName();
+            return responseString;
         } else {
             // store provided name
             session.getState().put(SMTPSession.CURRENT_HELO_NAME,argument);
         }
+        return null;
     }
     
     /**
@@ -77,9 +81,10 @@ public class HeloFilterCmdHandler extends AbstractLogEnabled implements CommandH
      */
     public Collection getImplCommands() {
         Collection implCommands = new ArrayList();
+        implCommands.add("EHLO");
         implCommands.add("HELO");
         
         return implCommands;
     }
-    
+
 }

@@ -25,6 +25,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.james.smtpserver.Chain;
 import org.apache.james.smtpserver.MessageHandler;
 import org.apache.james.smtpserver.SMTPSession;
 
@@ -82,7 +83,7 @@ public class SetMimeHeaderHandler
      * Adds header to the message
      * @see org.apache.james.smtpserver#onMessage(SMTPSession)
      */
-    public void onMessage(SMTPSession session) {
+    public void onMessage(SMTPSession session,Chain chain) {
         try {
             MimeMessage message = session.getMail().getMessage ();
 

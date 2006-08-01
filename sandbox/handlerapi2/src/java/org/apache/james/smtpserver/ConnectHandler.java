@@ -32,6 +32,6 @@ public interface ConnectHandler {
     /*
      * Handle connection
     **/
-    void onConnect(SMTPSession session);
+    void onConnect(SMTPSession session, Chain chain);
 
 }

@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -160,7 +161,7 @@ public class SMTPHandler
      */
     private StringBuffer responseBuffer = new StringBuffer(256);
     
-    private boolean stopHandlerProcessing = false;
+    private SMTPResponse response = new SMTPResponse();
 
     /**
      * Set the configuration data for the handler
@@ -234,13 +235,7 @@ public class SMTPHandler
         //Session started - RUN all connect handlers
         List connectHandlers = handlerChain.getConnectHandlers();
         if(connectHandlers != null) {
-            int count = connectHandlers.size();
-            for(int i = 0; i < count; i++) {
-                ((ConnectHandler)connectHandlers.get(i)).onConnect(this);
-                if(sessionEnded) {
-                    break;
-                }
-            }
+            new Chain(connectHandlers.iterator()).doChain(this);
         }
 
         theWatchdog.start();
@@ -264,42 +259,30 @@ public class SMTPHandler
           }
           curCommandName = curCommandName.toUpperCase(Locale.US);
 
-          //fetch the command handlers registered to the command
+          // fetch the command handlers registered to the command
           List commandHandlers = handlerChain.getCommandHandlers(curCommandName);
           if(commandHandlers == null) {
-              //end the session
+              // end the session
               break;
           } else {
-              int count = commandHandlers.size();
-              for(int i = 0; i < count; i++) {
-                  setStopHandlerProcessing(false);
-                  ((CommandHandler)commandHandlers.get(i)).onCommand(this);
-                  
-                  theWatchdog.reset();
-                  
-                  //if the response is received, stop processing of command handlers
-                  if(mode != COMMAND_MODE || getStopHandlerProcessing()) {
-                      break;
-                  }
-              }
-
+              new Chain(commandHandlers.iterator()).doChain(this);
+              
+    	      writeCompleteResponse(getSMTPResponse().retrieve());
           }
 
-          //handle messages
-          if(mode == MESSAGE_RECEIVED_MODE) {
-              getLogger().debug("executing message handlers");
-              List messageHandlers = handlerChain.getMessageHandlers();
-              int count = messageHandlers.size();
-              for(int i =0; i < count; i++) {
-                  ((MessageHandler)messageHandlers.get(i)).onMessage(this);
-                  //if the response is received, stop processing of command handlers
-                  if(mode == MESSAGE_ABORT_MODE) {
-                      break;
-                  }
-              }
-          }
+          // handle messages
+	    if (mode == MESSAGE_RECEIVED_MODE) {
+		getLogger().debug("executing message handlers");
+		List messageHandlers = handlerChain.getMessageHandlers();
 
-          //do the clean up
+		if (messageHandlers != null) {
+		    new Chain(messageHandlers.iterator()).doChain(this);
+
+		    writeCompleteResponse(getSMTPResponse().retrieve());
+		}
+	    }
+
+          // do the clean up
           if(mail != null) {
               ContainerUtil.dispose(mail);
               
@@ -321,9 +304,27 @@ public class SMTPHandler
     }
 
     /**
+     * Write a Collection of responseString to the client
+     * 
+     * @param resp The Collection of responseStrings
+     */
+    private void writeCompleteResponse(Collection resp) {
+	if (resp.size() > 0) {
+	    Iterator response = resp.iterator();
+
+	    while (response.hasNext()) {
+
+		writeResponse(response.next().toString());
+	    }
+	    getSMTPResponse().clear();
+	} 
+    }
+    
+    /**
      * Resets the handler data to a basic state.
      */
     protected void resetHandler() {
+	getSMTPResponse().clear();
         resetState();
         resetConnectionState();
 
@@ -349,6 +350,7 @@ public class SMTPHandler
      */
     public void writeResponse(String respString) {
         writeLoggedFlushedResponse(respString);
+      
         //TODO Explain this well
         if(mode == COMMAND_MODE) {
             mode = RESPONSE_MODE;
@@ -553,26 +555,16 @@ public class SMTPHandler
         return count;
     }
     
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#setStopHandlerProcessing(boolean)
-     */
-    public void setStopHandlerProcessing(boolean stopHandlerProcessing) {
-        this.stopHandlerProcessing = stopHandlerProcessing;
-    }
-    
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#getStopHandlerProcessing()
-     */
-    public boolean getStopHandlerProcessing() {
-        return stopHandlerProcessing;
-    }
-    
     public void resetConnectionState() {
         connectionState.clear();
     }
     
     public Map getConnectionState() {
         return connectionState;
+    }
+
+    public SMTPResponse getSMTPResponse() {
+	return response;
     }
 
 }

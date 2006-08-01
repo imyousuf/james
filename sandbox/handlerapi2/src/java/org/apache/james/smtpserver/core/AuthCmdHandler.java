@@ -21,6 +21,7 @@
 
 package org.apache.james.smtpserver.core;
 
+import org.apache.james.smtpserver.Chain;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
@@ -56,7 +57,7 @@ public class AuthCmdHandler
      *
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
-    public void onCommand(SMTPSession session) {
+    public void onCommand(SMTPSession session,Chain chain) {
         //deviation from the Main code
         //Instead of throwing exception just end the session
         try{

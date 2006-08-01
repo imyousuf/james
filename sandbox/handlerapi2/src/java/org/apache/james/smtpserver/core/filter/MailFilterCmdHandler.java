@@ -27,6 +27,7 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.james.smtpserver.Chain;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
@@ -48,8 +49,17 @@ public class MailFilterCmdHandler
      *
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
-    public void onCommand(SMTPSession session) {
-        doMAIL(session, session.getCommandArgument());
+    public void onCommand(SMTPSession session,Chain chain) {
+       String response = doMAIL(session);
+       
+       if (response == null) {
+           // call the next handler in chain
+           chain.doChain(session);
+           
+       } else {        
+           // store the response
+           session.getSMTPResponse().store(response);
+       }
     }
 
 
@@ -57,7 +67,8 @@ public class MailFilterCmdHandler
      * @param session SMTP session object
      * @param argument the argument passed in with the command by the SMTP client
      */
-    private void doMAIL(SMTPSession session, String argument) {
+    private String doMAIL(SMTPSession session) {
+	String argument = session.getCommandArgument();
         String responseString = null;
         String sender = null;
         
@@ -68,25 +79,19 @@ public class MailFilterCmdHandler
         }
         if (session.getState().containsKey(SMTPSession.SENDER)) {
             responseString = "503 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" Sender already specified";
-            session.writeResponse(responseString);
-            
-            // After this filter match we should not call any other handler!
-            session.setStopHandlerProcessing(true);
+           
+            return responseString;
             
         } else if (!session.getConnectionState().containsKey(SMTPSession.CURRENT_HELO_MODE) && session.useHeloEhloEnforcement()) {
             responseString = "503 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" Need HELO or EHLO before MAIL";
-            session.writeResponse(responseString);
             
-            // After this filter match we should not call any other handler!
-            session.setStopHandlerProcessing(true);
+            return responseString;
             
         } else if (argument == null || !argument.toUpperCase(Locale.US).equals("FROM")
                    || sender == null) {
             responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Usage: MAIL FROM:<sender>";
-            session.writeResponse(responseString);
-        
-            // After this filter match we should not call any other handler!
-            session.setStopHandlerProcessing(true);
+            
+            return responseString;
             
         } else {
             sender = sender.trim();
@@ -114,8 +119,9 @@ public class MailFilterCmdHandler
                     // Handle the SIZE extension keyword
 
                     if (mailOptionName.startsWith(MAIL_OPTION_SIZE)) {
-                        if (!(doMailSize(session, mailOptionValue, sender))) {
-                            return;
+                        String response = doMailSize(session, mailOptionValue, sender);
+                	if (response != null) {
+                            return response;
                         }
                     } else {
                         // Unexpected option attached to the Mail command
@@ -133,7 +139,7 @@ public class MailFilterCmdHandler
             }
             if (!sender.startsWith("<") || !sender.endsWith(">")) {
                 responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_SYNTAX_SENDER)+" Syntax error in MAIL command";
-                session.writeResponse(responseString);
+
                 if (getLogger().isErrorEnabled()) {
                     StringBuffer errorBuffer =
                         new StringBuffer(128)
@@ -142,10 +148,9 @@ public class MailFilterCmdHandler
                             .append(": did not start and end with < >");
                     getLogger().error(errorBuffer.toString());
                 }
-                // After this filter match we should not call any other handler!
-                session.setStopHandlerProcessing(true);
                 
-                return;
+                return responseString;
+                
             }
             MailAddress senderAddress = null;
             //Remove < and >
@@ -162,7 +167,7 @@ public class MailFilterCmdHandler
                     senderAddress = new MailAddress(sender);
                 } catch (Exception pe) {
                     responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_SYNTAX_SENDER)+" Syntax error in sender address";
-                    session.writeResponse(responseString);
+
                     if (getLogger().isErrorEnabled()) {
                         StringBuffer errorBuffer =
                             new StringBuffer(256)
@@ -173,16 +178,15 @@ public class MailFilterCmdHandler
                         getLogger().error(errorBuffer.toString());
                     }
                     
-                    // After this filter match we should not call any other handler!
-                    session.setStopHandlerProcessing(true);
+                    return responseString;
                     
-                    return;
                 }
             }
          
             // Store the senderAddress in session map
             session.getState().put(SMTPSession.SENDER, senderAddress);
         }
+        return null;
     }
 
     /**
@@ -193,20 +197,16 @@ public class MailFilterCmdHandler
      * @param tempSender the sender specified in this mail command (for logging purpose)
      * @return true if further options should be processed, false otherwise
      */
-    private boolean doMailSize(SMTPSession session, String mailOptionValue, String tempSender) {
+    private String doMailSize(SMTPSession session, String mailOptionValue, String tempSender) {
         int size = 0;
         try {
             size = Integer.parseInt(mailOptionValue);
         } catch (NumberFormatException pe) {
             // This is a malformed option value.  We return an error
             String responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Syntactically incorrect value for SIZE parameter";
-            session.writeResponse(responseString);
             getLogger().error("Rejected syntactically incorrect value for SIZE parameter.");
             
-            // After this filter match we should not call any other handler!
-            session.setStopHandlerProcessing(true);
-            
-            return false;
+            return responseString;
         }
         if (getLogger().isDebugEnabled()) {
             StringBuffer debugBuffer =
@@ -220,7 +220,6 @@ public class MailFilterCmdHandler
         if ((maxMessageSize > 0) && (size > maxMessageSize)) {
             // Let the client know that the size limit has been hit.
             String responseString = "552 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SYSTEM_MSG_TOO_BIG)+" Message size exceeds fixed maximum message size";
-            session.writeResponse(responseString);
             StringBuffer errorBuffer =
                 new StringBuffer(256)
                     .append("Rejected message from ")
@@ -235,17 +234,14 @@ public class MailFilterCmdHandler
                     .append(maxMessageSize)
                     .append("based on SIZE option.");
             getLogger().error(errorBuffer.toString());
-            
-            // After this filter match we should not call any other handler!
-            session.setStopHandlerProcessing(true);
-            
-            return false;
+
+            return responseString;
         } else {
             // put the message size in the message state so it can be used
             // later to restrict messages for user quotas, etc.
             session.getState().put(MESG_SIZE, new Integer(size));
         }
-        return true;
+        return null;
     }
     
     /**

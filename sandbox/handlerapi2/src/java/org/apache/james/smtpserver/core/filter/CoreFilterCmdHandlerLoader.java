@@ -33,8 +33,7 @@ import org.apache.james.smtpserver.CommandsHandler;
 public class CoreFilterCmdHandlerLoader implements CommandsHandler {
 
     private final Object DATABASEFILTERCMDHANDLER = DataFilterCmdHandler.class.getName();
-    private final Object EHLOBASEFILTERCMDHANDLER = EhloFilterCmdHandler.class.getName();
-    private final Object HELOBASEFILTERCMDHANDLER = HeloFilterCmdHandler.class.getName();
+    private final Object EHLOHELOBASEFILTERCMDHANDLER = EhloHeloFilterCmdHandler.class.getName();
     private final Object MAILBASEFILTERCMDHANDLER = MailFilterCmdHandler.class.getName();
     private final Object RCPTBASEFILTERCMDHANDLER = RcptFilterCmdHandler.class.getName();
    
@@ -46,8 +45,8 @@ public class CoreFilterCmdHandlerLoader implements CommandsHandler {
         
         // Insert the basecommands in the Map
         commands.put("DATA", DATABASEFILTERCMDHANDLER);
-        commands.put("EHLO", EHLOBASEFILTERCMDHANDLER);
-        commands.put("HELO", HELOBASEFILTERCMDHANDLER);
+        commands.put("EHLO", EHLOHELOBASEFILTERCMDHANDLER);
+        commands.put("HELO", EHLOHELOBASEFILTERCMDHANDLER);
         commands.put("MAIL", MAILBASEFILTERCMDHANDLER);
         commands.put("RCPT", RCPTBASEFILTERCMDHANDLER);
         
