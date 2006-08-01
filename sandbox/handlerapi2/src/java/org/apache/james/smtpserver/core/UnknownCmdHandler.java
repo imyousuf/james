@@ -38,8 +38,6 @@ public class UnknownCmdHandler implements CommandHandler {
      * The name of the command handled by the command handler
      */
     public static final String UNKNOWN_COMMAND = "UNKNOWN";
-    
-    private boolean stopHandlerProcessing = true;
 
     /**
      * Handler method called upon receipt of an unrecognized command.
@@ -47,12 +45,12 @@ public class UnknownCmdHandler implements CommandHandler {
      *
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
     **/
-    public void onCommand(SMTPSession session,Chain chain) {
-    String response = doUNKNOWN(session);
-    
-    if (response != null) {
-        session.getSMTPResponse().store(response);
-    }
+    public void onCommand(SMTPSession session, Chain chain) {
+	String response = doUNKNOWN(session);
+
+	if (response != null) {
+	    session.getSMTPResponse().store(response);
+	}
     }
     
     private String doUNKNOWN(SMTPSession session) {
@@ -80,12 +78,4 @@ public class UnknownCmdHandler implements CommandHandler {
         
         return implCommands;
     }
-    
-    /**
-     * @see org.apache.james.smtpserver.CommandHandler#stopHandlerProcessing()
-     */
-    public boolean stopHandlerProcessing() {
-        return stopHandlerProcessing ;
-    }
-
 }

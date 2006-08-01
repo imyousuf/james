@@ -56,16 +56,16 @@ public class SendMailHandler
 
     /**
      * Adds header to the message
+     * 
      * @see org.apache.james.smtpserver#onMessage(SMTPSession)
      */
     public void onMessage(SMTPSession session, Chain chain) {
-    System.err.println("YOOOO");
-    session.getSMTPResponse().store(processMail(session));
+	session.getSMTPResponse().store(processMail(session));
     }
     
     private String processMail(SMTPSession session) {
 
-    getLogger().debug("sending mail");
+        getLogger().debug("sending mail");
 
         Mail mail = session.getMail();
         

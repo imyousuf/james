@@ -129,6 +129,8 @@ public class DNSRBLHandler
     **/
     public void onConnect(SMTPSession session, Chain chain) {
         checkDNSRBL(session);
+        
+        // Call the next handler in chain
         chain.doChain(session);
     }
     
@@ -180,6 +182,7 @@ public class DNSRBLHandler
 
     public void checkDNSRBL(SMTPSession session) {
         String ipAddress = session.getRemoteIPAddress();
+        
         /*
          * don't check against rbllists if the client is allowed to relay..
          * This whould make no sense.
@@ -259,53 +262,54 @@ public class DNSRBLHandler
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
     public void onCommand(SMTPSession session, Chain chain) {
-    String response = doRCPT(session);
+	String response = doRCPT(session);
 
-    if (response == null) {
-        // call the next handler in chain
-        chain.doChain(session);
+	if (response == null) {
+	    // call the next handler in chain
+	    chain.doChain(session);
 
-    } else {
-        // store the response
-        session.getSMTPResponse().store(response);
-    }
+	} else {
+	    // store the response
+	    session.getSMTPResponse().store(response);
+	}
     }
 
     /**
      * RCPT
      * 
-     * @param session The SMTPSession
-     * @return responseString The responseString which should be returned 
+     * @param session
+     *                The SMTPSession
+     * @return responseString The responseString which should be returned
      */
     private String doRCPT(SMTPSession session) {
-    String responseString = null;
-    String blocklisted = (String) session.getConnectionState().get(
-        RBL_BLOCKLISTED_MAIL_ATTRIBUTE_NAME);
-    MailAddress recipientAddress = (MailAddress) session.getState().get(
-        SMTPSession.CURRENT_RECIPIENT);
+	String responseString = null;
+	String blocklisted = (String) session.getConnectionState().get(
+		RBL_BLOCKLISTED_MAIL_ATTRIBUTE_NAME);
+	MailAddress recipientAddress = (MailAddress) session.getState().get(
+		SMTPSession.CURRENT_RECIPIENT);
 
-    if (blocklisted != null && // was found in the RBL
-        !(session.isAuthRequired() && session.getUser() != null) && // Not (SMTP AUTH is enabled and
-        // not authenticated)
-        !(recipientAddress.getUser().equalsIgnoreCase("postmaster") || recipientAddress
-            .getUser().equalsIgnoreCase("abuse"))) {
+	if (blocklisted != null && // was found in the RBL
+		!(session.isAuthRequired() && session.getUser() != null) && // Not (SMTP AUTH is enabled and
+		// not authenticated)
+		!(recipientAddress.getUser().equalsIgnoreCase("postmaster") || recipientAddress
+			.getUser().equalsIgnoreCase("abuse"))) {
 
-        // trying to send e-mail to other than postmaster or abuse
-        if (blocklistedDetail != null) {
-        responseString = "530 "
-            + DSNStatus.getStatus(DSNStatus.PERMANENT,
-                DSNStatus.SECURITY_AUTH) + " "
-            + blocklistedDetail;
-        } else {
-        responseString = "530 "
-            + DSNStatus.getStatus(DSNStatus.PERMANENT,
-                DSNStatus.SECURITY_AUTH)
-            + " Rejected: unauthenticated e-mail from "
-            + session.getRemoteIPAddress()
-            + " is restricted.  Contact the postmaster for details.";
-        }
-        return responseString;
-    }
-    return null;
+	    // trying to send e-mail to other than postmaster or abuse
+	    if (blocklistedDetail != null) {
+		responseString = "530 "
+			+ DSNStatus.getStatus(DSNStatus.PERMANENT,
+				DSNStatus.SECURITY_AUTH) + " "
+			+ blocklistedDetail;
+	    } else {
+		responseString = "530 "
+			+ DSNStatus.getStatus(DSNStatus.PERMANENT,
+				DSNStatus.SECURITY_AUTH)
+			+ " Rejected: unauthenticated e-mail from "
+			+ session.getRemoteIPAddress()
+			+ " is restricted.  Contact the postmaster for details.";
+	    }
+	    return responseString;
+	}
+	return null;
     }
 }

@@ -69,11 +69,6 @@ public class SetMimeHeaderHandlerTest extends TestCase {
             public Mail getMail() {
                 return mockedMail;
             }
-
-            public int getRcptCount() {
-                return 0;
-            }
-
         };
     }
 

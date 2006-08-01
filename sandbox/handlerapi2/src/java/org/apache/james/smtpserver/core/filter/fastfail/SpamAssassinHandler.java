@@ -144,73 +144,73 @@ public class SpamAssassinHandler extends AbstractLogEnabled implements
      * @see org.apache.james.smtpserver.MessageHandler#onMessage(SMTPSession)
      */
     public void onMessage(SMTPSession session, Chain chain) {
-    String response = scanMessage(session);
-    if (response == null) {
-        // call the next handler in chain
-        chain.doChain(session);
+	String response = scanMessage(session);
+	if (response == null) {
+	    // call the next handler in chain
+	    chain.doChain(session);
 
-    } else {
-        // store the response
-        session.getSMTPResponse().store(response);
-        session.abortMessage();
-    }
+	} else {
+	    // store the response
+	    session.getSMTPResponse().store(response);
+	    session.abortMessage();
+	}
     }
 
     private String scanMessage(SMTPSession session) {
-    // Not scan the message if relaying allowed
-    if (session.isRelayingAllowed() && !checkAuthNetworks) {
-        return null;
-    }
+	// Not scan the message if relaying allowed
+	if (session.isRelayingAllowed() && !checkAuthNetworks) {
+	    return null;
+	}
 
-    try {
-        Mail mail = session.getMail();
-        MimeMessage message = mail.getMessage();
-        SpamAssassinInvoker sa = new SpamAssassinInvoker(spamdHost,
-            spamdPort);
-        sa.scanMail(message);
+	try {
+	    Mail mail = session.getMail();
+	    MimeMessage message = mail.getMessage();
+	    SpamAssassinInvoker sa = new SpamAssassinInvoker(spamdHost,
+		    spamdPort);
+	    sa.scanMail(message);
 
-        Iterator headers = sa.getHeadersAsAttribute().keySet().iterator();
+	    Iterator headers = sa.getHeadersAsAttribute().keySet().iterator();
 
-        // Add the headers
-        while (headers.hasNext()) {
-        String key = headers.next().toString();
+	    // Add the headers
+	    while (headers.hasNext()) {
+		String key = headers.next().toString();
 
-        mail.setAttribute(key, (String) sa.getHeadersAsAttribute().get(
-            key));
-        }
+		mail.setAttribute(key, (String) sa.getHeadersAsAttribute().get(
+			key));
+	    }
 
-        // Check if rejectionHits was configured
-        if (spamdRejectionHits > 0) {
-        try {
-            double hits = Double.parseDouble(sa.getHits());
+	    // Check if rejectionHits was configured
+	    if (spamdRejectionHits > 0) {
+		try {
+		    double hits = Double.parseDouble(sa.getHits());
 
-            // if the hits are bigger the rejectionHits reject the
-            // message
-            if (spamdRejectionHits <= hits) {
-            String responseString = "554 "
-                + DSNStatus.getStatus(DSNStatus.PERMANENT,
-                    DSNStatus.SECURITY_OTHER)
-                + " This message reach the spam hits treshold. Please contact the Postmaster if the email is not SPAM. Message rejected";
-            StringBuffer buffer = new StringBuffer(256).append(
-                "Rejected message from ").append(
-                session.getState().get(SMTPSession.SENDER)
-                    .toString()).append(" from host ")
-                .append(session.getRemoteHost()).append(" (")
-                .append(session.getRemoteIPAddress()).append(
-                    ") " + responseString).append(
-                    ". Required rejection hits: "
-                        + spamdRejectionHits
-                        + " hits: " + hits);
-            getLogger().info(buffer.toString());
-            return responseString;
-            }
-        } catch (NumberFormatException e) {
-            // hits unknown
-        }
-        }
-    } catch (MessagingException e) {
-        getLogger().error(e.getMessage());
-    }
-    return null;
+		    // if the hits are bigger the rejectionHits reject the
+		    // message
+		    if (spamdRejectionHits <= hits) {
+			String responseString = "554 "
+				+ DSNStatus.getStatus(DSNStatus.PERMANENT,
+					DSNStatus.SECURITY_OTHER)
+				+ " This message reach the spam hits treshold. Please contact the Postmaster if the email is not SPAM. Message rejected";
+			StringBuffer buffer = new StringBuffer(256).append(
+				"Rejected message from ").append(
+				session.getState().get(SMTPSession.SENDER)
+					.toString()).append(" from host ")
+				.append(session.getRemoteHost()).append(" (")
+				.append(session.getRemoteIPAddress()).append(
+					") " + responseString).append(
+					". Required rejection hits: "
+						+ spamdRejectionHits
+						+ " hits: " + hits);
+			getLogger().info(buffer.toString());
+			return responseString;
+		    }
+		} catch (NumberFormatException e) {
+		    // hits unknown
+		}
+	    }
+	} catch (MessagingException e) {
+	    getLogger().error(e.getMessage());
+	}
+	return null;
     }
 }

@@ -67,35 +67,35 @@ public class MaxRcptHandler extends AbstractLogEnabled implements
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
     public void onCommand(SMTPSession session, Chain chain) {
-    String response = doRCPT(session);
+	String response = doRCPT(session);
 
-    if (response == null) {
-        // call the next handler in chain
-        chain.doChain(session);
+	if (response == null) {
+	    // call the next handler in chain
+	    chain.doChain(session);
 
-    } else {
-        // store the response
-        session.getSMTPResponse().store(response);
-    }
+	} else {
+	    // store the response
+	    session.getSMTPResponse().store(response);
+	}
     }
 
     private String doRCPT(SMTPSession session) {
-    String responseString = null;
-    int rcptCount = 0;
+	String responseString = null;
+	int rcptCount = 0;
 
-    rcptCount = session.getRcptCount() + 1;
+	rcptCount = session.getRcptCount() + 1;
 
-    // check if the max recipients has reached
-    if (rcptCount > maxRcpt) {
-        responseString = "452 "
-            + DSNStatus.getStatus(DSNStatus.NETWORK,
-                DSNStatus.DELIVERY_TOO_MANY_REC)
-            + " Requested action not taken: max recipients reached";
+	// check if the max recipients has reached
+	if (rcptCount > maxRcpt) {
+	    responseString = "452 "
+		    + DSNStatus.getStatus(DSNStatus.NETWORK,
+			    DSNStatus.DELIVERY_TOO_MANY_REC)
+		    + " Requested action not taken: max recipients reached";
 
-        getLogger().error(responseString);
-    }
+	    getLogger().error(responseString);
+	}
 
-    return responseString;
+	return responseString;
     }
 
     /**

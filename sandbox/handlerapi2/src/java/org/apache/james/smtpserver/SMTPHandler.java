@@ -239,108 +239,111 @@ public class SMTPHandler
         }
 
         theWatchdog.start();
-        while(!sessionEnded) {
-          //Reset the current command values
-          curCommandName = null;
-          curCommandArgument = null;
-          mode = COMMAND_MODE;
+        while (!sessionEnded) {
+	    // Reset the current command values
+	    curCommandName = null;
+	    curCommandArgument = null;
+	    mode = COMMAND_MODE;
 
-          //parse the command
-          String cmdString =  readCommandLine();
-          if (cmdString == null) {
-              break;
-          }
-          int spaceIndex = cmdString.indexOf(" ");
-          if (spaceIndex > 0) {
-              curCommandName = cmdString.substring(0, spaceIndex);
-              curCommandArgument = cmdString.substring(spaceIndex + 1);
-          } else {
-              curCommandName = cmdString;
-          }
-          curCommandName = curCommandName.toUpperCase(Locale.US);
+	    // parse the command
+	    String cmdString = readCommandLine();
+	    if (cmdString == null) {
+		break;
+	    }
+	    int spaceIndex = cmdString.indexOf(" ");
+	    if (spaceIndex > 0) {
+		curCommandName = cmdString.substring(0, spaceIndex);
+		curCommandArgument = cmdString.substring(spaceIndex + 1);
+	    } else {
+		curCommandName = cmdString;
+	    }
+	    curCommandName = curCommandName.toUpperCase(Locale.US);
 
-          // fetch the command handlers registered to the command
-          List commandHandlers = handlerChain.getCommandHandlers(curCommandName);
-          if(commandHandlers == null) {
-              // end the session
-              break;
-          } else {
-              new Chain(commandHandlers.iterator()).doChain(this);
-              
-              writeCompleteResponse(getSMTPResponse().retrieve());
-          }
+	    // fetch the command handlers registered to the command
+	    List commandHandlers = handlerChain
+		    .getCommandHandlers(curCommandName);
+	    if (commandHandlers == null) {
+		// end the session
+		break;
+	    } else {
+		new Chain(commandHandlers.iterator()).doChain(this);
 
-          // handle messages
-        if (mode == MESSAGE_RECEIVED_MODE) {
-        getLogger().debug("executing message handlers");
-        List messageHandlers = handlerChain.getMessageHandlers();
+		writeCompleteResponse(getSMTPResponse().retrieve());
+	    }
 
-        if (messageHandlers != null) {
-            new Chain(messageHandlers.iterator()).doChain(this);
+	    // handle messages
+	    if (mode == MESSAGE_RECEIVED_MODE) {
+		getLogger().debug("executing message handlers");
+		List messageHandlers = handlerChain.getMessageHandlers();
 
-            writeCompleteResponse(getSMTPResponse().retrieve());
-        }
-        }
+		if (messageHandlers != null) {
+		    new Chain(messageHandlers.iterator()).doChain(this);
 
-          // do the clean up
-          if(mail != null) {
-              ContainerUtil.dispose(mail);
-              
-              // remember the ehlo mode
-              Object currentHeloMode = state.get(CURRENT_HELO_MODE);
-              
-              mail = null;
-              resetState();
+		    writeCompleteResponse(getSMTPResponse().retrieve());
+		}
+	    }
 
-              // start again with the old helo mode
-              if (currentHeloMode != null) {
-                  state.put(CURRENT_HELO_MODE,currentHeloMode);
-              }
-          }
+	    // do the clean up
+	    if (mail != null) {
+		ContainerUtil.dispose(mail);
 
-        }
-        theWatchdog.stop();
-        getLogger().debug("Closing socket.");
+		// remember the ehlo mode
+		Object currentHeloMode = state.get(CURRENT_HELO_MODE);
+
+		mail = null;
+		resetState();
+
+		// start again with the old helo mode
+		if (currentHeloMode != null) {
+		    state.put(CURRENT_HELO_MODE, currentHeloMode);
+		}
+	    }
+
+	}
+	theWatchdog.stop();
+	getLogger().debug("Closing socket.");
     }
 
     /**
      * Write a Collection of responseString to the client
      * 
-     * @param resp The Collection of responseStrings
+     * @param resp
+     *                The Collection of responseStrings
      */
     private void writeCompleteResponse(Collection resp) {
-    if (resp.size() > 0) {
-        Iterator response = resp.iterator();
+	if (resp.size() > 0) {
+	    Iterator response = resp.iterator();
 
-        while (response.hasNext()) {
+	    while (response.hasNext()) {
 
-        writeResponse(response.next().toString());
-        }
-        getSMTPResponse().clear();
-    } 
+		writeResponse(response.next().toString());
+	    }
+	    getSMTPResponse().clear();
+	}
     }
     
     /**
      * Resets the handler data to a basic state.
      */
     protected void resetHandler() {
-    getSMTPResponse().clear();
-        resetState();
-        resetConnectionState();
+	getSMTPResponse().clear();
+	resetState();
+	resetConnectionState();
 
-        clearResponseBuffer();
+	clearResponseBuffer();
 
-        remoteHost = null;
-        remoteIP = null;
-        authenticatedUser = null;
-        smtpID = null;
+	remoteHost = null;
+	remoteIP = null;
+	authenticatedUser = null;
+	smtpID = null;
     }
 
    /**
-     * Sets the SMTPHandlerChain
-     *
-     * @param handlerChain SMTPHandler object
-     */
+    * Sets the SMTPHandlerChain
+    * 
+    * @param handlerChain
+    *                SMTPHandler object
+    */
     public void setHandlerChain(SMTPHandlerChain handlerChain) {
         this.handlerChain = handlerChain;
     }
@@ -555,16 +558,25 @@ public class SMTPHandler
         return count;
     }
     
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#resetConnectionState()
+     */
     public void resetConnectionState() {
         connectionState.clear();
     }
     
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#getConnectionState()
+     */
     public Map getConnectionState() {
         return connectionState;
     }
 
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#getSMTPResponse()
+     */
     public SMTPResponse getSMTPResponse() {
-    return response;
+	return response;
     }
 
 }

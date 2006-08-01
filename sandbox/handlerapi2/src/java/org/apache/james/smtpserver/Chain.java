@@ -17,9 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
-
 package org.apache.james.smtpserver;
 
 import java.util.Iterator;
@@ -38,7 +35,7 @@ public class Chain {
      * @param handlers The iterator which contains all handler for the current command or state
      */
     public Chain(Iterator handlers) {
-    this.handlers = handlers;
+	this.handlers = handlers;
     }
 
     /**
@@ -47,24 +44,24 @@ public class Chain {
      * @param session The SMTPSession
      */
     public void doChain(SMTPSession session) {
-    
-    // should never happen
-    if (handlers == null)
-        return;
-    
-    if (handlers.hasNext()) {
-        Object handler = handlers.next();
 
-        if (handler instanceof ConnectHandler) {
-        ((ConnectHandler) handler).onConnect(session, this);
-        } else if (handler instanceof CommandHandler) {
-        // reset the idle timeout
-        session.getWatchdog().reset();
+	// should never happen
+	if (handlers == null)
+	    return;
 
-        ((CommandHandler) handler).onCommand(session, this);
-        } else if (handler instanceof MessageHandler) {
-        ((MessageHandler) handler).onMessage(session, this);
-        }
-    }
+	if (handlers.hasNext()) {
+	    Object handler = handlers.next();
+
+	    if (handler instanceof ConnectHandler) {
+		((ConnectHandler) handler).onConnect(session, this);
+	    } else if (handler instanceof CommandHandler) {
+		// reset the idle timeout
+		session.getWatchdog().reset();
+
+		((CommandHandler) handler).onCommand(session, this);
+	    } else if (handler instanceof MessageHandler) {
+		((MessageHandler) handler).onMessage(session, this);
+	    }
+	}
     }
 }

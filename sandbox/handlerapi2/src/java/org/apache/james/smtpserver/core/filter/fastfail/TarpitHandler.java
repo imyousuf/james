@@ -101,8 +101,8 @@ public class TarpitHandler extends AbstractLogEnabled implements
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
     public void onCommand(SMTPSession session, Chain chain) {
-    doRCPT(session);
-    chain.doChain(session);
+	doRCPT(session);
+	chain.doChain(session);
     }
     
     private void doRCPT(SMTPSession session) {

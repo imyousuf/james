@@ -228,8 +228,11 @@ public class AbstractSMTPSession implements SMTPSession {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
     }
 
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#getSMTPResponse()
+     */
     public SMTPResponse getSMTPResponse() {
-    throw new UnsupportedOperationException("Unimplemented Stub Method");
+	throw new UnsupportedOperationException("Unimplemented Stub Method");
     }
 
 }

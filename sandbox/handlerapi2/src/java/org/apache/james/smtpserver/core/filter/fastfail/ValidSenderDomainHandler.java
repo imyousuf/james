@@ -87,50 +87,50 @@ public class ValidSenderDomainHandler
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
     public void onCommand(SMTPSession session, Chain chain) {
-    String response = doMAIL(session);
-    if (response == null) {
-        // call the next handler in chain
-        chain.doChain(session);
+	String response = doMAIL(session);
+	if (response == null) {
+	    // call the next handler in chain
+	    chain.doChain(session);
 
-    } else {
-        // store the response
-        session.getSMTPResponse().store(response);
-    }
+	} else {
+	    // store the response
+	    session.getSMTPResponse().store(response);
+	}
     }
 
     private String doMAIL(SMTPSession session) {
 
-    String responseString = null;
-    MailAddress senderAddress = (MailAddress) session.getState().get(
-        SMTPSession.SENDER);
+	String responseString = null;
+	MailAddress senderAddress = (MailAddress) session.getState().get(
+		SMTPSession.SENDER);
 
-    // null sender so return
-    if (senderAddress == null)
-        return null;
+	// null sender so return
+	if (senderAddress == null)
+	    return null;
 
-    /**
+	/**
          * don't check if the ip address is allowed to relay. Only check if it
          * is set in the config.
          */
-    if (checkAuthClients || !session.isRelayingAllowed()) {
-        // try to resolv the provided domain in the
-        // senderaddress. If it can not resolved do not accept
-        // it.
+	if (checkAuthClients || !session.isRelayingAllowed()) {
+	    // try to resolv the provided domain in the
+	    // senderaddress. If it can not resolved do not accept
+	    // it.
 
-        Collection records = dnsServer.findMXRecords(senderAddress
-            .getHost());
+	    Collection records = dnsServer.findMXRecords(senderAddress
+		    .getHost());
 
-        if (records == null || records.size() == 0) {
-        responseString = "501 "
-            + DSNStatus.getStatus(DSNStatus.PERMANENT,
-                DSNStatus.ADDRESS_SYNTAX_SENDER) + " sender "
-            + senderAddress
-            + " contains a domain with no valid MX records";
-        getLogger().info(responseString);
-        }
+	    if (records == null || records.size() == 0) {
+		responseString = "501 "
+			+ DSNStatus.getStatus(DSNStatus.PERMANENT,
+				DSNStatus.ADDRESS_SYNTAX_SENDER) + " sender "
+			+ senderAddress
+			+ " contains a domain with no valid MX records";
+		getLogger().info(responseString);
+	    }
 
-    }
-    return responseString;
+	}
+	return responseString;
     }
     
     /**
