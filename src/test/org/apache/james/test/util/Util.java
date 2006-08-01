@@ -21,15 +21,29 @@ package org.apache.james.test.util;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
-import org.apache.james.smtpserver.core.*;
-import org.apache.james.test.mock.mailet.MockMail;
+import org.apache.james.smtpserver.core.AuthCmdHandler;
+import org.apache.james.smtpserver.core.DataCmdHandler;
+import org.apache.james.smtpserver.core.EhloCmdHandler;
+import org.apache.james.smtpserver.core.ExpnCmdHandler;
+import org.apache.james.smtpserver.core.HeloCmdHandler;
+import org.apache.james.smtpserver.core.HelpCmdHandler;
+import org.apache.james.smtpserver.core.MailCmdHandler;
+import org.apache.james.smtpserver.core.QuitCmdHandler;
+import org.apache.james.smtpserver.core.RcptCmdHandler;
+import org.apache.james.smtpserver.core.RsetCmdHandler;
+import org.apache.james.smtpserver.core.SendMailHandler;
+import org.apache.james.smtpserver.core.VrfyCmdHandler;
 import org.apache.james.test.mock.javaxmail.MockMimeMessage;
+import org.apache.james.test.mock.mailet.MockMail;
 import org.apache.mailet.MailAddress;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.ParseException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.MessagingException;
+
+import java.io.IOException;
+import java.net.ServerSocket;
 import java.util.Arrays;
 
 /**
@@ -62,8 +76,20 @@ public class Util {
      * @return port number
      */
     protected synchronized static int getNextNonPrivilegedPort() {
-        PORT_LAST_USED++;
-        if (PORT_LAST_USED > PORT_RANGE_END) PORT_LAST_USED = PORT_RANGE_START;
+        // Hack to increase probability that the port is bindable
+        while (true) {
+            try {
+                PORT_LAST_USED++;
+                if (PORT_LAST_USED > PORT_RANGE_END) PORT_LAST_USED = PORT_RANGE_START;
+                ServerSocket ss;
+                ss = new ServerSocket(PORT_LAST_USED);
+                ss.close();
+                break;
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
         return PORT_LAST_USED;
     }
 
