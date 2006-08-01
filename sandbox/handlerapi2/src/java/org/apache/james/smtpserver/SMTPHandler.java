@@ -267,20 +267,20 @@ public class SMTPHandler
           } else {
               new Chain(commandHandlers.iterator()).doChain(this);
               
-    	      writeCompleteResponse(getSMTPResponse().retrieve());
+              writeCompleteResponse(getSMTPResponse().retrieve());
           }
 
           // handle messages
-	    if (mode == MESSAGE_RECEIVED_MODE) {
-		getLogger().debug("executing message handlers");
-		List messageHandlers = handlerChain.getMessageHandlers();
+        if (mode == MESSAGE_RECEIVED_MODE) {
+        getLogger().debug("executing message handlers");
+        List messageHandlers = handlerChain.getMessageHandlers();
 
-		if (messageHandlers != null) {
-		    new Chain(messageHandlers.iterator()).doChain(this);
+        if (messageHandlers != null) {
+            new Chain(messageHandlers.iterator()).doChain(this);
 
-		    writeCompleteResponse(getSMTPResponse().retrieve());
-		}
-	    }
+            writeCompleteResponse(getSMTPResponse().retrieve());
+        }
+        }
 
           // do the clean up
           if(mail != null) {
@@ -309,22 +309,22 @@ public class SMTPHandler
      * @param resp The Collection of responseStrings
      */
     private void writeCompleteResponse(Collection resp) {
-	if (resp.size() > 0) {
-	    Iterator response = resp.iterator();
+    if (resp.size() > 0) {
+        Iterator response = resp.iterator();
 
-	    while (response.hasNext()) {
+        while (response.hasNext()) {
 
-		writeResponse(response.next().toString());
-	    }
-	    getSMTPResponse().clear();
-	} 
+        writeResponse(response.next().toString());
+        }
+        getSMTPResponse().clear();
+    } 
     }
     
     /**
      * Resets the handler data to a basic state.
      */
     protected void resetHandler() {
-	getSMTPResponse().clear();
+    getSMTPResponse().clear();
         resetState();
         resetConnectionState();
 
@@ -564,7 +564,7 @@ public class SMTPHandler
     }
 
     public SMTPResponse getSMTPResponse() {
-	return response;
+    return response;
     }
 
 }

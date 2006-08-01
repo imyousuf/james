@@ -229,7 +229,7 @@ public class AbstractSMTPSession implements SMTPSession {
     }
 
     public SMTPResponse getSMTPResponse() {
-	throw new UnsupportedOperationException("Unimplemented Stub Method");
+    throw new UnsupportedOperationException("Unimplemented Stub Method");
     }
 
 }

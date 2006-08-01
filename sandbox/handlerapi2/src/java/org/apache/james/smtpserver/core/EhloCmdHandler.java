@@ -65,9 +65,9 @@ public class EhloCmdHandler extends AbstractLogEnabled implements
      * @param argument the argument passed in with the command by the SMTP client
      */
     private Collection doEHLO(SMTPSession session) {
-	String argument = session.getCommandArgument();
-	Collection response = new ArrayList();
-	
+    String argument = session.getCommandArgument();
+    Collection response = new ArrayList();
+    
         StringBuffer responseBuffer = session.getResponseBuffer();
 
         session.getConnectionState().put(SMTPSession.CURRENT_HELO_MODE, COMMAND_NAME);

@@ -61,7 +61,7 @@ public class SpamAssassinHandlerTest extends TestCase {
             }
             
             public SMTPResponse getSMTPResponse() {
-        	return response;
+            return response;
             }
 
             public Mail getMail() {

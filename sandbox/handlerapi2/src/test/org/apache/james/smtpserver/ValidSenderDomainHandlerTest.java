@@ -86,7 +86,7 @@ public class ValidSenderDomainHandlerTest extends TestCase {
             }
             
             public SMTPResponse getSMTPResponse() {
-        	return response;
+            return response;
             }
             
         };

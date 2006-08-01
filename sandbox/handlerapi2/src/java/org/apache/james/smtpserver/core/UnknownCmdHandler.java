@@ -48,11 +48,11 @@ public class UnknownCmdHandler implements CommandHandler {
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
     **/
     public void onCommand(SMTPSession session,Chain chain) {
-	String response = doUNKNOWN(session);
-	
-	if (response != null) {
-	    session.getSMTPResponse().store(response);
-	}
+    String response = doUNKNOWN(session);
+    
+    if (response != null) {
+        session.getSMTPResponse().store(response);
+    }
     }
     
     private String doUNKNOWN(SMTPSession session) {

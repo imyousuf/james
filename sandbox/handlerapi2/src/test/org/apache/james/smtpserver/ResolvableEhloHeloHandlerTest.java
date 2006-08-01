@@ -98,7 +98,7 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
             }
             
             public SMTPResponse getSMTPResponse() {
-        	return response;
+            return response;
             }
             
             

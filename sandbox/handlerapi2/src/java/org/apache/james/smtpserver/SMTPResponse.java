@@ -35,12 +35,12 @@ public class SMTPResponse
      * @param response The RepsponseString which should be returned to the client socked
      */
     public void store(String response) {
-	resp.clear();
-	resp.add(response);
+    resp.clear();
+    resp.add(response);
     }
     
     public void append(String response) {
-	resp.add(response);
+    resp.add(response);
     }
     
     /**
@@ -57,6 +57,6 @@ public class SMTPResponse
      *
      */
     public void clear() {
-	resp.clear();
+    resp.clear();
     }
 }

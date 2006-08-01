@@ -59,7 +59,7 @@ public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler
      * @param argument the argument passed in with the command by the SMTP client
      */
     private String doHELO(SMTPSession session) {
-	String argument = session.getCommandArgument();
+    String argument = session.getCommandArgument();
         String responseString = null;
 
         session.getConnectionState().put(SMTPSession.CURRENT_HELO_MODE, COMMAND_NAME);

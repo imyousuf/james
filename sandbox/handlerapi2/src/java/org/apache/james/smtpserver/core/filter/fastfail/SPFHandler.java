@@ -287,8 +287,8 @@ public class SPFHandler extends AbstractLogEnabled implements CommandHandler,
      * @see org.apache.james.smtpserver.MessageHandler#onMessage(SMTPSession)
      */
     public void onMessage(SMTPSession session,Chain chain) {
-	addHeader(session);
-	chain.doChain(session);
+    addHeader(session);
+    chain.doChain(session);
     }
     
     private void addHeader(SMTPSession session) {

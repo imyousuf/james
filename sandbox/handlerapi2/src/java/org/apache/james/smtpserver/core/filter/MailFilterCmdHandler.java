@@ -68,7 +68,7 @@ public class MailFilterCmdHandler
      * @param argument the argument passed in with the command by the SMTP client
      */
     private String doMAIL(SMTPSession session) {
-	String argument = session.getCommandArgument();
+    String argument = session.getCommandArgument();
         String responseString = null;
         String sender = null;
         
@@ -120,7 +120,7 @@ public class MailFilterCmdHandler
 
                     if (mailOptionName.startsWith(MAIL_OPTION_SIZE)) {
                         String response = doMailSize(session, mailOptionValue, sender);
-                	if (response != null) {
+                    if (response != null) {
                             return response;
                         }
                     } else {
