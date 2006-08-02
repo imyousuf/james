@@ -290,6 +290,23 @@ public class DataCmdHandler
             }
             
             session.setMail(mail);
+        } catch (MessagingException me) {
+            // if we get here, it means that we received a
+            // MessagingException, which would happen BEFORE we call
+            // session.setMail, so the mail object is still strictly
+            // local to us, and we really should clean it up before
+            // re-throwing the MessagingException for our call chain
+            // to process.
+            //
+            // So why has this worked at all so far?  Initial
+            // conjecture is that it has depended upon finalize to
+            // call dispose.  Not in the MailImpl, which doesn't have
+            // one, but even further down in the MimeMessageInputStreamSource.
+
+            if (mail != null) {
+                mail.dispose();
+            }
+            throw me;
         } finally {
             if (recipientCollection != null) {
                 recipientCollection.clear();
