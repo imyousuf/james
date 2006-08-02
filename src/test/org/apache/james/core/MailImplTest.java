@@ -47,7 +47,7 @@ public class MailImplTest extends MailTestAllImplementations {
 
     public void testConstr2() throws MessagingException {
         ArrayList recepients = new ArrayList();
-        String name = new MockMailServer().getId();
+        String name = MockMailServer.newId();
         String sender = "sender@localhost";
         MailAddress senderMailAddress = new MailAddress(sender);
         MailImpl mail = new MailImpl(name, senderMailAddress, recepients);
@@ -64,7 +64,7 @@ public class MailImplTest extends MailTestAllImplementations {
 
     public void testConstr3() throws MessagingException {
         ArrayList recepients = new ArrayList();
-        String name = new MockMailServer().getId();
+        String name = MockMailServer.newId();
         String sender = "sender@localhost";
         MailAddress senderMailAddress = new MailAddress(sender);
         MockMimeMessage mimeMessage = new MockMimeMessage();

@@ -28,13 +28,14 @@ import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageInputStreamSource;
 import org.apache.james.services.JamesConnectionManager;
+import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockServiceManager;
 import org.apache.james.test.mock.avalon.MockSocketManager;
 import org.apache.james.test.mock.avalon.MockThreadManager;
-import org.apache.james.test.mock.james.MockMailRepository;
+import org.apache.james.test.mock.james.InMemorySpoolRepository;
 import org.apache.james.test.mock.james.MockMailServer;
 import org.apache.james.test.util.Util;
 import org.apache.james.userrepository.MockUsersRepository;
@@ -65,6 +66,10 @@ public class POP3ServerTest extends TestCase {
 
     private MockUsersRepository m_usersRepository = new MockUsersRepository();
     private POP3Client m_pop3Protocol = null;
+
+    private MailImpl testMail1;
+
+    private MailImpl testMail2;
 
     public POP3ServerTest() {
         super("POP3ServerTest");
@@ -101,12 +106,15 @@ public class POP3ServerTest extends TestCase {
     }
 
     protected void tearDown() throws Exception {
-        super.tearDown();
+        if (testMail1 != null) testMail1.dispose();
+        if (testMail2 != null) testMail2.dispose();
         if (m_pop3Protocol != null) {
             m_pop3Protocol.sendCommand("quit");
             m_pop3Protocol.disconnect();
         }
         m_pop3Server.dispose();
+        ContainerUtil.dispose(m_mailServer);
+        super.tearDown();
     }
 
     public void testAuthenticationFail() throws Exception {
@@ -140,7 +148,8 @@ public class POP3ServerTest extends TestCase {
         m_pop3Protocol.connect("127.0.0.1",m_pop3ListenerPort);
 
         m_usersRepository.addUser("foo", "bar");
-        m_mailServer.setUserInbox("foo", new MockMailRepository());
+        InMemorySpoolRepository mockMailRepository = new InMemorySpoolRepository();
+        m_mailServer.setUserInbox("foo", mockMailRepository);
 
         m_pop3Protocol.login("foo", "bar");
         System.err.println(m_pop3Protocol.getState());
@@ -151,6 +160,7 @@ public class POP3ServerTest extends TestCase {
 
         assertNotNull(entries);
         assertEquals(entries.length, 0);
+        ContainerUtil.dispose(mockMailRepository);
     }
 
     public void testNotAsciiCharsInPassword() throws Exception {
@@ -161,10 +171,12 @@ public class POP3ServerTest extends TestCase {
 
         String pass = "bar" + (new String(new char[] { 200, 210 })) + "foo";
         m_usersRepository.addUser("foo", pass);
-        m_mailServer.setUserInbox("foo", new MockMailRepository());
+        InMemorySpoolRepository mockMailRepository = new InMemorySpoolRepository();
+        m_mailServer.setUserInbox("foo", mockMailRepository);
 
         m_pop3Protocol.login("foo", pass);
         assertEquals(1, m_pop3Protocol.getState());
+        ContainerUtil.dispose(mockMailRepository);
     }
 
     public void testKnownUserInboxWithMessages() throws Exception {
@@ -174,7 +186,7 @@ public class POP3ServerTest extends TestCase {
         m_pop3Protocol.connect("127.0.0.1",m_pop3ListenerPort);
 
         m_usersRepository.addUser("foo2", "bar2");
-        MockMailRepository mailRep = new MockMailRepository();
+        InMemorySpoolRepository mailRep = new InMemorySpoolRepository();
 
         setupTestMails(mailRep);
 
@@ -213,8 +225,8 @@ public class POP3ServerTest extends TestCase {
         entries = null;
 
         POP3MessageInfo stats = m_pop3Protocol.status();
-        assertEquals(92, stats.size);
         assertEquals(1, stats.number);
+        assertEquals(5, stats.size);
 
         entries = m_pop3Protocol.listMessages();
 
@@ -225,9 +237,10 @@ public class POP3ServerTest extends TestCase {
         Reader r3 = m_pop3Protocol.retrieveMessageTop(entries[0].number, 0);
         assertNotNull(r3);
         r3.close();
+        ContainerUtil.dispose(mailRep);
     }
 
-    private void setupTestMails(MockMailRepository mailRep) throws MessagingException {
+    private void setupTestMails(MailRepository mailRep) throws MessagingException {
         ArrayList recipients = new ArrayList();
         recipients.add(new MailAddress("recipient@test.com"));
         MimeMessage mw = new MimeMessageCopyOnWriteProxy(
@@ -238,19 +251,17 @@ public class POP3ServerTest extends TestCase {
                                  "Content-Transfer-Encoding: plain\r\n"+
                                  "Subject: test\r\n\r\n"+
                                  "Body Text\r\n").getBytes())));
-        MailImpl m = new MailImpl("name", new MailAddress("from@test.com"),
-                recipients, mw);
-        mailRep.store(m);
+        testMail1 = new MailImpl("name", new MailAddress("from@test.com"),
+                        recipients, mw);
+        mailRep.store(testMail1);
         MimeMessage mw2 = new MimeMessageCopyOnWriteProxy(
                 new MimeMessageInputStreamSource(
                         "test2",
                         new SharedByteArrayInputStream(
-                                ("").getBytes())));
-        MailImpl mailimpl2 = new MailImpl("name2", new MailAddress("from@test.com"),
-                        recipients, mw2);
-        mailRep.store(mailimpl2);
-        m.dispose();
-        mailimpl2.dispose();
+                                ("EMPTY").getBytes())));
+        testMail2 = new MailImpl("name2", new MailAddress("from@test.com"),
+                                recipients, mw2);
+        mailRep.store(testMail2);
     }
 
     public void testTwoSimultaneousMails() throws Exception {
@@ -258,12 +269,12 @@ public class POP3ServerTest extends TestCase {
 
         // make two user/repositories, open both
         m_usersRepository.addUser("foo1", "bar1");
-        MockMailRepository mailRep1 = new MockMailRepository();
+        InMemorySpoolRepository mailRep1 = new InMemorySpoolRepository();
         setupTestMails(mailRep1);
         m_mailServer.setUserInbox("foo1", mailRep1);
 
         m_usersRepository.addUser("foo2", "bar2");
-        MockMailRepository mailRep2 = new MockMailRepository();
+        InMemorySpoolRepository mailRep2 = new InMemorySpoolRepository();
         //do not setupTestMails, this is done later
         m_mailServer.setUserInbox("foo2", mailRep2);
 
@@ -306,11 +317,13 @@ public class POP3ServerTest extends TestCase {
 
         String pass = "password";
         m_usersRepository.addUser("foo", pass);
-        m_mailServer.setUserInbox("foo", new MockMailRepository());
+        InMemorySpoolRepository mockMailRepository = new InMemorySpoolRepository();
+        m_mailServer.setUserInbox("foo", mockMailRepository);
 
         m_pop3Protocol.login("foo", pass);
         assertEquals(1, m_pop3Protocol.getState());
         assertTrue(POP3BeforeSMTPHelper.isAuthorized("127.0.0.1"));
+        ContainerUtil.dispose(mockMailRepository);
     }
 
 }

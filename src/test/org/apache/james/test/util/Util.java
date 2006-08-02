@@ -33,6 +33,7 @@ import org.apache.james.smtpserver.core.RcptCmdHandler;
 import org.apache.james.smtpserver.core.RsetCmdHandler;
 import org.apache.james.smtpserver.core.SendMailHandler;
 import org.apache.james.smtpserver.core.VrfyCmdHandler;
+import org.apache.james.test.mock.james.MockMailServer;
 import org.apache.james.test.mock.javaxmail.MockMimeMessage;
 import org.apache.james.test.mock.mailet.MockMail;
 import org.apache.mailet.MailAddress;
@@ -134,6 +135,7 @@ public class Util {
 
     public static MockMail createMockMail2Recipients(MimeMessage m) throws ParseException {
         MockMail mockedMail = new MockMail();
+        mockedMail.setName(MockMailServer.newId());
         mockedMail.setMessage(m);
         mockedMail.setRecipients(Arrays.asList(new MailAddress[] {
                 new MailAddress("test@james.apache.org"),

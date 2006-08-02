@@ -68,12 +68,18 @@ public class RemoteManagerTest extends TestCase {
     protected InternetPrintWriter m_writer;
     protected TelnetClient m_telnetClient;
     private MockUsersRepository m_mockUsersRepository;
+    private MockMailServer mailServer;
 
     protected void setUp() throws Exception {
         m_remoteManager = new RemoteManager();
         ContainerUtil.enableLogging(m_remoteManager, new MockLogger());
         ContainerUtil.service(m_remoteManager, setUpServiceManager());
         m_testConfiguration = new RemoteManagerTestConfiguration(m_remoteManagerListenerPort);
+    }
+
+    protected void tearDown() throws Exception {
+        ContainerUtil.dispose(mailServer);
+        super.tearDown();
     }
 
     protected void finishSetUp(RemoteManagerTestConfiguration testConfiguration) {
@@ -151,7 +157,7 @@ public class RemoteManagerTest extends TestCase {
         SimpleConnectionManager connectionManager = new SimpleConnectionManager();
         ContainerUtil.enableLogging(connectionManager, new MockLogger());
         serviceManager.put(JamesConnectionManager.ROLE, connectionManager);
-        MockMailServer mailServer = new MockMailServer();
+        mailServer = new MockMailServer();
         serviceManager.put(MailServer.ROLE, mailServer);
         m_mockUsersRepository = mailServer.getUsersRepository();
         serviceManager.put(UsersRepository.ROLE, m_mockUsersRepository);

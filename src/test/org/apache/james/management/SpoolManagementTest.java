@@ -27,7 +27,7 @@ import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockServiceManager;
 import org.apache.james.test.mock.avalon.MockStore;
-import org.apache.james.test.mock.james.MockSpoolRepository;
+import org.apache.james.test.mock.james.InMemorySpoolRepository;
 import org.apache.james.test.mock.mailet.MockMail;
 import org.apache.james.test.mock.javaxmail.MockMimeMessage;
 import org.apache.james.test.util.Util;
@@ -45,7 +45,7 @@ public class SpoolManagementTest extends TestCase {
 
     private SpoolManagement m_spoolManagement;
     private MockStore m_mockStore;
-    private MockSpoolRepository m_mockSpoolRepository;
+    private InMemorySpoolRepository m_mockSpoolRepository;
 
     protected void setUp() throws Exception {
         m_spoolManagement = new SpoolManagement();
@@ -53,11 +53,18 @@ public class SpoolManagementTest extends TestCase {
         ContainerUtil.service(m_spoolManagement, setUpServiceManager());
     }
 
+    protected void tearDown() throws Exception {
+        if (m_mockSpoolRepository != null) {
+            ContainerUtil.dispose(m_mockSpoolRepository);
+        }
+        super.tearDown();
+    }
+
     private MockServiceManager setUpServiceManager() {
         MockServiceManager serviceManager = new MockServiceManager();
         m_mockStore = new MockStore();
         serviceManager.put(Store.ROLE, m_mockStore);
-        m_mockSpoolRepository = new MockSpoolRepository();
+        m_mockSpoolRepository = new InMemorySpoolRepository();
         m_mockStore.add("outgoing", m_mockSpoolRepository);
         return serviceManager;
     }
@@ -66,11 +73,8 @@ public class SpoolManagementTest extends TestCase {
         String[] mailList = m_spoolManagement.listSpoolItems(OUTGOING_SPOOL, SpoolFilter.ERRORMAIL_FILTER);
         assertEquals("emtpy spool", 0, mailList.length); // no mail in spool
 
-        MockMail mockMail1 = createSpoolMail(Mail.DEFAULT, "subj1", 1);
-        String messageID1 = mockMail1.getMessage().getMessageID();
-
-        MockMail mockMail2 = createSpoolMail(Mail.ERROR, "subj2", 2);
-        String messageID2 = mockMail2.getMessage().getMessageID();
+        createSpoolMail(Mail.DEFAULT, "subj1", 1);
+        createSpoolMail(Mail.ERROR, "subj2", 2);
 
         mailList = m_spoolManagement.listSpoolItems(OUTGOING_SPOOL, new SpoolFilter(null));
         assertEquals("finds all mails", 2, mailList.length);
@@ -78,17 +82,17 @@ public class SpoolManagementTest extends TestCase {
 
     public void testListSpoolItemsFilterByState() throws SpoolManagementException, MessagingException {
         MockMail mockMail1 = createSpoolMail(Mail.DEFAULT, "subj1", 1);
-        String messageID1 = mockMail1.getMessage().getMessageID();
+        String messageID1 = mockMail1.getName();
 
         String[] mailList = m_spoolManagement.listSpoolItems(OUTGOING_SPOOL, SpoolFilter.ERRORMAIL_FILTER);
         assertEquals("no error mail in spool", 0, mailList.length);
 
         MockMail mockMail2 = createSpoolMail(Mail.ERROR, "subj2", 2);
-        String messageID2 = mockMail2.getMessage().getMessageID();
+        String messageID2 = mockMail2.getName();
 
         mailList = m_spoolManagement.listSpoolItems(OUTGOING_SPOOL, SpoolFilter.ERRORMAIL_FILTER);
         assertEquals("finds only 1 error mail", 1, mailList.length);
-        assertTrue("finds only error mail", mailList[0].indexOf(messageID2) >= 0);
+        assertTrue("finds only error mail: "+mailList[0], mailList[0].indexOf(messageID2) >= 0);
 
         mailList = m_spoolManagement.listSpoolItems(OUTGOING_SPOOL, new SpoolFilter(Mail.DEFAULT));
         assertEquals("finds only 1 default mail", 1, mailList.length);
@@ -101,13 +105,10 @@ public class SpoolManagementTest extends TestCase {
     public void testListSpoolItemsFilterByHeader() throws SpoolManagementException, MessagingException {
 
         MockMail mockMail1 = createSpoolMail(Mail.DEFAULT, "TestHeader", "value1", 1);
-        String messageID1 = mockMail1.getMessage().getMessageID();
+        String messageID1 = mockMail1.getName();
 
-        MockMail mockMail2 = createSpoolMail(Mail.ERROR, "TestHeader", "value2", 2);
-        String messageID2 = mockMail2.getMessage().getMessageID();
-
-        MockMail mockMail3 = createSpoolMail(Mail.ERROR, "TestHeader", "another", 3);
-        String messageID3 = mockMail3.getMessage().getMessageID();
+        createSpoolMail(Mail.ERROR, "TestHeader", "value2", 2);
+        createSpoolMail(Mail.ERROR, "TestHeader", "another", 3);
 
         String[] mailList = m_spoolManagement.listSpoolItems(OUTGOING_SPOOL, new SpoolFilter("TestHeader", "value[12]"));
         assertEquals("find all mails", 2, mailList.length);
@@ -134,14 +135,9 @@ public class SpoolManagementTest extends TestCase {
     }
 
     public void testRemoveErrorMails() throws SpoolManagementException, MessagingException {
-        MockMail mockMail1 = createSpoolMail(Mail.DEFAULT, "subj1", 1);
-        String messageID1 = mockMail1.getMessage().getMessageID();
-
-        MockMail mockMail2 = createSpoolMail(Mail.ERROR, "subj2", 2);
-        String messageID2 = mockMail2.getMessage().getMessageID();
-
-        MockMail mockMail3 = createSpoolMail(Mail.ERROR, "subj3", 3);
-        String messageID3 = mockMail3.getMessage().getMessageID();
+        createSpoolMail(Mail.DEFAULT, "subj1", 1);
+        createSpoolMail(Mail.ERROR, "subj2", 2);
+        createSpoolMail(Mail.ERROR, "subj3", 3);
 
         assertEquals("one mail removed", 2, m_spoolManagement.removeSpoolItems(OUTGOING_SPOOL, null, SpoolFilter.ERRORMAIL_FILTER));
         String[] mailList = m_spoolManagement.listSpoolItems(OUTGOING_SPOOL, SpoolFilter.ERRORMAIL_FILTER);
@@ -149,14 +145,11 @@ public class SpoolManagementTest extends TestCase {
     }
 
     public void testRemoveErrorDedicatedMail() throws SpoolManagementException, MessagingException {
-        MockMail mockMail1 = createSpoolMail(Mail.DEFAULT, "subj1", 1);
-        String messageID1 = mockMail1.getMessage().getMessageID();
-
+        createSpoolMail(Mail.DEFAULT, "subj1", 1);
         MockMail mockMail2 = createSpoolMail(Mail.ERROR, "subj2", 2);
-        String messageID2 = mockMail2.getMessage().getMessageID();
-
+        String messageID2 = mockMail2.getName();
         MockMail mockMail3 = createSpoolMail(Mail.ERROR, "subj3", 3);
-        String messageID3 = mockMail3.getMessage().getMessageID();
+        String messageID3 = mockMail3.getName();
 
         assertEquals("one mail removed", 1, m_spoolManagement.removeSpoolItems(OUTGOING_SPOOL, messageID3, SpoolFilter.ERRORMAIL_FILTER));
         String[] mailList = m_spoolManagement.listSpoolItems(OUTGOING_SPOOL, SpoolFilter.ERRORMAIL_FILTER);

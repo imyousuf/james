@@ -82,11 +82,11 @@ public class MockMail implements Mail {
     }
 
     public String getRemoteHost() {
-        throw new UnsupportedOperationException("Unimplemented mock service");
+        return "111.222.333.444";
     }
 
     public String getRemoteAddr() {
-        throw new UnsupportedOperationException("Unimplemented mock service");
+        return "my.mock.remote.host";
     }
 
     public String getErrorMessage() {

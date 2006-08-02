@@ -164,6 +164,11 @@ public class SMTPServerTest extends TestCase {
         m_testConfiguration = new SMTPTestConfiguration(m_smtpListenerPort);
     }
 
+    protected void tearDown() throws Exception {
+        ContainerUtil.dispose(m_mailServer);
+        super.tearDown();
+    }
+
     private void finishSetUp(SMTPTestConfiguration testConfiguration) throws Exception {
         testConfiguration.init();
         ContainerUtil.configure(m_smtpServer, testConfiguration);

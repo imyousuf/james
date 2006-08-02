@@ -20,6 +20,7 @@
 
 package org.apache.james.test.mock.james;
 
+import org.apache.james.core.MailImpl;
 import org.apache.james.services.SpoolRepository;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.util.Lock;
@@ -137,7 +138,9 @@ public class InMemorySpoolRepository
                 }
             }
             try {
-                spool.put(key,mc);
+                MailImpl m = new MailImpl(mc,mc.getName());
+                m.setState(mc.getState());
+                spool.put(mc.getName(),m);
             } finally {
                 if (!wasLocked) {
                     // If it wasn't locked, we need to unlock now
@@ -158,7 +161,7 @@ public class InMemorySpoolRepository
             }
 
         } catch (Exception e) {
-            getLogger().error("Exception storing mail: " + e);
+            getLogger().error("Exception storing mail: " + e,e);
             throw new MessagingException("Exception caught while storing Message Container: ",e);
         }
     }
@@ -177,7 +180,8 @@ public class InMemorySpoolRepository
         try {
             Mail mc = null;
             try {
-                mc = (Mail) spool.get(key);
+                mc = new MailImpl((Mail) spool.get(key),key);
+                mc.setState(((Mail) spool.get(key)).getState());
             } 
             catch (RuntimeException re){
                 StringBuffer exceptionBuffer = new StringBuffer(128);
