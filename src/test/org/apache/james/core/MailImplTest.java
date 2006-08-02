@@ -75,6 +75,7 @@ public class MailImplTest extends MailTestAllImplementations {
         assertEquals("initial message", mimeMessage.getMessageID(), mail.getMessage().getMessageID());
         assertEquals("sender", sender, mail.getSender().toString());
         assertEquals("name", name, mail.getName());
+        mail.dispose();
     }
 
     public void testDuplicate() throws MessagingException {
