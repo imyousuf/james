@@ -58,7 +58,7 @@ public class MailFilterCmdHandler
            
        } else {        
            // store the response
-           session.getSMTPResponse().store(response);
+           session.getSMTPResponse().setRawSMTPResponse(response);
        }
     }
 

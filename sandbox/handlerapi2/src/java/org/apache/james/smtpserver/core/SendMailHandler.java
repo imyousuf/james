@@ -60,7 +60,7 @@ public class SendMailHandler
      * @see org.apache.james.smtpserver#onMessage(SMTPSession)
      */
     public void onMessage(SMTPSession session, Chain chain) {
-	session.getSMTPResponse().store(processMail(session));
+	session.getSMTPResponse().setRawSMTPResponse(processMail(session));
     }
     
     private String processMail(SMTPSession session) {

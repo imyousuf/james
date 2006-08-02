@@ -238,6 +238,8 @@ public interface SMTPSession {
      */
     SMTPResponse getSMTPResponse();
     
+    void setSMTPResponse(SMTPResponse response);
+    
     void writeResponse(String resp);
 }
 

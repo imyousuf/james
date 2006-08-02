@@ -45,7 +45,7 @@ public class QuitCmdHandler implements CommandHandler {
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
     public void onCommand(SMTPSession session, Chain chain) {
-        session.getSMTPResponse().store(doQUIT(session));
+        session.getSMTPResponse().setRawSMTPResponse(doQUIT(session));
         session.endSession();
 
     }

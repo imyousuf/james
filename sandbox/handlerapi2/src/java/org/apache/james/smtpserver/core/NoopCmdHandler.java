@@ -47,7 +47,7 @@ public class NoopCmdHandler implements CommandHandler {
      */
     public void onCommand(SMTPSession session, Chain chain) {
         String responseString = "250 "+DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.UNDEFINED_STATUS)+" OK";
-        session.getSMTPResponse().store(responseString);
+        session.getSMTPResponse().setRawSMTPResponse(responseString);
     }
     
     /**

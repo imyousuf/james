@@ -50,7 +50,7 @@ public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler
         String response = doHELO(session);
         
         if (response != null) {
-            session.getSMTPResponse().store(response);
+            session.getSMTPResponse().setRawSMTPResponse(response);
         }
     }
 

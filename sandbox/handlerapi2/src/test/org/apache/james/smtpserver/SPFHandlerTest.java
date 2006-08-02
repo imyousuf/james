@@ -47,6 +47,10 @@ public class SPFHandlerTest extends TestCase {
     private boolean relaying = false;
 
     private String command = "MAIL";
+    
+    private final static int REJECT_CODE = 530;
+    
+    private final static int TEMP_REJECT_CODE = 451;
 
     protected void setUp() throws Exception {
         super.setUp();
@@ -154,7 +158,7 @@ public class SPFHandlerTest extends TestCase {
 
             Mail mail = new MockMail();
             
-            SMTPResponse response = new SMTPResponse();
+            SMTPResponse response = new SMTPResponse(500,"Unknown Response");
 
             public void writeResponse(String respString) {
                 // Do nothing
@@ -196,7 +200,7 @@ public class SPFHandlerTest extends TestCase {
             }
             
             public SMTPResponse getSMTPResponse() {
-            return response;
+                return response;
             }
 
         };
@@ -239,7 +243,7 @@ public class SPFHandlerTest extends TestCase {
         assertEquals("header", mockedSMTPSession.getState().get(
                 SPFHandler.SPF_HEADER), mockedSMTPSession.getMail()
                 .getAttribute(SPFHandler.SPF_HEADER_MAIL_ATTRIBUTE_NAME));
-        assertTrue("Not rejected", mockedSMTPSession.getSMTPResponse().retrieve().size() == 0);
+        assertTrue("Not rejected", mockedSMTPSession.getSMTPResponse().getSMTPCode() != REJECT_CODE);
     }
 
     public void testSPFfail() throws Exception {
@@ -264,7 +268,7 @@ public class SPFHandlerTest extends TestCase {
                 SPFHandler.SPF_TEMPBLOCKLISTED));
         assertNotNull("Header should present", mockedSMTPSession.getState()
                 .get(SPFHandler.SPF_HEADER));
-        assertTrue("Rejected", mockedSMTPSession.getSMTPResponse().retrieve().size() > 0);
+        assertTrue("Rejected", mockedSMTPSession.getSMTPResponse().getSMTPCode() == REJECT_CODE);
     }
 
     public void testSPFsoftFail() throws Exception {
@@ -292,7 +296,7 @@ public class SPFHandlerTest extends TestCase {
         assertEquals("header", mockedSMTPSession.getState().get(
                 SPFHandler.SPF_HEADER), mockedSMTPSession.getMail()
                 .getAttribute(SPFHandler.SPF_HEADER_MAIL_ATTRIBUTE_NAME));
-        assertTrue("Not rejected", mockedSMTPSession.getSMTPResponse().retrieve().size() == 0);
+        assertTrue("Not rejected", mockedSMTPSession.getSMTPResponse().getSMTPCode() != REJECT_CODE);
     }
 
     public void testSPFsoftFailRejectEnabled() throws Exception {
@@ -319,7 +323,7 @@ public class SPFHandlerTest extends TestCase {
                 SPFHandler.SPF_TEMPBLOCKLISTED));
         assertNotNull("Header should present", mockedSMTPSession.getState()
                 .get(SPFHandler.SPF_HEADER));
-        assertTrue("Rejected", mockedSMTPSession.getSMTPResponse().retrieve().size() > 0);
+        assertTrue("Rejected", mockedSMTPSession.getSMTPResponse().getSMTPCode() == REJECT_CODE);
     }
 
     public void testSPFpermError() throws Exception {
@@ -346,7 +350,7 @@ public class SPFHandlerTest extends TestCase {
                 SPFHandler.SPF_TEMPBLOCKLISTED));
         assertNotNull("Header should present", mockedSMTPSession.getState()
                 .get(SPFHandler.SPF_HEADER));
-        assertTrue("Rejected", mockedSMTPSession.getSMTPResponse().retrieve().size() > 0);
+        assertTrue("Rejected", mockedSMTPSession.getSMTPResponse().getSMTPCode() == REJECT_CODE);
     }
 
     public void testSPFtempError() throws Exception {
@@ -371,7 +375,7 @@ public class SPFHandlerTest extends TestCase {
                 SPFHandler.SPF_TEMPBLOCKLISTED));
         assertNotNull("Header should present", mockedSMTPSession.getState()
                 .get(SPFHandler.SPF_HEADER));
-        assertTrue("Rejected", mockedSMTPSession.getSMTPResponse().retrieve().size() > 0);;
+        assertTrue("Rejected", mockedSMTPSession.getSMTPResponse().getSMTPCode() == TEMP_REJECT_CODE);;
     }
 
     public void testSPFNoRecord() throws Exception {
@@ -399,7 +403,7 @@ public class SPFHandlerTest extends TestCase {
         assertEquals("header", mockedSMTPSession.getState().get(
                 SPFHandler.SPF_HEADER), mockedSMTPSession.getMail()
                 .getAttribute(SPFHandler.SPF_HEADER_MAIL_ATTRIBUTE_NAME));
-        assertTrue("Not rejected", mockedSMTPSession.getSMTPResponse().retrieve().size() == 0);
+        assertTrue("Not rejected", mockedSMTPSession.getSMTPResponse().getSMTPCode() != REJECT_CODE);
     }
 
     public void testSPFpermErrorNotRejectPostmaster() throws Exception {
@@ -426,7 +430,7 @@ public class SPFHandlerTest extends TestCase {
                 SPFHandler.SPF_TEMPBLOCKLISTED));
         assertNull("no Header should present", mockedSMTPSession.getState()
                 .get(SPFHandler.SPF_HEADER));
-        assertTrue("Not rejected", mockedSMTPSession.getSMTPResponse().retrieve().size() == 0);
+        assertTrue("Not rejected", mockedSMTPSession.getSMTPResponse().getSMTPCode() != REJECT_CODE);
     }
 
     public void testSPFpermErrorNotRejectAbuse() throws Exception {
@@ -452,6 +456,6 @@ public class SPFHandlerTest extends TestCase {
                 SPFHandler.SPF_TEMPBLOCKLISTED));
         assertNull("no Header should present", mockedSMTPSession.getState()
                 .get(SPFHandler.SPF_HEADER));
-        assertTrue("Not rejected", mockedSMTPSession.getSMTPResponse().retrieve().size() == 0);
+        assertTrue("Not rejected", mockedSMTPSession.getSMTPResponse().getSMTPCode() != REJECT_CODE);
     }
 }

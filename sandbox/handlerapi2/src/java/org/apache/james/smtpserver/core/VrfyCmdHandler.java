@@ -45,7 +45,7 @@ public class VrfyCmdHandler implements CommandHandler {
     **/
     public void onCommand(SMTPSession session, Chain chain) {
         String responseString = "502 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SYSTEM_NOT_CAPABLE)+" VRFY is not supported";
-        session.getSMTPResponse().store(responseString);
+        session.getSMTPResponse().setRawSMTPResponse(responseString);
     }
     
     /**

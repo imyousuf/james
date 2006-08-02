@@ -37,6 +37,7 @@ import junit.framework.TestCase;
 
 public class ValidSenderDomainHandlerTest extends TestCase {
    
+    private final int REJECT_CODE = 501;
     
     private DNSServer setupDNSServer() {
         DNSServer dns = new DNSServer(){
@@ -72,7 +73,7 @@ public class ValidSenderDomainHandlerTest extends TestCase {
     private SMTPSession setupMockedSession(final MailAddress sender) {
         SMTPSession session = new AbstractSMTPSession() {
             HashMap state = new HashMap();
-            SMTPResponse response = new SMTPResponse();
+            SMTPResponse response = new SMTPResponse(500, "Unknown Response");
             
             public Map getState() {
 
@@ -103,6 +104,6 @@ public class ValidSenderDomainHandlerTest extends TestCase {
         handler.setDnsServer(setupDNSServer());
         handler.onCommand(session,new Chain(null));
         
-        assertTrue("Not blocked cause its a nullsender",session.getSMTPResponse().retrieve().size() == 0);
+        assertTrue("Not blocked cause its a nullsender",session.getSMTPResponse().getSMTPCode() != REJECT_CODE);
     }
 }

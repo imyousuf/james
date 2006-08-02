@@ -47,8 +47,12 @@ public class ExpnCmdHandler implements CommandHandler {
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
     public void onCommand(SMTPSession session,Chain chain) {
-        String responseString = "502 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SYSTEM_NOT_CAPABLE)+" EXPN is not supported";
-        session.getSMTPResponse().store(responseString);
+	int code = 502;
+        String responseString = DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SYSTEM_NOT_CAPABLE)+" EXPN is not supported";
+        
+        // Set the response
+        session.getSMTPResponse().setSMTPCode(code);
+        session.getSMTPResponse().setSMTPResponse(responseString);
     }
     
     /**

@@ -49,7 +49,7 @@ public class UnknownCmdHandler implements CommandHandler {
 	String response = doUNKNOWN(session);
 
 	if (response != null) {
-	    session.getSMTPResponse().store(response);
+	    session.getSMTPResponse().setRawSMTPResponse(response);
 	}
     }
     

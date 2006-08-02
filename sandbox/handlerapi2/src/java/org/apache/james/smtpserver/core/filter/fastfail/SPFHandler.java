@@ -157,7 +157,7 @@ public class SPFHandler extends AbstractLogEnabled implements CommandHandler,
                 
             } else {        
                 // store the response
-                session.getSMTPResponse().store(response);
+                session.getSMTPResponse().setRawSMTPResponse(response);
             }
         }
     }

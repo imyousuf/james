@@ -50,7 +50,7 @@ public class EhloHeloFilterCmdHandler extends AbstractLogEnabled implements Comm
             
         } else {        
             // store the response
-            session.getSMTPResponse().store(response);
+            session.getSMTPResponse().setRawSMTPResponse(response);
         }
     }
 

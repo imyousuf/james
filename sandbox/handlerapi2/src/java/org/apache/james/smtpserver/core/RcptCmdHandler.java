@@ -43,7 +43,7 @@ public class RcptCmdHandler extends AbstractLogEnabled implements
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
     **/
     public void onCommand(SMTPSession session,Chain chain) {
-        session.getSMTPResponse().store(doRCPT(session));
+        session.getSMTPResponse().setRawSMTPResponse(doRCPT(session));
     }
 
 

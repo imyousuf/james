@@ -161,7 +161,10 @@ public class SMTPHandler
      */
     private StringBuffer responseBuffer = new StringBuffer(256);
     
-    private SMTPResponse response = new SMTPResponse();
+    private final static int DEFAULT_SMTP_CODE = 500;
+    private final static String DEFAULT_SMTP_RESPONSE = "Unexpected Error";
+    
+    private SMTPResponse response = new SMTPResponse(DEFAULT_SMTP_CODE,DEFAULT_SMTP_RESPONSE);
 
     /**
      * Set the configuration data for the handler
@@ -268,7 +271,7 @@ public class SMTPHandler
 	    } else {
 		new Chain(commandHandlers.iterator()).doChain(this);
 
-		writeCompleteResponse(getSMTPResponse().retrieve());
+		writeCompleteResponse(getSMTPResponse());
 	    }
 
 	    // handle messages
@@ -279,7 +282,7 @@ public class SMTPHandler
 		if (messageHandlers != null) {
 		    new Chain(messageHandlers.iterator()).doChain(this);
 
-		    writeCompleteResponse(getSMTPResponse().retrieve());
+		    writeCompleteResponse(getSMTPResponse());
 		}
 	    }
 
@@ -310,23 +313,34 @@ public class SMTPHandler
      * @param resp
      *                The Collection of responseStrings
      */
-    private void writeCompleteResponse(Collection resp) {
+    private void writeCompleteResponse(SMTPResponse responses) {
+	if (responses == null) return;
+	
+	Collection resp = response.getSMTPResponse();
+	
 	if (resp.size() > 0) {
 	    Iterator response = resp.iterator();
 
 	    while (response.hasNext()) {
-
-		writeResponse(response.next().toString());
+		String responseString = response.next().toString();
+		String finalResponse = null;
+		
+		if (response.hasNext()) {
+		finalResponse = responses.getSMTPCode() + "-" + responseString;
+		} else {
+		    finalResponse = responses.getSMTPCode() + " " + responseString;
+		}
+		writeResponse(finalResponse);
 	    }
-	    getSMTPResponse().clear();
 	}
+	resetSMTPResponse();
     }
     
     /**
      * Resets the handler data to a basic state.
      */
     protected void resetHandler() {
-	getSMTPResponse().clear();
+	this.response = null;
 	resetState();
 	resetConnectionState();
 
@@ -336,6 +350,7 @@ public class SMTPHandler
 	remoteIP = null;
 	authenticatedUser = null;
 	smtpID = null;
+	resetSMTPResponse();
     }
 
    /**
@@ -577,6 +592,21 @@ public class SMTPHandler
      */
     public SMTPResponse getSMTPResponse() {
 	return response;
+    }
+    
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#setSMTPResponse(SMTPResponse)
+     */
+    public void setSMTPResponse(SMTPResponse response){
+	this.response = response;
+    }
+    
+    /**
+     * Reset the SMTPResponse to the default state
+     */
+    private void resetSMTPResponse() {
+	getSMTPResponse().setSMTPCode(DEFAULT_SMTP_CODE);
+	getSMTPResponse().setSMTPResponse(DEFAULT_SMTP_RESPONSE);
     }
 
 }

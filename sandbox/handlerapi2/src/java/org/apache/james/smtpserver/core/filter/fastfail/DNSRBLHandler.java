@@ -270,7 +270,7 @@ public class DNSRBLHandler
 
 	} else {
 	    // store the response
-	    session.getSMTPResponse().store(response);
+	    session.getSMTPResponse().setRawSMTPResponse(response);
 	}
     }
 

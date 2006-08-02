@@ -45,7 +45,7 @@ public class MailCmdHandler
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
     public void onCommand(SMTPSession session,Chain chain) {
-        session.getSMTPResponse().store(doMAIL(session, session.getCommandArgument()));
+        session.getSMTPResponse().setRawSMTPResponse(doMAIL(session, session.getCommandArgument()));
     }
 
 

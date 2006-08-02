@@ -44,7 +44,7 @@ public class RsetCmdHandler implements CommandHandler {
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
     **/
     public void onCommand(SMTPSession session, Chain chain) {
-        session.getSMTPResponse().store(doRSET(session, session.getCommandArgument()));
+        session.getSMTPResponse().setRawSMTPResponse(doRSET(session, session.getCommandArgument()));
     }
 
 

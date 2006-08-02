@@ -47,9 +47,7 @@ public class RcptFilterCmdHandler extends AbstractLogEnabled implements
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
     **/
     public void onCommand(SMTPSession session, Chain chain) {
-        
-        System.err.println("ADDRESS: ");
-        
+      
        String response =  doRCPT(session);
        
        if (response == null) {
@@ -58,7 +56,7 @@ public class RcptFilterCmdHandler extends AbstractLogEnabled implements
            
        } else {        
            // store the response
-           session.getSMTPResponse().store(response);
+           session.getSMTPResponse().setRawSMTPResponse(response);
        }
     }
 

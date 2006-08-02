@@ -39,14 +39,15 @@ import org.apache.mailet.MailAddress;
 
 public class ResolvableEhloHeloHandlerTest extends TestCase {
 
-    public final static String INVALID_HOST = "foo.bar";
+    private final static String INVALID_HOST = "foo.bar";
     
-    public final static String VALID_HOST = "james.apache.org";
+    private final static String VALID_HOST = "james.apache.org";
     
-    public final static String HELO = "HELO";
+    private final static String HELO = "HELO";
     
-    public final static String RCPT = "RCPT";
+    private final static String RCPT = "RCPT";
     
+    private final static int REJECT_CODE = 501; 
     
     private String command = null;
     
@@ -65,7 +66,7 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
 
             HashMap connectionMap = new HashMap();
             HashMap map = new HashMap();
-            SMTPResponse response = new SMTPResponse();
+            SMTPResponse response = new SMTPResponse(500,"Unexpected Error");
             
             public String getCommandArgument() {
                 return argument;
@@ -136,7 +137,7 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         // rcpt
         setCommand(RCPT);
         handler.onCommand(session, new Chain(null));
-        assertTrue("Reject", session.getSMTPResponse().retrieve().size() > 0);
+        assertTrue("Reject", session.getSMTPResponse().getSMTPCode()  == REJECT_CODE);
     }
     
     
@@ -157,7 +158,7 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         // rcpt
         setCommand(RCPT);
         handler.onCommand(session, new Chain(null));
-        assertTrue("Not Reject", session.getSMTPResponse().retrieve().size() == 0);
+        assertTrue("Not Reject", session.getSMTPResponse().getSMTPCode() != REJECT_CODE);
 
     }
     
@@ -178,7 +179,7 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         // rcpt
         setCommand(RCPT);
         handler.onCommand(session, new Chain(null));
-        assertTrue("Not reject", session.getSMTPResponse().retrieve().size() == 0);
+        assertTrue("Not reject", session.getSMTPResponse().getSMTPCode() != REJECT_CODE);
     }
     
     public void testRejectInvalidHeloAuthUser() throws ParseException {
@@ -199,7 +200,7 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         // rcpt
         setCommand(RCPT);
         handler.onCommand(session, new Chain(null));
-        assertTrue("Reject", session.getSMTPResponse().retrieve().size() > 0);
+        assertTrue("Reject", session.getSMTPResponse().getSMTPCode() == REJECT_CODE);
 
     }
     
@@ -220,7 +221,7 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         // rcpt
         setCommand(RCPT);
         handler.onCommand(session, new Chain(null));
-        assertTrue("Not reject", session.getSMTPResponse().retrieve().size() == 0);
+        assertTrue("Not reject", session.getSMTPResponse().getSMTPCode() != REJECT_CODE);
         
     }
     
@@ -242,7 +243,7 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         // rcpt
         setCommand(RCPT);
         handler.onCommand(session, new Chain(null));
-        assertTrue("Reject", session.getSMTPResponse().retrieve().size() > 0);
+        assertTrue("Reject", session.getSMTPResponse().getSMTPCode() == REJECT_CODE);
 
     }
     
@@ -263,7 +264,7 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         // rcpt
         setCommand(RCPT);
         handler.onCommand(session, new Chain(null));
-        assertTrue("Not reject", session.getSMTPResponse().retrieve().size() == 0);
+        assertTrue("Not reject", session.getSMTPResponse().getSMTPCode() != REJECT_CODE);
         
     }
     
@@ -284,7 +285,7 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         // rcpt
         setCommand(RCPT);
         handler.onCommand(session, new Chain(null));
-        assertTrue("Not reject", session.getSMTPResponse().retrieve().size() == 0);
+        assertTrue("Not reject", session.getSMTPResponse().getSMTPCode() != REJECT_CODE);
 
     }
 }

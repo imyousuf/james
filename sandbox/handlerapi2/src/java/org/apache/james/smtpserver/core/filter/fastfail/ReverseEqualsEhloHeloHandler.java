@@ -123,7 +123,7 @@ public class ReverseEqualsEhloHeloHandler extends AbstractLogEnabled implements
                 
             } else {        
                 // store the response
-                session.getSMTPResponse().store(response);
+                session.getSMTPResponse().setRawSMTPResponse(response);
             }
         }
     }
