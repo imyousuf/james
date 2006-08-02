@@ -1067,6 +1067,8 @@ public class SMTPServerTest extends TestCase {
         verifyLastMail(sender, recipient, null);
         
         assertEquals(((String) mm.getContent()).trim(),((String) ((MimeMessage) m_mailServer.getLastMail()[2]).getContent()).trim());
+        
+        mail.dispose();
     }
 
     
@@ -1111,7 +1113,8 @@ public class SMTPServerTest extends TestCase {
         
         // THIS WOULD FAIL BECAUSE OF THE JAVAMAIL BUG
         // assertEquals(mm.getContent(),((MimeMessage) m_mailServer.getLastMail()[2]).getContent());
-
+        
+        mail.dispose();
     }
     
     // Check if auth users get not rejected cause rbl. See JAMES-566

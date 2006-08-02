@@ -23,6 +23,7 @@ package org.apache.james.transport.mailets;
 
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
+import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
@@ -228,6 +229,7 @@ public class ToMultiRepository extends GenericMailet {
             throw new MessagingException(errorBuffer.toString());
         }
         userInbox.store(mail);
+        ContainerUtil.dispose(mail);
     }
 
     /**

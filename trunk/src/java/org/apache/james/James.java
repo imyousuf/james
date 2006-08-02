@@ -27,6 +27,7 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
+import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.context.DefaultContext;
@@ -480,6 +481,7 @@ public class James
         MailImpl mail = new MailImpl(getId(), sender, recipients, message);
         mail.setState(state);
         sendMail(mail);
+        ContainerUtil.dispose(mail);
     }
 
     /**
@@ -704,6 +706,7 @@ public class James
         //Send it off ... with null reverse-path
         reply.setSender(null);
         sendMail(reply);
+        ContainerUtil.dispose(reply);
     }
 
     /**
@@ -924,5 +927,6 @@ public class James
         recipients.add(recipient);
         MailImpl m = new MailImpl(getId(),sender,recipients,msg);
         localDeliveryMailet.service(m);
+        ContainerUtil.dispose(m);
     }
 }
