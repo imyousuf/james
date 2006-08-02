@@ -23,6 +23,7 @@ package org.apache.james.transport.mailets;
 
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
+import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
@@ -1108,10 +1109,12 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                         }
                         if (deliver(mail, session)) {
                             //Message was successfully delivered/fully failed... delete it
+                            ContainerUtil.dispose(mail);
                             outgoing.remove(key);
                         } else {
                             //Something happened that will delay delivery.  Store any updates
                             outgoing.store(mail);
+                            ContainerUtil.dispose(mail);
                             // This is an update, we have to unlock and notify or this mail
                             // is kept locked by this thread
                             outgoing.unlock(key);
@@ -1128,6 +1131,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                         // DO NOT CHNANGE THIS to catch Error!  For example, if there were an OutOfMemory condition
                         // caused because something else in the server was abusing memory, we would not want to
                         // start purging the outgoing spool!
+                        ContainerUtil.dispose(mail);
                         outgoing.remove(key);
                         throw e;
                     }

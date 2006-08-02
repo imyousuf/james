@@ -202,12 +202,13 @@ public class JamesSpoolManager
                 if ((Mail.GHOST.equals(mail.getState())) ||
                     (mail.getRecipients() == null) ||
                     (mail.getRecipients().size() == 0)) {
+                    ContainerUtil.dispose(mail);
                     spool.remove(key);
                     if (getLogger().isDebugEnabled()) {
                         StringBuffer debugBuffer =
                             new StringBuffer(64)
                                     .append("==== Removed from spool mail ")
-                                    .append(mail.getName())
+                                    .append(key)
                                     .append("====");
                         getLogger().debug(debugBuffer.toString());
                     }
@@ -217,11 +218,11 @@ public class JamesSpoolManager
                     // message so that other threads can work on it!  If
                     // we don't remove it, we must unlock it!
                     spool.store(mail);
+                    ContainerUtil.dispose(mail);
                     spool.unlock(key);
                     // Do not notify: we simply updated the current mail
                     // and we are able to reprocess it now.
                 }
-                ContainerUtil.dispose(mail);
                 mail = null;
             } catch (InterruptedException ie) {
                 getLogger().info("Interrupted JamesSpoolManager: " + Thread.currentThread().getName());
