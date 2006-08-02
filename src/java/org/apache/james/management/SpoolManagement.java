@@ -24,6 +24,7 @@ package org.apache.james.management;
 
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
+import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
@@ -362,7 +363,7 @@ public class SpoolManagement implements Serviceable, SpoolManagementService, Spo
         Mail m = spoolRepository.retrieve(key);
         if (m == null) throw new SpoolManagementException("mail not available having key " + key);
         if (!filterMatches(m, filter)) return false;
-
+        ContainerUtil.dispose(m);
         spoolRepository.remove(key);
         return true;
     }
