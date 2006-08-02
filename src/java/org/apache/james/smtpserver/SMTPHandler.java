@@ -400,36 +400,37 @@ public class SMTPHandler
 
               //handle messages
               if(mode == MESSAGE_RECEIVED_MODE) {
-                  getLogger().debug("executing message handlers");
-                  List messageHandlers = handlerChain.getMessageHandlers();
-                  int count = messageHandlers.size();
-                  for(int i =0; i < count; i++) {
-                      ((MessageHandler)messageHandlers.get(i)).onMessage(this);
-                      //if the response is received, stop processing of command handlers
-                      if(mode == MESSAGE_ABORT_MODE) {
-                          break;
+                  try {
+                      getLogger().debug("executing message handlers");
+                      List messageHandlers = handlerChain.getMessageHandlers();
+                      int count = messageHandlers.size();
+                      for(int i =0; i < count; i++) {
+                          ((MessageHandler)messageHandlers.get(i)).onMessage(this);
+                          //if the response is received, stop processing of command handlers
+                          if(mode == MESSAGE_ABORT_MODE) {
+                              break;
+                          }
+                      }
+                  } finally {
+                      //do the clean up
+                      if(mail != null) {
+                          if (mail instanceof Disposable) {
+                              ((Disposable) mail).dispose();
+                          }
+                  
+                          // remember the ehlo mode
+                          Object currentHeloMode = state.get(CURRENT_HELO_MODE);
+                  
+                          mail = null;
+                          resetState();
+
+                          // start again with the old helo mode
+                          if (currentHeloMode != null) {
+                              state.put(CURRENT_HELO_MODE,currentHeloMode);
+                          }
                       }
                   }
               }
-
-              //do the clean up
-              if(mail != null) {
-                  if (mail instanceof Disposable) {
-                      ((Disposable) mail).dispose();
-                  }
-                  
-                  // remember the ehlo mode
-                  Object currentHeloMode = state.get(CURRENT_HELO_MODE);
-                  
-                  mail = null;
-                  resetState();
-
-                  // start again with the old helo mode
-                  if (currentHeloMode != null) {
-                      state.put(CURRENT_HELO_MODE,currentHeloMode);
-                  }
-              }
-
             }
             theWatchdog.stop();
             getLogger().debug("Closing socket.");
