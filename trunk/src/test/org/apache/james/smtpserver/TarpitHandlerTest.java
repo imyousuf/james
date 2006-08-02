@@ -42,6 +42,7 @@ public class TarpitHandlerTest extends TestCase {
 
     public void testTarpit() {
         long tarpitTime = 1000;
+        long tarpitTolerance = 100;
         long startTime;
         TarpitHandler handler = new TarpitHandler();
 
@@ -54,12 +55,12 @@ public class TarpitHandlerTest extends TestCase {
         startTime = System.currentTimeMillis();
         handler.onCommand(setupMockedSession(0));
         assertTrue("No tarpit",
-                (System.currentTimeMillis() - startTime) < tarpitTime);
+                (System.currentTimeMillis() - startTime) < tarpitTime - tarpitTolerance);
 
         // tarpit used
         startTime = System.currentTimeMillis();
         handler.onCommand(setupMockedSession(3));
         assertTrue("tarpit",
-                (System.currentTimeMillis() - startTime) >= tarpitTime);
+                (System.currentTimeMillis() - startTime) >= tarpitTime - tarpitTolerance);
     }
 }

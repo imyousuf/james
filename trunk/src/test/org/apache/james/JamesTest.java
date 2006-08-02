@@ -31,13 +31,16 @@ import org.apache.james.test.mock.avalon.MockContext;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockServiceManager;
 import org.apache.james.test.mock.avalon.MockStore;
+import org.apache.james.test.mock.james.InMemorySpoolRepository;
 import org.apache.james.test.mock.james.MockUsersStore;
-import org.apache.james.test.mock.james.MockMailRepository;
 import org.apache.james.userrepository.MockUsersRepository;
 
 import java.io.File;
 
 public class JamesTest extends MailServerTestAllImplementations {
+    
+    private File tempContextFile = null;
+    private InMemorySpoolRepository mockMailRepository;
 
     public MailServer createMailServer() {
         James james = new James();
@@ -49,7 +52,8 @@ public class JamesTest extends MailServerTestAllImplementations {
             JamesTestConfiguration conf = new JamesTestConfiguration();
             conf.init();
             ContainerUtil.configure(james, conf);
-            ContainerUtil.contextualize(james, new MockContext(File.createTempFile("james_test", "tmp")));
+            tempContextFile = File.createTempFile("james_test_tempContextFile", "tmp");
+            ContainerUtil.contextualize(james, new MockContext(tempContextFile));
             ContainerUtil.initialize(james);
         } catch (Exception e) {
             e.printStackTrace();
@@ -57,6 +61,20 @@ public class JamesTest extends MailServerTestAllImplementations {
         }
         return james;
     }
+    
+    
+
+    protected void tearDown() throws Exception {
+        if (tempContextFile != null) {
+            tempContextFile.delete();
+        }
+        if (mockMailRepository != null) {
+            ContainerUtil.dispose(mockMailRepository);
+        }
+        super.tearDown();
+    }
+
+
 
     private MockServiceManager setUpServiceManager() {
         MockServiceManager serviceManager = new MockServiceManager();
@@ -64,7 +82,8 @@ public class JamesTest extends MailServerTestAllImplementations {
         serviceManager.put(UsersRepository.ROLE, mockUsersRepository);
         serviceManager.put(UsersStore.ROLE, new MockUsersStore(mockUsersRepository));
         MockStore mockStore = new MockStore();
-        mockStore.add(EXISTING_USER_NAME, new MockMailRepository());
+        mockMailRepository = new InMemorySpoolRepository();
+        mockStore.add(EXISTING_USER_NAME, mockMailRepository);
         serviceManager.put(Store.ROLE, mockStore);
         return serviceManager;
     }

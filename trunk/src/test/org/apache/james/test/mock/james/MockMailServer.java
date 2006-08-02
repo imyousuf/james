@@ -19,6 +19,8 @@
 
 package org.apache.james.test.mock.james;
 
+import org.apache.avalon.framework.activity.Disposable;
+import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
@@ -34,11 +36,11 @@ import javax.mail.internet.MimeMessage;
 import java.io.InputStream;
 import java.util.*;
 
-public class MockMailServer implements MailServer {
+public class MockMailServer implements MailServer, Disposable {
 
     private final MockUsersRepository m_users = new MockUsersRepository();
 
-    private int m_counter = 0;
+    private static int m_counter = 0;
     private int m_maxMessageSizeBytes = 0;
 
     private final ArrayList mails = new ArrayList();
@@ -106,7 +108,12 @@ public class MockMailServer implements MailServer {
         return null; // trivial implementation 
     }
 
+
     public synchronized String getId() {
+        return newId();
+    }
+
+    public static String newId() {
         m_counter++;
         return "MockMailServer-ID-" + m_counter;
     }
@@ -128,6 +135,24 @@ public class MockMailServer implements MailServer {
 
     public void setMaxMessageSizeBytes(int maxMessageSizeBytes) {
         m_maxMessageSizeBytes = maxMessageSizeBytes;
+    }
+
+    public void dispose() {
+        if (mails != null) {
+            Iterator i = mails.iterator();
+            while (i.hasNext()) {
+                Object[] obs = (Object[]) i.next();
+                // this is needed to let the MimeMessageWrapper to dispose.
+                ContainerUtil.dispose(obs[2]);
+            }
+        }
+        if (inboxes!=null) {
+            Iterator i = inboxes.values().iterator();
+            while (i.hasNext()) {
+                MailRepository m = (MailRepository) i.next();
+                ContainerUtil.dispose(m);
+            }
+        }
     }
 }
 
