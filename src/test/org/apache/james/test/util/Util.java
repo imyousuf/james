@@ -20,6 +20,9 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.james.smtpserver.*;
 
+import java.io.IOException;
+import java.net.ServerSocket;
+
 /**
  * some utilities for James unit testing
  */
@@ -50,8 +53,21 @@ public class Util {
      * @return port number
      */
     protected synchronized static int getNextNonPrivilegedPort() {
+        // Hack to increase probability that the port is bindable
+        while (true) {
+            try {
         PORT_LAST_USED++;
         if (PORT_LAST_USED > PORT_RANGE_END) PORT_LAST_USED = PORT_RANGE_START;
+                ServerSocket ss;
+                ss = new ServerSocket(PORT_LAST_USED);
+                ss.setReuseAddress(true);
+                ss.close();
+                break;
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
         return PORT_LAST_USED;
     }
 
