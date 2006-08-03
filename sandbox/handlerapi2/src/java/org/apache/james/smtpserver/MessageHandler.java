@@ -31,6 +31,6 @@ public interface MessageHandler {
     /*
      * Handle Message
     **/
-    SMTPResponse onMessage(SMTPSession session);
+    void onMessage(SMTPSession session);
 
 }
