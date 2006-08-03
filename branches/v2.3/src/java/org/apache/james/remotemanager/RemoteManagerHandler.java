@@ -391,6 +391,12 @@ public class RemoteManagerHandler
         command = command.toUpperCase(Locale.US);
         if (command.equals(COMMAND_ADDUSER)) {
             doADDUSER(argument);
+        } else if (command.equals("SHOWTRACKERS")) {
+            org.apache.james.util.io.FileCleaner.dump(out);
+            return true;
+        } else if (command.equals("GC")) {
+            System.gc();
+            return true;
         } else if (command.equals(COMMAND_SETPASSWORD)) {
             return doSETPASSWORD(argument);
         } else if (command.equals(COMMAND_DELUSER)) {
