@@ -71,7 +71,6 @@ public class MimeMessageInputStreamSource
         OutputStream fout = null;
         try {
             file = File.createTempFile(key, ".m64");
-            org.apache.james.util.io.FileCleaner.track(file, this);
             fout = new BufferedOutputStream(new FileOutputStream(file));
             int b = -1;
             while ((b = in.read()) != -1) {
@@ -132,7 +131,7 @@ public class MimeMessageInputStreamSource
      * @return a <code>BufferedInputStream</code> containing the data
      */
     public synchronized InputStream getInputStream() throws IOException {
-        return new java.io.BufferedInputStream(new java.io.FileInputStream(file));
+        return new SharedFileInputStream(file);
     }
 
     /**
