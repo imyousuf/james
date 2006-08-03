@@ -67,28 +67,31 @@ Legal:
     -->
 
     <path id="project.class.path">
-      <pathelement location="${dns.jar}"/>
-      <pathelement location="${commons-collections.jar}"/>
-      <pathelement location="${commons-dbcp.jar}"/>
-      <pathelement location="${commons-pool.jar}"/>
-      <pathelement location="${jakarta-oro.jar}"/>
-      <pathelement location="${avalon-framework.jar}"/>
-      <pathelement location="${avalon-framework-impl.jar}"/>
-      <pathelement location="${excalibur-pool.jar}"/>
-      <pathelement location="${excalibur-pool-impl.jar}"/>
-      <pathelement location="${excalibur-thread.jar}"/>
-      <pathelement location="${excalibur-datasource.jar}"/>
-      <pathelement location="${cornerstone-threads.jar}"/>
-      <pathelement location="${cornerstone-connection.jar}"/>
-      <pathelement location="${cornerstone-connection-impl.jar}"/>
-      <pathelement location="${cornerstone-store.jar}"/>
-      <pathelement location="${cornerstone-scheduler.jar}"/>
-      <pathelement location="${cornerstone-sockets.jar}"/>
-      <pathelement location="${cornerstone-datasources.jar}"/>
-      <pathelement location="${javax-mail.jar}"/>
-      <pathelement location="${javax-activation.jar}"/>
-      <pathelement location="${lib.dir}/bcmail-jdk14-129.jar"/>
-      <pathelement location="${lib.dir}/bcmail-jdk14-129-workaround.jar"/>
+        <fileset dir="${lib.dir}">
+            <include name="${avalon-framework.jar}"/>
+            <include name="${avalon-framework-impl.jar}"/>
+            <include name="${dns.jar}"/>
+            <include name="${commons-collections.jar}"/>
+            <include name="${commons-dbcp.jar}"/>
+            <include name="${commons-pool.jar}"/>
+            <include name="${jakarta-oro.jar}"/>
+            <include name="${excalibur-pool-api.jar}"/>
+            <include name="${excalibur-pool-impl.jar}"/>
+            <include name="${excalibur-thread-api.jar}"/>
+            <include name="${excalibur-datasource.jar}"/>
+            <include name="${cornerstone-threads-api.jar}"/>
+            <include name="${cornerstone-connection-api.jar}"/>
+            <include name="${cornerstone-connection-impl.jar}"/>
+            <include name="${cornerstone-store-api.jar}"/>
+            <include name="${cornerstone-store-impl.jar}"/>
+            <include name="${cornerstone-scheduler-api.jar}"/>
+            <include name="${cornerstone-sockets-api.jar}"/>
+            <include name="${cornerstone-datasources-api.jar}"/>
+            <include name="${javax-mail.jar}"/>
+            <include name="${javax-activation.jar}"/>
+            <include name="${bcmail.jar}"/>
+            <include name="${bcmail-workaround.jar}"/>
+        </fileset>
       <pathelement path="${java.class.path}" />
       <pathelement path="${build.classes}" />
     </path>
@@ -97,7 +100,6 @@ Legal:
         <fileset dir="${tools.lib.dir}">
             <include name="*.jar"/>
         </fileset>
-      	<pathelement location="${phoenix-client.jar}"/>
     </path>
 
     <taskdef name="sar" classname="org.apache.avalon.phoenix.tools.tasks.Sar">
@@ -131,8 +133,7 @@ Legal:
       <echo message="Preparing code"/>
 
       <tstamp/>
-      <available property="jdbc3.present" classname="java.sql.Savepoint"/>
-      <available file="${phoenix.dir}/bin" type="dir" property="phoenix.bin.present"/>
+        <available file="${james.dir}/${phoenix.dir}/bin" type="dir" property="phoenix.bin.present"/>
       <mkdir dir="${dist.dir}"/>
       <copy todir="${dist.dir}">
         <fileset dir=".">
@@ -144,7 +145,8 @@ Legal:
       <fixcrlf srcdir="${java.dir}" includes="**/*.minfo" eol="lf" tab="remove" tablength="4" />
       <fixcrlf srcdir="${java.dir}" includes="**/*.xinfo" eol="lf" tab="remove" tablength="4" />
       <fixcrlf srcdir="${java.dir}" includes="**/*.html" eol="lf" tab="remove" tablength="4" />
-      <!-- fixcrlf srcdir="${xdocs.dir}" includes="**/*.xml" eol="lf" tab="remove" tablength="4" / -->
+        <fixcrlf srcdir="${junitjava.dir}" includes="**/*.java" eol="lf" tab="remove" tablength="4" />
+        <fixcrlf srcdir="${xdocs.dir}" includes="**/*.xml" eol="lf" tab="remove" tablength="4" />
       <fixcrlf srcdir="${conf.dir}" includes="**/*.xml" eol="lf" tab="remove" tablength="4" />
       <fixcrlf srcdir="${metainf.dir}" includes="**/*" eol="lf" tab="remove" tablength="4" />      
       <fixcrlf srcdir="." includes="build.sh" eol="lf"/>
@@ -155,12 +157,10 @@ Legal:
           <include name="build.sh"/>
         </fileset>
       </chmod>
-      <available classname="org.apache.velocity.anakia.AnakiaTask" property="AnakiaTask.present"/>
       <mkdir dir="${build.src}"/>
       <copy todir="${build.src}">
         <fileset dir="${java.dir}">
           <include name="${constants.file}"/>
-          <include name="${poolconn.file}"/>
         </fileset>
       </copy>
       <replace file="${build.src}/${constants.file}" token="@@VERSION@@" value="${version}"/>
@@ -177,32 +177,33 @@ Legal:
     <target name="prepare-phoenix" depends="prepare-common" if="phoenix.bin.present">
       <echo message="Phoenix distribution present - adjusting linefeeds and permissions, copying files"/>
       <property name="dist.bin" value="${dist.dir}/bin"/>
-      <fixcrlf srcdir="${phoenix.dir}/bin" includes="phoenix.sh" eol="lf"/>
+        <fixcrlf srcdir="${james.dir}/${phoenix.dir}/bin" includes="phoenix.sh" eol="lf"/>
+        
       <copy todir="${dist.dir}">
         <fileset dir="${phoenix.dir}">
-          <exclude name="CVS/**"/>
         </fileset>
       </copy>
 
       <copy todir="${dist.dir}/lib" flatten="true">
         <fileset dir="${lib.dir}">
-          <exclude name="CVS/**"/>
-          <include name="excalibur-thread-api-2.1.jar"/>
-          <include name="excalibur-thread-impl-2.1.jar"/>
-          <include name="**/excalibur-pool-impl-2.1.jar"/>
-          <include name="**/excalibur-pool-api-2.1.jar"/>
-          <include name="**/commons-collections-2.1.1.jar"/>
+                <include name="${excalibur-thread-api.jar}"/>
+                <include name="${excalibur-thread-impl.jar}"/>
+                <include name="${excalibur-pool-impl.jar}"/>
+                <include name="${excalibur-pool-api.jar}"/>
+                <include name="${commons-collections.jar}"/>
           <!-- needed by excalibur-pool-impl-2.1.jar -->
-          <include name="concurrent-1.3.4.jar"/>
+                <include name="${concurrent.jar}"/>
         </fileset>
       </copy>
 
+        <fixcrlf srcdir="${james.dir}/${phoenix.dir}/bin" includes="james-server.sh" eol="lf"/>
       <fixcrlf srcdir="${dist.bin}" includes="run.sh" eol="lf"/>
       <fixcrlf srcdir="${dist.bin}" includes="run.bat" eol="crlf"/>
       <chmod perm="+x">
         <fileset dir="${dist.bin}">
           <include name="run.sh"/>
           <include name="phoenix.sh"/>
+                <include name="james-server.sh"/>
         </fileset>
       </chmod>
     	
@@ -265,21 +266,10 @@ Legal:
 
     <!--
     ===================================================================
-                                   jdbc3
-    ===================================================================
-    -->
-    <target name="prepare-jdbc3" depends="prepare-common" unless="jdbc3.present">
-        <echo message="JDBC v3 not in classpath - making code compliant with older JDBC"/>
-        <replace file="${build.src}/${poolconn.file}" token="/*-- JDBC_3_ANT_KEY */" value="/* JDBC_3_ANT_KEY"/>
-        <replace file="${build.src}/${poolconn.file}" token="/* JDBC_3_ANT_KEY --*/" value="JDBC_3_ANT_KEY */"/>
-    </target>
-
-    <!--
-    ===================================================================
                                   Prepare target
     ===================================================================
     -->
-    <target name="prepare" depends="prepare-common,prepare-phoenix,prepare-jdbc3,prepare-mxinfo,prepare-metainf"/>
+    <target name="prepare" depends="prepare-common,prepare-phoenix,prepare-mxinfo,prepare-metainf"/>
 
     <!--
     ===================================================================
@@ -290,15 +280,12 @@ Legal:
 
     <target name="compile-main" depends="prepare">
       <echo message="Compiling James Java sources"/>
-      <available property="jndi.present" classname="javax.naming.InitialContext"/>
       <mkdir dir="${build.classes}"/>
       <javac destdir="${build.classes}" debug="${debug}" optimize="${optimize}" deprecation="${deprecation}" target="${jdk.target}" source="${jdk.source}">
         <classpath refid="project.class.path"/>
         <src path="${build.src}"/>
         <src path="${java.dir}"/>
         <exclude name="${constants.file}"/>
-        <exclude name="${poolconn.file}"/>
-        <exclude name="org/apache/james/userrepository/UsersLDAPRepository.java" unless="jndi.present"/>
       </javac>
       <copy todir="${build.classes}">
         <fileset dir="${java.dir}">
@@ -422,7 +409,6 @@ Legal:
       <echo message="preparing website in ${www.dir}"/>
       <delete>
         <fileset dir="${www.dir}">
-          <exclude name="CVS/**"/>
           <exclude name="rfclist/**"/>
           <exclude name="javadocs/**"/>
           <exclude name="mailet/**"/>
@@ -507,36 +493,35 @@ Legal:
           <include name="james-${version}.jar"/>         
         </lib>
         <lib dir="${lib.dir}">
-          <include name="${avalon-framework.jar}"/>
-          <include name="${avalon-framework-impl.jar}"/>
-          <include name="dnsjava-2.0.1.jar"/>
-          <include name="jakarta-oro-2.0.8.jar"/>
-          <include name="derby.jar"/>
-          <include name="excalibur-datasource-2.1.jar"/>
-          <include name="activation-1.1.jar"/>
-          <include name="mail-1.4.0.jar"/>
-          <include name="commons-dbcp-1.2.1.jar"/>
-          <include name="commons-pool-1.2.jar"/>
-          <include name="bcmail-jdk14-129.jar"/>
-          <include name="bcmail-jdk14-129-workaround.jar"/>
-          <include name="excalibur-thread-api-2.1.jar"/>
-          <include name="excalibur-thread-impl-2.1.jar"/>
-          <include name="excalibur-pool-api-2.1.jar"/>
-          <include name="excalibur-pool-impl-2.1.jar"/>
-          <include name="commons-collections-2.1.1.jar"/>
-          <include name="cornerstone-threads-api-2.1.jar"/>
-          <include name="cornerstone-threads-impl-2.1.jar"/>
-          <include name="cornerstone-connection-api-2.1.jar"/>
-          <include name="cornerstone-connection-impl-2.1.jar"/>
-          <include name="cornerstone-store-api-2.1.jar"/>
-          <include name="cornerstone-store-impl-2.1.jar"/>
-          <include name="cornerstone-scheduler-api-2.1.jar"/>
-          <include name="cornerstone-scheduler-impl-2.1.jar"/>
-          <include name="cornerstone-sockets-api-2.1.jar"/>
-          <include name="cornerstone-sockets-impl-2.1-patched.jar"/>
-          <include name="cornerstone-datasources-api-2.1.jar"/>
-          <include name="cornerstone-datasources-impl-2.1-patched.jar"/>
-          <include name="concurrent-1.3.4.jar"/>
+                <include name="${dns.jar}"/>
+                <include name="${jakarta-oro.jar}"/>
+                <include name="${derby.jar}"/>
+                <include name="${excalibur-datasource.jar}"/>
+                <include name="${javax-activation.jar}"/>
+                <include name="${javax-mail.jar}"/>
+                <include name="${commons-dbcp.jar}"/>
+                <include name="${commons-pool.jar}"/>
+                <include name="${bcmail.jar}"/>
+                <include name="${bcmail-workaround.jar}"/>
+                <include name="${excalibur-thread-api.jar}"/>
+                <include name="${excalibur-thread-impl.jar}"/>
+                <include name="${excalibur-pool-api.jar}"/>
+                <include name="${excalibur-pool-impl.jar}"/>
+                <include name="${commons-collections.jar}"/>
+                <include name="${cornerstone-threads-api.jar}"/>
+                <include name="${cornerstone-threads-impl.jar}"/>
+                <include name="${cornerstone-connection-api.jar}"/>
+                <include name="${cornerstone-connection-impl.jar}"/>
+                <include name="${cornerstone-store-api.jar}"/>
+                <include name="${cornerstone-store-impl.jar}"/>
+                <include name="${cornerstone-scheduler-api.jar}"/>
+                <include name="${cornerstone-scheduler-impl.jar}"/>
+                <include name="${cornerstone-sockets-api.jar}"/>
+                <include name="${cornerstone-sockets-impl.jar}"/>
+                <include name="${cornerstone-datasources-api.jar}"/>
+                <include name="${cornerstone-datasources-impl.jar}"/>
+                <include name="${concurrent.jar}"/>
+
         </lib>
         <zipfileset dir="${conf.dir}" fullpath="conf/sqlResources.xml">
           <include name="sqlResources.xml"/>
@@ -639,12 +624,7 @@ Legal:
         <echo message ="Building source distributions with Phoenix binaries"/>
         <zip zipfile="${dist.source.dir}/${name}-with-phoenix-${version}-src.zip">
             <fileset dir=".">
-                <include name="${dist.dir}/**"/>
-                <exclude name="${dist.dir}/downloads/**"/>
-                <exclude name="${dist.dir}/apps/*.sar"/>
-                <exclude name=""/>
                 <include name="*.txt"/>
-                <include name="*.xml"/>
                 <include name="KEYS"/>
                 <include name="README"/>
                 <include name="LICENSE.txt"/>
@@ -652,19 +632,15 @@ Legal:
                 <include name="build.*"/>
                 <include name="lib/**"/>
                 <include name="${phoenix.dir}/**"/>
-                <include name="proposals/**"/>
                 <include name="src/**"/>
                 <include name="tools/**"/>
-                <include name="www/**"/>
+                <include name="*.properties" />
+                <include name="*.ent" />
             </fileset>
         </zip>
         <tar longfile="gnu" tarfile="${dist.source.dir}/${name}-with-phoenix-${version}-src.tar">
             <tarfileset dir="." username="${name}" group="${name}">
-                <include name="${dist.dir}/**"/>
-                <exclude name="${dist.dir}/downloads/**"/>
-                <exclude name="${dist.dir}/apps/*.sar"/>
                 <include name="*.txt"/>
-                <include name="*.xml"/>
                 <include name="KEYS"/>
                 <include name="README"/>
                 <include name="LICENSE.txt"/>
@@ -672,10 +648,10 @@ Legal:
                 <include name="build.*"/>
                 <include name="lib/**"/>
                 <include name="${phoenix.dir}/**"/>
-                <include name="proposals/**"/>
                 <include name="src/**"/>
                 <include name="tools/**"/>
-                <include name="www/**"/>
+                <include name="*.properties" />
+                <include name="*.ent" />
             </tarfileset>
         </tar>
         <gzip zipfile="${dist.source.dir}/${name}-with-phoenix-${version}-src.tar.gz"
@@ -692,34 +668,30 @@ Legal:
             <fileset dir=".">
                 <include name="src/**"/>
                 <include name="lib/**"/>
-                <include name="${phoenix.lib.dir}/**"/>
-                <include name="proposals/**"/>
-                <include name="www/**"/>
                 <include name="tools/**"/>
-                <include name="*.xml"/>
                 <include name="*.txt"/>
                 <include name="README"/>
                 <include name="KEYS"/>
                 <include name="LICENSE.txt"/>
                 <include name="NOTICE.txt"/>
                 <include name="build.*"/>
+                <include name="*.properties" />
+                <include name="*.ent" />
             </fileset>
         </zip>
         <tar longfile="gnu" tarfile="${dist.source.dir}/${dist.name}-src.tar">
             <tarfileset dir="." username="${name}" group="${name}">
                 <include name="src/**"/>
                 <include name="lib/**"/>
-                <include name="${phoenix.lib.dir}/**"/>
-                <include name="proposals/**"/>
-                <include name="www/**"/>
                 <include name="tools/**"/>
-                <include name="*.xml"/>
                 <include name="*.txt"/>
                 <include name="README"/>
                 <include name="KEYS"/>
                 <include name="LICENSE.txt"/>
                 <include name="NOTICE.txt"/>
                 <include name="build.*"/>
+                <include name="*.properties" />
+                <include name="*.ent" />
             </tarfileset>
         </tar>
         <gzip zipfile="${dist.source.dir}/${dist.name}-src.tar.gz" src="${dist.source.dir}/${dist.name}-src.tar"/>
@@ -783,11 +755,10 @@ Legal:
                                   unit tests
     ===================================================================
     -->
-    <target name="unit-tests-classpath" depends="prepare">
+    <target name="unit-tests-classpath" depends="compile">
         <path id="unittest.class.path">
           <pathelement location="tools/lib/optional.jar"/>
           <pathelement location="tools/lib/junit.jar"/>
-          <pathelement location="tools/lib/ristretto-1.0-all.jar"/>
           <pathelement location="tools/lib/commons-net-1.4.1.jar"/>
           <fileset dir="${lib.dir}">
             <include name="*.jar"/>
@@ -804,14 +775,13 @@ Legal:
         <classpath refid="project.class.path"/>
         <src path="${junitjava.dir}"/>
         <exclude name="${constants.file}"/>
-        <exclude name="${poolconn.file}"/>
       </javac>
     	<copy todir="${build.test.classes}">
     		<fileset dir="${junitjava.dir}" includes="**/*.zone" />
     	</copy>
     </target>
 
-    <target name="run-unit-tests" depends="unit-tests-classpath, compile-unit-tests">
+    <target name="run-unit-tests" depends="compile-unit-tests">
         <echo message="Running James Unit Tests"/>
         <mkdir dir="${build.test}"/>
         <mkdir dir="${build.test.reports}"/>
