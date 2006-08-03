@@ -81,6 +81,22 @@ public class MimeMessageInputStreamSource
 
             sourceId = file.getCanonicalPath();
         } catch (IOException ioe) {
+            // We had an IOException preparing the temporary file, so
+            // don't just leave it around to garbage collect later.
+            // It isn't as if we are going to use it after we throw
+            // the MessagingException.
+            if (fout != null) try {
+                fout.close();
+                fout = null;
+            } catch (IOException _) {
+                // Ignored - logging unavailable to log this error.
+            }
+
+            if (file != null) {
+                file.delete();
+                file = null;
+            }
+
             throw new MessagingException("Unable to retrieve the data: " + ioe.getMessage(), ioe);
         } finally {
             try {
