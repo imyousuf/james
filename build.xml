@@ -738,7 +738,7 @@
                                   unit tests
     ===================================================================
     -->
-    <target name="unit-tests-classpath" depends="prepare">
+    <target name="unit-tests-classpath" depends="compile">
         <path id="unittest.class.path">
             <pathelement location="tools/lib/optional.jar"/>
             <pathelement location="tools/lib/junit.jar"/>
@@ -764,7 +764,7 @@
         </copy>
     </target>
 
-    <target name="run-unit-tests" depends="unit-tests-classpath, compile-unit-tests">
+    <target name="run-unit-tests" depends="compile-unit-tests">
         <echo message="Running James Unit Tests"/>
         <mkdir dir="${build.test}"/>
         <mkdir dir="${build.test.reports}"/>
