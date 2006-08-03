@@ -1,5 +1,5 @@
 /*
- * Copyright 2001-2004 The Apache Software Foundation.
+ * Copyright 2004 The Apache Software Foundation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.commons.io;
+
+package org.apache.james.util.io;
 
 import java.io.File;
+import java.io.PrintWriter;
 import java.lang.ref.PhantomReference;
 import java.lang.ref.ReferenceQueue;
 import java.util.Collection;
@@ -112,6 +114,16 @@ public class FileCleaner {
         return trackers.size();
     }
 
+    static public void dump(PrintWriter os) {
+        java.util.Iterator tracker = trackers.iterator();
+        if (tracker.hasNext()) {
+            os.println("--------------------------");
+            os.println("Outstanding File Trackers:");
+            while (tracker.hasNext()) ((Tracker)tracker.next()).dump(os);
+            os.println("--------------------------");
+        }
+    }
+
     /**
      * Inner class which acts as the reference for a file pending deletion.
      */
@@ -121,6 +133,13 @@ public class FileCleaner {
          * The full path to the file being tracked.
          */
         private String path;
+
+        private Throwable record = new Throwable();
+
+        public void dump(PrintWriter os) {
+            os.println(path + " allocated at:");
+            record.printStackTrace(os);
+        }
 
         /**
          * Constructs an instance of this class from the supplied parameters.
@@ -152,7 +171,14 @@ public class FileCleaner {
          *         <code>false</code> otherwise.
          */
         public boolean delete() {
-            return new File(path).delete();
+            File f = new File(path);
+            if (!f.exists() || f.delete()) return true;
+            else {
+                System.err.println("FileCleaner could not delete " + path);
+                System.err.println("File " + path + " was allocated by:");
+                record.printStackTrace(System.err);
+                return false;
+            }
         }
     }
 }
