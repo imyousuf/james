@@ -241,5 +241,13 @@ public interface SMTPSession {
     void setSMTPResponse(SMTPResponse response);
     
     void writeResponse(String resp);
+    
+    public void pushIOObject(IOObject io);
+
+    public void popIOObject();
+
+    public IOObject getIOObject();
+    
+    public SMTPResponse process();
 }
 

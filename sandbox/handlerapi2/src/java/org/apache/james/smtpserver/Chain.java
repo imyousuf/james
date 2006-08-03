@@ -25,7 +25,7 @@ import java.util.Iterator;
  * The Chain which contain the handlers for the current command or state
  * 
  */
-public class Chain {
+public class Chain implements IOObject{
 
     private Iterator handlers;
 
@@ -43,25 +43,24 @@ public class Chain {
      * 
      * @param session The SMTPSession
      */
-    public void doChain(SMTPSession session) {
-
-	// should never happen
-	if (handlers == null)
-	    return;
+    public SMTPResponse nextHandler(SMTPSession session) {
 
 	if (handlers.hasNext()) {
+
 	    Object handler = handlers.next();
 
 	    if (handler instanceof ConnectHandler) {
-		((ConnectHandler) handler).onConnect(session, this);
+		((ConnectHandler) handler).onConnect(session);
+		return null;
 	    } else if (handler instanceof CommandHandler) {
 		// reset the idle timeout
 		session.getWatchdog().reset();
 
-		((CommandHandler) handler).onCommand(session, this);
+		((CommandHandler) handler).onCommand(session);
 	    } else if (handler instanceof MessageHandler) {
-		((MessageHandler) handler).onMessage(session, this);
+		((MessageHandler) handler).onMessage(session);
 	    }
 	}
+	return session.getSMTPResponse();
     }
 }

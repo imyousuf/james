@@ -40,12 +40,12 @@ public class SMTPResponse {
      * @throws InvalidArgumentException Get thrown if the given response is null
      */
     public SMTPResponse(int code, String response) {
-	if (response == null)
-	    throw new IllegalArgumentException("Invalid response String: "
-		    + response);
+    if (response == null)
+        throw new IllegalArgumentException("Invalid response String: "
+            + response);
 
-	this.code = code;
-	resp.add(response);
+    this.code = code;
+    resp.add(response);
     }
 
     /**
@@ -57,12 +57,12 @@ public class SMTPResponse {
       * @throws InvalidArgumentException Get thrown if the given response is null
      */
     public void setSMTPResponse(String response) {
-	if (response == null)
-	    throw new IllegalArgumentException("Invalid response String: "
-		    + response);
+    if (response == null)
+        throw new IllegalArgumentException("Invalid response String: "
+            + response);
 
-	resp.clear();
-	resp.add(response);
+    resp.clear();
+    resp.add(response);
     }
 
     /**
@@ -72,11 +72,11 @@ public class SMTPResponse {
      * @throws InvalidArgumentException Get thrown if the given response is null
      */
     public void addSMTPResponse(String response) {
-	if (response == null)
-	    throw new IllegalArgumentException("Invalid response String: "
-		    + response);
+    if (response == null)
+        throw new IllegalArgumentException("Invalid response String: "
+            + response);
 
-	resp.add(response);
+    resp.add(response);
     }
 
     /**
@@ -86,7 +86,7 @@ public class SMTPResponse {
      *                The code
      */
     public void setSMTPCode(int code) {
-	this.code = code;
+    this.code = code;
     }
 
     /**
@@ -95,7 +95,7 @@ public class SMTPResponse {
      * @return code The SMTP code
      */
     public int getSMTPCode() {
-	return code;
+    return code;
     }
 
     /**
@@ -105,7 +105,7 @@ public class SMTPResponse {
      *         client socked
      */
     public Collection getSMTPResponse() {
-	return resp;
+    return resp;
     }
 
     /**
@@ -115,19 +115,19 @@ public class SMTPResponse {
      * @throws IllegalArgumentException if the raw String is not valid
      */
     public void setRawSMTPResponse(String response) {
-	String[] parts = response.split(" ");
-	if (parts.length > 1) {
-	    setSMTPCode(Integer.parseInt(parts[0]));
-	    setSMTPResponse(response.substring(parts[0].length() + 1));
-	    try {
+    String[] parts = response.split(" ");
+    if (parts.length > 1) {
+        setSMTPCode(Integer.parseInt(parts[0]));
+        setSMTPResponse(response.substring(parts[0].length() + 1));
+        try {
 
-	    } catch (NumberFormatException e) {
-		throw new IllegalArgumentException("Invalid SMTPCode: "
-			+ parts[0]);
-	    }
-	} else {
-	    throw new IllegalArgumentException("Invalid raw SMTPResponse: "
-		    + response);
-	}
+        } catch (NumberFormatException e) {
+        throw new IllegalArgumentException("Invalid SMTPCode: "
+            + parts[0]);
+        }
+    } else {
+        throw new IllegalArgumentException("Invalid raw SMTPResponse: "
+            + response);
+    }
     }
 }

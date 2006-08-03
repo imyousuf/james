@@ -35,7 +35,7 @@ import java.util.Collection;
     /**
      * Handle the command
     **/
-    void onCommand(SMTPSession session, Chain chain);
+    SMTPResponse onCommand(SMTPSession session);
 
     /**
      * Return a Collection of implemented commands
