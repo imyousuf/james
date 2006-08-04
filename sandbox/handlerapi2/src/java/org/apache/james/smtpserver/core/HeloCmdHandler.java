@@ -17,41 +17,37 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.smtpserver.core;
-
 
 import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.smtpserver.Chain;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
 
-
 /**
-  * Handles HELO command
-  */
-public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler {
+ * Handles HELO command
+ */
+public class HeloCmdHandler extends AbstractLogEnabled implements
+    CommandHandler {
 
     /**
      * The name of the command handled by the command handler
      */
-    private final static String COMMAND_NAME = "HELO";   
-      
+    private final static String COMMAND_NAME = "HELO";
+
     /**
      * process HELO command
      *
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
-    **/
-    public void onCommand(SMTPSession session,Chain chain) {
-        String response = doHELO(session);
-        
-        if (response != null) {
-            session.getSMTPResponse().setRawSMTPResponse(response);
-        }
+     **/
+    public void onCommand(SMTPSession session) {
+    String response = doHELO(session);
+
+    if (response != null) {
+        session.getSMTPResponse().setRawSMTPResponse(response);
+    }
     }
 
     /**
@@ -60,26 +56,27 @@ public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler
      */
     private String doHELO(SMTPSession session) {
     String argument = session.getCommandArgument();
-        String responseString = null;
+    String responseString = null;
 
-        session.getConnectionState().put(SMTPSession.CURRENT_HELO_MODE, COMMAND_NAME);
-        session.getResponseBuffer().append("250 ").append(
-                session.getConfigurationData().getHelloName())
-                .append(" Hello ").append(argument).append(" (").append(
-                        session.getRemoteHost()).append(" [").append(
-                        session.getRemoteIPAddress()).append("])");
-        responseString = session.clearResponseBuffer();
-        
-        return responseString;
+    session.getConnectionState().put(SMTPSession.CURRENT_HELO_MODE,
+        COMMAND_NAME);
+    session.getResponseBuffer().append("250 ").append(
+        session.getConfigurationData().getHelloName())
+        .append(" Hello ").append(argument).append(" (").append(
+            session.getRemoteHost()).append(" [").append(
+            session.getRemoteIPAddress()).append("])");
+    responseString = session.clearResponseBuffer();
+
+    return responseString;
     }
-    
+
     /**
      * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
      */
     public Collection getImplCommands() {
-        Collection implCommands = new ArrayList();
-        implCommands.add("HELO");
-        
-        return implCommands;
-    } 
+    Collection implCommands = new ArrayList();
+    implCommands.add("HELO");
+
+    return implCommands;
+    }
 }

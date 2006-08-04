@@ -17,28 +17,25 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.smtpserver.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.apache.james.smtpserver.Chain;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
 
 /**
-  * Handles EXPN command
-  */
+ * Handles EXPN command
+ */
 public class ExpnCmdHandler implements CommandHandler {
 
     /**
      * The name of the command handled by the command handler
      */
     private final static String COMMAND_NAME = "EXPN";
-    
+
     /**
      * Handler method called upon receipt of a EXPN command.
      * This method informs the client that the command is
@@ -46,23 +43,25 @@ public class ExpnCmdHandler implements CommandHandler {
      *
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
-    public void onCommand(SMTPSession session,Chain chain) {
-	int code = 502;
-        String responseString = DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SYSTEM_NOT_CAPABLE)+" EXPN is not supported";
-        
-        // Set the response
-        session.getSMTPResponse().setSMTPCode(code);
-        session.getSMTPResponse().setSMTPResponse(responseString);
+    public void onCommand(SMTPSession session) {
+    int code = 502;
+    String responseString = DSNStatus.getStatus(DSNStatus.PERMANENT,
+        DSNStatus.SYSTEM_NOT_CAPABLE)
+        + " EXPN is not supported";
+
+    // Set the response
+    session.getSMTPResponse().setSMTPCode(code);
+    session.getSMTPResponse().setSMTPResponse(responseString);
     }
-    
+
     /**
      * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
      */
     public Collection getImplCommands() {
-        Collection implCommands = new ArrayList();
-        implCommands.add("EXPN");
-        
-        return implCommands;
+    Collection implCommands = new ArrayList();
+    implCommands.add("EXPN");
+
+    return implCommands;
     }
 
 }

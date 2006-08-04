@@ -19,48 +19,6 @@
 
 package org.apache.james.smtpserver;
 
-import java.util.Iterator;
-
-/**
- * The Chain which contain the handlers for the current command or state
- * 
- */
-public class Chain implements IOObject{
-
-    private Iterator handlers;
-
-    /**
-     * The Chain which contain the handlers for the current command or state
-     * 
-     * @param handlers The iterator which contains all handler for the current command or state
-     */
-    public Chain(Iterator handlers) {
-	this.handlers = handlers;
-    }
-
-    /**
-     * Call the next handler in the chain
-     * 
-     * @param session The SMTPSession
-     */
-    public SMTPResponse nextHandler(SMTPSession session) {
-
-	if (handlers.hasNext()) {
-
-	    Object handler = handlers.next();
-
-	    if (handler instanceof ConnectHandler) {
-		((ConnectHandler) handler).onConnect(session);
-		return null;
-	    } else if (handler instanceof CommandHandler) {
-		// reset the idle timeout
-		session.getWatchdog().reset();
-
-		((CommandHandler) handler).onCommand(session);
-	    } else if (handler instanceof MessageHandler) {
-		((MessageHandler) handler).onMessage(session);
-	    }
-	}
-	return session.getSMTPResponse();
-    }
+public interface IOState {
+    void readResponse(SMTPSession session, String data); 
 }

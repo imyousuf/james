@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.smtpserver;
 
 import java.net.InetAddress;
@@ -40,252 +38,273 @@ import org.apache.mailet.MailAddress;
 public class ResolvableEhloHeloHandlerTest extends TestCase {
 
     private final static String INVALID_HOST = "foo.bar";
-    
-    private final static String VALID_HOST = "james.apache.org";
-    
-    private final static String HELO = "HELO";
-    
-    private final static String RCPT = "RCPT";
-    
-    private final static int REJECT_CODE = 501; 
-    
-    private String command = null;
-    
-    public void setUp() {
-        command = null;
-    }
-    
-    private void setCommand(String command) {
-        this.command = command;
-    }
-    
-    private SMTPSession setupMockSession(final String argument,
-             final boolean relaying, final boolean authRequired, final String user, final MailAddress recipient) {
-        
-        SMTPSession session = new AbstractSMTPSession() {
 
-            HashMap connectionMap = new HashMap();
-            HashMap map = new HashMap();
-            SMTPResponse response = new SMTPResponse(500,"Unexpected Error");
-            
-            public String getCommandArgument() {
-                return argument;
-            }
-            
-            public String getCommandName() {
-                return command;
-            }
-            
-            public boolean isAuthRequired() {
-                return authRequired;
-            }
-            
-            public String getUser() {
-                return user;
-            }
-            
-            public Map getConnectionState() {
-                return connectionMap;
-            }
-            
-            
-            public boolean isRelayingAllowed() {
-                return relaying;
-            }
-            
-            public Map getState() {
-                map.put(SMTPSession.CURRENT_RECIPIENT, recipient);
-                return map;
-            }
-            
-            public SMTPResponse getSMTPResponse() {
+    private final static String VALID_HOST = "james.apache.org";
+
+    private final static String HELO = "HELO";
+
+    private final static String RCPT = "RCPT";
+
+    private final static int REJECT_CODE = 501;
+
+    private String command = null;
+
+    public void setUp() {
+	command = null;
+    }
+
+    private void setCommand(String command) {
+	this.command = command;
+    }
+
+    private SMTPSession setupMockSession(final String argument,
+	    final boolean relaying, final boolean authRequired,
+	    final String user, final MailAddress recipient) {
+
+	SMTPSession session = new AbstractSMTPSession() {
+
+	    HashMap connectionMap = new HashMap();
+
+	    HashMap map = new HashMap();
+
+	    SMTPResponse response = new SMTPResponse(500, "Unexpected Error");
+
+	    public String getCommandArgument() {
+		return argument;
+	    }
+
+	    public String getCommandName() {
+		return command;
+	    }
+
+	    public boolean isAuthRequired() {
+		return authRequired;
+	    }
+
+	    public String getUser() {
+		return user;
+	    }
+
+	    public Map getConnectionState() {
+		return connectionMap;
+	    }
+
+	    public boolean isRelayingAllowed() {
+		return relaying;
+	    }
+
+	    public Map getState() {
+		map.put(SMTPSession.CURRENT_RECIPIENT, recipient);
+		return map;
+	    }
+
+	    public SMTPResponse getSMTPResponse() {
 		return response;
 	    }
-            
-            
-        };
 
-        return session;
+	    public void doChain() {
+
+	    }
+
+	};
+
+	return session;
     }
-    
+
     private DNSServer setupMockDNSServer() {
-        DNSServer dns = new AbstractDNSServer(){
-            public InetAddress getByName(String host) throws UnknownHostException {
-                if (host.equals(INVALID_HOST)) 
-                    throw new UnknownHostException();
-                return null;
-            }
-        };
-        
-        return dns;
+	DNSServer dns = new AbstractDNSServer() {
+	    public InetAddress getByName(String host)
+		    throws UnknownHostException {
+		if (host.equals(INVALID_HOST))
+		    throw new UnknownHostException();
+		return null;
+	    }
+	};
+
+	return dns;
     }
-    
+
     public void testRejectInvalidHelo() throws ParseException {
-        SMTPSession session = setupMockSession(INVALID_HOST,false,false,null,new MailAddress("test@localhost"));
-        ResolvableEhloHeloHandler handler = new ResolvableEhloHeloHandler();
-        
-        ContainerUtil.enableLogging(handler,new MockLogger());
-        
-        handler.setDnsServer(setupMockDNSServer());
-        
-        // helo
-        setCommand(HELO);
-        handler.onCommand(session, new Chain(null));
-        assertNotNull("Invalid HELO",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
-        
-        
-        // rcpt
-        setCommand(RCPT);
-        handler.onCommand(session, new Chain(null));
-        assertTrue("Reject", session.getSMTPResponse().getSMTPCode()  == REJECT_CODE);
+	SMTPSession session = setupMockSession(INVALID_HOST, false, false,
+		null, new MailAddress("test@localhost"));
+	ResolvableEhloHeloHandler handler = new ResolvableEhloHeloHandler();
+
+	ContainerUtil.enableLogging(handler, new MockLogger());
+
+	handler.setDnsServer(setupMockDNSServer());
+
+	// helo
+	setCommand(HELO);
+	handler.onCommand(session);
+	assertNotNull("Invalid HELO", session.getState().get(
+		ResolvableEhloHeloHandler.BAD_EHLO_HELO));
+
+	// rcpt
+	setCommand(RCPT);
+	handler.onCommand(session);
+	assertTrue("Reject",
+		session.getSMTPResponse().getSMTPCode() == REJECT_CODE);
     }
-    
-    
+
     public void testNotRejectValidHelo() throws ParseException {
-        SMTPSession session = setupMockSession(VALID_HOST,false,false,null,new MailAddress("test@localhost"));
-        ResolvableEhloHeloHandler handler = new ResolvableEhloHeloHandler();
-        
-        ContainerUtil.enableLogging(handler,new MockLogger());
-        
-        handler.setDnsServer(setupMockDNSServer());
-        
-        // helo
-        setCommand(HELO);
-        handler.onCommand(session, new Chain(null));
-        assertNull("Valid HELO",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
-        
-        
-        // rcpt
-        setCommand(RCPT);
-        handler.onCommand(session, new Chain(null));
-        assertTrue("Not Reject", session.getSMTPResponse().getSMTPCode() != REJECT_CODE);
+	SMTPSession session = setupMockSession(VALID_HOST, false, false, null,
+		new MailAddress("test@localhost"));
+	ResolvableEhloHeloHandler handler = new ResolvableEhloHeloHandler();
+
+	ContainerUtil.enableLogging(handler, new MockLogger());
+
+	handler.setDnsServer(setupMockDNSServer());
+
+	// helo
+	setCommand(HELO);
+	handler.onCommand(session);
+	assertNull("Valid HELO", session.getState().get(
+		ResolvableEhloHeloHandler.BAD_EHLO_HELO));
+
+	// rcpt
+	setCommand(RCPT);
+	handler.onCommand(session);
+	assertTrue("Not Reject",
+		session.getSMTPResponse().getSMTPCode() != REJECT_CODE);
 
     }
-    
+
     public void testNotRejectInvalidHeloAuthUser() throws ParseException {
-        SMTPSession session = setupMockSession(INVALID_HOST,false,true,"valid@user",new MailAddress("test@localhost"));
-        ResolvableEhloHeloHandler handler = new ResolvableEhloHeloHandler();
-        
-        ContainerUtil.enableLogging(handler,new MockLogger());
-        
-        handler.setDnsServer(setupMockDNSServer());
-        
-        // helo
-        setCommand(HELO);
-        handler.onCommand(session, new Chain(null));
-        assertNotNull("Value stored",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
-        
-        
-        // rcpt
-        setCommand(RCPT);
-        handler.onCommand(session, new Chain(null));
-        assertTrue("Not reject", session.getSMTPResponse().getSMTPCode() != REJECT_CODE);
+	SMTPSession session = setupMockSession(INVALID_HOST, false, true,
+		"valid@user", new MailAddress("test@localhost"));
+	ResolvableEhloHeloHandler handler = new ResolvableEhloHeloHandler();
+
+	ContainerUtil.enableLogging(handler, new MockLogger());
+
+	handler.setDnsServer(setupMockDNSServer());
+
+	// helo
+	setCommand(HELO);
+	handler.onCommand(session);
+	assertNotNull("Value stored", session.getState().get(
+		ResolvableEhloHeloHandler.BAD_EHLO_HELO));
+
+	// rcpt
+	setCommand(RCPT);
+	handler.onCommand(session);
+	assertTrue("Not reject",
+		session.getSMTPResponse().getSMTPCode() != REJECT_CODE);
     }
-    
+
     public void testRejectInvalidHeloAuthUser() throws ParseException {
-        SMTPSession session = setupMockSession(INVALID_HOST,false,true,"valid@user",new MailAddress("test@localhost"));
-        ResolvableEhloHeloHandler handler = new ResolvableEhloHeloHandler();
-        
-        ContainerUtil.enableLogging(handler,new MockLogger());
-        
-        handler.setDnsServer(setupMockDNSServer());
-        handler.setCheckAuthUsers(true);
-        
-        // helo
-        setCommand(HELO);
-        handler.onCommand(session, new Chain(null));
-        assertNotNull("Value stored",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
-        
-        
-        // rcpt
-        setCommand(RCPT);
-        handler.onCommand(session, new Chain(null));
-        assertTrue("Reject", session.getSMTPResponse().getSMTPCode() == REJECT_CODE);
+	SMTPSession session = setupMockSession(INVALID_HOST, false, true,
+		"valid@user", new MailAddress("test@localhost"));
+	ResolvableEhloHeloHandler handler = new ResolvableEhloHeloHandler();
+
+	ContainerUtil.enableLogging(handler, new MockLogger());
+
+	handler.setDnsServer(setupMockDNSServer());
+	handler.setCheckAuthUsers(true);
+
+	// helo
+	setCommand(HELO);
+	handler.onCommand(session);
+	assertNotNull("Value stored", session.getState().get(
+		ResolvableEhloHeloHandler.BAD_EHLO_HELO));
+
+	// rcpt
+	setCommand(RCPT);
+	handler.onCommand(session);
+	assertTrue("Reject",
+		session.getSMTPResponse().getSMTPCode() == REJECT_CODE);
 
     }
-    
+
     public void testNotRejectRelay() throws ParseException {
-        SMTPSession session = setupMockSession(INVALID_HOST,true,false,null,new MailAddress("test@localhost"));
-        ResolvableEhloHeloHandler handler = new ResolvableEhloHeloHandler();
-        
-        ContainerUtil.enableLogging(handler,new MockLogger());
-        
-        handler.setDnsServer(setupMockDNSServer());
-        
-        // helo
-        setCommand(HELO);
-        handler.onCommand(session, new Chain(null));
-        assertNull("Value not stored",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
-        
-        
-        // rcpt
-        setCommand(RCPT);
-        handler.onCommand(session, new Chain(null));
-        assertTrue("Not reject", session.getSMTPResponse().getSMTPCode() != REJECT_CODE);
-        
-    }
-    
-    public void testRejectRelay() throws ParseException {
-        SMTPSession session = setupMockSession(INVALID_HOST,true,false,null,new MailAddress("test@localhost"));
-        ResolvableEhloHeloHandler handler = new ResolvableEhloHeloHandler();
-        
-        ContainerUtil.enableLogging(handler,new MockLogger());
-        
-        handler.setDnsServer(setupMockDNSServer());
-        handler.setCheckAuthNetworks(true);
-        
-        // helo
-        setCommand(HELO);
-        handler.onCommand(session, new Chain(null));
-        assertNotNull("Value stored",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
-        
-        
-        // rcpt
-        setCommand(RCPT);
-        handler.onCommand(session, new Chain(null));
-        assertTrue("Reject", session.getSMTPResponse().getSMTPCode() == REJECT_CODE);
+	SMTPSession session = setupMockSession(INVALID_HOST, true, false, null,
+		new MailAddress("test@localhost"));
+	ResolvableEhloHeloHandler handler = new ResolvableEhloHeloHandler();
+
+	ContainerUtil.enableLogging(handler, new MockLogger());
+
+	handler.setDnsServer(setupMockDNSServer());
+
+	// helo
+	setCommand(HELO);
+	handler.onCommand(session);
+	assertNull("Value not stored", session.getState().get(
+		ResolvableEhloHeloHandler.BAD_EHLO_HELO));
+
+	// rcpt
+	setCommand(RCPT);
+	handler.onCommand(session);
+	assertTrue("Not reject",
+		session.getSMTPResponse().getSMTPCode() != REJECT_CODE);
 
     }
-    
-    public void testNotRejectInvalidHeloPostmaster() throws ParseException {
-        SMTPSession session = setupMockSession(INVALID_HOST,false,false,null,new MailAddress("postmaster@localhost"));
-        ResolvableEhloHeloHandler handler = new ResolvableEhloHeloHandler();
-        
-        ContainerUtil.enableLogging(handler,new MockLogger());
-        
-        handler.setDnsServer(setupMockDNSServer());
-        
-        // helo
-        setCommand(HELO);
-        handler.onCommand(session, new Chain(null));
-        assertNotNull("stored",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
-        
-        
-        // rcpt
-        setCommand(RCPT);
-        handler.onCommand(session, new Chain(null));
-        assertTrue("Not reject", session.getSMTPResponse().getSMTPCode() != REJECT_CODE);
-        
+
+    public void testRejectRelay() throws ParseException {
+	SMTPSession session = setupMockSession(INVALID_HOST, true, false, null,
+		new MailAddress("test@localhost"));
+	ResolvableEhloHeloHandler handler = new ResolvableEhloHeloHandler();
+
+	ContainerUtil.enableLogging(handler, new MockLogger());
+
+	handler.setDnsServer(setupMockDNSServer());
+	handler.setCheckAuthNetworks(true);
+
+	// helo
+	setCommand(HELO);
+	handler.onCommand(session);
+	assertNotNull("Value stored", session.getState().get(
+		ResolvableEhloHeloHandler.BAD_EHLO_HELO));
+
+	// rcpt
+	setCommand(RCPT);
+	handler.onCommand(session);
+	assertTrue("Reject",
+		session.getSMTPResponse().getSMTPCode() == REJECT_CODE);
+
     }
-    
+
+    public void testNotRejectInvalidHeloPostmaster() throws ParseException {
+	SMTPSession session = setupMockSession(INVALID_HOST, false, false,
+		null, new MailAddress("postmaster@localhost"));
+	ResolvableEhloHeloHandler handler = new ResolvableEhloHeloHandler();
+
+	ContainerUtil.enableLogging(handler, new MockLogger());
+
+	handler.setDnsServer(setupMockDNSServer());
+
+	// helo
+	setCommand(HELO);
+	handler.onCommand(session);
+	assertNotNull("stored", session.getState().get(
+		ResolvableEhloHeloHandler.BAD_EHLO_HELO));
+
+	// rcpt
+	setCommand(RCPT);
+	handler.onCommand(session);
+	assertTrue("Not reject",
+		session.getSMTPResponse().getSMTPCode() != REJECT_CODE);
+
+    }
+
     public void testNotRejectInvalidHeloAbuse() throws ParseException {
-        SMTPSession session = setupMockSession(INVALID_HOST,false,false,null,new MailAddress("abuse@localhost"));
-        ResolvableEhloHeloHandler handler = new ResolvableEhloHeloHandler();
-        
-        ContainerUtil.enableLogging(handler,new MockLogger());
-        
-        handler.setDnsServer(setupMockDNSServer());
-        
-        // helo
-        setCommand(HELO);
-        handler.onCommand(session, new Chain(null));
-        assertNotNull("stored",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
-        
-        
-        // rcpt
-        setCommand(RCPT);
-        handler.onCommand(session, new Chain(null));
-        assertTrue("Not reject", session.getSMTPResponse().getSMTPCode() != REJECT_CODE);
+	SMTPSession session = setupMockSession(INVALID_HOST, false, false,
+		null, new MailAddress("abuse@localhost"));
+	ResolvableEhloHeloHandler handler = new ResolvableEhloHeloHandler();
+
+	ContainerUtil.enableLogging(handler, new MockLogger());
+
+	handler.setDnsServer(setupMockDNSServer());
+
+	// helo
+	setCommand(HELO);
+	handler.onCommand(session);
+	assertNotNull("stored", session.getState().get(
+		ResolvableEhloHeloHandler.BAD_EHLO_HELO));
+
+	// rcpt
+	setCommand(RCPT);
+	handler.onCommand(session);
+	assertTrue("Not reject",
+		session.getSMTPResponse().getSMTPCode() != REJECT_CODE);
 
     }
 }

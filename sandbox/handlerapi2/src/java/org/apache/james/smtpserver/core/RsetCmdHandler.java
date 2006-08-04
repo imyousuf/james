@@ -17,21 +17,18 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.smtpserver.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.apache.james.smtpserver.Chain;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
 
 /**
-  * Handles RSET command
-  */
+ * Handles RSET command
+ */
 public class RsetCmdHandler implements CommandHandler {
     /**
      * The name of the command handled by the command handler
@@ -42,11 +39,11 @@ public class RsetCmdHandler implements CommandHandler {
      * handles RSET command
      *
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
-    **/
-    public void onCommand(SMTPSession session, Chain chain) {
-        session.getSMTPResponse().setRawSMTPResponse(doRSET(session, session.getCommandArgument()));
+     **/
+    public void onCommand(SMTPSession session) {
+    session.getSMTPResponse().setRawSMTPResponse(
+        doRSET(session, session.getCommandArgument()));
     }
-
 
     /**
      * Handler method called upon receipt of a RSET command.
@@ -56,26 +53,31 @@ public class RsetCmdHandler implements CommandHandler {
      * @param argument the argument passed in with the command by the SMTP client
      */
     private String doRSET(SMTPSession session, String argument) {
-        String responseString = "";
-        if ((argument == null) || (argument.length() == 0)) {
+    String responseString = "";
+    if ((argument == null) || (argument.length() == 0)) {
 
-            session.resetState();
+        session.resetState();
 
-            responseString = "250 "+DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.UNDEFINED_STATUS)+" OK";
-        } else {
-            responseString = "500 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Unexpected argument provided with RSET command";
-        }
-        return responseString;
+        responseString = "250 "
+            + DSNStatus.getStatus(DSNStatus.SUCCESS,
+                DSNStatus.UNDEFINED_STATUS) + " OK";
+    } else {
+        responseString = "500 "
+            + DSNStatus.getStatus(DSNStatus.PERMANENT,
+                DSNStatus.DELIVERY_INVALID_ARG)
+            + " Unexpected argument provided with RSET command";
+    }
+    return responseString;
     }
 
     /**
      * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
      */
     public Collection getImplCommands() {
-        Collection implCommands = new ArrayList();
-        implCommands.add("RSET");
-        
-        return implCommands;
+    Collection implCommands = new ArrayList();
+    implCommands.add("RSET");
+
+    return implCommands;
     }
-    
+
 }

@@ -34,6 +34,10 @@ public class TarpitHandlerTest extends TestCase {
             public int getRcptCount() {
                 return rcptCount;
             }
+            
+            public void doChain() {
+            
+            }
 
         };
 
@@ -52,13 +56,13 @@ public class TarpitHandlerTest extends TestCase {
 
         // no tarpit used
         startTime = System.currentTimeMillis();
-        handler.onCommand(setupMockedSession(0), new Chain(null));
+        handler.onCommand(setupMockedSession(0));
         assertTrue("No tarpit",
                 (System.currentTimeMillis() - startTime) < tarpitTime);
 
         // tarpit used
         startTime = System.currentTimeMillis();
-        handler.onCommand(setupMockedSession(3), new Chain(null));
+        handler.onCommand(setupMockedSession(3));
         assertTrue("tarpit",
                 (System.currentTimeMillis() - startTime) >= tarpitTime);
     }

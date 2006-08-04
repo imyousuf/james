@@ -17,12 +17,9 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.smtpserver;
 
 import java.util.Collection;
-
 
 /**
  * Custom command handlers must implement this interface
@@ -30,11 +27,11 @@ import java.util.Collection;
  * therefore the command handlers must store all the state information
  * in the SMTPSession object
  */
- public interface CommandHandler {
-     
+public interface CommandHandler {
+
     /**
      * Handle the command
-    **/
+     **/
     void onCommand(SMTPSession session);
 
     /**
@@ -43,5 +40,5 @@ import java.util.Collection;
      * @return Collection which contains implemented commands
      */
     Collection getImplCommands();
-    
+
 }

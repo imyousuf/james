@@ -202,19 +202,22 @@ public class SPFHandlerTest extends TestCase {
             public SMTPResponse getSMTPResponse() {
                 return response;
             }
-
+            
+            public void doChain() {
+            
+            }
         };
     }
 
     private void runHandlers(SPFHandler spf, SMTPSession mockedSMTPSession) {
 
         setCommand("MAIL");
-        spf.onCommand(mockedSMTPSession,new Chain(null));
+        spf.onCommand(mockedSMTPSession);
 
         setCommand("RCPT");
-        spf.onCommand(mockedSMTPSession,new Chain(null));
+        spf.onCommand(mockedSMTPSession);
 
-        spf.onMessage(mockedSMTPSession,new Chain(null));
+        spf.onMessage(mockedSMTPSession);
     }
 
     public void testSPFpass() throws Exception {

@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.smtpserver.Chain;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
@@ -41,12 +40,12 @@ public class EhloHeloFilterCmdHandler extends AbstractLogEnabled implements Comm
      *
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      **/
-    public void onCommand(SMTPSession session, Chain chain) {
+    public void onCommand(SMTPSession session) {
         String response = doEHLO(session);
         
         if (response == null) {
             // call the next handler in chain
-            chain.doChain(session);
+            session.doChain();
             
         } else {        
             // store the response

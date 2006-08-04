@@ -42,10 +42,12 @@ import java.util.Random;
 /**
  * Provides SMTP functionality by carrying out the server side of the SMTP
  * interaction.
- *
- * @version CVS $Revision$ $Date$
+ * 
+ * @version CVS $Revision$ $Date: 2006-08-03 05:55:20 +0000 (Do, 03 Aug
+ *          2006) $
  */
-public class SMTPHandler extends AbstractJamesHandler implements SMTPSession {
+public class SMTPHandler extends AbstractJamesHandler implements SMTPSession,
+	IOState {
 
     /**
      * The constants to indicate the current processing mode of the session
@@ -105,7 +107,8 @@ public class SMTPHandler extends AbstractJamesHandler implements SMTPSession {
     private boolean sessionEnded = false;
 
     /**
-     * The user name of the authenticated user associated with this SMTP transaction.
+     * The user name of the authenticated user associated with this SMTP
+     * transaction.
      */
     private String authenticatedUser;
 
@@ -120,7 +123,7 @@ public class SMTPHandler extends AbstractJamesHandler implements SMTPSession {
     private boolean relayingAllowed;
 
     /**
-     * Whether the remote Server must send HELO/EHLO 
+     * Whether the remote Server must send HELO/EHLO
      */
     private boolean heloEhloEnforcement;
 
@@ -140,16 +143,19 @@ public class SMTPHandler extends AbstractJamesHandler implements SMTPSession {
     private SMTPHandlerConfigurationData theConfigData;
 
     /**
-     * The hash map that holds variables for the SMTP message transfer in progress.
-     *
-     * This hash map should only be used to store variable set in a particular
-     * set of sequential MAIL-RCPT-DATA commands, as described in RFC 2821.  Per
-     * connection values should be stored as member variables in this class.
+     * The hash map that holds variables for the SMTP message transfer in
+     * progress.
+     * 
+     * This hash map should only be used to store variable set in a
+     * particular set of sequential MAIL-RCPT-DATA commands, as described in
+     * RFC 2821. Per connection values should be stored as member variables
+     * in this class.
      */
     private HashMap state = new HashMap();
 
     /**
-     * The hash map holds states which should be used in the whole connection
+     * The hash map holds states which should be used in the whole
+     * connection
      */
     private HashMap connectionState = new HashMap();
 
@@ -162,17 +168,17 @@ public class SMTPHandler extends AbstractJamesHandler implements SMTPSession {
 
     private final static String DEFAULT_SMTP_RESPONSE = "Unexpected Error";
 
-    private SMTPResponse response = new SMTPResponse(DEFAULT_SMTP_CODE,
-	    DEFAULT_SMTP_RESPONSE);
+    private SMTPResponse response = null;
 
-    private List ioObject = new ArrayList(2);
+    private List ioState = new ArrayList(2);
 
-    private boolean blockSMTPResponse = false;
+    private boolean doChain = false;
 
     /**
      * Set the configuration data for the handler
-     *
-     * @param theData the per-service configuration data for this handler
+     * 
+     * @param theData
+     *                the per-service configuration data for this handler
      */
     public void setConfigurationData(Object theData) {
 	if (theData instanceof SMTPHandlerConfigurationData) {
@@ -187,6 +193,9 @@ public class SMTPHandler extends AbstractJamesHandler implements SMTPSession {
      * @see org.apache.james.core.AbstractJamesHandler#handleProtocol()
      */
     protected void handleProtocol() throws IOException {
+
+	ioState.add((IOState) this);
+
 	smtpID = random.nextInt(1024) + "";
 	relayingAllowed = theConfigData.isRelayingAllowed(remoteIP);
 	authRequired = theConfigData.isAuthRequired(remoteIP);
@@ -195,11 +204,12 @@ public class SMTPHandler extends AbstractJamesHandler implements SMTPSession {
 	smtpGreeting = theConfigData.getSMTPGreeting();
 	resetState();
 	resetConnectionState();
+	response = null;
 
 	// if no greeting was configured use a default
 	if (smtpGreeting == null) {
 	    // Initially greet the connector
-	    // Format is:  Sat, 24 Jan 1998 13:16:09 -0500
+	    // Format is: Sat, 24 Jan 1998 13:16:09 -0500
 
 	    responseBuffer.append("220 ").append(theConfigData.getHelloName())
 		    .append(" SMTP Server (").append(SOFTWARE_TYPE).append(
@@ -211,72 +221,53 @@ public class SMTPHandler extends AbstractJamesHandler implements SMTPSession {
 	String responseString = clearResponseBuffer();
 	writeLoggedFlushedResponse(responseString);
 
-	//the core in-protocol handling logic
-	//run all the connection handlers, if it fast fails, end the session
-	//parse the command command, look up for the list of command handlers
-	//Execute each of the command handlers. If any command handlers writes
-	//response then, End the subsequent command handler processing and
-	//start parsing new command. Once the message is received, run all
-	//the message handlers. The message handlers can either terminate
-	//message or terminate session
+	// the core in-protocol handling logic
+	// run all the connection handlers, if it fast fails, end the session
+	// parse the command command, look up for the list of command handlers
+	// Execute each of the command handlers. If any command handlers writes
+	// response then, End the subsequent command handler processing and
+	// start parsing new command. Once the message is received, run all
+	// the message handlers. The message handlers can either terminate
+	// message or terminate session
 
-	//At the beginning
-	//mode = command_mode
-	//once the commandHandler writes response, the mode is changed to RESPONSE_MODE.
-	//This will cause to skip the subsequent command handlers configured for that command.
-	//For instance:
-	//There are 2 commandhandlers MailAddressChecker and MailCmdHandler for
-	//MAIL command. If MailAddressChecker validation of the MAIL FROM
-	//address is successful, the MailCmdHandlers will be executed.
-	//Incase it fails, it has to write response. Once we write response
-	//there is no need to execute the MailCmdHandler.
-	//Next, Once MAIL message is received the DataCmdHandler and any other
-	//equivalent commandHandler will call setMail method. this will change
-	//he mode to MAIL_RECEIVED_MODE. This mode will trigger the message
-	//handlers to be execute. Message handlers can abort message. In that case,
-	//message will not spooled.
+	// At the beginning
+	// mode = command_mode
+	// once the commandHandler writes response, the mode is changed to
+	// RESPONSE_MODE.
+	// This will cause to skip the subsequent command handlers configured
+	// for that command.
+	// For instance:
+	// There are 2 commandhandlers MailAddressChecker and MailCmdHandler for
+	// MAIL command. If MailAddressChecker validation of the MAIL FROM
+	// address is successful, the MailCmdHandlers will be executed.
+	// Incase it fails, it has to write response. Once we write response
+	// there is no need to execute the MailCmdHandler.
+	// Next, Once MAIL message is received the DataCmdHandler and any other
+	// equivalent commandHandler will call setMail method. this will change
+	// he mode to MAIL_RECEIVED_MODE. This mode will trigger the message
+	// handlers to be execute. Message handlers can abort message. In that
+	// case,
+	// message will not spooled.
 
-	//Session started - RUN all connect handlers
+	// Session started - RUN all connect handlers
 	List connectHandlers = handlerChain.getConnectHandlers();
 	if (connectHandlers != null) {
+	    for (int i = 0; i < connectHandlers.size(); i++) {
+		doChain = false;
 
-	    pushIOObject(new Chain(connectHandlers.iterator()));
-	    process();
-	    popIOObject();
+		((ConnectHandler) connectHandlers.get(i)).onConnect(this);
+
+		if (doChain == false)
+		    break;
+	    }
 	}
 
 	theWatchdog.start();
 	while (!sessionEnded) {
-	    // Reset the current command values
-	    curCommandName = null;
-	    curCommandArgument = null;
-	    mode = COMMAND_MODE;
 
-	    // parse the command
-	    String cmdString = readCommandLine();
-	    if (cmdString == null) {
-		break;
-	    }
-	    int spaceIndex = cmdString.indexOf(" ");
-	    if (spaceIndex > 0) {
-		curCommandName = cmdString.substring(0, spaceIndex);
-		curCommandArgument = cmdString.substring(spaceIndex + 1);
-	    } else {
-		curCommandName = cmdString;
-	    }
-	    curCommandName = curCommandName.toUpperCase(Locale.US);
+	    process(readCommandLine());
 
-	    // fetch the command handlers registered to the command
-	    List commandHandlers = handlerChain
-		    .getCommandHandlers(curCommandName);
-	    if (commandHandlers == null) {
-		// end the session
-		break;
-	    } else {
-		pushIOObject(new Chain(commandHandlers.iterator()));
-		process();
-		popIOObject();
-
+	    if (response != null) {
 		writeCompleteResponse(getSMTPResponse());
 	    }
 
@@ -286,10 +277,20 @@ public class SMTPHandler extends AbstractJamesHandler implements SMTPSession {
 		List messageHandlers = handlerChain.getMessageHandlers();
 
 		if (messageHandlers != null) {
-		    pushIOObject(new Chain(messageHandlers.iterator()));
-		    process();
-		    popIOObject();
-		    writeCompleteResponse(getSMTPResponse());
+
+		    for (int i = 0; i < messageHandlers.size(); i++) {
+			doChain = false;
+
+			((MessageHandler) messageHandlers.get(i))
+				.onMessage(this);
+
+			if (doChain == false)
+			    break;
+
+		    }
+
+		    if (response != null)
+			writeCompleteResponse(response);
 		}
 	    }
 
@@ -312,6 +313,43 @@ public class SMTPHandler extends AbstractJamesHandler implements SMTPSession {
 	}
 	theWatchdog.stop();
 	getLogger().debug("Closing socket.");
+    }
+
+    public void readResponse(SMTPSession session, String data) {
+
+	// Reset the current command values
+	curCommandName = null;
+	curCommandArgument = null;
+	mode = COMMAND_MODE;
+
+	// parse the command
+	String cmdString = data;
+	if (cmdString == null) {
+	    endSession();
+	}
+	int spaceIndex = cmdString.indexOf(" ");
+	if (spaceIndex > 0) {
+	    curCommandName = cmdString.substring(0, spaceIndex);
+	    curCommandArgument = cmdString.substring(spaceIndex + 1);
+	} else {
+	    curCommandName = cmdString;
+	}
+	curCommandName = curCommandName.toUpperCase(Locale.US);
+
+	// fetch the command handlers registered to the command
+	List commandHandlers = handlerChain.getCommandHandlers(curCommandName);
+	if (commandHandlers == null) {
+	    // end the session
+	    endSession();
+	} else {
+	    for (int i = 0; i < commandHandlers.size(); i++) {
+		doChain = false;
+		((CommandHandler) commandHandlers.get(i)).onCommand(this);
+
+		if (doChain == false)
+		    break;
+	    }
+	}
     }
 
     /**
@@ -344,6 +382,10 @@ public class SMTPHandler extends AbstractJamesHandler implements SMTPSession {
 	    }
 	}
 	resetSMTPResponse();
+
+	if (mode == COMMAND_MODE) {
+	    mode = RESPONSE_MODE;
+	}
     }
 
     /**
@@ -360,7 +402,7 @@ public class SMTPHandler extends AbstractJamesHandler implements SMTPSession {
 	remoteIP = null;
 	authenticatedUser = null;
 	smtpID = null;
-	resetSMTPResponse();
+	response = null;
     }
 
     /**
@@ -379,7 +421,7 @@ public class SMTPHandler extends AbstractJamesHandler implements SMTPSession {
     public void writeResponse(String respString) {
 	writeLoggedFlushedResponse(respString);
 
-	//TODO Explain this well
+	// TODO Explain this well
 	if (mode == COMMAND_MODE) {
 	    mode = RESPONSE_MODE;
 	}
@@ -475,7 +517,8 @@ public class SMTPHandler extends AbstractJamesHandler implements SMTPSession {
     }
 
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#setRelayingAllowed(boolean relayingAllowed)
+     * @see org.apache.james.smtpserver.SMTPSession#setRelayingAllowed(boolean
+     *      relayingAllowed)
      */
     public void setRelayingAllowed(boolean relayingAllowed) {
 	this.relayingAllowed = relayingAllowed;
@@ -605,6 +648,10 @@ public class SMTPHandler extends AbstractJamesHandler implements SMTPSession {
      * @see org.apache.james.smtpserver.SMTPSession#getSMTPResponse()
      */
     public SMTPResponse getSMTPResponse() {
+	if (response == null) {
+	    setSMTPResponse(new SMTPResponse(DEFAULT_SMTP_CODE,
+		    DEFAULT_SMTP_RESPONSE));
+	}
 	return response;
     }
 
@@ -623,20 +670,23 @@ public class SMTPHandler extends AbstractJamesHandler implements SMTPSession {
 	getSMTPResponse().setSMTPResponse(DEFAULT_SMTP_RESPONSE);
     }
 
-    public void pushIOObject(IOObject io) {
-	ioObject.add(0, io);
+    public void pushIOState(IOState io) {
+	ioState.add(0, io);
     }
 
-    public void popIOObject() {
-	ioObject.remove(0);
+    public void popIOState() {
+	ioState.remove(0);
     }
 
-    public IOObject getIOObject() {
-	return (IOObject) ioObject.get(0);
+    public IOState getIOState() {
+	return (IOState) ioState.get(0);
     }
 
-    public SMTPResponse process() {
-	return getIOObject().nextHandler(this);
+    public void doChain() {
+	doChain = true;
     }
 
+    private void process(String data) {
+	getIOState().readResponse(this, data);
+    }
 }

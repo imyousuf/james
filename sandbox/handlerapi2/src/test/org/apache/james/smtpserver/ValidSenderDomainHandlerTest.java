@@ -36,74 +36,85 @@ import org.apache.mailet.MailAddress;
 import junit.framework.TestCase;
 
 public class ValidSenderDomainHandlerTest extends TestCase {
-   
+
     private final int REJECT_CODE = 501;
-    
+
     private DNSServer setupDNSServer() {
-        DNSServer dns = new DNSServer(){
+    DNSServer dns = new DNSServer() {
 
-            public Collection findMXRecords(String hostname) {
-                Collection mx = new ArrayList();
-                if (hostname.equals("test.james.apache.org")) {
-                    mx.add("mail.james.apache.org");
-                }
-                return mx;
-            }
+        public Collection findMXRecords(String hostname) {
+        Collection mx = new ArrayList();
+        if (hostname.equals("test.james.apache.org")) {
+            mx.add("mail.james.apache.org");
+        }
+        return mx;
+        }
 
-            public Collection findTXTRecords(String hostname) {
-                throw new UnsupportedOperationException("Unimplemented mock service");
-            }
+        public Collection findTXTRecords(String hostname) {
+        throw new UnsupportedOperationException(
+            "Unimplemented mock service");
+        }
 
-            public InetAddress[] getAllByName(String host) throws UnknownHostException {
-                throw new UnsupportedOperationException("Unimplemented mock service");
-            }
+        public InetAddress[] getAllByName(String host)
+            throws UnknownHostException {
+        throw new UnsupportedOperationException(
+            "Unimplemented mock service");
+        }
 
-            public InetAddress getByName(String host) throws UnknownHostException {
-                throw new UnsupportedOperationException("Unimplemented mock service");
-            }
+        public InetAddress getByName(String host)
+            throws UnknownHostException {
+        throw new UnsupportedOperationException(
+            "Unimplemented mock service");
+        }
 
-            public Iterator getSMTPHostAddresses(String domainName) {
-                throw new UnsupportedOperationException("Unimplemented mock service");
-            }
-            
-        };
-        return dns;
+        public Iterator getSMTPHostAddresses(String domainName) {
+        throw new UnsupportedOperationException(
+            "Unimplemented mock service");
+        }
+
+    };
+    return dns;
     }
-    
+
     private SMTPSession setupMockedSession(final MailAddress sender) {
-        SMTPSession session = new AbstractSMTPSession() {
-            HashMap state = new HashMap();
-            SMTPResponse response = new SMTPResponse(500, "Unknown Response");
-            
-            public Map getState() {
+    SMTPSession session = new AbstractSMTPSession() {
+        HashMap state = new HashMap();
 
-                state.put(SMTPSession.SENDER, sender);
+        SMTPResponse response = new SMTPResponse(500, "Unknown Response");
 
-                return state;
-            }
-            
-            public boolean isRelayingAllowed() {
-                return false;
-            }
-            
-            public SMTPResponse getSMTPResponse() {
-		return response;
-	    }
-            
-        };
-        return session;
+        public Map getState() {
+
+        state.put(SMTPSession.SENDER, sender);
+
+        return state;
+        }
+
+        public boolean isRelayingAllowed() {
+        return false;
+        }
+
+        public SMTPResponse getSMTPResponse() {
+        return response;
+        }
+
+        public void doChain() {
+
+        }
+    };
+    return session;
     }
-    
+
     // Test for JAMES-580
     public void testNullSender() {
-        ValidSenderDomainHandler handler = new ValidSenderDomainHandler();
-        ContainerUtil.enableLogging(handler, new MockLogger());
-        
-        SMTPSession session = setupMockedSession(null);
-        
-        handler.setDnsServer(setupDNSServer());
-        handler.onCommand(session,new Chain(null));
-        
-        assertTrue("Not blocked cause its a nullsender",session.getSMTPResponse().getSMTPCode() != REJECT_CODE);
+    ValidSenderDomainHandler handler = new ValidSenderDomainHandler();
+    ContainerUtil.enableLogging(handler, new MockLogger());
+
+    SMTPSession session = setupMockedSession(null);
+
+    handler.setDnsServer(setupDNSServer());
+    handler.onCommand(session);
+
+    assertTrue("Not blocked cause its a nullsender", session
+        .getSMTPResponse().getSMTPCode() != REJECT_CODE);
     }
 }

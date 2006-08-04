@@ -90,6 +90,10 @@ public class SpamAssassinHandlerTest extends TestCase {
             public void setRelayingAllowed(boolean relayingAllowed) {
                 this.relayingAllowed = relayingAllowed;
             }
+            
+            public void doChain() {
+            
+            }
         };
 
         return mockedSMTPSession;
@@ -125,7 +129,7 @@ public class SpamAssassinHandlerTest extends TestCase {
         handler.setSpamdHost(SPAMD_HOST);
         handler.setSpamdPort(port);
         handler.setSpamdRejectionHits(200.0);
-        handler.onMessage(session, new Chain(null));
+        handler.onMessage(session);
 
         assertTrue("Email was not rejected", session.getSMTPResponse().getSMTPCode() != REJECT_CODE);
         assertEquals("email was not spam", session.getMail().getAttribute(
@@ -148,7 +152,7 @@ public class SpamAssassinHandlerTest extends TestCase {
         handler.setSpamdHost(SPAMD_HOST);
         handler.setSpamdPort(port);
         handler.setSpamdRejectionHits(2000.0);
-        handler.onMessage(session, new Chain(null));
+        handler.onMessage(session);
 
         assertTrue("Email was not rejected", session.getSMTPResponse().getSMTPCode() != REJECT_CODE);
         assertEquals("email was spam", session.getMail().getAttribute(
@@ -170,7 +174,7 @@ public class SpamAssassinHandlerTest extends TestCase {
         handler.setSpamdHost(SPAMD_HOST);
         handler.setSpamdPort(port);
         handler.setSpamdRejectionHits(200.0);
-        handler.onMessage(session, new Chain(null));
+        handler.onMessage(session);
 
         assertTrue("Email was rejected", session.getSMTPResponse().getSMTPCode() == REJECT_CODE);
         assertEquals("email was spam", session.getMail().getAttribute(

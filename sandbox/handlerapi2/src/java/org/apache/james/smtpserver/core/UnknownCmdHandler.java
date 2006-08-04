@@ -17,21 +17,18 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.smtpserver.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.apache.james.smtpserver.Chain;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
 
 /**
-  * Default command handler for handling unknown commands
-  */
+ * Default command handler for handling unknown commands
+ */
 public class UnknownCmdHandler implements CommandHandler {
 
     /**
@@ -44,38 +41,40 @@ public class UnknownCmdHandler implements CommandHandler {
      * Returns an error response and logs the command.
      *
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
-    **/
-    public void onCommand(SMTPSession session, Chain chain) {
-	String response = doUNKNOWN(session);
+     **/
+    public void onCommand(SMTPSession session) {
+    String response = doUNKNOWN(session);
 
-	if (response != null) {
-	    session.getSMTPResponse().setRawSMTPResponse(response);
-	}
+    if (response != null) {
+        session.getSMTPResponse().setRawSMTPResponse(response);
     }
-    
+    }
+
     private String doUNKNOWN(SMTPSession session) {
 
-        //If there was message failure, don't consider it as an unknown command
-        if (session.getState().get(SMTPSession.MESG_FAILED) != null) {
-            return null;
-        }
-
-        session.getResponseBuffer().append("500 "+DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.DELIVERY_INVALID_CMD))
-                      .append(" Command ")
-                      .append(session.getCommandName())
-                      .append(" unrecognized.");
-        String responseString = session.clearResponseBuffer();
-
-        return responseString;
+    //If there was message failure, don't consider it as an unknown command
+    if (session.getState().get(SMTPSession.MESG_FAILED) != null) {
+        return null;
     }
-    
+
+    session.getResponseBuffer().append(
+        "500 "
+            + DSNStatus.getStatus(DSNStatus.PERMANENT,
+                DSNStatus.DELIVERY_INVALID_CMD)).append(
+        " Command ").append(session.getCommandName()).append(
+        " unrecognized.");
+    String responseString = session.clearResponseBuffer();
+
+    return responseString;
+    }
+
     /**
      * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
      */
     public Collection getImplCommands() {
-        Collection implCommands = new ArrayList();
-        implCommands.add("UNKNOWN");
-        
-        return implCommands;
+    Collection implCommands = new ArrayList();
+    implCommands.add("UNKNOWN");
+
+    return implCommands;
     }
 }

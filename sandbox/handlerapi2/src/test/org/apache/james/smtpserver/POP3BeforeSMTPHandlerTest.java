@@ -17,7 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
 package org.apache.james.smtpserver;
 
 import org.apache.avalon.framework.container.ContainerUtil;
@@ -32,85 +31,89 @@ public class POP3BeforeSMTPHandlerTest extends TestCase {
     private SMTPSession mockedSession;
 
     private void setupMockedSMTPSession() {
-        mockedSession = new AbstractSMTPSession() {
-            private boolean relayingAllowed = false;
+    mockedSession = new AbstractSMTPSession() {
+        private boolean relayingAllowed = false;
 
-            public String getRemoteIPAddress() {
-                return "192.168.200.1";
-            }
+        public String getRemoteIPAddress() {
+        return "192.168.200.1";
+        }
 
-            public boolean isRelayingAllowed() {
-                return relayingAllowed;
-            }
+        public boolean isRelayingAllowed() {
+        return relayingAllowed;
+        }
 
-            public void setRelayingAllowed(boolean relayingAllowed) {
-                this.relayingAllowed = relayingAllowed;
-            }
+        public void setRelayingAllowed(boolean relayingAllowed) {
+        this.relayingAllowed = relayingAllowed;
+        }
+        
+        public void doChain() {
+        
+        }
 
-        };
+    };
     }
 
     public void testAuthWorks() {
 
-        POP3BeforeSMTPHandler handler = new POP3BeforeSMTPHandler();
+    POP3BeforeSMTPHandler handler = new POP3BeforeSMTPHandler();
 
-        ContainerUtil.enableLogging(handler, new MockLogger());
-        setupMockedSMTPSession();
-        POP3BeforeSMTPHelper.addIPAddress("192.168.200.1");
+    ContainerUtil.enableLogging(handler, new MockLogger());
+    setupMockedSMTPSession();
+    POP3BeforeSMTPHelper.addIPAddress("192.168.200.1");
 
-        assertFalse(mockedSession.isRelayingAllowed());
-        handler.onConnect(mockedSession, new Chain(null));
-        assertTrue(mockedSession.isRelayingAllowed());
+    assertFalse(mockedSession.isRelayingAllowed());
+    handler.onConnect(mockedSession);
+    assertTrue(mockedSession.isRelayingAllowed());
     }
 
     public void testIPGetRemoved() {
-        long sleepTime = 100;
-        POP3BeforeSMTPHandler handler = new POP3BeforeSMTPHandler();
+    long sleepTime = 100;
+    POP3BeforeSMTPHandler handler = new POP3BeforeSMTPHandler();
 
-        ContainerUtil.enableLogging(handler, new MockLogger());
-        setupMockedSMTPSession();
-        POP3BeforeSMTPHelper.addIPAddress("192.168.200.1");
+    ContainerUtil.enableLogging(handler, new MockLogger());
+    setupMockedSMTPSession();
+    POP3BeforeSMTPHelper.addIPAddress("192.168.200.1");
+    assertFalse(mockedSession.isRelayingAllowed());
+
+    try {
+        Thread.sleep(sleepTime);
+        POP3BeforeSMTPHelper.removeExpiredIP(10);
+        handler.onConnect(mockedSession);
         assertFalse(mockedSession.isRelayingAllowed());
 
-        try {
-            Thread.sleep(sleepTime);
-            POP3BeforeSMTPHelper.removeExpiredIP(10);
-            handler.onConnect(mockedSession, new Chain(null));
-            assertFalse(mockedSession.isRelayingAllowed());
-
-        } catch (InterruptedException e) {
-            //ignore
-        }
+    } catch (InterruptedException e) {
+        //ignore
     }
-    
+    }
+
     public void testThrowExceptionOnIllegalExpireTime() {
-        boolean exception = false;
-        POP3BeforeSMTPHandler handler = new POP3BeforeSMTPHandler();
+    boolean exception = false;
+    POP3BeforeSMTPHandler handler = new POP3BeforeSMTPHandler();
 
-        ContainerUtil.enableLogging(handler, new MockLogger());
-        setupMockedSMTPSession();     
+    ContainerUtil.enableLogging(handler, new MockLogger());
+    setupMockedSMTPSession();
 
-        try {
-            handler.setExpireTime("1 unit");
-        } catch (NumberFormatException e) {
-            exception = true;
-        }
-        assertTrue(exception);
+    try {
+        handler.setExpireTime("1 unit");
+    } catch (NumberFormatException e) {
+        exception = true;
     }
-    
+    assertTrue(exception);
+    }
+
     public void testValidExpireTime() {
-        boolean exception = false;
-        POP3BeforeSMTPHandler handler = new POP3BeforeSMTPHandler();
+    boolean exception = false;
+    POP3BeforeSMTPHandler handler = new POP3BeforeSMTPHandler();
 
-        ContainerUtil.enableLogging(handler, new MockLogger());
-        setupMockedSMTPSession();     
+    ContainerUtil.enableLogging(handler, new MockLogger());
+    setupMockedSMTPSession();
 
-        try {
-            handler.setExpireTime("1 hour");
-        } catch (NumberFormatException e) {
-            exception = true;
-        }
-        assertFalse(exception);
+    try {
+        handler.setExpireTime("1 hour");
+    } catch (NumberFormatException e) {
+        exception = true;
     }
-    
+    assertFalse(exception);
+    }
+
 }

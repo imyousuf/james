@@ -28,7 +28,6 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.smtpserver.Chain;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
 
@@ -100,9 +99,9 @@ public class TarpitHandler extends AbstractLogEnabled implements
     /**
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
-    public void onCommand(SMTPSession session, Chain chain) {
-	doRCPT(session);
-	chain.doChain(session);
+    public void onCommand(SMTPSession session) {
+    doRCPT(session);
+    session.doChain();
     }
     
     private void doRCPT(SMTPSession session) {

@@ -28,7 +28,6 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.smtpserver.Chain;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
@@ -46,13 +45,13 @@ public class RcptFilterCmdHandler extends AbstractLogEnabled implements
      *
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
     **/
-    public void onCommand(SMTPSession session, Chain chain) {
+    public void onCommand(SMTPSession session) {
       
        String response =  doRCPT(session);
        
        if (response == null) {
            // call the next handler in chain
-           chain.doChain(session);
+           session.doChain();
            
        } else {        
            // store the response

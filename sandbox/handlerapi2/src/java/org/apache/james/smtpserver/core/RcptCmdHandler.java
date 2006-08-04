@@ -17,35 +17,31 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.smtpserver.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.smtpserver.Chain;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.MailAddress;
 
 /**
-  * Handles RCPT command
-  */
+ * Handles RCPT command
+ */
 public class RcptCmdHandler extends AbstractLogEnabled implements
-        CommandHandler {
+    CommandHandler {
 
     /**
      * handles RCPT command
      *
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
-    **/
-    public void onCommand(SMTPSession session,Chain chain) {
-        session.getSMTPResponse().setRawSMTPResponse(doRCPT(session));
+     **/
+    public void onCommand(SMTPSession session) {
+    session.getSMTPResponse().setRawSMTPResponse(doRCPT(session));
     }
-
 
     /**
      * Handler method called upon receipt of a RCPT command.
@@ -56,37 +52,37 @@ public class RcptCmdHandler extends AbstractLogEnabled implements
      * @param argument the argument passed in with the command by the SMTP client
      */
     private String doRCPT(SMTPSession session) {
-       
-        String responseString = null;
-        StringBuffer responseBuffer = session.getResponseBuffer();
 
-        Collection rcptColl = (Collection) session.getState().get(
-                SMTPSession.RCPT_LIST);
-        if (rcptColl == null) {
-            rcptColl = new ArrayList();
-        }
-        MailAddress recipientAddress = (MailAddress) session.getState().get(
-                SMTPSession.CURRENT_RECIPIENT);
-        rcptColl.add(recipientAddress);
-        session.getState().put(SMTPSession.RCPT_LIST, rcptColl);
-        responseBuffer.append(
-                "250 "
-                        + DSNStatus.getStatus(DSNStatus.SUCCESS,
-                                DSNStatus.ADDRESS_VALID) + " Recipient <")
-                .append(recipientAddress).append("> OK");
-        responseString = session.clearResponseBuffer();
-        return responseString;
-             
+    String responseString = null;
+    StringBuffer responseBuffer = session.getResponseBuffer();
+
+    Collection rcptColl = (Collection) session.getState().get(
+        SMTPSession.RCPT_LIST);
+    if (rcptColl == null) {
+        rcptColl = new ArrayList();
     }
-    
+    MailAddress recipientAddress = (MailAddress) session.getState().get(
+        SMTPSession.CURRENT_RECIPIENT);
+    rcptColl.add(recipientAddress);
+    session.getState().put(SMTPSession.RCPT_LIST, rcptColl);
+    responseBuffer.append(
+        "250 "
+            + DSNStatus.getStatus(DSNStatus.SUCCESS,
+                DSNStatus.ADDRESS_VALID) + " Recipient <")
+        .append(recipientAddress).append("> OK");
+    responseString = session.clearResponseBuffer();
+    return responseString;
+
+    }
+
     /**
      * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
      */
     public Collection getImplCommands() {
-        Collection implCommands = new ArrayList();
-        implCommands.add("RCPT");
-        
-        return implCommands;
+    Collection implCommands = new ArrayList();
+    implCommands.add("RCPT");
+
+    return implCommands;
     }
 
 }

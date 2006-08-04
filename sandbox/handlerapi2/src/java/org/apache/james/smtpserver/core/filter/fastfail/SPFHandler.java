@@ -33,7 +33,6 @@ import org.apache.james.jspf.SPF;
 import org.apache.james.jspf.SPF1Utils;
 import org.apache.james.jspf.SPFResult;
 import org.apache.james.jspf.core.DNSService;
-import org.apache.james.smtpserver.Chain;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.MessageHandler;
 import org.apache.james.smtpserver.SMTPSession;
@@ -143,18 +142,17 @@ public class SPFHandler extends AbstractLogEnabled implements CommandHandler,
      * 
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
-    public void onCommand(SMTPSession session,Chain chain) {
+    public void onCommand(SMTPSession session) {
         if (session.getCommandName().equals("MAIL")) {
             doSPFCheck(session);
-            chain.doChain(session);
+            session.doChain();
             
         } else if (session.getCommandName().equals("RCPT")) {
             String response = rejectSession(session);
             
             if (response == null) {
                 // call the next handler in chain
-                chain.doChain(session);
-                
+            session.doChain();
             } else {        
                 // store the response
                 session.getSMTPResponse().setRawSMTPResponse(response);
@@ -286,9 +284,9 @@ public class SPFHandler extends AbstractLogEnabled implements CommandHandler,
     /**
      * @see org.apache.james.smtpserver.MessageHandler#onMessage(SMTPSession)
      */
-    public void onMessage(SMTPSession session,Chain chain) {
+    public void onMessage(SMTPSession session) {
     addHeader(session);
-    chain.doChain(session);
+    session.doChain();
     }
     
     private void addHeader(SMTPSession session) {

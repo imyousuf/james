@@ -69,6 +69,10 @@ public class SetMimeHeaderHandlerTest extends TestCase {
             public Mail getMail() {
                 return mockedMail;
             }
+            
+            public void doChain() {
+            
+            }
         };
     }
 
@@ -86,7 +90,7 @@ public class SetMimeHeaderHandlerTest extends TestCase {
 
         header.setHeaderName(HEADER_NAME);
         header.setHeaderValue(HEADER_VALUE);
-        header.onMessage(mockedSMTPSession, new Chain(null));
+        header.onMessage(mockedSMTPSession);
 
         assertEquals(HEADER_VALUE, mockedSMTPSession.getMail().getMessage()
                 .getHeader(HEADER_NAME)[0]);
@@ -106,7 +110,7 @@ public class SetMimeHeaderHandlerTest extends TestCase {
 
         header.setHeaderName(HEADER_NAME);
         header.setHeaderValue(HEADER_VALUE);
-        header.onMessage(mockedSMTPSession, new Chain(null));
+        header.onMessage(mockedSMTPSession);
 
         assertEquals(HEADER_VALUE, mockedSMTPSession.getMail().getMessage()
                 .getHeader(HEADER_NAME)[0]);

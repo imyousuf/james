@@ -17,21 +17,18 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.smtpserver.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.apache.james.smtpserver.Chain;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
 
 /**
-  * Handles NOOP command
-  */
+ * Handles NOOP command
+ */
 public class NoopCmdHandler implements CommandHandler {
 
     /**
@@ -45,18 +42,20 @@ public class NoopCmdHandler implements CommandHandler {
      *
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
-    public void onCommand(SMTPSession session, Chain chain) {
-        String responseString = "250 "+DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.UNDEFINED_STATUS)+" OK";
-        session.getSMTPResponse().setRawSMTPResponse(responseString);
+    public void onCommand(SMTPSession session) {
+    String responseString = "250 "
+        + DSNStatus.getStatus(DSNStatus.SUCCESS,
+            DSNStatus.UNDEFINED_STATUS) + " OK";
+    session.getSMTPResponse().setRawSMTPResponse(responseString);
     }
-    
+
     /**
      * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
      */
     public Collection getImplCommands() {
-        Collection implCommands = new ArrayList();
-        implCommands.add("NOOP");
-        
-        return implCommands;
+    Collection implCommands = new ArrayList();
+    implCommands.add("NOOP");
+
+    return implCommands;
     }
 }

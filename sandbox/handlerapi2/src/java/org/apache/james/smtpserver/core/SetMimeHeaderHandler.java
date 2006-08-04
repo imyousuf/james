@@ -17,87 +17,83 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.smtpserver.core;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.james.smtpserver.Chain;
 import org.apache.james.smtpserver.MessageHandler;
 import org.apache.james.smtpserver.SMTPSession;
 
 import javax.mail.internet.MimeMessage;
 
-
 /**
-  * Adds the header to the message
-  */
-public class SetMimeHeaderHandler
-    extends AbstractLogEnabled
-    implements MessageHandler, Configurable {
+ * Adds the header to the message
+ */
+public class SetMimeHeaderHandler extends AbstractLogEnabled implements
+    MessageHandler, Configurable {
 
     /**
      * The header name and value that needs to be added
      */
     private String headerName;
+
     private String headerValue;
 
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
-    public void configure(Configuration handlerConfiguration) throws ConfigurationException {
+    public void configure(Configuration handlerConfiguration)
+        throws ConfigurationException {
 
-        Configuration configuration = handlerConfiguration.getChild("headername", false);
-        if(configuration != null) {
-            setHeaderName(configuration.getValue());
-        }
-
-        configuration = handlerConfiguration.getChild("headervalue", false);
-        if(configuration != null) {
-            setHeaderValue(configuration.getValue());
-        }
+    Configuration configuration = handlerConfiguration.getChild(
+        "headername", false);
+    if (configuration != null) {
+        setHeaderName(configuration.getValue());
     }
-    
+
+    configuration = handlerConfiguration.getChild("headervalue", false);
+    if (configuration != null) {
+        setHeaderValue(configuration.getValue());
+    }
+    }
+
     /**
      * Set the header name
      * 
      * @param headerName String which represent the header name
      */
     public void setHeaderName(String headerName) {
-        this.headerName = headerName;
+    this.headerName = headerName;
     }
-    
+
     /**
      * Set the header value
      * 
      * @param headerValue String wich represetn the header value
      */
     public void setHeaderValue(String headerValue) {
-        this.headerValue = headerValue;
+    this.headerValue = headerValue;
     }
 
     /**
      * Adds header to the message
      * @see org.apache.james.smtpserver#onMessage(SMTPSession)
      */
-    public void onMessage(SMTPSession session,Chain chain) {
-        try {
-            MimeMessage message = session.getMail().getMessage ();
+    public void onMessage(SMTPSession session) {
+    try {
+        MimeMessage message = session.getMail().getMessage();
 
-            //Set the header name and value (supplied at init time).
-            if(headerName != null) {
-                message.setHeader(headerName, headerValue);
-                message.saveChanges();
-            }
-
-        } catch (javax.mail.MessagingException me) {
-            getLogger().error(me.getMessage());
+        //Set the header name and value (supplied at init time).
+        if (headerName != null) {
+        message.setHeader(headerName, headerValue);
+        message.saveChanges();
         }
+
+    } catch (javax.mail.MessagingException me) {
+        getLogger().error(me.getMessage());
     }
-
-
+    }
 
 }

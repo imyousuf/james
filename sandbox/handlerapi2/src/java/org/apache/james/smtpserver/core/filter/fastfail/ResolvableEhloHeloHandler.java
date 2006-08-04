@@ -27,7 +27,6 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.services.DNSServer;
-import org.apache.james.smtpserver.Chain;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
@@ -109,7 +108,7 @@ public class ResolvableEhloHeloHandler extends AbstractLogEnabled implements
     /**
      * @see org.apache.james.smtpserver.core.filter.fastfail.HeloFilterHandler#onEhloCommand(SMTPSession)
      */
-    public void onCommand(SMTPSession session,Chain chain) {
+    public void onCommand(SMTPSession session) {
         String argument = session.getCommandArgument();
         String command = session.getCommandName();
         if (command.equals("HELO")
@@ -117,13 +116,13 @@ public class ResolvableEhloHeloHandler extends AbstractLogEnabled implements
             checkEhloHelo(session, argument);
             
             // call next handler in chain
-            chain.doChain(session);
+            session.doChain();
         } else if (command.equals("RCPT")) {
             String response = reject(session, argument);
             
             if (response == null) {
                 // call the next handler in chain
-                chain.doChain(session);
+                session.doChain();
                 
             } else {        
                 // store the response

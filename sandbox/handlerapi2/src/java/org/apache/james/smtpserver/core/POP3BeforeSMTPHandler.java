@@ -17,13 +17,11 @@
  * under the License.                                           *
  ****************************************************************/
 
-
 package org.apache.james.smtpserver.core;
 
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.james.smtpserver.Chain;
 import org.apache.james.smtpserver.ConnectHandler;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.POP3BeforeSMTPHelper;
@@ -43,17 +41,17 @@ public class POP3BeforeSMTPHandler implements ConnectHandler, Configurable {
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
     public void configure(Configuration arg0) throws ConfigurationException {
-        Configuration config = arg0.getChild("expireTime", false);
+    Configuration config = arg0.getChild("expireTime", false);
 
-        if (config != null) {
-            try {
-                setExpireTime(config.getValue(null));
-            } catch (NumberFormatException e) {
-                throw new ConfigurationException(
-                        "Please configure a valid expireTime: "
-                                + e.getMessage());
-            }
+    if (config != null) {
+        try {
+        setExpireTime(config.getValue(null));
+        } catch (NumberFormatException e) {
+        throw new ConfigurationException(
+            "Please configure a valid expireTime: "
+                + e.getMessage());
         }
+    }
     }
 
     /**
@@ -63,28 +61,29 @@ public class POP3BeforeSMTPHandler implements ConnectHandler, Configurable {
      *            The time
      */
     public void setExpireTime(String rawExpireTime) {
-        if (rawExpireTime != null) {
-            this.expireTime = TimeConverter.getMilliSeconds(rawExpireTime);
-        }
+    if (rawExpireTime != null) {
+        this.expireTime = TimeConverter.getMilliSeconds(rawExpireTime);
+    }
     }
 
     /**
      * @see org.apache.james.smtpserver.ConnectHandler#onConnect(SMTPSession)
      */
-    public void onConnect(SMTPSession session,Chain chain) {
+    public void onConnect(SMTPSession session) {
 
-        // some kind of random cleanup process
-        if (Math.random() > 0.99) {
-            POP3BeforeSMTPHelper.removeExpiredIP(expireTime);
-        }
+    // some kind of random cleanup process
+    if (Math.random() > 0.99) {
+        POP3BeforeSMTPHelper.removeExpiredIP(expireTime);
+    }
 
-        // Check if the ip is allowed to relay
-        if (!session.isRelayingAllowed()
-                && POP3BeforeSMTPHelper.isAuthorized(session.getRemoteIPAddress())) {
-            session.setRelayingAllowed(true);
-        }
-        
-        chain.doChain(session);
+    // Check if the ip is allowed to relay
+    if (!session.isRelayingAllowed()
+        && POP3BeforeSMTPHelper.isAuthorized(session
+            .getRemoteIPAddress())) {
+        session.setRelayingAllowed(true);
+    }
+
+    session.doChain();
     }
 
 }

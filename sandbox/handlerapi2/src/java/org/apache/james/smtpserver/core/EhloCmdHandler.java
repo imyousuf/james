@@ -17,15 +17,12 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.smtpserver.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.smtpserver.Chain;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
 
@@ -33,7 +30,7 @@ import org.apache.james.smtpserver.SMTPSession;
  * Handles EHLO command
  */
 public class EhloCmdHandler extends AbstractLogEnabled implements
-        CommandHandler {
+    CommandHandler {
 
     /**
      * The name of the command handled by the command handler
@@ -42,71 +39,74 @@ public class EhloCmdHandler extends AbstractLogEnabled implements
 
     /*
      * processes EHLO command
-     *
+     * 
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
-     **/
-    public void onCommand(SMTPSession session,Chain chain) {
-       doEHLO(session);
+     */
+    public void onCommand(SMTPSession session) {
+    doEHLO(session);
     }
 
     /**
-     * Handler method called upon receipt of a EHLO command.
-     * Responds with a greeting and informs the client whether
-     * client authentication is required.
-     *
-     * @param session SMTP session object
-     * @param argument the argument passed in with the command by the SMTP client
+     * Handler method called upon receipt of a EHLO command. Responds with a
+     * greeting and informs the client whether client authentication is
+     * required.
+     * 
+     * @param session
+     *                SMTP session object
+     * @param argument
+     *                the argument passed in with the command by the SMTP
+     *                client
      */
     private void doEHLO(SMTPSession session) {
-	String argument = session.getCommandArgument();
-	session.getConnectionState().put(SMTPSession.CURRENT_HELO_MODE,
-		COMMAND_NAME);
+    String argument = session.getCommandArgument();
+    session.getConnectionState().put(SMTPSession.CURRENT_HELO_MODE,
+        COMMAND_NAME);
 
-	ArrayList esmtpextensions = new ArrayList();
+    ArrayList esmtpextensions = new ArrayList();
 
-	esmtpextensions.add(new StringBuffer(session.getConfigurationData()
-		.getHelloName()).append(" Hello ").append(argument)
-		.append(" (").append(session.getRemoteHost()).append(" [")
-		.append(session.getRemoteIPAddress()).append("])").toString());
+    esmtpextensions.add(new StringBuffer(session.getConfigurationData()
+        .getHelloName()).append(" Hello ").append(argument)
+        .append(" (").append(session.getRemoteHost()).append(" [")
+        .append(session.getRemoteIPAddress()).append("])").toString());
 
-	// Extension defined in RFC 1870
-	long maxMessageSize = session.getConfigurationData()
-		.getMaxMessageSize();
-	if (maxMessageSize > 0) {
-	    esmtpextensions.add("SIZE " + maxMessageSize);
-	}
-
-	if (session.isAuthRequired()) {
-	    esmtpextensions.add("AUTH LOGIN PLAIN");
-	    esmtpextensions.add("AUTH=LOGIN PLAIN");
-	}
-
-	esmtpextensions.add("PIPELINING");
-	esmtpextensions.add("ENHANCEDSTATUSCODES");
-	// see http://issues.apache.org/jira/browse/JAMES-419
-	// esmtpextensions.add("8BITMIME");
-
-	// Iterator i = esmtpextensions.iterator();
-	for (int i = 0; i < esmtpextensions.size(); i++) {
-	    if (i == 0) {
-		session.getSMTPResponse().setSMTPCode(250);
-		session.getSMTPResponse().setSMTPResponse(
-			(String) esmtpextensions.get(i));
-
-	    } else {
-		session.getSMTPResponse().addSMTPResponse(
-			(String) esmtpextensions.get(i));
-	    }
-	}
+    // Extension defined in RFC 1870
+    long maxMessageSize = session.getConfigurationData()
+        .getMaxMessageSize();
+    if (maxMessageSize > 0) {
+        esmtpextensions.add("SIZE " + maxMessageSize);
     }
-    
+
+    if (session.isAuthRequired()) {
+        esmtpextensions.add("AUTH LOGIN PLAIN");
+        esmtpextensions.add("AUTH=LOGIN PLAIN");
+    }
+
+    esmtpextensions.add("PIPELINING");
+    esmtpextensions.add("ENHANCEDSTATUSCODES");
+    // see http://issues.apache.org/jira/browse/JAMES-419
+    // esmtpextensions.add("8BITMIME");
+
+    // Iterator i = esmtpextensions.iterator();
+    for (int i = 0; i < esmtpextensions.size(); i++) {
+        if (i == 0) {
+        session.getSMTPResponse().setSMTPCode(250);
+        session.getSMTPResponse().setSMTPResponse(
+            (String) esmtpextensions.get(i));
+
+        } else {
+        session.getSMTPResponse().addSMTPResponse(
+            (String) esmtpextensions.get(i));
+        }
+    }
+    }
+
     /**
-         * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
-         */
+     * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
+     */
     public Collection getImplCommands() {
-        Collection implCommands = new ArrayList();
-        implCommands.add("EHLO");
-        
-        return implCommands;
+    Collection implCommands = new ArrayList();
+    implCommands.add("EHLO");
+
+    return implCommands;
     }
 }

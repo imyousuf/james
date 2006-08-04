@@ -242,12 +242,12 @@ public interface SMTPSession {
     
     void writeResponse(String resp);
     
-    public void pushIOObject(IOObject io);
+    public void pushIOState(IOState io);
 
-    public void popIOObject();
+    public void popIOState();
 
-    public IOObject getIOObject();
+    public IOState getIOState();
     
-    public SMTPResponse process();
+    public void doChain();
 }
 

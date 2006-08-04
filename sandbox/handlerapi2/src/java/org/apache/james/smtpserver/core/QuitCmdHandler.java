@@ -17,21 +17,18 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.smtpserver.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.apache.james.smtpserver.Chain;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
 
 /**
-  * Handles QUIT command
-  */
+ * Handles QUIT command
+ */
 public class QuitCmdHandler implements CommandHandler {
 
     /**
@@ -44,12 +41,11 @@ public class QuitCmdHandler implements CommandHandler {
      *
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
-    public void onCommand(SMTPSession session, Chain chain) {
-        session.getSMTPResponse().setRawSMTPResponse(doQUIT(session));
-        session.endSession();
+    public void onCommand(SMTPSession session) {
+    session.getSMTPResponse().setRawSMTPResponse(doQUIT(session));
+    session.endSession();
 
     }
-
 
     /**
      * Handler method called upon receipt of a QUIT command.
@@ -60,18 +56,24 @@ public class QuitCmdHandler implements CommandHandler {
      * @param argument the argument passed in with the command by the SMTP client
      */
     private String doQUIT(SMTPSession session) {
-        String responseString = "";
-        String argument = session.getCommandArgument();
-        
-        if ((argument == null) || (argument.length() == 0)) {
-            session.getResponseBuffer().append("221 "+DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.UNDEFINED_STATUS)+" ")
-                          .append(session.getConfigurationData().getHelloName())
-                          .append(" Service closing transmission channel");
-            responseString = session.clearResponseBuffer();
-        } else {
-            responseString = "500 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Unexpected argument provided with QUIT command";
-        }
-        return responseString;
+    String responseString = "";
+    String argument = session.getCommandArgument();
+
+    if ((argument == null) || (argument.length() == 0)) {
+        session.getResponseBuffer().append(
+            "221 "
+                + DSNStatus.getStatus(DSNStatus.SUCCESS,
+                    DSNStatus.UNDEFINED_STATUS) + " ").append(
+            session.getConfigurationData().getHelloName()).append(
+            " Service closing transmission channel");
+        responseString = session.clearResponseBuffer();
+    } else {
+        responseString = "500 "
+            + DSNStatus.getStatus(DSNStatus.PERMANENT,
+                DSNStatus.DELIVERY_INVALID_ARG)
+            + " Unexpected argument provided with QUIT command";
+    }
+    return responseString;
 
     }
 
@@ -79,12 +81,9 @@ public class QuitCmdHandler implements CommandHandler {
      * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
      */
     public Collection getImplCommands() {
-        Collection implCommands = new ArrayList();
-        implCommands.add("QUIT");
-        
-        return implCommands;
+    Collection implCommands = new ArrayList();
+    implCommands.add("QUIT");
+
+    return implCommands;
     }
 }
-
-
-
