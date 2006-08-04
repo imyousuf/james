@@ -19,6 +19,7 @@ package org.apache.james.transport;
 
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.activity.Disposable;
+import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MailetConfigImpl;
@@ -443,6 +444,7 @@ public class LinearProcessor
                 //If this message was ghosted, we just want to let it die
                 if (mail.getState().equals(Mail.GHOST)) {
                     // let this instance die...
+                    ContainerUtil.dispose(mail);
                     mail = null;
                     continue;
                 }
@@ -453,6 +455,7 @@ public class LinearProcessor
                 // The original mail will be "stored" by the caller.
                 if (originalMail != mail) {
                     spool.store(mail);
+                    ContainerUtil.dispose(mail);
                 }
                 mail = null;
                 continue;
