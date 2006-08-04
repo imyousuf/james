@@ -266,13 +266,14 @@ public class SMTPHandler extends AbstractJamesHandler implements SMTPSession,
 	while (!sessionEnded) {
 
 	    process(readCommandLine());
-
+	    
 	    if (response != null) {
 		writeCompleteResponse(getSMTPResponse());
 	    }
 
 	    // handle messages
 	    if (mode == MESSAGE_RECEIVED_MODE) {
+		response = null;
 		getLogger().debug("executing message handlers");
 		List messageHandlers = handlerChain.getMessageHandlers();
 
@@ -326,6 +327,7 @@ public class SMTPHandler extends AbstractJamesHandler implements SMTPSession,
 	String cmdString = data;
 	if (cmdString == null) {
 	    endSession();
+	    return;
 	}
 	int spaceIndex = cmdString.indexOf(" ");
 	if (spaceIndex > 0) {
@@ -341,6 +343,7 @@ public class SMTPHandler extends AbstractJamesHandler implements SMTPSession,
 	if (commandHandlers == null) {
 	    // end the session
 	    endSession();
+	    return;
 	} else {
 	    for (int i = 0; i < commandHandlers.size(); i++) {
 		doChain = false;
@@ -381,7 +384,7 @@ public class SMTPHandler extends AbstractJamesHandler implements SMTPSession,
 		writeResponse(finalResponse);
 	    }
 	}
-	resetSMTPResponse();
+	response = null;
 
 	if (mode == COMMAND_MODE) {
 	    mode = RESPONSE_MODE;
