@@ -461,6 +461,7 @@ public class LinearProcessor
                 //If this message was ghosted, we just want to let it die
                 if (mail.getState().equals(Mail.GHOST)) {
                     // let this instance die...
+                    ContainerUtil.dispose(mail);
                     mail = null;
                     continue;
                 }
