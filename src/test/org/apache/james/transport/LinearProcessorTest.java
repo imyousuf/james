@@ -165,6 +165,7 @@ public class LinearProcessorTest extends TestCase {
             assertNotSame(m1,m2);
             assertEquals(m1.getSubject(),"new text 1");
             assertEquals(m2.getSubject(),"new text 2");
+            m.dispose();
         } catch (MessagingException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -207,6 +208,7 @@ public class LinearProcessorTest extends TestCase {
             assertNotSame(m1,m2);
             assertEquals("MYSTATE",((Mail) a.get(0)).getState());
             assertEquals("MYSTATE",((Mail) a.get(1)).getState());
+            m.dispose();
         } catch (MessagingException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
