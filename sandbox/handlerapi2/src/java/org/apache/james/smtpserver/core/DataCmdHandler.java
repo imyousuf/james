@@ -102,7 +102,7 @@ public class DataCmdHandler extends AbstractLogEnabled implements
     String responseString = null;
     responseString = "354 Ok Send data ending with <CRLF>.<CRLF>";
     session.writeResponse(responseString);
-    session.getSMTPResponse().setRawSMTPResponse(responseString);
+    //session.getSMTPResponse().setRawSMTPResponse(responseString);
     InputStream msgIn = new CharTerminatedInputStream(session
         .getInputStream(), SMTPTerminator);
     try {

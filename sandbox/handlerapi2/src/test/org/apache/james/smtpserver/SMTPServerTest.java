@@ -306,12 +306,10 @@ public class SMTPServerTest extends TestCase {
         smtpProtocol2.addRecipient(recipient2);
 
         smtpProtocol1.sendShortMessageData("Subject: test\r\n\r\nTest body\r\n.\r\n");
-        smtpProtocol1.completePendingCommand();
 
         verifyLastMail(sender1, recipient1, null);
             
         smtpProtocol2.sendShortMessageData("Subject: test\r\n\r\nTest body\r\n.\r\n");
-        smtpProtocol2.completePendingCommand();
 
         verifyLastMail(sender2, recipient2, null);
 
@@ -341,7 +339,6 @@ public class SMTPServerTest extends TestCase {
         smtpProtocol1.addRecipient(recipient1);
 
         smtpProtocol1.sendShortMessageData("Subject: test\r\n\r\nTest body\r\n");
-        smtpProtocol1.completePendingCommand();
         verifyLastMail(sender1, recipient1, null);
             
         String sender2 = "mail_sender2@localhost";
@@ -350,7 +347,6 @@ public class SMTPServerTest extends TestCase {
         smtpProtocol1.addRecipient(recipient2);
 
         smtpProtocol1.sendShortMessageData("Subject: test2\r\n\r\nTest body2\r\n");
-        smtpProtocol1.completePendingCommand();
         verifyLastMail(sender2, recipient2, null);
 
         smtpProtocol1.quit();
@@ -823,7 +819,6 @@ public class SMTPServerTest extends TestCase {
 
         smtpProtocol.addRecipient("mail@sample.com");
         smtpProtocol.sendShortMessageData("Subject: test\r\n\r\nTest body\r\n");
-        smtpProtocol.completePendingCommand();
 
         smtpProtocol.quit();
 
