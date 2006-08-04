@@ -142,7 +142,7 @@ public class POP3ServerTest extends TestCase {
         System.err.println(m_pop3Protocol.getState());
         assertEquals(1, m_pop3Protocol.getState());
 
-        POP3MessageInfo[] entries = entries = m_pop3Protocol.listMessages();
+        POP3MessageInfo[] entries = m_pop3Protocol.listMessages();
         assertEquals(1, m_pop3Protocol.getState());
 
         assertNotNull(entries);
@@ -234,15 +234,19 @@ public class POP3ServerTest extends TestCase {
                                  "Content-Transfer-Encoding: plain\r\n"+
                                  "Subject: test\r\n\r\n"+
                                  "Body Text\r\n").getBytes())));
-        mailRep.store(new MailImpl("name", new MailAddress("from@test.com"),
-                recipients, mw));
+        MailImpl m = new MailImpl("name", new MailAddress("from@test.com"),
+                recipients, mw);
+        mailRep.store(m);
         MimeMessage mw2 = new MimeMessageCopyOnWriteProxy(
                 new MimeMessageInputStreamSource(
                         "test2",
                         new SharedByteArrayInputStream(
                                 ("").getBytes())));
-        mailRep.store(new MailImpl("name2", new MailAddress("from@test.com"),
-                recipients, mw2));
+        MailImpl mailimpl2 = new MailImpl("name2", new MailAddress("from@test.com"),
+                        recipients, mw2);
+        mailRep.store(mailimpl2);
+        m.dispose();
+        mailimpl2.dispose();
     }
 
     public void testTwoSimultaneousMails() throws Exception {
