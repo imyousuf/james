@@ -25,7 +25,6 @@ package org.apache.james.smtpserver;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.mailet.Mail;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
@@ -43,15 +42,6 @@ public interface SMTPSession {
     public final static String CURRENT_HELO_MODE = "CURRENT_HELO_MODE"; // HELO or EHLO
     public final static String CURRENT_HELO_NAME = "CURRENT_HELO_NAME"; 
     public static final Object CURRENT_RECIPIENT = "CURRENT_RECIPIENT"; // Current recipient
-
-    /**
-     * Reads a line of characters off the command line.
-     *
-     * @return the trimmed input line
-     * @throws IOException if an exception is generated reading in the input characters
-     */
-    String readCommandLine() throws IOException;
-
 
     /**
      * Returns ResponseBuffer, this optimizes the unecessary creation of resources
