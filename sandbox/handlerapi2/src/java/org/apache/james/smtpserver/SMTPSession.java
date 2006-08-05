@@ -222,22 +222,48 @@ public interface SMTPSession {
     Map getConnectionState();
 
     /**
-     * The SMTPResponse 
+     * Returns the SMTPResponse object 
      * 
      * @return SMTPResponse
      */
     SMTPResponse getSMTPResponse();
     
+    /**
+     * Set the SMTPResponse object
+     * 
+     * @param response
+     */
     void setSMTPResponse(SMTPResponse response);
     
+    /**
+     * 
+     */
     void writeResponse(String resp);
     
+    /**
+     * Push a new IOState
+     * 
+     * @param io The IOState
+     */
     public void pushIOState(IOState io);
 
+    /**
+     * Pop a IOState
+     *
+     */
     public void popIOState();
 
+    /**
+     * Get the IOState
+     * 
+     * @return ioState The IOState
+     */
     public IOState getIOState();
     
+    /**
+     * Run the next handler in chain
+     *
+     */
     public void doChain();
 }
 

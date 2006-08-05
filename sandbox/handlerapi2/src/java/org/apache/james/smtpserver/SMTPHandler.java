@@ -194,6 +194,7 @@ public class SMTPHandler extends AbstractJamesHandler implements SMTPSession,
      */
     protected void handleProtocol() throws IOException {
 
+	// Add defaul IOState
 	ioState.add((IOState) this);
 
 	smtpID = random.nextInt(1024) + "";
@@ -661,31 +662,40 @@ public class SMTPHandler extends AbstractJamesHandler implements SMTPSession,
     public void setSMTPResponse(SMTPResponse response) {
 	this.response = response;
     }
-
+    
     /**
-     * Reset the SMTPResponse to the default state
+     * @see org.apache.james.smtpserver.SMTPSession#pushIOState(IOState)
      */
-    private void resetSMTPResponse() {
-	getSMTPResponse().setSMTPCode(DEFAULT_SMTP_CODE);
-	getSMTPResponse().setSMTPResponse(DEFAULT_SMTP_RESPONSE);
-    }
-
     public void pushIOState(IOState io) {
 	ioState.add(0, io);
     }
 
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#popIOState()
+     */
     public void popIOState() {
 	ioState.remove(0);
     }
 
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#getIOState()
+     */
     public IOState getIOState() {
 	return (IOState) ioState.get(0);
     }
 
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#doChain()
+     */
     public void doChain() {
 	doChain = true;
     }
 
+    /**
+     * Proccess the next IOState 
+     * 
+     * @param data The data to process
+     */
     private void process(String data) {
 	getIOState().readResponse(this, data);
     }
