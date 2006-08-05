@@ -159,15 +159,19 @@ public abstract class AbstractVirtualUserTable extends GenericMailet
             // duplicates the Mail object, to be able to modify the new mail keeping the original untouched
             MailImpl newMail = new MailImpl(mail,newName(mail));
             try {
-                newMail.setRemoteAddr(java.net.InetAddress.getLocalHost().getHostAddress());
-                newMail.setRemoteHost(java.net.InetAddress.getLocalHost().getHostName());
-            } catch (java.net.UnknownHostException _) {
-                newMail.setRemoteAddr("127.0.0.1");
-                newMail.setRemoteHost("localhost");
+                try {
+                    newMail.setRemoteAddr(java.net.InetAddress.getLocalHost().getHostAddress());
+                    newMail.setRemoteHost(java.net.InetAddress.getLocalHost().getHostName());
+                } catch (java.net.UnknownHostException _) {
+                    newMail.setRemoteAddr("127.0.0.1");
+                    newMail.setRemoteHost("localhost");
+                }
+                newMail.setRecipients(recipientsToAddForward);
+                newMail.setAttribute(MARKER, Boolean.TRUE);
+                getMailetContext().sendMail(newMail);
+            } finally {
+                newMail.dispose();
             }
-            newMail.setRecipients(recipientsToAddForward);
-            newMail.setAttribute(MARKER, Boolean.TRUE);
-            getMailetContext().sendMail(newMail);
         }
 
         // If there are no recipients left, Ghost the message

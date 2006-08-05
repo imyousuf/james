@@ -216,16 +216,19 @@ public class ToMultiRepository extends GenericMailet {
 
         Collection recipients = new HashSet();
         recipients.add(recipient);
-        Mail mail = new MailImpl(getId(), sender, recipients, message);
-        MailRepository userInbox = getRepository(username);
-        if (userInbox == null) {
-            StringBuffer errorBuffer = new StringBuffer(128).append(
-                    "The repository for user ").append(username).append(
-                    " was not found on this server.");
-            throw new MessagingException(errorBuffer.toString());
+        MailImpl mail = new MailImpl(getId(), sender, recipients, message);
+        try {
+            MailRepository userInbox = getRepository(username);
+            if (userInbox == null) {
+                StringBuffer errorBuffer = new StringBuffer(128).append(
+                        "The repository for user ").append(username).append(
+                        " was not found on this server.");
+                throw new MessagingException(errorBuffer.toString());
+            }
+            userInbox.store(mail);
+        } finally {
+            mail.dispose();
         }
-        userInbox.store(mail);
-        ContainerUtil.dispose(mail);
     }
 
     /**
