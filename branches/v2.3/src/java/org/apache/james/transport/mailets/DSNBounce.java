@@ -147,89 +147,93 @@ public class DSNBounce extends AbstractNotify {
 
         // duplicates the Mail object, to be able to modify the new mail keeping the original untouched
         MailImpl newMail = new MailImpl(originalMail,newName(originalMail));
-        // We don't need to use the original Remote Address and Host,
-        // and doing so would likely cause a loop with spam detecting
-        // matchers.
         try {
-            newMail.setRemoteAddr(java.net.InetAddress.getLocalHost().getHostAddress());
-            newMail.setRemoteHost(java.net.InetAddress.getLocalHost().getHostName());
-        } catch (java.net.UnknownHostException _) {
-            newMail.setRemoteAddr("127.0.0.1");
-            newMail.setRemoteHost("localhost");
-        }
-
-        if (originalMail.getSender() == null) {
-            if (isDebug)
-                log("Processing a bounce request for a message with an empty reverse-path.  No bounce will be sent.");
-            if(!getPassThrough(originalMail)) {
-                originalMail.setState(Mail.GHOST);
+            // We don't need to use the original Remote Address and Host,
+            // and doing so would likely cause a loop with spam detecting
+            // matchers.
+            try {
+                newMail.setRemoteAddr(java.net.InetAddress.getLocalHost().getHostAddress());
+                newMail.setRemoteHost(java.net.InetAddress.getLocalHost().getHostName());
+            } catch (java.net.UnknownHostException _) {
+                newMail.setRemoteAddr("127.0.0.1");
+                newMail.setRemoteHost("localhost");
             }
-            return;
+    
+            if (originalMail.getSender() == null) {
+                if (isDebug)
+                    log("Processing a bounce request for a message with an empty reverse-path.  No bounce will be sent.");
+                if(!getPassThrough(originalMail)) {
+                    originalMail.setState(Mail.GHOST);
+                }
+                return;
+            }
+    
+            MailAddress reversePath = originalMail.getSender();
+            if (isDebug)
+                log("Processing a bounce request for a message with a reverse path.  The bounce will be sent to " + reversePath);
+    
+            Collection newRecipients = new HashSet();
+            newRecipients.add(reversePath);
+            newMail.setRecipients(newRecipients);
+    
+            if (isDebug) {
+                log("New mail - sender: " + newMail.getSender()
+                    + ", recipients: " +
+                    arrayToString(newMail.getRecipients().toArray())
+                    + ", name: " + newMail.getName()
+                    + ", remoteHost: " + newMail.getRemoteHost()
+                    + ", remoteAddr: " + newMail.getRemoteAddr()
+                    + ", state: " + newMail.getState()
+                    + ", lastUpdated: " + newMail.getLastUpdated()
+                    + ", errorMessage: " + newMail.getErrorMessage());
+            }
+    
+            // create the bounce message
+            MimeMessage newMessage =
+                new MimeMessage(Session.getDefaultInstance(System.getProperties(),
+                                                           null));
+    
+            MimeMultipartReport multipart = new MimeMultipartReport ();
+            multipart.setReportType ("delivery-status");
+            
+            // part 1: descripive text message
+            MimeBodyPart part1 = createTextMsg(originalMail);
+            multipart.addBodyPart(part1);
+    
+            // part 2: DSN
+            MimeBodyPart part2 = createDSN(originalMail);
+            multipart.addBodyPart(part2);
+    
+    
+            // part 3: original mail (optional)
+            if (getAttachmentType() != NONE) {
+                MimeBodyPart part3 = createAttachedOriginal(originalMail,getAttachmentType());
+                multipart.addBodyPart(part3);
+            }
+    
+    
+            // stuffing all together
+            newMessage.setContent(multipart);
+            newMessage.setHeader(RFC2822Headers.CONTENT_TYPE, multipart.getContentType());
+            newMail.setMessage(newMessage);
+    
+            //Set additional headers
+            setRecipients(newMail, getRecipients(originalMail), originalMail);
+            setTo(newMail, getTo(originalMail), originalMail);
+            setSubjectPrefix(newMail, getSubjectPrefix(originalMail), originalMail);
+            if(newMail.getMessage().getHeader(RFC2822Headers.DATE) == null) {
+                newMail.getMessage().setHeader(RFC2822Headers.DATE,rfc822DateFormat.format(new Date()));
+            }
+            setReplyTo(newMail, getReplyTo(originalMail), originalMail);
+            setReversePath(newMail, getReversePath(originalMail), originalMail);
+            setSender(newMail, getSender(originalMail), originalMail);
+            setIsReply(newMail, isReply(originalMail), originalMail);
+    
+            newMail.getMessage().saveChanges();
+            getMailetContext().sendMail(newMail);
+        } finally {
+            newMail.dispose();
         }
-
-        MailAddress reversePath = originalMail.getSender();
-        if (isDebug)
-            log("Processing a bounce request for a message with a reverse path.  The bounce will be sent to " + reversePath);
-
-        Collection newRecipients = new HashSet();
-        newRecipients.add(reversePath);
-        newMail.setRecipients(newRecipients);
-
-        if (isDebug) {
-            log("New mail - sender: " + newMail.getSender()
-                + ", recipients: " +
-                arrayToString(newMail.getRecipients().toArray())
-                + ", name: " + newMail.getName()
-                + ", remoteHost: " + newMail.getRemoteHost()
-                + ", remoteAddr: " + newMail.getRemoteAddr()
-                + ", state: " + newMail.getState()
-                + ", lastUpdated: " + newMail.getLastUpdated()
-                + ", errorMessage: " + newMail.getErrorMessage());
-        }
-
-        // create the bounce message
-        MimeMessage newMessage =
-            new MimeMessage(Session.getDefaultInstance(System.getProperties(),
-                                                       null));
-
-        MimeMultipartReport multipart = new MimeMultipartReport ();
-        multipart.setReportType ("delivery-status");
-        
-        // part 1: descripive text message
-        MimeBodyPart part1 = createTextMsg(originalMail);
-        multipart.addBodyPart(part1);
-
-        // part 2: DSN
-        MimeBodyPart part2 = createDSN(originalMail);
-        multipart.addBodyPart(part2);
-
-
-        // part 3: original mail (optional)
-        if (getAttachmentType() != NONE) {
-            MimeBodyPart part3 = createAttachedOriginal(originalMail,getAttachmentType());
-            multipart.addBodyPart(part3);
-        }
-
-
-        // stuffing all together
-        newMessage.setContent(multipart);
-        newMessage.setHeader(RFC2822Headers.CONTENT_TYPE, multipart.getContentType());
-        newMail.setMessage(newMessage);
-
-        //Set additional headers
-        setRecipients(newMail, getRecipients(originalMail), originalMail);
-        setTo(newMail, getTo(originalMail), originalMail);
-        setSubjectPrefix(newMail, getSubjectPrefix(originalMail), originalMail);
-        if(newMail.getMessage().getHeader(RFC2822Headers.DATE) == null) {
-            newMail.getMessage().setHeader(RFC2822Headers.DATE,rfc822DateFormat.format(new Date()));
-        }
-        setReplyTo(newMail, getReplyTo(originalMail), originalMail);
-        setReversePath(newMail, getReversePath(originalMail), originalMail);
-        setSender(newMail, getSender(originalMail), originalMail);
-        setIsReply(newMail, isReply(originalMail), originalMail);
-
-        newMail.getMessage().saveChanges();
-        getMailetContext().sendMail(newMail);
 
         // ghosting the original mail
         if(!getPassThrough(originalMail)) {

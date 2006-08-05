@@ -447,9 +447,12 @@ public class James
     public void sendMail(MailAddress sender, Collection recipients, MimeMessage message, String state)
             throws MessagingException {
         MailImpl mail = new MailImpl(getId(), sender, recipients, message);
-        mail.setState(state);
-        sendMail(mail);
-        ContainerUtil.dispose(mail);
+        try {
+            mail.setState(state);
+            sendMail(mail);
+        } finally {
+            ContainerUtil.dispose(mail);
+        }
     }
 
     /**
