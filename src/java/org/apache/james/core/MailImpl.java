@@ -388,6 +388,12 @@ public class MailImpl implements Disposable, Mail {
      * @param message the new MimeMessage associated with this MailImpl
      */
     public void setMessage(MimeMessage message) {
+        // If a setMessage is called on a Mail that already have a message
+        // (discouraged) we have to make sure that the message we remove is
+        // correctly unreferenced and disposed, otherwise it will keep locks
+        if (this.message != null) {
+            ContainerUtil.dispose(this.message);
+        }
         this.message = message;
     }
     /**
@@ -539,8 +545,7 @@ public class MailImpl implements Disposable, Mail {
      * @return Serializable of the entire attributes collection
      * @since 2.2.0
      **/
-    public HashMap getAttributesRaw ()
-    {
+    public HashMap getAttributesRaw () {
         return attributes;
     }
     

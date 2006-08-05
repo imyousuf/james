@@ -978,98 +978,103 @@ public abstract class AbstractRedirect extends GenericMailet {
 
         // duplicates the Mail object, to be able to modify the new mail keeping the original untouched
         MailImpl newMail = new MailImpl(originalMail,newName(originalMail));
-        // We don't need to use the original Remote Address and Host,
-        // and doing so would likely cause a loop with spam detecting
-        // matchers.
         try {
-            newMail.setRemoteAddr(java.net.InetAddress.getLocalHost().getHostAddress());
-            newMail.setRemoteHost(java.net.InetAddress.getLocalHost().getHostName());
-        } catch (java.net.UnknownHostException _) {
-            newMail.setRemoteAddr("127.0.0.1");
-            newMail.setRemoteHost("localhost");
-        }
-
-        if (isDebug) {
-            log("New mail - sender: " + newMail.getSender()
-                       + ", recipients: " + arrayToString(newMail.getRecipients().toArray())
-                       + ", name: " + newMail.getName()
-                       + ", remoteHost: " + newMail.getRemoteHost()
-                       + ", remoteAddr: " + newMail.getRemoteAddr()
-                       + ", state: " + newMail.getState()
-                       + ", lastUpdated: " + newMail.getLastUpdated()
-                       + ", errorMessage: " + newMail.getErrorMessage());
-        }
-
-        //Create the message
-        if(getInLineType(originalMail) != UNALTERED) {
-            if (isDebug) {
-                log("Alter message");
+            // We don't need to use the original Remote Address and Host,
+            // and doing so would likely cause a loop with spam detecting
+            // matchers.
+            try {
+                newMail.setRemoteAddr(java.net.InetAddress.getLocalHost().getHostAddress());
+                newMail.setRemoteHost(java.net.InetAddress.getLocalHost().getHostName());
+            } catch (java.net.UnknownHostException _) {
+                newMail.setRemoteAddr("127.0.0.1");
+                newMail.setRemoteHost("localhost");
             }
-            newMail.setMessage(new MimeMessage(Session.getDefaultInstance(System.getProperties(),
-                                                               null)));
-
-            // handle the new message if altered
-            buildAlteredMessage(newMail, originalMail);
-
-        } else {
-            // if we need the original, create a copy of this message to redirect
-            if (getPassThrough(originalMail)) {
-                newMail.setMessage(new MimeMessage(originalMail.getMessage()) {
-                    protected void updateHeaders() throws MessagingException {
-                        if (getMessageID() == null) super.updateHeaders();
-                        else {
-                            modified = false;
+    
+            if (isDebug) {
+                log("New mail - sender: " + newMail.getSender()
+                           + ", recipients: " + arrayToString(newMail.getRecipients().toArray())
+                           + ", name: " + newMail.getName()
+                           + ", remoteHost: " + newMail.getRemoteHost()
+                           + ", remoteAddr: " + newMail.getRemoteAddr()
+                           + ", state: " + newMail.getState()
+                           + ", lastUpdated: " + newMail.getLastUpdated()
+                           + ", errorMessage: " + newMail.getErrorMessage());
+            }
+    
+            //Create the message
+            if(getInLineType(originalMail) != UNALTERED) {
+                if (isDebug) {
+                    log("Alter message");
+                }
+                newMail.setMessage(new MimeMessage(Session.getDefaultInstance(System.getProperties(),
+                                                                   null)));
+    
+                // handle the new message if altered
+                buildAlteredMessage(newMail, originalMail);
+    
+            } else {
+                // if we need the original, create a copy of this message to redirect
+                if (getPassThrough(originalMail)) {
+                    newMail.setMessage(new MimeMessage(originalMail.getMessage()) {
+                        protected void updateHeaders() throws MessagingException {
+                            if (getMessageID() == null) super.updateHeaders();
+                            else {
+                                modified = false;
+                            }
                         }
-                    }
-                });
+                    });
+                }
+                if (isDebug) {
+                    log("Message resent unaltered.");
+                }
+                keepMessageId = true;
             }
-            if (isDebug) {
-                log("Message resent unaltered.");
+    
+            //Set additional headers
+    
+            setRecipients(newMail, getRecipients(originalMail), originalMail);
+    
+            setTo(newMail, getTo(originalMail), originalMail);
+    
+            setSubjectPrefix(newMail, getSubjectPrefix(originalMail), originalMail);
+    
+            if(newMail.getMessage().getHeader(RFC2822Headers.DATE) == null) {
+                newMail.getMessage().setHeader(RFC2822Headers.DATE, rfc822DateFormat.format(new Date()));
             }
-            keepMessageId = true;
+    
+            setReplyTo(newMail, getReplyTo(originalMail), originalMail);
+    
+            setReversePath(newMail, getReversePath(originalMail), originalMail);
+    
+            setSender(newMail, getSender(originalMail), originalMail);
+    
+            setIsReply(newMail, isReply(originalMail), originalMail);
+    
+            newMail.getMessage().saveChanges();
+    
+            if (keepMessageId) {
+                setMessageId(newMail, originalMail);
+            }
+    
+            if (senderDomainIsValid(newMail)) {
+                //Send it off...
+                getMailetContext().sendMail(newMail);
+            } else {
+                StringBuffer logBuffer = new StringBuffer(256)
+                                        .append(getMailetName())
+                                        .append(" mailet cannot forward ")
+                                        .append(originalMail.getName())
+                                        .append(". Invalid sender domain for ")
+                                        .append(newMail.getSender())
+                                        .append(". Consider using the Resend mailet ")
+                                        .append("using a different sender.");
+                throw new MessagingException(logBuffer.toString());
+            }
+    
+        } finally {
+            newMail.dispose();
         }
-
-        //Set additional headers
-
-        setRecipients(newMail, getRecipients(originalMail), originalMail);
-
-        setTo(newMail, getTo(originalMail), originalMail);
-
-        setSubjectPrefix(newMail, getSubjectPrefix(originalMail), originalMail);
-
-        if(newMail.getMessage().getHeader(RFC2822Headers.DATE) == null) {
-            newMail.getMessage().setHeader(RFC2822Headers.DATE, rfc822DateFormat.format(new Date()));
-        }
-
-        setReplyTo(newMail, getReplyTo(originalMail), originalMail);
-
-        setReversePath(newMail, getReversePath(originalMail), originalMail);
-
-        setSender(newMail, getSender(originalMail), originalMail);
-
-        setIsReply(newMail, isReply(originalMail), originalMail);
-
-        newMail.getMessage().saveChanges();
-
-        if (keepMessageId) {
-            setMessageId(newMail, originalMail);
-        }
-
-        if (senderDomainIsValid(newMail)) {
-            //Send it off...
-            getMailetContext().sendMail(newMail);
-        } else {
-            StringBuffer logBuffer = new StringBuffer(256)
-                                    .append(getMailetName())
-                                    .append(" mailet cannot forward ")
-                                    .append(originalMail.getName())
-                                    .append(". Invalid sender domain for ")
-                                    .append(newMail.getSender())
-                                    .append(". Consider using the Resend mailet ")
-                                    .append("using a different sender.");
-            throw new MessagingException(logBuffer.toString());
-        }
-
+        
         if(!getPassThrough(originalMail)) {
             originalMail.setState(Mail.GHOST);
         }
