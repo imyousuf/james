@@ -156,7 +156,7 @@
 
     Trace out JAMES actions in /logs/*info.log.
     Action that will be taken by JAMES on incoming mail are configurated in
-    the mailet pipe line (/conf/config.xml). Look at it if you want to
+    the mailet pipe line (/apps/james/SAR-INF/config.xml). Look at it if you want to
     understand what's happening.
 
   Step 5: configuration.
