@@ -132,7 +132,8 @@
         <copy todir="${dist.dir}">
             <fileset dir=".">
                 <include name="LICENSE.txt"/>
-                <include name="README"/>
+                <include name="README.txt"/>
+                <include name="NOTICE.txt"/>
             </fileset>
         </copy>
         <fixcrlf srcdir="${java.dir}" includes="**/*.java" eol="lf" tab="remove" tablength="4" />
@@ -566,16 +567,18 @@
             <fileset dir="dist">
                 <include name="${name}-${version}/**"/>
                 <exclude name="${name}-${version}/downloads/**"/>
-                <include name="release-notes.txt"/>
                 <include name="LICENSE.txt"/>
+                <include name="README.txt"/>
+                <include name="NOTICE.txt"/>
             </fileset>
         </zip>
         <tar longfile="gnu" tarfile="${dist.binary.dir}/${name}-binary-${version}.tar">
             <tarfileset dir="dist" username="${name}" group="${name}">
                 <include name="${name}-${version}/**"/>
                 <exclude name="${name}-${version}/downloads/**"/>
-                <include name="release-notes.txt"/>
                 <include name="LICENSE.txt"/>
+                <include name="README.txt"/>
+                <include name="NOTICE.txt"/>
             </tarfileset>
         </tar>
         <gzip zipfile="${dist.binary.dir}/${name}-binary-${version}.tar.gz" src="${dist.binary.dir}/${name}-binary-${version}.tar"/>
@@ -608,10 +611,6 @@
         <zip zipfile="${dist.source.dir}/${name}-with-phoenix-${version}-src.zip">
             <fileset dir=".">
                 <include name="*.txt"/>
-                <include name="KEYS"/>
-                <include name="README"/>
-                <include name="LICENSE.txt"/>
-                <include name="NOTICE.txt"/>
                 <include name="build.*"/>
                 <include name="lib/**"/>
                 <include name="${phoenix.dir}/**"/>
@@ -624,10 +623,6 @@
         <tar longfile="gnu" tarfile="${dist.source.dir}/${name}-with-phoenix-${version}-src.tar">
             <tarfileset dir="." username="${name}" group="${name}">
                 <include name="*.txt"/>
-                <include name="KEYS"/>
-                <include name="README"/>
-                <include name="LICENSE.txt"/>
-                <include name="NOTICE.txt"/>
                 <include name="build.*"/>
                 <include name="lib/**"/>
                 <include name="${phoenix.dir}/**"/>
@@ -653,10 +648,6 @@
                 <include name="lib/**"/>
                 <include name="tools/**"/>
                 <include name="*.txt"/>
-                <include name="README"/>
-                <include name="KEYS"/>
-                <include name="LICENSE.txt"/>
-                <include name="NOTICE.txt"/>
                 <include name="build.*"/>
                 <include name="*.properties" />
                 <include name="*.ent" />
@@ -668,10 +659,6 @@
                 <include name="lib/**"/>
                 <include name="tools/**"/>
                 <include name="*.txt"/>
-                <include name="README"/>
-                <include name="KEYS"/>
-                <include name="LICENSE.txt"/>
-                <include name="NOTICE.txt"/>
                 <include name="build.*"/>
                 <include name="*.properties" />
                 <include name="*.ent" />
@@ -768,7 +755,7 @@
         <echo message="Running James Unit Tests"/>
         <mkdir dir="${build.test}"/>
         <mkdir dir="${build.test.reports}"/>
-        <junit printsummary="yes" haltonfailure="no"  >
+        <junit printsummary="yes" haltonfailure="yes"  >
             <classpath refid="unittest.class.path"/>
             <classpath refid="project.class.path"/>
             <classpath>
@@ -781,6 +768,7 @@
               <fileset dir="${junitjava.dir}">
                 <include name="**/*Test.java"/>
                 <exclude name="**/AllTests.java"/>
+                <exclude name="**/Abstract*.java"/>
               </fileset>
             </batchtest>
         </junit>
