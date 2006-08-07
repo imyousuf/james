@@ -97,8 +97,8 @@
   Step 2: start phoenix.
 
     M$ users should just run /bin/run.bat. Unix users will find run.sh
-    under the same folder - you may need to chmod +x run.sh. A JVM must be in
-    the path.
+    under the same folder - you may need to chmod +x run.sh and chmod +x phoenix.sh.
+    A JVM must be in the path.
 
     Phoenix will unpack the james.sar into apps/james. Note that port 1111
     must be available for Phoenix to run (used by RMI server).
@@ -106,8 +106,9 @@
     Most UNIX systems require superuser privileges to open sockets below 1024,
     which includes the IANA-standard SMTP (on port 25), POP3 (on port 110),
     IMAP (port ) and NNTP (port ).  You will get an error message with
-      'org.apache.avalon.framework.atlantis.ApplicationException: Failed to
-       load block imapserver'
+      'org.apache.avalon.phoenix.containerkit.lifecycle.LifecycleException: Component 
+      named "xxx" failed to pass through the Starting stage. (Reason: java.net.BindException: 
+      Permission denied).'
     or something similar if you have not got the right privileges.
 
     If you have the right privileges,  you should see
@@ -155,14 +156,14 @@
 
     Trace out JAMES actions in /logs/*info.log.
     Action that will be taken by JAMES on incoming mail are configurated in
-    the mailet pipe line (/conf/james.conf.xml). Look at it if you want to
+    the mailet pipe line (/conf/config.xml). Look at it if you want to
     understand what's happening.
 
   Step 5: configuration.
 
-    The configuration files are in apps/james/conf.  For new users, the only
-    elements you need to worry about are in config.xml. You probably want to
-    change the root password in the remote manager section and to add your
+    The configuration files are in apps/james/conf and apps/james/SAR-INF/.  For new 
+    users, the only elements you need to worry about are in config.xml. You probably 
+    want to change the root password in the remote manager section and to add your
     local network's IP address to the anti-spam mailet.
 
 
