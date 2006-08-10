@@ -174,3 +174,45 @@
       of your accepting any such warranty or additional liability.
 
    END OF TERMS AND CONDITIONS
+   
+   
+   
+
+   THIS PRODUCT ALSO INCLUDES THIRD PARTY SOFTWARE REDISTRIBUTED UNDER THE
+   FOLLOWING LICENSES:
+   
+   
+   
+   Concurrent, Public Domain (see lib/concurrent.LICENSE)
+   
+   BouncyCastle, MIT License (see lib/BouncyCastle.LICENSE)
+     http://www.bouncycastle.org/licence.html
+     
+   DnsJava, BSD License (see lib/dnsjava.LICENSE)
+     http://www.dnsjava.org/README 
+     
+   JavaBeans Activation Framework, CDDL License
+     http://glassfish.dev.java.net/public/CDDLv1.0.html
+     
+   JavaMail, CDDL License
+     http://glassfish.dev.java.net/public/CDDLv1.0.html
+   
+   QDox, ASL 1.1 License (see tools/lib/qdox.LICENSE)
+     http://qdox.codehaus.org/license.html
+     
+   MX4J, ASL 1.1 License (see phoenix-bin/bin/lib/mx4j.LICENSE)
+   
+   Spice, ASL 1.1 License (see phoenix-bin/bin/lib/spice.LICENSE)
+     http://spice.codehaus.org/license.html
+     
+   Wrapper, MIT License (see phoenix-bin/bin/Wrapper.LICENSE)
+     http://wrapper.tanukisoftware.org/doc/english/license.html
+     
+   ISO-Relax, MIT License (see phoenix-bin/tools/lib/isorelax.LICENSE)
+
+   MSV, BSD License (see phoenix-bin/tools/lib/msv.LICENSE)
+
+   RelaxNG-Datatype, BSD License (see phoenix-bin/tools/lib/relaxngDatatype.LICENSE)
+   
+   XSDLib, BSD License (see phoenix-bin/tools/lib/xsdlib.LICENSE)
+   
