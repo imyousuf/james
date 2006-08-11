@@ -299,12 +299,17 @@ public class CommandListservManager extends GenericMailet implements ICommandLis
 
         if (command == null) {
             //don't recognize the command
-            onError(mail,
-                    "unknown command",
-                    xmlResources.getString("command.not.understood", getStandardProperties()));
+            Properties props = getStandardProperties();
+            props.setProperty("COMMAND", getCommandName(mailAddress));
+            onError(mail, "unknown command", xmlResources.getString("command.not.understood", props));
+        } else {
+            command.onCommand(mail);
         }
-        command.onCommand(mail);
 
+        // onError or onCommand would have done the job, so regardless
+        // of which get rid of this e-mail.  This is something that we
+        // should review, and decide if there is any reason to allow a
+        // passthrough.
         mail.setState(Mail.GHOST);
     }
 
