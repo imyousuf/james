@@ -371,12 +371,13 @@ public class XMLResources
         if (str != null && parameters != null) {
             // Do parameter replacements for this string resource.
             Iterator paramNames = parameters.keySet().iterator();
+            StringBuffer replaceBuffer = new StringBuffer(64);
             while ( paramNames.hasNext() ) {
                 String paramName = (String)paramNames.next();
                 String paramValue = (String)parameters.get(paramName);
-
-                StringBuffer replaceBuffer = new StringBuffer(64).append("${").append(paramName).append("}");
+                replaceBuffer.append("${").append(paramName).append("}");
                 str = substituteSubString(str, replaceBuffer.toString(), paramValue);
+                if (paramNames.hasNext()) replaceBuffer.setLength(0);
             }
         }
 
