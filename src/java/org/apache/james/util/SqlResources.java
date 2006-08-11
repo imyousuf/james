@@ -198,16 +198,13 @@ public class SqlResources
 
             // Do parameter replacements for this sql string.
             Iterator paramNames = parameters.keySet().iterator();
+            StringBuffer replaceBuffer = new StringBuffer(64);
             while ( paramNames.hasNext() ) {
                 String paramName = (String)paramNames.next();
                 String paramValue = (String)parameters.get(paramName);
-
-                StringBuffer replaceBuffer =
-                    new StringBuffer(64)
-                            .append("${")
-                            .append(paramName)
-                            .append("}");
+                replaceBuffer.append("${").append(paramName).append("}");
                 sqlString = substituteSubString(sqlString, replaceBuffer.toString(), paramValue);
+                if (paramNames.hasNext()) replaceBuffer.setLength(0);
             }
 
             // See if we already have registered a string of this value
