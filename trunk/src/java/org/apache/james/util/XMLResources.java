@@ -298,8 +298,7 @@ public class XMLResources
     }
 
     /**
-     * Returns a named string for the specified connection, replacing
-     * parameters with the values set.
+     * Returns a named string for the specified key.
      * 
      * @param name   the name of the String resource required.
      * @return the requested resource
@@ -310,8 +309,7 @@ public class XMLResources
     }
 
     /**
-     * Returns a named string for the specified connection, replacing
-     * parameters with the values set.
+     * Returns a named string for the specified key.
      * 
      * @param name     the name of the String resource required.
      * @param required true if the resource is required
@@ -329,13 +327,13 @@ public class XMLResources
                         .append("Required String resource: '")
                         .append(name)
                         .append("' was not found.");
-            throw new RuntimeException(exceptionBuffer.toString());
+            throw new IllegalArgumentException(exceptionBuffer.toString());
         }
         return str;
     }
 
     /**
-     * Returns a named string, replacing parameters with the values set.
+     * Returns a named string, replacing parameters with the values set in a Map.
      * 
      * @param name          the name of the String resource required.
      * @param parameters    a map of parameters (name-value string pairs) which are
@@ -348,6 +346,19 @@ public class XMLResources
     }
 
     /**
+     * Returns a named string, replacing parameters with the values set in a Map.
+     * 
+     * @param name          the name of the String resource required.
+     * @param parameters    a map of parameters (name-value string pairs) which are
+     *                      replaced where found in the input strings
+     * @return the requested resource
+     */
+    public String getString(String name, Map parameters, boolean required)
+    {
+        return replaceParameters(getString(name, required), parameters);
+    }
+
+    /**
      * Returns a named string, replacing parameters with the values set.
      * 
      * @param name          the name of the String resource required.
@@ -357,14 +368,16 @@ public class XMLResources
      */
     static public String replaceParameters(String str, Map parameters)
     {
-        // Do parameter replacements for this string resource.
-        Iterator paramNames = parameters.keySet().iterator();
-        while ( paramNames.hasNext() ) {
-            String paramName = (String)paramNames.next();
-            String paramValue = (String)parameters.get(paramName);
+        if (str != null && parameters != null) {
+            // Do parameter replacements for this string resource.
+            Iterator paramNames = parameters.keySet().iterator();
+            while ( paramNames.hasNext() ) {
+                String paramName = (String)paramNames.next();
+                String paramValue = (String)parameters.get(paramName);
 
-            StringBuffer replaceBuffer = new StringBuffer(64).append("${").append(paramName).append("}");
-            str = substituteSubString(str, replaceBuffer.toString(), paramValue);
+                StringBuffer replaceBuffer = new StringBuffer(64).append("${").append(paramName).append("}");
+                str = substituteSubString(str, replaceBuffer.toString(), paramValue);
+            }
         }
 
         return str;
