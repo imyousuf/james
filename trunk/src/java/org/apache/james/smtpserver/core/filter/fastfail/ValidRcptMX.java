@@ -35,7 +35,8 @@ import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.MailAddress;
 
 /**
- * Reject email with an MX which is 127.0.0.1
+ * Reject email with an MX which is 127.0.0.1. This class can be used to reject email to bogus MX which is
+ * send from a authorized user or an authorized network. 
  */
 public class ValidRcptMX extends AbstractLogEnabled implements CommandHandler,
         Serviceable {
