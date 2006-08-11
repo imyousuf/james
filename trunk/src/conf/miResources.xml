@@ -142,7 +142,7 @@ For additional commands, e-mail: <a href="mailto:${LIST_NAME}-info@${DOMAIN_NAME
     </resource>
   </group>
  <group name="List Manager">
-    <resource name="command.not.understood">I Could not understand the command \"${COMMAND}\" you sent to the \"${LIST_NAME}\" mailing list.</resource>
+    <resource name="command.not.understood">I Could not understand the command "${COMMAND}" you sent to the "${LIST_NAME}" mailing list.</resource>
     <resource name="invalid.mail.subject">You have sent invalid mail to the ${LIST_NAME} mailing list</resource>
     <resource name="error.attachments">You cannot send attachments to the ${LIST_NAME} mailing list.</resource>
     <resource name="error.membersonly">Only members of this listserv are allowed to send a message to the ${LIST_NAME} mailing list.</resource>
