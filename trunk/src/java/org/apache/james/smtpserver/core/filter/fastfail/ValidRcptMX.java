@@ -39,8 +39,9 @@ import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.MailAddress;
 
 /**
- * Reject email with an MX which is 127.0.0.1. This class can be used to reject email to bogus MX which is
- * send from a authorized user or an authorized network. 
+ * Reject email with an MX which is 127.0.0.1. This class can be used to reject
+ * email to bogus MX which is send from a authorized user or an authorized
+ * network.
  */
 public class ValidRcptMX extends AbstractLogEnabled implements CommandHandler,
 	Serviceable, Configurable {
@@ -87,15 +88,15 @@ public class ValidRcptMX extends AbstractLogEnabled implements CommandHandler,
     }
 
     /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
-     */
+         * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
+         */
     public void service(ServiceManager arg0) throws ServiceException {
 	setDNSServer((DNSServer) arg0.lookup(DNSServer.ROLE));
     }
 
     /**
-     * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
-     */
+         * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
+         */
     public Collection getImplCommands() {
 	Collection c = new ArrayList();
 	c.add("RCPT");
@@ -103,17 +104,18 @@ public class ValidRcptMX extends AbstractLogEnabled implements CommandHandler,
     }
 
     /**
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
-     */
+         * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
+         */
     public void onCommand(SMTPSession session) {
 	doRCPT(session);
     }
 
     /**
-     * Set the DNSServer
-     * 
-     * @param dnsServer The dnsServer
-     */
+         * Set the DNSServer
+         * 
+         * @param dnsServer
+         *                The dnsServer
+         */
     public void setDNSServer(DNSServer dnsServer) {
 	this.dnsServer = dnsServer;
     }
