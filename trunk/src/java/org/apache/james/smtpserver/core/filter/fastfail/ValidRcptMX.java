@@ -24,6 +24,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
@@ -31,6 +34,7 @@ import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.services.DNSServer;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.util.NetMatcher;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.MailAddress;
 
@@ -39,35 +43,70 @@ import org.apache.mailet.MailAddress;
  * send from a authorized user or an authorized network. 
  */
 public class ValidRcptMX extends AbstractLogEnabled implements CommandHandler,
-        Serviceable {
+	Serviceable, Configurable {
 
     private DNSServer dnsServer = null;
 
-    private static final String LOOPBACK_IP = "127.0.0.1";
-
     private static final String LOCALHOST = "localhost";
+
+    private NetMatcher bNetwork = null;
+
+    public void configure(Configuration arg0) throws ConfigurationException {
+
+	Configuration[] badMX = arg0.getChildren("invalidMXNetworks");
+
+	if (badMX.length != 0) {
+
+	    Collection bannedNetworks = new ArrayList();
+
+	    for (int i = 0; i < badMX.length; i++) {
+		String network = badMX[i].getValue(null);
+
+		if (network != null) {
+		    bannedNetworks.add(network);
+		}
+	    }
+
+	    setBannedNetworks(bannedNetworks, dnsServer);
+
+	    getLogger().info("Invalid MX Networks: " + bNetwork.toString());
+
+	} else {
+	    throw new ConfigurationException(
+		    "Please configure at least on invalid MX network");
+	}
+    }
+
+    public void setBannedNetworks(Collection networks, DNSServer dnsServer) {
+	bNetwork = new NetMatcher(networks, dnsServer) {
+	    protected void log(String s) {
+		getLogger().debug(s);
+	    }
+
+	};
+    }
 
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
     public void service(ServiceManager arg0) throws ServiceException {
-        setDNSServer((DNSServer) arg0.lookup(DNSServer.ROLE));
+	setDNSServer((DNSServer) arg0.lookup(DNSServer.ROLE));
     }
 
     /**
      * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
      */
     public Collection getImplCommands() {
-        Collection c = new ArrayList();
-        c.add("RCPT");
-        return c;
+	Collection c = new ArrayList();
+	c.add("RCPT");
+	return c;
     }
 
     /**
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
     public void onCommand(SMTPSession session) {
-        doRCPT(session);
+	doRCPT(session);
     }
 
     /**
@@ -76,44 +115,44 @@ public class ValidRcptMX extends AbstractLogEnabled implements CommandHandler,
      * @param dnsServer The dnsServer
      */
     public void setDNSServer(DNSServer dnsServer) {
-        this.dnsServer = dnsServer;
+	this.dnsServer = dnsServer;
     }
 
     private void doRCPT(SMTPSession session) {
-        MailAddress rcpt = (MailAddress) session.getState().get(
-                SMTPSession.CURRENT_RECIPIENT);
+	MailAddress rcpt = (MailAddress) session.getState().get(
+		SMTPSession.CURRENT_RECIPIENT);
 
-        String domain = rcpt.getHost();
+	String domain = rcpt.getHost();
 
-        // Email should be deliver local
-        if (domain.equals(LOCALHOST))
-            return;
+	// Email should be deliver local
+	if (domain.equals(LOCALHOST))
+	    return;
 
-        Iterator mx = dnsServer.findMXRecords(domain).iterator();
+	Iterator mx = dnsServer.findMXRecords(domain).iterator();
 
-        if (mx.hasNext()) {
-            while (mx.hasNext()) {
-                String mxRec = mx.next().toString();
+	if (mx.hasNext()) {
+	    while (mx.hasNext()) {
+		String mxRec = mx.next().toString();
 
-                try {
-                    String ip = dnsServer.getByName(mxRec).getHostAddress();
+		try {
+		    String ip = dnsServer.getByName(mxRec).getHostAddress();
 
-                    // Check for invalid MX
-                    if (ip.equals(LOOPBACK_IP)) {
-                        String response = "Invalid MX " + ip + " for domain "
-                                + rcpt.getHost();
-                        String responseString = "530"
-                                + DSNStatus.getStatus(DSNStatus.PERMANENT,
-                                        DSNStatus.SECURITY_AUTH) + " "
-                                + response;
-                        getLogger().debug(response + ". Reject email");
-                        session.writeResponse(responseString);
-                        return;
-                    }
-                } catch (UnknownHostException e) {
-                    // Ignore this
-                }
-            }
-        }
+		    // Check for invalid MX
+		    if (bNetwork.matchInetNetwork(ip)) {
+			String response = "Invalid MX " + ip + " for domain "
+				+ rcpt.getHost();
+			String responseString = "530"
+				+ DSNStatus.getStatus(DSNStatus.PERMANENT,
+					DSNStatus.SECURITY_AUTH) + " "
+				+ response;
+			getLogger().debug(response + ". Reject email");
+			session.writeResponse(responseString);
+			return;
+		    }
+		} catch (UnknownHostException e) {
+		    // Ignore this
+		}
+	    }
+	}
     }
 }

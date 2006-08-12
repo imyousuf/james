@@ -94,8 +94,11 @@ public class ValidRcptMXTest extends TestCase {
 
 	    public InetAddress getByName(String host)
 		    throws UnknownHostException {
-		if (host.equals(INVALID_MX)) {
+		System.err.println("host: " + host);
+		if (host.equals(INVALID_MX) || host.equals(LOOPBACK)) {
 		    return InetAddress.getByName(LOOPBACK);
+		} else if (host.equals("255.255.255.255")) {
+		    return InetAddress.getByName("255.255.255.255");
 		}
 		throw new UnknownHostException("Unknown host");
 	    }
@@ -112,11 +115,15 @@ public class ValidRcptMXTest extends TestCase {
     }
 
     public void testRejectLoopbackMX() throws ParseException {
+	Collection bNetworks = new ArrayList();
+	bNetworks.add("127.0.0.1");
+	DNSServer dns = setupMockedDNSServer();
 	ValidRcptMX handler = new ValidRcptMX();
 
 	ContainerUtil.enableLogging(handler, new MockLogger());
 
-	handler.setDNSServer(setupMockedDNSServer());
+	handler.setDNSServer(dns);
+	handler.setBannedNetworks(bNetworks, dns);
 	handler.onCommand(setupMockedSMTPSession(new MailAddress("test@"
 		+ INVALID_HOST)));
 
