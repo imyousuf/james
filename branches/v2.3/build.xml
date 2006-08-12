@@ -585,6 +585,7 @@ Legal:
           <exclude name="${name}-${version}/downloads/**"/>
           <include name="release-notes.txt"/>
           <include name="LICENSE.txt"/>
+          <include name="NOTICE.txt"/>
         </fileset>
       </zip>
       <tar longfile="gnu" tarfile="${dist.binary.dir}/${name}-binary-${version}.tar">
@@ -593,6 +594,7 @@ Legal:
           <exclude name="${name}-${version}/downloads/**"/>
           <include name="release-notes.txt"/>
           <include name="LICENSE.txt"/>
+          <include name="NOTICE.txt"/>
         </tarfileset>
       </tar>
       <gzip zipfile="${dist.binary.dir}/${name}-binary-${version}.tar.gz" src="${dist.binary.dir}/${name}-binary-${version}.tar"/>
