@@ -379,11 +379,8 @@ public class ServerConnection extends AbstractLogEnabled
                         }
                         continue;
                     } else if ((maxOpenConnPerIP > 0) && (getConnectionPerIP(clientSocket.getInetAddress().getHostAddress()) >= maxOpenConnPerIP)) {
-                        getLogger().info("Maximum number of open connections per IP exceeded - refusing connection.  Current number of connections is " + getConnectionPerIP(clientSocket.getInetAddress().getHostAddress()));
-                            
                         if (getLogger().isWarnEnabled()) {
-                                
-                            getLogger().warn("Maximum number of open connections per IP exceeded - refusing connection.  Current number of connections is " + getConnectionPerIP(clientSocket.getInetAddress().getHostAddress()));
+                            getLogger().warn("Maximum number of open connections per IP exceeded - refusing connection.  Current number of connections for " + clientSocket.getInetAddress().getHostAddress() + " is " + getConnectionPerIP(clientSocket.getInetAddress().getHostAddress()));
                         }
                         try {
                             clientSocket.close();
