@@ -237,7 +237,6 @@ public class SimpleConnectionManager
      * @param socket the ServerSocket from which to
      * @param handlerFactory the factory from which to acquire handlers
      * @param maxOpenConnections the maximum number of open connections allowed for this server socket.
-     * @param maxOpenConnections the maximum number of open connections per IP allowed for this server socket.
      * @exception Exception if an error occurs
      */
     public void connect(
