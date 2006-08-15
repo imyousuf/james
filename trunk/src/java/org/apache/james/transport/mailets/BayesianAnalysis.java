@@ -135,7 +135,7 @@ extends GenericMailet {
     private static final long CORPUS_RELOAD_INTERVAL = 600000;
     private String headerName;
     private boolean ignoreLocalSender = false;
-    private boolean tagSubject = false;
+    private boolean tagSubject = true;
     
     /**
      * Return a string describing this mailet.
