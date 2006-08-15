@@ -88,6 +88,10 @@ import java.util.Iterator;
  *     to be considered spam (default is 100000).
  *   --&gt;
  *   &lt;maxSize&gt;100000&lt;/maxSize&gt;
+ *   &lt;!--
+ *     Set this to false if you not want to tag the message if spam is detected (Default is true).
+ *   --&gt;
+ *   &lt;tagSubject&gt;true&lt;/tagSubject&gt;
  * &lt;/mailet&gt;
  * </CODE></PRE>
  * 
@@ -131,7 +135,8 @@ extends GenericMailet {
     private static final long CORPUS_RELOAD_INTERVAL = 600000;
     private String headerName;
     private boolean ignoreLocalSender = false;
-        
+    private boolean tagSubject = false;
+    
     /**
      * Return a string describing this mailet.
      *
@@ -212,6 +217,11 @@ extends GenericMailet {
             setMaxSize(Integer.parseInt(maxSizeParam));
         }
         log("maxSize: " + getMaxSize());
+        
+        String tag = getInitParameter("tagSubject");
+        if (tag != null && tag.equals("false")) {
+            tagSubject = false;
+        }
         
         initDb();
         
@@ -310,9 +320,13 @@ extends GenericMailet {
                         + "; Recipient(s): "
                         + getAddressesString(mail.getRecipients()));
                 
-                appendToSubject(message,
-                        " [" + probabilityString
-                        + (probability > 0.9 ? " SPAM" : " spam") + "]");
+                
+                // Check if we should tag the subject
+                if (tagSubject) {
+                    appendToSubject(message,
+                            " [" + probabilityString
+                            + (probability > 0.9 ? " SPAM" : " spam") + "]");
+                }
             }
             
             saveChanges(message);
