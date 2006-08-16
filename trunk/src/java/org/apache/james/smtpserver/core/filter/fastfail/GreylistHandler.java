@@ -28,6 +28,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.sql.Timestamp;
@@ -76,10 +77,6 @@ public class GreylistHandler extends AbstractLogEnabled implements
 
     // 4 hours
     private long unseenLifeTime = 14400000;
-
-    private long createTimeStamp = 0;
-
-    private int count = 0;
 
     private String selectQuery;
 
@@ -289,26 +286,6 @@ public class GreylistHandler extends AbstractLogEnabled implements
     }
 
     /**
-     * Setup the createTimeStamp
-     * 
-     * @param createTimeStamp
-     *            the create time stamp in ms
-     */
-    public void setCreateTimeStamp(long createTimeStamp) {
-        this.createTimeStamp = createTimeStamp;
-    }
-
-    /**
-     * Setup the count
-     * 
-     * @param count
-     *            The count
-     */
-    public void setCount(int count) {
-        this.count = count;
-    }
-
-    /**
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
     public void onCommand(SMTPSession session) {
@@ -346,8 +323,19 @@ public class GreylistHandler extends AbstractLogEnabled implements
         String ipAddress = session.getRemoteIPAddress();
     
         try {
-            // get the timesamp when he triplet was last seen
-            setupGreyListData(datasource.getConnection(), ipAddress, sender, recip);
+            long createTimeStamp = 0;
+            int count = 0;
+            
+            // get the timestamp when he triplet was last seen
+            Iterator data = getGreyListData(datasource.getConnection(), ipAddress, sender, recip);
+            
+            if (data.hasNext()) {
+                createTimeStamp = Long.parseLong(data.next().toString());
+                count = Integer.parseInt(data.next().toString());
+            }
+            
+            getLogger().debug("Triplet " + ipAddress + " | " + sender + " | " + recip  +" -> TimeStamp: " + createTimeStamp);
+
 
             // if the timestamp is bigger as 0 we have allready a triplet stored
             if (createTimeStamp > 0) {
@@ -362,8 +350,12 @@ public class GreylistHandler extends AbstractLogEnabled implements
                     session.setStopHandlerProcessing(true);
 
                 } else {
+                    
+                    getLogger().debug("Update triplet " + ipAddress + " | " + sender + " | " + recip + " -> timestamp: " + time);
+                    
                     // update the triplet..
                     updateTriplet(datasource.getConnection(), ipAddress, sender, recip, count, time);
+
                 }
             } else {
                 getLogger().debug("New triplet " + ipAddress + " | " + sender + " | " + recip );
@@ -382,6 +374,9 @@ public class GreylistHandler extends AbstractLogEnabled implements
             // some kind of random cleanup process
             if (Math.random() > 0.99) {
                 // cleanup old entries
+            
+                getLogger().debug("Delete old entries");
+            
                 cleanupAutoWhiteListGreyList(datasource.getConnection(),(time - autoWhiteListLifeTime));
                 cleanupGreyList(datasource.getConnection(), (time - unseenLifeTime));
             }
@@ -393,7 +388,7 @@ public class GreylistHandler extends AbstractLogEnabled implements
     }
 
     /**
-     * Setup all necessary data for greylisting based on provided triplet
+     * Get all necessary data for greylisting based on provided triplet
      * 
      * @param conn
      *            The Connection
@@ -403,11 +398,13 @@ public class GreylistHandler extends AbstractLogEnabled implements
      *            The mailFrom
      * @param recip
      *            The rcptTo
+     * @return data
+     *            The data
      * @throws SQLException
      */
-    private void setupGreyListData(Connection conn, String ipAddress,
+    private Iterator getGreyListData(Connection conn, String ipAddress,
         String sender, String recip) throws SQLException {
-
+        Collection data = new ArrayList(2);
         PreparedStatement mappingStmt = null;
         try {
             mappingStmt = conn.prepareStatement(selectQuery);
@@ -419,8 +416,8 @@ public class GreylistHandler extends AbstractLogEnabled implements
                 mappingRS = mappingStmt.executeQuery();
 
                 if (mappingRS.next()) {
-                    setCreateTimeStamp(mappingRS.getTimestamp(1).getTime());
-                    setCount(mappingRS.getInt(2));
+                    data.add(String.valueOf(mappingRS.getTimestamp(1).getTime()));
+                    data.add(String.valueOf(mappingRS.getInt(2)));
                 }
             } finally {
                 theJDBCUtil.closeJDBCResultSet(mappingRS);
@@ -429,6 +426,7 @@ public class GreylistHandler extends AbstractLogEnabled implements
             theJDBCUtil.closeJDBCStatement(mappingStmt);
             theJDBCUtil.closeJDBCConnection(conn);
         }
+        return data.iterator();
     }
 
     /**
