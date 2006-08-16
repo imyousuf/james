@@ -1018,6 +1018,19 @@ Regards, Postmaster XXX.YYY
             </handler>
             -->
             
+            <!-- If uncomment this block you can enable greylisting. For more infos-->
+            <!-- how greylisting work see: http://projects.puremagic.com/greylisting/whitepaper.html -->
+            <!--
+            <handler class="org.apache.james.smtpserver.core.filter.fastfail.GreylistHandler" command="RCPT">
+                <repositoryPath> db://maildb </repositoryPath>
+                <sqlFile>file://conf/sqlResources.xml</sqlFile>
+                <tempBlockTime> 1 hour </tempBlockTime>
+                <unseenLifeTime> 4 hours </unseenLifeTime>
+                <autoWhiteListLifeTime> 36 days </autoWhiteListLifeTime>
+                <whitelistedNetworks> 127.0.0.0/8 </whitelistedNetworks>
+            </handler>
+            -->
+            
             <!-- If is set to a bigger value as 0 you can set the recipients after which -->
             <!-- tarpitting get activated. -->
             <!-- Tarpitting is a method to insert a small sleep after each rcpt. For more -->

@@ -833,5 +833,129 @@
 
 </sqlDefs>
 
+<!-- SQL statements to support the GreyList Handler-->
+<!-- -->
+<sqlDefs name="GreyList">
+
+    <sql name="greyListTableName">greylist</sql>
+
+    <!-- Statements used to retrieve a single entry. -->
+    <sql name="selectQuery">SELECT create_time,count FROM greylist WHERE ipaddress = ? AND sender = ? AND recip = ?</sql>
+
+    <!-- Statements used to insert an entry. -->
+    <sql name="insertQuery">INSERT INTO greylist (ipaddress,sender,recip,count,create_time) values (?,?,?,?,?)</sql>
+
+    <!-- Statements used to delete an entry. -->
+    <sql name="deleteQuery">DELETE FROM greylist WHERE create_time &lt; ? AND count = 0</sql>
+    
+    <!-- Statements used to delete an entry. -->
+    <sql name="deleteAutoWhitelistQuery">DELETE FROM greylist WHERE create_time &lt; ?</sql>
+    
+    <!-- Statements used to delete an entry. -->
+    <sql name="updateQuery">UPDATE greylist SET create_time = ? , count = ? WHERE ipaddress = ? AND sender = ? AND recip = ?</sql>
+
+    <!-- Statements used to create the "whitelist" table. -->
+    <sql name="createGreyListTable" db="hypersonic">
+        CREATE TABLE greylist (
+            ipaddress varchar (20) NOT NULL,
+            sender varchar (255) NOT NULL,
+            recip varchar (255) NOT NULL,
+            count int NOT NULL,
+            create_time datetime NOT NULL,           
+            PRIMARY KEY (ipaddress,sender,recip)
+        )    </sql>
+        
+    <sql name="createGreyListTable" db="hsqldb">
+        CREATE CACHED TABLE ${table} (
+        CREATE TABLE greylist (
+            ipaddress varchar (20) NOT NULL,
+            sender varchar (255) NOT NULL,
+            recip varchar (255) NOT NULL,
+            count int NOT NULL,
+            create_time timestamo NOT NULL,  
+            PRIMARY KEY (ipaddress,sender,recip)
+        )    </sql>
+    <sql name="createGreyListTable" db="mysql">
+            CREATE TABLE greylist (
+            ipaddress varchar (20) NOT NULL,
+            sender varchar (255) NOT NULL,
+            recip varchar (255) NOT NULL,
+            count int NOT NULL,
+            create_time datetime NOT NULL,  
+            PRIMARY KEY (ipaddress,sender,recip)
+        ) TYPE=InnoDB
+    </sql>
+    <sql name="createGreyListTable" db="mssql">
+        CREATE TABLE [greylist] (
+            [ipaddress] [varchar] (20) NOT NULL,
+            [sender] [varchar] (255) NOT NULL,
+            [recip] [varchar] (255) NOT NULL,
+            [count] [int] NOT NULL,
+            [create_time] [datetime] NOT NULL,  
+            PRIMARY KEY (ipaddress,sender,recip)
+        )
+    </sql>
+    <sql name="createGreyListTable" db="oracle">
+            CREATE TABLE greylist (
+            ipaddress varchar2(20) NOT NULL,
+            sender varchar2(255) NOT NULL,
+            recip varchar2(255) NOT NULL,
+            count int NOT NULL,
+            create_time datetime NOT NULL,  
+            PRIMARY KEY (ipaddress,sender,recip)
+        )
+    </sql>
+    <sql name="createGreyListTable" db="postgresql">
+            CREATE TABLE greylist (
+            ipaddress varchar (20) NOT NULL,
+            sender varchar (255) NOT NULL,
+            recip varchar (255) NOT NULL,
+            count int NOT NULL,
+            create_time timestamp NOT NULL,  
+            PRIMARY KEY (ipaddress,sender,recip)
+        )
+    </sql>
+    <sql name="createGreyListTable" db="sapdb">
+            CREATE TABLE greylist (
+            ipaddress varchar (20) NOT NULL,
+            sender varchar (255) NOT NULL,
+            recip varchar (255) NOT NULL,
+            count int NOT NULL,
+            create_time date NOT NULL,  
+            PRIMARY KEY (ipaddress,sender,recip)
+        )
+    </sql>
+    <sql name="createGreyListTable" db="db2">
+            CREATE TABLE greylist (
+            ipaddress varchar (20) NOT NULL,
+            sender varchar (255) NOT NULL,
+            recip varchar (255) NOT NULL,
+            count int NOT NULL,
+            create_time timestamp NOT NULL,  
+            PRIMARY KEY (ipaddress,sender,recip)
+        )
+    </sql>
+    <sql name="createGreyListTable" db="ingres">
+            CREATE TABLE greylist (
+            ipaddress varchar (20) NOT NULL,
+            sender varchar (255) NOT NULL,
+            recip varchar (255) NOT NULL,
+            count int NOT NULL,
+            create_time date NOT NULL,  
+            PRIMARY KEY (ipaddress,sender,recip)
+        )
+    </sql>
+    <sql name="createGreyListTable" db="derby">
+            CREATE TABLE greylist (
+            ipaddress varchar (20) NOT NULL,
+            sender varchar (255) NOT NULL,
+            recip varchar (255) NOT NULL,
+            count int NOT NULL,
+            create_time timestamp NOT NULL,  
+            PRIMARY KEY (ipaddress,sender,recip)
+        )
+    </sql>
+
+</sqlDefs>
 </sqlResources>
 
