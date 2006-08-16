@@ -166,7 +166,7 @@ public class ResolvableEhloHeloHandler extends AbstractLogEnabled implements
             String responseString = "501 "
                     + DSNStatus.getStatus(DSNStatus.PERMANENT,
                             DSNStatus.DELIVERY_INVALID_ARG)
-                    + " Provided EHLO/HELO " + argument + " can not resolved";
+                    + " Provided EHLO/HELO " + session.getState().get(SMTPSession.CURRENT_HELO_NAME) + " can not resolved";
             session.writeResponse(responseString);
             getLogger().info(responseString);
 
