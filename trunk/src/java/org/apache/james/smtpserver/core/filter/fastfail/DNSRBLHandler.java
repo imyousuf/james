@@ -262,7 +262,7 @@ public class DNSRBLHandler
         MailAddress recipientAddress = (MailAddress) session.getState().get(
                 SMTPSession.CURRENT_RECIPIENT);
 
-        if (blocklisted.equals("true") && // was found in the RBL
+        if (blocklisted != null && // was found in the RBL
                 !(session.isAuthRequired() && session
                         .getUser() != null) && // Not (SMTP AUTH is enabled and
                                                 // not authenticated)
