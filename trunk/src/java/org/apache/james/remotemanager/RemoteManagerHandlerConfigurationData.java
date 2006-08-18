@@ -21,6 +21,7 @@
 
 package org.apache.james.remotemanager;
 
+import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.SpoolManagementService;
@@ -93,5 +94,19 @@ public interface RemoteManagerHandlerConfigurationData {
      * @return the Store
      */
     Store getStore();
+    
+    /**
+     * Returns the RepositoryPath
+     * 
+     * @return the RepositoryPath
+     */
+    String getRepositoryPath();
+    
+    /**
+     * Returns the DataSourceSelector
+     * 
+     * @return the DataSourceSelector
+     */
+    DataSourceSelector getDataSourceSelector();
 
 }

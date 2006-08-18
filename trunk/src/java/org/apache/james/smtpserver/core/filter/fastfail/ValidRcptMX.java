@@ -74,7 +74,7 @@ public class ValidRcptMX extends AbstractLogEnabled implements CommandHandler,
         } else {
             throw new ConfigurationException(
                 "Please configure at least on invalid MX network");
-            }
+        }
     }
 
     /**
