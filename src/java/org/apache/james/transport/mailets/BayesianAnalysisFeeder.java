@@ -209,7 +209,7 @@ extends GenericMailet {
         }
         
         try {
-            analyzer.initSqlQueries(datasource.getConnection(), getMailetContext().getAttribute("confDir") + "sqlResources.xml");
+            analyzer.initSqlQueries(datasource.getConnection(), getMailetContext().getAttribute("confDir") + "/sqlResources.xml");
         } catch (Exception e) {
             throw new MessagingException("Exception initializing queries", e);
         }        
