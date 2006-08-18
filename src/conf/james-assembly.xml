@@ -70,7 +70,10 @@
     <provide name="James" role="org.apache.james.services.MailServer"/>
     <provide name="thread-manager"
              role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
-    <provide name="spoolmanagement" role="org.apache.james.services.SpoolManagementService"/>
+    <provide name="spoolmanagement" 
+             role="org.apache.james.services.SpoolManagementService"/>
+    <provide name="database-connections"
+             role="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector" />
   </block>
 
   <!-- The User Management block  -->

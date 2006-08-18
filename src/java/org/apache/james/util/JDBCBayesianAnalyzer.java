@@ -350,13 +350,13 @@ extends BayesianAnalyzer {
      * for finding the conf/sqlResources.xml file
      * @throws Exception If any error occurs
      */
-    public void initSqlQueries(Connection conn, org.apache.mailet.MailetContext mailetContext) throws Exception {
+    public void initSqlQueries(Connection conn, String file) throws Exception {
         try {
             if (conn.getAutoCommit()) {
                 conn.setAutoCommit(false);
             }
             
-            this.sqlFile = new File((String) mailetContext.getAttribute("confDir"), "sqlResources.xml").getCanonicalFile();
+            this.sqlFile = new File(file).getCanonicalFile();
             sqlQueries.init(this.sqlFile, JDBCBayesianAnalyzer.class.getName() , conn, getSqlParameters());
             
             checkTables(conn);

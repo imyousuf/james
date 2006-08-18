@@ -21,15 +21,26 @@
 
 package org.apache.james.remotemanager;
 
+import org.apache.avalon.excalibur.datasource.DataSourceComponent;
+import org.apache.avalon.framework.activity.Initializable;
+import org.apache.avalon.framework.context.Context;
+import org.apache.avalon.framework.context.ContextException;
+import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.james.Constants;
 import org.apache.james.management.SpoolFilter;
+import org.apache.james.context.AvalonContextUtilities;
 import org.apache.james.core.AbstractJamesHandler;
 import org.apache.james.services.JamesUser;
 import org.apache.james.services.User;
 import org.apache.james.services.UsersRepository;
+import org.apache.james.util.JDBCBayesianAnalyzer;
 import org.apache.mailet.MailAddress;
 
 import javax.mail.internet.ParseException;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -48,7 +59,7 @@ import java.util.List;
  *
  */
 public class RemoteManagerHandler
-    extends AbstractJamesHandler {
+    extends AbstractJamesHandler implements Contextualizable,Initializable {
 
     /**
      * The text string for the ADDUSER command
@@ -136,6 +147,16 @@ public class RemoteManagerHandler
     private static final String COMMAND_DELETESPOOL = "DELETESPOOL";
 
     /**
+     * The text string for the ADDHAM command
+     */
+    private static final String COMMAND_ADDHAM = "ADDHAM";
+    
+    /**
+     * The text string for the ADDSPAM command
+     */
+    private static final String COMMAND_ADDSPAM = "ADDSPAM";
+    
+    /**
      * The text string for the QUIT command
      */
     private static final String COMMAND_QUIT = "QUIT";
@@ -144,6 +165,10 @@ public class RemoteManagerHandler
      * The text string for the SHUTDOWN command
      */
     private static final String COMMAND_SHUTDOWN = "SHUTDOWN";
+    
+    private static final String HAM = "HAM";
+    
+    private static final String SPAM = "SPAM";
 
     /**
      * The per-service configuration data that applies to all handlers
@@ -154,6 +179,12 @@ public class RemoteManagerHandler
      * The current UsersRepository being managed/viewed/modified
      */
     private UsersRepository users;
+    
+    private Context context;
+    
+    private String sqlFileUrl = "file://conf/sqlResources.xml";
+    
+    DataSourceComponent datasource;
 
     /**
      * Set the configuration data for the handler.
@@ -316,6 +347,10 @@ public class RemoteManagerHandler
             return doFLUSHSPOOL(argument);
         } else if (command.equals(COMMAND_DELETESPOOL)) {
             return doDELETESPOOL(argument);
+        } else if (command.equals(COMMAND_ADDHAM)) {
+            return doADDHAM(argument);
+        } else if (command.equals(COMMAND_ADDSPAM)) {
+                return doADDSPAM(argument);
         } else if (command.equals(COMMAND_QUIT)) {
             return doQUIT(argument);
         } else if (command.equals(COMMAND_SHUTDOWN)) {
@@ -553,6 +588,8 @@ public class RemoteManagerHandler
         out.println("listspool [spoolrepositoryname]                list all mails which reside in the spool and have an error state");
         out.println("flushspool [spoolrepositoryname] ([key])       try to resend the mail assing to the given key. If no key is given all mails get resend");
         out.println("deletespool [spoolrepositoryname] ([key])      delete the mail assign to the given key. If no key is given all mails get deleted");
+        out.println("addham [directory]                             feed the BayesianAnalysisFeeder with the content of the directory as HAM. One mail per file");
+        out.println("addspam [directory]                            feed the BayesianAnalysisFeeder with the content of the directory as SPAM. One mail per file");
         out.println("shutdown                                       kills the current JVM (convenient when James is run as a daemon)");
         out.println("quit                                           close connection");
         out.flush();
@@ -1020,5 +1057,140 @@ public class RemoteManagerHandler
         writeLoggedFlushedResponse("Unknown command " + argument);
         return true;
     }
+    
+    /**
+     * Handler method called upon receipt of a ADDHAM command. Returns
+     * whether further commands should be read off the wire.
+     * 
+     * @param argument
+     *            the argument passed in with the command
+     */
+    private boolean doADDHAM(String argument) {
+    
+        // check if the command was called correct
+        if (argument == null || argument.trim().equals("")) {
+            writeLoggedFlushedResponse("Usage: ADDHAM [hamdir]");
+            return true;
+        }
 
+        try {
+
+            int count = feedBayesianAnalyzer(argument,HAM);
+            out.println("Feed the BayesianAnalysis with " + count + " HAM");
+            out.flush();
+        
+        } catch (Exception e) {
+            getLogger().error("Error on feeding BayesianAnalysis: " + e.getMessage());
+            out.println("Error on feeding BayesianAnalysis: " + e.getMessage());
+            out.flush();
+        }
+        return true;
+    }
+    
+    /**
+     * Handler method called upon receipt of a ADDSPAM command. Returns
+     * whether further commands should be read off the wire.
+     * 
+     * @param argument
+     *            the argument passed in with the command
+     */
+    private boolean doADDSPAM(String argument) {
+    
+        // check if the command was called correct
+        if (argument == null || argument.trim().equals("")) {
+            writeLoggedFlushedResponse("Usage: ADDSPAM [spamdir]");
+            return true;
+        }
+
+        try {
+
+            int count = feedBayesianAnalyzer(argument, SPAM);
+            out.println("Feed the BayesianAnalysis with " + count + " SPAM");
+            out.flush();
+            
+        } catch (Exception e) {
+            getLogger().error("Error on feeding BayesianAnalysis: " + e.getMessage());
+            out.println("Error on feeding BayesianAnalysis: " + e.getMessage());
+            out.flush();
+        }
+        return true;
+    }
+    
+    /**
+     * Helper method to train the BayesianAnalysis
+     *
+     * @param dir The directory which contains the emails which should be used to feed the BayesianAnalysis
+     * @param type The type to train. HAM or SPAM
+     * @return count The count of trained messages
+     * @throws IllegalArgumentException Get thrown if the directory is not valid
+     */
+    private int feedBayesianAnalyzer(String dir, String type) throws Exception {
+    
+        //Clear out any existing word/counts etc..
+        analyzer.clear();
+        
+        File tmpFile = new File(dir);
+        int count = 0;
+    
+        // stop the watchdog temporary 
+        theWatchdog.stop();
+        
+        synchronized(JDBCBayesianAnalyzer.DATABASE_LOCK) {
+
+            // check if the provided dir is really a directory
+            // TODO: Support mbox files
+            if (tmpFile.isDirectory()) {
+                File[] files = tmpFile.listFiles();
+        
+                for (int i = 0; i < files.length; i++) {
+                    if (type.equalsIgnoreCase(HAM)) {
+                        analyzer.addHam(new BufferedReader(new FileReader(files[i])));
+                        count++;
+                    } else if (type.equalsIgnoreCase(SPAM)) {
+                        analyzer.addSpam(new BufferedReader(new FileReader(files[i])));
+                        count++;
+                    }  
+                }
+              
+                //Update storage statistics.
+                if (type.equalsIgnoreCase(HAM)) {
+                    analyzer.updateHamTokens(datasource.getConnection());
+                } else if (type.equalsIgnoreCase(SPAM)) {
+                    analyzer.updateSpamTokens(datasource.getConnection());
+                } 
+    
+            } else {
+               throw new IllegalArgumentException("Please provide an valid directory");
+            }
+        }
+        
+        // start the watchdog again
+        theWatchdog.start();
+        
+        return count;
+    }
+    
+    private JDBCBayesianAnalyzer analyzer = new JDBCBayesianAnalyzer() {
+        protected void delegatedLog(String logString) {
+            getLogger().debug("BayesianAnalysisFeeder: " + logString);
+        }
+    };
+    
+    
+    /**
+     * @see org.apache.avalon.framework.context.Contextualizable#contextualize(Context)
+     */
+    public void contextualize(final Context context) throws ContextException {
+        this.context = context;
+    }
+
+    /**
+     * @see org.apache.avalon.framework.activity.Initializable#initialize()
+     */
+    public void initialize() throws Exception {
+        String repos = theConfigData.getRepositoryPath().substring(5);
+        datasource = (DataSourceComponent) theConfigData.getDataSourceSelector().select(repos);
+        File sqlFile = AvalonContextUtilities.getFile(context, sqlFileUrl);
+        analyzer.initSqlQueries(datasource.getConnection(), sqlFile.getAbsolutePath());
+    }
 }
