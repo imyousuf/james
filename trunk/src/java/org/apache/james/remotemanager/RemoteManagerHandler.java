@@ -40,9 +40,11 @@ import javax.mail.internet.ParseException;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.Socket;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Locale;
@@ -51,7 +53,10 @@ import java.util.List;
 
 /**
  * Provides a really rude network interface to administer James.
- * Allow to add accounts.
+ * - Allow to add accounts.
+ * - Allow to manage the spool
+ * - Allow to feed BayesianAnalysis
+ * 
  * TODO: -improve protocol
  *       -much more...
  *
@@ -1066,7 +1071,8 @@ public class RemoteManagerHandler
      *            the argument passed in with the command
      */
     private boolean doADDHAM(String argument) {
-    
+        String exception = null;
+        
         // check if the command was called correct
         if (argument == null || argument.trim().equals("")) {
             writeLoggedFlushedResponse("Usage: ADDHAM [hamdir]");
@@ -1079,9 +1085,20 @@ public class RemoteManagerHandler
             out.println("Feed the BayesianAnalysis with " + count + " HAM");
             out.flush();
         
-        } catch (Exception e) {
-            getLogger().error("Error on feeding BayesianAnalysis: " + e.getMessage());
-            out.println("Error on feeding BayesianAnalysis: " + e.getMessage());
+        } catch (SQLException e) {
+            exception = e.getMessage();
+        } catch (FileNotFoundException e) {
+            exception = e.getMessage();
+        } catch (IllegalArgumentException e) {
+            exception = e.getMessage();
+        } catch (IOException e) {
+            exception = e.getMessage();
+        }
+    
+        // check if any exception was thrown
+        if (exception != null) {
+            getLogger().error("Error on feeding BayesianAnalysis: " + exception);
+            out.println("Error on feeding BayesianAnalysis: " + exception);
             out.flush();
         }
         return true;
@@ -1095,7 +1112,8 @@ public class RemoteManagerHandler
      *            the argument passed in with the command
      */
     private boolean doADDSPAM(String argument) {
-    
+        String exception = null;
+        
         // check if the command was called correct
         if (argument == null || argument.trim().equals("")) {
             writeLoggedFlushedResponse("Usage: ADDSPAM [spamdir]");
@@ -1108,9 +1126,20 @@ public class RemoteManagerHandler
             out.println("Feed the BayesianAnalysis with " + count + " SPAM");
             out.flush();
             
-        } catch (Exception e) {
-            getLogger().error("Error on feeding BayesianAnalysis: " + e.getMessage());
-            out.println("Error on feeding BayesianAnalysis: " + e.getMessage());
+        } catch (SQLException e) {
+            exception = e.getMessage();
+        } catch (FileNotFoundException e) {
+            exception = e.getMessage();
+        } catch (IllegalArgumentException e) {
+            exception = e.getMessage();
+        } catch (IOException e) {
+            exception = e.getMessage();
+        }
+    
+        // check if any exception was thrown
+        if (exception != null) {
+            getLogger().error("Error on feeding BayesianAnalysis: " + exception);
+            out.println("Error on feeding BayesianAnalysis: " + exception);
             out.flush();
         }
         return true;
@@ -1122,9 +1151,12 @@ public class RemoteManagerHandler
      * @param dir The directory which contains the emails which should be used to feed the BayesianAnalysis
      * @param type The type to train. HAM or SPAM
      * @return count The count of trained messages
+     * @throws IOException 
+     * @throws FileNotFoundException 
+     * @throws SQLException 
      * @throws IllegalArgumentException Get thrown if the directory is not valid
      */
-    private int feedBayesianAnalyzer(String dir, String type) throws Exception {
+    private int feedBayesianAnalyzer(String dir, String type) throws FileNotFoundException, IOException, SQLException, IllegalArgumentException {
     
         //Clear out any existing word/counts etc..
         analyzer.clear();
