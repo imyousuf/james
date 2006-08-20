@@ -26,7 +26,7 @@
   These are some JAMES features:
   
     o  complete portability:  James is a 100% pure Java(tm) application
-       based on the Java 2 platform and the JavaMail 1.3.1 API.
+       based on the Java 2 platform and the JavaMail 1.4 API.
        
     o  protocol abstraction:  unlike other mail engines, protocols are seen only
        like "communication languages" ruling communications between clients and
