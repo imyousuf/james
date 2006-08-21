@@ -182,6 +182,17 @@ recipients that are on one of the local hosts are returned.</p>
 <p>Configuration string: One of three strings - "blackholes.mail-abuse.org", "relays.mail-abuse.org", or "dialups.mail-abuse.org".</p>
 </subsection>
 
+<subsection name="IsInWhiteList">
+<p>Description: Matches recipients having the mail sender in the recipient's private whitelist.
+The recipient name is always converted to its primary name (handling aliases).</p>
+<p>Configuration string: The database name containing the white list table.</p>
+<pre><code>
+&lt;mailet match="IsInWhiteList=db://maildb" class="ToProcessor"&gt;
+  &lt;processor&gt; transport &lt;/processor&gt;
+&lt;/mailet&gt;
+</code></pre>
+</subsection>
+
 <subsection name="IsSingleRecipient">
 <p>Description: Matches those messages sent to only a single recipient.  The single recipient is returned.</p>
 <p>Configuration string: None.</p>
