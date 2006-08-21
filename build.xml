@@ -134,6 +134,7 @@
                 <include name="LICENSE.txt"/>
                 <include name="README.txt"/>
                 <include name="NOTICE.txt"/>
+                <include name="UPGRADE.txt"/>
             </fileset>
         </copy>
         <fixcrlf srcdir="${java.dir}" includes="**/*.java" eol="lf" tab="remove" tablength="4" />
@@ -573,6 +574,7 @@
                 <include name="LICENSE.txt"/>
                 <include name="README.txt"/>
                 <include name="NOTICE.txt"/>
+                <include name="UPGRADE.txt"/>
             </fileset>
         </zip>
         <tar longfile="gnu" tarfile="${dist.binary.dir}/${name}-binary-${version}.tar">
@@ -582,6 +584,7 @@
                 <include name="LICENSE.txt"/>
                 <include name="README.txt"/>
                 <include name="NOTICE.txt"/>
+                <include name="UPGRADE.txt"/>
             </tarfileset>
         </tar>
         <gzip zipfile="${dist.binary.dir}/${name}-binary-${version}.tar.gz" src="${dist.binary.dir}/${name}-binary-${version}.tar"/>
