@@ -48,8 +48,28 @@
     Step 2.5 : Move the objectstore
       
       Move the objectstore config into the mailstore config.
-  
-  
+      
+    Step 2.6 : Add SSL to server-sockets
+      
+      To be able to use SSL you need to add this SSL config to the server-sockets block:
+      
+         <!--
+         <factory name="ssl" class="org.apache.avalon.cornerstone.blocks.sockets.TLSServerSocketFactory">
+            <ssl-factory>
+               <keystore>
+                  <file>conf/keystore</file>
+                  <password>secret</password>
+                  <key-password>keysecret</key-password>
+                  <type>JKS</type>
+                  <protocol>TLS</protocol>
+                  <algorithm>SunX509</algorithm>
+                  <authenticate-client>false</authenticate-client>
+               </keystore>
+            </ssl-factory>
+         </factory>
+         -->
+    
+    
   Step 3: Modify costum mailets if necessary
     Please note the following things which were changed. So maybe its necessary for you to 
     change some stuff in your mailets.
