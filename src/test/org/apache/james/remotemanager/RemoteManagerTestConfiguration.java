@@ -67,7 +67,7 @@ public class RemoteManagerTestConfiguration extends DefaultConfiguration {
         DefaultConfiguration handlerConfig = new DefaultConfiguration("handler");
         handlerConfig.addChild(Util.getValuedConfiguration("helloName", "myMailServer"));
         handlerConfig.addChild(Util.getValuedConfiguration("connectiontimeout", "360000"));
-
+        
         DefaultConfiguration adminAccounts = new DefaultConfiguration("administrator_accounts");
         
         DefaultConfiguration account = new DefaultConfiguration("account");

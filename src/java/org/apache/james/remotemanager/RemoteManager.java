@@ -164,10 +164,9 @@ public class RemoteManager
             else if (!prompt.equals("") && !prompt.endsWith(" ")) prompt += " "; 
             
             Configuration reposConfiguration = handlerConfiguration.getChild("repositoryPath", false);
-            if (reposConfiguration == null) {
-                throw new ConfigurationException("Please configure the repositoryPath");
+            if (reposConfiguration != null) {
+                repositoryPath = reposConfiguration.getValue();
             }
-            repositoryPath = reposConfiguration.getValue();
         }
     }
   

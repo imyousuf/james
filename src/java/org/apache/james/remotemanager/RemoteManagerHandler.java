@@ -190,6 +190,8 @@ public class RemoteManagerHandler
     private String sqlFileUrl = "file://conf/sqlResources.xml";
     
     DataSourceComponent datasource;
+    
+    String repository;
 
     /**
      * Set the configuration data for the handler.
@@ -1072,7 +1074,13 @@ public class RemoteManagerHandler
      */
     private boolean doADDHAM(String argument) {
         String exception = null;
-        
+    
+        // check if the command is disabled
+        if (repository == null) {
+            writeLoggedFlushedResponse("Command disabled. Configure a repositoryPath to enable it");    
+            return true;
+        }
+
         // check if the command was called correct
         if (argument == null || argument.trim().equals("")) {
             writeLoggedFlushedResponse("Usage: ADDHAM [hamdir]");
@@ -1114,6 +1122,12 @@ public class RemoteManagerHandler
     private boolean doADDSPAM(String argument) {
         String exception = null;
         
+        // check if the command is disabled
+        if (repository == null) {
+            writeLoggedFlushedResponse("Command disabled. Configure a repositoryPath to enable it");    
+            return true;
+        }
+
         // check if the command was called correct
         if (argument == null || argument.trim().equals("")) {
             writeLoggedFlushedResponse("Usage: ADDSPAM [spamdir]");
@@ -1220,9 +1234,13 @@ public class RemoteManagerHandler
      * @see org.apache.avalon.framework.activity.Initializable#initialize()
      */
     public void initialize() throws Exception {
-        String repos = theConfigData.getRepositoryPath().substring(5);
-        datasource = (DataSourceComponent) theConfigData.getDataSourceSelector().select(repos);
-        File sqlFile = AvalonContextUtilities.getFile(context, sqlFileUrl);
-        analyzer.initSqlQueries(datasource.getConnection(), sqlFile.getAbsolutePath());
+        repository = theConfigData.getRepositoryPath();
+        
+        if (repository != null) {
+            String repos = repository.substring(5);
+            datasource = (DataSourceComponent) theConfigData.getDataSourceSelector().select(repos);
+            File sqlFile = AvalonContextUtilities.getFile(context, sqlFileUrl);
+            analyzer.initSqlQueries(datasource.getConnection(), sqlFile.getAbsolutePath());
+        }
     }
 }
