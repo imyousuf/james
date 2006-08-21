@@ -9,9 +9,9 @@
   read the README.
   
 
-  Step 1: Copy mailboxes and users.
+  Step 1: Copy mailboxes and users
 
-    You should remove the apps/james/var directory and copy the apps/james/var directory of the old james
+    Remove the apps/james/var directory and copy the apps/james/var directory of the old james
     installation in this place.
 
 
