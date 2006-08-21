@@ -46,7 +46,7 @@
       <item name="Document Archive" href="/document_archive.html"/>
     </menu>
     
-    <menu name="Documentation 2.3B">
+    <menu name="Documentation 2.3">
       <item name="James" href="/documentation_2_3.html"/>
       <item name="Design" href="/design_objectives_2_3.html"/>
       <item name="James Javadocs" href="/apidocs/index.html"/>
