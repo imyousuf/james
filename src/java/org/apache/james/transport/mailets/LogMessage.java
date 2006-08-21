@@ -58,7 +58,7 @@ public class LogMessage extends GenericMailet {
         try {
             passThrough = (getInitParameter("passThrough") == null) ? true : new Boolean(getInitParameter("passThrough")).booleanValue();
             headers = (getInitParameter("headers") == null) ? true : new Boolean(getInitParameter("headers")).booleanValue();
-            passThrough = (getInitParameter("body") == null) ? true : new Boolean(getInitParameter("body")).booleanValue();
+            body = (getInitParameter("body") == null) ? true : new Boolean(getInitParameter("body")).booleanValue();
             bodyMax = (getInitParameter("maxBody") == null) ? 0 : Integer.parseInt(getInitParameter("maxBody"));
             comment = getInitParameter("comment");
         } catch (Exception e) {
