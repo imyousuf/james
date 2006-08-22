@@ -138,7 +138,6 @@ cd $PHOENIX_HOME/bin
 
 # Get the run cmd
 RUN_CMD="$JAVA_HOME/bin/java $JVM_OPTS \
-    $JVM_OPTS \
     $DEBUG \
     -Djava.security.policy=jar:file:$PHOENIX_HOME/bin/phoenix-loader.jar!/META-INF/java.policy \
     $PHOENIX_JVM_OPTS \
