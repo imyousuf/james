@@ -5,8 +5,8 @@
   Upgrading ...
   -----------------
   
-  Please note that you need to start james 2.3.0 once before this steps can be performed. For installation guidelines 
-  read the README.
+  Please note that you need to start james 2.3.0 once before the following steps can be performed. For installation guidelines 
+  read the README file.
   
 
   Step 1: Copy mailboxes and users
@@ -17,17 +17,17 @@
 
   Step 2: Copy and modify config.xml
 
-    Step 2.1 : Remove fetchpop block
+    Step 2.1 : Remove the fetchpop block
       
-      Its necessary to remove the fetchpop block in config.xml cause fetchpop was removed in 2.3.
+      It's necessary to remove the fetchpop block in config.xml because fetchpop was removed in 2.3.
 
     
     Step 2.2 : Move mailet and matcher packages config
       
-      Move <mailetpackages> and <matcherpackages> outside from the <spoolmanager> block.
+      Move <mailetpackages> and <matcherpackages> outside of the <spoolmanager> block.
 
       
-    Step 2.3 : Add neccassary mailets
+    Step 2.3 : Add necessary mailets
       
       Add the <mailet match="All" class="PostmasterAlias"/> as the first mailet of the "root" processor.
       This was hardcoded in 2.2.0 and previous. Now we made it configurable.
@@ -70,8 +70,8 @@
          -->
     
     
-  Step 3: Modify costum mailets if necessary
-    Please note the following things which were changed. So maybe its necessary for you to 
+  Step 3: Modify custom mailets if necessary
+    Please note the following things that were changed. So maybe it's necessary for you to 
     change some stuff in your mailets.
       
     Avalon updates:
