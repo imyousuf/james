@@ -40,13 +40,13 @@ installation in this place.</p>
 </subsection>
 </section>
 <section name="Copy and modify config.xml">
-<subsection name="Remove fetchpop block">
-<p>Its necessary to remove the fetchpop block in config.xml cause fetchpop was removed in 2.3.</p>
+<subsection name="Remove the fetchpop block">
+<p>It's necessary to remove the fetchpop block in config.xml because fetchpop was removed in 2.3.</p>
 </subsection>
 <subsection name="Move mailet and matcher packages config">
-<p>Move &lt;mailetpackages&gt; and &lt;matcherpackages&gt; outside from the &lt;spoolmanager&gt; block.</p>
+<p>Move &lt;mailetpackages&gt; and &lt;matcherpackages&gt; outside of the &lt;spoolmanager&gt; block.</p>
 </subsection>
-<subsection name="Add neccassary mailets">
+<subsection name="Add necessary mailets">
 <p>Add the following line as the first mailet of the "root" processor:</p>
 <source> 
 &lt;mailet match="All" class="PostmasterAlias"/&gt;
@@ -91,7 +91,7 @@ Must converted to
 </subsection>
 </section>
 <section name="Modify costum mailets if necessary">
-<p> Please note the following things which were changed. So maybe its necessary for you to change some stuff in your mailets. </p>
+<p> Please note the following things that were changed. So maybe it's necessary for you to change some stuff in your mailets. </p>
 <subsection name="Avalon updates">
 <ul>
 <li>avalon Component has been replaced by avalon Service</li>
