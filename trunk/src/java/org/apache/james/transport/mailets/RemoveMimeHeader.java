@@ -69,17 +69,20 @@ public class RemoveMimeHeader extends GenericMailet {
      * @see org.apache.mailet.GenericMailet#service(Mail)
      */
     public void service(Mail mail) {
-    try {
-        MimeMessage  message = mail.getMessage();
+        try {
+            MimeMessage  message = mail.getMessage();
         
-        // loop through the headers
-        for (int i = 0; i < headers.size(); i++) {
-            message.removeHeader((String) headers.get(i));
+            // loop through the headers
+            for (int i = 0; i < headers.size(); i++) {
+                message.removeHeader((String) headers.get(i));
+            }
+            
+            message.saveChanges();
+
+        } catch (MessagingException e) {
+            // just log the exception
+            log("Unable to remove headers: " + e.getMessage());
         }
-    } catch (MessagingException e) {
-        // just log the exception
-        log("Unable to remove headers: " + e.getMessage());
-    }
     }
     
     /**
