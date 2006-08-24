@@ -140,6 +140,7 @@ Legal:
           <include name="LICENSE.txt"/>
           <include name="NOTICE.txt"/>
           <include name="README"/>
+          <include name="UPGRADE.txt"/>
         </fileset>
       </copy>
       <fixcrlf srcdir="${java.dir}" includes="**/*.java" eol="lf" tab="remove" tablength="4" />
@@ -632,6 +633,7 @@ Legal:
                 <include name="README"/>
                 <include name="LICENSE.txt"/>
                 <include name="NOTICE.txt"/>
+                <include name="UPGRADE.txt"/>
                 <include name="build.*"/>
                 <include name="lib/**"/>
                 <include name="${phoenix.dir}/**"/>
@@ -648,6 +650,7 @@ Legal:
                 <include name="README"/>
                 <include name="LICENSE.txt"/>
                 <include name="NOTICE.txt"/>
+                <include name="UPGRADE.txt"/>
                 <include name="build.*"/>
                 <include name="lib/**"/>
                 <include name="${phoenix.dir}/**"/>
@@ -674,6 +677,7 @@ Legal:
                 <include name="tools/**"/>
                 <include name="*.txt"/>
                 <include name="README"/>
+                <include name="UPGRADE.txt"/>
                 <include name="KEYS"/>
                 <include name="LICENSE.txt"/>
                 <include name="NOTICE.txt"/>
@@ -689,6 +693,7 @@ Legal:
                 <include name="tools/**"/>
                 <include name="*.txt"/>
                 <include name="README"/>
+                <include name="UPGRADE.txt"/>
                 <include name="KEYS"/>
                 <include name="LICENSE.txt"/>
                 <include name="NOTICE.txt"/>
