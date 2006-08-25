@@ -78,20 +78,25 @@ public class Util {
      */
     protected synchronized static int getNextNonPrivilegedPort() {
         // Hack to increase probability that the port is bindable
+        int nextPortCandidate = PORT_LAST_USED;
         while (true) {
             try {
-                PORT_LAST_USED++;
-                if (PORT_LAST_USED > PORT_RANGE_END) PORT_LAST_USED = PORT_RANGE_START;
+                nextPortCandidate++;
+                if (PORT_LAST_USED == nextPortCandidate) throw new RuntimeException("no free port found");
+                if (nextPortCandidate > PORT_RANGE_END) nextPortCandidate = PORT_RANGE_START; // start over
+
+                // test, port is available
                 ServerSocket ss;
-                ss = new ServerSocket(PORT_LAST_USED);
+                ss = new ServerSocket(nextPortCandidate);
                 ss.setReuseAddress(true);
                 ss.close();
                 break;
             } catch (IOException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
+                continue; // try next port
             }
         }
+        PORT_LAST_USED = nextPortCandidate;
         return PORT_LAST_USED;
     }
 
