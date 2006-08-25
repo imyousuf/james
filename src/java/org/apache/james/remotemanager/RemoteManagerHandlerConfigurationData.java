@@ -21,8 +21,8 @@
 
 package org.apache.james.remotemanager;
 
-import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.cornerstone.services.store.Store;
+import org.apache.james.services.BayesianAnalyzerManagementService;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.SpoolManagementService;
 import org.apache.james.services.UsersRepository;
@@ -94,19 +94,12 @@ public interface RemoteManagerHandlerConfigurationData {
      * @return the Store
      */
     Store getStore();
-    
+
     /**
-     * Returns the RepositoryPath
+     * Returns the BayesianAnalyzerManagementService
      * 
-     * @return the RepositoryPath
+     * @return the BayesianAnalyzerManagementService
      */
-    String getRepositoryPath();
-    
-    /**
-     * Returns the DataSourceSelector
-     * 
-     * @return the DataSourceSelector
-     */
-    DataSourceSelector getDataSourceSelector();
+    BayesianAnalyzerManagementService getBayesianAnalyzerManagement();
 
 }

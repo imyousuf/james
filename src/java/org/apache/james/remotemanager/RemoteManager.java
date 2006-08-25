@@ -21,7 +21,6 @@
 
 package org.apache.james.remotemanager;
 
-import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -29,6 +28,7 @@ import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.core.AbstractJamesService;
+import org.apache.james.services.BayesianAnalyzerManagementService;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.SpoolManagementService;
 import org.apache.james.services.UsersRepository;
@@ -45,7 +45,7 @@ import java.util.HashMap;
  * @version 1.0.0, 24/04/1999
  */
 public class RemoteManager
-    extends AbstractJamesService implements RemoteManagerMBean, Contextualizable{
+    extends AbstractJamesService implements RemoteManagerMBean, Contextualizable {
 
     /**
      * A HashMap of (user id, passwords) for James administrators
@@ -82,15 +82,7 @@ public class RemoteManager
      */
     private Store store;
     
-    /**
-     * The reference to the DataSourceSelector
-     */
-    private DataSourceSelector dataSourceSelector;
-
-    /**
-     * The reference to the repositorPath
-     */
-    private String repositoryPath;
+    private BayesianAnalyzerManagementService bayesianAnalyzerManagement;
     
     public void setUsersStore(UsersStore usersStore) {
         this.usersStore = usersStore;
@@ -110,6 +102,10 @@ public class RemoteManager
 
     public void setStore(Store store) {
         this.store = store;
+    }
+    
+    public void setBayesianAnalyzerManagement(BayesianAnalyzerManagementService bayesianAnalyzerManagement) {
+        this.bayesianAnalyzerManagement = bayesianAnalyzerManagement;
     }
     
     /**
@@ -139,8 +135,8 @@ public class RemoteManager
         SpoolManagementService spoolManagement = 
             (SpoolManagementService) componentManager.lookup(SpoolManagementService.ROLE);
         setSpoolManagement(spoolManagement);
-        dataSourceSelector = (DataSourceSelector) componentManager.lookup(DataSourceSelector.ROLE);
-               
+        
+        setBayesianAnalyzerManagement((BayesianAnalyzerManagementService) componentManager.lookup(BayesianAnalyzerManagementService.ROLE));     
     }
 
     /**
@@ -162,11 +158,6 @@ public class RemoteManager
             if (promtConfiguration != null) prompt = promtConfiguration.getValue();
             if (prompt == null) prompt = ""; 
             else if (!prompt.equals("") && !prompt.endsWith(" ")) prompt += " "; 
-            
-            Configuration reposConfiguration = handlerConfiguration.getChild("repositoryPath", false);
-            if (reposConfiguration != null) {
-                repositoryPath = reposConfiguration.getValue();
-            }
         }
     }
   
@@ -259,17 +250,10 @@ public class RemoteManager
         }
         
         /**
-         * @see org.apache.james.remotemanager.RemoteManagerHandlerConfigurationData#getRepositoryPath()
+         * @see org.apache.james.remotemanager.RemoteManagerHandlerConfigurationData#getBayesianAnalyzerManagement()
          */
-        public String getRepositoryPath() {
-            return RemoteManager.this.repositoryPath;
-        }
-
-        /**
-         * @see org.apache.james.remotemanager.RemoteManagerHandlerConfigurationData#getDataSourceSelector()
-         */
-        public DataSourceSelector getDataSourceSelector(){
-            return RemoteManager.this.dataSourceSelector;
+        public BayesianAnalyzerManagementService getBayesianAnalyzerManagement() {
+            return RemoteManager.this.bayesianAnalyzerManagement;
         }
     }
 

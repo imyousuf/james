@@ -58,6 +58,11 @@
   <block name="spoolmanagement" class="org.apache.james.management.SpoolManagement" >
       <provide name="mailstore" role="org.apache.avalon.cornerstone.services.store.Store"/>
   </block>
+  
+  <block name="bayesiananalyzermanagement" class="org.apache.james.management.BayesianAnalyzerManagement" >
+      <provide name="database-connections"
+             role="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector" />
+  </block>
 
   <block name="remotemanager" class="org.apache.james.remotemanager.RemoteManager" >
     <provide name="mailstore" role="org.apache.avalon.cornerstone.services.store.Store"/>
@@ -72,8 +77,8 @@
              role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
     <provide name="spoolmanagement" 
              role="org.apache.james.services.SpoolManagementService"/>
-    <provide name="database-connections"
-             role="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector" />
+    <provide name="bayesiananalyzermanagement"
+             role="org.apache.james.services.BayesianAnalyzerManagementService"/>
   </block>
 
   <!-- The User Management block  -->
