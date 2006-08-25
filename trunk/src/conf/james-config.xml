@@ -771,6 +771,15 @@ Regards, Postmaster XXX.YYY
       <singleIPperMX> true </singleIPperMX>
       -->
    </dnsserver>
+   
+      
+   <!-- Uncommment this block to enable the BayesianAnalyserManagement. -->
+   <!-- This is needed by the RemoteManager to enable the BayesianAnaylyzerManagement commands --> 
+   <!--
+   <bayesiananalyzermanagement> 
+      <repositoryPath> db://maildb </repositoryPath>
+   </bayesiananalyzermanagement>  
+   -->
 
    <!-- The RemoteManager server is enabled by default -->
    <!-- Disabling blocks will stop them from listening, -->
@@ -802,12 +811,9 @@ Regards, Postmaster XXX.YYY
          <!-- 
          <prompt>james&gt;</prompt>
          -->
-         
-         <!-- The repository -->
-         <repositoryPath> db://maildb </repositoryPath>
       </handler>
    </remotemanager>
-
+      
     <!-- The POP3 server is enabled by default -->
     <!-- Disabling blocks will stop them from listening, -->
     <!-- but does not free as many resources as removing them would -->
@@ -1386,4 +1392,5 @@ Regards, Postmaster XXX.YYY
          <min-spare-threads>20</min-spare-threads>
       </thread-group>
    </thread-manager>
+
 </config>
