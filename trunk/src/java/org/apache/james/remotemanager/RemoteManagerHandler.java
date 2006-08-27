@@ -576,8 +576,8 @@ public class RemoteManagerHandler
         out.println("listspool [spoolrepositoryname]                list all mails which reside in the spool and have an error state");
         out.println("flushspool [spoolrepositoryname] ([key])       try to resend the mail assing to the given key. If no key is given all mails get resend");
         out.println("deletespool [spoolrepositoryname] ([key])      delete the mail assign to the given key. If no key is given all mails get deleted");
-        out.println("addham [directory]                             feed the BayesianAnalysisFeeder with the content of the directory as HAM. One mail per file");
-        out.println("addspam [directory]                            feed the BayesianAnalysisFeeder with the content of the directory as SPAM. One mail per file");
+        out.println("addham dir/mbox [directory/mbox]               feed the BayesianAnalysisFeeder with the content of the directory or mbox file as HAM");
+        out.println("addspam dir/mbox [directory/mbox]              feed the BayesianAnalysisFeeder with the content of the directory or mbox file as SPAM");
         out.println("shutdown                                       kills the current JVM (convenient when James is run as a daemon)");
         out.println("quit                                           close connection");
         out.flush();
@@ -1055,20 +1055,32 @@ public class RemoteManagerHandler
      */
     private boolean doADDHAM(String argument) {
         String exception = null;
-    
+        String [] args = null;
+        int count = 0;
+        
+        if (argument != null) {
+            args = argument.split(" "); 
+        }
+        
         // check if the command was called correct
-        if (argument == null || argument.trim().equals("")) {
-            writeLoggedFlushedResponse("Usage: ADDHAM [hamdir]");
+        if (argument == null || argument.trim().equals("") || (args != null && args.length != 2)) {
+            writeLoggedFlushedResponse("Usage: ADDHAM DIR/MBOX [dir/mbox]");
             return true;
         }
 
         try {
             
             // stop watchdog cause feeding can take some time
-            theWatchdog.stop();          
+            theWatchdog.stop();  
             
-            int count = theConfigData.getBayesianAnalyzerManagement().addHam(argument);
-     
+            if (args[0].equalsIgnoreCase("DIR")) {
+                count = theConfigData.getBayesianAnalyzerManagement().addHamFromDir(args[1]);
+            } else if (args[0].equalsIgnoreCase("MBOX")) {
+                count = theConfigData.getBayesianAnalyzerManagement().addHamFromMbox(args[1]);
+            } else {
+                writeLoggedFlushedResponse("Usage: ADDHAM DIR/MBOX [dir/mbox]");
+                return true;
+            }
             out.println("Feed the BayesianAnalysis with " + count + " HAM");
             out.flush();
         
@@ -1105,10 +1117,15 @@ public class RemoteManagerHandler
      */
     private boolean doADDSPAM(String argument) {
         String exception = null;
-
+        String [] args = null;
+        int count = 0;
+        
+        if (argument != null) {
+            args = argument.split(" "); 
+        }
         // check if the command was called correct
-        if (argument == null || argument.trim().equals("")) {
-            writeLoggedFlushedResponse("Usage: ADDSPAM [spamdir]");
+        if (argument == null || argument.trim().equals("") || (args != null && args.length != 2)) {
+            writeLoggedFlushedResponse("Usage: ADDSPAM DIR/MBOX [dir/mbox]");
             return true;
         }
 
@@ -1117,8 +1134,14 @@ public class RemoteManagerHandler
             // stop watchdog cause feeding can take some time
             theWatchdog.stop();
             
-            int count = theConfigData.getBayesianAnalyzerManagement().addSpam(argument);
-            
+            if (args[0].equalsIgnoreCase("DIR")) {
+                count = theConfigData.getBayesianAnalyzerManagement().addSpamFromDir(args[1]);
+            } else if (args[0].equalsIgnoreCase("MBOX")) {
+                count = theConfigData.getBayesianAnalyzerManagement().addSpamFromMbox(args[1]);
+            } else {
+                writeLoggedFlushedResponse("Usage: ADDHAM DIR/MBOX [dir/mbox]");
+                return true;
+            }
             out.println("Feed the BayesianAnalysis with " + count + " SPAM");
             out.flush();
             

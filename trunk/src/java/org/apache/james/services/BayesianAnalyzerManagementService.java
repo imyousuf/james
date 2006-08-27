@@ -32,7 +32,7 @@ public interface BayesianAnalyzerManagementService {
     public static final String ROLE = "org.apache.james.services.BayesianAnalyzerManagementService";
     
     /**
-     * Feed the BayesianAnalyter with spam
+     * Feed the BayesianAnalyter with spam. The given directory  contain the mail files
      * 
      * @param dir The directory in which the spam is located
      * @return count The count of added spam
@@ -42,10 +42,10 @@ public interface BayesianAnalyzerManagementService {
      * @throws SQLException
      * @throws BayesianAnalyzerManagementException If the service is not configured
      */
-    public int addSpam(String dir) throws FileNotFoundException, IllegalArgumentException, IOException, SQLException, BayesianAnalyzerManagementException;
+    public int addSpamFromDir(String dir) throws FileNotFoundException, IllegalArgumentException, IOException, SQLException, BayesianAnalyzerManagementException;
     
     /**
-     * Feed the BayesianAnalyzer with ham
+     * Feed the BayesianAnalyzer with ham. The given directory  contain the mail files
      * 
      * @param dir The directory in which the ham is located
      * @return count The count of added ham
@@ -55,5 +55,31 @@ public interface BayesianAnalyzerManagementService {
      * @throws SQLException
      * @throws BayesianAnalyzerManagementException If the service is not configured
      */
-    public int addHam(String dir) throws FileNotFoundException, IllegalArgumentException, IOException, SQLException, BayesianAnalyzerManagementException;
+    public int addHamFromDir(String dir) throws FileNotFoundException, IllegalArgumentException, IOException, SQLException, BayesianAnalyzerManagementException;
+    
+    /**
+     * Feed the BayesianAnalyzer with ham. The given file must be a valid mbox file
+     * 
+     * @param file The mbox file
+     * @return count The count of added ham
+     * @throws FileNotFoundException If the directory not exists
+     * @throws IllegalArgumentException If the provided file is not a valid mbox file
+     * @throws IOException 
+     * @throws SQLException
+     * @throws BayesianAnalyzerManagementException If the service is not configured
+     */
+    public int addSpamFromMbox(String file) throws FileNotFoundException, IllegalArgumentException, IOException, SQLException, BayesianAnalyzerManagementException;
+    
+    /**
+     * Feed the BayesianAnalyzer with ham. The given file must be a valid mbox file
+     * 
+     * @param file The mbox file
+     * @return count The count of added ham
+     * @throws FileNotFoundException If the directory not exists
+     * @throws IllegalArgumentException If the provided file is not a valid mbox file
+     * @throws IOException 
+     * @throws SQLException
+     * @throws BayesianAnalyzerManagementException If the service is not configured
+     */
+    public int addHamFromMbox(String file) throws FileNotFoundException, IllegalArgumentException, IOException, SQLException, BayesianAnalyzerManagementException;
 }

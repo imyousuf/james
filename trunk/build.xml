@@ -85,6 +85,10 @@
             <include name="${bcmail.jar}"/>
             <include name="${bcmail-workaround.jar}"/>
             <include name="${jspf.jar}"/>
+            <include name="${mstor.jar}"/>
+            <include name="${commons-logging.jar}"/>
+            <include name="${jdom.jar}"/>
+            <include name="${xstream.jar}"/>
         </fileset>
         <pathelement path="${java.class.path}" />
         <pathelement path="${build.classes}" />
@@ -510,6 +514,10 @@
                 <include name="${cornerstone-datasources-impl.jar}"/>
                 <include name="${concurrent.jar}"/>
                 <include name="${jspf.jar}"/>
+                <include name="${mstor.jar}"/>
+                <include name="${commons-logging.jar}"/>
+                <include name="${jdom.jar}"/>
+                <include name="${xstream.jar}"/>
             </lib>
             <zipfileset dir="${conf.dir}" fullpath="conf/sqlResources.xml">
                 <include name="sqlResources.xml"/>
