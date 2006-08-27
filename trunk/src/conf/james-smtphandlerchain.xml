@@ -94,6 +94,20 @@
          <checkAuthClients> false </checkAuthClients>
      </handler>
      -->
+     
+     <!-- If activated all email will get rejected which has no valid user -->
+     <!-- You need to add the recipient to the validRecipient list if you want -->
+     <!-- to accept email for a recipient which not exist on the server -->
+     <!-- If you enable the useVirtualUserTable its possible to use this handler with the JDBCVirtualUserTable mailet -->
+     <!-- 
+     <handler class="org.apache.james.smtpserver.core.filter.fastfail.ValidRcptHandler" command="MAIL">
+         <validRecipients> </validRecipients>
+         <validDomains> </validDomains>
+         <validRegexPattern> </validRegexPattern>
+         <repositoryPath> db://maildb </repositoryPath>
+         <useVirtualUserTable> false </useVirtualUserTable>       
+     </handler>
+     -->
             
      <!-- If activated you can limit the maximal recipients -->
      <!-- 
