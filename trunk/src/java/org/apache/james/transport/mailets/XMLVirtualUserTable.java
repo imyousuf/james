@@ -25,10 +25,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.StringTokenizer;
 
 import javax.mail.MessagingException;
 
+import org.apache.james.util.VirtualUserTableUtil;
 import org.apache.mailet.MailAddress;
 
 /**
@@ -71,14 +71,7 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable
       String mapping = getInitParameter("mapping");
       
       if(mapping != null) {
-          StringTokenizer tokenizer = new StringTokenizer(mapping, ",");
-          while(tokenizer.hasMoreTokens()) {
-            String mappingItem = tokenizer.nextToken();
-            int index = mappingItem.indexOf('=');
-            String virtual = mappingItem.substring(0, index).trim().toLowerCase();
-            String real = mappingItem.substring(index + 1).trim().toLowerCase();
-            mappings.put(virtual, real);
-          }
+          mappings = VirtualUserTableUtil.getXMLMappings(mapping);
       }
   }
 
@@ -95,7 +88,7 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable
           String user = source.getUser().toLowerCase();
           String domain = source.getHost().toLowerCase();
     
-          String targetString = getTargetString(user, domain);
+          String targetString = VirtualUserTableUtil.getTargetString(user, domain, mappings);
           
           if (targetString != null) {
               recipientsMap.put(source, targetString);
@@ -103,41 +96,6 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable
       }
   }
 
-  /**
-   * Returns the real recipient given a virtual username and domain.
-   * 
-   * @param user the virtual user
-   * @param domain the virtual domain
-   * @return the real recipient address, or <code>null</code> if no mapping exists
-   */
-  private String getTargetString(String user, String domain) {
-      StringBuffer buf;
-      String target;
-      
-      //Look for exact (user@domain) match
-      buf = new StringBuffer().append(user).append("@").append(domain);
-      target = (String)mappings.get(buf.toString());
-      if (target != null) {
-          return target;
-      }
-      
-      //Look for user@* match
-      buf = new StringBuffer().append(user).append("@*");
-      target = (String)mappings.get(buf.toString());
-      if (target != null) {
-          return target;
-      }
-      
-      //Look for *@domain match
-      buf = new StringBuffer().append("*@").append(domain);
-      target = (String)mappings.get(buf.toString());
-      if (target != null) {
-          return target;
-      }
-      
-      return null;
-  }
-  
   public String getMailetInfo() {
       return "XML Virtual User Table mailet";
   }

@@ -22,14 +22,11 @@
 package org.apache.james.transport.mailets;
 
 import org.apache.james.core.MailImpl;
-import org.apache.james.util.XMLResources;
+import org.apache.james.util.VirtualUserTableUtil;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
-import org.apache.oro.text.regex.MatchResult;
-import org.apache.oro.text.regex.Pattern;
-import org.apache.oro.text.regex.Perl5Compiler;
-import org.apache.oro.text.regex.Perl5Matcher;
+import org.apache.oro.text.regex.MalformedPatternException;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.ParseException;
@@ -100,7 +97,11 @@ public abstract class AbstractVirtualUserTable extends GenericMailet
                         // log("Attempting to map from " + source + " to " + targetAddress);
 
                         if (targetAddress.startsWith("regex:")) {
-                            targetAddress = regexMap(mail, source, targetAddress);
+                            try {
+                                targetAddress = VirtualUserTableUtil.regexMap(source, targetAddress);
+                            } catch (MalformedPatternException e) {
+                                log("Exception during regexMap processing: ", e);
+                            }
                             if (targetAddress == null) continue;
                         }
 
@@ -223,49 +224,6 @@ public abstract class AbstractVirtualUserTable extends GenericMailet
       catch (MessagingException me) {
           log("Cannot send DSN.  Exception during DSN processing: ", me);
       }
-  }
-
-  /**
-   * Processes regex virtual user mapping
-   *
-   * If a mapped target string begins with the prefix regex:, it must be
-   * formatted as regex:<regular-expression>:<parameterized-string>,
-   * e.g., regex:(.*)@(.*):${1}@tld
-   *
-   * @param mail the Mail instance being processed
-   * @param address the MailAddress to be mapped
-   * @param targetString a String specifying the mapping
-   */
-  private String regexMap(Mail mail, MailAddress address, String targetString) {
-      String result = null;
-
-      try {
-          int msgPos = targetString.indexOf(':', "regex:".length() + 1);
-
-          // log("regex: targetString = " + targetString);
-          // log("regex: msgPos = " + msgPos);
-          // log("regex: compile " + targetString.substring("regex:".length(), msgPos));
-          // log("regex: address = " + address.toString());
-          // log("regex: replace = " + targetString.substring(msgPos + 1));
-
-          Pattern pattern = new Perl5Compiler().compile(targetString.substring("regex:".length(), msgPos));
-          Perl5Matcher matcher = new Perl5Matcher();
-
-          if (matcher.matches(address.toString(), pattern)) {
-              MatchResult match = matcher.getMatch();
-              Map parameters = new HashMap(match.groups());
-              for (int i = 1; i < match.groups(); i++) {
-                  parameters.put(Integer.toString(i), match.group(i));
-              }
-              result = XMLResources.replaceParameters(targetString.substring(msgPos + 1), parameters);
-          }
-      }
-      catch (Exception e) {
-          log("Exception during regexMap processing: ", e);
-      }
-
-      // log("regex: result = " + result);
-      return result;
   }
 
   /**

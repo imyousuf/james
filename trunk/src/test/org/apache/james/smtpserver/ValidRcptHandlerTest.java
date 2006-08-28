@@ -30,6 +30,7 @@ import javax.mail.internet.ParseException;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.UsersRepository;
+import org.apache.james.smtpserver.core.filter.fastfail.AbstractVirtualUserTableHandler;
 import org.apache.james.smtpserver.core.filter.fastfail.ValidRcptHandler;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.userrepository.MockUsersRepository;
@@ -247,6 +248,20 @@ public class ValidRcptHandlerTest extends TestCase {
         }
 
         assertTrue("Invalid Config",exception);
+    }
+    
+    public void testNotRejectValidUserState() throws ParseException {
+        String domain = "domain";
+        String recipient = "recip@" + domain;
+        ValidRcptHandler handler = new ValidRcptHandler();
+        SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(),new MailAddress(recipient),false,false,null);
+        ContainerUtil.enableLogging(handler,new MockLogger());
+    
+        session.getState().put(AbstractVirtualUserTableHandler.VALID_USER, recipient);
+        handler.onCommand(session);
+    
+        assertFalse("Not rejected",session.getStopHandlerProcessing());
+        assertNull("Not rejected",response);
     }
     
 }
