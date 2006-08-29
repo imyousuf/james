@@ -56,7 +56,9 @@ public abstract class AbstractVirtualUserTableHandler extends AbstractLogEnabled
         // Only non-null mappings are translated
         if (targetString != null) {
             if (targetString.startsWith("error:")) {
-                // No valid mapping
+            // write back the error
+            session.writeResponse(targetString.substring("error:".length()));
+                session.setStopHandlerProcessing(true);
                 return;
             } else {
                 StringTokenizer tokenizer = new StringTokenizer(targetString,
@@ -68,10 +70,10 @@ public abstract class AbstractVirtualUserTableHandler extends AbstractLogEnabled
 
                     if (targetAddress.startsWith("regex:")) {   
                         try {
-                targetAddress = VirtualUserTableUtil.regexMap(rcpt, targetAddress);
-            } catch (MalformedPatternException e) {
+                            targetAddress = VirtualUserTableUtil.regexMap(rcpt, targetAddress);
+                        } catch (MalformedPatternException e) {
                             getLogger().error("Exception during regexMap processing: ", e);
-            }
+                        }
 
 
                         if (targetAddress == null)
@@ -118,7 +120,7 @@ public abstract class AbstractVirtualUserTableHandler extends AbstractLogEnabled
      * @param recipientsMap the mapping of virtual to real recipients, as 
      *    <code>MailAddress</code>es to <code>String</code>s.
      */
-    protected abstract String mapRecipients(MailAddress recipient);;
+    protected abstract String mapRecipients(MailAddress recipient);
     
     public Collection getImplCommands() {
         Collection c = new ArrayList();

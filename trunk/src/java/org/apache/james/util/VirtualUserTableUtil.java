@@ -39,7 +39,8 @@ public class VirtualUserTableUtil {
 
     private VirtualUserTableUtil() {}
     
-    
+
+    public static String QUERY = "select VirtualUserTable.target_address from VirtualUserTable, VirtualUserTable as VUTDomains where (VirtualUserTable.user like ? or VirtualUserTable.user like '\\%') and (VirtualUserTable.domain like ? or (VirtualUserTable.domain like '\\%' and VUTDomains.domain like ?)) order by concat(VirtualUserTable.user,'@',VirtualUserTable.domain) desc limit 1";
     /**
      * Processes regex virtual user mapping
      *
