@@ -26,6 +26,7 @@ import org.apache.avalon.excalibur.datasource.DataSourceComponent;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
 import org.apache.james.util.JDBCUtil;
+import org.apache.james.util.VirtualUserTableUtil;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetException;
 
@@ -149,7 +150,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable
             }
 
             //Build the query
-            query = getInitParameter("sqlquery","select VirtualUserTable.target_address from VirtualUserTable, VirtualUserTable as VUTDomains where (VirtualUserTable.user like ? or VirtualUserTable.user like '\\%') and (VirtualUserTable.domain like ? or (VirtualUserTable.domain like '\\%' and VUTDomains.domain like ?)) order by concat(VirtualUserTable.user,'@',VirtualUserTable.domain) desc limit 1");
+            query = getInitParameter("sqlquery",VirtualUserTableUtil.QUERY);
         } catch (MailetException me) {
             throw me;
         } catch (Exception e) {

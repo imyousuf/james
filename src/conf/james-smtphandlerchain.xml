@@ -112,12 +112,19 @@
          </mapping>
      </handler>
      -->
+     
+     <!-- IF you want to use the ValidRcptHandler you can set virtual user which will accepted here.-->
+     <!--
+     <handler class="org.apache.james.smtpserver.core.filter.fastfail.JDBCVirtualUserTableHandler" command="RCPT">
+         <table> db://maildb/VirtualUserTable </table>
+     </handler>
+     -->
          
      <!-- If activated all email will get rejected which has no valid user -->
      <!-- You need to add the recipient to the validRecipient list if you want -->
      <!-- to accept email for a recipient which not exist on the server -->
      <!-- 
-     <handler class="org.apache.james.smtpserver.core.filter.fastfail.ValidRcptHandler" command="MAIL">
+     <handler class="org.apache.james.smtpserver.core.filter.fastfail.ValidRcptHandler" command="RCPT">
          <validRecipients> </validRecipients>
          <validDomains> </validDomains>
          <validRegexPattern> </validRegexPattern>
