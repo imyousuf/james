@@ -40,7 +40,7 @@ import java.sql.DatabaseMetaData;
  * take advantage of different logging capabilities/interfaces in
  * different parts of the code.</p>
 
- * @version CVS $Revision: $ $Date: $
+ * @version CVS $Revision$ $Date$
  * @since 2.3.0
  */
 
