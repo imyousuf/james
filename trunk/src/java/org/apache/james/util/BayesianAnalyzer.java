@@ -77,7 +77,7 @@ import java.io.StringReader;
  *
  * before calling computeSpamProbability.</P>
  *
- * @version CVS $Revision: $ $Date: $
+ * @version CVS $Revision$ $Date$
  * @since 2.3.0
  */
 
