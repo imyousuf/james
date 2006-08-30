@@ -649,6 +649,7 @@ public class BayesianAnalyzer {
         ArrayList tokens = new ArrayList();
         String header;
         String token;
+        String tokenLower;
         
         // look for a header string termination
         int headerEnd = fullToken.indexOf(':');
@@ -660,18 +661,21 @@ public class BayesianAnalyzer {
             token = fullToken;
         }
         
+        // prepare a version of the token containing all lower case (for performance reasons)
+        tokenLower = token.toLowerCase();
+        
         int end = token.length();
         do {
-            if (!token.substring(0, end).equals(token.substring(0, end).toLowerCase())) {
-                tokens.add(header + token.substring(0, end).toLowerCase());
+            if (!token.substring(0, end).equals(tokenLower.substring(0, end))) {
+                tokens.add(header + tokenLower.substring(0, end));
                 if (header.length() > 0) {
-                    tokens.add(token.substring(0, end).toLowerCase());
+                    tokens.add(tokenLower.substring(0, end));
                 }
             }
             if (end > 1 && token.charAt(0) >= 'A' && token.charAt(0) <= 'Z') {
-                tokens.add(header + token.charAt(0) + token.substring(1, end).toLowerCase());
+                tokens.add(header + token.charAt(0) + tokenLower.substring(1, end));
                 if (header.length() > 0) {
-                    tokens.add(token.charAt(0) + token.substring(1, end).toLowerCase());
+                    tokens.add(token.charAt(0) + tokenLower.substring(1, end));
                 }
             }
             
@@ -718,7 +722,7 @@ public class BayesianAnalyzer {
             }
             p *= theDoubleValue;
             np *= (1.0 - theDoubleValue);
-            // System.out.println("Token:" + tps.token + ", p=" + theDoubleValue + ", overall p=" + p / (p + np));
+            //System.out.println("Token " + tps + ", p=" + theDoubleValue + ", overall p=" + p / (p + np));
         }
         
         return (p / (p + np));
