@@ -58,6 +58,11 @@ public class RemoteManagerHandler
     extends AbstractJamesHandler {
 
     /**
+     * The text string for the MEMSTAT command
+     */
+    private static final String COMMAND_MEMSTAT = "MEMSTAT";
+
+    /**
      * The text string for the ADDUSER command
      */
     private static final String COMMAND_ADDUSER = "ADDUSER";
@@ -349,6 +354,29 @@ public class RemoteManagerHandler
         return true;
     }
 
+    /**
+     * Handler method called upon receipt of an MEMSTAT command.
+     * Returns whether further commands should be read off the wire.
+     *
+     * @param argument the argument passed in with the command
+     */
+    private boolean doMEMSTAT(String argument) {
+        writeLoggedFlushedResponse("Current memory statistics:");
+        writeLoggedFlushedResponse("\tFree Memory: " + Runtime.getRuntime().freeMemory());
+        writeLoggedFlushedResponse("\tTotal Memory: " + Runtime.getRuntime().totalMemory());
+        writeLoggedFlushedResponse("\tMax Memory: " + Runtime.getRuntime().maxMemory());
+
+        if ("-gc".equalsIgnoreCase(argument)) {
+            System.gc();
+            writeLoggedFlushedResponse("And after System.gc():");
+            writeLoggedFlushedResponse("\tFree Memory: " + Runtime.getRuntime().freeMemory());
+            writeLoggedFlushedResponse("\tTotal Memory: " + Runtime.getRuntime().totalMemory());
+            writeLoggedFlushedResponse("\tMax Memory: " + Runtime.getRuntime().maxMemory());
+        }
+
+        return true;
+    }
+    
     /**
      * Handler method called upon receipt of an ADDUSER command.
      * Returns whether further commands should be read off the wire.
