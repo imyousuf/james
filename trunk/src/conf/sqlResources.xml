@@ -689,6 +689,13 @@
             PRIMARY KEY (token)
         )
     </sql>
+    <sql name="createHamTable" db="derby">
+        CREATE TABLE bayesiananalysis_ham (
+            token varchar(128) NOT NULL,
+            occurrences INTEGER NOT NULL default 0,
+            PRIMARY KEY (token)
+        )
+    </sql>
 
     <!-- Statements used to create the "spam" table (the 'token' field must be case sensitive). -->
     <sql name="createSpamTable" db="mysql">
@@ -702,6 +709,13 @@
         CREATE TABLE [bayesiananalysis_spam] (
         [token] [varchar] (128) COLLATE Latin1_General_CS_AS NOT NULL,
         [occurrences] [int] NOT NULL default (0),
+            PRIMARY KEY (token)
+        )
+    </sql>
+    <sql name="createSpamTable" db="derby">
+        CREATE TABLE bayesiananalysis_spam (
+            token varchar (128) NOT NULL,
+            occurrences INTEGER  NOT NULL default 0,
             PRIMARY KEY (token)
         )
     </sql>
@@ -719,7 +733,12 @@
         [spamcount] [int] NOT NULL default (0)
         )
     </sql>
-
+    <sql name="createMessageCountsTable" db="derby">
+        CREATE TABLE bayesiananalysis_messagecounts (
+            hamcount INTEGER NOT NULL default 0,
+            spamcount INTEGER  NOT NULL default 0
+        )
+    </sql>
 </sqlDefs>
 
 <!-- SQL statements to support the WhiteListManager mailet and the IsInWhiteList matcher -->
