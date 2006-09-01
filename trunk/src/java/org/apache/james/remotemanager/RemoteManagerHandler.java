@@ -352,6 +352,8 @@ public class RemoteManagerHandler
             return doEXPORTBAYESIANDATA(argument);
         } else if (command.equals(COMMAND_IMPORTBAYESIANDATA)) {
             return doIMPORTBAYESIANDATA(argument);
+        } else if (command.equals(COMMAND_MEMSTAT)) {
+            return doMEMSTAT(argument);
         } else if (command.equals(COMMAND_QUIT)) {
             return doQUIT(argument);
         } else if (command.equals(COMMAND_SHUTDOWN)) {
@@ -616,6 +618,7 @@ public class RemoteManagerHandler
         out.println("addspam dir/mbox [directory/mbox]              feed the BayesianAnalysisFeeder with the content of the directory or mbox file as SPAM");
         out.println("exportbayesiandata [file]                      export the BayesianAnalysis data to a xml file");
         out.println("importbayesiandata [file]                      import the BayesianAnalysis data from a xml file");
+        out.println("memstat ([-gc])                                shows memory usage. When called with -gc the garbage collector get called");
         out.println("shutdown                                       kills the current JVM (convenient when James is run as a daemon)");
         out.println("quit                                           close connection");
         out.flush();
