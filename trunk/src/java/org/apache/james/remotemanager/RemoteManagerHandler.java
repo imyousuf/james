@@ -157,6 +157,10 @@ public class RemoteManagerHandler
      */
     private static final String COMMAND_ADDSPAM = "ADDSPAM";
     
+    private static final String COMMAND_EXPORTBAYESIANDATA = "EXPORTBAYESIANDATA";
+   
+    private static final String COMMAND_IMPORTBAYESIANDATA = "IMPORTBAYESIANDATA";
+    
     /**
      * The text string for the QUIT command
      */
@@ -343,7 +347,11 @@ public class RemoteManagerHandler
         } else if (command.equals(COMMAND_ADDHAM)) {
             return doADDHAM(argument);
         } else if (command.equals(COMMAND_ADDSPAM)) {
-                return doADDSPAM(argument);
+            return doADDSPAM(argument);
+        } else if (command.equals(COMMAND_EXPORTBAYESIANDATA)) {
+            return doEXPORTBAYESIANDATA(argument);
+        } else if (command.equals(COMMAND_IMPORTBAYESIANDATA)) {
+            return doIMPORTBAYESIANDATA(argument);
         } else if (command.equals(COMMAND_QUIT)) {
             return doQUIT(argument);
         } else if (command.equals(COMMAND_SHUTDOWN)) {
@@ -606,6 +614,8 @@ public class RemoteManagerHandler
         out.println("deletespool [spoolrepositoryname] ([key])      delete the mail assign to the given key. If no key is given all mails get deleted");
         out.println("addham dir/mbox [directory/mbox]               feed the BayesianAnalysisFeeder with the content of the directory or mbox file as HAM");
         out.println("addspam dir/mbox [directory/mbox]              feed the BayesianAnalysisFeeder with the content of the directory or mbox file as SPAM");
+        out.println("exportbayesiandata [file]                      export the BayesianAnalysis data to a xml file");
+        out.println("importbayesiandata [file]                      import the BayesianAnalysis data from a xml file");
         out.println("shutdown                                       kills the current JVM (convenient when James is run as a daemon)");
         out.println("quit                                           close connection");
         out.flush();
@@ -1192,6 +1202,92 @@ public class RemoteManagerHandler
         if (exception != null) {
             getLogger().error("Error on feeding BayesianAnalysis: " + exception);
             out.println("Error on feeding BayesianAnalysis: " + exception);
+            out.flush();
+        }
+        return true;
+    }
+    
+   
+    
+    private boolean doEXPORTBAYESIANDATA(String argument) {
+        String exception = null;
+
+        // check if the command was called correct
+        if (argument == null || argument.trim().equals("")) {
+            writeLoggedFlushedResponse("Usage: EXPORTBAYESIANALYZERDATA [dir]");
+            return true;
+        }
+
+        try {
+            
+            // stop watchdog cause feeding can take some time
+            theWatchdog.stop();
+            
+            theConfigData.getBayesianAnalyzerManagement().exportData(argument);
+            out.println("Exported the BayesianAnalysis data");
+            out.flush();
+
+        } catch (SQLException e) {
+            exception = e.getMessage();
+        } catch (FileNotFoundException e) {
+            exception = e.getMessage();
+        } catch (IllegalArgumentException e) {
+            exception = e.getMessage();
+        } catch (IOException e) {
+            exception = e.getMessage();
+        } catch (BayesianAnalyzerManagementException e) {
+            writeLoggedFlushedResponse("Command disabled. Configure BayesianAnalyzerMangement to enable it");    
+            return true;
+        } finally {          
+            theWatchdog.start();
+        }
+    
+        // check if any exception was thrown
+        if (exception != null) {
+            getLogger().error("Error on exporting BayesianAnalysis data: " + exception);
+            out.println("Error on exporting BayesianAnalysis data: " + exception);
+            out.flush();
+        }
+        return true;
+    }
+    
+    private boolean doIMPORTBAYESIANDATA(String argument) {
+        String exception = null;
+
+        // check if the command was called correct
+        if (argument == null || argument.trim().equals("")) {
+            writeLoggedFlushedResponse("Usage: IMPORTBAYESIANALYZERDATA [dir]");
+            return true;
+        }
+
+        try {
+            
+            // stop watchdog cause feeding can take some time
+            theWatchdog.stop();
+            
+            theConfigData.getBayesianAnalyzerManagement().importData(argument);
+            out.println("Imported the BayesianAnalysis data");
+            out.flush();
+
+        } catch (SQLException e) {
+            exception = e.getMessage();
+        } catch (FileNotFoundException e) {
+            exception = e.getMessage();
+        } catch (IllegalArgumentException e) {
+            exception = e.getMessage();
+        } catch (IOException e) {
+            exception = e.getMessage();
+        } catch (BayesianAnalyzerManagementException e) {
+            writeLoggedFlushedResponse("Command disabled. Configure BayesianAnalyzerMangement to enable it");    
+            return true;
+        } finally {          
+            theWatchdog.start();
+        }
+    
+        // check if any exception was thrown
+        if (exception != null) {
+            getLogger().error("Error on importing BayesianAnalysis data: " + exception);
+            out.println("Error on imporitng BayesianAnalysis data: " + exception);
             out.flush();
         }
         return true;

@@ -25,10 +25,14 @@ package org.apache.james.management;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 import net.fortuna.mstor.data.MboxFile;
 
@@ -48,6 +52,9 @@ import org.apache.james.context.AvalonContextUtilities;
 import org.apache.james.services.BayesianAnalyzerManagementService;
 import org.apache.james.util.JDBCBayesianAnalyzer;
 
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.DomDriver;
+
 /**
  * Management for BayesianAnalyzer
  */
@@ -61,7 +68,6 @@ public class BayesianAnalyzerManagement implements BayesianAnalyzerManagementSer
     private Context context;
     private String sqlFileUrl = "file://conf/sqlResources.xml";
     
-
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
@@ -147,16 +153,16 @@ public class BayesianAnalyzerManagement implements BayesianAnalyzerManagementSer
      * @see org.apache.james.services.BayesianAnalyzerManagementService#addHamFromMbox(String)
      */
     public int addHamFromMbox(String file) throws FileNotFoundException, IllegalArgumentException, IOException, SQLException, BayesianAnalyzerManagementException {
-    if (repos == null) throw new BayesianAnalyzerManagementException("RepositoryPath not configured");
-    return feedBayesianAnalyzerFromMbox(file,HAM);
+        if (repos == null) throw new BayesianAnalyzerManagementException("RepositoryPath not configured");
+        return feedBayesianAnalyzerFromMbox(file,HAM);
     }
 
     /**
      * @see org.apache.james.services.BayesianAnalyzerManagementService#addSpamFromMbox(String)
      */
     public int addSpamFromMbox(String file) throws FileNotFoundException, IllegalArgumentException, IOException, SQLException, BayesianAnalyzerManagementException {
-    if (repos == null) throw new BayesianAnalyzerManagementException("RepositoryPath not configured");
-    return feedBayesianAnalyzerFromMbox(file,SPAM);
+        if (repos == null) throw new BayesianAnalyzerManagementException("RepositoryPath not configured");
+        return feedBayesianAnalyzerFromMbox(file,SPAM);
     }
 
     /**
@@ -258,9 +264,93 @@ public class BayesianAnalyzerManagement implements BayesianAnalyzerManagementSer
         return count;
     }
     
+    /**
+     * @see org.apache.james.services.BayesianAnalyzerManagementService#exportData(String)
+     */
+    public void exportData(String file) throws IOException, BayesianAnalyzerManagementException, SQLException {
+        if (repos == null) throw new BayesianAnalyzerManagementException("RepositoryPath not configured");
+    
+        synchronized(JDBCBayesianAnalyzer.DATABASE_LOCK) {    
+            analyzer.loadHamNSpam(component.getConnection());
+        
+            int hamMessageCount = analyzer.getHamMessageCount();
+            int spamMessageCount = analyzer.getSpamMessageCount();
+            Map hamTokenCounts = analyzer.getHamTokenCounts();
+            Map spamTokenCounts = analyzer.getSpamTokenCounts();
+            
+            XStream xstream = new XStream(new DomDriver());
+            xstream.alias("bayesianAnalyzer", BayesianAnalyzerXml.class);
+            PrintWriter printwriter = new PrintWriter(new FileOutputStream(file));
+            printwriter.println(xstream.toXML(new BayesianAnalyzerXml(hamMessageCount,spamMessageCount,hamTokenCounts,spamTokenCounts)));
+            printwriter.close();
+        }
+    }
+    
+    /**
+     * @see org.apache.james.services.BayesianAnalyzerManagementService#importData(String)
+     */
+    public void importData(String file) throws IOException, BayesianAnalyzerManagementException, SQLException, FileNotFoundException {
+    if (repos == null) throw new BayesianAnalyzerManagementException("RepositoryPath not configured");
+
+        synchronized(JDBCBayesianAnalyzer.DATABASE_LOCK){
+            XStream xstream = new XStream(new DomDriver());
+            
+            BayesianAnalyzerXml bAnalyzerXml = (BayesianAnalyzerXml) xstream.fromXML(new FileReader(file));
+        
+            // clear old data
+            analyzer.clear();
+            analyzer.tokenCountsClear();
+            
+            //TODO: Drop old corpus in database;
+            
+            // add the new data
+            analyzer.setHamMessageCount(bAnalyzerXml.getHamMessageCount());
+            analyzer.setSpamMessageCount(bAnalyzerXml.getSpamMessageCount());
+            analyzer.setHamTokenCounts(bAnalyzerXml.getHamTokenCounts());
+            analyzer.setSpamTokenCounts(bAnalyzerXml.getSpamTokenCounts());
+            analyzer.updateHamTokens(component.getConnection());
+            analyzer.updateSpamTokens(component.getConnection());
+        }
+        
+    }
+    
     private JDBCBayesianAnalyzer analyzer = new JDBCBayesianAnalyzer() {
         protected void delegatedLog(String logString) {
             // no logging
         }
     };    
+    
+    /**
+     * Inner class to represent the data in an xml file
+     */
+    private static class BayesianAnalyzerXml {
+        private int hamMessageCount = 0;
+        private int spamMessageCount = 0;
+        private Map hamTokenCounts = new HashMap();
+        private Map spamTokenCounts = new HashMap();
+    
+        public BayesianAnalyzerXml(int hamMessageCount, int spamMessageCount, Map hamTokenCounts, Map spamTokenCounts) {
+            this.hamMessageCount = hamMessageCount;
+            this.spamMessageCount = spamMessageCount;
+            this.hamTokenCounts = hamTokenCounts;
+            this.spamTokenCounts = spamTokenCounts;
+        }
+    
+        public int getHamMessageCount() {
+            return hamMessageCount;
+        }
+    
+        public int getSpamMessageCount() {
+            return spamMessageCount;
+        }
+    
+        public Map getHamTokenCounts() {
+            return hamTokenCounts;
+        }
+    
+        public Map getSpamTokenCounts() {
+            return spamTokenCounts;
+        }
+    
+    }
 }

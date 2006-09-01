@@ -82,4 +82,25 @@ public interface BayesianAnalyzerManagementService {
      * @throws BayesianAnalyzerManagementException If the service is not configured
      */
     public int addHamFromMbox(String file) throws FileNotFoundException, IllegalArgumentException, IOException, SQLException, BayesianAnalyzerManagementException;
+
+    /**
+     * Export the data to a xml file
+     * 
+     * @param file The filename to store the data
+     * @throws IOException 
+     * @throws BayesianAnalyzerManagementException If the service is not configured
+     * @throws SQLException
+     */
+    public void exportData(String file) throws IOException, BayesianAnalyzerManagementException, SQLException;
+    
+    /**
+     * Import the data from a xml file
+     * 
+     * @param file The filename to export data from
+     * 
+     * @throws IOException
+     * @throws BayesianAnalyzerManagementException IF the service is not configured
+     * @throws SQLException
+     */
+    public void importData(String file) throws IOException, BayesianAnalyzerManagementException, SQLException;
 }
