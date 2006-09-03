@@ -58,6 +58,14 @@ public class TopCmdHandler implements CommandHandler {
      * @param argument the first argument parsed by the parseCommand method
      */
     private void doTOP(POP3Session session,String arguments) {
+        String responseString = null;
+        
+        if (arguments == null) {
+            responseString = POP3Handler.ERR_RESPONSE + " Usage: TOP [mail number] [Line number]";
+            session.writeResponse(responseString);
+            return;
+        }
+        
         String argument = "";
         String argument1 = "";
         int pos = arguments.indexOf(" ");
@@ -65,7 +73,7 @@ public class TopCmdHandler implements CommandHandler {
             argument = arguments.substring(0,pos);
             argument1 = arguments.substring(pos+1);
         }
-        String responseString = null;
+
         if (session.getHandlerState() == POP3Handler.TRANSACTION) {
             int num = 0;
             int lines = 0;
