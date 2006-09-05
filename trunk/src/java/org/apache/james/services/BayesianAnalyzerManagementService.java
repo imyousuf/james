@@ -42,7 +42,7 @@ public interface BayesianAnalyzerManagementService {
      * @throws SQLException
      * @throws BayesianAnalyzerManagementException If the service is not configured
      */
-    public int addSpamFromDir(String dir) throws FileNotFoundException, IllegalArgumentException, IOException, SQLException, BayesianAnalyzerManagementException;
+    public int addSpamFromDir(String dir) throws BayesianAnalyzerManagementException;
     
     /**
      * Feed the BayesianAnalyzer with ham. The given directory  contain the mail files
@@ -55,7 +55,7 @@ public interface BayesianAnalyzerManagementService {
      * @throws SQLException
      * @throws BayesianAnalyzerManagementException If the service is not configured
      */
-    public int addHamFromDir(String dir) throws FileNotFoundException, IllegalArgumentException, IOException, SQLException, BayesianAnalyzerManagementException;
+    public int addHamFromDir(String dir) throws  BayesianAnalyzerManagementException;
     
     /**
      * Feed the BayesianAnalyzer with ham. The given file must be a valid mbox file
@@ -68,7 +68,7 @@ public interface BayesianAnalyzerManagementService {
      * @throws SQLException
      * @throws BayesianAnalyzerManagementException If the service is not configured
      */
-    public int addSpamFromMbox(String file) throws FileNotFoundException, IllegalArgumentException, IOException, SQLException, BayesianAnalyzerManagementException;
+    public int addSpamFromMbox(String file) throws  BayesianAnalyzerManagementException;
     
     /**
      * Feed the BayesianAnalyzer with ham. The given file must be a valid mbox file
@@ -81,7 +81,7 @@ public interface BayesianAnalyzerManagementService {
      * @throws SQLException
      * @throws BayesianAnalyzerManagementException If the service is not configured
      */
-    public int addHamFromMbox(String file) throws FileNotFoundException, IllegalArgumentException, IOException, SQLException, BayesianAnalyzerManagementException;
+    public int addHamFromMbox(String file) throws BayesianAnalyzerManagementException;
 
     /**
      * Export the data to a xml file
@@ -91,7 +91,7 @@ public interface BayesianAnalyzerManagementService {
      * @throws BayesianAnalyzerManagementException If the service is not configured
      * @throws SQLException
      */
-    public void exportData(String file) throws IOException, BayesianAnalyzerManagementException, SQLException;
+    public void exportData(String file) throws BayesianAnalyzerManagementException;
     
     /**
      * Import the data from a xml file
@@ -102,5 +102,5 @@ public interface BayesianAnalyzerManagementService {
      * @throws BayesianAnalyzerManagementException IF the service is not configured
      * @throws SQLException
      */
-    public void importData(String file) throws IOException, BayesianAnalyzerManagementException, SQLException;
+    public void importData(String file) throws  BayesianAnalyzerManagementException;
 }

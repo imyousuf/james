@@ -21,10 +21,8 @@
 
 package org.apache.james.remotemanager;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.Socket;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -1095,7 +1093,6 @@ public class RemoteManagerHandler
      *            the argument passed in with the command
      */
     private boolean doADDHAM(String argument) {
-        String exception = null;
         String [] args = null;
         int count = 0;
         
@@ -1125,27 +1122,15 @@ public class RemoteManagerHandler
             out.println("Feed the BayesianAnalysis with " + count + " HAM");
             out.flush();
         
-        } catch (SQLException e) {
-            exception = e.getMessage();
-        } catch (FileNotFoundException e) {
-            exception = e.getMessage();
-        } catch (IllegalArgumentException e) {
-            exception = e.getMessage();
-        } catch (IOException e) {
-            exception = e.getMessage();
         } catch (BayesianAnalyzerManagementException e) {
-            writeLoggedFlushedResponse("Command disabled. Configure BayesianAnalyzerMangement to enable it");    
+            getLogger().error("Error on feeding BayesianAnalysis: " + e);
+            out.println("Error on feeding BayesianAnalysis: " + e);
+            out.flush();
             return true;
-        } finally {          
+        } finally {
             theWatchdog.start();
         }
     
-        // check if any exception was thrown
-        if (exception != null) {
-            getLogger().error("Error on feeding BayesianAnalysis: " + exception);
-            out.println("Error on feeding BayesianAnalysis: " + exception);
-            out.flush();
-        }
         return true;
     }
     
@@ -1157,7 +1142,6 @@ public class RemoteManagerHandler
      *            the argument passed in with the command
      */
     private boolean doADDSPAM(String argument) {
-        String exception = null;
         String [] args = null;
         int count = 0;
         
@@ -1186,35 +1170,21 @@ public class RemoteManagerHandler
             out.println("Feed the BayesianAnalysis with " + count + " SPAM");
             out.flush();
             
-        } catch (SQLException e) {
-            exception = e.getMessage();
-        } catch (FileNotFoundException e) {
-            exception = e.getMessage();
-        } catch (IllegalArgumentException e) {
-            exception = e.getMessage();
-        } catch (IOException e) {
-            exception = e.getMessage();
         } catch (BayesianAnalyzerManagementException e) {
-            writeLoggedFlushedResponse("Command disabled. Configure BayesianAnalyzerMangement to enable it");    
+            getLogger().error("Error on feeding BayesianAnalysis: " + e);
+            out.println("Error on feeding BayesianAnalysis: " + e);
+            out.flush();
             return true;
-        } finally {          
+        } finally {
             theWatchdog.start();
         }
     
-        // check if any exception was thrown
-        if (exception != null) {
-            getLogger().error("Error on feeding BayesianAnalysis: " + exception);
-            out.println("Error on feeding BayesianAnalysis: " + exception);
-            out.flush();
-        }
         return true;
     }
     
    
     
     private boolean doEXPORTBAYESIANDATA(String argument) {
-        String exception = null;
-
         // check if the command was called correct
         if (argument == null || argument.trim().equals("")) {
             writeLoggedFlushedResponse("Usage: EXPORTBAYESIANALYZERDATA [dir]");
@@ -1230,33 +1200,20 @@ public class RemoteManagerHandler
             out.println("Exported the BayesianAnalysis data");
             out.flush();
 
-        } catch (SQLException e) {
-            exception = e.getMessage();
-        } catch (FileNotFoundException e) {
-            exception = e.getMessage();
-        } catch (IllegalArgumentException e) {
-            exception = e.getMessage();
-        } catch (IOException e) {
-            exception = e.getMessage();
         } catch (BayesianAnalyzerManagementException e) {
-            writeLoggedFlushedResponse("Command disabled. Configure BayesianAnalyzerMangement to enable it");    
-            return true;
-        } finally {          
+            getLogger().error("Error on exporting BayesianAnalysis data: " + e);
+            out.println("Error on exporting BayesianAnalysis data: " + e);
+            out.flush();
+            return false;
+        } finally {
             theWatchdog.start();
         }
     
         // check if any exception was thrown
-        if (exception != null) {
-            getLogger().error("Error on exporting BayesianAnalysis data: " + exception);
-            out.println("Error on exporting BayesianAnalysis data: " + exception);
-            out.flush();
-        }
         return true;
     }
     
     private boolean doIMPORTBAYESIANDATA(String argument) {
-        String exception = null;
-
         // check if the command was called correct
         if (argument == null || argument.trim().equals("")) {
             writeLoggedFlushedResponse("Usage: IMPORTBAYESIANALYZERDATA [dir]");
@@ -1272,27 +1229,15 @@ public class RemoteManagerHandler
             out.println("Imported the BayesianAnalysis data");
             out.flush();
 
-        } catch (SQLException e) {
-            exception = e.getMessage();
-        } catch (FileNotFoundException e) {
-            exception = e.getMessage();
-        } catch (IllegalArgumentException e) {
-            exception = e.getMessage();
-        } catch (IOException e) {
-            exception = e.getMessage();
         } catch (BayesianAnalyzerManagementException e) {
-            writeLoggedFlushedResponse("Command disabled. Configure BayesianAnalyzerMangement to enable it");    
-            return true;
-        } finally {          
+            getLogger().error("Error on importing BayesianAnalysis data: " + e);
+            out.println("Error on importing BayesianAnalysis data: " + e);
+            out.flush();
+            return false;
+        } finally {
             theWatchdog.start();
         }
     
-        // check if any exception was thrown
-        if (exception != null) {
-            getLogger().error("Error on importing BayesianAnalysis data: " + exception);
-            out.println("Error on imporitng BayesianAnalysis data: " + exception);
-            out.flush();
-        }
         return true;
     }
 }

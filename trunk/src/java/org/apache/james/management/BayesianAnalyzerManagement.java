@@ -30,7 +30,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.io.InputStream;
 import java.sql.SQLException;
+import java.sql.Connection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -58,7 +60,7 @@ import com.thoughtworks.xstream.io.xml.DomDriver;
 /**
  * Management for BayesianAnalyzer
  */
-public class BayesianAnalyzerManagement implements BayesianAnalyzerManagementService, Serviceable, Initializable, Contextualizable, Configurable {
+public class BayesianAnalyzerManagement implements BayesianAnalyzerManagementService, Serviceable, Initializable, Contextualizable, Configurable, BayesianAnalyzerManagementMBean {
 
     private final static String HAM = "HAM";
     private final static String SPAM = "SPAM";
@@ -134,7 +136,7 @@ public class BayesianAnalyzerManagement implements BayesianAnalyzerManagementSer
     /**
      * @see org.apache.james.services.BayesianAnalyzerManagementService#addHamFromDir(String)
      */
-    public int addHamFromDir(String dir) throws FileNotFoundException, IllegalArgumentException, IOException, SQLException, BayesianAnalyzerManagementException {
+    public int addHamFromDir(String dir) throws BayesianAnalyzerManagementException {
         if (repos == null) throw new BayesianAnalyzerManagementException("RepositoryPath not configured");
         
         return feedBayesianAnalyzerFromDir(dir,HAM);
@@ -143,7 +145,7 @@ public class BayesianAnalyzerManagement implements BayesianAnalyzerManagementSer
     /**
      * @see org.apache.james.services.BayesianAnalyzerManagementService#addSpamFromDir(String)
      */
-    public int addSpamFromDir(String dir) throws FileNotFoundException, IllegalArgumentException, IOException, SQLException, BayesianAnalyzerManagementException {
+    public int addSpamFromDir(String dir) throws BayesianAnalyzerManagementException {
         if (repos == null) throw new BayesianAnalyzerManagementException("RepositoryPath not configured");
         
         return feedBayesianAnalyzerFromDir(dir,SPAM);
@@ -152,7 +154,7 @@ public class BayesianAnalyzerManagement implements BayesianAnalyzerManagementSer
     /**
      * @see org.apache.james.services.BayesianAnalyzerManagementService#addHamFromMbox(String)
      */
-    public int addHamFromMbox(String file) throws FileNotFoundException, IllegalArgumentException, IOException, SQLException, BayesianAnalyzerManagementException {
+    public int addHamFromMbox(String file) throws BayesianAnalyzerManagementException {
         if (repos == null) throw new BayesianAnalyzerManagementException("RepositoryPath not configured");
         return feedBayesianAnalyzerFromMbox(file,HAM);
     }
@@ -160,7 +162,7 @@ public class BayesianAnalyzerManagement implements BayesianAnalyzerManagementSer
     /**
      * @see org.apache.james.services.BayesianAnalyzerManagementService#addSpamFromMbox(String)
      */
-    public int addSpamFromMbox(String file) throws FileNotFoundException, IllegalArgumentException, IOException, SQLException, BayesianAnalyzerManagementException {
+    public int addSpamFromMbox(String file) throws BayesianAnalyzerManagementException {
         if (repos == null) throw new BayesianAnalyzerManagementException("RepositoryPath not configured");
         return feedBayesianAnalyzerFromMbox(file,SPAM);
     }
@@ -171,50 +173,83 @@ public class BayesianAnalyzerManagement implements BayesianAnalyzerManagementSer
      * @param dir The directory which contains the emails which should be used to feed the BayesianAnalysis
      * @param type The type to train. HAM or SPAM
      * @return count The count of trained messages
-     * @throws IOException 
-     * @throws FileNotFoundException 
-     * @throws SQLException 
+     * @throws BayesianAnalyzerManagementException
      * @throws IllegalArgumentException Get thrown if the directory is not valid
      */
-    private int feedBayesianAnalyzerFromDir(String dir, String type) throws FileNotFoundException, IOException, SQLException, IllegalArgumentException {
-    
+    private int feedBayesianAnalyzerFromDir(String dir, String type) throws BayesianAnalyzerManagementException {
+
         //Clear out any existing word/counts etc..
         analyzer.clear();
-        
+
         File tmpFile = new File(dir);
         int count = 0;
-        
+
         synchronized(JDBCBayesianAnalyzer.DATABASE_LOCK) {
 
             // check if the provided dir is really a directory
             if (tmpFile.isDirectory()) {
                 File[] files = tmpFile.listFiles();
-        
+
                 for (int i = 0; i < files.length; i++) {
-                    if (type.equalsIgnoreCase(HAM)) {
-                        analyzer.addHam(new BufferedReader(new FileReader(files[i])));
-                        count++;
-                    } else if (type.equalsIgnoreCase(SPAM)) {
-                        analyzer.addSpam(new BufferedReader(new FileReader(files[i])));
-                        count++;
-                    }  
+                    BufferedReader stream = null;
+                    try {
+                        stream = new BufferedReader(new FileReader(files[i]));
+                    } catch (FileNotFoundException e) {
+                        throw new BayesianAnalyzerManagementException("acessing mail file failed.", e);
+                    }
+                    addMailToCorpus(type, stream);
+                    count++;
                 }
-              
-                //Update storage statistics.
-                if (type.equalsIgnoreCase(HAM)) {
-                    analyzer.updateHamTokens(component.getConnection());
-                } else if (type.equalsIgnoreCase(SPAM)) {
-                    analyzer.updateSpamTokens(component.getConnection());
-                } 
-    
+
+                updateTokens(type);
+
             } else {
                throw new IllegalArgumentException("Please provide an valid directory");
             }
         }
-        
+
         return count;
     }
-    
+
+    /**
+     * Update the tokens 
+     * 
+     * @param type The type whichs tokens should be updated. Valid types are HAM or SPAM
+     * @throws BayesianAnalyzerManagementException
+     */
+    private void updateTokens(String type) throws BayesianAnalyzerManagementException {
+        //Update storage statistics.
+        try {
+            Connection connection = component.getConnection();
+            if (type.equalsIgnoreCase(HAM)) {
+                analyzer.updateHamTokens(connection);
+            } else if (type.equalsIgnoreCase(SPAM)) {
+                analyzer.updateSpamTokens(connection);
+            }
+        } catch (SQLException e) {
+            throw new BayesianAnalyzerManagementException("updating tokens failed.", e);
+        }
+    }
+
+    /**
+     * Add mail to corpus 
+     * 
+     * @param type The type to add to corpus. Valid types are HAM or SPAM
+     * @param stream The stream which is used to transfer the data
+     * @throws BayesianAnalyzerManagementException
+     */
+    private void addMailToCorpus(String type, BufferedReader stream) throws BayesianAnalyzerManagementException {
+        try {
+            if (type.equalsIgnoreCase(HAM)) {
+                analyzer.addHam(stream);
+            } else if (type.equalsIgnoreCase(SPAM)) {
+                analyzer.addSpam(stream);
+            }
+        } catch (IOException e) {
+            throw new BayesianAnalyzerManagementException("adding to corpus failed.", e);
+        }
+    }
+
 
     /**
      * Helper method to train the BayesianAnalysis from mbox file
@@ -222,65 +257,75 @@ public class BayesianAnalyzerManagement implements BayesianAnalyzerManagementSer
      * @param mboxFile The mbox file
      * @param type The type to train. HAM or SPAM
      * @return count The count of trained messages
-     * @throws IOException 
-     * @throws FileNotFoundException 
-     * @throws SQLException 
-     * @throws IllegalArgumentException Get thrown if the file is not a valid mbox file
+     * @throws BayesianAnalyzerManagementException
      */
-    private int feedBayesianAnalyzerFromMbox(String mboxFile, String type) throws FileNotFoundException, IOException, SQLException, IllegalArgumentException {
+    private int feedBayesianAnalyzerFromMbox(String mboxFile, String type) throws BayesianAnalyzerManagementException {
         int count = 0;
-        
+
         //Clear out any existing word/counts etc..
         analyzer.clear();
-        
+
         File tmpFile = new File(mboxFile);
-        
-        if (MboxFile.isValid(tmpFile) == true ) { 
+
+        if (MboxFile.isValid(tmpFile)) {
             MboxFile mbox = new MboxFile(tmpFile,MboxFile.READ_ONLY);
-        
+
             synchronized(JDBCBayesianAnalyzer.DATABASE_LOCK) {
-                for (int i = 0; i < mbox.getMessageCount(); i++) {
-                    if (type.equalsIgnoreCase(HAM)) {
-                
-                        analyzer.addHam(new BufferedReader(new InputStreamReader(mbox.getMessageAsStream(i))));
-                        count++;
-                    } else if (type.equalsIgnoreCase(SPAM)) {
-                        analyzer.addSpam(new BufferedReader(new InputStreamReader(mbox.getMessageAsStream(i))));
-                        count++;
-                    }  
+                int messageCount = 0;
+                try {
+                    messageCount = mbox.getMessageCount();
+                } catch (IOException e) {
+                    throw new BayesianAnalyzerManagementException(e);
                 }
-              
+                for (int i = 0; i < messageCount; i++) {
+                    InputStream message = null;
+                    try {
+                        message = mbox.getMessageAsStream(i);
+                    } catch (IOException e) {
+                        throw new BayesianAnalyzerManagementException("could not access mail from mbox streanm", e);
+                    }
+                    BufferedReader stream = new BufferedReader(new InputStreamReader(message));
+                    addMailToCorpus(type, stream);
+                    count++;
+                }
+
                 //Update storage statistics.
-                if (type.equalsIgnoreCase(HAM)) {
-                    analyzer.updateHamTokens(component.getConnection());
-                } else if (type.equalsIgnoreCase(SPAM)) {
-                    analyzer.updateSpamTokens(component.getConnection());
-                } 
+                updateTokens(type);
             }
         } else {
             throw new IllegalArgumentException("Please provide an valid mbox file");
         }
-        
+
         return count;
     }
     
     /**
      * @see org.apache.james.services.BayesianAnalyzerManagementService#exportData(String)
      */
-    public void exportData(String file) throws IOException, BayesianAnalyzerManagementException, SQLException {
+    public void exportData(String file) throws BayesianAnalyzerManagementException {
         if (repos == null) throw new BayesianAnalyzerManagementException("RepositoryPath not configured");
-    
-        synchronized(JDBCBayesianAnalyzer.DATABASE_LOCK) {    
-            analyzer.loadHamNSpam(component.getConnection());
-        
+
+        synchronized(JDBCBayesianAnalyzer.DATABASE_LOCK) {
+            try {
+                analyzer.loadHamNSpam(component.getConnection());
+            } catch (SQLException e) {
+                throw new BayesianAnalyzerManagementException("loading ham and spam failed.", e);
+            }
+
             int hamMessageCount = analyzer.getHamMessageCount();
             int spamMessageCount = analyzer.getSpamMessageCount();
             Map hamTokenCounts = analyzer.getHamTokenCounts();
             Map spamTokenCounts = analyzer.getSpamTokenCounts();
-            
+
             XStream xstream = new XStream(new DomDriver());
             xstream.alias("bayesianAnalyzer", BayesianAnalyzerXml.class);
-            PrintWriter printwriter = new PrintWriter(new FileOutputStream(file));
+            FileOutputStream fileOutputStream = null;
+            try {
+                fileOutputStream = new FileOutputStream(file);
+            } catch (FileNotFoundException e) {
+                throw new BayesianAnalyzerManagementException("opening export file failed", e);
+            }
+            PrintWriter printwriter = new PrintWriter(fileOutputStream);
             printwriter.println(xstream.toXML(new BayesianAnalyzerXml(hamMessageCount,spamMessageCount,hamTokenCounts,spamTokenCounts)));
             printwriter.close();
         }
@@ -289,29 +334,35 @@ public class BayesianAnalyzerManagement implements BayesianAnalyzerManagementSer
     /**
      * @see org.apache.james.services.BayesianAnalyzerManagementService#importData(String)
      */
-    public void importData(String file) throws IOException, BayesianAnalyzerManagementException, SQLException, FileNotFoundException {
-    if (repos == null) throw new BayesianAnalyzerManagementException("RepositoryPath not configured");
+    public void importData(String file) throws BayesianAnalyzerManagementException {
+        if (repos == null) throw new BayesianAnalyzerManagementException("RepositoryPath not configured");
 
         synchronized(JDBCBayesianAnalyzer.DATABASE_LOCK){
             XStream xstream = new XStream(new DomDriver());
-            
-            BayesianAnalyzerXml bAnalyzerXml = (BayesianAnalyzerXml) xstream.fromXML(new FileReader(file));
-        
+
+            FileReader fileReader = null;
+            try {
+                fileReader = new FileReader(file);
+            } catch (FileNotFoundException e) {
+                throw new BayesianAnalyzerManagementException("opening input file failed", e);
+            }
+            BayesianAnalyzerXml bAnalyzerXml = (BayesianAnalyzerXml) xstream.fromXML(fileReader);
+
             // clear old data
             analyzer.clear();
             analyzer.tokenCountsClear();
-            
+
             //TODO: Drop old corpus in database;
-            
+
             // add the new data
             analyzer.setHamMessageCount(bAnalyzerXml.getHamMessageCount());
             analyzer.setSpamMessageCount(bAnalyzerXml.getSpamMessageCount());
             analyzer.setHamTokenCounts(bAnalyzerXml.getHamTokenCounts());
             analyzer.setSpamTokenCounts(bAnalyzerXml.getSpamTokenCounts());
-            analyzer.updateHamTokens(component.getConnection());
-            analyzer.updateSpamTokens(component.getConnection());
+            updateTokens(HAM);
+            updateTokens(SPAM);
         }
-        
+
     }
     
     private JDBCBayesianAnalyzer analyzer = new JDBCBayesianAnalyzer() {
