@@ -38,6 +38,7 @@ import javax.mail.internet.ParseException;
 
 import java.io.IOException;
 import java.util.Enumeration;
+import java.lang.reflect.Constructor;
 
 /**
  * <P>Abstract mailet providing common SMIME signature services.<BR>
@@ -65,6 +66,8 @@ import java.util.Enumeration;
  *
  * <P>Handles the following init parameters:</P>
  * <ul>
+ * <li>&lt;keyHolderClass&gt;: Sets the class of the KeyHolder object that will handle the cryptography functions,
+ * for example org.apache.james.security.SMIMEKeyHolder for SMIME.</li>
  * <li>&lt;debug&gt;: if <CODE>true</CODE> some useful information is logged.
  * The default is <CODE>false</CODE>.</li>
  * <li>&lt;keyStoreFileName&gt;: the {@link java.security.KeyStore} full file name.</li>
@@ -95,7 +98,7 @@ import java.util.Enumeration;
  * @version CVS $Revision$ $Date$
  * @since 2.2.1
  */
-public abstract class SMIMEAbstractSign extends GenericMailet {
+public abstract class AbstractSign extends GenericMailet {
     
     private static final String HEADERS_PATTERN = "[headers]";
     
@@ -109,6 +112,11 @@ public abstract class SMIMEAbstractSign extends GenericMailet {
      * Holds value of property debug.
      */
     private boolean debug;
+    
+    /**
+     * Holds value of property keyHolderClass.
+     */
+    private Class keyHolderClass;
     
     /**
      * Holds value of property explanationText.
@@ -169,6 +177,40 @@ public abstract class SMIMEAbstractSign extends GenericMailet {
     }
     
     /**
+     * Initializer for property keyHolderClass.
+     */
+    protected void initKeyHolderClass() throws MessagingException {
+        String keyHolderClassName = getInitParameter("keyHolderClass");
+        if (keyHolderClassName == null) {
+            throw new MessagingException("<keyHolderClass> parameter missing.");
+        }
+        try {
+            setKeyHolderClass(Class.forName(keyHolderClassName));
+        } catch (ClassNotFoundException cnfe) {
+            throw new MessagingException("The specified <keyHolderClass> does not exist: " + keyHolderClassName);
+        }
+        if (isDebug()) {
+            log("keyHolderClass: " + getKeyHolderClass());
+        }
+    }
+    
+    /**
+     * Getter for property keyHolderClass.
+     * @return Value of property keyHolderClass.
+     */
+    public Class getKeyHolderClass() {
+        return this.keyHolderClass;
+    }
+    
+    /**
+     * Setter for property keyHolderClass.
+     * @param signerName New value of property keyHolderClass.
+     */
+    public void setKeyHolderClass(Class keyHolderClass) {
+        this.keyHolderClass = keyHolderClass;
+    }
+    
+    /**
      * Initializer for property explanationText.
      */
     protected void initExplanationText() {
@@ -199,6 +241,15 @@ public abstract class SMIMEAbstractSign extends GenericMailet {
      * Initializer for property keyHolder.
      */
     protected void initKeyHolder() throws Exception {
+        Constructor keyHolderConstructor = null;
+        try {
+            keyHolderConstructor = keyHolderClass.getConstructor(new Class[] {String.class, String.class, String.class, String.class, String.class});
+        } catch (NoSuchMethodException nsme) {
+            throw new MessagingException("The needed constructor does not exist: "
+                    + keyHolderClass + "(String, String, String, String, String)");
+        }
+        
+        
         String keyStoreFileName = getInitParameter("keyStoreFileName");
         if (keyStoreFileName == null) {
             throw new MessagingException("<keyStoreFileName> parameter missing.");
@@ -219,7 +270,7 @@ public abstract class SMIMEAbstractSign extends GenericMailet {
         String keyStoreType = getInitParameter("keyStoreType");
         if (keyStoreType == null) {
             if (isDebug()) {
-                log("<type> parameter not specified: will default to \"" + KeyHolder.getDefaultType() + "\".");
+                log("<keyStoreType> parameter not specified: the default will be as appropriate to the keyStore requested.");
             }
         }
         
@@ -242,7 +293,8 @@ public abstract class SMIMEAbstractSign extends GenericMailet {
         }
             
         // Certificate preparation
-        setKeyHolder(new KeyHolder(keyStoreFileName, keyStorePassword, keyAlias, keyAliasPassword, keyStoreType));
+        String[] parameters = {keyStoreFileName, keyStorePassword, keyAlias, keyAliasPassword, keyStoreType};
+        setKeyHolder((KeyHolder)keyHolderConstructor.newInstance(parameters));
         
         if (isDebug()) {
             log("Subject Distinguished Name: " + getKeyHolder().getSignerDistinguishedName());
@@ -383,6 +435,7 @@ public abstract class SMIMEAbstractSign extends GenericMailet {
                 log("Initializing");
             }
             
+            initKeyHolderClass();
             initKeyHolder();
             initSignerName();
             initPostmasterSigns();

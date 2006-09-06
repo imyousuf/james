@@ -33,7 +33,7 @@ import javax.mail.Part;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 
-import org.apache.james.security.KeyHolder;
+import org.apache.james.security.SMIMEKeyHolder;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailetConfig;
@@ -70,7 +70,7 @@ import org.bouncycastle.mail.smime.SMIMEUtil;
  */
 public class SMIMEDecrypt extends GenericMailet {
 
-    private KeyHolder keyHolder;
+    private SMIMEKeyHolder keyHolder;
     protected String mailAttribute = "org.apache.james.SMIMEDecrypt";
     
     public void init() throws MessagingException {
@@ -92,7 +92,7 @@ public class SMIMEDecrypt extends GenericMailet {
         if (mailAttributeConf != null) mailAttribute = mailAttributeConf;
         
         try {
-            keyHolder = new KeyHolder(privateStoreFile, privateStorePass, keyAlias, keyPass, privateStoreType);
+            keyHolder = new SMIMEKeyHolder(privateStoreFile, privateStorePass, keyAlias, keyPass, privateStoreType);
         } catch (IOException e) {
             throw new MessagingException("Error loading keystore", e);
         } catch (GeneralSecurityException e) {
