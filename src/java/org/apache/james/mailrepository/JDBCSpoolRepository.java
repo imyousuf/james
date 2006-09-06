@@ -145,20 +145,20 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
                 
                 public boolean accept (String key, String state, long lastUpdated, String errorMessage) {
                     if (Mail.ERROR.equals(state)) {
-                    //if it's an error message, test the time
+                        //if it's an error message, test the time
                         long processingTime = delay + lastUpdated;
-                    if (processingTime < System.currentTimeMillis()) {
-                        //It's time to process
+                        if (processingTime < System.currentTimeMillis()) {
+                            //It's time to process
                             return true;
-                    } else {
-                        //We don't process this, but we want to possibly reduce the amount of time
-                        //  we sleep so we wake when this message is ready.
-                        if (sleepUntil == 0 || processingTime < sleepUntil) {
-                            sleepUntil = processingTime;
-                        }
+                        } else {
+                            //We don't process this, but we want to possibly reduce the amount of time
+                            //  we sleep so we wake when this message is ready.
+                            if (sleepUntil == 0 || processingTime < sleepUntil) {
+                                sleepUntil = processingTime;
+                            }
                             return false;
-                    }
-                } else {
+                        }
+                    } else {
                         return true;
                     }
                 }
