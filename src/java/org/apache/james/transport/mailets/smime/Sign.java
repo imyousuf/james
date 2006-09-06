@@ -31,12 +31,18 @@ import javax.mail.internet.MimeMultipart;
 import java.io.IOException;
 
 /**
- * <p>Puts a <I>server-side</I> SMIME signature on a message.<br>
- * It is a concrete subclass of {@link Sign}, with very few modifications to it,
- * to specialize for SMIME.</p>
+ * <p>Puts a <I>server-side</I> signature on a message.<br>
+ * It is a concrete subclass of {@link AbstractSign}, with very few modifications to it.</p>
+ * <p>A text file with an explanation text is attached to the original message,
+ * and the resulting message with all its attachments is signed.
+ * The resulting appearence of the message is almost unchanged: only an extra attachment
+ * and the signature are added.</p>
+ *<p>The kind of signuture depends on the value of the &lt;keyHolderClass&gt; init parameter.
  *
  *  <P>Handles the following init parameters (will comment only the differences from {@link SMIMEAbstractSign}):</P>
  * <ul>
+ * <li>&lt;keyHolderClass&gt;: Sets the class of the KeyHolder object that will handle the cryptography functions,
+ * for example org.apache.james.security.SMIMEKeyHolder for SMIME.</li>
  * <li>&lt;debug&gt;.</li>
  * <li>&lt;keyStoreFileName&gt;.</li>
  * <li>&lt;keyStorePassword&gt;.</li>
@@ -49,10 +55,10 @@ import java.io.IOException;
  * <li>&lt;explanationText&gt;. There is a default explanation string template in English,
  * displaying also all the headers of the original message (see {@link #getExplanationText}).</li>
  * </ul>
- * @version CVS $Revision:$ $Date:$
- * @since 2.3.0
+ * @version CVS $Revision$ $Date$
+ * @since 2.2.1
  */
-public class SMIMESign extends Sign {
+public class Sign extends AbstractSign {
     
     /**
      * Return a string describing this mailet.
@@ -60,7 +66,7 @@ public class SMIMESign extends Sign {
      * @return a string describing this mailet
      */
     public String getMailetInfo() {
-        return "SMIME Signature Mailet";
+        return "Signature Mailet";
     }
     
     /**
@@ -68,6 +74,7 @@ public class SMIMESign extends Sign {
      */
     protected  String[] getAllowedInitParameters() {
         String[] allowedArray = {
+            "keyHolderClass",
             "debug",
             "keyStoreFileName",
             "keyStorePassword",
@@ -120,22 +127,6 @@ public class SMIMESign extends Sign {
         }
         
         return explanationText;
-    }
-    
-    /**
-     * Initializer for property keyHolderClass.
-     * Hardcodes it to {@link org.apache.james.security.SMIMEKeyHolder}.
-     */
-    protected void initKeyHolderClass() throws MessagingException {
-        String keyHolderClassName = "org.apache.james.security.SMIMEKeyHolder";
-        try {
-            setKeyHolderClass(Class.forName(keyHolderClassName));
-        } catch (ClassNotFoundException cnfe) {
-            throw new MessagingException(keyHolderClassName + "does not exist.");
-        }
-        if (isDebug()) {
-            log("keyHolderClass: " + getKeyHolderClass());
-        }
     }
     
     /**
