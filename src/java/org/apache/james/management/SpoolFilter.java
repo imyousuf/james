@@ -38,7 +38,9 @@ import java.util.Map;
  */
 public class SpoolFilter {
 
-    public static final SpoolFilter ERRORMAIL_FILTER = new SpoolFilter("error");
+    public static final String ERROR_STATE = "error";
+    
+    public static final SpoolFilter ERRORMAIL_FILTER = new SpoolFilter(ERROR_STATE);
 
     private String state = null;
 
