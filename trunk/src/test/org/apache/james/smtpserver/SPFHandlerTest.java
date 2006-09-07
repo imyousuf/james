@@ -466,4 +466,31 @@ public class SPFHandlerTest extends TestCase {
                 .get(SPFHandler.SPF_HEADER));
         assertFalse(mockedSMTPSession.getStopHandlerProcessing());
     }
+    
+    public void testSPFpermErrorRejectDisabled() throws Exception {
+        setupMockedSMTPSession("192.168.100.1", "spf4.james.apache.org",
+                new MailAddress("test@spf4.james.apache.org"), new MailAddress(
+                        "test@localhost"));
+        SPFHandler spf = new SPFHandler();
+
+        ContainerUtil.enableLogging(spf, new MockLogger());
+        
+        spf.setDNSService(mockedDnsService);
+        
+        spf.initialize();
+        
+        spf.setBlockPermError(false);
+
+        runHandlers(spf, mockedSMTPSession);
+
+        assertNull("not reject", mockedSMTPSession.getState().get(
+                SPFHandler.SPF_BLOCKLISTED));
+        assertNull("details ", mockedSMTPSession.getState().get(
+                SPFHandler.SPF_DETAIL));
+        assertNull("No tempError", mockedSMTPSession.getState().get(
+                SPFHandler.SPF_TEMPBLOCKLISTED));
+        assertNotNull("Header should present", mockedSMTPSession.getState()
+                .get(SPFHandler.SPF_HEADER));
+        assertFalse(mockedSMTPSession.getStopHandlerProcessing());
+    }
 }
