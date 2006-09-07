@@ -25,12 +25,10 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 /**
- * <p>Loads a {@link java.security.KeyStore} in memory and keeps it ready for the
- * cryptographic activity.</p>
- * <p>It has the role of being a simpler intermediate to the crypto libraries.
- * Uses specifically the <a href="http://www.bouncycastle.org/">Legion of the Bouncy Castle</a>
- * libraries, particularly for the SMIME activity.</p>
- * @version CVS $Revision:$ $Date:$
+ * <p>Interface to an object that will do cryptographic activity on a MimeMessage,
+ * and contains the needed cryptographic key.</p>
+ * <p>The implementing objects have the role of being a simpler intermediate to the crypto libraries.</p>
+ * @version CVS $Revision$ $Date$
  * @since 3.0
  */
 public interface KeyHolder {
