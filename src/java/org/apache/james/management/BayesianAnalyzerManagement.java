@@ -369,7 +369,22 @@ public class BayesianAnalyzerManagement implements BayesianAnalyzerManagementSer
         protected void delegatedLog(String logString) {
             // no logging
         }
-    };    
+    };
+    
+
+    /**
+     * @see org.apache.james.services.BayesianAnalyzerManagementService#resetData()
+     */
+    public void resetData() throws BayesianAnalyzerManagementException {
+        synchronized(JDBCBayesianAnalyzer.DATABASE_LOCK) {
+            try {
+                analyzer.resetData(component.getConnection());
+            } catch (SQLException e) {
+                throw new BayesianAnalyzerManagementException(e.getMessage());
+            }
+        }
+    
+    }
     
     /**
      * Inner class to represent the data in an xml file
@@ -404,4 +419,5 @@ public class BayesianAnalyzerManagement implements BayesianAnalyzerManagementSer
         }
     
     }
+
 }

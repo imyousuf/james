@@ -674,6 +674,16 @@
     <!-- Statements used to update the spam token counts. -->
     <sql name="updateSpamToken">UPDATE bayesiananalysis_spam SET OCCURRENCES=(OCCURRENCES + ?) WHERE (TOKEN=?)</sql>
 
+    <!-- Statements used to delete ham tokens. -->
+    <sql name="deleteHamTokens">DELETE FROM bayesiananalysis_ham</sql>
+    
+    <!-- Statements used to delete spam tokens. -->
+    <sql name="deleteSpamTokens">DELETE FROM bayesiananalysis_spam</sql>
+    
+    <!-- Statements used to delete message counts. -->
+    <sql name="deleteMessageCounts">DELETE FROM bayesiananalysis_messagecounts</sql>
+
+
     <!-- Statements used to create the "ham" table (the 'token' field must be case sensitive). -->
     <sql name="createHamTable" db="mysql">
         CREATE TABLE bayesiananalysis_ham (

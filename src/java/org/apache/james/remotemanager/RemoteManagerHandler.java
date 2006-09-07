@@ -159,6 +159,8 @@ public class RemoteManagerHandler
    
     private static final String COMMAND_IMPORTBAYESIANDATA = "IMPORTBAYESIANDATA";
     
+    private static final String COMMAND_RESETBAYESIANDATA = "RESETBAYESIANDATA";
+    
     /**
      * The text string for the QUIT command
      */
@@ -353,6 +355,8 @@ public class RemoteManagerHandler
             return doEXPORTBAYESIANDATA(argument);
         } else if (command.equals(COMMAND_IMPORTBAYESIANDATA)) {
             return doIMPORTBAYESIANDATA(argument);
+        } else if (command.equals(COMMAND_RESETBAYESIANDATA)) {
+            return doRESETBAYESIANDATA(argument);
         } else if (command.equals(COMMAND_MEMSTAT)) {
             return doMEMSTAT(argument);
         } else if (command.equals(COMMAND_QUIT)) {
@@ -618,7 +622,8 @@ public class RemoteManagerHandler
         out.println("addham dir/mbox [directory/mbox]                                        feed the BayesianAnalysisFeeder with the content of the directory or mbox file as HAM");
         out.println("addspam dir/mbox [directory/mbox]                                       feed the BayesianAnalysisFeeder with the content of the directory or mbox file as SPAM");
         out.println("exportbayesiandata [file]                                               export the BayesianAnalysis data to a xml file");
-        out.println("importbayesiandata [file]                                               import the BayesianAnalysis data from a xml file");
+        out.println("resetbayesiandata                                                       reset trained BayesianAnalysis data");
+        out.println("memstat ([-gc])                                                         shows memory usage. When called with -gc the garbage collector get called");
         out.println("memstat ([-gc])                                                         shows memory usage. When called with -gc the garbage collector get called");
         out.println("shutdown                                                                kills the current JVM (convenient when James is run as a daemon)");
         out.println("quit                                                                    close connection");
@@ -1256,7 +1261,7 @@ public class RemoteManagerHandler
             getLogger().error("Error on exporting BayesianAnalysis data: " + e);
             out.println("Error on exporting BayesianAnalysis data: " + e);
             out.flush();
-            return false;
+            return true;
         } finally {
             theWatchdog.start();
         }
@@ -1285,7 +1290,29 @@ public class RemoteManagerHandler
             getLogger().error("Error on importing BayesianAnalysis data: " + e);
             out.println("Error on importing BayesianAnalysis data: " + e);
             out.flush();
-            return false;
+            return true;
+        } finally {
+            theWatchdog.start();
+        }
+    
+        return true;
+    }
+    
+    private boolean doRESETBAYESIANDATA(String argument) {
+
+        try {           
+            // stop watchdog cause feeding can take some time
+            theWatchdog.stop();
+            
+            theConfigData.getBayesianAnalyzerManagement().resetData();
+            out.println("Reseted the BayesianAnalysis data");
+            out.flush();
+
+        } catch (BayesianAnalyzerManagementException e) {
+            getLogger().error("Error on reseting BayesianAnalysis data: " + e);
+            out.println("Error on reseting BayesianAnalysis data: " + e);
+            out.flush();
+            return true;
         } finally {
             theWatchdog.start();
         }
