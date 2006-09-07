@@ -69,6 +69,8 @@ public class SPFHandler extends AbstractLogEnabled implements CommandHandler,
      * If set to true the mail will also be rejected on a softfail
      */
     private boolean blockSoftFail = false;
+    
+    private boolean blockPermError = true;
 
     private DNSService dnsService = null;
 
@@ -87,6 +89,12 @@ public class SPFHandler extends AbstractLogEnabled implements CommandHandler,
                 "blockSoftFail", false);
         if (configuration != null) {
             setBlockSoftFail(configuration.getValueAsBoolean(false));
+        }
+        
+        Configuration configPermError = handlerConfiguration.getChild(
+                "blockPermError", false);
+        if (configuration != null) {
+            setBlockPermError(configPermError.getValueAsBoolean(true));
         }
         Configuration configRelay = handlerConfiguration.getChild(
                 "checkAuthNetworks", false);
@@ -116,6 +124,16 @@ public class SPFHandler extends AbstractLogEnabled implements CommandHandler,
      */
     public void setBlockSoftFail(boolean blockSoftFail) {
         this.blockSoftFail = blockSoftFail;
+    }
+    
+    /**
+     * block the email on a permerror
+     * 
+     * @param blockPermError
+     *            true or false
+     */
+    public void setBlockPermError(boolean blockPermError) {
+        this.blockPermError = blockPermError;
     }
 
     /**
@@ -195,7 +213,7 @@ public class SPFHandler extends AbstractLogEnabled implements CommandHandler,
                 // Check if we should block!
                 if ((spfResult.equals(SPF1Utils.FAIL_CONV))
                         || (spfResult.equals(SPF1Utils.SOFTFAIL_CONV) && blockSoftFail)
-                        || spfResult.equals(SPF1Utils.PERM_ERROR_CONV)) {
+                        || (spfResult.equals(SPF1Utils.PERM_ERROR_CONV) && blockPermError)) {
 
                     if (spfResult.equals(SPF1Utils.PERM_ERROR)) {
                         explanation = "Blocked caused by an invalid SPF record";

@@ -60,6 +60,7 @@
      <handler class="org.apache.james.smtpserver.core.filter.fastfail.SPFHandler" command="MAIL,RCPT">
          <checkAuthNetworks> false </checkAuthNetworks>
          <blockSoftFail> false </blockSoftFail>
+         <blockPermError> true </blockPermError>
      </handler>
      -->    
             
