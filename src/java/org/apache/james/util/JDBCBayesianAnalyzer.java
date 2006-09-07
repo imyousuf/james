@@ -266,9 +266,9 @@ extends BayesianAnalyzer {
      * @throws SQLException If a dtabase error occours
      */
     public void resetData(Connection conn) throws SQLException {
-    deleteData(conn,sqlQueries.getSqlString("deleteHamTokens",true));
-    deleteData(conn,sqlQueries.getSqlString("deleteSpamTokens",true));
-    deleteData(conn,sqlQueries.getSqlString("deleteMessageCounts",true));
+        deleteData(conn,sqlQueries.getSqlString("deleteHamTokens",true));
+        deleteData(conn,sqlQueries.getSqlString("deleteSpamTokens",true));
+        deleteData(conn,sqlQueries.getSqlString("deleteMessageCounts",true));
     }
     
     private void setMessageCount(Connection conn, String sqlStatement, int count)
