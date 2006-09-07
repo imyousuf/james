@@ -775,11 +775,10 @@ Regards, Postmaster XXX.YYY
       
    <!-- Uncommment this block to enable the BayesianAnalyserManagement. -->
    <!-- This is needed by the RemoteManager to enable the BayesianAnaylyzerManagement commands --> 
-   <!--
    <bayesiananalyzermanagement> 
       <repositoryPath> db://maildb </repositoryPath>
    </bayesiananalyzermanagement>  
-   -->
+   
 
    <!-- The RemoteManager server is enabled by default -->
    <!-- Disabling blocks will stop them from listening, -->
