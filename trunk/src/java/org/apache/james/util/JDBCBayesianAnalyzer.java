@@ -259,6 +259,18 @@ extends BayesianAnalyzer {
         setMessageCount(conn, sqlQueries.getSqlString("updateSpamMessageCounts", true), getSpamMessageCount());
     }
     
+    /**
+     * Reset all trained data
+     * 
+     * @param conn The connection for accessing the database
+     * @throws SQLException If a dtabase error occours
+     */
+    public void resetData(Connection conn) throws SQLException {
+    deleteData(conn,sqlQueries.getSqlString("deleteHamTokens",true));
+    deleteData(conn,sqlQueries.getSqlString("deleteSpamTokens",true));
+    deleteData(conn,sqlQueries.getSqlString("deleteMessageCounts",true));
+    }
+    
     private void setMessageCount(Connection conn, String sqlStatement, int count)
     throws java.sql.SQLException {
         PreparedStatement init = null;
@@ -420,4 +432,22 @@ extends BayesianAnalyzer {
         return true;
     }
     
+    private void deleteData(Connection conn, String deleteSqlStatement) throws SQLException {
+        PreparedStatement delete = null;
+        
+        try {
+            //Used to delete ham tokens
+            delete = conn.prepareStatement(deleteSqlStatement);
+            delete.executeUpdate();
+        } finally {
+            if (delete != null) {
+                try {
+                    delete.close();
+                } catch (java.sql.SQLException ignore) {
+                }
+                
+                delete = null;
+            }
+        }
+    }
 }

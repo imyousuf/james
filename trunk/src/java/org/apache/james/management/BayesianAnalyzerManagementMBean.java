@@ -103,4 +103,14 @@ public interface BayesianAnalyzerManagementMBean {
      * @throws BayesianAnalyzerManagementException
      */
     void importData(String file) throws BayesianAnalyzerManagementException;
+    
+    /**
+     * reset trained data
+     *
+     * @phoenix:mx-operation
+     * @phoenix:mx-description reset trained data
+     *
+     * @throws BayesianAnalyzerManagementException
+     */
+    void resetData() throws BayesianAnalyzerManagementException;
 }

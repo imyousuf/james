@@ -103,4 +103,11 @@ public interface BayesianAnalyzerManagementService {
      * @throws SQLException
      */
     public void importData(String file) throws  BayesianAnalyzerManagementException;
+    
+    /**
+     * Reset the trained data
+     * 
+     * @throws BayesianAnalyzerManagementException
+     */
+    public void resetData() throws  BayesianAnalyzerManagementException;
 }
