@@ -49,7 +49,7 @@ import java.io.IOException;
  * <li>&lt;explanationText&gt;. There is a default explanation string template in English,
  * displaying also all the headers of the original message (see {@link #getExplanationText}).</li>
  * </ul>
- * @version CVS $Revision:$ $Date:$
+ * @version CVS $Revision$ $Date$
  * @since 2.3.0
  */
 public class SMIMESign extends Sign {

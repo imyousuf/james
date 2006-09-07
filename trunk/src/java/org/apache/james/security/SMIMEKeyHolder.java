@@ -53,7 +53,7 @@ import org.bouncycastle.mail.smime.SMIMESignedGenerator;
  * <p>It has the role of being a simpler intermediate to the crypto libraries.
  * Uses specifically the <a href="http://www.bouncycastle.org/">Legion of the Bouncy Castle</a>
  * libraries, particularly for the SMIME activity.</p>
- * @version CVS $Revision:$ $Date:$
+ * @version CVS $Revision$ $Date$
  * @since 3.0
  */
 public class SMIMEKeyHolder implements KeyHolder{
