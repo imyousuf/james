@@ -180,6 +180,9 @@ public class RemoteManagerHandler
      */
     private UsersRepository users;
     
+    private final static String HEADER_IDENTIFIER = "header=";
+    private final static String REGEX_IDENTIFIER = "regex=";
+    private final static String KEY_IDENTIFIER = "key=";
 
     /**
      * Set the configuration data for the handler.
@@ -595,30 +598,30 @@ public class RemoteManagerHandler
      */
     private boolean doHELP(String argument) {
         out.println("Currently implemented commands:");
-        out.println("help                                           display this help");
-        out.println("listusers                                      display existing accounts");
-        out.println("countusers                                     display the number of existing accounts");
-        out.println("adduser [username] [password]                  add a new user");
-        out.println("verify [username]                              verify if specified user exist");
-        out.println("deluser [username]                             delete existing user");
-        out.println("setpassword [username] [password]              sets a user's password");
-        out.println("setalias [user] [alias]                        locally forwards all email for 'user' to 'alias'");
-        out.println("showalias [username]                           shows a user's current email alias");
-        out.println("unsetalias [user]                              unsets an alias for 'user'");
-        out.println("setforwarding [username] [emailaddress]        forwards a user's email to another email address");
-        out.println("showforwarding [username]                      shows a user's current email forwarding");
-        out.println("unsetforwarding [username]                     removes a forward");
-        out.println("user [repositoryname]                          change to another user repository");
-        out.println("listspool [spoolrepositoryname]                list all mails which reside in the spool and have an error state");
-        out.println("flushspool [spoolrepositoryname] ([key])       try to resend the mail assing to the given key. If no key is given all mails get resend");
-        out.println("deletespool [spoolrepositoryname] ([key])      delete the mail assign to the given key. If no key is given all mails get deleted");
-        out.println("addham dir/mbox [directory/mbox]               feed the BayesianAnalysisFeeder with the content of the directory or mbox file as HAM");
-        out.println("addspam dir/mbox [directory/mbox]              feed the BayesianAnalysisFeeder with the content of the directory or mbox file as SPAM");
-        out.println("exportbayesiandata [file]                      export the BayesianAnalysis data to a xml file");
-        out.println("importbayesiandata [file]                      import the BayesianAnalysis data from a xml file");
-        out.println("memstat ([-gc])                                shows memory usage. When called with -gc the garbage collector get called");
-        out.println("shutdown                                       kills the current JVM (convenient when James is run as a daemon)");
-        out.println("quit                                           close connection");
+        out.println("help                                                                    display this help");
+        out.println("listusers                                                               display existing accounts");
+        out.println("countusers                                                              display the number of existing accounts");
+        out.println("adduser [username] [password]                                           add a new user");
+        out.println("verify [username]                                                       verify if specified user exist");
+        out.println("deluser [username]                                                      delete existing user");
+        out.println("setpassword [username] [password]                                       sets a user's password");
+        out.println("setalias [user] [alias]                                                 locally forwards all email for 'user' to 'alias'");
+        out.println("showalias [username]                                                    shows a user's current email alias");
+        out.println("unsetalias [user]                                                       unsets an alias for 'user'");
+        out.println("setforwarding [username] [emailaddress]                                 forwards a user's email to another email address");
+        out.println("showforwarding [username]                                               shows a user's current email forwarding");
+        out.println("unsetforwarding [username]                                              removes a forward");
+        out.println("user [repositoryname]                                                   change to another user repository");
+        out.println("listspool [spoolrepositoryname] ([header=name] [regex=value])           list all mails which reside in the spool and have an error state");
+        out.println("flushspool [spoolrepositoryname] ([key] | [header=name] [regex=value])  try to resend the mail assing to the given key. If no key is given all mails get resend");
+        out.println("deletespool [spoolrepositoryname] ([key] | [header=name] [regex=value]) delete the mail assign to the given key. If no key is given all mails get deleted");
+        out.println("addham dir/mbox [directory/mbox]                                        feed the BayesianAnalysisFeeder with the content of the directory or mbox file as HAM");
+        out.println("addspam dir/mbox [directory/mbox]                                       feed the BayesianAnalysisFeeder with the content of the directory or mbox file as SPAM");
+        out.println("exportbayesiandata [file]                                               export the BayesianAnalysis data to a xml file");
+        out.println("importbayesiandata [file]                                               import the BayesianAnalysis data from a xml file");
+        out.println("memstat ([-gc])                                                         shows memory usage. When called with -gc the garbage collector get called");
+        out.println("shutdown                                                                kills the current JVM (convenient when James is run as a daemon)");
+        out.println("quit                                                                    close connection");
         out.flush();
         return true;
 
@@ -936,18 +939,36 @@ public class RemoteManagerHandler
      *            the argument passed in with the command
      */
     private boolean doLISTSPOOL(String argument) {
-        int count = 0;
+
+    int count = 0;
+        String[] args = null;
+        String headername = null;
+        String regex = null;
+        
+        if (argument != null) args = argument.split(" ");
 
         // check if the command was called correct
-        if ((argument == null) || (argument.trim().equals(""))) {
-            writeLoggedFlushedResponse("Usage: LISTSPOOL [spoolrepositoryname]");
+        if ((argument == null) || (argument.trim().equals("")) || args.length < 1 || args.length > 3 || (args.length > 1 && !args[1].startsWith(HEADER_IDENTIFIER)) || (args.length > 2 && !args[2].startsWith(REGEX_IDENTIFIER))) {
+            writeLoggedFlushedResponse("Usage: LISTSPOOL [spoolrepositoryname] ([header=headername] [regex=regexValue])");
             return true;
         }
 
-        String url = argument;
-
+        String url = args[0];
+        
+        if (args.length > 1) { 
+            headername = args[1].substring(HEADER_IDENTIFIER.length());
+            regex = args[2].substring(REGEX_IDENTIFIER.length());
+        }
+        
         try {
-            List spoolItems = theConfigData.getSpoolManagement().getSpoolItems(url, SpoolFilter.ERRORMAIL_FILTER);
+            List spoolItems;
+            
+            if (headername == null || regex == null) {
+                spoolItems = theConfigData.getSpoolManagement().getSpoolItems(url, SpoolFilter.ERRORMAIL_FILTER);
+            } else {
+                spoolItems = theConfigData.getSpoolManagement().getSpoolItems(url, new SpoolFilter(SpoolFilter.ERROR_STATE,headername,regex));
+            }
+            
             count = spoolItems.size();
             if (count > 0) out.println("Messages in spool:");
             for (Iterator iterator = spoolItems.iterator(); iterator.hasNext();) {
@@ -981,15 +1002,30 @@ public class RemoteManagerHandler
 
         // check if the command was called correct
         if ((argument == null || argument.trim().equals(""))
-                || (args.length < 1 || args.length > 2)) {
-            writeLoggedFlushedResponse("Usage: FLUSHSPOOL [spoolrepositoryname] ([key])");
+                || (args.length < 1 || args.length > 3 || (!args[1].startsWith(KEY_IDENTIFIER) && (args.length > 1  
+                && !args[1].startsWith(HEADER_IDENTIFIER))) || (args.length == 3 && !args[2].startsWith(REGEX_IDENTIFIER)))) {
+            writeLoggedFlushedResponse("Usage: FLUSHSPOOL [spoolrepositoryname] ([key=mKey] | [header=headername] [regex=regexValue] )");
             return true;
         }
 
         String url = args[0];
-        String key = args.length == 2 ? args[1] : null;
+        String key = null;
+        String header = null;
+        String regex = null;
+        
+        if (args[1].startsWith(KEY_IDENTIFIER)) {
+            key = args[1].substring(KEY_IDENTIFIER.length()); 
+        } else {
+            header = args[1].substring(HEADER_IDENTIFIER.length());
+            regex = args[2].substring(REGEX_IDENTIFIER.length()); 
+        }
+        
         try {
-            count = theConfigData.getSpoolManagement().resendSpoolItems(url, key, null, SpoolFilter.ERRORMAIL_FILTER);
+            if (key != null) {
+                count = theConfigData.getSpoolManagement().resendSpoolItems(url, key, null, SpoolFilter.ERRORMAIL_FILTER);
+            } else {
+                count = theConfigData.getSpoolManagement().resendSpoolItems(url, key, null, new SpoolFilter(SpoolFilter.ERROR_STATE,header,regex));
+            }
             out.println("Number of flushed mails: " + count);
             out.flush();
 
@@ -1019,18 +1055,34 @@ public class RemoteManagerHandler
 
         // check if the command was called correct
         if ((argument == null || argument.trim().equals(""))
-                || (args.length < 1 || args.length > 2)) {
-            writeLoggedFlushedResponse("Usage: DELETESPOOL [spoolrepositoryname] ([key])");
+                || (args.length < 1 || args.length > 3 || (args.length > 1 && (!args[1].startsWith(KEY_IDENTIFIER) 
+                && !args[1].startsWith(HEADER_IDENTIFIER))) || (args.length == 3 && !args[2].startsWith(REGEX_IDENTIFIER)))) {
+            writeLoggedFlushedResponse("Usage: DELETESPOOL [spoolrepositoryname] ([key=mKey] | [header=headername] [regex=regexValue])");
             return true;
         }
 
         String url = args[0];
-        String key = args.length == 2 ? args[1] : null;
+        String key = null;
+        String header = null;
+        String regex = null;
+
+        if (args[1].startsWith(KEY_IDENTIFIER)) {
+            key = args[1].substring(KEY_IDENTIFIER.length()); 
+        } else {
+            header = args[1].substring(HEADER_IDENTIFIER.length());
+            regex = args[2].substring(REGEX_IDENTIFIER.length()); 
+        }
 
         try {
             ArrayList lockingFailures = new ArrayList();
-            int count =  theConfigData.getSpoolManagement().removeSpoolItems(url, key, lockingFailures, SpoolFilter.ERRORMAIL_FILTER);
-
+            int count = 0;
+            
+            if (key != null) {
+                count = theConfigData.getSpoolManagement().removeSpoolItems(url, key, lockingFailures, SpoolFilter.ERRORMAIL_FILTER);
+            } else {
+                count = theConfigData.getSpoolManagement().removeSpoolItems(url, key, lockingFailures, new SpoolFilter(SpoolFilter.ERROR_STATE,header,regex));
+            }
+            
             for (Iterator iterator = lockingFailures.iterator(); iterator.hasNext();) {
                 String lockFailureKey = (String) iterator.next();
                 out.println("Error locking the mail with key:  " + lockFailureKey);
