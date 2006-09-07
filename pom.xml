@@ -357,6 +357,12 @@
       <artifactId>mstor</artifactId>
       <version>0.9.9</version>
     </dependency>
+    
+    <dependency>
+      <groupId>xstream</groupId>
+      <artifactId>xstream</artifactId>
+      <version>1.2</version>
+    </dependency>
 
   </dependencies>
 
