@@ -67,6 +67,8 @@ public class URIRBLHandlerTest extends TestCase {
 
             private boolean relayingAllowed;
 
+            private boolean processing;
+            
             public void abortMessage() {
             }
 
@@ -97,6 +99,10 @@ public class URIRBLHandlerTest extends TestCase {
 
             public void writeResponse(String respString) {
                 response = respString;
+            }
+            
+            public void setStopHandlerProcessing(boolean processing) {
+        	this.processing = processing;
             }
         };
 
