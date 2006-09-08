@@ -161,7 +161,7 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
 
             DefaultConfiguration blacklist = new DefaultConfiguration(
                     "blacklist");
-            blacklist.setValue("bl.spamcop.net");
+            blacklist.setValue("bl.spamcop.net.");
             DefaultConfiguration rblServers = new DefaultConfiguration(
                     "rblservers");
             rblServers.addChild(blacklist);

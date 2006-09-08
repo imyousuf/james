@@ -215,7 +215,11 @@ public abstract class AbstractRemoteAddrInNetworkTest extends TestCase {
 
             public InetAddress getByName(String host)
                     throws UnknownHostException {
-                return InetAddress.getByName(host);
+                if ("192.168.200.0".equals(host) || "255.255.255.0".equals(host) || "192.168.200.1".equals(host) || "192.168.0.1".equals(host) || "192.168.1.1".equals(host)) {
+                    // called with an IP it only check formal validity
+                    return InetAddress.getByName(host);
+                }
+                throw new UnsupportedOperationException("getByName("+host+") unimplemented in AbstractRemoteAddrInNetworkTest");
             }
 
         };

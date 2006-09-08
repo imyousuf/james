@@ -47,7 +47,7 @@ public class URIRBLHandlerTest extends TestCase {
     private static final String BAD_DOMAIN1 = "bad.domain.de";
     private static final String BAD_DOMAIN2 = "bad2.domain.de";
     private static final String GOOD_DOMAIN = "good.domain2.de";
-    private static final String URISERVER = "multi.surbl.org";
+    private static final String URISERVER = "multi.surbl.org.";
     private SMTPSession mockedSMTPSession;
 
     private String response = null;
@@ -173,9 +173,9 @@ public class URIRBLHandlerTest extends TestCase {
                 } else if ((BAD_DOMAIN2.substring(4) + "." + URISERVER).equals(host)) {
                     return InetAddress.getByName("127.0.0.1");
                 } else if ((GOOD_DOMAIN.substring(5) + "." + URISERVER).equals(host)) {
-                    return InetAddress.getByName("fesdgaeg.deger");
+                    throw new UnknownHostException();
                 }
-                return InetAddress.getByName(host);
+                throw new UnsupportedOperationException("getByName("+host+") not implemented by this mock");
             }
         };
         

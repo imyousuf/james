@@ -99,12 +99,24 @@ public class SMTPServerTest extends TestCase {
                 if ("127.0.0.1".equals(host)) return getLocalhostByName();
             }
             
-            if ("1.0.0.127.bl.spamcop.net".equals(host)) {
+            if ("1.0.0.127.bl.spamcop.net.".equals(host)) {
                 return getLocalhostByName();
             }
             
-            return InetAddress.getByName(host);
-//                throw new UnsupportedOperationException("getByName not implemented in mock for host: "+host);
+            if ("james.apache.org".equals(host)) {
+                return InetAddress.getByName("james.apache.org");
+            }
+            
+            if ("abgsfe3rsf.de".equals(host)) {
+                throw new UnknownHostException();
+            }
+            
+            if ("128.0.0.1".equals(host) || "192.168.0.1".equals(host) || "127.0.0.1".equals(host) || "127.0.0.0".equals(host) || "255.0.0.0".equals(host) || "255.255.255.255".equals(host)) {
+                return InetAddress.getByName(host);
+            }
+            
+            throw new UnsupportedOperationException("getByName not implemented in mock for host: "+host);
+            //return InetAddress.getByName(host);
         }
 
         public Collection findTXTRecords(String hostname) {
@@ -112,7 +124,7 @@ public class SMTPServerTest extends TestCase {
             if (hostname == null) {
                 return res;
             };
-            if ("2.0.0.127.bl.spamcop.net".equals(hostname)) {
+            if ("2.0.0.127.bl.spamcop.net.".equals(hostname)) {
                 res.add("Blocked - see http://www.spamcop.net/bl.shtml?127.0.0.2");
             }
             return res;
@@ -690,7 +702,7 @@ public class SMTPServerTest extends TestCase {
         m_testConfiguration.setReverseEqualsEhlo();
         m_testConfiguration.setAuthorizedAddresses("192.168.0.1");
         // temporary alter the loopback resolution
-        m_dnsServer.setLocalhostByName(InetAddress.getByName("james.apache.org"));
+        m_dnsServer.setLocalhostByName(m_dnsServer.getByName("james.apache.org"));
         try {
             finishSetUp(m_testConfiguration);
     
