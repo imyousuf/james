@@ -73,8 +73,8 @@ public class URIRBLHandler extends AbstractLogEnabled implements MessageHandler,
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
     public void configure(Configuration arg0) throws ConfigurationException {
-	boolean invalidConfig = false;
-	
+        boolean invalidConfig = false;
+    
         Configuration serverConfiguration = arg0.getChild("uriRblServers", false);
         if ( serverConfiguration != null ) {
             ArrayList serverCollection = new ArrayList();
@@ -178,6 +178,7 @@ public class URIRBLHandler extends AbstractLogEnabled implements MessageHandler,
                         String responseString = null;
                         String detail = null;
                         String uRblServer = uRbl.next().toString();
+                       
                         dnsServer.getByName(target + "." + uRblServer);
             
                         if (getLogger().isInfoEnabled()) {
@@ -209,8 +210,8 @@ public class URIRBLHandler extends AbstractLogEnabled implements MessageHandler,
                         }  
 
                         session.writeResponse(responseString);
-                        session.abortMessage();
                         session.setStopHandlerProcessing(true);
+                        session.abortMessage();
 
                     } catch (UnknownHostException uhe) {
                         // domain not found. keep processing
@@ -231,8 +232,7 @@ public class URIRBLHandler extends AbstractLogEnabled implements MessageHandler,
      * @param domains HashSet for accumulating domain strings
      * @param part MimePart to scan
      */
-    private HashSet scanMailForDomains(MimePart part)
-        throws MessagingException, IOException {
+    private HashSet scanMailForDomains(MimePart part) throws MessagingException, IOException {
         HashSet domains = new HashSet();
         getLogger().debug("mime type is: \"" + part.getContentType() + "\"");
        
