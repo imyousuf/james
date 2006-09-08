@@ -94,7 +94,7 @@ public class DNSRBLHandlerTest extends TestCase {
                     return res;
                 }
                 ;
-                if ("2.0.0.127.bl.spamcop.net".equals(hostname)) {
+                if ("2.0.0.127.bl.spamcop.net.".equals(hostname)) {
                     res.add("Blocked - see http://www.spamcop.net/bl.shtml?127.0.0.2");
                 }
                 return res;
@@ -111,14 +111,14 @@ public class DNSRBLHandlerTest extends TestCase {
 
             public InetAddress getByName(String host)
                     throws UnknownHostException {
-                if ("2.0.0.127.bl.spamcop.net".equals(host)) {
+                if ("2.0.0.127.bl.spamcop.net.".equals(host)) {
                     return InetAddress.getByName("127.0.0.1");
-                } else if ("3.0.0.127.bl.spamcop.net".equals(host)) {
+                } else if ("3.0.0.127.bl.spamcop.net.".equals(host)) {
                     return InetAddress.getByName("127.0.0.1");
-                } else if ("192.168.0.1.bl.spamcop.net".equals(host)) {
-                    return InetAddress.getByName("fesdgaeg.deger");
+                } else if ("1.0.168.192.bl.spamcop.net.".equals(host)) {
+                    throw new UnknownHostException(host);
                 }
-                return InetAddress.getByName(host);
+                throw new UnsupportedOperationException("getByName("+host+") not implemented in DNSRBLHandlerTest mock");
             }
         };
     }
@@ -180,7 +180,7 @@ public class DNSRBLHandlerTest extends TestCase {
         setupMockedSMTPSession();
         rbl.setDNSServer(mockedDnsServer);
 
-        rbl.setBlacklist(new String[] { "bl.spamcop.net" });
+        rbl.setBlacklist(new String[] { "bl.spamcop.net." });
         rbl.setGetDetail(true);
         rbl.onConnect(mockedSMTPSession);
         assertEquals("Details","Blocked - see http://www.spamcop.net/bl.shtml?127.0.0.2",
@@ -197,7 +197,7 @@ public class DNSRBLHandlerTest extends TestCase {
         setupMockedSMTPSession();
         rbl.setDNSServer(mockedDnsServer);
 
-        rbl.setBlacklist(new String[] { "bl.spamcop.net" });
+        rbl.setBlacklist(new String[] { "bl.spamcop.net." });
         rbl.setGetDetail(false);
         rbl.onConnect(mockedSMTPSession);
         assertNull("No details",mockedSMTPSession.getConnectionState().get(RBL_DETAIL_MAIL_ATTRIBUTE_NAME));
@@ -215,7 +215,7 @@ public class DNSRBLHandlerTest extends TestCase {
 
         rbl.setDNSServer(mockedDnsServer);
 
-        rbl.setBlacklist(new String[] { "bl.spamcop.net" });
+        rbl.setBlacklist(new String[] { "bl.spamcop.net." });
         rbl.setGetDetail(true);
         rbl.onConnect(mockedSMTPSession);
         assertNull("No details",mockedSMTPSession.getConnectionState().get(RBL_DETAIL_MAIL_ATTRIBUTE_NAME));
@@ -232,7 +232,7 @@ public class DNSRBLHandlerTest extends TestCase {
 
         rbl.setDNSServer(mockedDnsServer);
 
-        rbl.setBlacklist(new String[] { "bl.spamcop.net" });
+        rbl.setBlacklist(new String[] { "bl.spamcop.net." });
         rbl.setGetDetail(true);
         rbl.onConnect(mockedSMTPSession);
         assertNull("No details",mockedSMTPSession.getConnectionState().get(RBL_DETAIL_MAIL_ATTRIBUTE_NAME));
@@ -249,7 +249,7 @@ public class DNSRBLHandlerTest extends TestCase {
 
         rbl.setDNSServer(mockedDnsServer);
 
-        rbl.setBlacklist(new String[] { "bl.spamcop.net" });
+        rbl.setBlacklist(new String[] { "bl.spamcop.net." });
         rbl.setGetDetail(true);
         rbl.onConnect(mockedSMTPSession);
         assertNull(mockedSMTPSession.getConnectionState().get(RBL_DETAIL_MAIL_ATTRIBUTE_NAME));
@@ -266,7 +266,7 @@ public class DNSRBLHandlerTest extends TestCase {
 
         rbl.setDNSServer(mockedDnsServer);
 
-        rbl.setWhitelist(new String[] { "bl.spamcop.net" });
+        rbl.setWhitelist(new String[] { "bl.spamcop.net." });
         rbl.setGetDetail(true);
         rbl.onConnect(mockedSMTPSession);
         assertNull(mockedSMTPSession.getConnectionState().get(RBL_DETAIL_MAIL_ATTRIBUTE_NAME));
