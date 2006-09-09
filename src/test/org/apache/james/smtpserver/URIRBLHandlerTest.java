@@ -30,8 +30,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.mail.BodyPart;
 import javax.mail.MessagingException;
+import javax.mail.Multipart;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 
 import junit.framework.TestCase;
 
@@ -46,7 +50,7 @@ import org.apache.mailet.Mail;
 public class URIRBLHandlerTest extends TestCase {
     private static final String BAD_DOMAIN1 = "bad.domain.de";
     private static final String BAD_DOMAIN2 = "bad2.domain.de";
-    private static final String GOOD_DOMAIN = "good.domain2.de";
+    private static final String GOOD_DOMAIN = "good.apache.org";
     private static final String URISERVER = "multi.surbl.org.";
     private SMTPSession mockedSMTPSession;
 
@@ -133,6 +137,24 @@ public class URIRBLHandlerTest extends TestCase {
 
         return message;
     }
+    
+    public MimeMessage setupMockedMimeMessageMP(String text) throws MessagingException {
+        MimeMessage message = new MimeMessage(new MockMimeMessage());
+        
+//      Create the message part 
+        BodyPart messageBodyPart = new MimeBodyPart();
+
+//         Fill the message
+        messageBodyPart.setText(text);
+
+        Multipart multipart = new MimeMultipart();
+        multipart.addBodyPart(messageBodyPart);
+        message.setContent(multipart);
+        message.saveChanges();
+
+        return message;
+    }
+    
 
     /**
      * Setup the mocked dnsserver
@@ -206,6 +228,24 @@ public class URIRBLHandlerTest extends TestCase {
         servers.add(URISERVER);
         
         SMTPSession session = setupMockedSMTPSession(setupMockedMail(setupMockedMimeMessage("http://" + BAD_DOMAIN1 + "/")));
+
+        URIRBLHandler handler = new URIRBLHandler();
+
+        ContainerUtil.enableLogging(handler, new MockLogger());
+        handler.setDnsServer(setupMockedDnsServer());
+        handler.setUriRblServer(servers);
+        handler.onMessage(session);
+
+        assertTrue("Stop handler processing", session.getStopHandlerProcessing());
+        assertNotNull("Email was rejected", getResponse());
+    }
+    
+    public void testBlockedMultiPart() throws IOException, MessagingException {
+        
+        ArrayList servers = new ArrayList();
+        servers.add(URISERVER);
+        
+        SMTPSession session = setupMockedSMTPSession(setupMockedMail(setupMockedMimeMessageMP("http://" + BAD_DOMAIN1 + "/" + " " +"http://" + GOOD_DOMAIN + "/")));
 
         URIRBLHandler handler = new URIRBLHandler();
 

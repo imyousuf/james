@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.regex.*;
 import java.net.URI;
+import java.net.URISyntaxException;
 
 public class URIScanner {
 
@@ -166,7 +167,7 @@ public class URIScanner {
     /** Pre-compiled pattern that matches domain string that is possibly
      contained in a three-part TLD */
     static private final Pattern tld3CapPattern = Pattern.compile(tld3Cap);
-
+ 
     /** controls testing/debug output */
     static private boolean testing = false;
 
@@ -181,18 +182,21 @@ public class URIScanner {
      * @param domains a HashSet to be populated with all domain strings found in
      *        the content
      * @param content a character sequence to be scanned for URIs
+     * @return newDomains the domains which were extracted
      */
-    static public void scanContentForDomains(HashSet domains,
-        CharSequence content) {
-    HashSet hosts = scanContentForHosts(content);
-    for (Iterator i = hosts.iterator(); i.hasNext();) {
-        String domain = domainFromHost((String) i.next());
-        if (null != domain) {
-        if (false == domains.contains(domain)) {
-            domains.add(domain);
+    static public HashSet scanContentForDomains(HashSet domains, CharSequence content) {
+        HashSet newDomains = new HashSet();
+        HashSet hosts = scanContentForHosts(content);
+        for (Iterator i = hosts.iterator(); i.hasNext();) {
+            String domain = domainFromHost((String) i.next());
+    
+            if (null != domain) {
+                if (false == domains.contains(domain)) {
+                    newDomains.add(domain);
+                }
+            }
         }
-        }
-    }
+        return newDomains;
     }
 
     /**
@@ -203,62 +207,64 @@ public class URIScanner {
      * @return a HashSet containing host strings
      */
     static protected HashSet scanContentForHosts(CharSequence content) {
-    HashSet set = new HashSet();
-    try {
+        HashSet set = new HashSet();
+        
         // look for URIs
         Matcher mat = uriPattern.matcher(content);
         while (mat.find()) {
-        String found = mat.group();
-        Matcher cleanMat = uriCleanup.matcher(found);
-        if (cleanMat.find()) {
-            found = cleanMat.group(1);
-        }
-        cleanMat = uriCleanup2.matcher(found);
-        if (cleanMat.find()) {
-            found = cleanMat.replaceAll("");
-        }
-        cleanMat = uriCleanup3.matcher(found);
-        if (cleanMat.find()) {
-            found = "mailto://" + cleanMat.group(1) + cleanMat.group(2);
-        }
-        cleanMat = schemePattern.matcher(found);
-        if (!cleanMat.find()) {
-            if (found.matches("^(?i)www\\d*\\..*")) {
-            found = "http://" + found;
-            } else if (found.matches("^(?i)ftp\\..*")) {
-            found = "ftp://" + found;
+            String found = mat.group();
+            Matcher cleanMat = uriCleanup.matcher(found);
+            if (cleanMat.find()) {
+                found = cleanMat.group(1);
             }
-        }
-        String host = hostFromUriStr(found);
-        if (null != host) {
-            host = host.toLowerCase();
-            if (false == set.contains(host)) {
-            set.add(host);
+                
+            cleanMat = uriCleanup2.matcher(found);
+            if (cleanMat.find()) {
+               found = cleanMat.replaceAll("");
             }
-        }
+                
+            cleanMat = uriCleanup3.matcher(found);
+            if (cleanMat.find()) {
+                found = "mailto://" + cleanMat.group(1) + cleanMat.group(2);
+            }
+        
+            cleanMat = schemePattern.matcher(found);
+            if (!cleanMat.find()) {
+                if (found.matches("^(?i)www\\d*\\..*")) {
+                    found = "http://" + found;
+                } else if (found.matches("^(?i)ftp\\..*")) {
+                    found = "ftp://" + found;
+                }
+            }
+       
+            String host = hostFromUriStr(found);
+            if (null != host) {
+                host = host.toLowerCase();
+                if (false == set.contains(host)) {
+                    set.add(host);
+                }
+            }
         }
 
         // look for "schemeless" email addresses, too
         mat = emailAddrPattern.matcher(content);
         while (mat.find()) {
-        String found = mat.group();
-        debugOut("******** mailfound=\"" + found + "\"");
-        found = "mailto://" + found;
-        debugOut("*******6 mailfoundfound=\"" + found
-            + "\" after cleanup 6");
-        String host = hostFromUriStr(found);
-        if (null != host) {
-            host = host.toLowerCase();
-            if (false == set.contains(host)) {
-            set.add(host);
+            String found = mat.group();
+            debugOut("******** mailfound=\"" + found + "\"");
+            found = "mailto://" + found;
+            debugOut("*******6 mailfoundfound=\"" + found
+                + "\" after cleanup 6");
+          
+            String host = hostFromUriStr(found);
+            if (null != host) {
+                
+                host = host.toLowerCase();
+                if (false == set.contains(host)) {
+                    set.add(host);
+                }
             }
         }
-        }
-    } catch (Exception ex) {
-        debugOut(ex.toString());
-        ex.printStackTrace();
-    }
-    return set;
+        return set;
     }
 
     /**
@@ -271,14 +277,16 @@ public class URIScanner {
      *         could be found
      */
     static protected String hostFromUriStr(String uriStr) {
-    debugOut("hostFromUriStr(\"" + uriStr + "\")");
-    String host = null;
-    try {
-        URI uri = new URI(uriStr);
-        host = uri.getHost();
-    } catch (Exception ex) {
-    }
-    return host;
+        debugOut("hostFromUriStr(\"" + uriStr + "\")");
+        String host = null;
+        URI uri;
+        try {
+            uri = new URI(uriStr);
+            host = uri.getHost();
+        } catch (URISyntaxException e) {
+            debugOut(e.getMessage());
+        }
+        return host;
     }
 
     /**
@@ -294,65 +302,59 @@ public class URIScanner {
      * @return the registrar domain portion of the supplied host string
      */
     static protected String domainFromHost(String host) {
-    debugOut("domainFromHost(\"" + host + "\")");
-    String domain = null;
-    Matcher mat;
-    try {
-
+        debugOut("domainFromHost(\"" + host + "\")");
+        String domain = null;
+        Matcher mat;
+            
         // IP addrs 
         mat = ipCapPattern.matcher(host);
         if (mat.find()) {
-        // reverse the octets now
-        domain = mat.group(5) + "." + mat.group(4) + "." + mat.group(3)
-            + "." + mat.group(2);
-        debugOut("domain=\"" + domain + "\"");
-        return domain;
+            // reverse the octets now
+            domain = mat.group(5) + "." + mat.group(4) + "." + mat.group(3) + "." + mat.group(2);
+            debugOut("domain=\"" + domain + "\"");
+            return domain;
         }
 
         // 3-part TLDs
         mat = tld3CapPattern.matcher(host);
         if (mat.find()) {
-        String tld = mat.group(2);
-        if (TLDLookup.isThreePartTLD(tld)) {
-            domain = mat.group(1);
-            debugOut("domain=\"" + domain + ", tld=\"" + tld + "\"");
-            return domain;
-        }
+            String tld = mat.group(2);
+            if (TLDLookup.isThreePartTLD(tld)) {
+                domain = mat.group(1);
+                debugOut("domain=\"" + domain + ", tld=\"" + tld + "\"");
+                return domain;
+            }
         }
 
         // 2-part TLDs
         mat = tld2CapPattern.matcher(host);
         if (mat.find()) {
-        String tld = mat.group(2);
-        if (TLDLookup.isTwoPartTLD(tld)) {
-            domain = mat.group(1);
-            debugOut("domain=\"" + domain + ", tld=\"" + tld + "\"");
-            return domain;
-        }
+            String tld = mat.group(2);
+            if (TLDLookup.isTwoPartTLD(tld)) {
+                domain = mat.group(1);
+                debugOut("domain=\"" + domain + ", tld=\"" + tld + "\"");
+                return domain;
+            }
         }
 
         // 1-part TLDs
         mat = tldCapPattern.matcher(host);
         if (mat.find()) {
-        String tld = mat.group(2);
-        domain = mat.group(1);
-        debugOut("domain=\"" + domain + ", tld=\"" + tld + "\"");
-        return domain;
+            String tld = mat.group(2);
+            domain = mat.group(1);
+            debugOut("domain=\"" + domain + ", tld=\"" + tld + "\"");
+            return domain;
         }
-    } catch (Exception ex) {
-        debugOut(ex.toString());
-        ex.printStackTrace();
-    }
-    return domain;
+        return domain;
     }
 
     /**
      * Debugging output
      */
     private static void debugOut(String msg) {
-    if (true == testing) {
-        System.out.println(msg);
-    }
+        if (true == testing) {
+            System.out.println(msg);
+        }
     }
 
     /**
@@ -362,17 +364,16 @@ public class URIScanner {
      * @return modified "escaped" string
      */
     private static String escape(String str) {
-    StringBuffer buffer = new StringBuffer();
-    for (int i = 0; i < str.length(); i++) {
-        char ch = str.charAt(i);
-        if (Character.isDigit(ch) || Character.isUpperCase(ch)
-            || Character.isLowerCase(ch) || ch == '_') {
-        buffer.append(ch);
-        } else {
-        buffer.append("\\");
-        buffer.append(ch);
+        StringBuffer buffer = new StringBuffer();
+        for (int i = 0; i < str.length(); i++) {
+            char ch = str.charAt(i);
+            if (Character.isDigit(ch) || Character.isUpperCase(ch) || Character.isLowerCase(ch) || ch == '_') {
+                buffer.append(ch);
+            } else {
+                buffer.append("\\");
+                buffer.append(ch);
+            }
         }
-    }
-    return buffer.toString();
+        return buffer.toString();
     }
 }
