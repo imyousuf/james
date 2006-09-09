@@ -216,7 +216,7 @@ public class SPFHandler extends AbstractLogEnabled implements CommandHandler,
                         || (spfResult.equals(SPF1Utils.PERM_ERROR_CONV) && blockPermError)) {
 
                     if (spfResult.equals(SPF1Utils.PERM_ERROR)) {
-                        explanation = "Blocked caused by an invalid SPF record";
+                        explanation = "Block caused by an invalid SPF record";
                     }
                     session.getState().put(SPF_DETAIL, explanation);
                     session.getState().put(SPF_BLOCKLISTED, "true");
@@ -271,7 +271,7 @@ public class SPFHandler extends AbstractLogEnabled implements CommandHandler,
                 String responseString = "451 "
                         + DSNStatus.getStatus(DSNStatus.TRANSIENT,
                                 DSNStatus.NETWORK_DIR_SERVER) + " "
-                        + "Temporary rejected: Problem on SPF lookup";
+                        + "Temporarily rejected: Problem on SPF lookup";
                 session.writeResponse(responseString);
                 session.setStopHandlerProcessing(true);
             }
