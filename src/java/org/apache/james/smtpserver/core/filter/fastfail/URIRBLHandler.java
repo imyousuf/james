@@ -182,7 +182,7 @@ public class URIRBLHandler extends AbstractLogEnabled implements MessageHandler,
                         dnsServer.getByName(target + "." + uRblServer);
             
                         if (getLogger().isInfoEnabled()) {
-                            getLogger().info("Message restricted by " +  uRblServer + " to SMTP AUTH/postmaster/abuse.");
+                            getLogger().info("Message sended by " + session.getRemoteIPAddress() + " restricted by " +  uRblServer + " cause " + target + " is listed");
                         }
 
                         // we should try to retrieve details
@@ -205,7 +205,7 @@ public class URIRBLHandler extends AbstractLogEnabled implements MessageHandler,
                         } else {
                             responseString = "554 "
                                 + DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_OTHER)
-                                + " Rejected: message contains a domain listed by " + uRblServer;
+                                + " Rejected: message contains domain " + target + " listed by " + uRblServer;
                         }  
 
                         session.writeResponse(responseString);
