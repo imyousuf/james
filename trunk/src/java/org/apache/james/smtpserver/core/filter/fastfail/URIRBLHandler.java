@@ -168,18 +168,23 @@ public class URIRBLHandler extends AbstractLogEnabled implements MessageHandler,
             HashSet domains = scanMailForDomains(message);
 
             Iterator fDomains = domains.iterator();
-            Iterator uRbl = uriRbl.iterator();
 
             while (fDomains.hasNext()) {
+                Iterator uRbl = uriRbl.iterator();
                 String target = fDomains.next().toString();
-
+                
                 while (uRbl.hasNext()) {
                     try {
                         String responseString = null;
                         String detail = null;
                         String uRblServer = uRbl.next().toString();
-                       
-                        dnsServer.getByName(target + "." + uRblServer);
+                        String address = target + "." + uRblServer;
+                        
+                        if (getLogger().isDebugEnabled()) {
+                            getLogger().debug("Lookup " + address);
+                        }
+                        
+                        dnsServer.getByName(address);
             
                         if (getLogger().isInfoEnabled()) {
                             getLogger().info("Message sended by " + session.getRemoteIPAddress() + " restricted by " +  uRblServer + " cause " + target + " is listed");
@@ -187,7 +192,7 @@ public class URIRBLHandler extends AbstractLogEnabled implements MessageHandler,
 
                         // we should try to retrieve details
                         if (getDetail) {
-                            Collection txt = dnsServer.findTXTRecords(target + "." + uRblServer);
+                            Collection txt = dnsServer.findTXTRecords(address);
 
                             // Check if we found a txt record
                             if (!txt.isEmpty()) {
@@ -200,7 +205,8 @@ public class URIRBLHandler extends AbstractLogEnabled implements MessageHandler,
                         if (detail != null) {
                            
                             responseString = "554 "
-                                + DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_OTHER) + " "
+                                + DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_OTHER)
+                                + " Rejected: message contains domain " + target + " listed by " + uRblServer + " . Details: " 
                                 + detail;
                         } else {
                             responseString = "554 "
@@ -211,6 +217,7 @@ public class URIRBLHandler extends AbstractLogEnabled implements MessageHandler,
                         session.writeResponse(responseString);
                         session.setStopHandlerProcessing(true);
                         session.abortMessage();
+                        return;
 
                     } catch (UnknownHostException uhe) {
                         // domain not found. keep processing
@@ -230,6 +237,7 @@ public class URIRBLHandler extends AbstractLogEnabled implements MessageHandler,
      *
      * @param domains HashSet for accumulating domain strings
      * @param part MimePart to scan
+     * @return domains The HashSet that contains the domains which were extracted
      */
     private HashSet scanMailForDomains(MimePart part) throws MessagingException, IOException {
         HashSet domains = new HashSet();
@@ -237,7 +245,12 @@ public class URIRBLHandler extends AbstractLogEnabled implements MessageHandler,
        
         if (part.isMimeType("text/plain") || part.isMimeType("text/html")) {
             getLogger().debug("scanning: \"" + part.getContent().toString() + "\"");
-            URIScanner.scanContentForDomains(domains, part.getContent().toString());
+            HashSet newDom = URIScanner.scanContentForDomains(domains, part.getContent().toString());
+           
+            // Check if new domains are found and add the domains 
+            if (newDom != null && newDom.size() > 0) {
+                domains.addAll(newDom);
+            }
         } else if (part.isMimeType("multipart/*")) {
             MimeMultipart multipart = (MimeMultipart) part.getContent();
             int count = multipart.getCount();
@@ -246,7 +259,12 @@ public class URIRBLHandler extends AbstractLogEnabled implements MessageHandler,
             for (int index = 0; index < count; index++) {
                 getLogger().debug("recursing index: " + index);
                 MimeBodyPart mimeBodyPart = (MimeBodyPart) multipart.getBodyPart(index);
-                domains = scanMailForDomains(mimeBodyPart);
+                HashSet newDomains = scanMailForDomains(mimeBodyPart);
+                
+                // Check if new domains are found and add the domains 
+                if(newDomains != null && newDomains.size() > 0) {
+                    domains.addAll(newDomains);
+                }
             }
         }
         return domains;
