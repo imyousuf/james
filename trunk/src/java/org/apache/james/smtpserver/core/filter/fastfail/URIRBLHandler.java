@@ -187,7 +187,7 @@ public class URIRBLHandler extends AbstractLogEnabled implements MessageHandler,
                         dnsServer.getByName(address);
             
                         if (getLogger().isInfoEnabled()) {
-                            getLogger().info("Message sended by " + session.getRemoteIPAddress() + " restricted by " +  uRblServer + " cause " + target + " is listed");
+                            getLogger().info("Message sent by " + session.getRemoteIPAddress() + " restricted by " +  uRblServer + " because " + target + " is listed");
                         }
 
                         // we should try to retrieve details
