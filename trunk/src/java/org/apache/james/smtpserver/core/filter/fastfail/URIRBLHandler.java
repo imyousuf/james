@@ -49,7 +49,7 @@ import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.james.util.urirbl.URIScanner;
 
 /**
- * Extract domains from message and check against URIRBLServer
+ * Extract domains from message and check against URIRBLServer. For more informations see http://www.surbl.org
  */
 public class URIRBLHandler extends AbstractLogEnabled implements MessageHandler,
     Serviceable, Configurable {
@@ -187,7 +187,7 @@ public class URIRBLHandler extends AbstractLogEnabled implements MessageHandler,
 
                         // we should try to retrieve details
                         if (getDetail) {
-                            Collection txt = dnsServer.findTXTRecords(target + "." + uRbl.next());
+                            Collection txt = dnsServer.findTXTRecords(target + "." + uRblServer);
 
                             // Check if we found a txt record
                             if (!txt.isEmpty()) {
@@ -198,15 +198,14 @@ public class URIRBLHandler extends AbstractLogEnabled implements MessageHandler,
                         }
             
                         if (detail != null) {
-                            responseString = "530 "
-                                + DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_AUTH) + " "
+                           
+                            responseString = "554 "
+                                + DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_OTHER) + " "
                                 + detail;
                         } else {
-                            responseString = "530 "
-                                + DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_AUTH)
-                                + " Rejected: unauthenticated e-mail from "
-                                + session.getRemoteIPAddress()
-                                + " is restricted.  Contact the postmaster for details.";
+                            responseString = "554 "
+                                + DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_OTHER)
+                                + " Rejected: message contains a domain listed by " + uRblServer;
                         }  
 
                         session.writeResponse(responseString);
