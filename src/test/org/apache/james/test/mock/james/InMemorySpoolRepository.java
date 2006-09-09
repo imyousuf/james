@@ -20,6 +20,8 @@
 
 package org.apache.james.test.mock.james;
 
+import org.apache.avalon.framework.activity.Disposable;
+import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.SpoolRepository;
 import org.apache.james.test.mock.avalon.MockLogger;
@@ -46,7 +48,7 @@ import java.util.Iterator;
  * @version 1.0.0, 24/04/1999
  */
 public class InMemorySpoolRepository
-    implements SpoolRepository {
+    implements SpoolRepository, Disposable {
 
     /**
      * Whether 'deep debugging' is turned on.
@@ -235,7 +237,10 @@ public class InMemorySpoolRepository
     public void remove(String key) throws MessagingException {
         if (lock(key)) {
             try {
-                if (spool != null) spool.remove(key);
+                if (spool != null) {
+                    Object o = spool.remove(key);
+                    ContainerUtil.dispose(o);
+                }
             } finally {
                 unlock(key);
             }
@@ -419,7 +424,20 @@ public class InMemorySpoolRepository
     }
 
     public void clear() {
-        spool.clear();
+        if (spool != null) {
+            Iterator i = list();
+            while (i.hasNext()) {
+                String key = (String) i.next();
+                try {
+                    remove(key);
+                } catch (MessagingException e) {
+                }
+            }
+        }
+    }
+
+    public void dispose() {
+        clear();
     }
     
 }

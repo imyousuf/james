@@ -21,6 +21,7 @@
 
 package org.apache.james.pop3server;
 
+import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.mailet.Mail;
 
 /**
@@ -67,6 +68,9 @@ public class DeleCmdHandler implements CommandHandler {
                     session.writeResponse(responseString);
                 } else {
                     session.getUserMailbox().set(num, POP3Handler.DELETED);
+                    // we are replacing our reference with "DELETED", so we have
+                    // to dispose the no-more-referenced mail object.
+                    ContainerUtil.dispose(mc);
                     session.writeResponse(POP3Handler.OK_RESPONSE + " Message deleted");
                 }
             } catch (IndexOutOfBoundsException iob) {

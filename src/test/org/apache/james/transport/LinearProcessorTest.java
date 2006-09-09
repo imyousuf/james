@@ -62,7 +62,7 @@ public class LinearProcessorTest extends TestCase {
 
     String sep = "\r\n\r\n";
 
-    String body = "original body\r\n.\r\n";
+    String body = "original body LinearProcessorTest\r\n.\r\n";
 
     MailetContext mockContext = new MockMailContext();
 
@@ -157,12 +157,16 @@ public class LinearProcessorTest extends TestCase {
             linearProcessor.service(m);
             ArrayList a = checkerMailet.receivedMails;
             assertEquals(2, a.size());
-            MimeMessage m1 = ((Mail) a.get(0)).getMessage();
-            MimeMessage m2 = ((Mail) a.get(1)).getMessage();
+            Mail mail1 = ((Mail) a.get(0));
+            Mail mail2 = ((Mail) a.get(1));
+            MimeMessage m1 = mail1.getMessage();
+            MimeMessage m2 = mail2.getMessage();
             assertNotSame(m1, m2);
             assertEquals(m1.getSubject(), "new text 1");
             assertEquals(m2.getSubject(), "new text 2");
             m.dispose();
+            ContainerUtil.dispose(mail1);
+            ContainerUtil.dispose(mail2);
         } catch (MessagingException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -202,12 +206,16 @@ public class LinearProcessorTest extends TestCase {
             linearProcessor.service(m);
             ArrayList a = checkerMailet.receivedMails;
             assertEquals(2, a.size());
-            MimeMessage m1 = ((Mail) a.get(0)).getMessage();
-            MimeMessage m2 = ((Mail) a.get(1)).getMessage();
+            Mail mail1 = ((Mail) a.get(0));
+            Mail mail2 = ((Mail) a.get(1));
+            MimeMessage m1 = mail1.getMessage();
+            MimeMessage m2 = mail2.getMessage();
             assertNotSame(m1, m2);
             assertEquals("MYSTATE", ((Mail) a.get(0)).getState());
             assertEquals("MYSTATE", ((Mail) a.get(1)).getState());
             m.dispose();
+            ContainerUtil.dispose(mail1);
+            ContainerUtil.dispose(mail2);
         } catch (MessagingException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

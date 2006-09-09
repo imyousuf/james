@@ -87,7 +87,9 @@ public class MimeMessageTest extends TestCase {
      * Class under test for String getSubject()
      */
     public void testSimpleMessage() throws Exception {
-        assertEquals(getSimpleMessageCleanedSource(), getCleanedMessageSource(getSimpleMessage()));
+        MimeMessage m = getSimpleMessage();
+        assertEquals(getSimpleMessageCleanedSource(), getCleanedMessageSource(m));
+        ContainerUtil.dispose(m);
     }
     
     
@@ -404,6 +406,7 @@ public class MimeMessageTest extends TestCase {
     public void testReturnPath() throws Exception {
         MimeMessage message = getSimpleMessage();
         assertNull(message.getHeader(RFC2822Headers.RETURN_PATH));
+        ContainerUtil.dispose(message);
     }
     
     public void testHeaderOrder() throws Exception {
@@ -412,6 +415,7 @@ public class MimeMessageTest extends TestCase {
         Enumeration h =  message.getAllHeaderLines();
         
         assertEquals(h.nextElement(),"Return-Path: <test@test.de>");
+        ContainerUtil.dispose(message);
     }
 
 }

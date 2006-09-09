@@ -181,7 +181,14 @@ public class MailImpl implements Disposable, Mail {
         throws MessagingException {
         this(name, sender, recipients);
         MimeMessageSource source = new MimeMessageInputStreamSource(name, messageIn);
-        this.setMessage(new MimeMessageCopyOnWriteProxy(source));
+        // if MimeMessageCopyOnWriteProxy throws an error in the constructor we
+        // have to manually care disposing our source.
+        try {
+            this.setMessage(new MimeMessageCopyOnWriteProxy(source));
+        } catch (MessagingException e) {
+            ContainerUtil.dispose(source);
+            throw e;
+        }
     }
 
     /**

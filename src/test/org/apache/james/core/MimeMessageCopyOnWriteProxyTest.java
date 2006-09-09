@@ -201,7 +201,7 @@ public class MimeMessageCopyOnWriteProxyTest extends MimeMessageFromStreamTest {
                                 ("Return-path: return@test.com\r\n"+
                                  "Content-Transfer-Encoding: plain\r\n"+
                                  "Subject: test\r\n\r\n"+
-                                 "Body Text\r\n").getBytes())));
+                                 "Body Text testNPE1\r\n").getBytes())));
         
         MimeMessageCopyOnWriteProxy mw2 = new MimeMessageCopyOnWriteProxy(mw);
         ContainerUtil.dispose(mw2);
@@ -235,7 +235,7 @@ public class MimeMessageCopyOnWriteProxyTest extends MimeMessageFromStreamTest {
             fail("Exception while writing the message to output");
         }
         
-        ContainerUtil.dispose(mmorig);
+        ContainerUtil.dispose(mm);
     }
 
     private static String getReferences(MimeMessage m) {
