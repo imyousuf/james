@@ -25,8 +25,6 @@ import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.commons.net.pop3.POP3Client;
 import org.apache.commons.net.pop3.POP3MessageInfo;
 import org.apache.james.core.MailImpl;
-import org.apache.james.core.MimeMessageCopyOnWriteProxy;
-import org.apache.james.core.MimeMessageInputStreamSource;
 import org.apache.james.services.JamesConnectionManager;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
@@ -44,9 +42,9 @@ import org.apache.james.util.connection.SimpleConnectionManager;
 import org.apache.mailet.MailAddress;
 
 import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
 import javax.mail.util.SharedByteArrayInputStream;
 
+import java.io.InputStream;
 import java.io.Reader;
 import java.util.ArrayList;
 
@@ -106,14 +104,14 @@ public class POP3ServerTest extends TestCase {
     }
 
     protected void tearDown() throws Exception {
-        if (testMail1 != null) testMail1.dispose();
-        if (testMail2 != null) testMail2.dispose();
         if (m_pop3Protocol != null) {
             m_pop3Protocol.sendCommand("quit");
             m_pop3Protocol.disconnect();
         }
         m_pop3Server.dispose();
         ContainerUtil.dispose(m_mailServer);
+        if (testMail1 != null) testMail1.dispose();
+        if (testMail2 != null) testMail2.dispose();
         super.tearDown();
     }
 
@@ -243,22 +241,16 @@ public class POP3ServerTest extends TestCase {
     private void setupTestMails(MailRepository mailRep) throws MessagingException {
         ArrayList recipients = new ArrayList();
         recipients.add(new MailAddress("recipient@test.com"));
-        MimeMessage mw = new MimeMessageCopyOnWriteProxy(
-                new MimeMessageInputStreamSource(
-                        "test",
-                        new SharedByteArrayInputStream(
+        InputStream mw = new SharedByteArrayInputStream(
                                 ("Return-path: return@test.com\r\n"+
                                  "Content-Transfer-Encoding: plain\r\n"+
                                  "Subject: test\r\n\r\n"+
-                                 "Body Text\r\n").getBytes())));
+                                 "Body Text POP3ServerTest.setupTestMails\r\n").getBytes());
         testMail1 = new MailImpl("name", new MailAddress("from@test.com"),
                         recipients, mw);
         mailRep.store(testMail1);
-        MimeMessage mw2 = new MimeMessageCopyOnWriteProxy(
-                new MimeMessageInputStreamSource(
-                        "test2",
-                        new SharedByteArrayInputStream(
-                                ("EMPTY").getBytes())));
+        InputStream mw2 = new SharedByteArrayInputStream(
+                                ("EMPTY").getBytes());
         testMail2 = new MailImpl("name2", new MailAddress("from@test.com"),
                                 recipients, mw2);
         mailRep.store(testMail2);

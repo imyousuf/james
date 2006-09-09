@@ -295,6 +295,10 @@ public class POP3Handler
         }
 
         if (backupUserMailbox != null) {
+            Iterator i = backupUserMailbox.iterator();
+            while (i.hasNext()) {
+                ContainerUtil.dispose(i.next());
+            }
             backupUserMailbox.clear();
             backupUserMailbox = null;
         }

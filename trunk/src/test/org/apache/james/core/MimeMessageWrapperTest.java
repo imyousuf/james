@@ -230,6 +230,7 @@ public class MimeMessageWrapperTest extends MimeMessageFromStreamTest {
         Enumeration h =  message.getAllHeaderLines();
         assertEquals("Return-Path: <test@test.de>",h.nextElement());
         assertFalse(h.nextElement().toString().startsWith("Return-Path:"));
+        ContainerUtil.dispose(message);
     }
     
     public void testAddReturnPathOnBadMessage() throws Exception {
@@ -242,6 +243,7 @@ public class MimeMessageWrapperTest extends MimeMessageFromStreamTest {
         // test that return-path is the first line
         Enumeration h =  message.getAllHeaderLines();
         assertEquals("Return-Path: <test@test.de>",h.nextElement());
+        ContainerUtil.dispose(message);
     }
 
 }

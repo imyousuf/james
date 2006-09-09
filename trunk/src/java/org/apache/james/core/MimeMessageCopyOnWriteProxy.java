@@ -71,10 +71,24 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
         }
 
         protected synchronized void incrementReferenceCount() {
+            /* Used to track references while debugging
+            try {
+                throw new Exception("incrementReferenceCount: "+(wrapped != null ? System.identityHashCode(wrapped)+"" : "null")+" ["+referenceCount+"]");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            */
             referenceCount++;
         }
 
         protected synchronized void decrementReferenceCount() {
+            /* Used to track references while debugging
+            try {
+                throw new Exception("decrementReferenceCount: "+(wrapped != null ? System.identityHashCode(wrapped)+"" : "null")+" ["+referenceCount+"]");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            */
             referenceCount--;
             if (referenceCount<=0) {
                 ContainerUtil.dispose(wrapped);
@@ -730,14 +744,6 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
      */
     public void setFlag(Flag arg0, boolean arg1) throws MessagingException {
         getWrappedMessageForWriting().setFlag(arg0, arg1);
-    }
-
-    /**
-     * @see java.lang.Object#finalize()
-     */
-    protected void finalize() throws Throwable {
-        dispose();
-        super.finalize();
     }
 
     /**

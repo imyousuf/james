@@ -101,6 +101,12 @@ public class MimeMessageInputStreamSource
             } catch (IOException ioe) {
                 // Ignored - logging unavailable to log this non-fatal error.
             }
+            
+            // if sourceId is null while file is not null then we had
+            // an IOxception and we have to clean the file.
+            if (sourceId == null && file != null) {
+                file.delete();
+            }
         }
     }
 
@@ -146,18 +152,5 @@ public class MimeMessageInputStreamSource
         }
         file = null;
     }
-
-    /**
-     * <p>Finalizer that closes and deletes the temp file.  Very bad.</p>
-     * We're leaving this in temporarily, while also establishing a more
-     * formal mechanism for cleanup through use of the dispose() method.
-     * @throws Throwable 
-     *
-     */
-    public void finalize() throws Throwable {
-        dispose();
-        super.finalize();
-    }
-    
 
 }

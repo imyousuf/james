@@ -109,6 +109,8 @@ public class AvalonMailRepositoryTest extends TestCase {
         ContainerUtil.dispose(m2);
         
         mr.remove("mail1");
+        
+        ContainerUtil.dispose(mimeMessage);
 
     }
 
@@ -172,6 +174,8 @@ public class AvalonMailRepositoryTest extends TestCase {
         ContainerUtil.dispose(m2);
         
         mr.remove("mail1");
+        
+        ContainerUtil.dispose(mimeMessage);
 
     }
 

@@ -286,7 +286,7 @@ public class SMTPServerTest extends TestCase {
         
         smtpProtocol.addRecipient("mail@localhost");
 
-        smtpProtocol.sendShortMessageData("Subject: test mail\r\n\r\nTest body\r\n.\r\n");
+        smtpProtocol.sendShortMessageData("Subject: test mail\r\n\r\nTest body testSimpleMailSendWithHELO\r\n.\r\n");
 
         smtpProtocol.quit();
         smtpProtocol.disconnect();
@@ -322,10 +322,10 @@ public class SMTPServerTest extends TestCase {
         smtpProtocol2.setSender(sender2);
         smtpProtocol2.addRecipient(recipient2);
 
-        smtpProtocol1.sendShortMessageData("Subject: test\r\n\r\nTest body\r\n.\r\n");
+        smtpProtocol1.sendShortMessageData("Subject: test\r\n\r\nTest body testTwoSimultaneousMails1\r\n.\r\n");
         verifyLastMail(sender1, recipient1, null);
             
-        smtpProtocol2.sendShortMessageData("Subject: test\r\n\r\nTest body\r\n.\r\n");
+        smtpProtocol2.sendShortMessageData("Subject: test\r\n\r\nTest body testTwoSimultaneousMails2\r\n.\r\n");
         verifyLastMail(sender2, recipient2, null);
 
         smtpProtocol1.quit();
@@ -353,7 +353,7 @@ public class SMTPServerTest extends TestCase {
         smtpProtocol1.setSender(sender1);
         smtpProtocol1.addRecipient(recipient1);
 
-        smtpProtocol1.sendShortMessageData("Subject: test\r\n\r\nTest body\r\n");
+        smtpProtocol1.sendShortMessageData("Subject: test\r\n\r\nTest body testTwoMailsInSequence1\r\n");
         verifyLastMail(sender1, recipient1, null);
             
         String sender2 = "mail_sender2@localhost";
@@ -361,7 +361,7 @@ public class SMTPServerTest extends TestCase {
         smtpProtocol1.setSender(sender2);
         smtpProtocol1.addRecipient(recipient2);
 
-        smtpProtocol1.sendShortMessageData("Subject: test2\r\n\r\nTest body2\r\n");
+        smtpProtocol1.sendShortMessageData("Subject: test2\r\n\r\nTest body2 testTwoMailsInSequence2\r\n");
         verifyLastMail(sender2, recipient2, null);
 
         smtpProtocol1.quit();
@@ -580,7 +580,7 @@ public class SMTPServerTest extends TestCase {
         smtpProtocol1.addRecipient(rcpt2);
         assertEquals("expected 452 error", 452, smtpProtocol1.getReplyCode());
         
-        smtpProtocol1.sendShortMessageData("Subject: test\r\n\r\nTest body\r\n");
+        smtpProtocol1.sendShortMessageData("Subject: test\r\n\r\nTest body testMaxRcpt1\r\n");
         
         // After the data is send the rcpt count is set back to 0.. So a new mail with rcpt should be accepted
         
@@ -588,7 +588,7 @@ public class SMTPServerTest extends TestCase {
  
         smtpProtocol1.addRecipient(rcpt1);
         
-        smtpProtocol1.sendShortMessageData("Subject: test\r\n\r\nTest body\r\n");
+        smtpProtocol1.sendShortMessageData("Subject: test\r\n\r\nTest body testMaxRcpt2\r\n");
         
         smtpProtocol1.quit();
         
@@ -609,7 +609,7 @@ public class SMTPServerTest extends TestCase {
         
         smtpProtocol1.addRecipient(rcpt1);
         
-        smtpProtocol1.sendShortMessageData("Subject: test\r\n\r\nTest body\r\n");
+        smtpProtocol1.sendShortMessageData("Subject: test\r\n\r\nTest body testMaxRcptDefault\r\n");
         
         smtpProtocol1.quit();
     }
@@ -833,7 +833,7 @@ public class SMTPServerTest extends TestCase {
         assertEquals("expected error: User has previously authenticated.", 503, smtpProtocol.getReplyCode());
 
         smtpProtocol.addRecipient("mail@sample.com");
-        smtpProtocol.sendShortMessageData("Subject: test\r\n\r\nTest body\r\n");
+        smtpProtocol.sendShortMessageData("Subject: test\r\n\r\nTest body testAuth\r\n");
 
         smtpProtocol.quit();
 
@@ -878,7 +878,7 @@ public class SMTPServerTest extends TestCase {
 
         // left out for test smtpProtocol.rcpt(new Address("mail@localhost"));
 
-        smtpProtocol.sendShortMessageData("Subject: test\r\n\r\nTest body\r\n");
+        smtpProtocol.sendShortMessageData("Subject: test\r\n\r\nTest body testNoRecepientSpecified\r\n");
         assertTrue("sending succeeded without recepient", SMTPReply.isNegativePermanent(smtpProtocol.getReplyCode()));
 
         smtpProtocol.quit();
@@ -1175,7 +1175,7 @@ public class SMTPServerTest extends TestCase {
         assertEquals("authenticated.. not reject", 250, smtpProtocol
                 .getReplyCode());
 
-        smtpProtocol.sendShortMessageData("Subject: test\r\n\r\nTest body\r\n");
+        smtpProtocol.sendShortMessageData("Subject: test\r\n\r\nTest body testDNSRBLNotRejectAuthUser\r\n");
 
         smtpProtocol.quit();
 
@@ -1205,7 +1205,7 @@ public class SMTPServerTest extends TestCase {
         assertEquals("reject", 550, smtpProtocol
                 .getReplyCode());
 
-        smtpProtocol.sendShortMessageData("Subject: test\r\n\r\nTest body\r\n");
+        smtpProtocol.sendShortMessageData("Subject: test\r\n\r\nTest body testDNSRBLRejectWorks\r\n");
 
         smtpProtocol.quit();
 
