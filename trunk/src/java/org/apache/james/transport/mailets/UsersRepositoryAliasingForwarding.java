@@ -207,8 +207,7 @@ public class UsersRepositoryAliasingForwarding extends GenericMailet {
                         StringBuffer errorBuffer = new StringBuffer(128)
                                 .append("Forwarding was enabled for ")
                                 .append(username)
-                                .append(
-                                        " but no forwarding address was set for this account.");
+                                .append(" but no forwarding address was set for this account.");
                         throw new MessagingException(errorBuffer.toString());
                     }
                     Collection recipients = new HashSet();
@@ -229,6 +228,12 @@ public class UsersRepositoryAliasingForwarding extends GenericMailet {
                         throw me;
                     }
                 }
+            } else {
+                StringBuffer errorBuffer = new StringBuffer(128)
+                    .append("Warning: the repository returned an User of the wrong class (")
+                    .append(user.getClass().getName())
+                    .append(" does not implement JamesUser).");
+                getMailetContext().log(errorBuffer.toString());
             }
         }
         return username;
