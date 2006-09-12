@@ -802,7 +802,7 @@ public class James
      * @return the minor vesion number for the server
      */
     public int getMinorVersion() {
-        return 1;
+        return 4;
     }
 
     /**
