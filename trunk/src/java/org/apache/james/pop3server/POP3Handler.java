@@ -30,8 +30,6 @@ import org.apache.james.util.CRLFTerminatedReader;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.mailet.Mail;
 
-import javax.mail.MessagingException;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -102,9 +100,9 @@ public class POP3Handler
      * emails in the user's inbox at any given time
      * during the POP3 transaction.
      */
-    private ArrayList userMailbox = new ArrayList();
+    private List userMailbox = new ArrayList();
 
-    private ArrayList backupUserMailbox;         // A snapshot list representing the set of
+    private List backupUserMailbox;         // A snapshot list representing the set of
                                                  // emails in the user's inbox at the beginning
                                                  // of the transaction
 
@@ -308,38 +306,6 @@ public class POP3Handler
     }
 
     /**
-     * Implements a "stat".  If the handler is currently in
-     * a transaction state, this amounts to a rollback of the
-     * mailbox contents to the beginning of the transaction.
-     * This method is also called when first entering the
-     * transaction state to initialize the handler copies of the
-     * user inbox.
-     *
-     */
-    public void stat() {
-        userMailbox = new ArrayList();
-        userMailbox.add(DELETED);
-        try {
-            for (Iterator it = userInbox.list(); it.hasNext(); ) {
-                String key = (String) it.next();
-                Mail mc = userInbox.retrieve(key);
-                // Retrieve can return null if the mail is no longer in the store.
-                // In this case we simply continue to the next key
-                if (mc == null) {
-                    continue;
-                }
-                userMailbox.add(mc);
-            }
-        } catch(MessagingException e) {
-            // In the event of an exception being thrown there may or may not be anything in userMailbox
-            getLogger().error("Unable to STAT mail box ", e);
-        }
-        finally {
-            backupUserMailbox = (ArrayList) userMailbox.clone();
-        }
-    }
-
-    /**
      * Reads a line of characters off the command line.
      *
      * @return the trimmed input line
@@ -517,14 +483,14 @@ public class POP3Handler
     /**
      * @see org.apache.james.pop3server.POP3Session#getUserMailbox()
      */
-    public ArrayList getUserMailbox() {
+    public List getUserMailbox() {
         return userMailbox;
     }
 
     /**
      * @see org.apache.james.pop3server.POP3Session#setUserMailbox(java.util.ArrayList)
      */
-    public void setUserMailbox(ArrayList userMailbox) {
+    public void setUserMailbox(List userMailbox) {
         this.userMailbox = userMailbox;
     }
 
@@ -533,6 +499,14 @@ public class POP3Handler
      */
     public List getBackupUserMailbox() {
         return backupUserMailbox;
+    }
+
+
+    /**
+     * @see org.apache.james.pop3server.POP3Session#setUserMailbox(java.util.ArrayList)
+     */
+    public void setBackupUserMailbox(List backupUserMailbox) {
+        this.backupUserMailbox = backupUserMailbox;
     }
 
     /**

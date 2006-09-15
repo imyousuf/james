@@ -55,7 +55,7 @@ public class PassCmdHandler extends AbstractLogEnabled implements CommandHandler
                         throw new IllegalStateException("MailServer returned a null inbox for "+session.getUser());
                     }
                     session.setUserInbox(inbox);
-                    session.stat();
+                    RsetCmdHandler.stat(session, getLogger());
                     
                     // Store the ipAddress to use it later for pop before smtp 
                     POP3BeforeSMTPHelper.addIPAddress(session.getRemoteIPAddress());
