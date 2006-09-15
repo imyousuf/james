@@ -27,7 +27,6 @@ import org.apache.james.util.watchdog.Watchdog;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -184,26 +183,29 @@ public interface POP3Session {
      * 
      * @return mailbox content
      */
-    ArrayList getUserMailbox();
+    List getUserMailbox();
 
     /**
      * Sets a new mailbox content
      * 
      * @param userMailbox mailbox
      */
-    void setUserMailbox(ArrayList userMailbox);
+    void setUserMailbox(List userMailbox);
     
-    /**
-     * Inizialize the mailbox
-     */
-    void stat();
-
     /**
      * Returns the backup mailbox
      * 
      * @return list backup
      */
     List getBackupUserMailbox();
+
+
+    /**
+     * Sets a new backup mailbox content
+     * 
+     * @param backupUserMailbox the mailbox backup
+     */
+    void setBackupUserMailbox(List backupUserMailbox);
 
     /**
      * Returns the raw output stream
