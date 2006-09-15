@@ -164,7 +164,7 @@ public class OnlyText extends GenericMailet {
         for (int index = 32; index < 128; index++) charMap.put("#" + index, String.valueOf((char) index));
         for (int index = 128; index < 256; index++) charMap.put("#" + index, String.valueOf((char) index));
         
-        // una buona tabella è qui
+        // A complete reference is here:
         // http://en.wikipedia.org/wiki/List_of_XML_and_HTML_character_entity_references
         
         charMap.put("#09", "\t");
