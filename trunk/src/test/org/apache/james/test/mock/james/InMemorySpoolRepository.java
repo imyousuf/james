@@ -439,5 +439,15 @@ public class InMemorySpoolRepository
     public void dispose() {
         clear();
     }
+
+    public String toString() {
+        StringBuffer result = new StringBuffer();
+        result.append(super.toString());
+        Iterator i = list();
+        while (i.hasNext()) {
+            result.append("\n\t"+i.next());
+        }
+        return result.toString();
+    }
     
 }

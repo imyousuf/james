@@ -28,11 +28,10 @@ import org.apache.james.services.JamesUser;
 import org.apache.james.services.User;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
-import org.apache.mailet.RFC2822Headers;
-
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
+import org.apache.mailet.RFC2822Headers;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -247,11 +246,7 @@ public class UsersRepositoryAliasingForwarding extends GenericMailet {
         ServiceManager compMgr = (ServiceManager) getMailetContext()
                 .getAttribute(Constants.AVALON_COMPONENT_MANAGER);
 
-        UsersStore usersStore;
         try {
-            usersStore = (UsersStore) compMgr.lookup(UsersStore.ROLE);
-
-
             enableAliases = new Boolean(getInitParameter("enableAliases",
                     getMailetContext().getAttribute(Constants.DEFAULT_ENABLE_ALIASES).toString()
                     )).booleanValue();
@@ -272,6 +267,7 @@ public class UsersRepositoryAliasingForwarding extends GenericMailet {
                             + e.getMessage());
                 }
             } else {
+                UsersStore usersStore = (UsersStore) compMgr.lookup(UsersStore.ROLE);
                 usersRepository = usersStore.getRepository(userRep);
             }
 

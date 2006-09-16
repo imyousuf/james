@@ -21,7 +21,7 @@ package org.apache.james.test.mock.james;
 
 import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.james.core.MimeMessageCopyOnWriteProxy;
+import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.MessageSizeException;
@@ -33,8 +33,13 @@ import javax.mail.Address;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+
 import java.io.InputStream;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 
 public class MockMailServer implements MailServer, Disposable {
 
@@ -43,7 +48,10 @@ public class MockMailServer implements MailServer, Disposable {
     private static int m_counter = 0;
     private int m_maxMessageSizeBytes = 0;
 
-    private final ArrayList mails = new ArrayList();
+    // private final ArrayList mails = new ArrayList();
+    
+    private final InMemorySpoolRepository mails = new InMemorySpoolRepository();
+    private String lastMailKey = null; 
 
     private HashMap inboxes;
     
@@ -52,13 +60,21 @@ public class MockMailServer implements MailServer, Disposable {
     }
 
     public void sendMail(MailAddress sender, Collection recipients, MimeMessage msg) throws MessagingException {
-        Object[] mailObjects = new Object[]{sender, recipients, new MimeMessageCopyOnWriteProxy(msg)};
-        mails.add(mailObjects);
+        //        Object[] mailObjects = new Object[]{sender, recipients, new MimeMessageCopyOnWriteProxy(msg)};
+//        mails.add(mailObjects);
+//        
+        String newId = newId();
+        MailImpl m = new MailImpl(newId, sender, recipients, msg);
+        sendMail(m);
+        m.dispose();
     }
 
     public void sendMail(MailAddress sender, Collection recipients, InputStream msg) throws MessagingException {
-        Object[] mailObjects = new Object[]{sender, recipients, msg};
-        mails.add(mailObjects);
+//        Object[] mailObjects = new Object[]{sender, recipients, msg};
+//        mails.add(mailObjects);
+        MailImpl m = new MailImpl(newId(), sender, recipients, msg);
+        sendMail(m);
+        m.dispose();
     }
 
     public void sendMail(Mail mail) throws MessagingException {
@@ -68,7 +84,10 @@ public class MockMailServer implements MailServer, Disposable {
         } catch (MessageSizeException e) {
             throw new MessagingException("message size exception is nested", e);
         }
-        sendMail(mail.getSender(), mail.getRecipients(), mail.getMessage());
+        
+        lastMailKey = mail.getName();
+        mails.store(mail);
+        // sendMail(mail.getSender(), mail.getRecipients(), mail.getMessage());
     }
 
     public void sendMail(MimeMessage message) throws MessagingException {
@@ -127,10 +146,15 @@ public class MockMailServer implements MailServer, Disposable {
         return "localhost".equals(serverName);
     }
 
-    public Object[] getLastMail()
+    public Mail getLastMail()
     {
         if (mails.size() == 0) return null;
-        return (Object[])mails.get(mails.size()-1);
+        try {
+            return mails.retrieve(lastMailKey);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public void setMaxMessageSizeBytes(int maxMessageSizeBytes) {
@@ -138,14 +162,15 @@ public class MockMailServer implements MailServer, Disposable {
     }
 
     public void dispose() {
-        if (mails != null) {
-            Iterator i = mails.iterator();
-            while (i.hasNext()) {
-                Object[] obs = (Object[]) i.next();
-                // this is needed to let the MimeMessageWrapper to dispose.
-                ContainerUtil.dispose(obs[2]);
-            }
-        }
+//        if (mails != null) {
+//            Iterator i = mails.iterator();
+//            while (i.hasNext()) {
+//                Object[] obs = (Object[]) i.next();
+//                // this is needed to let the MimeMessageWrapper to dispose.
+//                ContainerUtil.dispose(obs[2]);
+//            }
+//        }
+        mails.dispose();
         if (inboxes!=null) {
             Iterator i = inboxes.values().iterator();
             while (i.hasNext()) {
@@ -153,6 +178,10 @@ public class MockMailServer implements MailServer, Disposable {
                 ContainerUtil.dispose(m);
             }
         }
+    }
+    
+    public MailRepository getSentMailsRepository() {
+        return mails;
     }
 }
 
