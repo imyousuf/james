@@ -50,7 +50,6 @@ import org.apache.james.services.SpoolRepository;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
 import org.apache.james.transport.mailets.LocalDelivery;
-import org.apache.james.userrepository.DefaultJamesUser;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.Mailet;
@@ -92,7 +91,7 @@ import java.util.Vector;
  */
 public class James
     extends AbstractLogEnabled
-    implements Contextualizable, Serviceable, Configurable, JamesMBean, Initializable, MailServer, MailetContext {
+    implements Contextualizable, Serviceable, Configurable, Initializable, MailServer, MailetContext {
 
     /**
      * The software name and version
@@ -124,11 +123,6 @@ public class James
      * The mail store containing the inbox repository and the spool.
      */
     private Store store;
-
-    /**
-     * The store containing the local user repository.
-     */
-    private UsersStore usersStore;
 
     /**
      * The spool used for processing mail handled by this server.
@@ -286,8 +280,10 @@ public class James
         }
 
         try {
+            // lookup the usersStore.
+            // This is not used by James itself, but we check we received it here
+            // because mailets will try to lookup this later.
             UsersStore usersStore = (UsersStore) compMgr.lookup( UsersStore.ROLE );
-            setUsersStore(usersStore);
             if (getLogger().isDebugEnabled()) {
                 getLogger().debug("Using UsersStore: " + usersStore.toString());
             }
@@ -416,10 +412,6 @@ public class James
 
     public void setSpool(SpoolRepository spool) {
         this.spool = spool;
-    }
-
-    public void setUsersStore(UsersStore usersStore) {
-        this.usersStore = usersStore;
     }
 
     public void setLocalusers(UsersRepository localusers) {
@@ -871,12 +863,7 @@ public class James
      * use the addUser of the usersRepository.
      */
     public boolean addUser(String userName, String password) {
-        boolean success;
-        DefaultJamesUser user = new DefaultJamesUser(userName, "SHA");
-        user.setPassword(password);
-        user.initialize();
-        success = localusers.addUser(user);
-        return success;
+        return localusers.addUser(userName, password);
     }
 
     /**

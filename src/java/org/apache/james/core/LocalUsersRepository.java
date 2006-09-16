@@ -17,21 +17,24 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.core;
 
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
+import org.apache.james.JamesMBean;
 import org.apache.james.services.User;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
 
 import java.util.Iterator;
 
-public class LocalUsersRepository implements UsersRepository, Serviceable, Initializable {
+/**
+ * Provide access to the default "LocalUsers" UsersRepository.
+ * Temporarily implements JamesMBean (formerly implemented by James) to keep backward compatibility. 
+ */
+public class LocalUsersRepository implements UsersRepository, Serviceable, Initializable, JamesMBean {
 
     private UsersStore usersStore;
     private UsersRepository users;
