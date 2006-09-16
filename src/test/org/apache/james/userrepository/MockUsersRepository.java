@@ -111,7 +111,7 @@ public class MockUsersRepository implements UsersRepository {
     }
 
     public String getRealName(String name) {
-        return ((User) m_users.get(name)).getUserName();
+        return m_users.get(name) != null ? ((User) m_users.get(name)).getUserName() : null;
     }
 
     public boolean updateUser(User user) {

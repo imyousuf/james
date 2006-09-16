@@ -45,6 +45,7 @@ import org.apache.james.transport.mailets.RemoteDelivery;
 import org.apache.james.userrepository.MockUsersRepository;
 import org.apache.james.util.Base64;
 import org.apache.james.util.connection.SimpleConnectionManager;
+import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
 import javax.mail.MessagingException;
@@ -151,20 +152,20 @@ public class SMTPServerTest extends TestCase {
     }
 
     public void verifyLastMail(String sender, String recipient, MimeMessage msg) throws IOException, MessagingException {
-        Object[] mailData = m_mailServer.getLastMail();
+        Mail mailData = m_mailServer.getLastMail();
         assertNotNull("mail received by mail server", mailData);
 
         if (sender == null && recipient == null && msg == null) fail("no verification can be done with all arguments null");
 
-        if (sender != null) assertEquals("sender verfication", sender, ((MailAddress)mailData[0]).toString());
-        if (recipient != null) assertTrue("recipient verfication", ((Collection) mailData[1]).contains(new MailAddress(recipient)));
+        if (sender != null) assertEquals("sender verfication", sender, ((MailAddress)mailData.getSender()).toString());
+        if (recipient != null) assertTrue("recipient verfication", ((Collection) mailData.getRecipients()).contains(new MailAddress(recipient)));
         if (msg != null) {
             ByteArrayOutputStream bo1 = new ByteArrayOutputStream();
             msg.writeTo(bo1);
             ByteArrayOutputStream bo2 = new ByteArrayOutputStream();
-            ((MimeMessage) mailData[2]).writeTo(bo2);
+            ((MimeMessage) mailData.getMessage()).writeTo(bo2);
             assertEquals(bo1.toString(),bo2.toString());
-            assertEquals("message verification", msg, ((MimeMessage) mailData[2]));
+            assertEquals("message verification", msg, ((MimeMessage) mailData.getMessage()));
         }
     }
     
@@ -266,7 +267,7 @@ public class SMTPServerTest extends TestCase {
         // not cloning the message (added a MimeMessageCopyOnWriteProxy there)
         System.gc();
 
-        int size = ((MimeMessage) m_mailServer.getLastMail()[2]).getSize();
+        int size = ((MimeMessage) m_mailServer.getLastMail().getMessage()).getSize();
 
         assertEquals(size, 2);
     }
@@ -1083,7 +1084,7 @@ public class SMTPServerTest extends TestCase {
 
         verifyLastMail(sender, recipient, null);
         
-        assertEquals(((String) mm.getContent()).trim(),((String) ((MimeMessage) m_mailServer.getLastMail()[2]).getContent()).trim());
+        assertEquals(((String) mm.getContent()).trim(),((String) ((MimeMessage) m_mailServer.getLastMail().getMessage()).getContent()).trim());
         
         mail.dispose();
     }

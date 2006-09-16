@@ -23,7 +23,6 @@ package org.apache.james.transport.mailets;
 
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
-import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
@@ -31,16 +30,15 @@ import org.apache.james.James;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
-import org.apache.mailet.RFC2822Headers;
-
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
+import org.apache.mailet.RFC2822Headers;
 
 import javax.mail.Header;
 import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
 import javax.mail.internet.InternetHeaders;
+import javax.mail.internet.MimeMessage;
 
 import java.util.Collection;
 import java.util.Enumeration;
@@ -260,15 +258,6 @@ public class ToMultiRepository extends GenericMailet {
 
         try {
             // Instantiate the a MailRepository for outgoing mails
-            mailServer = (MailServer) compMgr.lookup(MailServer.ROLE);
-        } catch (ServiceException cnfe) {
-            log("Failed to retrieve MailServer component:" + cnfe.getMessage());
-        } catch (Exception e) {
-            log("Failed to retrieve MailServer component:" + e.getMessage());
-        }
-
-        try {
-            // Instantiate the a MailRepository for outgoing mails
             store = (Store) compMgr.lookup(Store.ROLE);
         } catch (ServiceException cnfe) {
             log("Failed to retrieve Store component:" + cnfe.getMessage());
@@ -281,6 +270,17 @@ public class ToMultiRepository extends GenericMailet {
             repositoryType = getInitParameter("repositoryType");
             if (repositoryType == null)
                 repositoryType = "MAIL";
+        } else {
+
+            try {
+                // Instantiate the a MailRepository for outgoing mails
+                mailServer = (MailServer) compMgr.lookup(MailServer.ROLE);
+            } catch (ServiceException cnfe) {
+                log("Failed to retrieve MailServer component:" + cnfe.getMessage());
+            } catch (Exception e) {
+                log("Failed to retrieve MailServer component:" + e.getMessage());
+            }
+            
         }
 
         deliveryHeader = getInitParameter("addDeliveryHeader");

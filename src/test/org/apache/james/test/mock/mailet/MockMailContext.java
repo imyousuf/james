@@ -95,19 +95,19 @@ public class MockMailContext implements MailetContext {
     }
 
     public void sendMail(MimeMessage msg) throws MessagingException {
-        // trivial implementation
+        throw new UnsupportedOperationException("MOCKed method");
     }
 
     public void sendMail(MailAddress sender, Collection recipients, MimeMessage msg) throws MessagingException {
-        // trivial implementation
+        throw new UnsupportedOperationException("MOCKed method");
     }
 
     public void sendMail(MailAddress sender, Collection recipients, MimeMessage msg, String state) throws MessagingException {
-        // trivial implementation
+        throw new UnsupportedOperationException("MOCKed method");
     }
 
     public void sendMail(Mail mail) throws MessagingException {
-        // trivial implementation
+        throw new UnsupportedOperationException("MOCKed method");
     }
 
     public void setAttribute(String name, Object object) {
