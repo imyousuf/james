@@ -18,6 +18,9 @@
  ****************************************************************/
 package org.apache.james.mailrepository.javamail;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Properties;
@@ -34,8 +37,12 @@ import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.context.Context;
+import org.apache.avalon.framework.context.ContextException;
+import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.james.context.AvalonContextConstants;
 import org.apache.james.services.MailRepository;
 import org.apache.mailet.Mail;
 
@@ -49,7 +56,7 @@ import org.apache.mailet.Mail;
 
 public abstract class AbstractJavamailStoreMailRepository extends
         AbstractLogEnabled implements MailRepository, StoreAware, Configurable,
-        Initializable {
+        Initializable,Contextualizable {
 
     /**
      * Whether 'deep debugging' is turned on.
@@ -95,6 +102,16 @@ public abstract class AbstractJavamailStoreMailRepository extends
     private FolderGateKeeper folderGateKeeper;
 
     /**
+     * The Context
+     */
+    private Context context;
+    
+    /**
+     * The directory james is running in
+     */
+    private File home;
+
+    /**
      * builds destination from attributes destinationURL and postfix.
      * at the moment james does not hand over additional parameters like postfix.
      */
@@ -128,10 +145,16 @@ public abstract class AbstractJavamailStoreMailRepository extends
         }
         String withoutProtocol = destination.substring(pi);
         final String protocol = destination.substring(0, pi);
-        if (!withoutProtocol.startsWith(":///")) {
-            withoutProtocol = ":///../apps/james/" + withoutProtocol.substring(3);
-
+        try {
+            if (!withoutProtocol.startsWith(":///")) {         
+                withoutProtocol = "://"+  getDirAsUrl(home + "/" +withoutProtocol.substring(3));
+            } else {
+                withoutProtocol = "://" + getDirAsUrl("/" + withoutProtocol.substring(3));
+            }
+        } catch (MalformedURLException e) {
+            throw new ConfigurationException("Invalid url: " + destination);
         }
+    
         destination = protocol + withoutProtocol;
         log.debug("destination: " + destination);
         Properties mailSessionProps  = new Properties();
@@ -155,14 +178,24 @@ public abstract class AbstractJavamailStoreMailRepository extends
         }
         log.debug("JavaMailStoreMailRepository configured");
     }
-
+    
     /**
      * connect the mailStore
      * @see Initializable#initialize()
      */
     public void initialize() throws Exception {
-    mailStore.connect();
+        mailStore.connect();              
         log.debug("JavaMailStoreMailRepository initialized");
+    }
+    
+    public void contextualize(Context context) throws ContextException {
+        this.context = context;
+        home = (File)context.get(AvalonContextConstants.APPLICATION_HOME);
+    }
+    
+    private String getDirAsUrl(String dir) throws MalformedURLException {
+        File f = new File(dir); 
+        return f.toURL().toString();
     }
 
     /**
