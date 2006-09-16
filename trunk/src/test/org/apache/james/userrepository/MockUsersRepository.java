@@ -23,6 +23,7 @@ import org.apache.james.security.DigestUtil;
 import org.apache.james.services.User;
 import org.apache.james.services.UsersRepository;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -91,7 +92,7 @@ public class MockUsersRepository implements UsersRepository {
             }
            
             return addUser(user);
-        } catch (Exception e) {
+        } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();  // encoding failed
         }
         return false;
