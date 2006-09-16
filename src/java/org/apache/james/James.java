@@ -226,8 +226,10 @@ public class James
         attributes.put(Constants.DEFAULT_ENABLE_FORWARDING,new Boolean(enableForwarding));
         attributes.put(Constants.DEFAULT_IGNORE_USERNAME_CASE,new Boolean(ignoreCase));
 
-        compMgr.put( UsersRepository.ROLE, localusers);
-        getLogger().info("Local users repository opened");
+        // We don't need this. UsersRepository.ROLE is already in the compMgr we received
+        // We've just looked up it from the cmpManager
+        // compMgr.put( UsersRepository.ROLE, localusers);
+        // getLogger().info("Local users repository opened");
 
         inboxRootURL = conf.getChild("inboxRepository").getChild("repository").getAttribute("destinationURL");
 
@@ -361,7 +363,9 @@ public class James
         }
 
         String defaultDomain = (String) serverNames.iterator().next();
+        // used by UsersLDAPRepository as default domain.
         context.put(Constants.DEFAULT_DOMAIN, defaultDomain);
+        // used by RemoteDelivery for HELO
         attributes.put(Constants.DEFAULT_DOMAIN, defaultDomain);
 
         // Get postmaster
