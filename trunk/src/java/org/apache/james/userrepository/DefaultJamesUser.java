@@ -21,7 +21,6 @@
 
 package org.apache.james.userrepository;
 
-import org.apache.avalon.framework.activity.Initializable;
 import org.apache.james.services.JamesUser;
 import org.apache.mailet.MailAddress;
 
@@ -34,7 +33,7 @@ import org.apache.mailet.MailAddress;
 
 public class DefaultJamesUser 
         extends DefaultUser
-        implements JamesUser, Initializable {
+        implements JamesUser {
 
     /**
      * Whether forwarding is enabled for this user.
@@ -59,15 +58,17 @@ public class DefaultJamesUser
 
     public DefaultJamesUser(String name, String alg) {
         super(name, alg);
+        initialize();
     }
 
     public DefaultJamesUser(String name, String passwordHash, String hashAlg) {
         super(name, passwordHash, hashAlg);
+        initialize();
     }
 
 
     /**
-     * @see org.apache.avalon.framework.activity.Initializable#initialize()
+     * Initializes default values for local fields.
      */
     public void initialize() {
         forwarding = false;

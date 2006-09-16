@@ -25,6 +25,9 @@ package org.apache.james;
  * An interface to expose James management functionality through JMX.  At
  * the time of this writing, this interface is just an example.
  * 
+ * 16/09/2006: This was previously implemented by James object. Now it is temporarily
+ *             implemented by the LocalUsersRepository service.
+ * 
  * @deprecated this MBean will be replaced by UserManagementMBean
  * @phoenix:mx-topic name="MainJAMESServerManagement"
  */
