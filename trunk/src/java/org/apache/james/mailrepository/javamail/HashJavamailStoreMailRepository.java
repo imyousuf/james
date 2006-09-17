@@ -22,7 +22,9 @@
 package org.apache.james.mailrepository.javamail;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FilterOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -37,7 +39,6 @@ import javax.mail.Flags;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
-import javax.mail.UIDFolder;
 import javax.mail.Flags.Flag;
 import javax.mail.internet.MimeMessage;
 
@@ -346,6 +347,41 @@ public class HashJavamailStoreMailRepository extends
         return keyToMsgMap;
     }
 
+    private static final class HasherOutputStream extends FilterOutputStream {
+        int hashCode = 0;
+
+        public HasherOutputStream(OutputStream out) {
+            super(out);
+        }
+
+        // TODO verify this method (off/len usage)
+        public void write(byte[] b, int off, int len) throws IOException {
+            for (int i = off; i < b.length && i < len+off; i++) {
+                hashCode += 77;
+                hashCode ^= b[i];
+            }
+            super.write(b, off, len);
+        }
+
+        public void write(byte[] b) throws IOException {
+            for (int i = 0; i < b.length; i++) {
+                hashCode += 77;
+                hashCode ^= b[i];
+            }
+            super.write(b);
+        }
+
+        public void write(int b) throws IOException {
+            hashCode += 77;
+            hashCode ^= b;
+            super.write(b);
+        }
+
+        public int getHash() {
+            return hashCode;
+        }
+    }
+
     protected class KeyToMsgMap {
         protected SortedMap noToMsgObj;
 
@@ -524,12 +560,17 @@ public class HashJavamailStoreMailRepository extends
     protected static Object calcMessageHash(MimeMessage mm)
             throws MessagingException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        // This nested class has been created because Java 2 v1.4 has 
+        // no Arrays.hashCode() method.
+        // We can remove this as soon as we'll require Java 5.
+        HasherOutputStream hos = new HasherOutputStream(new CRLFOutputStream(baos));
         try {
-            mm.writeTo(new CRLFOutputStream(baos));
+            mm.writeTo(hos);
         } catch (IOException e) {
             throw new MessagingException("error while calculating hash ", e);
         }
-        Integer i = new Integer(Arrays.hashCode(baos.toByteArray()));
+        
+        Integer i = new Integer(hos.getHash());
         return i;
     }
 
