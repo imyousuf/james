@@ -48,6 +48,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 
 import junit.framework.TestCase;
 
@@ -63,7 +64,7 @@ public class LocalDeliveryTest extends TestCase {
 
     public void testUnknownUser() throws MessagingException {
         //mockMailetConfig.setProperty(key, value)
-        Mailet m = getMailet();
+        Mailet m = getMailet(null);
         
         Mail mail = createMail(new String[] {"unknownuser@ignoreddomain"});
         m.service(mail);
@@ -77,9 +78,37 @@ public class LocalDeliveryTest extends TestCase {
 
     public void testSimpleDelivery() throws MessagingException {
         //mockMailetConfig.setProperty(key, value)
-        Mailet m = getMailet();
+        Mailet m = getMailet(null);
         
         Mail mail = createMail(new String[] {"localuser@ignoreddomain"});
+        m.service(mail);
+        
+        HashMap expectedMails = new HashMap();
+        expectedMails.put("localuser", new String[] {"localuser@ignoreddomain"});
+        
+        assertDeliveryWorked(mail, expectedMails);
+    }
+
+    public void testSimpleDeliveryCaseSensitiveNoMatch() throws MessagingException {
+        //mockMailetConfig.setProperty(key, value)
+        Mailet m = getMailet(null);
+        
+        Mail mail = createMail(new String[] {"localUser@ignoreddomain"});
+        m.service(mail);
+        
+        HashMap expectedMails = new HashMap();
+        expectedMails.put("errors", new String[] {"localUser@ignoreddomain"});
+        
+        assertDeliveryWorked(mail, expectedMails);
+    }
+
+    public void testSimpleDeliveryCaseSensitiveMatch() throws MessagingException {
+        //mockMailetConfig.setProperty(key, value)
+        Properties properties = new Properties();
+        properties.setProperty("ignoreCase", "true");
+        Mailet m = getMailet(properties);
+        
+        Mail mail = createMail(new String[] {"localUser@ignoreddomain"});
         m.service(mail);
         
         HashMap expectedMails = new HashMap();
@@ -91,7 +120,7 @@ public class LocalDeliveryTest extends TestCase {
     public void testSimpleAliasDelivery() throws MessagingException {
         mockMailetContext.setAttribute(Constants.DEFAULT_ENABLE_ALIASES, Boolean.TRUE);
         //mockMailetConfig.setProperty(key, value)
-        Mailet m = getMailet();
+        Mailet m = getMailet(null);
         
         Mail mail = createMail(new String[] {"aliasedUser@ignoreddomain"});
         m.service(mail);
@@ -104,7 +133,7 @@ public class LocalDeliveryTest extends TestCase {
 
     public void testSimpleAliasWithDisabledAlias() throws MessagingException {
         //mockMailetConfig.setProperty(key, value)
-        Mailet m = getMailet();
+        Mailet m = getMailet(null);
         
         Mail mail = createMail(new String[] {"aliasedUser@ignoreddomain"});
         m.service(mail);
@@ -118,7 +147,7 @@ public class LocalDeliveryTest extends TestCase {
 
     public void testForwardingWithForwardingDisabled() throws MessagingException {
         //mockMailetConfig.setProperty(key, value)
-        Mailet m = getMailet();
+        Mailet m = getMailet(null);
         
         Mail mail = createMail(new String[] {"forwardingUser@ignoreddomain"});
         m.service(mail);
@@ -133,7 +162,7 @@ public class LocalDeliveryTest extends TestCase {
     public void testForwarding() throws MessagingException {
         mockMailetContext.setAttribute(Constants.DEFAULT_ENABLE_FORWARDING, Boolean.TRUE);
         //mockMailetConfig.setProperty(key, value)
-        Mailet m = getMailet();
+        Mailet m = getMailet(null);
         
         Mail mail = createMail(new String[] {"forwardingUser@ignoreddomain"});
         m.service(mail);
@@ -148,7 +177,7 @@ public class LocalDeliveryTest extends TestCase {
         mockMailetContext.setAttribute(Constants.DEFAULT_ENABLE_FORWARDING, Boolean.TRUE);
         mockMailetContext.setAttribute(Constants.DEFAULT_ENABLE_ALIASES, Boolean.TRUE);
         //mockMailetConfig.setProperty(key, value)
-        Mailet m = getMailet();
+        Mailet m = getMailet(null);
         
         Mail mail = createMail(new String[] {"aliasForwardUser@ignoreddomain"});
         m.service(mail);
@@ -159,11 +188,27 @@ public class LocalDeliveryTest extends TestCase {
         assertDeliveryWorked(mail, expectedMails);
     }
 
+    public void testAliasingForwardingWithLocallyOverriddenForwarding() throws MessagingException {
+        mockMailetContext.setAttribute(Constants.DEFAULT_ENABLE_FORWARDING, Boolean.TRUE);
+        mockMailetContext.setAttribute(Constants.DEFAULT_ENABLE_ALIASES, Boolean.TRUE);
+        Properties properties = new Properties();
+        properties.setProperty("enableForwarding", "false");
+        Mailet m = getMailet(properties);
+
+        Mail mail = createMail(new String[] {"aliasForwardUser@ignoreddomain"});
+        m.service(mail);
+        
+        HashMap expectedMails = new HashMap();
+        expectedMails.put("localuser", new String[] {"localuser@ignoreddomain"});
+        
+        assertDeliveryWorked(mail, expectedMails);
+    }
+
     public void testForwardingToLocal() throws MessagingException {
         mockMailetContext.setAttribute(Constants.DEFAULT_ENABLE_FORWARDING, Boolean.TRUE);
         mockMailetContext.setAttribute(Constants.DEFAULT_ENABLE_ALIASES, Boolean.TRUE);
         //mockMailetConfig.setProperty(key, value)
-        Mailet m = getMailet();
+        Mailet m = getMailet(null);
         
         Mail mail = createMail(new String[] {"forwardToLocal@ignoreddomain"});
         m.service(mail);
@@ -322,8 +367,8 @@ public class LocalDeliveryTest extends TestCase {
         return mail;
     }
     
-    public Mailet getMailet() throws MessagingException {
-        MockMailetConfig mockMailetConfig = new MockMailetConfig("TestedLocalDelivery", mockMailetContext);
+    public Mailet getMailet(Properties p) throws MessagingException {
+        MockMailetConfig mockMailetConfig = new MockMailetConfig("TestedLocalDelivery", mockMailetContext, p);
         Mailet m = new LocalDelivery();
         m.init(mockMailetConfig);
         return m;

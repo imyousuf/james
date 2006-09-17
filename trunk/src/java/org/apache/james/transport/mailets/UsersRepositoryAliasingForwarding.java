@@ -247,15 +247,9 @@ public class UsersRepositoryAliasingForwarding extends GenericMailet {
                 .getAttribute(Constants.AVALON_COMPONENT_MANAGER);
 
         try {
-            enableAliases = new Boolean(getInitParameter("enableAliases",
-                    getMailetContext().getAttribute(Constants.DEFAULT_ENABLE_ALIASES).toString()
-                    )).booleanValue();
-            enableForwarding = new Boolean(getInitParameter("enableForwarding",
-                    getMailetContext().getAttribute(Constants.DEFAULT_ENABLE_FORWARDING).toString()
-                    )).booleanValue();
-            ignoreCase = new Boolean(getInitParameter("ignoreCase",
-                    getMailetContext().getAttribute(Constants.DEFAULT_IGNORE_USERNAME_CASE).toString()
-                    )).booleanValue();
+            enableAliases = new Boolean(getInitParameter("enableAliases","false")).booleanValue();
+            enableForwarding = new Boolean(getInitParameter("enableForwarding","false")).booleanValue();
+            ignoreCase = new Boolean(getInitParameter("ignoreCase","false")).booleanValue();
             
             String userRep = getInitParameter("usersRepository");
             if (userRep == null || userRep.length() == 0) {
