@@ -149,15 +149,24 @@ public class POP3ServerTest extends TestCase {
         InMemorySpoolRepository mockMailRepository = new InMemorySpoolRepository();
         m_mailServer.setUserInbox("foo", mockMailRepository);
 
+        // not authenticated
+        POP3MessageInfo[] entries = m_pop3Protocol.listMessages();
+        assertNull(entries);
+
         m_pop3Protocol.login("foo", "bar");
         System.err.println(m_pop3Protocol.getState());
         assertEquals(1, m_pop3Protocol.getState());
 
-        POP3MessageInfo[] entries = m_pop3Protocol.listMessages();
+        entries = m_pop3Protocol.listMessages();
         assertEquals(1, m_pop3Protocol.getState());
 
         assertNotNull(entries);
         assertEquals(entries.length, 0);
+        
+        POP3MessageInfo p3i = m_pop3Protocol.listMessage(1);
+        assertEquals(1, m_pop3Protocol.getState());
+        assertNull(p3i);
+
         ContainerUtil.dispose(mockMailRepository);
     }
 
@@ -177,6 +186,109 @@ public class POP3ServerTest extends TestCase {
         ContainerUtil.dispose(mockMailRepository);
     }
 
+
+    public void testUnknownCommand() throws Exception {
+        finishSetUp(m_testConfiguration);
+
+        m_pop3Protocol = new POP3Client();
+        m_pop3Protocol.connect("127.0.0.1",m_pop3ListenerPort);
+        
+        m_pop3Protocol.sendCommand("unkn");
+        assertEquals(0, m_pop3Protocol.getState());
+        assertEquals("Expected -ERR as result for an unknown command", m_pop3Protocol.getReplyString().substring(0,4),"-ERR");
+    }
+
+    public void testUidlCommand() throws Exception {
+        finishSetUp(m_testConfiguration);
+
+        m_usersRepository.addUser("foo", "bar");
+        InMemorySpoolRepository mockMailRepository = new InMemorySpoolRepository();
+        m_mailServer.setUserInbox("foo", mockMailRepository);
+
+        m_pop3Protocol = new POP3Client();
+        m_pop3Protocol.connect("127.0.0.1",m_pop3ListenerPort);
+
+        m_pop3Protocol.sendCommand("uidl");
+        assertEquals(0, m_pop3Protocol.getState());
+
+        m_pop3Protocol.login("foo", "bar");
+
+        POP3MessageInfo[] list = m_pop3Protocol.listUniqueIdentifiers();
+        assertEquals("Found unexpected messages", 0, list.length);
+
+        m_pop3Protocol.disconnect();
+        
+        setupTestMails(mockMailRepository);
+        
+        m_pop3Protocol.connect("127.0.0.1",m_pop3ListenerPort);
+        m_pop3Protocol.login("foo", "bar");
+
+        list = m_pop3Protocol.listUniqueIdentifiers();
+        assertEquals("Expected 2 messages, found: "+list.length, 2, list.length);
+        assertEquals("name", list[0].identifier);
+        assertEquals("name2", list[1].identifier);
+        
+        POP3MessageInfo p3i = m_pop3Protocol.listUniqueIdentifier(1);
+        assertNotNull(p3i);
+        assertEquals("name", p3i.identifier);
+
+    }
+
+    public void testMiscCommandsWithWithoutAuth() throws Exception {
+        finishSetUp(m_testConfiguration);
+
+        m_usersRepository.addUser("foo", "bar");
+        InMemorySpoolRepository mockMailRepository = new InMemorySpoolRepository();
+        m_mailServer.setUserInbox("foo", mockMailRepository);
+
+        m_pop3Protocol = new POP3Client();
+        m_pop3Protocol.connect("127.0.0.1",m_pop3ListenerPort);
+
+        m_pop3Protocol.sendCommand("noop");
+        assertEquals(0, m_pop3Protocol.getState());
+        assertEquals("-ERR", m_pop3Protocol.getReplyString().substring(0,4));
+
+        m_pop3Protocol.sendCommand("stat");
+        assertEquals(0, m_pop3Protocol.getState());
+        assertEquals("-ERR", m_pop3Protocol.getReplyString().substring(0,4));
+
+        m_pop3Protocol.sendCommand("pass");
+        assertEquals(0, m_pop3Protocol.getState());
+        assertEquals("-ERR", m_pop3Protocol.getReplyString().substring(0,4));
+
+        m_pop3Protocol.sendCommand("auth");
+        assertEquals(0, m_pop3Protocol.getState());
+        assertEquals("-ERR", m_pop3Protocol.getReplyString().substring(0,4));
+
+        m_pop3Protocol.sendCommand("rset");
+        assertEquals(0, m_pop3Protocol.getState());
+        assertEquals("-ERR", m_pop3Protocol.getReplyString().substring(0,4));
+        
+        m_pop3Protocol.login("foo", "bar");
+
+        POP3MessageInfo[] list = m_pop3Protocol.listUniqueIdentifiers();
+        assertEquals("Found unexpected messages", 0, list.length);
+
+        m_pop3Protocol.sendCommand("noop");
+        assertEquals(1, m_pop3Protocol.getState());
+
+        m_pop3Protocol.sendCommand("pass");
+        assertEquals(1, m_pop3Protocol.getState());
+        assertEquals("-ERR", m_pop3Protocol.getReplyString().substring(0,4));
+
+        m_pop3Protocol.sendCommand("auth");
+        assertEquals(1, m_pop3Protocol.getState());
+        assertEquals("-ERR", m_pop3Protocol.getReplyString().substring(0,4));
+
+        m_pop3Protocol.sendCommand("user");
+        assertEquals(1, m_pop3Protocol.getState());
+        assertEquals("-ERR", m_pop3Protocol.getReplyString().substring(0,4));
+
+        m_pop3Protocol.sendCommand("rset");
+        assertEquals(1, m_pop3Protocol.getState());
+        
+    }
+
     public void testKnownUserInboxWithMessages() throws Exception {
         finishSetUp(m_testConfiguration);
 
@@ -189,6 +301,10 @@ public class POP3ServerTest extends TestCase {
         setupTestMails(mailRep);
 
         m_mailServer.setUserInbox("foo2", mailRep);
+        
+        m_pop3Protocol.sendCommand("retr","1");
+        assertEquals(0, m_pop3Protocol.getState());
+        assertEquals("-ERR", m_pop3Protocol.getReplyString().substring(0,4));
 
         m_pop3Protocol.login("foo2", "bar2");
         assertEquals(1, m_pop3Protocol.getState());
@@ -207,10 +323,17 @@ public class POP3ServerTest extends TestCase {
         assertNotNull(r2);
         r2.close();
 
+        // existing message
         boolean deleted = m_pop3Protocol.deleteMessage(entries[0].number);
-
         assertTrue(deleted);
-        assertEquals(1, m_pop3Protocol.getState());
+
+        // already deleted message
+        deleted = m_pop3Protocol.deleteMessage(entries[0].number);
+        assertFalse(deleted);
+
+        // unexisting message
+        deleted = m_pop3Protocol.deleteMessage(10);
+        assertFalse(deleted);
 
         m_pop3Protocol.sendCommand("quit");
         m_pop3Protocol.disconnect();
@@ -232,6 +355,10 @@ public class POP3ServerTest extends TestCase {
         assertEquals(1, entries.length);
         assertEquals(1, m_pop3Protocol.getState());
 
+        // top without arguments
+        m_pop3Protocol.sendCommand("top");
+        assertEquals("-ERR", m_pop3Protocol.getReplyString().substring(0,4));
+        
         Reader r3 = m_pop3Protocol.retrieveMessageTop(entries[0].number, 0);
         assertNotNull(r3);
         r3.close();
