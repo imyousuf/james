@@ -21,23 +21,45 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.mailet.*;
+import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
+import org.apache.avalon.excalibur.datasource.DataSourceComponent;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.james.Constants;
+import org.apache.james.services.JamesUser;
+import org.apache.james.services.UsersRepository;
+import org.apache.james.util.JDBCUtil;
+import org.apache.james.util.SqlResources;
+import org.apache.mailet.GenericMailet;
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
+import org.apache.mailet.RFC2822Headers;
 import org.apache.mailet.dates.RFC822DateFormat;
 
-import org.apache.avalon.cornerstone.services.datasources.*;
-import org.apache.avalon.excalibur.datasource.*;
-import org.apache.avalon.framework.service.*;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 
-import org.apache.james.*;
-import org.apache.james.services.*;
-import org.apache.james.util.*;
-
-import javax.mail.*;
-import javax.mail.internet.*;
-
-import java.sql.*;
-import java.util.*;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
 
 /** <P>Manages for each local user a "white list" of remote addresses whose messages
  * should never be blocked as spam.</P>
@@ -106,9 +128,6 @@ public class WhiteListManager extends GenericMailet {
     private RFC822DateFormat rfc822DateFormat = new RFC822DateFormat();
 
     private DataSourceComponent datasource;
-    
-   /** The store containing the local user repository. */
-    private UsersStore usersStore;
 
     /** The user repository for this mail server.  Contains all the users with inboxes
      * on this server.
@@ -218,8 +237,7 @@ public class WhiteListManager extends GenericMailet {
 
          try {
             // Get the UsersRepository
-            usersStore = (UsersStore)serviceManager.lookup(UsersStore.ROLE);
-            localusers = (UsersRepository)usersStore.getRepository("LocalUsers");
+            localusers = (UsersRepository)serviceManager.lookup(UsersRepository.ROLE);
         } catch (Exception e) {
             throw new MessagingException("Can't get the local users repository", e);
         }
