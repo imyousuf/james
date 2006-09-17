@@ -21,24 +21,32 @@
 
 package org.apache.james.transport.matchers;
 
-import org.apache.mailet.*;
+import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
+import org.apache.avalon.excalibur.datasource.DataSourceComponent;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.james.Constants;
+import org.apache.james.services.JamesUser;
+import org.apache.james.services.UsersRepository;
+import org.apache.james.transport.mailets.WhiteListManager;
+import org.apache.james.util.JDBCUtil;
+import org.apache.james.util.SqlResources;
+import org.apache.mailet.GenericMatcher;
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
 
-import org.apache.avalon.cornerstone.services.datasources.*;
-import org.apache.avalon.excalibur.datasource.*;
-import org.apache.avalon.framework.service.*;
+import javax.mail.MessagingException;
 
-import org.apache.james.*;
-import org.apache.james.services.*;
-import org.apache.james.util.*;
-
-import javax.mail.*;
-
+import java.io.File;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.Map;
 import java.util.StringTokenizer;
-
-import java.sql.*;
-import java.util.*;
-import java.io.*;
 
 /**
  * <P>Matches recipients having the mail sender in the recipient's private whitelist .</P>
@@ -60,9 +68,6 @@ public class IsInWhiteList extends GenericMatcher {
     
     private DataSourceComponent datasource;
     
-    /** The store containing the local user repository. */
-    private UsersStore usersStore;
-
     /** The user repository for this mail server.  Contains all the users with inboxes
      * on this server.
      */
@@ -132,8 +137,7 @@ public class IsInWhiteList extends GenericMatcher {
 
          try {
             // Get the UsersRepository
-            usersStore = (UsersStore)serviceManager.lookup(UsersStore.ROLE);
-            localusers = (UsersRepository)usersStore.getRepository("LocalUsers");
+            localusers = (UsersRepository)serviceManager.lookup(UsersRepository.ROLE);
         } catch (Exception e) {
             throw new MessagingException("Can't get the local users repository", e);
         }
