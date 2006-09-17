@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 
 public class MockUsersRepository implements UsersRepository {
 
@@ -107,11 +108,11 @@ public class MockUsersRepository implements UsersRepository {
     }
 
     public User getUserByNameCaseInsensitive(String name) {
-        return null;  // trivial implementation
+        return (User) m_users.get(name.toLowerCase(Locale.US));
     }
 
     public String getRealName(String name) {
-        return m_users.get(name) != null ? ((User) m_users.get(name)).getUserName() : null;
+        return m_users.get(name.toLowerCase(Locale.US)) != null ? ((User) m_users.get(name.toLowerCase(Locale.US))).getUserName() : null;
     }
 
     public boolean updateUser(User user) {
