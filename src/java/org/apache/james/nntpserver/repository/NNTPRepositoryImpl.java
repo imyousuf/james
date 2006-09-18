@@ -463,7 +463,7 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
             // Use the default class.
         }
         try {
-            Object obj = getClass().getClassLoader().loadClass(className).newInstance();
+            Object obj = Thread.currentThread().getContextClassLoader().loadClass(className).newInstance();
             // TODO: Need to support service
             ContainerUtil.enableLogging(obj, getLogger());
             ContainerUtil.contextualize(obj, context);

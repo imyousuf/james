@@ -115,7 +115,7 @@ public class AvalonUsersStore
             }
 
             if (theClassLoader == null) {
-                theClassLoader = this.getClass().getClassLoader();
+                theClassLoader = Thread.currentThread().getContextClassLoader();
             }
 
             UsersRepository rep = (UsersRepository) theClassLoader.loadClass(repClass).newInstance();
