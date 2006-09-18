@@ -321,7 +321,7 @@ public abstract class AbstractJavamailStoreMailRepository extends
         if (random == null) {
             random = new Random();
         }
-        return new Random();
+        return random;
 
     }
     
