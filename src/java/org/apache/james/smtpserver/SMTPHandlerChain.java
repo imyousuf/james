@@ -105,7 +105,7 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
         }
         if (configuration != null) {
             Configuration[] children = configuration.getChildren("handler");
-            ClassLoader classLoader = getClass().getClassLoader();
+            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
             // load the BaseFilterCmdHandler
             loadClass(classLoader, CoreFilterCmdHandlerLoader.class.getName(),
