@@ -275,7 +275,7 @@ public class AvalonMailStore
                 }
 
                 try {
-                    reply = this.getClass().getClassLoader().loadClass(repClass).newInstance();
+                    reply = Thread.currentThread().getContextClassLoader().loadClass(repClass).newInstance();
                     ContainerUtil.enableLogging(reply,getLogger());
                     ContainerUtil.contextualize(reply,context);
                     ContainerUtil.service(reply,m_manager);

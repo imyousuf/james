@@ -91,7 +91,7 @@ public class POP3HandlerChain extends AbstractLogEnabled implements Configurable
         if(configuration != null) {
             Configuration[] children = configuration.getChildren("handler");
             if ( children != null ) {
-                ClassLoader classLoader = getClass().getClassLoader();
+                ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
                 for ( int i = 0 ; i < children.length ; i++ ) {
                     String className = children[i].getAttribute("class");
                     if(className != null) {

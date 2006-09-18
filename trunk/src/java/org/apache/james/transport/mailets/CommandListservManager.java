@@ -376,7 +376,7 @@ public class CommandListservManager extends GenericMailet implements ICommandLis
                                String className,
                                Configuration configuration)
             throws ConfigurationException, ClassNotFoundException, IllegalAccessException, InstantiationException {
-        ClassLoader theClassLoader = getClass().getClassLoader();
+        ClassLoader theClassLoader = Thread.currentThread().getContextClassLoader();
         for (Iterator it = commandPackages.iterator(); it.hasNext();) {
             String packageName = (String) it.next();
 
