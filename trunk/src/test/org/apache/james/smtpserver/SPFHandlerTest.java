@@ -71,14 +71,14 @@ public class SPFHandlerTest extends TestCase {
     private void setupMockedDnsService() {
         mockedDnsService = new DNSService() {
 
-            public List getAAAARecords(String arg0, int arg1)
+            public List getAAAARecords(String arg0)
                     throws NoneException, PermErrorException,
                     TempErrorException {
                 throw new UnsupportedOperationException(
                         "Unimplemented mock service");
             }
 
-            public List getARecords(String arg0, int arg1)
+            public List getARecords(String arg0)
                     throws NoneException, PermErrorException,
                     TempErrorException {
                 throw new UnsupportedOperationException(
@@ -90,7 +90,7 @@ public class SPFHandlerTest extends TestCase {
                         "Unimplemented mock service");
             }
 
-            public List getMXRecords(String arg0, int arg1)
+            public List getMXRecords(String arg0)
                     throws PermErrorException, NoneException,
                     TempErrorException {
                 throw new UnsupportedOperationException(
@@ -133,6 +133,15 @@ public class SPFHandlerTest extends TestCase {
 
             public void setTimeOut(int arg0) {
                 // do nothing
+            }
+
+            public int getRecordLimit() {
+                return 0;
+            }
+
+            public void setRecordLimit(int arg0) {
+                throw new UnsupportedOperationException(
+                "Unimplemented mock service");
             }
 
         };

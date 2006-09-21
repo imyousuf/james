@@ -215,7 +215,7 @@ public class SPFHandler extends AbstractLogEnabled implements CommandHandler,
                         || (spfResult.equals(SPF1Utils.SOFTFAIL_CONV) && blockSoftFail)
                         || (spfResult.equals(SPF1Utils.PERM_ERROR_CONV) && blockPermError)) {
 
-                    if (spfResult.equals(SPF1Utils.PERM_ERROR)) {
+                    if (spfResult.equals(SPF1Utils.PERM_ERROR_CONV)) {
                         explanation = "Block caused by an invalid SPF record";
                     }
                     session.getState().put(SPF_DETAIL, explanation);
