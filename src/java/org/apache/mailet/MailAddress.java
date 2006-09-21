@@ -166,8 +166,8 @@ public class MailAddress implements java.io.Serializable {
      * Construct a MailAddress with the provided personal name and email
      * address.
      *
-     * @param   user        the username or account name on the mail server
-     * @param   host        the server that should accept messages for this user
+     * @param   newUser        the username or account name on the mail server
+     * @param   newHost        the server that should accept messages for this user
      * @throws  ParseException    if the parse failed
      */
     public MailAddress(String newUser, String newHost) throws ParseException {

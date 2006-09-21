@@ -39,7 +39,7 @@ public interface SimplifiedDateFormat {
 
     /**
      * Formats a Date into a date/time string.
-     * @param date the time value to be formatted into a time string.
+     * @param d the time value to be formatted into a time string.
      * @return the formatted time string.
      */
     public String format(Date d);

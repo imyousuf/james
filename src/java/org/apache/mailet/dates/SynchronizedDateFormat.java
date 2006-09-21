@@ -56,7 +56,7 @@ public class SynchronizedDateFormat implements SimplifiedDateFormat {
      *
      * <p>TODO: Investigate replacing this with a factory method.</p>
      *
-     * @param the DateFormat to synchronize
+     * @param theDateFormat the DateFormat to synchronize
      */
     protected SynchronizedDateFormat(DateFormat theDateFormat) {
         internalDateFormat = theDateFormat;
