@@ -308,6 +308,7 @@ public class DNSServer
      * @param namestr the name of the host to be looked up
      * @param querysent whether the query has already been sent to the DNS servers
      * @param type the type of record desired
+     * @return record the Record[] which holds all records or null if nothing is found
      */
     private Record[] rawDNSLookup(String namestr, boolean querysent, int type) {
         Name name = null;
@@ -416,7 +417,7 @@ public class DNSServer
         }
     }
 
-    /*
+    /**
      * Returns an Iterator over org.apache.mailet.HostAddress, a
      * specialized subclass of javax.mail.URLName, which provides
      * location information for servers that are specified as mail
@@ -531,7 +532,7 @@ public class DNSServer
     }
 
     /**
-     * @see java.net.InetAddress#getByAllName(String)
+     * @see java.net.InetAddress#getAllByName(String)
      */
     public InetAddress[] getAllByName(String host) throws UnknownHostException {
         return org.xbill.DNS.Address.getAllByName(allowIPLiteral(host));

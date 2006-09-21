@@ -158,10 +158,7 @@ public class AvalonMailRepository
     }
 
     /**
-     * @param mc
-     * @param key
-     * @throws MessagingException
-     * @throws IOException
+     * @see org.apache.james.mailrepository.AbstractMailRepository#internalStore(Mail)
      */
     protected void internalStore(Mail mc) throws MessagingException, IOException {
         String key = mc.getName();
@@ -216,11 +213,7 @@ public class AvalonMailRepository
     }
 
     /**
-     * Retrieves a message given a key. At the moment, keys can be obtained
-     * from list() in superinterface Store.Repository
-     *
-     * @param key the key of the message to retrieve
-     * @return the mail corresponding to this key, null if none exists
+     * @see org.apache.james.services.MailRepository#retrieve(String)
      */
     public Mail retrieve(String key) throws MessagingException {
         if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
@@ -255,8 +248,9 @@ public class AvalonMailRepository
         }
     }
 
+
     /**
-     * Removes a message identified by key.
+     * @see org.apache.james.mailrepository.AbstractMailRepository#internalRemove(String)
      */
     protected void internalRemove(String key) throws MessagingException {
         if (keys != null) keys.remove(key);
@@ -264,11 +258,9 @@ public class AvalonMailRepository
         objectRepository.remove(key);
     }
 
+
     /**
-     * List string keys of messages in repository.
-     *
-     * @return an <code>Iterator</code> over the list of keys in the repository
-     *
+     * @see org.apache.james.services.MailRepository#list()
      */
     public Iterator list() {
         // Fix ConcurrentModificationException by cloning 

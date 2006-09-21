@@ -66,7 +66,7 @@ public class MailHeaders extends InternetHeaders implements Serializable, Clonea
     /**
      * Write the headers to an output stream
      *
-     * @param writer the stream to which to write the headers
+     * @param out the OutputStream to which to write the headers
      */
     public void writeTo(OutputStream out) {
         PrintStream pout;

@@ -136,9 +136,9 @@ public class MailetConfigImpl implements MailetConfig {
     }
 
     /**
-     * Get the mailet's Avalon Configuration object.
+     * Set the mailet's Avalon Configuration object.
      *
-     * @return the Configuration for the mailet
+     * @param newContext the MailetContext for the mailet
      */
     public void setMailetContext(MailetContext newContext) {
         mailetContext = newContext;

@@ -169,7 +169,9 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
     }
     
     /**
-     * @return
+     * Return wrapped mimeMessage
+     * 
+     * @return wrapped return the wrapped mimeMessage
      */
     public MimeMessage getWrappedMessage() {
         return refCount.getWrapped();
