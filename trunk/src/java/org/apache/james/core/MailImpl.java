@@ -563,7 +563,7 @@ public class MailImpl implements Disposable, Mail {
      * explicitly with retriving Mail attributes as a Serializable
      * Note: This method is not exposed in the Mail interface,
      * it is for internal use by James only.
-     * @return Serializable of the entire attributes collection
+     * @param attr Serializable of the entire attributes collection
      * @since 2.2.0
      **/
     public void setAttributesRaw (HashMap attr)

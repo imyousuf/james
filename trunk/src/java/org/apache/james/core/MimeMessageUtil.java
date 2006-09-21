@@ -47,6 +47,12 @@ public class MimeMessageUtil {
     /**
      * Convenience method to take any MimeMessage and write the headers and body to two
      * different output streams
+     * 
+     * @param message the MimeMessage reading from
+     * @param headerOs the OutputStream writting the headers to
+     * @param bodyOs the OutputStream writting the body to
+     * @throws IOException get thrown if an IO Error detected while writing to the streams
+     * @throws MessagingException get thrown if an error detected while reading the message
      */
     public static void writeTo(MimeMessage message, OutputStream headerOs, OutputStream bodyOs) throws IOException, MessagingException {
         writeTo(message, headerOs, bodyOs, null);
@@ -55,6 +61,13 @@ public class MimeMessageUtil {
     /**
      * Convenience method to take any MimeMessage and write the headers and body to two
      * different output streams, with an ignore list
+     * 
+     * @param message the MimeMessage reading from
+     * @param headerOs the OutputStream writting the headers to
+     * @param bodyOs the OutputStream writting the body to
+     * @param ignoreList the String[] which contains headers which should be ignored
+     * @throws IOException get thrown if an IO Error detected while writing to the streams
+     * @throws MessagingException get thrown if an error detected while reading the message
      */
     public static void writeTo(MimeMessage message, OutputStream headerOs, OutputStream bodyOs, String[] ignoreList) throws IOException, MessagingException {
         MimeMessage testMessage = message;
@@ -73,6 +86,7 @@ public class MimeMessageUtil {
     }
 
     /**
+     * 
      * @param message
      * @param headerOs
      * @param bodyOs
@@ -92,6 +106,15 @@ public class MimeMessageUtil {
         writeMessageBodyTo(message, bodyOs);
     }
 
+    /**
+     * Write message body of given mimeessage to the given outputStream
+     * 
+     * @param message the MimeMessage used as input 
+     * @param bodyOs the OutputStream to write the message body to
+     * @throws IOException 
+     * @throws UnsupportedDataTypeException
+     * @throws MessagingException
+     */
     public static void writeMessageBodyTo(MimeMessage message, OutputStream bodyOs) throws IOException, UnsupportedDataTypeException, MessagingException {
         OutputStream bos;
         InputStream bis;
@@ -160,6 +183,10 @@ public class MimeMessageUtil {
 
     /**
      * Convenience method to copy streams
+     *
+     * @param in the InputStream used as copy source 
+     * @param out the OutputStram used as copy destination
+     * @throws IOException
      */
     public static void copyStream(InputStream in, OutputStream out) throws IOException {
         // TODO: This is really a bad way to do this sort of thing.  A shared buffer to
@@ -176,9 +203,9 @@ public class MimeMessageUtil {
     /**
      * Write the message headers to the given outputstream
      * 
-     * @param message
-     * @param headerOs
-     * @param ignoreList
+     * @param message the MimeMessage to read from
+     * @param headerOs the OutputStream to which the headers get written
+     * @param ignoreList the String[] which holds headers which should be ignored 
      * @throws MessagingException
      */
     private static void writeHeadersTo(MimeMessage message, OutputStream headerOs, String[] ignoreList) throws MessagingException {
@@ -190,9 +217,8 @@ public class MimeMessageUtil {
     /**
      * Write the message headers to the given outputstream
      * 
-     * @param message
-     * @param headerOs
-     * @param ignoreList
+     * @param headers the Enumeration which holds the headers
+     * @param headerOs the OutputStream to which the headers get written
      * @throws MessagingException
      */
     public static void writeHeadersTo(Enumeration headers, OutputStream headerOs) throws MessagingException {
@@ -206,9 +232,11 @@ public class MimeMessageUtil {
     }
     
     /**
-     * @param message
-     * @param ignoreList
-     * @return
+     * Get an InputStream which holds all headers of the given MimeMessage
+     * 
+     * @param message the MimeMessage used as source
+     * @param ignoreList the String[] which holds headers which should be ignored 
+     * @return stream the InputStream which holds the headers
      * @throws MessagingException
      */
     public static InputStream getHeadersInputStream(MimeMessage message, String[] ignoreList) throws MessagingException {
@@ -242,8 +270,9 @@ public class MimeMessageUtil {
     }
 
     /**
-     * @return size of full message including headers
+     * Return the full site of an mimeMessage 
      * 
+     * @return size of full message including headers
      * @throws MessagingException if a problem occours while computing the message size
      */
     public static long getMessageSize(MimeMessage message) throws MessagingException {
@@ -267,9 +296,11 @@ public class MimeMessageUtil {
     }
 
     /**
-     * @param message
-     * @return the calculated size
-     * @throws MessagingException
+     * Calculate the size of the give mimeMessage
+     * 
+     * @param message the MimeMessage 
+     * @return size the calculated size
+     * @throws MessagingException if a problem occours while calculate the message size
      */
     public static long calculateMessageSize(MimeMessage message) throws MessagingException {
         long size;

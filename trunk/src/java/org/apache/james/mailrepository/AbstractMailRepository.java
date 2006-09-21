@@ -39,6 +39,7 @@ import java.util.Collection;
 import java.util.Iterator;
 
 /**
+ * This class represent an AbstractMailRepository. All MailRepositories must extend this class. 
  */
 public abstract class AbstractMailRepository extends AbstractLogEnabled
         implements MailRepository, Serviceable, Configurable, Initializable {
@@ -56,11 +57,19 @@ public abstract class AbstractMailRepository extends AbstractLogEnabled
 
     protected Store store; // variable is not used beyond initialization
     
+    /**
+     * Set the Store to use
+     * 
+     * @param store the Store
+     */
     void setStore(Store store) {
         this.store = store;
     }
 
 
+    /**
+     * @see org.apache.avalon.framework.activity.Initializable#initialize()
+     */
     public void initialize() throws Exception {
         lock = new Lock();
     }
@@ -75,11 +84,7 @@ public abstract class AbstractMailRepository extends AbstractLogEnabled
     }
 
     /**
-     * Releases a lock on a message identified by a key
-     *
-     * @param key the key of the message to be unlocked
-     *
-     * @return true if successfully released the lock, false otherwise
+     * @see org.apache.james.services.MailRepository#unlock(String)
      */
     public boolean unlock(String key) {
         if (lock.unlock(key)) {
@@ -101,11 +106,7 @@ public abstract class AbstractMailRepository extends AbstractLogEnabled
     }
 
     /**
-     * Obtains a lock on a message identified by a key
-     *
-     * @param key the key of the message to be locked
-     *
-     * @return true if successfully obtained the lock, false otherwise
+     * @see org.apache.james.services.MailRepository#lock(String)
      */
     public boolean lock(String key) {
         if (lock.lock(key)) {
@@ -128,8 +129,7 @@ public abstract class AbstractMailRepository extends AbstractLogEnabled
 
 
     /**
-     * Store this message to the database.  Optionally stores the message
-     * body to the filesystem and only writes the headers to the database.
+     * @see org.apache.james.services.MailRepository#store(Mail)
      */
     public void store(Mail mc) throws MessagingException {
         boolean wasLocked = true;
@@ -169,13 +169,14 @@ public abstract class AbstractMailRepository extends AbstractLogEnabled
     }
 
 
+    /**
+     * @see #store(Mail)
+     */
     protected abstract void internalStore(Mail mc) throws MessagingException, IOException;
 
 
     /**
-     * Removes a specified message
-     *
-     * @param mail the message to be removed from the repository
+     * @see org.apache.james.services.MailRepository#remove(Mail)
      */
     public void remove(Mail mail) throws MessagingException {
         remove(mail.getName());
@@ -183,10 +184,7 @@ public abstract class AbstractMailRepository extends AbstractLogEnabled
 
 
     /**
-     * Removes a Collection of mails from the repository
-     * @param mails The Collection of <code>MailImpl</code>'s to delete
-     * @throws MessagingException
-     * @since 2.2.0
+     * @see org.apache.james.services.MailRepository#remove(Collection)
      */
     public void remove(Collection mails) throws MessagingException {
         Iterator delList = mails.iterator();
@@ -196,9 +194,7 @@ public abstract class AbstractMailRepository extends AbstractLogEnabled
     }
 
     /**
-     * Removes a message identified by key.
-     *
-     * @param key the key of the message to be removed from the repository
+     * @see org.apache.james.services.MailRepository#remove(String)
      */
     public void remove(String key) throws MessagingException {
         if (lock(key)) {
@@ -218,6 +214,9 @@ public abstract class AbstractMailRepository extends AbstractLogEnabled
     }
 
 
+    /**
+     * @see #remove(String)
+     */
     protected abstract void internalRemove(String key) throws MessagingException;
 
 

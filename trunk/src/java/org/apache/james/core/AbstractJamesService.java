@@ -615,7 +615,7 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
     }
     
     /**
-    * @see org.apache.avalon.excalibur.pool.ObjectFactory#decommision(Object)
+    * @see org.apache.avalon.excalibur.pool.ObjectFactory#decommission(Object)
     */
     public void decommission( Object object ) throws Exception {
         return;

@@ -78,7 +78,7 @@ public class AvalonUsersStore
     }
 
     /**
-     * @see org.apache.avalon.framework.service.Serviceable#compose(ServiceManager)
+     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
     public void service( final ServiceManager manager )
         throws ServiceException {
