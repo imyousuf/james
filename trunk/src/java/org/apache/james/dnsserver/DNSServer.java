@@ -22,7 +22,6 @@
 package org.apache.james.dnsserver;
 
 import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -63,8 +62,7 @@ import java.util.Random;
  */
 public class DNSServer
     extends AbstractLogEnabled
-    implements Configurable, Initializable, Disposable,
-    org.apache.james.services.DNSServer, DNSServerMBean {
+    implements Configurable, Initializable, org.apache.james.services.DNSServer, DNSServerMBean {
 
     /**
      * A resolver instance used to retrieve DNS records.  This
@@ -231,16 +229,7 @@ public class DNSServer
     }
     
     /**
-     * <p>Return a prioritized unmodifiable list of host handling mail
-     * for the domain.</p>
-     * 
-     * <p>First lookup MX hosts, then MX hosts of the CNAME adress, and
-     * if no server is found return the IP of the hostname</p>
-     *
-     * @param hostname domain name to look up
-     *
-     * @return a unmodifiable list of handling servers corresponding to
-     *         this mail domain name
+     * @see org.apache.james.services.DNSServer#findMXRecords(String)
      */
     public Collection findMXRecords(String hostname) {
         List servers = new ArrayList();
@@ -418,21 +407,7 @@ public class DNSServer
     }
 
     /**
-     * Returns an Iterator over org.apache.mailet.HostAddress, a
-     * specialized subclass of javax.mail.URLName, which provides
-     * location information for servers that are specified as mail
-     * handlers for the given hostname.  This is done using MX records,
-     * and the HostAddress instances are returned sorted by MX priority.
-     * If no host is found for domainName, the Iterator returned will be
-     * empty and the first call to hasNext() will return false.  The
-     * Iterator is a nested iterator: the outer iteration is over the
-     * results of the MX record lookup, and the inner iteration is over
-     * potentially multiple A records for each MX record.  DNS lookups
-     * are deferred until actually needed.
-     *
-     * @since v2.2.0a16-unstable
-     * @param domainName - the domain for which to find mail servers
-     * @return an Iterator over HostAddress instances, sorted by priority
+     * @see org.apache.james.services.DNSServer#getSMTPHostAddresses(String)
      */
     public Iterator getSMTPHostAddresses(final String domainName) {
         return new Iterator() {
@@ -525,31 +500,17 @@ public class DNSServer
     }
 
     /**
-     * @see java.net.InetAddress#getByName(String)
+     * @see org.apache.james.services.DNSServer#getByName(String)
      */
     public InetAddress getByName(String host) throws UnknownHostException {
         return org.xbill.DNS.Address.getByName(allowIPLiteral(host));
     }
 
     /**
-     * @see java.net.InetAddress#getAllByName(String)
+     * @see org.apache.james.services.DNSServer#getAllByName(String)
      */
     public InetAddress[] getAllByName(String host) throws UnknownHostException {
         return org.xbill.DNS.Address.getAllByName(allowIPLiteral(host));
-    }
-
-    /**
-     * The dispose operation is called at the end of a components lifecycle.
-     * Instances of this class use this method to release and destroy any
-     * resources that they own.
-     *
-     * This implementation no longer shuts down org.xbill.DNS.Cache
-     * because dnsjava 2.0.0 removed the need for a cleaner thread! 
-     *
-     * @throws Exception if an error is encountered during shutdown
-     */
-    public void dispose()
-    {
     }
     
     /**

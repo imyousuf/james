@@ -42,9 +42,16 @@ final class MessageInputStream extends InputStream {
      */
     private StreamRepository streamRep;
     
+
     /**
      * Main constructor. If srep is not null than we are using dbfiles and we stream
      * the body to file and only the header to db.
+     * 
+     * @param mc the Mail 
+     * @param srep the StreamRepository the StreamRepository used for dbfiles.
+     * @param sizeLimit the sizeLimit which set the limit after which the streaming will be disabled
+     * @throws IOException get thrown if an IO error detected
+     * @throws MessagingException get thrown if an error detected while reading informations of the mail 
      */
     public MessageInputStream(Mail mc, StreamRepository srep, int sizeLimit) throws IOException, MessagingException {
         super();
@@ -85,16 +92,25 @@ final class MessageInputStream extends InputStream {
         }
     }
     
+
     /**
      * Returns the size of the full message
+     * 
+     * @return size the full message size
      */
     public long getSize() {
         return size;
     }
 
+
     /**
-     * write the full mail to the stream
+     * Write the full mail to the stream
      * This can be used by this object or by the worker threads.
+     * 
+     * @param mail the Mail used as source
+     * @param out the OutputStream writting the mail to
+     * @throws IOException get thrown if an IO error detected
+     * @throws MessagingException get thrown if an error detected while reading informations of the mail 
      */
     private void writeStream(Mail mail, OutputStream out) throws IOException, MessagingException {
         OutputStream bodyOut = null;

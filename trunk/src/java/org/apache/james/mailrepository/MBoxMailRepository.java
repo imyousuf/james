@@ -47,7 +47,6 @@
 
 package org.apache.james.mailrepository;
 
-import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
@@ -117,7 +116,7 @@ import java.util.Vector;
 
 public class MBoxMailRepository
         extends AbstractLogEnabled
-            implements MailRepository, Serviceable, Configurable, Initializable {
+            implements MailRepository, Serviceable, Configurable {
 
 
     static final SimpleDateFormat dy = new SimpleDateFormat("EE MMM dd HH:mm:ss yyyy", Locale.US);
@@ -496,8 +495,7 @@ public class MBoxMailRepository
 
 
     /**
-     * Store the given email in the current mbox file
-     * @param mc The mail to store
+     * @see org.apache.james.services.MailRepository#store(Mail)
      */
     public void store(Mail mc) {
 
@@ -538,9 +536,9 @@ public class MBoxMailRepository
         }
     }
 
+
     /**
-     * Return the list of the current messages' keys
-     * @return A list of the keys of the emails currently loaded
+     * @see org.apache.james.services.MailRepository#list()
      */
     public Iterator list() {
         loadKeys();
@@ -562,9 +560,7 @@ public class MBoxMailRepository
     }
 
     /**
-     * Get a message from the backing store (disk)
-     * @param key
-     * @return The mail found from the key. Returns null if the key is not found
+     * @see org.apache.james.services.MailRepository#retrieve(String)
      */
     public Mail retrieve(String key) {
 
@@ -594,8 +590,7 @@ public class MBoxMailRepository
     }
 
     /**
-     * Remove an existing message
-     * @param mail
+     * @see org.apache.james.services.MailRepository#remove(Mail)
      */
     public void remove(Mail mail) {
         // Convert the message into a key
@@ -662,9 +657,7 @@ public class MBoxMailRepository
 
 
     /**
-     * Remove a list of messages from disk
-     * The collection is simply a list of mails to delete
-     * @param mails
+     * @see org.apache.james.services.MailRepository#remove(Collection)
      */
     public void remove(final Collection mails)
     {
@@ -747,8 +740,7 @@ public class MBoxMailRepository
     }
 
     /**
-     * Remove a mail from the mbox file
-     * @param key The key of the mail to delete
+     * @see org.apache.james.services.MailRepository#remove(String)
      */
     public void remove(String key) {
         loadKeys();
@@ -766,18 +758,14 @@ public class MBoxMailRepository
     }
 
     /**
-     * Not implemented
-     * @param key
-     * @return
+     * @see org.apache.james.services.MailRepository#lock(String)
      */
     public boolean lock(String key) {
         return false;
     }
 
     /**
-     * Not implemented
-     * @param key
-     * @return
+     * @see org.apache.james.services.MailRepository#unlock(String)
      */
     public boolean unlock(String key) {
         return false;
@@ -791,10 +779,9 @@ public class MBoxMailRepository
             throws ServiceException {
     }
 
+
     /**
-     * Configure the component
-     * @param conf
-     * @throws ConfigurationException
+     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
     public void configure(Configuration conf) throws ConfigurationException {
         String destination;
@@ -822,42 +809,4 @@ public class MBoxMailRepository
         }
     }
 
-
-    /**
-     * Initialise the component
-     * @throws Exception
-     */
-    public void initialize() throws Exception {
-    }
-
-
-    public static void main(String[] args) {
-        // Test invocation
-        MBoxMailRepository mbx = new MBoxMailRepository();
-        mbx.mboxFile = "C:\\java\\test\\1998-05.txt";
-        Iterator mList = mbx.list();
-        while (mList.hasNext()) {
-            //String key = (String) mList.next();
-            //System.out.println("key=" + key);
-            /*MailImpl mi =  mbx.retrieve(key);
-            try
-            {
-                System.out.println("Subject : " +  (mi.getMessage()).getSubject());
-            }
-            catch (MessagingException e)
-            {
-                e.printStackTrace();  //To change body of catch statement use Options | File Templates.
-            } */
-
-        }
-
-
-/*        MailImpl mi = mbx.retrieve("ffffffb4ffffffe2f59fffffff291dffffffde4366243ffffff971d1f24");
-        try {
-            System.out.println("Subject : " + (mi.getMessage()).getSubject());
-        } catch (MessagingException e) {
-            e.printStackTrace();  //To change body of catch statement use Options | File Templates.
-        }
-        mbx.remove("ffffffb4ffffffe2f59fffffff291dffffffde4366243ffffff971d1f24");*/
-    }
 }

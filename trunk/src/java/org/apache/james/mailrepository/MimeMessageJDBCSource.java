@@ -77,6 +77,11 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
     /**
      * Construct a MimeMessageSource based on a JDBC repository, a key, and a
      * stream repository (where we might store the message body)
+     * 
+     * @param repository the JDBCMailRepository to use
+     * @param key the key for the particular stream in the stream repository to be used by this data source.
+     * @param sr the stream repository used by this data source.
+     * @throws IOException get thrown if an IO error detected
      */
     public MimeMessageJDBCSource(JDBCMailRepository repository,
             String key, StreamRepository sr) throws IOException {
@@ -117,6 +122,8 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
      * Return the input stream to the database field and then the file stream.  This should
      * be smart enough to work even if the file does not exist.  This is to support
      * a repository with the entire message in the database, which is how James 1.2 worked.
+     * 
+     * @see org.apache.james.core.MimeMessageSource#getInputStream()
      */
     public synchronized InputStream getInputStream() throws IOException {
         Connection conn = null;
@@ -174,6 +181,8 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
 
     /**
      * Runs a custom SQL statement to check the size of the message body
+     * 
+     * @see org.apache.james.core.MimeMessageSource#getMessageSize()
      */
     public synchronized long getMessageSize() throws IOException {
         if (size != -1) return size;

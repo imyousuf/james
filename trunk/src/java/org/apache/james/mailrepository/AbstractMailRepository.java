@@ -39,7 +39,7 @@ import java.util.Collection;
 import java.util.Iterator;
 
 /**
- * This class represent an AbstractMailRepository. All MailRepositories must extend this class. 
+ * This class represent an AbstractMailRepository. All MailRepositories should extend this class. 
  */
 public abstract class AbstractMailRepository extends AbstractLogEnabled
         implements MailRepository, Serviceable, Configurable, Initializable {
