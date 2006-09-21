@@ -106,7 +106,7 @@ public abstract class GenericMatcher implements Matcher, MatcherConfig {
      * the matcher container for alter use. When overriding this form of the
      * method, call super.init(config).</p>
      *
-     * @param MatcherConfig config - the MatcherConfig object that contains
+     * @param newConfig - the MatcherConfig object that contains
      *          configutation information for this matcher
      * @throws MessagingException
      *          if an exception occurs that interrupts the matcher's normal operation
@@ -135,7 +135,7 @@ public abstract class GenericMatcher implements Matcher, MatcherConfig {
      * Writes the specified message to a matcher log file, prepended by
      * the matcher's name.
      *
-     * @param msg - a String specifying the message to be written to the log file
+     * @param message - a String specifying the message to be written to the log file
      */
     public void log(String message) {
         StringBuffer logBuffer = 

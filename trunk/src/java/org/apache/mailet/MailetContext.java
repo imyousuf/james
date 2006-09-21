@@ -148,7 +148,7 @@ public interface MailetContext {
      * Checks if a user account is exists in the mail context.
      *
      * @param userAccount - user identifier.
-     * @return true if the acount is a local account
+     * @return true if the account is a local account
      * 
      * @deprecated use isLocalEmail(MailAddress) instead
      * 
@@ -161,8 +161,8 @@ public interface MailetContext {
     /**
      * Checks if a user account is exists in the mail context.
      *
-     * @param userAccount - user identifier.
-     * @return true if the acount is a local account
+     * @param mailAddress - address of the account to be checked.
+     * @return true if the account is a local account
      * 
      * @since James 2.4.0
      */
@@ -182,7 +182,7 @@ public interface MailetContext {
      * exception to the mailet log file.
      *
      * @param message - a String that describes the error or exception
-     * @param throwable - the Throwable error or exception
+     * @param t - the Throwable error or exception
      */
     void log(String message, Throwable t);
 

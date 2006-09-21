@@ -147,7 +147,7 @@ public abstract class GenericMailet implements Mailet, MailetConfig {
      * the mailet container for later use. When overriding this form of the
      * method, call super.init(config).</p>
      *
-     * @param MailetConfig newconfig - the MailetConfig object that contains
+     * @param newConfig - the MailetConfig object that contains
      *          configutation information for this mailet
      * @throws MessagingException
      *          if an exception occurs that interrupts the mailet's normal operation
