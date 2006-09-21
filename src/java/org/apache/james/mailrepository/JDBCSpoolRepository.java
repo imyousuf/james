@@ -120,7 +120,7 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
     }
 
     /**
-     * Return a message to process.  This is a message in the spool that is not locked.
+     * @see org.apache.james.services.SpoolRepository#accept()
      */
     public synchronized Mail accept() throws InterruptedException {
         return accept(new SpoolRepository.AcceptFilter () {
@@ -135,9 +135,7 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
     }
 
     /**
-     * Return a message that's ready to process.  If a message is of type "error"
-     * then check the last updated time, and don't try it until the long 'delay' parameter
-     * milliseconds has passed.
+     * @see org.apache.james.services.SpoolRepository#accept(long)
      */
     public synchronized Mail accept(final long delay) throws InterruptedException {
         return accept (new SpoolRepository.AcceptFilter () {
@@ -179,14 +177,8 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
     }
 
     /**
-     * Returns an arbitrarily selected mail deposited in this Repository for
-     * which the supplied filter's accept method returns true.
-     * Usage: RemoteDeliverySpool calls accept(filter) with some a filter which determines
-     * based on number of retries if the mail is ready for processing.
-     * If no message is ready the method will block until one is, the amount of time to block is
-     * determined by calling the filters getWaitTime method.
-     *
-     * @return  the mail
+    /**
+     * @see org.apache.james.services.SpoolRepository#accept(org.apache.james.services.SpoolRepository.AcceptFilter)
      */
     public synchronized Mail accept(SpoolRepository.AcceptFilter filter) throws InterruptedException {
         while (!Thread.currentThread().isInterrupted()) {
@@ -234,6 +226,8 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
      * This will force a reload of the pending messages queue once that
      * is empty... a message that gets added will sit here until that queue
      * time has passed and the list is then reloaded.
+     * 
+     * @see org.apache.james.mailrepository.AbstractMailRepository#store(Mail)
      */
     public void store(Mail mc) throws javax.mail.MessagingException {
         pendingMessagesLoadTime = 0;

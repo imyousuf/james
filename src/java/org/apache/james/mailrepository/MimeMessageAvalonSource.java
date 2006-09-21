@@ -49,6 +49,13 @@ public class MimeMessageAvalonSource extends MimeMessageSource {
 
     private long size = -1;
 
+    /**
+     * Main constructor
+     * 
+     * @param sr The stream repository used by this data source.
+     * @param repositoryName The name of the repository
+     * @param key The key for the particular stream in the stream repository to be used by this data source.
+     */
     public MimeMessageAvalonSource(StreamRepository sr, String repositoryName, String key) {
         this.sr = sr;
         this.repositoryName = repositoryName;
@@ -71,10 +78,18 @@ public class MimeMessageAvalonSource extends MimeMessageSource {
         return sourceIdBuffer.toString();
     }
 
+    /**
+     * Return the InputStream
+     * 
+     * @return stream return the InputStream
+     */
     public InputStream getInputStream() throws IOException {
         return sr.get(key);
     }
 
+    /**
+     * @see org.apache.james.core.MimeMessageSource#getMessageSize()
+     */
     public long getMessageSize() throws IOException {
         if (size == -1) {
             if (sr instanceof org.apache.james.mailrepository.filepair.File_Persistent_Stream_Repository) {

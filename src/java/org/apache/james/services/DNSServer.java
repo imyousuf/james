@@ -40,12 +40,16 @@ public interface DNSServer {
     String ROLE = "org.apache.james.services.DNSServer";
 
     /**
-     * <p>Get a priority-sorted collection of DNS MX records for a given hostname</p>
+     * <p>Return a prioritized unmodifiable list of host handling mail
+     * for the domain.</p>
+     * 
+     * <p>First lookup MX hosts, then MX hosts of the CNAME adress, and
+     * if no server is found return the IP of the hostname</p>
      *
-     * <p>TODO: Change this to a list, as not all collections are sortable</p>
+     * @param hostname domain name to look up
      *
-     * @param hostname the hostname to check
-     * @return collection of strings representing MX record values. 
+     * @return a unmodifiable list of handling servers corresponding to
+     *         this mail domain name
      */
     Collection findMXRecords(String hostname);
 
@@ -59,20 +63,26 @@ public interface DNSServer {
 
 
     /**
-     * Performs DNS lookups as needed to find servers which should or might
-     * support SMTP.  Returns one SMTPHostAddresses for each such host
-     * discovered by DNS.  If no host is found for domainName, the Iterator
-     * returned will be empty and the first call to hasNext() will return
-     * false.
-     * @param domainName the String domain for which SMTP host addresses are
-     * sought.
-     * @return an Enumeration in which the Objects returned by next()
-     * are instances of SMTPHostAddresses.
+     * Returns an Iterator over org.apache.mailet.HostAddress, a
+     * specialized subclass of javax.mail.URLName, which provides
+     * location information for servers that are specified as mail
+     * handlers for the given hostname.  This is done using MX records,
+     * and the HostAddress instances are returned sorted by MX priority.
+     * If no host is found for domainName, the Iterator returned will be
+     * empty and the first call to hasNext() will return false.  The
+     * Iterator is a nested iterator: the outer iteration is over the
+     * results of the MX record lookup, and the inner iteration is over
+     * potentially multiple A records for each MX record.  DNS lookups
+     * are deferred until actually needed.
+     *
+     * @since v2.2.0a16-unstable
+     * @param domainName - the domain for which to find mail servers
+     * @return an Iterator over HostAddress instances, sorted by priority
      */
     Iterator getSMTPHostAddresses(String domainName);
     
     /**
-     * @see java.net.InetAddress#getByAllName(String)
+     * @see java.net.InetAddress#getAllByName(String)
      */
     public InetAddress[] getAllByName(String host) throws UnknownHostException;
  

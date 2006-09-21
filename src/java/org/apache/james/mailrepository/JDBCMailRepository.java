@@ -464,11 +464,9 @@ public class JDBCMailRepository
         }
     }
 
+
     /**
-     * @param mc mail to be stored
-     * @throws SQLException
-     * @throws IOException
-     * @throws MessagingException
+     * @see org.apache.james.mailrepository.AbstractMailRepository#internalStore(Mail)
      */
     protected void internalStore(Mail mc) throws IOException, MessagingException {
         Connection conn = null;
@@ -685,12 +683,9 @@ public class JDBCMailRepository
         }
     }
 
+
     /**
-     * Retrieves a message given a key. At the moment, keys can be obtained
-     * from list()
-     *
-     * @param key the key of the message to retrieve
-     * @return the mail corresponding to this key, null if none exists
+     * @see org.apache.james.services.MailRepository#retrieve(String)
      */
     public Mail retrieve(String key) throws MessagingException {
         if (DEEP_DEBUG) {
@@ -837,8 +832,7 @@ public class JDBCMailRepository
     }
 
     /**
-     * @param key
-     * @throws MessagingException
+     * @see org.apache.james.mailrepository.AbstractMailRepository#internalRemove(String)
      */
     protected void internalRemove(String key) throws MessagingException {
         Connection conn = null;
@@ -863,9 +857,7 @@ public class JDBCMailRepository
     }
 
     /**
-     * Gets a list of message keys stored in this repository.
-     *
-     * @return an Iterator of the message keys
+     * @see org.apache.james.services.MailRepository#list()
      */
     public Iterator list() throws MessagingException {
         //System.err.println("listing messages");
