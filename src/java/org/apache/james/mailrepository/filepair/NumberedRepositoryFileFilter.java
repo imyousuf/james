@@ -33,11 +33,19 @@ public class NumberedRepositoryFileFilter implements FilenameFilter {
     private String postfix;
     private String prefix;
 
+    /**
+     * Default Constructor
+     * 
+     * @param extension the extension for which checked
+     */
     public NumberedRepositoryFileFilter(final String extension) {
         postfix = extension;
         prefix = ".Repository";
     }
 
+    /**
+     * @see java.io.FilenameFilter#accept(File, String)
+     */
     public boolean accept(final File file, final String name) {
         //System.out.println("check: " + name);
         //System.out.println("post: " + postfix);

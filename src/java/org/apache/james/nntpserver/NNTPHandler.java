@@ -250,9 +250,7 @@ public class NNTPHandler
     boolean isAlreadyAuthenticated = false;
 
     /**
-     * Set the configuration data for the handler
-     *
-     * @param theData configuration data for the handler
+     * @see org.apache.james.core.AbstractJamesHandler#setConfigurationData(Object)
      */
     public void setConfigurationData(Object theData) {
         if (theData instanceof NNTPHandlerConfigurationData) {
@@ -292,6 +290,9 @@ public class NNTPHandler
         getLogger().info("Connection closed");
     }
     
+    /**
+     * @see org.apache.james.core.AbstractJamesHandler#erorHandler(RuntimeException e);
+     */
     protected void errorHandler(RuntimeException e) {
         super.errorHandler(e);
         // If the connection has been idled out, the
@@ -306,7 +307,7 @@ public class NNTPHandler
     }
 
     /**
-     * Resets the handler data to a basic state.
+     * @see org.apache.james.core.AbstractJamesHandler#resetHandler
      */
     protected void resetHandler() {
         // Clear the selected group, article info
