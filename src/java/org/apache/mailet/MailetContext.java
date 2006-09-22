@@ -66,6 +66,8 @@ public interface MailetContext {
      * This is done using MX records, and the hostnames or ip addresses
      * are returned sorted by MX priority.
      *
+     * <p>TODO: This needs to be made a more specific ordered subtype of Collection.</p>
+     *     
      * @param host - the domain name for which to find mail servers
      * @return a Collection of Strings of hostnames, sorted by priority
      */

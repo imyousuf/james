@@ -54,23 +54,43 @@ public class SpoolFilter {
      */
     private final Map headerFiltersCompiled = new HashMap();
 
+    /**
+     * Construct the SpoolFilter
+     * 
+     * @param state the message state on which message the filter should be used
+     * @param header the headername on which the given regex should be used
+     * @param headerValueRegex the regex to use on the value of the given header
+     */
     public SpoolFilter(String state, String header, String headerValueRegex) {
         this.state = state;
         if (header != null) headerFilters.put(header, headerValueRegex);
     }
 
+    /**
+     * Construct the SpoolFilter
+     * 
+     * @param state the message state on which message the filter should be used
+     */
     public SpoolFilter(String state) {
         this.state = state;
     }
 
+    /**
+     * Construct the SpoolFilter
+     * 
+     * @param header the headername on which the given regex should be used
+     * @param headerValueRegex the regex to use on the value of the given header
+     */
     public SpoolFilter(String header, String headerValueRegex) {
         this.state = null;
         if (header != null) headerFilters.put(header, headerValueRegex);
     }
 
     /**
-     * @param state
-     * @param headerFilters Map<String headerName, String headerValueRegex>
+     * Construct the SpoolFilter
+     * 
+     * @param state the message state on which message the filter should be used
+     * @param headerFilters a Map which contains filters to use
      */
     public SpoolFilter(String state, Map headerFilters) {
         this.state = state;
@@ -82,26 +102,61 @@ public class SpoolFilter {
         return doFilterHeader() || doFilterState();
     }
 
+    /**
+     * Return true if any state was given on init the SpoolFilter
+     * 
+     * @return true if state was given on init. False otherwise 
+     */
     public boolean doFilterState() {
         return state != null;
     }
 
+    /**
+     * Return true if any filters should be used on the headers
+     * 
+     * @return true if filters should be used. False if not
+     */
     public boolean doFilterHeader() {
         return headerFilters.size() > 0;
     }
 
+    /**
+     * Return the message state on which the filter will be used
+     * 
+     * @return state the message state
+     */
     public String getState() {
         return state;
     }
 
+    /**
+     * Return an Iterator which contains all headers which should be filtered
+     * 
+     * @return headers an Iterator which contains all headers which should be filtered
+     */
     public Iterator getHeaders() {
         return headerFilters.keySet().iterator();
     }
 
+    /**
+     * Return the regex which should be used on the given header. 
+     * Return null if the header not exists in the Map
+     * 
+     * @param header the headername for which the regex should be retrieven. 
+     * @return regex the regex for the given header
+     */
     public String getHeaderValueRegex(String header) {
         return (String) headerFilters.get(header);
     }
 
+    /**
+     * Return the compiled Pattern for the given header. 
+     * Return null if the header not exists in the Map
+     * 
+     * @param header the header for which the pattern should be returned
+     * @return pattern the Pattern which was compiled for the given header
+     * @throws SpoolManagementException get thrown if an invalid regex is used with the given header
+     */
     public Pattern getHeaderValueRegexCompiled(String header) throws SpoolManagementException {
         Perl5Compiler compiler = new Perl5Compiler();
 

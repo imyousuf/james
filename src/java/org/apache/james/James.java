@@ -410,14 +410,29 @@ public class James
         localDeliveryMailet.init(configImpl);
     }
 
+    /**
+     * Set Store to use
+     * 
+     * @param store the Store to use
+     */
     public void setStore(Store store) {
         this.store = store;
     }
 
+    /**
+     * Set the SpoolRepository to use
+     * 
+     * @param spool the SpoleRepository to use
+     */
     public void setSpool(SpoolRepository spool) {
         this.spool = spool;
     }
 
+    /**
+     * Set the UsersRepository to use
+     * 
+     * @param localusers the UserRepository to use
+     */
     public void setLocalusers(UsersRepository localusers) {
         this.localusers = localusers;
     }
@@ -447,14 +462,7 @@ public class James
     }
 
     /**
-     * Place a mail on the spool for processing
-     *
-     * @param sender the sender of the mail
-     * @param recipients the recipients of the mail
-     * @param message the message to send
-     *
-     * @throws MessagingException if an exception is caught while placing the mail
-     *                            on the spool
+     * @see org.apache.james.services.MailServer#sendMail(MailAddress, Collection, MimeMessage)
      */
     public void sendMail(MailAddress sender, Collection recipients, MimeMessage message)
             throws MessagingException {
@@ -462,15 +470,7 @@ public class James
     }
 
     /**
-     * Place a mail on the spool for processing
-     *
-     * @param sender the sender of the mail
-     * @param recipients the recipients of the mail
-     * @param message the message to send
-     * @param state the state of the message
-     *
-     * @throws MessagingException if an exception is caught while placing the mail
-     *                            on the spool
+     * @see org.apache.mailet.MailetContext#sendMail(MailAddress, Collection, MimeMessage, String)
      */
     public void sendMail(MailAddress sender, Collection recipients, MimeMessage message, String state)
             throws MessagingException {
@@ -484,14 +484,7 @@ public class James
     }
 
     /**
-     * Place a mail on the spool for processing
-     *
-     * @param sender the sender of the mail
-     * @param recipients the recipients of the mail
-     * @param msg an <code>InputStream</code> containing the message
-     *
-     * @throws MessagingException if an exception is caught while placing the mail
-     *                            on the spool
+     * @see org.apache.james.services.MailServer#sendMail(MailAddress, Collection, InputStream)
      */
     public void sendMail(MailAddress sender, Collection recipients, InputStream msg)
             throws MessagingException {
@@ -507,12 +500,7 @@ public class James
     }
 
     /**
-     * Place a mail on the spool for processing
-     *
-     * @param mail the mail to place on the spool
-     *
-     * @throws MessagingException if an exception is caught while placing the mail
-     *                            on the spool
+     * @see org.apache.james.services.MailServer#sendMail(Mail)
      */
     public void sendMail(Mail mail) throws MessagingException {
         try {
@@ -537,13 +525,7 @@ public class James
     }
 
     /**
-     * <p>Retrieve the mail repository for a user</p>
-     *
-     * <p>For POP3 server only - at the moment.</p>
-     *
-     * @param userName the name of the user whose inbox is to be retrieved
-     *
-     * @return the POP3 inbox for the user
+     * @see org.apache.james.services.MailServer#getUserInbox(java.lang.String)
      */
     public synchronized MailRepository getUserInbox(String userName) {
         MailRepository userInbox = null;
@@ -588,9 +570,7 @@ public class James
     }
 
     /**
-     * Return a new mail id.
-     *
-     * @return a new mail id
+     * @see org.apache.james.services.MailServer#getId()
      */
     public String getId() {
         long localCount = -1;
@@ -622,28 +602,36 @@ public class James
     //Methods for MailetContext
 
     /**
-     * <p>Get the prioritized list of mail servers for a given host.</p>
-     *
-     * <p>TODO: This needs to be made a more specific ordered subtype of Collection.</p>
-     *
-     * @param host
+     * @see org.apache.mailet.MailetContext#getMailServers(String)
      */
     public Collection getMailServers(String host) {
         return lookupDNSServer().findMXRecords(host);
     }
 
+    /**
+     * @see org.apache.mailet.MailetContext#getAttribute(java.lang.String)
+     */
     public Object getAttribute(String key) {
         return attributes.get(key);
     }
 
+    /**
+     * @see org.apache.mailet.MailetContext#setAttribute(java.lang.String, java.lang.Object)
+     */
     public void setAttribute(String key, Object object) {
         attributes.put(key, object);
     }
 
+    /**
+     * @see org.apache.mailet.MailetContext#removeAttribute(java.lang.String)
+     */
     public void removeAttribute(String key) {
         attributes.remove(key);
     }
 
+    /**
+     * @see org.apache.mailet.MailetContext#getAttributeNames()
+     */
     public Iterator getAttributeNames() {
         Vector names = new Vector();
         for (Enumeration e = attributes.keys(); e.hasMoreElements(); ) {
@@ -658,6 +646,8 @@ public class James
      * this is different than a mail-client's reply, which would use the
      * Reply-To or From header. This will send the bounce with the server's
      * postmaster as the sender.
+     * 
+     * @see org.apache.mailet.MailetContext#bounce(Mail, String)
      */
     public void bounce(Mail mail, String message) throws MessagingException {
         bounce(mail, message, getPostmaster());
@@ -685,6 +675,7 @@ public class James
      *           part (body) = message
      *     part (body) = original
      *
+     * @see org.apache.mailet.MailetContext#bounce(Mail, String, MailAddress) 
      */
 
     public void bounce(Mail mail, String message, MailAddress bouncer) throws MessagingException {
@@ -738,11 +729,7 @@ public class James
     }
 
     /**
-     * Returns whether that account has a local inbox on this server
-     *
-     * @param name the name to be checked
-     *
-     * @return whether the account has a local inbox
+     * @see org.apache.mailet.MailetContext#isLocalUser(String)
      */
     public boolean isLocalUser(String name) {
         if (name == null) {
@@ -775,38 +762,28 @@ public class James
     }
 
     /**
-     * Returns the address of the postmaster for this server.
-     *
-     * @return the <code>MailAddress</code> for the postmaster
+     * @see org.apache.mailet.MailetContext#getPostmaster()
      */
     public MailAddress getPostmaster() {
         return postmaster;
     }
 
     /**
-     * Return the major version number for the server
-     *
-     * @return the major vesion number for the server
+     * @see org.apache.mailet.MailetContext#getMajorVersion()
      */
     public int getMajorVersion() {
         return 2;
     }
 
     /**
-     * Return the minor version number for the server
-     *
-     * @return the minor vesion number for the server
+     * @see org.apache.mailet.MailetContext#getMinorVersion()
      */
     public int getMinorVersion() {
         return 4;
     }
 
     /**
-     * Check whether the mail domain in question is to be
-     * handled by this server.
-     *
-     * @param serverName the name of the server to check
-     * @return whether the server is local
+     * @see org.apache.james.services.MailServer#isLocalServer(java.lang.String)
      */
     public boolean isLocalServer( final String serverName ) {
         String lowercase = serverName.toLowerCase(Locale.US);
@@ -814,9 +791,7 @@ public class James
     }
 
     /**
-     * Return the type of the server
-     *
-     * @return the type of the server
+     * @see org.apache.mailet.MailetContext#getServerInfo()
      */
     public String getServerInfo() {
         return "Apache JAMES";
@@ -835,19 +810,14 @@ public class James
     }
 
     /**
-     * Log a message to the Mailet logger
-     *
-     * @param message the message to pass to the Mailet logger
+     * @see org.apache.mailet.MailetContext#log(java.lang.String)
      */
     public void log(String message) {
         getMailetLogger().info(message);
     }
 
     /**
-     * Log a message and a Throwable to the Mailet logger
-     *
-     * @param message the message to pass to the Mailet logger
-     * @param t the <code>Throwable</code> to be logged
+     * @see org.apache.mailet.MailetContext#log(java.lang.String, java.lang.Throwable)
      */
     public void log(String message, Throwable t) {
         getMailetLogger().info(message,t);
