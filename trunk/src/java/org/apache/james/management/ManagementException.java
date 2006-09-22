@@ -24,18 +24,30 @@ package org.apache.james.management;
 
 public class ManagementException extends Exception {
 
+    /**
+     * @see java.lang.Exception#Exception()
+     */
     public ManagementException() {
         super();
     }
 
+    /**
+     * @see java.lang.Exception#Exception(String)
+     */
     public ManagementException(String message) {
         super(message);
     }
 
+    /**
+     * @see java.lang.Exception#Exception(Throwable)
+     */
     public ManagementException(Exception e) {
         super(e);
     }
 
+    /**
+     * @see java.lang.Exception#Exception(String, Throwable)
+     */
     public ManagementException(String message, Exception e) {
         super(message, e);
     }

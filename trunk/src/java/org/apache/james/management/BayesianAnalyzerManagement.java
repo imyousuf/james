@@ -33,7 +33,6 @@ import java.io.PrintWriter;
 import java.io.InputStream;
 import java.sql.SQLException;
 import java.sql.Connection;
-import java.util.HashMap;
 import java.util.Map;
 
 import net.fortuna.mstor.data.MboxFile;
@@ -392,9 +391,17 @@ public class BayesianAnalyzerManagement implements BayesianAnalyzerManagementSer
     private static class BayesianAnalyzerXml {
         private int hamMessageCount = 0;
         private int spamMessageCount = 0;
-        private Map hamTokenCounts = new HashMap();
-        private Map spamTokenCounts = new HashMap();
+        private Map hamTokenCounts;
+        private Map spamTokenCounts;
     
+        /**
+         * Default Constructer
+         * 
+         * @param hamMessageCount the count of trained ham messages
+         * @param spamMessageCount the count of trained spam messages
+         * @param hamTokenCounts the count and tokens of trained ham  
+         * @param spamTokenCounts the count and tokens of trained spam
+         */
         public BayesianAnalyzerXml(int hamMessageCount, int spamMessageCount, Map hamTokenCounts, Map spamTokenCounts) {
             this.hamMessageCount = hamMessageCount;
             this.spamMessageCount = spamMessageCount;
@@ -402,18 +409,38 @@ public class BayesianAnalyzerManagement implements BayesianAnalyzerManagementSer
             this.spamTokenCounts = spamTokenCounts;
         }
     
+        /**
+         * Return the count of trained ham messages
+         * 
+         * @return hamMessageCount the count of trained ham messages 
+         */
         public int getHamMessageCount() {
             return hamMessageCount;
         }
     
+        /**
+         * Return the count of trained spam messages
+         * 
+         * @return spamMessageCount the count of trained spam messages
+         */
         public int getSpamMessageCount() {
             return spamMessageCount;
         }
     
+        /**
+         * Return a Map which contains the token as key and the count as value of trained ham messages
+         * 
+         * @return hamTokenCounts a Map which contains the tokens and counts
+         */
         public Map getHamTokenCounts() {
             return hamTokenCounts;
         }
     
+        /**
+         * Return a Map which contains the token as key and the count as value of trained spam messages
+         * 
+         * @return spamTokenCounts a Map which countains the tokens and counts
+         */
         public Map getSpamTokenCounts() {
             return spamTokenCounts;
         }

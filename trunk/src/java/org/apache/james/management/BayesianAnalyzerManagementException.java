@@ -22,20 +22,35 @@
 
 package org.apache.james.management;
 
+/**
+ * The Exception get thrown if an error accour in BayesianAnalyzerManagment
+ */
 public class BayesianAnalyzerManagementException extends ManagementException {
 
+    /**
+     * @see java.lang.Exception#Exception()
+     */
     public BayesianAnalyzerManagementException() {
         super();
     }
 
+    /**
+     * @see java.lang.Exception#Exception(String)
+     */
     public BayesianAnalyzerManagementException(String message) {
         super(message);
     }
 
+    /**
+     * @see java.lang.Exception#Exception(Throwable)
+     */
     public BayesianAnalyzerManagementException(Exception e) {
         super(e);
     }
 
+    /**
+     * @see java.lang.Exception#Exception(String, Throwable)
+     */
     public BayesianAnalyzerManagementException(String message, Exception e) {
         super(message, e);
     }

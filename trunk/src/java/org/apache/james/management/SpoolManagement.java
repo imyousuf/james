@@ -51,10 +51,18 @@ public class SpoolManagement implements Serviceable, SpoolManagementService, Spo
 
     private Store mailStore;
 
+    /**
+     * Set the Store
+     * 
+     * @param mailStore the store
+     */
     public void setStore(Store mailStore) {
         this.mailStore = mailStore;
     }
 
+    /**
+     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
+     */
     public void service(ServiceManager serviceManager) throws ServiceException {
         Store mailStore = (Store)serviceManager.lookup("org.apache.avalon.cornerstone.services.store.Store" );
         setStore(mailStore);
@@ -62,6 +70,7 @@ public class SpoolManagement implements Serviceable, SpoolManagementService, Spo
 
     /**
      * Lists all mails from the given repository matching the given filter criteria 
+     * 
      * @param spoolRepositoryURL the spool whose item are listed
      * @param state if not NULL, only mails with matching state are returned
      * @param header if not NULL, only mails with at least one header with a value matching headerValueRegex are returned
@@ -76,6 +85,7 @@ public class SpoolManagement implements Serviceable, SpoolManagementService, Spo
 
     /**
      * Lists all mails from the given repository matching the given filter criteria 
+     * 
      * @param spoolRepositoryURL the spool whose item are listed
      * @param filter the criteria against which all mails are matched
      * @return String array, each line describing one matching mail from the spool 
@@ -92,8 +102,10 @@ public class SpoolManagement implements Serviceable, SpoolManagementService, Spo
     }
 
     /**
-     * @param mail
-     * @param filter
+     * Return true if the given Mail match the given SpoolFilter
+     * 
+     * @param mail the Mail which should be checked
+     * @param filter the SpoolFilter which should be used
      * @return TRUE, if given mail matches all given filter criteria
      * @throws SpoolManagementException
      */
@@ -163,10 +175,7 @@ public class SpoolManagement implements Serviceable, SpoolManagementService, Spo
     }
 
     /**
-     * @param spoolRepositoryURL
-     * @param filter
-     * @return List<Mail> all matching mails from the given spool
-     * @throws SpoolManagementException
+     * @see org.apache.james.services.SpoolManagementService#getSpoolItems(String, SpoolFilter)
      */
     public List getSpoolItems(String spoolRepositoryURL, SpoolFilter filter)
             throws ServiceException, MessagingException, SpoolManagementException {
@@ -195,13 +204,17 @@ public class SpoolManagement implements Serviceable, SpoolManagementService, Spo
         return items;
     }
 
+    /**
+     * @see org.apache.james.management.SpoolManagementMBean#removeSpoolItems(String, String, String, String, String)
+     */
     public int removeSpoolItems(String spoolRepositoryURL, String key, String state, String header, String headerValueRegex) 
             throws SpoolManagementException {
         return removeSpoolItems(spoolRepositoryURL, key, new SpoolFilter(state, header, headerValueRegex));
     }
 
     /**
-     * Removes all mails from the given repository matching the filter 
+     * Removes all mails from the given repository matching the filter
+     *  
      * @param spoolRepositoryURL the spool whose item are listed
      * @param key ID of the mail to be removed. if not NULL, all other filters are ignored
      * @param filter the criteria against which all mails are matched. only applied if key is NULL.
@@ -216,14 +229,9 @@ public class SpoolManagement implements Serviceable, SpoolManagementService, Spo
         }
     }
 
+
     /**
-     * Removes all mails from the given repository matching the filter 
-     * @param spoolRepositoryURL the spool whose item are listed
-     * @param key ID of the mail to be removed. if not NULL, all other filters are ignored
-     * @param lockingFailures is populated with a list of mails which could not be processed because
-     * a lock could not be obtained
-     * @param filter the criteria against which all mails are matched. only applied if key is NULL.
-     * @return number of removed mails
+     * @see org.apache.james.services.SpoolManagementService#removeSpoolItems(String, String, List, SpoolFilter)
      */
     public int removeSpoolItems(String spoolRepositoryURL, String key, List lockingFailures, SpoolFilter filter) throws ServiceException, MessagingException {
         int count = 0;
@@ -253,6 +261,15 @@ public class SpoolManagement implements Serviceable, SpoolManagementService, Spo
         return count;
     }
 
+    /**
+     * Tries to resend all mails from the given repository matching the given filter criteria 
+     * 
+     * @param spoolRepositoryURL the spool whose item are about to be resend
+     * @param key ID of the mail to be resend. if not NULL, all other filters are ignored
+     * @param filter the SpoolFilter to use
+     * @return int the number of resent mails
+     * @throws SpoolManagementException
+     */
     public int resendSpoolItems(String spoolRepositoryURL, String key, SpoolFilter filter) throws SpoolManagementException {
         try {
             return resendSpoolItems(spoolRepositoryURL, key, null, filter);
@@ -275,15 +292,9 @@ public class SpoolManagement implements Serviceable, SpoolManagementService, Spo
         return resendSpoolItems(spoolRepositoryURL, key, new SpoolFilter(state, header, headerValueRegex));
     }
 
+
     /**
-     * Tries to resend all mails from the given repository matching the given filter criteria 
-     * @param spoolRepositoryURL the spool whose item are about to be resend
-     * @param key ID of the mail to be resend. if not NULL, all other filters are ignored
-     * @param lockingFailures is populated with a list of mails which could not be processed because
-     * a lock could not be obtained
-     * @param filter the criteria against which all mails are matched. only applied if key is NULL.
-     * @return int number of resent mails 
-     * @throws SpoolManagementException
+     * @see org.apache.james.services.SpoolManagementService#resendSpoolItems(String, String, List, SpoolFilter)
      */
     public int resendSpoolItems(String spoolRepositoryURL, String key, List lockingFailures, SpoolFilter filter)
             throws ServiceException, MessagingException, SpoolManagementException {
@@ -350,6 +361,7 @@ public class SpoolManagement implements Serviceable, SpoolManagementService, Spo
 
     /**
      * Remove the mail that belongs to the given key and spoolRepository 
+     * 
      * @param spoolRepository The spoolRepository
      * @param key The message key
      * @param filter

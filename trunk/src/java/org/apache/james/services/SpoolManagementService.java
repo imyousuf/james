@@ -32,12 +32,48 @@ import java.util.List;
 public interface SpoolManagementService {
     String ROLE = "org.apache.james.services.SpoolManagementService";
 
+    /**
+     * Removes all mails from the given repository matching the filter
+     *  
+     * @param spoolRepositoryURL the spool whose item are listed
+     * @param key ID of the mail to be removed. if not NULL, all other filters are ignored
+     * @param lockingFailures is populated with a list of mails which could not be processed because
+     * a lock could not be obtained
+     * @param filter the criteria against which all mails are matched. only applied if key is NULL.
+     * @return number of removed mails
+     * @throws ServiceException
+     * @trhows MessagingException
+     */
     public int removeSpoolItems(String spoolRepositoryURL, String key, List lockingFailures, SpoolFilter filter) 
             throws ServiceException, MessagingException;
     
+    /**
+     * Tries to resend all mails from the given repository matching the given filter criteria 
+     * 
+     * @param spoolRepositoryURL the spool whose item are about to be resend
+     * @param key ID of the mail to be resend. if not NULL, all other filters are ignored
+     * @param lockingFailures is populated with a list of mails which could not be processed because
+     *                        a lock could not be obtained
+     * @param filter the criteria against which all mails are matched. only applied if key is NULL.
+     * @return int number of resent mails 
+     * @throws ServiceException
+     * @throws MessagingException
+     * @throws SpoolManagementException
+     */
     public int resendSpoolItems(String spoolRepositoryURL, String key, List lockingFailures, SpoolFilter filter) 
             throws ServiceException, MessagingException, SpoolManagementException;
 
+    /**
+     * Return a List which contains all mails which can accessed by given spoolRepositoryUrl and matched
+     * the given SpoolFilter
+     * 
+     * @param spoolRepositoryURL the url under which a spool can be accessed
+     * @param filter the SpoolFilter to use
+     * @return List<Mail> all matching mails from the given spool
+     * @throws ServiceException
+     * @throws MessagingException
+     * @throws SpoolManagementException
+     */
     public List getSpoolItems(String spoolRepositoryURL, SpoolFilter filter) 
             throws ServiceException, MessagingException, SpoolManagementException;
 }
