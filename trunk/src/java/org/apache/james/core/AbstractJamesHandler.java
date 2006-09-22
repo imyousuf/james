@@ -106,9 +106,13 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
      */
     protected String remoteIP = null;
 
+
     /**
      * Helper method for accepting connections.
      * This MUST be called in the specializations.
+     *
+     * @param connection The Socket which belongs to the connection 
+     * @throws IOException get thrown if an IO error is detected
      */
     protected void initHandler( Socket connection ) throws IOException {
         this.socket = connection;
@@ -266,7 +270,9 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
     }
 
     /**
-     * @param e 
+     * Method which will be colled on error
+     *  
+     * @param e the RuntimeException
      */
     protected void errorHandler(RuntimeException e) {
         if (getLogger().isErrorEnabled()) {
@@ -276,9 +282,16 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
     }
 
 
+    /**
+     * Handle the protocol
+     * 
+     * @throws IOException get thrown if an IO error is detected
+     */
     protected abstract void handleProtocol() throws IOException;
 
-
+   /**
+    * Resets the handler data to a basic state.
+    */
     protected abstract void resetHandler();
 
 

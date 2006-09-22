@@ -43,19 +43,29 @@ public class NNTPServer extends AbstractJamesService implements NNTPServerMBean 
     /**
      * The repository that stores the news articles for this NNTP server.
      */
-    private NNTPRepository repository;
+    private NNTPRepository nntpRepository;
 
     /**
      * The repository that stores the local users.  Used for authentication.
      */
     private UsersRepository userRepository = null;
 
+    /**
+     * Set the UserRepository
+     * 
+     * @param userRepository the UserRepository
+     */
     public void setUserRepository(UsersRepository userRepository) {
         this.userRepository = userRepository;
     }
 
-    public void setRepository(NNTPRepository repository) {
-        this.repository = repository;
+    /**
+     * Set the NNTPRepository
+     * 
+     * @param nntpRepository the NNTPRepository
+     */
+    public void setRepository(NNTPRepository nntpRepository) {
+        this.nntpRepository = nntpRepository;
     }
 
     /**
@@ -158,7 +168,7 @@ public class NNTPServer extends AbstractJamesService implements NNTPServerMBean 
          * @see org.apache.james.nntpserver.NNTPHandlerConfigurationData#getNNTPRepository()
          */
         public NNTPRepository getNNTPRepository() {
-            return NNTPServer.this.repository;
+            return NNTPServer.this.nntpRepository;
         }
 
     }

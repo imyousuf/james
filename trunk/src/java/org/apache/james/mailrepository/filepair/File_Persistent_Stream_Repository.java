@@ -38,6 +38,10 @@ public class File_Persistent_Stream_Repository
     extends AbstractFileRepository
     implements StreamRepository
 {
+    
+    /**
+     * @see org.apache.james.mailrepository.filepair.AbstractFileRepository#getExtensionDecorator()
+     */
     protected String getExtensionDecorator()
     {
         return ".FileStreamStore";
@@ -45,6 +49,8 @@ public class File_Persistent_Stream_Repository
 
     /**
      * Get the object associated to the given unique key.
+     * 
+     * @see org.apache.avalon.cornerstone.services.store.StreamRepository#get(String)
      */
     public synchronized InputStream get( final String key )
     {
@@ -62,6 +68,8 @@ public class File_Persistent_Stream_Repository
 
     /**
      * Store the given object and associates it to the given key
+     * 
+     * @see org.apache.avalon.cornerstone.services.store.StreamRepository#put(String)
      */
     public synchronized OutputStream put( final String key )
     {
@@ -78,6 +86,12 @@ public class File_Persistent_Stream_Repository
         }
     }
 
+    /**
+     * Return the size of the file which belongs to the given key
+     * 
+     * @param key the key to get the size for
+     * @return size the Size which belongs to the givens keys file
+     */
     public long getSize(final String key) {
         try {
             return getFile(key).length();

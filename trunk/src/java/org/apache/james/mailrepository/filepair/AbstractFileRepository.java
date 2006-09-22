@@ -73,6 +73,9 @@ public abstract class AbstractFileRepository
 
     protected abstract String getExtensionDecorator();
 
+    /**
+     * @see org.apache.avalon.framework.context.Contextualizable#contextualize(Context)
+     */
     public void contextualize( final Context context ) throws ContextException
     {
         try
@@ -85,12 +88,18 @@ public abstract class AbstractFileRepository
         }
     }
 
+    /**
+     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
+     */
     public void service( final ServiceManager serviceManager )
         throws ServiceException
     {
         m_serviceManager = serviceManager;
     }
 
+    /**
+     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
+     */
     public void configure( final Configuration configuration )
         throws ConfigurationException
     {
@@ -101,6 +110,9 @@ public abstract class AbstractFileRepository
         }
     }
 
+    /**
+     * @see org.apache.avalon.framework.activity.Initializable#initialize()
+     */
     public void initialize()
         throws Exception
     {
@@ -152,6 +164,12 @@ public abstract class AbstractFileRepository
 
     }
 
+    /**
+     * Set the destination for the repository
+     * 
+     * @param destination the destination under which the repository get stored
+     * @throws ConfigurationException get thrown on invalid destintion syntax
+     */
     protected void setDestination( final String destination )
         throws ConfigurationException
     {
@@ -189,12 +207,21 @@ public abstract class AbstractFileRepository
         m_destination = destination;
     }
 
+    /**
+     * Return a new instance of this class
+     * 
+     * @return class a new instance of AbstractFileRepository
+     * @throws Exception get thrown if an error is detected while create the new instance
+     */
     protected AbstractFileRepository createChildRepository()
         throws Exception
     {
         return (AbstractFileRepository) getClass().newInstance();
     }
 
+    /**
+     * @see org.apache.avalon.cornerstone.services.store.Repository#getChildRepository(String)
+     */
     public Repository getChildRepository( final String childName )
     {
         AbstractFileRepository child = null;
@@ -253,12 +280,26 @@ public abstract class AbstractFileRepository
         return child;
     }
 
+    /**
+     * Return the File Object which belongs to the given key
+     * 
+     * @param key  the key for which the File get returned
+     * @return file the File associted with the given Key
+     * @throws IOException get thrown on IO error
+     */
     protected File getFile( final String key )
         throws IOException
     {
         return new File( encode( key ) );
     }
 
+    /**
+     * Return the InputStream which belongs to the given key
+     * 
+     * @param key the key for which the InputStream get returned
+     * @return in the InputStram associted with the given key
+     * @throws IOException get thrown on IO error
+     */
     protected InputStream getInputStream( final String key )
         throws IOException
     {
@@ -270,6 +311,13 @@ public abstract class AbstractFileRepository
         return new FileInputStream( encode( key ) );
     }
 
+    /**
+     * Return the OutputStream which belongs to the given key
+     * 
+     * @param key the key for which the OutputStream get returned
+     * @return out the OutputStream
+     * @throws IOException get thrown on IO error
+     */
     protected OutputStream getOutputStream( final String key )
         throws IOException
     {
@@ -278,6 +326,8 @@ public abstract class AbstractFileRepository
     
     /**
      * Remove the object associated to the given key.
+     *
+     * @param key the key to remove
      */
     public synchronized void remove( final String key )
     {
@@ -295,7 +345,11 @@ public abstract class AbstractFileRepository
     }
 
     /**
-     * Indicates if the given key is associated to a contained object.
+     * 
+     * Indicates if the given key is associated to a contained object
+     * 
+     * @param key the key which checked for
+     * @return true if the repository contains the key
      */
     public synchronized boolean containsKey( final String key )
     {
@@ -330,6 +384,7 @@ public abstract class AbstractFileRepository
         return list.iterator();
     }
 
+
     /**
      * Returns a String that uniquely identifies the object.
      * <b>Note:</b> since this method uses the Object.toString()
@@ -337,6 +392,9 @@ public abstract class AbstractFileRepository
      * doesn't change between different JVM executions (like
      * it may normally happen). For this reason, it's highly recommended
      * (even if not mandated) that Strings be used as keys.
+     *
+     * @param key the key for which the Object should be searched
+     * @return result a unique String represent the Object which belongs to the key
      */
     protected String encode( final String key )
     {
@@ -358,11 +416,15 @@ public abstract class AbstractFileRepository
         return result.toString();
     }
 
+
     /**
      * Inverse of encode exept it do not use path.
      * So decode(encode(s) - m_path) = s.
      * In other words it returns a String that can be used as key to retive
      * the record contained in the 'filename' file.
+     *
+     * @param filename the filename for which the key should generated
+     * @return key a String which can be used to retrieve the filename
      */
     protected String decode( String filename )
     {
