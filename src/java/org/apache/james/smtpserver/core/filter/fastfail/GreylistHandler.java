@@ -170,8 +170,7 @@ public class GreylistHandler extends AbstractLogEnabled implements
             Collection nets = whitelistedNetworks(whitelistedNetworks.getValue());
 
             if (nets != null) {
-                wNetworks = new NetMatcher(dnsServer);
-                wNetworks.initInetNetworks(nets);
+                wNetworks = new NetMatcher(nets,dnsServer);
                 getLogger().info("Whitelisted addresses: " + wNetworks.toString());
             }
         }

@@ -22,18 +22,28 @@
 package org.apache.james.util;
 
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.apache.james.services.DNSServer;
 
+/**
+ * Class which can be used to check if an ipAddress match a network
+ */
 public class NetMatcher
 {
     private DNSServer dnsServer;
     
     private ArrayList networks;
 
+
+    /**
+     * Init the class with the given networks 
+     *
+     * @param nets a Collection which holds all networks
+     */
     public void initInetNetworks(final Collection nets)
     {
         networks = new ArrayList();
@@ -52,6 +62,11 @@ public class NetMatcher
         networks.trimToSize();
     }
 
+    /**
+     * Init the class with the given networks 
+     *
+     * @param nets a String[] which holds all networks
+     */
     public void initInetNetworks(final String[] nets)
     {
         
@@ -71,6 +86,12 @@ public class NetMatcher
         networks.trimToSize();
     }
 
+    /**
+     * Return true if passed host match a network which was used to init the Netmatcher
+     * 
+     * @param hostIP the ipAddress or hostname to check
+     * @return true if match the network
+     */
     public boolean matchInetNetwork(final String hostIP)
     {
         InetAddress ip = null;
@@ -94,6 +115,9 @@ public class NetMatcher
         return sameNet;
     }
 
+    /**
+     * @see #matchInetNetwork(String)
+     */
     public boolean matchInetNetwork(final InetAddress ip)
     {
         boolean sameNet = false;
@@ -106,31 +130,42 @@ public class NetMatcher
         return sameNet;
     }
 
-    public NetMatcher()
-    {
-    }
-    
-    public NetMatcher(DNSServer dnsServer)
-    {
-        this.dnsServer = dnsServer;
-    }
-
+    /**
+     * Create a new instance of Netmatcher
+     * 
+     * @param nets a String[] which holds all networks
+     * @param dnsServer the DNSServer which will be used in this class
+     */
     public NetMatcher(final String[] nets,DNSServer dnsServer)
     {
         this.dnsServer = dnsServer;
         initInetNetworks(nets);
     }
 
+    /**
+     * Create a new instance of Netmatcher
+     * 
+     * @param nets a Collection which holds all networks
+     * @param dnsServer the DNSServer which will be used in this class
+     */ 
     public NetMatcher(final Collection nets,DNSServer dnsServer)
     {
         this.dnsServer = dnsServer;
         initInetNetworks(nets);
     }
 
+    /**
+     * @see InetNetwork#toString()
+     */
     public String toString() {
         return networks.toString();
     }
 
+    /**
+     * Can be overwritten for loggin
+     * 
+     * @param s the String to log
+     */
     protected void log(String s) { }
 }
 
@@ -146,42 +181,83 @@ class InetNetwork
     private InetAddress netmask;
     private DNSServer dnsServer;
     
+    /**
+     * Constructor
+     * 
+     * @param dnsServer the DNSServer to use
+     */
     InetNetwork(DNSServer dnsServer) {
         this.dnsServer = dnsServer;
     }
 
+    /**
+     * Constuctor
+     * 
+     * @param ip the InetAddress to init the class
+     * @param netmask the InetAddress represent the netmask to init the class
+     */
     public InetNetwork(InetAddress ip, InetAddress netmask)
     {
         network = maskIP(ip, netmask);
         this.netmask = netmask;
     }
 
+    /**
+     * Return true if the network contains the given name
+     * 
+     * @param name hostname or ipAddress
+     * @return true if the network contains the given name
+     * @throws java.net.UnknownHostException if the given name can not resolved
+     */
     public boolean contains(final String name) throws java.net.UnknownHostException
     {
         return network.equals(maskIP(dnsServer.getByName(name), netmask));
     }
 
+    /**
+     * @see #contains(String)
+     */
     public boolean contains(final InetAddress ip)
     {
         return network.equals(maskIP(ip, netmask));
     }
 
+    /**
+     * Return String represention of this class 
+     * 
+     * @return string String representation of this class
+     */
     public String toString()
     {
         return network.getHostAddress() + "/" + netmask.getHostAddress();
     }
 
+    /**
+     * Return hashCode representation of this class
+     * 
+     * @return hashCode the hashCode representation of this class
+     */
     public int hashCode()
     {
         return maskIP(network, netmask).hashCode();
     }
 
+    /**
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
     public boolean equals(Object obj)
     {
         return (obj != null) && (obj instanceof InetNetwork) &&
                 ((((InetNetwork)obj).network.equals(network)) && (((InetNetwork)obj).netmask.equals(netmask)));
     }
 
+    /**
+     * Get InetNetwork of the given String
+     * 
+     * @param netspec the String which is will converted to InetNetwork
+     * @return network the InetNetwork
+     * @throws java.net.UnknownHostException
+     */
     public InetNetwork getFromString(String netspec) throws java.net.UnknownHostException
     {
         if (netspec.endsWith("*")) netspec = normalizeFromAsterisk(netspec);
@@ -196,30 +272,36 @@ class InetNetwork
                                dnsServer.getByName(netspec.substring(netspec.indexOf('/') + 1)));
     }
 
+    /**
+     * Return InetAddress generated of the passed argements. Return Null if any errors accour
+     * 
+     * @param ip the byte[] represent the ip
+     * @param mask the byte[] represent the netmask
+     * @return inetAddress the InetAddress generated of the passed arguments. 
+     */
     public static InetAddress maskIP(final byte[] ip, final byte[] mask)
     {
-        try
-        {
-            return getByAddress(new byte[]
-            {
-                (byte) (mask[0] & ip[0]),
-                (byte) (mask[1] & ip[1]),
-                (byte) (mask[2] & ip[2]),
-                (byte) (mask[3] & ip[3])
-            });
-        }
-        catch(Exception _) {}
-        {
+        try {
+            return getByAddress(new byte[] {
+		    (byte) (mask[0] & ip[0]),
+		    (byte) (mask[1] & ip[1]),
+		    (byte) (mask[2] & ip[2]),
+		    (byte) (mask[3] & ip[3])
+		});
+	} catch (UnknownHostException e) {
             return null;
-        }
+	}
     }
 
+    /**
+     * @see #maskIP(byte[], byte[])
+     */
     public static InetAddress maskIP(final InetAddress ip, final InetAddress mask)
     {
         return maskIP(ip.getAddress(), mask.getAddress());
     }
 
-    /*
+    /**
      * This converts from an uncommon "wildcard" CIDR format
      * to "address + mask" format:
      * 
@@ -227,6 +309,9 @@ class InetNetwork
      *   xxx.*           =>  xxx.000.000.0/255.000.000.0
      *   xxx.xxx.*       =>  xxx.xxx.000.0/255.255.000.0
      *   xxx.xxx.xxx.*   =>  xxx.xxx.xxx.0/255.255.255.0
+     * 
+     * @param netspec 
+     * @return addrMask the address/mask of the given argument
      */
     static private String normalizeFromAsterisk(final String netspec)
     {
@@ -239,11 +324,14 @@ class InetNetwork
         return (octets == 0) ? masks[0] : netspec.substring(0, netspec.length() -1 ).concat(masks[octets]);
     }
 
-    /*
+    /**
      * RFC 1518, 1519 - Classless Inter-Domain Routing (CIDR)
      * This converts from "prefix + prefix-length" format to
      * "address + mask" format, e.g. from xxx.xxx.xxx.xxx/yy
      * to xxx.xxx.xxx.xxx/yyy.yyy.yyy.yyy.
+     * 
+     * @param simpleMask the xxx.xxx.xxx.xxx/yyy format
+     * @return addrMask the xxx.xxx.xxx.xxx/yyy.yyy.yyy.yyy format 
      */
     static private String normalizeFromCIDR(final String netspec)
     {
@@ -269,6 +357,13 @@ class InetNetwork
         }
     }
 
+    /**
+     * Return InetAddress which represent the given byte[]
+     * 
+     * @param ip the byte[] represent the ip
+     * @return ip the InetAddress generated of the given byte[]
+     * @throws java.net.UnknownHostException
+     */
     private static InetAddress getByAddress(byte[] ip) throws java.net.UnknownHostException
     {
         InetAddress addr = null;
