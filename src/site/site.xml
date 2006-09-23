@@ -50,10 +50,11 @@
       <item name="POP3 Server" href="/pop3_configuration.html" />
       <item name="SMTP Server" href="/smtp_configuration.html" />
       <item name="NNTP Server" href="/nntp_configuration.html" />
-      <item name="FetchPOP" href="/fetchpop_configuration.html" />
       <item name="FetchMail" href="/fetchmail_configuration.html" />
       <item name="RemoteManager" href="/remotemanager_configuration.html" />
+      <!-- 
       <item name="Repository" href="/repositories.html" />
+       -->
       <item name="SpoolManager" href="/spoolmanager_configuration.html" />
       <item name="Server-wide" href="/serverwide_configuration.html" />
       <item name="Adding Users" href="/adding_users.html" />
