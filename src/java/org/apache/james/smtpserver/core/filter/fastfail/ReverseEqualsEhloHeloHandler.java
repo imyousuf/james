@@ -85,7 +85,7 @@ public class ReverseEqualsEhloHeloHandler extends AbstractLogEnabled implements
     /**
      * Set to true if Auth users should be included in the EHLO/HELO check
      * 
-     * @param checkAuthNetworks
+     * @param checkAuthUsers
      *            Set to true to enable
      */
     public void setCheckAuthUsers(boolean checkAuthUsers) {

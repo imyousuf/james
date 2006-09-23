@@ -266,7 +266,7 @@ public class GreylistHandler extends AbstractLogEnabled implements
      * Setup the autowhitelist lifetime for which we should whitelist a triplet.
      * After this lifetime the record will be deleted
      * 
-     * @param autoWhiteListTime
+     * @param autoWhiteListLifeTime
      *            The lifeTime 
      */
     public void setAutoWhiteListLifeTime(String autoWhiteListLifeTime) {

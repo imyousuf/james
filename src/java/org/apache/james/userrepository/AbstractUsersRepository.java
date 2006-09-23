@@ -53,17 +53,23 @@ public abstract class AbstractUsersRepository
     /**
      * Adds a user to the underlying Repository.
      * The user name must not clash with an existing user.
+     * 
+     * @param user the user to add
      */
     protected abstract void doAddUser(User user);
 
     /**
      * Removes a user from the underlying repository.
      * If the user doesn't exist, returns ok.
+     * 
+     * @param user the user to remove
      */
     protected abstract void doRemoveUser(User user);
 
     /**
      * Updates a user record to match the supplied User.
+     * 
+     * @param user the user to update
      */
     protected abstract void doUpdateUser(User user);
 
@@ -185,10 +191,10 @@ public abstract class AbstractUsersRepository
     /**
      * Removes a user from the repository
      *
-     * @param user the user to be removed
+     * @param userName the user to be removed
      */
-    public void removeUser(String name) {
-        User user = getUserByName(name);
+    public void removeUser(String userName) {
+        User user = getUserByName(userName);
         if ( user != null ) {
             doRemoveUser(user);
         }
@@ -242,6 +248,8 @@ public abstract class AbstractUsersRepository
 
     /**
      * Returns whether or not this user is in the repository
+     * 
+     * @return true or false
      */
     public boolean contains(String name) {
         User user = getUserByName(name, false);
@@ -251,6 +259,8 @@ public abstract class AbstractUsersRepository
     /**
      * Returns whether or not this user is in the repository. Names are
      * matched on a case insensitive basis.
+     * 
+     * @return true or false
      */
     public boolean containsCaseInsensitive(String name) {
         User user = getUserByName( name, true );

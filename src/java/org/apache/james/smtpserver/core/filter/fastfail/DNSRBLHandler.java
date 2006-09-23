@@ -172,8 +172,6 @@ public class DNSRBLHandler
      * it will be permitted to send e-mail, otherwise if the remote IP is blacklisted,
      * the sender will only be permitted to send e-mail to postmaster (RFC 2821) or
      * abuse (RFC 2142), unless authenticated.
-     * 
-     * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#checkDNSRBL(Socket)
      */
 
     public void checkDNSRBL(SMTPSession session, String ipAddress) {

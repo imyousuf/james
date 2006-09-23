@@ -201,7 +201,7 @@ public interface SMTPSession {
     /**
      * Sets the user name associated with this SMTP interaction.
      *
-     * @param userID the user name
+     * @param user the user name
      */
     void setUser(String user);
 

@@ -269,7 +269,7 @@ public class SMIMEKeyHolder implements KeyHolder{
      * Extracts the signer <I>common name</I> (CN=) from an <CODE>X509Certificate</CODE> <I>distinguished name</I>.
      * @param certificate The certificate to extract the information from.
      * @return The requested information.
-     * @see getSignerDistinguishedName(X509Certificate)
+     * @see #getSignerDistinguishedName(X509Certificate)
      */    
     public static String getSignerCN(X509Certificate certificate) {
         
@@ -281,7 +281,7 @@ public class SMIMEKeyHolder implements KeyHolder{
      * Extracts the signer <I>email address</I> (EMAILADDRESS=) from an <CODE>X509Certificate</CODE> <I>distinguished name</I>.
      * @param certificate The certificate to extract the information from.
      * @return The requested information.
-     * @see getSignerDistinguishedName(X509Certificate)
+     * @see #getSignerDistinguishedName(X509Certificate)
      */    
     public static String getSignerAddress(X509Certificate certificate) {
         
@@ -292,7 +292,7 @@ public class SMIMEKeyHolder implements KeyHolder{
     /**
      * Getter for property signerDistinguishedName.
      * @return Value of property signerDistinguishedName.
-     * @see getSignerDistinguishedName(X509Certificate)
+     * @see #getSignerDistinguishedName(X509Certificate)
      */
     public String getSignerDistinguishedName() {
         return getSignerDistinguishedName(getCertificate());
@@ -301,7 +301,7 @@ public class SMIMEKeyHolder implements KeyHolder{
     /**
      * Getter for property signerCN.
      * @return Value of property signerCN.
-     * @see getSignerCN(X509Certificate)
+     * @see #getSignerCN(X509Certificate)
      */
     public String getSignerCN() {
         return getSignerCN(getCertificate());
@@ -310,7 +310,7 @@ public class SMIMEKeyHolder implements KeyHolder{
      /**
      * Getter for property signerAddress.
      * @return Value of property signerMailAddress.
-     * @see getSignerAddress(X509Certificate)
+     * @see #getSignerAddress(X509Certificate)
      */
     public String getSignerAddress() {
         return getSignerAddress(getCertificate());

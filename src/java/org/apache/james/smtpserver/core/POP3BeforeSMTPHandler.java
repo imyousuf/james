@@ -58,7 +58,7 @@ public class POP3BeforeSMTPHandler implements ConnectHandler, Configurable {
     /**
      * Set the time after which an ipAddresses should be handled as expired
      * 
-     * @param expireTime
+     * @param rawExpireTime
      *            The time
      */
     public void setExpireTime(String rawExpireTime) {

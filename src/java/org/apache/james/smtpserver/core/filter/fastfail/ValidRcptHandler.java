@@ -92,7 +92,7 @@ public class ValidRcptHandler extends AbstractLogEnabled implements CommandHandl
     /**
      * Set the domains for which every rcpt will be accepted. 
      * 
-     * @param recip The valid domains. Commaseperated list
+     * @param dom The valid domains. Commaseperated list
      */
     public void setValidDomains(String dom) {
         StringTokenizer st = new StringTokenizer(dom, ", ", false);
