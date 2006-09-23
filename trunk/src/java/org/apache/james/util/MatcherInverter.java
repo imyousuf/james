@@ -42,28 +42,28 @@ public class MatcherInverter implements Matcher {
     }
 
     /**
-     * @see org.apache.Mailet.Matcher#destroy()
+     * @see org.apache.mailet.Matcher#destroy()
      */
     public void destroy() {
         wrappedMatcher.destroy();
     }
 
     /**
-     * @see org.apache.Mailet.Matcher#getMatcherConfig()
+     * @see org.apache.mailet.Matcher#getMatcherConfig()
      */
     public MatcherConfig getMatcherConfig() {
         return wrappedMatcher.getMatcherConfig();
     }
 
     /**
-     * @see org.apache.Mailet.Matcher#getMatcherInfo()
+     * @see org.apache.mailet.Matcher#getMatcherInfo()
      */
     public String getMatcherInfo() {
         return wrappedMatcher.getMatcherInfo();
     }
 
     /**
-     * @see org.apache.Mailet.Matcher#destroy()
+     * @see org.apache.mailet.Matcher#destroy()
      */
     public void init(MatcherConfig config) throws MessagingException {
         wrappedMatcher.init(config);
@@ -71,6 +71,7 @@ public class MatcherInverter implements Matcher {
 
     /**
      * Return a Collection of "not matched" recipients
+     *
      */
     public Collection match(Mail mail) throws MessagingException {
         // Create a new recipient Collection cause mail.getRecipients() give a reference to the internal 

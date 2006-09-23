@@ -56,9 +56,7 @@ public class DebugInputStream extends InputStream {
     }
 
     /**
-     * Close the stream
-     *
-     * @throws IOException if an exception is encountered when closing
+     * @see java.io.InputStream#close()
      */
     public void close() throws IOException {
         in.close();

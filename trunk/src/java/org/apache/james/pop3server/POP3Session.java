@@ -139,7 +139,7 @@ public interface POP3Session {
     /**
      * Sets the user name associated with this POP3 interaction.
      *
-     * @param userID the user name
+     * @param user the user name
      */
     void setUser(String user);
 

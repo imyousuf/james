@@ -204,7 +204,7 @@ public class JdbcDataSource extends AbstractLogEnabled
     }
 
     /**
-     * @see org.apache.avalon.framework.configuration.Configurable#dispose()
+     * @see org.apache.avalon.framework.activity.Disposable#dispose()
      */
     public void dispose() {
         //Close all database connections
@@ -216,7 +216,7 @@ public class JdbcDataSource extends AbstractLogEnabled
     }
 
     /**
-     *
+     * @see org.apache.avalon.excalibur.datasource.DataSourceComponent#getConnection()
      */
     public Connection getConnection() throws SQLException {
         return source.getConnection();

@@ -488,7 +488,7 @@ public class POP3Handler
     }
 
     /**
-     * @see org.apache.james.pop3server.POP3Session#setUserMailbox(java.util.ArrayList)
+     * @see org.apache.james.pop3server.POP3Session#setUserMailbox(java.util.List)
      */
     public void setUserMailbox(List userMailbox) {
         this.userMailbox = userMailbox;

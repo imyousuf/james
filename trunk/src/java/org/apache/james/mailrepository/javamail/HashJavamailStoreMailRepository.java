@@ -462,7 +462,7 @@ public class HashJavamailStoreMailRepository extends
          * 
          * @param key
          *            key of message
-         * @param decrease
+         * @param decrement
          *            if true, all message number greater than this are
          *            decremented
          */

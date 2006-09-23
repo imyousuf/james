@@ -374,7 +374,7 @@ public class UIDPlusFolderMailRepository extends
     /**
      * returns a UIDPlusFolderAdapter wrapper
      * 
-     * @see org.apache.james.Mailrepository.javamail.UIDPlusFolderAdapter
+     * @see org.apache.james.mailrepository.javamail.UIDPlusFolderAdapter#UIDPlusFolderAdapter(Folder)
      */
     protected FolderInterface createAdapter(Folder folder) throws NoSuchMethodException {
         return new UIDPlusFolderAdapter(folder);

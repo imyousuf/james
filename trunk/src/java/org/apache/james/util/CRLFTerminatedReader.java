@@ -68,7 +68,7 @@ public class CRLFTerminatedReader extends Reader {
     InputStream in;
 
     public CRLFTerminatedReader(InputStream in) {
-    this.in = in;
+        this.in = in;
     }
 
     public CRLFTerminatedReader(InputStream in, String enc) throws UnsupportedEncodingException {
@@ -151,22 +151,34 @@ public class CRLFTerminatedReader extends Reader {
         throw new LineLengthExceededException("Exceeded maximum line length");
     }//method readLine()
 
+    /**
+     * @see java.io.Reader#read()
+     */
     public int read() throws IOException {
-    return in.read();
+        return in.read();
     }
 
+    /**
+     * @see java.io.Reader#ready()
+     */
     public boolean ready() throws IOException {
-    return in.available() > 0;
+        return in.available() > 0;
     }
 
+    /**
+     * @see java.io.Reader#read(char[], int, int)
+     */
     public int read(char cbuf[], int  off, int  len) throws IOException {
-    byte [] temp = new byte[len];
-    int result = in.read(temp, 0, len);
-    for (int i=0;i<result;i++) cbuf[i] = (char) temp[i];
-    return result;
+        byte [] temp = new byte[len];
+        int result = in.read(temp, 0, len);
+        for (int i=0;i<result;i++) cbuf[i] = (char) temp[i];
+        return result;
     }
 
+    /**
+     * @see java.io.Reader#close()
+     */
     public void close() throws IOException {
-    in.close();
+        in.close();
     }
 }

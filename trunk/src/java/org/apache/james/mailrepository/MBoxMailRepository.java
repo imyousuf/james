@@ -47,9 +47,6 @@
 
 package org.apache.james.mailrepository;
 
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -116,7 +113,7 @@ import java.util.Vector;
 
 public class MBoxMailRepository
         extends AbstractLogEnabled
-            implements MailRepository, Serviceable, Configurable {
+            implements MailRepository, Configurable {
 
 
     static final SimpleDateFormat dy = new SimpleDateFormat("EE MMM dd HH:mm:ss yyyy", Locale.US);
@@ -770,15 +767,6 @@ public class MBoxMailRepository
     public boolean unlock(String key) {
         return false;
     }
-
-
-    /**
-     * @see org.apache.avalon.framework.service.Serviceable#compose(ServiceManager )
-     */
-    public void service( final ServiceManager componentManager )
-            throws ServiceException {
-    }
-
 
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)

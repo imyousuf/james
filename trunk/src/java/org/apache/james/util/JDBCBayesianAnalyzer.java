@@ -358,8 +358,7 @@ extends BayesianAnalyzer {
      * Initializes the sql query environment from the SqlResources file.
      * Will look for conf/sqlResources.xml.
      * @param conn The connection for accessing the database
-     * @param mailetContext The current mailet context,
-     * for finding the conf/sqlResources.xml file
+     * @param sqlResources.xml file
      * @throws Exception If any error occurs
      */
     public void initSqlQueries(Connection conn, String file) throws Exception {
