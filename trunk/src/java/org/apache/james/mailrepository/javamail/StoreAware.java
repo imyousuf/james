@@ -27,11 +27,14 @@ import javax.mail.Store;
  * Bridge, that allows JavamailStoreMailRepository implementations to offer the
  * underlaying Javamail Store
  * 
- * @author Joachim Draeger <jd at joachim-draeger.de>
  */
-
 public interface StoreAware {
 
+    /**
+     * Return the Store
+     * 
+     * @return store the Store
+     */
     public Store getStore();
 
 }

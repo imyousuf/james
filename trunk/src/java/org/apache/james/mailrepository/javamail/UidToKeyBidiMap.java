@@ -27,21 +27,59 @@ import java.util.Collection;
  * Used to map uids to keys and keys to uids 
  *
  */
-
 public interface UidToKeyBidiMap {
 
+    /**
+     * Return true if an uid is stored under the given key 
+     * 
+     * @param key the key
+     * @return true if an uid is stored under the given key
+     */
     boolean containsKey(String key);
 
+    /**
+     * Store the given uid with the given key
+     * 
+     * @param key the key to store the given uid with 
+     * @param uid the uid
+     */
     void put(String key, long uid);
 
+    /**
+     * Remove the uid stored under the given key
+     * 
+     * @param key the key
+     */
     void removeByKey(String key);
 
+    /**
+     * Return a String[] holding all stored keys
+     * 
+     * @return keys a String[] holding all keys
+     */
     String[] getKeys();
 
+    /**
+     * Return the key for the given uid 
+     * 
+     * @param uid the uid 
+     * @return key the key for the given uid
+     */
     String getByUid(long uid);
 
+    /**
+     * 
+     * @param keysBefore
+     * @param keys
+     */
     void retainAllListedAndAddedByKeys(String[] keysBefore, Collection keys);
 
+    /**
+     * Get uid for the given key
+     * 
+     * @param the key
+     * @return uid the uid for the given key
+     */
     long getByKey(String key);
 
 }

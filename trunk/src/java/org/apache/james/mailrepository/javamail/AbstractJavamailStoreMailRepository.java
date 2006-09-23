@@ -19,7 +19,6 @@
 package org.apache.james.mailrepository.javamail;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.Iterator;
@@ -114,6 +113,9 @@ public abstract class AbstractJavamailStoreMailRepository extends
     /**
      * builds destination from attributes destinationURL and postfix.
      * at the moment james does not hand over additional parameters like postfix.
+     * 
+     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
+     * 
      */
     public void configure(Configuration conf) throws ConfigurationException {
         log.debug("JavamailStoreMailRepository configure");
@@ -181,6 +183,7 @@ public abstract class AbstractJavamailStoreMailRepository extends
     
     /**
      * connect the mailStore
+     * 
      * @see Initializable#initialize()
      */
     public void initialize() throws Exception {
@@ -188,6 +191,9 @@ public abstract class AbstractJavamailStoreMailRepository extends
         log.debug("JavaMailStoreMailRepository initialized");
     }
     
+    /**
+     * @see org.apache.avalon.framework.context.Contextualizable#contextualize(Context)
+     */
     public void contextualize(Context context) throws ContextException {
         this.context = context;
         home = (File)context.get(AvalonContextConstants.APPLICATION_HOME);
@@ -198,9 +204,12 @@ public abstract class AbstractJavamailStoreMailRepository extends
         return f.toURL().toString();
     }
 
+
     /**
      * gets the Lock and creates it, if not present. LockInterface offers functionality
      * of org.apache.james.util.Lock
+     *
+     * @return lock the LockInterface
      */
     protected LockInterface getLock() {
         if (lock==null) {
@@ -211,6 +220,8 @@ public abstract class AbstractJavamailStoreMailRepository extends
 
     /**
      * possibility to replace Lock implementation. At the moment only used for testing 
+     *
+     * @param lock the LockInterface to use
      */
     void setLock(LockInterface lock) {
         this.lock=lock;
@@ -218,6 +229,8 @@ public abstract class AbstractJavamailStoreMailRepository extends
     
     /**
      * used in unit tests 
+     * 
+     * @return the destination of the repository
      */
     String getDestination() {
         return destination;
@@ -285,8 +298,8 @@ public abstract class AbstractJavamailStoreMailRepository extends
      * Remove a list of messages from disk The collection is simply a list of
      * mails to delete
      * 
-     * @param mails
-     * @throws MessagingException
+     * @param mails a Collection of mails which should removed
+     * @throws MessagingException 
      */
     public void remove(final Collection mails) throws MessagingException {
         log.debug("UIDPlusFolder remove by Collection " + mails.size());
@@ -309,6 +322,8 @@ public abstract class AbstractJavamailStoreMailRepository extends
 
     /**
      * offers the underlaying Store for external use
+     * 
+     * @return the Store 
      */
     public Store getStore() {
         return mailStore;
@@ -316,6 +331,8 @@ public abstract class AbstractJavamailStoreMailRepository extends
 
     /**
      * lazy-loads random 
+     * 
+     * @return random an instance of random
      */
     protected static synchronized Random getRandom() {
         if (random == null) {
@@ -326,7 +343,9 @@ public abstract class AbstractJavamailStoreMailRepository extends
     }
     
     /**
-     * sets log
+     * Set the Logger to use
+     * 
+     * @see org.apache.avalon.framework.logger.AbstractLogEnabled#enableLogging(Logger)
      */
     public void enableLogging(Logger log) {
         super.enableLogging(log);
@@ -336,9 +355,11 @@ public abstract class AbstractJavamailStoreMailRepository extends
     /**
      * possibility to replace FolderGateKeeper implementation. Only used for
      * testing
+     * 
+     * @param folderGateKeeper the FolgerGateKeeper to use
      */
-    void setFolderGateKeeper(FolderGateKeeper gk) {
-        this.folderGateKeeper=gk;
+    void setFolderGateKeeper(FolderGateKeeper folderGateKeeper) {
+        this.folderGateKeeper=folderGateKeeper;
         
     }
     
@@ -346,13 +367,15 @@ public abstract class AbstractJavamailStoreMailRepository extends
      * used by getFolderGateKeeper to get the right FolderInterface implementation
      * 
      * @param folder JavaMail folder
-     * @return 
+     * @return folderInterface the FolderInterface
      * @throws NoSuchMethodException if the Folder is not suitable
      */
     protected  abstract FolderInterface createAdapter(Folder folder) throws NoSuchMethodException;
+    
     /**
      * Lazy-load FolderGateKeeper with inbox folder. Inbox folder is created if
      * not present
+     * 
      * @return FolderGateKeeper offering inbox folder for this mail repository
      */
     protected FolderGateKeeper getFolderGateKeeper() {

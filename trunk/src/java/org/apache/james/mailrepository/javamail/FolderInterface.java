@@ -23,6 +23,7 @@ package org.apache.james.mailrepository.javamail;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
+import javax.mail.event.MessageChangedListener;
 
 /**
  * Interface to javax.mail.Folder functionality to be able to replace 
@@ -31,18 +32,39 @@ import javax.mail.MessagingException;
 
 public interface FolderInterface {
 
+    /**
+     * @see javax.mail.Folder#getMessages()
+     */
     public Message[] getMessages() throws MessagingException;
 
+    /**
+     * @see javax.mail.Folder#getMessage(int)
+     */
     public Message getMessage(int no) throws MessagingException;
 
+    /**
+     * @see javax.mail.Folder#getMessageCount()
+     */
     public int getMessageCount() throws MessagingException;
 
+    /**
+     * @see javax.mail.Folder#appendMessages(Message[])
+     */
     public void appendMessages(Message[] messages) throws MessagingException;
 
+    /**
+     * @see javax.mail.Folder#isOpen()
+     */
     public boolean isOpen();
 
+    /**
+     * @see javax.mail.Folder#open(int)
+     */
     public void open(int status) throws MessagingException;
 
+    /**
+     * @see javax.mail.Folder#close(boolean)
+     */
     public void close(boolean b) throws MessagingException;
 
 }
