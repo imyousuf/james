@@ -31,14 +31,23 @@ import org.apache.james.util.Lock;
 public class LockAdapter implements LockInterface {
         Lock lock= new Lock();
 
+        /**
+         * @see org.apache.james.mailrepository.javamail.LockInterface#isLocked(java.lang.Object)
+         */
         public boolean isLocked(Object key) {
             return lock.isLocked(key);
         }
 
+        /**
+         * @see org.apache.james.mailrepository.javamail.LockInterface#lock(java.lang.Object)
+         */
         public boolean lock(Object key) {
             return lock.lock(key);
         }
 
+        /**
+         * @see org.apache.james.mailrepository.javamail.LockInterface#unlock(java.lang.Object)
+         */
         public boolean unlock(Object key) {
             return lock.unlock(key);
         }

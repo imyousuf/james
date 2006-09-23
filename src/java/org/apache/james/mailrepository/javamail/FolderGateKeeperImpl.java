@@ -29,7 +29,7 @@ import javax.mail.MessagingException;
  * offers access to an underlaying Folder and manages open/close operations.<br>
  * The FolderGateKeeper can be handed over to different threads.
  * 
- * @sse FolderGateKeeper
+ * @see org.apache.james.mailrepository.javamail.FolderGateKeeper
  *
  */
 public class FolderGateKeeperImpl implements FolderGateKeeper {
@@ -40,6 +40,11 @@ public class FolderGateKeeperImpl implements FolderGateKeeper {
 
     boolean open = false;
 
+    /**
+     * Construct new FolderGateKeeperImpl
+     * 
+     * @param folder the FolderInterface
+     */
     public FolderGateKeeperImpl(FolderInterface folder) {
         if (folder.isOpen()) {
             throw new IllegalStateException(
@@ -48,10 +53,16 @@ public class FolderGateKeeperImpl implements FolderGateKeeper {
         this.folder = folder;
     }
 
+    /**
+     * @see org.apache.james.mailrepository.javamail.FolderGateKeeper#use()
+     */
     public synchronized void use() {
         inUse++;
     }
 
+    /**
+     * @see org.apache.james.mailrepository.javamail.FolderGateKeeper#free()
+     */
     public synchronized void free() throws MessagingException {
         if (inUse < 1) {
             throw new IllegalStateException(
@@ -74,6 +85,9 @@ public class FolderGateKeeperImpl implements FolderGateKeeper {
 
     }
 
+    /**
+     * @see org.apache.james.mailrepository.javamail.FolderGateKeeper#getOpenFolder()
+     */
     public synchronized FolderInterface getOpenFolder() throws MessagingException {
         if (inUse < 1) {
             throw new IllegalStateException(
@@ -92,10 +106,16 @@ public class FolderGateKeeperImpl implements FolderGateKeeper {
 
     }
 
+    /**
+     * @see org.apache.james.mailrepository.javamail.FolderGateKeeper#getUseCount()
+     */
     public synchronized int getUseCount() {
         return inUse;
     }
 
+    /**
+     * @see org.apache.james.mailrepository.javamail.FolderGateKeeper#getFolder()
+     */
     public synchronized FolderInterface getFolder() {
         if (inUse < 1) {
             throw new IllegalStateException(

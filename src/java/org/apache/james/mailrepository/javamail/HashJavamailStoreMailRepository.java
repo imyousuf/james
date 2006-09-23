@@ -70,7 +70,13 @@ public class HashJavamailStoreMailRepository extends
     
     private boolean getMessageCountOnClosed =true;
     
-    
+    /**
+     * get the count of messages 
+     * 
+     * @return the count of messages
+     * 
+     * @throws MessagingException
+     */
     protected int getMessageCount() throws MessagingException {
         try {
             getFolderGateKeeper().use();
@@ -94,6 +100,8 @@ public class HashJavamailStoreMailRepository extends
      * Stores a message by Javamails appendMessages method. Tries to guess
      * resulting messagenumber and saves result in keyToMsgMap. If Folder
      * supports getMessageCount on closed folder, this could be quite efficient
+     * 
+     * @see org.apache.james.services.MailRepository#store(Mail)
      */
     public synchronized void store(Mail mc) throws MessagingException {
 
@@ -174,6 +182,8 @@ public class HashJavamailStoreMailRepository extends
 
     /**
      * calls rehash and uses stored keys in KeyToMsgMap
+     * 
+     * @see org.apache.james.services.MailRepository#list()
      */
     public Iterator list() throws MessagingException {
         try {
@@ -193,6 +203,8 @@ public class HashJavamailStoreMailRepository extends
 
     /**
      * uses getMessageFromInbox, returns null if not found
+     * 
+     * @see org.apache.james.services.MailRepository#retrieve(String)
      */
     public Mail retrieve(String key) throws MessagingException {
         log.debug("retrieve: " + key);
@@ -220,8 +232,7 @@ public class HashJavamailStoreMailRepository extends
      * setFlag(Flags.Flag.DELETED, true); on message. removes message from
      * KeyToMsgMap. Messagenumbers are recalculated for next guesses.
      * 
-     * @param key
-     *            the key of the message to be removed from the repository
+     * @see org.apache.james.services.MailRepository#remove(String)
      */
     public synchronized void  remove(String key) throws MessagingException {
         log.debug("HashJavamailStore remove key:" + key);
@@ -338,7 +349,7 @@ public class HashJavamailStoreMailRepository extends
     /**
      * lazy loads KeyToMsgMap
      * 
-     * @return
+     * @return keyToMsgMap the KeyToMsgMap
      */
     protected KeyToMsgMap getKeyToMsgMap() {
         if (keyToMsgMap == null) {
@@ -395,6 +406,12 @@ public class HashJavamailStoreMailRepository extends
             hashToMsgObj = new HashMap();
         }
 
+        /**
+         * Return true if a MsgObj is stored with the given key
+         * 
+         * @param key the key 
+         * @return true if a MsgObj is stored with the given key
+         */
         public synchronized boolean contains(String key) {
             return keyToMsgObj.containsKey(key);
         }
@@ -468,10 +485,21 @@ public class HashJavamailStoreMailRepository extends
             }
         }
 
+        /**
+         * Return an String[] of all stored keys
+         * 
+         * @return keys a String[] of all stored keys
+         */
         public synchronized String[] getKeys() {
             return (String[]) keyToMsgObj.keySet().toArray(new String[0]);
         }
 
+        /**
+         * Return the MsgObj associted with the given key
+         * 
+         * @param key the key 
+         * @return msgObj the MsgObj for the given key
+         */
         public synchronized MsgObj getByKey(String key) {
             return (MsgObj) keyToMsgObj.get(key);
         }
@@ -489,7 +517,6 @@ public class HashJavamailStoreMailRepository extends
          * @return fetched/created MsgObj
          * @throws MessagingException
          */
-
         public synchronized MsgObj put(final MimeMessage mm, String key,
                 final int no) throws MessagingException {
             final Object hash = calcMessageHash(mm);
@@ -528,6 +555,11 @@ public class HashJavamailStoreMailRepository extends
 
         }
 
+        /**
+         * TODO: Check why we have to methods which do the same
+         * 
+         * @see #getByKey(String)
+         */
         public synchronized MsgObj getMsgObj(String key) {
             return (MsgObj) keyToMsgObj.get(key);
         }
@@ -589,6 +621,7 @@ public class HashJavamailStoreMailRepository extends
     /**
      * just uses a FolderAdapter to wrap around folder
      * 
+     * @see org.apache.james.mailrepository.javamail.AbstractJavamailStoreMailRepository#createAdapter(Folder)
      */
     protected FolderInterface createAdapter(Folder folder)
             throws NoSuchMethodException {

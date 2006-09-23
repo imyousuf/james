@@ -37,6 +37,12 @@ public class UIDPlusFolderAdapter extends FolderAdapter implements UIDPlusFolder
     
     private Method addUIDMessagesMethod;
     
+    /**
+     * Wrap the Folder 
+     * 
+     * @param folder the Folder
+     * @throws NoSuchMethodException
+     */
     public UIDPlusFolderAdapter(Folder folder) throws NoSuchMethodException {
         super(folder);
         try {
@@ -47,6 +53,9 @@ public class UIDPlusFolderAdapter extends FolderAdapter implements UIDPlusFolder
         } 
     }
 
+    /**
+     * @see org.apache.james.mailrepository.javamail.UIDPlusFolder#addUIDMessages(javax.mail.Message[])
+     */
     public long[] addUIDMessages(Message[] msgs) throws MessagingException {
         try {
             return (long[]) addUIDMessagesMethod.invoke(folder, new Object[] { msgs });
@@ -63,31 +72,45 @@ public class UIDPlusFolderAdapter extends FolderAdapter implements UIDPlusFolder
         }
     }
 
+    /**
+     * @see org.apache.james.mailrepository.javamail.UIDPlusFolder#addMessages(javax.mail.Message[])
+     */
     public Message[] addMessages(Message[] msgs) throws MessagingException {
        throw new RuntimeException("Method addMessages(Message[] msgs) not implemented");
     }
 
+    /**
+     * @see javax.mail.UIDFolder#getUIDValidity()
+     */
     public long getUIDValidity() throws MessagingException {
         return ((UIDFolder)folder).getUIDValidity();
     }
 
+    /**
+     * @see javax.mail.UIDFolder#getMessageByUID(long)
+     */
     public Message getMessageByUID(long arg0) throws MessagingException {
         return ((UIDFolder)folder).getMessageByUID(arg0);
     }
 
+    /**
+     * @see javax.mail.UIDFolder#getMessagesByUID(long, long)
+     */
     public Message[] getMessagesByUID(long arg0, long arg1) throws MessagingException {
         return ((UIDFolder)folder).getMessagesByUID(arg0, arg1);
     }
 
+    /**
+     * @see javax.mail.UIDFolder#getMessagesByUID(long[])
+     */
     public Message[] getMessagesByUID(long[] arg0) throws MessagingException {
         return ((UIDFolder)folder).getMessagesByUID(arg0);
     }
 
+    /**
+     * @see javax.mail.UIDFolder#getUID(javax.mail.Message)
+     */
     public long getUID(Message arg0) throws MessagingException {
         return ((UIDFolder)folder).getUID(arg0);
     }
-    
-    
-    
-
 }

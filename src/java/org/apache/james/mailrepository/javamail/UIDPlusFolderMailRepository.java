@@ -102,11 +102,7 @@ public class UIDPlusFolderMailRepository extends
 
 
     /**
-     * Stores a message in this repository.
-     * 
-     * @param mc
-     *            the mail message to store
-     * @throws MessagingException
+     * @see org.apache.james.services.MailRepository#store(org.apache.mailet.Mail)
      */
     public void store(Mail mc) throws MessagingException {
         
@@ -157,7 +153,8 @@ public class UIDPlusFolderMailRepository extends
 
     /**
      * lazy loads UidToKeyBidiMap
-     * @return
+     * 
+     * @return uidToKeyBidiMap the UidToKeyBidiMap
      */
     protected UidToKeyBidiMap getUidToKeyBidiMap() {
         if (uidToKeyBidiMap == null) {
@@ -169,7 +166,7 @@ public class UIDPlusFolderMailRepository extends
     /**
      * Used for testing
      * 
-     * @param uidToKeyBidiMap
+     * @param uidToKeyBidiMap the UidToKeyBidMap
      */
     void setUidToKeyBidiMap(UidToKeyBidiMap uidToKeyBidiMap) {
         this.uidToKeyBidiMap = uidToKeyBidiMap;
@@ -179,12 +176,8 @@ public class UIDPlusFolderMailRepository extends
      * Retrieves a message given a key. At the moment, keys can be obtained from
      * list() in superinterface Store.Repository
      * 
-     * @param key
-     *            the key of the message to retrieve
-     * @return the mail corresponding to this key, null if none exists
-     * @throws MessagingException 
+     * @see org.apache.james.services.MailRepository#retrieve(String)
      */
-
     public Mail retrieve(String key) throws MessagingException {
         log.debug("UIDPlusFolder retrieve " + key);
         try {
@@ -202,10 +195,7 @@ public class UIDPlusFolderMailRepository extends
     }
 
     /**
-     * Removes a message identified by key.
-     * 
-     * @param key
-     *            the key of the message to be removed from the repository
+     * @see org.apache.james.services.MailRepository#remove(java.lang.String)
      */
     public void remove(String key) throws MessagingException {
 
@@ -230,12 +220,7 @@ public class UIDPlusFolderMailRepository extends
     }
 
     /**
-     * List string keys of messages in repository.
-     * 
-     * @return an <code>Iterator</code> over the list of keys in the
-     *         repository
-     * @throws MessagingException 
-     * 
+     * @see org.apache.james.services.MailRepository#list()
      */
     public Iterator list() throws MessagingException {
         log.debug("UIDPlusFolder list");
@@ -304,7 +289,6 @@ public class UIDPlusFolderMailRepository extends
      * 
      * maybe it could be replaced by BidiMap from commons-collections 3.0+
      * 
-     * @author Joachim Draeger <jd at joachim-draeger.de>
      */
     private class UidToKeyBidiMapImpl implements UidToKeyBidiMap {
 
@@ -317,12 +301,18 @@ public class UIDPlusFolderMailRepository extends
             uidToKey = new HashMap();
         }
 
+        /**
+         * @see org.apache.james.mailrepository.javamail.UidToKeyBidiMap#getKeys()
+         */
         public synchronized String[] getKeys() {
             final ArrayList al = new ArrayList(keyToUid.keySet());
             final String[] keys = (String[]) al.toArray(new String[0]);
             return keys;
         }
 
+        /**
+         * @see org.apache.james.mailrepository.javamail.UidToKeyBidiMap#retainAllListedAndAddedByKeys(java.lang.String[], java.util.Collection)
+         */
         public synchronized void retainAllListedAndAddedByKeys(
                 final String[] before, final Collection listed) {
             Collection added = new HashSet(keyToUid.keySet());
@@ -333,6 +323,9 @@ public class UIDPlusFolderMailRepository extends
             uidToKey.keySet().retainAll(keyToUid.values());
         }
 
+        /**
+         * @see org.apache.james.mailrepository.javamail.UidToKeyBidiMap#removeByKey(java.lang.String)
+         */
         public synchronized void removeByKey(String key) {
             long uid = getByKey(key);
             if (uid > -1) {
@@ -341,6 +334,9 @@ public class UIDPlusFolderMailRepository extends
             keyToUid.remove(key);
         }
 
+        /**
+         * @see org.apache.james.mailrepository.javamail.UidToKeyBidiMap#getByKey(java.lang.String)
+         */
         public synchronized long getByKey(String key) {
             Long lo = (Long) keyToUid.get(key);
             long l = -1;
@@ -350,15 +346,24 @@ public class UIDPlusFolderMailRepository extends
             return l;
         }
 
+        /**
+         * @see org.apache.james.mailrepository.javamail.UidToKeyBidiMap#getByUid(long)
+         */
         public synchronized String getByUid(long uid) {
 
             return (String) uidToKey.get(new Long(uid));
         }
 
+        /**
+         * @see org.apache.james.mailrepository.javamail.UidToKeyBidiMap#containsKey(java.lang.String)
+         */
         public synchronized boolean containsKey(String key) {
             return keyToUid.containsKey(key);
         }
 
+        /**
+         * @see org.apache.james.mailrepository.javamail.UidToKeyBidiMap#put(java.lang.String, long)
+         */
         public synchronized void put(String key, long uid) {
             keyToUid.put(key, new Long(uid));
             uidToKey.put(new Long(uid), key);
@@ -369,7 +374,7 @@ public class UIDPlusFolderMailRepository extends
     /**
      * returns a UIDPlusFolderAdapter wrapper
      * 
-     * @see UIDPlusFolderAdapter
+     * @see org.apache.james.Mailrepository.javamail.UIDPlusFolderAdapter
      */
     protected FolderInterface createAdapter(Folder folder) throws NoSuchMethodException {
         return new UIDPlusFolderAdapter(folder);
