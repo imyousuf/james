@@ -68,36 +68,26 @@ public class DefaultUser implements User, Serializable {
     }
 
     /**
-     * Accessor for immutable name
-     *
-     * @return the String of this users name
+     * @see org.apache.james.services.User#getUserName()
      */
     public String getUserName() {
         return userName;
     }
 
     /**
-     *  Method to verify passwords. 
-     *
-     * @param pass the String that is claimed to be the password for this user
-     * @return true if the hash of pass with the current algorithm matches
-     * the stored hash.
+     * @see org.apache.james.services.User#verifyPassword(java.lang.String)
      */
     public boolean verifyPassword(String pass) {
         try {
             String hashGuess = DigestUtil.digestString(pass, algorithm);
             return hashedPassword.equals(hashGuess);
         } catch (NoSuchAlgorithmException nsae) {
-        throw new RuntimeException("Security error: " + nsae);
-    }
+            throw new RuntimeException("Security error: " + nsae);
+        }
     }
 
     /**
-     * Sets new password from String. No checks made on guessability of
-     * password.
-     *
-     * @param newPass the String that is the new password.
-     * @return true if newPass successfuly hashed
+     * @see org.apache.james.services.User#setPassword(java.lang.String)
      */
     public boolean setPassword(String newPass) {
         try {
@@ -125,6 +115,4 @@ public class DefaultUser implements User, Serializable {
     protected String getHashAlgorithm() {
         return algorithm;
     }
-
-
 }

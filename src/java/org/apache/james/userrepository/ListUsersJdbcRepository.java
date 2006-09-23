@@ -35,13 +35,9 @@ import java.sql.SQLException;
  */
 public class ListUsersJdbcRepository extends AbstractJdbcUsersRepository
 {
+
     /**
-     * Reads properties for a User from an open ResultSet.
-     * 
-     * @param rsUsers A ResultSet with a User record in the current row.
-     * @return A User instance
-     * @throws SQLException
-     *                   if an exception occurs reading from the ResultSet
+     * @see org.apache.james.userrepository.AbstractJdbcUsersRepository#readUserFromResultSet(java.sql.ResultSet)
      */
     protected User readUserFromResultSet(ResultSet rsUsers) throws SQLException {
         // Get the username, and build a DefaultUser with it.
@@ -51,13 +47,7 @@ public class ListUsersJdbcRepository extends AbstractJdbcUsersRepository
     }
 
     /**
-     * Set parameters of a PreparedStatement object with 
-     * property values from a User instance.
-     * @param user       a User instance, which should be an implementation class which
-     *                   is handled by this Repostory implementation.
-     * @param userInsert a PreparedStatement initialised with SQL taken from the "insert" SQL definition.
-     * @throws SQLException
-     *                   if an exception occurs while setting parameter values.
+     * @see org.apache.james.userrepository.AbstractJdbcUsersRepository#setUserForInsertStatement(org.apache.james.services.User, java.sql.PreparedStatement)
      */
     protected void setUserForInsertStatement(User user, 
                                              PreparedStatement userInsert) 

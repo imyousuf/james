@@ -68,6 +68,11 @@ public class UsersFileRepository
      */
     private String destination;
 
+    /**
+     * Set the Store
+     * 
+     * @param store the Store
+     */
     public void setStore(Store store) {
         this.store = store;
     }
@@ -134,21 +139,14 @@ public class UsersFileRepository
     }
 
     /**
-     * List users in repository.
-     *
-     * @return Iterator over a collection of Strings, each being one user in the repository.
+     * @see org.apache.james.services.UsersRepository#list()
      */
     public Iterator list() {
         return objectRepository.list();
     }
 
     /**
-     * Update the repository with the specified user object. A user object
-     * with this username must already exist.
-     *
-     * @param user the user to be added.
-     *
-     * @return true if successful.
+     * @see org.apache.james.services.UsersRepository#addUser(org.apache.james.services.User)
      */
     public synchronized boolean addUser(User user) {
         String username = user.getUserName();
@@ -163,6 +161,9 @@ public class UsersFileRepository
         return true;
     }
 
+    /**
+     * @see org.apache.james.services.UsersRepository#addUser(java.lang.String, java.lang.Object)
+     */
     public void addUser(String name, Object attributes) {
         if (attributes instanceof String) {
             User newbie = new DefaultUser(name, "SHA");
@@ -175,12 +176,18 @@ public class UsersFileRepository
         }
     }
 
+    /**
+     * @see org.apache.james.services.UsersRepository#addUser(java.lang.String, java.lang.String)
+     */
     public boolean addUser(String username, String password) {
         User newbie = new DefaultJamesUser(username, "SHA");
         newbie.setPassword(password);
         return addUser(newbie);
     }
 
+    /**
+     * @see org.apache.james.services.UsersRepository#getUserByName(java.lang.String)
+     */
     public synchronized User getUserByName(String name) {
         if (contains(name)) {
             try {
@@ -194,6 +201,9 @@ public class UsersFileRepository
         }
     }
 
+    /**
+     * @see org.apache.james.services.UsersRepository#getUserByNameCaseInsensitive(java.lang.String)
+     */
     public User getUserByNameCaseInsensitive(String name) {
         String realName = getRealName(name);
         if (realName == null ) {
@@ -202,6 +212,9 @@ public class UsersFileRepository
         return getUserByName(realName);
     }
 
+    /**
+     * @see org.apache.james.services.UsersRepository#getRealName(java.lang.String)
+     */
     public String getRealName(String name) {
         Iterator it = list();
         while (it.hasNext()) {
@@ -213,6 +226,9 @@ public class UsersFileRepository
         return null;
     }
 
+    /**
+     * @see org.apache.james.services.UsersRepository#updateUser(org.apache.james.services.User)
+     */
     public boolean updateUser(User user) {
         String username = user.getUserName();
         if (!contains(username)) {
@@ -226,14 +242,23 @@ public class UsersFileRepository
         return true;
     }
 
+    /**
+     * @see org.apache.james.services.UsersRepository#removeUser(java.lang.String)
+     */
     public synchronized void removeUser(String name) {
         objectRepository.remove(name);
     }
 
+    /**
+     * @see org.apache.james.services.UsersRepository#contains(java.lang.String)
+     */
     public boolean contains(String name) {
         return objectRepository.containsKey(name);
     }
 
+    /**
+     * @see org.apache.james.services.UsersRepository#containsCaseInsensitive(java.lang.String)
+     */
     public boolean containsCaseInsensitive(String name) {
         Iterator it = list();
         while (it.hasNext()) {
@@ -244,6 +269,9 @@ public class UsersFileRepository
         return false;
     }
 
+    /**
+     * @see org.apache.james.services.UsersRepository#test(java.lang.String, java.lang.String)
+     */
     public boolean test(String name, String password) {
         User user;
         try {
@@ -258,6 +286,9 @@ public class UsersFileRepository
         return user.verifyPassword(password);
     }
 
+    /**
+     * @see org.apache.james.services.UsersRepository#countUsers()
+     */
     public int countUsers() {
         int count = 0;
         for (Iterator it = list(); it.hasNext(); it.next()) {

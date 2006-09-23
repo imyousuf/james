@@ -78,31 +78,21 @@ public class DefaultJamesUser
     }
 
     /**
-     * Set whether mail to this user is to be forwarded to another
-     * email address
-     *
-     * @param forward whether mail is forwarded
+     * @see org.apache.james.services.JamesUser#setForwarding(boolean)
      */
     public void setForwarding(boolean forward) {
         forwarding = forward;
     }
 
     /**
-     * Get whether mail to this user is to be forwarded to another
-     * email address.
-     *
-     * @return forward whether mail is forwarded
+     * @see org.apache.james.services.JamesUser#getForwarding()
      */
     public boolean getForwarding() {
         return forwarding;
     }
 
-    
     /**
-     * Set the destination address to which mail to this user
-     * will be forwarded.
-     *
-     * @param address the forward-to address
+     * @see org.apache.james.services.JamesUser#setForwardingDestination(org.apache.mailet.MailAddress)
      */
     public boolean setForwardingDestination(MailAddress address) {
         /* TODO: Some verification would be good */
@@ -111,37 +101,28 @@ public class DefaultJamesUser
     }
 
     /**
-     * Get the destination address to which mail to this user
-     * will be forwarded.
-     *
-     * @return the forward-to address
+     * @see org.apache.james.services.JamesUser#getForwardingDestination()
      */
     public MailAddress getForwardingDestination() {
         return forwardingDestination;
     }
 
     /**
-     * Set whether this user id is an alias.
-     *
-     * @param alias whether this id is an alias
+     * @see org.apache.james.services.JamesUser#setAliasing(boolean)
      */
     public void setAliasing(boolean alias) {
         aliasing = alias;
     }
 
     /**
-     * Get whether this user id is an alias.
-     *
-     * @return whether this id is an alias
+     * @see org.apache.james.services.JamesUser#getAliasing()
      */
     public boolean getAliasing() {
         return aliasing;
     }
 
     /**
-     * Set the user id for which this id is an alias.
-     *
-     * @param address the user id for which this id is an alias
+     * @see org.apache.james.services.JamesUser#setAlias(java.lang.String)
      */
     public boolean setAlias(String address) {
         /* TODO: Some verification would be good */
@@ -150,9 +131,7 @@ public class DefaultJamesUser
     }
 
     /**
-     * Get the user id for which this id is an alias.
-     *
-     * @return the user id for which this id is an alias
+     * @see org.apache.james.services.JamesUser#getAlias()
      */
     public String getAlias() {
         return alias;
