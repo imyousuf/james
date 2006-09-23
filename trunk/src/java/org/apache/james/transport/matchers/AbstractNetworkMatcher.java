@@ -81,7 +81,7 @@ public abstract class AbstractNetworkMatcher extends org.apache.mailet.GenericMa
         Collection nets = allowedNetworks();
         
         if (nets != null) {
-            authorizedNetworks = new NetMatcher(dnsServer) {
+            authorizedNetworks = new NetMatcher(allowedNetworks(),dnsServer) {
                 protected void log(String s) {
                     AbstractNetworkMatcher.this.log(s);
                 }
