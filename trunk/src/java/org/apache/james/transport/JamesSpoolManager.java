@@ -102,6 +102,11 @@ public class JamesSpoolManager
      */
     private MailProcessor processorList;
 
+    /**
+     * Set the SpoolRepository
+     * 
+     * @param spool the SpoolRepository
+     */
     public void setSpool(SpoolRepository spool) {
         this.spool = spool;
     }
@@ -261,7 +266,8 @@ public class JamesSpoolManager
      *
      * This implementation shuts down the LinearProcessors managed by this
      * JamesSpoolManager
-     *
+     * 
+     * @see org.apache.avalon.framework.activity.Disposable#dispose()
      */
     public void dispose() {
         getLogger().info("JamesSpoolManager dispose...");

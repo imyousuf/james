@@ -84,26 +84,56 @@ public class RemoteManager
     
     private BayesianAnalyzerManagementService bayesianAnalyzerManagement;
     
+    /**
+     * Set the UserStore 
+     * 
+     * @param usersStore the UserStore
+     */
     public void setUsersStore(UsersStore usersStore) {
         this.usersStore = usersStore;
     }
 
+    /**
+     * Set the UsersRepository
+     * 
+     * @param users the UsersRepository
+     */
     public void setUsers(UsersRepository users) {
         this.users = users;
     }
 
+    /**
+     * Set the SpoolManagementService
+     * 
+     * @param spoolManagement the SpoolManagementService
+     */
     public void setSpoolManagement(SpoolManagementService spoolManagement) {
         this.spoolManagement = spoolManagement;
     }
 
+    /**
+     * Set the MailServer 
+     * 
+     * @param mailServer the MailServer
+     */
     public void setMailServer(MailServer mailServer) {
         this.mailServer = mailServer;
     }
 
+    /**
+     * Set the Store
+     * 
+     * @param store the Store
+     */
     public void setStore(Store store) {
         this.store = store;
     }
     
+    /**
+     * Set the BayesianAnalyzerManagementService
+     * 
+     * @param bayesianAnalyzerManagement the BayesianAnalyzerManagementService
+     */
     public void setBayesianAnalyzerManagement(BayesianAnalyzerManagementService bayesianAnalyzerManagement) {
         this.bayesianAnalyzerManagement = bayesianAnalyzerManagement;
     }
