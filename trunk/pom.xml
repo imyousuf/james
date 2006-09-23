@@ -41,7 +41,7 @@
     <artifactId>james-server-root</artifactId>
     <version>1.0-SNAPSHOT</version>
   </parent>
-  <url>http://james.apache.org/server/index.html</url>
+  <url>http://james.apache.org/server/2.3.0/</url>
   <inceptionYear>2002</inceptionYear>
 
   <scm>
@@ -377,7 +377,7 @@
   <distributionManagement>
     <site>
       <id>server-website</id>
-      <url>scp://minotaur.apache.org/www/james.apache.org/server/2.3.0</url>
+      <url>scp://minotaur.apache.org/www/james.apache.org/server/2.3.0/</url>
     </site>
   </distributionManagement>
 
