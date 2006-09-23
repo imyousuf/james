@@ -66,7 +66,7 @@ public class POP3BeforeSMTPHelper {
     }
 
     /**
-     * @see #removeExpiredIP(String, long)
+     * @see #removeExpiredIP(long)
      */
     public static void removeExpiredIP() {
         removeExpiredIP(EXPIRE_TIME);

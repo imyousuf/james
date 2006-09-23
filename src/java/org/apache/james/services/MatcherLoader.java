@@ -37,8 +37,6 @@ public interface MatcherLoader {
      * in the specified context.
      *
      * @param matchName the name of the matcher to be loaded
-     * @param context the MailetContext to be passed to the new
-     *                matcher
      * @throws MessagingException if an error occurs
      */
     public Matcher getMatcher(String matchName) throws MessagingException;

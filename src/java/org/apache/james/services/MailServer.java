@@ -82,6 +82,7 @@ public interface MailServer
 
     /**
      *  Pass a Mail to this MailServer for processing
+     *  
      * @param mail the Mail to be processed
      * @throws MessagingException
      */
@@ -90,6 +91,7 @@ public interface MailServer
         
     /**
      * Pass a MimeMessage to this MailServer for processing
+     * 
      * @param message the message
      * @throws MessagingException
      * 
@@ -102,7 +104,7 @@ public interface MailServer
      * Retrieve the primary mailbox for userName. For POP3 style stores this
      * is their (sole) mailbox.
      *
-     * @param sender - the name of the user
+     * @param userName - the name of the user
      * @return a reference to an initialised mailbox
      */
     MailRepository getUserInbox(String userName);
@@ -118,7 +120,7 @@ public interface MailServer
      * Adds a new user to the mail system with userName. For POP3 style stores
      * this may only involve adding the user to the UsersStore.
      *
-     * @param sender - the name of the user
+     * @param userName - the name of the user
      * @return a reference to an initialised mailbox
      * 
      * @deprecated addUser should not be considered a property of a MailServer

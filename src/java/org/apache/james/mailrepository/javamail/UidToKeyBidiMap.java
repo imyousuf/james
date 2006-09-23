@@ -77,7 +77,7 @@ public interface UidToKeyBidiMap {
     /**
      * Get uid for the given key
      * 
-     * @param the key
+     * @param key the key
      * @return uid the uid for the given key
      */
     long getByKey(String key);

@@ -291,7 +291,7 @@ public class NNTPHandler
     }
     
     /**
-     * @see org.apache.james.core.AbstractJamesHandler#erorHandler(RuntimeException e);
+     * @see org.apache.james.core.AbstractJamesHandler#errorHandler(java.lang.RuntimeException)
      */
     protected void errorHandler(RuntimeException e) {
         super.errorHandler(e);

@@ -21,30 +21,44 @@
 
 package org.apache.james.util;
 
+import javax.mail.MessagingException;
 import javax.mail.internet.MimeUtility;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 
 
 /**
- * Simple Base64 string decoding function
+ * Simple Base64 string decoding and encoding function
  *
  * @version This is $Revision$
  */
 
 public class Base64 {
 
-    public static BufferedReader decode(String b64string) throws Exception {
-        return new BufferedReader(
-                   new InputStreamReader(
-                       MimeUtility.decode(
-                            new ByteArrayInputStream(
-                                b64string.getBytes()), "base64")));
+    /**
+     * Decode base64 encoded String
+     * 
+     * @param b64string base64 String
+     * @return reader the BufferedReader which holds the decoded base64 text
+     * @throws MessagingException get thrown when an error was detected while trying to decode the String
+     */
+    public static BufferedReader decode(String b64string) throws MessagingException {
+        return new BufferedReader(new InputStreamReader(MimeUtility.decode(
+                            new ByteArrayInputStream(b64string.getBytes()), "base64")));
     }
 
-    public static String decodeAsString(String b64string) throws Exception {
+    /**
+     * Decode base64 encoded String
+     * 
+     * @param b64string base64 Sting
+     * @return returnString the String which holds the docoded base64 text
+     * @throws MessagingException get thrown when an error was detected while trying to decode the String
+     * @throws IOException get thrown when I/O error was detected
+     */
+    public static String decodeAsString(String b64string) throws IOException, MessagingException {
         if (b64string == null) {
             return b64string;
         }
@@ -55,8 +69,15 @@ public class Base64 {
         return returnString.trim();
     }
 
-    public static ByteArrayOutputStream encode(String plaintext)
-            throws Exception {
+    /**
+     * Encode String to base64
+     * 
+     * @param plaintext the plaintext to encode 
+     * @return out the ByteArrayOutputStream holding the encoded given text
+     * @throws IOException get thrown when I/O error was detected
+     * @throws MessagingException get thrown when an error was detected while trying to encode the String
+     */
+    public static ByteArrayOutputStream encode(String plaintext) throws IOException, MessagingException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         byte[] in = plaintext.getBytes();
         ByteArrayOutputStream inStream = new ByteArrayOutputStream();
@@ -72,7 +93,15 @@ public class Base64 {
         return out;
     }
 
-    public static String encodeAsString(String plaintext) throws Exception {
+    /**
+     * Encode String to base64
+     * 
+     * @param plaintext the plaintext to decode
+     * @return base64String the encoded String 
+     * @throws IOException get thrown when I/O error was detected
+     * @throws MessagingException get thrown when an error was detected while trying to encode the String
+     */
+    public static String encodeAsString(String plaintext) throws IOException, MessagingException {
         return  encode(plaintext).toString();
     }
 

@@ -32,8 +32,6 @@ import java.util.Collection;
 import java.util.ArrayList;
 
 import java.io.Reader;
-import java.io.StreamTokenizer;
-import java.io.StringReader;
 
 /**
  * <P>Determines probability that text contains Spam.</P>

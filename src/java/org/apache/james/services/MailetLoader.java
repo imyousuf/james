@@ -37,8 +37,8 @@ public interface MailetLoader {
      * Get a new Mailet with the specified name acting
      * in the specified context.
      *
-     * @param matchName the name of the mailet to be loaded
-     * @param context the MailetContext to be passed to the new
+     * @param mailetName the name of the mailet to be loaded
+     * @param configuration the Configuration to be passed to the new
      *                mailet
      * @throws MessagingException if an error occurs
      */

@@ -361,7 +361,7 @@ public class XMLResources
     /**
      * Returns a named string, replacing parameters with the values set.
      * 
-     * @param name          the name of the String resource required.
+     * @param str          the name of the String resource required.
      * @param parameters    a map of parameters (name-value string pairs) which are
      *                      replaced where found in the input strings
      * @return the requested resource

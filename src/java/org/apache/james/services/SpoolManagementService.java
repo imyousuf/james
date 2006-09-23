@@ -42,7 +42,7 @@ public interface SpoolManagementService {
      * @param filter the criteria against which all mails are matched. only applied if key is NULL.
      * @return number of removed mails
      * @throws ServiceException
-     * @trhows MessagingException
+     * @throws MessagingException
      */
     public int removeSpoolItems(String spoolRepositoryURL, String key, List lockingFailures, SpoolFilter filter) 
             throws ServiceException, MessagingException;
