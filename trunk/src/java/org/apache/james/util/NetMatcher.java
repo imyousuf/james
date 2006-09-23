@@ -283,14 +283,14 @@ class InetNetwork
     {
         try {
             return getByAddress(new byte[] {
-		    (byte) (mask[0] & ip[0]),
-		    (byte) (mask[1] & ip[1]),
-		    (byte) (mask[2] & ip[2]),
-		    (byte) (mask[3] & ip[3])
-		});
-	} catch (UnknownHostException e) {
+            (byte) (mask[0] & ip[0]),
+            (byte) (mask[1] & ip[1]),
+            (byte) (mask[2] & ip[2]),
+            (byte) (mask[3] & ip[3])
+        });
+    } catch (UnknownHostException e) {
             return null;
-	}
+    }
     }
 
     /**
