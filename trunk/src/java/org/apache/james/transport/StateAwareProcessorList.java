@@ -125,6 +125,11 @@ public class StateAwareProcessorList
     }
     
     /**
+     * Process this mail message by the appropriate processor as designated
+     * in the state of the Mail object.
+     *
+     * @param mail the mail message to be processed
+     *
      * @see org.apache.james.services.MailProcessor#service(org.apache.mailet.Mail)
      */
     public void service(Mail mail) {

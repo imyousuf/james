@@ -267,6 +267,23 @@ public class LinearProcessor
     }
 
     /**
+     * <p>Processes a single mail message through the chain of matchers and mailets.</p>
+     *
+     * <p>Calls to this method before setSpool has been called with a non-null argument
+     * will result in an <code>IllegalStateException</code>.</p>
+     *
+     * <p>If the matcher/mailet lists have not been closed by a call to the closeProcessorLists
+     * method then a call to this method will result in an <code>IllegalStateException</code>.
+     * The end of the matcher/mailet chain must be a matcher that matches all mails and 
+     * a mailet that sets every mail to GHOST status.  This is necessary to ensure that 
+     * mails are removed from the spool in an orderly fashion.  The closeProcessorLists method
+     * ensures this.</p>
+     * 
+     * @param mail the new mail to be processed
+     *
+     * @throws IllegalStateException when this method is called before the processor lists have been closed
+     *                                  or the spool has been initialized
+     *
      * @see org.apache.james.services.MailProcessor#service(org.apache.mailet.Mail)
      */
     public void service(Mail mail) throws MessagingException {

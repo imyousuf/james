@@ -261,14 +261,23 @@ public class UsersLDAPRepository
         return false;
     }
 
+    /**
+     * @see org.apache.james.services.UsersRepository#getUserByName(java.lang.String)
+     */
     public  User getUserByName(String name) {
         return new DefaultUser("dummy", "dummy");
     }
 
+    /**
+     * @see org.apache.james.services.UsersRepository#getUserByNameCaseInsensitive(java.lang.String)
+     */
     public User getUserByNameCaseInsensitive(String name) {
         return getUserByName(name);
     }
 
+    /**
+     * @see org.apache.james.services.UsersRepository#containsCaseInsensitive(java.lang.String)
+     */
     public boolean containsCaseInsensitive(String name) {
         return contains(name);
     }
@@ -280,6 +289,9 @@ public class UsersLDAPRepository
         return null;
     }
 
+    /**
+     * @see org.apache.james.services.UsersRepository#updateUser(org.apache.james.services.User)
+     */
     public boolean updateUser(User user) {
         return false;
     }
@@ -431,6 +443,9 @@ public class UsersLDAPRepository
         }
     }
 
+    /**
+     * @see org.apache.james.services.UsersRepository#removeUser(java.lang.String)
+     */
     public synchronized void removeUser(String userName) {
         String[] attrIDs = {membersAttr};
 
@@ -570,6 +585,9 @@ public class UsersLDAPRepository
     }
 
 
+    /**
+     * @see org.apache.james.services.UsersRepository#contains(java.lang.String)
+     */
     public boolean contains(String name) {
         boolean found = false;
         String[] attrIDs = {membersAttr};
@@ -600,6 +618,9 @@ public class UsersLDAPRepository
     }
 
 
+    /**
+     * @see org.apache.james.services.UsersRepository#test(java.lang.String, java.lang.String)
+     */
     public boolean test(String name, String testPassword) {
         boolean result = false;
         boolean foundFlag = false;
@@ -700,6 +721,9 @@ public class UsersLDAPRepository
 
     }
 
+    /**
+     * @see org.apache.james.services.UsersRepository#countUsers()
+     */
     public int countUsers() {
 
         String[] attrIDs = {membersAttr};

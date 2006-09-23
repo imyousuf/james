@@ -108,6 +108,10 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
     // The JDBCUtil helper class
     private JDBCUtil theJDBCUtil;
 
+    /**
+     * Set the DataSourceSelector
+     * @param datasources the DataSourceSelector
+     */
     public void setDatasources(DataSourceSelector datasources) {
         m_datasources = datasources;
     }
@@ -155,6 +159,8 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
      *      &lt;sqlParameters table="JamesUsers"/&gt;
      *  &lt;/repository&gt;
      * </pre>
+     * 
+     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
     public void configure(Configuration configuration) throws ConfigurationException
     {
@@ -238,6 +244,8 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
      * <p>3) Initialises the database with the required tables, if necessary.</p>
      *
      * @throws Exception if an error occurs
+     * 
+     * @see org.apache.avalon.framework.activity.Initializable#initialize()
      */
     public void initialize() throws Exception
     {
@@ -374,9 +382,9 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
     //
     // Superclass methods - overridden from AbstractUsersRepository
     //
+    
     /**
-     * Returns a list populated with all of the Users in the repository.
-     * @return an <code>Iterator</code> of <code>JamesUser</code>s.
+     * @see org.apache.james.userrepository.AbstractUsersRepository#listAllUsers()
      */
     protected Iterator listAllUsers() {
         return getAllUsers().iterator();
@@ -418,10 +426,7 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
     }
 
     /**
-     * Adds a user to the underlying Repository.
-     * The user name must not clash with an existing user.
-     *
-     * @param user the user to be added
+     * @see org.apache.james.userrepository.AbstractUsersRepository#doAddUser(org.apache.james.services.User)
      */
     protected void doAddUser(User user) {
         Connection conn = openConnection();
@@ -447,11 +452,7 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
     }
 
     /**
-     * Removes a user from the underlying repository.
-     * If the user doesn't exist this method doesn't throw
-     * an exception.
-     *
-     * @param user the user to be removed
+     * @see org.apache.james.userrepository.AbstractUsersRepository#doRemoveUser(org.apache.james.services.User)
      */
     protected void doRemoveUser(User user) {
         String username = user.getUserName();
@@ -475,9 +476,7 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
     }
 
     /**
-     * Updates a user record to match the supplied User.
-     *
-     * @param user the updated user record
+     * @see org.apache.james.userrepository.AbstractUsersRepository#doUpdateUser(org.apache.james.services.User)
      */
     protected void doUpdateUser(User user)
     {
