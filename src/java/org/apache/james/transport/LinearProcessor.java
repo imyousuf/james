@@ -138,10 +138,20 @@ public class LinearProcessor
         this.spool = spool;
     }
 
+    /**
+     * Set the MailetLoader
+     * 
+     * @param mailetLoader the MailetLoader
+     */
     public void setMailetLoader(MailetLoader mailetLoader) {
         this.mailetLoader = mailetLoader;
     }
 
+    /**
+     * Set the MatcherLoader
+     * 
+     * @param matchLoader the MatcherLoader
+     */
     public void setMatchLoader(MatcherLoader matchLoader) {
         this.matchLoader = matchLoader;
     }
@@ -154,6 +164,7 @@ public class LinearProcessor
      * <p>This implementation disposes of all the mailet instances added to the
      * processor</p>
      *
+     * @see org.apache.avalon.framework.activity.Disposable#dispose()
      */
     public void dispose() {
         Iterator it = mailets.iterator();
@@ -256,22 +267,7 @@ public class LinearProcessor
     }
 
     /**
-     * <p>Processes a single mail message through the chain of matchers and mailets.</p>
-     *
-     * <p>Calls to this method before setSpool has been called with a non-null argument
-     * will result in an <code>IllegalStateException</code>.</p>
-     *
-     * <p>If the matcher/mailet lists have not been closed by a call to the closeProcessorLists
-     * method then a call to this method will result in an <code>IllegalStateException</code>.
-     * The end of the matcher/mailet chain must be a matcher that matches all mails and 
-     * a mailet that sets every mail to GHOST status.  This is necessary to ensure that 
-     * mails are removed from the spool in an orderly fashion.  The closeProcessorLists method
-     * ensures this.</p>
-     * 
-     * @param mail the new mail to be processed
-     *
-     * @throws IllegalStateException when this method is called before the processor lists have been closed
-     *                                  or the spool has been initialized
+     * @see org.apache.james.services.MailProcessor#service(org.apache.mailet.Mail)
      */
     public void service(Mail mail) throws MessagingException {
         if (spool == null) {
@@ -489,7 +485,6 @@ public class LinearProcessor
      * Create a unique new primary key name.
      *
      * @param mail the mail to use as the basis for the new mail name
-     * 
      * @return a new name
      */
     private String newName(Mail mail) {

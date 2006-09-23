@@ -60,6 +60,11 @@ public abstract class Loader extends AbstractLogEnabled implements Contextualiza
      */
     protected MailetContext mailetContext;
 
+    /**
+     * Set the MailetContext
+     * 
+     * @param mailetContext the MailetContext
+     */
     public void setMailetContext(MailetContext mailetContext) {
         this.mailetContext = mailetContext;
     }
