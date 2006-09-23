@@ -71,12 +71,4 @@ public class UnknownCmdHandler implements CommandHandler {
         
         return implCommands;
     }
-    
-    /**
-     * @see org.apache.james.smtpserver.CommandHandler#stopHandlerProcessing()
-     */
-    public boolean stopHandlerProcessing() {
-        return stopHandlerProcessing ;
-    }
-
 }

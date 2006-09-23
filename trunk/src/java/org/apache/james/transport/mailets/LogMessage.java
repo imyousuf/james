@@ -69,7 +69,7 @@ public class LogMessage extends GenericMailet {
     /**
      * Log a particular message
      *
-     * @param mail the mail to process
+     * @param genericmail the mail to process
      */
     public void service(Mail genericmail) {
         MailImpl mail = (MailImpl)genericmail;

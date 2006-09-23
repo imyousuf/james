@@ -449,8 +449,8 @@ public class DSNBounce extends AbstractNotify {
      * This method should use the status attribute when the
      * SMTP-handler somewhen provides it
      *
-     * @param MessagingException
-     * @return status code
+     * @param me  the MessagingException of which the statusCode should be generated
+     * @return status the generated statusCode
      */
     protected String getStatus(MessagingException me) {
         if (me.getNextException() == null) {
@@ -547,7 +547,8 @@ public class DSNBounce extends AbstractNotify {
 
     /**
      * Utility method for getting the error message from the (nested) exception.
-     * @param MessagingException
+     * 
+     * @param me MessagingException
      * @return error message
      */
     protected String getErrorMsg(MessagingException me) {

@@ -503,7 +503,7 @@ public class POP3Handler
 
 
     /**
-     * @see org.apache.james.pop3server.POP3Session#setUserMailbox(java.util.ArrayList)
+     * @see org.apache.james.pop3server.POP3Session#setUserMailbox(List)
      */
     public void setBackupUserMailbox(List backupUserMailbox) {
         this.backupUserMailbox = backupUserMailbox;

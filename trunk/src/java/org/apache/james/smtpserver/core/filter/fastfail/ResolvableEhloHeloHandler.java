@@ -88,7 +88,7 @@ public class ResolvableEhloHeloHandler extends AbstractLogEnabled implements
     /**
      * Set to true if Auth users should be included in the EHLO/HELO check
      * 
-     * @param checkAuthNetworks
+     * @param checkAuthUsers
      *            Set to true to enable
      */
     public void setCheckAuthUsers(boolean checkAuthUsers) {
@@ -106,7 +106,7 @@ public class ResolvableEhloHeloHandler extends AbstractLogEnabled implements
     }
 
     /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.HeloFilterHandler#onEhloCommand(SMTPSession)
+     * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
     public void onCommand(SMTPSession session) {
         String argument = session.getCommandArgument();

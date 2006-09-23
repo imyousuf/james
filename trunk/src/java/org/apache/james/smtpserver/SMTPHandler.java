@@ -472,7 +472,7 @@ public class SMTPHandler
     }
 
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#setUser()
+     * @see org.apache.james.smtpserver.SMTPSession#setUser(String)
      */
     public void setUser(String userID) {
         authenticatedUser = userID;

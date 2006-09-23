@@ -117,7 +117,7 @@ public abstract class AbstractVirtualUserTableHandler extends AbstractLogEnabled
      * if no mapping should be performed. Multiple recipients may be specified by delineating
      * the mapped string with commas, semi-colons or colons.
      * 
-     * @param recipientsMap the mapping of virtual to real recipients, as 
+     * @param recipient the mapping of virtual to real recipients, as 
      *    <code>MailAddress</code>es to <code>String</code>s.
      */
     protected abstract String mapRecipients(MailAddress recipient);

@@ -99,7 +99,7 @@ public class FromRepository extends GenericMailet {
     /**
      * Spool mail from a particular repository.
      *
-     * @param triggering e-mail (eventually parameterize via the
+     * @param trigger triggering e-mail (eventually parameterize via the
      * trigger message)
      */
     public void service(Mail trigger) throws MessagingException {

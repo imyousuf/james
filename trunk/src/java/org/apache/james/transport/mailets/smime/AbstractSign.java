@@ -204,7 +204,7 @@ public abstract class AbstractSign extends GenericMailet {
     
     /**
      * Setter for property keyHolderClass.
-     * @param signerName New value of property keyHolderClass.
+     * @param keyHolderClass New value of property keyHolderClass.
      */
     public void setKeyHolderClass(Class keyHolderClass) {
         this.keyHolderClass = keyHolderClass;

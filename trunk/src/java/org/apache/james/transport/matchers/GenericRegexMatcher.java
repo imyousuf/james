@@ -41,7 +41,7 @@ import java.util.Collection;
  * could subclass match(), and call it as necessary during message
  * processing (e.g., if a file of expressions changed). 
  *
- * @
+ * 
  */
 
 abstract public class GenericRegexMatcher extends GenericMatcher {
