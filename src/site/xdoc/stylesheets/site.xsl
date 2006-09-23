@@ -60,7 +60,7 @@
 
           <xsl:comment>PROJECT LOGO</xsl:comment>
           <a href="{$home}">
-            <img border="0" alt="{$alt}" align="right" src="{$home}{$src}"/>
+            <img border="0" alt="{$alt}" align="right" src=".{$src}"/>
           </a>
         </xsl:if>
 
@@ -81,19 +81,21 @@
             <td align="left" valign="top" class="main-body">
               <xsl:apply-templates select="body/section"/>
             </td>
+            <!-- 
             <xsl:comment>RIGHT SIDE NAVIGATION</xsl:comment>
             <td nowrap="true" valign="top" class="right-navbar">
               <xsl:apply-templates select="$site/body/navbar[@name='rhs']"/>
             </td>
+            -->
           </tr>
           <xsl:comment>FOOTER SEPARATOR</xsl:comment>
           <tr>
-            <td colspan="3">
+            <td colspan="2">
               <hr size="1" noshade=""/>
             </td>
           </tr>
           <tr>
-            <td colspan="3">
+            <td colspan="2">
               <div class="page-footer">
                 <em>
         Copyright &#169; 1999-2006, The Apache Software Foundation
