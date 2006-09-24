@@ -347,7 +347,7 @@ Regards, Postmaster XXX.YYY
          -->
 
          <!-- People on this list agree to pay a penalty if they send spam -->
-         <mailet match="InSpammerBlacklist=query.bondedsender.org"
+         <mailet match="InSpammerBlacklist=query.bondedsender.org."
                  class="ToProcessor">
            <processor> transport </processor>
          </mailet>
@@ -373,13 +373,13 @@ Regards, Postmaster XXX.YYY
          <!-- This set of matchers/mailets redirect all emails from known -->
          <!-- black holes, open relays, and spam servers to the spam processor -->
          <!-- For this set to function properly, the spam processor must be configured. -->
-         <mailet match="InSpammerBlacklist=dnsbl.njabl.org"
+         <mailet match="InSpammerBlacklist=dnsbl.njabl.org."
                  class="ToProcessor">
            <processor> spam </processor>
            <notice>550 Requested action not taken: rejected - see http://njabl.org/ </notice>
          </mailet>
 
-         <mailet match="InSpammerBlacklist=relays.ordb.org"
+         <mailet match="InSpammerBlacklist=relays.ordb.org."
                  class="ToProcessor">
            <processor> spam </processor>
            <notice>550 Requested action not taken: rejected - see http://www.ordb.org/ </notice>
