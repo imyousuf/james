@@ -132,34 +132,23 @@ public abstract class GenericMatcher implements Matcher, MatcherConfig {
     }
 
     /**
-     * Writes the specified message to a matcher log file, prepended by
-     * the matcher's name.
+     * Writes the specified message to a matcher log file.
      *
      * @param message - a String specifying the message to be written to the log file
      */
     public void log(String message) {
-        StringBuffer logBuffer = 
-            new StringBuffer(256)
-                    .append(getMatcherName())
-                    .append(": ")
-                    .append(message);
-        getMailetContext().log(logBuffer.toString());
+        getMailetContext().log(message);
     }
 
     /**
      * Writes an explanatory message and a stack trace for a given Throwable
-     * exception to the matcher log file, prepended by the matcher's name.
+     * exception to the matcher log file.
      *
      * @param message - a String that describes the error or exception
      * @param t - the java.lang.Throwable error or exception
      */
     public void log(String message, Throwable t) {
-        StringBuffer logBuffer = 
-            new StringBuffer(256)
-                    .append(getMatcherName())
-                    .append(": ")
-                    .append(message);
-        getMailetContext().log(logBuffer.toString(), t);
+        getMailetContext().log(message, t);
     }
 
     /**

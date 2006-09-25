@@ -54,11 +54,11 @@ public class JamesMatcherLoader extends Loader implements MatcherLoader {
             for (i = 0; i < packages.size(); i++) {
                 String className = (String) packages.elementAt(i) + matchName;
                 try {
+                    Matcher matcher = (Matcher) Thread.currentThread().getContextClassLoader().loadClass(className).newInstance();
                     MatcherConfigImpl configImpl = new MatcherConfigImpl();
                     configImpl.setMatcherName(matchName);
                     configImpl.setCondition(condition);
-                    configImpl.setMailetContext(mailetContext);
-                    Matcher matcher = (Matcher) Thread.currentThread().getContextClassLoader().loadClass(className).newInstance();
+                    configImpl.setMailetContext(new MailetContextWrapper(mailetContext, getLogger().getChildLogger(matchName)));
                     matcher.init(configImpl);
                     return matcher;
                 } catch (ClassNotFoundException cnfe) {

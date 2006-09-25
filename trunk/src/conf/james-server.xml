@@ -29,6 +29,12 @@
       <category name="" log-level="INFO">
         <log-target id-ref="default"/>
       </category>
+      <category name="mailetpackages" log-level="INFO">
+        <log-target id-ref="James-Mailet-target"/>
+      </category>
+      <category name="matcherpackages" log-level="INFO">
+        <log-target id-ref="James-Mailet-target"/>
+      </category>
       <category name="James.Mailet" log-level="INFO">
         <log-target id-ref="James-Mailet-target"/>
       </category>

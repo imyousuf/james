@@ -48,11 +48,11 @@ public class JamesMailetLoader extends Loader implements MailetLoader {
             for (int i = 0; i < packages.size(); i++) {
                 String className = (String) packages.elementAt(i) + mailetName;
                 try {
+                    Mailet mailet = (Mailet) Thread.currentThread().getContextClassLoader().loadClass(className).newInstance();
                     MailetConfigImpl configImpl = new MailetConfigImpl();
                     configImpl.setMailetName(mailetName);
                     configImpl.setConfiguration(configuration);
-                    configImpl.setMailetContext(mailetContext);
-                    Mailet mailet = (Mailet) Thread.currentThread().getContextClassLoader().loadClass(className).newInstance();
+                    configImpl.setMailetContext(new MailetContextWrapper(mailetContext, getLogger().getChildLogger(mailetName))); 
                     mailet.init(configImpl);
                     return mailet;
                 } catch (ClassNotFoundException cnfe) {
