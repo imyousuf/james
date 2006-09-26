@@ -31,7 +31,7 @@
   <groupId>org.apache.james</groupId>
   <artifactId>james-server</artifactId>
   <name>Apache JAMES Server</name>
-  <version>3.0-SNAPSHOT</version>
+  <version>2.3.0-SNAPSHOT</version>
   <packaging>jar</packaging>
   <description>
     The Apache Java Enterprise Mail Server (a.k.a. JAMES Server)
@@ -46,18 +46,21 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.apache.org/repos/asf/james/server/trunk
+      scm:svn:http://svn.apache.org/repos/asf/james/server/branches/v2.3
     </connection>
     <developerConnection>
-      scm:svn:https://${maven.username}@svn.apache.org/repos/asf/james/server/trunk
+      scm:svn:https://${maven.username}@svn.apache.org/repos/asf/james/server/branches/v2.3
     </developerConnection>
     <url>
-      http://svn.apache.org/viewcvs.cgi/james/server/trunk?root=Apache-SVN
+      http://svn.apache.org/viewcvs.cgi/james/server/branches/v2.3?root=Apache-SVN
     </url>
   </scm>
 
   <repositories>
-
+    <!-- 
+     this should be removed and custom jars should 
+     be copied to a local files based repository.
+    -->
     <repository>
       <id>bago-dist-m1</id>
       <name>Temporary Repository</name>
@@ -68,7 +71,7 @@
         <checksumPolicy>ignore</checksumPolicy>
       </snapshots>
     </repository>
-  
+    
     <repository>
       <id>central</id>
       <name>Apache Snapshot Repository</name>
@@ -133,12 +136,6 @@
     </dependency>
     <!-- NEED TO DEAL WITH THESE JARS -->
     
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>jspf</artifactId>
-      <version>0.9-20060922.184819-1</version>
-    </dependency>
-
     <dependency>
       <groupId>javax.mail</groupId>
       <artifactId>mail</artifactId>
@@ -361,18 +358,6 @@
       <artifactId>oro</artifactId>
       <version>2.0.8</version>
     </dependency>
-    
-    <dependency>
-      <groupId>mstor</groupId>
-      <artifactId>mstor</artifactId>
-      <version>0.9.9</version>
-    </dependency>
-
-    <dependency>
-      <groupId>xstream</groupId>
-      <artifactId>xstream</artifactId>
-      <version>1.2</version>
-    </dependency>
 
   </dependencies>
 
@@ -395,6 +380,7 @@
         </includes>
       </testResource>
     </testResources>
+    
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -405,6 +391,7 @@
         </configuration>
       </plugin>
     </plugins>
+
   </build>
 
   <reporting>
