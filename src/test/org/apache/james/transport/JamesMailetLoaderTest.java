@@ -24,6 +24,7 @@ package org.apache.james.transport;
 import junit.framework.TestCase;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.util.Util;
 import org.apache.james.transport.mailets.MailetLoaderTestMailet;
 import org.apache.mailet.Mailet;
@@ -64,6 +65,7 @@ public class JamesMailetLoaderTest extends TestCase {
 
     private void setUpLoader() throws ConfigurationException {
         m_conf.init();
+        m_jamesMailetLoader.enableLogging(new MockLogger());
         m_jamesMailetLoader.configure(m_conf);
     }
 
