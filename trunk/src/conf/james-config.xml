@@ -19,8 +19,8 @@
 <!-- In case the defaults do not suit you, the items you are most likely to need to change -->
 <!-- are preceded by a CHECKME! or CONFIRM? comment in the left margin. -->
 
-<!-- For production use you will probably n"src/conf/james-assembly.xml"eed to make more extensive changes, see -->
-<!-- http://james.apache.org/documentation_2_1.html -->
+<!-- For production use you will probably need to make more extensive changes, see -->
+<!-- http://james.apache.org/server/2.3.0/ -->
 
 <!-- $Revision$ Committed on $Date$ by: $Author$ -->
 
