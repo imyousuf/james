@@ -1,5 +1,5 @@
     <!--
-        See http://james.apache.org/fetchmail_configuration_2_2.html"
+        See http://james.apache.org/server/2.3.0/fetchmail_configuration.html"
     --> 
     <fetchmail enabled="false">
         <fetch name="external.domain.com">
