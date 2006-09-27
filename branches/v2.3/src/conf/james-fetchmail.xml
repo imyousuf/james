@@ -3,7 +3,7 @@
    <!-- fetched domains in the <servernames> section of the <James> block      -->
    <!-- above. This block is disabled by default.                              -->
       
-   <!-- See http://james.apache.org/fetchmail_configuration_2_2.html for detailed -->
+   <!-- See http://james.apache.org/server/2.3.0/fetchmail_configuration.html for detailed -->
    <!-- configuration instructions and examples.                                  -->   
 
    <!-- I M P O R T A N T -->
@@ -46,7 +46,7 @@
             <!-- When a message server supports BOTH delivery for a single user to a specific INBOX and access to all mail -->
             <!-- for a domain through a single INBOX, you can use <alllocal> and <account> together to guarantee that all -->
             <!-- local mail gets delivered to the correct user and all unwanted mail is deleted from the message -->
-            <!-- server. See http://james.apache.org/fetchmail_configuration_2_2.html for details. -->
+            <!-- server. See http://james.apache.org/server/2.3.0/fetchmail_configuration.html for details. -->
             
             <!-- Limitations and Future Directions -->
             <!-- 1) <alllocal> requires the password for all accounts for a domain on the message server be the same. True -->
