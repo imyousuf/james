@@ -35,7 +35,7 @@ public class DefaultJamesUser
         extends DefaultUser
         implements JamesUser {
 
-    private static final long serialVersionUID = 632395997639038952L;
+    private static final long serialVersionUID = 6323959976390389529L;
 
     /**
      * Whether forwarding is enabled for this user.
