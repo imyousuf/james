@@ -512,11 +512,11 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                            
                             // if the message is alredy 8bit or binary and the
                             // server doesn't support the 8bit extension it has
-                            // to be converted to 7bit. Javamail api don't do
+                            // to be converted to 7bit. Javamail api doesn't perform
                             // that conversion, but it is required to be a
                             // rfc-compliant smtp server.
                             
-                            // Temporaly disabled. See JAMES-638
+                            // Temporarily disabled. See JAMES-638
                             /*
                             if (!smtpTransport.supportsExtension("8BITMIME")) { 
                                 try {
