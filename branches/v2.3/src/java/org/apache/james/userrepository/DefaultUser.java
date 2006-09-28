@@ -33,6 +33,8 @@ import java.security.NoSuchAlgorithmException;
 
 public class DefaultUser implements User, Serializable {
 
+    private static final long serialVersionUID = 5178048915868531270L;
+    
     private String userName;
     private String hashedPassword;
     private String algorithm ;
