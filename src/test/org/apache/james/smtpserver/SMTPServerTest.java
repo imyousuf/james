@@ -138,6 +138,10 @@ public class SMTPServerTest extends TestCase {
         public void setLocalhostByName(InetAddress localhostByName) {
             this.localhostByName = localhostByName;
         }
+
+        public String getHostName(InetAddress addr) throws UnknownHostException {
+        return "localhost";
+        }
     }
 
 

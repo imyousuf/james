@@ -30,6 +30,7 @@ import java.util.Map;
 import javax.mail.internet.ParseException;
 
 import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.james.services.AbstractDNSServer;
 import org.apache.james.services.DNSServer;
 import org.apache.james.smtpserver.core.filter.fastfail.ValidRcptMX;
 import org.apache.james.test.mock.avalon.MockLogger;
@@ -70,7 +71,7 @@ public class ValidRcptMXTest extends TestCase {
     }
 
     private DNSServer setupMockedDNSServer() {
-        DNSServer dns = new DNSServer() {
+        DNSServer dns = new AbstractDNSServer() {
 
             public Collection findMXRecords(String hostname) {
                 Collection mx = new ArrayList();
@@ -80,15 +81,7 @@ public class ValidRcptMXTest extends TestCase {
                 }
                 return mx;
             }
-
-            public Collection findTXTRecords(String hostname) {
-                throw new UnsupportedOperationException("Unimplemented Stub Method");
-            }
-
-            public InetAddress[] getAllByName(String host) throws UnknownHostException {
-                throw new UnsupportedOperationException("Unimplemented Stub Method");
-            }
-
+            
             public InetAddress getByName(String host) throws UnknownHostException {
                 if (host.equals(INVALID_MX) || host.equals(LOOPBACK)) {
                     return InetAddress.getByName(LOOPBACK);
@@ -96,10 +89,6 @@ public class ValidRcptMXTest extends TestCase {
                     return InetAddress.getByName("255.255.255.255");
                 }
                 throw new UnknownHostException("Unknown host");
-            }
-
-            public Iterator getSMTPHostAddresses(String domainName) {
-                throw new UnsupportedOperationException("Unimplemented Stub Method");
             }
 
         };

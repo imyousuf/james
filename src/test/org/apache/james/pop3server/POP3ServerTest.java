@@ -22,9 +22,12 @@ package org.apache.james.pop3server;
 import org.apache.avalon.cornerstone.services.sockets.SocketManager;
 import org.apache.avalon.cornerstone.services.threads.ThreadManager;
 import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.avalon.framework.service.ServiceException;
 import org.apache.commons.net.pop3.POP3Client;
 import org.apache.commons.net.pop3.POP3MessageInfo;
 import org.apache.james.core.MailImpl;
+import org.apache.james.services.AbstractDNSServer;
+import org.apache.james.services.DNSServer;
 import org.apache.james.services.JamesConnectionManager;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
@@ -46,6 +49,7 @@ import javax.mail.util.SharedByteArrayInputStream;
 
 import java.io.InputStream;
 import java.io.Reader;
+import java.net.InetAddress;
 import java.util.ArrayList;
 
 import junit.framework.TestCase;
@@ -87,10 +91,11 @@ public class POP3ServerTest extends TestCase {
         ContainerUtil.initialize(m_pop3Server);
     }
 
-    private MockServiceManager setUpServiceManager() {
+    private MockServiceManager setUpServiceManager() throws ServiceException {
         MockServiceManager serviceManager = new MockServiceManager();
         SimpleConnectionManager connectionManager = new SimpleConnectionManager();
         ContainerUtil.enableLogging(connectionManager, new MockLogger());
+        ContainerUtil.service(connectionManager, serviceManager);
         serviceManager.put(JamesConnectionManager.ROLE, connectionManager);
         m_mailServer = new MockMailServer();
         serviceManager
@@ -100,9 +105,18 @@ public class POP3ServerTest extends TestCase {
         serviceManager.put(SocketManager.ROLE, new MockSocketManager(
                 m_pop3ListenerPort));
         serviceManager.put(ThreadManager.ROLE, new MockThreadManager());
+        serviceManager.put(DNSServer.ROLE, setUpDNSServer());
         return serviceManager;
     }
 
+    private DNSServer setUpDNSServer() {
+    DNSServer dns = new AbstractDNSServer() {
+        public String getHostName(InetAddress addr) {
+        return "localhost";
+        }
+    };
+    return dns;
+    }
     protected void tearDown() throws Exception {
         if (m_pop3Protocol != null) {
             m_pop3Protocol.sendCommand("quit");

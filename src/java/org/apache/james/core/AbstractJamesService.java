@@ -620,5 +620,14 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
     public void decommission( Object object ) throws Exception {
         return;
     }
+
+    /**
+     * @see org.apache.avalon.cornerstone.services.connection.AbstractHandlerFactory#createConnectionHandler()
+     */
+    public ConnectionHandler createConnectionHandler() throws Exception {
+        ConnectionHandler conn = super.createConnectionHandler();
+        ContainerUtil.service(conn, componentManager);
+        return conn;
+    }
 }
 

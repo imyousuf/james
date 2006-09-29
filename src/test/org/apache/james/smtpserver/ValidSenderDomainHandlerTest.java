@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.james.services.AbstractDNSServer;
 import org.apache.james.services.DNSServer;
 import org.apache.james.smtpserver.core.filter.fastfail.ValidSenderDomainHandler;
 import org.apache.james.test.mock.avalon.MockLogger;
@@ -44,7 +45,7 @@ public class ValidSenderDomainHandlerTest extends TestCase {
     }
     
     private DNSServer setupDNSServer() {
-        DNSServer dns = new DNSServer(){
+        DNSServer dns = new AbstractDNSServer(){
 
             public Collection findMXRecords(String hostname) {
                 Collection mx = new ArrayList();
@@ -52,22 +53,6 @@ public class ValidSenderDomainHandlerTest extends TestCase {
                     mx.add("mail.james.apache.org");
                 }
                 return mx;
-            }
-
-            public Collection findTXTRecords(String hostname) {
-                throw new UnsupportedOperationException("Unimplemented mock service");
-            }
-
-            public InetAddress[] getAllByName(String host) throws UnknownHostException {
-                throw new UnsupportedOperationException("Unimplemented mock service");
-            }
-
-            public InetAddress getByName(String host) throws UnknownHostException {
-                throw new UnsupportedOperationException("Unimplemented mock service");
-            }
-
-            public Iterator getSMTPHostAddresses(String domainName) {
-                throw new UnsupportedOperationException("Unimplemented mock service");
             }
             
         };

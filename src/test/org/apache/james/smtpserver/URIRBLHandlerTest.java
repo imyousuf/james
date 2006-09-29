@@ -40,6 +40,7 @@ import javax.mail.internet.MimeMultipart;
 import junit.framework.TestCase;
 
 import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.james.services.AbstractDNSServer;
 import org.apache.james.services.DNSServer;
 import org.apache.james.smtpserver.core.filter.fastfail.URIRBLHandler;
 import org.apache.james.test.mock.avalon.MockLogger;
@@ -161,11 +162,7 @@ public class URIRBLHandlerTest extends TestCase {
      *
      */
     private DNSServer setupMockedDnsServer() {
-        DNSServer mockedDnsServer = new DNSServer() {
-
-            public Collection findMXRecords(String hostname) {
-                throw new UnsupportedOperationException("Unimplemented in mock");
-            }
+        DNSServer mockedDnsServer = new AbstractDNSServer() {
 
             public Collection findTXTRecords(String hostname) {
                 List res = new ArrayList();
@@ -177,15 +174,6 @@ public class URIRBLHandlerTest extends TestCase {
                     res.add("Blocked - see http://www.surbl.org");
                 }
                 return res;
-            }
-
-            public Iterator getSMTPHostAddresses(String domainName) {
-                throw new UnsupportedOperationException("Unimplemented in mock");
-            }
-
-            public InetAddress[] getAllByName(String host)
-                    throws UnknownHostException {
-                throw new UnsupportedOperationException("Unimplemented in mock");
             }
 
             public InetAddress getByName(String host)

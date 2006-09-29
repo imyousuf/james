@@ -25,6 +25,10 @@ import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.avalon.excalibur.pool.Poolable;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.Serviceable;
+import org.apache.james.services.DNSServer;
 import org.apache.james.util.CRLFTerminatedReader;
 import org.apache.james.util.InternetPrintWriter;
 import org.apache.james.util.watchdog.Watchdog;
@@ -43,7 +47,7 @@ import java.net.SocketException;
 /**
  * Common Handler code
  */
-public abstract class AbstractJamesHandler extends AbstractLogEnabled implements ConnectionHandler, Poolable {
+public abstract class AbstractJamesHandler extends AbstractLogEnabled implements ConnectionHandler, Poolable,Serviceable {
 
 
     /**
@@ -106,6 +110,18 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
      */
     protected String remoteIP = null;
 
+    /**
+     * The DNSServer
+     */
+    protected DNSServer dnsServer = null;
+    
+
+    /**
+     * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
+     */
+    public void service(ServiceManager arg0) throws ServiceException {
+        dnsServer = (DNSServer) arg0.lookup(DNSServer.ROLE);
+    }
 
     /**
      * Helper method for accepting connections.
@@ -117,7 +133,7 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
     protected void initHandler( Socket connection ) throws IOException {
         this.socket = connection;
         remoteIP = socket.getInetAddress().getHostAddress();
-        remoteHost = socket.getInetAddress().getHostName();
+        remoteHost = dnsServer.getHostName(socket.getInetAddress());
         try {
             synchronized (this) {
                 handlerThread = Thread.currentThread();
@@ -378,7 +394,6 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
         out.println(responseString);
         logResponseString(responseString);
     }
-
 
     /**
      * A private inner class which serves as an adaptor
