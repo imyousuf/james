@@ -21,6 +21,8 @@
 
 package org.apache.james.transport.matchers;
 
+import java.io.IOException;
+
 import org.apache.oro.text.regex.MalformedPatternException;
 import javax.mail.MessagingException;
 
@@ -34,8 +36,9 @@ public class FileRegexMatcher extends GenericRegexMatcher {
      * @see org.apache.james.transport.matchers.GenericRegexMatcher#init()
      */
     public void init() throws MessagingException {
+        java.io.RandomAccessFile patternSource = null;
         try {
-            java.io.RandomAccessFile patternSource = new java.io.RandomAccessFile(getCondition(), "r");
+            patternSource = new java.io.RandomAccessFile(getCondition(), "r");
             int lines = 0;
             while(patternSource.readLine() != null) lines++;
             patterns = new Object[lines][2];
@@ -44,8 +47,9 @@ public class FileRegexMatcher extends GenericRegexMatcher {
                 String line = patternSource.readLine();
                 patterns[i][0] = line.substring(0, line.indexOf(':'));
                 patterns[i][1] = line.substring(line.indexOf(':')+1);
-            }
+            }          
             compile(patterns);
+                  
         }
         catch (java.io.FileNotFoundException fnfe) {
             throw new MessagingException("Could not locate patterns.", fnfe);
@@ -55,6 +59,15 @@ public class FileRegexMatcher extends GenericRegexMatcher {
         }
         catch(MalformedPatternException mp) {
             throw new MessagingException("Could not initialize regex patterns", mp);
+        } finally {
+            if (patternSource != null) {
+                // close the file
+                try {
+		    patternSource.close();
+		} catch (IOException e) {
+		    // just ignore on close
+		}
+            }
         }
     }
 }
