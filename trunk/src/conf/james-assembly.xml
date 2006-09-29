@@ -79,6 +79,7 @@
              role="org.apache.james.services.SpoolManagementService"/>
     <provide name="bayesiananalyzermanagement"
              role="org.apache.james.services.BayesianAnalyzerManagementService"/>
+    <provide name="dnsserver" role="org.apache.james.services.DNSServer"/>
   </block>
 
   <!-- The User Management block  -->
@@ -97,6 +98,7 @@
     <provide name="James" role="org.apache.james.services.MailServer"/>
     <provide name="thread-manager"
              role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
+    <provide name="dnsserver" role="org.apache.james.services.DNSServer"/>
   </block>
 
   <!-- SMTP Server -->

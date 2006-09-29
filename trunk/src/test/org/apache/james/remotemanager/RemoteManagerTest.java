@@ -25,6 +25,8 @@ import org.apache.avalon.cornerstone.services.sockets.SocketManager;
 import org.apache.avalon.cornerstone.services.threads.ThreadManager;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.commons.net.telnet.TelnetClient;
+import org.apache.james.services.AbstractDNSServer;
+import org.apache.james.services.DNSServer;
 import org.apache.james.services.JamesConnectionManager;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.UsersRepository;
@@ -46,6 +48,7 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -166,7 +169,18 @@ public class RemoteManagerTest extends TestCase {
         serviceManager.put(UsersStore.ROLE, new MockUsersStore(m_mockUsersRepository));
         serviceManager.put(SocketManager.ROLE, new MockSocketManager(m_remoteManagerListenerPort));
         serviceManager.put(ThreadManager.ROLE, new MockThreadManager());
+        serviceManager.put(DNSServer.ROLE, setUpDNSServer());
         return serviceManager;
+    }
+    
+    private DNSServer setUpDNSServer() {
+    DNSServer dns = new AbstractDNSServer() {
+        public String getHostName(InetAddress addr) {
+        return "localhost";
+        }
+    };
+    
+    return dns;
     }
 
     public void testLogin() throws IOException {

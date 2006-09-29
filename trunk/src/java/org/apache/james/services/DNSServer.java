@@ -90,4 +90,9 @@ public interface DNSServer {
      * @see java.net.InetAddress#getByName(String)
      */
     public InetAddress getByName(String host) throws UnknownHostException;
+
+    /**
+     * @see org.xbill.DNS.Address#getHostName(InetAddress)
+     */
+    public String getHostName(InetAddress addr) throws UnknownHostException;
 }

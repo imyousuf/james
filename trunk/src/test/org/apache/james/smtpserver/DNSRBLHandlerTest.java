@@ -33,6 +33,7 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.james.services.AbstractDNSServer;
 import org.apache.james.services.DNSServer;
 import org.apache.james.smtpserver.core.filter.fastfail.DNSRBLHandler;
 import org.apache.james.test.mock.avalon.MockLogger;
@@ -82,7 +83,7 @@ public class DNSRBLHandlerTest extends TestCase {
      *
      */
     private void setupMockedDnsServer() {
-        mockedDnsServer = new DNSServer() {
+        mockedDnsServer = new AbstractDNSServer() {
 
             public Collection findMXRecords(String hostname) {
                 throw new UnsupportedOperationException("Unimplemented in mock");
@@ -98,15 +99,6 @@ public class DNSRBLHandlerTest extends TestCase {
                     res.add("Blocked - see http://www.spamcop.net/bl.shtml?127.0.0.2");
                 }
                 return res;
-            }
-
-            public Iterator getSMTPHostAddresses(String domainName) {
-                throw new UnsupportedOperationException("Unimplemented in mock");
-            }
-
-            public InetAddress[] getAllByName(String host)
-                    throws UnknownHostException {
-                throw new UnsupportedOperationException("Unimplemented in mock");
             }
 
             public InetAddress getByName(String host)

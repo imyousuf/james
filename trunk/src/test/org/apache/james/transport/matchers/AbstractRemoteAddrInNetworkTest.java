@@ -37,6 +37,7 @@ import javax.mail.internet.ParseException;
 import junit.framework.TestCase;
 
 import org.apache.james.Constants;
+import org.apache.james.services.AbstractDNSServer;
 import org.apache.james.services.DNSServer;
 import org.apache.james.test.mock.avalon.MockServiceManager;
 import org.apache.james.test.mock.mailet.MockMailContext;
@@ -190,29 +191,7 @@ public abstract class AbstractRemoteAddrInNetworkTest extends TestCase {
     }
 
     protected void setupDNSServer() {
-        dnsServer = new DNSServer() {
-
-            public Collection findMXRecords(String hostname) {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public Collection findTXTRecords(String hostname) {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public Iterator getSMTPHostAddresses(String domainName) {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
-            public InetAddress[] getAllByName(String host)
-                    throws UnknownHostException {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
-            }
-
+        dnsServer = new AbstractDNSServer() {
             public InetAddress getByName(String host)
                     throws UnknownHostException {
                 if ("192.168.200.0".equals(host) || "255.255.255.0".equals(host) || "192.168.200.1".equals(host) || "192.168.0.1".equals(host) || "192.168.1.1".equals(host)) {
