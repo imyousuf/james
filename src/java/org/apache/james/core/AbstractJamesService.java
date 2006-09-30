@@ -42,6 +42,7 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.excalibur.thread.ThreadPool;
+import org.apache.james.services.DNSServer;
 import org.apache.james.services.JamesConnectionManager;
 import org.apache.james.util.watchdog.ThreadPerWatchdogFactory;
 import org.apache.james.util.watchdog.Watchdog;
@@ -175,6 +176,11 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
      * The factory used to generate Watchdog objects
      */
     protected WatchdogFactory theWatchdogFactory = null;
+    
+    /**
+     * The DNSServer
+     */
+    private DNSServer dnsServer = null;
 
     public void setConnectionManager(JamesConnectionManager connectionManager) {
         this.connectionManager = connectionManager;
@@ -189,6 +195,7 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
         JamesConnectionManager connectionManager =
             (JamesConnectionManager)componentManager.lookup(JamesConnectionManager.ROLE);
         setConnectionManager(connectionManager);
+        dnsServer = (DNSServer) comp.lookup(DNSServer.ROLE);
     }
 
     /**
@@ -309,7 +316,7 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
         StringBuffer infoBuffer;
         String hostName = null;
         try {
-            hostName = InetAddress.getLocalHost().getHostName();
+            hostName = dnsServer.getHostName(InetAddress.getLocalHost());
         } catch (UnknownHostException ue) {
             hostName = "localhost";
         }

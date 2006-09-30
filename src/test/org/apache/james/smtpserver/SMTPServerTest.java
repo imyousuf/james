@@ -101,7 +101,7 @@ public class SMTPServerTest extends TestCase {
             }
             
             if ("1.0.0.127.bl.spamcop.net.".equals(host)) {
-                return getLocalhostByName();
+                return InetAddress.getByName("localhost");
             }
             
             if ("james.apache.org".equals(host)) {
@@ -140,7 +140,7 @@ public class SMTPServerTest extends TestCase {
         }
 
         public String getHostName(InetAddress addr) throws UnknownHostException {
-        return "localhost";
+            return addr.getHostName();
         }
     }
 
