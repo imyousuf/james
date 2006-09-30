@@ -132,12 +132,10 @@ public class ReverseEqualsEhloHeloHandler extends AbstractLogEnabled implements
                 // get reverse entry
                 String reverse = dnsServer.getHostName(dnsServer.getByName(
                         session.getRemoteIPAddress()));
-System.err.println("argument: " + argument +" reverse: " + reverse);
                 if (!argument.equals(reverse)) {
                     badHelo = true;
                 }
             } catch (UnknownHostException e) {
-        	e.printStackTrace();
                 badHelo = true;
             }
 
