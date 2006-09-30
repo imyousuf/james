@@ -23,6 +23,8 @@ package org.apache.james;
 
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.james.services.AbstractDNSServer;
+import org.apache.james.services.DNSServer;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.MailServerTestAllImplementations;
 import org.apache.james.services.UsersRepository;
@@ -36,6 +38,7 @@ import org.apache.james.test.mock.james.MockUsersStore;
 import org.apache.james.userrepository.MockUsersRepository;
 
 import java.io.File;
+import java.net.InetAddress;
 
 public class JamesTest extends MailServerTestAllImplementations {
     
@@ -85,7 +88,17 @@ public class JamesTest extends MailServerTestAllImplementations {
         mockMailRepository = new InMemorySpoolRepository();
         mockStore.add(EXISTING_USER_NAME, mockMailRepository);
         serviceManager.put(Store.ROLE, mockStore);
+        serviceManager.put(DNSServer.ROLE, setUpDNSServer());
         return serviceManager;
+    }
+    
+    private DNSServer setUpDNSServer() {
+	DNSServer dns = new AbstractDNSServer() {
+	    public String getHostName(InetAddress addr) {
+		return "localhost";
+	    }
+	};
+	return dns;
     }
 
     public boolean allowsPasswordlessUser() {

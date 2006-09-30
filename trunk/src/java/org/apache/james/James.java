@@ -310,7 +310,7 @@ public class James
     private void initializeServernamesAndPostmaster() throws ConfigurationException, ParseException {
         String hostName = null;
         try {
-            hostName = InetAddress.getLocalHost().getHostName();
+            hostName = lookupDNSServer().getHostName(InetAddress.getLocalHost());
         } catch  (UnknownHostException ue) {
             hostName = "localhost";
         }

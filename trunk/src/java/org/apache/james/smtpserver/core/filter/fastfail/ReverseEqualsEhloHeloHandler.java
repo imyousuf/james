@@ -130,13 +130,14 @@ public class ReverseEqualsEhloHeloHandler extends AbstractLogEnabled implements
             boolean badHelo = false;
             try {
                 // get reverse entry
-                String reverse = dnsServer.getByName(
-                        session.getRemoteIPAddress()).getHostName();
-
+                String reverse = dnsServer.getHostName(dnsServer.getByName(
+                        session.getRemoteIPAddress()));
+System.err.println("argument: " + argument +" reverse: " + reverse);
                 if (!argument.equals(reverse)) {
                     badHelo = true;
                 }
             } catch (UnknownHostException e) {
+        	e.printStackTrace();
                 badHelo = true;
             }
 
@@ -167,7 +168,7 @@ public class ReverseEqualsEhloHeloHandler extends AbstractLogEnabled implements
             String responseString = "501 "
                     + DSNStatus.getStatus(DSNStatus.PERMANENT,
                             DSNStatus.DELIVERY_INVALID_ARG) + " Provided EHLO "
-                    + argument + " not equal reverse of "
+                    + session.getState().get(SMTPSession.CURRENT_HELO_NAME) + " not equal reverse of "
                     + session.getRemoteIPAddress();
 
             session.writeResponse(responseString);
