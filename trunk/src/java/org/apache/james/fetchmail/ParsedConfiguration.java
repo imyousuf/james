@@ -21,7 +21,6 @@
  
 package org.apache.james.fetchmail;
 
-import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashSet;
 import java.util.Set;
@@ -895,12 +894,7 @@ protected void setDNSServer(DNSServer dnsServer)
         String hostName = null;
         try
         {
-            // These shenanigans are required to get the fully qualified
-            // hostname prior to JDK 1.4 in which get getCanonicalHostName()
-            // does the job for us
-            InetAddress addr1 = java.net.InetAddress.getLocalHost();
-            InetAddress addr2 = addr1.getByName(addr1.getHostAddress());
-            hostName = addr2.getHostName();
+            hostName = java.net.InetAddress.getLocalHost().getCanonicalHostName();
         }
         catch (UnknownHostException ue)
         {

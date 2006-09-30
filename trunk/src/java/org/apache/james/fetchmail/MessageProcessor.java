@@ -21,7 +21,6 @@
  
 package org.apache.james.fetchmail;
 
-import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -800,15 +799,7 @@ public class MessageProcessor extends ProcessorAbstract
         {
             try
             {
-                InetAddress addr1 = java.net.InetAddress.getLocalHost();
-                // These shenanigans are required to get the fully qualified                 
-                // hostname prior to JDK 1.4 in which getCanonicalHostName()                 
-                // does the job for us                 
-                InetAddress addr2 =
-                    java.net.InetAddress.getByName(addr1.getHostAddress());
-                InetAddress addr3 =
-                    java.net.InetAddress.getByName(addr2.getHostName());
-                domainBuffer.append(addr3.getHostName());
+                domainBuffer.append(java.net.InetAddress.getLocalHost().getCanonicalHostName());
             }
             catch (UnknownHostException ue)
             {
@@ -1477,12 +1468,7 @@ public class MessageProcessor extends ProcessorAbstract
     protected String computeRemoteHostName()
         throws MessagingException, UnknownHostException
     {
-        // These shenanigans are required to get the fully qualified
-        // hostname prior to JDK 1.4 in which get getCanonicalHostName()
-        // does the job for us
-        InetAddress addr1 = getDNSServer().getByName(getRemoteAddress());
-        InetAddress addr2 = getDNSServer().getByName(addr1.getHostAddress());
-        return addr2.getHostName();
+        return getDNSServer().getHostName(getDNSServer().getByName(getRemoteAddress()));
     }        
 
     /**
