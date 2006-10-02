@@ -134,11 +134,8 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
     protected void initHandler( Socket connection ) throws IOException {
         this.socket = connection;
         remoteIP = socket.getInetAddress().getHostAddress();
-        try {
-            remoteHost = dnsServer.getHostName(socket.getInetAddress());
-        } catch (UnknownHostException e) {
-            remoteHost = "unknown";
-        }
+        remoteHost = dnsServer.getHostName(socket.getInetAddress());
+
         try {
             synchronized (this) {
                 handlerThread = Thread.currentThread();

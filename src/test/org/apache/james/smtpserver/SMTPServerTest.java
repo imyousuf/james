@@ -139,7 +139,7 @@ public class SMTPServerTest extends TestCase {
             this.localhostByName = localhostByName;
         }
 
-        public String getHostName(InetAddress addr) throws UnknownHostException {
+        public String getHostName(InetAddress addr) {
             return addr.getHostName();
         }
     }
