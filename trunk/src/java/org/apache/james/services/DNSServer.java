@@ -94,5 +94,5 @@ public interface DNSServer {
     /**
      * @see org.xbill.DNS.Address#getHostName(InetAddress)
      */
-    public String getHostName(InetAddress addr) throws UnknownHostException;
+    public String getHostName(InetAddress addr);
 }
