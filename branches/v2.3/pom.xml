@@ -363,8 +363,8 @@
 
   <distributionManagement>
     <site>
-      <id>server-website</id>
-      <url>scp://minotaur.apache.org/www/james.apache.org/server/2.3.0/</url>
+      <id>server-2.3-website</id>
+      <url>scp://people.apache.org/www/james.apache.org/server/2.3.0/</url>
     </site>
   </distributionManagement>
 
