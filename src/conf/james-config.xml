@@ -567,7 +567,7 @@ Regards, Postmaster XXX.YYY
             <deliveryThreads> 1 </deliveryThreads>
 
             <!-- If false the message will not be sent to given server if any recipients fail -->
-            <sendpartial>false</sendpartial>
+            <sendpartial>true</sendpartial>
             
             <!-- By default we send bounces to the "bounce" processor -->
             <!-- By removing this configuration James will fallback to hardcoded bounce -->
