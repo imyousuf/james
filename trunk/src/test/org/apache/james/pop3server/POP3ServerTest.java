@@ -42,6 +42,7 @@ import org.apache.james.test.util.Util;
 import org.apache.james.userrepository.MockUsersRepository;
 import org.apache.james.util.POP3BeforeSMTPHelper;
 import org.apache.james.util.connection.SimpleConnectionManager;
+import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
 import javax.mail.MessagingException;
@@ -458,5 +459,57 @@ public class POP3ServerTest extends TestCase {
         assertTrue(POP3BeforeSMTPHelper.isAuthorized("127.0.0.1"));
         ContainerUtil.dispose(mockMailRepository);
     }
+    
+    
+
+    /*
+     * See JAMES-649
+     * The same happens when using RETR
+     *     
+     * Comment to not broke the builds!
+     *
+    public void testOOMTop() throws Exception {
+        finishSetUp(m_testConfiguration);
+
+        int messageCount = 30000;
+        m_pop3Protocol = new POP3Client();
+        m_pop3Protocol.connect("127.0.0.1",m_pop3ListenerPort);
+
+        m_usersRepository.addUser("foo", "bar");
+        InMemorySpoolRepository mockMailRepository = new InMemorySpoolRepository();
+        
+        Mail m = new MailImpl();
+        m.setMessage(Util.createMimeMessage("X-TEST", "test"));
+        for (int i = 1; i < messageCount+1; i++ ) {
+            m.setName("test" + i);
+            mockMailRepository.store(m);
+        }
+
+        m_mailServer.setUserInbox("foo", mockMailRepository);
+
+        // not authenticated
+        POP3MessageInfo[] entries = m_pop3Protocol.listMessages();
+        assertNull(entries);
+
+        m_pop3Protocol.login("foo", "bar");
+        System.err.println(m_pop3Protocol.getState());
+        assertEquals(1, m_pop3Protocol.getState());
+
+        entries = m_pop3Protocol.listMessages();
+        assertEquals(1, m_pop3Protocol.getState());
+
+        assertNotNull(entries);
+        assertEquals(entries.length, messageCount);
+        
+        for (int i = 1; i < messageCount+1; i++ ) {
+            Reader r = m_pop3Protocol.retrieveMessageTop(i, 100);
+            assertNotNull(r);
+            r.close();
+        }
+        
+        ContainerUtil.dispose(mockMailRepository);
+    }
+    */
+    
 
 }
