@@ -106,6 +106,14 @@
       </snapshots>
     </repository>
  -->
+ 
+    <repository>
+      <id>java.net</id>
+      <name>Java Net main repository</name>
+      <url>https://maven-repository.dev.java.net/nonav/repository/</url>
+      <snapshots><enabled>true</enabled></snapshots>
+      <layout>legacy</layout>
+    </repository>
      
     <repository>
       <id>ibiblio</id>
@@ -142,7 +150,7 @@
     <dependency>
       <groupId>javax.mail</groupId>
       <artifactId>mail</artifactId>
-      <version>1.4</version>
+      <version>1.4.1ea-SNAPSHOT</version>
     </dependency>
 
     <dependency>
