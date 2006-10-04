@@ -227,10 +227,10 @@ public class SMTPServerTest extends TestCase {
             capabilitieslist.add(capabilityRes[i].substring(4));
         }
         
-        assertEquals("capabilities", 2, capabilitieslist.size());
+        assertEquals("capabilities", 3, capabilitieslist.size());
         assertTrue("capabilities present PIPELINING", capabilitieslist.contains("PIPELINING"));
         assertTrue("capabilities present ENHANCEDSTATUSCODES", capabilitieslist.contains("ENHANCEDSTATUSCODES"));
-        //assertTrue("capabilities present 8BITMIME", capabilitieslist.contains("8BITMIME"));
+        assertTrue("capabilities present 8BITMIME", capabilitieslist.contains("8BITMIME"));
 
         smtpProtocol.setSender("mail@localhost");
         smtpProtocol.addRecipient("mail@localhost");
@@ -1098,7 +1098,7 @@ public class SMTPServerTest extends TestCase {
      * This is useful code to run tests on javamail bugs 
      * http://issues.apache.org/jira/browse/JAMES-52
      * 
-     * This 
+     * This one passes with javamail 1.4.1EA
      * @throws Exception
      */
     public void test8bitmimeFromStream() throws Exception {
@@ -1116,7 +1116,97 @@ public class SMTPServerTest extends TestCase {
         mci.setProperty("gatewayPort",""+m_smtpListenerPort);
         rd.init(mci);
         
-        String sources = "Content-Type: text/plain;\r\nContent-Transfer-Encoding: quoted-printable\r\nSubject: test\r\n\r\nBody=80\r\n";
+        //String sources = "Content-Type: text/plain;\r\nContent-Transfer-Encoding: quoted-printable\r\nSubject: test\r\n\r\nBody=80\r\n";
+        String sources = "Content-Type: text/plain; charset=iso-8859-15\r\nContent-Transfer-Encoding: quoted-printable\r\nSubject: test\r\n\r\nBody=80\r\n";
+        //String sources = "Content-Type: text/plain; charset=iso-8859-15\r\nContent-Transfer-Encoding: 8bit\r\nSubject: test\r\n\r\nBody\u20AC\r\n";
+        String sender = "test@localhost";
+        String recipient = "test@localhost";
+        MimeMessage mm = new MimeMessage(Session.getDefaultInstance(new Properties()),new ByteArrayInputStream(sources.getBytes()));
+        MailImpl mail = new MailImpl("name",new MailAddress(sender),Arrays.asList(new MailAddress[] {new MailAddress(recipient)}),mm);
+        
+        rd.service(mail);
+        
+        while (outgoingSpool.size() > 0) {
+            Thread.sleep(1000);
+        }
+
+        // verifyLastMail(sender, recipient, mm);
+        verifyLastMail(sender, recipient, null);
+        
+        // THIS WOULD FAIL BECAUSE OF THE JAVAMAIL BUG
+        assertEquals(mm.getContent(),m_mailServer.getLastMail().getMessage().getContent());
+        
+        mail.dispose();
+    }
+    
+    /**
+     * This is useful code to run tests on javamail bugs 
+     * http://issues.apache.org/jira/browse/JAMES-52
+     * 
+     * This one passes with javamail 1.4.1EA
+     * @throws Exception
+     */
+    public void test8bitmimeFromStreamWith8bitContent() throws Exception {
+        finishSetUp(m_testConfiguration);
+        outgoingSpool = new InMemorySpoolRepository();
+        ((MockStore) m_serviceManager.lookup(Store.ROLE)).add("outgoing", outgoingSpool);
+        
+        RemoteDelivery rd = new RemoteDelivery();
+        
+        MockMailContext mmc = new MockMailContext();
+        mmc.setAttribute(Constants.AVALON_COMPONENT_MANAGER,m_serviceManager);
+        mmc.setAttribute(Constants.HELLO_NAME,"localhost");
+        MockMailetConfig mci = new MockMailetConfig("Test",mmc,getStandardParameters());
+        mci.setProperty("gateway","127.0.0.1");
+        mci.setProperty("gatewayPort",""+m_smtpListenerPort);
+        rd.init(mci);
+        
+        //String sources = "Content-Type: text/plain;\r\nContent-Transfer-Encoding: quoted-printable\r\nSubject: test\r\n\r\nBody=80\r\n";
+        //String sources = "Content-Type: text/plain; charset=iso-8859-15\r\nContent-Transfer-Encoding: quoted-printable\r\nSubject: test\r\n\r\nBody=80\r\n";
+        String sources = "Content-Type: text/plain; charset=iso-8859-15\r\nContent-Transfer-Encoding: 8bit\r\nSubject: test\r\n\r\nBody\u20AC\r\n";
+        String sender = "test@localhost";
+        String recipient = "test@localhost";
+        MimeMessage mm = new MimeMessage(Session.getDefaultInstance(new Properties()),new ByteArrayInputStream(sources.getBytes()));
+        MailImpl mail = new MailImpl("name",new MailAddress(sender),Arrays.asList(new MailAddress[] {new MailAddress(recipient)}),mm);
+        
+        rd.service(mail);
+        
+        while (outgoingSpool.size() > 0) {
+            Thread.sleep(1000);
+        }
+
+        // verifyLastMail(sender, recipient, mm);
+        verifyLastMail(sender, recipient, null);
+        
+        // THIS WOULD FAIL BECAUSE OF THE JAVAMAIL BUG
+        assertEquals(mm.getContent(),m_mailServer.getLastMail().getMessage().getContent());
+        
+        mail.dispose();
+    }
+    
+    /**
+     * This is useful code to run tests on javamail bugs 
+     * http://issues.apache.org/jira/browse/JAMES-52
+     * 
+     * This one passes with javamail 1.4.1EA
+     * @throws Exception
+     */
+    public void test8bitmimeFromStreamWithoutContentTransferEncoding() throws Exception {
+        finishSetUp(m_testConfiguration);
+        outgoingSpool = new InMemorySpoolRepository();
+        ((MockStore) m_serviceManager.lookup(Store.ROLE)).add("outgoing", outgoingSpool);
+        
+        RemoteDelivery rd = new RemoteDelivery();
+        
+        MockMailContext mmc = new MockMailContext();
+        mmc.setAttribute(Constants.AVALON_COMPONENT_MANAGER,m_serviceManager);
+        mmc.setAttribute(Constants.HELLO_NAME,"localhost");
+        MockMailetConfig mci = new MockMailetConfig("Test",mmc,getStandardParameters());
+        mci.setProperty("gateway","127.0.0.1");
+        mci.setProperty("gatewayPort",""+m_smtpListenerPort);
+        rd.init(mci);
+        
+        String sources = "Content-Type: text/plain;\r\nSubject: test\r\n\r\nBody\u03B2\r\n";
         //String sources = "Content-Type: text/plain; charset=iso-8859-15\r\nContent-Transfer-Encoding: quoted-printable\r\nSubject: test\r\n\r\nBody=80\r\n";
         //String sources = "Content-Type: text/plain; charset=iso-8859-15\r\nContent-Transfer-Encoding: 8bit\r\nSubject: test\r\n\r\nBody\u20AC\r\n";
         String sender = "test@localhost";
@@ -1134,7 +1224,98 @@ public class SMTPServerTest extends TestCase {
         verifyLastMail(sender, recipient, null);
         
         // THIS WOULD FAIL BECAUSE OF THE JAVAMAIL BUG
-        // assertEquals(mm.getContent(),((MimeMessage) m_mailServer.getLastMail()[2]).getContent());
+        assertEquals(mm.getContent(),m_mailServer.getLastMail().getMessage().getContent());
+        
+        mail.dispose();
+    }
+    
+    /**
+     * This is useful code to run tests on javamail bugs 
+     * http://issues.apache.org/jira/browse/JAMES-52
+     * 
+     * This one passes with javamail 1.4.1EA
+     * @throws Exception
+     */
+    public void test8bitmimeFromStreamWithoutContentTransferEncodingSentAs8bit() throws Exception {
+        finishSetUp(m_testConfiguration);
+        outgoingSpool = new InMemorySpoolRepository();
+        ((MockStore) m_serviceManager.lookup(Store.ROLE)).add("outgoing", outgoingSpool);
+        
+        RemoteDelivery rd = new RemoteDelivery();
+        
+        MockMailContext mmc = new MockMailContext();
+        mmc.setAttribute(Constants.AVALON_COMPONENT_MANAGER,m_serviceManager);
+        mmc.setAttribute(Constants.HELLO_NAME,"localhost");
+        MockMailetConfig mci = new MockMailetConfig("Test",mmc,getStandardParameters());
+        mci.setProperty("gateway","127.0.0.1");
+        mci.setProperty("gatewayPort",""+m_smtpListenerPort);
+        rd.init(mci);
+        
+        String sources = "Content-Type: text/plain;\r\nSubject: test\r\n\r\nBody=32=48\r\n";
+        //String sources = "Content-Type: text/plain; charset=iso-8859-15\r\nContent-Transfer-Encoding: quoted-printable\r\nSubject: test\r\n\r\nBody=80\r\n";
+        //String sources = "Content-Type: text/plain; charset=iso-8859-15\r\nContent-Transfer-Encoding: 8bit\r\nSubject: test\r\n\r\nBody\u20AC\r\n";
+        String sender = "test@localhost";
+        String recipient = "test@localhost";
+        MimeMessage mm = new MimeMessage(Session.getDefaultInstance(new Properties()),new ByteArrayInputStream(sources.getBytes()));
+        MailImpl mail = new MailImpl("name",new MailAddress(sender),Arrays.asList(new MailAddress[] {new MailAddress(recipient)}),mm);
+        
+        rd.service(mail);
+        
+        while (outgoingSpool.size() > 0) {
+            Thread.sleep(1000);
+        }
+
+        // verifyLastMail(sender, recipient, mm);
+        verifyLastMail(sender, recipient, null);
+        
+        // THIS WOULD FAIL BECAUSE OF THE JAVAMAIL BUG
+        assertEquals(mm.getContent(),m_mailServer.getLastMail().getMessage().getContent());
+        
+        mail.dispose();
+    }
+    
+    /**
+     * This is useful code to run tests on javamail bugs 
+     * http://issues.apache.org/jira/browse/JAMES-52
+     * 
+     * This one passes with javamail 1.4.1EA
+     * @throws Exception
+     */
+    public void test8bitmimeWith8bitmimeDisabledInServer() throws Exception {
+        finishSetUp(m_testConfiguration);
+        outgoingSpool = new InMemorySpoolRepository();
+        ((MockStore) m_serviceManager.lookup(Store.ROLE)).add("outgoing", outgoingSpool);
+        
+        RemoteDelivery rd = new RemoteDelivery();
+        
+        MockMailContext mmc = new MockMailContext();
+        mmc.setAttribute(Constants.AVALON_COMPONENT_MANAGER,m_serviceManager);
+        mmc.setAttribute(Constants.HELLO_NAME,"localhost");
+        MockMailetConfig mci = new MockMailetConfig("Test",mmc,getStandardParameters());
+        mci.setProperty("gateway","127.0.0.1");
+        mci.setProperty("gatewayPort",""+m_smtpListenerPort);
+        mci.setProperty("mail.smtp.allow8bitmime", "false");
+        rd.init(mci);
+        
+        //String sources = "Content-Type: text/plain;\r\nSubject: test\r\n\r\nBody=32=48\r\n";
+        //String sources = "Content-Type: text/plain; charset=iso-8859-15\r\nContent-Transfer-Encoding: quoted-printable\r\nSubject: test\r\n\r\nBody=80\r\n";
+        String sources = "Content-Type: text/plain; charset=iso-8859-15\r\nContent-Transfer-Encoding: 8bit\r\nSubject: test\r\n\r\nBody\u20AC\r\n";
+        String sender = "test@localhost";
+        String recipient = "test@localhost";
+        MimeMessage mm = new MimeMessage(Session.getDefaultInstance(new Properties()),new ByteArrayInputStream(sources.getBytes()));
+        MailImpl mail = new MailImpl("name",new MailAddress(sender),Arrays.asList(new MailAddress[] {new MailAddress(recipient)}),mm);
+        
+        rd.service(mail);
+        
+        while (outgoingSpool.size() > 0) {
+            Thread.sleep(1000);
+        }
+
+        // verifyLastMail(sender, recipient, mm);
+        verifyLastMail(sender, recipient, null);
+        
+        // THIS WOULD FAIL BECAUSE OF THE JAVAMAIL BUG
+        assertEquals(mm.getContent(),m_mailServer.getLastMail().getMessage().getContent());
         
         mail.dispose();
     }
