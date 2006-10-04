@@ -215,7 +215,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
 
     private Perl5Matcher delayTimeMatcher; //matcher use at init time to parse delaytime parameters
     private MultipleDelayFilter delayFilter = new MultipleDelayFilter ();//used by accept to selcet the next mail ready for processing
-
+    private Properties defprops = new Properties(); // default properties for the javamail Session
     
     /**
      * Initialize the mailet
@@ -361,6 +361,14 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         } catch (UnknownHostException e) {
             log("Invalid bind setting (" + bindAddress + "): " + e.toString());
         }
+        Iterator i = getInitParameterNames();
+        while (i.hasNext()) {
+            String name = (String) i.next();
+            if (name.startsWith("mail.")) {
+                defprops.put(name,getInitParameter(name));
+            }
+            
+        }  
     }
 
     /*
@@ -517,7 +525,6 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                             // rfc-compliant smtp server.
                             
                             // Temporarily disabled. See JAMES-638
-                            /*
                             if (!smtpTransport.supportsExtension("8BITMIME")) { 
                                 try {
                                     convertTo7Bit(message);
@@ -527,20 +534,6 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                                     
                                     log("Error during the conversion to 7 bit.", e);
                                 }
-                            }
-                            */
-                            
-                            /*
-                             * Workaround for a javamail 1.3.2 bug: if
-                             * a message is sent without encoding information
-                             * and the 8bit allow property is set an exception
-                             * is trown during the mail delivery.
-                             */
-                            
-                            try {
-                                setEncodingIfMissing(message);
-                            } catch (IOException e) {
-                                log("Error while adding encoding information to the message", e);
                             }
                         } else {
                             // If the transport is not the one
@@ -777,32 +770,6 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                 // if the part doesn't contain text it will be base64 encoded.
                 part.setHeader("Content-Transfer-Encoding", "base64");
                 part.addHeader("X-MIME-Autoconverted", "from 8bit to base64 by "+getMailetContext().getServerInfo());
-            }
-        }
-    }
-    
-    /**
-     * Adds an encoding information to each text mime part. This is a workaround
-     * for a javamail 1.3.2 bug: if a message is sent without encoding
-     * information a null pointer exception is thrown during the message
-     * delivery.
-     * 
-     * @param part
-     * @throws MessagingException
-     * @throws IOException
-     */
-    private void setEncodingIfMissing(MimePart part) throws MessagingException, IOException {
-        if (part.isMimeType("text/*")) {
-            String enc = part.getEncoding();
-            if (enc == null) part.setHeader("Content-Transfer-Encoding", "7bit");
-        } else if (part.isMimeType("multipart/*")) {
-            Object content = part.getContent();
-            if (content instanceof MimeMultipart) {
-                MimeMultipart parts = (MimeMultipart) content;
-                int count = parts.getCount();
-                for (int i = 0; i < count; i++) {
-                    setEncodingIfMissing((MimePart)parts.getBodyPart(i));
-                }
             }
         }
     }
@@ -1066,7 +1033,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         // send 8 bit data to the server (if it supports the 8bitmime extension).
         // 2006/03/01 reverted to false because of a javamail bug converting to 8bit
         // messages created by an inputstream.
-        props.setProperty("mail.smtp.allow8bitmime", "false");
+        props.setProperty("mail.smtp.allow8bitmime", "true");
         //Sets timeout on going connections
         props.put("mail.smtp.timeout", smtpTimeout + "");
 
@@ -1096,6 +1063,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         if (authUser != null) {
             props.put("mail.smtp.auth","true");
         }
+        
+        props.putAll(defprops);
 
         Session session = Session.getInstance(props, null);
         try {
