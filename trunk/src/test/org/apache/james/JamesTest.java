@@ -93,12 +93,12 @@ public class JamesTest extends MailServerTestAllImplementations {
     }
     
     private DNSServer setUpDNSServer() {
-	DNSServer dns = new AbstractDNSServer() {
-	    public String getHostName(InetAddress addr) {
-		return "localhost";
-	    }
-	};
-	return dns;
+    DNSServer dns = new AbstractDNSServer() {
+        public String getHostName(InetAddress addr) {
+        return "localhost";
+        }
+    };
+    return dns;
     }
 
     public boolean allowsPasswordlessUser() {

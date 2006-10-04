@@ -536,11 +536,11 @@ public class DNSServer
      * @see org.apache.james.services.DNSServer#getHostName(java.net.InetAddress)
      */
     public String getHostName(InetAddress addr){
-	try {
+    try {
             return org.xbill.DNS.Address.getHostName(addr);
-	} catch (UnknownHostException e) {
-	    return addr.getHostAddress();
-	}
+    } catch (UnknownHostException e) {
+        return addr.getHostAddress();
+    }
     }
 
 }
