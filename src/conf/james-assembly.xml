@@ -128,6 +128,7 @@
              role="org.apache.james.nntpserver.repository.NNTPRepository"/>
     <provide name="thread-manager"
              role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
+    <provide name="dnsserver" role="org.apache.james.services.DNSServer"/>
   </block>
 
   <!-- NNTP Repository -->
