@@ -28,6 +28,7 @@ import javax.mail.*;
 import javax.mail.search.SearchTerm;
 import javax.activation.DataHandler;
 import java.util.*;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -263,7 +264,10 @@ public class MockMimeMessage extends MimeMessage {
     }
 
     public InputStream getRawInputStream() throws MessagingException {
-        return null; // trivial implementation
+        if (m_content instanceof String) {
+            return new ByteArrayInputStream(m_content.toString().getBytes());
+        }
+        throw new UnsupportedOperationException("Unimplementated method");
     }
 
     public synchronized DataHandler getDataHandler() throws MessagingException {
