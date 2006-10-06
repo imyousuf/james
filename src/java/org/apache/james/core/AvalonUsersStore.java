@@ -22,7 +22,6 @@
 package org.apache.james.core;
 
 import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.component.Composable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -124,11 +123,7 @@ public class AvalonUsersStore
 
             ContainerUtil.contextualize(rep,context);
             ContainerUtil.service(rep,manager);
-            if (rep instanceof Composable) {
-                final String error = "no implementation in place to support Composable";
-                getLogger().error( error );
-                throw new IllegalArgumentException( error );
-            }
+
             ContainerUtil.configure(rep,repConf);
             ContainerUtil.initialize(rep);
             

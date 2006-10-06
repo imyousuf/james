@@ -21,7 +21,6 @@
 
 package org.apache.james.userrepository;
 
-import org.apache.avalon.framework.component.Component;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.services.User;
 import org.apache.james.services.UsersRepository;
@@ -38,7 +37,7 @@ import java.util.List;
  */
 public abstract class AbstractUsersRepository
     extends AbstractLogEnabled
-    implements UsersRepository, Component {
+    implements UsersRepository {
 
     //
     // Core Abstract methods - override these for a functional UserRepository.
