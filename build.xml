@@ -400,6 +400,7 @@
     <target name="website" depends="xdocs,javadocs">
 
         <echo message="preparing website in ${www.dir}"/>
+    	<mkdir dir='${www.dir}'/>
         <delete>
             <fileset dir="${www.dir}">
                 <exclude name="rfclist/**"/>
@@ -407,7 +408,7 @@
                 <exclude name="mailet/**"/>
             </fileset>
         </delete>
-        <mkdir dir="${www.dir}"/>
+
         <copy todir="${www.dir}" filtering="no">
             <fileset dir="${build.docs}"/>
         </copy>
