@@ -26,17 +26,16 @@ import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.context.Context;
-import org.apache.avalon.framework.context.ContextException;
-import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
+import org.apache.james.services.FileSystem;
 import org.apache.james.util.io.ExtensionFileFilter;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -51,7 +50,7 @@ import java.util.Iterator;
  */
 public abstract class AbstractFileRepository
     extends AbstractLogEnabled
-    implements Repository, Contextualizable, Serviceable, Configurable, Initializable
+    implements Repository, Serviceable, Configurable, Initializable
 {
     protected static final boolean DEBUG = false;
 
@@ -74,27 +73,17 @@ public abstract class AbstractFileRepository
     protected abstract String getExtensionDecorator();
 
     /**
-     * @see org.apache.avalon.framework.context.Contextualizable#contextualize(Context)
-     */
-    public void contextualize( final Context context ) throws ContextException
-    {
-        try
-        {
-            m_baseDirectory = (File) context.get( "urn:avalon:home" );
-        }
-        catch( ContextException ce )
-        {
-            m_baseDirectory = (File) context.get( "app.home" );
-        }
-    }
-
-    /**
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
     public void service( final ServiceManager serviceManager )
         throws ServiceException
     {
         m_serviceManager = serviceManager;
+        try {
+            m_baseDirectory = ((FileSystem) serviceManager.lookup(FileSystem.ROLE)).getBasedir();
+        } catch (FileNotFoundException e) {
+            throw new ServiceException(FileSystem.ROLE, "Cannot find the base directory of the application", e);
+        }
     }
 
     /**

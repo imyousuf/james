@@ -43,14 +43,11 @@ import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.context.Context;
-import org.apache.avalon.framework.context.ContextException;
-import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
-import org.apache.james.context.AvalonContextUtilities;
 import org.apache.james.services.BayesianAnalyzerManagementService;
+import org.apache.james.services.FileSystem;
 import org.apache.james.util.JDBCBayesianAnalyzer;
 
 import com.thoughtworks.xstream.XStream;
@@ -59,15 +56,15 @@ import com.thoughtworks.xstream.io.xml.DomDriver;
 /**
  * Management for BayesianAnalyzer
  */
-public class BayesianAnalyzerManagement implements BayesianAnalyzerManagementService, Serviceable, Initializable, Contextualizable, Configurable, BayesianAnalyzerManagementMBean {
+public class BayesianAnalyzerManagement implements BayesianAnalyzerManagementService, Serviceable, Initializable, Configurable, BayesianAnalyzerManagementMBean {
 
     private final static String HAM = "HAM";
     private final static String SPAM = "SPAM";
     private DataSourceSelector selector;
     private DataSourceComponent component;
     private String repos;
-    private Context context;
     private String sqlFileUrl = "file://conf/sqlResources.xml";
+    private FileSystem fileSystem;
     
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
@@ -75,6 +72,16 @@ public class BayesianAnalyzerManagement implements BayesianAnalyzerManagementSer
     public void service(ServiceManager arg0) throws ServiceException {
         DataSourceSelector selector = (DataSourceSelector) arg0.lookup(DataSourceSelector.ROLE);
         setDataSourceSelector(selector);
+        setFileSystem((FileSystem) arg0.lookup(FileSystem.ROLE));
+    }
+
+    /**
+     * Sets the file system service
+     * 
+     * @param system new service
+     */
+    private void setFileSystem(FileSystem system) {
+        this.fileSystem = system;
     }
 
     /**
@@ -83,16 +90,9 @@ public class BayesianAnalyzerManagement implements BayesianAnalyzerManagementSer
     public void initialize() throws Exception {
         if (repos != null) {
             setDataSourceComponent((DataSourceComponent) selector.select(repos));
-            File sqlFile = AvalonContextUtilities.getFile(context, sqlFileUrl);
+            File sqlFile = fileSystem.getFile(sqlFileUrl);
             analyzer.initSqlQueries(component.getConnection(), sqlFile.getAbsolutePath());
         }
-    }
-
-    /**
-     * @see org.apache.avalon.framework.context.Contextualizable#contextualize(Context)
-     */
-    public void contextualize(Context arg0) throws ContextException {
-        this.context = arg0;
     }
 
     /**

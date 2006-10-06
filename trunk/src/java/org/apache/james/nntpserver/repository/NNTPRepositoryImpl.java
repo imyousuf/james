@@ -26,13 +26,13 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.avalon.framework.context.Context;
-import org.apache.avalon.framework.context.ContextException;
-import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.context.AvalonContextUtilities;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.nntpserver.DateSinceFileFilter;
 import org.apache.james.nntpserver.NNTPException;
+import org.apache.james.services.FileSystem;
 import org.apache.james.util.io.AndFileFilter;
 import org.apache.james.util.io.DirectoryFileFilter;
 import org.apache.oro.io.GlobFilenameFilter;
@@ -52,12 +52,7 @@ import java.util.Set;
  * NNTP Repository implementation.
  */
 public class NNTPRepositoryImpl extends AbstractLogEnabled 
-    implements NNTPRepository, Contextualizable, Configurable, Initializable {
-
-    /**
-     * The context employed by this repository
-     */
-    private Context context;
+    implements NNTPRepository, Serviceable, Configurable, Initializable {
 
     /**
      * The configuration employed by this repository
@@ -140,12 +135,14 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
     private HashMap repositoryGroups = new HashMap();
 
     /**
-     * @see org.apache.avalon.framework.context.Contextualizable#contextualize(Context)
+     * The service manager
      */
-    public void contextualize(Context context)
-            throws ContextException {
-        this.context = context;
-    }
+    private ServiceManager serviceManager;
+
+    /**
+     * The fileSystem service
+     */
+    private FileSystem fileSystem;
 
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
@@ -201,9 +198,9 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
         File articleIDPath = null;
 
         try {
-            rootPath = AvalonContextUtilities.getFile(context, rootPathString);
-            tempPath = AvalonContextUtilities.getFile(context, tempPathString);
-            articleIDPath = AvalonContextUtilities.getFile(context, articleIdPathString);
+            rootPath = fileSystem.getFile(rootPathString);
+            tempPath = fileSystem.getFile(tempPathString);
+            articleIDPath = fileSystem.getFile(articleIdPathString);
         } catch (Exception e) {
             getLogger().fatalError(e.getMessage(), e);
             throw e;
@@ -291,7 +288,6 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
                 try {
                     groupToReturn = new NNTPGroupImpl(groupFile);
                     ContainerUtil.enableLogging(groupToReturn, getLogger());
-                    ContainerUtil.contextualize(groupToReturn, context);
                     ContainerUtil.initialize(groupToReturn);
                     repositoryGroups.put(groupName, groupToReturn);
                 } catch (Exception e) {
@@ -439,6 +435,22 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
                 }
             };
     }
+    
+    /**
+     * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
+     */
+    public void service(ServiceManager serviceManager) throws ServiceException {
+        this.serviceManager = serviceManager;
+        setFileSystem((FileSystem) serviceManager.lookup(FileSystem.ROLE));
+    }
+
+    /**
+     * Setter for the FileSystem dependency
+     * @param system filesystem service
+     */
+    private void setFileSystem(FileSystem system) {
+        this.fileSystem = system;
+    }
 
     /**
      * @see org.apache.james.nntpserver.repository.NNTPRepository#getOverviewFormat()
@@ -464,9 +476,8 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
         }
         try {
             Object obj = Thread.currentThread().getContextClassLoader().loadClass(className).newInstance();
-            // TODO: Need to support service
             ContainerUtil.enableLogging(obj, getLogger());
-            ContainerUtil.contextualize(obj, context);
+            ContainerUtil.service(obj, serviceManager);
             ContainerUtil.configure(obj, spoolerConfiguration.getChild("configuration"));
             ContainerUtil.initialize(obj);
             return (NNTPSpooler)obj;

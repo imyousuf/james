@@ -29,6 +29,7 @@
     <provide name="users-store" role="org.apache.james.services.UsersStore"/>
     <provide name="localusersrepository" role="org.apache.james.services.UsersRepository"/>
     <provide name="spoolrepository" role="org.apache.james.services.SpoolRepository"/>
+    <provide name="filesystem" role="org.apache.james.services.FileSystem" />
     <provide name="sockets"
              role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
     <provide name="scheduler"
@@ -46,10 +47,12 @@
 
   <block name="matcherpackages" class="org.apache.james.transport.JamesMatcherLoader" >
     <provide name="James" role="org.apache.mailet.MailetContext"/>
+    <provide name="filesystem" role="org.apache.james.services.FileSystem" />
   </block>
 
   <block name="mailetpackages" class="org.apache.james.transport.JamesMailetLoader" >
     <provide name="James" role="org.apache.mailet.MailetContext"/>
+    <provide name="filesystem" role="org.apache.james.services.FileSystem" />
   </block>
 
   <block name="dnsserver" class="org.apache.james.dnsserver.DNSServer" />
@@ -62,6 +65,7 @@
   <block name="bayesiananalyzermanagement" class="org.apache.james.management.BayesianAnalyzerManagement" >
       <provide name="database-connections"
              role="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector" />
+    <provide name="filesystem" role="org.apache.james.services.FileSystem" />
   </block>
 
   <block name="remotemanager" class="org.apache.james.remotemanager.RemoteManager" >
@@ -115,6 +119,7 @@
              role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
     <provide name="database-connections"
              role="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector" />
+    <provide name="filesystem" role="org.apache.james.services.FileSystem" />
   </block>
 
   <!-- NNTP Server -->
@@ -132,7 +137,9 @@
   </block>
 
   <!-- NNTP Repository -->
-  <block name="nntp-repository" class="org.apache.james.nntpserver.repository.NNTPRepositoryImpl" />
+  <block name="nntp-repository" class="org.apache.james.nntpserver.repository.NNTPRepositoryImpl">
+    <provide name="filesystem" role="org.apache.james.services.FileSystem" />
+  </block>
 
   <!-- FetchMail Service -->
   <block name="fetchmail" class="org.apache.james.fetchmail.FetchScheduler" >
@@ -147,6 +154,7 @@
   <block name="mailstore" class="org.apache.james.core.AvalonMailStore" >
     <provide name="database-connections"
              role="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector" />
+    <provide name="filesystem" role="org.apache.james.services.FileSystem" />
   </block>
   
   <!-- The main SpoolRepository -->
@@ -162,12 +170,17 @@
              role="org.apache.avalon.cornerstone.services.store.Store"/>
     <provide name="database-connections"
              role="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector" />
+    <provide name="filesystem" role="org.apache.james.services.FileSystem" />
   </block>
 
   <!-- This is needed to link the smtpserver to the local user repository -->
   <block name="localusersrepository" class="org.apache.james.core.LocalUsersRepository">
     <provide name="users-store"
              role="org.apache.james.services.UsersStore"/>
+  </block>
+
+  <!-- The context FileSystem implementation -->
+  <block name="filesystem" class="org.apache.james.context.AvalonFileSystem">
   </block>
   
   <!-- Configuration for Cornerstone Blocks only after here

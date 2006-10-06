@@ -39,16 +39,13 @@ import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.context.Context;
-import org.apache.avalon.framework.context.ContextException;
-import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 
-import org.apache.james.context.AvalonContextUtilities;
 import org.apache.james.services.DNSServer;
+import org.apache.james.services.FileSystem;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.JDBCUtil;
@@ -62,12 +59,13 @@ import org.apache.mailet.MailAddress;
  * GreylistHandler which can be used to activate Greylisting
  */
 public class GreylistHandler extends AbstractLogEnabled implements
-    CommandHandler, Configurable, Serviceable, Contextualizable,
-    Initializable {
+    CommandHandler, Configurable, Serviceable, Initializable {
 
     private DataSourceSelector datasources = null;
 
     private DataSourceComponent datasource = null;
+
+    private FileSystem fileSystem = null;
 
     // 1 hour
     private long tempBlockTime = 3600000;
@@ -111,8 +109,6 @@ public class GreylistHandler extends AbstractLogEnabled implements
     private DNSServer dnsServer;
 
     private NetMatcher wNetworks;
-
-    private Context context;
 
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
@@ -193,13 +189,7 @@ public class GreylistHandler extends AbstractLogEnabled implements
     public void service(ServiceManager serviceMan) throws ServiceException {
         setDataSources((DataSourceSelector) serviceMan.lookup(DataSourceSelector.ROLE));
         setDnsServer((DNSServer) serviceMan.lookup(DNSServer.ROLE));
-    }
-
-    /**
-     * @see org.apache.avalon.framework.context.Contextualizable#contextualize(Context)
-     */
-    public void contextualize(final Context context) throws ContextException {
-        this.context = context;
+        setFileSystem((FileSystem) serviceMan.lookup(FileSystem.ROLE));
     }
 
     /**
@@ -241,6 +231,16 @@ public class GreylistHandler extends AbstractLogEnabled implements
     public void setDataSources(DataSourceSelector datasources) {
         this.datasources = datasources;
     }
+
+    /**
+     * Sets the filesystem service
+     * 
+     * @param system The filesystem service
+     */
+    private void setFileSystem(FileSystem system) {
+        this.fileSystem = system;
+    }
+
 
     /**
      * Set the datasource
@@ -599,7 +599,7 @@ public class GreylistHandler extends AbstractLogEnabled implements
             File sqlFile = null;
     
             try {
-                sqlFile = AvalonContextUtilities.getFile(context, sqlFileUrl);
+                sqlFile = fileSystem.getFile(sqlFileUrl);
                 sqlFileUrl = null;
             } catch (Exception e) {
                 getLogger().fatalError(e.getMessage(), e);

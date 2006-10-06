@@ -21,6 +21,8 @@
 
 package org.apache.james.services;
 
+import org.apache.avalon.framework.service.ServiceException;
+
 import junit.framework.TestCase;
 
 /**
@@ -30,7 +32,7 @@ abstract public class MailServerTestAllImplementations extends TestCase {
     
     protected static final String EXISTING_USER_NAME = "testExistingUserName";
 
-    abstract public MailServer createMailServer();
+    abstract public MailServer createMailServer() throws ServiceException;
     abstract public boolean allowsPasswordlessUser();
 
     /**
@@ -41,7 +43,7 @@ abstract public class MailServerTestAllImplementations extends TestCase {
     abstract public boolean canTestUserExists();
     abstract public boolean isUserExisting(MailServer mailServerImpl, String username);
     
-    public void testId() {
+    public void testId() throws ServiceException {
         MailServer mailServer = createMailServer();
         
         String id = mailServer.getId();
@@ -49,7 +51,7 @@ abstract public class MailServerTestAllImplementations extends TestCase {
         assertFalse("mail id not empty", "".equals(id));
     }
     
-    public void testIdIncrement() {
+    public void testIdIncrement() throws ServiceException {
         MailServer mailServer = createMailServer();
         
         String id1 = mailServer.getId();
@@ -57,7 +59,7 @@ abstract public class MailServerTestAllImplementations extends TestCase {
         assertFalse("next id is different", id1.equals(id2));
     }
     
-    public void testAddUser() {
+    public void testAddUser() throws ServiceException {
         
         // addUser acts on field localUsers for class org.apache.james.James 
         // thus, it is unrelated to getUserInbox() for the only known implementation of MailServer
@@ -97,7 +99,7 @@ abstract public class MailServerTestAllImplementations extends TestCase {
         
     }
 
-    public void testGetNonexistingUserInbox() {
+    public void testGetNonexistingUserInbox() throws ServiceException {
 
         MailServer mailServer = createMailServer();
 
@@ -108,7 +110,7 @@ abstract public class MailServerTestAllImplementations extends TestCase {
         assertEquals("test user does not exist", null, userInbox);
     }
     
-    public void testGetExisitingUserInbox() {
+    public void testGetExisitingUserInbox() throws ServiceException {
         MailServer mailServer = createMailServer();
 
         MailRepository userInbox = mailServer.getUserInbox(EXISTING_USER_NAME);

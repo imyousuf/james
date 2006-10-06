@@ -26,9 +26,6 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.avalon.framework.context.Context;
-import org.apache.avalon.framework.context.ContextException;
-import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
@@ -45,18 +42,13 @@ import java.util.Iterator;
  */
 public class AvalonUsersStore
     extends AbstractLogEnabled
-    implements Contextualizable, Serviceable, Configurable, Initializable, UsersStore {
+    implements Serviceable, Configurable, Initializable, UsersStore {
 
     /**
      * A mapping of respository identifiers to actual repositories
      * This mapping is obtained from the component configuration
      */
     private HashMap repositories;
-
-    /**
-     * The Avalon context used by the instance
-     */
-    protected Context                context;
 
     /**
      * The Avalon configuration used by the instance
@@ -67,14 +59,6 @@ public class AvalonUsersStore
      * The Avalon component manager used by the instance
      */
     protected ServiceManager       manager;
-
-    /**
-     * @see org.apache.avalon.framework.context.Contextualizable#contextualize(Context)
-     */
-    public void contextualize(final Context context)
-            throws ContextException {
-        this.context = context;
-    }
 
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
@@ -121,7 +105,6 @@ public class AvalonUsersStore
 
             setupLogger(rep);
 
-            ContainerUtil.contextualize(rep,context);
             ContainerUtil.service(rep,manager);
 
             ContainerUtil.configure(rep,repConf);

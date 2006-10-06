@@ -32,9 +32,6 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.avalon.framework.context.Context;
-import org.apache.avalon.framework.context.ContextException;
-import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.commons.collections.ReferenceMap;
 
@@ -48,7 +45,7 @@ import java.util.Map;
  */
 public class AvalonMailStore
     extends AbstractLogEnabled
-    implements Contextualizable, Serviceable, Configurable, Initializable, Store {
+    implements Serviceable, Configurable, Initializable, Store {
 
     // Prefix for repository names
     private static final String REPOSITORY_NAME = "Repository";
@@ -67,11 +64,6 @@ public class AvalonMailStore
     private Map defaultConfigs;
 
     /**
-     * The Avalon context used by the instance
-     */
-    protected Context                context;
-
-    /**
      * The Avalon configuration used by the instance
      */
     protected Configuration          configuration;
@@ -80,14 +72,6 @@ public class AvalonMailStore
      * The Avalon component manager used by the instance
      */
     protected ServiceManager       m_manager;
-
-    /**
-     * @see org.apache.avalon.framework.context.Contextualizable#contextualize(Context)
-     */
-    public void contextualize(final Context context)
-            throws ContextException {
-        this.context = context;
-    }
 
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
@@ -276,7 +260,6 @@ public class AvalonMailStore
                 try {
                     reply = Thread.currentThread().getContextClassLoader().loadClass(repClass).newInstance();
                     ContainerUtil.enableLogging(reply,getLogger());
-                    ContainerUtil.contextualize(reply,context);
                     ContainerUtil.service(reply,m_manager);
 
                     ContainerUtil.configure(reply,config);

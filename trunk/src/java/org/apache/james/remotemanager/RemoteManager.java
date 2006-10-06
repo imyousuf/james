@@ -24,7 +24,6 @@ package org.apache.james.remotemanager;
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.core.AbstractJamesService;
@@ -45,7 +44,7 @@ import java.util.HashMap;
  * @version 1.0.0, 24/04/1999
  */
 public class RemoteManager
-    extends AbstractJamesService implements RemoteManagerMBean, Contextualizable {
+    extends AbstractJamesService implements RemoteManagerMBean {
 
     /**
      * A HashMap of (user id, passwords) for James administrators

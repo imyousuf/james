@@ -22,12 +22,13 @@ package org.apache.james.mailrepository;
 
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.avalon.framework.service.DefaultServiceManager;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageInputStreamSource;
 import org.apache.james.mailrepository.filepair.File_Persistent_Object_Repository;
 import org.apache.james.mailrepository.filepair.File_Persistent_Stream_Repository;
-import org.apache.james.test.mock.avalon.MockContext;
+import org.apache.james.services.FileSystem;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockStore;
 import org.apache.mailet.Mail;
@@ -38,6 +39,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.util.SharedByteArrayInputStream;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -54,11 +56,22 @@ public class AvalonMailRepositoryTest extends TestCase {
      * http://issues.apache.org/jira/browse/JAMES-559
      */
     public void testJames559() throws Exception {
+        DefaultServiceManager serviceManager = new DefaultServiceManager();
+        serviceManager.put(FileSystem.ROLE, new FileSystem() {
+
+            public File getBasedir() throws FileNotFoundException {
+                return new File(".");
+            }
+
+            public File getFile(String fileURL) throws FileNotFoundException {
+                throw new UnsupportedOperationException();
+            }
+            
+        });
         AvalonMailRepository mr = new AvalonMailRepository();
         MockStore mockStore = new MockStore();
         File_Persistent_Stream_Repository file_Persistent_Stream_Repository = new File_Persistent_Stream_Repository();
-        MockContext mockContext = new MockContext(new File("."));
-        file_Persistent_Stream_Repository.contextualize(mockContext);
+        file_Persistent_Stream_Repository.service(serviceManager);
         file_Persistent_Stream_Repository.enableLogging(new MockLogger());
         DefaultConfiguration defaultConfiguration2 = new DefaultConfiguration("conf");
         defaultConfiguration2.setAttribute("destinationURL", "file://var/mr");
@@ -66,7 +79,7 @@ public class AvalonMailRepositoryTest extends TestCase {
         file_Persistent_Stream_Repository.initialize();
         mockStore.add("STREAM.mr", file_Persistent_Stream_Repository);
         File_Persistent_Object_Repository file_Persistent_Object_Repository = new File_Persistent_Object_Repository();
-        file_Persistent_Object_Repository.contextualize(mockContext);
+        file_Persistent_Object_Repository.service(serviceManager);
         file_Persistent_Object_Repository.enableLogging(new MockLogger());
         DefaultConfiguration defaultConfiguration22 = new DefaultConfiguration("conf");
         defaultConfiguration22.setAttribute("destinationURL", "file://var/mr");
@@ -120,11 +133,22 @@ public class AvalonMailRepositoryTest extends TestCase {
      * http://issues.apache.org/jira/browse/JAMES-559
      */
     public void testJames559WithoutSaveChanges() throws Exception {
+        DefaultServiceManager serviceManager = new DefaultServiceManager();
+        serviceManager.put(FileSystem.ROLE, new FileSystem() {
+
+            public File getBasedir() throws FileNotFoundException {
+                return new File(".");
+            }
+
+            public File getFile(String fileURL) throws FileNotFoundException {
+                throw new UnsupportedOperationException();
+            }
+            
+        });
         AvalonMailRepository mr = new AvalonMailRepository();
         MockStore mockStore = new MockStore();
         File_Persistent_Stream_Repository file_Persistent_Stream_Repository = new File_Persistent_Stream_Repository();
-        MockContext mockContext = new MockContext(new File("."));
-        file_Persistent_Stream_Repository.contextualize(mockContext);
+        file_Persistent_Stream_Repository.service(serviceManager);
         file_Persistent_Stream_Repository.enableLogging(new MockLogger());
         DefaultConfiguration defaultConfiguration2 = new DefaultConfiguration("conf");
         defaultConfiguration2.setAttribute("destinationURL", "file://var/mr");
@@ -132,7 +156,7 @@ public class AvalonMailRepositoryTest extends TestCase {
         file_Persistent_Stream_Repository.initialize();
         mockStore.add("STREAM.mr", file_Persistent_Stream_Repository);
         File_Persistent_Object_Repository file_Persistent_Object_Repository = new File_Persistent_Object_Repository();
-        file_Persistent_Object_Repository.contextualize(mockContext);
+        file_Persistent_Object_Repository.service(serviceManager);
         file_Persistent_Object_Repository.enableLogging(new MockLogger());
         DefaultConfiguration defaultConfiguration22 = new DefaultConfiguration("conf");
         defaultConfiguration22.setAttribute("destinationURL", "file://var/mr");
