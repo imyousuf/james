@@ -31,7 +31,6 @@ import org.apache.james.services.MailServer;
 import org.apache.james.services.MailServerTestAllImplementations;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
-import org.apache.james.test.mock.avalon.MockContext;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockServiceManager;
 import org.apache.james.test.mock.avalon.MockStore;
@@ -58,8 +57,6 @@ public class JamesTest extends MailServerTestAllImplementations {
             JamesTestConfiguration conf = new JamesTestConfiguration();
             conf.init();
             ContainerUtil.configure(james, conf);
-            tempContextFile = File.createTempFile("james_test_tempContextFile", "tmp");
-            ContainerUtil.contextualize(james, new MockContext(tempContextFile));
             ContainerUtil.initialize(james);
         } catch (Exception e) {
             e.printStackTrace();
