@@ -23,7 +23,6 @@ package org.apache.james.core;
 
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.component.Composable;
 import org.apache.avalon.framework.service.DefaultServiceManager;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.ServiceException;
@@ -280,12 +279,6 @@ public class AvalonMailStore
                     ContainerUtil.contextualize(reply,context);
                     ContainerUtil.service(reply,m_manager);
 
-                    if (reply instanceof Composable) {
-                        final String error = "no implementation in place to support Composable";
-                        getLogger().error( error );
-                        throw new IllegalArgumentException( error );
-                    }
-                    
                     ContainerUtil.configure(reply,config);
                     ContainerUtil.initialize(reply);
 
