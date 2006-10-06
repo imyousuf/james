@@ -483,6 +483,7 @@ public class MBoxMailRepository
             //System.out.println("Done Load keys!");
         } catch (FileNotFoundException e) {
             getLogger().error("Unable to save(open) file (File not found) " + mboxFile, e);
+            this.mList = new Hashtable((int)DEFAULTMLISTCAPACITY);
         } catch (IOException e) {
             getLogger().error("Unable to write file (General I/O problem) " + mboxFile, e);
         } finally {
@@ -540,10 +541,13 @@ public class MBoxMailRepository
      */
     public Iterator list() {
         loadKeys();
-        // find the first message.  This is a trick to make sure that if
-        // the file is changed out from under us, we will detect it and
-        // correct for it BEFORE we return the iterator.
-        findMessage((String) mList.keySet().iterator().next());
+        
+        if (mList.keySet().isEmpty() == false) {
+            // find the first message.  This is a trick to make sure that if
+            // the file is changed out from under us, we will detect it and
+            // correct for it BEFORE we return the iterator.
+            findMessage((String) mList.keySet().iterator().next());
+        }
         if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
             StringBuffer logBuffer =
                     new StringBuffer(128)
