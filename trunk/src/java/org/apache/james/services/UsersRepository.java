@@ -47,6 +47,10 @@ public interface UsersRepository {
      *
      * @return true if succesful, false otherwise
      * @since James 1.2.2
+     * 
+     * @deprecated James 2.4 user should be added using username/password
+     * because specific implementations of UsersRepository will support specific 
+     * implementations of users object.
      */
     boolean addUser(User user);
 
@@ -56,6 +60,9 @@ public interface UsersRepository {
      *
      * @param name the name of the user to be added
      * @param attributes see decription
+     * 
+     * @deprecated James 2.4 user is always added using username/password and
+     * eventually modified by retrieving it later.
      */
     void addUser(String name, Object attributes);
     
@@ -89,6 +96,8 @@ public interface UsersRepository {
      * @return the user being retrieved, null if the user doesn't exist
      *
      * @since James 1.2.2
+     * @deprecated James 2.4 now caseSensitive is a property of the repository
+     * implementations and the getUserByName will search according to this property.
      */
     User getUserByNameCaseInsensitive(String name);
 
@@ -130,6 +139,9 @@ public interface UsersRepository {
      *
      * @param name the name to check in the repository
      * @return whether the user is in the repository
+     * 
+     * @deprecated James 2.4 now caseSensitive is a property of the repository
+     * implementations and the contains will search according to this property.
      */
     boolean containsCaseInsensitive(String name);
 
