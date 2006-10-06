@@ -31,7 +31,6 @@ import org.apache.james.services.JamesConnectionManager;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
-import org.apache.james.test.mock.avalon.MockContext;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockServiceManager;
 import org.apache.james.test.mock.avalon.MockSocketManager;
@@ -91,7 +90,6 @@ public class RemoteManagerTest extends TestCase {
         try {
             ContainerUtil.configure(m_remoteManager, testConfiguration);
             ContainerUtil.initialize(m_remoteManager);
-            ContainerUtil.contextualize(m_remoteManager, new MockContext());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
