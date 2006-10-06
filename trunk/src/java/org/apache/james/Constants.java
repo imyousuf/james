@@ -53,12 +53,6 @@ public class Constants {
     public static final String HELLO_NAME = "HELLO_NAME";
 
     /**
-     * Context key used to store the postmaster address for
-     * this James instance in the context.
-     */
-    public static final String POSTMASTER = "POSTMASTER";
-
-    /**
      * Key used to store the component manager for
      * this James instance in a way accessible by
      * Avalon aware Mailets.
