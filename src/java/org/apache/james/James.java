@@ -30,7 +30,6 @@ import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.Contextualizable;
-import org.apache.avalon.framework.context.DefaultContext;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.service.DefaultServiceManager;
@@ -102,12 +101,6 @@ public class James
      * The component manager used both internally by James and by Mailets.
      */
     private DefaultServiceManager compMgr; //Components shared
-
-    /**
-     * TODO: Investigate what this is supposed to do.  Looks like it
-     *       was supposed to be the Mailet context.
-     */
-    private DefaultContext context;
 
     /**
      * The top level configuration object for this server.
@@ -315,8 +308,6 @@ public class James
             hostName = "localhost";
         }
 
-        context = new DefaultContext();
-        context.put("HostName", hostName);
         getLogger().info("Local host is: " + hostName);
 
         // Get the domains and hosts served by this instance
@@ -363,8 +354,6 @@ public class James
         }
 
         String defaultDomain = (String) serverNames.iterator().next();
-        // used by UsersLDAPRepository as default domain.
-        context.put(Constants.DEFAULT_DOMAIN, defaultDomain);
         // used by RemoteDelivery for HELO
         attributes.put(Constants.DEFAULT_DOMAIN, defaultDomain);
 
@@ -386,7 +375,6 @@ public class James
             postMasterAddress = postMasterAddress + "@" + (domainName != null ? domainName : hostName);
         }
         this.postmaster = new MailAddress( postMasterAddress );
-        context.put( Constants.POSTMASTER, postmaster );
 
         if (!isLocalServer(postmaster.getHost())) {
             StringBuffer warnBuffer

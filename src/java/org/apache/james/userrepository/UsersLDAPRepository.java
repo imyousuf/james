@@ -25,13 +25,9 @@ import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.context.Context;
-import org.apache.avalon.framework.context.ContextException;
-import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
-import org.apache.james.Constants;
 import org.apache.james.services.User;
 import org.apache.james.services.UsersRepository;
 
@@ -62,7 +58,7 @@ import java.util.List;
  */
 public class UsersLDAPRepository
     extends AbstractLogEnabled
-    implements UsersRepository, Serviceable, Configurable, Contextualizable, Initializable{
+    implements UsersRepository, Serviceable, Configurable, Initializable{
 
     private DirContext ctx;
 
@@ -85,14 +81,6 @@ public class UsersLDAPRepository
     private String passwordAttr;
 
     /**
-     * @see org.apache.avalon.framework.context.Contextualizable#contextualize(Context)
-     */
-    public void contextualize(Context context)
-        throws ContextException {
-        usersDomain = (String)context.get(Constants.DEFAULT_DOMAIN);
-    }
-
-    /**
      * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
      */
     public void service(ServiceManager compMgr) {
@@ -106,6 +94,7 @@ public class UsersLDAPRepository
         throws ConfigurationException {
 
         LDAPHost = conf.getChild("LDAPServer").getValue();
+        usersDomain = conf.getChild("domain").getValue("localhost");
         rootNodeDN = conf.getChild("LDAPRoot").getValue();
         serverRDN = conf.getChild("ThisServerRDN").getValue();
         mailAddressAttr
@@ -741,10 +730,6 @@ public class UsersLDAPRepository
             //System.out.println("Problem counting users. ");
         }
         return result;
-    }
-
-    public String getDomains() {
-        return usersDomain;
     }
 
     /**
