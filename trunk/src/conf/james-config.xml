@@ -1028,6 +1028,8 @@ Regards, Postmaster XXX.YYY
             <types>
                <type>MAIL</type>
             </types>
+            <!-- Set if the messages should be listed sorted. False by default -->
+            <config FIFO="false"/> 
          </repository>
          <repository class="org.apache.james.mailrepository.AvalonSpoolRepository">
             <protocols>
