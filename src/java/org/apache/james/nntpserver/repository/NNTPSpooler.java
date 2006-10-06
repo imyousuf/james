@@ -26,11 +26,11 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.avalon.framework.context.Context;
-import org.apache.avalon.framework.context.ContextException;
-import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.context.AvalonContextUtilities;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.Serviceable;
+import org.apache.james.services.FileSystem;
 import org.apache.james.util.Lock;
 import org.apache.james.util.io.IOUtil;
 
@@ -50,12 +50,7 @@ import java.util.StringTokenizer;
  *
  */
 class NNTPSpooler extends AbstractLogEnabled
-        implements Contextualizable, Configurable, Initializable {
-
-    /**
-     * The spooler context
-     */
-    private Context context;
+        implements Serviceable, Configurable, Initializable {
 
     /**
      * The array of spooler runnables, each associated with a Worker thread
@@ -78,11 +73,16 @@ class NNTPSpooler extends AbstractLogEnabled
     private int threadIdleTime = 0;
 
     /**
-     * @see org.apache.avalon.framework.context.Contextualizable#contextualize(Context)
+     * The filesystem service
      */
-    public void contextualize(final Context context)
-            throws ContextException {
-        this.context = context;
+    private FileSystem fileSystem;
+
+    /**
+     * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
+     */
+    public void service(final ServiceManager serviceManager)
+            throws ServiceException {
+        setFileSystem((FileSystem) serviceManager.lookup(FileSystem.ROLE));
     }
 
     /**
@@ -102,7 +102,7 @@ class NNTPSpooler extends AbstractLogEnabled
         //System.out.println(getClass().getName()+": init");
 
         try {
-            spoolPath = AvalonContextUtilities.getFile(context, spoolPathString);
+            spoolPath = fileSystem.getFile(spoolPathString);
             if ( spoolPath.exists() == false ) {
                 spoolPath.mkdirs();
             } else if (!(spoolPath.isDirectory())) {
@@ -219,7 +219,7 @@ class NNTPSpooler extends AbstractLogEnabled
         public void run() {
             getLogger().debug(Thread.currentThread().getName() + " is the NNTP spooler thread.");
             try {
-                while ( Thread.currentThread().interrupted() == false ) {
+                while ( Thread.interrupted() == false ) {
                     String[] list = spoolPath.list();
                     if (list.length > 0) getLogger().debug("Files to process: "+list.length);
                     for ( int i = 0 ; i < list.length ; i++ ) {
@@ -240,13 +240,13 @@ class NNTPSpooler extends AbstractLogEnabled
                     list = null; // release the array;
                     // this is good for other non idle threads
                     try {
-                        Thread.currentThread().sleep(threadIdleTime);
+                        Thread.sleep(threadIdleTime);
                     } catch(InterruptedException ex) {
                         // Ignore and continue
                     }
                 }
             } finally {
-                Thread.currentThread().interrupted();
+                Thread.interrupted();
             }
         }
 
@@ -343,4 +343,13 @@ class NNTPSpooler extends AbstractLogEnabled
             }
         }
     } // class SpoolerRunnable
+
+    /**
+     * Setter for the fileSystem service
+     * 
+     * @param fileSystem fs
+     */
+    public void setFileSystem(FileSystem fileSystem) {
+        this.fileSystem = fileSystem;
+    }
 }

@@ -19,7 +19,8 @@
 
 
 package org.apache.james.transport;
-import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Vector;
@@ -28,15 +29,13 @@ import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.context.Context;
-import org.apache.avalon.framework.context.ContextException;
-import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.service.DefaultServiceManager;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
+import org.apache.james.services.FileSystem;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetContext;
@@ -48,7 +47,7 @@ import javax.mail.internet.MimeMessage;
  *
  * $Id$
  */
-public abstract class Loader extends AbstractLogEnabled implements Contextualizable, Serviceable, Configurable, Initializable {
+public abstract class Loader extends AbstractLogEnabled implements Serviceable, Configurable, Initializable {
 
     protected String baseDirectory = null;
     protected final String MAILET_PACKAGE = "mailetpackage";
@@ -77,22 +76,6 @@ public abstract class Loader extends AbstractLogEnabled implements Contextualiza
         this.mailetContext = mailetContext;
     }
 
-    /**
-     * @see org.apache.avalon.framework.context.Contextualizable#contextualize(Context)
-     */
-    public void contextualize(final Context context) throws ContextException 
-    {
-        try 
-        {
-            baseDirectory = ((File)context.get( "app.home") ).getCanonicalPath();
-        } 
-        catch (Throwable e) 
-        {
-            getLogger().error( "can't get base directory for mailet loader" );
-            throw new ContextException("can't contextualise mailet loader " + e.getMessage(), e);
-        }
-    }
-
     protected void getPackages(Configuration conf, String packageType)
         throws ConfigurationException {
         packages = new Vector();
@@ -113,6 +96,13 @@ public abstract class Loader extends AbstractLogEnabled implements Contextualiza
      */
     public void service(ServiceManager sm) throws ServiceException {
         serviceManager = new DefaultServiceManager(sm);
+        try {
+            baseDirectory = ((FileSystem) serviceManager.lookup(FileSystem.ROLE)).getBasedir().getCanonicalPath();
+        } catch (FileNotFoundException e) {
+            throw new ServiceException(FileSystem.ROLE, "Cannot find the base directory of the application", e);
+        } catch (IOException e) {
+            throw new ServiceException(FileSystem.ROLE, "Cannot find the base directory of the application", e);
+        }
     }
 
     /**

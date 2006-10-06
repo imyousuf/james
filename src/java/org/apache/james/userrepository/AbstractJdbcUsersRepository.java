@@ -42,15 +42,12 @@ import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.context.Context;
-import org.apache.avalon.framework.context.ContextException;
-import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.ServiceException;
-import org.apache.james.context.AvalonContextUtilities;
 import org.apache.james.util.JDBCUtil;
 import org.apache.james.util.SqlResources;
+import org.apache.james.services.FileSystem;
 import org.apache.james.services.User;
 
 /**
@@ -76,12 +73,8 @@ import org.apache.james.services.User;
  *
  */
 public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepository
-    implements Contextualizable, Serviceable, Configurable, Initializable
+    implements Serviceable, Configurable, Initializable
 {
-    /**
-     * The Avalon context used by the instance
-     */
-    protected Context context;
 
     protected Map m_sqlParameters;
 
@@ -108,20 +101,14 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
     // The JDBCUtil helper class
     private JDBCUtil theJDBCUtil;
 
+    private FileSystem fileSystem;
+
     /**
      * Set the DataSourceSelector
      * @param datasources the DataSourceSelector
      */
     public void setDatasources(DataSourceSelector datasources) {
         m_datasources = datasources;
-    }
-
-    /**
-     * @see org.apache.avalon.framework.context.Contextualizable#contextualize(Context)
-     */
-    public void contextualize(final Context context)
-            throws ContextException {
-        this.context = context;
     }
 
     /**
@@ -141,6 +128,16 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
         }
 
         setDatasources((DataSourceSelector)componentManager.lookup( DataSourceSelector.ROLE ));
+        setFileSystem((FileSystem) componentManager.lookup(FileSystem.ROLE));
+    }
+
+    /**
+     * Sets the filesystem service
+     * 
+     * @param system the new service
+     */
+    private void setFileSystem(FileSystem system) {
+        this.fileSystem = system;
     }
 
     /**
@@ -276,7 +273,7 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
             File sqlFile = null;
 
             try {
-                sqlFile = AvalonContextUtilities.getFile(context, m_sqlFileName);
+                sqlFile = fileSystem.getFile(m_sqlFileName);
             } catch (Exception e) {
                 getLogger().fatalError(e.getMessage(), e);
                 throw e;

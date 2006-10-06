@@ -24,9 +24,6 @@ package org.apache.james.smtpserver;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.avalon.framework.context.Context;
-import org.apache.avalon.framework.context.ContextException;
-import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
@@ -48,7 +45,7 @@ import org.apache.mailet.MailetContext;
  * IMPORTANT: SMTPServer extends AbstractJamesService.  If you implement ANY
  * lifecycle methods, you MUST call super.<method> as well.
  */
-public class SMTPServer extends AbstractJamesService implements SMTPServerMBean, Contextualizable {
+public class SMTPServer extends AbstractJamesService implements SMTPServerMBean {
 
 
     /**
@@ -251,23 +248,6 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean,
     public void initialize() throws Exception {
         super.initialize();
         ContainerUtil.initialize(handlerChain);
-    }
-
-    /**
-     * @see org.apache.avalon.cornerstone.services.connection.AbstractHandlerFactory#contextualize(org.apache.avalon.framework.context.Context)
-     */
-    public void contextualize(final Context context) {
-        super.contextualize(context);
-        try {
-            ContainerUtil.contextualize(handlerChain, context);
-        } catch (ContextException e) {
-
-            // This is just a hack.. the overridden contextualize method not
-            // support
-            // of throw an exception. But we need it
-            throw new IllegalStateException(e.getMessage());
-        }
-
     }
 
     /**

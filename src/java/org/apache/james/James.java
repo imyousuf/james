@@ -28,8 +28,6 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.avalon.framework.context.Context;
-import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.service.DefaultServiceManager;
@@ -38,11 +36,11 @@ import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.commons.collections.ReferenceMap;
 
-import org.apache.james.context.AvalonContextUtilities;
 import org.apache.james.core.MailHeaders;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MailetConfigImpl;
 import org.apache.james.services.DNSServer;
+import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.SpoolRepository;
@@ -90,7 +88,7 @@ import java.util.Vector;
  */
 public class James
     extends AbstractLogEnabled
-    implements Contextualizable, Serviceable, Configurable, Initializable, MailServer, MailetContext {
+    implements Serviceable, Configurable, Initializable, MailServer, MailetContext {
 
     /**
      * The software name and version
@@ -168,29 +166,29 @@ public class James
     private Hashtable attributes = new Hashtable();
 
     /**
-     * The Avalon context used by the instance
-     */
-    protected Context           myContext;
-
-    /**
      * Currently used by storeMail to avoid code duplication (we moved store logic to that mailet).
      * TODO We should remove this and its initialization when we remove storeMail method.
      */
     protected Mailet localDeliveryMailet;
-    
-    /**
-     * @see org.apache.avalon.framework.context.Contextualizable#contextualize(Context)
-     */
-    public void contextualize(final Context context) {
-        this.myContext = context;
-    }
+
+    private FileSystem fileSystem;
 
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
-    public void service(ServiceManager comp) {
+    public void service(ServiceManager comp) throws ServiceException {
         compMgr = new DefaultServiceManager(comp);
         mailboxes = new ReferenceMap();
+        setFileSystem((FileSystem) comp.lookup(FileSystem.ROLE));
+    }
+
+    /**
+     * Sets the fileSystem service
+     * 
+     * @param system the new service
+     */
+    private void setFileSystem(FileSystem system) {
+        this.fileSystem = system;
     }
 
     /**
@@ -238,7 +236,7 @@ public class James
         attributes.put(Constants.AVALON_COMPONENT_MANAGER, compMgr);
 
         //Temporary get out to allow complex mailet config files to stop blocking sergei sozonoff's work on bouce processing
-        java.io.File configDir = AvalonContextUtilities.getFile(myContext, "file://conf/");
+        java.io.File configDir = fileSystem.getFile("file://conf/");
         attributes.put("confDir", configDir.getCanonicalPath());
 
         initializeLocalDeliveryMailet();

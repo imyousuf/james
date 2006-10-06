@@ -20,6 +20,7 @@
 package org.apache.james.mailrepository.javamail;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.Iterator;
@@ -37,12 +38,12 @@ import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.context.Context;
-import org.apache.avalon.framework.context.ContextException;
-import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
-import org.apache.james.context.AvalonContextConstants;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.Serviceable;
+import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailRepository;
 import org.apache.mailet.Mail;
 
@@ -56,7 +57,7 @@ import org.apache.mailet.Mail;
 
 public abstract class AbstractJavamailStoreMailRepository extends
         AbstractLogEnabled implements MailRepository, StoreGateKeeperAware, FolderAdapterFactory, Configurable,
-        Initializable,Contextualizable {
+        Initializable,Serviceable {
 
     /**
      * Whether 'deep debugging' is turned on.
@@ -102,14 +103,20 @@ public abstract class AbstractJavamailStoreMailRepository extends
     private FolderGateKeeper folderGateKeeper;
 
     /**
-     * The Context
-     */
-    private Context context;
-    
-    /**
      * The directory james is running in
      */
     private File home;
+
+    /**
+     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
+     */
+    public void service(ServiceManager serviceManager) throws ServiceException {
+        try {
+            home = ((FileSystem) serviceManager.lookup(FileSystem.ROLE)).getBasedir();
+        } catch (FileNotFoundException e) {
+            throw new ServiceException(FileSystem.ROLE, "Cannot find the base directory of the application", e);
+        }
+    }
 
     /**
      * builds destination from attributes destinationURL and postfix.
@@ -195,14 +202,6 @@ public abstract class AbstractJavamailStoreMailRepository extends
      */
     public void initialize() throws Exception {
         log.debug("JavaMailStoreMailRepository initialized");
-    }
-    
-    /**
-     * @see org.apache.avalon.framework.context.Contextualizable#contextualize(Context)
-     */
-    public void contextualize(Context context) throws ContextException {
-        this.context = context;
-        home = (File)context.get(AvalonContextConstants.APPLICATION_HOME);
     }
     
     private String getDirAsUrl(String dir) throws MalformedURLException {

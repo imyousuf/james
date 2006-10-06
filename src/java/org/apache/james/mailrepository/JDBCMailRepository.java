@@ -29,13 +29,10 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
-import org.apache.avalon.framework.context.Context;
-import org.apache.avalon.framework.context.ContextException;
-import org.apache.avalon.framework.context.Contextualizable;
-import org.apache.james.context.AvalonContextUtilities;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageWrapper;
+import org.apache.james.services.FileSystem;
 import org.apache.james.util.JDBCUtil;
 import org.apache.james.util.SqlResources;
 import org.apache.mailet.Mail;
@@ -83,13 +80,7 @@ import java.util.StringTokenizer;
  * @version CVS $Revision$ $Date$
  */
 public class JDBCMailRepository
-    extends AbstractMailRepository
-    implements Contextualizable {
-
-    /**
-     * The Avalon context used by the instance
-     */
-    protected Context context;
+    extends AbstractMailRepository {
 
     /**
      * The table name parsed from the destination URL
@@ -146,16 +137,10 @@ public class JDBCMailRepository
      */
     private int inMemorySizeLimit;
 
+    private FileSystem fileSystem;
+
     public void setDatasources(DataSourceSelector datasources) {
         this.datasources = datasources;
-    }
-
-    /**
-     * @see org.apache.avalon.framework.context.Contextualizable#contextualize(Context)
-     */
-    public void contextualize(final Context context)
-            throws ContextException {
-        this.context = context;
     }
 
     /**
@@ -175,6 +160,11 @@ public class JDBCMailRepository
         // Get the DataSourceSelector service
         DataSourceSelector datasources = (DataSourceSelector)componentManager.lookup( DataSourceSelector.ROLE );
         setDatasources(datasources);
+        setFileSystem((FileSystem) componentManager.lookup(FileSystem.ROLE));
+    }
+
+    private void setFileSystem(FileSystem fileSystem) {
+        this.fileSystem = fileSystem;
     }
 
     /**
@@ -317,7 +307,7 @@ public class JDBCMailRepository
 
             File sqlFile = null;
             try {
-                sqlFile = AvalonContextUtilities.getFile(context, sqlFileName);
+                sqlFile = fileSystem.getFile(sqlFileName);
                 sqlFileName = null;
             } catch (Exception e) {
                 getLogger().fatalError(e.getMessage(), e);

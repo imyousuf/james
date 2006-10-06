@@ -27,9 +27,6 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.avalon.framework.context.Context;
-import org.apache.avalon.framework.context.ContextException;
-import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
@@ -53,7 +50,7 @@ import java.util.Properties;
   * The SMTPHandlerChain is per service object providing access
   * ConnectHandlers, Commandhandlers and message handlers
   */
-public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable, Serviceable, Contextualizable, Initializable {
+public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable, Serviceable, Initializable {
 
     private HashMap commandHandlerMap = new HashMap();
     private ArrayList messageHandlers = new ArrayList();
@@ -61,19 +58,12 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
 
     private final CommandHandler unknownHandler = new UnknownCmdHandler();
     private ServiceManager serviceManager;
-    private Context context;
     
     private final static String[] mandatoryCommands = { "MAIL" , "RCPT", "DATA"};
 
     public void service(ServiceManager arg0) throws ServiceException {
         serviceManager = arg0;
     }
-    
-    public void contextualize(Context arg0) throws ContextException {
-        context = arg0;
-    }
-
-
 
     /**
      * loads the various handlers from the configuration
@@ -210,8 +200,6 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
             // enable logging
             ContainerUtil.enableLogging(handler, getLogger());
 
-            ContainerUtil.contextualize(handler, context);
-
             // servicing the handler
             ContainerUtil.service(handler, serviceManager);
 
@@ -304,13 +292,6 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
             throw new ConfigurationException("Failed to add Commandhandler: "
                     + className, ex);
         } catch (ServiceException e) {
-            if (getLogger().isErrorEnabled()) {
-                getLogger().error(
-                        "Failed to service Commandhandler: " + className, e);
-            }
-            throw new ConfigurationException("Failed to add Commandhandler: "
-                    + className, e);
-        } catch (ContextException e) {
             if (getLogger().isErrorEnabled()) {
                 getLogger().error(
                         "Failed to service Commandhandler: " + className, e);
