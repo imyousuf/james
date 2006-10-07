@@ -107,7 +107,7 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
      * Set the DataSourceSelector
      * @param datasources the DataSourceSelector
      */
-    public void setDatasources(DataSourceSelector datasources) {
+    void setDatasources(DataSourceSelector datasources) {
         m_datasources = datasources;
     }
 
@@ -136,7 +136,7 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
      * 
      * @param system the new service
      */
-    private void setFileSystem(FileSystem system) {
+    void setFileSystem(FileSystem system) {
         this.fileSystem = system;
     }
 

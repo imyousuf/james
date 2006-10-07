@@ -36,6 +36,15 @@ import java.sql.SQLException;
 public class ListUsersJdbcRepository extends AbstractJdbcUsersRepository
 {
 
+    
+    /**
+     * @see org.apache.james.userrepository.AbstractUsersRepository#test(java.lang.String, java.lang.String)
+     */
+    public boolean test(String name, String password) {
+        // list repository does not store passwords so we always return false!
+        return false;
+    }
+
     /**
      * @see org.apache.james.userrepository.AbstractJdbcUsersRepository#readUserFromResultSet(java.sql.ResultSet)
      */

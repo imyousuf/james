@@ -72,26 +72,12 @@ public abstract class AbstractUsersRepository
      */
     protected abstract void doUpdateUser(User user);
 
-    //
-    // Extended protected methods.
-    // These provide very basic default implementations, which will work,
-    // but may need to be overridden by subclasses for performance reasons.
-    //
     /**
      * Produces the complete list of User names, with correct case.
      * @return a <code>List</code> of <code>String</code>s representing
      *         user names.
      */
-    protected List listUserNames() {
-        Iterator users = listAllUsers();
-        List userNames = new LinkedList();
-        while ( users.hasNext() ) {
-            User user = (User)users.next();
-            userNames.add(user.getUserName());
-        }
-
-        return userNames;
-    }
+    protected abstract List listUserNames();
 
     /**
      * Gets a user by name, ignoring case if specified.
@@ -157,15 +143,6 @@ public abstract class AbstractUsersRepository
             throw new RuntimeException("Improper use of deprecated method" 
                                        + " - use addUser(User user)");
         }
-    }
-
-    /**
-     * @see org.apache.james.services.UsersRepository#addUser(java.lang.String, java.lang.String)
-     */
-    public boolean addUser(String username, String password)  {
-        User newbie = new DefaultJamesUser(username, "SHA");
-        newbie.setPassword(password);
-        return addUser(newbie);
     }
 
     /**

@@ -43,7 +43,9 @@ public class MockStore implements Store {
     }
 
     private Object get(Object object) {
-        return m_storedObjectMap.get(extractKeyObject(object));
+        Object key = extractKeyObject(object);
+        System.err.println(key);
+        return m_storedObjectMap.get(key);
     }
 
     private Object extractKeyObject(Object object) {
