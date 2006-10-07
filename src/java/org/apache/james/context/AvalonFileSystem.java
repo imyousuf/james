@@ -47,8 +47,6 @@ public class AvalonFileSystem implements FileSystem, Contextualizable {
             return AvalonContextUtilities.getFile(context, fileURL);
         } catch (ContextException e) {
             throw new FileNotFoundException("Context exception: "+e.getMessage());
-        } catch (Exception e) {
-            throw new FileNotFoundException(e.getMessage());
         }
     }
     

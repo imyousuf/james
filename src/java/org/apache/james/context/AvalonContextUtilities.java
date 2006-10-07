@@ -55,7 +55,7 @@ public class AvalonContextUtilities {
      *                application home, unless it begins with a slash.  In
      *                the latter case the file location is evaluated relative
      *                to the underlying file system root.
-     *
+     *                
      * @throws IllegalArgumentException if the arguments are null or the file
      *                                  URL is not appropriately formatted.
      * @throws ContextException if the underlying context generates a
@@ -63,8 +63,7 @@ public class AvalonContextUtilities {
      *                          not correct, or if an IOException is generated
      *                          while accessing the file.
      */
-    public static File getFile(Context context, String fileURL)
-            throws Exception {
+    public static File getFile(Context context, String fileURL) throws ContextException {
         if ((context == null) || (fileURL == null)) {
             throw new IllegalArgumentException("The getFile method doesn't allow null arguments.");
         }
