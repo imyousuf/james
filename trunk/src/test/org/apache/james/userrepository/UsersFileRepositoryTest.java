@@ -63,14 +63,14 @@ public class UsersFileRepositoryTest extends MockUsersRepositoryTest {
         file_Persistent_Object_Repository.service(serviceManager);
         file_Persistent_Object_Repository.enableLogging(new MockLogger());
         DefaultConfiguration defaultConfiguration22 = new DefaultConfiguration("conf");
-        defaultConfiguration22.setAttribute("destinationURL", "file://var/users"+File.separator);
+        defaultConfiguration22.setAttribute("destinationURL", "file://var/users");
         file_Persistent_Object_Repository.configure(defaultConfiguration22);
         file_Persistent_Object_Repository.initialize();
-        mockStore.add("OBJECT.users"+File.separator, file_Persistent_Object_Repository);
+        mockStore.add("OBJECT.users", file_Persistent_Object_Repository);
         res.setStore(mockStore);
         DefaultConfiguration configuration = new DefaultConfiguration("test");
         DefaultConfiguration destinationConf = new DefaultConfiguration("destination");
-        destinationConf.setAttribute("URL", "file://var/users"+File.separator);
+        destinationConf.setAttribute("URL", "file://var/users");
         configuration.addChild(destinationConf);
         res.enableLogging(new ConsoleLogger());
         res.configure(configuration );
