@@ -76,6 +76,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Locale;
@@ -144,6 +145,8 @@ public class MBoxMailRepository
      */
     private String mboxFile;
 
+    private boolean fifo;
+    
     /**
      * A callback used when a message is read from the mbox file
      */
@@ -540,24 +543,26 @@ public class MBoxMailRepository
      */
     public Iterator list() {
         loadKeys();
+        ArrayList keys =  new ArrayList(mList.keySet());
         
-        if (mList.keySet().isEmpty() == false) {
+        if (keys.isEmpty() == false) {
             // find the first message.  This is a trick to make sure that if
             // the file is changed out from under us, we will detect it and
             // correct for it BEFORE we return the iterator.
-            findMessage((String) mList.keySet().iterator().next());
+            findMessage((String) keys.iterator().next());
         }
         if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
             StringBuffer logBuffer =
                     new StringBuffer(128)
                     .append(this.getClass().getName())
                     .append(" ")
-                    .append(mList.size())
+                    .append(keys.size())
                     .append(" keys to be iterated over.");
 
             getLogger().debug(logBuffer.toString());
         }
-        return mList.keySet().iterator();
+        if (fifo) Collections.sort(keys); // Keys is a HashSet; impose FIFO for apps that need it
+        return keys.iterator();
     }
 
     /**
@@ -779,6 +784,7 @@ public class MBoxMailRepository
         String destination;
         this.mList = null;
         BUFFERING = conf.getAttributeAsBoolean("BUFFERING", true);
+        fifo = conf.getAttributeAsBoolean("FIFO", false);
         destination = conf.getAttribute("destinationURL");
         if (destination.charAt(destination.length() - 1) == '/') {
             // Remove the trailing / as well as the protocol marker
