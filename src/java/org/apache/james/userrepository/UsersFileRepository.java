@@ -35,7 +35,6 @@ import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.services.User;
 import org.apache.james.services.UsersRepository;
 
-import java.io.File;
 import java.util.Iterator;
 
 /**
@@ -62,6 +61,7 @@ public class UsersFileRepository
 
     private Store store;
     private ObjectRepository objectRepository;
+    private static String urlSeparator = "/"; 
 
     /**
      * The destination URL used to define the repository.
@@ -100,8 +100,8 @@ public class UsersFileRepository
 
         destination = configuration.getChild( "destination" ).getAttribute( "URL" );
 
-        if (!destination.endsWith(File.separator)) {
-            destination += File.separator;
+        if (!destination.endsWith(urlSeparator)) {
+            destination += urlSeparator;
         }
     }
 
