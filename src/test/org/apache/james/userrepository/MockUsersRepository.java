@@ -62,6 +62,9 @@ public class MockUsersRepository implements UsersRepository {
     }
 
     public void addUser(String name, Object attributes) {
+        if (!(attributes instanceof String)) {
+            throw new IllegalArgumentException();
+        }
         try {
             String passwordHash = DigestUtil.digestString(((String) attributes), "SHA");
 
@@ -116,7 +119,10 @@ public class MockUsersRepository implements UsersRepository {
     }
 
     public boolean updateUser(User user) {
-        return false;  // trivial implementation
+        if (m_users.containsKey(user.getUserName())) {
+            m_users.put(user.getUserName(), user);
+            return true;
+        } else return false;  // trivial implementation
     }
 
     public void removeUser(String name) {
@@ -128,11 +134,11 @@ public class MockUsersRepository implements UsersRepository {
     }
 
     public boolean containsCaseInsensitive(String name) {
-        return false;  // trivial implementation
+        throw new UnsupportedOperationException("mock");
     }
 
     public boolean test(String name, Object attributes) {
-        return false;  // trivial implementation
+        throw new UnsupportedOperationException("mock");
     }
 
     public boolean test(String name, String password) {

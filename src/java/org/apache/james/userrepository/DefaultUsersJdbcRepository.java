@@ -63,8 +63,8 @@ public class DefaultUsersJdbcRepository extends AbstractJdbcUsersRepository
     {
         DefaultUser defUser = (DefaultUser)user;
         userInsert.setString(1, defUser.getUserName());
-        userInsert.setString(2, defUser.getHashAlgorithm());
-        userInsert.setString(3, defUser.getHashedPassword());
+        userInsert.setString(2, defUser.getHashedPassword());
+        userInsert.setString(3, defUser.getHashAlgorithm());
     }
 
     /**
@@ -75,9 +75,9 @@ public class DefaultUsersJdbcRepository extends AbstractJdbcUsersRepository
         throws SQLException 
     {
         DefaultUser defUser = (DefaultUser)user;
+        userUpdate.setString(1, defUser.getHashedPassword());
+        userUpdate.setString(2, defUser.getHashAlgorithm());
         userUpdate.setString(3, defUser.getUserName());
-        userUpdate.setString(1, defUser.getHashAlgorithm());
-        userUpdate.setString(2, defUser.getHashedPassword());
     }
     
     /**
