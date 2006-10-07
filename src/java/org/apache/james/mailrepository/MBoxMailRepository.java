@@ -62,7 +62,6 @@ import org.apache.oro.text.regex.Perl5Matcher;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
-import javax.mail.internet.InternetAddress;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -515,7 +514,13 @@ public class MBoxMailRepository
         String message = null;
         try {
             message = getRawMessage(mc.getMessage());
-            fromHeader = "From " + ((InternetAddress)mc.getMessage().getFrom()[0]).getAddress() + " " + dy.format(Calendar.getInstance().getTime());
+            // check for nullsender
+            if (mc.getMessage().getFrom() == null) {
+            fromHeader = "From   " + dy.format(Calendar.getInstance().getTime());
+            } else {
+            fromHeader = "From " + mc.getMessage().getFrom()[0] + " " + dy.format(Calendar.getInstance().getTime());
+            }
+            
         } catch (IOException e) {
             getLogger().error("Unable to parse mime message for " + mboxFile, e);
         } catch (MessagingException e) {
