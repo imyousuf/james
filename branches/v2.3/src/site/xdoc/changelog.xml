@@ -28,6 +28,36 @@
 
 <p>This document records what was done between releases.  As always, thank you to everyone who contributed code, documentation, bug reports, and feedback.
 </p>
+
+<section name="Version 2.3.0rc5">
+<p>Released 10 October 2006</p>
+<p>Detail</p>
+<subsection name="Bug"></subsection>
+<ul>
+<li>[<a href='http://issues.apache.org/jira/browse/JAMES-625'>JAMES-625</a>] - an emoty mbox will cause an error at pop3 login</li>
+<li>[<a href='http://issues.apache.org/jira/browse/JAMES-644'>JAMES-644</a>] - FileRegexMatcher possibly leaks minor memory on startup</li>
+<li>[<a href='http://issues.apache.org/jira/browse/JAMES-649'>JAMES-649</a>] - error "OutOfMemoryError: JAVA HEAP SPACE" in connections log file when doing a POP TOP for 4000 messages</li>
+<li>[<a href='http://issues.apache.org/jira/browse/JAMES-655'>JAMES-655</a>] - MboxMailRepository throws NPE when storing mail with mail from: &lt;&gt;</li>
+</ul>
+</section>
+
+<section name="Version 2.3.0rc4">
+<p>Released 2 October 2006</p>
+<p>Detail</p>
+<subsection name="Bug"></subsection>
+<ul>
+<li>[<a href='http://issues.apache.org/jira/browse/JAMES-626'>JAMES-626</a>] - Invalid (outdated) urls in config files.</li>
+<li>[<a href='http://issues.apache.org/jira/browse/JAMES-631'>JAMES-631</a>] - Default host configuration for InSpammerBlacklist is relative: it should contain a trailing "." or it will reject all mail when the default domain has an "*" IN A rule.</li>
+<li>[<a href='http://issues.apache.org/jira/browse/JAMES-638'>JAMES-638</a>] - Wrong default encoding in text message (Autoconverted: from 8bit to quoted-printable)</li>
+<li>[<a href='http://issues.apache.org/jira/browse/JAMES-639'>JAMES-639</a>] - SerialUID is not hardcoded</li>
+</ul>
+<subsection name="Task"></subsection>
+<ul>
+<li>[<a href='http://issues.apache.org/jira/browse/JAMES-618'>JAMES-618</a>] - Move server-site documents from james/server repository to james/site/server repository</li>
+<li>[<a href='http://issues.apache.org/jira/browse/JAMES-634'>JAMES-634</a>] - Fix m2 projects to not lookup dependencies on ibiblio, to simplify the website build and to include 2.2.0 and 2.3.0 docs</li>
+</ul>
+</section>
+
 <section name="Version 2.3.0rc3">
 <p>Released 15 September 2006</p>
 <p>Detail</p>
@@ -50,6 +80,7 @@
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-581'>JAMES-581</a>] - Add an "Upgrade documentation" to our docs explaining the upgrade from 2.2.0 to 2.3.0</li>
 </ul>
 </section>
+
 <section name="Version 2.3.0rc2">
 <p>Released 12 August 2006</p>
 <p>Detail</p>
