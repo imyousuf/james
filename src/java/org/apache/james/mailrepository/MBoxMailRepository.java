@@ -514,9 +514,9 @@ public class MBoxMailRepository
             message = getRawMessage(mc.getMessage());
             // check for nullsender
             if (mc.getMessage().getFrom() == null) {
-            fromHeader = "From   " + dy.format(Calendar.getInstance().getTime());
+                fromHeader = "From   " + dy.format(Calendar.getInstance().getTime());
             } else {
-            fromHeader = "From " + mc.getMessage().getFrom()[0] + " " + dy.format(Calendar.getInstance().getTime());
+                fromHeader = "From " + mc.getMessage().getFrom()[0] + " " + dy.format(Calendar.getInstance().getTime());
             }
             
         } catch (IOException e) {
