@@ -63,7 +63,7 @@ public class AvalonContextUtilities {
      *                          not correct, or if an IOException is generated
      *                          while accessing the file.
      */
-    public static File getFile(Context context, String fileURL) throws ContextException {
+    public static File getFile(Context context, String fileURL) throws ContextException, IllegalArgumentException {
         if ((context == null) || (fileURL == null)) {
             throw new IllegalArgumentException("The getFile method doesn't allow null arguments.");
         }
