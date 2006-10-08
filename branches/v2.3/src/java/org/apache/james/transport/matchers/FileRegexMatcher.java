@@ -56,10 +56,10 @@ public class FileRegexMatcher extends GenericRegexMatcher {
             if (patternSource != null) {
                 // close the file
                 try {
-		    patternSource.close();
-		} catch (IOException e) {
-		    // just ignore on close
-		}
+            patternSource.close();
+        } catch (IOException e) {
+            // just ignore on close
+        }
             }
         }
     }
