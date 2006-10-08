@@ -19,6 +19,7 @@
 
 package org.apache.james.test.util;
 
+import org.apache.avalon.cornerstone.blocks.datasources.DefaultDataSourceSelector;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.james.smtpserver.core.AuthCmdHandler;
@@ -33,9 +34,11 @@ import org.apache.james.smtpserver.core.RcptCmdHandler;
 import org.apache.james.smtpserver.core.RsetCmdHandler;
 import org.apache.james.smtpserver.core.SendMailHandler;
 import org.apache.james.smtpserver.core.VrfyCmdHandler;
+import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.james.MockMailServer;
 import org.apache.james.test.mock.javaxmail.MockMimeMessage;
 import org.apache.james.test.mock.mailet.MockMail;
+import org.apache.james.test.mock.util.AttrValConfiguration;
 import org.apache.mailet.MailAddress;
 
 import javax.mail.MessagingException;
@@ -176,5 +179,29 @@ public class Util {
         mockedMimeMessage.setText("testtext");
         mockedMimeMessage.saveChanges();
         return mockedMimeMessage;
+    }
+
+    /**
+     * @return
+     * @throws Exception
+     */
+    public static DefaultDataSourceSelector getDataSourceSelector() throws Exception {
+        DefaultDataSourceSelector dataSourceSelector = new DefaultDataSourceSelector();
+        dataSourceSelector.enableLogging(new MockLogger());
+        DefaultConfiguration dc = new DefaultConfiguration("database-connections");
+        DefaultConfiguration ds = new DefaultConfiguration("data-source");
+        ds.setAttribute("name","maildb");
+        ds.setAttribute("class","org.apache.james.util.dbcp.JdbcDataSource");
+        
+        ds.addChild(new AttrValConfiguration("driver","org.apache.derby.jdbc.EmbeddedDriver"));
+        ds.addChild(new AttrValConfiguration("dburl","jdbc:derby:testdb;create=true"));
+        ds.addChild(new AttrValConfiguration("user","james"));
+        ds.addChild(new AttrValConfiguration("password","james"));
+    
+        ds.addChild(new AttrValConfiguration("max","20"));
+        dc.addChild(ds);
+        dataSourceSelector.configure(dc);
+        dataSourceSelector.initialize();
+        return dataSourceSelector;
     }
 }

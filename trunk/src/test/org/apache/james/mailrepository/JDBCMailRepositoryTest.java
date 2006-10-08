@@ -20,19 +20,22 @@
 
 package org.apache.james.mailrepository;
 
+import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
+import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.service.DefaultServiceManager;
 import org.apache.avalon.framework.service.ServiceException;
-import org.apache.james.mailrepository.filepair.File_Persistent_Object_Repository;
 import org.apache.james.mailrepository.filepair.File_Persistent_Stream_Repository;
 import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailRepository;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockStore;
 import org.apache.james.test.mock.james.MockFileSystem;
+import org.apache.james.test.mock.util.AttrValConfiguration;
+import org.apache.james.test.util.Util;
 
-public class AvalonMailRepositoryTest extends AbstractMailRepositoryTest {
+public class JDBCMailRepositoryTest extends AbstractMailRepositoryTest {
 
     /**
      * @return
@@ -43,33 +46,34 @@ public class AvalonMailRepositoryTest extends AbstractMailRepositoryTest {
     protected MailRepository getMailRepository() throws ServiceException, ConfigurationException, Exception {
         DefaultServiceManager serviceManager = new DefaultServiceManager();
         serviceManager.put(FileSystem.ROLE, new MockFileSystem());
-        AvalonMailRepository mr = new AvalonMailRepository();
+        serviceManager.put(DataSourceSelector.ROLE, Util.getDataSourceSelector());
+        JDBCMailRepository mr = new JDBCMailRepository();
+        
+        // only used for dbfile
         MockStore mockStore = new MockStore();
         File_Persistent_Stream_Repository file_Persistent_Stream_Repository = new File_Persistent_Stream_Repository();
         file_Persistent_Stream_Repository.service(serviceManager);
         file_Persistent_Stream_Repository.enableLogging(new MockLogger());
         DefaultConfiguration defaultConfiguration2 = new DefaultConfiguration("conf");
-        defaultConfiguration2.setAttribute("destinationURL", "file://var/mr");
+        defaultConfiguration2.setAttribute("destinationURL", "file://var/mr/testrepo");
         file_Persistent_Stream_Repository.configure(defaultConfiguration2);
         file_Persistent_Stream_Repository.initialize();
         mockStore.add("STREAM.mr", file_Persistent_Stream_Repository);
-        File_Persistent_Object_Repository file_Persistent_Object_Repository = new File_Persistent_Object_Repository();
-        file_Persistent_Object_Repository.service(serviceManager);
-        file_Persistent_Object_Repository.enableLogging(new MockLogger());
-        DefaultConfiguration defaultConfiguration22 = new DefaultConfiguration("conf");
-        defaultConfiguration22.setAttribute("destinationURL", "file://var/mr");
-        file_Persistent_Object_Repository.configure(defaultConfiguration22);
-        file_Persistent_Object_Repository.initialize();
-        mockStore.add("OBJECT.mr", file_Persistent_Object_Repository);
-        mr.setStore(mockStore);
+        serviceManager.put(Store.ROLE,mockStore);
 
         mr.enableLogging(new MockLogger());
         DefaultConfiguration defaultConfiguration = new DefaultConfiguration("ReposConf");
-        defaultConfiguration.setAttribute("destinationURL","file://var/mr");
+        defaultConfiguration.setAttribute("destinationURL","db://maildb/mr/testrepo");
+        defaultConfiguration.addChild(new AttrValConfiguration("sqlFile","file://conf/sqlResources.xml"));
         defaultConfiguration.setAttribute("type","MAIL");
+        mr.service(serviceManager);
         mr.configure(defaultConfiguration);
         mr.initialize();
         return mr;
+    }
+    
+    protected String getType() {
+        return "db";
     }
 
 }

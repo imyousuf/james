@@ -25,9 +25,9 @@ import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.logger.ConsoleLogger;
 import org.apache.james.services.UsersRepository;
-import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.james.MockFileSystem;
 import org.apache.james.test.mock.util.AttrValConfiguration;
+import org.apache.james.test.util.Util;
 
 import java.util.Iterator;
 
@@ -57,22 +57,7 @@ public class DefaultUsersJdbcRepositoryTest extends MockUsersRepositoryTest {
      */
     protected void configureAbstractJdbcUsersRepository(AbstractJdbcUsersRepository res, String tableString) throws Exception, ConfigurationException {
         res.setFileSystem(new MockFileSystem());
-        DefaultDataSourceSelector dataSourceSelector = new DefaultDataSourceSelector();
-        dataSourceSelector.enableLogging(new MockLogger());
-        DefaultConfiguration dc = new DefaultConfiguration("database-connections");
-        DefaultConfiguration ds = new DefaultConfiguration("data-source");
-        ds.setAttribute("name","maildb");
-        ds.setAttribute("class","org.apache.james.util.dbcp.JdbcDataSource");
-        
-        ds.addChild(new AttrValConfiguration("driver","org.apache.derby.jdbc.EmbeddedDriver"));
-        ds.addChild(new AttrValConfiguration("dburl","jdbc:derby:testdb;create=true"));
-        ds.addChild(new AttrValConfiguration("user","james"));
-        ds.addChild(new AttrValConfiguration("password","james"));
-
-        ds.addChild(new AttrValConfiguration("max","20"));
-        dc.addChild(ds);
-        dataSourceSelector.configure(dc);
-        dataSourceSelector.initialize();  
+        DefaultDataSourceSelector dataSourceSelector = Util.getDataSourceSelector();  
         
         res.setDatasources(dataSourceSelector );
         
