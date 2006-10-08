@@ -525,6 +525,23 @@ public class MimeMessageWrapper
         return super.getContentStream();
     }
 
+    /**
+     * @see javax.mail.internet.MimeMessage#getRawInputStream()
+     */
+    public InputStream getRawInputStream() throws MessagingException {
+        if (!messageParsed && !isModified() && source != null) {
+            InputStream is;
+            try {
+                is = source.getInputStream();
+                // skip the headers.
+                new MailHeaders(is);
+                return is;
+            } catch (IOException e) {
+                throw new MessagingException("Unable to read the stream: " + e.getMessage(), e);
+            }
+        } else return super.getRawInputStream();
+    }
+
     
     
 }
