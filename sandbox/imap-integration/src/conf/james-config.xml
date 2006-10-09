@@ -82,10 +82,10 @@
 
       <!-- Alternative inbox repository definition for DB use. -->
       <!-- Stores message body in file system, rest in database -->
-      <!-- TEMPORARY DEFAULT: dbfile using Derby  -->
+      <!-- TEMPORARY DEFAULT: dbfile using Derby  
       <inboxRepository>
          <repository destinationURL="dbfile://maildb/inbox/" type="MAIL"/>
-      </inboxRepository>
+      </inboxRepository> -->
       <!-- TEMPORARY DEFAULT: dbfile using Derby  -->
 
       <!-- Alternative inbox repository definition for mbox use. -->
@@ -99,8 +99,32 @@
          <repository destinationURL="mbox:///var/mail/" type="MAIL"/>
       </inboxRepository>
       -->
+       
+      <inboxRepository>
+         <repository destinationURL="mailboxmanager://users/" type="MAIL">
+             <mailboxmanager class="org.apache.james.mailboxmanager.torque.TorqueMailboxManagerProvider" />
+         </repository>   
+      </inboxRepository>
    </James>
-
+   <mailboxmanager>
+       <torque-properties>
+           <property name="torque.database.default" value="mailboxmanager" />
+           <property name="torque.database.mailboxmanager.adapter" value="derby" />
+           <property name="torque.dsfactory.mailboxmanager.factory" value="org.apache.torque.dsfactory.SharedPoolDataSourceFactory" />
+           <property name="torque.dsfactory.mailboxmanager.connection.driver" value="org.apache.derby.jdbc.EmbeddedDriver" />
+           <property name="torque.dsfactory.mailboxmanager.connection.url" value="jdbc:derby:../apps/james/var/mailboxmanager-derbydb;create=true" />
+           <property name="torque.dsfactory.mailboxmanager.connection.user" value="app" />
+           <property name="torque.dsfactory.mailboxmanager.connection.password" value="app" />
+           <property name="torque.dsfactory.mailboxmanager.pool.maxActive" value="100" />
+      </torque-properties>  
+   </mailboxmanager>    
+   <imapserver enabled="true">
+      <port>10143</port>
+      <handler>
+       <streamdump enabled="true" directory="../apps/james/streamdump" />
+      </handler>      
+   </imapserver>
+    
    <!-- This is an example configuration for FetchMail, a JavaMail based gateway  -->
    <!-- service that pulls messages from other sources, and inserts them into the -->
    <!-- spool.  They are then processed normally, although FetchMail generally    -->
@@ -819,7 +843,7 @@ Regards, Postmaster XXX.YYY
    <pop3server enabled="true">
       <!-- port 995 is the well-known/IANA registered port for POP3S  ie over SSL/TLS -->
       <!-- port 110 is the well-known/IANA registered port for Standard POP3 -->
-      <port>110</port>
+      <port>10110</port>
 
       <!-- Uncomment this if you want to bind to a specific inetaddress -->
       <!--
@@ -846,7 +870,7 @@ Regards, Postmaster XXX.YYY
     <!-- but does not free as many resources as removing them would -->
    <smtpserver enabled="true">
       <!-- port 25 is the well-known/IANA registered port for SMTP -->
-      <port>25</port>
+      <port>10025</port>
 
       <!-- Uncomment this if you want to bind to a specific inetaddress -->
       <!-- Please NOTE: you should add this IP also to your RemoteAddrNotInNetwork -->
@@ -941,7 +965,7 @@ Regards, Postmaster XXX.YYY
         service.  -->
       <!-- port 563 is the well-known/IANA registered port for NNTP over SSL/TLS -->
       <!-- port 119 is the well-known/IANA registered port for Standard NNTP -->
-      <port>119</port>
+      <port>10119</port>
 
       <!-- Uncomment this if you want to bind to a specific inetaddress -->
       <!--
@@ -1018,7 +1042,14 @@ Regards, Postmaster XXX.YYY
    <!-- The Mailstore block -->
    <mailstore>
       <repositories>
-
+        <repository class="org.apache.james.mailboxmanager.repository.MailboxManagerMailRepository">
+            <protocols>
+               <protocol>mailboxmanager</protocol>
+            </protocols>
+            <types>
+               <type>MAIL</type>
+            </types>
+         </repository>
          <!-- File based repositories.  These repositories store all message data -->
          <!-- in the file system. -->
          <repository class="org.apache.james.mailrepository.AvalonMailRepository">
