@@ -29,7 +29,6 @@ import javax.mail.MessagingException;
 
 public class MailetLoaderTestMailet extends GenericMailet {
     private boolean m_initWasCalled = false;
-    private MailetConfig m_config;
 
     public void service(Mail mail) throws MessagingException {
         throw new Error("should not be called by loader");
@@ -37,7 +36,6 @@ public class MailetLoaderTestMailet extends GenericMailet {
 
     public void init(MailetConfig newConfig) throws MessagingException {
         super.init(newConfig);
-        m_config = newConfig;
         m_initWasCalled = true;
     }
     

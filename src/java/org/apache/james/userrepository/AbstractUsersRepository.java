@@ -26,7 +26,6 @@ import org.apache.james.services.User;
 import org.apache.james.services.UsersRepository;
 
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 /**

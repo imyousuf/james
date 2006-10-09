@@ -21,7 +21,6 @@
 package org.apache.james.transport.matchers;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Collection;
 
 import javax.mail.MessagingException;
@@ -35,7 +34,6 @@ import org.apache.james.test.mock.mailet.MockMailContext;
 import org.apache.james.test.mock.mailet.MockMatcherConfig;
 import org.apache.james.test.util.Util;
 import org.apache.mailet.GenericMatcher;
-import org.apache.mailet.MailAddress;
 import org.apache.mailet.Matcher;
 
 public abstract class AbstractHasMailAttributeTest extends TestCase {

@@ -42,7 +42,6 @@ import org.apache.james.test.util.Util;
 import org.apache.james.userrepository.MockUsersRepository;
 import org.apache.james.util.POP3BeforeSMTPHelper;
 import org.apache.james.util.connection.SimpleConnectionManager;
-import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
 import javax.mail.MessagingException;
