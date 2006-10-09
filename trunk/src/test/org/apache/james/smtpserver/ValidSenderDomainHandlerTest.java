@@ -19,12 +19,9 @@
 
 package org.apache.james.smtpserver;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.avalon.framework.container.ContainerUtil;

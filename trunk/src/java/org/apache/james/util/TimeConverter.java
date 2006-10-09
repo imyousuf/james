@@ -60,7 +60,7 @@ public class TimeConverter {
     }
 
     // Get sure it can not be instanciated
-    private TimeConverter(String rawString) {
+    private TimeConverter() {
     }
 
     /**
