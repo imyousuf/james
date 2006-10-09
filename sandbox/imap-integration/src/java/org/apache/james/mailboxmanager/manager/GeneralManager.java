@@ -1,0 +1,145 @@
+package org.apache.james.mailboxmanager.manager;
+
+import org.apache.james.mailboxmanager.GeneralMessageSet;
+import org.apache.james.mailboxmanager.ListResult;
+import org.apache.james.mailboxmanager.MailboxManagerException;
+import org.apache.james.mailboxmanager.Namespace;
+import org.apache.james.mailboxmanager.Namespaces;
+import org.apache.james.mailboxmanager.mailbox.GeneralMailbox;
+import org.apache.james.mailboxmanager.mailbox.GeneralMailboxSession;
+import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
+import org.apache.james.mailboxmanager.mailbox.MailboxSession;
+import org.apache.james.services.User;
+
+
+/**
+ * <p>
+ * Central MailboxManager which creates, lists, provides, renames and
+ * deletes Mailboxes
+ * </p>
+ * <p>
+ * An important goal is to be JavaMail feature compatible. That means JavaMail
+ * could be used in both directions: As a backend for e.g. accessing a Maildir
+ * JavaMail store or as a frontend to access a JDBC MailboxManager
+ * through JavaMail. This should be possible by not too complicated wrapper
+ * classes. Due to the complexity of JavaMail it might be impossible to avoid
+ * some limitations.
+ * </p>
+ * <p>
+ * Internally MailboxManager deals with named repositories that could have
+ * different implementations. E.g. JDBC connections to different hosts or
+ * Maildir / Mbox like stores. This repositories are identified by its names and
+ * maybe are configured in config.xml. The names of the mailboxes have to be
+ * mapped to the corresponding repository name. For user mailboxes this could be
+ * done by a "User.getRepositoryName()" property. It is imaginable that
+ * repositories lookup further properties from the user object like a path name
+ * for a file based storage method. Until Milestone 6 there is only one named
+ * repository: "default".
+ * </p>
+ * <p>
+ * The only operation that requires dealing with the named repositories directly
+ * is the quota management. It is probably really difficult to implement a quota
+ * system that spans multiple repository implementations. That is why quotas are
+ * created for a specific repository. To be able to administer, repositories and
+ * theier belonging mailboxes can be listet.
+ * </p>
+ */
+
+public interface GeneralManager extends MailboxManager {
+
+	/**
+	 * get a session mailbox 
+	 * 
+	 * @param nameSpaceName
+	 * @param user
+	 * @return
+	 * @throws MailboxManagerException 
+	 */
+	MailboxSession getMailboxSession(String mailboxName,Class neededInterface,int[] setTypes,int resultTypes) throws MailboxManagerException;
+	
+	/**
+	 * Supports 
+	 * 
+	 * @param mailboxName
+	 * @return
+	 * @throws MailboxManagerException
+	 */
+	
+	GeneralMailboxSession getGenericGeneralMailboxSession(String mailboxName) throws MailboxManagerException;
+	
+	ImapMailboxSession getGenericImapMailboxSession(String mailboxName) throws MailboxManagerException;
+
+	/**
+	 * The Namespaces a user has access to.
+	 * @param forUser TODO
+	 * @param user
+	 * 
+	 * @return
+	 */
+	Namespaces getNamespaces(User forUser);
+
+	/**
+	 * To get the Inbox you can just to a mailbox
+	 * defaultNameSpace=ImapMailboxRepository.getPersonalDefaultNameSpace(user)
+	 * inbox=defaultNameSpace.getName()+defaultNameSpace.getHierarchyDelimter()+"INBOX";
+	 * TODO add a convinience method to get directly a session mailbox for a users inbox
+	 * @param forUser TODO
+	 * 
+	 * @return
+	 */
+	Namespace getPersonalDefaultNamespace(User forUser);
+	
+	
+
+	void createMailbox(String mailboxName) throws MailboxManagerException;
+
+	void deleteMailbox(String mailboxName) throws MailboxManagerException;
+
+	void renameMailbox(String from, String to) throws MailboxManagerException;
+
+	/**
+	 * this is done by the MailboxRepository because maybe this operation could
+	 * be optimized in the corresponding store.
+	 * 
+	 * @param from
+	 * @param set
+	 *            messages to copy
+	 * @param to
+	 *            name of the destination mailbox
+	 */
+	void copyMessages(GeneralMailbox from, GeneralMessageSet set, String to) throws MailboxManagerException;
+
+	/**
+	 * 
+	 * @param base
+	 *            hierarchy starting point like #mail.user1 to list mailboxes of
+	 *            user1
+	 * @param expression
+	 *            allows the use of wildcards
+	 * @param subscribed
+	 *            if true, only list subscribed mailboxes (needs interaction
+	 *            with the user-object)
+	 * @param user
+	 * @return
+	 * @throws MailboxManagerException 
+	 */
+
+	ListResult[] list(String base, String expression, boolean subscribed) throws MailboxManagerException;
+
+	/**
+	 * could be implemented later. There could be enviroments where
+	 * subscribtions are stored in the mailbox database. Another possibility is
+	 * to manage subscribtions in the user repository, e.g. a ldap attribute,
+	 * 
+	 * @param mailboxName
+	 * @param value
+	 * @param user
+	 */
+
+	void setSubscription(String mailboxName, boolean value) throws MailboxManagerException;
+
+    boolean existsMailbox(String mailboxName) throws MailboxManagerException;
+
+	void close();
+
+}
