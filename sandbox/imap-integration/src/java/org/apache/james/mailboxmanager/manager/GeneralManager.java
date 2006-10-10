@@ -47,99 +47,99 @@ import org.apache.james.services.User;
 
 public interface GeneralManager extends MailboxManager {
 
-	/**
-	 * get a session mailbox 
-	 * 
-	 * @param nameSpaceName
-	 * @param user
-	 * @return
-	 * @throws MailboxManagerException 
-	 */
-	MailboxSession getMailboxSession(String mailboxName,Class neededInterface,int[] setTypes,int resultTypes) throws MailboxManagerException;
-	
-	/**
-	 * Supports 
-	 * 
-	 * @param mailboxName
-	 * @return
-	 * @throws MailboxManagerException
-	 */
-	
-	GeneralMailboxSession getGenericGeneralMailboxSession(String mailboxName) throws MailboxManagerException;
-	
-	ImapMailboxSession getGenericImapMailboxSession(String mailboxName) throws MailboxManagerException;
+    /**
+     * get a session mailbox 
+     * 
+     * @param nameSpaceName
+     * @param user
+     * @return
+     * @throws MailboxManagerException 
+     */
+    MailboxSession getMailboxSession(String mailboxName,Class neededInterface,int[] setTypes,int resultTypes) throws MailboxManagerException;
+    
+    /**
+     * Supports 
+     * 
+     * @param mailboxName
+     * @return
+     * @throws MailboxManagerException
+     */
+    
+    GeneralMailboxSession getGenericGeneralMailboxSession(String mailboxName) throws MailboxManagerException;
+    
+    ImapMailboxSession getGenericImapMailboxSession(String mailboxName) throws MailboxManagerException;
 
-	/**
-	 * The Namespaces a user has access to.
-	 * @param forUser TODO
-	 * @param user
-	 * 
-	 * @return
-	 */
-	Namespaces getNamespaces(User forUser);
+    /**
+     * The Namespaces a user has access to.
+     * @param forUser TODO
+     * @param user
+     * 
+     * @return
+     */
+    Namespaces getNamespaces(User forUser);
 
-	/**
-	 * To get the Inbox you can just to a mailbox
-	 * defaultNameSpace=ImapMailboxRepository.getPersonalDefaultNameSpace(user)
-	 * inbox=defaultNameSpace.getName()+defaultNameSpace.getHierarchyDelimter()+"INBOX";
-	 * TODO add a convinience method to get directly a session mailbox for a users inbox
-	 * @param forUser TODO
-	 * 
-	 * @return
-	 */
-	Namespace getPersonalDefaultNamespace(User forUser);
-	
-	
+    /**
+     * To get the Inbox you can just to a mailbox
+     * defaultNameSpace=ImapMailboxRepository.getPersonalDefaultNameSpace(user)
+     * inbox=defaultNameSpace.getName()+defaultNameSpace.getHierarchyDelimter()+"INBOX";
+     * TODO add a convinience method to get directly a session mailbox for a users inbox
+     * @param forUser TODO
+     * 
+     * @return
+     */
+    Namespace getPersonalDefaultNamespace(User forUser);
+    
+    
 
-	void createMailbox(String mailboxName) throws MailboxManagerException;
+    void createMailbox(String mailboxName) throws MailboxManagerException;
 
-	void deleteMailbox(String mailboxName) throws MailboxManagerException;
+    void deleteMailbox(String mailboxName) throws MailboxManagerException;
 
-	void renameMailbox(String from, String to) throws MailboxManagerException;
+    void renameMailbox(String from, String to) throws MailboxManagerException;
 
-	/**
-	 * this is done by the MailboxRepository because maybe this operation could
-	 * be optimized in the corresponding store.
-	 * 
-	 * @param from
-	 * @param set
-	 *            messages to copy
-	 * @param to
-	 *            name of the destination mailbox
-	 */
-	void copyMessages(GeneralMailbox from, GeneralMessageSet set, String to) throws MailboxManagerException;
+    /**
+     * this is done by the MailboxRepository because maybe this operation could
+     * be optimized in the corresponding store.
+     * 
+     * @param from
+     * @param set
+     *            messages to copy
+     * @param to
+     *            name of the destination mailbox
+     */
+    void copyMessages(GeneralMailbox from, GeneralMessageSet set, String to) throws MailboxManagerException;
 
-	/**
-	 * 
-	 * @param base
-	 *            hierarchy starting point like #mail.user1 to list mailboxes of
-	 *            user1
-	 * @param expression
-	 *            allows the use of wildcards
-	 * @param subscribed
-	 *            if true, only list subscribed mailboxes (needs interaction
-	 *            with the user-object)
-	 * @param user
-	 * @return
-	 * @throws MailboxManagerException 
-	 */
+    /**
+     * 
+     * @param base
+     *            hierarchy starting point like #mail.user1 to list mailboxes of
+     *            user1
+     * @param expression
+     *            allows the use of wildcards
+     * @param subscribed
+     *            if true, only list subscribed mailboxes (needs interaction
+     *            with the user-object)
+     * @param user
+     * @return
+     * @throws MailboxManagerException 
+     */
 
-	ListResult[] list(String base, String expression, boolean subscribed) throws MailboxManagerException;
+    ListResult[] list(String base, String expression, boolean subscribed) throws MailboxManagerException;
 
-	/**
-	 * could be implemented later. There could be enviroments where
-	 * subscribtions are stored in the mailbox database. Another possibility is
-	 * to manage subscribtions in the user repository, e.g. a ldap attribute,
-	 * 
-	 * @param mailboxName
-	 * @param value
-	 * @param user
-	 */
+    /**
+     * could be implemented later. There could be enviroments where
+     * subscribtions are stored in the mailbox database. Another possibility is
+     * to manage subscribtions in the user repository, e.g. a ldap attribute,
+     * 
+     * @param mailboxName
+     * @param value
+     * @param user
+     */
 
-	void setSubscription(String mailboxName, boolean value) throws MailboxManagerException;
+    void setSubscription(String mailboxName, boolean value) throws MailboxManagerException;
 
     boolean existsMailbox(String mailboxName) throws MailboxManagerException;
 
-	void close();
+    void close();
 
 }

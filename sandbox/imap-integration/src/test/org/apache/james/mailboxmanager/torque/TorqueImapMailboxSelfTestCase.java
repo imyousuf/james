@@ -17,15 +17,15 @@ public class TorqueImapMailboxSelfTestCase extends
     }
 
     public void setUp() throws Exception {
-    	MailboxManagerProvider mailboxManagerProvider=TorqueMailboxManagerProviderSingleton.getTorqueMailboxManagerProviderInstance();
-    	mailboxManagerProvider.deleteEverything();
+        MailboxManagerProvider mailboxManagerProvider=TorqueMailboxManagerProviderSingleton.getTorqueMailboxManagerProviderInstance();
+        mailboxManagerProvider.deleteEverything();
         mailboxManager = mailboxManagerProvider .getGeneralManagerInstance(new MockUser());
         
         super.setUp();
     }
     
     public void testAddedEvents() throws MailboxManagerException, MessagingException {
-    	super.testAddedEvents();
+        super.testAddedEvents();
     }
 
 }

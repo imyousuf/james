@@ -21,11 +21,11 @@ public  class MessageRow
     implements Persistent
 {
     /**
-	 * 
-	 */
-	private static final long serialVersionUID = -75081490028686786L;
+     * 
+     */
+    private static final long serialVersionUID = -75081490028686786L;
 
-	public MessageFlags getMessageFlags() throws TorqueException {
+    public MessageFlags getMessageFlags() throws TorqueException {
         MessageFlags mf =null;
         List l = getMessageFlagss();
         if (l.size()==1) {

@@ -21,35 +21,35 @@ public class MailboxEventDispatcher implements MailboxListener {
 
     public void added(MessageResult result) {
         for (Iterator iter = listeners.iterator(); iter.hasNext();) {
-			MailboxListener mailboxListener = (MailboxListener) iter.next();
-			mailboxListener.added(result);
-		}
+            MailboxListener mailboxListener = (MailboxListener) iter.next();
+            mailboxListener.added(result);
+        }
     }
 
     public void expunged(MessageResult mr) {
         for (Iterator iter = listeners.iterator(); iter.hasNext();) {
-			MailboxListener mailboxListener = (MailboxListener) iter.next();
+            MailboxListener mailboxListener = (MailboxListener) iter.next();
             mailboxListener.expunged(mr);
         }
     }
 
     public void flagsUpdated(MessageResult result, MailboxListener silentListener) {
         for (Iterator iter = listeners.iterator(); iter.hasNext();) {
-			MailboxListener mailboxListener = (MailboxListener) iter.next();
+            MailboxListener mailboxListener = (MailboxListener) iter.next();
             mailboxListener.flagsUpdated(result, silentListener);
         }
     }
 
     public void mailboxDeleted() {
         for (Iterator iter = listeners.iterator(); iter.hasNext();) {
-			MailboxListener mailboxListener = (MailboxListener) iter.next();
+            MailboxListener mailboxListener = (MailboxListener) iter.next();
             mailboxListener.mailboxDeleted();
         }
     }
 
     public void mailboxRenamed(String origName, String newName) {
         for (Iterator iter = listeners.iterator(); iter.hasNext();) {
-			MailboxListener mailboxListener = (MailboxListener) iter.next();
+            MailboxListener mailboxListener = (MailboxListener) iter.next();
             mailboxListener.mailboxRenamed(origName,origName);
         }
     }

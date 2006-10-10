@@ -14,45 +14,45 @@ import org.apache.commons.logging.impl.SimpleLog;
 public class CopyInputStream extends InputStream
 {
 
-	private InputStream is;
+    private InputStream is;
 
-	private OutputStream copy;
+    private OutputStream copy;
 
-	private Log log;
+    private Log log;
 
-	StringBuffer logString = new StringBuffer();
-	
-	private boolean DEEP_DEBUG = false;
+    StringBuffer logString = new StringBuffer();
+    
+    private boolean DEEP_DEBUG = false;
 
-	public CopyInputStream(InputStream is, OutputStream copy)
-	{
-		this.is = is;
-		this.copy = copy;
-	}
+    public CopyInputStream(InputStream is, OutputStream copy)
+    {
+        this.is = is;
+        this.copy = copy;
+    }
 
-	public int read() throws IOException {
-		int in = is.read();
-		copy.write(in);
-		if (DEEP_DEBUG) {
-			if (in == 10) {
-				getLog().debug(logString);
-				logString = new StringBuffer();
-			} else if (in != 13) {
-				logString.append((char) in);
-			}
-		}
-		return in;
-	}
-	
-	protected Log getLog() {
-		if (log==null) {
-			log=new SimpleLog("CopyInputStream");
-		}
-		return log;
-	}
-	
-	public void setLog(Log log) {
-		this.log=log;
-	}
+    public int read() throws IOException {
+        int in = is.read();
+        copy.write(in);
+        if (DEEP_DEBUG) {
+            if (in == 10) {
+                getLog().debug(logString);
+                logString = new StringBuffer();
+            } else if (in != 13) {
+                logString.append((char) in);
+            }
+        }
+        return in;
+    }
+    
+    protected Log getLog() {
+        if (log==null) {
+            log=new SimpleLog("CopyInputStream");
+        }
+        return log;
+    }
+    
+    public void setLog(Log log) {
+        this.log=log;
+    }
 
 }

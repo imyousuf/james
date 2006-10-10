@@ -4,12 +4,12 @@ import org.apache.james.imapserver.ImapHandlerInterface;
 
 public class MockImapHandler implements ImapHandlerInterface {
 
-	public void forceConnectionClose(String byeMessage) {
+    public void forceConnectionClose(String byeMessage) {
 
-	}
+    }
 
-	public void resetHandler() {
+    public void resetHandler() {
 
-	}
+    }
 
 }

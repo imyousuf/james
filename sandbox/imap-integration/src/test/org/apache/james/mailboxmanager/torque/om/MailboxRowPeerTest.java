@@ -48,7 +48,7 @@ public abstract class MailboxRowPeerTest extends AbstractMailboxRowTestCase {
                         Transaction.safeRollback(c);
                         Throwable t = e.getCause();
                         if (t instanceof SQLException) {
-                        	errorCode=((SQLException) t).getErrorCode();
+                            errorCode=((SQLException) t).getErrorCode();
                             if (errorCode==1213) retry=true;
                             state = ((SQLException) t).getSQLState();
                         }

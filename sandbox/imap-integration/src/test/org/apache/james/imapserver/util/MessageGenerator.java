@@ -17,19 +17,19 @@ public class MessageGenerator
 {
     private static Random random;
 
-	protected static synchronized Random getRandom() {
+    protected static synchronized Random getRandom() {
         if (random == null) {
             random = new Random();
         }
         return random;
 
     }
-	
-	public static int calculateSize(MimeMessage m) throws IOException, MessagingException {
-		ByteArrayOutputStream os =new ByteArrayOutputStream();
-		m.writeTo(os);
-		return os.size();
-	}
+    
+    public static int calculateSize(MimeMessage m) throws IOException, MessagingException {
+        ByteArrayOutputStream os =new ByteArrayOutputStream();
+        m.writeTo(os);
+        return os.size();
+    }
 
     public static MimeMessage generateSimpleMessage() throws MessagingException {
         
@@ -48,18 +48,18 @@ public class MessageGenerator
         mm.setText(text);
         return mm;
     }
-	public static String messageContentToString(Message mm) throws IOException, MessagingException {
-		ByteArrayOutputStream os=new ByteArrayOutputStream();
-		mm.writeTo(new CRLFOutputStream(os));
-		return os.toString();
-	}
+    public static String messageContentToString(Message mm) throws IOException, MessagingException {
+        ByteArrayOutputStream os=new ByteArrayOutputStream();
+        mm.writeTo(new CRLFOutputStream(os));
+        return os.toString();
+    }
 
-	public static MimeMessage[] generateSimplesMessages(int c) throws MessagingException
-	{
-		MimeMessage[] msgs=new MimeMessage[c];
-		for (int i=0; i<c; i++) {
-			msgs[i]=generateSimpleMessage();
-		}
-		return msgs;
-	}
+    public static MimeMessage[] generateSimplesMessages(int c) throws MessagingException
+    {
+        MimeMessage[] msgs=new MimeMessage[c];
+        for (int i=0; i<c; i++) {
+            msgs[i]=generateSimpleMessage();
+        }
+        return msgs;
+    }
 }

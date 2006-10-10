@@ -18,5 +18,5 @@ public  class MessageBody
     implements Persistent
 {
 
-	private static final long serialVersionUID = -1304530949913525943L;
+    private static final long serialVersionUID = -1304530949913525943L;
 }

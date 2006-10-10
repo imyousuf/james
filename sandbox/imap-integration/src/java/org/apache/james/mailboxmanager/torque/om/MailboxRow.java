@@ -27,9 +27,9 @@ public class MailboxRow extends
         org.apache.james.mailboxmanager.torque.om.BaseMailboxRow implements
         Persistent {
 
-	private static final long serialVersionUID = -8207690877715465485L;
+    private static final long serialVersionUID = -8207690877715465485L;
 
-	public MailboxRow(String string, long uidValidity) {
+    public MailboxRow(String string, long uidValidity) {
         this();
         setName(string);
         setUidValidity(uidValidity);

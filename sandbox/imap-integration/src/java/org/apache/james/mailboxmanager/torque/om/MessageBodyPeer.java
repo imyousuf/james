@@ -13,8 +13,8 @@ public class MessageBodyPeer
     extends org.apache.james.mailboxmanager.torque.om.BaseMessageBodyPeer
 {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -6885801687990340939L;
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -6885801687990340939L;
 }

@@ -60,9 +60,9 @@ public class SelectedMailboxSession implements MailboxListener {
 
     public void mailboxDeleted() {
         try {
-			_session.closeConnection("Mailbox " + mailbox.getName() + " has been deleted");
-		} catch (MailboxManagerException e) {
-		}
+            _session.closeConnection("Mailbox " + mailbox.getName() + " has been deleted");
+        } catch (MailboxManagerException e) {
+        }
     }
 
 
@@ -75,17 +75,17 @@ public class SelectedMailboxSession implements MailboxListener {
     }
     
 
-	public void close()
-	{
-		mailbox.close();
+    public void close()
+    {
+        mailbox.close();
         mailbox=null;
-	}
+    }
 
-	public void create()
-	{
-		throw new RuntimeException("should not create a selected mailbox");
-		
-	}
+    public void create()
+    {
+        throw new RuntimeException("should not create a selected mailbox");
+        
+    }
 
     public void expunged(MessageResult mr) {
         expungedMsn.add(new Integer(mr.getSize()));

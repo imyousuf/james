@@ -110,7 +110,7 @@ public final class ImapSessionImpl implements ImapSession, ImapConstants
 
                 // Expunged messages
                 if (!omitExpunged) {
-                	MessageResult[] expunged = selected.getMailbox().getExpungedEvents(
+                    MessageResult[] expunged = selected.getMailbox().getExpungedEvents(
                             true);
                     for (int i = 0; i < expunged.length; i++) {
                         MessageResult mr = expunged[i];
@@ -124,13 +124,13 @@ public final class ImapSessionImpl implements ImapSession, ImapConstants
     }
     
     public void closeConnection(String byeMessage) {
-    	closeMailbox();
+        closeMailbox();
         handler.forceConnectionClose(byeMessage);
     }
 
     public void closeConnection()
     {
-    	closeMailbox();
+        closeMailbox();
         handler.resetHandler();
     }
 
@@ -163,7 +163,7 @@ public final class ImapSessionImpl implements ImapSession, ImapConstants
     public void deselect()
     {
         this.state = ImapSessionState.AUTHENTICATED;
-       	closeMailbox();
+        closeMailbox();
     }
 
     public void setSelected( ImapMailboxSession mailbox, boolean readOnly ) throws MailboxManagerException
@@ -184,14 +184,14 @@ public final class ImapSessionImpl implements ImapSession, ImapConstants
         return this.state;
     }
 
-	public void closeMailbox()
-	{
-		if (selectedMailbox != null) {
-			selectedMailbox.close();
-			selectedMailbox=null;
-		}
-		
-	}
+    public void closeMailbox()
+    {
+        if (selectedMailbox != null) {
+            selectedMailbox.close();
+            selectedMailbox=null;
+        }
+        
+    }
 
 
 

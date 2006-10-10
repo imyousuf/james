@@ -19,7 +19,7 @@ public  class MessageFlags
     extends org.apache.james.mailboxmanager.torque.om.BaseMessageFlags
     implements Persistent
 {
-	private static final long serialVersionUID = -7426028860085278304L;
+    private static final long serialVersionUID = -7426028860085278304L;
 
 
     public void setFlags(Flags flags) {

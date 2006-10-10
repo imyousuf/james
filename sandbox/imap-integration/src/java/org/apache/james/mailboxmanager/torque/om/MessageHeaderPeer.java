@@ -13,8 +13,8 @@ public class MessageHeaderPeer
     extends org.apache.james.mailboxmanager.torque.om.BaseMessageHeaderPeer
 {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -4865363319883905760L;
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -4865363319883905760L;
 }

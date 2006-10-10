@@ -115,27 +115,27 @@ public abstract class AbstractImapMailboxSelfTestCase extends TestCase {
     }
     
     public void testAddedEvents() throws MailboxManagerException, MessagingException {
-    	assertEquals(0,mailbox.getFlagEvents(false).length);
-    	MessageResult mr=mailbox.appendMessage(TestUtil.createMessage(), new Date(), MessageResult.UID | MessageResult.MSN);
+        assertEquals(0,mailbox.getFlagEvents(false).length);
+        MessageResult mr=mailbox.appendMessage(TestUtil.createMessage(), new Date(), MessageResult.UID | MessageResult.MSN);
         assertEquals(0,mailbox.getFlagEvents(false).length);
         assertEquals(0,mailbox.getFlagEvents(true).length);
     }
     
     protected void assertEventCount(MailboxListenerCollector collector,long[] added, long[] flags, long[] expunged) {
-    	assertEquals("added size", added.length, collector.getAddedList(true).size());
-    	assertEquals("flags size", added.length, collector.getFlaggedList(true).size());
-    	assertEquals("deleted size", added.length, collector.getExpungedList(true).size());
-    	
+        assertEquals("added size", added.length, collector.getAddedList(true).size());
+        assertEquals("flags size", added.length, collector.getFlaggedList(true).size());
+        assertEquals("deleted size", added.length, collector.getExpungedList(true).size());
+        
     }
     
     protected void checkMessageResults(long[] uids,int[] msns,MessageResult[] messageResults) {
-    	assertEquals(uids.length, msns.length);
-    	assertEquals(uids.length, messageResults.length);
+        assertEquals(uids.length, msns.length);
+        assertEquals(uids.length, messageResults.length);
         for (int i = 0; i < messageResults.length; i++) {
-        	assertEquals("Uid at pos "+i,uids[i], messageResults[i].getUid());
-        	assertEquals("Msn at pos "+i,msns[i], messageResults[i].getMsn());
-		}
-    	
+            assertEquals("Uid at pos "+i,uids[i], messageResults[i].getUid());
+            assertEquals("Msn at pos "+i,msns[i], messageResults[i].getMsn());
+        }
+        
     }
 
 }

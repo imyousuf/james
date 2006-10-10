@@ -13,10 +13,10 @@ package org.apache.james.mailboxmanager.torque.om;
 public class MessageRowPeer extends
         org.apache.james.mailboxmanager.torque.om.BaseMessageRowPeer {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1708650986440774692L;
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1708650986440774692L;
 
 
 

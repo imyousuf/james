@@ -14,10 +14,10 @@ import org.apache.james.mailboxmanager.mailbox.MailboxSession;
 public class SessionMailboxWrapper extends NumberStableSessionWrapper implements MailboxSession {
 
     public SessionMailboxWrapper(GeneralMailbox generalMailbox) throws MailboxManagerException {
-		super(generalMailbox);
-	}
+        super(generalMailbox);
+    }
 
-	public MessageResult appendMessage(MimeMessage message, Date internalDate,
+    public MessageResult appendMessage(MimeMessage message, Date internalDate,
             int result) throws MailboxManagerException {
         return addMsnResult(mailbox.appendMessage(message, internalDate, noMsnResult(result)),result);
     }
@@ -52,8 +52,8 @@ public class SessionMailboxWrapper extends NumberStableSessionWrapper implements
         // TODO Auto-generated method stub
     }
 
-	public boolean isWriteable() {
-		return true;
-	}
+    public boolean isWriteable() {
+        return true;
+    }
 
 }

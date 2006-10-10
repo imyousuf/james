@@ -142,7 +142,7 @@ public class ImapHandler
     }
 
     public void forceConnectionClose(final String message) {
-    	getLogger().debug("forceConnectionClose: "+message);
+        getLogger().debug("forceConnectionClose: "+message);
         ImapResponse response = new ImapResponse(outs);
         response.byeResponse(message);        
         resetHandler();
@@ -154,19 +154,19 @@ public class ImapHandler
     public void handleConnection( Socket connection )
             throws IOException
     {
-    	handlerIsUp=true;
-    	getLogger().debug("Accepting connection for "+connection.toString());
-    	// DEBUG
-    	
-    	String tcplogprefix= null;
-    	if (theConfigData.doStreamdump()) {
-    		String streamdumpDir=theConfigData.getStreamdumpDir();
-    		tcplogprefix= streamdumpDir+"/TCP-IMAP."+System.currentTimeMillis()+".";
-			File logdir = new File(streamdumpDir);
-			if (!logdir.exists()) {
-				logdir.mkdir();
-			}
-		}
+        handlerIsUp=true;
+        getLogger().debug("Accepting connection for "+connection.toString());
+        // DEBUG
+        
+        String tcplogprefix= null;
+        if (theConfigData.doStreamdump()) {
+            String streamdumpDir=theConfigData.getStreamdumpDir();
+            tcplogprefix= streamdumpDir+"/TCP-IMAP."+System.currentTimeMillis()+".";
+            File logdir = new File(streamdumpDir);
+            if (!logdir.exists()) {
+                logdir.mkdir();
+            }
+        }
         String remoteHost = "";
         String remoteIP = "";
 
@@ -177,9 +177,9 @@ public class ImapHandler
             }
             ins = socket.getInputStream();
             if (theConfigData.doStreamdump()) {
-				ins = new CopyInputStream(ins, new FileOutputStream(
-						tcplogprefix + "in"));
-			}
+                ins = new CopyInputStream(ins, new FileOutputStream(
+                        tcplogprefix + "in"));
+            }
             in = new BufferedReader( new InputStreamReader( socket.getInputStream(), "ASCII" ), 512 );
             remoteIP = socket.getInetAddress().getHostAddress();
             remoteHost = socket.getInetAddress().getHostName();
@@ -235,10 +235,10 @@ public class ImapHandler
 
             theWatchdog.start();
             while ( requestHandler.handleRequest( ins, outs, session ) ) {
-            	if (!handlerIsUp) {
-            		getLogger().debug("Handler has been resetted");
-            		return;
-            	}
+                if (!handlerIsUp) {
+                    getLogger().debug("Handler has been resetted");
+                    return;
+                }
                 theWatchdog.reset();
             }
             theWatchdog.stop();
@@ -260,8 +260,8 @@ public class ImapHandler
 
         }
         catch (Exception e) {
-			out.println("Error closing connection.");
-			out.flush();
+            out.println("Error closing connection.");
+            out.flush();
             StringBuffer exceptionBuffer =
                     new StringBuffer( 128 )
                     .append( "Exception on connection from " )
@@ -281,17 +281,17 @@ public class ImapHandler
      * Resets the handler data to a basic state.
      */
     public void resetHandler()
-	{
-		if (handlerIsUp == false) {
-			return;
-		}
-		handlerIsUp = false;
-		if (theWatchdog != null) {
-			if (theWatchdog instanceof Disposable) {
-				((Disposable) theWatchdog).dispose();
-			}
-			theWatchdog = null;
-		}
+    {
+        if (handlerIsUp == false) {
+            return;
+        }
+        handlerIsUp = false;
+        if (theWatchdog != null) {
+            if (theWatchdog instanceof Disposable) {
+                ((Disposable) theWatchdog).dispose();
+            }
+            theWatchdog = null;
+        }
 
         // Close and clear streams, sockets
 
@@ -357,7 +357,7 @@ public class ImapHandler
         try {
                session.closeMailbox();
         } catch (Exception e) {
-        	getLogger().error("session.cleanUp", e);
+            getLogger().error("session.cleanUp", e);
         }
         session = null;
 

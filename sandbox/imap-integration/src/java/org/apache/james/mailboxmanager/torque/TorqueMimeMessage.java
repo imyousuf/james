@@ -64,8 +64,8 @@ public class TorqueMimeMessage extends MimeMessage {
         
         MessageFlags messageFlags=messageRow.getMessageFlags();
         if (messageFlags != null) {
-			tmm.setFlags(messageRow.getMessageFlags().getFlagsObject(), true);
-		}
+            tmm.setFlags(messageRow.getMessageFlags().getFlagsObject(), true);
+        }
 
         
         // save and reset the message-id

@@ -5,12 +5,12 @@ import org.apache.james.services.User;
 
 public interface BasicManager {
 
-	/**
-	 * 
-	 * @param user
-	 * @return
-	 */
-	BasicMailboxSession getInbox(User user);
-	
-	void deleteAllUserData(User user);
+    /**
+     * 
+     * @param user
+     * @return
+     */
+    BasicMailboxSession getInbox(User user);
+    
+    void deleteAllUserData(User user);
 }

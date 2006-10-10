@@ -11,7 +11,7 @@ public class MailboxTracker {
     
     protected MailboxEventDispatcher eventDispatcher=new MailboxEventDispatcher();
     
-	private boolean existing;
+    private boolean existing;
 
     public MailboxTracker(MailboxCache mailboxCache, String mailboxName) {
         this.mailboxName=mailboxName;
@@ -38,18 +38,18 @@ public class MailboxTracker {
         }
     }
     
-	public void mailboxNotFound() {
-		mailboxCache.notFound(getMailboxName());
-		existing=false;
-	}
+    public void mailboxNotFound() {
+        mailboxCache.notFound(getMailboxName());
+        existing=false;
+    }
 
-	public boolean isExisting() {
-		return existing;
-	}
+    public boolean isExisting() {
+        return existing;
+    }
 
-	public void signalRename(String newName) {
+    public void signalRename(String newName) {
         eventDispatcher.mailboxRenamed(mailboxName, newName);
         mailboxName=newName;
-	}
+    }
 
 }

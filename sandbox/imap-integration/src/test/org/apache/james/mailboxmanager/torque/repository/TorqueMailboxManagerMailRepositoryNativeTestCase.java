@@ -24,108 +24,108 @@ import org.apache.james.mailboxmanager.redundant.AbstractMailRepositoryNativeTes
 import org.apache.james.mailboxmanager.repository.MailboxManagerMailRepository;
 
 public class TorqueMailboxManagerMailRepositoryNativeTestCase extends
-		AbstractMailRepositoryNativeTestCase {
+        AbstractMailRepositoryNativeTestCase {
 
-	GeneralMailboxSession shadowMailbox = null;
+    GeneralMailboxSession shadowMailbox = null;
 
-	protected void configureRepository() throws Exception {
-		TorqueMailboxManagerProviderSingleton
-				.getTorqueMailboxManagerProviderInstance().deleteEverything();
-		MailboxManagerMailRepository mailboxManagerMailRepository = new MailboxManagerMailRepository();
+    protected void configureRepository() throws Exception {
+        TorqueMailboxManagerProviderSingleton
+                .getTorqueMailboxManagerProviderInstance().deleteEverything();
+        MailboxManagerMailRepository mailboxManagerMailRepository = new MailboxManagerMailRepository();
 
-		DefaultConfigurationBuilder db = new DefaultConfigurationBuilder();
+        DefaultConfigurationBuilder db = new DefaultConfigurationBuilder();
 
-		Configuration conf = db
-				.build(
-						new ByteArrayInputStream(
-								("<repository destinationURL=\"mailboxmanager://users/tuser\" type=\"MAIL\"></repository>").getBytes()),
-						"repository");
-		mailboxManagerMailRepository.configure(conf);
-		mailboxManagerMailRepository.initialize();
-		mailboxManagerMailRepository.setMailboxManagerProvider(TorqueMailboxManagerProviderSingleton
-				.getTorqueMailboxManagerProviderInstance());
-		mailRepository = mailboxManagerMailRepository;
+        Configuration conf = db
+                .build(
+                        new ByteArrayInputStream(
+                                ("<repository destinationURL=\"mailboxmanager://users/tuser\" type=\"MAIL\"></repository>").getBytes()),
+                        "repository");
+        mailboxManagerMailRepository.configure(conf);
+        mailboxManagerMailRepository.initialize();
+        mailboxManagerMailRepository.setMailboxManagerProvider(TorqueMailboxManagerProviderSingleton
+                .getTorqueMailboxManagerProviderInstance());
+        mailRepository = mailboxManagerMailRepository;
 
-	}
+    }
 
-	protected void destroyRepository() throws IOException, MessagingException {
-	}
+    protected void destroyRepository() throws IOException, MessagingException {
+    }
 
-	protected void assertNativeMessageCountEquals(int count) {
-		assertEquals(count, getNativeMessageCount());
-	}
+    protected void assertNativeMessageCountEquals(int count) {
+        assertEquals(count, getNativeMessageCount());
+    }
 
-	
-	protected void assertNativeMessagesEqual(Collection expectedMessages)
-			throws IOException, MessagingException {
-		Collection existing = getNativeMessages();
-		Set existingSet = new HashSet();
-		for (Iterator iter = existing.iterator(); iter.hasNext();) {
-			MimeMessage mm = (MimeMessage) iter.next();
-			existingSet.add(new Integer(messageHashSum(mm)));
-		}
-		Set expectedSet = new HashSet();
-		for (Iterator iter = expectedMessages.iterator(); iter.hasNext();) {
-			MimeMessage mm = (MimeMessage) iter.next();
-			expectedSet.add(new Integer(messageHashSum(mm)));
-		}
-		assertEquals(expectedSet.size(), existingSet.size());
-		assertTrue(expectedSet.equals(existingSet));
+    
+    protected void assertNativeMessagesEqual(Collection expectedMessages)
+            throws IOException, MessagingException {
+        Collection existing = getNativeMessages();
+        Set existingSet = new HashSet();
+        for (Iterator iter = existing.iterator(); iter.hasNext();) {
+            MimeMessage mm = (MimeMessage) iter.next();
+            existingSet.add(new Integer(messageHashSum(mm)));
+        }
+        Set expectedSet = new HashSet();
+        for (Iterator iter = expectedMessages.iterator(); iter.hasNext();) {
+            MimeMessage mm = (MimeMessage) iter.next();
+            expectedSet.add(new Integer(messageHashSum(mm)));
+        }
+        assertEquals(expectedSet.size(), existingSet.size());
+        assertTrue(expectedSet.equals(existingSet));
 
-	}
+    }
 
-	protected int getNativeMessageCount() {
-		try {
-			return getShadowMailbox().getMessageCount();
-		} catch (MailboxManagerException e) {
-			throw new RuntimeException(e);
-		}
-	}
+    protected int getNativeMessageCount() {
+        try {
+            return getShadowMailbox().getMessageCount();
+        } catch (MailboxManagerException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-	public void testLock() throws MessagingException {
-		super.testLock();
-	}
+    public void testLock() throws MessagingException {
+        super.testLock();
+    }
 
-	
-	protected Collection getNativeMessages() {
-		final MessageResult[] mr;
-		try {
-			mr = getShadowMailbox().getMessages(GeneralMessageSetImpl.all(),
-					MessageResult.MIME_MESSAGE);
+    
+    protected Collection getNativeMessages() {
+        final MessageResult[] mr;
+        try {
+            mr = getShadowMailbox().getMessages(GeneralMessageSetImpl.all(),
+                    MessageResult.MIME_MESSAGE);
 
-		} catch (MailboxManagerException e) {
-			throw new RuntimeException(e);
-		}
-		Collection existing = new ArrayList();
-		for (int i = 0; i < mr.length; i++) {
-			existing.add(mr[i].getMimeMessage());
-		}
-		return existing;
-	}
+        } catch (MailboxManagerException e) {
+            throw new RuntimeException(e);
+        }
+        Collection existing = new ArrayList();
+        for (int i = 0; i < mr.length; i++) {
+            existing.add(mr[i].getMimeMessage());
+        }
+        return existing;
+    }
 
-	protected void nativeStoreMessage(MimeMessage mm) {
-		try {
-			getShadowMailbox().appendMessage(mm, new Date(),
-					MessageResult.NOTHING);
-		} catch (MailboxManagerException e) {
-			throw new RuntimeException(e);
-		}
+    protected void nativeStoreMessage(MimeMessage mm) {
+        try {
+            getShadowMailbox().appendMessage(mm, new Date(),
+                    MessageResult.NOTHING);
+        } catch (MailboxManagerException e) {
+            throw new RuntimeException(e);
+        }
 
-	}
+    }
 
-	protected GeneralMailboxSession getShadowMailbox() {
-		if (shadowMailbox == null) {
-			try {
-				shadowMailbox = (GeneralMailboxSession) TorqueMailboxManagerProviderSingleton
-						.getTorqueMailboxManagerProviderInstance()
-						.getGeneralManagerInstance(new MockUser())
-						.getGenericGeneralMailboxSession("#mail.tuser.INBOX");
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		}
+    protected GeneralMailboxSession getShadowMailbox() {
+        if (shadowMailbox == null) {
+            try {
+                shadowMailbox = (GeneralMailboxSession) TorqueMailboxManagerProviderSingleton
+                        .getTorqueMailboxManagerProviderInstance()
+                        .getGeneralManagerInstance(new MockUser())
+                        .getGenericGeneralMailboxSession("#mail.tuser.INBOX");
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
 
-		return shadowMailbox;
-	}
+        return shadowMailbox;
+    }
 
 }

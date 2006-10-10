@@ -36,16 +36,16 @@ public class MailboxCache {
         trackers.remove(tracker.getMailboxName());
     }
 
-	public synchronized void renamed(String origName, String newName) {
-		MailboxTracker tracker=(MailboxTracker) trackers.get(origName);
-		if (tracker!=null) {
-			// is there already a tracker at the new position??
-			notFound(newName);
-			trackers.remove(origName);
-			trackers.put(newName, tracker);
-			tracker.signalRename(newName);
-		}
-		notFound(origName);
-	}
+    public synchronized void renamed(String origName, String newName) {
+        MailboxTracker tracker=(MailboxTracker) trackers.get(origName);
+        if (tracker!=null) {
+            // is there already a tracker at the new position??
+            notFound(newName);
+            trackers.remove(origName);
+            trackers.put(newName, tracker);
+            tracker.signalRename(newName);
+        }
+        notFound(origName);
+    }
 
 }

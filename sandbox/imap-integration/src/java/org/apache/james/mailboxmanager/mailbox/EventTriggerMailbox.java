@@ -15,18 +15,18 @@ import org.apache.james.mailboxmanager.MailboxManagerException;
  */
 public interface EventTriggerMailbox {
 
-	/**
-	 * Implementations of Mailbox may interpret the fact that someone is
-	 * listening and do some caching and even postpone persistence until
-	 * everyone has removed itself.
-	 * 
-	 * @param listener
-	 * @param result
-	 *            which fields to be returned in MessageResult
-	 * @throws MailboxManagerException 
-	 */
-	void addListener(MailboxListener listener, int result) throws MailboxManagerException;
+    /**
+     * Implementations of Mailbox may interpret the fact that someone is
+     * listening and do some caching and even postpone persistence until
+     * everyone has removed itself.
+     * 
+     * @param listener
+     * @param result
+     *            which fields to be returned in MessageResult
+     * @throws MailboxManagerException 
+     */
+    void addListener(MailboxListener listener, int result) throws MailboxManagerException;
 
-	void removeListener(MailboxListener listener);
+    void removeListener(MailboxListener listener);
 
 }

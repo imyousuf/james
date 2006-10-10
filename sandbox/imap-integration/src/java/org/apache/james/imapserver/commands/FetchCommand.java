@@ -259,10 +259,10 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
             ByteArrayOutputStream headerOut = new ByteArrayOutputStream();
             ByteArrayOutputStream bodyOut = new ByteArrayOutputStream();
             try {
-            	// TODO James Trunk : Is this okay?
-            	MimeMessageWrapper mmw=new MimeMessageWrapper(mimeMessage);
-            	
-            	mmw.writeTo(headerOut, bodyOut );
+                // TODO James Trunk : Is this okay?
+                MimeMessageWrapper mmw=new MimeMessageWrapper(mimeMessage);
+                
+                mmw.writeTo(headerOut, bodyOut );
                 byte[] bytes = bodyOut.toByteArray();
 
                 addLiteral( bytes, response );

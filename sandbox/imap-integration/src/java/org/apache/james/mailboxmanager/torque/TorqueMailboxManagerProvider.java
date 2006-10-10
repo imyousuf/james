@@ -43,7 +43,7 @@ public class TorqueMailboxManagerProvider implements MailboxManagerProvider, Ini
     
     private boolean initialized;
 
-	private Log log;
+    private Log log;
 
     private static final String[] tableNames= new String[] {MailboxRowPeer.TABLE_NAME,MessageRowPeer.TABLE_NAME,MessageHeaderPeer.TABLE_NAME,MessageBodyPeer.TABLE_NAME,MessageFlagsPeer.TABLE_NAME};
 
@@ -51,12 +51,12 @@ public class TorqueMailboxManagerProvider implements MailboxManagerProvider, Ini
             throws MailboxManagerException {
      return getGeneralManagerInstance(user);
     }
-	public GeneralManager getGeneralManagerInstance(User user)             throws MailboxManagerException {
+    public GeneralManager getGeneralManagerInstance(User user)             throws MailboxManagerException {
         if (!initialized)  {
             throw new MailboxManagerException("must be initialized first!");
         }
         return new TorqueMailboxManager(user, getMailboxCache(),getLog());
-	}
+    }
     public void initialize() throws Exception {
         if (!initialized) {
             if (torqueConf==null) {
@@ -70,7 +70,7 @@ public class TorqueMailboxManagerProvider implements MailboxManagerProvider, Ini
                 Torque.init(torqueConf);
                 conn=Transaction.begin(MailboxRowPeer.DATABASE_NAME);
                 SqlResources sqlResources=new SqlResources();
-                sqlResources.init(getClass().getResource("/mailboxManagerSql.xml"), getClass().getCanonicalName(), conn, new HashMap());
+                sqlResources.init(getClass().getResource("/mailboxManagerSql.xml"), getClass().getName(), conn, new HashMap());
 
                 DatabaseMetaData dbMetaData=conn.getMetaData();
                 
@@ -87,10 +87,14 @@ public class TorqueMailboxManagerProvider implements MailboxManagerProvider, Ini
                 System.out.println("MailboxManager has been initialized");
                 getLog().info("MailboxManager has been initialized");
             } catch (Exception e) {
+                System.err.println("============================================");
+                e.printStackTrace();
+                System.err.println("--------------------------------------------");
                 Transaction.safeRollback(conn);
                 try {
                     Torque.shutdown();
                 } catch (TorqueException e1) {
+                    
                 }  
                 throw new MailboxManagerException(e);
             } 
@@ -98,32 +102,32 @@ public class TorqueMailboxManagerProvider implements MailboxManagerProvider, Ini
     }
     
     public void configureDefaults()
-			throws org.apache.commons.configuration.ConfigurationException {
-		File configFile = new File("torque.properties");
-		if (configFile.canRead()) {
-			torqueConf = new PropertiesConfiguration(configFile);
-		} else {
-			torqueConf = new BaseConfiguration();
-			torqueConf.addProperty("torque.database.default", "mailboxmanager");
-			torqueConf.addProperty("torque.database.mailboxmanager.adapter",
-					"derby");
-			torqueConf.addProperty("torque.dsfactory.mailboxmanager.factory",
-					"org.apache.torque.dsfactory.SharedPoolDataSourceFactory");
-			torqueConf.addProperty(
-					"torque.dsfactory.mailboxmanager.connection.driver",
-					"org.apache.derby.jdbc.EmbeddedDriver");
-			torqueConf.addProperty(
-					"torque.dsfactory.mailboxmanager.connection.url",
-					"jdbc:derby:derby;create=true");
-			torqueConf.addProperty(
-					"torque.dsfactory.mailboxmanager.connection.user", "app");
-			torqueConf.addProperty(
-					"torque.dsfactory.mailboxmanager.connection.password",
-					"app");
-			torqueConf.addProperty(
-					"torque.dsfactory.mailboxmanager.pool.maxActive", "100");
-		}
-	}
+            throws org.apache.commons.configuration.ConfigurationException {
+        File configFile = new File("torque.properties");
+        if (configFile.canRead()) {
+            torqueConf = new PropertiesConfiguration(configFile);
+        } else {
+            torqueConf = new BaseConfiguration();
+            torqueConf.addProperty("torque.database.default", "mailboxmanager");
+            torqueConf.addProperty("torque.database.mailboxmanager.adapter",
+                    "derby");
+            torqueConf.addProperty("torque.dsfactory.mailboxmanager.factory",
+                    "org.apache.torque.dsfactory.SharedPoolDataSourceFactory");
+            torqueConf.addProperty(
+                    "torque.dsfactory.mailboxmanager.connection.driver",
+                    "org.apache.derby.jdbc.EmbeddedDriver");
+            torqueConf.addProperty(
+                    "torque.dsfactory.mailboxmanager.connection.url",
+                    "jdbc:derby:derby;create=true");
+            torqueConf.addProperty(
+                    "torque.dsfactory.mailboxmanager.connection.user", "app");
+            torqueConf.addProperty(
+                    "torque.dsfactory.mailboxmanager.connection.password",
+                    "app");
+            torqueConf.addProperty(
+                    "torque.dsfactory.mailboxmanager.pool.maxActive", "100");
+        }
+    }
 
     public void configure(org.apache.avalon.framework.configuration.Configuration conf) throws ConfigurationException {
         torqueConf=new BaseConfiguration();
@@ -173,20 +177,20 @@ public class TorqueMailboxManagerProvider implements MailboxManagerProvider, Ini
     }
 
     public String toString() {
-    	return "TorqueMailboxManagerProvider";
+        return "TorqueMailboxManagerProvider";
     }
 
 
     protected Log getLog() {
-    	if (log == null) {
-			log = new SimpleLog("TorqueMailboxManagerProvider");
-		}
-		return log;
+        if (log == null) {
+            log = new SimpleLog("TorqueMailboxManagerProvider");
+        }
+        return log;
     }
-	public void enableLogging(Logger logger) {
-		log=new AvalonLogger(logger);
-		
-	}
+    public void enableLogging(Logger logger) {
+        log=new AvalonLogger(logger);
+        
+    }
     
 
 }

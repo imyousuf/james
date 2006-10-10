@@ -18,43 +18,43 @@ public class ImapServerLauncher  implements TestConstants
 {
 
 
-	public void go() throws IOException, MessagingException, MailboxManagerException
-	{
-		ServerSocket ss = new ServerSocket(HOST_PORT);
-		final MockImapHandlerConfigurationData theConfigData=new MockImapHandlerConfigurationData();
-		while (true) {
+    public void go() throws IOException, MessagingException, MailboxManagerException
+    {
+        ServerSocket ss = new ServerSocket(HOST_PORT);
+        final MockImapHandlerConfigurationData theConfigData=new MockImapHandlerConfigurationData();
+        while (true) {
             
-			final Socket s=ss.accept();
-			new Thread() {
-				public void run() {
-					try {
-						ImapHandler imapHandler=new ImapHandler();
-						imapHandler.enableLogging(new MockLogger());
-						imapHandler.setConfigurationData(theConfigData);
-						imapHandler.setWatchdog(new MockWatchdog());
-						System.out.println("Handle connection "+s);
-						imapHandler.handleConnection(s);
-						System.out.println("Handle connection finished."+s);
-	
-					} catch (IOException e) {
-						throw new RuntimeException(e);
-					}		
-				}
-			}.start();
-			
-			
-		}
+            final Socket s=ss.accept();
+            new Thread() {
+                public void run() {
+                    try {
+                        ImapHandler imapHandler=new ImapHandler();
+                        imapHandler.enableLogging(new MockLogger());
+                        imapHandler.setConfigurationData(theConfigData);
+                        imapHandler.setWatchdog(new MockWatchdog());
+                        System.out.println("Handle connection "+s);
+                        imapHandler.handleConnection(s);
+                        System.out.println("Handle connection finished."+s);
+    
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }       
+                }
+            }.start();
+            
+            
+        }
 
-	}
+    }
 
-	public static void main(String[] args)
-	{
-		try {
-			new ImapServerLauncher().go();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+    public static void main(String[] args)
+    {
+        try {
+            new ImapServerLauncher().go();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
-	}
+    }
 
 }

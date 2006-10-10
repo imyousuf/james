@@ -17,48 +17,48 @@ import org.apache.mailet.MailAddress;
 public class MockMailServer implements MailServer, TestConstants
 {
 
-	public void sendMail(MailAddress sender, Collection recipients,
-			MimeMessage msg) throws MessagingException
-	{
-		throw new RuntimeException("not implemented");
+    public void sendMail(MailAddress sender, Collection recipients,
+            MimeMessage msg) throws MessagingException
+    {
+        throw new RuntimeException("not implemented");
 
-	}
+    }
 
-	public void sendMail(MailAddress sender, Collection recipients,
-			InputStream msg) throws MessagingException
-	{
-		throw new RuntimeException("not implemented");
-	}
+    public void sendMail(MailAddress sender, Collection recipients,
+            InputStream msg) throws MessagingException
+    {
+        throw new RuntimeException("not implemented");
+    }
 
-	public void sendMail(Mail mail) throws MessagingException
-	{
-		throw new RuntimeException("not implemented");
-	}
+    public void sendMail(Mail mail) throws MessagingException
+    {
+        throw new RuntimeException("not implemented");
+    }
 
-	public void sendMail(MimeMessage message) throws MessagingException
-	{
-		throw new RuntimeException("not implemented");
-	}
+    public void sendMail(MimeMessage message) throws MessagingException
+    {
+        throw new RuntimeException("not implemented");
+    }
 
-	Map userToMailRepo = new HashMap();
+    Map userToMailRepo = new HashMap();
 
-	public MailRepository getUserInbox(String userName)	{
+    public MailRepository getUserInbox(String userName) {
         return null;
-	}
+    }
 
-	public String getId()
-	{
-		throw new RuntimeException("not implemented");
-	}
+    public String getId()
+    {
+        throw new RuntimeException("not implemented");
+    }
 
-	public boolean addUser(String userName, String password)
-	{
-		throw new RuntimeException("not implemented");
-	}
+    public boolean addUser(String userName, String password)
+    {
+        throw new RuntimeException("not implemented");
+    }
 
-	public boolean isLocalServer(String serverName)
-	{
-		throw new RuntimeException("not implemented");
-	}
+    public boolean isLocalServer(String serverName)
+    {
+        throw new RuntimeException("not implemented");
+    }
 
 }

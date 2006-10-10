@@ -66,7 +66,7 @@ public class MailboxRowMapBuilder implements MapBuilder
         tMap.setPrimaryKeyMethodInfo("mailbox");
 
               tMap.addPrimaryKey("mailbox.MAILBOX_ID", new Long(0) );
-                        	          tMap.addColumn("mailbox.NAME", "", 255 );
+                                      tMap.addColumn("mailbox.NAME", "", 255 );
                                         tMap.addColumn("mailbox.UID_VALIDITY", new Long(0) );
                                 tMap.addColumn("mailbox.LAST_UID", new Long(0) );
                                 tMap.addColumn("mailbox.MESSAGE_COUNT", new Integer(0) );

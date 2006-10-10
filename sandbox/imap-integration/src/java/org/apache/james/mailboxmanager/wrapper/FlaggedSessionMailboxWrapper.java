@@ -11,7 +11,7 @@ import org.apache.james.mailboxmanager.mailbox.FlaggedMailbox;
 public class FlaggedSessionMailboxWrapper extends SessionMailboxWrapper {
     
     public FlaggedSessionMailboxWrapper(FlaggedMailbox flaggedMailbox) throws MailboxManagerException {
-    	super(flaggedMailbox);
+        super(flaggedMailbox);
     }
     
     

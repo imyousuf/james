@@ -110,8 +110,8 @@ public class SimpleMessageAttributes
         } catch (MessagingException me) {
         }
         if (internalDate == null) {
-        	// TODO setAttributesFor: decide what to do when internalDate is null
-        	internalDate=new Date();
+            // TODO setAttributesFor: decide what to do when internalDate is null
+            internalDate=new Date();
         }
 
         internalDateString = RFC822DateFormat.toString(internalDate); // not right format

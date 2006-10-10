@@ -25,7 +25,7 @@ package org.apache.james.mailboxmanager;
  */
 
 public interface MailboxListener {
-	
+    
     void expunged(MessageResult mr);
     
     void added(MessageResult result);

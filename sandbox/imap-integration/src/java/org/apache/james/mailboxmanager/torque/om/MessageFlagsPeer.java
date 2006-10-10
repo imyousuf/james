@@ -18,11 +18,11 @@ public class MessageFlagsPeer
 {
     
     /**
-	 * 
-	 */
-	private static final long serialVersionUID = 4709341310937090513L;
+     * 
+     */
+    private static final long serialVersionUID = 4709341310937090513L;
 
-	public static void addFlagsToCriteria(Flags flags,boolean value,Criteria c) {
+    public static void addFlagsToCriteria(Flags flags,boolean value,Criteria c) {
         if (flags.contains(Flags.Flag.ANSWERED)) {
             c.add(ANSWERED,value);
         }

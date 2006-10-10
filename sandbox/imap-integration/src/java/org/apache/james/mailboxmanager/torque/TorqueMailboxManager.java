@@ -51,20 +51,20 @@ public class TorqueMailboxManager implements GeneralManager {
     
     public MailboxSession getMailboxSession(String mailboxName, Class neededInterface, int[] setTypes,int resultTypes)
     throws MailboxManagerException {
-    	return getGenericImapMailboxSession(mailboxName);
+        return getGenericImapMailboxSession(mailboxName);
     }
 
     public GeneralMailboxSession getGenericGeneralMailboxSession(String mailboxName)
     throws MailboxManagerException {
-    	return getGenericImapMailboxSession(mailboxName);
+        return getGenericImapMailboxSession(mailboxName);
     }
     
     public ImapMailboxSession getGenericImapMailboxSession(String mailboxName)
             throws MailboxManagerException {
-    	
-    	// prepare to auto-create users Inbox
-    	
-    	// TODO inbox-auto-creation for authUser is not optimal. Use a autocreate boolean in getSessionMailbox?
+        
+        // prepare to auto-create users Inbox
+        
+        // TODO inbox-auto-creation for authUser is not optimal. Use a autocreate boolean in getSessionMailbox?
         String userInbox=getPersonalDefaultNamespace(authUser).getName()+HIERARCHY_DELIMITER+"INBOX";
         if (userInbox.length()==mailboxName.length()) {
             int del=userInbox.length()-5;
@@ -77,36 +77,36 @@ public class TorqueMailboxManager implements GeneralManager {
 
         try {
             synchronized (getMailboxCache()) {
-				MailboxRow mailboxRow = MailboxRowPeer
-						.retrieveByName(mailboxName);
-				if (mailboxRow == null) {
-					if (userInbox.equals(mailboxName)) {
-						// do auto creation
-						createMailbox(mailboxName);
-						mailboxRow = MailboxRowPeer.retrieveByName(mailboxName);
-						getLog().info("autocreated Inbox  " + mailboxName);
-					}
-				}
+                MailboxRow mailboxRow = MailboxRowPeer
+                        .retrieveByName(mailboxName);
+                if (mailboxRow == null) {
+                    if (userInbox.equals(mailboxName)) {
+                        // do auto creation
+                        createMailbox(mailboxName);
+                        mailboxRow = MailboxRowPeer.retrieveByName(mailboxName);
+                        getLog().info("autocreated Inbox  " + mailboxName);
+                    }
+                }
 
-				if (mailboxRow != null) {
-					UidChangeTracker tracker = (UidChangeTracker) getMailboxCache()
-							.getMailboxTracker(mailboxName,
-									UidChangeTracker.class);
-					if (tracker == null) {
-						tracker = new UidChangeTracker(getMailboxCache(),
-								mailboxName, mailboxRow.getLastUid());
-						getMailboxCache().add(mailboxName, tracker);
-					}
-					getLog().info("created ImapMailboxSession "+mailboxName);
-					return new ImapMailboxSessionWrapper(new TorqueMailbox(
-							mailboxRow, tracker,getLog()));
-				} else {
-					getLog().info("Mailbox '" + mailboxName + "' not found.");
-					getMailboxCache().notFound(mailboxName);
-					throw new MailboxManagerException("Mailbox '" + mailboxName
-							+ "' not found.");
-				}
-			}
+                if (mailboxRow != null) {
+                    UidChangeTracker tracker = (UidChangeTracker) getMailboxCache()
+                            .getMailboxTracker(mailboxName,
+                                    UidChangeTracker.class);
+                    if (tracker == null) {
+                        tracker = new UidChangeTracker(getMailboxCache(),
+                                mailboxName, mailboxRow.getLastUid());
+                        getMailboxCache().add(mailboxName, tracker);
+                    }
+                    getLog().info("created ImapMailboxSession "+mailboxName);
+                    return new ImapMailboxSessionWrapper(new TorqueMailbox(
+                            mailboxRow, tracker,getLog()));
+                } else {
+                    getLog().info("Mailbox '" + mailboxName + "' not found.");
+                    getMailboxCache().notFound(mailboxName);
+                    throw new MailboxManagerException("Mailbox '" + mailboxName
+                            + "' not found.");
+                }
+            }
         } catch (TorqueException e) {
             throw new MailboxManagerException(e);
         }
@@ -117,13 +117,13 @@ public class TorqueMailboxManager implements GeneralManager {
     }
     
     public Namespaces getNamespaces(User forUser) {
-    	NamespacesImpl nameSpaces=new NamespacesImpl();
-    	nameSpaces.setShared(new Namespace[0]);
-    	Namespace userNamespace=new NamespaceImpl(""+HIERARCHY_DELIMITER,USER_NAMESPACE);
-    	nameSpaces.setUser(new Namespace[] {userNamespace}); 
-    	Namespace personalDefault = getPersonalDefaultNamespace(forUser);
-    	nameSpaces.setPersonal(new Namespace[] {personalDefault}); 
-    	nameSpaces.setPersonalDefault(personalDefault);
+        NamespacesImpl nameSpaces=new NamespacesImpl();
+        nameSpaces.setShared(new Namespace[0]);
+        Namespace userNamespace=new NamespaceImpl(""+HIERARCHY_DELIMITER,USER_NAMESPACE);
+        nameSpaces.setUser(new Namespace[] {userNamespace}); 
+        Namespace personalDefault = getPersonalDefaultNamespace(forUser);
+        nameSpaces.setPersonal(new Namespace[] {personalDefault}); 
+        nameSpaces.setPersonalDefault(personalDefault);
         return nameSpaces;
     }
 
@@ -132,69 +132,69 @@ public class TorqueMailboxManager implements GeneralManager {
     }
 
     public void createMailbox(String namespaceName)
-			throws MailboxManagerException {
-    	getLog().info("createMailbox "+namespaceName);
-		synchronized (getMailboxCache()) {
-			MailboxRow mr = new MailboxRow();
-			mr.setName(namespaceName);
-			mr.setLastUid(0);
-			mr.setUidValidity(Math.abs(getRandom().nextInt()));
-			try {
-				mr.save();
-			} catch (Exception e) {
-				throw new MailboxManagerException(e);
-			}
-		}
-	}
+            throws MailboxManagerException {
+        getLog().info("createMailbox "+namespaceName);
+        synchronized (getMailboxCache()) {
+            MailboxRow mr = new MailboxRow();
+            mr.setName(namespaceName);
+            mr.setLastUid(0);
+            mr.setUidValidity(Math.abs(getRandom().nextInt()));
+            try {
+                mr.save();
+            } catch (Exception e) {
+                throw new MailboxManagerException(e);
+            }
+        }
+    }
 
     public void deleteMailbox(String mailboxName)
             throws MailboxManagerException {
-    	getLog().info("deleteMailbox "+mailboxName);
-    	synchronized (getMailboxCache()) {
-			try {
-				// TODO put this into a serilizable transaction
-				MailboxRow mr = MailboxRowPeer.retrieveByName(mailboxName);
-				if (mr == null) {
-					throw new MailboxManagerException("Mailbox not found");
-				}
-				MailboxRowPeer.doDelete(mr);
-				getMailboxCache().notFound(mailboxName);
-			} catch (TorqueException e) {
-				throw new MailboxManagerException(e);
-			}
-		}
+        getLog().info("deleteMailbox "+mailboxName);
+        synchronized (getMailboxCache()) {
+            try {
+                // TODO put this into a serilizable transaction
+                MailboxRow mr = MailboxRowPeer.retrieveByName(mailboxName);
+                if (mr == null) {
+                    throw new MailboxManagerException("Mailbox not found");
+                }
+                MailboxRowPeer.doDelete(mr);
+                getMailboxCache().notFound(mailboxName);
+            } catch (TorqueException e) {
+                throw new MailboxManagerException(e);
+            }
+        }
     }
 
     public void renameMailbox(String from, String to)
             throws MailboxManagerException {
         try {
-        	getLog().info("renameMailbox "+from+" to "+to);
-        	synchronized (getMailboxCache()) {
-				// TODO put this into a serilizable transaction
-				MailboxRow mr = MailboxRowPeer.retrieveByName(from);
-				if (mr == null) {
-					throw new MailboxManagerException("Mailbox not found");
-				}
-				mr.setName(to);
-				mr.save();
-				
-				// rename submailbox
-				
-				Criteria c = new Criteria();
-				c.add(MailboxRowPeer.NAME,
-						(Object) (from + HIERARCHY_DELIMITER + "%"),
-						Criteria.LIKE);
-				List l = MailboxRowPeer.doSelect(c);
-				for (Iterator iter = l.iterator(); iter.hasNext();) {
-					MailboxRow sub = (MailboxRow) iter.next();
-					String subOrigName=sub.getName();
-					String subNewName=to + subOrigName.substring(from.length());
-					sub.setName(to + sub.getName().substring(from.length()));
-					sub.save();
-					getLog().info("renameMailbox sub-mailbox "+subOrigName+" to "+subNewName);
-					getMailboxCache().renamed(subOrigName,subNewName);
-				}
-			}
+            getLog().info("renameMailbox "+from+" to "+to);
+            synchronized (getMailboxCache()) {
+                // TODO put this into a serilizable transaction
+                MailboxRow mr = MailboxRowPeer.retrieveByName(from);
+                if (mr == null) {
+                    throw new MailboxManagerException("Mailbox not found");
+                }
+                mr.setName(to);
+                mr.save();
+                
+                // rename submailbox
+                
+                Criteria c = new Criteria();
+                c.add(MailboxRowPeer.NAME,
+                        (Object) (from + HIERARCHY_DELIMITER + "%"),
+                        Criteria.LIKE);
+                List l = MailboxRowPeer.doSelect(c);
+                for (Iterator iter = l.iterator(); iter.hasNext();) {
+                    MailboxRow sub = (MailboxRow) iter.next();
+                    String subOrigName=sub.getName();
+                    String subNewName=to + subOrigName.substring(from.length());
+                    sub.setName(to + sub.getName().substring(from.length()));
+                    sub.save();
+                    getLog().info("renameMailbox sub-mailbox "+subOrigName+" to "+subNewName);
+                    getMailboxCache().renamed(subOrigName,subNewName);
+                }
+            }
         } catch (Exception e) {
             throw new MailboxManagerException(e);
         }
@@ -247,7 +247,7 @@ public class TorqueMailboxManager implements GeneralManager {
     }
     
     public void setSubscription(String mailboxName, boolean value) {
-    	// TODO implement subscriptions
+        // TODO implement subscriptions
     }
 
     protected static Random getRandom() {
@@ -263,20 +263,20 @@ public class TorqueMailboxManager implements GeneralManager {
         CountHelper countHelper=new CountHelper();
         int count;
         try {
-        	synchronized (getMailboxCache()) {
-				count = countHelper.count(c);
-				if (count == 0) {
-					getMailboxCache().notFound(mailboxName);
-					return false;
-				} else {
-					if (count == 1) {
-						return true;
-					} else {
-						throw new MailboxManagerException("found " + count
-								+ " mailboxes");
-					}
-				}
-			}
+            synchronized (getMailboxCache()) {
+                count = countHelper.count(c);
+                if (count == 0) {
+                    getMailboxCache().notFound(mailboxName);
+                    return false;
+                } else {
+                    if (count == 1) {
+                        return true;
+                    } else {
+                        throw new MailboxManagerException("found " + count
+                                + " mailboxes");
+                    }
+                }
+            }
         } catch (TorqueException e) {
             throw new MailboxManagerException(e);
         }
@@ -295,10 +295,10 @@ public class TorqueMailboxManager implements GeneralManager {
     }
     
     protected Log getLog() {
-    	if (log==null) {
-    		log=new SimpleLog("TorqueMailboxManager");
-    	}
-    	return log;
+        if (log==null) {
+            log=new SimpleLog("TorqueMailboxManager");
+        }
+        return log;
     }
 
 }

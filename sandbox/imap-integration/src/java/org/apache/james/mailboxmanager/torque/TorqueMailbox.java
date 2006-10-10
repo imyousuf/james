@@ -57,7 +57,7 @@ public class TorqueMailbox implements ImapMailbox {
 
     TorqueMailbox(MailboxRow mailboxRow, UidChangeTracker tracker, Log log) {
         this.log=log;
-    	this.mailboxRow = mailboxRow;
+        this.mailboxRow = mailboxRow;
         this.tracker = tracker;
         tracker.addMailboxListener(getEventDispatcher());
     }
@@ -74,12 +74,12 @@ public class TorqueMailbox implements ImapMailbox {
     }
 
     public synchronized String getName() throws MailboxManagerException {
-    	checkAccess();
+        checkAccess();
         return getUidChangeTracker().getMailboxName();
     }
 
     public int getMessageCount() throws MailboxManagerException {
-    	checkAccess();
+        checkAccess();
         try {
             return getMailboxRow().countMessages();
         } catch (Exception e) {
@@ -89,103 +89,103 @@ public class TorqueMailbox implements ImapMailbox {
 
     public MessageResult appendMessage(MimeMessage message, Date internalDate,
             int result) throws MailboxManagerException {
-    	checkAccess();
-		final MailboxRow myMailboxRow;
-		try {
-			myMailboxRow = getMailboxRow().consumeNextUid();
-		} catch (TorqueException e) {
-			throw new MailboxManagerException(e);
-		} catch (SQLException e) {
-			throw new MailboxManagerException(e);
-		}
-		if (myMailboxRow != null) {
-			try {
-				// To be thread safe, we first get our own copy and the
-				// exclusive
-				// Uid
-				// TODO create own message_id and assign uid later
-				// at the moment it could lead to the situation that uid 5 is
-				// insertet long before 4, when
-				// mail 4 is big and comes over a slow connection.
-				long uid = myMailboxRow.getLastUid();
-				this.mailboxRow = myMailboxRow;
+        checkAccess();
+        final MailboxRow myMailboxRow;
+        try {
+            myMailboxRow = getMailboxRow().consumeNextUid();
+        } catch (TorqueException e) {
+            throw new MailboxManagerException(e);
+        } catch (SQLException e) {
+            throw new MailboxManagerException(e);
+        }
+        if (myMailboxRow != null) {
+            try {
+                // To be thread safe, we first get our own copy and the
+                // exclusive
+                // Uid
+                // TODO create own message_id and assign uid later
+                // at the moment it could lead to the situation that uid 5 is
+                // insertet long before 4, when
+                // mail 4 is big and comes over a slow connection.
+                long uid = myMailboxRow.getLastUid();
+                this.mailboxRow = myMailboxRow;
 
-				MessageRow messageRow = new MessageRow();
-				messageRow.setMailboxId(getMailboxRow().getMailboxId());
-				messageRow.setUid(uid);
-				messageRow.setInternalDate(internalDate);
+                MessageRow messageRow = new MessageRow();
+                messageRow.setMailboxId(getMailboxRow().getMailboxId());
+                messageRow.setUid(uid);
+                messageRow.setInternalDate(internalDate);
 
-				// TODO very ugly size mesurement
-				ByteArrayOutputStream sizeBos = new ByteArrayOutputStream();
-				message.writeTo(new CRLFOutputStream(sizeBos));
-				messageRow.setSize(sizeBos.size());
-				MessageFlags messageFlags = new MessageFlags();
-				messageFlags.setFlags(message.getFlags());
-				messageRow.addMessageFlags(messageFlags);
+                // TODO very ugly size mesurement
+                ByteArrayOutputStream sizeBos = new ByteArrayOutputStream();
+                message.writeTo(new CRLFOutputStream(sizeBos));
+                messageRow.setSize(sizeBos.size());
+                MessageFlags messageFlags = new MessageFlags();
+                messageFlags.setFlags(message.getFlags());
+                messageRow.addMessageFlags(messageFlags);
 
-				int line_number = 0;
+                int line_number = 0;
 
-				for (Enumeration lines = message.getAllHeaderLines(); lines
-						.hasMoreElements();) {
-					String line = (String) lines.nextElement();
-					int colon = line.indexOf(": ");
-					if (colon > 0) {
-						line_number++;
-						MessageHeader mh = new MessageHeader();
-						mh.setLineNumber(line_number);
-						mh.setField(line.substring(0, colon));
-						// TODO avoid unlikely IOOB Exception
-						mh.setValue(line.substring(colon + 2));
-						messageRow.addMessageHeader(mh);
-					}
-				}
+                for (Enumeration lines = message.getAllHeaderLines(); lines
+                        .hasMoreElements();) {
+                    String line = (String) lines.nextElement();
+                    int colon = line.indexOf(": ");
+                    if (colon > 0) {
+                        line_number++;
+                        MessageHeader mh = new MessageHeader();
+                        mh.setLineNumber(line_number);
+                        mh.setField(line.substring(0, colon));
+                        // TODO avoid unlikely IOOB Exception
+                        mh.setValue(line.substring(colon + 2));
+                        messageRow.addMessageHeader(mh);
+                    }
+                }
 
-				MessageBody mb = new MessageBody();
+                MessageBody mb = new MessageBody();
 
-				InputStream is = message.getInputStream();
+                InputStream is = message.getInputStream();
 
-				ByteArrayOutputStream baos = new ByteArrayOutputStream();
-				byte[] buf = new byte[4096];
-				int read;
-				while ((read = is.read(buf)) > 0) {
-					baos.write(buf, 0, read);
-				}
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                byte[] buf = new byte[4096];
+                int read;
+                while ((read = is.read(buf)) > 0) {
+                    baos.write(buf, 0, read);
+                }
 
-				mb.setBody(baos.toByteArray());
-				messageRow.addMessageBody(mb);
+                mb.setBody(baos.toByteArray());
+                messageRow.addMessageBody(mb);
 
-				messageRow.save();
-				MessageResult messageResult = fillMessageResult(messageRow,
-						result | MessageResult.UID);
-				checkForScanGap(uid);
-				getUidChangeTracker().found(messageResult, null);
-				return messageResult;
-			} catch (Exception e) {
-				throw new MailboxManagerException(e);
-			}
-		} else {
-			// mailboxRow==null
-			getUidChangeTracker().mailboxNotFound();
-			throw new MailboxManagerException("Mailbox has been deleted");
-		}
+                messageRow.save();
+                MessageResult messageResult = fillMessageResult(messageRow,
+                        result | MessageResult.UID);
+                checkForScanGap(uid);
+                getUidChangeTracker().found(messageResult, null);
+                return messageResult;
+            } catch (Exception e) {
+                throw new MailboxManagerException(e);
+            }
+        } else {
+            // mailboxRow==null
+            getUidChangeTracker().mailboxNotFound();
+            throw new MailboxManagerException("Mailbox has been deleted");
+        }
 
-	}
+    }
 
     private void checkForScanGap(long uid) throws MailboxManagerException, TorqueException, MessagingException {
-		synchronized (getUidChangeTracker()) {
-			long lastScannedUid=getUidChangeTracker().getLastScannedUid();
-			if (uid>(lastScannedUid+1)) {
-				GeneralMessageSet set=GeneralMessageSetImpl.uidRange(lastScannedUid+1, uid);
-				Criteria criteria=criteriaForMessageSet(set);
-				List messageRows=mailboxRow.getMessageRows(criteria);
-				MessageResult[] messageResults=fillMessageResult(messageRows, MessageResult.UID);
-				getUidChangeTracker().found(uidRangeForMessageSet(set), messageResults, null);
-			}
-		}
-		
-	}
+        synchronized (getUidChangeTracker()) {
+            long lastScannedUid=getUidChangeTracker().getLastScannedUid();
+            if (uid>(lastScannedUid+1)) {
+                GeneralMessageSet set=GeneralMessageSetImpl.uidRange(lastScannedUid+1, uid);
+                Criteria criteria=criteriaForMessageSet(set);
+                List messageRows=mailboxRow.getMessageRows(criteria);
+                MessageResult[] messageResults=fillMessageResult(messageRows, MessageResult.UID);
+                getUidChangeTracker().found(uidRangeForMessageSet(set), messageResults, null);
+            }
+        }
+        
+    }
 
-	public MessageResult updateMessage(GeneralMessageSet messageSet, MimeMessage message, int result) {
+    public MessageResult updateMessage(GeneralMessageSet messageSet, MimeMessage message, int result) {
         throw new RuntimeException("not yet implemented");
     }
 
@@ -194,7 +194,7 @@ public class TorqueMailbox implements ImapMailbox {
         Criteria criteria = new Criteria();
         criteria.addAscendingOrderByColumn(MessageRowPeer.UID);
         if (set.getType() == GeneralMessageSet.TYPE_ALL) {
-        	// empty Criteria = everything
+            // empty Criteria = everything
         } else if (set.getType() == GeneralMessageSet.TYPE_UID) {
             
             if (set.getUidFrom() == set.getUidTo()) {
@@ -218,7 +218,7 @@ public class TorqueMailbox implements ImapMailbox {
 
     public MessageResult[] getMessages(GeneralMessageSet set, int result)
             throws MailboxManagerException {
-    	checkAccess();
+        checkAccess();
         if (!set.isValid()) {
             return new MessageResult[0];
         }
@@ -276,10 +276,10 @@ public class TorqueMailbox implements ImapMailbox {
             result -= MessageResult.UID;
         }
         if ((result & MessageResult.FLAGS) > 0) {
-        	MessageFlags messageFlags=messageRow.getMessageFlags();
-        	if (messageFlags!=null) {
-        		messageResult.setFlags(messageFlags.getFlagsObject());	
-        	}
+            MessageFlags messageFlags=messageRow.getMessageFlags();
+            if (messageFlags!=null) {
+                messageResult.setFlags(messageFlags.getFlagsObject());  
+            }
             result -= MessageResult.FLAGS;
         }
         if ((result & MessageResult.SIZE) > 0) {
@@ -344,12 +344,12 @@ public class TorqueMailbox implements ImapMailbox {
         try {
             List messageRows = getMailboxRow().getMessageRows(c);
             if (messageRows.size() > 0) {
-            	MessageResult messageResult=fillMessageResult((MessageRow) messageRows.get(0), result | MessageResult.UID);
-            	if (messageResult!=null) {
-            		checkForScanGap(messageResult.getUid());
-            		getUidChangeTracker().found(messageResult,null);
-            	}
-            	
+                MessageResult messageResult=fillMessageResult((MessageRow) messageRows.get(0), result | MessageResult.UID);
+                if (messageResult!=null) {
+                    checkForScanGap(messageResult.getUid());
+                    getUidChangeTracker().found(messageResult,null);
+                }
+                
                 return messageResult;
             } else {
                 return null;
@@ -408,7 +408,7 @@ public class TorqueMailbox implements ImapMailbox {
             throws MailboxManagerException {
         checkAccess();
         try {
-        	// TODO put this into a serializeable transaction
+            // TODO put this into a serializeable transaction
             final List messageRows = getMailboxRow()
                     .getMessageRows(criteriaForMessageSet(set));
             final MessageResult[] beforeResults = fillMessageResult(messageRows,
@@ -420,19 +420,19 @@ public class TorqueMailbox implements ImapMailbox {
                 final MessageRow messageRow = (MessageRow) iter.next();
                 final MessageFlags messageFlags = messageRow.getMessageFlags();
                 if (messageFlags != null) {
-					if (replace) {
-						messageFlags.setFlags(flags);
-					} else {
-						Flags current = messageFlags.getFlagsObject();
-						if (value) {
-							current.add(flags);
-						} else {
-							current.remove(flags);
-						}
-						messageFlags.setFlags(current);
-					}
-					messageFlags.save();
-				}
+                    if (replace) {
+                        messageFlags.setFlags(flags);
+                    } else {
+                        Flags current = messageFlags.getFlagsObject();
+                        if (value) {
+                            current.add(flags);
+                        } else {
+                            current.remove(flags);
+                        }
+                        messageFlags.setFlags(current);
+                    }
+                    messageFlags.save();
+                }
             }
             final MessageResult[] afterResults = fillMessageResult(messageRows,
                     MessageResult.UID | MessageResult.FLAGS);
@@ -464,65 +464,65 @@ public class TorqueMailbox implements ImapMailbox {
     }
 
     public synchronized long getUidNext() throws MailboxManagerException {
-		checkAccess();
-		try {
-			MailboxRow myMailboxRow = MailboxRowPeer.retrieveByPK(mailboxRow.getLastUid());
-			if (myMailboxRow != null) {
-				getUidChangeTracker().foundLastUid(mailboxRow.getLastUid());
-				return getUidChangeTracker().getLastUid() + 1;
-			} else {
-				getUidChangeTracker().mailboxNotFound();
-				throw new MailboxManagerException("Mailbox has been deleted");
-			}
-		} catch (NoRowsException e) {
-			throw new MailboxManagerException(e);
-		} catch (TooManyRowsException e) {
-			throw new MailboxManagerException(e);
-		} catch (TorqueException e) {
-			throw new MailboxManagerException(e);
-		}
-	}
+        checkAccess();
+        try {
+            MailboxRow myMailboxRow = MailboxRowPeer.retrieveByPK(mailboxRow.getLastUid());
+            if (myMailboxRow != null) {
+                getUidChangeTracker().foundLastUid(mailboxRow.getLastUid());
+                return getUidChangeTracker().getLastUid() + 1;
+            } else {
+                getUidChangeTracker().mailboxNotFound();
+                throw new MailboxManagerException("Mailbox has been deleted");
+            }
+        } catch (NoRowsException e) {
+            throw new MailboxManagerException(e);
+        } catch (TooManyRowsException e) {
+            throw new MailboxManagerException(e);
+        } catch (TorqueException e) {
+            throw new MailboxManagerException(e);
+        }
+    }
 
     private void checkAccess() throws MailboxManagerException {
         if (!open) {
-			throw new RuntimeException("mailbox is closed");
-		} else if (getEventDispatcher().size() == 0) {
-			throw new RuntimeException("mailbox has not been opened");
-		} else if (getUidChangeTracker().isExisting()) {
-			throw new MailboxManagerException("Mailbox is not existing");
-		}
+            throw new RuntimeException("mailbox is closed");
+        } else if (getEventDispatcher().size() == 0) {
+            throw new RuntimeException("mailbox has not been opened");
+        } else if (getUidChangeTracker().isExisting()) {
+            throw new MailboxManagerException("Mailbox is not existing");
+        }
     }
     
 
-	protected MailboxEventDispatcher getEventDispatcher() {
-    	if (eventDispatcher == null) {
-			eventDispatcher = new MailboxEventDispatcher();
-		}
-		return eventDispatcher;
+    protected MailboxEventDispatcher getEventDispatcher() {
+        if (eventDispatcher == null) {
+            eventDispatcher = new MailboxEventDispatcher();
+        }
+        return eventDispatcher;
     }
     
     protected UidChangeTracker getUidChangeTracker() {
-    	return tracker;
+        return tracker;
     }
     
     protected Log getLog() {
-    	if (log==null) {
-    		log=new SimpleLog("TorqueMailbox");
-    	}
-    	return log;
+        if (log==null) {
+            log=new SimpleLog("TorqueMailbox");
+        }
+        return log;
     }
 
-	protected MailboxRow getMailboxRow() {
-		return mailboxRow;
-	}
+    protected MailboxRow getMailboxRow() {
+        return mailboxRow;
+    }
 
-	protected void setMailboxRow(MailboxRow mailboxRow) {
-		this.mailboxRow = mailboxRow;
-	}
+    protected void setMailboxRow(MailboxRow mailboxRow) {
+        this.mailboxRow = mailboxRow;
+    }
 
-	public MessageResult[] search(GeneralMessageSet set, SearchTerm searchTerm, int result) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public MessageResult[] search(GeneralMessageSet set, SearchTerm searchTerm, int result) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
 }

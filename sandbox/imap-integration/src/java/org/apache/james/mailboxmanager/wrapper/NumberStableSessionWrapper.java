@@ -21,122 +21,122 @@ import org.apache.james.mailboxmanager.mailbox.GeneralMailbox;
 import org.apache.james.mailboxmanager.util.AbstractLogEnabled;
 
 public class NumberStableSessionWrapper extends AbstractLogEnabled implements EventQueueingSessionMailbox,
-		MailboxListener {
+        MailboxListener {
 
-	protected GeneralMailbox mailbox;
+    protected GeneralMailbox mailbox;
 
-	private UidToMsnBidiMap numberCache = null;
-	
+    private UidToMsnBidiMap numberCache = null;
+    
     protected Map flagEventMap = new TreeMap();
 
     protected SortedSet expungedEventList = new TreeSet();
 
-	private MailboxEventDispatcher eventDispatcher = new MailboxEventDispatcher();
+    private MailboxEventDispatcher eventDispatcher = new MailboxEventDispatcher();
     
     public NumberStableSessionWrapper(GeneralMailbox generalMailbox) throws MailboxManagerException {
-    	this.mailbox=generalMailbox;
-    	((EventTriggerMailbox)mailbox).addListener(eventDispatcher, MessageResult.UID);
-    	getNumberCache();
-    	eventDispatcher.addMailboxListener(this);
+        this.mailbox=generalMailbox;
+        ((EventTriggerMailbox)mailbox).addListener(eventDispatcher, MessageResult.UID);
+        getNumberCache();
+        eventDispatcher.addMailboxListener(this);
     }
 
-	protected UidToMsnBidiMap getNumberCache() throws MailboxManagerException {
-		if (numberCache == null) {
-			MessageResult[] mr = mailbox.getMessages(GeneralMessageSetImpl
-					.all(), MessageResult.UID);
-			numberCache = new UidToMsnBidiMap();
-			for (int i = 0; i < mr.length; i++) {
-				numberCache.add(mr[i].getUid());
-			}
-		}
-		return numberCache;
-	}
+    protected UidToMsnBidiMap getNumberCache() throws MailboxManagerException {
+        if (numberCache == null) {
+            MessageResult[] mr = mailbox.getMessages(GeneralMessageSetImpl
+                    .all(), MessageResult.UID);
+            numberCache = new UidToMsnBidiMap();
+            for (int i = 0; i < mr.length; i++) {
+                numberCache.add(mr[i].getUid());
+            }
+        }
+        return numberCache;
+    }
 
-	protected GeneralMessageSet toUidSet(GeneralMessageSet set)
-			throws MailboxManagerException {
+    protected GeneralMessageSet toUidSet(GeneralMessageSet set)
+            throws MailboxManagerException {
 
-		if (set.getType() == GeneralMessageSet.TYPE_MSN) {
-			set = GeneralMessageSetImpl.uidRange(getNumberCache().getUid(
-					set.getMsnFrom()), getNumberCache().getUid(set.getMsnTo()));
-		}
-		return set;
-	}
+        if (set.getType() == GeneralMessageSet.TYPE_MSN) {
+            set = GeneralMessageSetImpl.uidRange(getNumberCache().getUid(
+                    set.getMsnFrom()), getNumberCache().getUid(set.getMsnTo()));
+        }
+        return set;
+    }
 
-	protected static int noMsnResult(int result) {
-		if ((result & MessageResult.MSN) > 0) {
-			result |= MessageResult.UID;
-			result -= MessageResult.MSN;
-		}
-		return result;
-	}
+    protected static int noMsnResult(int result) {
+        if ((result & MessageResult.MSN) > 0) {
+            result |= MessageResult.UID;
+            result -= MessageResult.MSN;
+        }
+        return result;
+    }
 
-	protected MessageResult[] addMsnToResults(MessageResult[] mr, int result)
-			throws MailboxManagerException {
-		MessageResult[] translated = new MessageResult[mr.length];
-		for (int i = 0; i < translated.length; i++) {
-			translated[i] = addMsnResult(mr[i], result);
-		}
-		return translated;
-	}
+    protected MessageResult[] addMsnToResults(MessageResult[] mr, int result)
+            throws MailboxManagerException {
+        MessageResult[] translated = new MessageResult[mr.length];
+        for (int i = 0; i < translated.length; i++) {
+            translated[i] = addMsnResult(mr[i], result);
+        }
+        return translated;
+    }
 
-	protected MessageResult addMsnResult(MessageResult mr, int result)
-			throws MailboxManagerException {
-		if (mr != null) {
-			if ((result & MessageResult.MSN) > 0) {
-				// TODO copy the MessageResult because it could be another class
-				int msn = getNumberCache().getMsn(mr.getUid());
-				((MessageResultImpl) mr).setMsn(msn);
-			}
-		}
-		return mr;
-	}
+    protected MessageResult addMsnResult(MessageResult mr, int result)
+            throws MailboxManagerException {
+        if (mr != null) {
+            if ((result & MessageResult.MSN) > 0) {
+                // TODO copy the MessageResult because it could be another class
+                int msn = getNumberCache().getMsn(mr.getUid());
+                ((MessageResultImpl) mr).setMsn(msn);
+            }
+        }
+        return mr;
+    }
 
-	public synchronized MessageResult[] getFlagEvents(boolean reset)
-			throws MailboxManagerException {
-		final MessageResult[] msnFlagEvents = buildMsnEvents(flagEventMap.values(),false);
-		if (reset) {
-			flagEventMap = new TreeMap();
-		}
-		return msnFlagEvents;
-	}
+    public synchronized MessageResult[] getFlagEvents(boolean reset)
+            throws MailboxManagerException {
+        final MessageResult[] msnFlagEvents = buildMsnEvents(flagEventMap.values(),false);
+        if (reset) {
+            flagEventMap = new TreeMap();
+        }
+        return msnFlagEvents;
+    }
 
-	public synchronized MessageResult[] getExpungedEvents(boolean reset)
-			throws MailboxManagerException {
-		final MessageResult[] msnExpungedEvents  = buildMsnEvents(expungedEventList,reset);
-		if (reset) {
-			expungedEventList = new TreeSet();
-		} 
-		return msnExpungedEvents;
-	}
+    public synchronized MessageResult[] getExpungedEvents(boolean reset)
+            throws MailboxManagerException {
+        final MessageResult[] msnExpungedEvents  = buildMsnEvents(expungedEventList,reset);
+        if (reset) {
+            expungedEventList = new TreeSet();
+        } 
+        return msnExpungedEvents;
+    }
 
-	protected MessageResult[]  buildMsnEvents(Collection collection,boolean expunge)
-			throws MailboxManagerException {
-		final MessageResult[]  msnEvents = new MessageResult[collection.size()];
-		int i=0;
-		for (Iterator iter = collection.iterator(); iter.hasNext();) {
-			MessageResult origMr = (MessageResult) iter.next();
-			MessageResultImpl newMr = new MessageResultImpl(origMr);
-			newMr.setMsn(getNumberCache().getMsn(origMr.getUid()));
-			if (expunge) {
-				getNumberCache().expunge(origMr.getUid());
-			}
-			msnEvents[i++]=newMr;
-		}
-		return msnEvents;
-	}
+    protected MessageResult[]  buildMsnEvents(Collection collection,boolean expunge)
+            throws MailboxManagerException {
+        final MessageResult[]  msnEvents = new MessageResult[collection.size()];
+        int i=0;
+        for (Iterator iter = collection.iterator(); iter.hasNext();) {
+            MessageResult origMr = (MessageResult) iter.next();
+            MessageResultImpl newMr = new MessageResultImpl(origMr);
+            newMr.setMsn(getNumberCache().getMsn(origMr.getUid()));
+            if (expunge) {
+                getNumberCache().expunge(origMr.getUid());
+            }
+            msnEvents[i++]=newMr;
+        }
+        return msnEvents;
+    }
 
-	public void added(MessageResult result) {
-		try {
-			getNumberCache().add(result.getUid());
-		} catch (MailboxManagerException e) {
-			getLog().error("This should not happen",e);
-		}
-	}
+    public void added(MessageResult result) {
+        try {
+            getNumberCache().add(result.getUid());
+        } catch (MailboxManagerException e) {
+            getLog().error("This should not happen",e);
+        }
+    }
 
-	public void expunged(MessageResult mr) {
-		getLog().debug("Expunged: "+mr);
+    public void expunged(MessageResult mr) {
+        getLog().debug("Expunged: "+mr);
        expungedEventList.add(mr);
-	}
+    }
 
     public synchronized void flagsUpdated(MessageResult mr,
             MailboxListener silentListener) {
@@ -148,16 +148,16 @@ public class NumberStableSessionWrapper extends AbstractLogEnabled implements Ev
         }
     }
 
-	public void mailboxDeleted() {
-		// TODO Auto-generated method stub
+    public void mailboxDeleted() {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	public void mailboxRenamed(String origName, String newName) {
-		// TODO Auto-generated method stub
+    public void mailboxRenamed(String origName, String newName) {
+        // TODO Auto-generated method stub
 
-	}
-	
+    }
+    
     public void addListener(MailboxListener listener, int result) {
         eventDispatcher.addMailboxListener(listener);
     }

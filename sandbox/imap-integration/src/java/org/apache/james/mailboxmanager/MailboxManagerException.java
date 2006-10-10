@@ -21,9 +21,9 @@ package org.apache.james.mailboxmanager;
 
 public class MailboxManagerException extends Exception {
 
-	private static final long serialVersionUID = -7034955921835169361L;
+    private static final long serialVersionUID = -7034955921835169361L;
 
-	private Exception cause;
+    private Exception cause;
     
     private String message;
     

@@ -46,10 +46,10 @@ public class ImapMailboxSessionWrapper extends FlaggedSessionMailboxWrapper
         return ((ImapMailbox) mailbox).getUidNext();
     }
 
-	public MessageResult[] search(GeneralMessageSet set, SearchTerm searchTerm, int result) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public MessageResult[] search(GeneralMessageSet set, SearchTerm searchTerm, int result) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
 
 

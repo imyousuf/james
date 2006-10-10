@@ -10,16 +10,16 @@ package org.apache.james.mailboxmanager.acl;
 
 public interface Acl {
 
-	/**
-	 * 
-	 * Rights to grant
-	 */
-	MailboxRights getPositiveRights();
+    /**
+     * 
+     * Rights to grant
+     */
+    MailboxRights getPositiveRights();
 
-	/**
-	 * 
-	 * Rights to be revoked. This rights cannot be granted anymore in anyway.
-	 */
-	MailboxRights getNegativeRights();
+    /**
+     * 
+     * Rights to be revoked. This rights cannot be granted anymore in anyway.
+     */
+    MailboxRights getNegativeRights();
 
 }

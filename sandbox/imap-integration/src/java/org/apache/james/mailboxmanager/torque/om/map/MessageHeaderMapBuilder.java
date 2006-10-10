@@ -71,7 +71,7 @@ public class MessageHeaderMapBuilder implements MapBuilder
                 "message_header.UID", new Long(0) , "message" ,
                 "uid");
                     tMap.addPrimaryKey("message_header.LINE_NUMBER", new Integer(0) );
-                        	          tMap.addColumn("message_header.FIELD", "", 256 );
-                                      	          tMap.addColumn("message_header.VALUE", "", 1024 );
+                                      tMap.addColumn("message_header.FIELD", "", 256 );
+                                                  tMap.addColumn("message_header.VALUE", "", 1024 );
                         }
 }

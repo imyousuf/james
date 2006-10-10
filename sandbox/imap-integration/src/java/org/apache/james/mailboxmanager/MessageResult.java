@@ -39,78 +39,78 @@ import org.apache.mailet.Mail;
 
 public interface MessageResult extends Comparable {
 
-	/**
-	 * For example: could have best performance when doing store and then
-	 * forget.
-	 */
-	public static final int NOTHING = 0x00;
+    /**
+     * For example: could have best performance when doing store and then
+     * forget.
+     */
+    public static final int NOTHING = 0x00;
 
-	/**
-	 * 
-	 */
-	public static final int MIME_MESSAGE = 0x01;
+    /**
+     * 
+     */
+    public static final int MIME_MESSAGE = 0x01;
 
-	/**
-	 * return a complete mail object
-	 */
-	public static final int MAIL = 0x02;
+    /**
+     * return a complete mail object
+     */
+    public static final int MAIL = 0x02;
 
-	public static final int UID = 0x04;
+    public static final int UID = 0x04;
 
-	public static final int MSN = 0x08;
+    public static final int MSN = 0x08;
 
-	/**
-	 * return a string baded key (used by James)
-	 */
-	public static final int KEY = 0x10;
+    /**
+     * return a string baded key (used by James)
+     */
+    public static final int KEY = 0x10;
 
-	public static final int SIZE = 0x20;
+    public static final int SIZE = 0x20;
 
-	public static final int INTERNAL_DATE = 0x40;
+    public static final int INTERNAL_DATE = 0x40;
 
-	public static final int FLAGS = 0x80;
+    public static final int FLAGS = 0x80;
 
-	int getIncludedResults();
+    int getIncludedResults();
 
-	boolean contains(int result);
+    boolean contains(int result);
 
-	MimeMessage getMimeMessage();
+    MimeMessage getMimeMessage();
 
-	long getUid();
+    long getUid();
 
-	long getUidValidity();
+    long getUidValidity();
 
-	int getMsn();
+    int getMsn();
 
-	/**
-	 * 
-	 * <p>
-	 * IMAP defines this as the time when the message has arrived to the server
-	 * (by smtp). Clients are also allowed to set the internalDate on apppend.
-	 * </p>
-	 * <p>
-	 * Is this Mail.getLastUpdates() for James delivery? Should we use
-	 * MimeMessage.getReceivedDate()?
-	 * </p>
-	 * 
-	 * @return
-	 */
+    /**
+     * 
+     * <p>
+     * IMAP defines this as the time when the message has arrived to the server
+     * (by smtp). Clients are also allowed to set the internalDate on apppend.
+     * </p>
+     * <p>
+     * Is this Mail.getLastUpdates() for James delivery? Should we use
+     * MimeMessage.getReceivedDate()?
+     * </p>
+     * 
+     * @return
+     */
 
-	Date getInternalDate();
+    Date getInternalDate();
 
-	/**
-	 * TODO optional, to be decided <br />
-	 * maybe this is a good thing because IMAP often requests only the Flags and
-	 * this way we don't need to create a lazy-loading MimeMessage instance just
-	 * for the Flags.
-	 * 
-	 * @return
-	 */
-	Flags getFlags();
+    /**
+     * TODO optional, to be decided <br />
+     * maybe this is a good thing because IMAP often requests only the Flags and
+     * this way we don't need to create a lazy-loading MimeMessage instance just
+     * for the Flags.
+     * 
+     * @return
+     */
+    Flags getFlags();
 
-	Mail getMail();
+    Mail getMail();
 
-	String getKey();
+    String getKey();
     
     int getSize();
 

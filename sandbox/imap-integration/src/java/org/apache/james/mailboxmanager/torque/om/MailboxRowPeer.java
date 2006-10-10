@@ -19,9 +19,9 @@ public class MailboxRowPeer extends
         org.apache.james.mailboxmanager.torque.om.BaseMailboxRowPeer {
 
 
-	private static final long serialVersionUID = -1906212927584890188L;
+    private static final long serialVersionUID = -1906212927584890188L;
 
-	public static MailboxRow retrieveByName(String name) throws TorqueException {
+    public static MailboxRow retrieveByName(String name) throws TorqueException {
         Criteria c = new Criteria();
         c.add(MailboxRowPeer.NAME, name);
         List l = MailboxRowPeer.doSelect(c);

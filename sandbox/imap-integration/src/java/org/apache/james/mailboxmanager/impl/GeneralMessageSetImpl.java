@@ -117,19 +117,19 @@ public class GeneralMessageSetImpl implements GeneralMessageSet {
 
     }
 
-	public static GeneralMessageSet msnRange(int from, int to) {
+    public static GeneralMessageSet msnRange(int from, int to) {
         GeneralMessageSetImpl gms = new GeneralMessageSetImpl();
         gms.type = TYPE_MSN;
         gms.msnFrom = from;
         gms.msnTo = to;
         return gms;
-	}
+    }
 
-	public static GeneralMessageSet oneMsn(int msn) {
+    public static GeneralMessageSet oneMsn(int msn) {
         GeneralMessageSetImpl gms = new GeneralMessageSetImpl();
         gms.type = TYPE_MSN;
         gms.msnFrom = msn;
         gms.msnTo = msn;
         return gms;
-	}
+    }
 }

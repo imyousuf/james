@@ -1,5 +1,7 @@
 package org.apache.james.mailboxmanager;
 
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
@@ -62,11 +64,15 @@ public class TestUtil {
         Set s2 = new HashSet();
         for (Iterator it = ma1.iterator(); it.hasNext();) {
             MimeMessage mm = (MimeMessage) it.next();
-            s1.add(new Integer(Arrays.hashCode(messageToByteArray(mm))));
+            HashCodeBuilder builder = new HashCodeBuilder();
+            builder.append(messageToByteArray(mm));
+            s1.add(new Integer(builder.toHashCode()));
         }
         for (Iterator it = ma2.iterator(); it.hasNext();) {
             MimeMessage mm = (MimeMessage) it.next();
-            s2.add(new Integer(Arrays.hashCode(messageToByteArray(mm))));
+            HashCodeBuilder builder = new HashCodeBuilder();
+            builder.append(messageToByteArray(mm));
+            s2.add(new Integer(builder.toHashCode()));
         }
         return s1.equals(s2);
     }

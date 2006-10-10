@@ -84,20 +84,20 @@ public class ImapServer extends AbstractJamesService
         UsersRepository usersRepository = ( UsersRepository ) serviceManager.
                 lookup( "org.apache.james.services.UsersRepository" );
         setUserRepository(usersRepository);
-		MailboxManagerProvider mailboxManagerProvider =(MailboxManagerProvider) serviceManager.lookup("org.apache.james.mailboxmanager.manager.MailboxManagerProvider");
-		getLogger().debug("MailboxManagerMailRepository uses service "+mailboxManagerProvider);
-		setMailboxManagerProvider(mailboxManagerProvider);
+        MailboxManagerProvider mailboxManagerProvider =(MailboxManagerProvider) serviceManager.lookup("org.apache.james.mailboxmanager.manager.MailboxManagerProvider");
+        getLogger().debug("MailboxManagerMailRepository uses service "+mailboxManagerProvider);
+        setMailboxManagerProvider(mailboxManagerProvider);
     }
 
     void setUserRepository(UsersRepository repository) {
-    	this.users=repository;
-	}
+        this.users=repository;
+    }
 
-	void setMailboxManagerProvider(MailboxManagerProvider mailboxManagerProvider) {
-		this.mailboxManagerProvider=mailboxManagerProvider;
-	}
+    void setMailboxManagerProvider(MailboxManagerProvider mailboxManagerProvider) {
+        this.mailboxManagerProvider=mailboxManagerProvider;
+    }
 
-	/**
+    /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
     public void configure( final Configuration configuration ) throws ConfigurationException
@@ -205,8 +205,8 @@ public class ImapServer extends AbstractJamesService
             implements ImapHandlerConfigurationData
     {
 
-    	private String streamdumpDir = null;
-    	private boolean streamdump = false;
+        private String streamdumpDir = null;
+        private boolean streamdump = false;
         /**
          * @see ImapHandlerConfigurationData#getHelloName()
          */
@@ -216,15 +216,15 @@ public class ImapServer extends AbstractJamesService
         }
 
         public void setStreamDumpDir(String streamdumpDir) {
-			this.streamdumpDir=streamdumpDir;
-		}
+            this.streamdumpDir=streamdumpDir;
+        }
 
-		public void setStreamDump(boolean streamdump) {
-			this.streamdump=streamdump;
-			
-		}
+        public void setStreamDump(boolean streamdump) {
+            this.streamdump=streamdump;
+            
+        }
 
-		/**
+        /**
          * @see ImapHandlerConfigurationData#getResetLength()
          */
         public int getResetLength()
@@ -244,18 +244,18 @@ public class ImapServer extends AbstractJamesService
           return ImapServer.this.mailboxManagerProvider;
         }
 
-		public boolean doStreamdump() {
-			return streamdump;
-		}
+        public boolean doStreamdump() {
+            return streamdump;
+        }
 
-		public String getStreamdumpDir() {
-			return streamdumpDir;
-		}
+        public String getStreamdumpDir() {
+            return streamdumpDir;
+        }
 
     }
 
-	protected Object getConfigurationData() {
-		return theConfigData;
-	}
+    protected Object getConfigurationData() {
+        return theConfigData;
+    }
 
 }

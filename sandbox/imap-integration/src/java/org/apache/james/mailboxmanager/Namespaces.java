@@ -5,10 +5,10 @@ package org.apache.james.mailboxmanager;
  */
 
 public interface Namespaces {
-	
-	Namespace getPersonalDefault();
-	Namespace[] getPersonal();
-	Namespace[] getShared();
-	Namespace[] getUser();
+    
+    Namespace getPersonalDefault();
+    Namespace[] getPersonal();
+    Namespace[] getShared();
+    Namespace[] getUser();
 
 }

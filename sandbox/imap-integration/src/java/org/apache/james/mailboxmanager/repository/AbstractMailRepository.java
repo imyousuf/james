@@ -47,7 +47,7 @@ public abstract class AbstractMailRepository implements MailRepository, LogEnabl
      */
     protected final static boolean DEEP_DEBUG = true;
 
-	private static Random random;
+    private static Random random;
 
     protected Log log;
     
@@ -59,9 +59,9 @@ public abstract class AbstractMailRepository implements MailRepository, LogEnabl
     
 
     protected Log getLogger() {
-    	if (log==null) {
-    		log=new SimpleLog("AbstractMailRepository");
-    	}
+        if (log==null) {
+            log=new SimpleLog("AbstractMailRepository");
+        }
         return log;
     }
 

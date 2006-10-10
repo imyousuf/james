@@ -24,12 +24,12 @@ public class UidRange implements Comparable {
     }
 
     public int compareTo(Object o) {
-		if (!(o instanceof UidRange)) {
-			return 1;
-		} else {
-			UidRange that = (UidRange) o;
-			return new Long(fromUid).compareTo(new Long(that.fromUid));
-		}
-	}
+        if (!(o instanceof UidRange)) {
+            return 1;
+        } else {
+            UidRange that = (UidRange) o;
+            return new Long(fromUid).compareTo(new Long(that.fromUid));
+        }
+    }
 
 }

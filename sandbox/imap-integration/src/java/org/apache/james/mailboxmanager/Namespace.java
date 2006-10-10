@@ -5,8 +5,8 @@ package org.apache.james.mailboxmanager;
  */
 
 public interface Namespace {
-	
-	String getName();
-	String getHierarchyDelimter();
+    
+    String getName();
+    String getHierarchyDelimter();
 
 }

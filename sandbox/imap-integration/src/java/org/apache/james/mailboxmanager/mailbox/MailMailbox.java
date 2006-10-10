@@ -20,9 +20,9 @@ import org.apache.mailet.Mail;
 
 public interface MailMailbox {
 
-	MessageResult appendMail(Mail mail, Date internalDate, int result)
-			throws MailboxManagerException;
+    MessageResult appendMail(Mail mail, Date internalDate, int result)
+            throws MailboxManagerException;
 
-	MessageResult updateMail(Mail mail, Date internalDate, int result)
-			throws MailboxManagerException;
+    MessageResult updateMail(Mail mail, Date internalDate, int result)
+            throws MailboxManagerException;
 }

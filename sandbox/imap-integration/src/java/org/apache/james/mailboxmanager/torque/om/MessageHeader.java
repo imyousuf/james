@@ -18,8 +18,8 @@ public  class MessageHeader
     implements Persistent
 {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -9191792349506771474L;
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -9191792349506771474L;
 }

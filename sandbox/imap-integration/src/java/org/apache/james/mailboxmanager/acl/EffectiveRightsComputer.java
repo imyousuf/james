@@ -15,18 +15,18 @@ package org.apache.james.mailboxmanager.acl;
 
 public interface EffectiveRightsComputer {
 
-	public void setUserAcl(UserAcl userAcl);
+    public void setUserAcl(UserAcl userAcl);
 
-	public void setGroupAcls(GroupAcl[] groupAcl);
+    public void setGroupAcls(GroupAcl[] groupAcl);
 
-	/**
-	 * used to filter the groups to retain only the ones the user is member of.<br 7>
-	 * TODO just a draft...
-	 * 
-	 * @param groups
-	 */
-	public void retainGroups(String[] groupMemberships);
+    /**
+     * used to filter the groups to retain only the ones the user is member of.<br 7>
+     * TODO just a draft...
+     * 
+     * @param groups
+     */
+    public void retainGroups(String[] groupMemberships);
 
-	public MailboxRights computeEffective();
+    public MailboxRights computeEffective();
 
 }
