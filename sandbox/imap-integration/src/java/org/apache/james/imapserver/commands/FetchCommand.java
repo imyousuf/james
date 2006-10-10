@@ -53,8 +53,6 @@ import com.sun.mail.util.CRLFOutputStream;
 /**
  * Handles processeing for the FETCH imap command.
  *
- * @author  Darrell DeBoer <darrell@apache.org>
- *
  * @version $Revision: 109034 $
  */
 class FetchCommand extends SelectedStateCommand implements UidEnabledCommand

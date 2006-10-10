@@ -26,9 +26,6 @@ import org.apache.james.imapserver.ProtocolException;
 import org.apache.james.imapserver.store.MailboxException;
 
 /**
- *
- * @author  Darrell DeBoer <darrell@apache.org>
- *
  * @version $Revision: 109034 $
  */
 public interface UidEnabledCommand

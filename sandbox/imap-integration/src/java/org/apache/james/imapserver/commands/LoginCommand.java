@@ -29,8 +29,6 @@ import org.apache.james.services.User;
 /**
  * Handles processeing for the LOGIN imap command.
  *
- * @author  Darrell DeBoer <darrell@apache.org>
- *
  * @version $Revision: 109034 $
  */
 class LoginCommand extends NonAuthenticatedStateCommand

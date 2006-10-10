@@ -20,9 +20,6 @@
 package org.apache.james.imapserver;
 
 /**
- *
- * @author  Darrell DeBoer <darrell@apache.org>
- *
  * @version $Revision: 109034 $
  */
 public class ProtocolException extends Exception

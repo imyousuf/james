@@ -28,8 +28,6 @@ import org.apache.james.imapserver.store.MailboxException;
 /**
  * Handles processeing for the NOOP imap command.
  *
- * @author  Darrell DeBoer <darrell@apache.org>
- *
  * @version $Revision: 109034 $
  */
 class NoopCommand extends CommandTemplate

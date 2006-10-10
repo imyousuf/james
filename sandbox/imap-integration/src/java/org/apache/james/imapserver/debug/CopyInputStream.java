@@ -6,11 +6,7 @@ import java.io.OutputStream;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.impl.SimpleLog;
-/**
- * 
- * @author Joachim Draeger <jd at joachim-draeger.de>
- *
- */
+
 public class CopyInputStream extends InputStream
 {
 

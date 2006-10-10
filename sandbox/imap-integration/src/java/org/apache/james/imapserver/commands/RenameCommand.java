@@ -30,8 +30,6 @@ import org.apache.james.mailboxmanager.MailboxManagerException;
 /**
  * Handles processeing for the RENAME imap command.
  *
- * @author  Darrell DeBoer <darrell@apache.org>
- *
  * @version $Revision: 109034 $
  */
 class RenameCommand extends AuthenticatedStateCommand

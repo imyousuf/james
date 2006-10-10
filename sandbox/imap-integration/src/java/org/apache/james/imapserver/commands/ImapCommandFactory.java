@@ -30,8 +30,6 @@ import org.apache.avalon.framework.logger.LogEnabled;
  * A factory for ImapCommand instances, provided based on the command name.
  * Command instances are created on demand, when first accessed.
  *
- * @author  Darrell DeBoer <darrell@apache.org>
- *
  * @version $Revision: 109034 $
  */
 public class ImapCommandFactory

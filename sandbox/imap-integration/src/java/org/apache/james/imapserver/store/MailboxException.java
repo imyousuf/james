@@ -30,9 +30,6 @@ import org.apache.james.mailboxmanager.MailboxManagerException;
  * If status is ALREADY_EXISTS_REMOTELY or IF_CREATED_REMOTE then field
  * remoteServer should be set to the url of the remote server, formatted for
  * Mailbox Referral.
- *
- * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
- * @version 0.1 on 14 Dec 2000
  */
 public class MailboxException extends Exception
 {

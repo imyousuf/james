@@ -32,8 +32,6 @@ import org.apache.james.services.UsersRepository;
  * which commences when a client first establishes a connection to the Imap
  * server, and continues until that connection is closed.
  *
- * @author  Darrell DeBoer <darrell@apache.org>
- *
  * @version $Revision: 109034 $
  */
 public interface ImapSession

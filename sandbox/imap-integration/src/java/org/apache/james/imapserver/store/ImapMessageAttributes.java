@@ -31,8 +31,6 @@ import java.util.Date;
  * Message Sequence Numbers or UIDs.
  *
  * Reference: RFC 2060 - para 2.3
- * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
- * @version 0.1 on 14 Dec 2000
  */
 public interface ImapMessageAttributes  {
 

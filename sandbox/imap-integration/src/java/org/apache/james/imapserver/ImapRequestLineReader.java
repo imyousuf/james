@@ -28,8 +28,6 @@ import java.io.OutputStream;
  * on the underlying character stream.
  * TODO need to look at encoding, and whether we should be wrapping an InputStream instead.
  *
- * @author  Darrell DeBoer <darrell@apache.org>
- *
  * @version $Revision: 109034 $
  */
 public class ImapRequestLineReader

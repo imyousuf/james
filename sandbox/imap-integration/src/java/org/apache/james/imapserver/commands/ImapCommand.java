@@ -28,8 +28,6 @@ import org.apache.james.imapserver.ImapSessionState;
  * Represents a processor for a particular Imap command. Implementations of this
  * interface should encpasulate all command specific processing.
  *
- * @author  Darrell DeBoer <darrell@apache.org>
- *
  * @version $Revision: 109034 $
  */
 public interface ImapCommand

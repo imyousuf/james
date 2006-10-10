@@ -31,8 +31,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
  * A mail message with all of the extra stuff that IMAP requires.
  * This is just a placeholder object, while I work out what's really required. A common
  * way of handling *all* messages needs to be available for James (maybe MailImpl?)
- * @author  Darrell DeBoer <darrell@apache.org>
- *
+ * 
  * @version $Revision: 109034 $
  */
 public class SimpleImapMessage

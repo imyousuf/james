@@ -45,9 +45,6 @@ import org.apache.james.util.watchdog.WatchdogTarget;
  * The handler class for IMAP connections.
  * TODO: This is a quick cut-and-paste hack from POP3Handler. This, and the ImapServer
  * should probably be rewritten from scratch.
- *
- * @author Federico Barbieri <scoobie@systemy.it>
- * @author Peter M. Goldstein <farsight@alum.mit.edu>
  */
 public class ImapHandler
         extends AbstractLogEnabled

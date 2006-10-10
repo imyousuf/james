@@ -27,8 +27,6 @@ import org.apache.james.imapserver.ProtocolException;
 /**
  * Handles processeing for the AUTHENTICATE imap command.
  *
- * @author  Darrell DeBoer <darrell@apache.org>
- *
  * @version $Revision: 109034 $
  */
 class AuthenticateCommand extends NonAuthenticatedStateCommand

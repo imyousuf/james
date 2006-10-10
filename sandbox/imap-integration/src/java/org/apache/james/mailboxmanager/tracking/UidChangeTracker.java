@@ -13,12 +13,6 @@ import org.apache.james.mailboxmanager.MailboxListener;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.MessageResultImpl;
 
-/**
- * 
- * 
- * @author Joachim
- * 
- */
 public class UidChangeTracker extends MailboxTracker implements Constants {
 
     private TreeMap cache = new TreeMap();

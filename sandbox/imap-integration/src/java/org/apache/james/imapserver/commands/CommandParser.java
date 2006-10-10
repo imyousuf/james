@@ -34,8 +34,6 @@ import org.apache.james.imapserver.store.MessageFlags;
 
 /**
  *
- * @author  Darrell DeBoer <darrell@apache.org>
- *
  * @version $Revision: 109034 $
  */
 public class CommandParser

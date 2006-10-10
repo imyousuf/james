@@ -20,9 +20,6 @@
 package org.apache.james.imapserver.commands;
 
 /**
- *
- * @author  Darrell DeBoer <darrell@apache.org>
- *
  * @version $Revision: 109034 $
  */
 public interface IdSet

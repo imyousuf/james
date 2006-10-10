@@ -24,9 +24,6 @@ import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.ListResult;
 
 /**
- *
- * @author  Darrell DeBoer <darrell@apache.org>
- *
  * @version $Revision: 109034 $
  */
 class LsubCommand extends ListCommand

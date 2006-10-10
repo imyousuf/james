@@ -22,9 +22,6 @@ package org.apache.james.imapserver;
 /**
  * Thrown when a user attempts to do something (e.g. alter mailbox) for which
  * they do not have appropriate rights.
- *
- * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
- * @version  0.1 on 14 Dec 2000
  */
 public class AuthorizationException
         extends Exception

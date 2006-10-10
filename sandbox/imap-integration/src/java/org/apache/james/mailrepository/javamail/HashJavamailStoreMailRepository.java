@@ -50,8 +50,6 @@ import com.sun.mail.util.CRLFOutputStream;
  * message content. (checksum save). This implementation should be considered as
  * EXPERIMENTAL.
  * 
- * @author Joachim Draeger <jd at joachim-draeger.de>
- * 
  * TODO examine for thread-safety
  */
 public class HashJavamailStoreMailRepository extends

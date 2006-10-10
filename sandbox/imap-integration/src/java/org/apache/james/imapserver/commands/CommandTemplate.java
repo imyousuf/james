@@ -33,8 +33,6 @@ import org.apache.james.imapserver.store.MailboxException;
  * Base class for all command implementations. This class provides common
  * core functionality useful for all {@link org.apache.james.imapserver.commands.ImapCommand} implementations.
  *
- * @author  Darrell DeBoer <darrell@apache.org>
- *
  * @version $Revision: 109034 $
  */
 abstract class CommandTemplate

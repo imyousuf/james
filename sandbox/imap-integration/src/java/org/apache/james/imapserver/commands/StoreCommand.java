@@ -35,8 +35,6 @@ import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 /**
  * Handles processeing for the STORE imap command.
  *
- * @author  Darrell DeBoer <darrell@apache.org>
- *
  * @version $Revision: 109034 $
  */
 class StoreCommand extends SelectedStateCommand implements UidEnabledCommand

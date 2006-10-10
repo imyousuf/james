@@ -47,9 +47,6 @@ import org.apache.mailet.dates.RFC822DateFormat;
  * <p> reinitialize() must be called on deserialization to reset Logger
  *
  * Reference: RFC 2060 - para 2.3
- * @author <a href="mailto:sascha@kulawik.de">Sascha Kulawik</a>
- * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
- * @version 0.2 on 04 Aug 2002
  */
 public class SimpleMessageAttributes
     extends AbstractLogEnabled

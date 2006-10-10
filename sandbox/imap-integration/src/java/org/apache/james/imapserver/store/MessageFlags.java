@@ -26,9 +26,7 @@ import javax.mail.Flags;
  * The set of flags associated with a message.
  * TODO - why not use javax.mail.Flags instead of having our own.
  *
- * <p>Reference: RFC 2060 - para 2.3
- * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
- * @version 0.1 on 14 Dec 2000
+ * <p>Reference: RFC 2060 - para 2.3</p>
  */
 public class MessageFlags
 {

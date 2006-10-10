@@ -32,8 +32,6 @@ import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 /**
  * Handles processeing for the EXPUNGE imap command.
  *
- * @author  Darrell DeBoer <darrell@apache.org>
- *
  * @version $Revision: 109034 $
  */
 class ExpungeCommand extends SelectedStateCommand

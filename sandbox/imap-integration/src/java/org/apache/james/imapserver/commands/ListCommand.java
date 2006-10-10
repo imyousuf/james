@@ -31,8 +31,6 @@ import org.apache.james.mailboxmanager.impl.ListResultImpl;
 /**
  * Handles processeing for the LIST imap command.
  *
- * @author  Darrell DeBoer <darrell@apache.org>
- *
  * @version $Revision: 109034 $
  */
 class ListCommand extends AuthenticatedStateCommand

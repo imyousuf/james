@@ -33,9 +33,6 @@ import org.apache.james.services.User;
 import org.apache.james.services.UsersRepository;
 
 /**
- *
- * @author  Darrell DeBoer <darrell@apache.org>
- *
  * @version $Revision: 109034 $
  */
 public final class ImapSessionImpl implements ImapSession, ImapConstants
