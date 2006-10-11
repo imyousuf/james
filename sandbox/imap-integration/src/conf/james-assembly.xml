@@ -39,7 +39,7 @@
   </block>
 
   <block name="mailboxmanager" class="org.apache.james.mailboxmanager.torque.TorqueMailboxManagerProvider">
-      
+    <provide name="filesystem" role="org.apache.james.services.FileSystem" />
   </block>  
     
   <!-- The James Spool Manager block  -->

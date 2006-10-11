@@ -6,7 +6,7 @@ import org.apache.james.mailboxmanager.mock.TorqueMailboxManagerProviderSingleto
 public class MailboxManagerProviderSingleton {
     
     public synchronized static MailboxManagerProvider getMailboxManagerProviderInstance() throws Exception {
-    	return TorqueMailboxManagerProviderSingleton.getTorqueMailboxManagerProviderInstance();
+        return TorqueMailboxManagerProviderSingleton.getTorqueMailboxManagerProviderInstance();
     }
 
 }

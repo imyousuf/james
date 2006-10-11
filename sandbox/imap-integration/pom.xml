@@ -411,6 +411,11 @@
           <groupId>jndi</groupId>
           <artifactId>jndi</artifactId>
         </exclusion>
+        <!-- this would require an older version of avalon and james would not build -->
+        <exclusion>
+          <groupId>avalon-framework</groupId>
+          <artifactId>avalon-framework</artifactId>
+        </exclusion>
         <exclusion>
           <groupId>javax.sql</groupId>
           <artifactId>jdbc-stdext</artifactId>

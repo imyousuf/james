@@ -536,6 +536,9 @@
             <zipfileset dir="${conf.dir}" fullpath="conf/sqlResources.xml">
                 <include name="sqlResources.xml"/>
             </zipfileset>
+            <zipfileset dir="${conf.dir}" fullpath="conf/mailboxManagerSqlResources.xml">
+                <include name="mailboxManagerSqlResources.xml"/>
+            </zipfileset>
             <zipfileset dir="${conf.dir}" fullpath="conf/james-fetchmail.xml">
                 <include name="james-fetchmail.xml"/>
             </zipfileset>

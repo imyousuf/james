@@ -13,6 +13,9 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.LogEnabled;
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.Serviceable;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.logging.Log;
@@ -28,14 +31,15 @@ import org.apache.james.mailboxmanager.torque.om.MessageFlagsPeer;
 import org.apache.james.mailboxmanager.torque.om.MessageHeaderPeer;
 import org.apache.james.mailboxmanager.torque.om.MessageRowPeer;
 import org.apache.james.mailboxmanager.tracking.MailboxCache;
-import org.apache.james.mailboxmanager.util.SqlResources;
+import org.apache.james.services.FileSystem;
 import org.apache.james.services.User;
+import org.apache.james.util.SqlResources;
 import org.apache.torque.Torque;
 import org.apache.torque.TorqueException;
 import org.apache.torque.util.BasePeer;
 import org.apache.torque.util.Transaction;
 
-public class TorqueMailboxManagerProvider implements MailboxManagerProvider, Initializable, Configurable, LogEnabled  {
+public class TorqueMailboxManagerProvider implements MailboxManagerProvider, Initializable, Configurable, LogEnabled, Serviceable  {
 
     private MailboxCache mailboxCache;
 
@@ -44,6 +48,8 @@ public class TorqueMailboxManagerProvider implements MailboxManagerProvider, Ini
     private boolean initialized;
 
     private Log log;
+
+    private FileSystem fileSystem;
 
     private static final String[] tableNames= new String[] {MailboxRowPeer.TABLE_NAME,MessageRowPeer.TABLE_NAME,MessageHeaderPeer.TABLE_NAME,MessageBodyPeer.TABLE_NAME,MessageFlagsPeer.TABLE_NAME};
 
@@ -70,7 +76,7 @@ public class TorqueMailboxManagerProvider implements MailboxManagerProvider, Ini
                 Torque.init(torqueConf);
                 conn=Transaction.begin(MailboxRowPeer.DATABASE_NAME);
                 SqlResources sqlResources=new SqlResources();
-                sqlResources.init(getClass().getResource("/mailboxManagerSql.xml"), getClass().getName(), conn, new HashMap());
+                sqlResources.init(fileSystem.getFile("file://conf/mailboxManagerSqlResources.xml"), TorqueMailboxManagerProvider.class.getName(), conn, new HashMap());
 
                 DatabaseMetaData dbMetaData=conn.getMetaData();
                 
@@ -187,9 +193,18 @@ public class TorqueMailboxManagerProvider implements MailboxManagerProvider, Ini
         }
         return log;
     }
+    
     public void enableLogging(Logger logger) {
         log=new AvalonLogger(logger);
         
+    }
+    
+    public void service(ServiceManager arg0) throws ServiceException {
+        setFileSystem((FileSystem) arg0.lookup(FileSystem.ROLE));
+    }
+    
+    protected void setFileSystem(FileSystem system) {
+        this.fileSystem = system;
     }
     
 
