@@ -352,7 +352,7 @@ public class ImapHandler
         // Clear user data
         
         try {
-               session.closeMailbox();
+               if (session != null) session.closeMailbox();
         } catch (Exception e) {
             getLogger().error("session.cleanUp", e);
         }
