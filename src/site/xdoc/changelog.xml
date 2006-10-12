@@ -30,11 +30,11 @@
 </p>
 
 <section name="Version 2.3.0rc5">
-<p>Released 10 October 2006</p>
+<p>Released 12 October 2006</p>
 <p>Detail</p>
 <subsection name="Bug"></subsection>
 <ul>
-<li>[<a href='http://issues.apache.org/jira/browse/JAMES-625'>JAMES-625</a>] - an emoty mbox will cause an error at pop3 login</li>
+<li>[<a href='http://issues.apache.org/jira/browse/JAMES-625'>JAMES-625</a>] - an empty mbox will cause an error at pop3 login</li>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-644'>JAMES-644</a>] - FileRegexMatcher possibly leaks minor memory on startup</li>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-649'>JAMES-649</a>] - error "OutOfMemoryError: JAVA HEAP SPACE" in connections log file when doing a POP TOP for 4000 messages</li>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-655'>JAMES-655</a>] - MboxMailRepository throws NPE when storing mail with mail from: &lt;&gt;</li>
