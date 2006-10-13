@@ -32,12 +32,7 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
 
     protected VirtualUserTableManagement virtualUserTable;
     protected void setUp() throws Exception {
-        try {
-            virtualUserTable = getVirtalUserTable();
-        } catch (Exception e) {
-            tearDown();
-            throw new Exception(e);
-        }
+        virtualUserTable = getVirtalUserTable();
     }
     
     protected void tearDown() throws Exception {
@@ -74,6 +69,7 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
             assertTrue("Invalid Mapping throw exception" , catched);
 
             assertTrue("remove virtual mapping", virtualUserTable.removeRegexMapping(user, domain, regex2));
+            assertTrue("No mapping",virtualUserTable.getMappings(user, domain).isEmpty());
         } catch (InvalidMappingException e) {
             fail("Storing failed");
         }
@@ -107,6 +103,7 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
             assertTrue("Invalid Mapping throw exception" , catched);
 
             assertTrue("remove virtual mapping", virtualUserTable.removeAddressMapping(user, domain, address2));
+            assertTrue("No mapping",virtualUserTable.getMappings(user, domain).isEmpty());
         } catch (InvalidMappingException e) {
             fail("Storing failed");
         }
@@ -133,6 +130,7 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
             assertTrue("Error Mapping throw exception" , catched);
 
             assertTrue("remove virtual mapping", virtualUserTable.removeErrorMapping(user, domain, error));
+            assertTrue("No mapping",virtualUserTable.getMappings(user, domain).isEmpty());
         } catch (InvalidMappingException e) {
              fail("Storing failed");
         }
