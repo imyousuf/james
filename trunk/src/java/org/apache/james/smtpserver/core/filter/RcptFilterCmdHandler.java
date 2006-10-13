@@ -94,7 +94,7 @@ public class RcptFilterCmdHandler extends AbstractLogEnabled implements
                 // Remove the options from the recipient
                 recipient = recipient.substring(0, lastChar + 1);
             }
-            if (!recipient.startsWith("<") || !recipient.endsWith(">")) {
+            if (session.getConfigurationData().useAddressBracketsEnforcement() && (!recipient.startsWith("<") || !recipient.endsWith(">"))) {
                 responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_SYNTAX)+" Syntax error in parameters or arguments";
                 session.writeResponse(responseString);
                 if (getLogger().isErrorEnabled()) {
@@ -113,7 +113,10 @@ public class RcptFilterCmdHandler extends AbstractLogEnabled implements
             }
             MailAddress recipientAddress = null;
             //Remove < and >
-            recipient = recipient.substring(1, recipient.length() - 1);
+            if (session.getConfigurationData().useAddressBracketsEnforcement() || (recipient.startsWith("<") && recipient.endsWith(">"))) {
+                recipient = recipient.substring(1, recipient.length() - 1);
+            }
+            
             if (recipient.indexOf("@") < 0) {
                 recipient = recipient + "@localhost";
             }

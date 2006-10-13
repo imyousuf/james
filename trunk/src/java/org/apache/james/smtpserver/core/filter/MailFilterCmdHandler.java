@@ -131,7 +131,7 @@ public class MailFilterCmdHandler
                     }
                 }
             }
-            if (!sender.startsWith("<") || !sender.endsWith(">")) {
+            if ( session.getConfigurationData().useAddressBracketsEnforcement() && (!sender.startsWith("<") || !sender.endsWith(">"))) {
                 responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_SYNTAX_SENDER)+" Syntax error in MAIL command";
                 session.writeResponse(responseString);
                 if (getLogger().isErrorEnabled()) {
@@ -148,8 +148,12 @@ public class MailFilterCmdHandler
                 return;
             }
             MailAddress senderAddress = null;
-            //Remove < and >
-            sender = sender.substring(1, sender.length() - 1);
+            
+            if (session.getConfigurationData().useAddressBracketsEnforcement() || (sender.startsWith("<") && sender.endsWith(">"))) {
+                //Remove < and >
+                sender = sender.substring(1, sender.length() - 1);
+            }
+            
             if (sender.length() == 0) {
                 //This is the <> case.  Let senderAddress == null
             } else {

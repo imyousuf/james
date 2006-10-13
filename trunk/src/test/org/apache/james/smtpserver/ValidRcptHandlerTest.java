@@ -140,6 +140,10 @@ public class ValidRcptHandlerTest extends TestCase {
             public boolean useHeloEhloEnforcement() {
                 throw new UnsupportedOperationException("Unimplemented Stub Method");
             }
+
+            public boolean useAddressBracketsEnforcement() {
+                return  true;
+            }
         
         };
     

@@ -113,5 +113,12 @@ public interface SMTPHandlerConfigurationData {
      * @return the local users repository
      */
     UsersRepository getUsersRepository();
+    
+    /**
+     * Return wheter the mailserver will accept addresses without brackets enclosed.
+     * 
+     * @return true or false
+     */
+    boolean useAddressBracketsEnforcement();
 
 }
