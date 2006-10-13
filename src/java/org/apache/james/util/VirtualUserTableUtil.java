@@ -148,20 +148,20 @@ public class VirtualUserTableUtil {
      }
      
      
-     /**
-      * Return a Collection which holds the extracted mappings of the given String
-      * 
-      * @param rawMapping
-      * @return
-      */
+    /**
+     * Return a Collection which holds the extracted mappings of the given String
+     * 
+     * @param rawMapping
+     * @return
+     */
      public static Collection getMappings(String rawMapping) {
-    ArrayList map = new ArrayList();
-    StringTokenizer tokenizer = new StringTokenizer(rawMapping,
+        ArrayList map = new ArrayList();
+        StringTokenizer tokenizer = new StringTokenizer(rawMapping,
         VirtualUserTableUtil.getSeparator(rawMapping));
 
-    while (tokenizer.hasMoreTokens()) {
-        map.add(tokenizer.nextToken().trim());
-    }
-    return map;
+        while (tokenizer.hasMoreTokens()) {
+            map.add(tokenizer.nextToken().trim());
+        }
+        return map;
     }
 }
