@@ -129,6 +129,7 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
 
     private ServiceManager serviceManager;
 
+    private boolean addressBracketsEnforcement = true;
 
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
@@ -221,6 +222,8 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
             
             // get the smtpGreeting
             smtpGreeting = handlerConfiguration.getChild("smtpGreeting").getValue(null);
+            
+            addressBracketsEnforcement = handlerConfiguration.getChild("addressBracketsEnforcement").getValueAsBoolean(true);
 
             //set the logger
             ContainerUtil.enableLogging(handlerChain,getLogger());
@@ -376,6 +379,14 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
         public String getSMTPGreeting() {
             return SMTPServer.this.smtpGreeting;
         }
+
+        /**
+         * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#useAddressBracketsEnforcement()
+         */
+    public boolean useAddressBracketsEnforcement() {
+        // TODO Auto-generated method stub
+        return SMTPServer.this.addressBracketsEnforcement;
+    }
         
         //TODO: IF we create here an interface to get DNSServer
         //      we should access it from the SMTPHandlers

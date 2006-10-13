@@ -1399,4 +1399,54 @@ public class SMTPServerTest extends TestCase {
         assertNull("mail reject by mail server", m_mailServer
                 .getLastMail());
     }
+    
+    
+    public void testAddressBracketsEnforcementDisabled() throws Exception {
+        m_testConfiguration.setAddressBracketsEnforcement(false);
+        finishSetUp(m_testConfiguration);
+        SMTPClient smtpProtocol = new SMTPClient();
+        smtpProtocol.connect("127.0.0.1", m_smtpListenerPort);
+
+        smtpProtocol.sendCommand("ehlo", InetAddress.getLocalHost().toString());
+        
+        smtpProtocol.sendCommand("mail from:", "test@localhost");
+        assertEquals("accept", 250,smtpProtocol.getReplyCode());
+        
+        smtpProtocol.sendCommand("rcpt to:", "mail@sample.com");
+        assertEquals("accept", 250,smtpProtocol.getReplyCode());
+
+        smtpProtocol.quit();
+        
+        smtpProtocol.connect("127.0.0.1", m_smtpListenerPort);
+
+        smtpProtocol.sendCommand("ehlo", InetAddress.getLocalHost().toString());
+        
+        smtpProtocol.sendCommand("mail from:", "<test@localhost>");
+        assertEquals("accept", 250,smtpProtocol.getReplyCode());
+        
+        smtpProtocol.sendCommand("rcpt to:", "<mail@sample.com>");
+        assertEquals("accept", 250,smtpProtocol.getReplyCode());
+
+        smtpProtocol.quit();
+    }
+    
+    public void testAddressBracketsEnforcementEnabled() throws Exception {
+        finishSetUp(m_testConfiguration);
+        SMTPClient smtpProtocol = new SMTPClient();
+        smtpProtocol.connect("127.0.0.1", m_smtpListenerPort);
+
+        smtpProtocol.sendCommand("ehlo", InetAddress.getLocalHost().toString());
+        
+        smtpProtocol.sendCommand("mail from:", "test@localhost");
+        assertEquals("reject", 501,smtpProtocol.getReplyCode());
+        smtpProtocol.sendCommand("mail from:", "<test@localhost>");
+        assertEquals("accept", 250,smtpProtocol.getReplyCode());
+        
+        smtpProtocol.sendCommand("rcpt to:", "mail@sample.com");
+        assertEquals("reject", 501,smtpProtocol.getReplyCode());
+        smtpProtocol.sendCommand("rcpt to:", "<mail@sample.com>");
+        assertEquals("accept", 250,smtpProtocol.getReplyCode());
+
+        smtpProtocol.quit();
+    }
 }

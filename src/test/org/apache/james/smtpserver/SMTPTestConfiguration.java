@@ -50,6 +50,7 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
     private boolean m_reverseEqualsEhlo = false;
     private int m_maxRcpt = 0;
     private boolean m_useRBL = false;
+    private boolean m_addressBracketsEnforcement = true;
 
     
     public SMTPTestConfiguration(int smtpListenerPort) {
@@ -134,6 +135,10 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
     public void useRBL(boolean useRBL) {
         m_useRBL = useRBL; 
     }
+    
+    public void setAddressBracketsEnforcement(boolean addressBracketsEnforcement) {
+        this.m_addressBracketsEnforcement = addressBracketsEnforcement;
+    }
 
     public void init() throws ConfigurationException {
 
@@ -149,6 +154,7 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
         handlerConfig.addChild(Util.getValuedConfiguration("maxmessagesize", "" + m_maxMessageSizeKB));
         handlerConfig.addChild(Util.getValuedConfiguration("authRequired", m_authorizingMode));
         handlerConfig.addChild(Util.getValuedConfiguration("heloEhloEnforcement", m_heloEhloEnforcement+""));
+        handlerConfig.addChild(Util.getValuedConfiguration("addressBracketsEnforcement", m_addressBracketsEnforcement+""));
         if (m_verifyIdentity) handlerConfig.addChild(Util.getValuedConfiguration("verifyIdentity", "" + m_verifyIdentity));
  
         DefaultConfiguration config = new DefaultConfiguration("handlerchain");
