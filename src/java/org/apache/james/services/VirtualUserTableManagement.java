@@ -27,10 +27,69 @@ public interface VirtualUserTableManagement extends VirtualUserTable{
     
     public static final String ROLE = "org.apache.james.services.VirtualUserTableManagement";
     
+    /**
+     * Add regex mapping
+     * 
+     * @param user the username. Null if no username should be used
+     * @param domain the domain. Null if no domain should be used
+     * @param regex the regex.
+     * @return true if successfully
+     * @throws InvalidMappingException get thrown if an invalid argument was given
+     */
     public boolean addRegexMapping(String user, String domain, String regex) throws InvalidMappingException;
+    
+    /**
+     * Remove regex mapping
+     * 
+     * @param user the username. Null if no username should be used
+     * @param domain the domain. Null if no domain should be used
+     * @param regex the regex.
+     * @return true if successfully
+     * @throws InvalidMappingException get thrown if an invalid argument was given
+     */
     public boolean removeRegexMapping(String user,String domain, String regex);
+    
+    /***
+     * Add address mapping
+     * 
+     * @param user the username. Null if no username should be used
+     * @param domain the domain. Null if no domain should be used
+     * @param regex the regex.
+     * @return true if successfully
+     * @throws InvalidMappingException get thrown if an invalid argument was given
+     */
     public boolean addAddressMapping(String user, String domain, String address) throws InvalidMappingException;
+    
+    /**
+     * Remove address mapping
+     * 
+     * @param user the username. Null if no username should be used
+     * @param domain the domain. Null if no domain should be used
+     * @param regex the regex.
+     * @return true if successfully
+     * @throws InvalidMappingException get thrown if an invalid argument was given
+     */
     public boolean removeAddressMapping(String user,String domain, String address);
+    
+    /**
+     * Add error mapping
+     * 
+     * @param user the username. Null if no username should be used
+     * @param domain the domain. Null if no domain should be used
+     * @param regex the regex.
+     * @return true if successfully
+     * @throws InvalidMappingException get thrown if an invalid argument was given
+     */
     public boolean addErrorMapping(String user, String domain, String error) throws InvalidMappingException;
+
+    /**
+     * Remove error mapping
+     * 
+     * @param user the username. Null if no username should be used
+     * @param domain the domain. Null if no domain should be used
+     * @param regex the regex.
+     * @return true if successfully
+     * @throws InvalidMappingException get thrown if an invalid argument was given
+     */
     public boolean removeErrorMapping(String user,String domain, String error);
 }
