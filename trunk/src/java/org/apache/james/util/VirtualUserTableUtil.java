@@ -21,6 +21,8 @@
 
 package org.apache.james.util;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -56,6 +58,7 @@ public class VirtualUserTableUtil {
         String result = null;
 
 
+        //TODO: Throw exception on invalid syntax ?
         int msgPos = targetString.indexOf(':', "regex:".length() + 1);
 
         // log("regex: targetString = " + targetString);
@@ -143,4 +146,22 @@ public class VirtualUserTableUtil {
          }
          return mappings;
      }
+     
+     
+     /**
+      * Return a Collection which holds the extracted mappings of the given String
+      * 
+      * @param rawMapping
+      * @return
+      */
+     public static Collection getMappings(String rawMapping) {
+    ArrayList map = new ArrayList();
+    StringTokenizer tokenizer = new StringTokenizer(rawMapping,
+        VirtualUserTableUtil.getSeparator(rawMapping));
+
+    while (tokenizer.hasMoreTokens()) {
+        map.add(tokenizer.nextToken().trim());
+    }
+    return map;
+    }
 }
