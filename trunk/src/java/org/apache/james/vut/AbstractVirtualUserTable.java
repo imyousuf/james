@@ -97,20 +97,12 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
      */
     public boolean addRegexMapping(String user, String domain, String regex) throws InvalidMappingException {
         // TODO: More logging
-    
-        if (validUserString(user) == false) {
-            throw new InvalidMappingException("Invalid user: " + user);
-        }
-        if(validDomainString(domain) == false) {
-            throw new InvalidMappingException("Invalid domain: " + domain);
-        }
-    
         try {
             new Perl5Compiler().compile(regex);
         } catch (MalformedPatternException e) {
             throw new InvalidMappingException("Invalid regex: " + regex);
         }
-        return addMappingInternal(user,domain,"regex:" + regex);
+        return addMappingInternal(getUserString(user),getDomainString(domain),"regex:" + regex);
     }
 
     
@@ -129,13 +121,6 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
     public boolean addAddressMapping(String user, String domain, String address) throws InvalidMappingException {
         // TODO: More logging
     
-        if (validUserString(user) == false) {
-            throw new InvalidMappingException("Invalid user: " + user);
-        }
-        if(validDomainString(domain) == false) {
-            throw new InvalidMappingException("Invalid domain: " + domain);
-        }
-    
         if (address.indexOf('@') < 0) {
             address =  address + "@localhost";
         } 
@@ -144,7 +129,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
         } catch (ParseException e) {
             throw new InvalidMappingException("Invalid emailAddress: " + address);
         }
-        return addMappingInternal(user,domain, address);
+        return addMappingInternal(getUserString(user),getDomainString(domain), address);
     }
     
     /**
@@ -166,14 +151,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
     public boolean addErrorMapping(String user, String domain, String error) throws InvalidMappingException {
         // TODO: More logging
     
-        if (validUserString(user) == false) {
-            throw new InvalidMappingException("Invalid user: " + user);
-        }
-        if(validDomainString(domain) == false) {
-            throw new InvalidMappingException("Invalid domain: " + domain);
-        }  
-    
-        return addMappingInternal(user,domain, "error:" + error);
+        return addMappingInternal(getUserString(user),getDomainString(domain), "error:" + error);
     }
     
     /**
@@ -233,12 +211,18 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
      * 
      * @param user the userString
      * @return true of false
+     * @throws InvalidMappingException 
      */
-    private boolean validUserString(String user) {
-        if(user.endsWith("@%") || user.indexOf("@") < 0) {
-            return true;
+    private String getUserString(String user) throws InvalidMappingException {
+        if (user != null) {
+            if(user.endsWith("@%") || user.indexOf("@") < 0) {
+                return user;
+            } else {
+                throw new InvalidMappingException("Invalid user: " + user);
+            }
+        } else {
+            return "";
         }
-        return false;
     }
     
     /**
@@ -247,13 +231,20 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
      * 
      * @param domain the domainString
      * @return true of false
+     * @throws InvalidMappingException 
      */
-    private boolean validDomainString(String domain) {
-        if (domain.startsWith("%@") || domain.indexOf("@") < 0) {
-            return true;  
+    private String getDomainString(String domain) throws InvalidMappingException {
+        if(domain != null) {
+            if (domain.startsWith("%@") || domain.indexOf("@") < 0) {
+                return domain;  
+            } else {
+                throw new InvalidMappingException("Invalid domain: " + domain);
+            }
+        } else {
+            return "";
         }
-        return false;
     }
+    
     
 
     /**
