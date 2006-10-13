@@ -28,7 +28,6 @@ public class JDBCVirtualUserTableTest extends AbstractVirtualUserTableTest {
         DefaultConfiguration defaultConfiguration = new DefaultConfiguration("ReposConf");
         defaultConfiguration.setAttribute("destinationURL","db://maildb/virtualusertable");
         defaultConfiguration.addChild(new AttrValConfiguration("sqlFile","file://conf/sqlResources.xml"));
-        //defaultConfiguration.setAttribute("type","MAIL");
         mr.service(serviceManager);
         mr.configure(defaultConfiguration);
         mr.initialize();

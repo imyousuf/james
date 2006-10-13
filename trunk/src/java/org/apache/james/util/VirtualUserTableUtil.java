@@ -124,8 +124,7 @@ public class VirtualUserTableUtil {
       */
      public static String getSeparator(String targetString) {
         return (targetString.indexOf(',') > -1 ? "," : (targetString
-        .indexOf(';') > -1 ? ";"
-        : (targetString.indexOf("regex:") > -1 ? "" : ":")));
+        .indexOf(';') > -1 ? ";" : ((targetString.indexOf("regex:") > -1 || targetString.indexOf("error:") > -1)? "" : ":")));
      }
      
      /**
