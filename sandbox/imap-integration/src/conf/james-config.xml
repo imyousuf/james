@@ -101,9 +101,7 @@
       -->
        
       <inboxRepository>
-         <repository destinationURL="mailboxmanager://users/" type="MAIL">
-             <mailboxmanager class="org.apache.james.mailboxmanager.torque.TorqueMailboxManagerProvider" />
-         </repository>   
+         <repository destinationURL="mailboxmanager://users/" type="MAIL" />
       </inboxRepository>
    </James>
    <mailboxmanager>
@@ -1049,6 +1047,9 @@ Regards, Postmaster XXX.YYY
             <types>
                <type>MAIL</type>
             </types>
+            <config>
+               <sqlFile>file://conf/mailboxManagerSqlResources.xml</sqlFile>
+            </config>
          </repository>
          <!-- File based repositories.  These repositories store all message data -->
          <!-- in the file system. -->
