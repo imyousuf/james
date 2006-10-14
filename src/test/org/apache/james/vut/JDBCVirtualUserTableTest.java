@@ -26,7 +26,7 @@ public class JDBCVirtualUserTableTest extends AbstractVirtualUserTableTest {
 
         mr.enableLogging(new MockLogger());
         DefaultConfiguration defaultConfiguration = new DefaultConfiguration("ReposConf");
-        defaultConfiguration.setAttribute("repositoryPath","db://maildb");
+        defaultConfiguration.addChild(new AttrValConfiguration("repositoryPath","db://maildb"));
         defaultConfiguration.addChild(new AttrValConfiguration("sqlFile","file://conf/sqlResources.xml"));
         mr.service(serviceManager);
         mr.configure(defaultConfiguration);
