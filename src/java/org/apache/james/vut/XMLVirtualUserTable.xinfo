@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+
+<blockinfo>
+
+  <!-- section to describe block -->
+  <block>
+    <version>1.0</version>
+  </block>
+
+  <services>
+    <service name="org.apache.james.services.VirtualUserTableManagment" version="1.0" />
+    <service name="org.apache.james.services.VirtualUserTable" version="1.0" />
+  </services>
+  
+  <!-- interfaces that may be exported to manange this block -->
+  <!--
+  <management-access-points>
+    <service name="org.apache.james.management.BayesianAnalyzerManagementMBean"/>
+  </management-access-points>
+-->
+</blockinfo>

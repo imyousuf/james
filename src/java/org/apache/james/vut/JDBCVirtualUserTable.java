@@ -50,7 +50,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
 
     private DataSourceSelector datasources = null;
     private DataSourceComponent dataSourceComponent = null;
-    private String tableName = null;
+    private String tableName = "VirtualUserTable";
     private String dataSourceName = null;
 
     /**
@@ -80,7 +80,13 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
      * @see org.apache.avalon.framework.configuration.Configurable#configure(org.apache.avalon.framework.configuration.Configuration)
      */
     public void configure(Configuration arg0) throws ConfigurationException {
-        String destination = arg0.getAttribute("destinationURL");
+        Configuration config = arg0.getChild("repositoryPath");
+    
+        if (config == null) {
+            throw new ConfigurationException("RepositoryPath must configured");
+        }
+        
+        String destination = config.getValue();
         // normalize the destination, to simplify processing.
         if ( ! destination.endsWith("/") ) {
             destination += "/";
@@ -103,7 +109,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
             StringBuffer exceptionBuffer =
                 new StringBuffer(256)
                         .append("Malformed destinationURL - Must be of the format '")
-                        .append("db://<data-source>[/<table>[/<repositoryName>]]'.  Was passed ")
+                        .append("db://<data-source>'.  Was passed ")
                         .append(arg0.getAttribute("destinationURL"));
             throw new ConfigurationException(exceptionBuffer.toString());
         }

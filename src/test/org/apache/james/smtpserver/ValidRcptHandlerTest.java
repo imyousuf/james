@@ -22,18 +22,20 @@
 
 package org.apache.james.smtpserver;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.mail.internet.ParseException;
 
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.UsersRepository;
-import org.apache.james.smtpserver.core.filter.fastfail.AbstractVirtualUserTableHandler;
+import org.apache.james.services.VirtualUserTable;
 import org.apache.james.smtpserver.core.filter.fastfail.ValidRcptHandler;
 import org.apache.james.test.mock.avalon.MockLogger;
+import org.apache.james.test.mock.avalon.MockServiceManager;
 import org.apache.james.userrepository.MockUsersRepository;
+import org.apache.james.vut.ErrorMappingException;
 import org.apache.mailet.MailAddress;
 import org.apache.oro.text.regex.MalformedPatternException;
 
@@ -43,7 +45,10 @@ public class ValidRcptHandlerTest extends TestCase {
     
     private final static String VALID_USER = "postmaster";
     private final static String INVALID_USER = "invalid";
+    private final static String USER1 = "user1";
+    private final static String USER2 = "user2";
     private String response = null;
+    private MockServiceManager serviceMan;
     
     public void setUp() {
         response = null;
@@ -90,6 +95,28 @@ public class ValidRcptHandlerTest extends TestCase {
         };
     
         return session;
+    }
+    
+    private MockServiceManager setUpServiceManager() throws Exception {
+        serviceMan = new MockServiceManager();
+        serviceMan.put(VirtualUserTable.ROLE, setUpVirtualUserTable());
+        return serviceMan;
+    }
+    
+    private VirtualUserTable setUpVirtualUserTable() {
+        VirtualUserTable table = new VirtualUserTable() {
+ 
+            public Collection getMappings(String user, String domain) throws ErrorMappingException {
+                Collection mappings = new ArrayList();
+                if (user.equals(USER1)) {
+                    mappings.add("address@localhost");
+                } else if (user.equals(USER2)) {
+                    throw new ErrorMappingException("BOUNCE!");
+                }
+                return mappings;
+            }
+        };
+        return table;
     }
     
     private SMTPHandlerConfigurationData setupMockedSMTPConfiguration() {
@@ -150,8 +177,9 @@ public class ValidRcptHandlerTest extends TestCase {
         return conf;
     }
     
-    public void testRejectInvalidUser() throws ParseException {
+    public void testRejectInvalidUser() throws Exception {
         ValidRcptHandler handler = new ValidRcptHandler();
+        ContainerUtil.service(handler, setUpServiceManager());
         SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(),new MailAddress(INVALID_USER + "@localhost"),false,false,null);
         ContainerUtil.enableLogging(handler,new MockLogger());
     
@@ -161,8 +189,9 @@ public class ValidRcptHandlerTest extends TestCase {
         assertNotNull("Rejected",response);
     }
     
-    public void testNotRejectInvalidUserAuth() throws ParseException {
+    public void testNotRejectInvalidUserAuth() throws Exception {
         ValidRcptHandler handler = new ValidRcptHandler();
+        ContainerUtil.service(handler, setUpServiceManager());
         SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(),new MailAddress(INVALID_USER + "@localhost"),false,true,"authedUser");
         ContainerUtil.enableLogging(handler,new MockLogger());
     
@@ -172,8 +201,9 @@ public class ValidRcptHandlerTest extends TestCase {
         assertNull("Not rejected",response);
     }
     
-    public void testNotRejectInvalidUserRelay() throws ParseException {
+    public void testNotRejectInvalidUserRelay() throws Exception {
         ValidRcptHandler handler = new ValidRcptHandler();
+        ContainerUtil.service(handler, setUpServiceManager());
         SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(),new MailAddress(INVALID_USER + "@localhost"),true,false,null);
         ContainerUtil.enableLogging(handler,new MockLogger());
     
@@ -183,8 +213,9 @@ public class ValidRcptHandlerTest extends TestCase {
         assertNull("Not rejected",response);
     }
     
-    public void testNotRejectValidUser() throws ParseException {
+    public void testNotRejectValidUser() throws Exception {
         ValidRcptHandler handler = new ValidRcptHandler();
+        ContainerUtil.service(handler, setUpServiceManager());
         SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(),new MailAddress(VALID_USER + "@localhost"),false,false,null);
         ContainerUtil.enableLogging(handler,new MockLogger());
     
@@ -194,9 +225,10 @@ public class ValidRcptHandlerTest extends TestCase {
         assertNull("Not rejected",response);
     }
     
-    public void testNotRejectValidUserRecipient() throws ParseException {
+    public void testNotRejectValidUserRecipient() throws Exception {
         String recipient = "recip@domain";
         ValidRcptHandler handler = new ValidRcptHandler();
+        ContainerUtil.service(handler, setUpServiceManager());
         SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(),new MailAddress(recipient),false,false,null);
         ContainerUtil.enableLogging(handler,new MockLogger());
     
@@ -208,11 +240,12 @@ public class ValidRcptHandlerTest extends TestCase {
         assertNull("Not rejected",response);
     }
     
-    public void testNotRejectValidUserDomain() throws ParseException {
+    public void testNotRejectValidUserDomain() throws Exception {
         String domain = "domain";
         String recipient = "recip@" + domain;
 
         ValidRcptHandler handler = new ValidRcptHandler();
+        ContainerUtil.service(handler, setUpServiceManager());
         SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(),new MailAddress(recipient),false,false,null);
         ContainerUtil.enableLogging(handler,new MockLogger());
     
@@ -224,11 +257,12 @@ public class ValidRcptHandlerTest extends TestCase {
         assertNull("Not rejected",response);
     }
     
-    public void testNotRejectValidUserRegex() throws ParseException, MalformedPatternException {
+    public void testNotRejectValidUserRegex() throws Exception {
         String domain = "domain";
         String recipient = "recip@" + domain;
 
         ValidRcptHandler handler = new ValidRcptHandler();
+        ContainerUtil.service(handler, setUpServiceManager());
         SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(),new MailAddress(recipient),false,false,null);
         ContainerUtil.enableLogging(handler,new MockLogger());
     
@@ -240,9 +274,10 @@ public class ValidRcptHandlerTest extends TestCase {
         assertNull("Not rejected",response);
     }
     
-    public void testInvalidRegex() throws ParseException{
+    public void testInvalidRegex() throws Exception{
         boolean exception = false;
         ValidRcptHandler handler = new ValidRcptHandler();
+        ContainerUtil.service(handler, setUpServiceManager());
         ContainerUtil.enableLogging(handler,new MockLogger());
     
         try {
@@ -254,18 +289,28 @@ public class ValidRcptHandlerTest extends TestCase {
         assertTrue("Invalid Config",exception);
     }
     
-    public void testNotRejectValidUserState() throws ParseException {
-        String domain = "domain";
-        String recipient = "recip@" + domain;
-        ValidRcptHandler handler = new ValidRcptHandler();
-        SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(),new MailAddress(recipient),false,false,null);
-        ContainerUtil.enableLogging(handler,new MockLogger());
+    public void testHasAddressMapping() throws Exception {
+        SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(),new MailAddress(USER1 + "@localhost"),false,false,null);
     
-        session.getState().put(AbstractVirtualUserTableHandler.VALID_USER, recipient);
+        ValidRcptHandler handler = new ValidRcptHandler();
+        ContainerUtil.service(handler, setUpServiceManager());
+        ContainerUtil.enableLogging(handler,new MockLogger());
         handler.onCommand(session);
     
-        assertFalse("Not rejected",session.getStopHandlerProcessing());
-        assertNull("Not rejected",response);
+        assertNull("No reject",response);
+        assertFalse("Not stop processing",session.getStopHandlerProcessing());
     }
     
+    public void testHasErrorMapping() throws Exception {
+        SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(),new MailAddress(USER2 + "@localhost"),false,false,null);
+
+        ValidRcptHandler handler = new ValidRcptHandler();
+        ContainerUtil.service(handler, setUpServiceManager());
+        ContainerUtil.enableLogging(handler,new MockLogger());
+        handler.onCommand(session);
+     
+       assertNull("Valid Error mapping",session.getState().get("VALID_USER"));
+       assertNotNull("Error mapping",response);
+       assertTrue("Stop processing",session.getStopHandlerProcessing());
+    }
 }
