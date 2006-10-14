@@ -31,9 +31,14 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.Serviceable;
+import org.apache.james.services.VirtualUserTable;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
+import org.apache.james.vut.ErrorMappingException;
 import org.apache.mailet.MailAddress;
 import org.apache.oro.text.regex.MalformedPatternException;
 import org.apache.oro.text.regex.Pattern;
@@ -43,12 +48,21 @@ import org.apache.oro.text.regex.Perl5Matcher;
 /**
  * Handler which reject invalid recipients
  */
-public class ValidRcptHandler extends AbstractLogEnabled implements CommandHandler, Configurable {
+public class ValidRcptHandler extends AbstractLogEnabled implements CommandHandler, Configurable, Serviceable {
     
     private Collection recipients = new ArrayList();
     private Collection domains = new ArrayList();
     private Collection regex = new ArrayList();
- 
+    private boolean vut = true;
+    private VirtualUserTable table;
+    
+    /**
+     * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
+     */
+    public void service(ServiceManager arg0) throws ServiceException {
+        table = (VirtualUserTable) arg0.lookup(VirtualUserTable.ROLE); 
+    }
+    
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
@@ -70,6 +84,11 @@ public class ValidRcptHandler extends AbstractLogEnabled implements CommandHandl
             } catch(MalformedPatternException mpe) {
                 throw new ConfigurationException("Malformed pattern: ", mpe);
             }
+        }
+        Configuration vutConfig = arg0.getChild("enableVirtualUserTable");
+        
+        if (vutConfig != null) {
+            vut = vutConfig.getValueAsBoolean(true);    
         }
     }
     
@@ -124,6 +143,10 @@ public class ValidRcptHandler extends AbstractLogEnabled implements CommandHandl
 
         }  
     }
+    
+    public void setVirtualUserTableSupport(boolean vut) {
+    this.vut = vut;
+    }
 
     /**
      * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
@@ -162,8 +185,23 @@ public class ValidRcptHandler extends AbstractLogEnabled implements CommandHandl
         }
 
         // check if an valid virtual mapping exists
-        if (invalidUser == true  && session.getState().get(AbstractVirtualUserTableHandler.VALID_USER) != null) {
-            invalidUser = false;
+        if (invalidUser == true  && vut == true) {
+            try {
+                Collection targetString = table.getMappings(rcpt.getUser(), rcpt.getHost());
+        
+                if (targetString.isEmpty() == false) {
+                    invalidUser = false;
+                }
+            } catch (ErrorMappingException e) {
+        
+                String responseString = e.getMessage();
+                
+                getLogger().info("Rejected message. Reject Message: " + responseString);
+            
+                session.writeResponse(responseString);
+                session.setStopHandlerProcessing(true);
+            }
+            //invalidUser = false;
         }
         
         if (invalidUser == true && !regex.isEmpty()) {

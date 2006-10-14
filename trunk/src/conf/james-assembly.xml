@@ -84,6 +84,8 @@
     <provide name="bayesiananalyzermanagement"
              role="org.apache.james.services.BayesianAnalyzerManagementService"/>
     <provide name="dnsserver" role="org.apache.james.services.DNSServer"/>
+    <provide name="virtualusertable"
+             role="org.apache.james.services.VirtualUserTableManagement" />
   </block>
 
   <!-- The User Management block  -->
@@ -120,6 +122,8 @@
     <provide name="database-connections"
              role="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector" />
     <provide name="filesystem" role="org.apache.james.services.FileSystem" />
+    <provide name="virtualusertable"
+             role="org.apache.james.services.VirtualUserTable" />
   </block>
 
   <!-- NNTP Server -->
@@ -182,6 +186,17 @@
   <!-- The context FileSystem implementation -->
   <block name="filesystem" class="org.apache.james.context.AvalonFileSystem">
   </block>
+  
+  <!-- VirtualUserTable services -->
+  <block name="virtualusertable" class="org.apache.james.vut.JDBCVirtualUserTable" >
+    <provide name="database-connections"
+             role="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector" />
+    <provide name="filesystem" role="org.apache.james.services.FileSystem" />
+  </block>
+  <!-- 
+  <block name="virtualusertable" class="org.apache.james.vut.JDBCVirtualUserTable" />
+  -->
+  
   
   <!-- Configuration for Cornerstone Blocks only after here
        NOTHING BELOW THIS SHOULD NEED CHANGING,

@@ -779,6 +779,12 @@ Regards, Postmaster XXX.YYY
       <repositoryPath> db://maildb </repositoryPath>
    </bayesiananalyzermanagement>  
    
+   <!-- VirtualUserTable Service-->
+   <virtualusertable> 
+      <repositoryPath> db://maildb </repositoryPath>
+      <sqlFile>file://conf/sqlResources.xml</sqlFile>
+   </virtualusertable>  
+   
 
    <!-- The RemoteManager server is enabled by default -->
    <!-- Disabling blocks will stop them from listening, -->
