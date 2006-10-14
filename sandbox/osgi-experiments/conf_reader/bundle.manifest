@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-Name: conf_reader
+Bundle-ClassPath: ., lib/jdom.jar
+Bundle-Activator: org.apache.james.conf.Activator
+Import-Package: org.osgi.framework, org.osgi.service.cm
+Bundle-SymbolicName: conf_reader
+Bundle-Version: 1.0.0
+
