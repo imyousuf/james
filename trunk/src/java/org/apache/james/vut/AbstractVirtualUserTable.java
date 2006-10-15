@@ -38,8 +38,6 @@ import org.apache.oro.text.regex.Perl5Compiler;
 
 public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
     implements VirtualUserTable, VirtualUserTableManagement {
-    
-    private static String WILDCARD = "%";
 
     /**
      * @see org.apache.james.services.VirtualUserTable#getMapping(org.apache.mailet.MailAddress)
@@ -104,7 +102,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
         } catch (MalformedPatternException e) {
             throw new InvalidMappingException("Invalid regex: " + regex);
         }
-        return addMappingInternal(getUserString(user),getDomainString(domain),"regex:" + regex);
+        return addMappingInternal(user, domain, "regex:" + regex);
     }
 
     
@@ -131,7 +129,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
         } catch (ParseException e) {
             throw new InvalidMappingException("Invalid emailAddress: " + address);
         }
-        return addMappingInternal(getUserString(user),getDomainString(domain), address);
+        return addMappingInternal(user, domain, address);
     }
     
     /**
@@ -153,7 +151,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
     public boolean addErrorMapping(String user, String domain, String error) throws InvalidMappingException {
         // TODO: More logging
     
-        return addMappingInternal(getUserString(user),getDomainString(domain), "error:" + error);
+        return addMappingInternal(user,domain, "error:" + error);
     }
     
     /**
@@ -206,46 +204,8 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
         return mapping.toString();
     
    }
-    
-    /**
-     * Return user String for the given argument
-     * 
-     * @param user the given user String
-     * @return user the user String
-     * @throws InvalidMappingException get thrown on invalid argument
-     */
-    private String getUserString(String user) throws InvalidMappingException {
-        if (user != null) {
-            if(user.equals(WILDCARD) || user.indexOf("@") < 0) {
-                return user;
-            } else {
-                throw new InvalidMappingException("Invalid user: " + user);
-            }
-        } else {
-            return WILDCARD;
-        }
-    }
-    
-    /**
-     * Return domain String for the given argument
-     * 
-     * @param domain the given domain String
-     * @return domainString the domain String
-     * @throws InvalidMappingException get thrown on invalid argument
-     */
-    private String getDomainString(String domain) throws InvalidMappingException {
-        if(domain != null) {
-            if (domain.equals(WILDCARD) || domain.indexOf("@") < 0) {
-                return domain;  
-            } else {
-                throw new InvalidMappingException("Invalid domain: " + domain);
-            }
-        } else {
-            return WILDCARD;
-        }
-    }
-    
-    
+
+ 
 
     /**
      * Override to map virtual recipients to real recipients, both local and non-local.
@@ -269,8 +229,9 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
      * @param domain the domain
      * @param mapping the mapping
      * @return true if successfully
+     * @throws InvalidMappingException 
      */
-    public abstract boolean  addMappingInternal(String user, String domain, String mapping);
+    public abstract boolean  addMappingInternal(String user, String domain, String mapping) throws InvalidMappingException;
     
     /**
      * Remove mapping 

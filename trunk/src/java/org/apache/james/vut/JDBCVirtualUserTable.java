@@ -52,6 +52,9 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
     private DataSourceComponent dataSourceComponent = null;
     private String tableName = "VirtualUserTable";
     private String dataSourceName = null;
+    
+    private static String WILDCARD = "%";
+
 
     /**
      * Contains all of the sql strings for this component.
@@ -287,17 +290,20 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
 
 
     /**
+     * @throws InvalidMappingException 
      * @see org.apache.james.vut.AbstractVirtualUserTable#addRegexMappingInternal(java.lang.String, java.lang.String, java.lang.String)
      */
-    public boolean addMappingInternal(String user, String domain, String regex) {
-        String mapping =  mapAddress(user,domain);
+    public boolean addMappingInternal(String user, String domain, String regex) throws InvalidMappingException {
+	String newUser = getUserString(user);
+	String newDomain = getDomainString(domain);
+        String mapping =  mapAddress(newUser,newDomain);
         if (mapping != null) {
             ArrayList map = mappingToColletion(mapping);
             map.add(regex);
         
             return updateMapping(user,domain,CollectionToMapping(map));
         }
-        return addMapping(user,domain,regex);
+        return addMapping(newUser,newDomain,regex);
     }
     
     /**
@@ -415,5 +421,43 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
         return false;
     }
 
+    
+    /**
+     * Return user String for the given argument
+     * 
+     * @param user the given user String
+     * @return user the user String
+     * @throws InvalidMappingException get thrown on invalid argument
+     */
+    private String getUserString(String user) throws InvalidMappingException {
+        if (user != null) {
+            if(user.equals(WILDCARD) || user.indexOf("@") < 0) {
+                return user;
+            } else {
+                throw new InvalidMappingException("Invalid user: " + user);
+            }
+        } else {
+            return WILDCARD;
+        }
+    }
+    
+    /**
+     * Return domain String for the given argument
+     * 
+     * @param domain the given domain String
+     * @return domainString the domain String
+     * @throws InvalidMappingException get thrown on invalid argument
+     */
+    private String getDomainString(String domain) throws InvalidMappingException {
+        if(domain != null) {
+            if (domain.equals(WILDCARD) || domain.indexOf("@") < 0) {
+                return domain;  
+            } else {
+                throw new InvalidMappingException("Invalid domain: " + domain);
+            }
+        } else {
+            return WILDCARD;
+        }
+    }
 }
 
