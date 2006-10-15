@@ -23,6 +23,7 @@ package org.apache.james.transport.mailets;
 
 import org.apache.james.Constants;
 import org.apache.james.core.MailImpl;
+import org.apache.james.util.Misc;
 import org.apache.james.util.mail.MimeMultipartReport;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.Mail;
@@ -150,7 +151,7 @@ public class DSNBounce extends AbstractNotify {
 
 
         // duplicates the Mail object, to be able to modify the new mail keeping the original untouched
-        MailImpl newMail = new MailImpl(originalMail,newName(originalMail));
+        MailImpl newMail = new MailImpl(originalMail,Misc.newName(originalMail,random));
         try {
             // We don't need to use the original Remote Address and Host,
             // and doing so would likely cause a loop with spam detecting
@@ -559,44 +560,6 @@ public class DSNBounce extends AbstractNotify {
             return ex1.getMessage().trim();
         }
     }
-
-    /**
-     * Create a unique new primary key name.
-     *
-     * @param mail the mail to use as the basis for the new mail name
-     * @return a new name
-     */
-    protected String newName(Mail mail) throws MessagingException {
-        String oldName = mail.getName();
-
-        // Checking if the original mail name is too long, perhaps because of a
-        // loop caused by a configuration error.
-        // it could cause a "null pointer exception" in AvalonMailRepository much
-        // harder to understand.
-        if (oldName.length() > 76) {
-            int count = 0;
-            int index = 0;
-            while ((index = oldName.indexOf('!', index + 1)) >= 0) {
-                count++;
-            }
-            // It looks like a configuration loop. It's better to stop.
-            if (count > 7) {
-                throw new MessagingException("Unable to create a new message name: too long."
-                                             + " Possible loop in config.xml.");
-            }
-            else {
-                oldName = oldName.substring(0, 76);
-            }
-        }
-
-        StringBuffer nameBuffer =
-            new StringBuffer(64)
-            .append(oldName)
-            .append("-!")
-            .append(random.nextInt(1048576));
-        return nameBuffer.toString();
-    }
-
 
 
     public String getMailetInfo() {

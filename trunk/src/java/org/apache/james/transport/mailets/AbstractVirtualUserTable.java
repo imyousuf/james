@@ -22,6 +22,7 @@
 package org.apache.james.transport.mailets;
 
 import org.apache.james.core.MailImpl;
+import org.apache.james.util.Misc;
 import org.apache.james.util.VirtualUserTableUtil;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
@@ -162,7 +163,7 @@ public abstract class AbstractVirtualUserTable extends GenericMailet
             // getMailetContext().sendMail(mail.getSender(), recipientsToAddForward, mail.getMessage());
 
             // duplicates the Mail object, to be able to modify the new mail keeping the original untouched
-            MailImpl newMail = new MailImpl(mail,newName(mail));
+            MailImpl newMail = new MailImpl(mail,Misc.newName(mail,random));
             try {
                 try {
                     newMail.setRemoteAddr(java.net.InetAddress.getLocalHost().getHostAddress());
@@ -238,39 +239,4 @@ public abstract class AbstractVirtualUserTable extends GenericMailet
 
   private static final java.util.Random random = new java.util.Random();  // Used to generate new mail names
 
-  /**
-   * Create a unique new primary key name.
-   *
-   * @param mail the mail to use as the basis for the new mail name
-   * @return a new name
-   */
-  private String newName(Mail mail) throws MessagingException {
-      String oldName = mail.getName();
-
-        // Checking if the original mail name is too long, perhaps because of a
-        // loop caused by a configuration error.
-        // it could cause a "null pointer exception" in AvalonMailRepository much
-        // harder to understand.
-      if (oldName.length() > 76) {
-          int count = 0;
-          int index = 0;
-          while ((index = oldName.indexOf('!', index + 1)) >= 0) {
-              count++;
-          }
-            // It looks like a configuration loop. It's better to stop.
-          if (count > 7) {
-              throw new MessagingException("Unable to create a new message name: too long.  Possible loop in config.xml.");
-          }
-          else {
-              oldName = oldName.substring(0, 76);
-          }
-      }
-
-      StringBuffer nameBuffer =
-                               new StringBuffer(64)
-                               .append(oldName)
-                               .append("-!")
-                               .append(random.nextInt(1048576));
-      return nameBuffer.toString();
-  }
 }
