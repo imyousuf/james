@@ -38,6 +38,8 @@ import org.apache.oro.text.regex.Perl5Compiler;
 
 public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
     implements VirtualUserTable, VirtualUserTableManagement {
+    
+    private static String WILDCARD = "%";
 
     /**
      * @see org.apache.james.services.VirtualUserTable#getMapping(org.apache.mailet.MailAddress)
@@ -206,42 +208,40 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
    }
     
     /**
-     * Return true if the userString is valid
-     * TODO: More checkin ?
+     * Return user String for the given argument
      * 
-     * @param user the userString
-     * @return true of false
-     * @throws InvalidMappingException 
+     * @param user the given user String
+     * @return user the user String
+     * @throws InvalidMappingException get thrown on invalid argument
      */
     private String getUserString(String user) throws InvalidMappingException {
         if (user != null) {
-            if(user.endsWith("@%") || user.indexOf("@") < 0) {
+            if(user.equals(WILDCARD) || user.indexOf("@") < 0) {
                 return user;
             } else {
                 throw new InvalidMappingException("Invalid user: " + user);
             }
         } else {
-            return "";
+            return WILDCARD;
         }
     }
     
     /**
-     * Return true if the domainString is valid
-     * TODO: More checkin ?
+     * Return domain String for the given argument
      * 
-     * @param domain the domainString
-     * @return true of false
-     * @throws InvalidMappingException 
+     * @param domain the given domain String
+     * @return domainString the domain String
+     * @throws InvalidMappingException get thrown on invalid argument
      */
     private String getDomainString(String domain) throws InvalidMappingException {
         if(domain != null) {
-            if (domain.startsWith("%@") || domain.indexOf("@") < 0) {
+            if (domain.equals(WILDCARD) || domain.indexOf("@") < 0) {
                 return domain;  
             } else {
                 throw new InvalidMappingException("Invalid domain: " + domain);
             }
         } else {
-            return "";
+            return WILDCARD;
         }
     }
     

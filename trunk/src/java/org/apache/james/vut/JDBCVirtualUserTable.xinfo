@@ -12,12 +12,6 @@
     <service name="org.apache.james.services.VirtualUserTable" version="1.0" />
   </services>
   
-  <!-- interfaces that may be exported to manange this block -->
-  <!--
-  <management-access-points>
-    <service name="org.apache.james.management.BayesianAnalyzerManagementMBean"/>
-  </management-access-points>
--->
   <dependencies>
     <dependency>
       <service name="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector" version="1.0"/>
