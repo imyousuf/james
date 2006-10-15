@@ -22,7 +22,6 @@
 package org.apache.james.transport.mailets;
 
 import org.apache.james.core.MailImpl;
-import org.apache.james.util.Misc;
 import org.apache.james.util.VirtualUserTableUtil;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
@@ -163,7 +162,7 @@ public abstract class AbstractVirtualUserTable extends GenericMailet
             // getMailetContext().sendMail(mail.getSender(), recipientsToAddForward, mail.getMessage());
 
             // duplicates the Mail object, to be able to modify the new mail keeping the original untouched
-            MailImpl newMail = new MailImpl(mail,Misc.newName(mail,random));
+            MailImpl newMail = new MailImpl(mail);
             try {
                 try {
                     newMail.setRemoteAddr(java.net.InetAddress.getLocalHost().getHostAddress());
@@ -236,7 +235,5 @@ public abstract class AbstractVirtualUserTable extends GenericMailet
   private String getSeparator(String targetString) {
       return (targetString.indexOf(',') > -1 ? "," : (targetString.indexOf(';') > -1 ? ";" : (targetString.indexOf("regex:") > -1? "" : ":" )));
   }
-
-  private static final java.util.Random random = new java.util.Random();  // Used to generate new mail names
 
 }
