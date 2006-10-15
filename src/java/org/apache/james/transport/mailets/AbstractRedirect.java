@@ -46,7 +46,6 @@ import org.apache.mailet.RFC2822Headers;
 import org.apache.mailet.dates.RFC822DateFormat;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageUtil;
-import org.apache.james.util.Misc;
 
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
@@ -978,7 +977,7 @@ public abstract class AbstractRedirect extends GenericMailet {
         boolean keepMessageId = false;
 
         // duplicates the Mail object, to be able to modify the new mail keeping the original untouched
-        MailImpl newMail = new MailImpl(originalMail,Misc.newName(originalMail,random));
+        MailImpl newMail = new MailImpl(originalMail);
         try {
             // We don't need to use the original Remote Address and Host,
             // and doing so would likely cause a loop with spam detecting
@@ -1080,8 +1079,6 @@ public abstract class AbstractRedirect extends GenericMailet {
             originalMail.setState(Mail.GHOST);
         }
     }
-
-    private static final java.util.Random random = new java.util.Random();  // Used to generate new mail names
 
 
     /**

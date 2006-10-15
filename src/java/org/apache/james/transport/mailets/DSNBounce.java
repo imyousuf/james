@@ -23,7 +23,6 @@ package org.apache.james.transport.mailets;
 
 import org.apache.james.Constants;
 import org.apache.james.core.MailImpl;
-import org.apache.james.util.Misc;
 import org.apache.james.util.mail.MimeMultipartReport;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.Mail;
@@ -94,9 +93,6 @@ public class DSNBounce extends AbstractNotify {
 
     private static final RFC822DateFormat rfc822DateFormat = new RFC822DateFormat();
 
-    //  Used to generate new mail names
-    private static final java.util.Random random = new java.util.Random();
-
     // regexp pattern for scaning status code from exception message
     private static Pattern statusPattern;
 
@@ -151,7 +147,7 @@ public class DSNBounce extends AbstractNotify {
 
 
         // duplicates the Mail object, to be able to modify the new mail keeping the original untouched
-        MailImpl newMail = new MailImpl(originalMail,Misc.newName(originalMail,random));
+        MailImpl newMail = new MailImpl(originalMail);
         try {
             // We don't need to use the original Remote Address and Host,
             // and doing so would likely cause a loop with spam detecting
