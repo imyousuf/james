@@ -27,9 +27,7 @@ import java.io.FilenameFilter;
  * This takes a <code>FilenameFilter<code> as input and inverts the selection.
  * This is used in retrieving files that are not accepted by a filter.
  *
- * @author <a href="mailto:dev@avalon.apache.org">Avalon Development Team</a>
  * @version CVS $Revision$ $Date$
- * @since 4.0
  */
 public class InvertedFileFilter
     implements FilenameFilter

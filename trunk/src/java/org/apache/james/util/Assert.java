@@ -17,34 +17,45 @@
  * under the License.                                           *
  ****************************************************************/
 
+package org.apache.james.util;
 
-package org.apache.james.util.io;
-
-import java.io.File;
-import java.io.FilenameFilter;
 
 /**
- * This filter accepts <code>File</code>s that are directories.
- * <p>Eg., here is how to print out a list of the current directory's subdirectories:</p>
- *
- * <pre>
- * File dir = new File(".");
- * String[] files = dir.list( new DirectoryFileFilter() );
- * for ( int i=0; i&lt;files.length; i++ )
- * {
- *     System.out.println(files[i]);
- * }
- * </pre>
- *
- * @version $Revision$ $Date$
+ * A set of debugging utilities.
  */
-public class DirectoryFileFilter
-    implements FilenameFilter
+public final class Assert
 {
-    public boolean accept( final File file, final String name )
+    public static final boolean ON = true;
+
+    // Can't instantiate.
+    private Assert()
     {
-        return new File( file, name ).isDirectory();
+    };
+
+    /**
+     * Checks the supplied boolean expression, throwing an AssertionException if false;
+     */
+    public static void isTrue( boolean expression )
+    {
+        if ( !expression ) {
+            throw new RuntimeException( "Assertion Failed." );
+        }
     }
+
+    /**
+     * Fails with an assertion exception.
+     */
+    public static void fail()
+    {
+        throw new RuntimeException( "Assertion error - should not reach here." );
+    }
+
+    /**
+     * Fails, indicating not-yet-implemented features.
+     */
+    public static void notImplemented()
+    {
+        throw new RuntimeException( "Not implemented" );
+    }
+
 }
-
-

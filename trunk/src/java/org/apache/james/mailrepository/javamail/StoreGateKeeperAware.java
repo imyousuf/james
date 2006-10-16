@@ -19,15 +19,10 @@
 
 package org.apache.james.mailrepository.javamail;
 
-
-
 /**
  * Bridge, that allows JavamailStoreMailRepository implementations to offer the
  * underlaying Javamail Store
- * 
- * @author Joachim Draeger <jd at joachim-draeger.de>
  */
-
 public interface StoreGateKeeperAware {
 
     public StoreGateKeeper getStore();

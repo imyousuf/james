@@ -301,8 +301,6 @@ public class UIDPlusFolderMailRepository extends
     /**
      * 
      * maybe it could be replaced by BidiMap from commons-collections 3.0+
-     * 
-     * @author Joachim Draeger <jd at joachim-draeger.de>
      */
     private class UidToKeyBidiMapImpl implements UidToKeyBidiMap {
 
