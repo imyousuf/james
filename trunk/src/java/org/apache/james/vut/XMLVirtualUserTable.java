@@ -21,6 +21,7 @@
 
 package org.apache.james.vut;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -70,6 +71,14 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable implements Con
     public boolean removeMappingInternal(String user, String domain, String mapping) {
         // Not supported
         return false;
+    }
+
+    /**
+     * Not implemented
+     */
+    public Collection getUserDomainMappings(String user, String domain) {
+	// Not supported
+	return null;
     }
 
 }

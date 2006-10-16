@@ -33,4 +33,36 @@ public class JDBCVirtualUserTableTest extends AbstractVirtualUserTableTest {
         mr.initialize();
         return mr;
     }
+    
+    public void testStoreAndRetrieveWildCardAddressMapping() throws ErrorMappingException {
+	    
+        String user = "test";
+        String user2 = "test2";
+        String domain = "localhost";
+        String address = "test@localhost2";
+        String address2 = "test@james";
+
+
+       try {
+                 
+            assertTrue("No mapping",virtualUserTable.getMappings(user, domain).isEmpty());
+        
+            assertTrue("Added virtual mapping", virtualUserTable.addAddressMapping(null, domain, address));
+            assertTrue("Added virtual mapping", virtualUserTable.addAddressMapping(user, domain, address2));
+
+          
+            assertTrue("One mappings",virtualUserTable.getMappings(user, domain).size() == 1);
+            assertTrue("One mappings",virtualUserTable.getMappings(user2, domain).size() == 1);
+           
+            assertTrue("remove virtual mapping", virtualUserTable.removeAddressMapping(user, domain, address2));
+            assertTrue("remove virtual mapping", virtualUserTable.removeAddressMapping(null, domain, address));
+            assertTrue("No mapping",virtualUserTable.getMappings(user, domain).isEmpty());
+            assertTrue("No mapping",virtualUserTable.getMappings(user2, domain).isEmpty());
+      
+        } catch (InvalidMappingException e) {
+           fail("Storing failed");
+        }
+    
+    }
+    
 }

@@ -36,6 +36,9 @@ import org.apache.mailet.MailAddress;
 import org.apache.oro.text.regex.MalformedPatternException;
 import org.apache.oro.text.regex.Perl5Compiler;
 
+/**
+ * 
+ */
 public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
     implements VirtualUserTable, VirtualUserTableManagement {
 
@@ -43,13 +46,13 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
      * @see org.apache.james.services.VirtualUserTable#getMapping(org.apache.mailet.MailAddress)
      */
     public Collection getMappings(String user,String domain) throws ErrorMappingException {
-        Collection mappings = new ArrayList();
+
 
         String targetString = mapAddress(user, domain);
 
-
         // Only non-null mappings are translated
         if (targetString != null) {
+            Collection mappings = new ArrayList();
             if (targetString.startsWith("error:")) {
                 throw new ErrorMappingException(targetString.substring("error:".length()));
 
@@ -66,7 +69,8 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
                         } catch (MalformedPatternException e) {
                             getLogger().error("Exception during regexMap processing: ", e);
                         } catch (ParseException e) {
-                           // should never happen
+                            // should never happen
+                            getLogger().error("Exception during regexMap processing: ", e);
                         } 
 
                         if (targetAddress == null) continue;
@@ -86,17 +90,17 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
                                                          .append(" to ").append(targetAddress);
                     getLogger().debug(buf.toString());
 
-                }
-         }
-    }
-    return mappings;
+                 }
+             }
+        }
+        return null;
     }
     
     /**
      * @see org.apache.james.services.VirtualUserTableManagement#addRegexMapping(java.lang.String, java.lang.String, java.lang.String)
      */
     public boolean addRegexMapping(String user, String domain, String regex) throws InvalidMappingException {
-        // TODO: More logging
+	getLogger().info("Add regex mapping => " + regex + " for user: " + user + " domain: " + domain);
         try {
             new Perl5Compiler().compile(regex);
         } catch (MalformedPatternException e) {
@@ -107,11 +111,11 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
 
     
     /**
+     * @throws InvalidMappingException 
      * @see org.apache.james.services.VirtualUserTableManagement#removeRegexMapping(java.lang.String, java.lang.String, java.lang.String)
      */
-    public boolean removeRegexMapping(String user, String domain, String regex) {
-        // TODO: More logging
-    
+    public boolean removeRegexMapping(String user, String domain, String regex) throws InvalidMappingException {
+	getLogger().info("Add regex mapping => " + regex + " for user: " + user + " domain: " + domain);
         return removeMappingInternal(user,domain,"regex:" + regex);
     }
     
@@ -119,8 +123,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
      * @see org.apache.james.services.VirtualUserTableManagement#addAddressMapping(java.lang.String, java.lang.String, java.lang.String)
      */
     public boolean addAddressMapping(String user, String domain, String address) throws InvalidMappingException {
-        // TODO: More logging
-    
+
         if (address.indexOf('@') < 0) {
             address =  address + "@localhost";
         } 
@@ -129,18 +132,20 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
         } catch (ParseException e) {
             throw new InvalidMappingException("Invalid emailAddress: " + address);
         }
+        getLogger().info("Add address mapping => " + address + " for user: " + user + " domain: " + domain);
         return addMappingInternal(user, domain, address);
     }
     
     /**
+     * @throws InvalidMappingException 
      * @see org.apache.james.services.VirtualUserTableManagement#removeAddressMapping(java.lang.String, java.lang.String, java.lang.String)
      */
-    public boolean removeAddressMapping(String user, String domain, String address) {
-        // TODO: More logging
-    
+    public boolean removeAddressMapping(String user, String domain, String address) throws InvalidMappingException {
+
         if (address.indexOf('@') < 0) {
             address =  address + "@localhost";
         } 
+        getLogger().info("Add address mapping => " + address + " for user: " + user + " domain: " + domain);
         return removeMappingInternal(user,domain,address);
     }
     
@@ -148,17 +153,18 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
      * @throws InvalidMappingException 
      * @see org.apache.james.services.VirtualUserTableManagement#addErrorMapping(java.lang.String, java.lang.String, java.lang.String)
      */
-    public boolean addErrorMapping(String user, String domain, String error) throws InvalidMappingException {
-        // TODO: More logging
-    
+    public boolean addErrorMapping(String user, String domain, String error) throws InvalidMappingException {	
+	getLogger().info("Add error mapping => " + error + " for user: " + user + " domain: " + domain);
+        
         return addMappingInternal(user,domain, "error:" + error);
     }
     
     /**
+     * @throws InvalidMappingException 
      * @see org.apache.james.services.VirtualUserTableManagement#removeErrorMapping(java.lang.String, java.lang.String, java.lang.String)
      */
-    public boolean removeErrorMapping(String user, String domain, String error) {
-        // TODO: More logging
+    public boolean removeErrorMapping(String user, String domain, String error) throws InvalidMappingException {
+	getLogger().info("Add error mapping => " + error + " for user: " + user + " domain: " + domain);     
     
         return removeMappingInternal(user,domain,"error:" + error);
     }
@@ -170,13 +176,14 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
      * @param rawMapping the mapping Strin
      * @return map a collection which holds all mappings
      */
-    protected ArrayList mappingToColletion(String rawMapping) {
+    protected ArrayList mappingToCollection(String rawMapping) {
         ArrayList map = new ArrayList();
         StringTokenizer tokenizer = new StringTokenizer(rawMapping,
         VirtualUserTableUtil.getSeparator(rawMapping));
 
         while (tokenizer.hasMoreTokens()) {
-            map.add(tokenizer.nextToken().trim());
+            String raw = tokenizer.nextToken().trim();
+            map.add(raw);
         }
         return map;
    }
@@ -200,9 +207,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
                 mapping.append(";");
             }
         }  
-    
-        return mapping.toString();
-    
+        return mapping.toString();  
    }
 
  
@@ -240,7 +245,8 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
      * @param domain the domain
      * @param mapping the mapping 
      * @return true if successfully
+     * @throws InvalidMappingException 
      */
-    public abstract boolean  removeMappingInternal(String user, String domain, String mapping);
+    public abstract boolean  removeMappingInternal(String user, String domain, String mapping) throws InvalidMappingException;
 
 }

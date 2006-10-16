@@ -21,6 +21,8 @@
 
 package org.apache.james.services;
 
+import java.util.Collection;
+
 import org.apache.james.vut.InvalidMappingException;
 
 public interface VirtualUserTableManagement extends VirtualUserTable{
@@ -47,7 +49,7 @@ public interface VirtualUserTableManagement extends VirtualUserTable{
      * @return true if successfully
      * @throws InvalidMappingException get thrown if an invalid argument was given
      */
-    public boolean removeRegexMapping(String user,String domain, String regex);
+    public boolean removeRegexMapping(String user,String domain, String regex) throws InvalidMappingException;
     
     /***
      * Add address mapping
@@ -69,7 +71,7 @@ public interface VirtualUserTableManagement extends VirtualUserTable{
      * @return true if successfully
      * @throws InvalidMappingException get thrown if an invalid argument was given
      */
-    public boolean removeAddressMapping(String user,String domain, String address);
+    public boolean removeAddressMapping(String user,String domain, String address) throws InvalidMappingException;
     
     /**
      * Add error mapping
@@ -91,5 +93,16 @@ public interface VirtualUserTableManagement extends VirtualUserTable{
      * @return true if successfully
      * @throws InvalidMappingException get thrown if an invalid argument was given
      */
-    public boolean removeErrorMapping(String user,String domain, String error);
+    public boolean removeErrorMapping(String user,String domain, String error) throws InvalidMappingException;
+    
+    /**
+     * Return the explicit mapping stored for the given user and domain. Return null
+     * if no mapping was found
+     * 
+     * @param user the username
+     * @param domain the domain
+     * @return the collection which holds the mappings. 
+     * @throws InvalidMappingException  get thrown if an invalid use or domain was given
+     */
+    public Collection getUserDomainMappings(String user, String domain) throws InvalidMappingException;
 }

@@ -29,6 +29,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +47,9 @@ import org.apache.james.services.FileSystem;
 import org.apache.james.util.JDBCUtil;
 import org.apache.james.util.SqlResources;
 
+/**
+ * 
+ */
 public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Configurable,Serviceable, Initializable{
 
     private DataSourceSelector datasources = null;
@@ -261,7 +265,6 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
                 }
             
         } catch (SQLException sqle) {
-            System.out.println("SSQL:"+ sqlQueries.getSqlString("selectMappings", true));
             getLogger().error("Error accessing database", sqle);
         } finally {
             theJDBCUtil.closeJDBCStatement(mappingStmt);
@@ -273,35 +276,32 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
     /**
      * @see org.apache.james.vut.AbstractVirtualUserTable#removeRegexMappingInternal(java.lang.String, java.lang.String, java.lang.String)
      */
-    public boolean removeMappingInternal(String user, String domain, String regex) {
-        String mapping =  mapAddress(user,domain);
-        if (mapping != null) {
-            ArrayList map = mappingToColletion(mapping);
-            map.remove(regex);
-        
-            if (map.size() == 0) {
-                return removeMapping(user,domain,regex);
-            } else {
-                return updateMapping(user,domain,CollectionToMapping(map));
-            }
+    public boolean removeMappingInternal(String user, String domain, String mapping) throws InvalidMappingException {
+	String newUser = getUserString(user);
+	String newDomain = getDomainString(domain);
+	Collection map = getUserDomainMappings(newUser,newDomain);
+
+        if (map != null && map.size() > 1) {
+                map.remove(mapping);
+                return updateMapping(newUser,newDomain,CollectionToMapping(map));
+        } else {
+            return removeMapping(newUser,newDomain,mapping);
         }
-        return false;
     }
 
 
     /**
-     * @throws InvalidMappingException 
      * @see org.apache.james.vut.AbstractVirtualUserTable#addRegexMappingInternal(java.lang.String, java.lang.String, java.lang.String)
      */
     public boolean addMappingInternal(String user, String domain, String regex) throws InvalidMappingException {
 	String newUser = getUserString(user);
 	String newDomain = getDomainString(domain);
-        String mapping =  mapAddress(newUser,newDomain);
-        if (mapping != null) {
-            ArrayList map = mappingToColletion(mapping);
+        Collection map =  getUserDomainMappings(newUser,newDomain);
+
+        if (map != null && map.size() != 0) {
             map.add(regex);
         
-            return updateMapping(user,domain,CollectionToMapping(map));
+            return updateMapping(newUser,newDomain,CollectionToMapping(map));
         }
         return addMapping(newUser,newDomain,regex);
     }
@@ -328,6 +328,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
                 mappingStmt.setString(1, mapping);
                 mappingStmt.setString(2, user);
                 mappingStmt.setString(3, domain);
+               
                 if (mappingStmt.executeUpdate()> 0) {
                    return true;
                 }
@@ -405,6 +406,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
                 mappingStmt.setString(1, user);
                 mappingStmt.setString(2, domain);
                 mappingStmt.setString(3, mapping);
+               
                 if(mappingStmt.executeUpdate() >0) {
                     return true;
                 }
@@ -459,5 +461,39 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
             return WILDCARD;
         }
     }
+    
+    /**
+     * @see org.apache.james.vut.AbstractVirtualUserTable#mapAddress(java.lang.String, java.lang.String)
+     */
+    public Collection getUserDomainMappings(String user, String domain) throws InvalidMappingException {
+	Connection conn = null;
+        PreparedStatement mappingStmt = null;
+        
+        try {
+            conn = dataSourceComponent.getConnection();
+            mappingStmt = conn.prepareStatement(sqlQueries.getSqlString("selectUserDomainMapping", true));
+
+            ResultSet mappingRS = null;
+            try {
+                mappingStmt.setString(1, user);
+                mappingStmt.setString(2, domain);
+                mappingRS = mappingStmt.executeQuery();
+                if (mappingRS.next()) {
+                    return mappingToCollection(mappingRS.getString(1));
+                }
+            } finally {
+                theJDBCUtil.closeJDBCResultSet(mappingRS);
+            }
+            
+        } catch (SQLException sqle) {
+            getLogger().error("Error accessing database", sqle);
+        } finally {
+            theJDBCUtil.closeJDBCStatement(mappingStmt);
+            theJDBCUtil.closeJDBCConnection(conn);
+        }
+        return null;
+    }
+    
+    
 }
 
