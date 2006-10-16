@@ -42,6 +42,7 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
     
     protected abstract VirtualUserTableManagement getVirtalUserTable() throws ServiceException, ConfigurationException, Exception;
     
+
     public void testStoreAndRetrieveRegexMapping() throws ErrorMappingException {
     
         String user = "test";
@@ -75,7 +76,7 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
         }
     
     }
-    
+
     public void testStoreAndRetrieveAddressMapping() throws ErrorMappingException {
     
         String user = "test";
@@ -109,7 +110,7 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
         }
     
     }
-    
+
     public void testStoreAndRetrieveErrorMapping() throws ErrorMappingException {
     
         String user = "test";
@@ -134,6 +135,7 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
         } catch (InvalidMappingException e) {
              fail("Storing failed");
         }
+
     
     }
 

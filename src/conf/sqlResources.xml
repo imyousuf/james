@@ -990,12 +990,16 @@
 <sqlDefs name="org.apache.james.vut.JDBCVirtualUserTable">
 
     <!-- Statements used to check whether a particular message exists in this repository. -->
-    <sql name="selectMappings">select VirtualUserTable.target_address from VirtualUserTable, VirtualUserTable as VUTDomains
-where ((VirtualUserTable."user") like ? or (VirtualUserTable."user") like '\%')
-and (VirtualUserTable.domain like ?
-or (VirtualUserTable.domain like '\%' and VUTDomains.domain like ?)) </sql>
+    <sql name="selectMappings" db="derby">select VirtualUserTable.target_address,(VirtualUserTable."user" || '@' ||VirtualUserTable.domain) from VirtualUserTable, VirtualUserTable as VUTDomains where ((VirtualUserTable."user") like ? or (VirtualUserTable."user") like '%') and (VirtualUserTable.domain like ? or (VirtualUserTable.domain like '%' and VUTDomains.domain like ?)) order by 2 desc</sql>
+    <sql name="selectMappings">select VirtualUserTable.target_address from VirtualUserTable, VirtualUserTable as VUTDomains where (VirtualUserTable.user like ? or VirtualUserTable.user like '%') and (VirtualUserTable.domain like ? or (VirtualUserTable.domain like '%' and VUTDomains.domain like ?)) order by concat(VirtualUserTable.user,'@',VirtualUserTable.domain) desc limit 1" </sql>
+    
+    <sql name="selectUserDomainMapping" db="derby">select VirtualUserTable.target_address from VirtualUserTable where VirtualUserTable."user" = ? and VirtualUserTable.domain = ? </sql>
+    <sql name="selectUserDomainMapping">select VirtualUserTable.target_address from VirtualUserTable where VirtualUserTable.user = ? and VirtualUserTable.domain = ? </sql>
+   
     <sql name="deleteMapping">delete from VirtualUserTable where VirtualUserTable."user" = ? and VirtualUserTable.domain = ? and VirtualUserTable.target_address = ?</sql>
+   
     <sql name="updateMapping">update VirtualUserTable set VirtualUserTable.target_address = ? where VirtualUserTable."user" = ? and VirtualUserTable.domain = ? </sql>
+   
     <sql name="addMapping">insert into VirtualUserTable values(?,?,?) </sql>
     <!-- Statements used to create the table associated with this class. -->
     <sql name="createTable" db="mysql">
@@ -1006,6 +1010,8 @@ or (VirtualUserTable.domain like '\%' and VUTDomains.domain like ?)) </sql>
             PRIMARY KEY (user,domain)
         )
     </sql>
+    <!-- TEMPORARY DISABLED -->
+    <!--
     <sql name="createTable" db="hypersonic">
         CREATE CACHED TABLE VirtualUserTable (
             user varchar(64) NOT NULL default '',
@@ -1070,6 +1076,7 @@ or (VirtualUserTable.domain like '\%' and VUTDomains.domain like ?)) </sql>
             PRIMARY KEY (user,domain)
         )
     </sql>
+    -->
     <sql name="createTable" db="derby">
         CREATE TABLE VirtualUserTable (
             "user" varchar (64) NOT NULL default '',

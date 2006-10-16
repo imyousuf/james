@@ -35,7 +35,7 @@ public interface VirtualUserTable {
      * 
      * @param mailaddress the MailAddress
      * @return the mapped mailAddress
-     * @throws ErrorMappingException
+     * @throws ErrorMappingException get thrown if an error mapping was found
      */
     public Collection getMappings(String user, String domain) throws ErrorMappingException;
 }
