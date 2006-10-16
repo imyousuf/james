@@ -277,9 +277,9 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
      * @see org.apache.james.vut.AbstractVirtualUserTable#removeRegexMappingInternal(java.lang.String, java.lang.String, java.lang.String)
      */
     public boolean removeMappingInternal(String user, String domain, String mapping) throws InvalidMappingException {
-	String newUser = getUserString(user);
-	String newDomain = getDomainString(domain);
-	Collection map = getUserDomainMappings(newUser,newDomain);
+        String newUser = getUserString(user);
+        String newDomain = getDomainString(domain);
+        Collection map = getUserDomainMappings(newUser,newDomain);
 
         if (map != null && map.size() > 1) {
                 map.remove(mapping);
@@ -294,8 +294,8 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
      * @see org.apache.james.vut.AbstractVirtualUserTable#addRegexMappingInternal(java.lang.String, java.lang.String, java.lang.String)
      */
     public boolean addMappingInternal(String user, String domain, String regex) throws InvalidMappingException {
-	String newUser = getUserString(user);
-	String newDomain = getDomainString(domain);
+        String newUser = getUserString(user);
+        String newDomain = getDomainString(domain);
         Collection map =  getUserDomainMappings(newUser,newDomain);
 
         if (map != null && map.size() != 0) {
@@ -466,7 +466,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
      * @see org.apache.james.vut.AbstractVirtualUserTable#mapAddress(java.lang.String, java.lang.String)
      */
     public Collection getUserDomainMappings(String user, String domain) throws InvalidMappingException {
-	Connection conn = null;
+        Connection conn = null;
         PreparedStatement mappingStmt = null;
         
         try {

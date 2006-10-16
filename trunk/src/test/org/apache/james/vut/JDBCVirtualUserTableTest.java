@@ -35,7 +35,7 @@ public class JDBCVirtualUserTableTest extends AbstractVirtualUserTableTest {
     }
     
     public void testStoreAndRetrieveWildCardAddressMapping() throws ErrorMappingException {
-	    
+        
         String user = "test";
         String user2 = "test2";
         String domain = "localhost";
