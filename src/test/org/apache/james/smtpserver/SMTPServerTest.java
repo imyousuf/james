@@ -52,11 +52,16 @@ import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.Writer;
 import java.net.InetAddress;
+import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1448,5 +1453,46 @@ public class SMTPServerTest extends TestCase {
         assertEquals("accept", 250,smtpProtocol.getReplyCode());
 
         smtpProtocol.quit();
+    }
+    
+    public void testPipelining() throws Exception {
+        StringBuffer buf = new StringBuffer();
+        finishSetUp(m_testConfiguration);
+        Socket client = new Socket("127.0.0.1",m_smtpListenerPort);
+        
+        buf.append("HELO TEST");
+        buf.append("\r\n");
+        buf.append("MAIL FROM: <test@localhost>");
+        buf.append("\r\n");
+        buf.append("RCPT TO: <test2@localhost>");
+        buf.append("\r\n");
+        buf.append("DATA");
+        buf.append("\r\n");
+        buf.append("Subject: test");
+        buf.append("\r\n");;
+        buf.append("\r\n");
+        buf.append("content");
+        buf.append("\r\n");
+        buf.append(".");
+        buf.append("\r\n");
+        buf.append("quit");
+        buf.append("\r\n");
+        
+        OutputStream out = client.getOutputStream();
+        
+        out.write(buf.toString().getBytes());
+        out.flush();
+      
+        BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
+
+        assertEquals("Connection made" , 220, Integer.parseInt(in.readLine().split(" ")[0]));
+        assertEquals("HELO accepted" , 250, Integer.parseInt(in.readLine().split(" ")[0]));
+        assertEquals("MAIL FROM accepted" , 250, Integer.parseInt(in.readLine().split(" ")[0]));
+        assertEquals("RCPT TO accepted" , 250, Integer.parseInt(in.readLine().split(" ")[0]));
+        assertEquals("DATA accepted" , 354, Integer.parseInt(in.readLine().split(" ")[0]));
+        assertEquals("Message accepted" , 250, Integer.parseInt(in.readLine().split(" ")[0]));
+        in.close();
+        out.close();
+        client.close();
     }
 }
