@@ -40,11 +40,7 @@ import java.io.FilenameFilter;
  * }
  * </pre>
  *
- * @author  Federico Barbieri <fede@apache.org>
- * @author Serge Knystautas <sergek@lokitech.com>
- * @author Peter Donald
  * @version CVS $Revision$ $Date$
- * @since 4.0
  */
 public class ExtensionFileFilter
     implements FilenameFilter

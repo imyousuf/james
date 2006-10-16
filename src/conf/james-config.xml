@@ -99,8 +99,33 @@
          <repository destinationURL="mbox:///var/mail/" type="MAIL"/>
       </inboxRepository>
       -->
+      <!-- Experimental IMAP support
+      <inboxRepository>
+         <repository destinationURL="mailboxmanager://users/" type="MAIL" />
+      </inboxRepository>
+      -->
    </James>
 
+   <!-- Experimental IMAP support -->
+   <mailboxmanager>
+       <torque-properties>
+           <property name="torque.database.default" value="mailboxmanager" />
+           <property name="torque.database.mailboxmanager.adapter" value="derby" />
+           <property name="torque.dsfactory.mailboxmanager.factory" value="org.apache.torque.dsfactory.SharedPoolDataSourceFactory" />
+           <property name="torque.dsfactory.mailboxmanager.connection.driver" value="org.apache.derby.jdbc.EmbeddedDriver" />
+           <property name="torque.dsfactory.mailboxmanager.connection.url" value="jdbc:derby:../apps/james/var/mailboxmanager-derbydb;create=true" />
+           <property name="torque.dsfactory.mailboxmanager.connection.user" value="app" />
+           <property name="torque.dsfactory.mailboxmanager.connection.password" value="app" />
+           <property name="torque.dsfactory.mailboxmanager.pool.maxActive" value="100" />
+      </torque-properties>  
+   </mailboxmanager>    
+   <imapserver enabled="true">
+      <port>10143</port>
+      <handler>
+       <streamdump enabled="true" directory="../apps/james/streamdump" />
+      </handler>      
+   </imapserver>
+    
    <!-- This is an example configuration for FetchMail, a JavaMail based gateway  -->
    <!-- service that pulls messages from other sources, and inserts them into the -->
    <!-- spool.  They are then processed normally, although FetchMail generally    -->
@@ -1029,7 +1054,17 @@ Regards, Postmaster XXX.YYY
    <!-- The Mailstore block -->
    <mailstore>
       <repositories>
-
+        <repository class="org.apache.james.mailboxmanager.repository.MailboxManagerMailRepository">
+            <protocols>
+               <protocol>mailboxmanager</protocol>
+            </protocols>
+            <types>
+               <type>MAIL</type>
+            </types>
+            <config>
+               <sqlFile>file://conf/mailboxManagerSqlResources.xml</sqlFile>
+            </config>
+         </repository>
          <!-- File based repositories.  These repositories store all message data -->
          <!-- in the file system. -->
          <repository class="org.apache.james.mailrepository.AvalonMailRepository">

@@ -89,6 +89,11 @@
             <include name="${commons-logging.jar}"/>
             <include name="${jdom.jar}"/>
             <include name="${xstream.jar}"/>
+        	
+            <include name="${torque.jar}"/>
+            <include name="${village.jar}"/>
+            <include name="${commons-lang.jar}"/>
+            <include name="${commons-configuration.jar}"/>
         </fileset>
         <pathelement path="${java.class.path}" />
         <pathelement path="${build.classes}" />
@@ -284,6 +289,7 @@
             <fileset dir="${java.dir}">
                 <include name="**/*.properties"/>
                 <include name="**/*.xinfo"/>
+                <include name="**/*.xml"/>
                 <include name="**/*.mxinfo"/>
             </fileset>
         </copy>
@@ -463,6 +469,7 @@
         <echo message="Making James Jar (james-${version}.jar)"/>
         <jar jarfile="${build.lib}/${name}-${version}.jar" basedir="${build.classes}" manifest="${src.dir}/Manifest.mf">
             <include name="org/apache/james/**"/>
+            <include name="*.xml"/>
             <metainf dir="${build.metainf}"/>        
         </jar>
 
@@ -519,9 +526,18 @@
                 <include name="${commons-logging.jar}"/>
                 <include name="${jdom.jar}"/>
                 <include name="${xstream.jar}"/>
+            	
+                <include name="${torque.jar}"/>
+                <include name="${village.jar}"/>
+                <include name="${commons-lang.jar}"/>
+                <include name="${commons-configuration.jar}"/>
+                <include name="${commons-beanutils.jar}"/>            	
             </lib>
             <zipfileset dir="${conf.dir}" fullpath="conf/sqlResources.xml">
                 <include name="sqlResources.xml"/>
+            </zipfileset>
+            <zipfileset dir="${conf.dir}" fullpath="conf/mailboxManagerSqlResources.xml">
+                <include name="mailboxManagerSqlResources.xml"/>
             </zipfileset>
             <zipfileset dir="${conf.dir}" fullpath="conf/james-fetchmail.xml">
                 <include name="james-fetchmail.xml"/>
@@ -743,6 +759,7 @@
     <target name="unit-tests-classpath" depends="compile">
         <path id="unittest.class.path">
             <pathelement location="tools/lib/commons-net-1.4.1.jar"/>
+            <pathelement location="tools/lib/jmock-1.1.0RC1.jar"/>
             <fileset dir="${lib.dir}">
                 <include name="*.jar"/>
             </fileset>
