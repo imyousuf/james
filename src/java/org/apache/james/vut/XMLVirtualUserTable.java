@@ -77,8 +77,8 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable implements Con
      * Not implemented
      */
     public Collection getUserDomainMappings(String user, String domain) {
-	// Not supported
-	return null;
+    // Not supported
+    return null;
     }
 
 }

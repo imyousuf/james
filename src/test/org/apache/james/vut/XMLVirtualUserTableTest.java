@@ -60,14 +60,14 @@ public class XMLVirtualUserTableTest extends TestCase {
     }
     
     public void setUp() throws Exception {
-    table = getVirtalUserTable();
+        table = getVirtalUserTable();
     }
     
     public void tearDown() {
-    ContainerUtil.dispose(table);
+        ContainerUtil.dispose(table);
     }
     
     public void testGetMappings() throws ErrorMappingException {
-    assertTrue("Found 2 mappings", table.getMappings(user, domain).size() == 2);
+        assertTrue("Found 2 mappings", table.getMappings(user, domain).size() == 2);
     }
 }
