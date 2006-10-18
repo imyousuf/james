@@ -91,7 +91,8 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
                     getLogger().debug(buf.toString());
 
                  }
-             }
+            }
+            return mappings;
         }
         return null;
     }

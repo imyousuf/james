@@ -45,7 +45,7 @@ public class JDBCVirtualUserTableTest extends AbstractVirtualUserTableTest {
 
        try {
                  
-            assertTrue("No mapping",virtualUserTable.getMappings(user, domain).isEmpty());
+            assertNull("No mapping",virtualUserTable.getMappings(user, domain));
         
             assertTrue("Added virtual mapping", virtualUserTable.addAddressMapping(null, domain, address));
             assertTrue("Added virtual mapping", virtualUserTable.addAddressMapping(user, domain, address2));
@@ -56,8 +56,8 @@ public class JDBCVirtualUserTableTest extends AbstractVirtualUserTableTest {
            
             assertTrue("remove virtual mapping", virtualUserTable.removeAddressMapping(user, domain, address2));
             assertTrue("remove virtual mapping", virtualUserTable.removeAddressMapping(null, domain, address));
-            assertTrue("No mapping",virtualUserTable.getMappings(user, domain).isEmpty());
-            assertTrue("No mapping",virtualUserTable.getMappings(user2, domain).isEmpty());
+            assertNull("No mapping",virtualUserTable.getMappings(user, domain));
+            assertNull("No mapping",virtualUserTable.getMappings(user2, domain));
       
         } catch (InvalidMappingException e) {
            fail("Storing failed");
