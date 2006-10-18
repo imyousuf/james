@@ -110,7 +110,7 @@ public class UsersFileRepositoryTest extends MockUsersRepositoryTest {
     user.setAliasing(true);
     repos.updateUser(user);
     map = ((VirtualUserTable) repos).getMappings(username, domain);
-    assertNotNull("One mapping", map.size() == 1);
+    assertEquals("One mapping", 1, map.size());
     assertEquals("Alias found", map.iterator().next().toString(), alias + "@" + domain);
     
     
