@@ -32,9 +32,14 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
+import org.apache.james.services.JamesUser;
 import org.apache.james.services.User;
 import org.apache.james.services.UsersRepository;
+import org.apache.james.services.VirtualUserTable;
+import org.apache.james.vut.ErrorMappingException;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 
 /**
@@ -52,7 +57,7 @@ import java.util.Iterator;
  */
 public class UsersFileRepository
     extends AbstractLogEnabled
-    implements UsersRepository, Configurable, Serviceable, Initializable {
+    implements UsersRepository, Configurable, Serviceable, Initializable, VirtualUserTable {
  
     /**
      * Whether 'deep debugging' is turned on.
@@ -295,6 +300,43 @@ public class UsersFileRepository
             count++;
         }
         return count;
+    }
+    
+    /**
+     * @see org.apache.james.services.VirtualUserTable#getMappings(java.lang.String, java.lang.String)
+     */
+    public Collection getMappings(String username, String domain) throws ErrorMappingException {
+        Collection mappings = new ArrayList();
+        User user = getUserByName(username);
+
+        if (user instanceof JamesUser) {
+            JamesUser jUser = (JamesUser) user;    
+         
+            if (jUser.getAliasing()) {
+                String alias = jUser.getAlias();
+                if (alias != null) {
+                    mappings.add(alias+ "@" + domain);
+                }
+            }
+            
+            if (jUser.getForwarding()) {
+                String forward = null;
+                if (jUser.getForwardingDestination() != null && ((forward = jUser.getForwardingDestination().toString()) != null)) {
+                    mappings.add(forward);
+                } else {
+                    StringBuffer errorBuffer = new StringBuffer(128)
+                    .append("Forwarding was enabled for ")
+                    .append(username)
+                    .append(" but no forwarding address was set for this account.");
+                    getLogger().error(errorBuffer.toString());
+                }
+            }
+        }
+        if (mappings.size() == 0) {
+            return null;
+        } else {
+            return mappings;
+        }
     }
 
 }
