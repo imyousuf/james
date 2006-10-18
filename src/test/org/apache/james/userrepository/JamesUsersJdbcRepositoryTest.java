@@ -23,11 +23,16 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.logger.ConsoleLogger;
+import org.apache.james.services.JamesUser;
+import org.apache.james.services.User;
 import org.apache.james.services.UsersRepository;
+import org.apache.james.services.VirtualUserTable;
 import org.apache.james.test.mock.james.MockFileSystem;
 import org.apache.james.test.mock.util.AttrValConfiguration;
 import org.apache.james.test.util.Util;
+import org.apache.mailet.MailAddress;
 
+import java.util.Collection;
 import java.util.Iterator;
 
 /**
@@ -85,5 +90,47 @@ public class JamesUsersJdbcRepositoryTest extends MockUsersRepositoryTest {
         }
         ContainerUtil.dispose(this.usersRepository);
     }
+    
+    
+    public void testVirtualUserTableImpl() throws Exception {
+    String username = "test";
+    String password = "pass";
+    String alias = "alias";
+    String domain = "localhost";
+    String forward = "forward@somewhere";
+    
+    JamesUsersJdbcRepository repos = (JamesUsersJdbcRepository) getUsersRepository();
+    repos.addUser(username,password);
+    
+    JamesUser user = (JamesUser)repos.getUserByName(username);
+    user.setAlias(alias);
+    repos.updateUser(user);
+    
+    Collection map = ((VirtualUserTable) repos).getMappings(username, domain);
+    assertNull("No mapping", map);
+    
+    user.setAliasing(true);
+    repos.updateUser(user);
+    map = ((VirtualUserTable) repos).getMappings(username, domain);
+    assertNotNull("One mapping", map.size() == 1);
+    assertEquals("Alias found", map.iterator().next().toString(), alias + "@" + domain);
+    
+    
+    user.setForwardingDestination(new MailAddress(forward));
+    repos.updateUser(user);
+    map = ((VirtualUserTable) repos).getMappings(username, domain);
+    assertTrue("One mapping", map.size() == 1);
+    assertEquals("Alias found", map.iterator().next().toString(), alias + "@" + domain);
+    
+    
+    user.setForwarding(true);
+    repos.updateUser(user);
+    map = ((VirtualUserTable) repos).getMappings(username, domain);
+    Iterator mappings = map.iterator();
+    assertTrue("Two mapping",map.size() == 2);
+    assertEquals("Alias found", mappings.next().toString(), alias + "@" + domain);
+    assertEquals("Forward found", mappings.next().toString(), forward);
+    }
+
 
 }
