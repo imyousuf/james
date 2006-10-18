@@ -24,7 +24,6 @@ import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.logger.ConsoleLogger;
 import org.apache.james.services.JamesUser;
-import org.apache.james.services.User;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.VirtualUserTable;
 import org.apache.james.test.mock.james.MockFileSystem;
@@ -112,7 +111,7 @@ public class JamesUsersJdbcRepositoryTest extends MockUsersRepositoryTest {
     user.setAliasing(true);
     repos.updateUser(user);
     map = ((VirtualUserTable) repos).getMappings(username, domain);
-    assertNotNull("One mapping", map.size() == 1);
+    assertEquals("One mapping", 1, map.size());
     assertEquals("Alias found", map.iterator().next().toString(), alias + "@" + domain);
     
     
