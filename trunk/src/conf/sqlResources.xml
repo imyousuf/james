@@ -1001,6 +1001,9 @@
     <sql name="updateMapping">update VirtualUserTable set VirtualUserTable.target_address = ? where VirtualUserTable."user" = ? and VirtualUserTable.domain = ? </sql>
    
     <sql name="addMapping">insert into VirtualUserTable values(?,?,?) </sql>
+    
+    <sql name="selectDomains">select domain from VirtualUserTable</sql>
+    
     <!-- Statements used to create the table associated with this class. -->
     <sql name="createTable" db="mysql">
         CREATE TABLE VirtualUserTable (

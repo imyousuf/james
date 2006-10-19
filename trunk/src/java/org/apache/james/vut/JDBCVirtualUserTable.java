@@ -282,8 +282,8 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
         Collection map = getUserDomainMappings(newUser,newDomain);
 
         if (map != null && map.size() > 1) {
-                map.remove(mapping);
-                return updateMapping(newUser,newDomain,CollectionToMapping(map));
+            map.remove(mapping);
+            return updateMapping(newUser,newDomain,CollectionToMapping(map));
         } else {
             return removeMapping(newUser,newDomain,mapping);
         }
@@ -493,7 +493,43 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
         }
         return null;
     }
-    
-    
+
+    /**
+     * @see org.apache.james.vut.AbstractVirtualUserTable#getDomainsInternal()
+     */
+    protected List getDomainsInternal() {
+        List domains = new ArrayList();
+        Connection conn = null;
+        PreparedStatement mappingStmt = null;
+        
+        try {
+            conn = dataSourceComponent.getConnection();
+            mappingStmt = conn.prepareStatement(sqlQueries.getSqlString("selectDomains", true));
+
+            ResultSet mappingRS = null;
+            try {
+                mappingRS = mappingStmt.executeQuery();
+                while (mappingRS.next()) {
+                    String domain = mappingRS.getString(1).toLowerCase();
+                    if(domains.equals(WILDCARD) == false && domains.contains(domains) == false) {
+                        domains.add(domain);
+                    }
+                }
+            } finally {
+                theJDBCUtil.closeJDBCResultSet(mappingRS);
+            }
+            
+        } catch (SQLException sqle) {
+            getLogger().error("Error accessing database", sqle);
+        } finally {
+            theJDBCUtil.closeJDBCStatement(mappingStmt);
+            theJDBCUtil.closeJDBCConnection(conn);
+        }
+        if (domains.size() == 0) {
+            return null;
+        } else {
+            return domains;
+        }
+    } 
 }
 

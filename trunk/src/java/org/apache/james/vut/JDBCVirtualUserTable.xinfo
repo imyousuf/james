@@ -10,6 +10,7 @@
   <services>
     <service name="org.apache.james.services.VirtualUserTableManagement" version="1.0" />
     <service name="org.apache.james.services.VirtualUserTable" version="1.0" />
+    <service name="org.apache.james.services.DomainList" version="1.0"/>
   </services>
   
   <dependencies>

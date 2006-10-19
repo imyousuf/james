@@ -42,6 +42,9 @@
     <dependency>
       <service name="org.apache.james.services.FileSystem" version="1.0"/>
     </dependency>
+    <dependency>
+      <service name="org.apache.james.services.DomainList" version="1.0"/>
+    </dependency>
   </dependencies>
 
 
