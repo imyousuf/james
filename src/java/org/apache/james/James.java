@@ -40,6 +40,7 @@ import org.apache.james.core.MailHeaders;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MailetConfigImpl;
 import org.apache.james.services.DNSServer;
+import org.apache.james.services.DomainList;
 import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
@@ -63,8 +64,6 @@ import javax.mail.internet.ParseException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.SequenceInputStream;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
@@ -172,6 +171,8 @@ public class James
     protected Mailet localDeliveryMailet;
 
     private FileSystem fileSystem;
+    
+    private DomainList domains;
 
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
@@ -180,6 +181,7 @@ public class James
         compMgr = new DefaultServiceManager(comp);
         mailboxes = new ReferenceMap();
         setFileSystem((FileSystem) comp.lookup(FileSystem.ROLE));
+        domains = (DomainList) comp.lookup(DomainList.ROLE);
     }
 
     /**
@@ -299,58 +301,9 @@ public class James
     }
 
     private void initializeServernamesAndPostmaster() throws ConfigurationException, ParseException {
-        String hostName = null;
-        try {
-            hostName = lookupDNSServer().getHostName(InetAddress.getLocalHost());
-        } catch  (UnknownHostException ue) {
-            hostName = "localhost";
-        }
-
-        getLogger().info("Local host is: " + hostName);
-
-        // Get the domains and hosts served by this instance
-        serverNames = new HashSet();
-        Configuration serverConf = conf.getChild("servernames");
-        if (serverConf.getAttributeAsBoolean("autodetect") && (!hostName.equals("localhost"))) {
-            serverNames.add(hostName.toLowerCase(Locale.US));
-        }
-
-        final Configuration[] serverNameConfs =
-                conf.getChild( "servernames" ).getChildren( "servername" );
-        for ( int i = 0; i < serverNameConfs.length; i++ ) {
-            serverNames.add( serverNameConfs[i].getValue().toLowerCase(Locale.US));
-
-            if (serverConf.getAttributeAsBoolean("autodetectIP", true)) {
-                try {
-                    /* This adds the IP address(es) for each host to support
-                    * support <user@address-literal> - RFC 2821, sec 4.1.3.
-                    * It might be proper to use the actual IP addresses
-                    * available on this server, but we can't do that
-                    * without NetworkInterface from JDK 1.4.  Because of
-                    * Virtual Hosting considerations, we may need to modify
-                    * this to keep hostname and IP associated, rather than
-                    * just both in the set.
-                    */
-                    InetAddress[] addrs = InetAddress.getAllByName(serverNameConfs[i].getValue());
-                    for (int j = 0; j < addrs.length ; j++) {
-                        serverNames.add(addrs[j].getHostAddress());
-                    }
-                }
-                catch(Exception genericException) {
-                    getLogger().error("Cannot get IP address(es) for " + serverNameConfs[i].getValue());
-                }
-            }
-        }
-        if (serverNames.isEmpty()) {
-            throw new ConfigurationException( "Fatal configuration error: no servernames specified!");
-        }
-
-        if (getLogger().isInfoEnabled()) {
-            for (Iterator i = serverNames.iterator(); i.hasNext(); ) {
-                getLogger().info("Handling mail for: " + i.next());
-            }
-        }
-
+        //TODO: Make backward compatible
+        serverNames = domains.getDomains();
+    
         String defaultDomain = (String) serverNames.iterator().next();
         // used by RemoteDelivery for HELO
         attributes.put(Constants.DEFAULT_DOMAIN, defaultDomain);
@@ -363,14 +316,14 @@ public class James
         if (postMasterAddress.indexOf('@') < 0) {
             String domainName = null;    // the domain to use
             // loop through candidate domains until we find one or exhaust the list
-            for ( int i = 0; domainName == null && i < serverNameConfs.length ; i++ ) {
-                String serverName = serverNameConfs[i].getValue().toLowerCase(Locale.US);
+            for ( Iterator i = serverNames.iterator(); i.hasNext()&& domainName == null;) {
+                String serverName = i.next().toString().toLowerCase(Locale.US);
                 if (!("localhost".equals(serverName))) {
                     domainName = serverName;    // ok, not localhost, so use it
                 }
             }
             // if we found a suitable domain, use it.  Otherwise fallback to the host name.
-            postMasterAddress = postMasterAddress + "@" + (domainName != null ? domainName : hostName);
+            postMasterAddress = postMasterAddress + "@" + (domainName != null ? domainName : defaultDomain);
         }
         this.postmaster = new MailAddress( postMasterAddress );
 

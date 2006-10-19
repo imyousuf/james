@@ -24,13 +24,12 @@ package org.apache.james.vut;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.ServiceException;
-import org.apache.james.services.VirtualUserTableManagement;
 
 import junit.framework.TestCase;
 
 public abstract class AbstractVirtualUserTableTest extends TestCase {
 
-    protected VirtualUserTableManagement virtualUserTable;
+    protected AbstractVirtualUserTable virtualUserTable;
     protected void setUp() throws Exception {
         virtualUserTable = getVirtalUserTable();
     }
@@ -40,7 +39,7 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
         ContainerUtil.dispose(virtualUserTable);
     }
     
-    protected abstract VirtualUserTableManagement getVirtalUserTable() throws ServiceException, ConfigurationException, Exception;
+    protected abstract AbstractVirtualUserTable getVirtalUserTable() throws ServiceException, ConfigurationException, Exception;
     
 
     public void testStoreAndRetrieveRegexMapping() throws ErrorMappingException {
@@ -59,6 +58,8 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
             assertTrue("Added virtual mapping", virtualUserTable.addRegexMapping(user, domain, regex2));
 
             assertTrue("Two mappings",virtualUserTable.getMappings(user, domain).size() == 2);
+            
+            assertEquals("One domain",virtualUserTable.getDomains().size(), 1);
         
             assertTrue("remove virtual mapping", virtualUserTable.removeRegexMapping(user, domain, regex));
         

@@ -30,6 +30,7 @@
     <provide name="localusersrepository" role="org.apache.james.services.UsersRepository"/>
     <provide name="spoolrepository" role="org.apache.james.services.SpoolRepository"/>
     <provide name="filesystem" role="org.apache.james.services.FileSystem" />
+    <provide name="domainlist" role="org.apache.james.services.DomainList" />
     <provide name="sockets"
              role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
     <provide name="scheduler"
@@ -224,6 +225,10 @@
   <!-- 
   <block name="virtualusertable" class="org.apache.james.vut.JDBCVirtualUserTable" />
   -->
+  <!-- The context DomainList implementation -->
+  <block name="domainlist" class="org.apache.james.domain.HardCodedDomainList">
+      <provide name="dnsserver" role="org.apache.james.services.DNSServer"/>
+  </block>
   
   
   <!-- Configuration for Cornerstone Blocks only after here

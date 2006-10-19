@@ -51,11 +51,14 @@
       <!-- -->
       <!-- Warning: If you are using fetchmail it is important to include the -->
       <!-- fetched domains in the server name list to prevent looping.       -->
+      
+      <!-- TEMPORARY DISABLED -->
+      <!--
       <servernames autodetect="true" autodetectIP="true">
-<!-- CONFIRM? -->
          <servername>localhost</servername>
       </servernames>
-
+      -->
+      
       <!-- Set whether user names are case sensitive or case insensitive -->
       <!-- Set whether to enable local aliases -->
       <!-- Set whether to enable forwarding -->
@@ -796,6 +799,29 @@ Regards, Postmaster XXX.YYY
       <singleIPperMX> true </singleIPperMX>
       -->
    </dnsserver>
+   
+   <domainlist>
+      <!-- servernames identifies the DNS namespace served by this instance of James. -->
+      <!-- These servernames are used for both matcher/mailet processing and SMTP auth -->
+      <!-- to determine when a mail is intended for local delivery. -->
+      <!-- -->
+      <!-- If autodetect is TRUE, James wil attempt to discover its own host name AND -->
+      <!-- use any explicitly specified servernames. -->
+      <!-- If autodetect is FALSE, James will use only the specified servernames. -->
+      <!-- -->
+      <!-- If autodetectIP is not FALSE, James will also allow add the IP address for each servername. -->
+      <!-- The automatic IP detection is to support RFC 2821, Sec 4.1.3, address literals. -->
+      <!-- -->
+      <!-- To override autodetected server names simply add explicit servername elements. -->
+      <!-- In most cases this will be necessary. -->
+      <!-- By default, the servername 'localhost' is specified. This can be removed, if required. -->
+      <!-- -->
+      <!-- Warning: If you are using fetchmail it is important to include the -->
+      <!-- fetched domains in the server name list to prevent looping.       -->
+      <servernames autodetect="true" autodetectIP="true">
+         <servername>localhost</servername>
+      </servernames>
+   </domainlist>
    
       
    <!-- Uncommment this block to enable the BayesianAnalyserManagement. -->

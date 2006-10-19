@@ -26,6 +26,7 @@ import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.james.services.AbstractDNSServer;
 import org.apache.james.services.DNSServer;
+import org.apache.james.services.DomainList;
 import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.MailServerTestAllImplementations;
@@ -41,6 +42,8 @@ import org.apache.james.userrepository.MockUsersRepository;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.List;
 
 public class JamesTest extends MailServerTestAllImplementations {
     
@@ -94,6 +97,14 @@ public class JamesTest extends MailServerTestAllImplementations {
                 return new File("./conf/");
             }
             
+        });
+        serviceManager.put(DomainList.ROLE, new DomainList() {
+
+            public List getDomains() {
+                ArrayList d = new ArrayList();
+                d.add("localhost");
+                return d;
+            }            
         });
         MockStore mockStore = new MockStore();
         mockMailRepository = new InMemorySpoolRepository();

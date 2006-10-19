@@ -29,8 +29,9 @@ import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.DefaultServiceManager;
 import org.apache.avalon.framework.service.ServiceException;
 
+import org.apache.james.services.AbstractDNSServer;
+import org.apache.james.services.DNSServer;
 import org.apache.james.services.FileSystem;
-import org.apache.james.services.VirtualUserTable;
 
 import org.apache.james.test.mock.avalon.MockLogger;
 
@@ -41,20 +42,22 @@ import org.apache.james.test.util.Util;
 
 public class XMLVirtualUserTableTest extends TestCase {
     private String user = "user1";
-    private String domain = "localhost";
+    private String domain = "anydomain";
     
-    VirtualUserTable table;
+    AbstractVirtualUserTable table;
     
-    protected VirtualUserTable getVirtalUserTable() throws ServiceException, ConfigurationException, Exception {
+    protected AbstractVirtualUserTable getVirtalUserTable() throws ServiceException, ConfigurationException, Exception {
         DefaultServiceManager serviceManager = new DefaultServiceManager();
         serviceManager.put(FileSystem.ROLE, new MockFileSystem());
         serviceManager.put(DataSourceSelector.ROLE, Util.getDataSourceSelector());
+        serviceManager.put(DNSServer.ROLE, new AbstractDNSServer());
         XMLVirtualUserTable mr = new XMLVirtualUserTable();
         
 
         mr.enableLogging(new MockLogger());
         DefaultConfiguration defaultConfiguration = new DefaultConfiguration("conf");
         defaultConfiguration.addChild(new AttrValConfiguration("mapping",user + "@" + domain +"=user2@localhost;user3@localhost"));
+        defaultConfiguration.addChild(new AttrValConfiguration("mapping","*" + "@" + domain +"=user4@localhost;user5@localhost"));
         mr.configure(defaultConfiguration);
         return mr;
     }
@@ -68,6 +71,12 @@ public class XMLVirtualUserTableTest extends TestCase {
     }
     
     public void testGetMappings() throws ErrorMappingException {
-        assertTrue("Found 2 mappings", table.getMappings(user, domain).size() == 2);
+        assertEquals("Found 2 mappings", table.getMappings(user, domain).size(), 2);
+        assertEquals("Found 2 domains", table.getDomains().size(),1);
+    }
+    
+    public void testGetUserMappings() throws ErrorMappingException, InvalidMappingException {
+        assertTrue("Found 1 mappings", table.getMappings("any", domain).size() == 2);
+        assertNull("Found 0 mappings", table.getUserDomainMappings("any", domain));
     }
 }

@@ -24,11 +24,13 @@ package org.apache.james.vut;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import javax.mail.internet.ParseException;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.james.services.DomainList;
 import org.apache.james.services.VirtualUserTable;
 import org.apache.james.services.VirtualUserTableManagement;
 import org.apache.james.util.VirtualUserTableUtil;
@@ -40,13 +42,12 @@ import org.apache.oro.text.regex.Perl5Compiler;
  * 
  */
 public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
-    implements VirtualUserTable, VirtualUserTableManagement {
+    implements VirtualUserTable, VirtualUserTableManagement, DomainList {
 
     /**
      * @see org.apache.james.services.VirtualUserTable#getMapping(org.apache.mailet.MailAddress)
      */
     public Collection getMappings(String user,String domain) throws ErrorMappingException {
-
 
         String targetString = mapAddress(user, domain);
 
@@ -212,6 +213,14 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
    }
 
  
+    /**
+     * @see org.apache.james.services.DomainList#getDomains()
+     */
+    public List getDomains() {
+        List domains = getDomainsInternal();
+        getLogger().debug("Add ServerNames: " + domains);
+        return domains;
+    }
 
     /**
      * Override to map virtual recipients to real recipients, both local and non-local.
@@ -237,7 +246,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
      * @return true if successfully
      * @throws InvalidMappingException 
      */
-    public abstract boolean  addMappingInternal(String user, String domain, String mapping) throws InvalidMappingException;
+    protected abstract boolean  addMappingInternal(String user, String domain, String mapping) throws InvalidMappingException;
     
     /**
      * Remove mapping 
@@ -248,6 +257,12 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
      * @return true if successfully
      * @throws InvalidMappingException 
      */
-    public abstract boolean  removeMappingInternal(String user, String domain, String mapping) throws InvalidMappingException;
+    protected abstract boolean  removeMappingInternal(String user, String domain, String mapping) throws InvalidMappingException;
 
+    /**
+     * Return List of all domains for which email should accepted
+     * 
+     * @return domains 
+     */
+    protected abstract List getDomainsInternal();
 }

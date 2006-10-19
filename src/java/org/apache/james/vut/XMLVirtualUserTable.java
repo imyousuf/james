@@ -21,8 +21,11 @@
 
 package org.apache.james.vut;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.avalon.framework.configuration.Configurable;
@@ -36,16 +39,35 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable implements Con
      */
     private Map mappings = new HashMap();
     
+    private List domains = new ArrayList(); 
     
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(org.apache.avalon.framework.configuration.Configuration)
      */
     public void configure(Configuration arg0) throws ConfigurationException {
-        Configuration mapConf = arg0.getChild("mapping");
+        Configuration[] mapConf = arg0.getChildren("mapping");
         if (mapConf != null) {
-            mappings = VirtualUserTableUtil.getXMLMappings(mapConf.getValue());
+            for (int i = 0; i < mapConf.length; i ++) {       
+                mappings.putAll(VirtualUserTableUtil.getXMLMappings(mapConf[i].getValue()));
+            }
         } else {
             throw new ConfigurationException("No mapping configured");
+        }
+        
+        // Add domains of the mappings map to the domains List
+        Iterator keys = mappings.keySet().iterator();
+        
+        while (keys.hasNext()) {
+            String key = keys.next().toString();
+            Collection values = mappingToCollection(mappings.get(key).toString());
+            
+            String[] args1 = key.split("@");
+            if (args1 != null && args1.length == 2) {
+                String domain = args1[1].toLowerCase();
+                if (domains.contains(domain) == false) {
+                    domains.add(domain);
+                }
+            }
         }
     
     }
@@ -74,11 +96,22 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable implements Con
     }
 
     /**
-     * Not implemented
+     * @see org.apache.james.services.VirtualUserTableManagement#getUserDomainMappings(java.lang.String, java.lang.String)
      */
     public Collection getUserDomainMappings(String user, String domain) {
-    // Not supported
-    return null;
+        Object maps = mappings.get(user + "@" + domain);
+        if (maps != null) {
+            return mappingToCollection(maps.toString());
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * @see org.apache.james.vut.AbstractVirtualUserTable#getDomainsInternal()
+     */
+    protected List getDomainsInternal() {
+        return domains;
     }
 
 }
