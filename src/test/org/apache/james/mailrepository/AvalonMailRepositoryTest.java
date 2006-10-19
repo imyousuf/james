@@ -49,7 +49,7 @@ public class AvalonMailRepositoryTest extends AbstractMailRepositoryTest {
         file_Persistent_Stream_Repository.service(serviceManager);
         file_Persistent_Stream_Repository.enableLogging(new MockLogger());
         DefaultConfiguration defaultConfiguration2 = new DefaultConfiguration("conf");
-        defaultConfiguration2.setAttribute("destinationURL", "file://var/mr");
+        defaultConfiguration2.setAttribute("destinationURL", "file://target/var/mr");
         file_Persistent_Stream_Repository.configure(defaultConfiguration2);
         file_Persistent_Stream_Repository.initialize();
         mockStore.add("STREAM.mr", file_Persistent_Stream_Repository);
@@ -57,7 +57,7 @@ public class AvalonMailRepositoryTest extends AbstractMailRepositoryTest {
         file_Persistent_Object_Repository.service(serviceManager);
         file_Persistent_Object_Repository.enableLogging(new MockLogger());
         DefaultConfiguration defaultConfiguration22 = new DefaultConfiguration("conf");
-        defaultConfiguration22.setAttribute("destinationURL", "file://var/mr");
+        defaultConfiguration22.setAttribute("destinationURL", "file://target/var/mr");
         file_Persistent_Object_Repository.configure(defaultConfiguration22);
         file_Persistent_Object_Repository.initialize();
         mockStore.add("OBJECT.mr", file_Persistent_Object_Repository);
@@ -65,7 +65,7 @@ public class AvalonMailRepositoryTest extends AbstractMailRepositoryTest {
 
         mr.enableLogging(new MockLogger());
         DefaultConfiguration defaultConfiguration = new DefaultConfiguration("ReposConf");
-        defaultConfiguration.setAttribute("destinationURL","file://var/mr");
+        defaultConfiguration.setAttribute("destinationURL","file://target/var/mr");
         defaultConfiguration.setAttribute("type","MAIL");
         mr.configure(defaultConfiguration);
         mr.initialize();

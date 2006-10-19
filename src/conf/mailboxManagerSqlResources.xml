@@ -48,9 +48,9 @@ CREATE TABLE message
     PRIMARY KEY(mailbox_id,uid),
     FOREIGN KEY (mailbox_id) REFERENCES mailbox (mailbox_id)
         ON DELETE CASCADE
-  )		
-	</sql>
-    <sql name="createTable_message_flags" db="derby">	
+  )     
+    </sql>
+    <sql name="createTable_message_flags" db="derby">   
 CREATE TABLE message_flags
 (
     mailbox_id BIGINT NOT NULL,
@@ -65,8 +65,8 @@ CREATE TABLE message_flags
     FOREIGN KEY (mailbox_id, uid) REFERENCES message (mailbox_id, uid)
         ON DELETE CASCADE
   )
-    </sql>		
-    <sql name="createTable_message_header" db="derby">	
+    </sql>      
+    <sql name="createTable_message_header" db="derby">  
 CREATE TABLE message_header
 (
     mailbox_id BIGINT NOT NULL,
@@ -77,9 +77,9 @@ CREATE TABLE message_header
     PRIMARY KEY(mailbox_id,uid,line_number),
     FOREIGN KEY (mailbox_id, uid) REFERENCES message (mailbox_id, uid)
         ON DELETE CASCADE
-  )	
-    </sql>	
-    <sql name="createTable_message_body" db="derby">	
+  ) 
+    </sql>  
+    <sql name="createTable_message_body" db="derby">    
 CREATE TABLE message_body
 (
     mailbox_id BIGINT NOT NULL,
@@ -89,10 +89,10 @@ CREATE TABLE message_body
     FOREIGN KEY (mailbox_id, uid) REFERENCES message (mailbox_id, uid)
         ON DELETE CASCADE
   )
-    </sql>	
-	<!--
-	   *** MySQL ***
-	-->
+    </sql>  
+    <!--
+       *** MySQL ***
+    -->
     <sql name="createTable_mailbox" db="mysql">
 CREATE TABLE mailbox
 (
@@ -115,9 +115,9 @@ CREATE TABLE message
     PRIMARY KEY(mailbox_id,uid),
     FOREIGN KEY (mailbox_id) REFERENCES mailbox (mailbox_id)
         ON DELETE CASCADE
-  ) ENGINE=INNODB;		
-	</sql>
-    <sql name="createTable_message_flags" db="mysql">	
+  ) ENGINE=INNODB;      
+    </sql>
+    <sql name="createTable_message_flags" db="mysql">   
 CREATE TABLE message_flags
 (
     mailbox_id BIGINT NOT NULL,
@@ -132,8 +132,8 @@ CREATE TABLE message_flags
     FOREIGN KEY (mailbox_id, uid) REFERENCES message (mailbox_id, uid)
         ON DELETE CASCADE
   ) ENGINE=INNODB;
-	</sql>		
-    <sql name="createTable_message_header" db="mysql">	
+    </sql>      
+    <sql name="createTable_message_header" db="mysql">  
 CREATE TABLE message_header
 (
     mailbox_id BIGINT NOT NULL,
@@ -144,9 +144,9 @@ CREATE TABLE message_header
     PRIMARY KEY(mailbox_id,uid,line_number),
     FOREIGN KEY (mailbox_id, uid) REFERENCES message (mailbox_id, uid)
         ON DELETE CASCADE
-  ) ENGINE=INNODB;		
-    </sql>	
-    <sql name="createTable_message_body" db="mysql">	
+  ) ENGINE=INNODB;      
+    </sql>  
+    <sql name="createTable_message_body" db="mysql">    
 CREATE TABLE message_body
 (
     mailbox_id BIGINT NOT NULL,
@@ -155,8 +155,8 @@ CREATE TABLE message_body
     PRIMARY KEY(mailbox_id,uid),
     FOREIGN KEY (mailbox_id, uid) REFERENCES message (mailbox_id, uid)
         ON DELETE CASCADE
-) ENGINE=INNODB;		
-    </sql>	
+) ENGINE=INNODB;        
+    </sql>  
   </sqlDefs>
 </sqlResources>
 
