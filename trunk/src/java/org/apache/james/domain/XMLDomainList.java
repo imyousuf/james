@@ -34,7 +34,7 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 /**
  * Mimic the old behavoir of JAMES
  */
-public class HardCodedDomainList extends AbstractDomainList implements Configurable {
+public class XMLDomainList extends AbstractDomainList implements Configurable {
     private List serverNames;
 
     /**
