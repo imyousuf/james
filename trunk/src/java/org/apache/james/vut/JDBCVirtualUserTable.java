@@ -199,23 +199,10 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
             // Try UPPER, lower, and MixedCase, to see if the table is there.
            
             if (!(theJDBCUtil.tableExists(dbMetaData, tableName))) {
-           
-                // Users table doesn't exist - create it.
-                createStatement =
-                    conn.prepareStatement(sqlQueries.getSqlString("createTable", true));
-                createStatement.execute();
-
-                if (getLogger().isInfoEnabled()) {
-                    logBuffer =
-                        new StringBuffer(64)
-                                .append("JdbcVirtalUserTable: Created table '")
-                                .append(tableName)
-                                .append("'.");
-                    getLogger().info(logBuffer.toString());
-                }
+            // Costum table not exists. Throw exception
+            throw new Exception("Table " + tableName + " not exists");
             }
-
-          
+   
         } finally {
             theJDBCUtil.closeJDBCStatement(createStatement);
             theJDBCUtil.closeJDBCConnection(conn);
