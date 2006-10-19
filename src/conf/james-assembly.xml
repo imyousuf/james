@@ -226,7 +226,7 @@
   <block name="virtualusertable" class="org.apache.james.vut.JDBCVirtualUserTable" />
   -->
   <!-- The context DomainList implementation -->
-  <block name="domainlist" class="org.apache.james.domain.HardCodedDomainList">
+  <block name="domainlist" class="org.apache.james.domain.XMLDomainList">
       <provide name="dnsserver" role="org.apache.james.services.DNSServer"/>
   </block>
   

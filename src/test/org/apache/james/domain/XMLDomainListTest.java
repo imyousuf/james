@@ -38,7 +38,7 @@ import org.apache.james.test.mock.avalon.MockServiceManager;
 
 import junit.framework.TestCase;
 
-public class HardCodedDomainListTest extends TestCase {
+public class XMLDomainListTest extends TestCase {
     
     private Configuration setUpConfiguration(boolean auto,boolean autoIP,ArrayList names) {
         DefaultConfiguration configuration = new DefaultConfiguration("test");
@@ -81,7 +81,7 @@ public class HardCodedDomainListTest extends TestCase {
         ArrayList domains = new ArrayList();
         domains.add("domain1.");
     
-        HardCodedDomainList dom = new HardCodedDomainList();
+        XMLDomainList dom = new XMLDomainList();
         ContainerUtil.enableLogging(dom,new MockLogger());
         dom.service(setUpServiceManager(setUpDNSServer("localhost")));
         dom.configure(setUpConfiguration(false,false,domains));
@@ -93,7 +93,7 @@ public class HardCodedDomainListTest extends TestCase {
         ArrayList domains = new ArrayList();
         domains.add("domain1.");
     
-        HardCodedDomainList dom = new HardCodedDomainList();
+        XMLDomainList dom = new XMLDomainList();
         ContainerUtil.enableLogging(dom,new MockLogger());
         dom.service(setUpServiceManager(setUpDNSServer("hostname")));
         dom.configure(setUpConfiguration(true,false,domains));
@@ -105,7 +105,7 @@ public class HardCodedDomainListTest extends TestCase {
         ArrayList domains = new ArrayList();
         domains.add("domain1.");
     
-        HardCodedDomainList dom = new HardCodedDomainList();
+        XMLDomainList dom = new XMLDomainList();
         ContainerUtil.enableLogging(dom,new MockLogger());
         dom.service(setUpServiceManager(setUpDNSServer("localhost")));
         dom.configure(setUpConfiguration(true,false,domains));
@@ -116,7 +116,7 @@ public class HardCodedDomainListTest extends TestCase {
     public void testThrowConfigurationException() throws ConfigurationException, ServiceException {
         boolean exception = false;
         boolean exception2 = false;
-        HardCodedDomainList dom = new HardCodedDomainList();
+        XMLDomainList dom = new XMLDomainList();
         ContainerUtil.enableLogging(dom,new MockLogger());
         dom.service(setUpServiceManager(setUpDNSServer("localhost")));
         try {
