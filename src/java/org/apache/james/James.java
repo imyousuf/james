@@ -726,7 +726,14 @@ public class James
      */
     public boolean isLocalServer( final String serverName ) {
         String lowercase = serverName.toLowerCase(Locale.US);
-        return "localhost".equals(serverName) || serverNames.contains(lowercase);
+       
+        // Check if the serverName is localhost or the DomainList implementation contains the serverName. This
+        // allow some implementations to act more dynamic
+        if ("localhost".equals(serverName) || domains.containsDomain(lowercase)){
+            return  true;
+        } else {
+            return false;
+        }
     }
 
     /**
