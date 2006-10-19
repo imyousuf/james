@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.userrepository;
 
 import org.apache.james.services.JamesUser;
@@ -34,17 +32,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * A Jdbc-backed UserRepository which handles User instances
- * of the <CODE>DefaultJamesUser</CODE> class, or any superclass.
- * 
+ * A Jdbc-backed UserRepository which handles User instances of the <CODE>DefaultJamesUser</CODE>
+ * class, or any superclass.
  */
-public class JamesUsersJdbcRepository extends AbstractJdbcUsersRepository implements VirtualUserTable
-{
+public class JamesUsersJdbcRepository extends AbstractJdbcUsersRepository
+        implements VirtualUserTable {
     /**
      * @see org.apache.james.userrepository.AbstractJdbcUsersRepository#readUserFromResultSet(java.sql.ResultSet)
      */
-    protected User readUserFromResultSet(ResultSet rsUsers) throws SQLException 
-    {
+    protected User readUserFromResultSet(ResultSet rsUsers) throws SQLException {
         // Get the column values
         String username = rsUsers.getString(1);
         String pwdHash = rsUsers.getString(2);
@@ -55,24 +51,21 @@ public class JamesUsersJdbcRepository extends AbstractJdbcUsersRepository implem
         String alias = rsUsers.getString(7);
 
         MailAddress forwardAddress = null;
-        if ( forwardingDestination != null ) {
+        if (forwardingDestination != null) {
             try {
                 forwardAddress = new MailAddress(forwardingDestination);
-            }
-            catch (javax.mail.internet.ParseException pe) {
-                StringBuffer exceptionBuffer =
-                    new StringBuffer(256)
-                        .append("Invalid mail address in database: ")
-                        .append(forwardingDestination)
-                        .append(", for user ")
-                        .append(username)
-                        .append(".");
+            } catch (javax.mail.internet.ParseException pe) {
+                StringBuffer exceptionBuffer = new StringBuffer(256).append(
+                        "Invalid mail address in database: ").append(
+                        forwardingDestination).append(", for user ").append(
+                        username).append(".");
                 throw new RuntimeException(exceptionBuffer.toString());
             }
         }
 
         // Build a DefaultJamesUser with these values, and add to the list.
-        DefaultJamesUser user = new DefaultJamesUser(username, pwdHash, pwdAlgorithm);
+        DefaultJamesUser user = new DefaultJamesUser(username, pwdHash,
+                pwdAlgorithm);
         user.setForwarding(useForwarding);
         user.setForwardingDestination(forwardAddress);
         user.setAliasing(useAlias);
@@ -81,39 +74,41 @@ public class JamesUsersJdbcRepository extends AbstractJdbcUsersRepository implem
         return user;
     }
 
-
     /**
-     * @see org.apache.james.userrepository.AbstractJdbcUsersRepository#setUserForInsertStatement(org.apache.james.services.User, java.sql.PreparedStatement)
+     * @see org.apache.james.userrepository.AbstractJdbcUsersRepository#setUserForInsertStatement(org.apache.james.services.User,
+     *      java.sql.PreparedStatement)
      */
-    protected void setUserForInsertStatement(User user, 
-                                             PreparedStatement userInsert) 
-        throws SQLException {
+    protected void setUserForInsertStatement(User user,
+            PreparedStatement userInsert) throws SQLException {
         setUserForStatement(user, userInsert, false);
     }
 
     /**
-     * @see org.apache.james.userrepository.AbstractJdbcUsersRepository#setUserForUpdateStatement(org.apache.james.services.User, java.sql.PreparedStatement)
+     * @see org.apache.james.userrepository.AbstractJdbcUsersRepository#setUserForUpdateStatement(org.apache.james.services.User,
+     *      java.sql.PreparedStatement)
      */
-    protected void setUserForUpdateStatement(User user, 
-                                             PreparedStatement userUpdate) 
-        throws SQLException {
+    protected void setUserForUpdateStatement(User user,
+            PreparedStatement userUpdate) throws SQLException {
         setUserForStatement(user, userUpdate, true);
     }
 
     /**
-     * Sets the data for the prepared statement to match the information
-     * in the user object.
-     *
-     * @param user the user whose data is to be stored in the PreparedStatement.
-     * @param stmt the PreparedStatement to be modified.
-     * @param userNameLast whether the user id is the last or the first column
+     * Sets the data for the prepared statement to match the information in the
+     * user object.
+     * 
+     * @param user
+     *            the user whose data is to be stored in the PreparedStatement.
+     * @param stmt
+     *            the PreparedStatement to be modified.
+     * @param userNameLast
+     *            whether the user id is the last or the first column
      */
     private void setUserForStatement(User user, PreparedStatement stmt,
-                                     boolean userNameLast) throws SQLException {
+            boolean userNameLast) throws SQLException {
         // Determine column offsets to use, based on username column pos.
         int nameIndex = 1;
         int colOffset = 1;
-        if ( userNameLast ) {
+        if (userNameLast) {
             nameIndex = 7;
             colOffset = 0;
         }
@@ -121,19 +116,17 @@ public class JamesUsersJdbcRepository extends AbstractJdbcUsersRepository implem
         // Can handle instances of DefaultJamesUser and DefaultUser.
         DefaultJamesUser jamesUser;
         if (user instanceof DefaultJamesUser) {
-            jamesUser = (DefaultJamesUser)user;
+            jamesUser = (DefaultJamesUser) user;
+        } else if (user instanceof DefaultUser) {
+            DefaultUser aUser = (DefaultUser) user;
+            jamesUser = new DefaultJamesUser(aUser.getUserName(), aUser
+                    .getHashedPassword(), aUser.getHashAlgorithm());
         }
-        else if ( user instanceof DefaultUser ) {
-            DefaultUser aUser = (DefaultUser)user;
-            jamesUser = new DefaultJamesUser(aUser.getUserName(),
-                                             aUser.getHashedPassword(),
-                                             aUser.getHashAlgorithm());
-        } 
         // Can't handle any other implementations.
         else {
-            throw new RuntimeException("An unknown implementation of User was " + 
-                                       "found. This implementation cannot be " + 
-                                       "persisted to a UsersJDBCRepsitory.");
+            throw new RuntimeException("An unknown implementation of User was "
+                    + "found. This implementation cannot be "
+                    + "persisted to a UsersJDBCRepsitory.");
         }
 
         // Get the user details to save.
@@ -144,51 +137,54 @@ public class JamesUsersJdbcRepository extends AbstractJdbcUsersRepository implem
 
         MailAddress forwardAddress = jamesUser.getForwardingDestination();
         String forwardDestination = null;
-        if ( forwardAddress != null ) {
+        if (forwardAddress != null) {
             forwardDestination = forwardAddress.toString();
         }
         stmt.setString(4 + colOffset, forwardDestination);
         stmt.setInt(5 + colOffset, (jamesUser.getAliasing() ? 1 : 0));
         stmt.setString(6 + colOffset, jamesUser.getAlias());
     }
-    
-    
-    
+
     /**
-     * @see org.apache.james.services.UsersRepository#addUser(java.lang.String, java.lang.String)
+     * @see org.apache.james.services.UsersRepository#addUser(java.lang.String,
+     *      java.lang.String)
      */
-    public boolean addUser(String username, String password)  {
+    public boolean addUser(String username, String password) {
         User newbie = new DefaultJamesUser(username, "SHA");
         newbie.setPassword(password);
         return addUser(newbie);
     }
-    
+
     /**
-     * @see org.apache.james.services.VirtualUserTable#getMappings(java.lang.String, java.lang.String)
+     * @see org.apache.james.services.VirtualUserTable#getMappings(java.lang.String,
+     *      java.lang.String)
      */
-    public Collection getMappings(String username, String domain) throws ErrorMappingException {
+    public Collection getMappings(String username, String domain)
+            throws ErrorMappingException {
         Collection mappings = new ArrayList();
         User user = getUserByName(username);
 
         if (user instanceof JamesUser) {
-            JamesUser jUser = (JamesUser) user;    
-         
+            JamesUser jUser = (JamesUser) user;
+
             if (jUser.getAliasing()) {
                 String alias = jUser.getAlias();
                 if (alias != null) {
-                    mappings.add(alias+ "@" + domain);
+                    mappings.add(alias + "@" + domain);
                 }
             }
-            
+
             if (jUser.getForwarding()) {
                 String forward = null;
-                if (jUser.getForwardingDestination() != null && ((forward = jUser.getForwardingDestination().toString()) != null)) {
+                if (jUser.getForwardingDestination() != null
+                        && ((forward = jUser.getForwardingDestination()
+                                .toString()) != null)) {
                     mappings.add(forward);
                 } else {
                     StringBuffer errorBuffer = new StringBuffer(128)
-                    .append("Forwarding was enabled for ")
-                    .append(username)
-                    .append(" but no forwarding address was set for this account.");
+                            .append("Forwarding was enabled for ")
+                            .append(username)
+                            .append(" but no forwarding address was set for this account.");
                     getLogger().error(errorBuffer.toString());
                 }
             }
