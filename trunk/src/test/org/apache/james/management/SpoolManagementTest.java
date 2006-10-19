@@ -41,7 +41,7 @@ import java.util.HashMap;
  */
 public class SpoolManagementTest extends TestCase {
 
-    protected static final String OUTGOING_SPOOL = "file://var/mail/outgoing";
+    protected static final String OUTGOING_SPOOL = "file://target/var/mail/outgoing";
 
     private SpoolManagement m_spoolManagement;
     private MockStore m_mockStore;

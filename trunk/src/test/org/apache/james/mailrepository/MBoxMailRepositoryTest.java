@@ -43,7 +43,7 @@ public class MBoxMailRepositoryTest extends AbstractMailRepositoryTest {
 
         mr.enableLogging(new MockLogger());
         DefaultConfiguration defaultConfiguration = new DefaultConfiguration("ReposConf");
-        defaultConfiguration.setAttribute("destinationURL","mbox://var/mr/mbox");
+        defaultConfiguration.setAttribute("destinationURL","mbox://target/var/mr/mbox");
         defaultConfiguration.setAttribute("type","MAIL");
         mr.configure(defaultConfiguration);
         return mr;

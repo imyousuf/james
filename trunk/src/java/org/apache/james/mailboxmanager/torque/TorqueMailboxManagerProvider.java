@@ -124,7 +124,7 @@ public class TorqueMailboxManagerProvider implements MailboxManagerProvider, Ini
                     "org.apache.derby.jdbc.EmbeddedDriver");
             torqueConf.addProperty(
                     "torque.dsfactory.mailboxmanager.connection.url",
-                    "jdbc:derby:derby;create=true");
+                    "jdbc:derby:target/testdb;create=true");
             torqueConf.addProperty(
                     "torque.dsfactory.mailboxmanager.connection.user", "app");
             torqueConf.addProperty(

@@ -194,7 +194,7 @@ public class Util {
         ds.setAttribute("class","org.apache.james.util.dbcp.JdbcDataSource");
         
         ds.addChild(new AttrValConfiguration("driver","org.apache.derby.jdbc.EmbeddedDriver"));
-        ds.addChild(new AttrValConfiguration("dburl","jdbc:derby:testdb;create=true"));
+        ds.addChild(new AttrValConfiguration("dburl","jdbc:derby:target/testdb;create=true"));
         ds.addChild(new AttrValConfiguration("user","james"));
         ds.addChild(new AttrValConfiguration("password","james"));
     

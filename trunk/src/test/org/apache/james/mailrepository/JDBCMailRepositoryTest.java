@@ -55,7 +55,7 @@ public class JDBCMailRepositoryTest extends AbstractMailRepositoryTest {
         file_Persistent_Stream_Repository.service(serviceManager);
         file_Persistent_Stream_Repository.enableLogging(new MockLogger());
         DefaultConfiguration defaultConfiguration2 = new DefaultConfiguration("conf");
-        defaultConfiguration2.setAttribute("destinationURL", "file://var/mr/testrepo");
+        defaultConfiguration2.setAttribute("destinationURL", "file://target/var/mr/testrepo");
         file_Persistent_Stream_Repository.configure(defaultConfiguration2);
         file_Persistent_Stream_Repository.initialize();
         mockStore.add("STREAM.mr", file_Persistent_Stream_Repository);
