@@ -23,6 +23,7 @@
 package org.apache.james.domain;
 
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 import org.apache.avalon.framework.configuration.Configuration;
@@ -43,10 +44,11 @@ public class HardCodedDomainListTest extends TestCase {
         DefaultConfiguration configuration = new DefaultConfiguration("test");
         DefaultConfiguration sNamesConf = new DefaultConfiguration("servernames");
         sNamesConf.setAttribute("autodetect", auto);
+        sNamesConf.setAttribute("autodetectIP", autoIP);
         
         for (int i= 0; i< names.size(); i++) {
             DefaultConfiguration nameConf = new DefaultConfiguration("servername");
-            nameConf.setAttribute("autodetectIP", autoIP);
+            
             nameConf.setValue(names.get(i).toString());
             sNamesConf.addChild(nameConf);
         }
@@ -60,6 +62,11 @@ public class HardCodedDomainListTest extends TestCase {
             public String getHostName(InetAddress inet) {
                 return hostName;
             }
+            
+            public InetAddress[] getAllByName(String name) throws UnknownHostException {
+        return new InetAddress[] { InetAddress.getByName("127.0.0.1")};
+            
+            }
         };
         return dns;
     }
@@ -72,7 +79,7 @@ public class HardCodedDomainListTest extends TestCase {
     
     public void testGetDomains() throws ConfigurationException, ServiceException {
         ArrayList domains = new ArrayList();
-        domains.add("domain1");
+        domains.add("domain1.");
     
         HardCodedDomainList dom = new HardCodedDomainList();
         ContainerUtil.enableLogging(dom,new MockLogger());
@@ -84,7 +91,7 @@ public class HardCodedDomainListTest extends TestCase {
     
     public void testGetDomainsAutoDetectNotLocalHost() throws ConfigurationException, ServiceException {
         ArrayList domains = new ArrayList();
-        domains.add("domain1");
+        domains.add("domain1.");
     
         HardCodedDomainList dom = new HardCodedDomainList();
         ContainerUtil.enableLogging(dom,new MockLogger());
@@ -96,7 +103,7 @@ public class HardCodedDomainListTest extends TestCase {
     
     public void testGetDomainsAutoDetectLocalHost() throws ConfigurationException, ServiceException {
         ArrayList domains = new ArrayList();
-        domains.add("domain1");
+        domains.add("domain1.");
     
         HardCodedDomainList dom = new HardCodedDomainList();
         ContainerUtil.enableLogging(dom,new MockLogger());

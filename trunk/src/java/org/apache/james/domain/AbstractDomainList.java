@@ -69,7 +69,7 @@ public abstract class AbstractDomainList extends AbstractLogEnabled implements S
         if (domains.size() > 0 ) {
             for (int i = 0; i < domains.size(); i++) {
                 try {
-                    InetAddress[]  addrs = InetAddress.getAllByName(domains.get(i).toString());
+                    InetAddress[]  addrs = dns.getAllByName(domains.get(i).toString());
                     for (int j = 0; j < addrs.length ; j++) {
                         domainIP.add(addrs[j].getHostAddress());
                     }
