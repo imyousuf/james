@@ -27,9 +27,18 @@ public interface DomainList {
     public final static String ROLE ="org.apache.james.services.DomainList";
     
     /**
-     * Return List of domains which should be used as localdomains
+     * Return List of domains which should be used as localdomains. Return null if no
+     * domains were found
      * 
      * @return domains
      */
     public List getDomains();
+    
+    /**
+     * Return true if the domain is 
+     * 
+     * @param domain
+     * @return
+     */
+    public boolean containsDomain(String domain);
 }

@@ -530,6 +530,37 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
         } else {
             return domains;
         }
+    }
+
+    /**
+     * @see org.apache.james.services.DomainList#containsDomain(java.lang.String)
+     */
+    public boolean containsDomain(String domain) {
+        Connection conn = null;
+        PreparedStatement mappingStmt = null;
+        
+        try {
+            conn = dataSourceComponent.getConnection();
+            mappingStmt = conn.prepareStatement(sqlQueries.getSqlString("selectDomain", true));
+
+            ResultSet mappingRS = null;
+            try {
+                mappingStmt.setString(1, domain);
+                mappingRS = mappingStmt.executeQuery();
+                if (mappingRS.next()) {
+                    return true;
+                }
+            } finally {
+                theJDBCUtil.closeJDBCResultSet(mappingRS);
+            }
+            
+        } catch (SQLException sqle) {
+            getLogger().error("Error accessing database", sqle);
+        } finally {
+            theJDBCUtil.closeJDBCStatement(mappingStmt);
+            theJDBCUtil.closeJDBCConnection(conn);
+        }
+        return false;
     } 
 }
 

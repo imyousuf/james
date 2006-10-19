@@ -1002,7 +1002,9 @@
    
     <sql name="addMapping">insert into VirtualUserTable values(?,?,?) </sql>
     
-    <sql name="selectDomains">select domain from VirtualUserTable</sql>
+    <sql name="selectDomains">select distinct domain from VirtualUserTable</sql>
+    
+    <sql name="selectDomain">select distinct domain from VirtualUserTable where domain = ? </sql>
     
     <!-- Statements used to create the table associated with this class. -->
     <sql name="createTable" db="mysql">

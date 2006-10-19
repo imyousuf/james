@@ -30,6 +30,7 @@ import junit.framework.TestCase;
 public abstract class AbstractVirtualUserTableTest extends TestCase {
 
     protected AbstractVirtualUserTable virtualUserTable;
+    
     protected void setUp() throws Exception {
         virtualUserTable = getVirtalUserTable();
     }
@@ -59,8 +60,10 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
 
             assertTrue("Two mappings",virtualUserTable.getMappings(user, domain).size() == 2);
             
+            // Test DomainList implementations!
             assertEquals("One domain",virtualUserTable.getDomains().size(), 1);
-        
+            assertTrue("Contains Domain",virtualUserTable.containsDomain(domain));
+            
             assertTrue("remove virtual mapping", virtualUserTable.removeRegexMapping(user, domain, regex));
         
             try {

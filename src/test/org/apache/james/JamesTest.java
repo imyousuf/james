@@ -104,7 +104,11 @@ public class JamesTest extends MailServerTestAllImplementations {
                 ArrayList d = new ArrayList();
                 d.add("localhost");
                 return d;
-            }            
+            }
+
+        public boolean containsDomain(String domain) {
+        return getDomains().contains(domain);
+        }            
         });
         MockStore mockStore = new MockStore();
         mockMailRepository = new InMemorySpoolRepository();

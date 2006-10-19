@@ -79,4 +79,11 @@ public class HardCodedDomainList extends AbstractDomainList implements Configura
     protected List getInternalDomainList() {
         return serverNames;
     }
+
+    /**
+     * @see org.apache.james.services.DomainList#containsDomain(java.lang.String)
+     */
+    public boolean containsDomain(String domains) {
+        return serverNames.contains(domains);
+    }
 }

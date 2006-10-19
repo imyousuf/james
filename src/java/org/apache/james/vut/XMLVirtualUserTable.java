@@ -114,4 +114,11 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable implements Con
         return domains;
     }
 
+    /**
+     * @see org.apache.james.services.DomainList#containsDomain(java.lang.String)
+     */
+    public boolean containsDomain(String domain) {
+    return domains.contains(domain);
+    }
+
 }
