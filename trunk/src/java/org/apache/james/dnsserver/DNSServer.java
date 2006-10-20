@@ -547,7 +547,7 @@ public class DNSServer
      * @see org.apache.james.services.DNSServer#getLocalHost()
      */
     public InetAddress getLocalHost() throws UnknownHostException {
-    return InetAddress.getLocalHost();
+        return InetAddress.getLocalHost();
     }
 
 }
