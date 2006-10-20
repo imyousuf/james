@@ -43,12 +43,18 @@ public class LocalUsersRepository implements UsersRepository, Serviceable, Initi
         this.usersStore = usersStore;
     }
 
+    /**
+     * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
+     */
     public void service(ServiceManager serviceManager) throws ServiceException {
         UsersStore usersStore =
            (UsersStore) serviceManager.lookup(UsersStore.ROLE);
         setUsersStore(usersStore);
     }
 
+    /**
+     * @see org.apache.avalon.framework.activity.Initializable#initialize()
+     */
     public void initialize() throws Exception {
         users = usersStore.getRepository("LocalUsers");
         if (users == null) {
@@ -56,54 +62,93 @@ public class LocalUsersRepository implements UsersRepository, Serviceable, Initi
         }
     }
 
+    /**
+     * @see org.apache.james.services.UsersRepository#addUser(org.apache.james.services.User)
+     */
     public boolean addUser(User user) {
         return users.addUser(user);
     }
-
+    
+    /**
+     * @see org.apache.james.services.UsersRepository#addUser(java.lang.String, java.lang.Object)
+     */
     public void addUser(String name, Object attributes) {
         users.addUser(name,attributes);
     }
 
+    /**
+     * @see org.apache.james.services.UsersRepository#addUser(java.lang.String, java.lang.String)
+     */
     public boolean addUser(String username, String password) {
         return users.addUser(username, password);
     }
 
+    /**
+     * @see org.apache.james.services.UsersRepository#getUserByName(java.lang.String)
+     */
     public User getUserByName(String name) {
         return users.getUserByName(name);
     }
 
+    /**
+     * @see org.apache.james.services.UsersRepository#getUserByNameCaseInsensitive(java.lang.String)
+     */
     public User getUserByNameCaseInsensitive(String name) {
         return users.getUserByNameCaseInsensitive(name);
     }
 
+    /**
+     * @see org.apache.james.services.UsersRepository#getRealName(java.lang.String)
+     */
     public String getRealName(String name) {
         return users.getRealName(name);
     }
 
+    /**
+     * @see org.apache.james.services.UsersRepository#updateUser(org.apache.james.services.User)
+     */
     public boolean updateUser(User user) {
         return users.updateUser(user);
     }
 
+    /**
+     * @see org.apache.james.services.UsersRepository#removeUser(java.lang.String)
+     */
     public void removeUser(String name) {
         users.removeUser(name);
     }
 
+    /**
+     * @see org.apache.james.services.UsersRepository#contains(java.lang.String)
+     */
     public boolean contains(String name) {
         return users.contains(name);
     }
 
+    /**
+     * @see org.apache.james.services.UsersRepository#containsCaseInsensitive(java.lang.String)
+     */
     public boolean containsCaseInsensitive(String name) {
         return users.containsCaseInsensitive(name);
     }
 
+    /**
+     * @see org.apache.james.services.UsersRepository#test(java.lang.String, java.lang.String)
+     */
     public boolean test(String name, String password) {
         return users.test(name,password);
     }
 
+    /**
+     * @see org.apache.james.services.UsersRepository#countUsers()
+     */
     public int countUsers() {
         return users.countUsers();
     }
 
+    /**
+     * @see org.apache.james.services.UsersRepository#list()
+     */
     public Iterator list() {
         return users.list();
     }

@@ -95,4 +95,9 @@ public interface DNSServer {
      * @see org.xbill.DNS.Address#getHostName(InetAddress)
      */
     public String getHostName(InetAddress addr);
+    
+    /**
+     * @see java.net.InetAddress.getLocalHost();
+     */
+    public InetAddress getLocalHost() throws UnknownHostException;
 }

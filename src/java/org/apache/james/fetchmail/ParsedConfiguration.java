@@ -894,7 +894,7 @@ protected void setDNSServer(DNSServer dnsServer)
         String hostName = null;
         try
         {
-            hostName = java.net.InetAddress.getLocalHost().getCanonicalHostName();
+            hostName = getDNSServer().getLocalHost().getCanonicalHostName();
         }
         catch (UnknownHostException ue)
         {

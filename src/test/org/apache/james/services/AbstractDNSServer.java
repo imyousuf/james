@@ -73,4 +73,11 @@ public class AbstractDNSServer implements DNSServer {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
     }
 
+    /**
+     * @see org.apache.james.services.DNSServer#getLocalHost()
+     */
+    public InetAddress getLocalHost() throws UnknownHostException {
+        throw new UnsupportedOperationException("Unimplemented Stub Method");
+    }
+
 }

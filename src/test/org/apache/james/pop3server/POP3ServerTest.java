@@ -50,6 +50,7 @@ import javax.mail.util.SharedByteArrayInputStream;
 import java.io.InputStream;
 import java.io.Reader;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 import junit.framework.TestCase;
@@ -110,12 +111,17 @@ public class POP3ServerTest extends TestCase {
     }
 
     private DNSServer setUpDNSServer() {
-    DNSServer dns = new AbstractDNSServer() {
-        public String getHostName(InetAddress addr) {
-        return "localhost";
-        }
-    };
-    return dns;
+        DNSServer dns = new AbstractDNSServer() {
+            public String getHostName(InetAddress addr) {
+                return "localhost";
+            }
+            
+            public InetAddress getLocalHost() throws UnknownHostException {
+                return InetAddress.getLocalHost();
+            }            
+        
+        };
+        return dns;
     }
     protected void tearDown() throws Exception {
         if (m_pop3Protocol != null) {

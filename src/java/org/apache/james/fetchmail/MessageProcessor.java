@@ -799,7 +799,7 @@ public class MessageProcessor extends ProcessorAbstract
         {
             try
             {
-                domainBuffer.append(java.net.InetAddress.getLocalHost().getCanonicalHostName());
+                domainBuffer.append(getDNSServer().getLocalHost().getCanonicalHostName());
             }
             catch (UnknownHostException ue)
             {
