@@ -59,10 +59,12 @@
       </servernames>
       -->
       
-      <!-- Set whether user names are case sensitive or case insensitive -->
-      <!-- Set whether to enable local aliases -->
-      <!-- Set whether to enable forwarding -->
+      <!-- DEPRECATED: ignoreCase, enableAliases and enableForwarding should -->
+      <!-- be configured in the UsersRepository instance: see the users-store -->
+      <!-- block configuration -->
+      <!--
       <usernames ignoreCase="true" enableAliases="true" enableForwarding="true"/>
+      -->
 
       <!-- The inbox repository is the location for users inboxes -->
       <!-- Default setting: file based repository - enter path ( use  "file:///" for absolute) -->
@@ -1241,6 +1243,9 @@ Regards, Postmaster XXX.YYY
       <!--
       <repository name="LocalUsers" class="org.apache.james.userrepository.UsersFileRepository">
          <destination URL="file://var/users/"/>
+         <ignoreCase>true</ignoreCase>
+         <enableAliases>true</enableAliases>
+         <enableForwarding>true</enableForwarding>
       </repository>
       -->
 
@@ -1254,6 +1259,12 @@ Regards, Postmaster XXX.YYY
       <!-- TEMPORARY DEFAULT: db using Derby  -->
       <repository name="LocalUsers" class="org.apache.james.userrepository.JamesUsersJdbcRepository" destinationURL="db://maildb/users">
          <sqlFile>file://conf/sqlResources.xml</sqlFile>
+         <!-- Set whether user names are case sensitive or case insensitive -->
+         <ignoreCase>true</ignoreCase>
+         <!-- Set whether to enable local aliases -->
+         <enableAliases>true</enableAliases>
+         <!-- Set whether to enable forwarding -->
+         <enableForwarding>true</enableForwarding>
       </repository>
       <!-- TEMPORARY DEFAULT: db using Derby  -->
 

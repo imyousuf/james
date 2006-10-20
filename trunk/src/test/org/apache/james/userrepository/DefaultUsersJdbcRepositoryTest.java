@@ -73,7 +73,7 @@ public class DefaultUsersJdbcRepositoryTest extends MockUsersRepositoryTest {
      * @return
      */
     protected boolean getCheckCase() {
-        return false;
+        return true;
     }
 
     protected void disposeUsersRepository() {

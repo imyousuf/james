@@ -22,7 +22,6 @@
 package org.apache.james.transport.mailets;
 
 import org.apache.commons.collections.iterators.IteratorChain;
-import org.apache.james.Constants;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailetConfig;
@@ -86,39 +85,7 @@ public class LocalDelivery extends GenericMailet {
         super.init();
         
         aliasingMailet = new UsersRepositoryAliasingForwarding();
-        MailetConfig mua = new MailetConfig() {
-
-            public String getInitParameter(String name) {
-                if ("enableAliases".equals(name)) {
-                    String res = getMailetConfig().getInitParameter("enableAliases");
-                    return res != null ? res : getMailetContext().getAttribute(Constants.DEFAULT_ENABLE_ALIASES).toString();
-                } else if ("enableForwarding".equals(name)) {
-                    String res = getMailetConfig().getInitParameter("enableForwarding");
-                    return res != null ? res : getMailetContext().getAttribute(Constants.DEFAULT_ENABLE_FORWARDING).toString();
-                } else if ("ignoreCase".equals(name)) {
-                    String res = getMailetConfig().getInitParameter("ignoreCase");
-                    return res != null ? res : getMailetContext().getAttribute(Constants.DEFAULT_IGNORE_USERNAME_CASE).toString();
-                } else return null;
-            }
-
-            public Iterator getInitParameterNames() {
-                Collection h = new ArrayList();
-                h.add("enableAliases");
-                h.add("enableForwarding");
-                h.add("ignoreCase");
-                return h.iterator();
-            }
-
-            public MailetContext getMailetContext() {
-                return getMailetConfig().getMailetContext();
-            }
-
-            public String getMailetName() {
-                return getMailetConfig().getMailetName();
-            }
-            
-        };
-        aliasingMailet.init(mua);
+        aliasingMailet.init(getMailetConfig());
         deliveryMailet = new ToMultiRepository();
         MailetConfig m = new MailetConfig() {
 

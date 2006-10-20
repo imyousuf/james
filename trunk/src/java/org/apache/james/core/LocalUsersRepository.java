@@ -37,7 +37,7 @@ import java.util.Iterator;
 public class LocalUsersRepository implements UsersRepository, Serviceable, Initializable, JamesMBean {
 
     private UsersStore usersStore;
-    private UsersRepository users;
+    protected UsersRepository users;
 
     public void setUsersStore(UsersStore usersStore) {
         this.usersStore = usersStore;

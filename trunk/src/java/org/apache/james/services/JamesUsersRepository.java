@@ -17,46 +17,27 @@
  * under the License.                                           *
  ****************************************************************/
 
+package org.apache.james.services;
 
-package org.apache.james;
 
-/**
- * Assorted Constants for use in all James blocks
- * The Software Version, Software Name and Build Date are set by ant during
- * the build process.
- *
- *
- * @version This is $Revision$
- */
-public class Constants {
+public interface JamesUsersRepository extends UsersRepository, VirtualUserTable {
 
     /**
-     * The version of James.
+     * enable/disable aliases in case of JamesUsers
+     * @param enableAliases enable
      */
-    public static final String SOFTWARE_VERSION = "@@VERSION@@";
+    public void setEnableAliases(boolean enableAliases);
 
     /**
-     * The name of the software (i.e. James).
+     * enable/disable aliases in case of JamesUsers
+     * @param enableForwarding enable
      */
-    public static final String SOFTWARE_NAME = "@@NAME@@";
+    public void setEnableForwarding(boolean enableForwarding);
 
     /**
-     * Context key used to store the default domain name
-     * serviced by this James instance in the context.
+     * set case sensitive/insensitive operations
+     * @param ignoreCase ignore
      */
-    public static final String DEFAULT_DOMAIN = "DEFAULT_DOMAIN";
-
-    /**
-     * Context key used to store the Mailet/SMTP "hello name" for this
-     * James instance in the context.
-     */
-    public static final String HELLO_NAME = "HELLO_NAME";
-
-    /**
-     * Key used to store the component manager for
-     * this James instance in a way accessible by
-     * Avalon aware Mailets.
-     */
-    public static final String AVALON_COMPONENT_MANAGER = "AVALON_COMP_MGR";
+    public void setIgnoreCase(boolean ignoreCase);
 
 }

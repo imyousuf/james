@@ -42,6 +42,7 @@ import org.apache.james.core.MailetConfigImpl;
 import org.apache.james.services.DNSServer;
 import org.apache.james.services.DomainList;
 import org.apache.james.services.FileSystem;
+import org.apache.james.services.JamesUsersRepository;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.SpoolRepository;
@@ -137,11 +138,6 @@ public class James
     private Collection serverNames;
 
     /**
-     * Whether to ignore case when looking up user names on this server
-     */
-    private boolean ignoreCase;
-
-    /**
      * The number of mails generated.  Access needs to be synchronized for
      * thread safety and to ensure that all threads see the latest value.
      */
@@ -171,7 +167,7 @@ public class James
     protected Mailet localDeliveryMailet;
 
     private FileSystem fileSystem;
-    
+
     private DomainList domains;
 
     /**
@@ -211,13 +207,19 @@ public class James
 
         initializeServernamesAndPostmaster();
 
+        
         Configuration userNamesConf = conf.getChild("usernames");
-        ignoreCase = userNamesConf.getAttributeAsBoolean("ignoreCase", false);
-        boolean enableAliases = userNamesConf.getAttributeAsBoolean("enableAliases", false);
-        boolean enableForwarding = userNamesConf.getAttributeAsBoolean("enableForwarding", false);
-        attributes.put(Constants.DEFAULT_ENABLE_ALIASES,new Boolean(enableAliases));
-        attributes.put(Constants.DEFAULT_ENABLE_FORWARDING,new Boolean(enableForwarding));
-        attributes.put(Constants.DEFAULT_IGNORE_USERNAME_CASE,new Boolean(ignoreCase));
+        if (userNamesConf != null) {
+            if (localusers instanceof JamesUsersRepository) {
+                getLogger().warn("<usernames> parameter in James block is deprecated. Please configure this data in UsersRepository block: configuration injected for backward compatibility");
+                ((JamesUsersRepository) localusers).setIgnoreCase(userNamesConf.getAttributeAsBoolean("ignoreCase", false));
+                ((JamesUsersRepository) localusers).setEnableAliases(userNamesConf.getAttributeAsBoolean("enableAliases", false));
+                ((JamesUsersRepository) localusers).setEnableForwarding(userNamesConf.getAttributeAsBoolean("enableForwarding", false));
+            } else {
+                getLogger().error("<usernames> parameter is no more supported. Backward compatibility is provided when using an AbstractUsersRepository but this repository is a "+localusers.getClass().toString());
+            }
+        }
+        
 
         // We don't need this. UsersRepository.ROLE is already in the compMgr we received
         // We've just looked up it from the cmpManager
@@ -303,7 +305,7 @@ public class James
     private void initializeServernamesAndPostmaster() throws ConfigurationException, ParseException {
         //TODO: Make backward compatible
         serverNames = domains.getDomains();
-    
+
         String defaultDomain = (String) serverNames.iterator().next();
         // used by RemoteDelivery for HELO
         attributes.put(Constants.DEFAULT_DOMAIN, defaultDomain);
@@ -693,11 +695,7 @@ public class James
         if (!isLocalServer(mailAddress.getHost())) {
             return false;
         }
-        if (ignoreCase) {
-            return localusers.containsCaseInsensitive(mailAddress.getUser());
-        } else {
-            return localusers.contains(mailAddress.getUser());
-        }
+        return localusers.contains(mailAddress.getUser());
     }
 
     /**
