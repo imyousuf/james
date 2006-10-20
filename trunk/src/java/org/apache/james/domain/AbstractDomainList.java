@@ -34,6 +34,9 @@ import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.services.DNSServer;
 import org.apache.james.services.DomainList;
 
+/**
+ * All implementations of the DomainList interface should extends this abstract class
+ */
 public abstract class AbstractDomainList extends AbstractLogEnabled implements Serviceable, DomainList {
     DNSServer dns;
 
@@ -50,12 +53,16 @@ public abstract class AbstractDomainList extends AbstractLogEnabled implements S
      */
     public List getDomains() {  
         List domains = getInternalDomainList();
-        if (getLogger().isInfoEnabled()) {
-            for (Iterator i = domains.iterator(); i.hasNext(); ) {
-                getLogger().info("Handling mail for: " + i.next());
-            }
-        }  
-        return domains;
+        if (domains != null) {
+            if (getLogger().isInfoEnabled()) {
+                for (Iterator i = domains.iterator(); i.hasNext(); ) {
+                    getLogger().info("Handling mail for: " + i.next());
+                }
+            }  
+            return domains;
+        } else {
+            return null;
+        }
     }
     
     /**

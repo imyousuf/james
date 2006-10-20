@@ -19,8 +19,7 @@
 
 
 
-
-package org.apache.james.vut;
+package org.apache.james.domain;
 
 import java.io.File;
 import java.sql.Connection;
@@ -29,7 +28,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,18 +46,17 @@ import org.apache.james.util.JDBCUtil;
 import org.apache.james.util.SqlResources;
 
 /**
- * 
+ * Allow to query a costum table for domains
  */
-public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Configurable,Serviceable, Initializable{
+public class JDBCDomainList extends AbstractDomainList implements Serviceable,Configurable,Initializable {
 
-    private DataSourceSelector datasources = null;
-    private DataSourceComponent dataSourceComponent = null;
-    private String tableName = "VirtualUserTable";
+    private DataSourceSelector datasources;
+    private DataSourceComponent dataSourceComponent;
+    private FileSystem fileSystem;
+    
+    private String tableName = null;
     private String dataSourceName = null;
     
-    private static String WILDCARD = "%";
-
-
     /**
      * Contains all of the sql strings for this component.
      */
@@ -69,16 +66,14 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
      * The name of the SQL configuration file to be used to configure this repository.
      */
     private String sqlFileName;
-    
-    private FileSystem fileSystem;
 
     protected String datasourceName;
-    
-    
+
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
      */
     public void service(ServiceManager arg0) throws ServiceException {
+        super.service(arg0);
         datasources = (DataSourceSelector)arg0.lookup(DataSourceSelector.ROLE); 
         setFileSystem((FileSystem) arg0.lookup(FileSystem.ROLE));
     }
@@ -110,22 +105,19 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
             start = end + 1;
             end = destination.indexOf('/', start);
         }
+        System.err.println("SIZE; " + urlParams.size());
 
         // Build SqlParameters and get datasource name from URL parameters
-        if (urlParams.size() == 0) {
+        if (urlParams.size() != 2) {
             StringBuffer exceptionBuffer =
                 new StringBuffer(256)
                         .append("Malformed destinationURL - Must be of the format '")
-                        .append("db://<data-source>'.  Was passed ")
+                        .append("db://<data-source>/<table>'.  Was passed ")
                         .append(arg0.getAttribute("repositoryPath"));
             throw new ConfigurationException(exceptionBuffer.toString());
         }
-        if (urlParams.size() >= 1) {
-            dataSourceName = (String)urlParams.get(0);
-        }
-        if (urlParams.size() >= 2) {
-            tableName = (String)urlParams.get(1);
-        }
+        dataSourceName = (String)urlParams.get(0);
+        tableName = (String)urlParams.get(1);
 
 
         if (getLogger().isDebugEnabled()) {
@@ -199,7 +191,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
             // Try UPPER, lower, and MixedCase, to see if the table is there.
            
             if (!(theJDBCUtil.tableExists(dbMetaData, tableName))) {
-            
+           
                 // Users table doesn't exist - create it.
                 createStatement =
                     conn.prepareStatement(sqlQueries.getSqlString("createTable", true));
@@ -214,8 +206,8 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
                     getLogger().info(logBuffer.toString());
                 }
             }
-            
-   
+
+          
         } finally {
             theJDBCUtil.closeJDBCStatement(createStatement);
             theJDBCUtil.closeJDBCConnection(conn);
@@ -230,8 +222,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
             getLogger().debug("JDBCVirtualUserTable: " + logString);
         }
     };
-    
-    
+
     public void setDataSourceComponent(DataSourceComponent dataSourceComponent) {
         this.dataSourceComponent = dataSourceComponent;
     }
@@ -241,263 +232,13 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
         this.fileSystem = fileSystem;
     }
     
-    /**
-     * @see org.apache.james.vut.AbstractVirtualUserTable#mapAddress(java.lang.String, java.lang.String)
-     */
-    public String mapAddress(String user, String domain) {
-        Connection conn = null;
-        PreparedStatement mappingStmt = null;
-        try {
-            conn = dataSourceComponent.getConnection();
-            mappingStmt = conn.prepareStatement(sqlQueries.getSqlString("selectMappings", true));
 
-                ResultSet mappingRS = null;
-                try {
-                    mappingStmt.setString(1, user);
-                    mappingStmt.setString(2, domain);
-                    mappingStmt.setString(3, domain);
-                    mappingRS = mappingStmt.executeQuery();
-                    if (mappingRS.next()) {
-                        return mappingRS.getString(1);
-                    }
-                } finally {
-                    theJDBCUtil.closeJDBCResultSet(mappingRS);
-                }
-            
-        } catch (SQLException sqle) {
-            getLogger().error("Error accessing database", sqle);
-        } finally {
-            theJDBCUtil.closeJDBCStatement(mappingStmt);
-            theJDBCUtil.closeJDBCConnection(conn);
-        }
-        return null;
-    }
-    
-    /**
-     * @see org.apache.james.vut.AbstractVirtualUserTable#removeRegexMappingInternal(java.lang.String, java.lang.String, java.lang.String)
-     */
-    public boolean removeMappingInternal(String user, String domain, String mapping) throws InvalidMappingException {
-        String newUser = getUserString(user);
-        String newDomain = getDomainString(domain);
-        Collection map = getUserDomainMappings(newUser,newDomain);
-
-        if (map != null && map.size() > 1) {
-            map.remove(mapping);
-            return updateMapping(newUser,newDomain,CollectionToMapping(map));
-        } else {
-            return removeMapping(newUser,newDomain,mapping);
-        }
-    }
-
-
-    /**
-     * @see org.apache.james.vut.AbstractVirtualUserTable#addRegexMappingInternal(java.lang.String, java.lang.String, java.lang.String)
-     */
-    public boolean addMappingInternal(String user, String domain, String regex) throws InvalidMappingException {
-        String newUser = getUserString(user);
-        String newDomain = getDomainString(domain);
-        Collection map =  getUserDomainMappings(newUser,newDomain);
-
-        if (map != null && map.size() != 0) {
-            map.add(regex);
-        
-            return updateMapping(newUser,newDomain,CollectionToMapping(map));
-        }
-        return addMapping(newUser,newDomain,regex);
-    }
-    
-    /**
-     * Update the mapping for the given user and domain
-     * 
-     * @param user the user
-     * @param domain the domain
-     * @param mapping the mapping
-     * @return true if update was successfully
-     */
-    private boolean updateMapping(String user, String domain, String mapping) {
-        Connection conn = null;
-        PreparedStatement mappingStmt = null;
-
-        try {
-            conn = dataSourceComponent.getConnection();
-            mappingStmt = conn.prepareStatement(sqlQueries.getSqlString(
-                "updateMapping", true));
-
-            ResultSet mappingRS = null;
-            try {
-                mappingStmt.setString(1, mapping);
-                mappingStmt.setString(2, user);
-                mappingStmt.setString(3, domain);
-               
-                if (mappingStmt.executeUpdate()> 0) {
-                   return true;
-                }
-            } finally {
-                theJDBCUtil.closeJDBCResultSet(mappingRS);
-            }
-
-        } catch (SQLException sqle) {
-            getLogger().error("Error accessing database", sqle);
-        } finally {
-            theJDBCUtil.closeJDBCStatement(mappingStmt);
-            theJDBCUtil.closeJDBCConnection(conn);
-        }
-        return false;
-    }
     
     
     /**
-     * Remove a mapping for the given user and domain
-     * 
-     * @param user the user
-     * @param domain the domain
-     * @param mapping the mapping
-     * @return true if succesfully
+     * @see org.apache.james.domain.AbstractDomainList#getInternalDomainList()
      */
-    private boolean removeMapping(String user, String domain, String mapping) {
-        Connection conn = null;
-        PreparedStatement mappingStmt = null;
-
-        try {
-            conn = dataSourceComponent.getConnection();
-            mappingStmt = conn.prepareStatement(sqlQueries.getSqlString(
-            "deleteMapping", true));
-
-            ResultSet mappingRS = null;
-            try {
-                mappingStmt.setString(1, user);
-                mappingStmt.setString(2, domain);
-                mappingStmt.setString(3, mapping);
-                if(mappingStmt.executeUpdate() > 0) {
-                    return true;
-                }
-            } finally {
-               theJDBCUtil.closeJDBCResultSet(mappingRS);
-            }
-
-        } catch (SQLException sqle) {
-            getLogger().error("Error accessing database", sqle);
-        } finally {
-            theJDBCUtil.closeJDBCStatement(mappingStmt);
-            theJDBCUtil.closeJDBCConnection(conn);
-        }
-        return false;
-    }
-    
-    /**
-     * Add mapping for given user and domain
-     * 
-     * @param user the user
-     * @param domain the domain
-     * @param mapping the mapping 
-     * @return true if successfully
-     */
-    private boolean addMapping(String user, String domain, String mapping) {
-        Connection conn = null;
-        PreparedStatement mappingStmt = null;
-
-        try {
-            conn = dataSourceComponent.getConnection();
-            mappingStmt = conn.prepareStatement(sqlQueries.getSqlString(
-            "addMapping", true));
-
-            ResultSet mappingRS = null;
-            try {
-                mappingStmt.setString(1, user);
-                mappingStmt.setString(2, domain);
-                mappingStmt.setString(3, mapping);
-               
-                if(mappingStmt.executeUpdate() >0) {
-                    return true;
-                }
-            } finally {
-                theJDBCUtil.closeJDBCResultSet(mappingRS);
-            }
-
-        } catch (SQLException sqle) {
-            getLogger().error("Error accessing database", sqle);
-        } finally {
-            theJDBCUtil.closeJDBCStatement(mappingStmt);
-            theJDBCUtil.closeJDBCConnection(conn);
-        }
-        return false;
-    }
-
-    
-    /**
-     * Return user String for the given argument
-     * 
-     * @param user the given user String
-     * @return user the user String
-     * @throws InvalidMappingException get thrown on invalid argument
-     */
-    private String getUserString(String user) throws InvalidMappingException {
-        if (user != null) {
-            if(user.equals(WILDCARD) || user.indexOf("@") < 0) {
-                return user;
-            } else {
-                throw new InvalidMappingException("Invalid user: " + user);
-            }
-        } else {
-            return WILDCARD;
-        }
-    }
-    
-    /**
-     * Return domain String for the given argument
-     * 
-     * @param domain the given domain String
-     * @return domainString the domain String
-     * @throws InvalidMappingException get thrown on invalid argument
-     */
-    private String getDomainString(String domain) throws InvalidMappingException {
-        if(domain != null) {
-            if (domain.equals(WILDCARD) || domain.indexOf("@") < 0) {
-                return domain;  
-            } else {
-                throw new InvalidMappingException("Invalid domain: " + domain);
-            }
-        } else {
-            return WILDCARD;
-        }
-    }
-    
-    /**
-     * @see org.apache.james.vut.AbstractVirtualUserTable#mapAddress(java.lang.String, java.lang.String)
-     */
-    public Collection getUserDomainMappings(String user, String domain) throws InvalidMappingException {
-        Connection conn = null;
-        PreparedStatement mappingStmt = null;
-        
-        try {
-            conn = dataSourceComponent.getConnection();
-            mappingStmt = conn.prepareStatement(sqlQueries.getSqlString("selectUserDomainMapping", true));
-
-            ResultSet mappingRS = null;
-            try {
-                mappingStmt.setString(1, user);
-                mappingStmt.setString(2, domain);
-                mappingRS = mappingStmt.executeQuery();
-                if (mappingRS.next()) {
-                    return mappingToCollection(mappingRS.getString(1));
-                }
-            } finally {
-                theJDBCUtil.closeJDBCResultSet(mappingRS);
-            }
-            
-        } catch (SQLException sqle) {
-            getLogger().error("Error accessing database", sqle);
-        } finally {
-            theJDBCUtil.closeJDBCStatement(mappingStmt);
-            theJDBCUtil.closeJDBCConnection(conn);
-        }
-        return null;
-    }
-
-    /**
-     * @see org.apache.james.vut.AbstractVirtualUserTable#getDomainsInternal()
-     */
-    protected List getDomainsInternal() {
+    protected List getInternalDomainList() {
         List domains = new ArrayList();
         Connection conn = null;
         PreparedStatement mappingStmt = null;
@@ -511,7 +252,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
                 mappingRS = mappingStmt.executeQuery();
                 while (mappingRS.next()) {
                     String domain = mappingRS.getString(1).toLowerCase();
-                    if(domains.equals(WILDCARD) == false && domains.contains(domains) == false) {
+                    if(domains.contains(domains) == false) {
                         domains.add(domain);
                     }
                 }
@@ -561,6 +302,5 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
             theJDBCUtil.closeJDBCConnection(conn);
         }
         return false;
-    } 
+    }
 }
-
