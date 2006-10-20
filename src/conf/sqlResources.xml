@@ -1091,5 +1091,12 @@
         )
     </sql>
 </sqlDefs>
+
+<!-- SQL statements for the JDBCDomainList  -->
+<sqlDefs name="org.apache.james.domain.JDBCDomainList">
+    <sql name="selectDomains">select distinct domain from ${table} </sql>
+    
+    <sql name="selectDomain">select distinct domain from ${table} where domain = ? </sql>
+</sqlDefs>
 </sqlResources>
 
