@@ -207,7 +207,11 @@
   </block>
 
   <!-- This is needed to link the smtpserver to the local user repository -->
-  <block name="localusersrepository" class="org.apache.james.core.LocalUsersRepository">
+  <!-- LocalJamesUsersRepository is used for backward compatibility with James 2.3.0 -->
+  <!-- This is needed to support <usernames> configuraion inside James -->
+  <!-- If backward compatibility is not need the LocalUsersRepository implementaion -->
+  <!-- could be safely used -->
+  <block name="localusersrepository" class="org.apache.james.core.LocalJamesUsersRepository">
     <provide name="users-store"
              role="org.apache.james.services.UsersStore"/>
   </block>

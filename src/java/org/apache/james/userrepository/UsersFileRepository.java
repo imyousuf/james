@@ -28,18 +28,11 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
-import org.apache.james.services.JamesUser;
 import org.apache.james.services.User;
-import org.apache.james.services.UsersRepository;
-import org.apache.james.services.VirtualUserTable;
-import org.apache.james.vut.ErrorMappingException;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 
 /**
@@ -56,8 +49,8 @@ import java.util.Iterator;
  *
  */
 public class UsersFileRepository
-    extends AbstractLogEnabled
-    implements UsersRepository, Configurable, Serviceable, Initializable, VirtualUserTable {
+    extends AbstractUsersRepository
+    implements Configurable, Serviceable, Initializable {
  
     /**
      * Whether 'deep debugging' is turned on.
@@ -102,7 +95,7 @@ public class UsersFileRepository
      */
     public void configure( final Configuration configuration )
         throws ConfigurationException {
-
+        super.configure(configuration);
         destination = configuration.getChild( "destination" ).getAttribute( "URL" );
 
         if (!destination.endsWith(urlSeparator)) {
@@ -151,33 +144,13 @@ public class UsersFileRepository
     }
 
     /**
-     * @see org.apache.james.services.UsersRepository#addUser(org.apache.james.services.User)
+     * @see org.apache.james.userrepository.AbstractUsersRepository#doAddUser(org.apache.james.services.User)
      */
-    public synchronized boolean addUser(User user) {
-        String username = user.getUserName();
-        if (contains(username)) {
-            return false;
-        }
+    protected void doAddUser(User user) {
         try {
-            objectRepository.put(username, user);
+            objectRepository.put(user.getUserName(), user);
         } catch (Exception e) {
             throw new RuntimeException("Exception caught while storing user: " + e );
-        }
-        return true;
-    }
-
-    /**
-     * @see org.apache.james.services.UsersRepository#addUser(java.lang.String, java.lang.Object)
-     */
-    public void addUser(String name, Object attributes) {
-        if (attributes instanceof String) {
-            User newbie = new DefaultUser(name, "SHA");
-            newbie.setPassword( (String) attributes);
-            addUser(newbie);
-        }
-        else {
-            throw new RuntimeException("Improper use of deprecated method"
-                                       + " - use addUser(User user)");
         }
     }
 
@@ -194,6 +167,12 @@ public class UsersFileRepository
      * @see org.apache.james.services.UsersRepository#getUserByName(java.lang.String)
      */
     public synchronized User getUserByName(String name) {
+        if (ignoreCase) {
+            name = getRealName(name);
+            if (name == null ) {
+                return null;
+            }
+        }
         if (contains(name)) {
             try {
                 return (User)objectRepository.get(name);
@@ -210,7 +189,7 @@ public class UsersFileRepository
      * @see org.apache.james.services.UsersRepository#getUserByNameCaseInsensitive(java.lang.String)
      */
     public User getUserByNameCaseInsensitive(String name) {
-        String realName = getRealName(name);
+        String realName = getRealName(name, true);
         if (realName == null ) {
             return null;
         }
@@ -218,33 +197,40 @@ public class UsersFileRepository
     }
 
     /**
-     * @see org.apache.james.services.UsersRepository#getRealName(java.lang.String)
+     * Return the real name, given the ignoreCase boolean parameter
      */
-    public String getRealName(String name) {
-        Iterator it = list();
-        while (it.hasNext()) {
-            String temp = (String) it.next();
-            if (name.equalsIgnoreCase(temp)) {
-                return temp;
+    public String getRealName(String name, boolean ignoreCase) {
+        if (ignoreCase) {
+            Iterator it = list();
+            while (it.hasNext()) {
+                String temp = (String) it.next();
+                if (name.equalsIgnoreCase(temp)) {
+                    return temp;
+                }
             }
+            return null;
+        } else {
+            return objectRepository.containsKey(name) ? name : null;
         }
-        return null;
     }
 
     /**
-     * @see org.apache.james.services.UsersRepository#updateUser(org.apache.james.services.User)
+     * @see org.apache.james.services.UsersRepository#getRealName(java.lang.String)
      */
-    public boolean updateUser(User user) {
-        String username = user.getUserName();
-        if (!contains(username)) {
-            return false;
-        }
+    public String getRealName(String name) {
+        return getRealName(name, ignoreCase);
+    }
+    
+    /**
+     * @see org.apache.james.userrepository.AbstractUsersRepository#doUpdateUser(org.apache.james.services.User)
+     */
+    public void doUpdateUser(User user) {
         try {
-            objectRepository.put(username, user);
+            objectRepository.put(user.getUserName(), user);
         } catch (Exception e) {
-            throw new RuntimeException("Exception caught while storing user: " + e );
+            throw new RuntimeException("Exception caught while storing user: "
+                    + e);
         }
-        return true;
     }
 
     /**
@@ -258,7 +244,11 @@ public class UsersFileRepository
      * @see org.apache.james.services.UsersRepository#contains(java.lang.String)
      */
     public boolean contains(String name) {
-        return objectRepository.containsKey(name);
+        if (ignoreCase) {
+            return containsCaseInsensitive(name);
+        } else {
+            return objectRepository.containsKey(name);
+        }
     }
 
     /**
@@ -280,11 +270,8 @@ public class UsersFileRepository
     public boolean test(String name, String password) {
         User user;
         try {
-            if (contains(name)) {
-                user = (User) objectRepository.get(name);
-            } else {
-               return false;
-            }
+            user = getUserByName(name);
+            if (user == null) return false;
         } catch (Exception e) {
             throw new RuntimeException("Exception retrieving User" + e);
         }
@@ -300,43 +287,6 @@ public class UsersFileRepository
             count++;
         }
         return count;
-    }
-    
-    /**
-     * @see org.apache.james.services.VirtualUserTable#getMappings(java.lang.String, java.lang.String)
-     */
-    public Collection getMappings(String username, String domain) throws ErrorMappingException {
-        Collection mappings = new ArrayList();
-        User user = getUserByName(username);
-
-        if (user instanceof JamesUser) {
-            JamesUser jUser = (JamesUser) user;    
-         
-            if (jUser.getAliasing()) {
-                String alias = jUser.getAlias();
-                if (alias != null) {
-                    mappings.add(alias+ "@" + domain);
-                }
-            }
-            
-            if (jUser.getForwarding()) {
-                String forward = null;
-                if (jUser.getForwardingDestination() != null && ((forward = jUser.getForwardingDestination().toString()) != null)) {
-                    mappings.add(forward);
-                } else {
-                    StringBuffer errorBuffer = new StringBuffer(128)
-                    .append("Forwarding was enabled for ")
-                    .append(username)
-                    .append(" but no forwarding address was set for this account.");
-                    getLogger().error(errorBuffer.toString());
-                }
-            }
-        }
-        if (mappings.size() == 0) {
-            return null;
-        } else {
-            return mappings;
-        }
     }
 
 }

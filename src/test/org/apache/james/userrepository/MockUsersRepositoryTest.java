@@ -94,7 +94,8 @@ public class MockUsersRepositoryTest extends TestCase {
         assertNull("found the user searching for a different case!", u);
         
         String realname = usersRepository.getRealName("uSERNAMe");
-        assertEquals("name is different", "username", realname);
+        assertNull("name is not null", realname);
+        // assertEquals("name is different", "username", realname);
     }
     
     public void testUserListing() {

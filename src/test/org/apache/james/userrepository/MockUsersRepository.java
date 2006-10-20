@@ -21,7 +21,6 @@ package org.apache.james.userrepository;
 
 import org.apache.james.security.DigestUtil;
 import org.apache.james.services.User;
-import org.apache.james.services.UsersRepository;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
@@ -30,7 +29,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
-public class MockUsersRepository implements UsersRepository {
+public class MockUsersRepository extends AbstractUsersRepository {
 
     private final HashMap m_users = new HashMap();
 
@@ -107,7 +106,11 @@ public class MockUsersRepository implements UsersRepository {
     }
 
     public User getUserByName(String name) {
-        return (User) m_users.get(name);
+        if (ignoreCase) {
+            return getUserByNameCaseInsensitive(name);
+        } else {
+            return (User) m_users.get(name);
+        }
     }
 
     public User getUserByNameCaseInsensitive(String name) {
@@ -115,7 +118,11 @@ public class MockUsersRepository implements UsersRepository {
     }
 
     public String getRealName(String name) {
-        return m_users.get(name.toLowerCase(Locale.US)) != null ? ((User) m_users.get(name.toLowerCase(Locale.US))).getUserName() : null;
+        if (ignoreCase) {
+            return m_users.get(name.toLowerCase(Locale.US)) != null ? ((User) m_users.get(name.toLowerCase(Locale.US))).getUserName() : null;
+        } else {
+            return m_users.get(name) != null ? name : null;
+        }
     }
 
     public boolean updateUser(User user) {
@@ -130,7 +137,11 @@ public class MockUsersRepository implements UsersRepository {
     }
 
     public boolean contains(String name) {
-        return m_users.containsKey(name);
+        if (ignoreCase) {
+            return containsCaseInsensitive(name);
+        } else {
+            return m_users.containsKey(name);
+        }
     }
 
     public boolean containsCaseInsensitive(String name) {
@@ -163,5 +174,13 @@ public class MockUsersRepository implements UsersRepository {
     }
     public Iterator list() {
         return listUserNames().iterator(); 
+    }
+
+    protected void doAddUser(User user) {
+        // unused
+    }
+
+    protected void doUpdateUser(User user) {
+        // unused
     }
 }

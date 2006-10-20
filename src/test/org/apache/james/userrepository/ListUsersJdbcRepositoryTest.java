@@ -54,7 +54,7 @@ public class ListUsersJdbcRepositoryTest extends MockUsersRepositoryTest {
 
     
     protected boolean getCheckCase() {
-        return false;
+        return true;
     }
 
     /**

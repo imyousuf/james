@@ -61,6 +61,7 @@ public class LocalDeliveryTest extends TestCase {
     private MockMailContext mockMailetContext;
     private MockServiceManager mockServiceManager;
     private MockMailServer mockMailServer;
+    private MockUsersRepository mockUsersRepository;
 
     public void testUnknownUser() throws MessagingException {
         //mockMailetConfig.setProperty(key, value)
@@ -104,9 +105,8 @@ public class LocalDeliveryTest extends TestCase {
 
     public void testSimpleDeliveryCaseSensitiveMatch() throws MessagingException {
         //mockMailetConfig.setProperty(key, value)
-        Properties properties = new Properties();
-        properties.setProperty("ignoreCase", "true");
-        Mailet m = getMailet(properties);
+        mockUsersRepository.setIgnoreCase(true);
+        Mailet m = getMailet(null);
         
         Mail mail = createMail(new String[] {"localUser@ignoreddomain"});
         m.service(mail);
@@ -118,7 +118,7 @@ public class LocalDeliveryTest extends TestCase {
     }
 
     public void testSimpleAliasDelivery() throws MessagingException {
-        mockMailetContext.setAttribute(Constants.DEFAULT_ENABLE_ALIASES, Boolean.TRUE);
+        mockUsersRepository.setEnableAliases(true);
         //mockMailetConfig.setProperty(key, value)
         Mailet m = getMailet(null);
         
@@ -160,7 +160,7 @@ public class LocalDeliveryTest extends TestCase {
 
 
     public void testForwarding() throws MessagingException {
-        mockMailetContext.setAttribute(Constants.DEFAULT_ENABLE_FORWARDING, Boolean.TRUE);
+        mockUsersRepository.setEnableForwarding(true);
         //mockMailetConfig.setProperty(key, value)
         Mailet m = getMailet(null);
         
@@ -174,8 +174,8 @@ public class LocalDeliveryTest extends TestCase {
     }
 
     public void testAliasingForwarding() throws MessagingException {
-        mockMailetContext.setAttribute(Constants.DEFAULT_ENABLE_FORWARDING, Boolean.TRUE);
-        mockMailetContext.setAttribute(Constants.DEFAULT_ENABLE_ALIASES, Boolean.TRUE);
+        mockUsersRepository.setEnableAliases(true);
+        mockUsersRepository.setEnableForwarding(true);
         //mockMailetConfig.setProperty(key, value)
         Mailet m = getMailet(null);
         
@@ -189,11 +189,9 @@ public class LocalDeliveryTest extends TestCase {
     }
 
     public void testAliasingForwardingWithLocallyOverriddenForwarding() throws MessagingException {
-        mockMailetContext.setAttribute(Constants.DEFAULT_ENABLE_FORWARDING, Boolean.TRUE);
-        mockMailetContext.setAttribute(Constants.DEFAULT_ENABLE_ALIASES, Boolean.TRUE);
-        Properties properties = new Properties();
-        properties.setProperty("enableForwarding", "false");
-        Mailet m = getMailet(properties);
+        mockUsersRepository.setEnableAliases(true);
+        mockUsersRepository.setEnableForwarding(false);
+        Mailet m = getMailet(null);
 
         Mail mail = createMail(new String[] {"aliasForwardUser@ignoreddomain"});
         m.service(mail);
@@ -204,9 +202,13 @@ public class LocalDeliveryTest extends TestCase {
         assertDeliveryWorked(mail, expectedMails);
     }
 
+    /* Commented out because "forwarding" to local is no more available
+     * under the new structure.
+     * If we'll ever change VirtualUserTable to return different collections
+     * for local and remote addresses this will be enabled again.
     public void testForwardingToLocal() throws MessagingException {
-        mockMailetContext.setAttribute(Constants.DEFAULT_ENABLE_FORWARDING, Boolean.TRUE);
-        mockMailetContext.setAttribute(Constants.DEFAULT_ENABLE_ALIASES, Boolean.TRUE);
+        mockUsersRepository.setEnableAliases(true);
+        mockUsersRepository.setEnableForwarding(true);
         //mockMailetConfig.setProperty(key, value)
         Mailet m = getMailet(null);
         
@@ -218,6 +220,7 @@ public class LocalDeliveryTest extends TestCase {
         
         assertDeliveryWorked(mail, expectedMails);
     }
+    */
 
     /**
      * @throws ParseException 
@@ -225,7 +228,7 @@ public class LocalDeliveryTest extends TestCase {
      */
     public void setUp() throws ParseException {
         mockServiceManager = new MockServiceManager();
-        MockUsersRepository mockUsersRepository = new MockUsersRepository();
+        mockUsersRepository = new MockUsersRepository();
         mockUsersRepository.setForceUseJamesUser();
         mockUsersRepository.addUser("localuser", "password");
         mockUsersRepository.addUser("aliasedUser", "pass2");
@@ -270,11 +273,19 @@ public class LocalDeliveryTest extends TestCase {
                 mockMailServer.sendMail(m);
                 m.dispose();
             }
+
+            public boolean isLocalServer(String serverName) {
+                if ("ignoreddomain".equals(serverName)) {
+                    return true;
+                }
+                return super.isLocalServer(serverName);
+            }
+            
             
         };
-        mockMailetContext.setAttribute(Constants.DEFAULT_ENABLE_ALIASES, Boolean.FALSE);
-        mockMailetContext.setAttribute(Constants.DEFAULT_ENABLE_FORWARDING, Boolean.FALSE);
-        mockMailetContext.setAttribute(Constants.DEFAULT_IGNORE_USERNAME_CASE, Boolean.FALSE);
+        mockUsersRepository.setEnableAliases(false);
+        mockUsersRepository.setEnableForwarding(false);
+        mockUsersRepository.setIgnoreCase(false);
         mockMailetContext.setAttribute(Constants.AVALON_COMPONENT_MANAGER, mockServiceManager);
     }
     

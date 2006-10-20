@@ -19,34 +19,33 @@
 
 package org.apache.james.userrepository;
 
+import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
+import org.apache.avalon.excalibur.datasource.DataSourceComponent;
+import org.apache.avalon.framework.CascadingRuntimeException;
+import org.apache.avalon.framework.activity.Initializable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.Serviceable;
+import org.apache.james.services.FileSystem;
+import org.apache.james.services.User;
+import org.apache.james.util.JDBCUtil;
+import org.apache.james.util.SqlResources;
+
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
-import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
-import org.apache.avalon.excalibur.datasource.DataSourceComponent;
-import org.apache.avalon.framework.CascadingRuntimeException;
-import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.service.Serviceable;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.james.util.JDBCUtil;
-import org.apache.james.util.SqlResources;
-import org.apache.james.services.FileSystem;
-import org.apache.james.services.User;
 
 /**
  * An abstract base class for creating UserRepository implementations
@@ -71,8 +70,8 @@ import org.apache.james.services.User;
  *
  */
 public abstract class AbstractJdbcUsersRepository extends
-        AbstractUsersRepository implements Serviceable, Configurable,
-        Initializable {
+        AbstractUsersRepository implements Serviceable, Initializable {
+
 
     protected Map m_sqlParameters;
 
@@ -102,6 +101,130 @@ public abstract class AbstractJdbcUsersRepository extends
     private JDBCUtil theJDBCUtil;
 
     private FileSystem fileSystem;
+
+    /**
+     * Removes a user from the repository
+     * 
+     * @param userName
+     *            the user to be removed
+     */
+    public void removeUser(String userName) {
+        User user = getUserByName(userName);
+        if (user != null) {
+            doRemoveUser(user);
+        }
+    }
+
+    /**
+     * Get the user object with the specified user name. Return null if no such
+     * user.
+     * 
+     * @param name
+     *            the name of the user to retrieve
+     * 
+     * @return the user if found, null otherwise
+     * 
+     * @since James 1.2.2
+     */
+    public User getUserByName(String name) {
+        return getUserByName(name, ignoreCase);
+    }
+
+    /**
+     * Get the user object with the specified user name. Match user naems on a
+     * case insensitive basis. Return null if no such user.
+     * 
+     * @param name
+     *            the name of the user to retrieve
+     * 
+     * @return the user if found, null otherwise
+     * 
+     * @since James 1.2.2
+     */
+    public User getUserByNameCaseInsensitive(String name) {
+        return getUserByName(name, true);
+    }
+
+    /**
+     * Returns the user name of the user matching name on an equalsIgnoreCase
+     * basis. Returns null if no match.
+     * 
+     * @param name
+     *            the name of the user to retrieve
+     * 
+     * @return the correct case sensitive name of the user
+     */
+    public String getRealName(String name) {
+        // Get the user by name, ignoring case, and return the correct name.
+        User user = getUserByName(name, ignoreCase);
+        if (user == null) {
+            return null;
+        } else {
+            return user.getUserName();
+        }
+    }
+
+    /**
+     * Returns whether or not this user is in the repository
+     * 
+     * @return true or false
+     */
+    public boolean contains(String name) {
+        User user = getUserByName(name, ignoreCase);
+        return (user != null);
+    }
+
+    /**
+     * Returns whether or not this user is in the repository. Names are matched
+     * on a case insensitive basis.
+     * 
+     * @return true or false
+     */
+    public boolean containsCaseInsensitive(String name) {
+        User user = getUserByName(name, true);
+        return (user != null);
+    }
+
+    /**
+     * Test if user with name 'name' has password 'password'.
+     * 
+     * @param name
+     *            the name of the user to be tested
+     * @param password
+     *            the password to be tested
+     * 
+     * @return true if the test is successful, false if the password is
+     *         incorrect or the user doesn't exist
+     * @since James 1.2.2
+     */
+    public boolean test(String name, String password) {
+        User user = getUserByName(name, ignoreCase);
+        if (user == null) {
+            return false;
+        } else {
+            return user.verifyPassword(password);
+        }
+    }
+
+    /**
+     * Returns a count of the users in the repository.
+     * 
+     * @return the number of users in the repository
+     */
+    public int countUsers() {
+        List usernames = listUserNames();
+        return usernames.size();
+    }
+
+    /**
+     * List users in repository.
+     * 
+     * @return Iterator over a collection of Strings, each being one user in the
+     *         repository.
+     */
+    public Iterator list() {
+        return listUserNames().iterator();
+    }
 
     /**
      * Set the DataSourceSelector
@@ -162,6 +285,7 @@ public abstract class AbstractJdbcUsersRepository extends
      */
     public void configure(Configuration configuration)
             throws ConfigurationException {
+        super.configure(configuration);
         StringBuffer logBuffer = null;
         if (getLogger().isDebugEnabled()) {
             logBuffer = new StringBuffer(64).append(this.getClass().getName())
@@ -362,12 +486,10 @@ public abstract class AbstractJdbcUsersRepository extends
         return userNames;
     }
 
-    //
-    // Superclass methods - overridden from AbstractUsersRepository
-    //
-
     /**
-     * @see org.apache.james.userrepository.AbstractUsersRepository#listAllUsers()
+     * Returns a list populated with all of the Users in the repository.
+     * 
+     * @return an <code>Iterator</code> of <code>User</code>s.
      */
     protected Iterator listAllUsers() {
         return getAllUsers().iterator();
@@ -408,7 +530,11 @@ public abstract class AbstractJdbcUsersRepository extends
     }
 
     /**
-     * @see org.apache.james.userrepository.AbstractUsersRepository#doAddUser(org.apache.james.services.User)
+     * Adds a user to the underlying Repository. The user name must not clash
+     * with an existing user.
+     * 
+     * @param user
+     *            the user to add
      */
     protected void doAddUser(User user) {
         Connection conn = openConnection();
@@ -433,7 +559,11 @@ public abstract class AbstractJdbcUsersRepository extends
     }
 
     /**
-     * @see org.apache.james.userrepository.AbstractUsersRepository#doRemoveUser(org.apache.james.services.User)
+     * Removes a user from the underlying repository. If the user doesn't exist,
+     * returns ok.
+     * 
+     * @param user
+     *            the user to remove
      */
     protected void doRemoveUser(User user) {
         String username = user.getUserName();
@@ -457,7 +587,10 @@ public abstract class AbstractJdbcUsersRepository extends
     }
 
     /**
-     * @see org.apache.james.userrepository.AbstractUsersRepository#doUpdateUser(org.apache.james.services.User)
+     * Updates a user record to match the supplied User.
+     * 
+     * @param user
+     *            the user to update
      */
     protected void doUpdateUser(User user) {
         Connection conn = openConnection();
@@ -479,6 +612,33 @@ public abstract class AbstractJdbcUsersRepository extends
     }
 
     /**
+     * Gets a user by name, ignoring case if specified. This implementation gets
+     * the entire set of users, and scrolls through searching for one matching
+     * <code>name</code>.
+     * 
+     * @param name
+     *            the name of the user being retrieved
+     * @param ignoreCase
+     *            whether the name is regarded as case-insensitive
+     * 
+     * @return the user being retrieved, null if the user doesn't exist
+     */
+    protected User getUserByNameIterating(String name, boolean ignoreCase) {
+        // Just iterate through all of the users until we find one matching.
+        Iterator users = listAllUsers();
+        while (users.hasNext()) {
+            User user = (User) users.next();
+            String username = user.getUserName();
+            if ((!ignoreCase && username.equals(name))
+                    || (ignoreCase && username.equalsIgnoreCase(name))) {
+                return user;
+            }
+        }
+        // Not found - return null
+        return null;
+    }
+
+    /**
      * Gets a user by name, ignoring case if specified. If the specified SQL
      * statement has been defined, this method overrides the basic
      * implementation in AbstractUsersRepository to increase performance.
@@ -494,7 +654,7 @@ public abstract class AbstractJdbcUsersRepository extends
         // See if this statement has been set, if not, use
         // simple superclass method.
         if (m_userByNameCaseInsensitiveSql == null) {
-            return super.getUserByName(name, ignoreCase);
+            return getUserByNameIterating(name, ignoreCase);
         }
 
         // Always get the user via case-insensitive SQL,

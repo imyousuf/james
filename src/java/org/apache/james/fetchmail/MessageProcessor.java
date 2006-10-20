@@ -882,7 +882,7 @@ public class MessageProcessor extends ProcessorAbstract
      */
     protected boolean isLocalRecipient(MailAddress recipient)
     {
-        return isLocalServer(recipient) && getLocalUsers().containsCaseInsensitive(recipient.getUser());
+        return isLocalServer(recipient) && getLocalUsers().contains(recipient.getUser());
     }
     
     /**
