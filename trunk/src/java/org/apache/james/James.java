@@ -34,7 +34,7 @@ import org.apache.avalon.framework.service.DefaultServiceManager;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
-import org.apache.commons.collections.ReferenceMap;
+import org.apache.commons.collections.map.ReferenceMap;
 
 import org.apache.james.core.MailHeaders;
 import org.apache.james.core.MailImpl;
@@ -475,10 +475,15 @@ public class James
 
         if (userInbox != null) {
             return userInbox;
-        } else if (mailboxes.containsKey(userName)) {
-            // we have a problem
-            getLogger().error("Null mailbox for non-null key");
-            throw new RuntimeException("Error in getUserInbox.");
+        /*
+         * we're using a ReferenceMap with HARD keys and SOFT values
+         * so it could happen to find a null value after a second pass
+         * of a full GC and we should simply lookup it again
+         */
+//        } else if (mailboxes.containsKey(userName)) {
+//            // we have a problem
+//            getLogger().error("Null mailbox for non-null key");
+//            throw new RuntimeException("Error in getUserInbox.");
         } else {
             // need mailbox object
             if (getLogger().isDebugEnabled()) {
