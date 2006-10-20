@@ -48,7 +48,7 @@ public class XMLDomainList extends AbstractDomainList implements Configurable {
         
             String hostName = null;
             try {
-                hostName = getDNSServer().getHostName(InetAddress.getLocalHost());
+                hostName = getDNSServer().getHostName(getDNSServer().getLocalHost());
             } catch  (UnknownHostException ue) {
                 hostName = "localhost";
             }

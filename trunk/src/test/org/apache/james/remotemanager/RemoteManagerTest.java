@@ -48,6 +48,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -172,13 +173,17 @@ public class RemoteManagerTest extends TestCase {
     }
     
     private DNSServer setUpDNSServer() {
-    DNSServer dns = new AbstractDNSServer() {
-        public String getHostName(InetAddress addr) {
-        return "localhost";
-        }
-    };
+        DNSServer dns = new AbstractDNSServer() {
+            public String getHostName(InetAddress addr) {
+                return "localhost";
+            }
+        
+            public InetAddress getLocalHost() throws UnknownHostException {
+                return InetAddress.getLocalHost();
+            }
+        };
     
-    return dns;
+        return dns;
     }
 
     public void testLogin() throws IOException {

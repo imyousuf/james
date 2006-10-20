@@ -146,6 +146,10 @@ public class SMTPServerTest extends TestCase {
         public String getHostName(InetAddress addr) {
             return addr.getHostName();
         }
+
+    public InetAddress getLocalHost() throws UnknownHostException {
+        return InetAddress.getLocalHost();
+    }
     }
 
 

@@ -66,6 +66,10 @@ public class XMLDomainListTest extends TestCase {
             public InetAddress[] getAllByName(String name) throws UnknownHostException {
                 return new InetAddress[] { InetAddress.getByName("127.0.0.1")};        
             }
+            
+            public InetAddress getLocalHost() throws UnknownHostException {
+                return InetAddress.getLocalHost();
+            }
         };
         return dns;
     }

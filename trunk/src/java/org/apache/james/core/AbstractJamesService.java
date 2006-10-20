@@ -316,7 +316,7 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
         StringBuffer infoBuffer;
         String hostName = null;
         try {
-            hostName = dnsServer.getHostName(InetAddress.getLocalHost());
+            hostName = dnsServer.getHostName(dnsServer.getLocalHost());
         } catch (UnknownHostException ue) {
             hostName = "localhost";
         }
