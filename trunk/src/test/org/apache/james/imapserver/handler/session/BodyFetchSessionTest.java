@@ -44,13 +44,14 @@ public class BodyFetchSessionTest extends AbstractSessionTest {
         verifyCommand(new LoginCommand(USER_NAME,USER_PASSWORD));
         verifyCommand(new SelectCommand("INBOX", msgs, getUidValidity(USER_MAILBOX_ROOT+".INBOX")));
         msgs=getMessages(USER_MAILBOX_ROOT+".INBOX");
+        
         FetchCommand fc=new FetchCommand(msgs,1,-1);
         fc.setFetchRfc822Size(true);
         fc.setFetchBody(new FetchBody(true));
         // TODO test \Seen get's not set because of peek and vice versa
         verifyCommandOrdered(fc);
     }
-    public void testFetchCompleteHeader() throws ProtocolException, IOException, MessagingException, MailboxManagerException {
+    public void testFetchCompleteHeaderAndSize() throws ProtocolException, IOException, MessagingException, MailboxManagerException {
         verifyCommand(new LoginCommand(USER_NAME,USER_PASSWORD));
         verifyCommand(new SelectCommand("INBOX", msgs, getUidValidity(USER_MAILBOX_ROOT+".INBOX")));
         msgs=getMessages(USER_MAILBOX_ROOT+".INBOX");
@@ -61,7 +62,7 @@ public class BodyFetchSessionTest extends AbstractSessionTest {
         fc.setFetchBody(fetchBody);
         verifyCommandOrdered(fc);
     }
-    public void testFetchSomeExistingHeader() throws ProtocolException, IOException, MessagingException, MailboxManagerException {
+    public void testFetchSomeExistingHeaderAndSize() throws ProtocolException, IOException, MessagingException, MailboxManagerException {
         verifyCommand(new LoginCommand(USER_NAME,USER_PASSWORD));
         verifyCommand(new SelectCommand("INBOX", msgs, getUidValidity(USER_MAILBOX_ROOT+".INBOX")));
         msgs=getMessages(USER_MAILBOX_ROOT+".INBOX");
@@ -74,7 +75,7 @@ public class BodyFetchSessionTest extends AbstractSessionTest {
         fc.setFetchBody(fetchBody);
         verifyCommandOrdered(fc);
     }
-    public void testFetchSomeNonExistingHeader() throws ProtocolException, IOException, MessagingException, MailboxManagerException {
+    public void testFetchSomeNonExistingHeaderAndSize() throws ProtocolException, IOException, MessagingException, MailboxManagerException {
         verifyCommand(new LoginCommand(USER_NAME,USER_PASSWORD));
         verifyCommand(new SelectCommand("INBOX", msgs, getUidValidity(USER_MAILBOX_ROOT+".INBOX")));
         msgs=getMessages(USER_MAILBOX_ROOT+".INBOX");
@@ -87,7 +88,7 @@ public class BodyFetchSessionTest extends AbstractSessionTest {
         fc.setFetchBody(fetchBody);
         verifyCommandOrdered(fc);
     }
-    public void testFetchSomeNoneAndExistingHeader() throws ProtocolException, IOException, MessagingException, MailboxManagerException {
+    public void testFetchSomeNoneAndExistingHeaderAndSize() throws ProtocolException, IOException, MessagingException, MailboxManagerException {
         verifyCommand(new LoginCommand(USER_NAME,USER_PASSWORD));
         verifyCommand(new SelectCommand("INBOX", msgs, getUidValidity(USER_MAILBOX_ROOT+".INBOX")));
         msgs=getMessages(USER_MAILBOX_ROOT+".INBOX");
@@ -102,6 +103,18 @@ public class BodyFetchSessionTest extends AbstractSessionTest {
     }
 
     
+    public void testFetchSomeExistingHeader() throws ProtocolException, IOException, MessagingException, MailboxManagerException {
+        verifyCommand(new LoginCommand(USER_NAME,USER_PASSWORD));
+        verifyCommand(new SelectCommand("INBOX", msgs, getUidValidity(USER_MAILBOX_ROOT+".INBOX")));
+        msgs=getMessages(USER_MAILBOX_ROOT+".INBOX");
         
+        FetchCommand fc=new FetchCommand(msgs,1,-1);
+        FetchHeader fetchHeader=new FetchHeader();
+        fetchHeader.setFields(new String[] {"Date","From","To"});
+        FetchBody fetchBody=new FetchBody(true);
+        fetchBody.setFetchHeader(fetchHeader);
+        fc.setFetchBody(fetchBody);
+        verifyCommandOrdered(fc);
+    }        
 
 }
