@@ -36,15 +36,12 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.avalon.framework.service.DefaultServiceManager;
-import org.apache.avalon.framework.service.ServiceException;
 import org.apache.james.services.AbstractDNSServer;
 import org.apache.james.services.DNSServer;
 import org.apache.james.services.FileSystem;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockServiceManager;
 import org.apache.james.test.mock.james.MockFileSystem;
-import org.apache.james.test.mock.util.AttrValConfiguration;
 import org.apache.james.test.util.Util;
 import org.apache.james.util.JDBCUtil;
 
@@ -91,11 +88,6 @@ public class JDBCDomainListTest  extends TestCase {
         return false;
     }
     
-    
-    private boolean addDomain(String domain) {
-        return sqlQuery("insert into " + table + " values ('" +domain + "')");
-    }
-    
     /**
      * The JDBCUtil helper class
      */
@@ -125,6 +117,10 @@ public class JDBCDomainListTest  extends TestCase {
             public InetAddress[] getAllByName(String name) throws UnknownHostException {
                 return new InetAddress[] { InetAddress.getByName("127.0.0.1")}; 
             }
+            
+            public InetAddress getLocalHost() throws UnknownHostException {
+            return InetAddress.getLocalHost();
+            }
         };
         return dns;
     }
@@ -137,18 +133,23 @@ public class JDBCDomainListTest  extends TestCase {
         return service;
     }
     
-    public void testGetDomains() throws Exception {
-        addDomain("domain1.");
+    public void testAddRemoveGetDomains() throws Exception {
+        
     
         JDBCDomainList dom = new JDBCDomainList();
         ContainerUtil.enableLogging(dom,new MockLogger());
         dom.service(setUpServiceManager(setUpDNSServer("localhost")));
         dom.configure(setUpConfiguration(repos + table));
         dom.initialize();
+        dom.addDomain("domain1.");
 
-        assertTrue("One domain found",dom.getDomains().size() ==1);
+        assertEquals("two domain found",dom.getDomains().size(),2);
+        
+        dom.removeDomain("domain1.");
+        assertNull("two domain found",dom.getDomains());
+        
     }
-
+  
 
     public void testThrowConfigurationException() throws Exception {
         boolean exception = false;

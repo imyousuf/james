@@ -21,24 +21,26 @@
 
 package org.apache.james.domain;
 
-import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.services.DNSServer;
-import org.apache.james.services.DomainList;
+import org.apache.james.services.ManageableDomainList;
+import org.apache.james.util.DomainListUtil;
 
 /**
  * All implementations of the DomainList interface should extends this abstract class
  */
-public abstract class AbstractDomainList extends AbstractLogEnabled implements Serviceable, DomainList {
-    DNSServer dns;
+public abstract class AbstractDomainList extends AbstractLogEnabled implements Serviceable, ManageableDomainList {
+    private DNSServer dns;
+    private boolean autoDetect = true;
+    private boolean autoDetectIP = true;
 
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
@@ -52,8 +54,27 @@ public abstract class AbstractDomainList extends AbstractLogEnabled implements S
      * @see org.apache.james.services.DomainList#getDomains()
      */
     public List getDomains() {  
-        List domains = getInternalDomainList();
+        List domains = getDomainListInternal();
         if (domains != null) {
+            
+            String hostName = null;
+            try {
+                hostName = getDNSServer().getHostName(getDNSServer().getLocalHost());
+            } catch  (UnknownHostException ue) {
+                hostName = "localhost";
+            }
+            
+            getLogger().info("Local host is: " + hostName);
+            
+            if (autoDetect == true && (!hostName.equals("localhost"))) {
+                domains.add(hostName.toLowerCase(Locale.US));
+            }
+
+            
+            if (autoDetectIP == true) {
+                domains.addAll(DomainListUtil.getDomainsIP(domains,dns,getLogger()));
+            }
+       
             if (getLogger().isInfoEnabled()) {
                 for (Iterator i = domains.iterator(); i.hasNext(); ) {
                     getLogger().info("Handling mail for: " + i.next());
@@ -66,26 +87,40 @@ public abstract class AbstractDomainList extends AbstractLogEnabled implements S
     }
     
     /**
-     * Return a List which holds all ipAddress of the domains in the given List
-     * 
-     * @param domains List of domains
-     * @return domainIP List of ipaddress for domains
+     * @see org.apache.james.services.ManageableDomainList#addDomain(java.lang.String)
      */
-    protected List getDomainsIP(List domains) {
-        List domainIP = new ArrayList();
-        if (domains.size() > 0 ) {
-            for (int i = 0; i < domains.size(); i++) {
-                try {
-                    InetAddress[]  addrs = dns.getAllByName(domains.get(i).toString());
-                    for (int j = 0; j < addrs.length ; j++) {
-                        domainIP.add(addrs[j].getHostAddress());
-                    }
-                } catch (UnknownHostException e) {
-                    getLogger().error("Cannot get IP address(es) for " + domains.get(i));
-                }
-            }
-        }
-        return domainIP;    
+    public synchronized boolean addDomain(String domain) {
+        getLogger().info("Add domain " + domain + " to DomainList");
+    
+        //TODO: Should we care about autoDetectIP ?
+        return addDomainInternal(domain);
+    }
+    
+    /**
+     * @see org.apache.james.services.ManageableDomainList#removeDomain(java.lang.String)
+     */
+    public synchronized boolean removeDomain(String domain) {
+        getLogger().info("Remove domain " + domain + " from DomainList");
+    
+    
+        //TODO: Should we care about autoDetectIP ?
+        return removeDomainInternal(domain);
+    }
+    
+    /**
+     * @see org.apache.james.services.DomainList#setAutoDetect(boolean)
+     */
+    public synchronized void setAutoDetect(boolean autoDetect) {
+        getLogger().info("Set autodetect to: " + autoDetect);
+        this.autoDetect = autoDetect;
+    }
+    
+    /**
+     * @see org.apache.james.services.DomainList#setAutoDetectIP(boolean)
+     */
+    public synchronized void setAutoDetectIP(boolean autoDetectIP) {
+        getLogger().info("Set autodetectIP to: " + autoDetectIP);
+        this.autoDetectIP = autoDetectIP;
     }
     
     /**
@@ -102,5 +137,21 @@ public abstract class AbstractDomainList extends AbstractLogEnabled implements S
      * 
      * @return List
      */
-    protected abstract List getInternalDomainList();
+    protected abstract List getDomainListInternal();
+    
+    /**
+     * Add domain
+     * 
+     * @param domain domain to add
+     * @return true if successfully
+     */
+    protected abstract boolean addDomainInternal(String domain);
+    
+    /**
+     * Remove domain
+     * 
+     * @param domain domain to remove
+     * @return true if successfully
+     */
+    protected abstract boolean removeDomainInternal(String domain);
 }

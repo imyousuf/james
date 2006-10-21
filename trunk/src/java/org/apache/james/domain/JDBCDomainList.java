@@ -105,8 +105,7 @@ public class JDBCDomainList extends AbstractDomainList implements Serviceable,Co
             start = end + 1;
             end = destination.indexOf('/', start);
         }
-        System.err.println("SIZE; " + urlParams.size());
-
+        
         // Build SqlParameters and get datasource name from URL parameters
         if (urlParams.size() != 2) {
             StringBuffer exceptionBuffer =
@@ -133,6 +132,16 @@ public class JDBCDomainList extends AbstractDomainList implements Serviceable,Co
         if (!sqlFileName.startsWith("file://")) {
             throw new ConfigurationException
                 ("Malformed sqlFile - Must be of the format 'file://<filename>'.");
+        }
+        
+        Configuration autoConf = arg0.getChild("autodetect");
+        if (autoConf != null) {
+            setAutoDetect(autoConf.getValueAsBoolean(true));    
+        }
+        
+        Configuration autoIPConf = arg0.getChild("autodetectIP");
+        if (autoConf != null) {
+            setAutoDetectIP(autoIPConf.getValueAsBoolean(true));    
         }
     }
     
@@ -231,14 +240,11 @@ public class JDBCDomainList extends AbstractDomainList implements Serviceable,Co
     public void setFileSystem(FileSystem fileSystem) {
         this.fileSystem = fileSystem;
     }
-    
 
-    
-    
     /**
      * @see org.apache.james.domain.AbstractDomainList#getInternalDomainList()
      */
-    protected List getInternalDomainList() {
+    protected List getDomainListInternal() {
         List domains = new ArrayList();
         Connection conn = null;
         PreparedStatement mappingStmt = null;
@@ -289,6 +295,66 @@ public class JDBCDomainList extends AbstractDomainList implements Serviceable,Co
                 mappingStmt.setString(1, domain);
                 mappingRS = mappingStmt.executeQuery();
                 if (mappingRS.next()) {
+                    return true;
+                }
+            } finally {
+                theJDBCUtil.closeJDBCResultSet(mappingRS);
+            }
+            
+        } catch (SQLException sqle) {
+            getLogger().error("Error accessing database", sqle);
+        } finally {
+            theJDBCUtil.closeJDBCStatement(mappingStmt);
+            theJDBCUtil.closeJDBCConnection(conn);
+        }
+        return false;
+    }
+
+    /**
+     * @see org.apache.james.domain.AbstractDomainList#addDomainInternal(java.lang.String)
+     */
+    protected boolean addDomainInternal(String domain) {
+        Connection conn = null;
+        PreparedStatement mappingStmt = null;
+        
+        try {
+            conn = dataSourceComponent.getConnection();
+            mappingStmt = conn.prepareStatement(sqlQueries.getSqlString("addDomain", true));
+
+            ResultSet mappingRS = null;
+            try {
+            mappingStmt.setString(1, domain);
+                if (mappingStmt.executeUpdate() > 0) {
+                    return true;
+                }
+            } finally {
+                theJDBCUtil.closeJDBCResultSet(mappingRS);
+            }
+            
+        } catch (SQLException sqle) {
+            getLogger().error("Error accessing database", sqle);
+        } finally {
+            theJDBCUtil.closeJDBCStatement(mappingStmt);
+            theJDBCUtil.closeJDBCConnection(conn);
+        }
+        return false;
+    }
+
+    /**
+     * @see org.apache.james.domain.AbstractDomainList#removeDomainInternal(java.lang.String)
+     */
+    protected boolean removeDomainInternal(String domain) {
+        Connection conn = null;
+        PreparedStatement mappingStmt = null;
+        
+        try {
+            conn = dataSourceComponent.getConnection();
+            mappingStmt = conn.prepareStatement(sqlQueries.getSqlString("removeDomain", true));
+
+            ResultSet mappingRS = null;
+            try {
+            mappingStmt.setString(1, domain);
+                if (mappingStmt.executeUpdate() > 0) {
                     return true;
                 }
             } finally {

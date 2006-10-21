@@ -21,8 +21,6 @@
 
 package org.apache.james.domain;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -35,55 +33,71 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
  * Mimic the old behavoir of JAMES
  */
 public class XMLDomainList extends AbstractDomainList implements Configurable {
-    private List serverNames;
-
+    
+    private List domainNames = null;
+    
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(org.apache.avalon.framework.configuration.Configuration)
      */
     public void configure(Configuration arg0) throws ConfigurationException {
-        Configuration conf = arg0.getChild("servernames");
-        
+        Configuration conf = arg0.getChild("domainnames");      
         if (conf != null) {
-            serverNames = new ArrayList();
-        
-            String hostName = null;
-            try {
-                hostName = getDNSServer().getHostName(getDNSServer().getLocalHost());
-            } catch  (UnknownHostException ue) {
-                hostName = "localhost";
-            }
 
-            getLogger().info("Local host is: " + hostName);
-    
-            if (conf.getAttributeAsBoolean("autodetect") && (!hostName.equals("localhost"))) {
-                serverNames.add(hostName.toLowerCase(Locale.US));
-            }
-
-            Configuration[] serverNameConfs = conf.getChildren( "servername" );
+            Configuration[] serverNameConfs = conf.getChildren( "domainname" );
             for ( int i = 0; i < serverNameConfs.length; i++ ) {
-                serverNames.add( serverNameConfs[i].getValue().toLowerCase(Locale.US));
-
-                if (conf.getAttributeAsBoolean("autodetectIP", true)) {
-                    serverNames.addAll(getDomainsIP(serverNames));
-                }
+                addDomainInternal( serverNameConfs[i].getValue());
             }
-            if (serverNames.isEmpty()) {
-                throw new ConfigurationException( "Fatal configuration error: no servernames specified!");
+            
+            Configuration autoConf = arg0.getChild("autodetect");
+            if (autoConf != null) {
+                setAutoDetect(autoConf.getValueAsBoolean(true));    
+            }
+            
+            Configuration autoIPConf = arg0.getChild("autodetectIP");
+            if (autoConf != null) {
+                setAutoDetectIP(autoIPConf.getValueAsBoolean(true));    
             }
         } 
     }
     
+    
     /**
-     * @see org.apache.james.domain.AbstractDomainList#getInternalDomainList()
+     * @see org.apache.james.domain.AbstractDomainList#getDomainListInternal()
      */
-    protected List getInternalDomainList() {
-        return serverNames;
+    protected List getDomainListInternal() {
+        return domainNames;
     }
 
     /**
      * @see org.apache.james.services.DomainList#containsDomain(java.lang.String)
      */
     public boolean containsDomain(String domains) {
-        return serverNames.contains(domains);
+        if (domainNames == null) return false;
+        return domainNames.contains(domains);
+    }
+
+    /**
+     * @see org.apache.james.domain.AbstractDomainList#addDomainInternal(java.lang.String)
+     */
+    protected boolean addDomainInternal(String domain) {
+        if (domainNames == null) {
+            domainNames = new ArrayList();
+        }
+    
+        String newDomain = domain.toLowerCase(Locale.US);
+        if (containsDomain(newDomain) == false) {
+            domainNames.add(newDomain);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * @see org.apache.james.domain.AbstractDomainList#removeDomainInternal(java.lang.String)
+     */
+    protected boolean removeDomainInternal(String domain) {
+        if (domainNames == null) return false;
+        return domainNames.remove(domain.toLowerCase(Locale.US));
     }
 }

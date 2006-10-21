@@ -220,19 +220,58 @@
   <block name="filesystem" class="org.apache.james.context.AvalonFileSystem">
   </block>
   
+  
+  <!-- ######################################################################## -->
   <!-- VirtualUserTable services -->
-  <block name="virtualusertable" class="org.apache.james.vut.JDBCVirtualUserTable" >
+  <block name="virtualusertable" class="org.apache.james.vut.JDBCVirtualUserTable">
     <provide name="database-connections"
-             role="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector" />
-    <provide name="filesystem" role="org.apache.james.services.FileSystem" />
+             role="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector"/>
+    <provide name="filesystem" role="org.apache.james.services.FileSystem"/>
+    <provide name="dnsserver" role="org.apache.james.services.DNSServer"/>
   </block>
-  <!-- 
-  <block name="virtualusertable" class="org.apache.james.vut.JDBCVirtualUserTable" />
+  
+  <!-- XML implementation of the virtualusertable service -->
+  <!--
+  <block name="virtualusertable" class="org.apache.james.vut.XMLVirtualUserTable">
+      <provide name="dnsserver" role="org.apache.james.services.DNSServer"/>
+  </block>
   -->
-  <!-- The context DomainList implementation -->
+  <!-- ######################################################################## -->
+  
+  
+  <!-- ######################################################################## -->
+  <!-- The context domainlist implementation -->
   <block name="domainlist" class="org.apache.james.domain.XMLDomainList">
       <provide name="dnsserver" role="org.apache.james.services.DNSServer"/>
   </block>
+  
+  <!--  JDBC implementation of the domainlist service-->
+  <!--
+  <block name="domainlist" class="org.apache.james.domain.JDBCDomainList">
+      <provide name="database-connections"
+             role="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector"/>
+      <provide name="filesystem" role="org.apache.james.services.FileSystem"/>
+      <provide name="dnsserver" role="org.apache.james.services.DNSServer"/>
+  </block>
+  -->
+  
+  <!-- JDBC VirtualUserTable implementation of the domainlist service -->
+  <!--
+  <block name="domainlist" class="org.apache.james.vut.JDBCVirtualUserTable">
+    <provide name="database-connections"
+             role="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector"/>
+    <provide name="filesystem" role="org.apache.james.services.FileSystem"/>
+    <provide name="dnsserver" role="org.apache.james.services.DNSServer"/>
+  </block>
+  -->
+  
+  <!-- XML VirtualUserTable implementation of the domainlist service -->
+  <!--
+  <block name="domainlist" class="org.apache.james.vut.XMLVirtualUserTable">
+      <provide name="dnsserver" role="org.apache.james.services.DNSServer"/>
+  </block>
+  -->
+  <!-- #################################################################### -->
   
   
   <!-- Configuration for Cornerstone Blocks only after here

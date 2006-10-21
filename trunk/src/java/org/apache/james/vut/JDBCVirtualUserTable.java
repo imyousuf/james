@@ -79,6 +79,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
      * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
      */
     public void service(ServiceManager arg0) throws ServiceException {
+    super.service(arg0);
         datasources = (DataSourceSelector)arg0.lookup(DataSourceSelector.ROLE); 
         setFileSystem((FileSystem) arg0.lookup(FileSystem.ROLE));
     }
@@ -141,6 +142,16 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
         if (!sqlFileName.startsWith("file://")) {
             throw new ConfigurationException
                 ("Malformed sqlFile - Must be of the format 'file://<filename>'.");
+        }
+        
+        Configuration autoConf = arg0.getChild("autodetect");
+        if (autoConf != null) {
+            setAutoDetect(autoConf.getValueAsBoolean(true));  
+        }
+        
+        Configuration autoIPConf = arg0.getChild("autodetectIP");
+        if (autoConf != null) {
+            setAutoDetectIP(autoIPConf.getValueAsBoolean(true));  
         }
     }
     
@@ -561,6 +572,6 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
             theJDBCUtil.closeJDBCConnection(conn);
         }
         return false;
-    } 
+    }
 }
 
