@@ -37,6 +37,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.Constants;
 import org.apache.james.imapserver.debug.CopyInputStream;
 import org.apache.james.imapserver.debug.SplitOutputStream;
+import org.apache.james.services.User;
 import org.apache.james.util.InternetPrintWriter;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogTarget;
@@ -238,15 +239,21 @@ public class ImapHandler
                 }
                 theWatchdog.reset();
             }
+            // TODO is this unreachable code because of !handlerIsUp -> return?
             theWatchdog.stop();
             
 
             //Write BYE message.
             if ( getLogger().isInfoEnabled() ) {
+            	String user = "<unknown>";
+            	User userObject = session.getUser();
+            	if (userObject !=  null) {
+            		user = userObject.getUserName();
+            	}
                 StringBuffer logBuffer =
                         new StringBuffer( 128 )
                         .append( "Connection for " )
-                        .append( session.getUser().getUserName() )
+                        .append( user )
                         .append( " from " )
                         .append( remoteHost )
                         .append( " (" )
