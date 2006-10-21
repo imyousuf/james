@@ -21,12 +21,17 @@
 
 package org.apache.james.vut;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.service.DefaultServiceManager;
 import org.apache.avalon.framework.service.ServiceException;
 
+import org.apache.james.services.AbstractDNSServer;
+import org.apache.james.services.DNSServer;
 import org.apache.james.services.FileSystem;
 
 import org.apache.james.test.mock.avalon.MockLogger;
@@ -41,6 +46,7 @@ public class JDBCVirtualUserTableTest extends AbstractVirtualUserTableTest {
         DefaultServiceManager serviceManager = new DefaultServiceManager();
         serviceManager.put(FileSystem.ROLE, new MockFileSystem());
         serviceManager.put(DataSourceSelector.ROLE, Util.getDataSourceSelector());
+        serviceManager.put(DNSServer.ROLE, setUpDNSServer());
         JDBCVirtualUserTable mr = new JDBCVirtualUserTable();
         
 
@@ -52,6 +58,23 @@ public class JDBCVirtualUserTableTest extends AbstractVirtualUserTableTest {
         mr.configure(defaultConfiguration);
         mr.initialize();
         return mr;
+    }
+    
+    private DNSServer setUpDNSServer() {
+        DNSServer dns = new AbstractDNSServer() {
+            public String getHostName(InetAddress inet) {
+                return "test";
+            }
+            
+            public InetAddress[] getAllByName(String name) throws UnknownHostException {
+                return new InetAddress[] { InetAddress.getByName("127.0.0.1")};        
+            }
+            
+            public InetAddress getLocalHost() throws UnknownHostException {
+                return InetAddress.getLocalHost();
+            }
+        };
+        return dns;
     }
     
     public void testStoreAndRetrieveWildCardAddressMapping() throws ErrorMappingException {
