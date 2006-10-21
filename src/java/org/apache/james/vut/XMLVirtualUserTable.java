@@ -69,7 +69,16 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable implements Con
                 }
             }
         }
-    
+        
+        Configuration autoConf = arg0.getChild("autodetect");
+        if (autoConf != null) {
+            setAutoDetect(autoConf.getValueAsBoolean(true));  
+        }
+        
+        Configuration autoIPConf = arg0.getChild("autodetectIP");
+        if (autoConf != null) {
+            setAutoDetectIP(autoIPConf.getValueAsBoolean(true));  
+        }
     }
     
     /**
@@ -118,7 +127,6 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable implements Con
      * @see org.apache.james.services.DomainList#containsDomain(java.lang.String)
      */
     public boolean containsDomain(String domain) {
-    return domains.contains(domain);
+        return domains.contains(domain);
     }
-
 }

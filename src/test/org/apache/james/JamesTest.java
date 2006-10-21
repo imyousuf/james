@@ -106,9 +106,13 @@ public class JamesTest extends MailServerTestAllImplementations {
                 return d;
             }
 
-        public boolean containsDomain(String domain) {
-        return getDomains().contains(domain);
-        }            
+            public boolean containsDomain(String domain) {
+                return getDomains().contains(domain);
+            }
+
+        public void setAutoDetect(boolean autodetect) {}
+
+        public void setAutoDetectIP(boolean autodetectIP) {}            
         });
         MockStore mockStore = new MockStore();
         mockMailRepository = new InMemorySpoolRepository();

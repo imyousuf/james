@@ -1097,6 +1097,10 @@
     <sql name="selectDomains">select distinct domain from ${table} </sql>
     
     <sql name="selectDomain">select distinct domain from ${table} where domain = ? </sql>
+    
+    <sql name="addDomain">insert into ${table} values (?) </sql>
+    
+    <sql name="removeDomain">delete from ${table} where domain = ? </sql>
 </sqlDefs>
 </sqlResources>
 

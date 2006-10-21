@@ -21,18 +21,25 @@
 
 package org.apache.james.vut;
 
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.StringTokenizer;
 
 import javax.mail.internet.ParseException;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.Serviceable;
+import org.apache.james.services.DNSServer;
 import org.apache.james.services.DomainList;
 import org.apache.james.services.VirtualUserTable;
 import org.apache.james.services.VirtualUserTableManagement;
+import org.apache.james.util.DomainListUtil;
 import org.apache.james.util.VirtualUserTableUtil;
 import org.apache.mailet.MailAddress;
 import org.apache.oro.text.regex.MalformedPatternException;
@@ -42,8 +49,20 @@ import org.apache.oro.text.regex.Perl5Compiler;
  * 
  */
 public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
-    implements VirtualUserTable, VirtualUserTableManagement, DomainList {
+    implements VirtualUserTable, VirtualUserTableManagement, DomainList, Serviceable {
+    
+    private boolean autoDetect = true;
+    private boolean autoDetectIP = true;
+    private DNSServer dns;
 
+    /**
+     * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
+     */
+    public void service(ServiceManager arg0) throws ServiceException {
+        dns = (DNSServer)arg0.lookup(DNSServer.ROLE); 
+    }
+    
+    
     /**
      * @see org.apache.james.services.VirtualUserTable#getMapping(org.apache.mailet.MailAddress)
      */
@@ -101,7 +120,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
     /**
      * @see org.apache.james.services.VirtualUserTableManagement#addRegexMapping(java.lang.String, java.lang.String, java.lang.String)
      */
-    public boolean addRegexMapping(String user, String domain, String regex) throws InvalidMappingException {
+    public synchronized boolean addRegexMapping(String user, String domain, String regex) throws InvalidMappingException {
         getLogger().info("Add regex mapping => " + regex + " for user: " + user + " domain: " + domain);
         try {
             new Perl5Compiler().compile(regex);
@@ -116,7 +135,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
      * @throws InvalidMappingException 
      * @see org.apache.james.services.VirtualUserTableManagement#removeRegexMapping(java.lang.String, java.lang.String, java.lang.String)
      */
-    public boolean removeRegexMapping(String user, String domain, String regex) throws InvalidMappingException {
+    public synchronized boolean removeRegexMapping(String user, String domain, String regex) throws InvalidMappingException {
         getLogger().info("Add regex mapping => " + regex + " for user: " + user + " domain: " + domain);
         return removeMappingInternal(user,domain,"regex:" + regex);
     }
@@ -124,7 +143,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
     /**
      * @see org.apache.james.services.VirtualUserTableManagement#addAddressMapping(java.lang.String, java.lang.String, java.lang.String)
      */
-    public boolean addAddressMapping(String user, String domain, String address) throws InvalidMappingException {
+    public synchronized boolean addAddressMapping(String user, String domain, String address) throws InvalidMappingException {
 
         if (address.indexOf('@') < 0) {
             address =  address + "@localhost";
@@ -142,7 +161,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
      * @throws InvalidMappingException 
      * @see org.apache.james.services.VirtualUserTableManagement#removeAddressMapping(java.lang.String, java.lang.String, java.lang.String)
      */
-    public boolean removeAddressMapping(String user, String domain, String address) throws InvalidMappingException {
+    public synchronized boolean removeAddressMapping(String user, String domain, String address) throws InvalidMappingException {
 
         if (address.indexOf('@') < 0) {
             address =  address + "@localhost";
@@ -155,7 +174,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
      * @throws InvalidMappingException 
      * @see org.apache.james.services.VirtualUserTableManagement#addErrorMapping(java.lang.String, java.lang.String, java.lang.String)
      */
-    public boolean addErrorMapping(String user, String domain, String error) throws InvalidMappingException {   
+    public synchronized boolean addErrorMapping(String user, String domain, String error) throws InvalidMappingException {   
         getLogger().info("Add error mapping => " + error + " for user: " + user + " domain: " + domain);
         
         return addMappingInternal(user,domain, "error:" + error);
@@ -165,7 +184,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
      * @throws InvalidMappingException 
      * @see org.apache.james.services.VirtualUserTableManagement#removeErrorMapping(java.lang.String, java.lang.String, java.lang.String)
      */
-    public boolean removeErrorMapping(String user, String domain, String error) throws InvalidMappingException {
+    public synchronized boolean removeErrorMapping(String user, String domain, String error) throws InvalidMappingException {
         getLogger().info("Add error mapping => " + error + " for user: " + user + " domain: " + domain);     
     
         return removeMappingInternal(user,domain,"error:" + error);
@@ -218,8 +237,51 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
      */
     public List getDomains() {
         List domains = getDomainsInternal();
-        getLogger().debug("Add ServerNames: " + domains);
-        return domains;
+        if (domains != null) {
+            
+            String hostName = null;
+            try {
+                hostName = dns.getHostName(dns.getLocalHost());
+            } catch  (UnknownHostException ue) {
+                hostName = "localhost";
+            }
+            
+            getLogger().info("Local host is: " + hostName);
+            
+            if (autoDetect == true && (!hostName.equals("localhost"))) {
+                domains.add(hostName.toLowerCase(Locale.US));
+            }
+
+            
+            if (autoDetectIP == true) {
+                domains.addAll(DomainListUtil.getDomainsIP(domains,dns,getLogger()));
+            }
+       
+            if (getLogger().isInfoEnabled()) {
+                for (Iterator i = domains.iterator(); i.hasNext(); ) {
+                    getLogger().info("Handling mail for: " + i.next());
+                }
+            }  
+            return domains;
+        } else {
+            return null;
+        }
+    }
+    
+    /**
+     * @see org.apache.james.services.DomainList#setAutoDetect(boolean)
+     */
+    public synchronized void setAutoDetect(boolean autoDetect) {
+        getLogger().info("Set autodetect to: " + autoDetect);
+        this.autoDetect = autoDetect;
+    }
+    
+    /**
+     * @see org.apache.james.services.DomainList#setAutoDetectIP(boolean)
+     */
+    public synchronized void setAutoDetectIP(boolean autoDetectIP) {
+        getLogger().info("Set autodetectIP to: " + autoDetectIP);
+        this.autoDetectIP = autoDetectIP;
     }
 
     /**
@@ -262,7 +324,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
     /**
      * Return List of all domains for which email should accepted
      * 
-     * @return domains 
+     * @return domains  the domains
      */
     protected abstract List getDomainsInternal();
 }

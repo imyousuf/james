@@ -20,6 +20,9 @@
 
 package org.apache.james.vut;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 import junit.framework.TestCase;
 
 import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
@@ -50,7 +53,19 @@ public class XMLVirtualUserTableTest extends TestCase {
         DefaultServiceManager serviceManager = new DefaultServiceManager();
         serviceManager.put(FileSystem.ROLE, new MockFileSystem());
         serviceManager.put(DataSourceSelector.ROLE, Util.getDataSourceSelector());
-        serviceManager.put(DNSServer.ROLE, new AbstractDNSServer());
+        serviceManager.put(DNSServer.ROLE, new AbstractDNSServer() {
+            public InetAddress getLocalHost() throws UnknownHostException {
+                return InetAddress.getLocalHost();
+            }
+            
+            public InetAddress[] getAllByName(String domain) throws UnknownHostException{
+                throw new UnknownHostException();
+            }
+            
+            public String getHostName(InetAddress in) {
+                return "localHost";      
+            }
+        });
         XMLVirtualUserTable mr = new XMLVirtualUserTable();
         
 
@@ -59,6 +74,7 @@ public class XMLVirtualUserTableTest extends TestCase {
         defaultConfiguration.addChild(new AttrValConfiguration("mapping",user + "@" + domain +"=user2@localhost;user3@localhost"));
         defaultConfiguration.addChild(new AttrValConfiguration("mapping","*" + "@" + domain +"=user4@localhost;user5@localhost"));
         mr.configure(defaultConfiguration);
+        mr.service(serviceManager);
         return mr;
     }
     
@@ -72,7 +88,7 @@ public class XMLVirtualUserTableTest extends TestCase {
     
     public void testGetMappings() throws ErrorMappingException {
         assertEquals("Found 2 mappings", table.getMappings(user, domain).size(), 2);
-        assertEquals("Found 2 domains", table.getDomains().size(),1);
+        assertEquals("Found 2 domains", table.getDomains().size(),2);
     }
     
     public void testGetUserMappings() throws ErrorMappingException, InvalidMappingException {

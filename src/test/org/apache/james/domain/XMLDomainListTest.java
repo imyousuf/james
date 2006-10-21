@@ -27,12 +27,11 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.avalon.framework.service.ServiceException;
 import org.apache.james.services.AbstractDNSServer;
 import org.apache.james.services.DNSServer;
+import org.apache.james.services.ManageableDomainList;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockServiceManager;
 
@@ -42,12 +41,17 @@ public class XMLDomainListTest extends TestCase {
     
     private Configuration setUpConfiguration(boolean auto,boolean autoIP,ArrayList names) {
         DefaultConfiguration configuration = new DefaultConfiguration("test");
-        DefaultConfiguration sNamesConf = new DefaultConfiguration("servernames");
-        sNamesConf.setAttribute("autodetect", auto);
-        sNamesConf.setAttribute("autodetectIP", autoIP);
+        DefaultConfiguration sNamesConf = new DefaultConfiguration("domainnames");
+        DefaultConfiguration autoConf = new DefaultConfiguration("autodetect");
+        autoConf.setValue(auto);
+        configuration.addChild(autoConf);
         
+        DefaultConfiguration autoIPConf = new DefaultConfiguration("autodetectIP");
+        autoIPConf.setValue(autoIP);
+        configuration.addChild(autoIPConf);
+
         for (int i= 0; i< names.size(); i++) {
-            DefaultConfiguration nameConf = new DefaultConfiguration("servername");
+            DefaultConfiguration nameConf = new DefaultConfiguration("domainname");
             
             nameConf.setValue(names.get(i).toString());
             sNamesConf.addChild(nameConf);
@@ -80,62 +84,43 @@ public class XMLDomainListTest extends TestCase {
         return service;
     }
     
-    public void testGetDomains() throws ConfigurationException, ServiceException {
+    public void testGetDomains() throws Exception {
+        ArrayList domains = new ArrayList();
+        domains.add("domain1.");
+        domains.add("domain2.");
+    
+        XMLDomainList dom = new XMLDomainList();
+        ContainerUtil.enableLogging(dom,new MockLogger());
+        ContainerUtil.service(dom,setUpServiceManager(setUpDNSServer("localhost")));
+        ContainerUtil.configure(dom, setUpConfiguration(false,false,domains));
+        ContainerUtil.initialize(dom);
+
+        assertTrue("Two domain found",dom.getDomains().size() ==2);
+    }
+    
+    public void testGetDomainsAutoDetectNotLocalHost() throws Exception {
         ArrayList domains = new ArrayList();
         domains.add("domain1.");
     
         XMLDomainList dom = new XMLDomainList();
         ContainerUtil.enableLogging(dom,new MockLogger());
-        dom.service(setUpServiceManager(setUpDNSServer("localhost")));
-        dom.configure(setUpConfiguration(false,false,domains));
-
-        assertTrue("One domain found",dom.getDomains().size() ==1);
+        ContainerUtil.service(dom,setUpServiceManager(setUpDNSServer("local")));
+        ContainerUtil.configure(dom, setUpConfiguration(true,false,domains));
+        ContainerUtil.initialize(dom);
+        
+        assertEquals("Two domains found",dom.getDomains().size(), 2);
     }
     
-    public void testGetDomainsAutoDetectNotLocalHost() throws ConfigurationException, ServiceException {
+    public void testGetDomainsAutoDetectLocalHost() throws Exception {
         ArrayList domains = new ArrayList();
         domains.add("domain1.");
     
-        XMLDomainList dom = new XMLDomainList();
+        ManageableDomainList dom = new XMLDomainList();
         ContainerUtil.enableLogging(dom,new MockLogger());
-        dom.service(setUpServiceManager(setUpDNSServer("hostname")));
-        dom.configure(setUpConfiguration(true,false,domains));
-
-        assertTrue("One domain found",dom.getDomains().size() == 2);
-    }
-    
-    public void testGetDomainsAutoDetectLocalHost() throws ConfigurationException, ServiceException {
-        ArrayList domains = new ArrayList();
-        domains.add("domain1.");
-    
-        XMLDomainList dom = new XMLDomainList();
-        ContainerUtil.enableLogging(dom,new MockLogger());
-        dom.service(setUpServiceManager(setUpDNSServer("localhost")));
-        dom.configure(setUpConfiguration(true,false,domains));
-
-        assertTrue("One domain found",dom.getDomains().size() == 1);
-    }
-
-    public void testThrowConfigurationException() throws ConfigurationException, ServiceException {
-        boolean exception = false;
-        boolean exception2 = false;
-        XMLDomainList dom = new XMLDomainList();
-        ContainerUtil.enableLogging(dom,new MockLogger());
-        dom.service(setUpServiceManager(setUpDNSServer("localhost")));
-        try {
-            dom.configure(new DefaultConfiguration("invalid"));
-        } catch (ConfigurationException e) {
-            exception = true;
-        }
-    
-        assertTrue("Exception thrown",exception);
-    
-        try {
-            dom.configure(setUpConfiguration(true,false,new ArrayList()));
-        } catch (ConfigurationException e) {
-            exception2 = true;
-        }
-    
-        assertTrue("Exception thrown",exception2);
+        ContainerUtil.service(dom,setUpServiceManager(setUpDNSServer("localhost")));
+        ContainerUtil.configure(dom, setUpConfiguration(true,false,domains));
+        ContainerUtil.initialize(dom);
+        
+        assertEquals("One domain found",dom.getDomains().size(), 1);
     }
 }

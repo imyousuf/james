@@ -18,52 +18,29 @@
  ****************************************************************/
 
 
+
 package org.apache.james.services;
 
-import java.util.List;
-
 /**
- * This interface provide should be implementated by services which
- * offer domains for which email will accepted
- *
+ * Services which allow to manage the DomainList should implement this interface
  */
-public interface DomainList {
+public interface ManageableDomainList extends DomainList {
 
-    public final static String ROLE ="org.apache.james.services.DomainList";
+    public final static String ROLE = "org.apache.james.services.ManageableDomainList";
     
     /**
-     * Return List of domains which should be used as localdomains. Return null if no
-     * domains were found
+     * Add domain to the service
      * 
-     * @return domains
+     * @param domain domain to add
+     * @return true if successfully
      */
-    public List getDomains();
+    public boolean addDomain(String domain);
     
     /**
-     * Return true if the domain exists in the service 
-     * 
-     * @param domain the domain
-     * @return true if the given domain exists in the service
+     * Remove domain from the service
+     *  
+     * @param domain domain to remove
+     * @return true if succesfully
      */
-    public boolean containsDomain(String domain);
-
-    /**
-     * Set to true to autodetect the hostname of the host on which
-     * james is runnin, and add this to the domain service 
-     * Default is true
-     * 
-     * @param autodetect set to false for disable
-     */
-    public void setAutoDetect(boolean autodetect);
-    
-    
-    /**
-     * Set to true to lookup the ipaddresses for each given domain
-     * and add these to the domain service 
-     * Default is true
-     * 
-     * @param autodetect set to false for disable
-     */
-    public void setAutoDetectIP(boolean autodetectIP);
-    
+    public boolean removeDomain(String domain);
 }

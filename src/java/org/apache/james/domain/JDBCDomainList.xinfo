@@ -8,6 +8,7 @@
   </block>
 
   <services>
+    <service name="org.apache.james.services.ManageableDomainList" version="1.0" />
     <service name="org.apache.james.services.DomainList" version="1.0" />
   </services>
   

@@ -45,6 +45,7 @@ import org.apache.james.services.FileSystem;
 import org.apache.james.services.JamesUsersRepository;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
+import org.apache.james.services.ManageableDomainList;
 import org.apache.james.services.SpoolRepository;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
@@ -65,6 +66,9 @@ import javax.mail.internet.ParseException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.SequenceInputStream;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
@@ -103,7 +107,7 @@ public class James
     /**
      * The top level configuration object for this server.
      */
-    private Configuration conf;
+    private Configuration conf = null;
 
     /**
      * The logger used by the Mailet API.
@@ -205,9 +209,6 @@ public class James
 
         initializeServices();
 
-        initializeServernamesAndPostmaster();
-
-        
         Configuration userNamesConf = conf.getChild("usernames");
         if (userNamesConf != null) {
             if (localusers instanceof JamesUsersRepository) {
@@ -220,6 +221,24 @@ public class James
             }
         }
         
+        Configuration serverConf = conf.getChild("servernames");
+        if (serverConf != null) {
+            if (domains instanceof ManageableDomainList) {
+                getLogger().warn("<servernames> parameter in James block is deprecated. Please configure this data in domainlist block: configuration injected for backward compatibility");
+                ManageableDomainList dom = (ManageableDomainList) domains;
+                dom.setAutoDetect(serverConf.getAttributeAsBoolean("autodetect",true));    
+                dom.setAutoDetectIP(serverConf.getAttributeAsBoolean("autodetectIP", true));
+            
+                Configuration[] serverNameConfs = serverConf.getChildren( "servername" );
+                for ( int i = 0; i < serverNameConfs.length; i++ ) {
+                    dom.addDomain( serverNameConfs[i].getValue().toLowerCase(Locale.US));
+                }
+            } else {
+                getLogger().error("<servernames> parameter is no more supported. Backward compatibility is provided when using an XMLDomainList");
+            }
+        }
+
+        initializeServernamesAndPostmaster();
 
         // We don't need this. UsersRepository.ROLE is already in the compMgr we received
         // We've just looked up it from the cmpManager
@@ -303,9 +322,11 @@ public class James
     }
 
     private void initializeServernamesAndPostmaster() throws ConfigurationException, ParseException {
-        //TODO: Make backward compatible
+        
         serverNames = domains.getDomains();
 
+        if (serverNames == null || serverNames.size() == 0) throw new ConfigurationException("No domainnames configured");
+        
         String defaultDomain = (String) serverNames.iterator().next();
         // used by RemoteDelivery for HELO
         attributes.put(Constants.DEFAULT_DOMAIN, defaultDomain);
@@ -318,10 +339,12 @@ public class James
         if (postMasterAddress.indexOf('@') < 0) {
             String domainName = null;    // the domain to use
             // loop through candidate domains until we find one or exhaust the list
-            for ( Iterator i = serverNames.iterator(); i.hasNext()&& domainName == null;) {
+            Iterator i = serverNames.iterator();
+            while (i.hasNext()) {
                 String serverName = i.next().toString().toLowerCase(Locale.US);
                 if (!("localhost".equals(serverName))) {
-                    domainName = serverName;    // ok, not localhost, so use it
+                    domainName = serverName; // ok, not localhost, so use it
+                    continue;
                 }
             }
             // if we found a suitable domain, use it.  Otherwise fallback to the host name.
@@ -337,6 +360,25 @@ public class James
                     .append(" ) is not a local address.  This is not necessarily a problem, but it does mean that emails addressed to the postmaster will be routed to another server.  For some configurations this may cause problems.");
             getLogger().warn(warnBuffer.toString());
         }
+    }
+    
+    protected Collection getDomainsIP(Collection domains) {
+        Collection domainIP = new ArrayList();
+        if (domains.size() > 0 ) {
+            Iterator dom = domains.iterator();
+            while (dom.hasNext()) {
+            String domain = dom.next().toString();
+                try {
+                    InetAddress[]  addrs = lookupDNSServer().getAllByName(domain);
+                    for (int j = 0; j < addrs.length ; j++) {
+                        domainIP.add(addrs[j].getHostAddress());
+                    }
+                } catch (UnknownHostException e) {
+                    getLogger().error("Cannot get IP address(es) for " + domain);
+                }
+            }
+        }
+        return domainIP;    
     }
 
     private void initializeLocalDeliveryMailet() throws MessagingException {
