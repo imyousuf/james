@@ -66,9 +66,6 @@ import javax.mail.internet.ParseException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.SequenceInputStream;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
@@ -360,25 +357,6 @@ public class James
                     .append(" ) is not a local address.  This is not necessarily a problem, but it does mean that emails addressed to the postmaster will be routed to another server.  For some configurations this may cause problems.");
             getLogger().warn(warnBuffer.toString());
         }
-    }
-    
-    protected Collection getDomainsIP(Collection domains) {
-        Collection domainIP = new ArrayList();
-        if (domains.size() > 0 ) {
-            Iterator dom = domains.iterator();
-            while (dom.hasNext()) {
-            String domain = dom.next().toString();
-                try {
-                    InetAddress[]  addrs = lookupDNSServer().getAllByName(domain);
-                    for (int j = 0; j < addrs.length ; j++) {
-                        domainIP.add(addrs[j].getHostAddress());
-                    }
-                } catch (UnknownHostException e) {
-                    getLogger().error("Cannot get IP address(es) for " + domain);
-                }
-            }
-        }
-        return domainIP;    
     }
 
     private void initializeLocalDeliveryMailet() throws MessagingException {
