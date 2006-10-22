@@ -189,7 +189,7 @@ public class ValidRcptHandler extends AbstractLogEnabled implements CommandHandl
             try {
                 Collection targetString = table.getMappings(rcpt.getUser(), rcpt.getHost());
         
-                if (targetString.isEmpty() == false) {
+                if (targetString != null && targetString.isEmpty() == false) {
                     invalidUser = false;
                 }
             } catch (ErrorMappingException e) {
@@ -201,7 +201,6 @@ public class ValidRcptHandler extends AbstractLogEnabled implements CommandHandl
                 session.writeResponse(responseString);
                 session.setStopHandlerProcessing(true);
             }
-            //invalidUser = false;
         }
         
         if (invalidUser == true && !regex.isEmpty()) {
