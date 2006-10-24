@@ -27,6 +27,9 @@ import org.apache.james.vut.InvalidMappingException;
 
 public interface VirtualUserTableManagement extends VirtualUserTable{
     
+    /**
+     * The component role used by components implementing this service
+     */
     public static final String ROLE = "org.apache.james.services.VirtualUserTableManagement";
     
     /**

@@ -35,6 +35,7 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.services.VirtualUserTable;
+import org.apache.james.services.VirtualUserTableStore;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
@@ -55,12 +56,17 @@ public class ValidRcptHandler extends AbstractLogEnabled implements CommandHandl
     private Collection regex = new ArrayList();
     private boolean vut = true;
     private VirtualUserTable table;
+    private String tableName = null;
     
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
      */
     public void service(ServiceManager arg0) throws ServiceException {
-        table = (VirtualUserTable) arg0.lookup(VirtualUserTable.ROLE); 
+        if (tableName == null || tableName.equals("")) {
+            table = (VirtualUserTable) arg0.lookup(VirtualUserTable.ROLE); 
+        } else {
+            table = ((VirtualUserTableStore) arg0.lookup(VirtualUserTableStore.ROLE)).getTable(tableName);
+        }
     }
     
     /**
@@ -89,6 +95,11 @@ public class ValidRcptHandler extends AbstractLogEnabled implements CommandHandl
         
         if (vutConfig != null) {
             vut = vutConfig.getValueAsBoolean(true);    
+        }
+        Configuration tableConfig = arg0.getChild("table");
+        
+        if (tableConfig != null) {
+            tableName = tableConfig.getValue(null);   
         }
     }
     
@@ -145,7 +156,7 @@ public class ValidRcptHandler extends AbstractLogEnabled implements CommandHandl
     }
     
     public void setVirtualUserTableSupport(boolean vut) {
-    this.vut = vut;
+        this.vut = vut;
     }
 
     /**

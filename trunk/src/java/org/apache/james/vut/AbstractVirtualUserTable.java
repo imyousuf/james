@@ -171,7 +171,6 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
     }
     
     /**
-     * @throws InvalidMappingException 
      * @see org.apache.james.services.VirtualUserTableManagement#addErrorMapping(java.lang.String, java.lang.String, java.lang.String)
      */
     public synchronized boolean addErrorMapping(String user, String domain, String error) throws InvalidMappingException {   
@@ -181,7 +180,6 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
     }
     
     /**
-     * @throws InvalidMappingException 
      * @see org.apache.james.services.VirtualUserTableManagement#removeErrorMapping(java.lang.String, java.lang.String, java.lang.String)
      */
     public synchronized boolean removeErrorMapping(String user, String domain, String error) throws InvalidMappingException {

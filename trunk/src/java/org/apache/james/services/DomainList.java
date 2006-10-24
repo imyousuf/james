@@ -29,6 +29,9 @@ import java.util.List;
  */
 public interface DomainList {
 
+    /**
+     * The component role used by components implementing this service
+     */
     public final static String ROLE ="org.apache.james.services.DomainList";
     
     /**

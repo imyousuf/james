@@ -21,28 +21,38 @@
 
 package org.apache.james.services;
 
-import java.util.Collection;
-
-import org.apache.james.vut.ErrorMappingException;
+import java.util.Iterator;
 
 /**
- * Interface which should be implemented of classes which map recipients
+ * Interface for Phoenix blocks to access a store of VirtualUserTable. A VirtualUserTableStore
+ * contains one or more VirtualUserTables. Multiple VirtualUserTables may or may
+ * not have overlapping membership. 
  *
+ * @version 1.0.0, 24/04/1999
  */
-public interface VirtualUserTable {
-    
+public interface VirtualUserTableStore 
+{
     /**
      * The component role used by components implementing this service
      */
-    public static final String ROLE = "org.apache.james.services.VirtualUserTable";
-    
-    /**
-     * Return the mapped MailAddress for the given address. Return null if no 
-     * matched mapping was found
-     * 
-     * @param mailaddress the MailAddress
-     * @return the mapped mailAddress
-     * @throws ErrorMappingException get thrown if an error mapping was found
+    String ROLE = "org.apache.james.services.VirtualUserTableStore";
+
+    /** 
+     * Get the table, if any, whose name corresponds to
+     * the argument parameter
+     *
+     * @param name the name of the desired repository
+     *
+     * @return the VirtualUserTable corresponding to the name parameter
      */
-    public Collection getMappings(String user, String domain) throws ErrorMappingException;
+    VirtualUserTable getTable( String name );
+
+    /** 
+     * Yield an <code>Iterator</code> over the set of repository
+     * names managed internally by this store.
+     *
+     * @return an Iterator over the set of repository names
+     *         for this store
+     */
+    Iterator getTableNames();
 }
