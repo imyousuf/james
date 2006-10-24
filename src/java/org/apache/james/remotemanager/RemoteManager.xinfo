@@ -43,8 +43,5 @@
     <dependency>
       <service name="org.apache.james.services.DNSServer" version="1.0"/>
     </dependency>
-    <dependency>
-      <service name="org.apache.james.services.VirtualUserTableManagement" version="1.0"/>
-    </dependency>
   </dependencies>
 </blockinfo>

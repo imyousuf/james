@@ -816,13 +816,7 @@ Regards, Postmaster XXX.YYY
    <bayesiananalyzermanagement> 
       <repositoryPath> db://maildb </repositoryPath>
    </bayesiananalyzermanagement>  
-   
-   <!-- VirtualUserTable Service-->
-   <virtualusertable> 
-      <repositoryPath> db://maildb </repositoryPath>
-      <sqlFile>file://conf/sqlResources.xml</sqlFile>
-   </virtualusertable>  
-   
+    
 
    <!-- The RemoteManager server is enabled by default -->
    <!-- Disabling blocks will stop them from listening, -->
@@ -1201,7 +1195,7 @@ Regards, Postmaster XXX.YYY
             </models>
          </repository>
       </repositories>
-
+      
    </mailstore>
 
 
@@ -1260,6 +1254,29 @@ Regards, Postmaster XXX.YYY
       -->
 
    </users-store>
+   
+   <!-- The VirtualUserTable Store block -->
+   <virtualusertable-store>
+   
+      <!-- The DefaultVirtualUserTable  for storing James' VirtualUserTable mappings. -->
+      <!--
+      <table name="DefaultVirtualUserTable" class="org.apache.james.vut.XMLVirtualUserTable">
+         <mapping> some@domain=someuser </mapping>
+      </table>
+      -->
+
+      <!-- Database backed VirtualUsertable -->
+      <!-- -->
+      <!-- Use these configurations to store the VirtualUserTable in a database. -->
+      <!-- Note: The <data-source> element must refer to a connection configured -->
+      <!--       in the <database-connections> configuration section. -->
+
+      <!-- The DefaultVirtualUserTable  for storing James' VirtualUserTable mappings. -->
+      <!-- TEMPORARY DEFAULT: db using Derby  -->
+      <table name="DefaultVirtualUserTable" class="org.apache.james.vut.JDBCVirtualUserTable" destinationURL="db://maildb/VirtualUserTable">
+         <sqlFile>file://conf/sqlResources.xml</sqlFile>
+      </table>
+   </virtualusertable-store>
 
    <!-- The database-connections block -->
    <database-connections>

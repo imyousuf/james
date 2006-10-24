@@ -88,13 +88,12 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
      * @see org.apache.avalon.framework.configuration.Configurable#configure(org.apache.avalon.framework.configuration.Configuration)
      */
     public void configure(Configuration arg0) throws ConfigurationException {
-        Configuration config = arg0.getChild("repositoryPath");
+        String destination = arg0.getAttribute("destinationURL",null);
     
-        if (config == null) {
-            throw new ConfigurationException("RepositoryPath must configured");
+        if (destination == null) {
+            throw new ConfigurationException("destinationURL must configured");
         }
-        
-        String destination = config.getValue();
+
         // normalize the destination, to simplify processing.
         if ( ! destination.endsWith("/") ) {
             destination += "/";

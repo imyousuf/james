@@ -22,31 +22,33 @@
 package org.apache.james.core;
 
 import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.james.services.UsersRepository;
-import org.apache.james.services.UsersStore;
+
+import org.apache.james.services.VirtualUserTable;
+import org.apache.james.services.VirtualUserTableStore;
 
 import java.util.Iterator;
 
 /**
- * Provides a registry of user repositories.
+ * Provides a registry of VirtualUserTables
  *
  */
-public class AvalonUsersStore
+public class AvalonVirtualUserTableStore
     extends AbstractAvalonStore
-    implements UsersStore {
+    implements VirtualUserTableStore {
 
+   
     /** 
      * Get the repository, if any, whose name corresponds to
      * the argument parameter
      *
      * @param name the name of the desired repository
      *
-     * @return the UsersRepository corresponding to the name parameter
+     * @return the VirtualUserTable corresponding to the name parameter
      */
-    public UsersRepository getRepository(String name) {
-        UsersRepository response = (UsersRepository) getObject(name);
+    public VirtualUserTable getTable(String name) {
+        VirtualUserTable response = (VirtualUserTable) getObject(name);
         if ((response == null) && (getLogger().isWarnEnabled())) {
-            getLogger().warn("No users repository called: " + name);
+            getLogger().warn("No virtualUserTable called: " + name);
         }
         return response;
     }
@@ -58,28 +60,28 @@ public class AvalonUsersStore
      * @return an Iterator over the set of repository names
      *         for this store
      */
-    public Iterator getRepositoryNames() {
+    public Iterator getTableNames() {
         return getObjectNames();
     }
-    
+
     /**
-     * @see org.apache.james.core.AbstractAvalonStore#getClassInstance(java.lang.ClassLoader, java.lang.String)
+     * @see org.apache.james.core.AbstractAvalonStore#getClassInstance(java.lang.ClassLoader, java.lang.String, org.apache.avalon.framework.configuration.Configuration)
      */
     public Object getClassInstance(ClassLoader loader, String repClass) throws Exception {
-        return  (UsersRepository) loader.loadClass(repClass).newInstance();
+        return (VirtualUserTable) loader.loadClass(repClass).newInstance();
     }
 
     /**
      * @see org.apache.james.core.AbstractAvalonStore#getConfigurations(org.apache.avalon.framework.configuration.Configuration)
      */
     public Configuration[] getConfigurations(Configuration config) {
-        return configuration.getChildren("repository");
+        return configuration.getChildren("table");
     }
-    
+
     /**
      * @see org.apache.james.core.AbstractAvalonStore#getStoreName()
      */
     public String getStoreName() {
-        return "AvolonUsersStore";
+        return "AvalonVirtualUserStore";
     }
 }

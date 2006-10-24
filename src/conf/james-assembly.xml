@@ -89,8 +89,6 @@
     <provide name="bayesiananalyzermanagement"
              role="org.apache.james.services.BayesianAnalyzerManagementService"/>
     <provide name="dnsserver" role="org.apache.james.services.DNSServer"/>
-    <provide name="virtualusertable"
-             role="org.apache.james.services.VirtualUserTableManagement" />
   </block>
 
   <!-- The User Management block  -->
@@ -142,7 +140,7 @@
     <provide name="database-connections"
              role="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector" />
     <provide name="filesystem" role="org.apache.james.services.FileSystem" />
-    <provide name="virtualusertable"
+    <provide name="defaultvirtualusertable"
              role="org.apache.james.services.VirtualUserTable" />
   </block>
 
@@ -221,22 +219,18 @@
   </block>
   
   
-  <!-- ######################################################################## -->
-  <!-- VirtualUserTable services -->
-  <block name="virtualusertable" class="org.apache.james.vut.JDBCVirtualUserTable">
+  <!-- VirtualUserTable Store -->
+  <block name="virtualusertable-store" class="org.apache.james.core.AvalonVirtualUserTableStore">
     <provide name="database-connections"
              role="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector"/>
     <provide name="filesystem" role="org.apache.james.services.FileSystem"/>
     <provide name="dnsserver" role="org.apache.james.services.DNSServer"/>
   </block>
   
-  <!-- XML implementation of the virtualusertable service -->
-  <!--
-  <block name="virtualusertable" class="org.apache.james.vut.XMLVirtualUserTable">
-      <provide name="dnsserver" role="org.apache.james.services.DNSServer"/>
+    <block name="defaultvirtualusertable" class="org.apache.james.core.DefaultVirtualUserTable">
+    <provide name="virtualusertable-store"
+             role="org.apache.james.services.VirtualUserTableStore"/>
   </block>
-  -->
-  <!-- ######################################################################## -->
   
   
   <!-- ######################################################################## -->
