@@ -32,8 +32,8 @@ import org.apache.commons.logging.impl.AvalonLogger;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.mailrepository.javamail.LockAdapter;
 import org.apache.james.mailrepository.javamail.LockInterface;
-import org.apache.james.services.MailRepository;
 import org.apache.mailet.Mail;
+import org.apache.mailet.MailRepository;
 
 /**
  * AbstractMailRepository that uses LockInterface

@@ -25,10 +25,10 @@ import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.Constants;
 import org.apache.james.core.AbstractJamesHandler;
 import org.apache.james.core.MailImpl;
-import org.apache.james.services.MailRepository;
 import org.apache.james.util.CRLFTerminatedReader;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.mailet.Mail;
+import org.apache.mailet.MailRepository;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -474,7 +474,7 @@ public class POP3Handler
     }
 
     /**
-     * @see org.apache.james.pop3server.POP3Session#setUserInbox(org.apache.james.services.MailRepository)
+     * @see org.apache.james.pop3server.POP3Session#setUserInbox(org.apache.mailet.MailRepository)
      */
     public void setUserInbox(MailRepository userInbox) {
         this.userInbox = userInbox;

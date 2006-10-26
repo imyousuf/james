@@ -27,9 +27,9 @@ import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
-import org.apache.james.services.MailRepository;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
+import org.apache.mailet.MailRepository;
 
 import javax.mail.MessagingException;
 

@@ -28,11 +28,11 @@ import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
 import org.apache.james.James;
 import org.apache.james.core.MailImpl;
-import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
+import org.apache.mailet.MailRepository;
 import org.apache.mailet.RFC2822Headers;
 
 import javax.mail.Header;

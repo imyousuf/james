@@ -213,7 +213,7 @@ public class AvalonMailRepository
     }
 
     /**
-     * @see org.apache.james.services.MailRepository#retrieve(String)
+     * @see org.apache.mailet.MailRepository#retrieve(String)
      */
     public Mail retrieve(String key) throws MessagingException {
         if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
@@ -260,7 +260,7 @@ public class AvalonMailRepository
 
 
     /**
-     * @see org.apache.james.services.MailRepository#list()
+     * @see org.apache.mailet.MailRepository#list()
      */
     public Iterator list() {
         // Fix ConcurrentModificationException by cloning 

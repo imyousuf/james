@@ -22,6 +22,7 @@
 package org.apache.james.services;
 
 import org.apache.mailet.Mail;
+import org.apache.mailet.MailRepository;
 
 /**
  * Interface for a Repository for Spooling Mails.

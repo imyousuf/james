@@ -52,8 +52,8 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.core.MailImpl;
-import org.apache.james.services.MailRepository;
 import org.apache.mailet.Mail;
+import org.apache.mailet.MailRepository;
 import org.apache.oro.text.regex.MalformedPatternException;
 import org.apache.oro.text.regex.Perl5Compiler;
 import org.apache.oro.text.regex.Pattern;
@@ -495,7 +495,7 @@ public class MBoxMailRepository
 
 
     /**
-     * @see org.apache.james.services.MailRepository#store(Mail)
+     * @see org.apache.mailet.MailRepository#store(Mail)
      */
     public void store(Mail mc) {
 
@@ -544,7 +544,7 @@ public class MBoxMailRepository
 
 
     /**
-     * @see org.apache.james.services.MailRepository#list()
+     * @see org.apache.mailet.MailRepository#list()
      */
     public Iterator list() {
         loadKeys();
@@ -571,7 +571,7 @@ public class MBoxMailRepository
     }
 
     /**
-     * @see org.apache.james.services.MailRepository#retrieve(String)
+     * @see org.apache.mailet.MailRepository#retrieve(String)
      */
     public Mail retrieve(String key) {
 
@@ -601,7 +601,7 @@ public class MBoxMailRepository
     }
 
     /**
-     * @see org.apache.james.services.MailRepository#remove(Mail)
+     * @see org.apache.mailet.MailRepository#remove(Mail)
      */
     public void remove(Mail mail) {
         // Convert the message into a key
@@ -668,7 +668,7 @@ public class MBoxMailRepository
 
 
     /**
-     * @see org.apache.james.services.MailRepository#remove(Collection)
+     * @see org.apache.mailet.MailRepository#remove(Collection)
      */
     public void remove(final Collection mails)
     {
@@ -751,7 +751,7 @@ public class MBoxMailRepository
     }
 
     /**
-     * @see org.apache.james.services.MailRepository#remove(String)
+     * @see org.apache.mailet.MailRepository#remove(String)
      */
     public void remove(String key) {
         loadKeys();
@@ -769,14 +769,14 @@ public class MBoxMailRepository
     }
 
     /**
-     * @see org.apache.james.services.MailRepository#lock(String)
+     * @see org.apache.mailet.MailRepository#lock(String)
      */
     public boolean lock(String key) {
         return false;
     }
 
     /**
-     * @see org.apache.james.services.MailRepository#unlock(String)
+     * @see org.apache.mailet.MailRepository#unlock(String)
      */
     public boolean unlock(String key) {
         return false;

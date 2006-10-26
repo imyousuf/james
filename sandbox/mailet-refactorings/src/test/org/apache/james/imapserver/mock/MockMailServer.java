@@ -9,10 +9,10 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.james.imapserver.TestConstants;
-import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
+import org.apache.mailet.MailRepository;
 
 public class MockMailServer implements MailServer, TestConstants
 {

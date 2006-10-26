@@ -44,8 +44,8 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.services.FileSystem;
-import org.apache.james.services.MailRepository;
 import org.apache.mailet.Mail;
+import org.apache.mailet.MailRepository;
 
 /**
  * MailRepository implementation to store mail in a Javamail store

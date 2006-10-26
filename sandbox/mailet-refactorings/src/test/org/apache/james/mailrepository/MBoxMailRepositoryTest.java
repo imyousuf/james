@@ -23,8 +23,8 @@ package org.apache.james.mailrepository;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.service.ServiceException;
-import org.apache.james.services.MailRepository;
 import org.apache.james.test.mock.avalon.MockLogger;
+import org.apache.mailet.MailRepository;
 
 /**
  * NOTE NOTE NOTE: this test is disabled because MBoxMailRepository does not

@@ -22,12 +22,12 @@ package org.apache.james.test.mock.james;
 import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.core.MailImpl;
-import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.MessageSizeException;
 import org.apache.james.userrepository.MockUsersRepository;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
+import org.apache.mailet.MailRepository;
 
 import javax.mail.Address;
 import javax.mail.MessagingException;

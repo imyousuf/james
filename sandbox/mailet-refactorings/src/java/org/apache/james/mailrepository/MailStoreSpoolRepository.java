@@ -127,56 +127,56 @@ public class MailStoreSpoolRepository
     }
 
     /**
-     * @see org.apache.james.services.MailRepository#store(org.apache.mailet.Mail)
+     * @see org.apache.mailet.MailRepository#store(org.apache.mailet.Mail)
      */
     public void store(Mail mc) throws MessagingException {
         spoolRep.store(mc);
     }
 
     /**
-     * @see org.apache.james.services.MailRepository#list()
+     * @see org.apache.mailet.MailRepository#list()
      */
     public Iterator list() throws MessagingException {
         return spoolRep.list();
     }
 
     /**
-     * @see org.apache.james.services.MailRepository#retrieve(java.lang.String)
+     * @see org.apache.mailet.MailRepository#retrieve(java.lang.String)
      */
     public Mail retrieve(String key) throws MessagingException {
         return spoolRep.retrieve(key);
     }
 
     /**
-     * @see org.apache.james.services.MailRepository#remove(org.apache.mailet.Mail)
+     * @see org.apache.mailet.MailRepository#remove(org.apache.mailet.Mail)
      */
     public void remove(Mail mail) throws MessagingException {
         spoolRep.remove(mail);
     }
 
     /**
-     * @see org.apache.james.services.MailRepository#remove(java.util.Collection)
+     * @see org.apache.mailet.MailRepository#remove(java.util.Collection)
      */
     public void remove(Collection mails) throws MessagingException {
         spoolRep.remove(mails);
     }
 
     /**
-     * @see org.apache.james.services.MailRepository#remove(java.lang.String)
+     * @see org.apache.mailet.MailRepository#remove(java.lang.String)
      */
     public void remove(String key) throws MessagingException {
         spoolRep.remove(key);
     }
 
     /**
-     * @see org.apache.james.services.MailRepository#lock(java.lang.String)
+     * @see org.apache.mailet.MailRepository#lock(java.lang.String)
      */
     public boolean lock(String key) throws MessagingException {
         return spoolRep.lock(key);
     }
 
     /**
-     * @see org.apache.james.services.MailRepository#unlock(java.lang.String)
+     * @see org.apache.mailet.MailRepository#unlock(java.lang.String)
      */
     public boolean unlock(String key) throws MessagingException {
         return spoolRep.unlock(key);

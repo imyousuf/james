@@ -27,10 +27,10 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.james.mailrepository.filepair.File_Persistent_Object_Repository;
 import org.apache.james.mailrepository.filepair.File_Persistent_Stream_Repository;
 import org.apache.james.services.FileSystem;
-import org.apache.james.services.MailRepository;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockStore;
 import org.apache.james.test.mock.james.MockFileSystem;
+import org.apache.mailet.MailRepository;
 
 public class AvalonMailRepositoryTest extends AbstractMailRepositoryTest {
 

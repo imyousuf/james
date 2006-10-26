@@ -22,8 +22,8 @@
 package org.apache.james.pop3server;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.services.MailRepository;
 import org.apache.james.util.POP3BeforeSMTPHelper;
+import org.apache.mailet.MailRepository;
 
 /**
   * Handles PASS command

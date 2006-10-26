@@ -28,9 +28,9 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
-import org.apache.james.services.MailRepository;
 import org.apache.james.util.Lock;
 import org.apache.mailet.Mail;
+import org.apache.mailet.MailRepository;
 
 import javax.mail.MessagingException;
 
@@ -84,7 +84,7 @@ public abstract class AbstractMailRepository extends AbstractLogEnabled
     }
 
     /**
-     * @see org.apache.james.services.MailRepository#unlock(String)
+     * @see org.apache.mailet.MailRepository#unlock(String)
      */
     public boolean unlock(String key) {
         if (lock.unlock(key)) {
@@ -106,7 +106,7 @@ public abstract class AbstractMailRepository extends AbstractLogEnabled
     }
 
     /**
-     * @see org.apache.james.services.MailRepository#lock(String)
+     * @see org.apache.mailet.MailRepository#lock(String)
      */
     public boolean lock(String key) {
         if (lock.lock(key)) {
@@ -129,7 +129,7 @@ public abstract class AbstractMailRepository extends AbstractLogEnabled
 
 
     /**
-     * @see org.apache.james.services.MailRepository#store(Mail)
+     * @see org.apache.mailet.MailRepository#store(Mail)
      */
     public void store(Mail mc) throws MessagingException {
         boolean wasLocked = true;
@@ -176,7 +176,7 @@ public abstract class AbstractMailRepository extends AbstractLogEnabled
 
 
     /**
-     * @see org.apache.james.services.MailRepository#remove(Mail)
+     * @see org.apache.mailet.MailRepository#remove(Mail)
      */
     public void remove(Mail mail) throws MessagingException {
         remove(mail.getName());
@@ -184,7 +184,7 @@ public abstract class AbstractMailRepository extends AbstractLogEnabled
 
 
     /**
-     * @see org.apache.james.services.MailRepository#remove(Collection)
+     * @see org.apache.mailet.MailRepository#remove(Collection)
      */
     public void remove(Collection mails) throws MessagingException {
         Iterator delList = mails.iterator();
@@ -194,7 +194,7 @@ public abstract class AbstractMailRepository extends AbstractLogEnabled
     }
 
     /**
-     * @see org.apache.james.services.MailRepository#remove(String)
+     * @see org.apache.mailet.MailRepository#remove(String)
      */
     public void remove(String key) throws MessagingException {
         if (lock(key)) {

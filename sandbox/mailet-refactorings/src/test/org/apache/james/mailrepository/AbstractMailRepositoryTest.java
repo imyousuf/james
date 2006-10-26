@@ -23,9 +23,9 @@ import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageInputStreamSource;
-import org.apache.james.services.MailRepository;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
+import org.apache.mailet.MailRepository;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;

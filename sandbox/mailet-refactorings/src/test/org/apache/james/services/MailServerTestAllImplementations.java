@@ -22,6 +22,7 @@
 package org.apache.james.services;
 
 import org.apache.avalon.framework.service.ServiceException;
+import org.apache.mailet.MailRepository;
 
 import junit.framework.TestCase;
 

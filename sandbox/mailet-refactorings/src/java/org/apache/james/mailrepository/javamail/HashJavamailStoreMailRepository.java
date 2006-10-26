@@ -89,7 +89,7 @@ public class HashJavamailStoreMailRepository extends
      * resulting messagenumber and saves result in keyToMsgMap. If Folder
      * supports getMessageCount on closed folder, this could be quite efficient
      * 
-     * @see org.apache.james.services.MailRepository#store(Mail)
+     * @see org.apache.mailet.MailRepository#store(Mail)
      */
     public synchronized void store(Mail mc) throws MessagingException {
 
@@ -171,7 +171,7 @@ public class HashJavamailStoreMailRepository extends
     /**
      * calls rehash and uses stored keys in KeyToMsgMap
      * 
-     * @see org.apache.james.services.MailRepository#list()
+     * @see org.apache.mailet.MailRepository#list()
      */
     public Iterator list() throws MessagingException {
         try {
@@ -192,7 +192,7 @@ public class HashJavamailStoreMailRepository extends
     /**
      * uses getMessageFromInbox, returns null if not found
      * 
-     * @see org.apache.james.services.MailRepository#retrieve(String)
+     * @see org.apache.mailet.MailRepository#retrieve(String)
      */
     public Mail retrieve(String key) throws MessagingException {
         log.debug("retrieve: " + key);
@@ -220,7 +220,7 @@ public class HashJavamailStoreMailRepository extends
      * setFlag(Flags.Flag.DELETED, true); on message. removes message from
      * KeyToMsgMap. Messagenumbers are recalculated for next guesses.
      * 
-     * @see org.apache.james.services.MailRepository#remove(String)
+     * @see org.apache.mailet.MailRepository#remove(String)
      */
     public synchronized void  remove(String key) throws MessagingException {
         log.debug("HashJavamailStore remove key:" + key);
