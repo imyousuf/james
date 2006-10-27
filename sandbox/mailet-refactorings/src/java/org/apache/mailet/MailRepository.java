@@ -36,7 +36,7 @@ public interface MailRepository {
     /**
      * The component role used by components implementing this service
      */
-    String ROLE = "org.apache.james.services.MailRepository";
+    String ROLE = "org.apache.mailet.MailRepository";
     
     /**
      * Define a MAIL repository. MAILS are stored in the specified
