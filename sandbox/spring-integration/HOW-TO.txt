@@ -1,0 +1,43 @@
+This document describes how to build Spring bean container support for Apache James
+
+1. Preparations
+
+1.1 Getting all libraries
+
+Copy into the lib/ folder the following files:
+
+from {James_Server}/lib: all files
+from {James_Server}/bin/lib: all files
+from {James_Server}/build/lib: james-2.3.0.jar mailet-2.3.jar mailet-api-2.3.jar
+from {James_Server}/phoenix-bin/lib: all files
+from {James_Server}/phoenix-bin/tools/lib: spice-configkit-1.1.2.jar
+from the Spring Framework 2.0 distribution: spring.jar
+
+1.2 Using your own James configuration
+
+The configuration resides in src/main/config
+
+In case you dare to replace this default configuration with your own, please make sure to make one
+crucial change: at the top of james-config.xml replace the first part of the Entity references URLs
+which is "../conf/" with "./" so they look like this:
+
+<!ENTITY listserverConfig SYSTEM "./james-listmanager.xml">
+<!ENTITY listserverStores SYSTEM "./james-liststores.xml">
+<!ENTITY fetchmailConfig SYSTEM "./james-fetchmail.xml">
+<!ENTITY smtphandlerchainConfig SYSTEM "./james-smtphandlerchain.xml">
+
+No further change is needed.
+
+2. Compile
+
+Currently there is no build file.
+
+Build all java files residing in src/main/java
+
+3. Run
+
+You need the resulting class files and all libraries in lib to run
+
+org.apache.james.container.spring.Main
+
+James should start like usually. Log messages go to the system console.
