@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<!--
+ ! Licensed to the Apache Software Foundation (ASF) under one   !
+ ! or more contributor license agreements.  See the NOTICE file !
+ ! distributed with this work for additional information        !
+ ! regarding copyright ownership.  The ASF licenses this file   !
+ ! to you under the Apache License, Version 2.0 (the            !
+ ! "License"); you may not use this file except in compliance   !
+ ! with the License.  You may obtain a copy of the License at   !
+ !                                                              !
+ !   http://www.apache.org/licenses/LICENSE-2.0                 !
+ !                                                              !
+ ! Unless required by applicable law or agreed to in writing,   !
+ ! software distributed under the License is distributed on an  !
+ ! "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY       !
+ ! KIND, either express or implied.  See the License for the    !
+ ! specific language governing permissions and limitations      !
+ ! under the License.                                           !
+ -->
+
+
+<!--
+
+  -->
+<beans>
+
+    <!-- beans which replace Avalon specific container logic -->
+
+    <bean id="serviceManager" class="org.apache.james.container.spring.adaptor.ServiceManagerBridge" />
+
+    <bean name="logger, loggerMap" class="org.apache.james.container.spring.adaptor.LoggerAdaptor" />
+
+    <bean id="configurationProvider" class="org.apache.james.container.spring.adaptor.AvalonConfigurationFileProvider" >
+        <property name="configurationPath"
+                  value="src/main/config/james-config.xml" />
+    </bean>
+
+    <bean id="avalonContext" class="org.apache.james.container.spring.adaptor.AvalonContext" >
+        <property name="applicationHome"
+                  value="data" />
+    </bean>
+
+
+    <!-- beans which manage bootstrapping and component lifecycle -->
+
+    <bean id="loggerPropagator" class="org.apache.james.container.spring.lifecycle.LoggerPropagator" />
+
+    <bean id="contextPropagator" class="org.apache.james.container.spring.lifecycle.ContextPropagator" />
+
+    <bean id="servicePropagator" class="org.apache.james.container.spring.lifecycle.ServicePropagator" />
+
+    <bean id="configurationManager" class="org.apache.james.container.spring.lifecycle.ConfigurationPropagator" />
+
+    <bean id="initializationManager" class="org.apache.james.container.spring.lifecycle.InitializationPropagator" />
+
+    <!-- James components which are not dependent from other components -->
+
+    <bean name="mailStore, org.apache.avalon.cornerstone.services.store.Store" class="org.apache.james.core.AvalonMailStore" />
+
+    <!--
+         cornerstone components
+    -->
+
+    <bean name="thread-manager, org.apache.avalon.cornerstone.services.threads.ThreadManager"
+           class="org.apache.avalon.cornerstone.blocks.threads.DefaultThreadManager" />
+
+    <bean name="connections, org.apache.james.services.JamesConnectionManager"
+           class="org.apache.james.util.connection.SimpleConnectionManager" >
+    </bean>
+
+    <bean name="sockets"
+           class="org.apache.avalon.cornerstone.blocks.sockets.DefaultSocketManager"/>
+
+    <bean name="scheduler"
+           class="org.apache.avalon.cornerstone.blocks.scheduler.DefaultTimeScheduler" >
+    </bean>
+
+    <bean name="database-connections"
+           class="org.apache.avalon.cornerstone.blocks.datasources.DefaultDataSourceSelector" />
+
+    <!-- James components with dependencies to other components -->
+
+     <bean name="James" class="org.apache.james.James" />
+
+      <bean name="dnsserver, org.apache.james.services.DNSServer" class="org.apache.james.dnsserver.DNSServer" />
+
+    <bean name="matcherpackages" class="org.apache.james.transport.JamesMatcherLoader" />
+
+    <bean name="mailetpackages" class="org.apache.james.transport.JamesMailetLoader" />
+
+      <bean name="remotemanager" class="org.apache.james.remotemanager.RemoteManager" />
+
+
+      <bean name="pop3server" class="org.apache.james.pop3server.POP3Server" />
+
+      <bean name="smtpserver" class="org.apache.james.smtpserver.SMTPServer" />
+
+      <bean name="nntpserver" class="org.apache.james.nntpserver.NNTPServer" />
+
+
+      <bean name="nntp-repository" class="org.apache.james.nntpserver.repository.NNTPRepositoryImpl" />
+<!--
+
+      <block name="fetchmail" class="org.apache.james.fetchmail.FetchScheduler" >
+        <provide name="scheduler"
+                 role="org.apache.avalon.cornerstone.services.scheduler.TimeScheduler"/>
+        <provide name="James" role="org.apache.james.services.MailServer"/>
+        <provide name="localusersrepository" role="org.apache.james.services.UsersRepository"/>
+      </block>
+-->
+
+      <bean name="spoolrepository" class="org.apache.james.mailrepository.MailStoreSpoolRepository" />
+
+      <bean name="users-store" class="org.apache.james.core.AvalonUsersStore" />
+
+      <bean name="localusersrepository" class="org.apache.james.core.LocalUsersRepository" />
+
+    <bean name="spoolmanager" class="org.apache.james.transport.JamesSpoolManager" />
+
+</beans>
+
+
+
+
