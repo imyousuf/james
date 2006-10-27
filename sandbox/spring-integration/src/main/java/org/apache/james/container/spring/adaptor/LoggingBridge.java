@@ -20,21 +20,47 @@ package org.apache.james.container.spring.adaptor;
 
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.container.spring.logging.LoggerToComponentMapper;
+import org.apache.james.container.spring.logging.LogWorker;
 
-public class LoggerAdaptor implements Logger, LoggerToComponentMapper {
+/**
+ * bridge to act as a Avalon logger but effectively forward to a some other logging service
+ */
+public class LoggingBridge implements Logger, LoggerToComponentMapper {
+    public static final String LEVEL_DEBUG = "debug";
+    public static final String LEVEL_INFO  = "info";
+    public static final String LEVEL_WARN  = "warn";
+    public static final String LEVEL_ERROR = "error";
+    public static final String LEVEL_FATAL = "fatal";
+
     private boolean m_debugEnabled = true;
+    private LogWorker logWorker;
+
+    public void setLogWorker(LogWorker logWorker) {
+        this.logWorker = logWorker;
+    }
 
     public Logger getComponentLogger(String beanName) {
-        return this; // every bean gets the same logger
+        return this; // every bean gets the same logger, could be more finegrained
+    }
+
+    protected void forwardLogMessage(String level, String message) {
+        logWorker.logMessage(level, message);
+    }
+
+    protected void forwardLogException(String level, String message, Throwable exception) {
+        logWorker.logException(level, message, exception);
+    }
+
+    public org.apache.avalon.framework.logger.Logger getChildLogger(java.lang.String string) {
+        return this;
     }
 
     public void debug(java.lang.String string) {
-        System.out.println(string);
+        forwardLogMessage(LEVEL_DEBUG, string);
     }
 
     public void debug(java.lang.String string, java.lang.Throwable throwable) {
-        System.out.println(string + throwable.toString());
-        throwable.printStackTrace();
+        forwardLogException(LEVEL_DEBUG, string, throwable);
     }
 
     public boolean isDebugEnabled() {
@@ -46,12 +72,11 @@ public class LoggerAdaptor implements Logger, LoggerToComponentMapper {
     }
 
     public void info(java.lang.String string) {
-        System.out.println(string);
+        forwardLogMessage(LEVEL_INFO, string);
     }
 
     public void info(java.lang.String string, java.lang.Throwable throwable) {
-        System.out.println(string + throwable.toString());
-        throwable.printStackTrace();
+        forwardLogException(LEVEL_INFO, string, throwable);
     }
 
     public boolean isInfoEnabled() {
@@ -59,12 +84,11 @@ public class LoggerAdaptor implements Logger, LoggerToComponentMapper {
     }
 
     public void warn(java.lang.String string) {
-        System.out.println(string);
+        forwardLogMessage(LEVEL_WARN, string);
     }
 
     public void warn(java.lang.String string, java.lang.Throwable throwable) {
-        System.out.println(string + throwable.toString());
-        throwable.printStackTrace();
+        forwardLogException(LEVEL_WARN, string, throwable);
     }
 
     public boolean isWarnEnabled() {
@@ -72,12 +96,11 @@ public class LoggerAdaptor implements Logger, LoggerToComponentMapper {
     }
 
     public void error(java.lang.String string) {
-        System.out.println(string);
+        forwardLogMessage(LEVEL_ERROR, string);
     }
 
     public void error(java.lang.String string, java.lang.Throwable throwable) {
-        System.out.println(string + throwable.toString());
-        throwable.printStackTrace();
+        forwardLogException(LEVEL_ERROR, string, throwable);
     }
 
     public boolean isErrorEnabled() {
@@ -85,20 +108,16 @@ public class LoggerAdaptor implements Logger, LoggerToComponentMapper {
     }
 
     public void fatalError(java.lang.String string) {
-        System.out.println(string);
+        forwardLogMessage(LEVEL_FATAL, string);
     }
 
     public void fatalError(java.lang.String string, java.lang.Throwable throwable) {
-        System.out.println(string + throwable.toString());
-        throwable.printStackTrace();
+        forwardLogException(LEVEL_FATAL, string, throwable);
     }
 
     public boolean isFatalErrorEnabled() {
         return true;
     }
 
-    public org.apache.avalon.framework.logger.Logger getChildLogger(java.lang.String string) {
-        return this;
-    }
 
 }
