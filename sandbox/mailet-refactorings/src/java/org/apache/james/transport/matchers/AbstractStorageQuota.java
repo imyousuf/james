@@ -25,13 +25,13 @@ import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
-import org.apache.james.services.JamesUser;
 import org.apache.james.services.MailServer;
-import org.apache.james.services.UsersRepository;
+import org.apache.mailet.AliasedUser;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailRepository;
 import org.apache.mailet.MailetContext;
+import org.apache.mailet.UsersRepository;
 
 import javax.mail.MessagingException;
 
@@ -122,7 +122,7 @@ abstract public class AbstractStorageQuota extends AbstractQuotaMatcher {
         String username;
         try {
             username = localusers.getRealName(originalUsername);
-            JamesUser user = (JamesUser) localusers.getUserByName(username);
+            AliasedUser user = (AliasedUser) localusers.getUserByName(username);
             if (user.getAliasing()) {
                 username = user.getAlias();
             }

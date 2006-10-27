@@ -29,7 +29,6 @@ import java.util.Map;
 
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.services.MailServer;
-import org.apache.james.services.UsersRepository;
 import org.apache.james.services.VirtualUserTable;
 import org.apache.james.smtpserver.core.filter.fastfail.ValidRcptHandler;
 import org.apache.james.test.mock.avalon.MockLogger;
@@ -37,6 +36,7 @@ import org.apache.james.test.mock.avalon.MockServiceManager;
 import org.apache.james.userrepository.MockUsersRepository;
 import org.apache.james.vut.ErrorMappingException;
 import org.apache.mailet.MailAddress;
+import org.apache.mailet.UsersRepository;
 import org.apache.oro.text.regex.MalformedPatternException;
 
 import junit.framework.TestCase;

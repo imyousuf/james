@@ -23,7 +23,7 @@
       <service name="org.apache.james.nntpserver.repository.NNTPRepository" version="1.0"/>
     </dependency> 
     <dependency>
-      <service name="org.apache.james.services.UsersRepository" version="1.0"/>
+      <service name="org.apache.mailet.UsersRepository" version="1.0"/>
     </dependency> 
     <dependency>
       <service name="org.apache.avalon.cornerstone.services.threads.ThreadManager" version="1.0"/>

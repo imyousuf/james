@@ -30,7 +30,6 @@ import org.apache.james.services.AbstractDNSServer;
 import org.apache.james.services.DNSServer;
 import org.apache.james.services.JamesConnectionManager;
 import org.apache.james.services.MailServer;
-import org.apache.james.services.UsersRepository;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockServiceManager;
 import org.apache.james.test.mock.avalon.MockSocketManager;
@@ -43,6 +42,7 @@ import org.apache.james.util.POP3BeforeSMTPHelper;
 import org.apache.james.util.connection.SimpleConnectionManager;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailRepository;
+import org.apache.mailet.UsersRepository;
 
 import javax.mail.MessagingException;
 import javax.mail.util.SharedByteArrayInputStream;

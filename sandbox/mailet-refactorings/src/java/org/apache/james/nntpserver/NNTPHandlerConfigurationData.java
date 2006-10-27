@@ -22,7 +22,7 @@
 package org.apache.james.nntpserver;
 
 import org.apache.james.nntpserver.repository.NNTPRepository;
-import org.apache.james.services.UsersRepository;
+import org.apache.mailet.UsersRepository;
 
 /**
  * Provides a number of server-wide constant values to the

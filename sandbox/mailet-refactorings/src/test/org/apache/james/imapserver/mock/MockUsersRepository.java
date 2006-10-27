@@ -4,8 +4,8 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 import org.apache.james.imapserver.TestConstants;
-import org.apache.james.services.User;
-import org.apache.james.services.UsersRepository;
+import org.apache.mailet.User;
+import org.apache.mailet.UsersRepository;
 
 public class MockUsersRepository implements UsersRepository, TestConstants
 {

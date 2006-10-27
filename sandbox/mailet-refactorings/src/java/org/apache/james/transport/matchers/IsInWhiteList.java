@@ -25,14 +25,14 @@ import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.excalibur.datasource.DataSourceComponent;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
-import org.apache.james.services.JamesUser;
-import org.apache.james.services.UsersRepository;
 import org.apache.james.transport.mailets.WhiteListManager;
 import org.apache.james.util.JDBCUtil;
 import org.apache.james.util.SqlResources;
+import org.apache.mailet.AliasedUser;
 import org.apache.mailet.GenericMatcher;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
+import org.apache.mailet.UsersRepository;
 
 import javax.mail.MessagingException;
 
@@ -232,7 +232,7 @@ public class IsInWhiteList extends GenericMatcher {
         String username;
         try {
             username = localusers.getRealName(originalUsername);
-            JamesUser user = (JamesUser) localusers.getUserByName(username);
+            AliasedUser user = (AliasedUser) localusers.getUserByName(username);
             if (user.getAliasing()) {
                 username = user.getAlias();
             }

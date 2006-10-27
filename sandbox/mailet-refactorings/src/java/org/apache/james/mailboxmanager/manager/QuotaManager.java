@@ -2,7 +2,7 @@ package org.apache.james.mailboxmanager.manager;
 
 import org.apache.james.mailboxmanager.ListResult;
 import org.apache.james.mailboxmanager.Quota;
-import org.apache.james.services.User;
+import org.apache.mailet.User;
 
 /**
  * manages quota. Only getQuotas() will be used by MailboxRepository to create a

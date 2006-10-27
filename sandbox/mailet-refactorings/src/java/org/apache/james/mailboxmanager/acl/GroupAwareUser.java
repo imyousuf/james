@@ -1,6 +1,6 @@
 package org.apache.james.mailboxmanager.acl;
 
-import org.apache.james.services.User;
+import org.apache.mailet.User;
 
 public interface GroupAwareUser extends User {
     /**

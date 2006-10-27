@@ -27,7 +27,7 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.core.AbstractJamesService;
 import org.apache.james.nntpserver.repository.NNTPRepository;
-import org.apache.james.services.UsersRepository;
+import org.apache.mailet.UsersRepository;
 
 /**
  * NNTP Server

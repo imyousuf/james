@@ -19,13 +19,13 @@
 
 
 
-package org.apache.james.services;
+package org.apache.mailet;
 
 /**
  * Interface for objects representing users.
  *
  *
- * @version $Revision$
+ * @version $Revision: 426007 $
  */
 
 public interface User {

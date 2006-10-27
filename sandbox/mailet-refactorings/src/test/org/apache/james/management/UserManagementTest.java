@@ -23,12 +23,12 @@ package org.apache.james.management;
 
 import junit.framework.TestCase;
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockServiceManager;
 import org.apache.james.test.mock.james.MockUsersStore;
 import org.apache.james.userrepository.MockUsersRepository;
+import org.apache.mailet.UsersRepository;
 
 import java.util.Arrays;
 import java.util.List;

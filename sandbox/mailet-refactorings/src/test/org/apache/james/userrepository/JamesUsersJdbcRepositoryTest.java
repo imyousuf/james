@@ -24,12 +24,12 @@ import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.logger.ConsoleLogger;
 import org.apache.james.services.JamesUser;
-import org.apache.james.services.UsersRepository;
 import org.apache.james.services.VirtualUserTable;
 import org.apache.james.test.mock.james.MockFileSystem;
 import org.apache.james.test.mock.util.AttrValConfiguration;
 import org.apache.james.test.util.Util;
 import org.apache.mailet.MailAddress;
+import org.apache.mailet.UsersRepository;
 
 import java.util.Collection;
 import java.util.Iterator;

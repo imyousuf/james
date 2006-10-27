@@ -29,9 +29,9 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.services.FileSystem;
-import org.apache.james.services.User;
 import org.apache.james.util.JDBCUtil;
 import org.apache.james.util.SqlResources;
+import org.apache.mailet.User;
 
 import java.io.File;
 import java.sql.Connection;

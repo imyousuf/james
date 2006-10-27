@@ -20,7 +20,7 @@
       <service name="org.apache.james.services.MailServer" version="1.0"/>
     </dependency>
     <dependency>
-      <service name="org.apache.james.services.UsersRepository" version="1.0"/>
+      <service name="org.apache.mailet.UsersRepository" version="1.0"/>
     </dependency> 
     <dependency>
       <service name="org.apache.james.services.DNSServer" version="1.0"/>

@@ -23,7 +23,6 @@ import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.Constants;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailServer;
-import org.apache.james.services.UsersRepository;
 import org.apache.james.test.mock.avalon.MockServiceManager;
 import org.apache.james.test.mock.james.InMemorySpoolRepository;
 import org.apache.james.test.mock.james.MockMailServer;
@@ -37,6 +36,7 @@ import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailRepository;
 import org.apache.mailet.Mailet;
+import org.apache.mailet.UsersRepository;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;

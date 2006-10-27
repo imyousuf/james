@@ -30,7 +30,7 @@ import javax.mail.Session;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.services.MailServer;
 import org.apache.mailet.MailAddress;
-import org.apache.james.services.UsersRepository;
+import org.apache.mailet.UsersRepository;
 import org.apache.james.services.DNSServer;
 
 /**

@@ -6,8 +6,8 @@ import java.io.ByteArrayOutputStream;
 import org.apache.james.imapserver.ImapRequestHandler;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
-import org.apache.james.services.User;
-import org.apache.james.services.UsersRepository;
+import org.apache.mailet.User;
+import org.apache.mailet.UsersRepository;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 

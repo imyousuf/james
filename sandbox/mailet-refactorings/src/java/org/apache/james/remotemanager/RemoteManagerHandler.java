@@ -35,9 +35,11 @@ import org.apache.james.core.AbstractJamesHandler;
 import org.apache.james.management.BayesianAnalyzerManagementException;
 import org.apache.james.management.SpoolFilter;
 import org.apache.james.services.JamesUser;
-import org.apache.james.services.User;
-import org.apache.james.services.UsersRepository;
+import org.apache.mailet.AliasedUser;
+import org.apache.mailet.ForwardingUser;
 import org.apache.mailet.MailAddress;
+import org.apache.mailet.User;
+import org.apache.mailet.UsersRepository;
 
 
 /**
@@ -664,7 +666,7 @@ public class RemoteManagerHandler
         }
 
         JamesUser user = (JamesUser) baseuser;
-        JamesUser aliasUser = (JamesUser) users.getUserByName(alias);
+        ForwardingUser aliasUser = (ForwardingUser) users.getUserByName(alias);
         if (aliasUser == null) {
             writeLoggedFlushedResponse("Alias unknown to server - create that user first.");
             return true;
@@ -774,7 +776,7 @@ public class RemoteManagerHandler
             return true;
         }
 
-        JamesUser user = (JamesUser)baseuser;
+        AliasedUser user = (AliasedUser)baseuser;
         if ( user == null ) {
             writeLoggedFlushedResponse("No such user " + username);
             return true;
@@ -819,7 +821,7 @@ public class RemoteManagerHandler
             writeLoggedFlushedResponse("Can't set forwarding for this user type.");
             return true;
         }
-        JamesUser user = (JamesUser)baseuser;
+        ForwardingUser user = (ForwardingUser)baseuser;
         if ( user == null ) {
             writeLoggedFlushedResponse("No such user " + username);
             return true;

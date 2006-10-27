@@ -22,7 +22,7 @@
 package org.apache.james.userrepository;
 
 import org.apache.james.security.DigestUtil;
-import org.apache.james.services.User;
+import org.apache.mailet.User;
 
 import java.io.Serializable;
 import java.security.NoSuchAlgorithmException;
@@ -70,14 +70,14 @@ public class DefaultUser implements User, Serializable {
     }
 
     /**
-     * @see org.apache.james.services.User#getUserName()
+     * @see org.apache.mailet.User#getUserName()
      */
     public String getUserName() {
         return userName;
     }
 
     /**
-     * @see org.apache.james.services.User#verifyPassword(java.lang.String)
+     * @see org.apache.mailet.User#verifyPassword(java.lang.String)
      */
     public boolean verifyPassword(String pass) {
         try {
@@ -89,7 +89,7 @@ public class DefaultUser implements User, Serializable {
     }
 
     /**
-     * @see org.apache.james.services.User#setPassword(java.lang.String)
+     * @see org.apache.mailet.User#setPassword(java.lang.String)
      */
     public boolean setPassword(String newPass) {
         try {

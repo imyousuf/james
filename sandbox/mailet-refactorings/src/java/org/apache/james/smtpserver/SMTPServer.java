@@ -30,9 +30,9 @@ import org.apache.james.Constants;
 import org.apache.james.core.AbstractJamesService;
 import org.apache.james.services.DNSServer;
 import org.apache.james.services.MailServer;
-import org.apache.james.services.UsersRepository;
 import org.apache.james.util.NetMatcher;
 import org.apache.mailet.MailetContext;
+import org.apache.mailet.UsersRepository;
 
 /**
  * <p>Accepts SMTP connections on a server socket and dispatches them to SMTPHandlers.</p>

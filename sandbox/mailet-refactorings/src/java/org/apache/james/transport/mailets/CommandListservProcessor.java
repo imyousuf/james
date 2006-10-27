@@ -24,7 +24,6 @@ package org.apache.james.transport.mailets;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.james.Constants;
-import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
 import org.apache.mailet.RFC2822Headers;
 import org.apache.james.util.XMLResources;
@@ -33,6 +32,7 @@ import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetException;
+import org.apache.mailet.UsersRepository;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;

@@ -20,7 +20,7 @@
 package org.apache.james.imapserver;
 
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
-import org.apache.james.services.UsersRepository;
+import org.apache.mailet.UsersRepository;
 
 
 /**

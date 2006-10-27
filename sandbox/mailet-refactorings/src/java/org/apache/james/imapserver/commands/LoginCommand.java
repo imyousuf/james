@@ -23,7 +23,7 @@ import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
-import org.apache.james.services.User;
+import org.apache.mailet.User;
 
 
 /**

@@ -20,7 +20,7 @@
 package org.apache.james.userrepository;
 
 import org.apache.james.security.DigestUtil;
-import org.apache.james.services.User;
+import org.apache.mailet.User;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;

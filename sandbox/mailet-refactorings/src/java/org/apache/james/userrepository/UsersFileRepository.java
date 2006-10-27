@@ -31,7 +31,7 @@ import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
-import org.apache.james.services.User;
+import org.apache.mailet.User;
 
 import java.util.Iterator;
 
@@ -137,14 +137,14 @@ public class UsersFileRepository
     }
 
     /**
-     * @see org.apache.james.services.UsersRepository#list()
+     * @see org.apache.mailet.UsersRepository#list()
      */
     public Iterator list() {
         return objectRepository.list();
     }
 
     /**
-     * @see org.apache.james.userrepository.AbstractUsersRepository#doAddUser(org.apache.james.services.User)
+     * @see org.apache.james.userrepository.AbstractUsersRepository#doAddUser(org.apache.mailet.User)
      */
     protected void doAddUser(User user) {
         try {
@@ -155,7 +155,7 @@ public class UsersFileRepository
     }
 
     /**
-     * @see org.apache.james.services.UsersRepository#addUser(java.lang.String, java.lang.String)
+     * @see org.apache.mailet.UsersRepository#addUser(java.lang.String, java.lang.String)
      */
     public boolean addUser(String username, String password) {
         User newbie = new DefaultJamesUser(username, "SHA");
@@ -164,7 +164,7 @@ public class UsersFileRepository
     }
 
     /**
-     * @see org.apache.james.services.UsersRepository#getUserByName(java.lang.String)
+     * @see org.apache.mailet.UsersRepository#getUserByName(java.lang.String)
      */
     public synchronized User getUserByName(String name) {
         if (ignoreCase) {
@@ -186,7 +186,7 @@ public class UsersFileRepository
     }
 
     /**
-     * @see org.apache.james.services.UsersRepository#getUserByNameCaseInsensitive(java.lang.String)
+     * @see org.apache.mailet.UsersRepository#getUserByNameCaseInsensitive(java.lang.String)
      */
     public User getUserByNameCaseInsensitive(String name) {
         String realName = getRealName(name, true);
@@ -215,14 +215,14 @@ public class UsersFileRepository
     }
 
     /**
-     * @see org.apache.james.services.UsersRepository#getRealName(java.lang.String)
+     * @see org.apache.mailet.UsersRepository#getRealName(java.lang.String)
      */
     public String getRealName(String name) {
         return getRealName(name, ignoreCase);
     }
     
     /**
-     * @see org.apache.james.userrepository.AbstractUsersRepository#doUpdateUser(org.apache.james.services.User)
+     * @see org.apache.james.userrepository.AbstractUsersRepository#doUpdateUser(org.apache.mailet.User)
      */
     public void doUpdateUser(User user) {
         try {
@@ -234,14 +234,14 @@ public class UsersFileRepository
     }
 
     /**
-     * @see org.apache.james.services.UsersRepository#removeUser(java.lang.String)
+     * @see org.apache.mailet.UsersRepository#removeUser(java.lang.String)
      */
     public synchronized void removeUser(String name) {
         objectRepository.remove(name);
     }
 
     /**
-     * @see org.apache.james.services.UsersRepository#contains(java.lang.String)
+     * @see org.apache.mailet.UsersRepository#contains(java.lang.String)
      */
     public boolean contains(String name) {
         if (ignoreCase) {
@@ -252,7 +252,7 @@ public class UsersFileRepository
     }
 
     /**
-     * @see org.apache.james.services.UsersRepository#containsCaseInsensitive(java.lang.String)
+     * @see org.apache.mailet.UsersRepository#containsCaseInsensitive(java.lang.String)
      */
     public boolean containsCaseInsensitive(String name) {
         Iterator it = list();
@@ -265,7 +265,7 @@ public class UsersFileRepository
     }
 
     /**
-     * @see org.apache.james.services.UsersRepository#test(java.lang.String, java.lang.String)
+     * @see org.apache.mailet.UsersRepository#test(java.lang.String, java.lang.String)
      */
     public boolean test(String name, String password) {
         User user;
@@ -279,7 +279,7 @@ public class UsersFileRepository
     }
 
     /**
-     * @see org.apache.james.services.UsersRepository#countUsers()
+     * @see org.apache.mailet.UsersRepository#countUsers()
      */
     public int countUsers() {
         int count = 0;

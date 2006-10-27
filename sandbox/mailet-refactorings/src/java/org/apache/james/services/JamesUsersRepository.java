@@ -19,6 +19,8 @@
 
 package org.apache.james.services;
 
+import org.apache.mailet.UsersRepository;
+
 
 public interface JamesUsersRepository extends UsersRepository, VirtualUserTable {
 

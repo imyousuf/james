@@ -25,7 +25,7 @@ import org.apache.james.mailboxmanager.torque.om.MailboxRowPeer;
 import org.apache.james.mailboxmanager.tracking.MailboxCache;
 import org.apache.james.mailboxmanager.tracking.UidChangeTracker;
 import org.apache.james.mailboxmanager.wrapper.ImapMailboxSessionWrapper;
-import org.apache.james.services.User;
+import org.apache.mailet.User;
 import org.apache.torque.TorqueException;
 import org.apache.torque.util.CountHelper;
 import org.apache.torque.util.Criteria;

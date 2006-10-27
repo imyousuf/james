@@ -25,11 +25,13 @@ package org.apache.james.management;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
-import org.apache.james.services.UsersRepository;
-import org.apache.james.services.User;
 import org.apache.james.services.JamesUser;
 import org.apache.james.services.UsersStore;
+import org.apache.mailet.AliasedUser;
+import org.apache.mailet.ForwardingUser;
 import org.apache.mailet.MailAddress;
+import org.apache.mailet.User;
+import org.apache.mailet.UsersRepository;
 
 import javax.mail.internet.ParseException;
 import java.util.Iterator;
@@ -129,7 +131,7 @@ public class UserManagement implements UserManagementMBean, Serviceable {
 
     public boolean setAlias(String userName, String aliasUserName, String repositoryName) throws UserManagementException {
         JamesUser user = getJamesUser(userName, null);
-        JamesUser aliasUser = getJamesUser(aliasUserName, null);
+        ForwardingUser aliasUser = getJamesUser(aliasUserName, null);
         if (aliasUser == null) return false;
 
         boolean success = user.setAlias(aliasUserName);
@@ -148,7 +150,7 @@ public class UserManagement implements UserManagementMBean, Serviceable {
     }
 
     public String getAlias(String userName, String repositoryName) throws UserManagementException {
-        JamesUser user = getJamesUser(userName, null);
+        AliasedUser user = getJamesUser(userName, null);
         if (!user.getAliasing()) return null;
         return user.getAlias();
     }
@@ -181,7 +183,7 @@ public class UserManagement implements UserManagementMBean, Serviceable {
     }
 
     public String getForwardAddress(String userName, String repositoryName) throws UserManagementException {
-        JamesUser user = getJamesUser(userName, null);
+        ForwardingUser user = getJamesUser(userName, null);
         if (!user.getForwarding()) return null;
         return user.getForwardingDestination().toString();
     }

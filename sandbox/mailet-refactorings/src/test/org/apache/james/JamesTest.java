@@ -30,7 +30,6 @@ import org.apache.james.services.DomainList;
 import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.MailServerTestAllImplementations;
-import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockServiceManager;
@@ -38,6 +37,7 @@ import org.apache.james.test.mock.avalon.MockStore;
 import org.apache.james.test.mock.james.InMemorySpoolRepository;
 import org.apache.james.test.mock.james.MockUsersStore;
 import org.apache.james.userrepository.MockUsersRepository;
+import org.apache.mailet.UsersRepository;
 
 import java.io.File;
 import java.io.FileNotFoundException;

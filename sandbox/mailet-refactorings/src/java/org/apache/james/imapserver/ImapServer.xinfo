@@ -12,7 +12,7 @@
       <service name="org.apache.james.mailboxmanager.manager.MailboxManagerProvider" version="1.0"/>
     </dependency>
     <dependency>
-      <service name="org.apache.james.services.UsersRepository" version="1.0"/>
+      <service name="org.apache.mailet.UsersRepository" version="1.0"/>
     </dependency>
     <dependency>
       <service name="org.apache.james.services.JamesConnectionManager" version="1.0"/>

@@ -21,8 +21,8 @@
 
 package org.apache.james.userrepository;
 
-import org.apache.james.services.User;
 import org.apache.mailet.MailAddress;
+import org.apache.mailet.User;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -72,7 +72,7 @@ public class JamesUsersJdbcRepository extends AbstractJdbcUsersRepository {
 
 
     /**
-     * @see org.apache.james.userrepository.AbstractJdbcUsersRepository#setUserForInsertStatement(org.apache.james.services.User,
+     * @see org.apache.james.userrepository.AbstractJdbcUsersRepository#setUserForInsertStatement(org.apache.mailet.User,
      *      java.sql.PreparedStatement)
      */
     protected void setUserForInsertStatement(User user, 
@@ -81,7 +81,7 @@ public class JamesUsersJdbcRepository extends AbstractJdbcUsersRepository {
     }
 
     /**
-     * @see org.apache.james.userrepository.AbstractJdbcUsersRepository#setUserForUpdateStatement(org.apache.james.services.User,
+     * @see org.apache.james.userrepository.AbstractJdbcUsersRepository#setUserForUpdateStatement(org.apache.mailet.User,
      *      java.sql.PreparedStatement)
      */
     protected void setUserForUpdateStatement(User user, 
@@ -145,7 +145,7 @@ public class JamesUsersJdbcRepository extends AbstractJdbcUsersRepository {
     
     
     /**
-     * @see org.apache.james.services.UsersRepository#addUser(java.lang.String,
+     * @see org.apache.mailet.UsersRepository#addUser(java.lang.String,
      *      java.lang.String)
      */
     public boolean addUser(String username, String password)  {

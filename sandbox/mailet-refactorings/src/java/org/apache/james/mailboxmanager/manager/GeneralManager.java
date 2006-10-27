@@ -9,7 +9,7 @@ import org.apache.james.mailboxmanager.mailbox.GeneralMailbox;
 import org.apache.james.mailboxmanager.mailbox.GeneralMailboxSession;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 import org.apache.james.mailboxmanager.mailbox.MailboxSession;
-import org.apache.james.services.User;
+import org.apache.mailet.User;
 
 
 /**

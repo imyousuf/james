@@ -4,7 +4,7 @@ import org.apache.james.imapserver.ImapHandlerConfigurationData;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 import org.apache.james.mailboxmanager.torque.TorqueMailboxManagerProvider;
 import org.apache.james.services.MailServer;
-import org.apache.james.services.UsersRepository;
+import org.apache.mailet.UsersRepository;
 
 public class MockImapHandlerConfigurationData implements
         ImapHandlerConfigurationData

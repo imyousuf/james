@@ -42,8 +42,8 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.services.MailServer;
-import org.apache.james.services.UsersRepository;
 import org.apache.james.services.DNSServer;
+import org.apache.mailet.UsersRepository;
 
 /**
  * <p>Class <code>FetchMail</code> is an Avalon task that is periodically

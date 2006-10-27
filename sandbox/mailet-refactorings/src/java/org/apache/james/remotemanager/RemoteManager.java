@@ -30,8 +30,8 @@ import org.apache.james.core.AbstractJamesService;
 import org.apache.james.services.BayesianAnalyzerManagementService;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.SpoolManagementService;
-import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
+import org.apache.mailet.UsersRepository;
 
 import java.util.HashMap;
 

@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.services;
+package org.apache.mailet;
 
 import java.util.Iterator;
 
@@ -29,14 +29,14 @@ import java.util.Iterator;
  * email server or the members of a mailing list.
  *
  *
- * @version $Revision$
+ * @version $Revision: 453598 $
  */
 public interface UsersRepository {
 
     /**
      * The component role used by components implementing this service
      */
-    String ROLE = "org.apache.james.services.UsersRepository";
+    String ROLE = "org.apache.mailet.UsersRepository";
 
     String USER = "USER";
 

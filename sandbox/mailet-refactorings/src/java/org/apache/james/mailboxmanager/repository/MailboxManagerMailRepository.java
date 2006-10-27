@@ -48,9 +48,9 @@ import org.apache.james.mailboxmanager.mailbox.MailboxSession;
 import org.apache.james.mailboxmanager.mailbox.UidMailbox;
 import org.apache.james.mailboxmanager.manager.GeneralManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
-import org.apache.james.services.User;
 import org.apache.james.userrepository.DefaultJamesUser;
 import org.apache.mailet.Mail;
+import org.apache.mailet.User;
 
 /**
  * MailRepository wrapper to a MailboxManager <br />

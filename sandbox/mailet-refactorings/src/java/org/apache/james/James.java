@@ -46,7 +46,6 @@ import org.apache.james.services.JamesUsersRepository;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.ManageableDomainList;
 import org.apache.james.services.SpoolRepository;
-import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
 import org.apache.james.transport.mailets.LocalDelivery;
 import org.apache.mailet.Mail;
@@ -55,6 +54,7 @@ import org.apache.mailet.MailRepository;
 import org.apache.mailet.Mailet;
 import org.apache.mailet.MailetContext;
 import org.apache.mailet.RFC2822Headers;
+import org.apache.mailet.UsersRepository;
 
 import javax.mail.Address;
 import javax.mail.Message;

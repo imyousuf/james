@@ -25,14 +25,14 @@ import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.excalibur.datasource.DataSourceComponent;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
-import org.apache.james.services.JamesUser;
-import org.apache.james.services.UsersRepository;
 import org.apache.james.util.JDBCUtil;
 import org.apache.james.util.SqlResources;
+import org.apache.mailet.AliasedUser;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.RFC2822Headers;
+import org.apache.mailet.UsersRepository;
 import org.apache.mailet.dates.RFC822DateFormat;
 
 import javax.mail.Message;
@@ -749,7 +749,7 @@ public class WhiteListManager extends GenericMailet {
         String username;
         try {
             username = localusers.getRealName(originalUsername);
-            JamesUser user = (JamesUser) localusers.getUserByName(username);
+            AliasedUser user = (AliasedUser) localusers.getUserByName(username);
             if (user.getAliasing()) {
                 username = user.getAlias();
             }

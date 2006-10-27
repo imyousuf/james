@@ -28,8 +28,8 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
-import org.apache.james.services.User;
-import org.apache.james.services.UsersRepository;
+import org.apache.mailet.User;
+import org.apache.mailet.UsersRepository;
 
 import javax.naming.AuthenticationException;
 import javax.naming.NamingEnumeration;
@@ -251,21 +251,21 @@ public class UsersLDAPRepository
     }
 
     /**
-     * @see org.apache.james.services.UsersRepository#getUserByName(java.lang.String)
+     * @see org.apache.mailet.UsersRepository#getUserByName(java.lang.String)
      */
     public  User getUserByName(String name) {
         return new DefaultUser("dummy", "dummy");
     }
 
     /**
-     * @see org.apache.james.services.UsersRepository#getUserByNameCaseInsensitive(java.lang.String)
+     * @see org.apache.mailet.UsersRepository#getUserByNameCaseInsensitive(java.lang.String)
      */
     public User getUserByNameCaseInsensitive(String name) {
         return getUserByName(name);
     }
 
     /**
-     * @see org.apache.james.services.UsersRepository#containsCaseInsensitive(java.lang.String)
+     * @see org.apache.mailet.UsersRepository#containsCaseInsensitive(java.lang.String)
      */
     public boolean containsCaseInsensitive(String name) {
         return contains(name);
@@ -279,7 +279,7 @@ public class UsersLDAPRepository
     }
 
     /**
-     * @see org.apache.james.services.UsersRepository#updateUser(org.apache.james.services.User)
+     * @see org.apache.mailet.UsersRepository#updateUser(org.apache.mailet.User)
      */
     public boolean updateUser(User user) {
         return false;
@@ -351,7 +351,7 @@ public class UsersLDAPRepository
     }
     
     /**
-     * @see org.apache.james.services.UsersRepository#addUser(java.lang.String, java.lang.String)
+     * @see org.apache.mailet.UsersRepository#addUser(java.lang.String, java.lang.String)
      */
     public boolean addUser(String username, String password) {
         if (!contains(username)) {
@@ -433,7 +433,7 @@ public class UsersLDAPRepository
     }
 
     /**
-     * @see org.apache.james.services.UsersRepository#removeUser(java.lang.String)
+     * @see org.apache.mailet.UsersRepository#removeUser(java.lang.String)
      */
     public synchronized void removeUser(String userName) {
         String[] attrIDs = {membersAttr};
@@ -575,7 +575,7 @@ public class UsersLDAPRepository
 
 
     /**
-     * @see org.apache.james.services.UsersRepository#contains(java.lang.String)
+     * @see org.apache.mailet.UsersRepository#contains(java.lang.String)
      */
     public boolean contains(String name) {
         boolean found = false;
@@ -608,7 +608,7 @@ public class UsersLDAPRepository
 
 
     /**
-     * @see org.apache.james.services.UsersRepository#test(java.lang.String, java.lang.String)
+     * @see org.apache.mailet.UsersRepository#test(java.lang.String, java.lang.String)
      */
     public boolean test(String name, String testPassword) {
         boolean result = false;
@@ -711,7 +711,7 @@ public class UsersLDAPRepository
     }
 
     /**
-     * @see org.apache.james.services.UsersRepository#countUsers()
+     * @see org.apache.mailet.UsersRepository#countUsers()
      */
     public int countUsers() {
 

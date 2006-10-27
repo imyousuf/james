@@ -22,11 +22,11 @@
 package org.apache.james.transport.mailets;
 
 import org.apache.james.transport.mailets.listservcommands.IListServCommand;
-import org.apache.james.services.UsersRepository;
 import org.apache.james.util.XMLResources;
 import org.apache.mailet.Mailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
+import org.apache.mailet.UsersRepository;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 
 import javax.mail.MessagingException;

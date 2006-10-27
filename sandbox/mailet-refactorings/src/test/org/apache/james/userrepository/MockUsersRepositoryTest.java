@@ -20,8 +20,8 @@
 package org.apache.james.userrepository;
 
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.james.services.User;
-import org.apache.james.services.UsersRepository;
+import org.apache.mailet.User;
+import org.apache.mailet.UsersRepository;
 
 import java.util.ArrayList;
 import java.util.Iterator;

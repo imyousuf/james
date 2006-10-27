@@ -21,7 +21,10 @@
 
 package org.apache.james.services;
 
-import org.apache.mailet.MailAddress;
+import org.apache.mailet.AliasedUser;
+import org.apache.mailet.ForwardingUser;
+import org.apache.mailet.User;
+
 
 /**
  * Interface for objects representing users of an email/ messaging system.
@@ -30,64 +33,7 @@ import org.apache.mailet.MailAddress;
  * @version $Revision$
  */
 
-public interface JamesUser extends User {
-
-    /**
-     * Change password to pass. Return true if successful.
-     *
-     * @param pass the new password
-     * @return true if successful, false otherwise
-     */
-    boolean setPassword(String pass);
-
-    /**
-     * Indicate if mail for this user should be forwarded to some other mail
-     * server.
-     *
-     * @param forward whether email for this user should be forwarded
-     */
-    void setForwarding(boolean forward);
-
-    /** 
-     * Return true if mail for this user should be forwarded
-     */
-    boolean getForwarding();
-
-    /**
-     * <p>Set destination for forwading mail</p>
-     * <p>TODO: Should we use a MailAddress?</p>
-     *
-     * @param address the forwarding address for this user
-     */
-    boolean setForwardingDestination(MailAddress address);
-
-    /**
-     * Return the destination to which email should be forwarded
-     */
-    MailAddress getForwardingDestination();
-
-    /**
-     * Indicate if mail received for this user should be delivered locally to
-     * a different address.
-     */
-    void setAliasing(boolean alias);
-
-    /**
-     * Return true if emails should be delivered locally to an alias.
-     */
-    boolean getAliasing();
-
-    /**
-     * Set local address to which email should be delivered.
-     *
-     * @return true if successful
-     */
-    boolean setAlias(String address);
-
-    /**
-     * Get local address to which mail should be delivered.
-     */
-    String getAlias();
+public interface JamesUser extends User, ForwardingUser, AliasedUser {
 
 
 }

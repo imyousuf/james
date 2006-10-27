@@ -27,7 +27,7 @@
     <provide name="dnsserver" role="org.apache.james.services.DNSServer"/>
     <provide name="mailstore" role="org.apache.avalon.cornerstone.services.store.Store"/>
     <provide name="users-store" role="org.apache.james.services.UsersStore"/>
-    <provide name="localusersrepository" role="org.apache.james.services.UsersRepository"/>
+    <provide name="localusersrepository" role="org.apache.mailet.UsersRepository"/>
     <provide name="spoolrepository" role="org.apache.james.services.SpoolRepository"/>
     <provide name="filesystem" role="org.apache.james.services.FileSystem" />
     <provide name="domainlist" role="org.apache.james.services.DomainList" />
@@ -76,7 +76,7 @@
   <block name="remotemanager" class="org.apache.james.remotemanager.RemoteManager" >
     <provide name="mailstore" role="org.apache.avalon.cornerstone.services.store.Store"/>
     <provide name="users-store" role="org.apache.james.services.UsersStore"/>
-    <provide name="localusersrepository" role="org.apache.james.services.UsersRepository"/>
+    <provide name="localusersrepository" role="org.apache.mailet.UsersRepository"/>
     <provide name="sockets"
              role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
     <provide name="connections"
@@ -93,13 +93,13 @@
 
   <!-- The User Management block  -->
   <block name="usermanagement" class="org.apache.james.management.UserManagement" >
-    <provide name="localusersrepository" role="org.apache.james.services.UsersRepository"/>
+    <provide name="localusersrepository" role="org.apache.mailet.UsersRepository"/>
     <provide name="users-store" role="org.apache.james.services.UsersStore"/>
   </block>
 
     <!-- IMAP Server -->
   <block name="imapserver" class="org.apache.james.imapserver.ImapServer" >
-    <provide name="localusersrepository" role="org.apache.james.services.UsersRepository"/>
+    <provide name="localusersrepository" role="org.apache.mailet.UsersRepository"/>
     <provide name="sockets"
              role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
     <provide name="connections"
@@ -114,7 +114,7 @@
     
   <!-- POP3 Server -->
   <block name="pop3server" class="org.apache.james.pop3server.POP3Server" >
-    <provide name="localusersrepository" role="org.apache.james.services.UsersRepository"/>
+    <provide name="localusersrepository" role="org.apache.mailet.UsersRepository"/>
     <provide name="sockets"
              role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
     <provide name="connections"
@@ -128,7 +128,7 @@
   <!-- SMTP Server -->
   <block name="smtpserver" class="org.apache.james.smtpserver.SMTPServer" >
     <provide name="James" role="org.apache.mailet.MailetContext"/>
-    <provide name="localusersrepository" role="org.apache.james.services.UsersRepository"/>
+    <provide name="localusersrepository" role="org.apache.mailet.UsersRepository"/>
     <provide name="dnsserver" role="org.apache.james.services.DNSServer"/>
     <provide name="sockets"
              role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
@@ -146,7 +146,7 @@
 
   <!-- NNTP Server -->
   <block name="nntpserver" class="org.apache.james.nntpserver.NNTPServer" >
-    <provide name="localusersrepository" role="org.apache.james.services.UsersRepository"/>
+    <provide name="localusersrepository" role="org.apache.mailet.UsersRepository"/>
     <provide name="sockets"
              role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
     <provide name="connections"
@@ -168,7 +168,7 @@
     <provide name="scheduler"
              role="org.apache.avalon.cornerstone.services.scheduler.TimeScheduler"/> 
     <provide name="James" role="org.apache.james.services.MailServer"/>      
-    <provide name="localusersrepository" role="org.apache.james.services.UsersRepository"/>
+    <provide name="localusersrepository" role="org.apache.mailet.UsersRepository"/>
     <provide name="dnsserver" role="org.apache.james.services.DNSServer"/>
   </block>
 

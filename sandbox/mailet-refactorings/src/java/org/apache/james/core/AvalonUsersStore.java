@@ -22,8 +22,8 @@
 package org.apache.james.core;
 
 import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
+import org.apache.mailet.UsersRepository;
 
 import java.util.Iterator;
 

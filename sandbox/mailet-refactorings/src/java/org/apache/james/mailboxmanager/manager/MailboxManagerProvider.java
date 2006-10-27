@@ -1,7 +1,7 @@
 package org.apache.james.mailboxmanager.manager;
 
 import org.apache.james.mailboxmanager.MailboxManagerException;
-import org.apache.james.services.User;
+import org.apache.mailet.User;
 
 public interface MailboxManagerProvider {
     

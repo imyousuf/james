@@ -37,10 +37,10 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.Constants;
 import org.apache.james.imapserver.debug.CopyInputStream;
 import org.apache.james.imapserver.debug.SplitOutputStream;
-import org.apache.james.services.User;
 import org.apache.james.util.InternetPrintWriter;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogTarget;
+import org.apache.mailet.User;
 
 /**
  * The handler class for IMAP connections.
@@ -245,11 +245,11 @@ public class ImapHandler
 
             //Write BYE message.
             if ( getLogger().isInfoEnabled() ) {
-            	String user = "<unknown>";
-            	User userObject = session.getUser();
-            	if (userObject !=  null) {
-            		user = userObject.getUserName();
-            	}
+                String user = "<unknown>";
+                User userObject = session.getUser();
+                if (userObject !=  null) {
+                    user = userObject.getUserName();
+                }
                 StringBuffer logBuffer =
                         new StringBuffer( 128 )
                         .append( "Connection for " )

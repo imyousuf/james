@@ -30,9 +30,9 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.core.AbstractJamesService;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
-import org.apache.james.services.UsersRepository;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogFactory;
+import org.apache.mailet.UsersRepository;
 
 /**
  * TODO: this is a quick cut-and-paste hack from POP3Server. Should probably be
@@ -76,7 +76,7 @@ public class ImapServer extends AbstractJamesService
     {
         super.service( serviceManager );
         UsersRepository usersRepository = ( UsersRepository ) serviceManager.
-                lookup( "org.apache.james.services.UsersRepository" );
+                lookup( "org.apache.mailet.UsersRepository" );
         setUserRepository(usersRepository);
         MailboxManagerProvider mailboxManagerProvider =(MailboxManagerProvider) serviceManager.lookup("org.apache.james.mailboxmanager.manager.MailboxManagerProvider");
         getLogger().debug("MailboxManagerMailRepository uses service "+mailboxManagerProvider);

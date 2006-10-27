@@ -26,11 +26,11 @@ import org.apache.avalon.framework.service.DefaultServiceManager;
 import org.apache.james.mailrepository.filepair.File_Persistent_Object_Repository;
 import org.apache.james.services.FileSystem;
 import org.apache.james.services.JamesUser;
-import org.apache.james.services.UsersRepository;
 import org.apache.james.services.VirtualUserTable;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockStore;
 import org.apache.mailet.MailAddress;
+import org.apache.mailet.UsersRepository;
 
 import java.io.File;
 import java.io.FileNotFoundException;

@@ -29,7 +29,6 @@ import org.apache.james.services.AbstractDNSServer;
 import org.apache.james.services.DNSServer;
 import org.apache.james.services.JamesConnectionManager;
 import org.apache.james.services.MailServer;
-import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockServiceManager;
@@ -41,6 +40,7 @@ import org.apache.james.test.util.Util;
 import org.apache.james.userrepository.MockUsersRepository;
 import org.apache.james.util.InternetPrintWriter;
 import org.apache.james.util.connection.SimpleConnectionManager;
+import org.apache.mailet.UsersRepository;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

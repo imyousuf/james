@@ -22,7 +22,7 @@
 package org.apache.james.test.mock.james;
 
 import org.apache.james.services.UsersStore;
-import org.apache.james.services.UsersRepository;
+import org.apache.mailet.UsersRepository;
 
 import java.util.Iterator;
 import java.util.ArrayList;

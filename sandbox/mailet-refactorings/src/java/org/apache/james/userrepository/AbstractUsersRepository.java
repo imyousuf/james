@@ -25,10 +25,11 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.services.JamesUser;
 import org.apache.james.services.JamesUsersRepository;
-import org.apache.james.services.User;
 import org.apache.james.vut.ErrorMappingException;
+import org.apache.mailet.AliasedUser;
+import org.apache.mailet.ForwardingUser;
+import org.apache.mailet.User;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -158,8 +159,8 @@ public abstract class AbstractUsersRepository
         Collection mappings = new ArrayList();
         User user = getUserByName(username);
 
-        if (user instanceof JamesUser) {
-            JamesUser jUser = (JamesUser) user;
+        if (user instanceof AliasedUser) {
+            AliasedUser jUser = (AliasedUser) user;
 
             if (enableAliases && jUser.getAliasing()) {
                 String alias = jUser.getAlias();
@@ -167,11 +168,15 @@ public abstract class AbstractUsersRepository
                     mappings.add(alias + "@" + domain);
                 }
             }
-
-            if (enableForwarding && jUser.getForwarding()) {
+        }
+        if(user instanceof ForwardingUser){
+            ForwardingUser  fUser = (ForwardingUser) user;
+            
+        
+            if (enableForwarding && fUser.getForwarding()) {
                 String forward = null;
-                if (jUser.getForwardingDestination() != null
-                        && ((forward = jUser.getForwardingDestination()
+                if (fUser.getForwardingDestination() != null
+                        && ((forward = fUser.getForwardingDestination()
                                 .toString()) != null)) {
                     mappings.add(forward);
                 } else {
