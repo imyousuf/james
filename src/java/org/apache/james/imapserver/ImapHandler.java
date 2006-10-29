@@ -245,11 +245,11 @@ public class ImapHandler
 
             //Write BYE message.
             if ( getLogger().isInfoEnabled() ) {
-            	String user = "<unknown>";
-            	User userObject = session.getUser();
-            	if (userObject !=  null) {
-            		user = userObject.getUserName();
-            	}
+                String user = "<unknown>";
+                User userObject = session.getUser();
+                if (userObject !=  null) {
+                    user = userObject.getUserName();
+                }
                 StringBuffer logBuffer =
                         new StringBuffer( 128 )
                         .append( "Connection for " )
