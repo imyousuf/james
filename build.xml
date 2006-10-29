@@ -84,6 +84,7 @@
             <include name="${javax-activation.jar}"/>
             <include name="${bcmail.jar}"/>
             <include name="${bcmail-workaround.jar}"/>
+            <include name="${javax.management}"/>
             <include name="${jspf.jar}"/>
             <include name="${mstor.jar}"/>
             <include name="${commons-logging.jar}"/>

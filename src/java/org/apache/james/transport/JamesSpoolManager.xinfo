@@ -7,6 +7,10 @@
     <version>1.0</version>
   </block>
 
+  <services>
+    <service name="org.apache.james.services.SpoolManager" version="1.0" />
+  </services>
+    
   <dependencies>
     <dependency>
       <service name="org.apache.james.services.SpoolRepository" version="1.0"/>

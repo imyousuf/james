@@ -67,6 +67,10 @@
       <provide name="mailstore" role="org.apache.avalon.cornerstone.services.store.Store"/>
   </block>
   
+  <block name="processormanagement" class="org.apache.james.management.ProcessorManagement" >
+      <provide name="spoolmanager" role="org.apache.james.services.SpoolManager"/>
+  </block>
+
   <block name="bayesiananalyzermanagement" class="org.apache.james.management.BayesianAnalyzerManagement" >
       <provide name="database-connections"
              role="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector" />
