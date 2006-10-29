@@ -760,7 +760,7 @@
     <target name="unit-tests-classpath" depends="compile">
         <path id="unittest.class.path">
             <pathelement location="tools/lib/commons-net-1.4.1.jar"/>
-            <pathelement location="tools/lib/jmock-1.1.0RC1.jar"/>
+            <pathelement location="tools/lib/jmock-1.1.0.jar"/>
             <fileset dir="${lib.dir}">
                 <include name="*.jar"/>
             </fileset>
