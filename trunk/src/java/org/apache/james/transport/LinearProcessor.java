@@ -32,6 +32,7 @@ import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MailetConfigImpl;
+import org.apache.james.core.MatcherConfigImpl;
 import org.apache.james.services.MailProcessor;
 import org.apache.james.services.MailetLoader;
 import org.apache.james.services.MatcherLoader;
@@ -45,6 +46,7 @@ import org.apache.mailet.Mailet;
 import org.apache.mailet.MailetConfig;
 import org.apache.mailet.MailetException;
 import org.apache.mailet.Matcher;
+import org.apache.mailet.MatcherConfig;
 
 import javax.mail.MessagingException;
 
@@ -93,7 +95,7 @@ import java.util.Random;
  */
 public class LinearProcessor 
     extends AbstractLogEnabled
-    implements Disposable, Configurable, Serviceable, MailProcessor {
+    implements Disposable, Configurable, Serviceable, MailProcessor, MailetContainer {
 
     private static final Random random = new Random();  // Used to generate new mail names
 
@@ -693,5 +695,29 @@ public class LinearProcessor
         setMailetLoader((MailetLoader) comp.lookup(MailetLoader.ROLE));
         setMatchLoader((MatcherLoader) comp.lookup(MatcherLoader.ROLE));
         setSpool( (SpoolRepository) comp.lookup(SpoolRepository.ROLE));
+    }
+
+    public List getMailetConfigs() {
+        List mailetConfigs = new ArrayList();
+        Iterator iterator = mailets.iterator();
+        while (iterator.hasNext()) {
+            Mailet mailet = (Mailet) iterator.next();
+            MailetConfig mailetConfig = mailet.getMailetConfig();
+            if (mailetConfig == null) mailetConfigs.add(new MailetConfigImpl()); // placeholder
+            else mailetConfigs.add(mailetConfig);
+        }
+        return mailetConfigs;
+    }
+
+    public List getMatcherConfigs() {
+        List matcherConfigs = new ArrayList();
+        Iterator iterator = matchers.iterator();
+        while (iterator.hasNext()) {
+            Matcher matcher = (Matcher) iterator.next();
+            MatcherConfig matcherConfig = matcher.getMatcherConfig();
+            if (matcherConfig == null) matcherConfigs.add(new MatcherConfigImpl()); // placeholder
+            else matcherConfigs.add(matcherConfig);
+        }
+        return matcherConfigs;
     }
 }
