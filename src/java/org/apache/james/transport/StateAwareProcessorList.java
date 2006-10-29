@@ -47,7 +47,7 @@ import java.util.Iterator;
  */
 public class StateAwareProcessorList
     extends AbstractLogEnabled
-    implements Serviceable, Configurable, Initializable, Disposable, MailProcessor {
+    implements Serviceable, Configurable, Initializable, Disposable, MailProcessor, ProcessorList {
 
     /**
      * System component manager
@@ -234,6 +234,17 @@ public class StateAwareProcessorList
             ContainerUtil.dispose(processor);
             processors.remove(processor);
         }
+    }
+
+    /**
+     * @return names of all configured processors
+     */
+    public String[] getProcessorNames() {
+        return (String[]) processors.keySet().toArray(new String[]{});
+    }
+
+    public MailProcessor getProcessor(String name) {
+        return (MailProcessor) processors.get(name);
     }
 
 }

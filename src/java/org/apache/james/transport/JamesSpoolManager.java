@@ -33,10 +33,13 @@ import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.services.MailProcessor;
 import org.apache.james.services.SpoolRepository;
+import org.apache.james.services.SpoolManager;
 import org.apache.mailet.Mail;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Manages the mail spool.  This class is responsible for retrieving
@@ -48,7 +51,7 @@ import java.util.Iterator;
  */
 public class JamesSpoolManager
     extends AbstractLogEnabled
-    implements Serviceable, Configurable, Initializable, Runnable, Disposable {
+    implements Serviceable, Configurable, Initializable, Runnable, Disposable, SpoolManager {
 
     /**
      * System component manager
@@ -124,7 +127,7 @@ public class JamesSpoolManager
      */
     public void configure(Configuration conf) throws ConfigurationException {
         numThreads = conf.getChild("threads").getValueAsInteger(1);
-        
+
         String processorClass = conf.getChild("processorClass").getValue("org.apache.james.transport.StateAwareProcessorList");
         try {
             processorList = (MailProcessor) Thread.currentThread().getContextClassLoader().loadClass(processorClass).newInstance();
@@ -132,7 +135,7 @@ public class JamesSpoolManager
             getLogger().error("Unable to instantiate spoolmanager processor: "+processorClass, e1);
             throw new ConfigurationException("Instantiation exception: "+processorClass, e1);
         }
-        
+
         try {
             ContainerUtil.enableLogging(processorList, getLogger());
             ContainerUtil.service(processorList, compMgr);
@@ -140,7 +143,7 @@ public class JamesSpoolManager
             getLogger().error(e.getMessage(), e);
             throw new ConfigurationException("Servicing failed with error: "+e.getMessage(),e);
         }
-        
+
         ContainerUtil.configure(processorList, conf);
     }
 
@@ -150,9 +153,9 @@ public class JamesSpoolManager
     public void initialize() throws Exception {
 
         getLogger().info("JamesSpoolManager init...");
-        
+
         ContainerUtil.initialize(processorList);
-        
+
         if (getLogger().isInfoEnabled()) {
             StringBuffer infoBuffer =
                 new StringBuffer(64)
@@ -284,8 +287,37 @@ public class JamesSpoolManager
             } catch (Exception ignored) {}
         }
         getLogger().info("JamesSpoolManager thread shutdown completed.");
-        
+
         ContainerUtil.dispose(processorList);
     }
 
+    public String[] getProcessorNames() {
+        if (!(processorList instanceof ProcessorList)) {
+            return new String[0];  
+        }
+        String[] processorNames = ((ProcessorList) processorList).getProcessorNames();
+        return processorNames;
+    }
+
+    public List getMailetConfigs(String processorName) {
+        MailetContainer mailetContainer = getMailetContainerByName(processorName);
+        if (mailetContainer == null) return new ArrayList();
+        return mailetContainer.getMailetConfigs();
+    }
+
+    public List getMatcherConfigs(String processorName) {
+        MailetContainer mailetContainer = getMailetContainerByName(processorName);
+        if (mailetContainer == null) return new ArrayList();
+        return mailetContainer.getMatcherConfigs();
+    }
+
+    private MailetContainer getMailetContainerByName(String processorName) {
+        if (!(processorList instanceof ProcessorList)) return null;
+        
+        MailProcessor processor = ((ProcessorList) processorList).getProcessor(processorName);
+        if (!(processor instanceof MailetContainer)) return null;
+        // TODO: decide, if we have to visit all sub-processors for being ProcessorLists 
+        // on their very own and collecting the processor names deeply.
+        return (MailetContainer)processor;
+    }
 }
