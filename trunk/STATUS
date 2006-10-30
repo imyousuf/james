@@ -1,0 +1,48 @@
+APACHE JAMES SERVER STATUS:                                         -*-text-*-
+Last modified at [$Date$]
+
+The current version of this file can be found at:
+
+  * http://svn.apache.org/repos/asf/james/server/trunk/STATUS
+
+Stable:
+    Current:        x.x.x    	
+    Maintenance:    x.x.x   
+    Development:    x.x.x
+
+Next Release:
+    Maintenance:    x.x.x   
+		Will contain issues as logged in JIRA
+    Development:    x.x.x
+		xxxx proposes adding feature xxx
+		xxxx proposes refactoring the xxxx
+
+Votes:
+	Open:
+	bago [VOTE] James Server future releases/road maps
+		
+	Resolved:
+	
+	
+Polls/Proposals:
+	Open:
+	danny [PROPOSAL] - API requires service location
+
+	Resolved:
+	
+Project Mission:
+
+Assets:
+    DNS:                james.apache.org
+
+    Mailing lists:      server-dev@james.apache.org
+                        server-user@james.apache.org
+						mailet-api@james.apache.org
+
+    Web site:           http://james.apache.org/
+	
+	Source repositories: svn.apache.org/repos/asf/james
+    
+PMC Members
+
+Commiters
