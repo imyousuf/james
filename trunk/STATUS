@@ -11,17 +11,18 @@ Stable:
     Development:    x.x.x
 
 Next Release:
-    Maintenance:    x.x.x   
-		Will contain issues as logged in JIRA
-    Development:    x.x.x
-		xxxx proposes adding feature xxx
-		xxxx proposes refactoring the xxxx
+    Maintenance:    2.3.1   
+		Will contain defect fixes and minor enhancements tracked in JIRA
+    Development:    2.4.0
+		Will contain new features and major enhancements not yet agreed.
 
 Votes:
 	Open:
-	bago [VOTE] James Server future releases/road maps
 		
 	Resolved:
+	bago [VOTE] James Server future releases/road maps	
+		Unanimous +1 to "next-major"
+		0 to "next-minor"
 	
 	
 Polls/Proposals:
