@@ -21,9 +21,9 @@
 
 package org.apache.james.transport.mailets;
 
+import javax.mail.MessagingException;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
-import javax.mail.MessagingException;
 
 /**
  * This mailet sets removes all attributes set on the Mail instance

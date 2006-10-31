@@ -22,25 +22,21 @@
 package org.apache.james.transport.mailets;
 
 import java.io.BufferedReader;
-import java.io.StringReader;
 import java.io.ByteArrayOutputStream;
-
+import java.io.StringReader;
 import java.sql.Connection;
 import java.util.Enumeration;
-
-import javax.mail.internet.MimeMessage;
 import javax.mail.Header;
 import javax.mail.MessagingException;
-
+import javax.mail.internet.MimeMessage;
 import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.excalibur.datasource.DataSourceComponent;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
+import org.apache.james.util.JDBCBayesianAnalyzer;
+import org.apache.james.util.JDBCUtil;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
-import org.apache.james.util.JDBCUtil;
-
-import org.apache.james.util.JDBCBayesianAnalyzer;
 
 /**
  * <P>Feeds ham OR spam messages to train the {@link BayesianAnalysis} mailet.</P>

@@ -25,6 +25,7 @@ import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.util.InternetPrintWriter;
 import org.apache.james.util.io.IOUtil;
+import org.apache.mailet.MimeMessageUtil;
 
 import javax.activation.DataHandler;
 import javax.mail.MessagingException;

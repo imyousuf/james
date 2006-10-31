@@ -23,8 +23,10 @@ import javax.mail.MessagingException;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
+
 import org.apache.james.core.MailetConfigImpl;
 import org.apache.james.services.MailetLoader;
+
 import org.apache.mailet.Mailet;
 import org.apache.mailet.MailetException;
 /**

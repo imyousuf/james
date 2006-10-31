@@ -21,16 +21,6 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.james.core.MailImpl;
-import org.apache.james.util.VirtualUserTableUtil;
-import org.apache.mailet.GenericMailet;
-import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
-import org.apache.oro.text.regex.MalformedPatternException;
-
-import javax.mail.MessagingException;
-import javax.mail.internet.ParseException;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -38,6 +28,13 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.StringTokenizer;
+import javax.mail.MessagingException;
+import javax.mail.internet.ParseException;
+import org.apache.james.util.VirtualUserTableUtil;
+import org.apache.mailet.GenericMailet;
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
+import org.apache.oro.text.regex.MalformedPatternException;
 
 /**
  * Provides an abstraction of common functionality needed for implementing
@@ -162,7 +159,7 @@ public abstract class AbstractVirtualUserTable extends GenericMailet
             // getMailetContext().sendMail(mail.getSender(), recipientsToAddForward, mail.getMessage());
 
             // duplicates the Mail object, to be able to modify the new mail keeping the original untouched
-            MailImpl newMail = new MailImpl(mail);
+            Mail newMail = getMailetContext().getMailFactory().newMail(mail);
             try {
                 try {
                     newMail.setRemoteAddr(java.net.InetAddress.getLocalHost().getHostAddress());

@@ -21,8 +21,8 @@
 
 package org.apache.james.transport.mailets;
 
-import javax.mail.MessagingException;
 import java.util.StringTokenizer;
+import javax.mail.MessagingException;
 
 /**
  * This mailet will attach text to the end of the message (like a footer).  Right

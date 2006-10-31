@@ -24,10 +24,8 @@ package org.apache.james.transport.mailets;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.StringTokenizer;
-
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 

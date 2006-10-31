@@ -19,14 +19,12 @@
 
 package org.apache.james.transport.mailets;
 
+import java.io.IOException;
+import javax.mail.MessagingException;
 import org.apache.james.util.mailet.FlowedMessageUtils;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailetException;
-
-import javax.mail.MessagingException;
-
-import java.io.IOException;
 
 /**
  * Convert a message to format=flowed

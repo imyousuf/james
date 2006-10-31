@@ -38,7 +38,10 @@ import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.services.FileSystem;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
+import org.apache.mailet.MailFactory;
+import org.apache.mailet.MailRepository;
 import org.apache.mailet.MailetContext;
+import org.apache.mailet.MailetException;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -291,6 +294,23 @@ public abstract class Loader extends AbstractLogEnabled implements Serviceable, 
          */
         public void storeMail(MailAddress sender, MailAddress recipient, MimeMessage msg) throws MessagingException {
             mailetContext.storeMail(sender, recipient, msg);
+        }
+
+        /**
+         * @see org.apache.mailet.MailetContext#getMailRepository(java.lang.String)
+         */
+        public MailRepository getMailRepository(String repoURL) throws MailetException {
+
+            
+            return mailetContext.getMailRepository(repoURL);
+        }
+
+        /**
+         * @see org.apache.mailet.MailetContext#getMailFactory()
+         */
+        public MailFactory getMailFactory() {
+
+            return mailetContext.getMailFactory();
         }
     }
 

@@ -50,9 +50,11 @@ import org.apache.james.services.UsersStore;
 import org.apache.james.transport.mailets.LocalDelivery;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
+import org.apache.mailet.MailFactory;
 import org.apache.mailet.MailRepository;
 import org.apache.mailet.Mailet;
 import org.apache.mailet.MailetContext;
+import org.apache.mailet.MailetException;
 import org.apache.mailet.RFC2822Headers;
 import org.apache.mailet.UsersRepository;
 
@@ -170,6 +172,8 @@ public class James
     private FileSystem fileSystem;
 
     private DomainList domains;
+
+    private MailFactory mailFactory = new JamesMailFactory();
 
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
@@ -729,6 +733,33 @@ public class James
     public MailAddress getPostmaster() {
         return postmaster;
     }
+    
+    /**
+     * @param repoPath
+     * @return
+     * @throws MailetException
+     */
+    public MailRepository getMailRepository(String repoPath) throws MailetException {
+
+        MailRepository repo;
+        ServiceManager compMgr = (ServiceManager) getAttribute(Constants.AVALON_COMPONENT_MANAGER);
+        Store mailstore;
+        try{
+            mailstore = (Store) compMgr.lookup(Store.ROLE);
+        }catch (ServiceException e){
+            throw new MailetException("Failed to lookup mailstore");
+        }
+        DefaultConfiguration mailConf
+            = new DefaultConfiguration("repository", "generated:ToRepository");
+        mailConf.setAttribute("destinationURL", repoPath);
+        mailConf.setAttribute("type", "MAIL");
+        try{
+            repo = (MailRepository) mailstore.select(mailConf);
+        }catch (ServiceException e){
+            throw new MailetException("Failed to lookup repository "+repoPath+" in mailstore");
+        }
+        return repo;
+    }
 
     /**
      * @see org.apache.mailet.MailetContext#getMajorVersion()
@@ -861,5 +892,14 @@ public class James
         MailImpl m = new MailImpl(getId(),sender,recipients,msg);
         localDeliveryMailet.service(m);
         ContainerUtil.dispose(m);
+    }
+
+    /**
+     * @see org.apache.mailet.MailetContext#getMailFactory()
+     */
+    public MailFactory getMailFactory() {
+
+       
+        return mailFactory ;
     }
 }

@@ -22,10 +22,9 @@
 package org.apache.james.transport.mailets;
 
 import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage ;
-
-import org.apache.mailet.GenericMailet ;
-import org.apache.mailet.Mail ;
+import javax.mail.internet.MimeMessage;
+import org.apache.mailet.GenericMailet;
+import org.apache.mailet.Mail;
 
 /**
  * Adds a specified header and value to the message.

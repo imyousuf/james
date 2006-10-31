@@ -21,18 +21,16 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.mailet.GenericMailet;
-import org.apache.mailet.Mail;
-import org.apache.mailet.RFC2822Headers;
-
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.internet.MimePart;
-
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import org.apache.mailet.GenericMailet;
+import org.apache.mailet.Mail;
+import org.apache.mailet.RFC2822Headers;
 
 /**
  * An abstract implementation of a mailet that add a Footer to an email

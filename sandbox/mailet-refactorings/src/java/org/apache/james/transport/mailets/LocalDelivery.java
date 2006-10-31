@@ -21,17 +21,15 @@
 
 package org.apache.james.transport.mailets;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import javax.mail.MessagingException;
 import org.apache.commons.collections.iterators.IteratorChain;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailetConfig;
 import org.apache.mailet.MailetContext;
-
-import javax.mail.MessagingException;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 
 /**
  * Receives a Mail from JamesSpoolManager and takes care of delivery of the

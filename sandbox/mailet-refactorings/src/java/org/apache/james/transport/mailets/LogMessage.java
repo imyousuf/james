@@ -21,16 +21,12 @@
 
 package org.apache.james.transport.mailets;
 
+import java.io.InputStream;
 import java.util.Enumeration;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-
-import org.apache.james.core.MailImpl;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
-
-import java.io.InputStream;
-import java.lang.StringBuffer;
 
 /**
  * Logs Message Headers and/or Body.
@@ -69,10 +65,10 @@ public class LogMessage extends GenericMailet {
     /**
      * Log a particular message
      *
-     * @param genericmail the mail to process
+     * @param mail the mail to process
      */
-    public void service(Mail genericmail) {
-        MailImpl mail = (MailImpl)genericmail;
+    public void service(Mail mail) {
+        
         log(new StringBuffer(160).append("Logging mail ").append(mail.getName()).toString());
         if (comment != null) log(comment);
         try {

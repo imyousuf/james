@@ -21,11 +21,10 @@
 
 package org.apache.james.transport.mailets;
 
+import javax.mail.MessagingException;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
-
-import javax.mail.MessagingException;
 
 /**
  * An abstract implementation of a listserv manager.  This mailet reads the

@@ -21,15 +21,15 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.mailet.GenericMailet;
-import org.apache.mailet.Mail;
-import org.apache.mailet.MailetException;
 import java.io.Serializable;
-import java.util.Iterator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import javax.mail.MessagingException;
+import org.apache.mailet.GenericMailet;
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailetException;
 
 /**
  * This mailet sets attributes on the Mail.

@@ -21,11 +21,10 @@
 
 package org.apache.james.transport.mailets;
 
+import javax.mail.MessagingException;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailetException;
-
-import javax.mail.MessagingException;
 
 /**
  * This mailet redirects the mail to the named processor

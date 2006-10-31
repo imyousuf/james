@@ -21,17 +21,16 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.mailet.RFC2822Headers;
-import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
-
-import javax.mail.MessagingException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Collection;
 import java.util.Iterator;
+import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
+import org.apache.mailet.RFC2822Headers;
 
 /**
  * <P>Abstract mailet providing configurable notification services.<BR>

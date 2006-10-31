@@ -23,33 +23,27 @@ package org.apache.james.transport.mailets;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
-import java.util.ArrayList;
-
-
 import javax.mail.Message;
 import javax.mail.MessagingException;
-import javax.mail.internet.ParseException;
 import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
-
-import org.apache.mailet.RFC2822Headers;
-import org.apache.mailet.dates.RFC822DateFormat;
-import org.apache.james.core.MailImpl;
-import org.apache.james.core.MimeMessageUtil;
-
+import javax.mail.internet.ParseException;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
+import org.apache.mailet.MimeMessageUtil;
+import org.apache.mailet.RFC2822Headers;
+import org.apache.mailet.dates.RFC822DateFormat;
 
 
 /**
@@ -689,7 +683,7 @@ public abstract class AbstractRedirect extends GenericMailet {
      * If the requested value is null does nothing.
      * Is a "setX(Mail, Tx, Mail)" method.
      */
-    protected void setReversePath(MailImpl newMail, MailAddress reversePath, Mail originalMail) throws MessagingException {
+    protected void setReversePath(Mail newMail, MailAddress reversePath, Mail originalMail) throws MessagingException {
         if(reversePath != null) {
             if (reversePath == SpecialAddress.NULL) {
                 reversePath = null;
@@ -977,7 +971,7 @@ public abstract class AbstractRedirect extends GenericMailet {
         boolean keepMessageId = false;
 
         // duplicates the Mail object, to be able to modify the new mail keeping the original untouched
-        MailImpl newMail = new MailImpl(originalMail);
+        Mail newMail =getMailetContext().getMailFactory().newMail(originalMail);
         try {
             // We don't need to use the original Remote Address and Host,
             // and doing so would likely cause a loop with spam detecting

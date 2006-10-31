@@ -21,12 +21,11 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.mailet.MailAddress;
-
+import java.util.Collection;
+import java.util.HashSet;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
-import java.util.HashSet;
-import java.util.Collection;
+import org.apache.mailet.MailAddress;
 
 /**
  * <P>Sends a notification message to the Postmaster.</P>

@@ -18,8 +18,10 @@
  ****************************************************************/
 
 
-package org.apache.james.core;
+package org.apache.mailet;
 
+import org.apache.james.core.MimeMessageCopyOnWriteProxy;
+import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.util.InternetPrintWriter;
 import org.apache.james.util.io.IOUtil;
 

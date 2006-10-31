@@ -25,6 +25,7 @@ import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
+import org.apache.mailet.MimeMessageUtil;
 import org.apache.mailet.RFC2822Headers;
 
 import javax.mail.Address;

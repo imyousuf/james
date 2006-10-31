@@ -21,13 +21,13 @@
 
 package org.apache.james.transport.mailets;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.StringTokenizer;
+import javax.mail.MessagingException;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailetException;
-import java.util.Iterator;
-import java.util.ArrayList;
-import java.util.StringTokenizer;
-import javax.mail.MessagingException;
 
 /**
  * This mailet sets attributes on the Mail.

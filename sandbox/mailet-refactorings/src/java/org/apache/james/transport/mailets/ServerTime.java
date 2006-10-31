@@ -21,11 +21,11 @@
 
 package org.apache.james.transport.mailets;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
-
-import javax.mail.internet.MimeMessage;
 
 /**
  * Returns the current time for the mail server.  Sample configuration:

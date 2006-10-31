@@ -21,13 +21,12 @@
 
 package org.apache.james.transport.mailets;
 
-import javax.net.SocketFactory;
-
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import javax.net.SocketFactory;
 
 /**
  * It is used by RemoteDelivery in order to make possible to bind the client

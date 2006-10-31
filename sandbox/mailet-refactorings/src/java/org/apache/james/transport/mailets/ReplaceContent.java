@@ -19,14 +19,6 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.james.util.mailet.StringUtils;
-import org.apache.mailet.GenericMailet;
-import org.apache.mailet.Mail;
-import org.apache.mailet.MailetException;
-
-import javax.mail.MessagingException;
-import javax.mail.internet.ContentType;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -37,6 +29,12 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
+import javax.mail.MessagingException;
+import javax.mail.internet.ContentType;
+import org.apache.james.util.mailet.StringUtils;
+import org.apache.mailet.GenericMailet;
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailetException;
 
 /**
  * Replace text contents

@@ -21,18 +21,17 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.james.util.mailet.MailetUtil;
-import org.apache.mailet.RFC2822Headers;
+import java.io.IOException;
+import java.util.Collection;
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetException;
-
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-import java.io.IOException;
-import java.util.Collection;
+import org.apache.mailet.MailetUtil;
+import org.apache.mailet.RFC2822Headers;
 
 /**
  * An abstract implementation of a listserv.  The underlying implementation must define

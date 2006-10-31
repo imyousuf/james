@@ -21,6 +21,16 @@
 
 package org.apache.james.transport.mailets;
 
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Vector;
+import javax.mail.MessagingException;
+import javax.mail.internet.ParseException;
 import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.excalibur.datasource.DataSourceComponent;
 import org.apache.avalon.framework.service.ServiceManager;
@@ -30,18 +40,6 @@ import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetException;
-
-import javax.mail.MessagingException;
-import javax.mail.internet.ParseException;
-
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Vector;
 
 /**
  * Rewrites recipient addresses based on a database table.  The connection

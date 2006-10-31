@@ -1,8 +1,8 @@
 package org.apache.james.mailrepository;
 
 import org.apache.avalon.cornerstone.services.store.StreamRepository;
-import org.apache.james.core.MimeMessageUtil;
 import org.apache.mailet.Mail;
+import org.apache.mailet.MimeMessageUtil;
 
 import javax.mail.MessagingException;
 

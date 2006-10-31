@@ -23,10 +23,8 @@ package org.apache.james.transport.mailets;
 
 import java.util.Collection;
 import java.util.HashSet;
-
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
-
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 

@@ -21,19 +21,13 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.avalon.cornerstone.services.store.Store;
-import org.apache.avalon.framework.configuration.DefaultConfiguration;
+import java.util.Iterator;
+import javax.mail.MessagingException;
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.james.Constants;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailRepository;
-
-import javax.mail.MessagingException;
-
-import java.util.Iterator;
+import org.apache.mailet.MailetException;
 
 /**
  * Re-spools Mail found in the specified Repository.
@@ -80,21 +74,20 @@ public class FromRepository extends GenericMailet {
         } catch (Exception e) {
             // Ignore exception, default to false
         }
-
-        ServiceManager compMgr = (ServiceManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
+        
+       
         try {
-            Store mailstore = (Store) compMgr.lookup(Store.ROLE);
-            DefaultConfiguration mailConf
-                = new DefaultConfiguration("repository", "generated:ToRepository");
-            mailConf.setAttribute("destinationURL", repositoryPath);
-            mailConf.setAttribute("type", "MAIL");
-            repository = (MailRepository) mailstore.select(mailConf);
-        } catch (ServiceException cnfe) {
+            
+            repository = getMailetContext().getMailRepository(repositoryPath);
+          
+        } catch (MailetException cnfe) {
             log("Failed to retrieve Store component:" + cnfe.getMessage());
         } catch (Exception e) {
             log("Failed to retrieve Store component:" + e.getMessage());
         }
     }
+
+   
 
     /**
      * Spool mail from a particular repository.

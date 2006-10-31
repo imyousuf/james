@@ -286,4 +286,20 @@ public interface MailetContext {
      * @return an Iterator over HostAddress instances, sorted by priority
      */
     Iterator getSMTPHostAddresses(String domainName);
+    
+    
+    /**
+     * 
+     * Returns the MailRepository associated with the URL
+     * 
+     * @param repoURL
+     * @return 
+     * @throws MailetException
+     */
+    public MailRepository getMailRepository(String repoURL) throws MailetException;
+    
+    /**
+     * @return a MailFactory implementation
+     */
+    public MailFactory getMailFactory();
 }

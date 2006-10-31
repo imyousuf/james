@@ -21,8 +21,23 @@
 
 package org.apache.james.transport.mailets;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.net.ConnectException;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import javax.mail.MessagingException;
+import javax.mail.SendFailedException;
+import javax.mail.Session;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
 import org.apache.james.Constants;
-import org.apache.james.core.MailImpl;
 import org.apache.james.util.mail.MimeMultipartReport;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.Mail;
@@ -34,24 +49,6 @@ import org.apache.oro.text.regex.MatchResult;
 import org.apache.oro.text.regex.Pattern;
 import org.apache.oro.text.regex.Perl5Compiler;
 import org.apache.oro.text.regex.Perl5Matcher;
-
-import javax.mail.MessagingException;
-import javax.mail.SendFailedException;
-import javax.mail.Session;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.net.ConnectException;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
 
 
 
@@ -147,7 +144,7 @@ public class DSNBounce extends AbstractNotify {
 
 
         // duplicates the Mail object, to be able to modify the new mail keeping the original untouched
-        MailImpl newMail = new MailImpl(originalMail);
+        Mail newMail = getMailetContext().getMailFactory().newMail(originalMail);
         try {
             // We don't need to use the original Remote Address and Host,
             // and doing so would likely cause a loop with spam detecting

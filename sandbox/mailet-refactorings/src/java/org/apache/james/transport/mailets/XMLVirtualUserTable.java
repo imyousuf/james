@@ -25,9 +25,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
 import javax.mail.MessagingException;
-
 import org.apache.james.util.VirtualUserTableUtil;
 import org.apache.mailet.MailAddress;
 

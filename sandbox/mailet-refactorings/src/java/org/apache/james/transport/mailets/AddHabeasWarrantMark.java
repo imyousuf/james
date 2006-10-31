@@ -22,8 +22,8 @@
 package org.apache.james.transport.mailets;
 
 import org.apache.james.transport.matchers.HasHabeasWarrantMark;
-import org.apache.mailet.GenericMailet ;
-import org.apache.mailet.Mail ;
+import org.apache.mailet.GenericMailet;
+import org.apache.mailet.Mail;
 
 /*
  * This matcher adds the Hebeas Warrant Mark to a message.

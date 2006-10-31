@@ -23,6 +23,7 @@ package org.apache.james.core;
 
 import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.mailet.MimeMessageUtil;
 
 import javax.activation.DataHandler;
 import javax.mail.Address;

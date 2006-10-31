@@ -21,6 +21,13 @@
 
 package org.apache.james.transport.mailets;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Vector;
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
@@ -32,15 +39,6 @@ import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.RFC2822Headers;
 import org.apache.mailet.UsersRepository;
-
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Vector;
 
 /**
  * Receives a Mail from JamesSpoolManager and takes care of delivery of the

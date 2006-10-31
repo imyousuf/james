@@ -21,12 +21,11 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.mailet.MailAddress;
-
-import javax.mail.MessagingException;
-import javax.mail.internet.InternetAddress;
 import java.util.Collection;
 import java.util.HashSet;
+import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
+import org.apache.mailet.MailAddress;
 
 /**
  * <P>Replaces incoming recipients with those specified, and resends the message unaltered.</P>

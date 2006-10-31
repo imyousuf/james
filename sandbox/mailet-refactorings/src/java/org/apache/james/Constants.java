@@ -30,6 +30,42 @@ package org.apache.james;
  */
 public class Constants {
 
+    
+    
+
+    /**
+     * The name of the software (i.e. James).
+     */
+   
+    public static final String SERVER_NAMES = "SERVER_NAMES";
+
+   
+    /**
+     * Context key used to store the postmaster address for
+     * this James instance in the context.
+     */
+    public static final String POSTMASTER = "POSTMASTER";
+
+    
+
+    /**
+     * Context key used to store the enableAliases configuration for the default
+     * LocalUsers Repository.
+     */
+    public static final String DEFAULT_ENABLE_ALIASES = "JAMES_DEFAULT_ENABLE_ALIASES";
+
+    /**
+     * Context key used to store the enableForwarding configuration for the default
+     * LocalUsers Repository.
+     */
+    public static final String DEFAULT_ENABLE_FORWARDING = "JAMES_DEFAULT_ENABLE_FORWARDING";
+
+    /**
+     * Context key used to store the ignoreCase configuration for the 
+     * UserRepository
+     */
+    public static final String DEFAULT_IGNORE_USERNAME_CASE = "JAMES_DEFAULT_IGNORE_USERNAME_CASE";
+
     /**
      * The version of James.
      */

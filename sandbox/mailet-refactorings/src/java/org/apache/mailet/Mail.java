@@ -203,4 +203,20 @@ public interface Mail extends Serializable, Cloneable {
      * @since Mailet API v2.3
      */
     void setLastUpdated(Date lastUpdated);
+    /**
+     * @param reversePath
+     */
+    void setSender(MailAddress reversePath);
+    /**
+     * 
+     */
+    void dispose();
+    /**
+     * @param hostAddress
+     */
+    void setRemoteAddr(String hostAddress);
+    /**
+     * @param hostName
+     */
+    void setRemoteHost(String hostName);
 }

@@ -21,13 +21,11 @@
 package org.apache.james.transport.mailets;
 
 import java.util.Iterator;
-
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 import org.apache.james.util.SpamAssassinInvoker;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
-
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
 
 /**
  * Sends the message through daemonized SpamAssassin (spamd), visit <a

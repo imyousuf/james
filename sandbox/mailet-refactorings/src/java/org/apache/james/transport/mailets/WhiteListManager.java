@@ -21,28 +21,6 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
-import org.apache.avalon.excalibur.datasource.DataSourceComponent;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.james.Constants;
-import org.apache.james.util.JDBCUtil;
-import org.apache.james.util.SqlResources;
-import org.apache.mailet.AliasedUser;
-import org.apache.mailet.GenericMailet;
-import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
-import org.apache.mailet.RFC2822Headers;
-import org.apache.mailet.UsersRepository;
-import org.apache.mailet.dates.RFC822DateFormat;
-
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -60,6 +38,26 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
+import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
+import org.apache.avalon.excalibur.datasource.DataSourceComponent;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.james.Constants;
+import org.apache.james.util.JDBCUtil;
+import org.apache.james.util.SqlResources;
+import org.apache.mailet.AliasedUser;
+import org.apache.mailet.GenericMailet;
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
+import org.apache.mailet.RFC2822Headers;
+import org.apache.mailet.UsersRepository;
+import org.apache.mailet.dates.RFC822DateFormat;
 
 /** <P>Manages for each local user a "white list" of remote addresses whose messages
  * should never be blocked as spam.</P>

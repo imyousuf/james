@@ -19,18 +19,16 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.mailet.GenericMailet;
-import org.apache.mailet.Mail;
-import org.apache.mailet.MailetException;
-
+import java.io.IOException;
+import java.util.HashMap;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Part;
 import javax.mail.internet.ContentType;
-
-import java.io.IOException;
-import java.util.HashMap;
+import org.apache.mailet.GenericMailet;
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailetException;
 
 /**
  * Keep only the text part of a message.

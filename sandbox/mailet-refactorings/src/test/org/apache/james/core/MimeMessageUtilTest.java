@@ -24,6 +24,7 @@ package org.apache.james.core;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
+import org.apache.mailet.MimeMessageUtil;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.util.mailet;
+package org.apache.mailet;
 
 
 /**

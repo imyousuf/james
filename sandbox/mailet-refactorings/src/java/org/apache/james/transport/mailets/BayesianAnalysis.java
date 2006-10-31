@@ -21,6 +21,15 @@
 
 package org.apache.james.transport.mailets;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.StringReader;
+import java.sql.Connection;
+import java.text.DecimalFormat;
+import java.util.Collection;
+import java.util.Iterator;
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.excalibur.datasource.DataSourceComponent;
 import org.apache.avalon.framework.service.ServiceManager;
@@ -30,18 +39,6 @@ import org.apache.james.util.JDBCUtil;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.RFC2822Headers;
-
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
-
-
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.StringReader;
-import java.sql.Connection;
-import java.text.DecimalFormat;
-import java.util.Collection;
-import java.util.Iterator;
 
 /**
  * <P>Spam detection mailet using bayesian analysis techniques.</P>

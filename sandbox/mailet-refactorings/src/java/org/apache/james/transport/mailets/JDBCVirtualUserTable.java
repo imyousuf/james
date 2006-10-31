@@ -21,17 +21,6 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
-import org.apache.avalon.excalibur.datasource.DataSourceComponent;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.james.Constants;
-import org.apache.james.util.JDBCUtil;
-import org.apache.james.util.VirtualUserTableUtil;
-import org.apache.mailet.MailAddress;
-import org.apache.mailet.MailetException;
-
-import javax.mail.MessagingException;
-
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
@@ -40,6 +29,15 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+import javax.mail.MessagingException;
+import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
+import org.apache.avalon.excalibur.datasource.DataSourceComponent;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.james.Constants;
+import org.apache.james.util.JDBCUtil;
+import org.apache.james.util.VirtualUserTableUtil;
+import org.apache.mailet.MailAddress;
+import org.apache.mailet.MailetException;
 
 /**
  * Implements a Virtual User Table for JAMES.  Derived from the
