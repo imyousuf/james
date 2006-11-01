@@ -67,7 +67,7 @@ public class ToRepository extends GenericMailet {
         
       
             try{
-                getMailetContext().getMailRepository(repositoryPath);
+                repository = getMailetContext().getMailRepository(repositoryPath);
             }catch (MailetException e){
                 log("Failed to retrieve repository:" + e.getMessage());
             
