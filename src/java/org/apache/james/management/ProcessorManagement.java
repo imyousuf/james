@@ -132,4 +132,34 @@ public class ProcessorManagement implements Serviceable, ProcessorManagementServ
         return mailetNames;
     }
 
+    public String[] getMatcherNames(String processorName) {
+        List matcherConfigs = processorManager.getMatcherConfigs(processorName);
+        // always ommit the terminating mailet
+        String[] matcherNames = new String[matcherConfigs.size()-1];
+        int i = 0;
+        Iterator iterator = matcherConfigs.iterator();
+        while (iterator.hasNext()) {
+            MatcherConfig matcherConfig = (MatcherConfig) iterator.next();
+            if (!iterator.hasNext()) continue; // ommit the terminating mailet
+            String matcherName = matcherConfig.getMatcherName();
+            matcherNames[i] = matcherName;
+            i++;
+        }
+        return matcherNames;
+    }
+    
+    public String[] getMatcherParameters(String processorName, int matcherIndex) {
+        List matcherConfigs = processorManager.getMatcherConfigs(processorName);
+        if (matcherConfigs == null || matcherConfigs.size() < matcherIndex) return null;
+        MatcherConfig matcherConfig = (MatcherConfig)matcherConfigs.get(matcherIndex);
+        return new String[] {matcherConfig.getCondition()};
+    }
+
+    public String[] getMailetParameters(String processorName, int mailetIndex) {
+        List mailetConfigs = processorManager.getMailetConfigs(processorName);
+        if (mailetConfigs == null || mailetConfigs.size() < mailetIndex) return null;
+        MailetConfig mailetConfig = (MailetConfig) mailetConfigs.get(mailetIndex);
+        return MailetManagement.getMailetParameters(mailetConfig);
+    }
+
 }

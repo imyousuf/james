@@ -22,8 +22,10 @@
 package org.apache.james.remotemanager;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -35,16 +37,15 @@ import org.apache.james.core.AbstractJamesHandler;
 import org.apache.james.management.BayesianAnalyzerManagementException;
 import org.apache.james.management.SpoolFilter;
 import org.apache.james.services.JamesUser;
+import org.apache.james.services.ProcessorManagementService;
 import org.apache.james.services.User;
 import org.apache.james.services.UsersRepository;
 import org.apache.mailet.MailAddress;
 
 
 /**
- * Provides a really rude network interface to administer James.
- * - Allow to add accounts.
- * - Allow to manage the spool
- * - Allow to feed BayesianAnalysis
+ * Provides a console-based administration interface covering most of the management 
+ * functionality found in the classes from package org.apache.james.management
  * 
  * TODO: -improve protocol
  *       -much more...
@@ -55,122 +56,40 @@ import org.apache.mailet.MailAddress;
 public class RemoteManagerHandler
     extends AbstractJamesHandler {
 
-    /**
-     * The text string for the MEMSTAT command
-     */
-    private static final String COMMAND_MEMSTAT = "MEMSTAT";
+    private static final Class[] WORKER_METHOD_PARAMETERSET = new Class[] {String.class};
 
-    /**
-     * The text string for the ADDUSER command
-     */
-    private static final String COMMAND_ADDUSER = "ADDUSER";
-
-    /**
-     * The text string for the SETPASSWORD command
-     */
-    private static final String COMMAND_SETPASSWORD = "SETPASSWORD";
-
-    /**
-     * The text string for the DELUSER command
-     */
-    private static final String COMMAND_DELUSER = "DELUSER";
-
-    /**
-     * The text string for the LISTUSERS command
-     */
-    private static final String COMMAND_LISTUSERS = "LISTUSERS";
-
-    /**
-     * The text string for the COUNTUSERS command
-     */
-    private static final String COMMAND_COUNTUSERS = "COUNTUSERS";
-
-    /**
-     * The text string for the VERIFY command
-     */
-    private static final String COMMAND_VERIFY = "VERIFY";
-
-    /**
-     * The text string for the HELP command
-     */
-    private static final String COMMAND_HELP = "HELP";
-
-    /**
-     * The text string for the SETFORWARDING command
-     */
-    private static final String COMMAND_SETFORWARDING = "SETFORWARDING";
-
-    /**
-     * The text string for the SHOWFORWARDING command
-     */
-    private static final String COMMAND_SHOWFORWARDING = "SHOWFORWARDING";
-
-    /**
-     * The text string for the UNSETFORWARDING command
-     */
-    private static final String COMMAND_UNSETFORWARDING = "UNSETFORWARDING";
-
-    /**
-     * The text string for the SETALIAS command
-     */
-    private static final String COMMAND_SETALIAS = "SETALIAS";
-
-    /**
-     * The text string for the SHOWALIAS command
-     */
-    private static final String COMMAND_SHOWALIAS = "SHOWALIAS";
-
-    /**
-     * The text string for the UNSETALIAS command
-     */
-    private static final String COMMAND_UNSETALIAS = "UNSETALIAS";
-
-    /**
-     * The text string for the USER command
-     */
-    private static final String COMMAND_USER = "USER";
-
-    /**
-     * The text string for the LISTSPOOL command
-     */
-    private static final String COMMAND_LISTSPOOL = "LISTSPOOL";
-
-    /**
-     * The text string for the FLUSHSPOOL command
-     */
-    private static final String COMMAND_FLUSHSPOOL = "FLUSHSPOOL";
-
-    /**
-     * The text string for the DELETESPOOL command
-     */
-    private static final String COMMAND_DELETESPOOL = "DELETESPOOL";
-
-    /**
-     * The text string for the ADDHAM command
-     */
-    private static final String COMMAND_ADDHAM = "ADDHAM";
-    
-    /**
-     * The text string for the ADDSPAM command
-     */
-    private static final String COMMAND_ADDSPAM = "ADDSPAM";
-    
-    private static final String COMMAND_EXPORTBAYESIANDATA = "EXPORTBAYESIANDATA";
-   
-    private static final String COMMAND_IMPORTBAYESIANDATA = "IMPORTBAYESIANDATA";
-    
-    private static final String COMMAND_RESETBAYESIANDATA = "RESETBAYESIANDATA";
-    
-    /**
-     * The text string for the QUIT command
-     */
-    private static final String COMMAND_QUIT = "QUIT";
-
-    /**
-     * The text string for the SHUTDOWN command
-     */
-    private static final String COMMAND_SHUTDOWN = "SHUTDOWN";
-
+    private static final List COMMANDLIST = Arrays.asList(new String[] { 
+        "MEMSTAT",
+        "ADDUSER",
+        "SETPASSWORD",
+        "DELUSER",
+        "LISTUSERS",
+        "COUNTUSERS",
+        "VERIFY",
+        "HELP",
+        "SETFORWARDING",
+        "SHOWFORWARDING",
+        "UNSETFORWARDING",
+        "SETALIAS",
+        "SHOWALIAS",
+        "UNSETALIAS",
+        "USER",
+        "LISTSPOOL",
+        "FLUSHSPOOL",
+        "DELETESPOOL",
+        "ADDHAM",
+        "ADDSPAM",
+        "EXPORTBAYESIANDATA",
+        "IMPORTBAYESIANDATA",
+        "RESETBAYESIANDATA",
+        "LISTPROCESSORS",
+        "LISTMAILETS",
+        "LISTMATCHERS",
+        "SHOWMAILETINFO",
+        "SHOWMATCHERINFO",
+        "QUIT",
+        "SHUTDOWN"
+    });
 
     /**
      * The per-service configuration data that applies to all handlers
@@ -313,61 +232,22 @@ public class RemoteManagerHandler
             command = command.substring(0, breakIndex);
         }
         command = command.toUpperCase(Locale.US);
-        if (command.equals(COMMAND_ADDUSER)) {
-            doADDUSER(argument);
-        } else if (command.equals(COMMAND_SETPASSWORD)) {
-            return doSETPASSWORD(argument);
-        } else if (command.equals(COMMAND_DELUSER)) {
-            return doDELUSER(argument);
-        } else if (command.equals(COMMAND_LISTUSERS)) {
-            return doLISTUSERS(argument);
-        } else if (command.equals(COMMAND_COUNTUSERS)) {
-            return doCOUNTUSERS(argument);
-        } else if (command.equals(COMMAND_VERIFY)) {
-            return doVERIFY(argument);
-        } else if (command.equals(COMMAND_HELP)) {
-            return doHELP(argument);
-        } else if (command.equals(COMMAND_SETALIAS)) {
-            return doSETALIAS(argument);
-        } else if (command.equals(COMMAND_SETFORWARDING)) {
-            return doSETFORWARDING(argument);
-        } else if (command.equals(COMMAND_SHOWALIAS)) {
-            return doSHOWALIAS(argument);
-        } else if (command.equals(COMMAND_SHOWFORWARDING)) {
-            return doSHOWFORWARDING(argument);
-        } else if (command.equals(COMMAND_UNSETALIAS)) {
-            return doUNSETALIAS(argument);
-        } else if (command.equals(COMMAND_UNSETFORWARDING)) {
-            return doUNSETFORWARDING(argument);
-        } else if (command.equals(COMMAND_USER)) {
-            return doUSER(argument);
-        } else if (command.equals(COMMAND_LISTSPOOL)) {
-            return doLISTSPOOL(argument);
-        } else if (command.equals(COMMAND_FLUSHSPOOL)) {
-            return doFLUSHSPOOL(argument);
-        } else if (command.equals(COMMAND_DELETESPOOL)) {
-            return doDELETESPOOL(argument);
-        } else if (command.equals(COMMAND_ADDHAM)) {
-            return doADDHAM(argument);
-        } else if (command.equals(COMMAND_ADDSPAM)) {
-            return doADDSPAM(argument);
-        } else if (command.equals(COMMAND_EXPORTBAYESIANDATA)) {
-            return doEXPORTBAYESIANDATA(argument);
-        } else if (command.equals(COMMAND_IMPORTBAYESIANDATA)) {
-            return doIMPORTBAYESIANDATA(argument);
-        } else if (command.equals(COMMAND_RESETBAYESIANDATA)) {
-            return doRESETBAYESIANDATA(argument);
-        } else if (command.equals(COMMAND_MEMSTAT)) {
-            return doMEMSTAT(argument);
-        } else if (command.equals(COMMAND_QUIT)) {
-            return doQUIT(argument);
-        } else if (command.equals(COMMAND_SHUTDOWN)) {
-            return doSHUTDOWN(argument);
-        } else {
+        
+        if (!COMMANDLIST.contains(command)) return doUnknownCommand(command);
+        
+        try {
+            Method method = getClass().getDeclaredMethod("do"+command, WORKER_METHOD_PARAMETERSET);
+            Boolean returnFlag = (Boolean)method.invoke(this, new Object[] {argument});
+            return returnFlag.booleanValue();
+        } catch (SecurityException e) {
+            writeLoggedFlushedResponse("could not determine executioner of command " + command);
+        } catch (NoSuchMethodException e) {
             return doUnknownCommand(rawCommand);
+        } catch (Exception e) {
+            writeLoggedFlushedResponse("could not execute command " + command);
         }
-        return true;
-    }
+        return false;
+   }
 
     /**
      * Handler method called upon receipt of an MEMSTAT command.
@@ -619,6 +499,11 @@ public class RemoteManagerHandler
         out.println("listspool [spoolrepositoryname] ([header=name] [regex=value])           list all mails which reside in the spool and have an error state");
         out.println("flushspool [spoolrepositoryname] ([key] | [header=name] [regex=value])  try to resend the mail assing to the given key. If no key is given all mails get resend");
         out.println("deletespool [spoolrepositoryname] ([key] | [header=name] [regex=value]) delete the mail assign to the given key. If no key is given all mails get deleted");
+        out.println("listprocessors [processorname]                                          list names of all processors");
+        out.println("listmailets [processorname]                                             list names of all mailets for specified processor");
+        out.println("listmatchers [processorname]                                            list names of all mailets for specified processor");
+        out.println("showmailetinfo [processorname] [#index]                                 shows configuration for mailet of specified processor at given index");
+        out.println("showmatcherinfo [processorname] [#index]                                shows configuration for matcher of specified processor at given index");
         out.println("addham dir/mbox [directory/mbox]                                        feed the BayesianAnalysisFeeder with the content of the directory or mbox file as HAM");
         out.println("addspam dir/mbox [directory/mbox]                                       feed the BayesianAnalysisFeeder with the content of the directory or mbox file as SPAM");
         out.println("exportbayesiandata [file]                                               export the BayesianAnalysis data to a xml file");
@@ -1319,4 +1204,130 @@ public class RemoteManagerHandler
     
         return true;
     }
+
+    private boolean doLISTPROCESSORS(String argument) {
+        String[] processorNames = theConfigData.getProcessorManagement().getProcessorNames();
+        writeLoggedResponse("Existing processors: " + processorNames.length);
+        for (int i = 0; i < processorNames.length; i++) {
+            writeLoggedResponse("\t" + processorNames[i]);
+         }
+        return true;
+    }
+
+    private boolean processorExists(String name) {
+        name = name.toLowerCase(Locale.US);
+        List processorList = Arrays.asList(theConfigData.getProcessorManagement().getProcessorNames());
+        return processorList.contains(name);
+    }
+    
+    private boolean doLISTMAILETS(String argument) {
+        ProcessorManagementService processorManagement = theConfigData.getProcessorManagement();
+        if (argument == null || !processorExists(argument)) {
+            writeLoggedFlushedResponse("Usage: LISTMAILETS [processor]");
+            writeLoggedFlushedResponse("The list of valid processor names can be retrieved using command LISTPROCESSORS");
+            return true;
+        }
+        String[] mailetNames = processorManagement.getMailetNames(argument);
+        writeLoggedResponse("Existing mailets in processor: " + mailetNames.length);
+        for (int i = 0; i < mailetNames.length; i++) {
+            writeLoggedResponse((i+1) + ". " + mailetNames[i]);
+         }
+        return true;
+    }
+
+    private boolean doLISTMATCHERS(String argument) {
+        ProcessorManagementService processorManagement = theConfigData.getProcessorManagement();
+        if (argument == null || !processorExists(argument)) {
+            writeLoggedFlushedResponse("Usage: LISTMATCHERS [processor]");
+            writeLoggedFlushedResponse("The list of valid processor names can be retrieved using command LISTPROCESSORS");
+            return true;
+        }
+        String[] matcherNames = processorManagement.getMatcherNames(argument);
+        writeLoggedResponse("Existing matchers in processor: " + matcherNames.length);
+        for (int i = 0; i < matcherNames.length; i++) {
+            writeLoggedResponse((i+1) + ". " + matcherNames[i]);
+         }
+        return true;
+    }
+
+    private Object[] extractMailetInfoParameters(String argument, String commandHelp) {
+        String[] argList = argument.split(" ");
+        boolean argListOK = argument != null && argList != null && argList.length == 2;
+        if (!argListOK) {
+            writeLoggedFlushedResponse("Usage: SHOW" + commandHelp + "INFO [processor] [#index]");
+            return null;
+        }
+        String processorName = argList[0];
+        if (!processorExists(processorName)) {
+            writeLoggedFlushedResponse("The list of valid processor names can be retrieved using command LISTPROCESSORS");
+            return null;
+        }
+        int index = -1;
+        try {
+            index = Integer.parseInt(argList[1]) - 1;
+        } catch (NumberFormatException e) {
+            // fall thru with -1
+        }
+        if (index < 0) {
+            writeLoggedFlushedResponse("The index parameter must be a positive number");
+            return null;
+        }
+        
+        return new Object[] {processorName, new Integer(index)};
+    }
+
+    private boolean doSHOWMAILETINFO(String argument) {
+        ProcessorManagementService processorManagement = theConfigData.getProcessorManagement();
+        Object[] parameters = extractMailetInfoParameters(argument, "MAILET");
+        if (parameters == null) return true;
+        
+        // extract parsed parameters
+        String processorName = (String) parameters[0];
+        int index = ((Integer)parameters[1]).intValue();
+        
+        String[] mailetParameters = null; 
+        try {
+            mailetParameters = processorManagement.getMailetParameters(processorName, index);
+        } catch (RuntimeException e) {
+            // fall thru with NULL
+        }
+        if (mailetParameters == null) {
+            writeLoggedFlushedResponse("The index is not referring to an existing mailet");
+            return true;
+        }
+        writeLoggedResponse("Mailet parameters: " + mailetParameters.length);
+        for (int i = 0; i < mailetParameters.length; i++) {
+            String parameter = (String) mailetParameters[i];
+            writeLoggedResponse("\t" + parameter);
+         }
+        return true;
+    }
+
+    private boolean doSHOWMATCHERINFO(String argument) {
+        ProcessorManagementService processorManagement = theConfigData.getProcessorManagement();
+        Object[] parameters = extractMailetInfoParameters(argument, "MATCHER");
+        if (parameters == null) return true;
+        
+        // extract parsed parameters
+        String processorName = (String) parameters[0];
+        int index = ((Integer)parameters[1]).intValue();
+        
+        String[] matcherParameters = null; 
+        try {
+            matcherParameters = processorManagement.getMatcherParameters(processorName, index);
+        } catch (RuntimeException e) {
+            // fall thru with NULL
+        }
+        if (matcherParameters == null) {
+            writeLoggedFlushedResponse("The index is not referring to an existing matcher");
+            return true;
+        }
+        writeLoggedResponse("Matcher parameters: " + matcherParameters.length);
+        for (int i = 0; i < matcherParameters.length; i++) {
+            String parameter = (String) matcherParameters[i];
+            writeLoggedResponse("\t" + parameter);
+         }
+        return true;
+    }
+
 }
