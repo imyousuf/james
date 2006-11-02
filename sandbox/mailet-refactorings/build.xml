@@ -94,6 +94,13 @@
             <include name="${village.jar}"/>
             <include name="${commons-lang.jar}"/>
             <include name="${commons-configuration.jar}"/>
+            <include name="${naming-config.jar}"/>
+<include name="${naming-core.jar}"/>
+<include name="${naming-factory.jar}"/>
+<include name="${naming-java.jar}"/>
+<include name="${naming-management.jar}"/>
+<include name="${naming-resources.jar}"/>
+            
         </fileset>
         <pathelement path="${java.class.path}" />
         <pathelement path="${build.classes}" />
@@ -531,7 +538,12 @@
                 <include name="${village.jar}"/>
                 <include name="${commons-lang.jar}"/>
                 <include name="${commons-configuration.jar}"/>
-                <include name="${commons-beanutils.jar}"/>            	
+                <include name="${commons-beanutils.jar}"/>  
+                <include name="${naming-core.jar}"/>
+                <include name="${naming-factory.jar}"/>
+                <include name="${naming-java.jar}"/>
+                <include name="${naming-management.jar}"/>
+                <include name="${naming-resources.jar}"/>               
             </lib>
             <zipfileset dir="${conf.dir}" fullpath="conf/sqlResources.xml">
                 <include name="sqlResources.xml"/>
