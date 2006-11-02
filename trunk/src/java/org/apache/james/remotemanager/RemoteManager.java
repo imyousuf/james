@@ -29,6 +29,7 @@ import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.core.AbstractJamesService;
 import org.apache.james.services.BayesianAnalyzerManagementService;
 import org.apache.james.services.MailServer;
+import org.apache.james.services.ProcessorManagementService;
 import org.apache.james.services.SpoolManagementService;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
@@ -81,7 +82,15 @@ public class RemoteManager
      */
     private Store store;
     
+    /**
+     * reference to administration of Bayesian analyzer
+     */
     private BayesianAnalyzerManagementService bayesianAnalyzerManagement;
+    
+    /**
+     * reference to administration of Processors
+     */
+    private ProcessorManagementService processorManagementService;
     
     /**
      * Set the UserStore 
@@ -138,6 +147,15 @@ public class RemoteManager
     }
     
     /**
+     * Set the ProcessorManagementService
+     * 
+     * @param processorManagement the ProcessorManagementService
+     */
+    public void setProcessorManagement(ProcessorManagementService processorManagement) {
+        this.processorManagementService = processorManagement;
+    }
+    
+    /**
      * The configuration data to be passed to the handler
      */
     private RemoteManagerHandlerConfigurationData theConfigData
@@ -166,6 +184,7 @@ public class RemoteManager
         setSpoolManagement(spoolManagement);
         
         setBayesianAnalyzerManagement((BayesianAnalyzerManagementService) componentManager.lookup(BayesianAnalyzerManagementService.ROLE));     
+        setProcessorManagement((ProcessorManagementService) componentManager.lookup(ProcessorManagementService.ROLE));     
     }
 
     /**
@@ -283,6 +302,10 @@ public class RemoteManager
          */
         public BayesianAnalyzerManagementService getBayesianAnalyzerManagement() {
             return RemoteManager.this.bayesianAnalyzerManagement;
+        }
+
+        public ProcessorManagementService getProcessorManagement() {
+            return RemoteManager.this.processorManagementService;
         }
     }
 

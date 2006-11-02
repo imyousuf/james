@@ -37,6 +37,10 @@ public class MailetManagement implements MailetManagementMBean {
     }
     
     public String[] getMailetParameters() {
+        return getMailetParameters(mailetConfig);
+    }
+
+    public static String[] getMailetParameters(MailetConfig mailetConfig) {
         List parameterList = new ArrayList();
         Iterator iterator = mailetConfig.getInitParameterNames();
         while (iterator.hasNext()) {

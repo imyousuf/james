@@ -93,7 +93,8 @@
     <provide name="bayesiananalyzermanagement"
              role="org.apache.james.services.BayesianAnalyzerManagementService"/>
     <provide name="dnsserver" role="org.apache.james.services.DNSServer"/>
-  </block>
+    <provide name="processormanagement" role="org.apache.james.services.ProcessorManagementService"/>
+</block>
 
   <!-- The User Management block  -->
   <block name="usermanagement" class="org.apache.james.management.UserManagement" >

@@ -24,6 +24,7 @@ package org.apache.james.remotemanager;
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.james.services.BayesianAnalyzerManagementService;
 import org.apache.james.services.MailServer;
+import org.apache.james.services.ProcessorManagementService;
 import org.apache.james.services.SpoolManagementService;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
@@ -101,5 +102,12 @@ public interface RemoteManagerHandlerConfigurationData {
      * @return the BayesianAnalyzerManagementService
      */
     BayesianAnalyzerManagementService getBayesianAnalyzerManagement();
+
+    /**
+     * Returns the ProcessorManagementService
+     * 
+     * @return the ProcessorManagementService
+     */
+    ProcessorManagementService getProcessorManagement();
 
 }

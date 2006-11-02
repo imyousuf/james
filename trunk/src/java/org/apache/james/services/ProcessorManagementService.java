@@ -18,20 +18,42 @@
  ****************************************************************/
 package org.apache.james.services;
 
+import java.util.List;
+
 import org.apache.james.management.ProcessorManagementMBean;
 
 public interface ProcessorManagementService extends ProcessorManagementMBean {
 
-    /**
-     * retrieves the list of all processors
-     * @return array of names
-     */
-    String[] getProcessorNames();
-
+    public static final String ROLE = "org.apache.james.services.ProcessorManagementService";
+    
     /**
      * retrieves the list of all mailets for one processor
      * @param processorName
      * @return array of names
      */
     String[] getMailetNames(String processorName);
+
+    
+    /**
+     * retrieves the list of all matchers for one processor
+     * @param processorName
+     * @return array of names
+     */
+    String[] getMatcherNames(String processorName);
+
+    /**
+     * retrieves the list of parameters belonging to the specified matcher
+     * @param processorName
+     * @param matcherIndex
+     * @return array of Strings, each String an assembled parameter key/value pair
+     */
+    String[] getMatcherParameters(String processorName, int matcherIndex);
+
+    /**
+     * retrieves the list of parameters belonging to the specified mailet
+     * @param processorName
+     * @param mailetIndex
+     * @return array of Strings, each String an assembled parameter key/value pair
+     */
+    String[] getMailetParameters(String processorName, int mailetIndex);
 }
