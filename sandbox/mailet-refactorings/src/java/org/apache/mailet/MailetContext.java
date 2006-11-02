@@ -26,6 +26,7 @@ import java.util.Iterator;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
+
 /**
  * Defines a set of methods that a mailet or matcher uses to communicate
  * with its mailet container, for example, to send a new message, to
@@ -302,4 +303,7 @@ public interface MailetContext {
      * @return a MailFactory implementation
      */
     public MailFactory getMailFactory();
-}
+    
+public UsersRepository getUsersRepository(String repoURL) throws MailetException;
+    
+   }

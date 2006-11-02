@@ -25,11 +25,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import javax.mail.internet.ParseException;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.james.Constants;
-import org.apache.james.services.UsersStore;
+
 import org.apache.mailet.MailAddress;
+import org.apache.mailet.MailetException;
 import org.apache.mailet.UsersRepository;
 
 /**
@@ -101,8 +99,9 @@ public class AvalonListserv extends GenericListserv {
 
     /**
      * Initialize the mailet
+     * @throws MailetException 
      */
-    public void init() {
+    public void init() throws MailetException {
         try {
             membersOnly = new Boolean(getInitParameter("membersonly")).booleanValue();
         } catch (Exception e) {
@@ -126,17 +125,10 @@ public class AvalonListserv extends GenericListserv {
             // Ignore any exceptions, default to true
         }
 
-        ServiceManager compMgr = (ServiceManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
-        try {
-            UsersStore usersStore = (UsersStore)compMgr.lookup(UsersStore.ROLE);
-            String repName = getInitParameter("repositoryName");
-
-            members = (UsersRepository)usersStore.getRepository( repName );
-        } catch (ServiceException cnfe) {
-            log("Failed to retrieve Store component:" + cnfe.getMessage());
-        } catch (Exception e) {
-            log("Failed to retrieve Store component:" + e.getMessage());
-        }
+        
+        String repName = getInitParameter("repositoryName");
+        members = getMailetContext().getUsersRepository( repName );
+        
     }
 
     public Collection getMembers() throws ParseException {

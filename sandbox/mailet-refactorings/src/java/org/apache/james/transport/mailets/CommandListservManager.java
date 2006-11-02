@@ -33,15 +33,13 @@ import java.util.Properties;
 import javax.mail.MessagingException;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.james.Constants;
-import org.apache.james.services.UsersStore;
 import org.apache.james.transport.mailets.listservcommands.ErrorCommand;
 import org.apache.james.transport.mailets.listservcommands.IListServCommand;
 import org.apache.james.util.XMLResources;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
+import org.apache.mailet.MailetException;
 import org.apache.mailet.UsersRepository;
 
 /**
@@ -334,17 +332,13 @@ public class CommandListservManager extends GenericMailet implements ICommandLis
 
     /**
      * Fetch the repository of users
+     * @throws MailetException 
      */
-    protected void initUsersRepository() {
-        ServiceManager compMgr = (ServiceManager) getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
-        try {
-            UsersStore usersStore = (UsersStore) compMgr.lookup(UsersStore.ROLE);
+    protected void initUsersRepository() throws MailetException {
+       
             String repName = getInitParameter("repositoryName");
 
-            usersRepository = usersStore.getRepository(repName);
-        } catch (Exception e) {
-            log("Failed to retrieve Store component:" + e.getMessage());
-        }
+            usersRepository = getMailetContext().getUsersRepository(repName);
     }
 
     /**

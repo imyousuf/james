@@ -28,10 +28,8 @@ import java.util.LinkedList;
 import java.util.Vector;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
-import org.apache.james.services.UsersStore;
 import org.apache.james.services.VirtualUserTable;
 import org.apache.james.vut.ErrorMappingException;
 import org.apache.mailet.GenericMailet;
@@ -235,11 +233,11 @@ public class UsersRepositoryAliasingForwarding extends GenericMailet {
             ArrayList ret = new ArrayList();
             ret.add(new MailAddress(realName, recipient.getHost()));
             return ret;
-        } else {
+        } 
             ArrayList ret = new ArrayList();
             ret.add(recipient);
             return ret;
-        }
+        
     }
 
     /**
@@ -250,24 +248,11 @@ public class UsersRepositoryAliasingForwarding extends GenericMailet {
         ServiceManager compMgr = (ServiceManager) getMailetContext()
                 .getAttribute(Constants.AVALON_COMPONENT_MANAGER);
 
-        try {
+        
             String userRep = getInitParameter("usersRepository");
-            if (userRep == null || userRep.length() == 0) {
-                try {
-                    usersRepository = (UsersRepository) compMgr
-                            .lookup(UsersRepository.ROLE);
-                } catch (ServiceException e) {
-                    log("Failed to retrieve UsersRepository component:"
-                            + e.getMessage());
-                }
-            } else {
-                UsersStore usersStore = (UsersStore) compMgr.lookup(UsersStore.ROLE);
-                usersRepository = usersStore.getRepository(userRep);
-            }
-
-        } catch (ServiceException cnfe) {
-            log("Failed to retrieve UsersStore component:" + cnfe.getMessage());
-        }
+            
+                usersRepository = getMailetContext().getUsersRepository(userRep);
+            
 
     }
 

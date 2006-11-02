@@ -22,6 +22,7 @@
 package org.apache.james.transport.mailets;
 
 
+
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailRepository;
@@ -64,7 +65,6 @@ public class ToRepository extends GenericMailet {
             // Ignore exception, default to false
         }
 
-        
       
             try{
                 repository = getMailetContext().getMailRepository(repositoryPath);
@@ -76,6 +76,8 @@ public class ToRepository extends GenericMailet {
         }
 
     }
+
+    
 
     /**
      * Store a mail in a particular repository.
@@ -90,6 +92,7 @@ public class ToRepository extends GenericMailet {
                     .append(" in ")
                     .append(repositoryPath);
         log(logBuffer.toString());
+    
         repository.store(mail);
         if (!passThrough) {
             mail.setState(Mail.GHOST);

@@ -42,6 +42,7 @@ import org.apache.mailet.MailFactory;
 import org.apache.mailet.MailRepository;
 import org.apache.mailet.MailetContext;
 import org.apache.mailet.MailetException;
+import org.apache.mailet.UsersRepository;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -311,6 +312,13 @@ public abstract class Loader extends AbstractLogEnabled implements Serviceable, 
         public MailFactory getMailFactory() {
 
             return mailetContext.getMailFactory();
+        }
+
+        /**
+         * @see org.apache.mailet.MailetContext#getUsersRepository(java.lang.String)
+         */
+        public UsersRepository getUsersRepository(String repoURL) throws MailetException {
+            return mailetContext.getUsersRepository(repoURL);
         }
     }
 

@@ -32,9 +32,6 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.internet.ParseException;
 import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.james.Constants;
-import org.apache.james.services.UsersStore;
 import org.apache.james.util.XMLResources;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
@@ -413,14 +410,14 @@ public class CommandListservProcessor extends GenericMailet {
 
     /**
      * Fetch the repository of users
+     * @throws MailetException 
      */
-    protected void initUsersRepository() throws Exception {
-        ServiceManager compMgr = (ServiceManager) getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
-        UsersStore usersStore = (UsersStore) compMgr.lookup(UsersStore.ROLE);
+    protected void initUsersRepository() throws MailetException  {
+       
         String repName = getInitParameter("repositoryName");
 
-        usersRepository = usersStore.getRepository(repName);
-        if (usersRepository == null) throw new Exception("Invalid user repository: " + repName);
+        usersRepository = getMailetContext().getUsersRepository(repName);
+        if (usersRepository == null) throw new MailetException("Invalid user repository: " + repName);
     }
 
     /**

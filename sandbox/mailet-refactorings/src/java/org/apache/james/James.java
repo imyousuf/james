@@ -65,6 +65,8 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.ParseException;
 
+
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.SequenceInputStream;
@@ -269,9 +271,12 @@ public class James
         getLogger().info("JAMES ...init end");
     }
 
-    private void initializeServices() throws Exception {
+    private void initializeServices() throws Exception  {
         // TODO: This should retrieve a more specific named thread pool from
         // Context that is set up in server.xml
+        
+        
+        
         try {
             Store store = (Store) compMgr.lookup( Store.ROLE );
             setStore(store);
@@ -287,6 +292,8 @@ public class James
         try {
             SpoolRepository spool = (SpoolRepository) compMgr.lookup(SpoolRepository.ROLE);
             setSpool(spool);
+            
+           
             if (getLogger().isDebugEnabled()) {
                 getLogger().debug("Using SpoolRepository: " + spool.toString());
             }
@@ -735,9 +742,7 @@ public class James
     }
     
     /**
-     * @param repoPath
-     * @return
-     * @throws MailetException
+     * @see org.apache.james.RepositoryContext#getMailRepository(java.lang.String)
      */
     public MailRepository getMailRepository(String repoPath) throws MailetException {
 
@@ -901,5 +906,23 @@ public class James
 
        
         return mailFactory ;
+    }
+
+    /**
+     * @see org.apache.mailet.MailetContext#getUsersRepository(java.lang.String)
+     */
+    public UsersRepository getUsersRepository(String repoURL) throws MailetException {
+
+        //ServiceManager compMgr = (ServiceManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
+        try {
+            UsersStore usersStore = (UsersStore)compMgr.lookup(UsersStore.ROLE);
+            return usersStore.getRepository( repoURL );
+        } catch (ServiceException cnfe) {
+            log("Failed to retrieve Store component:" + cnfe.getMessage());
+            throw new MailetException("Failed to retrieve Users Repo:" + repoURL,cnfe);
+        } catch (Exception e) {
+            log("Failed to retrieve Store component:" + e.getMessage());
+            throw new MailetException("Failed to retrieve Users Repo:" + repoURL,e);
+        }
     }
 }
