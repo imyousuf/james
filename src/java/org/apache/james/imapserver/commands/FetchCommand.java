@@ -372,15 +372,19 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
             FetchRequest fetch = new FetchRequest();
 
             char next = nextNonSpaceChar( request );
-            consumeChar( request, '(' );
-
-            next = nextNonSpaceChar( request );
-            while ( next != ')' ) {
-                addNextElement( request, fetch );
+            if (request.nextChar() == '(') {
+                consumeChar( request, '(' );
+    
                 next = nextNonSpaceChar( request );
+                while ( next != ')' ) {
+                    addNextElement( request, fetch );
+                    next = nextNonSpaceChar( request );
+                }
+                consumeChar(request, ')');
+            } else {
+                addNextElement( request, fetch );
+                
             }
-
-            consumeChar(request, ')');
 
             return fetch;
         }
@@ -388,16 +392,21 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
         private void addNextElement( ImapRequestLineReader command, FetchRequest fetch)
                 throws ProtocolException
         {
-            char next = nextCharInLine( command );
+            /*char next = nextCharInLine( command );
                 StringBuffer element = new StringBuffer();
-                while ( next != ' ' && next != '[' && next != ')' ) {
+                while ( next != ' ' && next != '[' && next != ')' && next!='\n' && next!='\r' ) {
                     element.append(next);
                     command.consume();
                     next = nextCharInLine( command );
-                }
-                String name = element.toString();
+                }*/
+             
+            
+                //String name = element.toString();
+                String name = readWord(command, " [)\r\n");
+                char next = command.nextChar();
                 // Simple elements with no '[]' parameters.
-                if ( next == ' ' || next == ')' ) {
+                //if ( next == ' ' || next == ')'  || next == '\n' || next == '\r') {
+                if (next != '[') {
                     if ( "FAST".equalsIgnoreCase( name ) ) {
                         fetch.flags = true;
                         fetch.internalDate = true;
@@ -440,17 +449,10 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
                 else {
                     consumeChar( command, '[' );
 
-                    StringBuffer sectionIdentifier = new StringBuffer();
-                    next = nextCharInLine( command );
-                    while ( next != ']' ) {
-                        sectionIdentifier.append( next );
-                        command.consume();
-                        next = nextCharInLine(command);
-                    }
-                    consumeChar( command, ']' );
+                    
+                    String parameter = readWord(command, "]");
 
-                    String parameter = sectionIdentifier.toString();
-
+                    consumeChar( command, ']');
                     if ( "BODY".equalsIgnoreCase( name ) ) {
                         fetch.add(new BodyFetchElement("BODY[" + parameter + "]", parameter), false);
                     } else if ( "BODY.PEEK".equalsIgnoreCase( name ) ) {
@@ -461,6 +463,17 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
                 }
             }
 
+        private String readWord(ImapRequestLineReader request, String terminator) throws ProtocolException {
+            StringBuffer buf = new StringBuffer();
+            char next = request.nextChar(); 
+            while(terminator.indexOf(next)==-1) {
+                buf.append(next);
+                request.consume();
+                next = request.nextChar();
+            }
+            return buf.toString();
+        }
+        
         private char nextCharInLine( ImapRequestLineReader request )
                 throws ProtocolException
         {
