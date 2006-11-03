@@ -26,6 +26,8 @@ import java.util.Collection;
 import java.util.StringTokenizer;
 
 import javax.mail.MessagingException;
+import javax.naming.Context;
+import javax.naming.InitialContext;
 
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
@@ -33,6 +35,7 @@ import org.apache.james.Constants;
 import org.apache.james.services.DNSServer;
 import org.apache.mailet.GenericMatcher;
 import org.apache.mailet.Mail;
+import org.apache.mailet.MailetServiceJNDIRegistration;
 
 /**
  * Checks the network IP address of the sending server against a
@@ -57,13 +60,12 @@ public class InSpammerBlacklist extends GenericMatcher {
     public void init() throws MessagingException {
         network = getCondition();
         
-        ServiceManager compMgr = (ServiceManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
         
         try {
             // Instantiate DNSService
-            dnsServer = (DNSServer) compMgr.lookup(DNSServer.ROLE);
-        } catch (ServiceException cnfe) {
-            log("Failed to retrieve DNSService" + cnfe.getMessage());
+            Context context = new InitialContext();
+            String key = MailetServiceJNDIRegistration.SERVICE_CONTEXT+"/DNSServer";
+            dnsServer = (DNSServer) context.lookup(key);
         } catch (Exception e) {
             log("Failed to retrieve DNSService:" + e.getMessage());
         }

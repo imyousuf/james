@@ -245,9 +245,7 @@ public class UsersRepositoryAliasingForwarding extends GenericMailet {
      */
     public void init() throws MessagingException {
         super.init();
-        ServiceManager compMgr = (ServiceManager) getMailetContext()
-                .getAttribute(Constants.AVALON_COMPONENT_MANAGER);
-
+        
         
             String userRep = getInitParameter("usersRepository");
             

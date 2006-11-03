@@ -31,13 +31,13 @@ import java.util.Collection;
 import java.util.Vector;
 import javax.mail.MessagingException;
 import javax.mail.internet.ParseException;
-import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
-import org.apache.avalon.excalibur.datasource.DataSourceComponent;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.james.Constants;
+import javax.naming.Context;
+import javax.naming.InitialContext;
 import org.apache.james.util.JDBCUtil;
+import org.apache.mailet.DataSource;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetException;
+import org.apache.mailet.MailetServiceJNDIRegistration;
 
 /**
  * Rewrites recipient addresses based on a database table.  The connection
@@ -58,7 +58,7 @@ import org.apache.mailet.MailetException;
  */
 public class JDBCListserv extends GenericListserv {
 
-    protected DataSourceComponent datasource;
+    protected DataSource datasource;
     protected String listservID = null;
     protected String listservTable = null;
     protected String membersTable = null;
@@ -119,12 +119,12 @@ public class JDBCListserv extends GenericListserv {
         Connection conn = null;
 
         try {
-            ServiceManager componentManager = (ServiceManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
-            // Get the DataSourceSelector service
-            DataSourceSelector datasources = (DataSourceSelector)componentManager.lookup(DataSourceSelector.ROLE);
-            // Get the data-source required.
-            datasource = (DataSourceComponent)datasources.select(datasourceName);
+           
 
+            
+            Context context=new InitialContext();
+            String name=MailetServiceJNDIRegistration.SERVICE_CONTEXT+"/"+datasourceName;
+            datasource = (DataSource) context.lookup(name);
             conn = datasource.getConnection();
 
             // Check if the required listserv table exists. If not, complain.

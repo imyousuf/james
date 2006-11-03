@@ -26,12 +26,18 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.mailet.DataSource;
+import org.apache.mailet.MailetException;
+import org.apache.mailet.MailetServiceJNDIRegistration;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Hashtable;
+import javax.naming.Context;
+import javax.naming.InitialContext;
 
 
 /**
@@ -64,6 +70,7 @@ public class JdbcDataSource extends AbstractLogEnabled
     implements Configurable,
                Runnable,
                Disposable,
+               DataSource,
                DataSourceComponent {
     // The limit that an active connection can be running
     public static final long ACTIVE_CONN_TIME_LIMIT = 60000; // (one minute)
@@ -100,6 +107,7 @@ public class JdbcDataSource extends AbstractLogEnabled
     private boolean reaperActive                    = false;
     // a SQL command to execute to see if the connection is still ok
     private String verifyConnSQL;
+    private String dsName;
 
     /**
      * Implements the ConnDefinition behavior when a connection is needed. Checks the pool of
@@ -224,11 +232,14 @@ public class JdbcDataSource extends AbstractLogEnabled
     public void configure(final Configuration configuration)
                    throws ConfigurationException {
         try {
+            dsName = configuration.getAttribute("name");
             jdbcDriver    = configuration.getChild("driver").getValue(null);
             jdbcURL       = configuration.getChild("dburl").getValue(null);
             jdbcUsername  = configuration.getChild("user").getValue(null);
             jdbcPassword  = configuration.getChild("password").getValue(null);
             maxConn       = configuration.getChild("max").getValueAsInteger(2);
+            String name=configuration.getAttribute("name").toString();
+            System.out.println("datasource name "+name);
             //logfilename?
             verifyConnSQL = configuration.getChild("keep-alive").getValue(null);
             //Not support from Town: logfilename
@@ -284,6 +295,15 @@ public class JdbcDataSource extends AbstractLogEnabled
          catch(Exception e) {
             throw new ConfigurationException("Error configuring JdbcDataSource", e);
         }
+         
+         
+         try{
+             MailetServiceJNDIRegistration.registerDataSource(dsName, this);
+         }catch (MailetException e){
+             throw new ConfigurationException("failed to register datasource ",e);
+         }
+         
+         
     }
 
     /**
@@ -302,6 +322,11 @@ public class JdbcDataSource extends AbstractLogEnabled
         }
         // The various entries will finalize themselves once the reference
         // is removed, so no need to do it here
+        try{
+            MailetServiceJNDIRegistration.deRegisterDataSource(dsName);
+        }catch (MailetException e){
+            //not much we care about if this fails
+        }
     }
 
     /**

@@ -26,6 +26,9 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.mailet.MailetException;
+import org.apache.mailet.MailetService;
+import org.apache.mailet.MailetServiceJNDIRegistration;
 import org.xbill.DNS.CNAMERecord;
 import org.xbill.DNS.Cache;
 import org.xbill.DNS.Credibility;
@@ -62,7 +65,7 @@ import java.util.Random;
  */
 public class DNSServer
     extends AbstractLogEnabled
-    implements Configurable, Initializable, org.apache.james.services.DNSServer, DNSServerMBean {
+    implements Configurable, Initializable, org.apache.james.services.DNSServer, DNSServerMBean , MailetService{
 
     /**
      * A resolver instance used to retrieve DNS records.  This
@@ -102,6 +105,8 @@ public class DNSServer
      * when looking up SMTPServers
      */
     private boolean singleIPPerMX;
+    
+    private String serviceName="DNSServer";
 
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
@@ -146,6 +151,12 @@ public class DNSServer
         dnsCredibility = authoritative ? Credibility.AUTH_ANSWER : Credibility.NONAUTH_ANSWER;
 
         maxCacheSize = (int) configuration.getChild( "maxcachesize" ).getValueAsLong( maxCacheSize );
+        
+        try{
+            MailetServiceJNDIRegistration.registerService(getServiceName(), this);
+        }catch (MailetException e){
+            throw new ConfigurationException("cant register "+getServiceName()+" in jndi service context");
+        }
     }
 
     /**
@@ -548,6 +559,15 @@ public class DNSServer
      */
     public InetAddress getLocalHost() throws UnknownHostException {
         return InetAddress.getLocalHost();
+    }
+
+    /**
+     * @see org.apache.mailet.MailetService#getServiceName()
+     */
+    public String getServiceName() {
+
+        
+        return serviceName;
     }
 
 }

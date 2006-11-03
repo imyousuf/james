@@ -476,6 +476,7 @@
         <echo message="Making James Jar (james-${version}.jar)"/>
         <jar jarfile="${build.lib}/${name}-${version}.jar" basedir="${build.classes}" manifest="${src.dir}/Manifest.mf">
             <include name="org/apache/james/**"/>
+            <include name="jndi.properties"/>
             <include name="*.xml"/>
             <metainf dir="${build.metainf}"/>        
         </jar>

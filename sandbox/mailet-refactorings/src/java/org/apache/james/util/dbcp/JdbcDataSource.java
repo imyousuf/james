@@ -28,6 +28,9 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.mailet.DataSource;
+import org.apache.mailet.MailetException;
+import org.apache.mailet.MailetServiceJNDIRegistration;
 
 import java.io.PrintWriter;
 import java.sql.Connection;
@@ -83,11 +86,12 @@ import java.sql.SQLException;
 public class JdbcDataSource extends AbstractLogEnabled
     implements Configurable,
                Disposable,
-               DataSourceComponent {
+               DataSourceComponent, DataSource {
 
     BasicDataSource source = null;
     //Jdbc2PoolDataSource source = null;
     //PoolingDataSource source = null;
+    private String dsName;
 
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
@@ -96,6 +100,7 @@ public class JdbcDataSource extends AbstractLogEnabled
                    throws ConfigurationException {
         //Configure the DBCP
         try {
+            dsName = configuration.getAttribute("name");
             String driver = configuration.getChild("driver").getValue(null);
             Class.forName(driver);
 
@@ -201,6 +206,19 @@ public class JdbcDataSource extends AbstractLogEnabled
         } catch (Exception e) {
             throw new ConfigurationException("Error configurable datasource", e);
         }
+        
+ 
+       
+        
+        try{
+            MailetServiceJNDIRegistration.registerDataSource(dsName, this);
+        }catch (MailetException e){
+            throw new ConfigurationException("failed to register datasource ",e);
+        }
+    
+    
+        
+        
     }
 
     /**
@@ -213,10 +231,15 @@ public class JdbcDataSource extends AbstractLogEnabled
         } catch (SQLException sqle) {
             sqle.printStackTrace();
         }
+        try{
+            MailetServiceJNDIRegistration.deRegisterDataSource(dsName);
+        }catch (MailetException e){
+            //not much we care about if this fails
+        }
     }
 
     /**
-     * @see org.apache.avalon.excalibur.datasource.DataSourceComponent#getConnection()
+     * @see org.apache.mailet.DataSource#getConnection()
      */
     public Connection getConnection() throws SQLException {
         return source.getConnection();

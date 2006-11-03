@@ -45,16 +45,18 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
-import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
-import org.apache.avalon.excalibur.datasource.DataSourceComponent;
+import javax.naming.Context;
+import javax.naming.InitialContext;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
 import org.apache.james.util.JDBCUtil;
 import org.apache.james.util.SqlResources;
 import org.apache.mailet.AliasedUser;
+import org.apache.mailet.DataSource;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
+import org.apache.mailet.MailetServiceJNDIRegistration;
 import org.apache.mailet.RFC2822Headers;
 import org.apache.mailet.UsersRepository;
 import org.apache.mailet.dates.RFC822DateFormat;
@@ -125,7 +127,7 @@ public class WhiteListManager extends GenericMailet {
     /** The date format object used to generate RFC 822 compliant date headers. */
     private RFC822DateFormat rfc822DateFormat = new RFC822DateFormat();
 
-    private DataSourceComponent datasource;
+    private DataSource datasource;
 
     /** The user repository for this mail server.  Contains all the users with inboxes
      * on this server.
@@ -223,12 +225,13 @@ public class WhiteListManager extends GenericMailet {
         ServiceManager serviceManager = (ServiceManager) getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
 
         try {
-            // Get the DataSourceSelector block
-            DataSourceSelector datasources = (DataSourceSelector) serviceManager.lookup(DataSourceSelector.ROLE);
-            // Get the data-source required.
-            int stindex =   repositoryPath.indexOf("://") + 3;
+int stindex =   repositoryPath.indexOf("://") + 3;
+            
             String datasourceName = repositoryPath.substring(stindex);
-            datasource = (DataSourceComponent) datasources.select(datasourceName);
+            
+            Context context=new InitialContext();
+            String name=MailetServiceJNDIRegistration.SERVICE_CONTEXT+"/"+datasourceName;
+            datasource = (DataSource) context.lookup(name);
         } catch (Exception e) {
             throw new MessagingException("Can't get datasource", e);
         }

@@ -21,13 +21,14 @@
 
 package org.apache.james.transport.matchers;
 
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.james.Constants;
+import java.util.Collection;
+import java.util.StringTokenizer;
+import javax.mail.MessagingException;
+import javax.naming.Context;
+import javax.naming.InitialContext;
 import org.apache.james.services.DNSServer;
 import org.apache.james.util.NetMatcher;
-import javax.mail.MessagingException;
-import java.util.StringTokenizer;
-import java.util.Collection;
+import org.apache.mailet.MailetServiceJNDIRegistration;
 
 /**
   * AbstractNetworkMatcher makes writing IP Address matchers easier.
@@ -65,15 +66,17 @@ public abstract class AbstractNetworkMatcher extends org.apache.mailet.GenericMa
     /**
      * The ServiceManger
      */
-    private ServiceManager compMgr;
+
 
     public void init() throws MessagingException {
         
-        setServiceManager((ServiceManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER));
+        
         
         try {
             // Instantiate DNSServer
-            setDNSServer((DNSServer) compMgr.lookup(DNSServer.ROLE));
+            Context context = new InitialContext();
+            String key = MailetServiceJNDIRegistration.SERVICE_CONTEXT+"/DNSServer";
+            setDNSServer((DNSServer) context.lookup(key));
         } catch (Exception e) {
             throw new MessagingException("Failed to retrieve DNSServer:" + e.getMessage());
         }
@@ -114,7 +117,5 @@ public abstract class AbstractNetworkMatcher extends org.apache.mailet.GenericMa
         this.dnsServer = dnsServer;
     }
     
-    private void setServiceManager(ServiceManager compMgr) {
-        this.compMgr = compMgr;
-    }
+   
 }
