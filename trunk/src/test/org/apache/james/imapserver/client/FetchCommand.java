@@ -30,6 +30,10 @@ public class FetchCommand extends AbstractCommand {
     private boolean fetchRfc822Size;
     
     private FetchBody body;
+    
+    private boolean oneSwitchOnly = false;
+    
+    private boolean oneMessageOnly = false;
 
     public FetchCommand(MimeMessage[] msgs, long from, long to) {
         statusResponse = "OK FETCH completed.";
@@ -37,6 +41,18 @@ public class FetchCommand extends AbstractCommand {
         this.from = from;
         this.to = to;
     }
+
+    public FetchCommand(MimeMessage[] msgs, long from) {
+        statusResponse = "OK FETCH completed.";
+        this.msgs = msgs;
+        this.from = from;
+        this.to = from;
+        this.oneMessageOnly = true;
+    }
+
+    public void setOneSwitchOnly(boolean oneSwitchOnly) {
+		this.oneSwitchOnly = oneSwitchOnly;
+	}
     
     public void setUids(long[] uids) {
         this.uids=uids;
@@ -48,33 +64,45 @@ public class FetchCommand extends AbstractCommand {
         if (uid) {
             command += "UID ";
         }
-        command += "fetch " + from + ":";
-        if (to > 0) {
-            command += to;
+        command += "fetch " + from ;
+        if (!oneMessageOnly) {
+	        if (to > 0) {
+	            command += ":"+to;
+	        } else {
+	            command += ":*";
+	        }
+        }
+        if (oneSwitchOnly) {
+        	if (fetchFlags) {
+        		command += " FLAGS\n";
+        	} else if (fetchRfc822Size) {
+        		command += " RFC822.SIZE\n";
+        	} else if (body!=null) {
+        		command += " "+body.getCommand()+'\n';
+        	}
         } else {
-            command += "*";
+	        command += " (";
+	        String items="";
+	        // FLAGS
+	        if (fetchFlags) {
+	            items += " FLAGS";  
+	        }
+	        // RFC822.SIZE
+	        if (fetchRfc822Size) {
+	            items += " RFC822.SIZE";
+	        }
+	        // BODY
+	        if (body!=null) {
+	            items += " "+body.getCommand();
+	        }
+	        
+	        
+	        if (items.length()>0) {
+	            items=items.substring(1);
+	        }
+	
+	        command += items+")\n";
         }
-        command += " (";
-        String items="";
-        // FLAGS
-        if (fetchFlags) {
-            items += " FLAGS";  
-        }
-        // RFC822.SIZE
-        if (fetchRfc822Size) {
-            items += " RFC822.SIZE";
-        }
-        // BODY
-        if (body!=null) {
-            items += " "+body.getCommand();
-        }
-        
-        
-        if (items.length()>0) {
-            items=items.substring(1);
-        }
-
-        command += items+")\n";
         return command;
     }
 
