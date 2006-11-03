@@ -117,14 +117,14 @@ public class BodyFetchSessionTest extends AbstractSessionTest {
         verifyCommandOrdered(fc);
     }        
 
-    public void testSimpleFetch() throws ProtocolException, IOException, MessagingException, MailboxManagerException {
+    public void testFetchBodyNoParenthesisOneSeqNumber() throws ProtocolException, IOException, MessagingException, MailboxManagerException {
         verifyCommand(new LoginCommand(USER_NAME,USER_PASSWORD));
         verifyCommand(new SelectCommand("INBOX", msgs, getUidValidity(USER_MAILBOX_ROOT+".INBOX")));
         msgs=getMessages(USER_MAILBOX_ROOT+".INBOX");
         
         FetchCommand fc=new FetchCommand(msgs,1);
         fc.setFetchBody(new FetchBody(true));
-        fc.setOneSwitchOnly(true);
+        fc.setUseParenthesis(false);
         verifyCommandOrdered(fc);
     	
     }
