@@ -373,7 +373,7 @@ public class NNTPHandler
                 handlerThread = Thread.currentThread();
             }
             remoteIP = socket.getInetAddress().getHostAddress();
-            remoteHost = socket.getInetAddress().getHostName();
+            remoteHost = org.apache.james.dnsserver.DNSServer.getHostName(socket.getInetAddress());
             in = new BufferedInputStream(socket.getInputStream(), 1024);
             // An ASCII encoding can be used because all transmissions other
             // that those in the message body command are guaranteed

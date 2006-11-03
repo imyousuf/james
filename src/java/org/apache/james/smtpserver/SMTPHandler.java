@@ -274,7 +274,7 @@ public class SMTPHandler
             // inReader = new BufferedReader(new InputStreamReader(in, "ASCII"), 512);
             inReader = new CRLFTerminatedReader(in, "ASCII");
             remoteIP = socket.getInetAddress().getHostAddress();
-            remoteHost = socket.getInetAddress().getHostName();
+            remoteHost = org.apache.james.dnsserver.DNSServer.getHostName(socket.getInetAddress());
             smtpID = random.nextInt(1024) + "";
             relayingAllowed = theConfigData.isRelayingAllowed(remoteIP);
             authRequired = theConfigData.isAuthRequired(remoteIP);

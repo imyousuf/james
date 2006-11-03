@@ -247,7 +247,7 @@ public class RemoteManagerHandler
 
         socket = connection;
         String remoteIP = socket.getInetAddress().getHostAddress();
-        String remoteHost = socket.getInetAddress().getHostName();
+        String remoteHost = org.apache.james.dnsserver.DNSServer.getHostName(socket.getInetAddress());
 
         synchronized (this) {
             handlerThread = Thread.currentThread();
