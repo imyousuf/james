@@ -31,9 +31,9 @@ public class FetchCommand extends AbstractCommand {
     
     private FetchBody body;
     
-    private boolean oneSwitchOnly = false;
+    private boolean useParenthesis = true;
     
-    private boolean oneMessageOnly = false;
+    private boolean oneSeqNumberOnly = false;
 
     public FetchCommand(MimeMessage[] msgs, long from, long to) {
         statusResponse = "OK FETCH completed.";
@@ -42,16 +42,16 @@ public class FetchCommand extends AbstractCommand {
         this.to = to;
     }
 
-    public FetchCommand(MimeMessage[] msgs, long from) {
+    public FetchCommand(MimeMessage[] msgs, long no) {
         statusResponse = "OK FETCH completed.";
         this.msgs = msgs;
-        this.from = from;
-        this.to = from;
-        this.oneMessageOnly = true;
+        this.from = no;
+        this.to = no;
+        this.oneSeqNumberOnly = true;
     }
 
-    public void setOneSwitchOnly(boolean oneSwitchOnly) {
-		this.oneSwitchOnly = oneSwitchOnly;
+    public void setUseParenthesis(boolean useParenthesis) {
+		this.useParenthesis = useParenthesis;
 	}
     
     public void setUids(long[] uids) {
@@ -60,56 +60,51 @@ public class FetchCommand extends AbstractCommand {
     }
 
     public String getCommand() {
-        String command = "";
-        if (uid) {
-            command += "UID ";
-        }
-        command += "fetch " + from ;
-        if (!oneMessageOnly) {
-	        if (to > 0) {
-	            command += ":"+to;
-	        } else {
-	            command += ":*";
-	        }
-        }
-        if (oneSwitchOnly) {
-        	if (fetchFlags) {
-        		command += " FLAGS\n";
-        	} else if (fetchRfc822Size) {
-        		command += " RFC822.SIZE\n";
-        	} else if (body!=null) {
-        		command += " "+body.getCommand()+'\n';
-        	}
-        } else {
-	        command += " (";
-	        String items="";
-	        // FLAGS
-	        if (fetchFlags) {
-	            items += " FLAGS";  
-	        }
-	        // RFC822.SIZE
-	        if (fetchRfc822Size) {
-	            items += " RFC822.SIZE";
-	        }
-	        // BODY
-	        if (body!=null) {
-	            items += " "+body.getCommand();
-	        }
-	        
-	        
-	        if (items.length()>0) {
-	            items=items.substring(1);
-	        }
-	
-	        command += items+")\n";
-        }
-        return command;
-    }
+		String command = "";
+		if (uid) {
+			command += "UID ";
+		}
+		command += "fetch " + from;
+		if (!oneSeqNumberOnly) {
+			if (to > 0) {
+				command += ":" + to;
+			} else {
+				command += ":*";
+			}
+		}
+
+		command += " ";
+		if (useParenthesis) {
+			command += "(";
+		}
+		
+		String items = "";
+		// FLAGS
+		if (fetchFlags) {
+			items += " FLAGS";
+		}
+		// RFC822.SIZE
+		if (fetchRfc822Size) {
+			items += " RFC822.SIZE";
+		}
+		// BODY
+		if (body != null) {
+			items += " " + body.getCommand();
+		}
+
+		if (items.length() > 0) {
+			items = items.substring(1);
+		}
+		command += items;
+		if (useParenthesis) {
+			command += ")";
+		}
+		command += "\n";
+		return command;
+	}
 
     private List getSelectedMessageNumbers() {
         List selectedNumbers = new ArrayList();
-        
-        
         if (uid) {
             final long to;
             if (this.to>0) {
