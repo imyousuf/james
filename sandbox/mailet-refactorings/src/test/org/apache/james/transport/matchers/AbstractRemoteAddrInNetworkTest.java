@@ -186,6 +186,33 @@ public abstract class AbstractRemoteAddrInNetworkTest extends TestCase {
                         "Unimplemented mock service");
             }
 
+            public void dispose() {
+
+                throw new UnsupportedOperationException(
+                "Unimplemented mock service");
+                
+            }
+
+            public void setRemoteAddr(String hostAddress) {
+
+                throw new UnsupportedOperationException(
+                "Unimplemented mock service");
+                
+            }
+
+            public void setRemoteHost(String hostName) {
+
+                throw new UnsupportedOperationException(
+                "Unimplemented mock service");
+                
+            }
+
+            public void setSender(MailAddress reversePath) {
+
+                throw new UnsupportedOperationException(
+                "Unimplemented mock service");
+            }
+
         };
 
     }

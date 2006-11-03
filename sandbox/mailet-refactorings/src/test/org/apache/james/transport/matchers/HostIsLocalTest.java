@@ -25,8 +25,12 @@ import org.apache.james.test.mock.mailet.MockMatcherConfig;
 
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
+import org.apache.mailet.MailFactory;
+import org.apache.mailet.MailRepository;
 import org.apache.mailet.MailetContext;
+import org.apache.mailet.MailetException;
 import org.apache.mailet.Matcher;
+import org.apache.mailet.UsersRepository;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -183,6 +187,24 @@ public class HostIsLocalTest extends TestCase {
             public Iterator getSMTPHostAddresses(String domainName) {
                 throw new UnsupportedOperationException(
                         "Unimplemented mock service");
+            }
+
+            public MailFactory getMailFactory() {
+
+                throw new UnsupportedOperationException(
+                "Unimplemented mock service");
+            }
+
+            public MailRepository getMailRepository(String repoURL) throws MailetException {
+
+                throw new UnsupportedOperationException(
+                "Unimplemented mock service");
+            }
+
+            public UsersRepository getUsersRepository(String repoURL) throws MailetException {
+
+                throw new UnsupportedOperationException(
+                "Unimplemented mock service");
             }
 
         };

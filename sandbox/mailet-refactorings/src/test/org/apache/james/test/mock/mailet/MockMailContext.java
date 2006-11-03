@@ -19,9 +19,13 @@
 
 package org.apache.james.test.mock.mailet;
 
+import org.apache.mailet.MailFactory;
+import org.apache.mailet.MailRepository;
 import org.apache.mailet.MailetContext;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
+import org.apache.mailet.MailetException;
+import org.apache.mailet.UsersRepository;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -120,5 +124,29 @@ public class MockMailContext implements MailetContext {
 
     public Iterator getSMTPHostAddresses(String domainName) {
         return null;  // trivial implementation
+    }
+
+    /**
+     * @see org.apache.mailet.MailetContext#getMailFactory()
+     */
+    public MailFactory getMailFactory() {
+
+        throw new UnsupportedOperationException("MOCKed method");
+    }
+
+    /**
+     * @see org.apache.mailet.MailetContext#getMailRepository(java.lang.String)
+     */
+    public MailRepository getMailRepository(String repoURL) throws MailetException {
+
+        throw new UnsupportedOperationException("MOCKed method");
+    }
+
+    /**
+     * @see org.apache.mailet.MailetContext#getUsersRepository(java.lang.String)
+     */
+    public UsersRepository getUsersRepository(String repoURL) throws MailetException {
+
+        throw new UnsupportedOperationException("MOCKed method");
     }
 }

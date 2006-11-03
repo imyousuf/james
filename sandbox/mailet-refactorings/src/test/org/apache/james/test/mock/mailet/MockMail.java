@@ -51,6 +51,12 @@ public class MockMail implements Mail {
 
     private HashMap attributes = new HashMap();
 
+    private String hostAddress;
+
+    private String hostName;
+
+    private MailAddress reversePath;
+
     private static final long serialVersionUID = 1L;
 
     public String getName() {
@@ -141,6 +147,42 @@ public class MockMail implements Mail {
 
     public void setLastUpdated(Date lastUpdated) {
         this.lastUpdated = lastUpdated;
+    }
+
+    /**
+     * @see org.apache.mailet.Mail#dispose()
+     */
+    public void dispose() {
+
+        // TODO Auto-generated method stub MUST contain a statement
+        // Blame: angusd
+        
+    }
+
+    /**
+     * @see org.apache.mailet.Mail#setRemoteAddr(java.lang.String)
+     */
+    public void setRemoteAddr(String hostAddress) {
+
+        this.hostAddress = hostAddress;
+        
+    }
+
+    /**
+     * @see org.apache.mailet.Mail#setRemoteHost(java.lang.String)
+     */
+    public void setRemoteHost(String hostName) {
+
+        this.hostName=hostName;
+    }
+
+    /**
+     * @see org.apache.mailet.Mail#setSender(org.apache.mailet.MailAddress)
+     */
+    public void setSender(MailAddress reversePath) {
+
+        this.reversePath = reversePath;
+        
     }
 
 }
