@@ -346,7 +346,9 @@ public class ServerConnection extends AbstractLogEnabled
                 Socket clientSocket = null;
                 try {
                     while (maxOpenConn > 0 && clientConnectionRunners.size() >= maxOpenConn) {
-                        getLogger().warn("Maximum number of open connections (" +  clientConnectionRunners.size() + ") in use.");
+                        if (getLogger().isInfoEnabled()) {
+                            getLogger().info("Maximum number of open connections (" +  clientConnectionRunners.size() + ") in use.");
+                        }
                         synchronized (this) { wait(10000); }
                     }
 
@@ -372,7 +374,7 @@ public class ServerConnection extends AbstractLogEnabled
                     if ((maxOpenConn > 0) && (clientConnectionRunners.size() >= maxOpenConn)) {
                         if (getLogger().isWarnEnabled()) {
                            getLogger().warn("Maximum number of open connections exceeded - refusing connection.  Current number of connections is " + clientConnectionRunners.size());
-                           if (getLogger().isWarnEnabled()) {
+                           if (getLogger().isInfoEnabled()) {
                                Iterator runnerIterator = clientConnectionRunners.iterator();
                                getLogger().info("Connections: ");
                                while( runnerIterator.hasNext() ) {
