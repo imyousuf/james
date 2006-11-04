@@ -51,8 +51,8 @@ public class FetchCommand extends AbstractCommand {
     }
 
     public void setUseParenthesis(boolean useParenthesis) {
-		this.useParenthesis = useParenthesis;
-	}
+        this.useParenthesis = useParenthesis;
+    }
     
     public void setUids(long[] uids) {
         this.uids=uids;
@@ -60,48 +60,48 @@ public class FetchCommand extends AbstractCommand {
     }
 
     public String getCommand() {
-		String command = "";
-		if (uid) {
-			command += "UID ";
-		}
-		command += "fetch " + from;
-		if (!oneSeqNumberOnly) {
-			if (to > 0) {
-				command += ":" + to;
-			} else {
-				command += ":*";
-			}
-		}
+        String command = "";
+        if (uid) {
+            command += "UID ";
+        }
+        command += "fetch " + from;
+        if (!oneSeqNumberOnly) {
+            if (to > 0) {
+                command += ":" + to;
+            } else {
+                command += ":*";
+            }
+        }
 
-		command += " ";
-		if (useParenthesis) {
-			command += "(";
-		}
-		
-		String items = "";
-		// FLAGS
-		if (fetchFlags) {
-			items += " FLAGS";
-		}
-		// RFC822.SIZE
-		if (fetchRfc822Size) {
-			items += " RFC822.SIZE";
-		}
-		// BODY
-		if (body != null) {
-			items += " " + body.getCommand();
-		}
+        command += " ";
+        if (useParenthesis) {
+            command += "(";
+        }
+        
+        String items = "";
+        // FLAGS
+        if (fetchFlags) {
+            items += " FLAGS";
+        }
+        // RFC822.SIZE
+        if (fetchRfc822Size) {
+            items += " RFC822.SIZE";
+        }
+        // BODY
+        if (body != null) {
+            items += " " + body.getCommand();
+        }
 
-		if (items.length() > 0) {
-			items = items.substring(1);
-		}
-		command += items;
-		if (useParenthesis) {
-			command += ")";
-		}
-		command += "\n";
-		return command;
-	}
+        if (items.length() > 0) {
+            items = items.substring(1);
+        }
+        command += items;
+        if (useParenthesis) {
+            command += ")";
+        }
+        command += "\n";
+        return command;
+    }
 
     private List getSelectedMessageNumbers() {
         List selectedNumbers = new ArrayList();
