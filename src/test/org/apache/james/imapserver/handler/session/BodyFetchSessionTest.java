@@ -126,6 +126,6 @@ public class BodyFetchSessionTest extends AbstractSessionTest {
         fc.setFetchBody(new FetchBody(true));
         fc.setUseParenthesis(false);
         verifyCommandOrdered(fc);
-    	
+        
     }
 }
