@@ -84,8 +84,17 @@ public class UidToMsnBidiMap {
                 throw new AssertionError("Msn at position "+(i+1)+" was "+msns[i].intValue());
             }
         }
-        if (msns[msns.length-1].intValue()!=highestMsn) {
-            throw new AssertionError("highestMsn "+highestMsn+" msns[msns.length-1] "+msns[msns.length-1]);
+        if (msns.length > 0) {
+            if (msns[msns.length - 1].intValue() != highestMsn) {
+                throw new AssertionError("highestMsn " + highestMsn
+                        + " msns[msns.length-1] " + msns[msns.length - 1]);
+            }
+        } else {
+            if (highestMsn != 0) {
+                throw new AssertionError(
+                        "highestMsn in empty map has to be 0 but is"
+                                + highestMsn);
+            }
         }
         if (!msnToUid.keySet().equals(new TreeSet(uidToMsn.values()))) {
             System.out.println(msnToUid.keySet());
@@ -105,6 +114,10 @@ public class UidToMsnBidiMap {
             highestMsn++;
             add(highestMsn, uid);
         }
+    }
+
+    int size() {
+        return uidToMsn.size();
     }
 
 }
