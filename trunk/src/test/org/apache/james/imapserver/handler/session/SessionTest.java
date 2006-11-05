@@ -106,11 +106,11 @@ public class SessionTest extends AbstractSessionTest
     
     public void testSelectNonEmpty() throws ProtocolException, MessagingException, IOException, MailboxManagerException {
         long uidv=getUidValidity(USER_MAILBOX_ROOT+".test");
-        MimeMessage[] msgs=MessageGenerator.generateSimplesMessages(5);
+        MimeMessage[] msgs=MessageGenerator.generateSimpleMessages(5);
         msgs[0].setFlag(Flag.SEEN,true);
         msgs[1].setFlag(Flag.SEEN,true);
         addUIDMessagesOpen(USER_MAILBOX_ROOT+".test",msgs);
-        msgs=MessageGenerator.generateSimplesMessages(5);
+        msgs=MessageGenerator.generateSimpleMessages(5);
         appendMessagesClosed(USER_MAILBOX_ROOT+".test",msgs);
         testLogin();
         String command=" SELECT \"test\"";

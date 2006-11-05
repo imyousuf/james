@@ -24,7 +24,7 @@ public class UidFlagSizeFetchSessionTest extends AbstractSessionTest {
     
     public void setUp() throws MailboxException, MessagingException, IOException, MailboxManagerException {
         super.setUp();
-        msgs=MessageGenerator.generateSimplesMessages(10);
+        msgs=MessageGenerator.generateSimpleMessages(10);
         createFolders(onlyInbox);
         // increase the uid
         appendMessagesClosed(USER_MAILBOX_ROOT+".INBOX",msgs);
@@ -65,7 +65,7 @@ public class UidFlagSizeFetchSessionTest extends AbstractSessionTest {
     public void testFetchUidsFlags() throws ProtocolException, IOException, MessagingException, MailboxManagerException {
         // Folder hast to be kept open for RECENT Flags
         useFolder(USER_MAILBOX_ROOT+".INBOX");
-        appendMessagesClosed(USER_MAILBOX_ROOT+".INBOX",MessageGenerator.generateSimplesMessages(5));
+        appendMessagesClosed(USER_MAILBOX_ROOT+".INBOX",MessageGenerator.generateSimpleMessages(5));
         setFlags(USER_MAILBOX_ROOT+".INBOX", 12, 12, new Flags(Flags.Flag.SEEN), true, false);
         setFlags(USER_MAILBOX_ROOT+".INBOX", 14, 14, new Flags(Flags.Flag.SEEN), true, false);
         msgs=getMessages(USER_MAILBOX_ROOT+".INBOX");

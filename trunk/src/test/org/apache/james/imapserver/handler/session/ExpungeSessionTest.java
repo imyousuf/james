@@ -50,7 +50,7 @@ public class ExpungeSessionTest extends AbstractSessionTest {
 
     public void testExpungeOneMessage() throws MessagingException,
             MailboxManagerException, ProtocolException, IOException {
-        msgs = MessageGenerator.generateSimplesMessages(1);
+        msgs = MessageGenerator.generateSimpleMessages(1);
         msgs[0].setFlag(Flags.Flag.DELETED, true);
         addUIDMessagesOpen(USER_INBOX, msgs);
         verifyCommand(new LoginCommand(USER_NAME, USER_PASSWORD));
@@ -61,7 +61,7 @@ public class ExpungeSessionTest extends AbstractSessionTest {
 
     public void testExpunge3Messages() throws MessagingException,
             MailboxManagerException, ProtocolException, IOException {
-        msgs = MessageGenerator.generateSimplesMessages(3);
+        msgs = MessageGenerator.generateSimpleMessages(3);
         msgs[0].setFlag(Flags.Flag.DELETED, true);
         msgs[1].setFlag(Flags.Flag.DELETED, true);
         msgs[2].setFlag(Flags.Flag.DELETED, true);
@@ -74,7 +74,7 @@ public class ExpungeSessionTest extends AbstractSessionTest {
 
     public void testExpunge4Of6Messages() throws MessagingException,
             MailboxManagerException, ProtocolException, IOException {
-        msgs = MessageGenerator.generateSimplesMessages(6);
+        msgs = MessageGenerator.generateSimpleMessages(6);
         msgs[0].setFlag(Flags.Flag.DELETED, true);
         msgs[2].setFlag(Flags.Flag.DELETED, true);
         msgs[3].setFlag(Flags.Flag.DELETED, true);

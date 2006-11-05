@@ -25,7 +25,7 @@ public class CopySessionTest extends AbstractSessionTest {
     
     public void setUp() throws MailboxException, MessagingException, IOException, MailboxManagerException {
         super.setUp();
-        msgs=MessageGenerator.generateSimplesMessages(4);
+        msgs=MessageGenerator.generateSimpleMessages(4);
         createFolders(folders);
         // increase the uid
         appendMessagesClosed(USER_MAILBOX_ROOT+".INBOX",msgs);

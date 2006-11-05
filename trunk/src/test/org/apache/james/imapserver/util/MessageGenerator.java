@@ -54,7 +54,7 @@ public class MessageGenerator
         return os.toString();
     }
 
-    public static MimeMessage[] generateSimplesMessages(int c) throws MessagingException
+    public static MimeMessage[] generateSimpleMessages(int c) throws MessagingException
     {
         MimeMessage[] msgs=new MimeMessage[c];
         for (int i=0; i<c; i++) {
