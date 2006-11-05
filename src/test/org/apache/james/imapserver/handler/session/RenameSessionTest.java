@@ -27,7 +27,7 @@ public class RenameSessionTest extends AbstractSessionTest {
     public void setUp() throws MailboxException, MessagingException,
             IOException, MailboxManagerException {
         super.setUp();
-        msgs = MessageGenerator.generateSimplesMessages(2);
+        msgs = MessageGenerator.generateSimpleMessages(2);
         createFolders(folders);
         for (int i = 0; i < folders.length; i++) {
             appendMessagesClosed(folders[i], msgs);
