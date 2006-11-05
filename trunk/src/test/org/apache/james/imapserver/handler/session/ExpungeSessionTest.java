@@ -21,6 +21,8 @@
 package org.apache.james.imapserver.handler.session;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
 
 import javax.mail.Flags;
 import javax.mail.MessagingException;
@@ -33,6 +35,7 @@ import org.apache.james.imapserver.client.SelectCommand;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.imapserver.util.MessageGenerator;
 import org.apache.james.mailboxmanager.MailboxManagerException;
+import org.apache.james.mailboxmanager.TestUtil;
 
 public class ExpungeSessionTest extends AbstractSessionTest {
 
@@ -57,6 +60,7 @@ public class ExpungeSessionTest extends AbstractSessionTest {
         verifyCommand(new SelectCommand("INBOX", msgs,
                 getUidValidity(USER_INBOX)));
         verifyCommandOrdered(new ExpungeClientCommand(msgs));
+        assertEquals(0,getMessages(USER_INBOX).length);
     }
 
     public void testExpunge3Messages() throws MessagingException,
@@ -70,6 +74,7 @@ public class ExpungeSessionTest extends AbstractSessionTest {
         verifyCommand(new SelectCommand("INBOX", msgs,
                 getUidValidity(USER_INBOX)));
         verifyCommandOrdered(new ExpungeClientCommand(msgs));
+        assertEquals(0,getMessages(USER_INBOX).length);
     }
 
     public void testExpunge4Of6Messages() throws MessagingException,
@@ -84,5 +89,10 @@ public class ExpungeSessionTest extends AbstractSessionTest {
         verifyCommand(new SelectCommand("INBOX", msgs,
                 getUidValidity(USER_INBOX)));
         verifyCommandOrdered(new ExpungeClientCommand(msgs));
+        MimeMessage[] currentMsgs=getMessages(USER_INBOX);
+        assertEquals(2,currentMsgs.length);
+        Collection existing=Arrays.asList(currentMsgs);
+        Collection expected=Arrays.asList(new MimeMessage[] {msgs[1],msgs[4]});
+        assertTrue(TestUtil.messageSetsEqual(existing,expected));
     }
 }
