@@ -19,7 +19,7 @@
 package org.apache.james.container.spring.logging;
 
 /**
- * logs forwareded logging messages to System console, the most simple form of a LogWorker
+ * logs forwarded logging messages to System console, the most simple form of a LogWorker
  */
 public class SystemConsoleLogWorker implements LogWorker {
 

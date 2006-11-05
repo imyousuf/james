@@ -21,12 +21,11 @@
  -->
 
 
-<!--
-
-  -->
 <beans>
 
-    <!-- beans which replace Avalon specific container logic -->
+    <!--
+         beans which replace Avalon specific container logic
+    -->
 
     <bean id="serviceManager" class="org.apache.james.container.spring.adaptor.ServiceManagerBridge" />
 
@@ -44,8 +43,32 @@
         <property name="applicationHome" value="data" />
     </bean>
 
+    <!--
+         JMX part
+     -->
 
-    <!-- beans which manage bootstrapping and component lifecycle -->
+    <bean id="exporter" class="org.springframework.jmx.export.MBeanExporter" >
+        <property name="autodetect" value="true" />
+        <property name="namingStrategy" ref="namingStrategy" />
+    </bean>
+
+    <bean id="namingStrategy" class="org.springframework.jmx.export.naming.KeyNamingStrategy" >
+        <property name="mappings" ><props>
+            <prop key="fetchmail" >bean:name=fetchmail</prop>
+            <prop key="smtpserver" >bean:name=smtpserver</prop>
+            <prop key="James" >bean:name=James</prop>
+            <prop key="dnsserver" >bean:name=dnsserver</prop>
+            <prop key="remotemanager" >bean:name=remotemanager</prop>
+            <prop key="pop3server" >bean:name=pop3server</prop>
+            <prop key="nntpserver" >bean:name=nntpserver</prop>
+        </props></property>
+    </bean>
+
+    <bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean" />
+
+    <!--
+         beans which manage bootstrapping and component lifecycle
+    -->
 
     <bean id="loggerPropagator" class="org.apache.james.container.spring.lifecycle.LoggerPropagator" />
 
@@ -57,7 +80,14 @@
 
     <bean id="initializationManager" class="org.apache.james.container.spring.lifecycle.InitializationPropagator" />
 
-    <!-- James components which are not dependent from other components -->
+
+    <!--
+         JAMES components starting from here
+    -->
+
+    <!--
+         James components which are not dependent from other components
+    -->
 
     <bean name="mailStore, org.apache.avalon.cornerstone.services.store.Store" class="org.apache.james.core.AvalonMailStore" />
 
@@ -82,7 +112,9 @@
     <bean name="database-connections"
            class="org.apache.avalon.cornerstone.blocks.datasources.DefaultDataSourceSelector" />
 
-    <!-- James components with dependencies to other components -->
+    <!--
+         James components with dependencies to other components
+    -->
 
     <bean name="James" class="org.apache.james.James" />
 
