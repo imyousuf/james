@@ -4,6 +4,8 @@ public interface TestConstants
 {
     final static String USER_NAME="tuser";
     final static String USER_MAILBOX_ROOT=ImapConstants.USER_NAMESPACE+"."+USER_NAME;
+    final static String USER_INBOX=USER_MAILBOX_ROOT+".INBOX";
+    
     final static String USER_PASSWORD="abc";
     final static String USER_REALNAME="Test User";
     
