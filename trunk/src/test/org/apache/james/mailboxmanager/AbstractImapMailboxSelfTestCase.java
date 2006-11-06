@@ -1,3 +1,22 @@
+/****************************************************************
+ * Licensed to the Apache Software Foundation (ASF) under one   *
+ * or more contributor license agreements.  See the NOTICE file *
+ * distributed with this work for additional information        *
+ * regarding copyright ownership.  The ASF licenses this file   *
+ * to you under the Apache License, Version 2.0 (the            *
+ * "License"); you may not use this file except in compliance   *
+ * with the License.  You may obtain a copy of the License at   *
+ *                                                              *
+ *   http://www.apache.org/licenses/LICENSE-2.0                 *
+ *                                                              *
+ * Unless required by applicable law or agreed to in writing,   *
+ * software distributed under the License is distributed on an  *
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY       *
+ * KIND, either express or implied.  See the License for the    *
+ * specific language governing permissions and limitations      *
+ * under the License.                                           *
+ ****************************************************************/
+
 package org.apache.james.mailboxmanager;
 
 import java.util.Date;
@@ -11,11 +30,11 @@ import junit.framework.TestCase;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.impl.MailboxListenerCollector;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
-import org.apache.james.mailboxmanager.manager.GeneralManager;
+import org.apache.james.mailboxmanager.manager.MailboxManager;
 
 public abstract class AbstractImapMailboxSelfTestCase extends TestCase {
     
-    protected GeneralManager mailboxManager;
+    protected MailboxManager mailboxManager;
     
     protected ImapMailboxSession mailbox;
     
@@ -26,7 +45,7 @@ public abstract class AbstractImapMailboxSelfTestCase extends TestCase {
     public void setUp() throws Exception {
         super.setUp();
         mailboxManager.createMailbox(INBOX);
-        mailbox=mailboxManager.getGenericImapMailboxSession(INBOX);
+        mailbox=mailboxManager.getImapMailboxSession(INBOX);
         collector=new MailboxListenerCollector();
         mailbox.addListener(collector, 0);
         assertNotNull(mailbox);

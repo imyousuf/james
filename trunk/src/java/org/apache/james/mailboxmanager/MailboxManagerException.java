@@ -19,7 +19,9 @@
 
 package org.apache.james.mailboxmanager;
 
-public class MailboxManagerException extends Exception {
+import javax.mail.MessagingException;
+
+public class MailboxManagerException extends MessagingException {
 
     private static final long serialVersionUID = -7034955921835169361L;
 

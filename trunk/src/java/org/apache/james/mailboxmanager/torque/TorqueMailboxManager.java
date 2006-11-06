@@ -1,3 +1,22 @@
+/****************************************************************
+ * Licensed to the Apache Software Foundation (ASF) under one   *
+ * or more contributor license agreements.  See the NOTICE file *
+ * distributed with this work for additional information        *
+ * regarding copyright ownership.  The ASF licenses this file   *
+ * to you under the Apache License, Version 2.0 (the            *
+ * "License"); you may not use this file except in compliance   *
+ * with the License.  You may obtain a copy of the License at   *
+ *                                                              *
+ *   http://www.apache.org/licenses/LICENSE-2.0                 *
+ *                                                              *
+ * Unless required by applicable law or agreed to in writing,   *
+ * software distributed under the License is distributed on an  *
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY       *
+ * KIND, either express or implied.  See the License for the    *
+ * specific language governing permissions and limitations      *
+ * under the License.                                           *
+ ****************************************************************/
+
 package org.apache.james.mailboxmanager.torque;
 
 import java.util.Iterator;
@@ -19,7 +38,7 @@ import org.apache.james.mailboxmanager.mailbox.GeneralMailbox;
 import org.apache.james.mailboxmanager.mailbox.GeneralMailboxSession;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 import org.apache.james.mailboxmanager.mailbox.MailboxSession;
-import org.apache.james.mailboxmanager.manager.GeneralManager;
+import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.torque.om.MailboxRow;
 import org.apache.james.mailboxmanager.torque.om.MailboxRowPeer;
 import org.apache.james.mailboxmanager.tracking.MailboxCache;
@@ -30,7 +49,7 @@ import org.apache.torque.TorqueException;
 import org.apache.torque.util.CountHelper;
 import org.apache.torque.util.Criteria;
 
-public class TorqueMailboxManager implements GeneralManager {
+public class TorqueMailboxManager implements MailboxManager {
     
     public static final char HIERARCHY_DELIMITER='.';
     
@@ -49,17 +68,19 @@ public class TorqueMailboxManager implements GeneralManager {
         this.log=log;
     }
     
-    public MailboxSession getMailboxSession(String mailboxName, Class neededInterface, int[] setTypes,int resultTypes)
+    public MailboxSession getMailboxSession(String mailboxName)
     throws MailboxManagerException {
-        return getGenericImapMailboxSession(mailboxName);
-    }
-
-    public GeneralMailboxSession getGenericGeneralMailboxSession(String mailboxName)
-    throws MailboxManagerException {
-        return getGenericImapMailboxSession(mailboxName);
+        return getImapMailboxSession(mailboxName);
     }
     
-    public ImapMailboxSession getGenericImapMailboxSession(String mailboxName)
+
+
+    public GeneralMailboxSession getGeneralMailboxSession(String mailboxName)
+    throws MailboxManagerException {
+        return getImapMailboxSession(mailboxName);
+    }
+    
+    public ImapMailboxSession getImapMailboxSession(String mailboxName)
             throws MailboxManagerException {
         
         // prepare to auto-create users Inbox
@@ -202,7 +223,7 @@ public class TorqueMailboxManager implements GeneralManager {
     }
 
     public void copyMessages(GeneralMailbox from, GeneralMessageSet set, String to) throws MailboxManagerException {
-        GeneralMailboxSession toMailbox=(GeneralMailboxSession)getMailboxSession(to,GeneralMailboxSession.class, new int[0],MessageResult.NOTHING);
+        GeneralMailboxSession toMailbox=(GeneralMailboxSession)getGeneralMailboxSession(to);
         
         MessageResult[] mr=from.getMessages(set, MessageResult.MIME_MESSAGE | MessageResult.INTERNAL_DATE);
         for (int i = 0; i < mr.length; i++) {
