@@ -27,7 +27,7 @@ import org.apache.james.imapserver.store.MessageFlags;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
-import org.apache.james.mailboxmanager.manager.GeneralManager;
+import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 import org.apache.james.services.User;
 import org.apache.james.services.UsersRepository;
@@ -49,7 +49,7 @@ public final class ImapSessionImpl implements ImapSession, ImapConstants
     private MailboxManagerProvider mailboxManagerProvider;
     private UsersRepository users;
     
-    private GeneralManager mailboxManager = null;
+    private MailboxManager mailboxManager = null;
     private User mailboxManagerUser = null;
     
     public ImapSessionImpl( MailboxManagerProvider mailboxManagerProvider,
@@ -192,7 +192,7 @@ public final class ImapSessionImpl implements ImapSession, ImapConstants
 
 
 
-    public GeneralManager getMailboxManager() throws MailboxManagerException {
+    public MailboxManager getMailboxManager() throws MailboxManagerException {
         final boolean usersEqual;
         if (mailboxManagerUser!=null) {
             usersEqual=mailboxManagerUser.equals(user);
@@ -203,7 +203,7 @@ public final class ImapSessionImpl implements ImapSession, ImapConstants
             if (mailboxManager!=null) {
                 mailboxManager.close();
             }
-            mailboxManager=mailboxManagerProvider.getGeneralManagerInstance(user);
+            mailboxManager=mailboxManagerProvider.getMailboxManagerInstance(user);
         }
         return mailboxManager;
     }

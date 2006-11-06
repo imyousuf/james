@@ -46,7 +46,7 @@ import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.FlaggedMailbox;
 import org.apache.james.mailboxmanager.mailbox.MailboxSession;
 import org.apache.james.mailboxmanager.mailbox.UidMailbox;
-import org.apache.james.mailboxmanager.manager.GeneralManager;
+import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 import org.apache.james.services.User;
 import org.apache.james.userrepository.DefaultJamesUser;
@@ -66,7 +66,7 @@ public class MailboxManagerMailRepository extends AbstractMailRepository
      */
     private UidToKeyBidiMap uidToKeyBidiMap = null;
 
-    private GeneralManager mailboxManager;
+    private MailboxManager mailboxManager;
 
     private MailboxGateKeeper mailboxGateKeeper;
 
@@ -391,7 +391,7 @@ public class MailboxManagerMailRepository extends AbstractMailRepository
 
                 String inbox=ns.getName() + ns.getHierarchyDelimter()+ "INBOX";
                 mailbox = getMailboxManager()
-                        .getGenericImapMailboxSession(inbox);
+                        .getImapMailboxSession(inbox);
             }
             return mailbox;
         }
@@ -402,14 +402,14 @@ public class MailboxManagerMailRepository extends AbstractMailRepository
      * 
      */
     
-    protected GeneralManager getMailboxManager() throws MessagingException,
+    protected MailboxManager getMailboxManager() throws MessagingException,
             MailboxManagerException {
         if (mailboxManager == null) {
             if (user == null) {
                 throw new MessagingException("user is null");
             }
             mailboxManager = getMailboxManagerProvider()
-                    .getGeneralManagerInstance(user);
+                    .getMailboxManagerInstance(user);
         }
         return mailboxManager;
     }

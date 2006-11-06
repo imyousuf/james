@@ -17,23 +17,40 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.mailboxmanager.torque;
+package org.apache.james.mailboxmanager.mailbox;
 
-import org.apache.james.mailboxmanager.AbstractMailboxManagerSelfTestCase;
-import org.apache.james.mailboxmanager.mock.MockUser;
-import org.apache.james.mailboxmanager.mock.TorqueMailboxManagerProviderSingleton;
-import org.apache.torque.TorqueException;
+import java.util.Collection;
 
-public class TorqueMailboxManagerSelfTestCase extends
-        AbstractMailboxManagerSelfTestCase {
+import javax.mail.internet.MimeMessage;
 
-    public TorqueMailboxManagerSelfTestCase() throws TorqueException {
-        super();
+import org.apache.james.mailboxmanager.MailboxManagerException;
+import org.apache.james.mailboxmanager.util.AbstractLogEnabled;
+
+public abstract class AbstractGeneralMailbox extends AbstractLogEnabled implements Mailbox {
+
+    public Collection list() throws MailboxManagerException {
+        // TODO Auto-generated method stub
+        return null;
     }
 
-    public void setUp() throws Exception {
-        TorqueMailboxManagerProviderSingleton.getTorqueMailboxManagerProviderInstance().deleteEverything();
-        mailboxManager = TorqueMailboxManagerProviderSingleton.getTorqueMailboxManagerProviderInstance().getMailboxManagerInstance(new MockUser());
+    public void remove(String key) throws MailboxManagerException {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public MimeMessage retrieve(String key) throws MailboxManagerException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public String store(MimeMessage message) throws MailboxManagerException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public String update(String key, MimeMessage message) throws MailboxManagerException {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }
