@@ -26,21 +26,19 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.xbill.DNS.CNAMERecord;
+import org.xbill.DNS.ARecord;
 import org.xbill.DNS.Cache;
 import org.xbill.DNS.Credibility;
 import org.xbill.DNS.DClass;
 import org.xbill.DNS.ExtendedResolver;
 import org.xbill.DNS.Lookup;
-import org.xbill.DNS.Message;
 import org.xbill.DNS.MXRecord;
 import org.xbill.DNS.Name;
-import org.xbill.DNS.Rcode;
+import org.xbill.DNS.PTRRecord;
 import org.xbill.DNS.Record;
 import org.xbill.DNS.Resolver;
-import org.xbill.DNS.RRset;
 import org.xbill.DNS.ResolverConfig;
-import org.xbill.DNS.SetResponse;
+import org.xbill.DNS.ReverseMap;
 import org.xbill.DNS.TXTRecord;
 import org.xbill.DNS.TextParseException;
 import org.xbill.DNS.Type;
@@ -74,7 +72,7 @@ public class DNSServer
      * A TTL cache of results received from the DNS server.  This
      * is a reference to a third party library object.
      */
-    private Cache cache;
+    protected Cache cache;
 
     /**
      * Maximum number of RR to cache.
@@ -86,7 +84,7 @@ public class DNSServer
      * Whether the DNS response is required to be authoritative
      */
     private int dnsCredibility;
-
+    
     /**
      * The DNS servers to be used by this service
      */
@@ -140,9 +138,9 @@ public class DNSServer
         }
 
         final boolean authoritative =
-            configuration.getChild( "authoritative" ).getValueAsBoolean( false );
+           configuration.getChild( "authoritative" ).getValueAsBoolean( false );
         // TODO: Check to see if the credibility field is being used correctly.  From the
-        //       docs I don't think so
+        //      docs I don't think so
         dnsCredibility = authoritative ? Credibility.AUTH_ANSWER : Credibility.NONAUTH_ANSWER;
 
         maxCacheSize = (int) configuration.getChild( "maxcachesize" ).getValueAsLong( maxCacheSize );
@@ -207,8 +205,8 @@ public class DNSServer
      *
      * @return a list of MX records corresponding to this mail domain
      */
-    public List findMXRecordsRaw(String hostname) {
-        Record answers[] = lookup(hostname, Type.MX);
+    private List findMXRecordsRaw(String hostname) {
+        Record answers[] = lookup(hostname, Type.MX, "MX");
         List servers = new ArrayList();
         if (answers == null) {
             return servers;
@@ -246,33 +244,18 @@ public class DNSServer
                             .append(hostname)
                             .append(".");
                 getLogger().info(logBuffer.toString());
-                Record cnames[] = lookup(hostname, Type.CNAME);
-                Collection cnameMXrecords = null;
-                if (cnames!=null && cnames.length > 0) {
-                    cnameMXrecords = findMXRecordsRaw(((CNAMERecord) cnames[0]).getTarget().toString());
-                } else {
+                try {
+                    getByName(hostname);
+                    servers.add(hostname);
+                } catch (UnknownHostException uhe) {
+                    // The original domain name is not a valid host,
+                    // so we can't add it to the server list.  In this
+                    // case we return an empty list of servers
                     logBuffer = new StringBuffer(128)
-                            .append("Couldn't find CNAME records for domain ")
-                            .append(hostname)
-                            .append(".");
-                    getLogger().info(logBuffer.toString());
-                }
-                if (cnameMXrecords==null) {
-                    try {
-                        getByName(hostname);
-                        servers.add(hostname);
-                    } catch (UnknownHostException uhe) {
-                        // The original domain name is not a valid host,
-                        // so we can't add it to the server list.  In this
-                        // case we return an empty list of servers
-                        logBuffer = new StringBuffer(128)
-                                  .append("Couldn't resolve IP address for host ")
-                                  .append(hostname)
-                                  .append(".");
-                        getLogger().error(logBuffer.toString());
-                    }
-                } else {
-                    servers.addAll(cnameMXrecords);
+                              .append("Couldn't resolve IP address for host ")
+                              .append(hostname)
+                              .append(".");
+                    getLogger().error(logBuffer.toString());
                 }
             }
         }
@@ -284,102 +267,27 @@ public class DNSServer
      * This method is a public wrapper for the private implementation
      * method
      *
-     * @param name the name of the host to be looked up
-     * @param type the type of record desired
-     */
-    public Record[] lookup(String name, int type) {
-        return rawDNSLookup(name,false,type);
-    }
-
-    /**
-     * Looks up DNS records of the specified type for the specified name
-     *
      * @param namestr the name of the host to be looked up
-     * @param querysent whether the query has already been sent to the DNS servers
      * @param type the type of record desired
-     * @return record the Record[] which holds all records or null if nothing is found
+     * @param typeDesc the description of the record type, for debugging purpose
      */
-    private Record[] rawDNSLookup(String namestr, boolean querysent, int type) {
-        Name name = null;
+    protected Record[] lookup(String namestr, int type, String typeDesc) {
+        // Name name = null;
         try {
-            name = Name.fromString(namestr, Name.root);
+            // name = Name.fromString(namestr, Name.root);
+            Lookup l = new Lookup(namestr, type);
+            l.setCache(cache);
+            l.setResolver(resolver);
+            l.setCredibility(dnsCredibility);
+            return l.run();
+            // return rawDNSLookup(name, false, type, typeDesc);
         } catch (TextParseException tpe) {
             // TODO: Figure out how to handle this correctly.
             getLogger().error("Couldn't parse name " + namestr, tpe);
             return null;
         }
-        int dclass = DClass.IN;
-
-        SetResponse cached = cache.lookupRecords(name, type, dnsCredibility);
-        if (cached.isSuccessful()) {
-            getLogger().debug(new StringBuffer(256)
-                             .append("Retrieving MX record for ")
-                             .append(name).append(" from cache")
-                             .toString());
-
-            return processSetResponse(cached);
-        }
-        else if (cached.isNXDOMAIN() || cached.isNXRRSET()) {
-            return null;
-        }
-        else if (querysent) {
-            return null;
-        }
-        else {
-            getLogger().debug(new StringBuffer(256)
-                             .append("Looking up MX record for ")
-                             .append(name)
-                             .toString());
-            Record question = Record.newRecord(name, type, dclass);
-            Message query = Message.newQuery(question);
-            Message response = null;
-
-            try {
-                response = resolver.send(query);
-            }
-            catch (Exception ex) {
-                getLogger().warn("Query error!", ex);
-                return null;
-            }
-
-            int rcode = response.getHeader().getRcode();
-            if (rcode == Rcode.NOERROR || rcode == Rcode.NXDOMAIN) {
-                cached = cache.addMessage(response);
-                if (cached != null && cached.isSuccessful()) {
-                    return processSetResponse(cached);
-                }
-            }
-
-            if (rcode != Rcode.NOERROR) {
-                return null;
-            }
-
-            return rawDNSLookup(namestr, true, type);
-        }
     }
     
-    protected Record[] processSetResponse(SetResponse sr) {
-        Record [] answers;
-        int answerCount = 0, n = 0;
-
-        RRset [] rrsets = sr.answers();
-        answerCount = 0;
-        for (int i = 0; i < rrsets.length; i++) {
-            answerCount += rrsets[i].size();
-        }
-
-        answers = new Record[answerCount];
-
-        for (int i = 0; i < rrsets.length; i++) {
-            Iterator iter = rrsets[i].rrs();
-            while (iter.hasNext()) {
-                Record r = (Record)iter.next();
-                answers[n++] = r;
-            }
-        }
-        return answers;
-    }
-
     /* RFC 2821 section 5 requires that we sort the MX records by their
      * preference, and introduce a randomization.  This Comparator does
      * comparisons as normal unless the values are equal, in which case
@@ -503,14 +411,37 @@ public class DNSServer
      * @see org.apache.james.services.DNSServer#getByName(String)
      */
     public InetAddress getByName(String host) throws UnknownHostException {
-        return org.xbill.DNS.Address.getByName(allowIPLiteral(host));
+        String name = allowIPLiteral(host);
+        try {
+            return org.xbill.DNS.Address.getByAddress(name);
+        } catch (UnknownHostException e) {
+            Record [] records = lookup(name, Type.A, "A");
+            if (records != null && records.length >= 1) {
+                ARecord a = (ARecord) records[0];
+                return InetAddress.getByAddress(name, a.getAddress().getAddress());
+            } else throw e;
+        }
     }
 
     /**
      * @see org.apache.james.services.DNSServer#getAllByName(String)
      */
     public InetAddress[] getAllByName(String host) throws UnknownHostException {
-        return org.xbill.DNS.Address.getAllByName(allowIPLiteral(host));
+        String name = allowIPLiteral(host);
+        try {
+            InetAddress addr = org.xbill.DNS.Address.getByAddress(name);
+            return new InetAddress[] {addr};
+        } catch (UnknownHostException e) {
+            Record [] records = lookup(name, Type.A, "A");
+            if (records != null && records.length >= 1) {
+                InetAddress [] addrs = new InetAddress[records.length];
+                for (int i = 0; i < records.length; i++) {
+                    ARecord a = (ARecord) records[i];
+                    addrs[i] = InetAddress.getByAddress(name, a.getAddress().getAddress());
+                }
+                return addrs;
+            } else throw e;
+        }
     }
     
     /**
@@ -520,7 +451,7 @@ public class DNSServer
         List txtR = new ArrayList();
         Record[] records;
         
-        records = lookup(hostname, Type.TXT);
+        records = lookup(hostname, Type.TXT, "TXT");
     
         if (records != null) {
            for (int i = 0; i < records.length; i++) {
@@ -536,11 +467,13 @@ public class DNSServer
      * @see org.apache.james.services.DNSServer#getHostName(java.net.InetAddress)
      */
     public String getHostName(InetAddress addr){
-        try {
-            return org.xbill.DNS.Address.getHostName(addr);
-        } catch (UnknownHostException e) {
-            return addr.getHostAddress();
+        Name name = ReverseMap.fromAddress(addr);
+        Record [] records = lookup(name.toString(), Type.PTR, "PTR");
+        if (records == null) {
+            addr.getHostAddress();
         }
+        PTRRecord ptr = (PTRRecord) records[0];
+        return ptr.getTarget().toString();
     }
 
     /**
