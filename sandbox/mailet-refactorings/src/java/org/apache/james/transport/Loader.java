@@ -36,6 +36,7 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.services.FileSystem;
+import org.apache.james.services.SpoolRepository;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailFactory;
@@ -157,19 +158,8 @@ public abstract class Loader extends AbstractLogEnabled implements Serviceable, 
             mailetContext.bounce(mail, message, bouncer);
         }
 
-        /**
-         * @see org.apache.mailet.MailetContext#getAttribute(java.lang.String)
-         */
-        public Object getAttribute(String name) {
-            return mailetContext.getAttribute(name);
-        }
+        
 
-        /**
-         * @see org.apache.mailet.MailetContext#getAttributeNames()
-         */
-        public Iterator getAttributeNames() {
-            return mailetContext.getAttributeNames();
-        }
 
         /**
          * @see org.apache.mailet.MailetContext#getMailServers(java.lang.String)
@@ -227,12 +217,7 @@ public abstract class Loader extends AbstractLogEnabled implements Serviceable, 
             return mailetContext.isLocalServer(serverName);
         }
 
-        /**
-         * @see org.apache.mailet.MailetContext#isLocalUser(java.lang.String)
-         */
-        public boolean isLocalUser(String userAccount) {
-            return mailetContext.isLocalUser(userAccount);
-        }
+       
 
         /**
          * @see org.apache.mailet.MailetContext#log(java.lang.String)
@@ -248,13 +233,7 @@ public abstract class Loader extends AbstractLogEnabled implements Serviceable, 
             logger.info(message, t);
         }
 
-        /**
-         * @see org.apache.mailet.MailetContext#removeAttribute(java.lang.String)
-         */
-        public void removeAttribute(String name) {
-            mailetContext.removeAttribute(name);
-        }
-
+        
         /**
          * @see org.apache.mailet.MailetContext#sendMail(javax.mail.internet.MimeMessage)
          */
@@ -283,19 +262,8 @@ public abstract class Loader extends AbstractLogEnabled implements Serviceable, 
             mailetContext.sendMail(mail);
         }
 
-        /**
-         * @see org.apache.mailet.MailetContext#setAttribute(java.lang.String, java.lang.Object)
-         */
-        public void setAttribute(String name, Object object) {
-            mailetContext.setAttribute(name, object);
-        }
 
-        /**
-         * @see org.apache.mailet.MailetContext#storeMail(org.apache.mailet.MailAddress, org.apache.mailet.MailAddress, javax.mail.internet.MimeMessage)
-         */
-        public void storeMail(MailAddress sender, MailAddress recipient, MimeMessage msg) throws MessagingException {
-            mailetContext.storeMail(sender, recipient, msg);
-        }
+        
 
         /**
          * @see org.apache.mailet.MailetContext#getMailRepository(java.lang.String)
@@ -319,6 +287,24 @@ public abstract class Loader extends AbstractLogEnabled implements Serviceable, 
          */
         public UsersRepository getUsersRepository(String repoURL) throws MailetException {
             return mailetContext.getUsersRepository(repoURL);
+        }
+
+        /**
+         * @throws MailetException 
+         * @see org.apache.mailet.MailetContext#getMailRepository(org.apache.mailet.MailAddress)
+         */
+        public MailRepository getMailRepository(MailAddress recipient) throws MailetException {
+
+            
+            return mailetContext.getMailRepository(recipient);
+        }
+
+        /**
+         * @see org.apache.mailet.MailetContext#getSpoolRepository(java.lang.String)
+         */
+        public SpoolRepository getSpoolRepository(String outgoingPath) throws MailetException {
+
+            return mailetContext.getSpoolRepository(outgoingPath);
         }
     }
 

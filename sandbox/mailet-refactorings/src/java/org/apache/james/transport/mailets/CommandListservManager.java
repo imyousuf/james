@@ -31,6 +31,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import javax.mail.MessagingException;
+import javax.naming.Context;
+import javax.naming.InitialContext;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.james.transport.mailets.listservcommands.ErrorCommand;
@@ -40,6 +42,7 @@ import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetException;
+import org.apache.mailet.MailetServiceJNDIRegistration;
 import org.apache.mailet.UsersRepository;
 
 /**
@@ -259,7 +262,11 @@ public class CommandListservManager extends GenericMailet implements ICommandLis
             loadCommands(configuration);
 
             //register w/context
-            getMailetContext().setAttribute(ICommandListservManager.ID + listName, this);
+            
+            Context context = new InitialContext();
+            Context serviceContext = (Context) context.lookup(MailetServiceJNDIRegistration.SERVICE_CONTEXT);
+            serviceContext.bind(ICommandListservManager.ID + listName, this);
+            
         } catch (Exception e) {
             throw new MessagingException(e.getMessage(), e);
         }

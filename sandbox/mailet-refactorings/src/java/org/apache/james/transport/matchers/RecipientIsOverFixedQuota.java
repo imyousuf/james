@@ -22,10 +22,7 @@
 package org.apache.james.transport.matchers;
 
 import java.util.Locale;
-
 import javax.mail.MessagingException;
-
-import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
 /**
@@ -67,7 +64,7 @@ public class RecipientIsOverFixedQuota extends AbstractStorageQuota {
         quota = parseQuota(getCondition().trim().toLowerCase(Locale.US));
     }
 
-    protected long getQuota(MailAddress recipient, Mail _) throws MessagingException {
+    protected long getQuota(MailAddress recipient) throws MessagingException {
         return quota;
     }
 }

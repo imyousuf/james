@@ -37,11 +37,14 @@ import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
+import javax.naming.Context;
+import javax.naming.InitialContext;
 import org.apache.james.Constants;
 import org.apache.james.util.mail.MimeMultipartReport;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
+import org.apache.mailet.MailetServiceJNDIRegistration;
 import org.apache.mailet.RFC2822Headers;
 import org.apache.mailet.dates.RFC822DateFormat;
 import org.apache.oro.text.regex.MalformedPatternException;
@@ -313,8 +316,12 @@ public class DSNBounce extends AbstractNotify {
         // failure reports into DSNs
         nameType = "dns";
         try {
-            String myAddress =
-                (String)getMailetContext().getAttribute(Constants.HELLO_NAME);
+            
+            Context context = new InitialContext();
+            Context serviceContext = (Context) context.lookup(MailetServiceJNDIRegistration.SERVICE_CONTEXT);
+            String myAddress = (String) serviceContext.lookup(Constants.HELLO_NAME);
+            
+            
             /*
             String myAddress = InetAddress.getLocalHost().getCanonicalHostName();
             */

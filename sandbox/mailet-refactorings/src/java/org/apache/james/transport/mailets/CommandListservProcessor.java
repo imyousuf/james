@@ -31,12 +31,16 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.internet.ParseException;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.james.util.XMLResources;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetException;
+import org.apache.mailet.MailetServiceJNDIRegistration;
 import org.apache.mailet.MailetUtil;
 import org.apache.mailet.RFC2822Headers;
 import org.apache.mailet.UsersRepository;
@@ -425,9 +429,17 @@ public class CommandListservProcessor extends GenericMailet {
      * @return ICommandListservManager
      */
     protected ICommandListservManager getCommandListservManager() {
-        if (commandListservManager == null) {
-            commandListservManager = (ICommandListservManager) getMailetContext().getAttribute(ICommandListservManager.ID + listName);
-            if (commandListservManager == null) {
+        if(commandListservManager == null){
+            try{
+                Context context = new InitialContext();
+                Context serviceContext;
+                serviceContext = (Context) context.lookup(MailetServiceJNDIRegistration.SERVICE_CONTEXT);
+                commandListservManager = (ICommandListservManager) serviceContext.lookup(ICommandListservManager.ID
+                        + listName);
+            }catch (NamingException e){
+                throw new IllegalStateException("Unable to find command list manager named: " + listName);
+            }
+            if(commandListservManager == null){
                 throw new IllegalStateException("Unable to find command list manager named: " + listName);
             }
         }

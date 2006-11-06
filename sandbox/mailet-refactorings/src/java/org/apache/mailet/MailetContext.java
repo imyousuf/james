@@ -25,6 +25,7 @@ import java.util.Iterator;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import org.apache.james.services.SpoolRepository;
 
 
 /**
@@ -81,31 +82,9 @@ public interface MailetContext {
      */
     MailAddress getPostmaster();
 
-    /**
-     * Returns the mailet container attribute with the given name, or null
-     * if there is no attribute by that name.  An attribute allows a mailet container
-     * to give the mailet additional information not already provided by this interface.
-     * See your server documentation for information about its attributes. A list of
-     * supported attributes can be retrieved using getAttributeNames.
-     * <p>
-     * The attribute is returned as a java.lang.Object or some subclass. Attribute
-     * names should follow the same convention as package names. The Java Mailet API
-     * specification reserves names matching java.*, javax.*, and sun.*
-     *
-     * @param name - a String specifying the name of the attribute
-     * @return an Object containing the value of the attribute, or null if no attribute
-     *      exists matching the given name
-     */
-    Object getAttribute(String name);
+   
 
-    /**
-     * Returns an Iterator containing the attribute names available within
-     * this mailet context.  Use the getAttribute(java.lang.String) method with an
-     * attribute name to get the value of an attribute.
-     *
-     * @return an Iterator of attribute names
-     */
-    Iterator getAttributeNames();
+    
 
     /**
      * Returns the major version of the Mailet API that this mailet
@@ -147,19 +126,7 @@ public interface MailetContext {
      */
     boolean isLocalServer(String serverName);
 
-    /**
-     * Checks if a user account is exists in the mail context.
-     *
-     * @param userAccount - user identifier.
-     * @return true if the account is a local account
-     * 
-     * @deprecated use isLocalEmail(MailAddress) instead
-     * 
-     * @since James 2.4.0 this method expect to receive also the domain
-     * name within the userAccount string (user\@domain).
-     * By default it will use \@localhost when no domain is passed.
-     */
-    boolean isLocalUser(String userAccount);
+   
     
     /**
      * Checks if a user account is exists in the mail context.
@@ -189,14 +156,7 @@ public interface MailetContext {
      */
     void log(String message, Throwable t);
 
-    /**
-     * Removes the attribute with the given name from the mailet context.  After
-     * removal, subsequent calls to getAttribute(java.lang.String) to retrieve
-     * the attribute's value will return null.
-     *
-     * @param name - a String specifying the name of the attribute to be removed
-     */
-    void removeAttribute(String name);
+    
 
     /**
      * Send an outgoing message to the top of this mailet container's root queue.
@@ -246,32 +206,8 @@ public interface MailetContext {
     void sendMail(Mail mail)
             throws MessagingException;
 
-    /**
-     * Binds an object to a given attribute name in this mailet context.  If the name
-     * specified is already used for an attribute, this method will remove the old
-     * attribute and bind the name to the new attribute.
-     * <p>
-     * Attribute names should follow the same convention as package names. The Java
-     * Mailet API specification reserves names matching java.*, javax.*, and sun.*.
-     *
-     * @param name - a String specifying the name of the attribute
-     * @param object - an Object representing the attribute to be bound
-     */
-    void setAttribute(String name, Object object);
-
-    /**
-     * Stores the message is in the local repository associated with
-     * recipient for later retrieval, e.g., by a POP3 or IMAP service.
-     *
-     * @deprecated - use sparingly.  Service will be replaced with
-     * resource acquired via JNDI.
-     * @param sender - the sender of the incoming message
-     * @param recipient - the user who is receiving this message (as a complete email address)
-     * @param msg - the MimeMessage to store in a local mailbox
-     * @throws MessagingException - if the message fails to parse
-     */
-    void storeMail(MailAddress sender, MailAddress recipient, MimeMessage msg)
-        throws MessagingException;
+    
+    
 
     /**
      * Returns an Iterator over HostAddress, a specialized subclass of
@@ -304,6 +240,25 @@ public interface MailetContext {
      */
     public MailFactory getMailFactory();
     
+/**
+ * @param repoURL
+ * @return
+ * @throws MailetException
+ */
 public UsersRepository getUsersRepository(String repoURL) throws MailetException;
+
+/**
+ * @param recipient
+ * @return
+ * @throws MailetException 
+ */
+public MailRepository getMailRepository(MailAddress recipient) throws MailetException;
+
+/**
+ * @param outgoingPath
+ * @return
+ * @throws MailetException 
+ */
+public SpoolRepository getSpoolRepository(String outgoingPath)throws MailetException;
     
    }

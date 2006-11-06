@@ -32,6 +32,8 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.naming.Context;
 import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import org.apache.james.Constants;
 import org.apache.james.util.JDBCBayesianAnalyzer;
 import org.apache.james.util.JDBCUtil;
 import org.apache.mailet.DataSource;
@@ -237,15 +239,18 @@ extends GenericMailet {
             String datasourceName = repositoryPath.substring(stindex);
             
             Context context=new InitialContext();
-            String name=MailetServiceJNDIRegistration.SERVICE_CONTEXT+"/"+datasourceName;
+            String name=MailetServiceJNDIRegistration.DATA_SOURCE_CONTEXT+"/"+datasourceName;
             datasource = (DataSource) context.lookup(name);
         } catch (Exception e) {
             throw new MessagingException("Can't get datasource", e);
         }
         
-        try {
-            analyzer.initSqlQueries(datasource.getConnection(), getMailetContext().getAttribute("confDir") + "/sqlResources.xml");
-        } catch (Exception e) {
+        try{
+            Context context = new InitialContext();
+            Context serviceContext = (Context) context.lookup(MailetServiceJNDIRegistration.SERVICE_CONTEXT);
+            String confDir = (String) serviceContext.lookup("confDir");
+            analyzer.initSqlQueries(datasource.getConnection(), confDir + "/sqlResources.xml");
+        }catch (Exception e){
             throw new MessagingException("Exception initializing queries", e);
         }        
         

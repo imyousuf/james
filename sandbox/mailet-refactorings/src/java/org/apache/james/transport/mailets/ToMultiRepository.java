@@ -203,7 +203,7 @@ public class ToMultiRepository extends GenericMailet {
         recipients.add(recipient);
         Mail mail = getMailetContext().getMailFactory().newMail(getId(), sender, recipients, message);
         try {
-            MailRepository userInbox = getMailetContext().getMailRepository(username);
+            MailRepository userInbox = getMailetContext().getMailRepository(recipient);
             if (userInbox == null) {
                 StringBuffer errorBuffer = new StringBuffer(128).append(
                         "The repository for user ").append(username).append(

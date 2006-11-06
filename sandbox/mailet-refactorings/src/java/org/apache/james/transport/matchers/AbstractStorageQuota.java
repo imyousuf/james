@@ -21,21 +21,13 @@
 
 package org.apache.james.transport.matchers;
 
+import java.util.Iterator;
+import javax.mail.MessagingException;
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.james.Constants;
-import org.apache.james.services.MailServer;
-import org.apache.mailet.AliasedUser;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailRepository;
 import org.apache.mailet.MailetContext;
-import org.apache.mailet.UsersRepository;
-
-import javax.mail.MessagingException;
-
-import java.util.Iterator;
 
 /**
  * <P>Abstract matcher checking whether a recipient has exceeded a maximum allowed
@@ -48,12 +40,8 @@ import java.util.Iterator;
  */
 abstract public class AbstractStorageQuota extends AbstractQuotaMatcher { 
 
-    private MailServer mailServer;
+    
 
-    /** The user repository for this mail server.  Contains all the users with inboxes
-     * on this server.
-     */
-    private UsersRepository localusers;
 
     /**
      * Standard matcher initialization.
@@ -61,17 +49,8 @@ abstract public class AbstractStorageQuota extends AbstractQuotaMatcher {
      */
     public void init() throws MessagingException {
         super.init();
-        ServiceManager compMgr = (ServiceManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
-        try {
-            mailServer = (MailServer) compMgr.lookup(MailServer.ROLE);
-        } catch (ServiceException e) {
-            log("Exception in getting the MailServer: " + e.getMessage() + e.getKey());
-        }
-        try {
-            localusers = (UsersRepository) compMgr.lookup(UsersRepository.ROLE);
-        } catch (ServiceException e) {
-            log("Exception in getting the UsersStore: " + e.getMessage() + e.getKey());
-        }
+        
+
     }
 
     /** 
@@ -93,9 +72,9 @@ abstract public class AbstractStorageQuota extends AbstractQuotaMatcher {
      *
      * @param recipient the recipient to check
      */    
-    protected long getUsed(MailAddress recipient, Mail _) throws MessagingException {
+    protected long getUsed(MailAddress recipient) throws MessagingException {
         long size = 0;
-        MailRepository userInbox = mailServer.getUserInbox(getPrimaryName(recipient.getUser()));
+        MailRepository userInbox = getMailetContext().getMailRepository(recipient);
         for (Iterator it = userInbox.list(); it.hasNext(); ) {
             String key = (String) it.next();
             Mail mc = userInbox.retrieve(key);
@@ -112,25 +91,7 @@ abstract public class AbstractStorageQuota extends AbstractQuotaMatcher {
         return size;
     }
 
-    /**
-     * Gets the main name of a local customer, handling aliases.
-     *
-     * @param originalUsername the user name to look for; it can be already the primary name or an alias
-     * @return the primary name, or originalUsername unchanged if not found
-     */
-    protected String getPrimaryName(String originalUsername) {
-        String username;
-        try {
-            username = localusers.getRealName(originalUsername);
-            AliasedUser user = (AliasedUser) localusers.getUserByName(username);
-            if (user.getAliasing()) {
-                username = user.getAlias();
-            }
-        }
-        catch (Exception e) {
-            username = originalUsername;
-        }
-        return username;
-    }
+    
+    
     
 }

@@ -21,21 +21,6 @@
 
 package org.apache.james.transport.matchers;
 
-import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
-import org.apache.avalon.excalibur.datasource.DataSourceComponent;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.james.Constants;
-import org.apache.james.transport.mailets.WhiteListManager;
-import org.apache.james.util.JDBCUtil;
-import org.apache.james.util.SqlResources;
-import org.apache.mailet.AliasedUser;
-import org.apache.mailet.GenericMatcher;
-import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
-import org.apache.mailet.UsersRepository;
-
-import javax.mail.MessagingException;
-
 import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -47,6 +32,22 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
+import javax.mail.MessagingException;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.james.Constants;
+import org.apache.james.transport.mailets.WhiteListManager;
+import org.apache.james.util.JDBCUtil;
+import org.apache.james.util.SqlResources;
+import org.apache.mailet.AliasedUser;
+import org.apache.mailet.DataSource;
+import org.apache.mailet.GenericMatcher;
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
+import org.apache.mailet.MailetServiceJNDIRegistration;
+import org.apache.mailet.UsersRepository;
 
 /**
  * <P>Matches recipients having the mail sender in the recipient's private whitelist .</P>
@@ -66,7 +67,7 @@ public class IsInWhiteList extends GenericMatcher {
 
     private String selectByPK;
     
-    private DataSourceComponent datasource;
+    private DataSource datasource;
     
     /** The user repository for this mail server.  Contains all the users with inboxes
      * on this server.
@@ -122,20 +123,32 @@ public class IsInWhiteList extends GenericMatcher {
             throw new MessagingException("repositoryPath is null");
         }
 
-        ServiceManager serviceManager = (ServiceManager) getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
+       
 
         try {
-            // Get the DataSourceSelector block
-            DataSourceSelector datasources = (DataSourceSelector) serviceManager.lookup(DataSourceSelector.ROLE);
-            // Get the data-source required.
+            
             int stindex =   repositoryPath.indexOf("://") + 3;
             String datasourceName = repositoryPath.substring(stindex);
-            datasource = (DataSourceComponent) datasources.select(datasourceName);
+            Context context=new InitialContext();
+            String name=MailetServiceJNDIRegistration.DATA_SOURCE_CONTEXT+"/"+datasourceName;
+            datasource = (DataSource) context.lookup(name);
         } catch (Exception e) {
             throw new MessagingException("Can't get datasource", e);
         }
 
          try {
+            
+             Context context;
+             ServiceManager serviceManager;
+             try{
+                 context = new InitialContext();
+             
+             Context sc = (Context) context.lookup(MailetServiceJNDIRegistration.SERVICE_CONTEXT);
+             serviceManager = (ServiceManager)sc.lookup(Constants.AVALON_COMPONENT_MANAGER);
+             }catch (NamingException e1){
+                 throw new MessagingException("Can't resolve component manager",e1);
+             }
+             
             // Get the UsersRepository
             localusers = (UsersRepository)serviceManager.lookup(UsersRepository.ROLE);
         } catch (Exception e) {
@@ -260,7 +273,18 @@ public class IsInWhiteList extends GenericMatcher {
                 conn.setAutoCommit(false);
             }
             
-            this.sqlFile = new File((String) mailetContext.getAttribute("confDir"), "sqlResources.xml").getCanonicalFile();
+            String confDir;
+            Context context;
+            try{
+                context = new InitialContext();
+            
+            Context sc = (Context) context.lookup(MailetServiceJNDIRegistration.SERVICE_CONTEXT);
+            confDir = (String)sc.lookup("confDir");
+            }catch (NamingException e1){
+                throw new MessagingException("Can't resolve component manager",e1);
+            }
+            
+            this.sqlFile = new File(confDir, "sqlResources.xml").getCanonicalFile();
             sqlQueries.init(this.sqlFile, "WhiteList" , conn, getSqlParameters());
             
         } finally {

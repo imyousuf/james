@@ -21,6 +21,24 @@
 
 package org.apache.james;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.SequenceInputStream;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.Map;
+import javax.mail.Address;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.ParseException;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
@@ -35,7 +53,6 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.commons.collections.map.ReferenceMap;
-
 import org.apache.james.core.MailHeaders;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MailetConfigImpl;
@@ -55,30 +72,9 @@ import org.apache.mailet.MailRepository;
 import org.apache.mailet.Mailet;
 import org.apache.mailet.MailetContext;
 import org.apache.mailet.MailetException;
+import org.apache.mailet.MailetServiceJNDIRegistration;
 import org.apache.mailet.RFC2822Headers;
 import org.apache.mailet.UsersRepository;
-
-import javax.mail.Address;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.ParseException;
-
-
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.SequenceInputStream;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Vector;
 
 /**
  * Core class for JAMES. Provides three primary services:
@@ -159,11 +155,7 @@ public class James
      */
     private Map mailboxes; //Not to be shared!
 
-    /**
-     * A hash table of server attributes
-     * These are the MailetContext attributes
-     */
-    private Hashtable attributes = new Hashtable();
+    
 
     /**
      * Currently used by storeMail to avoid code duplication (we moved store logic to that mailet).
@@ -259,12 +251,26 @@ public class James
         //compMgr.put("org.apache.mailet.MailetContext", this);
         // For AVALON aware mailets and matchers, we put the Component object as
         // an attribute
-        attributes.put(Constants.AVALON_COMPONENT_MANAGER, compMgr);
-
+        
+        Context context;
+        try{
+            context = new InitialContext();
+            Context serviceContext = (Context) context.lookup(MailetServiceJNDIRegistration.SERVICE_CONTEXT);
+            serviceContext.bind(Constants.AVALON_COMPONENT_MANAGER, compMgr);
+        }catch (NamingException e){
+            getLogger().info("cant bind compMgr");
+        }
         //Temporary get out to allow complex mailet config files to stop blocking sergei sozonoff's work on bouce processing
         java.io.File configDir = fileSystem.getFile("file://conf/");
-        attributes.put("confDir", configDir.getCanonicalPath());
-
+        
+        
+        try{
+            context = new InitialContext();
+            Context serviceContext = (Context) context.lookup(MailetServiceJNDIRegistration.SERVICE_CONTEXT);
+            serviceContext.bind("confDir", configDir.getCanonicalPath());
+        }catch (NamingException e){
+            getLogger().info("cant bind conf Dir");
+        }
         initializeLocalDeliveryMailet();
 
         System.out.println(SOFTWARE_NAME_VERSION);
@@ -274,7 +280,7 @@ public class James
     private void initializeServices() throws Exception  {
         // TODO: This should retrieve a more specific named thread pool from
         // Context that is set up in server.xml
-        
+       
         
         
         try {
@@ -337,8 +343,14 @@ public class James
         
         String defaultDomain = (String) serverNames.iterator().next();
         // used by RemoteDelivery for HELO
-        attributes.put(Constants.DEFAULT_DOMAIN, defaultDomain);
-
+        
+        try{
+            Context context = new InitialContext();
+            Context serviceContext = (Context) context.lookup(MailetServiceJNDIRegistration.SERVICE_CONTEXT);
+            serviceContext.bind(Constants.DEFAULT_DOMAIN, defaultDomain);
+        }catch (NamingException e){
+            getLogger().info("cant bind default domain");
+        }
         // Get postmaster
         String postMasterAddress = conf.getChild("postmaster").getValue("postmaster").toLowerCase(Locale.US);
         // if there is no @domain part, then add the first one from the
@@ -515,7 +527,7 @@ public class James
 //            // we have a problem
 //            getLogger().error("Null mailbox for non-null key");
 //            throw new RuntimeException("Error in getUserInbox.");
-        } else {
+        } 
             // need mailbox object
             if (getLogger().isDebugEnabled()) {
                 getLogger().debug("Retrieving and caching inbox for " + userName );
@@ -543,7 +555,7 @@ public class James
                 throw new RuntimeException("Error in getUserInbox.",e);
             }
             return userInbox;
-        }
+        
     }
 
     /**
@@ -585,37 +597,11 @@ public class James
         return lookupDNSServer().findMXRecords(host);
     }
 
-    /**
-     * @see org.apache.mailet.MailetContext#getAttribute(java.lang.String)
-     */
-    public Object getAttribute(String key) {
-        return attributes.get(key);
-    }
+    
 
-    /**
-     * @see org.apache.mailet.MailetContext#setAttribute(java.lang.String, java.lang.Object)
-     */
-    public void setAttribute(String key, Object object) {
-        attributes.put(key, object);
-    }
+   
 
-    /**
-     * @see org.apache.mailet.MailetContext#removeAttribute(java.lang.String)
-     */
-    public void removeAttribute(String key) {
-        attributes.remove(key);
-    }
-
-    /**
-     * @see org.apache.mailet.MailetContext#getAttributeNames()
-     */
-    public Iterator getAttributeNames() {
-        Vector names = new Vector();
-        for (Enumeration e = attributes.keys(); e.hasMoreElements(); ) {
-            names.add(e.nextElement());
-        }
-        return names.iterator();
-    }
+    
 
     /**
      * This generates a response to the Return-Path address, or the address of
@@ -747,7 +733,7 @@ public class James
     public MailRepository getMailRepository(String repoPath) throws MailetException {
 
         MailRepository repo;
-        ServiceManager compMgr = (ServiceManager) getAttribute(Constants.AVALON_COMPONENT_MANAGER);
+        
         Store mailstore;
         try{
             mailstore = (Store) compMgr.lookup(Store.ROLE);
@@ -925,4 +911,39 @@ public class James
             throw new MailetException("Failed to retrieve Users Repo:" + repoURL,e);
         }
     }
+
+    /**
+     * @throws MailetException 
+     * @see org.apache.mailet.MailetContext#getMailRepository(org.apache.mailet.MailAddress)
+     */
+    public MailRepository getMailRepository(MailAddress recipient)  {
+        return getUserInbox(recipient.getUser());
+    }
+
+    /**
+     * @see org.apache.mailet.MailetContext#getSpoolRepository(java.lang.String)
+     */
+    public SpoolRepository getSpoolRepository(String outgoingPath) throws MailetException {
+
+
+        SpoolRepository repo;
+        
+        Store mailstore;
+        try{
+            mailstore = (Store) compMgr.lookup(Store.ROLE);
+        }catch (ServiceException e){
+            throw new MailetException("Failed to lookup mailstore");
+        }
+        DefaultConfiguration mailConf
+            = new DefaultConfiguration("repository", "generated:ToRepository");
+        mailConf.setAttribute("destinationURL", outgoingPath);
+        mailConf.setAttribute("type", "SPOOL");
+        try{
+            repo = (SpoolRepository) mailstore.select(mailConf);
+        }catch (ServiceException e){
+            throw new MailetException("Failed to lookup repository "+outgoingPath+" in mailstore");
+        }
+        return repo;
+    }
+         
 }

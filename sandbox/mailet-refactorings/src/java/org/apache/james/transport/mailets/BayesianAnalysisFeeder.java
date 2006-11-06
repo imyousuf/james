@@ -194,14 +194,17 @@ int stindex =   repositoryPath.indexOf("://") + 3;
             String datasourceName = repositoryPath.substring(stindex);
             
             Context context=new InitialContext();
-            String name=MailetServiceJNDIRegistration.SERVICE_CONTEXT+"/"+datasourceName;
+            String name=MailetServiceJNDIRegistration.DATA_SOURCE_CONTEXT+"/"+datasourceName;
             datasource = (DataSource) context.lookup(name);
         } catch (Exception e) {
             throw new MessagingException("Can't get datasource", e);
         }
         
         try {
-            analyzer.initSqlQueries(datasource.getConnection(), getMailetContext().getAttribute("confDir") + "/sqlResources.xml");
+            Context context = new InitialContext();
+            Context serviceContext = (Context) context.lookup(MailetServiceJNDIRegistration.SERVICE_CONTEXT);
+            String confDir = (String) serviceContext.lookup("confDir");
+            analyzer.initSqlQueries(datasource.getConnection(), confDir + "/sqlResources.xml");
         } catch (Exception e) {
             throw new MessagingException("Exception initializing queries", e);
         }        

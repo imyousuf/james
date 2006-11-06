@@ -48,11 +48,14 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.internet.MimePart;
 import javax.mail.internet.ParseException;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
+//
 import org.apache.james.Constants;
 import org.apache.james.services.DNSServer;
 import org.apache.james.services.SpoolRepository;
@@ -62,6 +65,7 @@ import org.apache.mailet.HostAddress;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetContext;
+import org.apache.mailet.MailetServiceJNDIRegistration;
 import org.apache.oro.text.regex.MalformedPatternException;
 import org.apache.oro.text.regex.MatchResult;
 import org.apache.oro.text.regex.Pattern;
@@ -304,7 +308,19 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             authPass = getInitParameter("gatewayPassword");
         }
 
-        ServiceManager compMgr = (ServiceManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
+      //  ServiceManager compMgr;
+        Context serviceContext;
+        try {
+        Context context = new InitialContext();
+        
+        
+         serviceContext = (Context) context.lookup(MailetServiceJNDIRegistration.SERVICE_CONTEXT);
+        
+       //  compMgr = (ServiceManager) serviceContext.lookup(Constants.AVALON_COMPONENT_MANAGER);
+        
+        }catch (NamingException e2){
+            throw new RuntimeException("cant get comp mgr");
+        }
         String outgoingPath = getInitParameter("outgoing");
         if (outgoingPath == null) {
             outgoingPath = "file:///../var/mail/outgoing";
@@ -312,15 +328,9 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
 
         try {
             // Instantiate the a MailRepository for outgoing mails
-            Store mailstore = (Store) compMgr.lookup(Store.ROLE);
-
-            DefaultConfiguration spoolConf
-                = new DefaultConfiguration("repository", "generated:RemoteDelivery.java");
-            spoolConf.setAttribute("destinationURL", outgoingPath);
-            spoolConf.setAttribute("type", "SPOOL");
-            outgoing = (SpoolRepository) mailstore.select(spoolConf);
-        } catch (ServiceException cnfe) {
-            log("Failed to retrieve Store component:" + cnfe.getMessage());
+            
+            outgoing = getMailetContext().getSpoolRepository(outgoingPath);
+            
         } catch (Exception e) {
             log("Failed to retrieve Store component:" + e.getMessage());
         }
@@ -328,9 +338,9 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             // Instantiate the a MailRepository for outgoing mails
              try
             {
-                dnsServer = (DNSServer) compMgr.lookup(DNSServer.ROLE);
+                dnsServer = (DNSServer) serviceContext.lookup("DNSServer");
             }
-            catch (ServiceException e1)
+            catch (NamingException e1)
             {
                 log("Failed to retrieve DNSServer" + e1.getMessage());
             }
@@ -1012,13 +1022,25 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
          * fix.
          */
         long stop = System.currentTimeMillis() + 60000;
-        while ((getMailetContext().getAttribute(Constants.HELLO_NAME) == null)
-               && stop > System.currentTimeMillis()) {
-            try {
+        String helloName=null;
+        Context serviceContext;
+        try{
+            Context context = new InitialContext();
+            serviceContext = (Context) context.lookup(MailetServiceJNDIRegistration.SERVICE_CONTEXT);    
+            while ((helloName == null) && stop > System.currentTimeMillis()){
+                try {
+                helloName = (String) serviceContext.lookup(Constants.HELLO_NAME);
+            }catch (NamingException e){
+                //ignore, and retry
+             } 
+            try{
                 Thread.sleep(1000);
-            } catch (Exception ignored) {} // wait for James to finish initializing
-        }
-
+            }catch (Exception ignored){
+            } // wait for James to finish initializing
+            }
+        }catch (NamingException e){
+           throw new RuntimeException("can't resolve context");
+        }        
         //Checks the pool and delivers a mail message
         Properties props = new Properties();
         //Not needed for production environment
@@ -1038,11 +1060,19 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         props.put("mail.smtp.sendpartial",String.valueOf(sendPartial));
 
         //Set the hostname we'll use as this server
-        if (getMailetContext().getAttribute(Constants.HELLO_NAME) != null) {
-            props.put("mail.smtp.localhost", getMailetContext().getAttribute(Constants.HELLO_NAME));
+        String defaultDomain="";
+        try{
+        
+            defaultDomain = (String) serviceContext.lookup(Constants.DEFAULT_DOMAIN);
+        }catch (NamingException e1){
+            log("can't get default domain");
+        }
+        
+        if (helloName != null) {
+            props.put("mail.smtp.localhost", helloName);
         }
         else {
-            String defaultDomain = (String) getMailetContext().getAttribute(Constants.DEFAULT_DOMAIN);
+            
             if (defaultDomain != null) {
                 props.put("mail.smtp.localhost", defaultDomain);
             }
@@ -1067,7 +1097,17 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         try {
             while (!Thread.interrupted() && !destroyed) {
                 try {
-                    Mail mail = (Mail)outgoing.accept(delayFilter);
+                    Mail mail =null;
+                    if(outgoing!=null) {
+                        if(delayFilter!=null) {
+                             mail = (Mail)outgoing.accept(delayFilter);
+                        }else {
+                            System.err.println("delayfilter is null");
+                        }
+                    }else {
+                        System.err.println("outgoing is null");
+                    }
+                    
                     String key = mail.getName();
                     try {
                         if (isDebug) {
@@ -1108,6 +1148,9 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                     }
                 } catch (Throwable e) {
                     if (!destroyed) log("Exception caught in RemoteDelivery.run()", e);
+                   System.err.println(e.getMessage());
+                   e.printStackTrace();
+                    Runtime.getRuntime().exit(-1000);
                 }
             }
         } finally {

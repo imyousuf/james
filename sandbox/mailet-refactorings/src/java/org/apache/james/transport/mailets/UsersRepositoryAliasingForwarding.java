@@ -28,8 +28,6 @@ import java.util.LinkedList;
 import java.util.Vector;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.james.Constants;
 import org.apache.james.services.VirtualUserTable;
 import org.apache.james.vut.ErrorMappingException;
 import org.apache.mailet.GenericMailet;
@@ -143,10 +141,10 @@ public class UsersRepositoryAliasingForwarding extends GenericMailet {
     /**
      * Return null when the mail should be GHOSTed, the username string when it
      * should be changed due to the ignoreUser configuration.
-     * 
      * @param sender
      * @param recipient
      * @param message
+     * @return
      * @throws MessagingException
      */
     public Collection processMail(MailAddress sender, MailAddress recipient,

@@ -20,6 +20,7 @@
 
 package org.apache.james.transport.matchers;
 
+import org.apache.james.services.SpoolRepository;
 import org.apache.james.test.mock.mailet.MockMail;
 import org.apache.james.test.mock.mailet.MockMatcherConfig;
 
@@ -205,6 +206,20 @@ public class HostIsLocalTest extends TestCase {
 
                 throw new UnsupportedOperationException(
                 "Unimplemented mock service");
+            }
+
+            public MailRepository getMailRepository(MailAddress recipient) throws MailetException {
+
+                
+                throw new UnsupportedOperationException(
+                "Unimplemented mock service");
+            }
+
+            public SpoolRepository getSpoolRepository(String outgoingPath) throws MailetException {
+
+                // TODO Auto-generated method stub MUST contain a statement
+                // Blame: angusd
+                return null;
             }
 
         };

@@ -19,6 +19,7 @@
 
 package org.apache.james.test.mock.mailet;
 
+import org.apache.james.services.SpoolRepository;
 import org.apache.mailet.MailFactory;
 import org.apache.mailet.MailRepository;
 import org.apache.mailet.MailetContext;
@@ -148,5 +149,23 @@ public class MockMailContext implements MailetContext {
     public UsersRepository getUsersRepository(String repoURL) throws MailetException {
 
         throw new UnsupportedOperationException("MOCKed method");
+    }
+
+    /**
+     * @see org.apache.mailet.MailetContext#getMailRepository(org.apache.mailet.MailAddress)
+     */
+    public MailRepository getMailRepository(MailAddress recipient) throws MailetException {
+
+        throw new UnsupportedOperationException("MOCKed method");
+    }
+
+    /**
+     * @see org.apache.mailet.MailetContext#getSpoolRepository(java.lang.String)
+     */
+    public SpoolRepository getSpoolRepository(String outgoingPath) throws MailetException {
+
+        // TODO Auto-generated method stub MUST contain a statement
+        // Blame: angusd
+        return null;
     }
 }

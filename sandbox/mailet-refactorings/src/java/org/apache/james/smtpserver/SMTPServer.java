@@ -21,6 +21,9 @@
 
 package org.apache.james.smtpserver;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.container.ContainerUtil;
@@ -32,6 +35,7 @@ import org.apache.james.services.DNSServer;
 import org.apache.james.services.MailServer;
 import org.apache.james.util.NetMatcher;
 import org.apache.mailet.MailetContext;
+import org.apache.mailet.MailetServiceJNDIRegistration;
 import org.apache.mailet.UsersRepository;
 
 /**
@@ -148,8 +152,16 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
      */
     public void configure(final Configuration configuration) throws ConfigurationException {
         super.configure(configuration);
+       
         if (isEnabled()) {
-            mailetcontext.setAttribute(Constants.HELLO_NAME, helloName);
+            Context context;
+            try{
+                context = new InitialContext();
+                Context serviceContext = (Context) context.lookup(MailetServiceJNDIRegistration.SERVICE_CONTEXT);
+                serviceContext.bind(Constants.HELLO_NAME, helloName);
+            }catch (NamingException e1){
+                getLogger().info("cant bind hello name");
+            }
             Configuration handlerConfiguration = configuration.getChild("handler");
             String authRequiredString = handlerConfiguration.getChild("authRequired").getValue("false").trim().toLowerCase();
             if (authRequiredString.equals("true")) authRequired = AUTH_REQUIRED;
@@ -241,7 +253,14 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
             ContainerUtil.configure(handlerChain,handlerConfiguration.getChild("handlerchain"));
 
         } else {
-            mailetcontext.setAttribute(Constants.HELLO_NAME, "localhost");
+            Context context;
+            try{
+                context = new InitialContext();
+                Context serviceContext = (Context) context.lookup(MailetServiceJNDIRegistration.SERVICE_CONTEXT);
+                serviceContext.bind(Constants.HELLO_NAME, "localhost");
+            }catch (NamingException e){
+                getLogger().info("cant bind hello name");
+            }
         }
     }
     

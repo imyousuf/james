@@ -24,14 +24,9 @@ package org.apache.james.transport.matchers;
 import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.StringTokenizer;
-
 import javax.mail.MessagingException;
 import javax.naming.Context;
 import javax.naming.InitialContext;
-
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.james.Constants;
 import org.apache.james.services.DNSServer;
 import org.apache.mailet.GenericMatcher;
 import org.apache.mailet.Mail;
