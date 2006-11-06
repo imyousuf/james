@@ -1,0 +1,58 @@
+APACHE JAMES SERVER STATUS:                                         -*-text-*-
+Last modified at [$Date$]
+
+The current version of this file can be found at:
+
+  * http://svn.apache.org/repos/asf/james/server/trunk/STATUS
+
+Stable:
+    Current:        x.x.x    	
+    Maintenance:    x.x.x   
+    Development:    x.x.x
+
+Next Release:
+    Maintenance:    2.3.1   
+		Will contain defect fixes and minor enhancements tracked in JIRA
+    Development:    2.4.0
+		Will contain new features and major enhancements not yet agreed.
+
+Votes:
+	Open:
+		
+	Resolved:
+	bago [VOTE] James Server future releases/road maps	
+		Unanimous +1 to "next-major"
+		0 to "next-minor"
+	
+	
+Polls/Proposals:
+	Open:
+	danny [PROPOSAL] - API requires service location
+
+	Resolved:
+	
+    
+Sandbox:
+    mailet-refactorings
+        Status: active
+        Owner: danny
+        Update: 03-11-1006 API refactorings of interfaces from james to mailet are 90% complete
+                            Refactor service location function to JNDI is 10% complete
+    
+
+Project Mission:
+
+Assets:
+    DNS:                james.apache.org
+
+    Mailing lists:      server-dev@james.apache.org
+                        server-user@james.apache.org
+						mailet-api@james.apache.org
+
+    Web site:           http://james.apache.org/
+	
+	Source repositories: svn.apache.org/repos/asf/james
+    
+PMC Members
+
+Commiters
