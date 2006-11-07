@@ -28,6 +28,12 @@ import javax.mail.internet.MimeMessage;
  * 
  */
 public interface MailFactory {
+    
+    /**
+     * @return
+     * @throws MessagingException
+     */
+    Mail newMail() throws MessagingException;
 
     /**
      * @param id
