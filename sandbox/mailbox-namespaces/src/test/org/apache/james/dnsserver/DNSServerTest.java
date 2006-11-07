@@ -23,52 +23,71 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.test.mock.avalon.MockLogger;
+import org.xbill.DNS.Cache;
+import org.xbill.DNS.DClass;
+import org.xbill.DNS.Lookup;
+import org.xbill.DNS.Message;
 import org.xbill.DNS.Name;
+import org.xbill.DNS.RRset;
 import org.xbill.DNS.Record;
 import org.xbill.DNS.Resolver;
+import org.xbill.DNS.SOARecord;
 import org.xbill.DNS.SetResponse;
-import org.xbill.DNS.TextParseException;
 import org.xbill.DNS.Zone;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Collection;
 import java.util.Iterator;
-import java.net.URL;
 
 import junit.framework.TestCase;
 
 public class DNSServerTest extends TestCase {
 
     private TestableDNSServer dnsServer;
-
-    /**
-     * Please note that this is an hardcoded test that works because
-     * www.pippo.com. is an alias to pippo.com and pippo.com has
-     * "pippo.com.inbound.mxlogic.net." as its mx record.
-     * This is the first domain with a record proving a previous james bug.
-     * This test will be invalidated by any change in the pippo.com dns records
-     * 
-     * @param args
-     * @throws Exception
-     */
-    public void testINARecords() throws Exception {
-        Zone z = loadZone("pippo.com.");
+    private Cache defaultCache;
+    private Resolver defaultResolver;
+    private Name[] defaultSearchPaths;
+    
+    public void testNoMX() throws Exception {
         dnsServer.setResolver(null);
-        dnsServer.setLookupper(new ZoneLookupper(z));
+        dnsServer.setCache(new ZoneCache("dnstest.com."));
+        //a.setSearchPath(new String[] { "searchdomain.com." });
+        Collection records = dnsServer.findMXRecords("nomx.dnstest.com.");
+        assertEquals(1, records.size());
+        assertEquals("nomx.dnstest.com.", records.iterator()
+                .next());
+    }
+    
+    public void testBadMX() throws Exception {
+        dnsServer.setResolver(null);
+        dnsServer.setCache(new ZoneCache("dnstest.com."));
+        //a.setSearchPath(new String[] { "searchdomain.com." });
+        Collection records = dnsServer.findMXRecords("badmx.dnstest.com.");
+        assertEquals(1, records.size());
+        assertEquals("badhost.dnstest.com.", records.iterator()
+                .next());
+        Iterator it = dnsServer.getSMTPHostAddresses("badmx.dnstest.com.");
+        assertFalse(it.hasNext());
+    }
+    
+    public void testINARecords() throws Exception {
+        // Zone z = loadZone("pippo.com.");
+        dnsServer.setResolver(null);
+        dnsServer.setCache(new ZoneCache("pippo.com."));
+        // dnsServer.setLookupper(new ZoneLookupper(z));
         Collection records = dnsServer.findMXRecords("www.pippo.com.");
         assertEquals(1, records.size());
         assertEquals("pippo.com.inbound.mxlogic.net.", records.iterator()
                 .next());
     }
 
-    /**
-     * @throws Exception
-     */
     public void testMXCatches() throws Exception {
-        Zone z = loadZone("test-zone.com.");
+        // Zone z = loadZone("test-zone.com.");
         dnsServer.setResolver(null);
-        dnsServer.setLookupper(new ZoneLookupper(z));
+        dnsServer.setCache(new ZoneCache("test-zone.com."));
+        // dnsServer.setLookupper(new ZoneLookupper(z));
         Collection res = dnsServer.findMXRecords("test-zone.com.");
         try {
             res.add(new Object());
@@ -79,19 +98,11 @@ public class DNSServerTest extends TestCase {
         assertEquals("mail.test-zone.com.",res.iterator().next());
     }
 
-    /**
-     * Please note that this is an hardcoded test that works because
-     * brandilyncollins.com. has an MX record that point to mxmail.register.com
-     * and this is a CNAME to the real address.
-     * This test will be invalidated by any change in the brandilyncollins.com dns records
-     * 
-     * @param args
-     * @throws Exception
-     */
     public void testCNAMEasMXrecords() throws Exception {
-        Zone z = loadZone("brandilyncollins.com.");
+        // Zone z = loadZone("brandilyncollins.com.");
         dnsServer.setResolver(null);
-        dnsServer.setLookupper(new ZoneLookupper(z));
+        dnsServer.setCache(new ZoneCache("brandilyncollins.com."));
+        // dnsServer.setLookupper(new ZoneLookupper(z));
         Iterator records = dnsServer.getSMTPHostAddresses("brandilyncollins.com.");
         assertEquals(true, records.hasNext());
     }
@@ -106,11 +117,22 @@ public class DNSServerTest extends TestCase {
         ContainerUtil.enableLogging(dnsServer, new MockLogger());
         ContainerUtil.configure(dnsServer, c);
         ContainerUtil.initialize(dnsServer);
+        
+        
+        defaultCache = Lookup.getDefaultCache(DClass.IN);
+        defaultResolver = Lookup.getDefaultResolver();
+        defaultSearchPaths = Lookup.getDefaultSearchPath();
+        Lookup.setDefaultCache(null, DClass.IN);
+        Lookup.setDefaultResolver(null);
+        Lookup.setDefaultSearchPath(new Name[] {});
     }
 
     protected void tearDown() throws Exception {
-        dnsServer.setLookupper(null);
+        dnsServer.setCache(null);
         ContainerUtil.dispose(dnsServer);
+        Lookup.setDefaultCache(defaultCache, DClass.IN);
+        Lookup.setDefaultResolver(defaultResolver);
+        Lookup.setDefaultSearchPath(defaultSearchPaths);
     }
 
     private Zone loadZone(String zoneName) throws IOException {
@@ -122,57 +144,113 @@ public class DNSServerTest extends TestCase {
         return zone;
     }
 
-    private class ZoneLookupper implements Lookupper {
-        private final Zone z;
+    private final class ZoneCache extends Cache {
 
-        private ZoneLookupper(Zone z) {
-            super();
-            this.z = z;
+        Zone z = null;
+        
+        public ZoneCache(String string) throws IOException {
+            z = loadZone(string);
         }
 
-        public SetResponse lookup(Name name, int type) {
-            SetResponse s = z.findRecords(name,type);
-            System.out.println("Zone Lookup: "+name+" "+type+" = "+s);
-            return s; 
+        public SetResponse addMessage(Message arg0) {
+            throw new UnsupportedOperationException("ZoneCache is a mock used only for testing purpose");
+        }
+
+        public synchronized void addNegative(Name arg0, int arg1, SOARecord arg2, int arg3) {
+            throw new UnsupportedOperationException("ZoneCache is a mock used only for testing purpose");
+        }
+
+        public synchronized void addRecord(Record arg0, int arg1, Object arg2) {
+            throw new UnsupportedOperationException("ZoneCache is a mock used only for testing purpose");
+        }
+
+        public synchronized void addRRset(RRset arg0, int arg1) {
+            throw new UnsupportedOperationException("ZoneCache is a mock used only for testing purpose");
+        }
+
+        public synchronized void clearCache() {
+            throw new UnsupportedOperationException("ZoneCache is a mock used only for testing purpose");
+        }
+
+        public RRset[] findAnyRecords(Name arg0, int arg1) {
+            throw new UnsupportedOperationException("ZoneCache is a mock used only for testing purpose");
+        }
+
+        public RRset[] findRecords(Name arg0, int arg1) {
+            throw new UnsupportedOperationException("ZoneCache is a mock used only for testing purpose");
+        }
+
+        public void flushName(Name arg0) {
+            throw new UnsupportedOperationException("ZoneCache is a mock used only for testing purpose");
+        }
+
+        public void flushSet(Name arg0, int arg1) {
+            throw new UnsupportedOperationException("ZoneCache is a mock used only for testing purpose");
+        }
+
+        public int getDClass() {
+            throw new UnsupportedOperationException("ZoneCache is a mock used only for testing purpose");
+        }
+
+        public int getMaxCache() {
+            throw new UnsupportedOperationException("ZoneCache is a mock used only for testing purpose");
+        }
+
+        public int getMaxEntries() {
+            throw new UnsupportedOperationException("ZoneCache is a mock used only for testing purpose");
+        }
+
+        public int getMaxNCache() {
+            throw new UnsupportedOperationException("ZoneCache is a mock used only for testing purpose");
+        }
+
+        public int getSize() {
+            throw new UnsupportedOperationException("ZoneCache is a mock used only for testing purpose");
+        }
+
+        protected synchronized SetResponse lookup(Name arg0, int arg1, int arg2) {
+            throw new UnsupportedOperationException("ZoneCache is a mock used only for testing purpose");
+        }
+
+        public SetResponse lookupRecords(Name arg0, int arg1, int arg2) {
+            System.out.println("Cache.lookupRecords "+arg0+","+arg1+","+arg2);
+            return z.findRecords(arg0, arg1);
+            //return super.lookupRecords(arg0, arg1, arg2);
+        }
+
+        public void setCleanInterval(int arg0) {
+            throw new UnsupportedOperationException("ZoneCache is a mock used only for testing purpose");
+        }
+
+        public void setMaxCache(int arg0) {
+            throw new UnsupportedOperationException("ZoneCache is a mock used only for testing purpose");
+        }
+
+        public void setMaxEntries(int arg0) {
+            throw new UnsupportedOperationException("ZoneCache is a mock used only for testing purpose");
+        }
+
+        public void setMaxNCache(int arg0) {
+            throw new UnsupportedOperationException("ZoneCache is a mock used only for testing purpose");
         }
     }
 
-    private interface Lookupper {
-        SetResponse lookup(Name name, int type);
-    }
-    
     private final class TestableDNSServer extends DNSServer {
         
-        private Lookupper lookupper;
-
-        public void setLookupper(Lookupper l) {
-            this.lookupper = l;
-        }
-        
-        public Record[] lookup(String name, int type) {
-            if (lookupper != null) {
-                try {
-                    SetResponse lookup = lookupper.lookup(Name.fromString(name), type);
-                    if (lookup != null && lookup.isSuccessful()) {
-                        return processSetResponse(lookup);
-                    } else {
-                        return null;
-                    }
-                } catch (TextParseException e) {
-                    e.printStackTrace();
-                    return null;
-                }
-            } else {
-                return super.lookup(name, type);
-            }
-        }
-
         public void setResolver(Resolver r) {
             resolver = r;
         }
 
         public Resolver getResolver() {
             return resolver;
+        }
+        
+        public void setCache(Cache c) {
+            cache = c;
+        }
+        
+        public Cache getCache() {
+            return cache;
         }
     }
 

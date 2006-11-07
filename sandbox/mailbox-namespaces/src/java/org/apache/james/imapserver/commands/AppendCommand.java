@@ -69,7 +69,7 @@ class AppendCommand extends AuthenticatedStateCommand
         ImapMailboxSession mailbox = null;
         try {
             mailboxName=session.buildFullName(mailboxName);
-            mailbox = (ImapMailboxSession) session.getMailboxManager().getGenericGeneralMailboxSession(mailboxName);
+            mailbox = session.getMailboxManager().getImapMailboxSession(mailboxName);
         }
         catch ( MailboxManagerException mme ) {
             MailboxException me = new MailboxException(mme);
