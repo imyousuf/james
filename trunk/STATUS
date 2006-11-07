@@ -5,16 +5,21 @@ The current version of this file can be found at:
 
   * http://svn.apache.org/repos/asf/james/server/trunk/STATUS
 
-Stable:
-    Current:        x.x.x    	
-    Maintenance:    x.x.x   
-    Development:    x.x.x
-
-Next Release:
+Releases:
+    Stable:         2.3.0
     Maintenance:    2.3.1   
-		Will contain defect fixes and minor enhancements tracked in JIRA
-    Development:    2.4.0
-		Will contain new features and major enhancements not yet agreed.
+        Will contain defect fixes tracked in JIRA
+    Next-Minor:     probably 2.4.0
+        Based on v2.3 branch, will contain selected backports from trunk.
+        config.xml and storage compatible with v2.3
+        ETA: branch on Nov/Dec 2006, release on Dec/Jan 2007
+    Next-Major:     name to be defined (2.4.0 / 2.5.0 / 3.0.0)
+        Will contain new features and major enhancements not yet agreed.
+        config.xml and storage compatible with v2.3
+        ETA: branch on Dec 2006/Jan 2007, release on Mar 2007
+    Next-Greater:
+        Will be included as soon as Next-Major will be branched from trunk.
+        Will include major non backward compatible changes.
 
 Votes:
 	Open:
@@ -31,14 +36,23 @@ Polls/Proposals:
 
 	Resolved:
 	
-    
-Sandbox:
+
+Sandbox / Branches:
     mailet-refactorings
         Status: active
         Owner: danny
         Update: 03-11-1006 API refactorings of interfaces from james to mailet are 90% complete
                             Refactor service location function to JNDI is 10% complete
-    
+    spring-integration
+        Status: completed prototype
+        Owner: bernd
+    mailbox-namespaces
+        Status: empty
+        Owner: joachim
+    handlerapi2
+        Status: 80% complete (stalled: last change 5 aug 2006)
+        Owner: noel, norman
+  
 
 Project Mission:
 
@@ -55,4 +69,4 @@ Assets:
     
 PMC Members
 
-Commiters
+Committers
