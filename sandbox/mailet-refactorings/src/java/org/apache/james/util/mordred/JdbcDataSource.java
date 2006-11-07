@@ -26,7 +26,6 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.mailet.DataSource;
 import org.apache.mailet.MailetException;
 import org.apache.mailet.MailetServiceJNDIRegistration;
 
@@ -38,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import javax.naming.Context;
 import javax.naming.InitialContext;
+import javax.sql.DataSource;
 
 
 /**
@@ -108,6 +108,8 @@ public class JdbcDataSource extends AbstractLogEnabled
     // a SQL command to execute to see if the connection is still ok
     private String verifyConnSQL;
     private String dsName;
+    private PrintWriter logWriter = new PrintWriter(System.out);
+    private int loginTimeout;
 
     /**
      * Implements the ConnDefinition behavior when a connection is needed. Checks the pool of
@@ -566,5 +568,53 @@ public class JdbcDataSource extends AbstractLogEnabled
             }
             pool.remove(entry);
         }
+    }
+
+    /**
+     * @see javax.sql.DataSource#getConnection(java.lang.String, java.lang.String)
+     */
+    public Connection getConnection(String username, String password) throws SQLException {
+
+        if(jdbcUsername != username || jdbcPassword != password) {
+            throw new SQLException("Datasource already initialised with different credentials");
+        }
+        
+        return getConnection();
+    }
+
+    /**
+     * @see javax.sql.DataSource#getLogWriter()
+     */
+    public PrintWriter getLogWriter() throws SQLException {
+
+        
+        return logWriter ;
+    }
+
+    /**
+     * @see javax.sql.DataSource#getLoginTimeout()
+     */
+    public int getLoginTimeout() throws SQLException {
+
+        
+        return loginTimeout;
+    }
+
+    /**
+     * @see javax.sql.DataSource#setLogWriter(java.io.PrintWriter)
+     */
+    public void setLogWriter(PrintWriter out) throws SQLException {
+
+        this.logWriter = out;
+        
+    }
+
+    /**
+     * @see javax.sql.DataSource#setLoginTimeout(int)
+     */
+    public void setLoginTimeout(int seconds) throws SQLException {
+
+        this.loginTimeout = seconds;
+        
     }
 }

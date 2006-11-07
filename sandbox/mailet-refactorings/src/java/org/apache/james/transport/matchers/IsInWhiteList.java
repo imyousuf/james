@@ -42,7 +42,7 @@ import org.apache.james.transport.mailets.WhiteListManager;
 import org.apache.james.util.JDBCUtil;
 import org.apache.james.util.SqlResources;
 import org.apache.mailet.AliasedUser;
-import org.apache.mailet.DataSource;
+import javax.sql.DataSource; 
 import org.apache.mailet.GenericMatcher;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;

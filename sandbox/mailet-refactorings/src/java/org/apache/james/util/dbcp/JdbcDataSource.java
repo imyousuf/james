@@ -28,7 +28,7 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.commons.dbcp.BasicDataSource;
-import org.apache.mailet.DataSource;
+import javax.sql.DataSource;
 import org.apache.mailet.MailetException;
 import org.apache.mailet.MailetServiceJNDIRegistration;
 
@@ -243,5 +243,57 @@ public class JdbcDataSource extends AbstractLogEnabled
      */
     public Connection getConnection() throws SQLException {
         return source.getConnection();
+    }
+
+    /**
+     * @param username
+     * @param password
+     * @return
+     * @throws SQLException
+     * @see javax.sql.DataSource#getConnection(java.lang.String, java.lang.String)
+     */
+    public Connection getConnection(String username, String password) throws SQLException {
+
+        return source.getConnection(username, password);
+    }
+
+    /**
+     * @return
+     * @throws SQLException
+     * @see javax.sql.DataSource#getLoginTimeout()
+     */
+    public int getLoginTimeout() throws SQLException {
+
+        return source.getLoginTimeout();
+    }
+
+    /**
+     * @return
+     * @throws SQLException
+     * @see javax.sql.DataSource#getLogWriter()
+     */
+    public PrintWriter getLogWriter() throws SQLException {
+
+        return source.getLogWriter();
+    }
+
+    /**
+     * @param seconds
+     * @throws SQLException
+     * @see javax.sql.DataSource#setLoginTimeout(int)
+     */
+    public void setLoginTimeout(int seconds) throws SQLException {
+
+        source.setLoginTimeout(seconds);
+    }
+
+    /**
+     * @param out
+     * @throws SQLException
+     * @see javax.sql.DataSource#setLogWriter(java.io.PrintWriter)
+     */
+    public void setLogWriter(PrintWriter out) throws SQLException {
+
+        source.setLogWriter(out);
     }
 }
