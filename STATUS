@@ -39,20 +39,24 @@ Polls/Proposals:
 
 Sandbox / Branches:
     mailet-refactorings
+        Goal:
         Status: active
         Owner: danny
         Update: 03-11-1006 API refactorings of interfaces from james to mailet are 90% complete
                             Refactor service location function to JNDI is 10% complete
     spring-integration
+        Goal: run James Server using Spring Framework instead of Phoenix/Avalon
         Status: completed prototype
-        Owner: bernd
+        Owner: berndf
     mailbox-namespaces
+        Goal:
         Status: empty
         Owner: joachim
     handlerapi2
+        Goal:
         Status: 80% complete (stalled: last change 5 aug 2006)
         Owner: noel, norman
-  
+        
 
 Project Mission:
 
@@ -61,11 +65,11 @@ Assets:
 
     Mailing lists:      server-dev@james.apache.org
                         server-user@james.apache.org
-						mailet-api@james.apache.org
+                        mailet-api@james.apache.org
 
     Web site:           http://james.apache.org/
-	
-	Source repositories: svn.apache.org/repos/asf/james
+    
+    Source repositories: svn.apache.org/repos/asf/james
     
 PMC Members
 
