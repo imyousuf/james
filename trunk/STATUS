@@ -39,7 +39,7 @@ Polls/Proposals:
 
 Sandbox / Branches:
     mailet-refactorings
-        Goal:
+        Goal: code first formulation of proposals for next version of Mailet API
         Status: active
         Owner: danny
         Update: 03-11-1006 API refactorings of interfaces from james to mailet are 90% complete
