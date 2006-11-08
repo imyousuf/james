@@ -108,6 +108,8 @@
       </torque-properties>  
    </mailboxmanager>    
    <imapserver enabled="true">
+      <!-- port 993 is the well-known/IANA registered port for IMAPs ie over SSL/TLS -->
+      <!-- port 143 is the well-known/IANA registered port forStandard IMAP4 -->
       <port>10143</port>
       <handler>
        <streamdump enabled="true" directory="../apps/james/streamdump" />
