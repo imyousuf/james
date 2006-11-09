@@ -206,7 +206,7 @@ public class MailAddress implements java.io.Serializable {
      *          of this email address.
      * @throws  AddressException    if the parse failed
      */
-    public String getUser() {
+    public String getLocalPart() {
         return user;
     }
 
@@ -236,7 +236,7 @@ public class MailAddress implements java.io.Serializable {
             return toString().equalsIgnoreCase(theString);
         } else if (obj instanceof MailAddress) {
             MailAddress addr = (MailAddress)obj;
-            return getUser().equalsIgnoreCase(addr.getUser()) && getHost().equalsIgnoreCase(addr.getHost());
+            return getLocalPart().equalsIgnoreCase(addr.getLocalPart()) && getHost().equalsIgnoreCase(addr.getHost());
         }
         return false;
     }

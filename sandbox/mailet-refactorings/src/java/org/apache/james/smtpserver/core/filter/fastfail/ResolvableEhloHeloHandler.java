@@ -157,8 +157,8 @@ public class ResolvableEhloHeloHandler extends AbstractLogEnabled implements
 
         // not reject it
         if (session.getState().get(BAD_EHLO_HELO) == null
-                || rcpt.getUser().equalsIgnoreCase("postmaster")
-                || rcpt.getUser().equalsIgnoreCase("abuse"))
+                || rcpt.getLocalPart().equalsIgnoreCase("postmaster")
+                || rcpt.getLocalPart().equalsIgnoreCase("abuse"))
             return;
 
         // Check if the client was authenticated

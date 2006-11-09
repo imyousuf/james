@@ -264,8 +264,8 @@ public class DNSRBLHandler
                 !(session.isAuthRequired() && session
                         .getUser() != null) && // Not (SMTP AUTH is enabled and
                                                 // not authenticated)
-                !(recipientAddress.getUser().equalsIgnoreCase("postmaster") || recipientAddress
-                        .getUser().equalsIgnoreCase("abuse"))) {
+                !(recipientAddress.getLocalPart().equalsIgnoreCase("postmaster") || recipientAddress
+                        .getLocalPart().equalsIgnoreCase("abuse"))) {
 
             // trying to send e-mail to other than postmaster or abuse
             if (blocklistedDetail != null) {

@@ -717,7 +717,7 @@ public class James
         if (!isLocalServer(mailAddress.getHost())) {
             return false;
         }
-        return localusers.contains(mailAddress.getUser());
+        return localusers.contains(mailAddress.getLocalPart());
     }
 
     /**
@@ -917,7 +917,7 @@ public class James
      * @see org.apache.mailet.MailetContext#getMailRepository(org.apache.mailet.MailAddress)
      */
     public MailRepository getMailRepository(MailAddress recipient)  {
-        return getUserInbox(recipient.getUser());
+        return getUserInbox(recipient.getLocalPart());
     }
 
     /**

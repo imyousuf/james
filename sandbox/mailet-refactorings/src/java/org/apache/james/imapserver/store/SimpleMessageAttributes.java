@@ -419,7 +419,7 @@ public class SimpleMessageAttributes
             buf.append( SP);
             try {
                 MailAddress mailAddr = new MailAddress(netAddr);
-                buf.append(Q + mailAddr.getUser() + Q);
+                buf.append(Q + mailAddr.getLocalPart() + Q);
                 buf.append(SP);
                 buf.append(Q + mailAddr.getHost() + Q);
             } catch (ParseException pe) {

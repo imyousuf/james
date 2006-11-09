@@ -83,7 +83,7 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable
         
       for (Iterator i = recipients.iterator(); i.hasNext(); ) {
           MailAddress source = (MailAddress)i.next();
-          String user = source.getUser().toLowerCase();
+          String user = source.getLocalPart().toLowerCase();
           String domain = source.getHost().toLowerCase();
     
           String targetString = VirtualUserTableUtil.getTargetString(user, domain, mappings);

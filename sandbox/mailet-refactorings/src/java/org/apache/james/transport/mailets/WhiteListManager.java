@@ -326,7 +326,7 @@ int stindex =   repositoryPath.indexOf("://") + 3;
      * list and inserts in it otherwise.
      */    
     private void checkAndInsert(MailAddress senderMailAddress, Collection recipients) throws MessagingException {
-        String senderUser = senderMailAddress.getUser().toLowerCase(Locale.US);
+        String senderUser = senderMailAddress.getLocalPart().toLowerCase(Locale.US);
         String senderHost = senderMailAddress.getHost().toLowerCase(Locale.US);
         
         senderUser = getPrimaryName(senderUser);
@@ -342,7 +342,7 @@ int stindex =   repositoryPath.indexOf("://") + 3;
                 ResultSet selectRS = null;
                 try {
                     MailAddress recipientMailAddress = (MailAddress)i.next();
-                    String recipientUser = recipientMailAddress.getUser().toLowerCase(Locale.US);
+                    String recipientUser = recipientMailAddress.getLocalPart().toLowerCase(Locale.US);
                     String recipientHost = recipientMailAddress.getHost().toLowerCase(Locale.US);
                     
                     if (getMailetContext().isLocalServer(recipientHost)) {
@@ -410,7 +410,7 @@ int stindex =   repositoryPath.indexOf("://") + 3;
     private void manageDisplayRequest(Mail mail)
     throws MessagingException {
         MailAddress senderMailAddress = mail.getSender();
-        String senderUser = senderMailAddress.getUser().toLowerCase(Locale.US);
+        String senderUser = senderMailAddress.getLocalPart().toLowerCase(Locale.US);
         String senderHost = senderMailAddress.getHost().toLowerCase(Locale.US);
         
         senderUser = getPrimaryName(senderUser);
@@ -459,7 +459,7 @@ int stindex =   repositoryPath.indexOf("://") + 3;
     private void manageInsertRequest(Mail mail)
     throws MessagingException {
         MailAddress senderMailAddress = mail.getSender();
-        String senderUser = senderMailAddress.getUser().toLowerCase(Locale.US);
+        String senderUser = senderMailAddress.getLocalPart().toLowerCase(Locale.US);
         String senderHost = senderMailAddress.getHost().toLowerCase(Locale.US);
         
         senderUser = getPrimaryName(senderUser);
@@ -494,7 +494,7 @@ int stindex =   repositoryPath.indexOf("://") + 3;
                         catch (javax.mail.internet.ParseException pe) {
                             continue;
                         }
-                        String recipientUser = recipientMailAddress.getUser().toLowerCase(Locale.US);
+                        String recipientUser = recipientMailAddress.getLocalPart().toLowerCase(Locale.US);
                         String recipientHost = recipientMailAddress.getHost().toLowerCase(Locale.US);
                         
                         if (getMailetContext().isLocalServer(recipientHost)) {
@@ -582,7 +582,7 @@ int stindex =   repositoryPath.indexOf("://") + 3;
     private void manageRemoveRequest(Mail mail)
     throws MessagingException {
         MailAddress senderMailAddress = mail.getSender();
-        String senderUser = senderMailAddress.getUser().toLowerCase(Locale.US);
+        String senderUser = senderMailAddress.getLocalPart().toLowerCase(Locale.US);
         String senderHost = senderMailAddress.getHost().toLowerCase(Locale.US);
         
         senderUser = getPrimaryName(senderUser);
@@ -617,7 +617,7 @@ int stindex =   repositoryPath.indexOf("://") + 3;
                         catch (javax.mail.internet.ParseException pe) {
                             continue;
                         }
-                        String recipientUser = recipientMailAddress.getUser().toLowerCase(Locale.US);
+                        String recipientUser = recipientMailAddress.getLocalPart().toLowerCase(Locale.US);
                         String recipientHost = recipientMailAddress.getHost().toLowerCase(Locale.US);
                         
                         if (getMailetContext().isLocalServer(recipientHost)) {

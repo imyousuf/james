@@ -59,7 +59,7 @@ public class MockUsersRepositoryTest extends TestCase {
         res = usersRepository.addUser("username", "password2");
         assertFalse("User added twice!", res);
         try {
-            usersRepository.addUser("username2", (Object) "password2");
+            usersRepository.addUser("username2",  "password2");
             assertTrue(usersRepository.contains("username2"));
             User u = new DefaultJamesUser("username3","SHA","password3");
             usersRepository.addUser(u);
@@ -68,12 +68,7 @@ public class MockUsersRepositoryTest extends TestCase {
             
         }
         
-        try {
-            usersRepository.addUser("username2", new Object());
-            fail("adduser should throw an exception if a non string is passed");
-        } catch (Exception e) {
-            
-        }
+        
         
     }
     
@@ -84,11 +79,7 @@ public class MockUsersRepositoryTest extends TestCase {
         assertNotNull(user);
         assertEquals("username does not match", user.getUserName(), "username");
         assertTrue("user not contained in the repository", usersRepository.contains("username"));
-        try {
-            assertTrue("case insensitive user not found in the repository", usersRepository.containsCaseInsensitive("userName"));
-        } catch (UnsupportedOperationException e) {
-            // some implementation could not support deprecated methods
-        }
+        
         
         User u = usersRepository.getUserByName("uSERNAMe");
         assertNull("found the user searching for a different case!", u);
@@ -175,8 +166,7 @@ public class MockUsersRepositoryTest extends TestCase {
     public void testCaseInsensitivesMethods() {
         assertTrue("User not added", usersRepository.addUser("userName", "password"));
         try {
-            assertTrue(usersRepository.containsCaseInsensitive("usERname"));
-            assertNotNull(usersRepository.getUserByNameCaseInsensitive("userNAMe"));
+                      assertNotNull(usersRepository.getUserByNameCaseInsensitive("userNAMe"));
         } catch (UnsupportedOperationException e) {
             // some implementations do not support it.
         }

@@ -178,7 +178,7 @@ public class IsInWhiteList extends GenericMatcher {
             return null;
         }
         
-        String senderUser = senderMailAddress.getUser();
+        String senderUser = senderMailAddress.getLocalPart();
         String senderHost = senderMailAddress.getHost();
         
         senderUser = senderUser.toLowerCase(Locale.US);
@@ -196,7 +196,7 @@ public class IsInWhiteList extends GenericMatcher {
             for (Iterator i = recipients.iterator(); i.hasNext(); ) {
                 try {
                     MailAddress recipientMailAddress = (MailAddress)i.next();
-                    String recipientUser = recipientMailAddress.getUser().toLowerCase(Locale.US);
+                    String recipientUser = recipientMailAddress.getLocalPart().toLowerCase(Locale.US);
                     String recipientHost = recipientMailAddress.getHost().toLowerCase(Locale.US);
                     
                     if (!getMailetContext().isLocalServer(recipientHost)) {

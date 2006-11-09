@@ -42,7 +42,7 @@ public class UserIs extends GenericRecipientMatcher {
     }
 
     public boolean matchRecipient(MailAddress recipient) {
-        return users.contains(recipient.getUser());
+        return users.contains(recipient.getLocalPart());
     }
 }
 

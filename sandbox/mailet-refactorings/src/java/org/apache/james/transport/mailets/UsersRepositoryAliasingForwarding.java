@@ -161,7 +161,7 @@ public class UsersRepositoryAliasingForwarding extends GenericMailet {
         if (usersRepository instanceof VirtualUserTable) {
             Collection mappings;
             try {
-                mappings = ((VirtualUserTable) usersRepository).getMappings(recipient.getUser(), recipient.getHost());
+                mappings = ((VirtualUserTable) usersRepository).getMappings(recipient.getLocalPart(), recipient.getHost());
             } catch (ErrorMappingException e) {
                 StringBuffer errorBuffer = new StringBuffer(128)
                     .append("A problem as occoured trying to alias and forward user ")
@@ -226,7 +226,7 @@ public class UsersRepositoryAliasingForwarding extends GenericMailet {
                 .append(" does not implement VirtualUserTable interface).");
             getMailetContext().log(errorBuffer.toString());
         }
-        String realName = usersRepository.getRealName(recipient.getUser());
+        String realName = usersRepository.getRealName(recipient.getLocalPart());
         if (realName != null) {
             ArrayList ret = new ArrayList();
             ret.add(new MailAddress(realName, recipient.getHost()));

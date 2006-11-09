@@ -161,7 +161,7 @@ public abstract class BaseCommand implements IListServCommand {
         MailAddress senderAddress = origMail.getSender();
         try {
             MimeMessage mimeMessage = generateMail(senderAddress.toString(),
-                    senderAddress.getUser(),
+                    senderAddress.getLocalPart(),
                     getCommandListservManager().getListOwner(),
                     getCommandListservManager().getListName(true),
                     subject,

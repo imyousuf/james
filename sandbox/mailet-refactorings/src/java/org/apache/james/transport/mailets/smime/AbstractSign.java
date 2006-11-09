@@ -580,7 +580,7 @@ public abstract class AbstractSign extends GenericMailet {
             }
         } else {
             // is the reverse-path user different from the SMTP authorized user?
-            if (!reversePath.getUser().equals(authUser)) {
+            if (!reversePath.getLocalPart().equals(authUser)) {
                 return false;
             }
             // is there no "From:" address same as the reverse-path?

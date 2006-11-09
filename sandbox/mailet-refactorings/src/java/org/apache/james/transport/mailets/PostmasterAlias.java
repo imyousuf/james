@@ -55,7 +55,7 @@ public class PostmasterAlias extends GenericMailet {
 
         for (Iterator i = recipients.iterator(); i.hasNext(); ) {
             MailAddress addr = (MailAddress)i.next();
-            if (addr.getUser().equalsIgnoreCase("postmaster") &&
+            if (addr.getLocalPart().equalsIgnoreCase("postmaster") &&
                 mailetContext.isLocalServer(addr.getHost())) {
                 //Should remove this address... we want to replace it with
                 //  the server's postmaster address

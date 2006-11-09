@@ -323,7 +323,7 @@ public class CommandListservManager extends GenericMailet implements ICommandLis
      * @return the name of the command
      */
     protected String getCommandName(MailAddress mailAddress) {
-        String user = mailAddress.getUser();
+        String user = mailAddress.getLocalPart();
         int index = user.indexOf('-', listName.length());
         String commandName = user.substring(++index);
         return commandName;

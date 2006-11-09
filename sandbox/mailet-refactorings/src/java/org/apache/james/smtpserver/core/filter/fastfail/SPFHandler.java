@@ -245,8 +245,8 @@ public class SPFHandler extends AbstractLogEnabled implements CommandHandler,
 
         // Check if the recipient is postmaster or abuse..
         if (recipientAddress != null
-                && (recipientAddress.getUser().equalsIgnoreCase("postmaster")
-                        || recipientAddress.getUser().equalsIgnoreCase("abuse") || ((session
+                && (recipientAddress.getLocalPart().equalsIgnoreCase("postmaster")
+                        || recipientAddress.getLocalPart().equalsIgnoreCase("abuse") || ((session
                         .isAuthRequired() && session.getUser() != null)))) {
             
             //remove invalid data

@@ -61,7 +61,7 @@ public abstract class GenericListservManager extends GenericMailet {
             return;
         }
         MailAddress address = (MailAddress)mail.getRecipients().iterator().next();
-        if (address.getUser().endsWith("-off")) {
+        if (address.getLocalPart().endsWith("-off")) {
             if (existsAddress(mail.getSender())) {
                 if (removeAddress(mail.getSender())) {
                     getMailetContext().bounce(mail, "Successfully removed from listserv.");
@@ -71,7 +71,7 @@ public abstract class GenericListservManager extends GenericMailet {
             } else {
                 getMailetContext().bounce(mail, "You are not subscribed to this listserv.");
             }
-        } else if (address.getUser().endsWith("-on")) {
+        } else if (address.getLocalPart().endsWith("-on")) {
             if (existsAddress(mail.getSender())) {
                 getMailetContext().bounce(mail, "You are already subscribed to this listserv.");
             } else {

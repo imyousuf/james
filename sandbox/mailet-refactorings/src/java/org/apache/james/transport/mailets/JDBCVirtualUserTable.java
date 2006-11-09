@@ -178,7 +178,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable
                 ResultSet mappingRS = null;
                 try {
                     MailAddress source = (MailAddress)i.next();
-                    mappingStmt.setString(1, source.getUser());
+                    mappingStmt.setString(1, source.getLocalPart());
                     mappingStmt.setString(2, source.getHost());
                     mappingStmt.setString(3, source.getHost());
                     mappingRS = mappingStmt.executeQuery();

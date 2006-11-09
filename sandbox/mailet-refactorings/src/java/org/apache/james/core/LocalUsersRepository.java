@@ -68,13 +68,7 @@ public class LocalUsersRepository implements UsersRepository, Serviceable, Initi
     public boolean addUser(User user) {
         return users.addUser(user);
     }
-    
-    /**
-     * @see org.apache.mailet.UsersRepository#addUser(java.lang.String, java.lang.Object)
-     */
-    public void addUser(String name, Object attributes) {
-        users.addUser(name,attributes);
-    }
+   
 
     /**
      * @see org.apache.mailet.UsersRepository#addUser(java.lang.String, java.lang.String)
@@ -125,12 +119,7 @@ public class LocalUsersRepository implements UsersRepository, Serviceable, Initi
         return users.contains(name);
     }
 
-    /**
-     * @see org.apache.mailet.UsersRepository#containsCaseInsensitive(java.lang.String)
-     */
-    public boolean containsCaseInsensitive(String name) {
-        return users.containsCaseInsensitive(name);
-    }
+    
 
     /**
      * @see org.apache.mailet.UsersRepository#test(java.lang.String, java.lang.String)

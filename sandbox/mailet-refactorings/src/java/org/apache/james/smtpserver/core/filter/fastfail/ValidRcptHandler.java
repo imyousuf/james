@@ -191,14 +191,14 @@ public class ValidRcptHandler extends AbstractLogEnabled implements CommandHandl
         MailAddress rcpt = (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT);
         boolean invalidUser = true;
 
-        if (session.getConfigurationData().getUsersRepository().contains(rcpt.getUser()) == true || recipients.contains(rcpt.toString().toLowerCase()) || domains.contains(rcpt.getHost().toLowerCase())) {
+        if (session.getConfigurationData().getUsersRepository().contains(rcpt.getLocalPart()) == true || recipients.contains(rcpt.toString().toLowerCase()) || domains.contains(rcpt.getHost().toLowerCase())) {
             invalidUser = false;
         }
 
         // check if an valid virtual mapping exists
         if (invalidUser == true  && vut == true) {
             try {
-                Collection targetString = table.getMappings(rcpt.getUser(), rcpt.getHost());
+                Collection targetString = table.getMappings(rcpt.getLocalPart(), rcpt.getHost());
         
                 if (targetString != null && targetString.isEmpty() == false) {
                     invalidUser = false;

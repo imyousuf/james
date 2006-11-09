@@ -197,7 +197,7 @@ public class ToMultiRepository extends GenericMailet {
             throw new IllegalArgumentException(
                     "Mail message to be spooled cannot be null.");
         }
-        username = recipient.getUser();
+        username = recipient.getLocalPart();
 
         Collection recipients = new HashSet();
         recipients.add(recipient);
