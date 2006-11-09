@@ -333,7 +333,7 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
             .append(getServiceType())
             .append(" will allow a maximum of ")
             .append(connPerIP)
-            .append(" per IP connections.");
+            .append(" per IP connections for " +getServiceType());
         getLogger().info(infoBuffer.toString());
         
     }
