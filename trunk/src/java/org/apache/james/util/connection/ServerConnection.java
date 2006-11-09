@@ -27,7 +27,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
@@ -107,17 +106,15 @@ public class ServerConnection extends AbstractLogEnabled
      * connection will allow.
      */
     private int maxOpenConnPerIP;
+    
+    private ConnectionPerIpMap connPerIpMap;
 
     /**
      * A collection of client connection runners.
      */
     private final ArrayList clientConnectionRunners = new ArrayList();
     
-    /**
-     * A HashMap of clientip and connections
-     */
-    private final HashMap connectionPerIP = new HashMap();
-    
+
     /**
      * The thread used to manage this server connection.
      */
@@ -154,6 +151,7 @@ public class ServerConnection extends AbstractLogEnabled
      */
     public void initialize() throws Exception {
         runnerPool = new HardResourceLimitingPool(theRunnerFactory, 5, maxOpenConn);
+        connPerIpMap = new ConnectionPerIpMap();
         ContainerUtil.enableLogging(runnerPool,getLogger());
         ContainerUtil.initialize(runnerPool);
     }
@@ -212,7 +210,7 @@ public class ServerConnection extends AbstractLogEnabled
                 runner = null;
             }
             clientConnectionRunners.clear();
-            clearConnectionPerIP();
+            connPerIpMap.clearConnectionPerIP();
             
         }
 
@@ -267,57 +265,7 @@ public class ServerConnection extends AbstractLogEnabled
         synchronized (this) { notify(); } // match the wait(...) in the run() inner loop before accept().
     }
 
-    /**
-     * Raise the connectionCount for the given ipAdrress
-     * @param ip raise the connectionCount for the given ipAddress
-     */
-    private synchronized void addConnectionPerIP (String ip) {
-        connectionPerIP.put(ip,Integer.toString(getConnectionPerIP(ip) +1));
-    }
-    
-    /**
-     * Get the count of connections for the given ip
-     * @param ip the ipAddress to get the connections for. 
-     * @return count
-     */
-    private synchronized int getConnectionPerIP(String ip) {
-        int count = 0;
-        String curCount = null;
-        Object c = connectionPerIP.get(ip);
-        
-        if (c != null) {
-            curCount = c.toString();
-            
-            if (curCount != null) {
-                return Integer.parseInt(curCount);
-            }
-        }
-        return count;
-    }
-    
-    /**
-     * Set the connection count for the given ipAddress
-     * @param ip ipAddres for which we want to set the count
-     */
-    private synchronized void removeConnectionPerIP (String ip) {
 
-        int count = getConnectionPerIP(ip);
-        if (count > 1) {
-            connectionPerIP.put(ip,Integer.toString(count -1));
-        } else {
-            // not need this entry any more
-            connectionPerIP.remove(ip);
-        }
-
-    }
-    
-    /**
-     * Clear the connection count map
-     */
-    private synchronized void clearConnectionPerIP () {
-        connectionPerIP.clear();
-    }
-    
     /**
      * Provides the body for the thread of execution for a ServerConnection.
      * Connections made to the server socket are passed to an appropriate,
@@ -388,9 +336,9 @@ public class ServerConnection extends AbstractLogEnabled
                             // We ignore this exception, as we already have an error condition.
                         }
                         continue;
-                    } else if ((maxOpenConnPerIP > 0) && (getConnectionPerIP(clientSocket.getInetAddress().getHostAddress()) >= maxOpenConnPerIP)) {
+                    } else if ((maxOpenConnPerIP > 0) && (connPerIpMap.getConnectionPerIP(clientSocket.getInetAddress().getHostAddress()) >= maxOpenConnPerIP)) {
                         if (getLogger().isWarnEnabled()) {
-                            getLogger().warn("Maximum number of open connections per IP exceeded - refusing connection.  Current number of connections for " + clientSocket.getInetAddress().getHostAddress() + " is " + getConnectionPerIP(clientSocket.getInetAddress().getHostAddress()));
+                            getLogger().warn("Maximum number of open connections per IP exceeded - refusing connection.  Current number of connections for " + clientSocket.getInetAddress().getHostAddress() + " is " + connPerIpMap.getConnectionPerIP(clientSocket.getInetAddress().getHostAddress()));
                         }
                         try {
                             clientSocket.close();
@@ -400,7 +348,7 @@ public class ServerConnection extends AbstractLogEnabled
                         continue;
                         
                     } else {
-                        addConnectionPerIP(clientSocket.getInetAddress().getHostAddress());
+                    connPerIpMap.addConnectionPerIP(clientSocket.getInetAddress().getHostAddress());
                         clientSocket.setSoTimeout(socketTimeout);
                         runner = addClientConnectionRunner();
                         runner.setSocket(clientSocket);
@@ -417,7 +365,7 @@ public class ServerConnection extends AbstractLogEnabled
                     getLogger().error("Internal error - insufficient threads available to service request.  " +
                                       Thread.activeCount() + " threads in service request pool.", e);
                     try {
-                        removeConnectionPerIP(clientSocket.getInetAddress().getHostAddress());
+                    connPerIpMap.removeConnectionPerIP(clientSocket.getInetAddress().getHostAddress());
                         clientSocket.close();
                     } catch (IOException ignored) {
                         // We ignore this exception, as we already have an error condition.
@@ -529,7 +477,7 @@ public class ServerConnection extends AbstractLogEnabled
             } finally {
 
                 // remove this connection from map!
-                removeConnectionPerIP(clientSocket.getInetAddress().getHostAddress());
+            connPerIpMap.removeConnectionPerIP(clientSocket.getInetAddress().getHostAddress());
                 
                 // Close the underlying socket
                 try {

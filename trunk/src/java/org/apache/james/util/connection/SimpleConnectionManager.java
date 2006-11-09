@@ -136,6 +136,8 @@ public class SimpleConnectionManager
     public void service(ServiceManager componentManager) throws ServiceException {
         setThreadManager((ThreadManager)componentManager.lookup(ThreadManager.ROLE));
     }
+    
+    
     /**
      * Disconnects all the underlying ServerConnections
      */
@@ -159,6 +161,8 @@ public class SimpleConnectionManager
             getLogger().debug("Finishing SimpleConnectionManager dispose...");
         }
     }
+    
+    
     /**
      * Start managing a connection.
      * Management involves accepting connections and farming them out to threads
@@ -169,6 +173,7 @@ public class SimpleConnectionManager
      * @param handlerFactory the factory from which to acquire handlers
      * @param threadPool the thread pool to use
      * @param maxOpenConnections the maximum number of open connections allowed for this server socket.
+     * @param maxOpenConnectionsPerIP the maximum number of open connections per IP allowed for this server socket.
      * @exception Exception if an error occurs
      */
     public void connect(
@@ -176,7 +181,8 @@ public class SimpleConnectionManager
         ServerSocket socket,
         ConnectionHandlerFactory handlerFactory,
         ThreadPool threadPool,
-        int maxOpenConnections)
+        int maxOpenConnections,
+        int maxOpenConnectionsPerIP)
         throws Exception {
         if (disposed) {
             throw new IllegalStateException("Connection manager has already been shutdown.");
@@ -187,16 +193,18 @@ public class SimpleConnectionManager
         if (maxOpenConnections < 0) {
             throw new IllegalArgumentException("The maximum number of client connections per server socket cannot be less that zero.");
         } 
-        if (maxOpenConnPerIP < 0) {
+        if (maxOpenConnectionsPerIP < 0) {
             throw new IllegalArgumentException("The maximum number of client connections (per IP) per server socket cannot be less that zero.");
         }
         ServerConnection runner =
-            new ServerConnection(socket, handlerFactory, threadPool, timeout, maxOpenConnections, maxOpenConnPerIP);
+            new ServerConnection(socket, handlerFactory, threadPool, timeout, maxOpenConnections, maxOpenConnectionsPerIP);
         setupLogger(runner);
         ContainerUtil.initialize(runner);
         connectionMap.put(name, runner);
         threadPool.execute(runner);
     }
+    
+    
     /**
      * Start managing a connection.
      * Management involves accepting connections and farming them out to threads
@@ -214,8 +222,10 @@ public class SimpleConnectionManager
         ConnectionHandlerFactory handlerFactory,
         ThreadPool threadPool)
         throws Exception {
-        connect(name, socket, handlerFactory, threadPool, maxOpenConn);
+        connect(name, socket, handlerFactory, threadPool, maxOpenConn, maxOpenConnPerIP);
     }
+    
+    
     /**
      * Start managing a connection.
      * This is similar to other connect method except that it uses default thread pool.
@@ -229,6 +239,8 @@ public class SimpleConnectionManager
         throws Exception {
         connect(name, socket, handlerFactory, threadManager.getDefaultThreadPool());
     }
+    
+    
     /**
      * Start managing a connection.
      * This is similar to other connect method except that it uses default thread pool.
@@ -247,6 +259,8 @@ public class SimpleConnectionManager
         throws Exception {
         connect(name, socket, handlerFactory, threadManager.getDefaultThreadPool(), maxOpenConnections);
     }
+    
+    
     /**
      * This shuts down all handlers and socket, waiting for each to gracefully shutdown.
      *
@@ -256,6 +270,8 @@ public class SimpleConnectionManager
     public void disconnect(final String name) throws Exception {
         disconnect(name, false);
     }
+    
+    
     /**
      * This shuts down a connection.
      * If tearDown is true then it will forcefully the connection and try
@@ -274,6 +290,24 @@ public class SimpleConnectionManager
         // TODO: deal with tear down parameter
         connection.dispose();
     }
+    
+  
+    /**
+     * @see org.apache.james.services.JamesConnectionManager#connect(java.lang.String, java.net.ServerSocket, org.apache.avalon.cornerstone.services.connection.ConnectionHandlerFactory, org.apache.excalibur.thread.ThreadPool, int)
+     */
+    public void connect(String name, ServerSocket socket, ConnectionHandlerFactory handlerFactory, ThreadPool threadPool, int maxOpenConnections) throws Exception {
+        connect(name,socket,handlerFactory,threadPool,maxOpenConnections,maxOpenConnPerIP);
+    }
+  
+    
+    /**
+     * @see org.apache.james.services.JamesConnectionManager#connect(java.lang.String, java.net.ServerSocket, org.apache.avalon.cornerstone.services.connection.ConnectionHandlerFactory, int, int)
+     */
+    public void connect(String name, ServerSocket socket, ConnectionHandlerFactory handlerFactory, int maxOpenConnections,int maxOpenConnectionsPerIP) throws Exception {
+        connect(name,socket,handlerFactory,threadManager.getDefaultThreadPool(),maxOpenConnections,maxOpenConnectionsPerIP);
+    }
+    
+    
     /**
      * Returns the default maximum number of open connections supported by this
      * SimpleConnectionManager
@@ -284,15 +318,12 @@ public class SimpleConnectionManager
         return maxOpenConn;
     }
     
+    
     /**
-     * Returns the default maximum number of open connections per IP supported by this
-     * SimpleConnectionManager
-     *
-     * @return the maximum number of connections
+     * @see org.apache.james.services.JamesConnectionManager#getMaximumNumberOfOpenConnectionsPerIP()
      */
     public int getMaximumNumberOfOpenConnectionsPerIP() {
         return maxOpenConnPerIP;
     }
-
 
 }
