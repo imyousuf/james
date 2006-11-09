@@ -181,6 +181,9 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
      * The DNSServer
      */
     private DNSServer dnsServer = null;
+    
+    private boolean connPerIPConfigured = false;
+    private int connPerIP = 0;
 
     public void setConnectionManager(JamesConnectionManager connectionManager) {
         this.connectionManager = connectionManager;
@@ -310,6 +313,29 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
             .append(connectionLimit.intValue())
             .append(" connections.");
         getLogger().info(infoBuffer.toString());
+        
+        String connectionLimitPerIP = conf.getChild("connectionLimitPerIP").getValue(null);
+        if (connectionLimitPerIP != null) {
+            try {
+            connPerIP = new Integer(connectionLimitPerIP).intValue();
+            connPerIPConfigured = true;
+            } catch (NumberFormatException nfe) {
+                getLogger().error("Connection limit per IP value is not properly formatted.", nfe);
+            }
+            if (connPerIP < 0) {
+                getLogger().error("Connection limit per IP value cannot be less than zero.");
+                throw new ConfigurationException("Connection limit value cannot be less than zero.");
+            }
+        } else {
+            connPerIP = connectionManager.getMaximumNumberOfOpenConnectionsPerIP();
+        }
+        infoBuffer = new StringBuffer(128)
+            .append(getServiceType())
+            .append(" will allow a maximum of ")
+            .append(connPerIP)
+            .append(" per IP connections.");
+        getLogger().info(infoBuffer.toString());
+        
     }
 
     private void configureHelloName(Configuration handlerConfiguration) {
@@ -401,15 +427,31 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
 
         if ((connectionLimit != null)) {
             if (null != threadPool) {
-                connectionManager.connect(connectionName, serverSocket, this, threadPool, connectionLimit.intValue());
+            if (connPerIPConfigured) {
+                    connectionManager.connect(connectionName, serverSocket, this, threadPool, connectionLimit.intValue(),connPerIP);
             } else {
-                connectionManager.connect(connectionName, serverSocket, this, connectionLimit.intValue()); // default pool
+                connectionManager.connect(connectionName, serverSocket, this, threadPool, connectionLimit.intValue());
+            }
+            } else {
+            if (connPerIPConfigured) {
+                    connectionManager.connect(connectionName, serverSocket, this, connectionLimit.intValue(),connPerIP); // default pool
+                } else {
+                    connectionManager.connect(connectionName, serverSocket, this, connectionLimit.intValue());
+                }
             }
         } else {
             if (null != threadPool) {
-                connectionManager.connect(connectionName, serverSocket, this, threadPool);
+            if (connPerIPConfigured) {
+                    connectionManager.connect(connectionName, serverSocket, this, threadPool);
             } else {
-                connectionManager.connect(connectionName, serverSocket, this); // default pool
+                connectionManager.connect(connectionName, serverSocket, this, threadPool, 0, connPerIP);
+            }
+            } else {
+            if (connPerIPConfigured) {
+                    connectionManager.connect(connectionName, serverSocket, this); // default pool
+            } else {
+                    connectionManager.connect(connectionName, serverSocket, this, 0, connPerIP);
+            }
             }
         }
     }
