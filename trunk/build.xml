@@ -487,7 +487,7 @@
         <echo message="Making James Sarfile (james.sar)"/>
       
         <!-- Make sar file-->
-        <sar sarfile="${build.lib}/${name}.sar" config="${conf.dir}/james-config.xml"
+        <sar sarfile="${build.lib}/${sar-name}.sar" config="${conf.dir}/james-config.xml"
                environment="${conf.dir}/james-server.xml" assembly="${conf.dir}/james-assembly.xml">
             <lib dir="${build.lib}/">
                 <include name="mailet-api-${mailet-api-version}.jar"/>
@@ -571,7 +571,7 @@
         <echo message="Installing James to ${dist.dir}"/>
       
         <!--installs sar into ./dist/ ready to test-->
-        <copy file="${build.lib}/${name}.sar" todir="${dist.dir}/apps"/>
+        <copy file="${build.lib}/${sar-name}.sar" todir="${dist.dir}/apps"/>
       
         <!-- Make mailet.jar-->
         <!-- jar jarfile="${build.lib}/mailet.jar"
@@ -623,7 +623,7 @@
         <property name="dist.binary.dir" value="${dist.dir}/downloads/bin"/>
         <mkdir dir="${dist.binary.dir}"/>
         <!-- Sar only-->
-        <copy file="${dist.dir}/apps/${name}.sar" todir="${dist.binary.dir}"/>
+        <copy file="${dist.dir}/apps/${sar-name}.sar" todir="${dist.binary.dir}"/>
     </target>
 
     <target name="dist-bin" depends="dist-bin-common,dist-bin-phoenix-warn,dist-bin-phoenix"/>
