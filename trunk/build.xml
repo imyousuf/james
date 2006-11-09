@@ -467,7 +467,7 @@
                  excludes="org/apache/mailet/Mailet.class,org/apache/mailet/MailetConfig.class,org/apache/mailet/Mail.class,org/apache/mailet/MailetContext.class,org/apache/mailet/MailAddress.class,org/apache/mailet/MailRepository,org/apache/mailet/SpoolRepository,org/apache/mailet/UserRepository,org/apache/mailet/Datasource,org/apache/mailet/User,org/apache/mailet/MailetException"/>
        
         <!-- Make james jar-->
-        <echo message="Making James Jar (james-${version}.jar)"/>
+        <echo message="Making James Jar (${name}-${version}.jar)"/>
         <jar jarfile="${build.lib}/${name}-${version}.jar" basedir="${build.classes}" manifest="${src.dir}/Manifest.mf">
             <include name="org/apache/james/**"/>
             <include name="*.xml"/>
@@ -492,7 +492,7 @@
             <lib dir="${build.lib}/">
                 <include name="mailet-api-${mailet-api-version}.jar"/>
                 <include name="mailet-${mailet-version}.jar"/>
-                <include name="james-${version}.jar"/>         
+                <include name="${name}-${version}.jar"/>         
             </lib>
             <lib dir="${lib.dir}">
                 <include name="${dns.jar}"/>
