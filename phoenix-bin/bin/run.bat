@@ -76,6 +76,10 @@ set PHOENIX_SM="-Djava.security.manager"
 
 :postSecure
 
+
+rem Make sure we don't run with a never expiring cache for InetAddress
+set PHOENIX_JVM_OPTS=%PHOENIX_JVM_OPTS% -Dsun.net.inetaddr.ttl=10
+
 rem
 rem -Djava.ext.dirs= is needed as some JVM vendors do foolish things
 rem like placing jaxp/jaas/xml-parser jars in ext dir
