@@ -467,13 +467,16 @@ public class DNSServer
      * @see org.apache.james.services.DNSServer#getHostName(java.net.InetAddress)
      */
     public String getHostName(InetAddress addr){
+        String result = null;
         Name name = ReverseMap.fromAddress(addr);
         Record [] records = lookup(name.toString(), Type.PTR, "PTR");
         if (records == null) {
-            addr.getHostAddress();
+            result = addr.getHostAddress();
+        } else {
+            PTRRecord ptr = (PTRRecord) records[0];
+            result = ptr.getTarget().toString();
         }
-        PTRRecord ptr = (PTRRecord) records[0];
-        return ptr.getTarget().toString();
+        return result;
     }
 
     /**
