@@ -42,6 +42,7 @@ import org.apache.james.userrepository.MockUsersRepository;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -126,6 +127,10 @@ public class JamesTest extends MailServerTestAllImplementations {
         DNSServer dns = new AbstractDNSServer() {
             public String getHostName(InetAddress addr) {
                 return "localhost";
+            }
+
+            public InetAddress getLocalHost() throws UnknownHostException {
+                throw new UnknownHostException("Unknown");
             }
         };
         return dns;
