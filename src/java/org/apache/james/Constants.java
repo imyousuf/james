@@ -62,11 +62,11 @@ public class Constants {
     /**
      * Key used to store the hostaddress of the localhost
      */
-    public static final String HOSTADDRESS = "127.0.0.1";
+    public static final String HOSTADDRESS = "LOCAL_HOSTADDRESS";
     
     /**
      * Key used to store the hostname of localhost
      */
-    public static final String HOSTNAME = "localhost";
+    public static final String HOSTNAME = "LOCAL_HOSTNAME";
 
 }
