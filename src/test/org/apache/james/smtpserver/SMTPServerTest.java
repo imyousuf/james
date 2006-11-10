@@ -1017,10 +1017,15 @@ public class SMTPServerTest extends TestCase {
         assertEquals("expected 250 ok", 250, smtpProtocol.getReplyCode());
 
     }
-/**
- * Noel please fix me!
- *  
-   
+
+    /*
+      REMOVED UNTIL FIXED.  This test assumes behavior that is wrong.
+      What we want to see is that for a given connection limit and a
+      given backlog, that connection limit requests are handled, and
+      that up to the backlog number of connections are queued.  More
+      connections than that would eventually error out (unless space
+      opened up in front of them during the TCP/IP handshake).
+
     public void testConnectionLimitExceeded() throws Exception {
         m_testConfiguration.setConnectionLimit(1); // allow no more than one connection at a time 
         finishSetUp(m_testConfiguration);
@@ -1046,7 +1051,8 @@ public class SMTPServerTest extends TestCase {
         smtpProtocol2.connect("127.0.0.1", m_smtpListenerPort);
         assertTrue(smtpProtocol2.isConnected());
     }
-*/  
+    */
+    
     // RemoteDelivery tests.
     
     InMemorySpoolRepository outgoingSpool;
