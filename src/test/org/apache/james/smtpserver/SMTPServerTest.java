@@ -1042,7 +1042,6 @@ public class SMTPServerTest extends TestCase {
         m_testConfiguration.setConnectionBacklog(backlog);     // allow <backlog> additional connection(s) in the queue
         finishSetUp(m_testConfiguration);
 
-
         final SMTPClient[] client = new SMTPClient[acceptLimit];
         for (int i = 0; i < client.length; i++) {
             client[i] = new SMTPClient(); // should connect to worker
@@ -1058,13 +1057,14 @@ public class SMTPServerTest extends TestCase {
         // able to connect to the protocol handler, the connect call
         // hangs.
 
-        // not sure why this isn't just backlog, but empirically, I'm
-        // getting a few more connections than I should.  I've tested
-        // 2 and 4 (as well as 0, of course), and the result is
-        // consistent on Ubuntu 2.6.12-10-amd64-k8-smp: <3 means that
-        // the connection that should fail succeeds and >3 means that
-        // a connection intended to backlog fails.
-        final Socket connection[] = new Socket[backlog+3];
+        // Different TCP/IP stacks may provide a "grace" margin above
+        // and beyond the specified backlog.  So we won't try to be
+        // precise.  Instead we will compute some upper limit, loop
+        // until we get a connection error (or hit the limit), and
+        // then test for the expected behavior.
+        //
+        // See: http://www.phrack.org/archives/48/P48-13
+        final Socket connection[] = new Socket[Math.max(((backlog * 3) / 2) + 1, backlog + 3)];
 
         final java.net.SocketAddress server = new java.net.InetSocketAddress("localhost", m_smtpListenerPort);
 
@@ -1073,6 +1073,9 @@ public class SMTPServerTest extends TestCase {
             try {
                 connection[i].connect(server, 1000);
             } catch (Exception _) {
+                assertTrue("Accepted connections " + i + " did not meet or exceed backlog of " + backlog + ".", i >= backlog);
+                connection[i] = null; // didn't open, so don't try to close later
+                break; // OK to fail, since we've at least reached the backlog
             }
             assertTrue("connection #" + (i+1) + " established", connection[i].isConnected());
         }
@@ -1100,7 +1103,7 @@ public class SMTPServerTest extends TestCase {
         }
 
         // close the pending connections first, so that the server doesn't see them
-        for (int i = 0; i < connection.length; i++) connection[i].close();
+        for (int i = 0; i < connection.length; i++) if (connection[i] != null) connection[i].close();
 
         // close the remaining clients
         for (int i = 1; i < client.length; i++) {
