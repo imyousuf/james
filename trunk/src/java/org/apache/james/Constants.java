@@ -58,5 +58,15 @@ public class Constants {
      * Avalon aware Mailets.
      */
     public static final String AVALON_COMPONENT_MANAGER = "AVALON_COMP_MGR";
+    
+    /**
+     * Key used to store the hostaddress of the localhost
+     */
+    public static final String HOSTADDRESS = "127.0.0.1";
+    
+    /**
+     * Key used to store the hostname of localhost
+     */
+    public static final String HOSTNAME = "localhost";
 
 }

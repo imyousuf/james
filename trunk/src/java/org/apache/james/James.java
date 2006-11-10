@@ -259,6 +259,14 @@ public class James
         java.io.File configDir = fileSystem.getFile("file://conf/");
         attributes.put("confDir", configDir.getCanonicalPath());
 
+        try {
+            attributes.put(Constants.HOSTADDRESS, lookupDNSServer().getLocalHost().getHostAddress());
+            attributes.put(Constants.HOSTNAME, lookupDNSServer().getLocalHost().getHostName());
+        } catch (java.net.UnknownHostException _) {
+            attributes.put(Constants.HOSTADDRESS, "127.0.0.1");
+            attributes.put(Constants.HOSTNAME, "localhost");
+        }
+        
         initializeLocalDeliveryMailet();
 
         System.out.println(SOFTWARE_NAME_VERSION);

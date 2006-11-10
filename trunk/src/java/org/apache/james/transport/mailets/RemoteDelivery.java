@@ -860,8 +860,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         PrintWriter out = new PrintWriter(sout, true);
         String machine = "[unknown]";
         try {
-            InetAddress me = InetAddress.getLocalHost();
-            machine = me.getHostName();
+            machine = getMailetContext().getAttribute(Constants.HOSTNAME).toString();
+            
         } catch(Exception e){
             machine = "[address unknown]";
         }

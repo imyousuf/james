@@ -152,14 +152,9 @@ public class DSNBounce extends AbstractNotify {
             // We don't need to use the original Remote Address and Host,
             // and doing so would likely cause a loop with spam detecting
             // matchers.
-            try {
-                newMail.setRemoteAddr(java.net.InetAddress.getLocalHost().getHostAddress());
-                newMail.setRemoteHost(java.net.InetAddress.getLocalHost().getHostName());
-            } catch (java.net.UnknownHostException _) {
-                newMail.setRemoteAddr("127.0.0.1");
-                newMail.setRemoteHost("localhost");
-            }
-    
+            newMail.setRemoteAddr(getMailetContext().getAttribute(Constants.HOSTADDRESS).toString());
+            newMail.setRemoteHost(getMailetContext().getAttribute(Constants.HOSTNAME).toString());
+            
             if (originalMail.getSender() == null) {
                 if (isDebug)
                     log("Processing a bounce request for a message with an empty reverse-path.  No bounce will be sent.");
