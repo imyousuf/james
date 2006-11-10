@@ -40,6 +40,7 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
     private String m_authorizingMode = "false";
     private boolean m_verifyIdentity = false;
     private Integer m_connectionLimit = null;
+    private Integer m_connectionBacklog = null;
     private boolean m_heloResolv = false;
     private boolean m_ehloResolv = false;
     private boolean m_senderDomainResolv = false;
@@ -100,6 +101,10 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
         m_connectionLimit = new Integer(iConnectionLimit);
     }
     
+    public void setConnectionBacklog(int iConnectionBacklog) {
+        m_connectionBacklog = new Integer(iConnectionBacklog);
+    }
+    
     public void setHeloResolv() {
         m_heloResolv = true; 
     }
@@ -146,6 +151,7 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
 
         addChild(Util.getValuedConfiguration("port", "" + m_smtpListenerPort));
         if (m_connectionLimit != null) addChild(Util.getValuedConfiguration("connectionLimit", "" + m_connectionLimit.intValue()));
+        if (m_connectionBacklog != null) addChild(Util.getValuedConfiguration("connectionBacklog", "" + m_connectionBacklog.intValue()));
         
         DefaultConfiguration handlerConfig = new DefaultConfiguration("handler");
         handlerConfig.addChild(Util.getValuedConfiguration("helloName", "myMailServer"));
