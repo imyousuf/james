@@ -805,6 +805,31 @@
         </junit>
     </target>
 
+    <target name="ensure-test-name" unless="test">
+        <fail message="You must run this target with -Dtest=TestName"/>
+    </target>
+
+    <target name="run-unit-test" depends="compile-unit-tests, ensure-test-name">
+        <echo message="Running A Single James Unit Test"/>
+        <mkdir dir="${build.test}"/>
+        <mkdir dir="${build.test.reports}"/>
+        <junit printsummary="yes" haltonfailure="yes"  >
+            <classpath refid="unittest.class.path"/>
+            <classpath refid="project.class.path"/>
+            <classpath>
+              <pathelement location="${build.test.classes}"/>
+            </classpath>
+        
+            <formatter type="plain"/>
+        
+            <batchtest fork="yes" todir="${build.test.reports}">
+                <fileset dir="${junitjava.dir}">
+                    <include name="**/${test}.java"/>
+                </fileset>
+            </batchtest>
+        </junit>
+    </target>
+
     <!--
     ===================================================================
                                    Help on usage
