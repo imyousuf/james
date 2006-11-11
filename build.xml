@@ -441,7 +441,7 @@
                                   Build all distributions
     ===================================================================
     -->
-    <target name="dist" depends="dist-bin,dist-src,dist-mailet-SDK"/>
+    <target name="dist" depends="clean,run-unit-tests,dist-bin,dist-src,dist-mailet-SDK"/>
 
     <!--
     ===================================================================
