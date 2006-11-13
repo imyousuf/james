@@ -69,16 +69,16 @@ public class ComposedJunkScoreTest extends TestCase {
     public void testComposedJunkScore() {
         JunkScore junk = new ComposedJunkScore(getJunkScore(KEY1, SCORE1), getJunkScore(KEY2, SCORE2));
     
-        assertEquals("Summarize score", junk.getCompleteStoredScores(),SCORE1 + SCORE2);
+        assertEquals("Summarize score", junk.getCompleteStoredScores(),SCORE1 + SCORE2, 0d);
 
-        assertEquals("Get stored score", junk.getStoredScore(KEY1), SCORE1);
-        assertEquals("Get stored score", junk.getStoredScore(KEY2), SCORE2);
+        assertEquals("Get stored score", junk.getStoredScore(KEY1), SCORE1, 0d);
+        assertEquals("Get stored score", junk.getStoredScore(KEY2), SCORE2, 0d);
     
         assertEquals("Get Map", junk.getStoredScores().size(), 2);
     
-        assertEquals("Reset Score", junk.resetStoredScores(), SCORE1 + SCORE2);
+        assertEquals("Reset Score", junk.resetStoredScores(), SCORE1 + SCORE2, 0d);
     
-        assertEquals("No Score", junk.getCompleteStoredScores(), 0.0);
+        assertEquals("No Score", junk.getCompleteStoredScores(), 0.0, 0d);
         assertEquals("Empty Map", junk.getStoredScores().size(), 0);
     
     }
