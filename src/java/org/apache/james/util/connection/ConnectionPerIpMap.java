@@ -40,7 +40,7 @@ public class ConnectionPerIpMap {
      * @param ip raise the connectionCount for the given ipAddress
      */
     public synchronized void addConnectionPerIP (String ip) {
-        connectionPerIP.put(ip,Integer.toString(getConnectionPerIP(ip) +1));
+        connectionPerIP.put(ip,new Integer(getConnectionPerIP(ip) +1));
     }
     
     /**
@@ -50,18 +50,11 @@ public class ConnectionPerIpMap {
      * @return count
      */
     public synchronized int getConnectionPerIP(String ip) {
-        int count = 0;
-        String curCount = null;
-        Object c = connectionPerIP.get(ip);
-        
-        if (c != null) {
-            curCount = c.toString();
-            
-            if (curCount != null) {
-                return Integer.parseInt(curCount);
-            }
-        }
-        return count;
+        Integer value = (Integer) connectionPerIP.get(ip);
+        if (value == null) {
+            return 0;
+        } 
+        return value.intValue();
     }
     
     /**
@@ -73,7 +66,7 @@ public class ConnectionPerIpMap {
 
         int count = getConnectionPerIP(ip);
         if (count > 1) {
-            connectionPerIP.put(ip,Integer.toString(count -1));
+            connectionPerIP.put(ip,new Integer(count -1));
         } else {
             // not need this entry any more
             connectionPerIP.remove(ip);
