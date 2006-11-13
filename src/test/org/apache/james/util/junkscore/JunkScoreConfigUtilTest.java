@@ -35,7 +35,7 @@ public class JunkScoreConfigUtilTest extends TestCase {
         boolean exception2 = false;
     
         try {
-            JunkScoreConfigUtil.getJunkScoreConfig(INVALID_CONFIG1);
+            JunkScoreConfigUtil.getJunkScore(INVALID_CONFIG1);
         } catch (IllegalArgumentException e) {
             exception1 = true;
         }
@@ -43,14 +43,14 @@ public class JunkScoreConfigUtilTest extends TestCase {
         assertTrue("Exception thrown", exception1);
     
         try {
-            JunkScoreConfigUtil.getJunkScoreConfig(INVALID_CONFIG2);
+            JunkScoreConfigUtil.getJunkScore(INVALID_CONFIG2);
         } catch (IllegalArgumentException e) {
             exception2 = true;
         }
     
         assertTrue("Exception thrown", exception2);
         
-        assertEquals("JunkScore extracted", JunkScoreConfigUtil.getJunkScoreConfig(VALID_CONFIG),21.0);
+        assertEquals("JunkScore extracted", JunkScoreConfigUtil.getJunkScore(VALID_CONFIG),21.0);
     
     }
     
