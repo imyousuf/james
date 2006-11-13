@@ -79,11 +79,12 @@ public class ComposedJunkScore implements JunkScore {
     }
 
     /**
-     * Return only 0
+     * Throws an UnsuportedOperationException cause its not supported here
+     * 
+     * @throws UnsupportedOperationException
      */
     public double setStoredScore(String key, double score) {
-        // just do nothing here and return 0
-        return 0;
+    throw new UnsupportedOperationException("Unimplemented Method");
     }
     
 }

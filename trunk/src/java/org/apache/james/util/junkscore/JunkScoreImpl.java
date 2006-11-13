@@ -43,7 +43,7 @@ public class JunkScoreImpl implements JunkScore {
         Iterator s = scoreMap.keySet().iterator();
     
         while (s.hasNext()) {
-            count =+ Double.parseDouble(scoreMap.get(s.next()).toString());    
+            count = count + getStoredScore(s.next().toString());
         }
         return count;
     }
@@ -76,7 +76,7 @@ public class JunkScoreImpl implements JunkScore {
      */
     public double setStoredScore(String key, double score) {
         Object s = null; 
-        scoreMap.put(key, String.valueOf(score));
+        s = scoreMap.put(key, String.valueOf(score));
         
         if (s == null) {
             return 0;
