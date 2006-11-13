@@ -62,27 +62,24 @@ public class JunkScoreImpl implements JunkScore {
      * @see org.apache.james.util.junkscore.JunkScore#getStoredScore(java.lang.String)
      */
     public double getStoredScore(String key) {
-        Object s = scoreMap.get(key);
+        Double s = (Double) scoreMap.get(key);
     
-        if (s != null) {
-            return Double.parseDouble(s.toString());
-        } else {
+        if (s == null) {
             return 0;
         }
+        return s.doubleValue();
     }
     
     /**
      * @see org.apache.james.util.junkscore.JunkScore#setStoredScore(java.lang.String, double)
      */
     public double setStoredScore(String key, double score) {
-        Object s = null; 
-        s = scoreMap.put(key, String.valueOf(score));
-        
-        if (s == null) {
+        Double s = (Double) scoreMap.put(key, new Double(score));
+    
+        if (s== null) {
             return 0;
-        } else {
-            return Double.parseDouble(s.toString());
         }
+        return s.doubleValue();
     }
 
     /**
