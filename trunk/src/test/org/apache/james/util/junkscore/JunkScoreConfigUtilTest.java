@@ -50,7 +50,7 @@ public class JunkScoreConfigUtilTest extends TestCase {
     
         assertTrue("Exception thrown", exception2);
         
-        assertEquals("JunkScore extracted", JunkScoreConfigUtil.getJunkScore(VALID_CONFIG),21.0);
+        assertEquals("JunkScore extracted", JunkScoreConfigUtil.getJunkScore(VALID_CONFIG),21.0,0d);
     
     }
     

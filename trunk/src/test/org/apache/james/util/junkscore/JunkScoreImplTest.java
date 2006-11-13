@@ -33,23 +33,23 @@ public class JunkScoreImplTest extends TestCase {
     public void testJunkScoreImpl() {
         JunkScore junk = new JunkScoreImpl();
     
-        assertEquals("Empty", junk.getCompleteStoredScores(),0.0);
+        assertEquals("Empty", junk.getCompleteStoredScores(), 0.0, 0d);
 
-        assertEquals("No previous stored score", junk.setStoredScore(KEY1, SCORE1), 0.0);
-        assertEquals("No previous stored score", junk.setStoredScore(KEY2, SCORE1), 0.0);
+        assertEquals("No previous stored score", junk.setStoredScore(KEY1, SCORE1), 0.0, 0d);
+        assertEquals("No previous stored score", junk.setStoredScore(KEY2, SCORE1), 0.0, 0d);
     
-        assertEquals("Return the previous stored score", junk.setStoredScore(KEY2, SCORE2), SCORE1);
+        assertEquals("Return the previous stored score", junk.setStoredScore(KEY2, SCORE2), SCORE1, 0d);
     
-        assertEquals("Summarize score", junk.getCompleteStoredScores(), SCORE1 + SCORE2);
+        assertEquals("Summarize score", junk.getCompleteStoredScores(), SCORE1 + SCORE2, 0d);
     
-        assertEquals("Get stored score", junk.getStoredScore(KEY1), SCORE1);
-        assertEquals("Get stored score", junk.getStoredScore(KEY2), SCORE2);
+        assertEquals("Get stored score", junk.getStoredScore(KEY1), SCORE1, 0d);
+        assertEquals("Get stored score", junk.getStoredScore(KEY2), SCORE2, 0d);
     
         assertEquals("Get Map", junk.getStoredScores().size(), 2);
     
-        assertEquals("Reset Score", junk.resetStoredScores(), SCORE1 + SCORE2);
+        assertEquals("Reset Score", junk.resetStoredScores(), SCORE1 + SCORE2, 0d);
      
-        assertEquals("No Score", junk.getCompleteStoredScores(), 0.0);
+        assertEquals("No Score", junk.getCompleteStoredScores(), 0.0, 0d);
         assertEquals("Empty Map", junk.getStoredScores().size(), 0);
     }
     
