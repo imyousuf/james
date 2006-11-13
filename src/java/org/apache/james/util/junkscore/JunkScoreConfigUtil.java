@@ -37,7 +37,7 @@ public class JunkScoreConfigUtil {
      * @return junkScore
      * @throws IllegalArgumentException get thrown on invalid config
      */
-    public static double getJunkScoreConfig(String raw) throws IllegalArgumentException {
+    public static double getJunkScore(String raw) throws IllegalArgumentException {
         double score = 0;
         raw = raw.toLowerCase();
         if (raw.indexOf(JUNKSCORE_DELIMITER) > 0 && raw.startsWith(JUNKSCORE)) {
@@ -61,7 +61,7 @@ public class JunkScoreConfigUtil {
      */
     public static boolean isValidJunkScoreConfig(String raw) {
         try {
-            getJunkScoreConfig(raw);
+            getJunkScore(raw);
         } catch (IllegalArgumentException e){
             return false;
         }
