@@ -34,6 +34,7 @@ import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.avalon.excalibur.pool.Poolable;
 import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.Constants;
 import org.apache.james.imapserver.debug.CopyInputStream;
 import org.apache.james.imapserver.debug.SplitOutputStream;
@@ -53,7 +54,7 @@ public class ImapHandler
 {
 
     private String softwaretype = "JAMES IMAP4rev1 Server " + Constants.SOFTWARE_VERSION;
-    private ImapRequestHandler requestHandler = new ImapRequestHandler();
+    private final ImapRequestHandler requestHandler = new ImapRequestHandler();
     private ImapSession session;
 
     /**
@@ -104,6 +105,14 @@ public class ImapHandler
     
     private boolean handlerIsUp=false;
 
+    /**
+     * @see org.apache.avalon.framework.logger.AbstractLogEnabled#enableLogging(org.apache.avalon.framework.logger.Logger)
+     */
+    public void enableLogging(Logger logger) { 
+        super.enableLogging(logger); 
+        setupLogger(requestHandler); 
+    }
+    
     /**
      * Set the configuration data for the handler.
      *

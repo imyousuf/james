@@ -21,11 +21,11 @@ package org.apache.james.imapserver;
 
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.avalon.excalibur.pool.ObjectFactory;
-import org.apache.avalon.excalibur.pool.Pool;
 import org.apache.avalon.excalibur.pool.Poolable;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.core.AbstractJamesService;
@@ -173,7 +173,11 @@ public class ImapServer extends AbstractJamesService
          */
         public Object newInstance() throws Exception
         {
-            return new ImapHandler();
+            final ImapHandler imapHandler = new ImapHandler(); 
+            final Logger logger = getLogger(); 
+            logger.debug("Create handler instance"); 
+            setupLogger(imapHandler); 
+            return imapHandler; 
         }
 
         /**

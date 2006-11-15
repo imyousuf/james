@@ -19,6 +19,7 @@
 
 package org.apache.james.imapserver.commands;
 
+import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
@@ -55,12 +56,20 @@ class StatusCommand extends AuthenticatedStateCommand
         StatusDataItems statusDataItems = parser.statusDataItems( request );
         parser.endLine( request );
 
-        ImapMailboxSession mailbox = session.getSelected().getMailbox();
+        final Logger logger = getLogger(); 
 
         StringBuffer buffer = new StringBuffer( mailboxName );
         buffer.append( SP );
         buffer.append( "(" );
         try {
+            String fullMailboxName= session.buildFullName(mailboxName);
+            
+            if (logger.isDebugEnabled()) { 
+                logger.debug("Status called on mailbox named " + mailboxName + " (" + fullMailboxName + ")"); 
+            }
+            
+            ImapMailboxSession mailbox = session.getMailboxManager().getImapMailboxSession(fullMailboxName);
+            
             if (statusDataItems.messages) {
                 buffer.append(MESSAGES);
                 buffer.append(SP);
@@ -98,6 +107,9 @@ class StatusCommand extends AuthenticatedStateCommand
                 buffer.append(SP);
             }
         } catch (MailboxManagerException e) {
+            if (logger.isDebugEnabled()) { 
+                logger.debug("STATUS command failed: ", e); 
+            }
             throw new MailboxException(e);
         }
         if ( buffer.charAt( buffer.length() - 1 ) == ' ' ) {
