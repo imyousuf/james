@@ -368,7 +368,7 @@ processor.</p>
       This mailet can produce listserver, forward and notify behaviour, with the
       original message intact, attached, appended or left out altogether.<br/>
       This built in functionality is controlled by the configuration as described
-      <a href="javadocs/org/apache/james/transport/mailets/Redirect.html">here</a>.</p>
+      <a href="apidocs/org/apache/james/transport/mailets/Redirect.html">here</a>.</p>
 <p>It is also intended to be easily subclassed to make providing bespoke redirection
     mailets simple. <br/>
     By extending it and overriding one or more of its methods new behaviour can
