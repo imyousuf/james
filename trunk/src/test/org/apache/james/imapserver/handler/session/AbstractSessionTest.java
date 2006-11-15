@@ -56,6 +56,7 @@ import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.GeneralMailboxSession;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
+import org.apache.james.test.mock.avalon.MockLogger;
 import org.jmock.MockObjectTestCase;
 
 public abstract class AbstractSessionTest extends MockObjectTestCase implements TestConstants {
@@ -79,6 +80,7 @@ public abstract class AbstractSessionTest extends MockObjectTestCase implements 
                 theConfigData.getUsersRepository(), new MockImapHandler(),
                 HOST_NAME, HOST_ADDRESS);
         handler = new ImapRequestHandler();
+        handler.enableLogging(new MockLogger());
         mailboxManager=theConfigData.getMailboxManagerProvider().getMailboxManagerInstance(new MockUser());
 
     }

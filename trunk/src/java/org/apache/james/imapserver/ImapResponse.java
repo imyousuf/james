@@ -24,6 +24,8 @@ import java.io.PrintWriter;
 
 import javax.mail.Flags;
 
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.imapserver.commands.ImapCommand;
 import org.apache.james.imapserver.store.MessageFlags;
 import org.apache.james.util.InternetPrintWriter;
@@ -32,8 +34,8 @@ import org.apache.james.util.InternetPrintWriter;
  * Class providing methods to send response messages from the server
  * to the client.
  */
-public class ImapResponse implements ImapConstants
-{
+public class ImapResponse  extends AbstractLogEnabled implements ImapConstants {
+    
     private PrintWriter writer;
     private String tag = UNTAGGED;
 
@@ -113,6 +115,10 @@ public class ImapResponse implements ImapConstants
         message( "failed." );
         message( reason );
         end();
+        final Logger logger = getLogger();
+        if (logger.isInfoEnabled()) {
+            logger.info("COMMAND FAILED [" + responseCode + "] - " + reason);
+        }
     }
 
     /**
@@ -129,6 +135,10 @@ public class ImapResponse implements ImapConstants
         message( BAD );
         message( message );
         end();
+        final Logger logger = getLogger();
+        if (logger.isInfoEnabled()) {
+            logger.info("ERROR - " + message); 
+        }
     }
 
     /**
@@ -140,6 +150,10 @@ public class ImapResponse implements ImapConstants
         message( BAD );
         message( message );
         end();
+        final Logger logger = getLogger(); 
+        if (logger.isInfoEnabled()) { 
+            logger.info("BAD - " + message); 
+        }
     }
 
     /**
