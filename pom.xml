@@ -403,6 +403,12 @@
     </dependency>
 
     <dependency>
+      <groupId>mx4j</groupId>
+      <artifactId>mx4j-jmx</artifactId>
+      <version>1.1.1</version>
+    </dependency>
+
+    <dependency>
       <groupId>torque</groupId>
       <artifactId>torque</artifactId>
       <version>3.2</version>
