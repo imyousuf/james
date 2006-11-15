@@ -531,8 +531,13 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
     }
 
     public MessageResult[] search(GeneralMessageSet set, SearchTerm searchTerm, int result) {
-        // TODO Auto-generated method stub
-        return null;
+        final Log log = getLog();
+        // TODO implementation
+        if (log.isWarnEnabled()) {
+            log.warn("Search is not yet implemented. Sorry.");
+        }
+        MessageResult[] results = {};
+        return results;
     }
 
 }
