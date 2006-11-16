@@ -118,6 +118,14 @@ public abstract class AbstractSessionTest extends MockObjectTestCase implements 
         return uidv;
     }
     
+    
+    public long getUidNext(String folder) throws MailboxManagerException {
+        ImapMailboxSession mailbox=getImapMailboxSession(folder);
+        long uidNext=mailbox.getUidNext();
+        mailbox.close();
+        return uidNext;
+    }
+    
     public MimeMessage[] getMessages(String folder) throws MailboxManagerException {
         GeneralMailboxSession mailbox=getImapMailboxSession(folder);
         MessageResult[] messageResults=mailbox.getMessages(GeneralMessageSetImpl.all(),MessageResult.MIME_MESSAGE);
