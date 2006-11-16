@@ -24,11 +24,15 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.mail.internet.ParseException;
+
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.services.AbstractDNSServer;
 import org.apache.james.services.DNSServer;
 import org.apache.james.smtpserver.core.filter.fastfail.ValidSenderDomainHandler;
 import org.apache.james.test.mock.avalon.MockLogger;
+import org.apache.james.util.junkscore.JunkScore;
+import org.apache.james.util.junkscore.JunkScoreImpl;
 import org.apache.mailet.MailAddress;
 
 import junit.framework.TestCase;
@@ -59,6 +63,7 @@ public class ValidSenderDomainHandlerTest extends TestCase {
     private SMTPSession setupMockedSession(final MailAddress sender) {
         SMTPSession session = new AbstractSMTPSession() {
             HashMap state = new HashMap();
+            boolean processing = false;
             
             public Map getState() {
 
@@ -75,6 +80,14 @@ public class ValidSenderDomainHandlerTest extends TestCase {
                 response = resp;
             }
             
+            public void setStopHandlerProcessing(boolean processing) {
+                this.processing = processing;
+            }
+            
+            public boolean getStopHandlerProcessing() {
+                return processing;
+            }
+            
         };
         return session;
     }
@@ -84,7 +97,7 @@ public class ValidSenderDomainHandlerTest extends TestCase {
     }
     
     // Test for JAMES-580
-    public void testNullSender() {
+    public void testNullSenderNotReject() {
         ValidSenderDomainHandler handler = new ValidSenderDomainHandler();
         ContainerUtil.enableLogging(handler, new MockLogger());
         
@@ -92,5 +105,29 @@ public class ValidSenderDomainHandlerTest extends TestCase {
         handler.onCommand(setupMockedSession(null));
         
         assertNull("Not blocked cause its a nullsender",getResponse());
+    }
+    
+    public void testInvalidSenderDomainAddJunkScore() throws ParseException {
+        ValidSenderDomainHandler handler = new ValidSenderDomainHandler();
+        SMTPSession session = setupMockedSession(new MailAddress("invalid@invalid"));
+        ContainerUtil.enableLogging(handler, new MockLogger());
+        session.getState().put(JunkScore.JUNK_SCORE, new JunkScoreImpl());
+        handler.setAction("JunkScore");
+        handler.setScore(20);
+        handler.setDnsServer(setupDNSServer());
+        handler.onCommand(session);
+        
+        assertNull("Not blocked cause we use JunkScore",getResponse());
+        assertEquals("JunkScore is stored",((JunkScore) session.getState().get(JunkScore.JUNK_SCORE)).getStoredScore("ValidSenderDomainCheck"),20.0,0d);
+    }
+    
+    public void testInvalidSenderDomainReject() throws ParseException {
+        ValidSenderDomainHandler handler = new ValidSenderDomainHandler();
+        SMTPSession session = setupMockedSession(new MailAddress("invalid@invalid"));
+        ContainerUtil.enableLogging(handler, new MockLogger());
+        handler.setDnsServer(setupDNSServer());
+        handler.onCommand(session);
+        
+        assertNotNull("Blocked cause we use reject action",getResponse());
     }
 }

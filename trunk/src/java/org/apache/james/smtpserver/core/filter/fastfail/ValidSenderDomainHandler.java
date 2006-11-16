@@ -34,6 +34,8 @@ import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.services.DNSServer;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.util.junkscore.JunkScore;
+import org.apache.james.util.junkscore.JunkScoreConfigUtil;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.MailAddress;
 
@@ -44,6 +46,10 @@ public class ValidSenderDomainHandler
     private boolean checkAuthClients = false;
     
     private DNSServer dnsServer = null;
+
+    private String action = "reject";
+
+    private double score = 0;
     
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
@@ -54,6 +60,16 @@ public class ValidSenderDomainHandler
         if(configRelay != null) {
             setCheckAuthClients(configRelay.getValueAsBoolean(false));
         }
+        
+        Configuration configAction = handlerConfiguration.getChild("action",false);
+        if(configAction != null) {
+            String configString = configAction.getValue();
+            if (configString.startsWith(JunkScoreConfigUtil.JUNKSCORE)) {
+                setAction(JunkScoreConfigUtil.JUNKSCORE);
+                setScore(JunkScoreConfigUtil.getJunkScore(configAction.getValue()));
+            }
+        }
+        
     }
     
     /**
@@ -81,38 +97,70 @@ public class ValidSenderDomainHandler
         this.checkAuthClients = checkAuthClients;
     }
     
+    /**
+     * Set the Action which should be taken if the mail from has no valid domain.
+     * Supported are: junkScore and reject
+     * 
+     * @param action the action
+     */
+    public void setAction(String action) {
+        this.action = action.toLowerCase();
+    }
+    
+    /**
+     * Set the score which will get added to the JunkScore object if the action is junkScore andt the sender has no valid domain
+     * 
+     * @param score the score
+     */
+    public void setScore(double score) {
+        this.score = score;
+    }
+    
 
     /**
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
     public void onCommand(SMTPSession session) {
-        
-       String responseString = null;
+        boolean match = checkRBL(session);
+        if (match == true) {
         MailAddress senderAddress = (MailAddress) session.getState().get(SMTPSession.SENDER);
-        
+
+            if (action.equals(JunkScoreConfigUtil.JUNKSCORE)) {
+                String response = "Sender " + senderAddress + " contains a domain with no valid MX records. Add Junkscore: " + score;
+                getLogger().info(response);
+                JunkScore junk = (JunkScore) session.getState().get(JunkScore.JUNK_SCORE);
+                junk.setStoredScore("ValidSenderDomainCheck", score);
+                 
+            } else {
+                String response = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_SYNTAX_SENDER)+ " sender " + senderAddress + " contains a domain with no valid MX records";
+                getLogger().info(response);
+                session.writeResponse(response);
+                // After this filter match we should not call any other handler!
+                session.setStopHandlerProcessing(true);
+            }
+        } 
+    }
+    
+    private boolean checkRBL(SMTPSession session) {
+        MailAddress senderAddress = (MailAddress) session.getState().get(SMTPSession.SENDER);
+            
         // null sender so return
-        if (senderAddress == null) return;
-        
+        if (senderAddress == null) return false;
+            
         /**
          * don't check if the ip address is allowed to relay. Only check if it is set in the config. 
          */
         if (checkAuthClients || !session.isRelayingAllowed()) {
-
-            // Maybe we should build a static method in org.apache.james.dnsserver.DNSServer ?
             Collection records;
-        
             
+                
             // try to resolv the provided domain in the senderaddress. If it can not resolved do not accept it.
             records = dnsServer.findMXRecords(senderAddress.getHost());
             if (records == null || records.size() == 0) {
-                responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_SYNTAX_SENDER)+ " sender " + senderAddress + " contains a domain with no valid MX records";
-                session.writeResponse(responseString);
-                getLogger().info(responseString);
-                
-                // After this filter match we should not call any other handler!
-                session.setStopHandlerProcessing(true);
+                return true;
             }
         }
+        return false;
     }
     
     /**
