@@ -483,8 +483,9 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
     public synchronized long getUidNext() throws MailboxManagerException {
         checkAccess();
         try {
-            MailboxRow myMailboxRow = MailboxRowPeer.retrieveByPK(mailboxRow.getLastUid());
+            MailboxRow myMailboxRow = MailboxRowPeer.retrieveByPK(mailboxRow.getPrimaryKey());
             if (myMailboxRow != null) {
+                mailboxRow=myMailboxRow;
                 getUidChangeTracker().foundLastUid(mailboxRow.getLastUid());
                 return getUidChangeTracker().getLastUid() + 1;
             } else {
