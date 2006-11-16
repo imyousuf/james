@@ -19,6 +19,8 @@
 
 package org.apache.james.mailboxmanager.manager;
 
+import java.util.Map;
+
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.mailbox.MailboxSession;
 import org.apache.james.services.User;
@@ -52,5 +54,16 @@ public interface MailboxManagerProvider {
      */
     
     void deleteAllUserData(User authUser,User targetUser);
+    
+    
+    /**
+     * key: <b>String</b> - mailbox name <br />
+     * value: <b>Integer</b> - count of open sessions <br />
+     * <br />
+     * useful for testing
+     * @return Map of mailbox name/open session count
+     */
+    
+    Map getOpenMailboxSessionCountMap();
 
 }
