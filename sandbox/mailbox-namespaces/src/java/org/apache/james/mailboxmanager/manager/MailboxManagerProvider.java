@@ -20,6 +20,8 @@
 package org.apache.james.mailboxmanager.manager;
 
 import org.apache.james.mailboxmanager.MailboxManagerException;
+import org.apache.james.mailboxmanager.Namespace;
+import org.apache.james.mailboxmanager.Namespaces;
 import org.apache.james.mailboxmanager.mailbox.MailboxSession;
 import org.apache.james.services.User;
 
@@ -35,13 +37,14 @@ public interface MailboxManagerProvider {
      */
     public void deleteEverything() throws MailboxManagerException;
     
-    MailboxSession getInboxSession(User user);
+    MailboxSession getInboxSession(User user) throws MailboxManagerException;
 
     /** @param authUser the authorized User for checking credentials 
-        @param mailboxName a logical/hierarchical mailbox name **/ 
+        @param mailboxName a logical/hierarchical mailbox name *
+     * @throws MailboxManagerException */ 
 
     MailboxSession getMailboxSession(
-         User authUser, String mailboxName);
+         User authUser, String mailboxName) throws MailboxManagerException;
     
     /**
      * removes all data (mailboxes, quota, acls...) that is associated 
@@ -52,5 +55,26 @@ public interface MailboxManagerProvider {
      */
     
     void deleteAllUserData(User authUser,User targetUser);
+    
+    /**
+     * The Namespaces a user has access to.
+     * @param forUser TODO
+     * @param user
+     * 
+     * @return
+     */
+    Namespaces getNamespaces(User forUser);
+
+    /**
+     * To get the Inbox you can just to a mailbox
+     * defaultNameSpace=ImapMailboxRepository.getPersonalDefaultNameSpace(user)
+     * inbox=defaultNameSpace.getName()+defaultNameSpace.getHierarchyDelimter()+"INBOX";
+     * TODO add a convinience method to get directly a session mailbox for a users inbox
+     * @param forUser TODO
+     * 
+     * @return
+     */
+    Namespace getPersonalDefaultNamespace(User forUser);
+
 
 }

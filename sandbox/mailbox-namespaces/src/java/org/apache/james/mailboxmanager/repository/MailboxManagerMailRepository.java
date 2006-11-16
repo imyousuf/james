@@ -371,7 +371,10 @@ public class MailboxManagerMailRepository extends AbstractMailRepository
             if (open < 1) {
                 if (open == 0) {
                     if (mailbox != null) {
-                        ((MailboxSession) mailbox).close();
+                        try {
+                            ((MailboxSession) mailbox).close();
+                        } catch (MailboxManagerException e) {
+                        }
                         mailbox=null;
                     }
                 } else {
@@ -386,7 +389,7 @@ public class MailboxManagerMailRepository extends AbstractMailRepository
                 throw new RuntimeException("use<1 !");
             }
             if (mailbox == null) {
-                Namespace ns = getMailboxManager().getPersonalDefaultNamespace(
+                Namespace ns = mailboxManagerProvider.getPersonalDefaultNamespace(
                         user);
 
                 String inbox=ns.getName() + ns.getHierarchyDelimter()+ "INBOX";

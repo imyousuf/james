@@ -75,7 +75,7 @@ public class SelectedMailboxSession implements MailboxListener {
     }
     
 
-    public void close()
+    public void close() throws MailboxManagerException
     {
         mailbox.close();
         mailbox=null;

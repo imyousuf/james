@@ -22,13 +22,10 @@ package org.apache.james.mailboxmanager.manager;
 import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.ListResult;
 import org.apache.james.mailboxmanager.MailboxManagerException;
-import org.apache.james.mailboxmanager.Namespace;
-import org.apache.james.mailboxmanager.Namespaces;
 import org.apache.james.mailboxmanager.mailbox.GeneralMailbox;
 import org.apache.james.mailboxmanager.mailbox.GeneralMailboxSession;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 import org.apache.james.mailboxmanager.mailbox.MailboxSession;
-import org.apache.james.services.User;
 
 
 /**
@@ -87,28 +84,6 @@ public interface MailboxManager {
     GeneralMailboxSession getGeneralMailboxSession(String mailboxName) throws MailboxManagerException;
     
     ImapMailboxSession getImapMailboxSession(String mailboxName) throws MailboxManagerException;
-
-    /**
-     * The Namespaces a user has access to.
-     * @param forUser TODO
-     * @param user
-     * 
-     * @return
-     */
-    Namespaces getNamespaces(User forUser);
-
-    /**
-     * To get the Inbox you can just to a mailbox
-     * defaultNameSpace=ImapMailboxRepository.getPersonalDefaultNameSpace(user)
-     * inbox=defaultNameSpace.getName()+defaultNameSpace.getHierarchyDelimter()+"INBOX";
-     * TODO add a convinience method to get directly a session mailbox for a users inbox
-     * @param forUser TODO
-     * 
-     * @return
-     */
-    Namespace getPersonalDefaultNamespace(User forUser);
-    
-    
 
     void createMailbox(String mailboxName) throws MailboxManagerException;
 

@@ -39,9 +39,16 @@
              role="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector" />
   </block>
 
+  <!-- 
   <block name="mailboxmanager" class="org.apache.james.mailboxmanager.torque.TorqueMailboxManagerProvider">
     <provide name="filesystem" role="org.apache.james.services.FileSystem" />
   </block>  
+  -->   
+    
+  <block name="mailboxmanager" class="org.apache.james.mailboxmanager.impl.DefaultMailboxManagerProvider">
+      <provide name="filesystem" role="org.apache.james.services.FileSystem" />
+  </block>  
+
     
   <!-- The James Spool Manager block  -->
   <block name="spoolmanager" class="org.apache.james.transport.JamesSpoolManager" >

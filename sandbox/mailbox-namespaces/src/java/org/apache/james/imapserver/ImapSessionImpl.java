@@ -181,10 +181,13 @@ public final class ImapSessionImpl implements ImapSession, ImapConstants
         return this.state;
     }
 
-    public void closeMailbox()
+    public void closeMailbox() 
     {
         if (selectedMailbox != null) {
-            selectedMailbox.close();
+            try {
+                selectedMailbox.close();
+            } catch (MailboxManagerException e) {
+            }
             selectedMailbox=null;
         }
         
@@ -212,7 +215,7 @@ public final class ImapSessionImpl implements ImapSession, ImapConstants
 
     public String buildFullName(String mailboxName) throws MailboxManagerException {
         if (!mailboxName.startsWith(NAMESPACE_PREFIX)) {
-            mailboxName = getMailboxManager().getPersonalDefaultNamespace(user).getName()+HIERARCHY_DELIMITER+mailboxName;
+            mailboxName = mailboxManagerProvider.getPersonalDefaultNamespace(user).getName()+HIERARCHY_DELIMITER+mailboxName;
         }
         return mailboxName;
     }
