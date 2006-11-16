@@ -27,12 +27,12 @@ import java.util.Collection;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.util.junkscore.JunkScore;
 import org.apache.james.util.mail.dsn.DSNStatus;
 
-public class MaxRcptHandler extends AbstractLogEnabled implements
+public class MaxRcptHandler extends AbstractActionHandler implements
         CommandHandler, Configurable {
 
     private int maxRcpt = 0;
@@ -50,6 +50,8 @@ public class MaxRcptHandler extends AbstractLogEnabled implements
             throw new ConfigurationException(
                     "Please set the maxRcpt configuration value");
         }
+        
+        super.configure(handlerConfiguration);
     }
 
     /**
@@ -66,23 +68,7 @@ public class MaxRcptHandler extends AbstractLogEnabled implements
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
     public void onCommand(SMTPSession session) {
-        String responseString = null;
-        int rcptCount = 0;
-
-        rcptCount = session.getRcptCount() + 1;
-
-        // check if the max recipients has reached
-        if (rcptCount > maxRcpt) {
-            responseString = "452 "
-                    + DSNStatus.getStatus(DSNStatus.NETWORK,
-                            DSNStatus.DELIVERY_TOO_MANY_REC)
-                    + " Requested action not taken: max recipients reached";
-            session.writeResponse(responseString);
-            getLogger().error(responseString);
-
-            // After this filter match we should not call any other handler!
-            session.setStopHandlerProcessing(true);
-        }
+        doProcessing(session);
     }
     
     /**
@@ -93,6 +79,53 @@ public class MaxRcptHandler extends AbstractLogEnabled implements
         implCommands.add("RCPT");
         
         return implCommands;
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractActionHandler#check(org.apache.james.smtpserver.SMTPSession)
+     */
+    protected boolean check(SMTPSession session) {
+        // check if the max recipients has reached
+        return ((session.getRcptCount() + 1) > maxRcpt);
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractActionHandler#getJunkScoreLogString(org.apache.james.smtpserver.SMTPSession)
+     */
+    protected String getJunkScoreLogString(SMTPSession session) {
+        return "Maximum recipients of " + maxRcpt + " reached. Add JunkScore: " +getScore();
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractActionHandler#getRejectLogString(org.apache.james.smtpserver.SMTPSession)
+     */
+    protected String getRejectLogString(SMTPSession session) {
+        return getResponseString(session);
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractActionHandler#getResponseString(org.apache.james.smtpserver.SMTPSession)
+     */
+    protected String getResponseString(SMTPSession session) {
+        String responseString = "452 "
+            + DSNStatus.getStatus(DSNStatus.NETWORK,
+                    DSNStatus.DELIVERY_TOO_MANY_REC)
+            + " Requested action not taken: max recipients reached";
+        return responseString;
+    }
+    
+    /**
+     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractActionHandler#getScoreName()
+     */
+    protected String getScoreName() {
+        return "MaxRcptCheck";
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractActionHandler#getJunkScore()
+     */
+    protected JunkScore getJunkScore(SMTPSession session) {
+        return (JunkScore) session.getState().get(JunkScore.JUNK_SCORE);
     }
 
 }

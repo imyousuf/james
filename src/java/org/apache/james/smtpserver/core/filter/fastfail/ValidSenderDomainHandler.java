@@ -27,7 +27,6 @@ import java.util.Collection;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
@@ -35,21 +34,17 @@ import org.apache.james.services.DNSServer;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.junkscore.JunkScore;
-import org.apache.james.util.junkscore.JunkScoreConfigUtil;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.MailAddress;
 
 public class ValidSenderDomainHandler
-    extends AbstractLogEnabled
+    extends AbstractActionHandler
     implements CommandHandler, Configurable, Serviceable {
     
     private boolean checkAuthClients = false;
     
     private DNSServer dnsServer = null;
 
-    private String action = "reject";
-
-    private double score = 0;
     
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
@@ -61,15 +56,7 @@ public class ValidSenderDomainHandler
             setCheckAuthClients(configRelay.getValueAsBoolean(false));
         }
         
-        Configuration configAction = handlerConfiguration.getChild("action",false);
-        if(configAction != null) {
-            String configString = configAction.getValue();
-            if (configString.startsWith(JunkScoreConfigUtil.JUNKSCORE)) {
-                setAction(JunkScoreConfigUtil.JUNKSCORE);
-                setScore(JunkScoreConfigUtil.getJunkScore(configAction.getValue()));
-            }
-        }
-        
+        super.configure(handlerConfiguration);
     }
     
     /**
@@ -98,50 +85,16 @@ public class ValidSenderDomainHandler
     }
     
     /**
-     * Set the Action which should be taken if the mail from has no valid domain.
-     * Supported are: junkScore and reject
-     * 
-     * @param action the action
-     */
-    public void setAction(String action) {
-        this.action = action.toLowerCase();
-    }
-    
-    /**
-     * Set the score which will get added to the JunkScore object if the action is junkScore andt the sender has no valid domain
-     * 
-     * @param score the score
-     */
-    public void setScore(double score) {
-        this.score = score;
-    }
-    
-
-    /**
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
     public void onCommand(SMTPSession session) {
-        boolean match = checkRBL(session);
-        if (match == true) {
-        MailAddress senderAddress = (MailAddress) session.getState().get(SMTPSession.SENDER);
-
-            if (action.equals(JunkScoreConfigUtil.JUNKSCORE)) {
-                String response = "Sender " + senderAddress + " contains a domain with no valid MX records. Add Junkscore: " + score;
-                getLogger().info(response);
-                JunkScore junk = (JunkScore) session.getState().get(JunkScore.JUNK_SCORE);
-                junk.setStoredScore("ValidSenderDomainCheck", score);
-                 
-            } else {
-                String response = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_SYNTAX_SENDER)+ " sender " + senderAddress + " contains a domain with no valid MX records";
-                getLogger().info(response);
-                session.writeResponse(response);
-                // After this filter match we should not call any other handler!
-                session.setStopHandlerProcessing(true);
-            }
-        } 
+        doProcessing(session);
     }
     
-    private boolean checkRBL(SMTPSession session) {
+    /**
+     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractActionHandler#check(org.apache.james.smtpserver.SMTPSession)
+     */
+    protected boolean check(SMTPSession session) {
         MailAddress senderAddress = (MailAddress) session.getState().get(SMTPSession.SENDER);
             
         // null sender so return
@@ -171,5 +124,44 @@ public class ValidSenderDomainHandler
         implCommands.add("MAIL");
         
         return implCommands;
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractActionHandler#getJunkScoreLogString(org.apache.james.smtpserver.SMTPSession)
+     */
+    protected String getJunkScoreLogString(SMTPSession session) {
+       MailAddress senderAddress = (MailAddress) session.getState().get(SMTPSession.SENDER);
+        String response = "Sender " + senderAddress + " contains a domain with no valid MX records. Add Junkscore: " + getScore();
+        return response;
+    }
+    
+    /**
+     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractActionHandler#getRejectLogString(org.apache.james.smtpserver.SMTPSession)
+     */
+    protected String getRejectLogString(SMTPSession session) {
+        return getResponseString(session);
+    }
+    
+    /**
+     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractActionHandler#getResponseString(org.apache.james.smtpserver.SMTPSession)
+     */
+    protected String getResponseString(SMTPSession session) {
+        MailAddress senderAddress = (MailAddress) session.getState().get(SMTPSession.SENDER);
+        String response = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_SYNTAX_SENDER)+ " sender " + senderAddress + " contains a domain with no valid MX records";
+        return response;
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractActionHandler#getScoreName()
+     */
+    protected String getScoreName() {
+        return "ValidSenderDomainCheck";
+    }
+    
+    /**
+     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractActionHandler#getJunkScore()
+     */
+    protected JunkScore getJunkScore(SMTPSession session) {
+        return (JunkScore) session.getState().get(JunkScore.JUNK_SCORE);
     }
 }
