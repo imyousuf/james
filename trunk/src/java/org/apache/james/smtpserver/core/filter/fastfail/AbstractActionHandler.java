@@ -93,14 +93,14 @@ public abstract class AbstractActionHandler extends AbstractLogEnabled implement
     }
     
     /**
-     * Process the checking
-     * 
-     * @param session the SMTPSession
+     * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
-    protected void doProcessing(SMTPSession session) {
+    public void onCommand(SMTPSession session) {
         if (check(session)) {
             if (getAction().equals(JunkScoreConfigUtil.JUNKSCORE)) {
-                getLogger().info(getJunkScoreLogString(session));
+                if (getLogger().isInfoEnabled()) {
+                    getLogger().info(getJunkScoreLogString(session)+" Add Junkscore: " + getScore());
+                }
                 JunkScore junk = getJunkScore(session);
                 junk.setStoredScore(getScoreName(), getScore());
                  
@@ -157,5 +157,7 @@ public abstract class AbstractActionHandler extends AbstractLogEnabled implement
      * 
      * @return junkScore
      */
-    protected abstract JunkScore getJunkScore(SMTPSession session);
+    protected JunkScore getJunkScore(SMTPSession session) {
+        return (JunkScore) session.getState().get(JunkScore.JUNK_SCORE);
+    }
 }

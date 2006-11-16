@@ -33,7 +33,6 @@ import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.services.DNSServer;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
-import org.apache.james.util.junkscore.JunkScore;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.MailAddress;
 
@@ -85,13 +84,6 @@ public class ValidSenderDomainHandler
     }
     
     /**
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
-     */
-    public void onCommand(SMTPSession session) {
-        doProcessing(session);
-    }
-    
-    /**
      * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractActionHandler#check(org.apache.james.smtpserver.SMTPSession)
      */
     protected boolean check(SMTPSession session) {
@@ -104,11 +96,8 @@ public class ValidSenderDomainHandler
          * don't check if the ip address is allowed to relay. Only check if it is set in the config. 
          */
         if (checkAuthClients || !session.isRelayingAllowed()) {
-            Collection records;
-            
-                
             // try to resolv the provided domain in the senderaddress. If it can not resolved do not accept it.
-            records = dnsServer.findMXRecords(senderAddress.getHost());
+            Collection records = dnsServer.findMXRecords(senderAddress.getHost());
             if (records == null || records.size() == 0) {
                 return true;
             }
@@ -130,8 +119,8 @@ public class ValidSenderDomainHandler
      * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractActionHandler#getJunkScoreLogString(org.apache.james.smtpserver.SMTPSession)
      */
     protected String getJunkScoreLogString(SMTPSession session) {
-       MailAddress senderAddress = (MailAddress) session.getState().get(SMTPSession.SENDER);
-        String response = "Sender " + senderAddress + " contains a domain with no valid MX records. Add Junkscore: " + getScore();
+        MailAddress senderAddress = (MailAddress) session.getState().get(SMTPSession.SENDER);
+        String response = "Sender " + senderAddress + " contains a domain with no valid MX records.";
         return response;
     }
     
@@ -156,12 +145,5 @@ public class ValidSenderDomainHandler
      */
     protected String getScoreName() {
         return "ValidSenderDomainCheck";
-    }
-    
-    /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractActionHandler#getJunkScore()
-     */
-    protected JunkScore getJunkScore(SMTPSession session) {
-        return (JunkScore) session.getState().get(JunkScore.JUNK_SCORE);
     }
 }
