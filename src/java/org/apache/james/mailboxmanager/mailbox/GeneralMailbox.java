@@ -27,7 +27,7 @@ import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 
-public interface GeneralMailbox extends Mailbox {
+public interface GeneralMailbox extends Mailbox, EventTriggerMailbox {
     
     /**
      * 
