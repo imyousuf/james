@@ -48,6 +48,7 @@ import org.apache.james.util.watchdog.ThreadPerWatchdogFactory;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogFactory;
 
+import java.net.BindException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.UnknownHostException;
@@ -409,6 +410,41 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
     }
 
     private void initializeServerSocket(SocketManager socketManager) throws Exception {
+        try {
+            initializeServerSocketWorker(socketManager);
+        } catch (BindException e) {
+            // handle a common exception and give detailed error message
+            String errorMessage = getBindingErrorMessage(e);
+            System.out.println("------------------------------");
+            System.out.println(errorMessage);
+            System.out.println("------------------------------");
+            getLogger().fatalError(errorMessage);
+            throw e;
+        }       
+    }
+     
+    private String getBindingErrorMessage(BindException e) {
+        // general info about binding error
+        StringBuffer errorMessage = new StringBuffer();
+        errorMessage.append("FATAL ERROR when starting service '").append(getServiceType()).append("'! ");
+        errorMessage.append("could not bind to ");
+        errorMessage.append(bindTo == null ? "0.0.0.0" : bindTo.toString());
+        errorMessage.append(":").append(port).append(". ");
+        
+        // try to deliver more specific information 
+        if (e.getMessage().indexOf("Address already in use") != -1) {
+            errorMessage.append("Port is already exclusively in use by another application.");
+        } else if (e.getMessage().indexOf("Permission denied") != -1) {
+            errorMessage.append("The user account James is running under has not enough privileges to bind to this ");
+            if (port < 1024) errorMessage.append("privileged ");
+            errorMessage.append("port.");
+        } else {
+            errorMessage.append(e.getMessage());
+        }
+        return errorMessage.toString();
+    }
+
+    private void initializeServerSocketWorker(SocketManager socketManager) throws Exception {
         ServerSocketFactory factory = socketManager.getServerSocketFactory(serverSocketType);
         ServerSocket serverSocket = factory.createServerSocket(port, backlog, bindTo);
 
