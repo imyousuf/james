@@ -133,6 +133,13 @@ public abstract class AbstractImapMailboxSelfTestCase extends TestCase {
         checkMessageResults(new long[] {1,8,10},new int[] {1,2,3},getResult5);
     }
     
+    public void testGetUidNext() throws MessagingException {
+        assertEquals(1, mailbox.getUidNext());
+        MessageResult mr=mailbox.appendMessage(TestUtil.createMessage(), new Date(), MessageResult.UID | MessageResult.MSN);
+        assertEquals(1,mr.getUid());
+        assertEquals(2, mailbox.getUidNext());
+    }
+    
     public void testAddedEvents() throws MailboxManagerException, MessagingException {
         assertEquals(0,mailbox.getFlagEvents(false).length);
         MessageResult mr=mailbox.appendMessage(TestUtil.createMessage(), new Date(), MessageResult.UID | MessageResult.MSN);
@@ -154,7 +161,6 @@ public abstract class AbstractImapMailboxSelfTestCase extends TestCase {
             assertEquals("Uid at pos "+i,uids[i], messageResults[i].getUid());
             assertEquals("Msn at pos "+i,msns[i], messageResults[i].getMsn());
         }
-        
     }
 
 }
