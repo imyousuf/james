@@ -29,7 +29,6 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
-import org.apache.james.util.junkscore.JunkScore;
 import org.apache.james.util.mail.dsn.DSNStatus;
 
 public class MaxRcptHandler extends AbstractActionHandler implements
@@ -65,13 +64,6 @@ public class MaxRcptHandler extends AbstractActionHandler implements
     }
 
     /**
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
-     */
-    public void onCommand(SMTPSession session) {
-        doProcessing(session);
-    }
-    
-    /**
      * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
      */
     public Collection getImplCommands() {
@@ -93,7 +85,7 @@ public class MaxRcptHandler extends AbstractActionHandler implements
      * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractActionHandler#getJunkScoreLogString(org.apache.james.smtpserver.SMTPSession)
      */
     protected String getJunkScoreLogString(SMTPSession session) {
-        return "Maximum recipients of " + maxRcpt + " reached. Add JunkScore: " +getScore();
+        return "Maximum recipients of " + maxRcpt + " reached.";
     }
 
     /**
@@ -119,13 +111,6 @@ public class MaxRcptHandler extends AbstractActionHandler implements
      */
     protected String getScoreName() {
         return "MaxRcptCheck";
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractActionHandler#getJunkScore()
-     */
-    protected JunkScore getJunkScore(SMTPSession session) {
-        return (JunkScore) session.getState().get(JunkScore.JUNK_SCORE);
     }
 
 }
