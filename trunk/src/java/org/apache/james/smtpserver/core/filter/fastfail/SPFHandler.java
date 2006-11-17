@@ -25,10 +25,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.jspf.SPF;
 import org.apache.james.jspf.SPF1Utils;
 import org.apache.james.jspf.SPFResult;
@@ -52,8 +50,8 @@ import org.apache.mailet.MailAddress;
  * &lt;checkAuthNetworks&gt;false&lt/checkAuthNetworks&gt; 
  * &lt;/handler&gt;
  */
-public class SPFHandler extends AbstractLogEnabled implements CommandHandler,
-        MessageHandler, Configurable,Initializable {
+public class SPFHandler extends AbstractJunkHandler implements CommandHandler,
+        MessageHandler,Initializable {
 
     public static final String SPF_BLOCKLISTED = "SPF_BLOCKLISTED";
 
@@ -101,6 +99,8 @@ public class SPFHandler extends AbstractLogEnabled implements CommandHandler,
         if (configRelay != null) {
             setCheckAuthNetworks(configRelay.getValueAsBoolean(false));
         }
+        
+        super.configure(handlerConfiguration);
 
     }
     
@@ -164,8 +164,7 @@ public class SPFHandler extends AbstractLogEnabled implements CommandHandler,
         if (session.getCommandName().equals("MAIL")) {
             doSPFCheck(session);
         } else if (session.getCommandName().equals("RCPT")) {
-            rejectSession(session);
-
+            doProcessing(session);
         }
     }
 
@@ -230,56 +229,6 @@ public class SPFHandler extends AbstractLogEnabled implements CommandHandler,
     }
 
     /**
-     * Reject the session with the right responseCode
-     * 
-     * @param session
-     *            The SMTPSession
-     */
-    private void rejectSession(SMTPSession session) {
-        MailAddress recipientAddress = (MailAddress) session.getState().get(
-                SMTPSession.CURRENT_RECIPIENT);
-        String blocklisted = (String) session.getState().get(SPF_BLOCKLISTED);
-        String blocklistedDetail = (String) session.getState().get(SPF_DETAIL);
-        String tempBlocklisted = (String) session.getState().get(
-                SPF_TEMPBLOCKLISTED);
-
-        // Check if the recipient is postmaster or abuse..
-        if (recipientAddress != null
-                && (recipientAddress.getUser().equalsIgnoreCase("postmaster")
-                        || recipientAddress.getUser().equalsIgnoreCase("abuse") || ((session
-                        .isAuthRequired() && session.getUser() != null)))) {
-            
-            //remove invalid data
-            session.getState().remove(SPF_BLOCKLISTED);
-            session.getState().remove(SPF_DETAIL);
-            session.getState().remove(SPF_TEMPBLOCKLISTED);
-            session.getState().remove(SPF_HEADER);
-        } else {
-            // Check if session is blocklisted
-            if (blocklisted != null && blocklisted.equals("true")) {
-
-                String responseString = "530 "
-                        + DSNStatus.getStatus(DSNStatus.PERMANENT,
-                                DSNStatus.SECURITY_AUTH) + " "
-                        + blocklistedDetail;
-                session.writeResponse(responseString);
-
-                session.setStopHandlerProcessing(true);
-
-            } else if (tempBlocklisted != null
-                    && tempBlocklisted.equals("true")) {
-                String responseString = "451 "
-                        + DSNStatus.getStatus(DSNStatus.TRANSIENT,
-                                DSNStatus.NETWORK_DIR_SERVER) + " "
-                        + "Temporarily rejected: Problem on SPF lookup";
-                session.writeResponse(responseString);
-                session.setStopHandlerProcessing(true);
-            }
-        }
-
-    }
-
-    /**
      * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
      */
     public Collection getImplCommands() {
@@ -297,9 +246,95 @@ public class SPFHandler extends AbstractLogEnabled implements CommandHandler,
         Mail mail = session.getMail();
 
         // Store the spf header as attribute for later using
-        mail.setAttribute(SPF_HEADER_MAIL_ATTRIBUTE_NAME, (String) session
-                .getState().get(SPF_HEADER));
+        mail.setAttribute(SPF_HEADER_MAIL_ATTRIBUTE_NAME, (String) session.getState().get(SPF_HEADER));
     }
+    
+
+    /**
+     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#check(org.apache.james.smtpserver.SMTPSession)
+     */
+    protected boolean check(SMTPSession session) {
+        MailAddress recipientAddress = (MailAddress) session.getState().get(
+                SMTPSession.CURRENT_RECIPIENT);
+        String blocklisted = (String) session.getState().get(SPF_BLOCKLISTED);
+        String tempBlocklisted = (String) session.getState().get(SPF_TEMPBLOCKLISTED);
+
+        // Check if the recipient is postmaster or abuse..
+        if (recipientAddress != null
+                && (recipientAddress.getUser().equalsIgnoreCase("postmaster")
+                        || recipientAddress.getUser().equalsIgnoreCase("abuse") || ((session
+                        .isAuthRequired() && session.getUser() != null)))) {
+            
+            //remove invalid data
+            session.getState().remove(SPF_BLOCKLISTED);
+            session.getState().remove(SPF_DETAIL);
+            session.getState().remove(SPF_TEMPBLOCKLISTED);
+            session.getState().remove(SPF_HEADER);
+            return false;
+        } else {
+            // Check if session is blocklisted
+            if ((blocklisted != null && blocklisted.equals("true")) || tempBlocklisted != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    /**
+     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getJunkScoreLogString(org.apache.james.smtpserver.SMTPSession)
+     */
+    protected String getJunkScoreLogString(SMTPSession session) {
+        return "Not match SPF-Record. Add junkScore: " + getScore();
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getRejectLogString(org.apache.james.smtpserver.SMTPSession)
+     */
+    protected String getRejectLogString(SMTPSession session) {
+        return "Not match SPF-Record. Reject email";
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getResponseString(org.apache.james.smtpserver.SMTPSession)
+     */
+    protected String getResponseString(SMTPSession session) {
+        String blocklisted = (String) session.getState().get(SPF_BLOCKLISTED);
+        String blocklistedDetail = (String) session.getState().get(SPF_DETAIL);
+        String tempBlocklisted = (String) session.getState().get(
+                SPF_TEMPBLOCKLISTED);
+        String responseString = null;
+        
+        
+        // Check if session is blocklisted
+        if (blocklisted != null && blocklisted.equals("true")) {
+            responseString = "530 "
+                    + DSNStatus.getStatus(DSNStatus.PERMANENT,
+                            DSNStatus.SECURITY_AUTH) + " "
+                    + blocklistedDetail;
+            session.writeResponse(responseString);
+
+            session.setStopHandlerProcessing(true);
+
+        } else if (tempBlocklisted != null
+                && tempBlocklisted.equals("true")) {
+            responseString = "451 "
+                    + DSNStatus.getStatus(DSNStatus.TRANSIENT,
+                            DSNStatus.NETWORK_DIR_SERVER) + " "
+                    + "Temporarily rejected: Problem on SPF lookup";
+            session.writeResponse(responseString);
+            session.setStopHandlerProcessing(true);
+        }
+        return responseString;
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getScoreName()
+     */
+    protected String getScoreName() {
+        return "SPFCheck";
+    }
+    
     
     /**
      * Inner class to provide a wrapper for loggin to avalon
@@ -427,6 +462,6 @@ public class SPFHandler extends AbstractLogEnabled implements CommandHandler,
         public org.apache.james.jspf.core.Logger getChildLogger(String arg0) {
             return new SPFLogger(logger.getChildLogger(arg0));
         }
-        
+
     }
 }

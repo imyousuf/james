@@ -30,6 +30,8 @@ import org.apache.james.jspf.core.DNSService;
 import org.apache.james.smtpserver.core.filter.fastfail.SPFHandler;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.mailet.MockMail;
+import org.apache.james.util.junkscore.JunkScore;
+import org.apache.james.util.junkscore.JunkScoreImpl;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
@@ -476,5 +478,34 @@ public class SPFHandlerTest extends TestCase {
         assertNotNull("Header should present", mockedSMTPSession.getState()
                 .get(SPFHandler.SPF_HEADER));
         assertFalse(mockedSMTPSession.getStopHandlerProcessing());
+    }
+    
+    public void testSPFfailAddJunkScore() throws Exception {
+        setupMockedSMTPSession("192.168.100.1", "spf2.james.apache.org",
+                new MailAddress("test@spf2.james.apache.org"), new MailAddress(
+                        "test@localhost"));
+        mockedSMTPSession.getState().put(JunkScore.JUNK_SCORE, new JunkScoreImpl());
+        
+        SPFHandler spf = new SPFHandler();
+
+        ContainerUtil.enableLogging(spf, new MockLogger());
+        spf.setAction("junkScore");
+        spf.setScore(20);
+        spf.setDNSService(mockedDnsService);     
+        
+        spf.initialize();
+
+        runHandlers(spf, mockedSMTPSession);
+
+        assertNotNull("reject", mockedSMTPSession.getState().get(
+                SPFHandler.SPF_BLOCKLISTED));
+        assertNotNull("blocked", mockedSMTPSession.getState().get(
+                SPFHandler.SPF_DETAIL));
+        assertNull("No tempError", mockedSMTPSession.getState().get(
+                SPFHandler.SPF_TEMPBLOCKLISTED));
+        assertNotNull("Header should present", mockedSMTPSession.getState()
+                .get(SPFHandler.SPF_HEADER));
+        assertFalse("Not stopped", mockedSMTPSession.getStopHandlerProcessing());
+        assertEquals("Score added",((JunkScore) mockedSMTPSession.getState().get(JunkScore.JUNK_SCORE)).getStoredScore("SPFCheck"), 20.0, 0d);
     }
 }
