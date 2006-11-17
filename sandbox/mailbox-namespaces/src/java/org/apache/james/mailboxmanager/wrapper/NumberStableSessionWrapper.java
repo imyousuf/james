@@ -35,7 +35,6 @@ import org.apache.james.mailboxmanager.impl.MailboxEventDispatcher;
 import org.apache.james.mailboxmanager.impl.MessageResultImpl;
 import org.apache.james.mailboxmanager.mailbox.AbstractGeneralMailbox;
 import org.apache.james.mailboxmanager.mailbox.EventQueueingSessionMailbox;
-import org.apache.james.mailboxmanager.mailbox.EventTriggerMailbox;
 import org.apache.james.mailboxmanager.mailbox.GeneralMailbox;
 
 public abstract class NumberStableSessionWrapper extends AbstractGeneralMailbox implements EventQueueingSessionMailbox,
@@ -51,11 +50,23 @@ public abstract class NumberStableSessionWrapper extends AbstractGeneralMailbox 
 
     private MailboxEventDispatcher eventDispatcher = new MailboxEventDispatcher();
     
+    
+    public NumberStableSessionWrapper() {
+    }
+    
     public NumberStableSessionWrapper(GeneralMailbox generalMailbox) throws MailboxManagerException {
+        setMailbox(generalMailbox);
+        init();
+    }
+    
+    public void setMailbox(GeneralMailbox generalMailbox) {
         this.mailbox=generalMailbox;
-        ((EventTriggerMailbox)mailbox).addListener(eventDispatcher, MessageResult.UID);
+    }
+
+    public void init() throws MailboxManagerException {
+        mailbox.addListener(eventDispatcher, MessageResult.UID);
         getNumberCache();
-        eventDispatcher.addMailboxListener(this);
+        eventDispatcher.addMailboxListener(this);        
     }
 
     protected UidToMsnBidiMap getNumberCache() throws MailboxManagerException {
@@ -182,6 +193,20 @@ public abstract class NumberStableSessionWrapper extends AbstractGeneralMailbox 
 
     public void removeListener(MailboxListener listener) {
         eventDispatcher.removeMailboxListener(listener);
+    }
+    
+    public void close() {
+        mailbox.removeListener(eventDispatcher);
+        mailbox=null;
+    }
+    
+    /**
+     * for testing
+     * @return the listener this class uses to subscribe to Mailbox events
+     */
+    
+    MailboxListener getListenerObject() {
+        return eventDispatcher;
     }
 
 }

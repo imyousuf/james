@@ -137,6 +137,9 @@ if [ "$PHOENIX_SECURE" != "false" ] ; then
   JVM_OPTS="$JVM_OPTS -Djava.security.manager"
 fi
 
+# Make sure we don't run with a never expiring cache for InetAddress
+PHOENIX_JVM_OPTS="$PHOENIX_JVM_OPTS -Dsun.net.inetaddr.ttl=10"
+
 # change to the bin directory
 cd $PHOENIX_HOME/bin
 

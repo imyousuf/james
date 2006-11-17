@@ -89,6 +89,11 @@ public class DNSServer
      * The DNS servers to be used by this service
      */
     private List dnsServers = new ArrayList();
+    
+    /**
+     * The search paths to be used
+     */
+    private Name[] searchPaths = null;
 
     /**
      * The MX Comparator used in the MX sort.
@@ -100,6 +105,12 @@ public class DNSServer
      * when looking up SMTPServers
      */
     private boolean singleIPPerMX;
+    
+    /**
+     * If true register this service as the default resolver/cache for DNSJava static
+     * calls
+     */
+    private boolean setAsDNSJavaDefault;
 
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
@@ -110,6 +121,7 @@ public class DNSServer
         final boolean autodiscover =
             configuration.getChild( "autodiscover" ).getValueAsBoolean( true );
 
+        List sPaths = new ArrayList();
         if (autodiscover) {
             getLogger().info("Autodiscovery is enabled - trying to discover your system's DNS Servers");
             String[] serversArray = ResolverConfig.getCurrentConfig().servers();
@@ -119,9 +131,21 @@ public class DNSServer
                     getLogger().info("Adding autodiscovered server " + serversArray[i]);
                 }
             }
+            Name[] systemSearchPath = ResolverConfig.getCurrentConfig().searchPath();
+            if (systemSearchPath != null && systemSearchPath.length > 0) {
+                sPaths.addAll(Arrays.asList(systemSearchPath));
+            }
+            if (getLogger().isInfoEnabled()) {
+                for (Iterator i = sPaths.iterator(); i.hasNext();) {
+                    Name searchPath = (Name) i.next();
+                    getLogger().info("Adding autodiscovered search path " + searchPath.toString());
+                }
+            }
         }
 
         singleIPPerMX = configuration.getChild( "singleIPperMX" ).getValueAsBoolean( false ); 
+
+        setAsDNSJavaDefault = configuration.getChild( "setAsDNSJavaDefault" ).getValueAsBoolean( true );
         
         // Get the DNS servers that this service will use for lookups
         final Configuration serversConfiguration = configuration.getChild( "servers" );
@@ -131,6 +155,21 @@ public class DNSServer
         for ( int i = 0; i < serverConfigurations.length; i++ ) {
             dnsServers.add( serverConfigurations[ i ].getValue() );
         }
+
+        // Get the DNS servers that this service will use for lookups
+        final Configuration searchPathsConfiguration = configuration.getChild( "searchpaths" );
+        final Configuration[] searchPathsConfigurations =
+            searchPathsConfiguration.getChildren( "searchpath" );
+
+        for ( int i = 0; i < searchPathsConfigurations.length; i++ ) {
+            try {
+                sPaths.add( Name.fromString(searchPathsConfigurations[ i ].getValue()) );
+            } catch (TextParseException e) {
+                throw new ConfigurationException("Unable to parse searchpath host: "+searchPathsConfigurations[ i ].getValue(),e);
+            }
+        }
+        
+        searchPaths = (Name[]) sPaths.toArray(new Name[0]);
 
         if (dnsServers.isEmpty()) {
             getLogger().info("No DNS servers have been specified or found by autodiscovery - adding 127.0.0.1");
@@ -174,7 +213,6 @@ public class DNSServer
 
         try {
             resolver = new ExtendedResolver( serversArray );
-            Lookup.setDefaultResolver(resolver);
         } catch (UnknownHostException uhe) {
             getLogger().fatalError("DNS service could not be initialized.  The DNS servers specified are not recognized hosts.", uhe);
             throw uhe;
@@ -182,7 +220,13 @@ public class DNSServer
 
         cache = new Cache (DClass.IN);
         cache.setMaxEntries(maxCacheSize);
-        Lookup.setDefaultCache(cache, DClass.IN);
+        
+        if (setAsDNSJavaDefault) {
+            Lookup.setDefaultResolver(resolver);
+            Lookup.setDefaultCache(cache, DClass.IN);
+            Lookup.setDefaultSearchPath(searchPaths);
+            getLogger().info("Registered cache, resolver and search paths as DNSJava defaults");
+        }
         
         getLogger().debug("DNSServer ...init end");
     }
@@ -194,6 +238,15 @@ public class DNSServer
      */
     public String[] getDNSServers() {
         return (String[])dnsServers.toArray(new String[0]);
+    }
+
+    /**
+     * <p>Return the list of DNS servers in use by this service</p>
+     *
+     * @return an array of DNS server names
+     */
+    public Name[] getSearchPaths() {
+        return searchPaths;
     }
 
     
@@ -279,6 +332,7 @@ public class DNSServer
             l.setCache(cache);
             l.setResolver(resolver);
             l.setCredibility(dnsCredibility);
+            l.setSearchPath(searchPaths);
             return l.run();
             // return rawDNSLookup(name, false, type, typeDesc);
         } catch (TextParseException tpe) {
@@ -467,13 +521,16 @@ public class DNSServer
      * @see org.apache.james.services.DNSServer#getHostName(java.net.InetAddress)
      */
     public String getHostName(InetAddress addr){
+        String result = null;
         Name name = ReverseMap.fromAddress(addr);
         Record [] records = lookup(name.toString(), Type.PTR, "PTR");
         if (records == null) {
-            addr.getHostAddress();
+            result = addr.getHostAddress();
+        } else {
+            PTRRecord ptr = (PTRRecord) records[0];
+            result = ptr.getTarget().toString();
         }
-        PTRRecord ptr = (PTRRecord) records[0];
-        return ptr.getTarget().toString();
+        return result;
     }
 
     /**

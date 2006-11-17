@@ -48,6 +48,7 @@ import org.apache.james.util.watchdog.ThreadPerWatchdogFactory;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogFactory;
 
+import java.net.BindException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.UnknownHostException;
@@ -181,6 +182,9 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
      * The DNSServer
      */
     private DNSServer dnsServer = null;
+    
+    private boolean connPerIPConfigured = false;
+    private int connPerIP = 0;
 
     public void setConnectionManager(JamesConnectionManager connectionManager) {
         this.connectionManager = connectionManager;
@@ -310,6 +314,29 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
             .append(connectionLimit.intValue())
             .append(" connections.");
         getLogger().info(infoBuffer.toString());
+        
+        String connectionLimitPerIP = conf.getChild("connectionLimitPerIP").getValue(null);
+        if (connectionLimitPerIP != null) {
+            try {
+            connPerIP = new Integer(connectionLimitPerIP).intValue();
+            connPerIPConfigured = true;
+            } catch (NumberFormatException nfe) {
+                getLogger().error("Connection limit per IP value is not properly formatted.", nfe);
+            }
+            if (connPerIP < 0) {
+                getLogger().error("Connection limit per IP value cannot be less than zero.");
+                throw new ConfigurationException("Connection limit value cannot be less than zero.");
+            }
+        } else {
+            connPerIP = connectionManager.getMaximumNumberOfOpenConnectionsPerIP();
+        }
+        infoBuffer = new StringBuffer(128)
+            .append(getServiceType())
+            .append(" will allow a maximum of ")
+            .append(connPerIP)
+            .append(" per IP connections for " +getServiceType());
+        getLogger().info(infoBuffer.toString());
+        
     }
 
     private void configureHelloName(Configuration handlerConfiguration) {
@@ -383,6 +410,41 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
     }
 
     private void initializeServerSocket(SocketManager socketManager) throws Exception {
+        try {
+            initializeServerSocketWorker(socketManager);
+        } catch (BindException e) {
+            // handle a common exception and give detailed error message
+            String errorMessage = getBindingErrorMessage(e);
+            System.out.println("------------------------------");
+            System.out.println(errorMessage);
+            System.out.println("------------------------------");
+            getLogger().fatalError(errorMessage);
+            throw e;
+        }       
+    }
+     
+    private String getBindingErrorMessage(BindException e) {
+        // general info about binding error
+        StringBuffer errorMessage = new StringBuffer();
+        errorMessage.append("FATAL ERROR when starting service '").append(getServiceType()).append("'! ");
+        errorMessage.append("could not bind to ");
+        errorMessage.append(bindTo == null ? "0.0.0.0" : bindTo.toString());
+        errorMessage.append(":").append(port).append(". ");
+        
+        // try to deliver more specific information 
+        if (e.getMessage().indexOf("Address already in use") != -1) {
+            errorMessage.append("Port is already exclusively in use by another application.");
+        } else if (e.getMessage().indexOf("Permission denied") != -1) {
+            errorMessage.append("The user account James is running under has not enough privileges to bind to this ");
+            if (port < 1024) errorMessage.append("privileged ");
+            errorMessage.append("port.");
+        } else {
+            errorMessage.append(e.getMessage());
+        }
+        return errorMessage.toString();
+    }
+
+    private void initializeServerSocketWorker(SocketManager socketManager) throws Exception {
         ServerSocketFactory factory = socketManager.getServerSocketFactory(serverSocketType);
         ServerSocket serverSocket = factory.createServerSocket(port, backlog, bindTo);
 
@@ -401,15 +463,31 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
 
         if ((connectionLimit != null)) {
             if (null != threadPool) {
-                connectionManager.connect(connectionName, serverSocket, this, threadPool, connectionLimit.intValue());
+            if (connPerIPConfigured) {
+                    connectionManager.connect(connectionName, serverSocket, this, threadPool, connectionLimit.intValue(),connPerIP);
             } else {
-                connectionManager.connect(connectionName, serverSocket, this, connectionLimit.intValue()); // default pool
+                connectionManager.connect(connectionName, serverSocket, this, threadPool, connectionLimit.intValue());
+            }
+            } else {
+            if (connPerIPConfigured) {
+                    connectionManager.connect(connectionName, serverSocket, this, connectionLimit.intValue(),connPerIP); // default pool
+                } else {
+                    connectionManager.connect(connectionName, serverSocket, this, connectionLimit.intValue());
+                }
             }
         } else {
             if (null != threadPool) {
-                connectionManager.connect(connectionName, serverSocket, this, threadPool);
+            if (connPerIPConfigured) {
+                    connectionManager.connect(connectionName, serverSocket, this, threadPool);
             } else {
-                connectionManager.connect(connectionName, serverSocket, this); // default pool
+                connectionManager.connect(connectionName, serverSocket, this, threadPool, 0, connPerIP);
+            }
+            } else {
+            if (connPerIPConfigured) {
+                    connectionManager.connect(connectionName, serverSocket, this); // default pool
+            } else {
+                    connectionManager.connect(connectionName, serverSocket, this, 0, connPerIP);
+            }
             }
         }
     }

@@ -8,6 +8,7 @@ import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
 import org.apache.james.services.User;
 import org.apache.james.services.UsersRepository;
+import org.apache.james.test.mock.avalon.MockLogger;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 
@@ -21,6 +22,7 @@ public abstract class AbstractCommandTest extends MockObjectTestCase
 
     public void setUp() {
         handler=new ImapRequestHandler();
+        handler.enableLogging(new MockLogger());
         mockSession = mock ( ImapSession.class);
         mockUsersRepository = mock ( UsersRepository.class );
         mockUser = mock (User.class );

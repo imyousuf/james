@@ -441,7 +441,7 @@
                                   Build all distributions
     ===================================================================
     -->
-    <target name="dist" depends="dist-bin,dist-src,dist-mailet-SDK"/>
+    <target name="dist" depends="clean,run-unit-tests,dist-bin,dist-src,dist-mailet-SDK"/>
 
     <!--
     ===================================================================
@@ -467,7 +467,7 @@
                  excludes="org/apache/mailet/Mailet.class,org/apache/mailet/MailetConfig.class,org/apache/mailet/Mail.class,org/apache/mailet/MailetContext.class,org/apache/mailet/MailAddress.class,org/apache/mailet/MailRepository,org/apache/mailet/SpoolRepository,org/apache/mailet/UserRepository,org/apache/mailet/Datasource,org/apache/mailet/User,org/apache/mailet/MailetException"/>
        
         <!-- Make james jar-->
-        <echo message="Making James Jar (james-${version}.jar)"/>
+        <echo message="Making James Jar (${name}-${version}.jar)"/>
         <jar jarfile="${build.lib}/${name}-${version}.jar" basedir="${build.classes}" manifest="${src.dir}/Manifest.mf">
             <include name="org/apache/james/**"/>
             <include name="*.xml"/>
@@ -487,12 +487,12 @@
         <echo message="Making James Sarfile (james.sar)"/>
       
         <!-- Make sar file-->
-        <sar sarfile="${build.lib}/${name}.sar" config="${conf.dir}/james-config.xml"
+        <sar sarfile="${build.lib}/${sar-name}.sar" config="${conf.dir}/james-config.xml"
                environment="${conf.dir}/james-server.xml" assembly="${conf.dir}/james-assembly.xml">
             <lib dir="${build.lib}/">
                 <include name="mailet-api-${mailet-api-version}.jar"/>
                 <include name="mailet-${mailet-version}.jar"/>
-                <include name="james-${version}.jar"/>         
+                <include name="${name}-${version}.jar"/>         
             </lib>
             <lib dir="${lib.dir}">
                 <include name="${dns.jar}"/>
@@ -571,7 +571,7 @@
         <echo message="Installing James to ${dist.dir}"/>
       
         <!--installs sar into ./dist/ ready to test-->
-        <copy file="${build.lib}/${name}.sar" todir="${dist.dir}/apps"/>
+        <copy file="${build.lib}/${sar-name}.sar" todir="${dist.dir}/apps"/>
       
         <!-- Make mailet.jar-->
         <!-- jar jarfile="${build.lib}/mailet.jar"
@@ -623,7 +623,7 @@
         <property name="dist.binary.dir" value="${dist.dir}/downloads/bin"/>
         <mkdir dir="${dist.binary.dir}"/>
         <!-- Sar only-->
-        <copy file="${dist.dir}/apps/${name}.sar" todir="${dist.binary.dir}"/>
+        <copy file="${dist.dir}/apps/${sar-name}.sar" todir="${dist.binary.dir}"/>
     </target>
 
     <target name="dist-bin" depends="dist-bin-common,dist-bin-phoenix-warn,dist-bin-phoenix"/>
@@ -801,6 +801,31 @@
                 <exclude name="**/AllTests.java"/>
                 <exclude name="**/Abstract*.java"/>
               </fileset>
+            </batchtest>
+        </junit>
+    </target>
+
+    <target name="ensure-test-name" unless="test">
+        <fail message="You must run this target with -Dtest=TestName"/>
+    </target>
+
+    <target name="run-unit-test" depends="compile-unit-tests, ensure-test-name">
+        <echo message="Running A Single James Unit Test"/>
+        <mkdir dir="${build.test}"/>
+        <mkdir dir="${build.test.reports}"/>
+        <junit printsummary="yes" haltonfailure="yes"  >
+            <classpath refid="unittest.class.path"/>
+            <classpath refid="project.class.path"/>
+            <classpath>
+              <pathelement location="${build.test.classes}"/>
+            </classpath>
+        
+            <formatter type="plain"/>
+        
+            <batchtest fork="yes" todir="${build.test.reports}">
+                <fileset dir="${junitjava.dir}">
+                    <include name="**/${test}.java"/>
+                </fileset>
             </batchtest>
         </junit>
     </target>

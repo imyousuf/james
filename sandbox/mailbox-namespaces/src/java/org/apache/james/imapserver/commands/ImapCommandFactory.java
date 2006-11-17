@@ -24,7 +24,7 @@ import java.util.Map;
 
 import org.apache.avalon.framework.CascadingRuntimeException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.logger.LogEnabled;
+import org.apache.avalon.framework.logger.Logger;
 
 /**
  * A factory for ImapCommand instances, provided based on the command name.
@@ -103,10 +103,12 @@ public class ImapCommandFactory
 
     private ImapCommand createCommand( Class commandClass )
     {
+        final Logger logger = getLogger(); 
         try {
             ImapCommand cmd = ( ImapCommand ) commandClass.newInstance();
-            if ( cmd instanceof LogEnabled ) {
-                ( ( LogEnabled ) cmd ).enableLogging( getLogger() );
+            setupLogger(cmd);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Created command " + commandClass); 
             }
             if ( cmd instanceof UidCommand ) {
                 ( ( UidCommand) cmd ).setCommandFactory( this );
@@ -114,6 +116,9 @@ public class ImapCommandFactory
             return cmd;
         }
         catch ( Exception e ) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("Create command instance failed: ", e);
+            }
             throw new CascadingRuntimeException( "Could not create command instance: " + commandClass.getName(), e );
         }
     }

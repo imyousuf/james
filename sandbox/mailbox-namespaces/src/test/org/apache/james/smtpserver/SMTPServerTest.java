@@ -1018,30 +1018,98 @@ public class SMTPServerTest extends TestCase {
 
     }
 
+    /*
+      What we want to see is that for a given connection limit and a
+      given backlog, that connection limit requests are handled, and
+      that up to the backlog number of connections are queued.  More
+      connections than that should error out until space opens up in
+      the queue.
+
+      For example:
+
+        # telnet localhost <m_smtpListenPort>
+        Trying 127.0.0.1...
+        telnet: Unable to connect to remote host: Connection refused
+
+      is the immediate response if the backlog is full.
+    */
+
     public void testConnectionLimitExceeded() throws Exception {
-        m_testConfiguration.setConnectionLimit(1); // allow no more than one connection at a time 
+        final int acceptLimit = 1;
+        final int backlog = 1;
+
+        m_testConfiguration.setConnectionLimit(acceptLimit);   // allow no more than <acceptLimit> connection(s) in the service
+        m_testConfiguration.setConnectionBacklog(backlog);     // allow <backlog> additional connection(s) in the queue
         finishSetUp(m_testConfiguration);
 
-        SMTPClient smtpProtocol1 = new SMTPClient();
-        SMTPClient smtpProtocol2 = new SMTPClient();
-        smtpProtocol1.connect("127.0.0.1", m_smtpListenerPort);
-        assertTrue("first connection taken", smtpProtocol1.isConnected());
+        final SMTPClient[] client = new SMTPClient[acceptLimit];
+        for (int i = 0; i < client.length; i++) {
+            client[i] = new SMTPClient(); // should connect to worker
+            try {
+                client[i].connect("127.0.0.1", m_smtpListenerPort);
+            } catch (Exception _) {
+            }
+            assertTrue("client #" + (i+1) + " established", client[i].isConnected());
+        }
+
+        // Cannot use SMTPClient.  It appears that even though the
+        // client's socket is established, since the client won't be
+        // able to connect to the protocol handler, the connect call
+        // hangs.
+
+        // Different TCP/IP stacks may provide a "grace" margin above
+        // and beyond the specified backlog.  So we won't try to be
+        // precise.  Instead we will compute some upper limit, loop
+        // until we get a connection error (or hit the limit), and
+        // then test for the expected behavior.
+        //
+        // See: http://www.phrack.org/archives/48/P48-13
+        final Socket connection[] = new Socket[Math.max(((backlog * 3) / 2) + 1, backlog + 3)];
+
+        final java.net.SocketAddress server = new java.net.InetSocketAddress("localhost", m_smtpListenerPort);
+
+        for (int i = 0; i < connection.length; i++) {
+            connection[i] = new Socket();
+            try {
+                connection[i].connect(server, 1000);
+            } catch (Exception _) {
+                assertTrue("Accepted connections " + i + " did not meet or exceed backlog of " + backlog + ".", i >= backlog);
+                connection[i] = null; // didn't open, so don't try to close later
+                break; // OK to fail, since we've at least reached the backlog
+            }
+            assertTrue("connection #" + (i+1) + " established", connection[i].isConnected());
+        }
 
         try {
-            smtpProtocol2.connect("127.0.0.1", m_smtpListenerPort);
-            fail("second connection not taken1");
-        } catch (Exception e) {
+            final Socket shouldFail = new Socket();
+            shouldFail.connect(server, 1000);
+            fail("connection # " + (client.length + connection.length + 1) + " did not fail.");
+        } catch (Exception _) {
         }
-        
-        // disconnect the first
-        smtpProtocol1.quit();
-        smtpProtocol1.disconnect();
-        
+
+        client[0].quit();
+        client[0].disconnect();
+
         Thread.sleep(100);
         
-        // now the second should be able to connect
-        smtpProtocol2.connect("127.0.0.1", m_smtpListenerPort);
-        assertTrue(smtpProtocol2.isConnected());
+        // now should be able to connect (backlog)
+        try {
+            final Socket shouldWork = new Socket();
+            shouldWork.connect(server, 1000);
+            assertTrue("Additional connection established after close.", shouldWork.isConnected());
+            shouldWork.close();
+        } catch (Exception e) {
+            fail("Could not establish additional connection after close." + e.getMessage());
+        }
+
+        // close the pending connections first, so that the server doesn't see them
+        for (int i = 0; i < connection.length; i++) if (connection[i] != null) connection[i].close();
+
+        // close the remaining clients
+        for (int i = 1; i < client.length; i++) {
+            client[i].quit();
+            client[i].disconnect();
+        }
     }
     
     // RemoteDelivery tests.

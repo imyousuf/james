@@ -19,6 +19,8 @@
 
 package org.apache.james.mailboxmanager.manager;
 
+import java.util.Map;
+
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.Namespace;
 import org.apache.james.mailboxmanager.Namespaces;
@@ -39,9 +41,11 @@ public interface MailboxManagerProvider {
     
     MailboxSession getInboxSession(User user) throws MailboxManagerException;
 
-    /** @param authUser the authorized User for checking credentials 
-        @param mailboxName a logical/hierarchical mailbox name *
-     * @throws MailboxManagerException */ 
+    /** 
+     *  @param authUser the authorized User for checking credentials 
+     *  @param mailboxName a logical/hierarchical mailbox name *
+     *  @throws MailboxManagerException 
+     */ 
 
     MailboxSession getMailboxSession(
          User authUser, String mailboxName) throws MailboxManagerException;
@@ -76,5 +80,13 @@ public interface MailboxManagerProvider {
      */
     Namespace getPersonalDefaultNamespace(User forUser);
 
-
+    /**
+     * key: <b>String</b> - mailbox name <br />
+     * value: <b>Integer</b> - count of open sessions <br />
+     * <br />
+     * useful for testing
+     * @return Map of mailbox name/open session count
+     */
+    
+    Map getOpenMailboxSessionCountMap();
 }

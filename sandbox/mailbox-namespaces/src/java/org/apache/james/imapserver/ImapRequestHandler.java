@@ -22,6 +22,8 @@ package org.apache.james.imapserver;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.imapserver.commands.CommandParser;
 import org.apache.james.imapserver.commands.ImapCommand;
 import org.apache.james.imapserver.commands.ImapCommandFactory;
@@ -29,12 +31,20 @@ import org.apache.james.imapserver.commands.ImapCommandFactory;
 /**
  * @version $Revision: 109034 $
  */
-public final class ImapRequestHandler
-{
-    private ImapCommandFactory imapCommands = new ImapCommandFactory();
+public final class ImapRequestHandler extends AbstractLogEnabled {
+    
+    private final ImapCommandFactory imapCommands = new ImapCommandFactory();
     private CommandParser parser = new CommandParser();
     private static final String REQUEST_SYNTAX = "Protocol Error: Was expecting <tag SPACE command [arguments]>";
 
+    /**
+     * @see org.apache.avalon.framework.logger.AbstractLogEnabled#enableLogging(org.apache.avalon.framework.logger.Logger)
+     */
+    public void enableLogging(Logger logger) { 
+        super.enableLogging(logger);
+        setupLogger(imapCommands);
+    }
+    
     /**
      * This method parses POP3 commands read off the wire in handleConnection.
      * Actual processing of the command (possibly including additional back and
@@ -59,6 +69,7 @@ public final class ImapRequestHandler
         }
 
         ImapResponse response = new ImapResponse( output );
+        response.enableLogging(getLogger()); 
 
         doProcessRequest( request, response, session );
 
@@ -84,7 +95,11 @@ public final class ImapRequestHandler
             return;
         }
 
-//        System.out.println( "Got <tag>: " + tag );
+        final Logger logger = getLogger(); 
+        if (logger.isDebugEnabled()) { 
+            logger.debug( "Got <tag>: " + tag );
+        }
+        
         response.setTag( tag );
         try {
             commandName = parser.atom( request );
@@ -94,7 +109,10 @@ public final class ImapRequestHandler
             return;
         }
 
-//        System.out.println( "Got <command>: " + commandName );
+        if (logger.isDebugEnabled()) { 
+            logger.debug( "Got <command>: " + commandName); 
+        }
+        
         ImapCommand command = imapCommands.getCommand( commandName );
         if ( command == null )
         {

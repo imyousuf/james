@@ -114,5 +114,51 @@ public interface JamesConnectionManager extends ConnectionManager
                   ConnectionHandlerFactory handlerFactory )
         throws Exception;
     
+    /**
+     * Start managing a connection.
+     * Management involves accepting connections and farming them out to threads
+     * from pool to be handled.
+     *
+     * @param name the name of connection
+     * @param socket the ServerSocket from which to
+     * @param handlerFactory the factory from which to acquire handlers
+     * @param threadPool the thread pool to use
+     * @param maxOpenConnections the maximum number of open connections allowed for this server socket.
+     * @param maxOpenConnectionsPerIP the maximum number of open connections per IP allowed for this server socket.
+     * @throws Exception
+     */
+    void connect( String name,
+            ServerSocket socket,
+            ConnectionHandlerFactory handlerFactory,
+            ThreadPool threadPool,
+            int maxOpenConnections,
+            int maxOpenConnectionsPerIP)
+            throws Exception;
 
+    /**
+     * Start managing a connection.
+     * Management involves accepting connections and farming them out to threads
+     * from pool to be handled.
+     *
+     * @param name the name of connection
+     * @param socket the ServerSocket from which to
+     * @param handlerFactory the factory from which to acquire handlers
+     * @param maxOpenConnections the maximum number of open connections allowed for this server socket.
+     * @param maxOpenConnectionsPerIP the maximum number of open connections per IP allowed for this server socket.
+     * @throws Exception
+     */
+    void connect( String name,
+            ServerSocket socket,
+            ConnectionHandlerFactory handlerFactory,
+            int maxOpenConnections,
+            int maxOpenConnectionsPerIP)
+            throws Exception;
+    
+    /**
+     * Returns the default maximum number of open connections per IP supported by this
+     * SimpleConnectionManager
+     *
+     * @return the maximum number of connections
+     */
+    int getMaximumNumberOfOpenConnectionsPerIP();
 }

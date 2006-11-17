@@ -305,9 +305,4 @@ public class TorqueMailboxManager implements MailboxManager {
         return log;
     }
 
-    public void addMountPoint(String attribute) {
-        // TODO Auto-generated method stub
-        
-    }
-
 }

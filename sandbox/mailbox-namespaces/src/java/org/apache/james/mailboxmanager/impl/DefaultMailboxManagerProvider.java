@@ -19,6 +19,8 @@
 
 package org.apache.james.mailboxmanager.impl;
 
+import java.util.Map;
+
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
@@ -130,6 +132,11 @@ public class DefaultMailboxManagerProvider extends AbstractLogEnabled implements
     public void initialize() throws Exception {
         ContainerUtil.service(mailboxManagerFactory, serviceManager);
         ContainerUtil.initialize(mailboxManagerFactory);
+    }
+
+    public Map getOpenMailboxSessionCountMap() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

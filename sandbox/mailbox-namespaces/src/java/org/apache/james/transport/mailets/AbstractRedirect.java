@@ -44,6 +44,7 @@ import javax.mail.internet.MimeMultipart;
 
 import org.apache.mailet.RFC2822Headers;
 import org.apache.mailet.dates.RFC822DateFormat;
+import org.apache.james.Constants;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageUtil;
 
@@ -982,14 +983,9 @@ public abstract class AbstractRedirect extends GenericMailet {
             // We don't need to use the original Remote Address and Host,
             // and doing so would likely cause a loop with spam detecting
             // matchers.
-            try {
-                newMail.setRemoteAddr(java.net.InetAddress.getLocalHost().getHostAddress());
-                newMail.setRemoteHost(java.net.InetAddress.getLocalHost().getHostName());
-            } catch (java.net.UnknownHostException _) {
-                newMail.setRemoteAddr("127.0.0.1");
-                newMail.setRemoteHost("localhost");
-            }
-    
+            newMail.setRemoteAddr(getMailetContext().getAttribute(Constants.HOSTADDRESS).toString());
+            newMail.setRemoteHost(getMailetContext().getAttribute(Constants.HOSTNAME).toString());
+            
             if (isDebug) {
                 log("New mail - sender: " + newMail.getSender()
                            + ", recipients: " + arrayToString(newMail.getRecipients().toArray())

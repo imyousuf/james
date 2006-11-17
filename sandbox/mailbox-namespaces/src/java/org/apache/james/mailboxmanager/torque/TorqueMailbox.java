@@ -483,8 +483,9 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
     public synchronized long getUidNext() throws MailboxManagerException {
         checkAccess();
         try {
-            MailboxRow myMailboxRow = MailboxRowPeer.retrieveByPK(mailboxRow.getLastUid());
+            MailboxRow myMailboxRow = MailboxRowPeer.retrieveByPK(mailboxRow.getPrimaryKey());
             if (myMailboxRow != null) {
+                mailboxRow=myMailboxRow;
                 getUidChangeTracker().foundLastUid(mailboxRow.getLastUid());
                 return getUidChangeTracker().getLastUid() + 1;
             } else {
@@ -531,8 +532,13 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
     }
 
     public MessageResult[] search(GeneralMessageSet set, SearchTerm searchTerm, int result) {
-        // TODO Auto-generated method stub
-        return null;
+        final Log log = getLog();
+        // TODO implementation
+        if (log.isWarnEnabled()) {
+            log.warn("Search is not yet implemented. Sorry.");
+        }
+        MessageResult[] results = {};
+        return results;
     }
 
 }

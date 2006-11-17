@@ -22,13 +22,13 @@ package org.apache.james.smtpserver.core.filter.fastfail;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.services.DNSServer;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.util.junkscore.JunkScore;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.MailAddress;
 
@@ -39,16 +39,16 @@ import java.util.Collection;
 /**
  * This CommandHandler can be used to reject not resolvable EHLO/HELO
  */
-public class ResolvableEhloHeloHandler extends AbstractLogEnabled implements
+public class ResolvableEhloHeloHandler extends AbstractJunkHandler implements
         CommandHandler, Configurable, Serviceable {
 
     public final static String BAD_EHLO_HELO = "BAD_EHLO_HELO";
 
-    private boolean checkAuthNetworks = false;
+    protected boolean checkAuthNetworks = false;
 
     private boolean checkAuthUsers = false;
 
-    private DNSServer dnsServer = null;
+    protected DNSServer dnsServer = null;
 
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
@@ -66,6 +66,8 @@ public class ResolvableEhloHeloHandler extends AbstractLogEnabled implements
         if (configAuthUser != null) {
             setCheckAuthUsers(configAuthUser.getValueAsBoolean(false));
         }
+        
+        super.configure(handlerConfiguration);
     }
 
     /**
@@ -115,7 +117,7 @@ public class ResolvableEhloHeloHandler extends AbstractLogEnabled implements
                 || command.equals("EHLO")) {
             checkEhloHelo(session, argument);
         } else if (command.equals("RCPT")) {
-            reject(session, argument);
+            doProcessing(session);
         }
     }
 
@@ -127,7 +129,7 @@ public class ResolvableEhloHeloHandler extends AbstractLogEnabled implements
      * @param argument
      *            The argument
      */
-    private void checkEhloHelo(SMTPSession session, String argument) {
+    protected void checkEhloHelo(SMTPSession session, String argument) {
         /**
          * don't check if the ip address is allowed to relay. Only check if it
          * is set in the config.
@@ -143,37 +145,6 @@ public class ResolvableEhloHeloHandler extends AbstractLogEnabled implements
         }
     }
 
-    /**
-     * Reject on invalid EHLO/HELO
-     * 
-     * @param session
-     *            The SMTPSession
-     * @param argument
-     *            The argument
-     */
-    private void reject(SMTPSession session, String argument) {
-        MailAddress rcpt = (MailAddress) session.getState().get(
-                SMTPSession.CURRENT_RECIPIENT);
-
-        // not reject it
-        if (session.getState().get(BAD_EHLO_HELO) == null
-                || rcpt.getUser().equalsIgnoreCase("postmaster")
-                || rcpt.getUser().equalsIgnoreCase("abuse"))
-            return;
-
-        // Check if the client was authenticated
-        if (!(session.isAuthRequired() && session.getUser() != null && !checkAuthUsers)) {
-            String responseString = "501 "
-                    + DSNStatus.getStatus(DSNStatus.PERMANENT,
-                            DSNStatus.DELIVERY_INVALID_ARG)
-                    + " Provided EHLO/HELO " + session.getState().get(SMTPSession.CURRENT_HELO_NAME) + " can not resolved";
-            session.writeResponse(responseString);
-            getLogger().info(responseString);
-
-            // After this filter match we should not call any other handler!
-            session.setStopHandlerProcessing(true);
-        }
-    }
 
     /**
      * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
@@ -185,6 +156,66 @@ public class ResolvableEhloHeloHandler extends AbstractLogEnabled implements
         implCommands.add("RCPT");
 
         return implCommands;
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#check(org.apache.james.smtpserver.SMTPSession)
+     */
+    protected boolean check(SMTPSession session) {
+    
+        MailAddress rcpt = (MailAddress) session.getState().get(
+                SMTPSession.CURRENT_RECIPIENT);
+
+        // not reject it
+        if (session.getState().get(BAD_EHLO_HELO) == null
+                || rcpt.getUser().equalsIgnoreCase("postmaster")
+                || rcpt.getUser().equalsIgnoreCase("abuse"))
+            return false;
+
+        // Check if the client was authenticated
+        if (!(session.isAuthRequired() && session.getUser() != null && !checkAuthUsers)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getJunkScoreLogString(org.apache.james.smtpserver.SMTPSession)
+     */
+    protected String getJunkScoreLogString(SMTPSession session) {
+        return "Provided EHLO/HELO " + session.getState().get(SMTPSession.CURRENT_HELO_NAME) + " can not resolved. Add junkScore: " + getScore();
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getRejectLogString(org.apache.james.smtpserver.SMTPSession)
+     */
+    protected String getRejectLogString(SMTPSession session) {
+        return getResponseString(session);
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getResponseString(org.apache.james.smtpserver.SMTPSession)
+     */
+    protected String getResponseString(SMTPSession session) {
+        String responseString = "501 "
+            + DSNStatus.getStatus(DSNStatus.PERMANENT,
+                    DSNStatus.DELIVERY_INVALID_ARG)
+            + " Provided EHLO/HELO " + session.getState().get(SMTPSession.CURRENT_HELO_NAME) + " can not resolved";
+        return responseString;
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getScoreName()
+     */
+    protected String getScoreName() {
+        return "ResolvableEhloHeloCheck";
+    }
+    
+    /**
+     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getJunkScore(org.apache.james.smtpserver.SMTPSession)
+     */
+    protected JunkScore getJunkScore(SMTPSession session) {
+        return (JunkScore) session.getConnectionState().get(JunkScore.JUNK_SCORE_SESSION);
     }
 
 }
