@@ -28,6 +28,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.mail.internet.ParseException;
+
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
@@ -36,6 +38,9 @@ import org.apache.james.services.AbstractDNSServer;
 import org.apache.james.services.DNSServer;
 import org.apache.james.smtpserver.core.filter.fastfail.DNSRBLHandler;
 import org.apache.james.test.mock.avalon.MockLogger;
+import org.apache.james.util.junkscore.JunkScore;
+import org.apache.james.util.junkscore.JunkScoreImpl;
+import org.apache.mailet.MailAddress;
 
 import junit.framework.TestCase;
 
@@ -117,7 +122,7 @@ public class DNSRBLHandlerTest extends TestCase {
     /**
      * Setup mocked smtpsession
      */
-    private void setupMockedSMTPSession() {
+    private void setupMockedSMTPSession(final MailAddress rcpt) {
         mockedSMTPSession = new AbstractSMTPSession() {
             HashMap state = new HashMap();
             HashMap connectionState = new HashMap();
@@ -128,6 +133,7 @@ public class DNSRBLHandlerTest extends TestCase {
             }
 
             public Map getState() {
+            state.put(SMTPSession.CURRENT_RECIPIENT, rcpt);
                 return state;
             }
 
@@ -163,12 +169,12 @@ public class DNSRBLHandlerTest extends TestCase {
     }
 
     // ip is blacklisted and has txt details
-    public void testBlackListedTextPresent() {
+    public void testBlackListedTextPresent() throws ParseException {
         DNSRBLHandler rbl = new DNSRBLHandler();
 
         ContainerUtil.enableLogging(rbl, new MockLogger());
 
-        setupMockedSMTPSession();
+        setupMockedSMTPSession(new MailAddress("any@domain"));
         rbl.setDNSServer(mockedDnsServer);
 
         rbl.setBlacklist(new String[] { "bl.spamcop.net." });
@@ -180,12 +186,12 @@ public class DNSRBLHandlerTest extends TestCase {
     }
 
     // ip is blacklisted and has txt details but we don'T want to retrieve the txt record
-    public void testGetNoDetail() {
+    public void testGetNoDetail() throws ParseException {
         DNSRBLHandler rbl = new DNSRBLHandler();
 
         ContainerUtil.enableLogging(rbl, new MockLogger());
 
-        setupMockedSMTPSession();
+        setupMockedSMTPSession(new MailAddress("any@domain"));
         rbl.setDNSServer(mockedDnsServer);
 
         rbl.setBlacklist(new String[] { "bl.spamcop.net." });
@@ -196,13 +202,13 @@ public class DNSRBLHandlerTest extends TestCase {
     }
 
     // ip is allowed to relay
-    public void testRelayAllowed() {
+    public void testRelayAllowed() throws ParseException {
         DNSRBLHandler rbl = new DNSRBLHandler();
 
         ContainerUtil.enableLogging(rbl, new MockLogger());
 
         setRelayingAllowed(true);
-        setupMockedSMTPSession();
+        setupMockedSMTPSession(new MailAddress("any@domain"));
 
         rbl.setDNSServer(mockedDnsServer);
 
@@ -214,12 +220,12 @@ public class DNSRBLHandlerTest extends TestCase {
     }
 
     // ip not on blacklist
-    public void testNotBlackListed() {
+    public void testNotBlackListed() throws ParseException {
         DNSRBLHandler rbl = new DNSRBLHandler();
 
         ContainerUtil.enableLogging(rbl, new MockLogger());
         setRemoteIp("192.168.0.1");
-        setupMockedSMTPSession();
+        setupMockedSMTPSession(new MailAddress("any@domain"));
 
         rbl.setDNSServer(mockedDnsServer);
 
@@ -231,12 +237,12 @@ public class DNSRBLHandlerTest extends TestCase {
     }
 
     // ip on blacklist without txt details
-    public void testBlackListedNoTxt() {
+    public void testBlackListedNoTxt() throws ParseException {
         DNSRBLHandler rbl = new DNSRBLHandler();
 
         ContainerUtil.enableLogging(rbl, new MockLogger());
         setRemoteIp("127.0.0.3");
-        setupMockedSMTPSession();
+        setupMockedSMTPSession(new MailAddress("any@domain"));
 
         rbl.setDNSServer(mockedDnsServer);
 
@@ -248,12 +254,12 @@ public class DNSRBLHandlerTest extends TestCase {
     }
 
     // ip on whitelist
-    public void testWhiteListed() {
+    public void testWhiteListed() throws ParseException {
         DNSRBLHandler rbl = new DNSRBLHandler();
 
         ContainerUtil.enableLogging(rbl, new MockLogger());
         setRemoteIp("127.0.0.2");
-        setupMockedSMTPSession();
+        setupMockedSMTPSession(new MailAddress("any@domain"));
 
         rbl.setDNSServer(mockedDnsServer);
 
@@ -274,6 +280,27 @@ public class DNSRBLHandlerTest extends TestCase {
         }
         
         assertTrue("Invalid config",exception);
+    }
+
+    public void testAddJunkScore() throws ParseException {
+        DNSRBLHandler rbl = new DNSRBLHandler();
+
+        ContainerUtil.enableLogging(rbl, new MockLogger());
+
+        setupMockedSMTPSession(new MailAddress("any@domain"));
+        mockedSMTPSession.getConnectionState().put(JunkScore.JUNK_SCORE_SESSION, new JunkScoreImpl());
+        rbl.setDNSServer(mockedDnsServer);
+
+        rbl.setBlacklist(new String[] { "bl.spamcop.net." });
+        rbl.setGetDetail(false);
+        rbl.setScore(20);
+        rbl.setAction("junkScore");
+        rbl.onConnect(mockedSMTPSession);
+        assertNull("No details",mockedSMTPSession.getConnectionState().get(RBL_DETAIL_MAIL_ATTRIBUTE_NAME));
+        assertNotNull("Listed on RBL",mockedSMTPSession.getConnectionState().get(RBL_BLOCKLISTED_MAIL_ATTRIBUTE_NAME));
+        
+        rbl.onCommand(mockedSMTPSession);
+        assertEquals("Score stored",((JunkScore) mockedSMTPSession.getConnectionState().get(JunkScore.JUNK_SCORE_SESSION)).getStoredScore("DNSRBLCheck"), 20.0, 0d);
     }
 
 }

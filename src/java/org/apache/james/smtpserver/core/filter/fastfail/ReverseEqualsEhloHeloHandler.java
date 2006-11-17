@@ -19,101 +19,14 @@
 
 package org.apache.james.smtpserver.core.filter.fastfail;
 
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
-import org.apache.james.services.DNSServer;
-import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
-import org.apache.mailet.MailAddress;
+
 
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Collection;
 
-public class ReverseEqualsEhloHeloHandler extends AbstractLogEnabled implements
-        CommandHandler, Configurable, Serviceable {
 
-    public final static String BAD_EHLO_HELO = "BAD_EHLO_HELO";
-
-    private boolean checkAuthNetworks = false;
-
-    private boolean checkAuthUsers = false;
-
-    private DNSServer dnsServer = null;
-
-    /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
-     */
-    public void configure(Configuration handlerConfiguration)
-            throws ConfigurationException {
-        Configuration configRelay = handlerConfiguration.getChild(
-                "checkAuthNetworks", false);
-        if (configRelay != null) {
-            setCheckAuthNetworks(configRelay.getValueAsBoolean(false));
-        }
-
-        Configuration configAuthUser = handlerConfiguration.getChild(
-                "checkAuthUsers", false);
-        if (configAuthUser != null) {
-            setCheckAuthUsers(configAuthUser.getValueAsBoolean(false));
-        }
-    }
-
-    /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
-     */
-    public void service(ServiceManager serviceMan) throws ServiceException {
-        setDnsServer((DNSServer) serviceMan.lookup(DNSServer.ROLE));
-    }
-
-    /**
-     * Set to true if AuthNetworks should be included in the EHLO check
-     * 
-     * @param checkAuthNetworks
-     *            Set to true to enable
-     */
-    public void setCheckAuthNetworks(boolean checkAuthNetworks) {
-        this.checkAuthNetworks = checkAuthNetworks;
-    }
-
-    /**
-     * Set to true if Auth users should be included in the EHLO/HELO check
-     * 
-     * @param checkAuthUsers
-     *            Set to true to enable
-     */
-    public void setCheckAuthUsers(boolean checkAuthUsers) {
-        this.checkAuthUsers = checkAuthUsers;
-    }
-
-    /**
-     * Set the DNSServer
-     * 
-     * @param dnsServer
-     *            The DNSServer
-     */
-    public void setDnsServer(DNSServer dnsServer) {
-        this.dnsServer = dnsServer;
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
-     */
-    public void onCommand(SMTPSession session) {
-        String argument = session.getCommandArgument();
-        String command = session.getCommandName();
-        if (command.equals("HELO") || command.equals("EHLO")) {
-            checkEhloHelo(session, argument);
-        } else if (command.equals("RCPT")) {
-            reject(session, argument);
-        }
-    }
+public class ReverseEqualsEhloHeloHandler extends ResolvableEhloHeloHandler {
 
     /**
      * Method which get called on HELO/EHLO
@@ -121,7 +34,7 @@ public class ReverseEqualsEhloHeloHandler extends AbstractLogEnabled implements
      * @param session The SMTPSession
      * @param argument The argument
      */
-    private void checkEhloHelo(SMTPSession session, String argument) {
+    protected void checkEhloHelo(SMTPSession session, String argument) {
         /**
          * don't check if the ip address is allowed to relay. Only check if it
          * is set in the config. ed.
@@ -144,49 +57,38 @@ public class ReverseEqualsEhloHeloHandler extends AbstractLogEnabled implements
                 session.getState().put(BAD_EHLO_HELO, "true");
         }
     }
+    
+    /**
+     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getJunkScoreLogString(org.apache.james.smtpserver.SMTPSession)
+     */
+    protected String getJunkScoreLogString(SMTPSession session) {
+        return "Provided EHLO/HELO " + session.getState().get(SMTPSession.CURRENT_HELO_NAME) + " not equal reverse of "
+                    + session.getRemoteIPAddress() + ". Add junkScore: " + getScore();
+    }
 
     /**
-     * Method which get called on RCPT
-     * 
-     * @param session The SMTPSession
-     * @param argument The argument
+     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getRejectLogString(org.apache.james.smtpserver.SMTPSession)
      */
-    private void reject(SMTPSession session, String argument) {
-        MailAddress rcpt = (MailAddress) session.getState().get(
-                SMTPSession.CURRENT_RECIPIENT);
+    protected String getRejectLogString(SMTPSession session) {
+        return getResponseString(session);
+    }
 
-        // not reject it
-        if (session.getState().get(BAD_EHLO_HELO) == null
-                || rcpt.getUser().equalsIgnoreCase("postmaster")
-                || rcpt.getUser().equalsIgnoreCase("abuse"))
-            return;
-
-        // Check if the client was authenticated
-        if (!(session.isAuthRequired() && session.getUser() != null && !checkAuthUsers)) {
-            String responseString = "501 "
-                    + DSNStatus.getStatus(DSNStatus.PERMANENT,
-                            DSNStatus.DELIVERY_INVALID_ARG) + " Provided EHLO "
-                    + session.getState().get(SMTPSession.CURRENT_HELO_NAME) + " not equal reverse of "
+    /**
+     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getResponseString(org.apache.james.smtpserver.SMTPSession)
+     */
+    protected String getResponseString(SMTPSession session) {
+        String responseString = "501 "
+            + DSNStatus.getStatus(DSNStatus.PERMANENT,
+                    DSNStatus.DELIVERY_INVALID_ARG)
+            + " Provided EHLO/HELO " + session.getState().get(SMTPSession.CURRENT_HELO_NAME) + " not equal reverse of "
                     + session.getRemoteIPAddress();
-
-            session.writeResponse(responseString);
-            getLogger().info(responseString);
-
-            // After this filter match we should not call any other handler!
-            session.setStopHandlerProcessing(true);
-        }
+        return responseString;
     }
 
     /**
-     * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
+     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getScoreName()
      */
-    public Collection getImplCommands() {
-        Collection implCommands = new ArrayList();
-        implCommands.add("EHLO");
-        implCommands.add("HELO");
-        implCommands.add("RCPT");
-
-        return implCommands;
+    protected String getScoreName() {
+        return "ReverseEqualsEhloHeloCheck";
     }
-
 }

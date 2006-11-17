@@ -35,6 +35,8 @@ import org.apache.james.services.AbstractDNSServer;
 import org.apache.james.services.DNSServer;
 import org.apache.james.smtpserver.core.filter.fastfail.ResolvableEhloHeloHandler;
 import org.apache.james.test.mock.avalon.MockLogger;
+import org.apache.james.util.junkscore.JunkScore;
+import org.apache.james.util.junkscore.JunkScoreImpl;
 import org.apache.mailet.MailAddress;
 
 public class ResolvableEhloHeloHandlerTest extends TestCase {
@@ -125,7 +127,7 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
             public InetAddress getByName(String host) throws UnknownHostException {
                 if (host.equals(INVALID_HOST)) 
                     throw new UnknownHostException();
-                return null;
+                return InetAddress.getLocalHost();
             }
         };
         
@@ -309,5 +311,31 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         assertNull("Not Reject", getResponse());
         
         assertFalse("Not stop handler processing",session.getStopHandlerProcessing());
+    }
+    
+    public void testAddJunkScoreInvalidHelo() throws ParseException {
+        SMTPSession session = setupMockSession(INVALID_HOST,false,false,null,new MailAddress("test@localhost"));
+        session.getConnectionState().put(JunkScore.JUNK_SCORE_SESSION, new JunkScoreImpl());
+        ResolvableEhloHeloHandler handler = new ResolvableEhloHeloHandler();
+        
+        ContainerUtil.enableLogging(handler,new MockLogger());
+        
+        handler.setDnsServer(setupMockDNSServer());
+        handler.setAction("junkScore");
+        handler.setScore(20);
+        
+        // helo
+        setCommand(HELO);
+        handler.onCommand(session);
+        assertNotNull("Invalid HELO",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
+        
+        
+        // rcpt
+        setCommand(RCPT);
+        handler.onCommand(session);
+        assertNull("Not Reject", getResponse());
+        
+        assertFalse("Don'T stop handler processing",session.getStopHandlerProcessing());
+        assertEquals("JunkScore added", ((JunkScore) session.getConnectionState().get(JunkScore.JUNK_SCORE_SESSION)).getStoredScore("ResolvableEhloHeloCheck"), 20.0, 0d);
     }
 }
