@@ -41,6 +41,7 @@
      -->
      <!--
      <handler class="org.apache.james.smtpserver.core.filter.fastfail.DNSRBLHandler" command="RCPT">
+         <action> reject </action>
          <getDetail> false </getDetail>
          <rblservers>
              <whitelist> query.bondedsender.org. </whitelist>
@@ -58,6 +59,7 @@
      <!-- are allowed to relay. Default is false. -->  
      <!--
      <handler class="org.apache.james.smtpserver.core.filter.fastfail.SPFHandler" command="MAIL,RCPT">
+         <action> reject </action>
          <checkAuthNetworks> false </checkAuthNetworks>
          <blockSoftFail> false </blockSoftFail>
          <blockPermError> true </blockPermError>
@@ -72,6 +74,7 @@
      <!-- are allowed to relay. Default is false. -->
      <!--
      <handler class="org.apache.james.smtpserver.core.filter.fastfail.ResolvableEhloHeloHandler" command="EHLO,HELO,RCPT">
+         <action> reject </action>
          <checkAuthNetworks> false </checkAuthNetworks>
          <checkAuthUsers> false </checkAuthUsers>
      </handler>  
@@ -82,7 +85,9 @@
      <!-- are allowed to relay. Default is false. -->
      <!--
      <handler class="org.apache.james.smtpserver.core.filter.fastfail.ReverseEqualsEhloHeloHandler" command="EHLO,HELO">
+         <action> reject </action>
          <checkAuthClients> false </checkAuthClients>
+         <checkAuthUsers> false </checkAuthUsers>
      </handler>
      -->
             
@@ -92,7 +97,9 @@
      <!-- are allowed to relay. Default is false. -->
      <!--
      <handler class="org.apache.james.smtpserver.core.filter.fastfail.ValidSenderDomainHandler" command="MAIL">
+         <action> reject </action>
          <checkAuthClients> false </checkAuthClients>
+         <checkAuthUsers> false </checkAuthUsers>
      </handler>
      -->
      
@@ -111,6 +118,7 @@
      <!-- If activated you can limit the maximal recipients -->
      <!-- 
      <handler class="org.apache.james.smtpserver.core.filter.fastfail.MaxRcptHandler" command="RCPT">
+         <action> reject </action>
          <maxRcpt> 10 </maxRcpt>                
      </handler>
      -->
@@ -167,11 +175,12 @@
      <!-- The message get rejected if a domain matched . -->
      <!--
      <handler class="org.apache.james.smtpserver.core.filter.fastfail.URIRBLHandler">
+         <action> reject </action>
+         <getDetail> true </getDetail>
+         <checkAuthNetworks> false </checkAuthNetworks>
          <uriRblServers> 
              <server> multi.surbl.org</server>
          </uriRblServers>
-         <getDetail> true </getDetail>
-         <checkAuthNetworks> false </checkAuthNetworks>
      </handler>
      -->
      
