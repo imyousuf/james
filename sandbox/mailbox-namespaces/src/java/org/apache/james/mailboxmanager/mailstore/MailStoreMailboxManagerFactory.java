@@ -19,6 +19,8 @@
 
 package org.apache.james.mailboxmanager.mailstore;
 
+import java.util.Map;
+
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.container.ContainerUtil;
@@ -68,5 +70,10 @@ public class MailStoreMailboxManagerFactory extends AbstractLogEnabled implement
             ContainerUtil.enableLogging(mailstoreMailboxCache, getLogger());
         }
         return mailstoreMailboxCache;
+    }
+
+    public Map getOpenMailboxSessionCountMap() {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

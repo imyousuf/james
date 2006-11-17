@@ -21,6 +21,7 @@ package org.apache.james.mailboxmanager.impl;
 
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
@@ -150,6 +151,16 @@ public class VirtualMailboxManagerFactory extends AbstractLogEnabled implements
             ContainerUtil.service(iter.next(),serviceManager);
         }
 
+    }
+
+    public synchronized Map getOpenMailboxSessionCountMap() {
+        // TEST write a unit test
+        Map countMap=new HashMap();
+        for (Iterator iter = mailboxManagerFactories.iterator(); iter.hasNext();) {
+            MailboxManagerFactory factory = (MailboxManagerFactory) iter.next();
+            countMap.putAll(factory.getOpenMailboxSessionCountMap());
+        }
+        return countMap;
     }
 
 

@@ -26,6 +26,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
@@ -238,6 +239,10 @@ public class TorqueMailboxManagerFactory implements MailboxManagerFactory,
     public void addMountPoint(String point) {
         // TODO Auto-generated method stub
 
+    }
+
+    public Map getOpenMailboxSessionCountMap() {
+        return getMailboxCache().getOpenMailboxSessionCountMap();
     }
 
 }

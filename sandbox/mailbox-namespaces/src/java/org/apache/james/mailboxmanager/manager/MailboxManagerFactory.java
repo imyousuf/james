@@ -19,6 +19,8 @@
 
 package org.apache.james.mailboxmanager.manager;
 
+import java.util.Map;
+
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.services.User;
 
@@ -30,5 +32,7 @@ public interface MailboxManagerFactory {
     public void deleteEverything() throws MailboxManagerException;
 
     public void addMountPoint(String point);
+
+    public Map getOpenMailboxSessionCountMap();
 
 }

@@ -20,6 +20,7 @@
 package org.apache.james.mailboxmanager.mock;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.avalon.framework.activity.Initializable;
@@ -38,6 +39,8 @@ public class MockMailboxManagerFactory implements MailboxManagerFactory, Configu
     public Set mountPoints = new HashSet() ;
     
     public int init=0;
+
+    public Map openMailboxSessionCountMap;
 
     public void deleteEverything() throws MailboxManagerException {
     }
@@ -58,6 +61,10 @@ public class MockMailboxManagerFactory implements MailboxManagerFactory, Configu
 
     public void initialize() throws Exception {
         init++;
+    }
+
+    public Map getOpenMailboxSessionCountMap() {
+        return openMailboxSessionCountMap;
     }
 
 }

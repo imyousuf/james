@@ -135,8 +135,7 @@ public class DefaultMailboxManagerProvider extends AbstractLogEnabled implements
     }
 
     public Map getOpenMailboxSessionCountMap() {
-        // TODO Auto-generated method stub
-        return null;
+        return getMailboxManagerFactory().getOpenMailboxSessionCountMap();
     }
 
 }
