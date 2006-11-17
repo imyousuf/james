@@ -33,11 +33,12 @@ import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.services.DNSServer;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.util.junkscore.JunkScore;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.MailAddress;
 
 public class ValidSenderDomainHandler
-    extends AbstractActionHandler
+    extends AbstractJunkHandler
     implements CommandHandler, Configurable, Serviceable {
     
     private boolean checkAuthClients = false;
@@ -84,7 +85,14 @@ public class ValidSenderDomainHandler
     }
     
     /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractActionHandler#check(org.apache.james.smtpserver.SMTPSession)
+     * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
+     */
+    public void onCommand(SMTPSession session) {
+        doProcessing(session);
+    }
+    
+    /**
+     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#check(org.apache.james.smtpserver.SMTPSession)
      */
     protected boolean check(SMTPSession session) {
         MailAddress senderAddress = (MailAddress) session.getState().get(SMTPSession.SENDER);
@@ -96,8 +104,11 @@ public class ValidSenderDomainHandler
          * don't check if the ip address is allowed to relay. Only check if it is set in the config. 
          */
         if (checkAuthClients || !session.isRelayingAllowed()) {
+            Collection records;
+            
+                
             // try to resolv the provided domain in the senderaddress. If it can not resolved do not accept it.
-            Collection records = dnsServer.findMXRecords(senderAddress.getHost());
+            records = dnsServer.findMXRecords(senderAddress.getHost());
             if (records == null || records.size() == 0) {
                 return true;
             }
@@ -116,23 +127,23 @@ public class ValidSenderDomainHandler
     }
 
     /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractActionHandler#getJunkScoreLogString(org.apache.james.smtpserver.SMTPSession)
+     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getJunkScoreLogString(org.apache.james.smtpserver.SMTPSession)
      */
     protected String getJunkScoreLogString(SMTPSession session) {
-        MailAddress senderAddress = (MailAddress) session.getState().get(SMTPSession.SENDER);
-        String response = "Sender " + senderAddress + " contains a domain with no valid MX records.";
+       MailAddress senderAddress = (MailAddress) session.getState().get(SMTPSession.SENDER);
+        String response = "Sender " + senderAddress + " contains a domain with no valid MX records. Add Junkscore: " + getScore();
         return response;
     }
     
     /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractActionHandler#getRejectLogString(org.apache.james.smtpserver.SMTPSession)
+     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getRejectLogString(org.apache.james.smtpserver.SMTPSession)
      */
     protected String getRejectLogString(SMTPSession session) {
         return getResponseString(session);
     }
     
     /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractActionHandler#getResponseString(org.apache.james.smtpserver.SMTPSession)
+     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getResponseString(org.apache.james.smtpserver.SMTPSession)
      */
     protected String getResponseString(SMTPSession session) {
         MailAddress senderAddress = (MailAddress) session.getState().get(SMTPSession.SENDER);
@@ -141,7 +152,7 @@ public class ValidSenderDomainHandler
     }
 
     /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractActionHandler#getScoreName()
+     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getScoreName()
      */
     protected String getScoreName() {
         return "ValidSenderDomainCheck";

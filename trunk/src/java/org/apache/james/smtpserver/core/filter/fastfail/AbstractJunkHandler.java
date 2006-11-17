@@ -34,7 +34,7 @@ import org.apache.james.util.junkscore.JunkScoreConfigUtil;
  *       Or maybe add a Handler which loads other handlers ?
  *
  */
-public abstract class AbstractActionHandler extends AbstractLogEnabled implements Configurable {
+public abstract class AbstractJunkHandler extends AbstractLogEnabled implements Configurable {
     private String action = "reject";
     private double score = 0;
 
@@ -93,20 +93,22 @@ public abstract class AbstractActionHandler extends AbstractLogEnabled implement
     }
     
     /**
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
+     * Process the checking
+     * 
+     * @param session the SMTPSession
      */
-    public void onCommand(SMTPSession session) {
+    protected void doProcessing(SMTPSession session) {
         if (check(session)) {
             if (getAction().equals(JunkScoreConfigUtil.JUNKSCORE)) {
-                if (getLogger().isInfoEnabled()) {
-                    getLogger().info(getJunkScoreLogString(session)+" Add Junkscore: " + getScore());
-                }
+                getLogger().info(getJunkScoreLogString(session));
                 JunkScore junk = getJunkScore(session);
                 junk.setStoredScore(getScoreName(), getScore());
                  
             } else {
                 String response = getResponseString(session);
-                getLogger().info(response);
+                
+                if (getRejectLogString(session) != null) getLogger().info(getRejectLogString(session));
+                
                 session.writeResponse(response);
                 // After this filter match we should not call any other handler!
                 session.setStopHandlerProcessing(true);
@@ -153,7 +155,7 @@ public abstract class AbstractActionHandler extends AbstractLogEnabled implement
     protected abstract String getScoreName();
     
     /**
-     * Return the JunkScore object
+     * Return the JunkScore object.
      * 
      * @return junkScore
      */
