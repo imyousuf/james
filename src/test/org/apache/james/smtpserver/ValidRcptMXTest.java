@@ -33,6 +33,8 @@ import org.apache.james.services.AbstractDNSServer;
 import org.apache.james.services.DNSServer;
 import org.apache.james.smtpserver.core.filter.fastfail.ValidRcptMX;
 import org.apache.james.test.mock.avalon.MockLogger;
+import org.apache.james.util.junkscore.JunkScore;
+import org.apache.james.util.junkscore.JunkScoreImpl;
 import org.apache.mailet.MailAddress;
 
 import junit.framework.TestCase;
@@ -55,6 +57,7 @@ public class ValidRcptMXTest extends TestCase {
     private SMTPSession setupMockedSMTPSession(final MailAddress rcpt) {
         SMTPSession session = new AbstractSMTPSession() {
             HashMap state = new HashMap();
+            boolean stopProcessing = false;
 
             public Map getState() {
                 state.put(SMTPSession.CURRENT_RECIPIENT, rcpt);
@@ -63,6 +66,14 @@ public class ValidRcptMXTest extends TestCase {
 
             public void writeResponse(String resp) {
                 response = resp;
+            }
+            
+            public String getRemoteIPAddress() {
+                return "127.0.0.1";
+            }
+            
+            public void setStopHandlerProcessing(boolean stopProcessing) {
+                this.stopProcessing = stopProcessing;
             }
 
         };
@@ -109,5 +120,28 @@ public class ValidRcptMXTest extends TestCase {
         handler.onCommand(setupMockedSMTPSession(new MailAddress("test@" + INVALID_HOST)));
 
         assertNotNull("Reject", response);
+    }
+    
+
+    public void testAddJunkScoreLoopbackMX() throws ParseException {
+        Collection bNetworks = new ArrayList();
+        bNetworks.add("127.0.0.1");
+        
+        SMTPSession session = setupMockedSMTPSession(new MailAddress("test@" + INVALID_HOST));
+        session.getState().put(JunkScore.JUNK_SCORE, new JunkScoreImpl());
+        
+        DNSServer dns = setupMockedDNSServer();
+        ValidRcptMX handler = new ValidRcptMX();
+        handler.setScore(20);
+        handler.setAction("junkScore");
+
+        ContainerUtil.enableLogging(handler, new MockLogger());
+
+        handler.setDNSServer(dns);
+        handler.setBannedNetworks(bNetworks, dns);
+        handler.onCommand(session);
+
+        assertNull("Not Reject", response);
+        assertEquals("JunkScore added",((JunkScore) session.getState().get(JunkScore.JUNK_SCORE)).getStoredScore("ValidRcptMXCheck"),20.0, 0d);
     }
 }
