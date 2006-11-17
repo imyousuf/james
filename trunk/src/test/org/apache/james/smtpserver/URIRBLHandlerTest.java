@@ -45,6 +45,8 @@ import org.apache.james.smtpserver.core.filter.fastfail.URIRBLHandler;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.javaxmail.MockMimeMessage;
 import org.apache.james.test.mock.mailet.MockMail;
+import org.apache.james.util.junkscore.JunkScore;
+import org.apache.james.util.junkscore.JunkScoreImpl;
 import org.apache.mailet.Mail;
 
 public class URIRBLHandlerTest extends TestCase {
@@ -243,5 +245,27 @@ public class URIRBLHandlerTest extends TestCase {
 
         assertTrue("Stop handler processing", session.getStopHandlerProcessing());
         assertNotNull("Email was rejected", getResponse());
+    }
+    
+    public void testAddJunkScore() throws IOException, MessagingException {
+        
+        ArrayList servers = new ArrayList();
+        servers.add(URISERVER);
+        
+        SMTPSession session = setupMockedSMTPSession(setupMockedMail(setupMockedMimeMessage("http://" + BAD_DOMAIN1 + "/")));
+        session.getState().put(JunkScore.JUNK_SCORE, new JunkScoreImpl());
+        
+        URIRBLHandler handler = new URIRBLHandler();
+
+        ContainerUtil.enableLogging(handler, new MockLogger());
+        handler.setDnsServer(setupMockedDnsServer());
+        handler.setUriRblServer(servers);
+        handler.setAction("junkScore");
+        handler.setScore(20);
+        handler.onMessage(session);
+
+        assertFalse("Not stop handler processing", session.getStopHandlerProcessing());
+        assertNull("Email was not rejected", getResponse());
+        assertEquals("JunkScore added", ((JunkScore) session.getState().get(JunkScore.JUNK_SCORE)).getStoredScore("UriRBLCheck"), 20.0, 0d);
     }
 }
