@@ -40,6 +40,13 @@ import org.apache.james.util.junkscore.JunkScore;
 import org.apache.james.util.junkscore.JunkScoreImpl;
 import org.apache.james.util.mail.dsn.DSNStatus;
 
+/**
+ * Check if a configured JunkScore is reached and perform an action. Valid actions are: reject, compose, header. 
+ * 
+ * -Reject action reject the mail if the limit is reached.
+ * -Compose action stores the junkScore values in the mail attributes
+ * -Header action create headers which holds the junkScore for each check
+ */
 public class JunkScoreHandler extends AbstractLogEnabled implements ConnectHandler, MessageHandler,Configurable {
 
     private double maxScore = 0;
@@ -66,10 +73,21 @@ public class JunkScoreHandler extends AbstractLogEnabled implements ConnectHandl
         }
     }
     
+    /**
+     * Set the max JunkScore
+     * 
+     * @param maxScore the score
+     */
     public void setMaxScore(double maxScore) {
         this.maxScore = maxScore;
     }
     
+    /**
+     * Set the action to perform if the JunkScore limit is reached
+     * 
+     * @param action the action
+     * @throws ConfigurationException if invalid action is used
+     */
     public void setAction(String action) throws ConfigurationException {
         if (!action.equals(REJECT_ACTION) && !action.equals(COMPOSE_ACTION) && !action.equals(HEADER_ACTION)) 
             throw new ConfigurationException("Illegal action: " + action);
@@ -85,7 +103,9 @@ public class JunkScoreHandler extends AbstractLogEnabled implements ConnectHandl
     }
 
     /**
+     * Check if the JunkScore limit is reached and perform the configured action
      * 
+     * @param session the SMTPSession
      */
     private void checkScore(SMTPSession session) {
         JunkScore score1 = (JunkScore) session.getConnectionState().get(JunkScore.JUNK_SCORE_SESSION);
