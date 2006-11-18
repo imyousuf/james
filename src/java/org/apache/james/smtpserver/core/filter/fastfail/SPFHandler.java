@@ -279,60 +279,29 @@ public class SPFHandler extends AbstractJunkHandler implements CommandHandler,
         }
         return false;
     }
-
-
+    
     /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getJunkScoreLogString(org.apache.james.smtpserver.SMTPSession)
+     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getJunkHandlerData(org.apache.james.smtpserver.SMTPSession)
      */
-    protected String getJunkScoreLogString(SMTPSession session) {
-        return "Not match SPF-Record. Add junkScore: " + getScore();
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getRejectLogString(org.apache.james.smtpserver.SMTPSession)
-     */
-    protected String getRejectLogString(SMTPSession session) {
-        return "Not match SPF-Record. Reject email";
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getResponseString(org.apache.james.smtpserver.SMTPSession)
-     */
-    protected String getResponseString(SMTPSession session) {
+    public JunkHandlerData getJunkHandlerData(SMTPSession session) {
         String blocklisted = (String) session.getState().get(SPF_BLOCKLISTED);
         String blocklistedDetail = (String) session.getState().get(SPF_DETAIL);
-        String tempBlocklisted = (String) session.getState().get(
-                SPF_TEMPBLOCKLISTED);
-        String responseString = null;
-        
-        
+        String tempBlocklisted = (String) session.getState().get(SPF_TEMPBLOCKLISTED);
+        JunkHandlerData data = new JunkHandlerData();
+
         // Check if session is blocklisted
         if (blocklisted != null && blocklisted.equals("true")) {
-            responseString = "530 "
-                    + DSNStatus.getStatus(DSNStatus.PERMANENT,
-                            DSNStatus.SECURITY_AUTH) + " "
-                    + blocklistedDetail;
-            session.writeResponse(responseString);
-
-            session.setStopHandlerProcessing(true);
-
+            data.setRejectResponseString("530 " + DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_AUTH) + " "
+                    + blocklistedDetail);
         } else if (tempBlocklisted != null
                 && tempBlocklisted.equals("true")) {
-            responseString = "451 "
-                    + DSNStatus.getStatus(DSNStatus.TRANSIENT,
-                            DSNStatus.NETWORK_DIR_SERVER) + " "
-                    + "Temporarily rejected: Problem on SPF lookup";
-            session.writeResponse(responseString);
-            session.setStopHandlerProcessing(true);
+            data.setRejectResponseString("451 " + DSNStatus.getStatus(DSNStatus.TRANSIENT, DSNStatus.NETWORK_DIR_SERVER) + " "
+                    + "Temporarily rejected: Problem on SPF lookup");
         }
-        return responseString;
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getScoreName()
-     */
-    protected String getScoreName() {
-        return "SPFCheck";
+        data.setJunkScoreLogString("Not match SPF-Record. Add junkScore: " + getScore());
+        data.setRejectLogString("Not match SPF-Record. Reject email");
+        data.setScoreName("SPFCheck");
+        return data;
     }
     
     

@@ -124,36 +124,18 @@ public class ValidSenderDomainHandler
         
         return implCommands;
     }
-
-    /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getJunkScoreLogString(org.apache.james.smtpserver.SMTPSession)
-     */
-    protected String getJunkScoreLogString(SMTPSession session) {
-       MailAddress senderAddress = (MailAddress) session.getState().get(SMTPSession.SENDER);
-        String response = "Sender " + senderAddress + " contains a domain with no valid MX records. Add Junkscore: " + getScore();
-        return response;
-    }
     
     /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getRejectLogString(org.apache.james.smtpserver.SMTPSession)
+     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getJunkHandlerData(org.apache.james.smtpserver.SMTPSession)
      */
-    protected String getRejectLogString(SMTPSession session) {
-        return getResponseString(session);
-    }
-    
-    /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getResponseString(org.apache.james.smtpserver.SMTPSession)
-     */
-    protected String getResponseString(SMTPSession session) {
+    public JunkHandlerData getJunkHandlerData(SMTPSession session) {
         MailAddress senderAddress = (MailAddress) session.getState().get(SMTPSession.SENDER);
-        String response = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_SYNTAX_SENDER)+ " sender " + senderAddress + " contains a domain with no valid MX records";
-        return response;
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getScoreName()
-     */
-    protected String getScoreName() {
-        return "ValidSenderDomainCheck";
+        JunkHandlerData data = new JunkHandlerData();
+    
+        data.setRejectResponseString("501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_SYNTAX_SENDER)+ " sender " + senderAddress + " contains a domain with no valid MX records");
+        data.setJunkScoreLogString("Sender " + senderAddress + " contains a domain with no valid MX records. Add Junkscore: " + getScore());
+        data.setRejectLogString("Sender " + senderAddress + " contains a domain with no valid MX records");
+        data.setScoreName("ValidSenderDomainCheck");
+        return data;
     }
 }

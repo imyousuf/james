@@ -100,14 +100,14 @@ public abstract class AbstractJunkHandler extends AbstractLogEnabled implements 
     protected void doProcessing(SMTPSession session) {
         if (check(session)) {
             if (getAction().equals(JunkScoreConfigUtil.JUNKSCORE)) {
-                getLogger().info(getJunkScoreLogString(session));
+                getLogger().info(getJunkHandlerData(session).getJunkScoreLogString());
                 JunkScore junk = getJunkScore(session);
-                junk.setStoredScore(getScoreName(), getScore());
+                junk.setStoredScore(getJunkHandlerData(session).getScoreName(), getScore());
                  
             } else {
-                String response = getResponseString(session);
+                String response = getJunkHandlerData(session).getRejectResponseString();
                 
-                if (getRejectLogString(session) != null) getLogger().info(getRejectLogString(session));
+                if (getJunkHandlerData(session).getRejectLogString() != null) getLogger().info(getJunkHandlerData(session).getRejectLogString());
                 
                 session.writeResponse(response);
                 // After this filter match we should not call any other handler!
@@ -125,35 +125,13 @@ public abstract class AbstractJunkHandler extends AbstractLogEnabled implements 
     protected abstract boolean check(SMTPSession session);
     
     /**
-     * Get the reponseString to return 
+     * Get the JunkHandlerData to work with
      * 
      * @param session the SMTPSession
-     * @return responseString
+     * @return junkHandlerData
      */
-    protected abstract String getResponseString(SMTPSession session);
-    
-    /**
-     * Return the LogString if a JunkScore action is used
-     * 
-     * @param session the SMTPSession
-     * @return the LogString
-     */
-    protected abstract String getJunkScoreLogString(SMTPSession session);
-    
-    /**
-     * Return the LogString if a Reject action is used
-     * 
-     * @param the SMTPSession
-     * @return the LogString
-     */
-    protected abstract String getRejectLogString(SMTPSession session);
-    
-    /**
-     * Return the Name which will used to store the JunkScore and get used in the headers
-     * @return the name
-     */
-    protected abstract String getScoreName();
-    
+    public abstract JunkHandlerData getJunkHandlerData(SMTPSession session);
+   
     /**
      * Return the JunkScore object.
      * 

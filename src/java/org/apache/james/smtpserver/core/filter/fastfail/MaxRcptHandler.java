@@ -29,7 +29,7 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
-import org.apache.james.util.junkscore.JunkScore;
+
 import org.apache.james.util.mail.dsn.DSNStatus;
 
 public class MaxRcptHandler extends AbstractJunkHandler implements
@@ -90,34 +90,16 @@ public class MaxRcptHandler extends AbstractJunkHandler implements
     }
 
     /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getJunkScoreLogString(org.apache.james.smtpserver.SMTPSession)
+     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getJunkHandlerData(org.apache.james.smtpserver.SMTPSession)
      */
-    protected String getJunkScoreLogString(SMTPSession session) {
-        return "Maximum recipients of " + maxRcpt + " reached. Add JunkScore: " +getScore();
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getRejectLogString(org.apache.james.smtpserver.SMTPSession)
-     */
-    protected String getRejectLogString(SMTPSession session) {
-        return getResponseString(session);
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getResponseString(org.apache.james.smtpserver.SMTPSession)
-     */
-    protected String getResponseString(SMTPSession session) {
-        String responseString = "452 "
-            + DSNStatus.getStatus(DSNStatus.NETWORK,
-                    DSNStatus.DELIVERY_TOO_MANY_REC)
-            + " Requested action not taken: max recipients reached";
-        return responseString;
-    }
+    public JunkHandlerData getJunkHandlerData(SMTPSession session) {
+        JunkHandlerData data = new JunkHandlerData();
     
-    /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getScoreName()
-     */
-    protected String getScoreName() {
-        return "MaxRcptCheck";
+        data.setRejectResponseString("452 "  + DSNStatus.getStatus(DSNStatus.NETWORK, DSNStatus.DELIVERY_TOO_MANY_REC)
+                + " Requested action not taken: max recipients reached");
+        data.setJunkScoreLogString("Maximum recipients of " + maxRcpt + " reached. Add JunkScore: " +getScore());
+        data.setRejectLogString("Maximum recipients of " + maxRcpt + " reached");
+        data.setScoreName("MaxRcptCheck");
+        return data;
     }
 }

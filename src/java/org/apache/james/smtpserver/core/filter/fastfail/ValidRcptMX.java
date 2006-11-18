@@ -162,32 +162,18 @@ public class ValidRcptMX extends AbstractJunkHandler implements CommandHandler,
     }
 
     /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getJunkScoreLogString(org.apache.james.smtpserver.SMTPSession)
+     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getJunkHandlerData(org.apache.james.smtpserver.SMTPSession)
      */
-    protected String getJunkScoreLogString(SMTPSession session) {
+    public JunkHandlerData getJunkHandlerData(SMTPSession session) {
         MailAddress rcpt = (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT);
-        return "Invalid MX " + session.getRemoteIPAddress() + " for domain " + rcpt.getHost() + ". Add JunkScore: " + getScore();
-    }
+        JunkHandlerData data = new JunkHandlerData();
 
-    /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getRejectLogString(org.apache.james.smtpserver.SMTPSession)
-     */
-    protected String getRejectLogString(SMTPSession session) {
-        MailAddress rcpt = (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT);
-        return "Invalid MX " + session.getRemoteIPAddress() + " for domain " + rcpt.getHost() + ". Reject email";   
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getResponseString(org.apache.james.smtpserver.SMTPSession)
-     */
-    protected String getResponseString(SMTPSession session) {
-        return "530" + DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_AUTH) + " " + getRejectLogString(session) ;   
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getScoreName()
-     */
-    protected String getScoreName() {
-        return "ValidRcptMXCheck";
+        data.setRejectResponseString("530" + DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_AUTH) + " Invalid MX " + session.getRemoteIPAddress() 
+            + " for domain " + rcpt.getHost() + ". Reject email");
+       
+        data.setJunkScoreLogString("Invalid MX " + session.getRemoteIPAddress() + " for domain " + rcpt.getHost() + ". Add JunkScore: " + getScore());
+        data.setRejectLogString("Invalid MX " + session.getRemoteIPAddress() + " for domain " + rcpt.getHost() + ". Reject email");
+        data.setScoreName("ValidRcptMXCheck");
+        return data;
     }
 }
