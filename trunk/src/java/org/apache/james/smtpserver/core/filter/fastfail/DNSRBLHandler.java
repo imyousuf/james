@@ -281,44 +281,22 @@ public class DNSRBLHandler
     }
     
     /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getJunkScoreLogString(org.apache.james.smtpserver.SMTPSession)
+     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getJunkHandlerData(org.apache.james.smtpserver.SMTPSession)
      */
-    protected String getJunkScoreLogString(SMTPSession session) {
-        return "Ipaddress " + session.getRemoteIPAddress() + " listed on RBL. Add junkScore: " + getScore();
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getRejectLogString(org.apache.james.smtpserver.SMTPSession)
-     */
-    protected String getRejectLogString(SMTPSession session) {
-        return "ipaddress " + session.getRemoteIPAddress() + " listed on RBL. Reject email";
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getResponseString(org.apache.james.smtpserver.SMTPSession)
-     */
-    protected String getResponseString(SMTPSession session) {
-        String responseString;
+    public JunkHandlerData getJunkHandlerData(SMTPSession session) {
+        JunkHandlerData data = new JunkHandlerData();
+        
+        data.setJunkScoreLogString("Ipaddress " + session.getRemoteIPAddress() + " listed on RBL. Add junkScore: " + getScore());
+        data.setRejectLogString("ipaddress " + session.getRemoteIPAddress() + " listed on RBL. Reject email");
+    
         if (blocklistedDetail != null) {
-            responseString = "530 "
-                    + DSNStatus.getStatus(DSNStatus.PERMANENT,
-                            DSNStatus.SECURITY_AUTH) + " "
-                    + blocklistedDetail;
+            data.setRejectResponseString("530 "+ DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH) + " " + blocklistedDetail);
         } else {
-            responseString = "530 "
-                    + DSNStatus.getStatus(DSNStatus.PERMANENT,
-                            DSNStatus.SECURITY_AUTH)
-                    + " Rejected: unauthenticated e-mail from "
-                    + session.getRemoteIPAddress()
-                    + " is restricted.  Contact the postmaster for details.";
+            data.setRejectResponseString("530 "+ DSNStatus.getStatus(DSNStatus.PERMANENT,
+                            DSNStatus.SECURITY_AUTH)  + " Rejected: unauthenticated e-mail from " + session.getRemoteIPAddress() 
+                            + " is restricted.  Contact the postmaster for details.");
         }
-        return responseString;
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getScoreName()
-     */
-    protected String getScoreName() {
-        return "DNSRBLCheck";
+        data.setScoreName("DNSRBLCheck");
+        return data;
     }
 }

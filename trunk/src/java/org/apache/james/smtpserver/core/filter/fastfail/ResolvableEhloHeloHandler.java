@@ -179,43 +179,30 @@ public class ResolvableEhloHeloHandler extends AbstractJunkHandler implements
         return false;
     }
 
-    /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getJunkScoreLogString(org.apache.james.smtpserver.SMTPSession)
-     */
-    protected String getJunkScoreLogString(SMTPSession session) {
-        return "Provided EHLO/HELO " + session.getState().get(SMTPSession.CURRENT_HELO_NAME) + " can not resolved. Add junkScore: " + getScore();
-    }
 
-    /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getRejectLogString(org.apache.james.smtpserver.SMTPSession)
-     */
-    protected String getRejectLogString(SMTPSession session) {
-        return getResponseString(session);
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getResponseString(org.apache.james.smtpserver.SMTPSession)
-     */
-    protected String getResponseString(SMTPSession session) {
-        String responseString = "501 "
-            + DSNStatus.getStatus(DSNStatus.PERMANENT,
-                    DSNStatus.DELIVERY_INVALID_ARG)
-            + " Provided EHLO/HELO " + session.getState().get(SMTPSession.CURRENT_HELO_NAME) + " can not resolved";
-        return responseString;
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getScoreName()
-     */
-    protected String getScoreName() {
-        return "ResolvableEhloHeloCheck";
-    }
-    
     /**
      * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getJunkScore(org.apache.james.smtpserver.SMTPSession)
      */
     protected JunkScore getJunkScore(SMTPSession session) {
         return (JunkScore) session.getConnectionState().get(JunkScore.JUNK_SCORE_SESSION);
+    }
+    
+    /**
+     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getJunkHandlerData(org.apache.james.smtpserver.SMTPSession)
+     */
+    public JunkHandlerData getJunkHandlerData(SMTPSession session) {
+        JunkHandlerData data = new JunkHandlerData();
+        
+        data.setJunkScoreLogString("Provided EHLO/HELO " + session.getState().get(SMTPSession.CURRENT_HELO_NAME) + " can not resolved. Add junkScore: " + getScore());
+        data.setRejectLogString("501 " + DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.DELIVERY_INVALID_ARG)
+                + " Provided EHLO/HELO " + session.getState().get(SMTPSession.CURRENT_HELO_NAME) + " can not resolved");
+    
+        
+        data.setRejectResponseString("501 " + DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.DELIVERY_INVALID_ARG)
+                + " Provided EHLO/HELO " + session.getState().get(SMTPSession.CURRENT_HELO_NAME) + " can not resolved");
+
+        data.setScoreName("ResolvableEhloHeloCheck");
+        return data;
     }
 
 }

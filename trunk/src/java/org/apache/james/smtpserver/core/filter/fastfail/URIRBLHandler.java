@@ -256,32 +256,15 @@ public class URIRBLHandler extends AbstractJunkHandler implements MessageHandler
     }
 
     /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getJunkScoreLogString(org.apache.james.smtpserver.SMTPSession)
+     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getJunkHandlerData(org.apache.james.smtpserver.SMTPSession)
      */
-    protected String getJunkScoreLogString(SMTPSession session) {
-        String uRblServer = (String) session.getState().get(URBLSERVER);
-        String target = (String) session.getState().get(LISTED_DOMAIN);
-        return "Message sent by " + session.getRemoteIPAddress() + " restricted by " +  uRblServer + " because " + target + " is listed. Add junkScore: " + getScore();
-    }
+    public JunkHandlerData getJunkHandlerData(SMTPSession session) {
+        JunkHandlerData data = new JunkHandlerData();
     
-    /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getRejectLogString(org.apache.james.smtpserver.SMTPSession)
-     */
-    protected String getRejectLogString(SMTPSession session) {
-        String uRblServer = (String) session.getState().get(URBLSERVER);
-        String target = (String) session.getState().get(LISTED_DOMAIN);
-        return "Rejected: message contains domain " + target + " listed by " + uRblServer;
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getResponseString(org.apache.james.smtpserver.SMTPSession)
-     */
-    protected String getResponseString(SMTPSession session) {
         String uRblServer = (String) session.getState().get(URBLSERVER);
         String target = (String) session.getState().get(LISTED_DOMAIN);
         String detail = null;
-        String responseString = null;
-    
+
         // we should try to retrieve details
         if (getDetail) {
             Collection txt = dnsServer.findTXTRecords(target+ "." + uRblServer);
@@ -296,23 +279,18 @@ public class URIRBLHandler extends AbstractJunkHandler implements MessageHandler
 
         if (detail != null) {
            
-            responseString = "554 "
-                + DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_OTHER)
-                + getRejectLogString(session) +" . Details: " 
-                + detail;
+            data.setRejectResponseString("554 " + DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_OTHER)
+                + "Rejected: message contains domain " + target + " listed by " + uRblServer +" . Details: " 
+                + detail);
         } else {
-            responseString = "554 "
-                + DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_OTHER)
-                + getRejectLogString(session);
+            data.setRejectResponseString("554 " + DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_OTHER)
+                + " Rejected: message contains domain " + target + " listed by " + uRblServer);
         }  
-        return responseString;
-    }
 
-    /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getScoreName()
-     */
-    protected String getScoreName() {
-        return "UriRBLCheck";
+        data.setJunkScoreLogString("Message sent by " + session.getRemoteIPAddress() + " restricted by " +  uRblServer + " because " + target + " is listed. Add junkScore: " + getScore());
+        data.setRejectLogString("Rejected: message contains domain " + target + " listed by " + uRblServer);
+        data.setScoreName("UriRBLCheck");
+        return data;
     }
 
 }
