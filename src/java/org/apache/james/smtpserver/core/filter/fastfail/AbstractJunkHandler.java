@@ -30,9 +30,7 @@ import org.apache.james.util.junkscore.JunkScore;
 import org.apache.james.util.junkscore.JunkScoreConfigUtil;
 
 /**
- * TODO: Should we split this class  ?
- *       Or maybe add a Handler which loads other handlers ?
- *
+ * 
  */
 public abstract class AbstractJunkHandler extends AbstractLogEnabled implements Configurable {
     private String action = "reject";
@@ -99,15 +97,18 @@ public abstract class AbstractJunkHandler extends AbstractLogEnabled implements 
      */
     protected void doProcessing(SMTPSession session) {
         if (check(session)) {
+            JunkHandlerData data = getJunkHandlerData(session);
+            
             if (getAction().equals(JunkScoreConfigUtil.JUNKSCORE)) {
                 getLogger().info(getJunkHandlerData(session).getJunkScoreLogString());
                 JunkScore junk = getJunkScore(session);
-                junk.setStoredScore(getJunkHandlerData(session).getScoreName(), getScore());
+
+                junk.setStoredScore(data.getScoreName(), getScore());
                  
             } else {
-                String response = getJunkHandlerData(session).getRejectResponseString();
+                String response = data.getRejectResponseString();
                 
-                if (getJunkHandlerData(session).getRejectLogString() != null) getLogger().info(getJunkHandlerData(session).getRejectLogString());
+                if (data.getRejectLogString() != null) getLogger().info(data.getRejectLogString());
                 
                 session.writeResponse(response);
                 // After this filter match we should not call any other handler!
