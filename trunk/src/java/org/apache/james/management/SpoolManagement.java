@@ -69,6 +69,89 @@ public class SpoolManagement implements Serviceable, SpoolManagementService, Spo
     }
 
     /**
+     * Move all mails from the given repository to another repository matching the given filter criteria
+     *
+     * @param srcspoolRepositoryURL the spool whose item are listed
+     * @param srcstate if not NULL, only mails with matching state are returned
+     * @param dstSpoolRepositoryURL the destination spool
+     * @param dstState if not NULL, the state will be changed before storing the message to the new repository.
+     * @param header if not NULL, only mails with at least one header with a value matching headerValueRegex are returned
+     * @param headerValueRegex the regular expression the header must match
+     * @return a counter of moved mails
+     * @throws SpoolManagementException
+     */
+    public int moveSpoolItems(String srcSpoolRepositoryURL, String srcState, String dstSpoolRepositoryURL, String dstState, String header, String headerValueRegex) 
+            throws SpoolManagementException {
+        SpoolFilter filter = new SpoolFilter(srcState, header, headerValueRegex);
+        try {
+            return moveSpoolItems(srcSpoolRepositoryURL, dstSpoolRepositoryURL, dstState, filter);
+        } catch (Exception e) {
+            throw new SpoolManagementException(e);
+        }
+    }
+
+    /**
+     * Move all mails from the given repository to another repository matching the given filter criteria
+     *
+     * @param srcspoolRepositoryURL the spool whose item are listed
+     * @param dstSpoolRepositoryURL the destination spool
+     * @param dstState if not NULL, the state will be changed before storing the message to the new repository.
+     * @param spoolFilter the filter to select messages from the source repository
+     * @return a counter of moved mails
+     * @throws ServiceException 
+     * @throws MessagingException 
+     * @throws SpoolManagementException
+     */
+    public int moveSpoolItems(String srcSpoolRepositoryURL, String dstSpoolRepositoryURL, String dstState, SpoolFilter filter)
+            throws ServiceException, MessagingException, SpoolManagementException {
+        
+        SpoolRepository srcSpoolRepository;
+        SpoolRepository dstSpoolRepository;
+        srcSpoolRepository = getSpoolRepository(srcSpoolRepositoryURL);
+        dstSpoolRepository = getSpoolRepository(dstSpoolRepositoryURL);
+        
+        // get an iterator of all keys
+        Iterator spoolR = srcSpoolRepository.list();
+
+        int count = 0;
+        while (spoolR.hasNext()) {
+            String key = spoolR.next().toString();
+            boolean locked = false;
+            try {
+                locked = srcSpoolRepository.lock(key);
+            } catch (MessagingException e) {
+                // unable to lock
+            }
+            if (locked) {
+                Mail m = null;
+                try {
+                    m = srcSpoolRepository.retrieve(key);
+                    if (filterMatches(m, filter)) {
+                        if (dstState != null) {
+                            m.setState(dstState);
+                        }
+                        dstSpoolRepository.store(m);
+                        srcSpoolRepository.remove(m);
+                        count++;
+                    }
+                } catch (MessagingException e) {
+                    // unable to retrieve message
+                } finally {
+                    try {
+                        srcSpoolRepository.unlock(key);
+                    } catch (MessagingException e) {
+                        // unable to unlock
+                    }
+                    ContainerUtil.dispose(m);
+                }
+            }
+        }
+        
+        return count;
+
+    }
+
+    /**
      * Lists all mails from the given repository matching the given filter criteria 
      * 
      * @param spoolRepositoryURL the spool whose item are listed

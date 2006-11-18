@@ -33,6 +33,21 @@ public interface SpoolManagementService {
     String ROLE = "org.apache.james.services.SpoolManagementService";
 
     /**
+     * Move all mails from the given repository to another repository matching the given filter criteria
+     *
+     * @param srcspoolRepositoryURL the spool whose item are listed
+     * @param dstSpoolRepositoryURL the destination spool
+     * @param dstState if not NULL, the state will be changed before storing the message to the new repository.
+     * @param spoolFilter the filter to select messages from the source repository
+     * @return a counter of moved mails
+     * @throws ServiceException 
+     * @throws MessagingException 
+     * @throws SpoolManagementException
+     */
+    public int moveSpoolItems(String srcSpoolRepositoryURL, String dstSpoolRepositoryURL, String dstState, SpoolFilter filter)
+            throws ServiceException, MessagingException, SpoolManagementException;
+
+    /**
      * Removes all mails from the given repository matching the filter
      *  
      * @param spoolRepositoryURL the spool whose item are listed

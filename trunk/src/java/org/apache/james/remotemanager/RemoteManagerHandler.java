@@ -77,6 +77,7 @@ public class RemoteManagerHandler
         "LISTSPOOL",
         "FLUSHSPOOL",
         "DELETESPOOL",
+        "MOVEMAILS",
         "ADDHAM",
         "ADDSPAM",
         "EXPORTBAYESIANDATA",
@@ -499,6 +500,8 @@ public class RemoteManagerHandler
         out.println("listspool [spoolrepositoryname] ([header=name] [regex=value])           list all mails which reside in the spool and have an error state");
         out.println("flushspool [spoolrepositoryname] ([key] | [header=name] [regex=value])  try to resend the mail assing to the given key. If no key is given all mails get resend");
         out.println("deletespool [spoolrepositoryname] ([key] | [header=name] [regex=value]) delete the mail assign to the given key. If no key is given all mails get deleted");
+        out.println("movemails [srcSpoolrepositoryname] [dstSpoolrepositoryname] ([header=headername] [regex=regexValue])");
+        out.println("    [srcstate=sourcestate] [dststate=destinationstate]                  move mails from the source repository to the destination repository.");
         out.println("listprocessors [processorname]                                          list names of all processors");
         out.println("listmailets [processorname]                                             list names of all mailets for specified processor");
         out.println("listmatchers [processorname]                                            list names of all mailets for specified processor");
@@ -980,6 +983,75 @@ public class RemoteManagerHandler
             out.flush();
 
             out.println("Number of deleted mails: " + count);
+            out.flush();
+
+        } catch (Exception e) {
+            out.println("Error opening the spoolrepository " + e.getMessage());
+            out.flush();
+            getLogger().error("Error opeing the spoolrepository " + e.getMessage());
+        }
+        return true;
+    }
+
+
+    /**
+     * Handler method called upon receipt of a MOVEMAILS command. Returns
+     * whether further commands should be read off the wire.
+     * 
+     * @param argument
+     *            the argument passed in with the command
+     */
+    private boolean doMOVEMAILS(String argument) {
+        String[] args = null;
+
+        if (argument != null)
+            args = argument.split(" ");
+
+        // check if the command was called correct
+        if ((argument == null || argument.trim().equals(""))
+                || (args.length < 2 || args.length > 6)) {
+            writeLoggedFlushedResponse("Usage: MOVEMAILS [srcSpoolrepositoryname] [dstSpoolrepositoryname] ([header=headername] [regex=regexValue]) [srcstate=sourcestate] [dststate=destinationstate]");
+            return true;
+        }
+
+        String srcUrl = args[0];
+        String dstUrl = args[1];
+        
+        String dstState = null;
+        String srcState = null;
+        String header = null;
+        String regex = null;
+
+        for (int i = 2; i < args.length; i++) {
+            if (args[i].startsWith(HEADER_IDENTIFIER)) {
+                header = args[i].substring(HEADER_IDENTIFIER.length());
+            } else if (args[i].startsWith(REGEX_IDENTIFIER)) {
+                header = args[i].substring(REGEX_IDENTIFIER.length());
+            } else if (args[i].startsWith("srcstate=")) {
+                header = args[i].substring("srcstate=".length());
+            } else if (args[i].startsWith("dststate=")) {
+                header = args[i].substring("dststate=".length());
+            } else {
+                writeLoggedResponse("Unexpected parameter "+args[i]);
+                writeLoggedFlushedResponse("Usage: MOVEMAILS [srcSpoolrepositoryname] [dstSpoolrepositoryname] ([header=headername] [regex=regexValue]) [srcstate=sourcestate] [dststate=destinationstate]");
+                return true;
+            }
+        }
+        
+        if ((header != null && regex == null) || (header == null && regex != null)) {
+            if (regex == null) {
+                writeLoggedResponse("Bad parameters: used header without regex");
+            } else {
+                writeLoggedResponse("Bad parameters: used regex without header");
+            }
+            writeLoggedFlushedResponse("Usage: MOVEMAILS [srcSpoolrepositoryname] [dstSpoolrepositoryname] ([header=headername] [regex=regexValue]) [srcstate=sourcestate] [dststate=destinationstate]");
+            return true;
+        }
+
+        try {
+            int count = theConfigData.getSpoolManagement().moveSpoolItems(srcUrl, dstUrl, dstState, new SpoolFilter(srcState,header,regex));
+            
+            out.println("Number of moved mails: " + count);
             out.flush();
 
         } catch (Exception e) {
