@@ -30,6 +30,24 @@ package org.apache.james.management;
 public interface SpoolManagementMBean {
 
     /**
+     * Move all mails from the given repository to another repository matching the given filter criteria
+     * 
+     * @phoenix:mx-operation
+     * @phoenix:mx-description Move mails from a spool to another
+     * 
+     * @param srcspoolRepositoryURL the spool whose item are listed
+     * @param srcstate if not NULL, only mails with matching state are returned
+     * @param dstSpoolRepositoryURL the destination spool
+     * @param dstState if not NULL, the state will be changed before storing the message to the new repository.
+     * @param header if not NULL, only mails with at least one header with a value matching headerValueRegex are returned
+     * @param headerValueRegex the regular expression the header must match
+     * @return a counter of moved mails
+     * @throws SpoolManagementException
+     */
+    public int moveSpoolItems(String srcSpoolRepositoryURL, String srcState, String dstSpoolRepositoryURL, String dstState, String header, String headerValueRegex) 
+            throws SpoolManagementException;
+
+    /**
      * List mails on the spool matching the given criteria
      *
      * @phoenix:mx-operation
