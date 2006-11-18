@@ -19,11 +19,8 @@
 
 package org.apache.james.mailboxmanager.impl;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -84,7 +81,12 @@ public class VirtualMailboxManagerTest extends MockObjectTestCase {
                 .getMailboxManager("#user.t1.t2.t3"));
         assertSame(manager[4], virtualMailboxManager
                 .getMailboxManager("#user.t1.t2.t3.t4"));
-        assertNull(virtualMailboxManager.getMailboxManager("#other"));
+        try {
+            virtualMailboxManager.getMailboxManager("#other");
+            fail("should throw exception");
+        } catch (MailboxManagerException e) {
+        }
+        
 
     }
 
@@ -120,6 +122,35 @@ public class VirtualMailboxManagerTest extends MockObjectTestCase {
         assertEquals(new HashSet(Arrays.asList(expected)), toNamesSet(result));
         System.out.println(toNamesSet(result));
 
+    }
+    
+    public void testSubscribe() throws MailboxManagerException {
+        String[] points = { "#mail" , "#mail.group", "#system"}; // , 
+        Mock[] mailboxManagerMocks = createMailboxManagerMocks(points.length);
+        MailboxManager[] mailboxManager = proxyMocks(mailboxManagerMocks);
+        Mock[] mailboxManagerFactoryMocks = createMailboxManagerFactoryMocks(
+                mailboxManager, 1);
+        MailboxManagerFactory[] mailboxManagerFactories = proxyFactoryMocks(mailboxManagerFactoryMocks);
+        addMountPoints(points, mailboxManagerFactories);
+        
+        String[] subscribe= {"#mail.user1.Trash","#mail.group.test","#system.go"};
+        for (int i = 0; i < subscribe.length; i++) {
+            Constraint[] args;
+            args=new Constraint[] {eq(subscribe[i]),eq(true)}; 
+            mailboxManagerMocks[i].expects(once()).method("setSubscription").with(args).isVoid();
+            
+            virtualMailboxManager.setSubscription(subscribe[i],true);            
+        }
+
+
+    }
+    
+    protected Mock[] createMailboxManagerMocks(int count) {
+        Mock[] mocks = new Mock[count];
+        for (int i = 0; i < mocks.length; i++) {
+            mocks[i]=mock(MailboxManager.class);
+        }
+        return mocks;
     }
 
     protected Mock[] createMailboxManagerFactoryMocks(MailboxManager[] manager,

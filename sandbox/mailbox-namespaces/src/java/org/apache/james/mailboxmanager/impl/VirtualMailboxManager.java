@@ -20,11 +20,9 @@
 package org.apache.james.mailboxmanager.impl;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.Map.Entry;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
@@ -43,36 +41,45 @@ public class VirtualMailboxManager extends AbstractLogEnabled implements
         MailboxManager {
 
     private Map mountMap = null;
-    
+
     private User user;
-    
-        
-    
+
     public VirtualMailboxManager() {
-        
+
     }
 
     Map getMountMap() {
         return mountMap;
     }
-    
-    public void setMountMap(Map mountMap) {
-        this.mountMap=mountMap;
-    }
-    
-    
 
-    MailboxManager getMailboxManager(String mailboxName) throws MailboxManagerException {
+    public void setMountMap(Map mountMap) {
+        this.mountMap = mountMap;
+    }
+
+    MailboxManager getMailboxManager(String mailboxName)
+            throws MailboxManagerException {
         MailboxManager mailboxManager = null;
         Iterator it = getMountMap().entrySet().iterator();
         while (it.hasNext() && mailboxManager == null) {
             Entry entry = (Entry) it.next();
             String key = (String) entry.getKey();
             if (mailboxName.startsWith(key)) {
-                MailboxManagerFactory mailboxManagerFactory = (MailboxManagerFactory) entry.getValue();
-                mailboxManager=mailboxManagerFactory.getMailboxManagerInstance(user);
+                MailboxManagerFactory mailboxManagerFactory = (MailboxManagerFactory) entry
+                        .getValue();
+                mailboxManager = mailboxManagerFactory
+                        .getMailboxManagerInstance(user);
+                if (mailboxManager == null) {
+                    throw new MailboxManagerException(mailboxManagerFactory
+                            .getClass().getName()
+                            + " returned a null MailboxManager");
+                }
+                break;
             }
         }
+        if (mailboxManager == null) {
+            throw new MailboxManagerException("Unknown namespace for mailbox "+mailboxName);
+        }
+
         return mailboxManager;
     }
 
@@ -124,19 +131,22 @@ public class VirtualMailboxManager extends AbstractLogEnabled implements
     public ListResult[] list(String base, String expression, boolean subscribed)
             throws MailboxManagerException {
         // TODO call only base matching managers
-        List listResults=new ArrayList();
+        List listResults = new ArrayList();
         Iterator it = getMountMap().entrySet().iterator();
-        
+
         while (it.hasNext()) {
             Entry entry = (Entry) it.next();
-            MailboxManagerFactory mailboxManagerFactory = (MailboxManagerFactory) entry.getValue();
-            MailboxManager mailboxManager=mailboxManagerFactory.getMailboxManagerInstance(user);
-            ListResult[] thisListResults=mailboxManager.list(base, expression, subscribed);
+            MailboxManagerFactory mailboxManagerFactory = (MailboxManagerFactory) entry
+                    .getValue();
+            MailboxManager mailboxManager = mailboxManagerFactory
+                    .getMailboxManagerInstance(user);
+            ListResult[] thisListResults = mailboxManager.list(base,
+                    expression, subscribed);
             for (int i = 0; i < thisListResults.length; i++) {
                 listResults.add(thisListResults[i]);
             }
         }
-        
+
         return (ListResult[]) listResults.toArray(new ListResult[0]);
     }
 
@@ -152,7 +162,7 @@ public class VirtualMailboxManager extends AbstractLogEnabled implements
     }
 
     public void setUser(User user) {
-        this.user=user;
+        this.user = user;
     }
 
 }
