@@ -7,9 +7,16 @@
     <version>1.0</version>
   </block>
 
+  <services>
+    <service name="org.apache.james.services.VirtualUserTableManagementService" version="1.0" />
+  </services>
+  
   <dependencies>
     <dependency>
       <service name="org.apache.james.services.VirtualUserTableStore" version="1.0"/>
+    </dependency>
+    <dependency>
+      <service name="org.apache.james.services.VirtualUserTableManagement" version="1.0"/>
     </dependency>
   </dependencies>
 </blockinfo>

@@ -33,6 +33,7 @@ import org.apache.james.services.ProcessorManagementService;
 import org.apache.james.services.SpoolManagementService;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
+import org.apache.james.services.VirtualUserTableManagementService;
 
 import java.util.HashMap;
 
@@ -91,6 +92,8 @@ public class RemoteManager
      * reference to administration of Processors
      */
     private ProcessorManagementService processorManagementService;
+
+    private VirtualUserTableManagementService vutManagemenet;
     
     /**
      * Set the UserStore 
@@ -156,6 +159,15 @@ public class RemoteManager
     }
     
     /**
+     * Set the VirtualUserTableManagementService
+     * 
+     * @param vutManagement the VirtualUserTableManagment 
+     */
+    public void setVirtualUserTableManagement(VirtualUserTableManagementService vutManagement) {
+    this.vutManagemenet = vutManagement;
+    }
+    
+    /**
      * The configuration data to be passed to the handler
      */
     private RemoteManagerHandlerConfigurationData theConfigData
@@ -184,7 +196,8 @@ public class RemoteManager
         setSpoolManagement(spoolManagement);
         
         setBayesianAnalyzerManagement((BayesianAnalyzerManagementService) componentManager.lookup(BayesianAnalyzerManagementService.ROLE));     
-        setProcessorManagement((ProcessorManagementService) componentManager.lookup(ProcessorManagementService.ROLE));     
+        setProcessorManagement((ProcessorManagementService) componentManager.lookup(ProcessorManagementService.ROLE)); 
+        setVirtualUserTableManagement((VirtualUserTableManagementService) componentManager.lookup(VirtualUserTableManagementService.ROLE));
     }
 
     /**
@@ -304,9 +317,19 @@ public class RemoteManager
             return RemoteManager.this.bayesianAnalyzerManagement;
         }
 
+        /**
+         * @see org.apache.james.remotemanager.RemoteManagerHandlerConfigurationData#getProcessorManagement()
+         */
         public ProcessorManagementService getProcessorManagement() {
             return RemoteManager.this.processorManagementService;
         }
+
+        /**
+         * @see org.apache.james.remotemanager.RemoteManagerHandlerConfigurationData#getVirtualUserTableManagement()
+         */
+    public VirtualUserTableManagementService getVirtualUserTableManagement() {
+        return RemoteManager.this.vutManagemenet;
+    }
     }
 
     /**

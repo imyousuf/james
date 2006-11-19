@@ -36,6 +36,7 @@ import org.apache.james.Constants;
 import org.apache.james.core.AbstractJamesHandler;
 import org.apache.james.management.BayesianAnalyzerManagementException;
 import org.apache.james.management.SpoolFilter;
+import org.apache.james.management.VirtualUserTableManagementException;
 import org.apache.james.services.JamesUser;
 import org.apache.james.services.ProcessorManagementService;
 import org.apache.james.services.User;
@@ -88,6 +89,8 @@ public class RemoteManagerHandler
         "LISTMATCHERS",
         "SHOWMAILETINFO",
         "SHOWMATCHERINFO",
+        "ADDMAPPING",
+        "REMOVEMAPPING",
         "QUIT",
         "SHUTDOWN"
     });
@@ -105,6 +108,9 @@ public class RemoteManagerHandler
     private final static String HEADER_IDENTIFIER = "header=";
     private final static String REGEX_IDENTIFIER = "regex=";
     private final static String KEY_IDENTIFIER = "key=";
+
+    private final static String ADD_MAPPING_ACTION = "ADD_MAPPING";
+    private final static String REMOVE_MAPPING_ACTION = "REMOVE_MAPPING";
 
     /**
      * Set the configuration data for the handler.
@@ -497,6 +503,8 @@ public class RemoteManagerHandler
         out.println("showforwarding [username]                                               shows a user's current email forwarding");
         out.println("unsetforwarding [username]                                              removes a forward");
         out.println("user [repositoryname]                                                   change to another user repository");
+        out.println("addmapping [table=virtualusertablename] user@domain mapping             add mapping for the given emailaddress");
+        out.println("removemapping [table=virtualusertablename] user@domain mapping          remove mapping for the given emailaddress");
         out.println("listspool [spoolrepositoryname] ([header=name] [regex=value])           list all mails which reside in the spool and have an error state");
         out.println("flushspool [spoolrepositoryname] ([key] | [header=name] [regex=value])  try to resend the mail assing to the given key. If no key is given all mails get resend");
         out.println("deletespool [spoolrepositoryname] ([key] | [header=name] [regex=value]) delete the mail assign to the given key. If no key is given all mails get deleted");
@@ -1400,6 +1408,99 @@ public class RemoteManagerHandler
             writeLoggedResponse("\t" + parameter);
          }
         return true;
+    }
+    
+    private boolean doADDMAPPING(String argument) {
+        String[] args = null;
+        
+        if (argument != null)
+            args = argument.split(" ");
+
+        // check if the command was called correct
+        if (argument == null || argument.trim().equals("") || args.length < 2 || args.length > 3) {
+            writeLoggedFlushedResponse("Usage: ADDMAPPING [table=table] user@domain mapping");
+            return true;
+        }
+        try {
+            out.println("Adding mapping successfull: " + mappingAction(args,ADD_MAPPING_ACTION));
+            out.flush();
+        } catch (VirtualUserTableManagementException e) {
+            getLogger().error("Error on adding mapping: " + e);
+            out.println("Error on adding mapping: " + e);
+            out.flush();
+        } catch (IllegalArgumentException e) {
+            getLogger().error("Error on adding mapping: " + e);
+            out.println("Error on adding mapping: " + e);
+            out.flush();
+        }
+        return true;
+    }
+    
+    private boolean doREMOVEMAPPING(String argument) {
+        String[] args = null;
+        
+        if (argument != null)
+            args = argument.split(" ");
+
+        // check if the command was called correct
+        if (argument == null || argument.trim().equals("") || args.length < 2 || args.length > 3) {
+            writeLoggedFlushedResponse("Usage: REMOVEMAPPING [table=table] user@domain mapping");
+            return true;
+        }
+        try {
+            out.println("Removing mapping successfull: " + mappingAction(args,REMOVE_MAPPING_ACTION));
+            out.flush();
+        } catch (VirtualUserTableManagementException e) {
+            getLogger().error("Error on  removing mapping: " + e);
+            out.println("Error on removing mapping: " + e);
+            out.flush();
+        } catch (IllegalArgumentException e) {
+            getLogger().error("Error on removing mapping: " + e);
+            out.println("Error on removing mapping: " + e);
+            out.flush();
+        }
+        return true;
+    }
+    
+    private String getMappingValue(String raw) {
+        if (raw.equals("*")) {
+            return null;
+        } else {
+            return raw;
+        }
+    }
+    
+    private boolean mappingAction(String[] args, String action) throws IllegalArgumentException, VirtualUserTableManagementException{ 
+        String table = null;
+        String user = null;
+        String domain = null;
+        String mapping = null;
+    
+        if (args[0].startsWith("table=")) {
+            table = args[0].substring("table=".length());
+            if (args[1].indexOf("@") > 0) {
+                user = getMappingValue(args[1].split("@")[0]);
+                domain = getMappingValue(args[1].split("@")[1]);
+            } else {
+                throw new IllegalArgumentException("Invalid usage.");
+            }
+            mapping = args[2];
+        } else {
+            if (args[0].indexOf("@") > 0) {
+                user = getMappingValue(args[0].split("@")[0]);
+                domain = getMappingValue(args[0].split("@")[1]);
+            } else {
+                throw new IllegalArgumentException("Invalid usage.");
+            }
+            mapping = args[1];
+        }
+        if (action.equals(ADD_MAPPING_ACTION)) {
+            return theConfigData.getVirtualUserTableManagement().addMapping(table, user, domain, mapping);
+        } else if (action.equals(REMOVE_MAPPING_ACTION)){
+            return theConfigData.getVirtualUserTableManagement().removeMapping(table, user, domain, mapping);
+        } else {
+            throw new IllegalArgumentException("Invalid action: " + action);
+        }   
     }
 
 }
