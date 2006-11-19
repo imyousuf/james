@@ -36,7 +36,7 @@ import org.apache.james.vut.InvalidMappingException;
  * Management for VirtualUserTables
  * 
  */
-public class VirtualUserTableManagement implements Serviceable, VirtualUserTableManagementService {
+public class VirtualUserTableManagement implements Serviceable, VirtualUserTableManagementService, VirtualUserTableManagmentMBean {
 
     VirtualUserTableStore store;
     org.apache.james.services.VirtualUserTableManagement defaultVUT;    

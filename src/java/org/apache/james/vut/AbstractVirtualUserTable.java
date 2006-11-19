@@ -73,8 +73,8 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
         // Only non-null mappings are translated
         if (targetString != null) {
             Collection mappings = new ArrayList();
-            if (targetString.startsWith("error:")) {
-                throw new ErrorMappingException(targetString.substring("error:".length()));
+            if (targetString.startsWith(VirtualUserTable.ERROR_PREFIX)) {
+                throw new ErrorMappingException(targetString.substring(VirtualUserTable.ERROR_PREFIX.length()));
 
             } else {
                 Iterator map= VirtualUserTableUtil.getMappings(targetString).iterator();
@@ -83,7 +83,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
                     String target;
                     String targetAddress = map.next().toString();
 
-                    if (targetAddress.startsWith("regex:")) {
+                    if (targetAddress.startsWith(VirtualUserTable.REGEX_PREFIX)) {
                         try {
                             targetAddress = VirtualUserTableUtil.regexMap(new MailAddress(user,domain), targetAddress);
                         } catch (MalformedPatternException e) {
@@ -129,7 +129,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
         
         if (checkMapping(user,domain,regex) == true) {
             getLogger().info("Add regex mapping => " + regex + " for user: " + user + " domain: " + domain);
-            return addMappingInternal(user, domain, "regex:" + regex);
+            return addMappingInternal(user, domain, VirtualUserTable.REGEX_PREFIX + regex);
         } else {
             return false;
         }
@@ -142,7 +142,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
      */
     public synchronized boolean removeRegexMapping(String user, String domain, String regex) throws InvalidMappingException {
         getLogger().info("Remove regex mapping => " + regex + " for user: " + user + " domain: " + domain);
-        return removeMappingInternal(user,domain,"regex:" + regex);
+        return removeMappingInternal(user,domain,VirtualUserTable.REGEX_PREFIX + regex);
     }
     
     /**
@@ -182,7 +182,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
     public synchronized boolean addErrorMapping(String user, String domain, String error) throws InvalidMappingException {   
         if (checkMapping(user,domain,error) == true) {          
             getLogger().info("Add error mapping => " + error + " for user: " + user + " domain: " + domain);
-            return addMappingInternal(user,domain, "error:" + error);
+            return addMappingInternal(user,domain, VirtualUserTable.ERROR_PREFIX + error);
         } else {
             return false;
         } 
@@ -193,7 +193,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
      */
     public synchronized boolean removeErrorMapping(String user, String domain, String error) throws InvalidMappingException {
         getLogger().info("Remove error mapping => " + error + " for user: " + user + " domain: " + domain);     
-        return removeMappingInternal(user,domain,"error:" + error);
+        return removeMappingInternal(user,domain,VirtualUserTable.ERROR_PREFIX + error);
     }
 
 
@@ -202,13 +202,11 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
      */
     public boolean addMapping(String user, String domain, String mapping) throws InvalidMappingException {
         String map = mapping.toLowerCase();
-        String errorPrefix = "error:";
-        String regexPrefix = "regex:";
     
-        if (map.startsWith(errorPrefix)) {
-            return addErrorMapping(user,domain,map.substring(errorPrefix.length()));
-        } else if (map.startsWith(regexPrefix)) {
-            return addRegexMapping(user,domain,map.substring(regexPrefix.length()));
+        if (map.startsWith(VirtualUserTable.ERROR_PREFIX)) {
+            return addErrorMapping(user,domain,map.substring(VirtualUserTable.ERROR_PREFIX.length()));
+        } else if (map.startsWith(VirtualUserTable.REGEX_PREFIX)) {
+            return addRegexMapping(user,domain,map.substring(VirtualUserTable.REGEX_PREFIX.length()));
         } else {
             return addAddressMapping(user,domain,map);
         }
@@ -219,13 +217,11 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
      */
     public boolean removeMapping(String user, String domain, String mapping) throws InvalidMappingException {
         String map = mapping.toLowerCase();
-        String errorPrefix = "error:";
-        String regexPrefix = "regex:";
     
-        if (map.startsWith(errorPrefix)) {
-            return removeErrorMapping(user,domain,map.substring(errorPrefix.length()));
-        } else if (map.startsWith(regexPrefix)) {
-            return removeRegexMapping(user,domain,map.substring(regexPrefix.length()));
+        if (map.startsWith(VirtualUserTable.ERROR_PREFIX)) {
+            return removeErrorMapping(user,domain,map.substring(VirtualUserTable.ERROR_PREFIX.length()));
+        } else if (map.startsWith(VirtualUserTable.REGEX_PREFIX)) {
+            return removeRegexMapping(user,domain,map.substring(VirtualUserTable.REGEX_PREFIX.length()));
         } else {
             return removeAddressMapping(user,domain,map);
         }
@@ -272,12 +268,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
    }
     
    private boolean checkMapping(String user,String domain, String mapping) {
-       Collection mappings;
-       try {
-           mappings = getMappings(user,domain);
-       } catch (ErrorMappingException e) {
-           return false;
-       }
+       Collection mappings = getUserDomainMappings(user,domain);
        if (mappings != null && mappings.contains(mapping)) {
            return false;
        } else {
@@ -320,6 +311,13 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
         } else {
             return null;
         }
+    }
+    
+    /**
+     * @see org.apache.james.services.VirtualUserTableManagement#getUserDomainMappings(java.lang.String, java.lang.String)
+     */
+    public Collection getUserDomainMappings(String user, String domain) {
+        return getUserDomainMappingsInternal(user, domain);
     }
     
     /**
@@ -381,4 +379,13 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
      * @return domains  the domains
      */
     protected abstract List getDomainsInternal();
+    
+    /**
+     * Return Collection of all mappings for the given username and domain
+     * 
+     * @param user the user
+     * @param domain the domain
+     * @return Collection which hold the mappings
+     */
+    protected abstract Collection getUserDomainMappingsInternal(String user, String domain);
 }
