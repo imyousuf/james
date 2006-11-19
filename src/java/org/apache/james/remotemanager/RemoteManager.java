@@ -161,10 +161,10 @@ public class RemoteManager
     /**
      * Set the VirtualUserTableManagementService
      * 
-     * @param vutManagement the VirtualUserTableManagment 
+     * @param vutManagement the VirtualUserTableManagementService 
      */
     public void setVirtualUserTableManagement(VirtualUserTableManagementService vutManagement) {
-    this.vutManagemenet = vutManagement;
+        this.vutManagemenet = vutManagement;
     }
     
     /**
@@ -327,9 +327,9 @@ public class RemoteManager
         /**
          * @see org.apache.james.remotemanager.RemoteManagerHandlerConfigurationData#getVirtualUserTableManagement()
          */
-    public VirtualUserTableManagementService getVirtualUserTableManagement() {
-        return RemoteManager.this.vutManagemenet;
-    }
+        public VirtualUserTableManagementService getVirtualUserTableManagement() {
+            return RemoteManager.this.vutManagemenet;
+        }
     }
 
     /**
