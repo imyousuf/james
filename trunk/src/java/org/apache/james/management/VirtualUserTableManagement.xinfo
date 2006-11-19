@@ -11,6 +11,11 @@
     <service name="org.apache.james.services.VirtualUserTableManagementService" version="1.0" />
   </services>
   
+  <!-- interfaces that may be exported to manange this block -->
+  <management-access-points>
+    <service name="org.apache.james.management.VirtualUserTableManagmentMBean"/>
+  </management-access-points>  
+  
   <dependencies>
     <dependency>
       <service name="org.apache.james.services.VirtualUserTableStore" version="1.0"/>

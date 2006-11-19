@@ -35,8 +35,6 @@ import org.apache.james.vut.InvalidMappingException;
 /**
  * Management for VirtualUserTables
  * 
- * TODO: Add JMX support
- *       Add to RemoteManager
  */
 public class VirtualUserTableManagement implements Serviceable, VirtualUserTableManagementService {
 
@@ -67,11 +65,11 @@ public class VirtualUserTableManagement implements Serviceable, VirtualUserTable
      * @throws VirtualUserTableManagementException if no VirtualUserTable with the given name exists
      */
     private org.apache.james.services.VirtualUserTableManagement getTable(String tableName) throws VirtualUserTableManagementException {     
-    // if the tableName was null return the DefaultVirtualUserTable
-    if (tableName == null) {
-        return defaultVUT;
-    } else {
-        org.apache.james.services.VirtualUserTableManagement vut = (org.apache.james.services.VirtualUserTableManagement) store.getTable(tableName);
+        // if the tableName was null return the DefaultVirtualUserTable
+        if (tableName == null) {
+            return defaultVUT;
+        } else {
+            org.apache.james.services.VirtualUserTableManagement vut = (org.apache.james.services.VirtualUserTableManagement) store.getTable(tableName);
     
             // Check if a table with the given name exists, if not throw an Exception
             if (vut == null) {
@@ -79,7 +77,7 @@ public class VirtualUserTableManagement implements Serviceable, VirtualUserTable
             } else {
                 return vut;
             }
-    }
+        }
     }
     
     /**

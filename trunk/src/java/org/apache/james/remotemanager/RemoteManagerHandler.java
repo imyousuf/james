@@ -1515,12 +1515,12 @@ public class RemoteManagerHandler
                 out.flush();
             }
         } catch (VirtualUserTableManagementException e) {
-            getLogger().error("Error on  removing mapping: " + e);
-            out.println("Error on removing mapping: " + e);
+            getLogger().error("Error on listing mapping: " + e);
+            out.println("Error on listing mapping: " + e);
             out.flush();
         } catch (IllegalArgumentException e) {
-            getLogger().error("Error on removing mapping: " + e);
-            out.println("Error on removing mapping: " + e);
+            getLogger().error("Error on listing mapping: " + e);
+            out.println("Error on listing mapping: " + e);
             out.flush();
         }
         return true;
