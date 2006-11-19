@@ -26,7 +26,7 @@ import java.util.Collection;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
-import org.apache.james.core.AvalonVirtualUserTableStore;
+import org.apache.james.core.DefaultVirtualUserTable;
 import org.apache.james.services.VirtualUserTableManagementService;
 import org.apache.james.services.VirtualUserTableStore;
 import org.apache.james.vut.InvalidMappingException;
@@ -40,36 +40,46 @@ import org.apache.james.vut.InvalidMappingException;
  */
 public class VirtualUserTableManagement implements Serviceable, VirtualUserTableManagementService {
 
-    AvalonVirtualUserTableStore store;
-    
+    VirtualUserTableStore store;
+    org.apache.james.services.VirtualUserTableManagement defaultVUT;    
 
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
      */
     public void service(ServiceManager arg0) throws ServiceException {
-        setAvalonVirtualUserTableStore((AvalonVirtualUserTableStore) arg0.lookup(VirtualUserTableStore.ROLE));
+        setVirtualUserTableStore((VirtualUserTableStore) arg0.lookup(VirtualUserTableStore.ROLE));
+        setDefaultVirtualUserTable((org.apache.james.services.VirtualUserTableManagement) arg0.lookup(DefaultVirtualUserTable.ROLE));
     }
 
-    public void setAvalonVirtualUserTableStore(AvalonVirtualUserTableStore store) {
+    public void setVirtualUserTableStore(VirtualUserTableStore store) {
         this.store = store;
+    }
+    
+    public void setDefaultVirtualUserTable(org.apache.james.services.VirtualUserTableManagement defaultVUT) {
+        this.defaultVUT = defaultVUT;
     }
     
     /**
      * Return a VirtualUserTableManagement with the given tablename
      * 
-     * @param tableName tableName
+     * @param tableName tableName if null is given the DefaultVirtualUserTable get returned
      * @return VirtualUserTableManagement object
      * @throws VirtualUserTableManagementException if no VirtualUserTable with the given name exists
      */
-    private org.apache.james.services.VirtualUserTableManagement getTable(String tableName) throws VirtualUserTableManagementException {
+    private org.apache.james.services.VirtualUserTableManagement getTable(String tableName) throws VirtualUserTableManagementException {     
+    // if the tableName was null return the DefaultVirtualUserTable
+    if (tableName == null) {
+        return defaultVUT;
+    } else {
         org.apache.james.services.VirtualUserTableManagement vut = (org.apache.james.services.VirtualUserTableManagement) store.getTable(tableName);
     
-        // Check if a table with the given name exists, if not throw an Exception
-        if (vut == null) {
-            throw new VirtualUserTableManagementException("No VirtualUserTable with such name: " + tableName);
-        } else {
-            return vut;
-        }
+            // Check if a table with the given name exists, if not throw an Exception
+            if (vut == null) {
+                throw new VirtualUserTableManagementException("No VirtualUserTable with such name: " + tableName);
+            } else {
+                return vut;
+            }
+    }
     }
     
     /**

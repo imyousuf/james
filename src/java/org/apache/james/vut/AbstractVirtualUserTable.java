@@ -69,7 +69,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
     public Collection getMappings(String user,String domain) throws ErrorMappingException {
 
         String targetString = mapAddress(user, domain);
-
+        
         // Only non-null mappings are translated
         if (targetString != null) {
             Collection mappings = new ArrayList();
@@ -120,14 +120,19 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
     /**
      * @see org.apache.james.services.VirtualUserTableManagement#addRegexMapping(java.lang.String, java.lang.String, java.lang.String)
      */
-    public synchronized boolean addRegexMapping(String user, String domain, String regex) throws InvalidMappingException {
-        getLogger().info("Add regex mapping => " + regex + " for user: " + user + " domain: " + domain);
+    public synchronized boolean addRegexMapping(String user, String domain, String regex) throws InvalidMappingException {     
         try {
             new Perl5Compiler().compile(regex);
         } catch (MalformedPatternException e) {
             throw new InvalidMappingException("Invalid regex: " + regex);
         }
-        return addMappingInternal(user, domain, "regex:" + regex);
+        
+        if (checkMapping(user,domain,regex) == true) {
+            getLogger().info("Add regex mapping => " + regex + " for user: " + user + " domain: " + domain);
+            return addMappingInternal(user, domain, "regex:" + regex);
+        } else {
+            return false;
+        }
     }
 
     
@@ -136,7 +141,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
      * @see org.apache.james.services.VirtualUserTableManagement#removeRegexMapping(java.lang.String, java.lang.String, java.lang.String)
      */
     public synchronized boolean removeRegexMapping(String user, String domain, String regex) throws InvalidMappingException {
-        getLogger().info("Add regex mapping => " + regex + " for user: " + user + " domain: " + domain);
+        getLogger().info("Remove regex mapping => " + regex + " for user: " + user + " domain: " + domain);
         return removeMappingInternal(user,domain,"regex:" + regex);
     }
     
@@ -144,7 +149,6 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
      * @see org.apache.james.services.VirtualUserTableManagement#addAddressMapping(java.lang.String, java.lang.String, java.lang.String)
      */
     public synchronized boolean addAddressMapping(String user, String domain, String address) throws InvalidMappingException {
-
         if (address.indexOf('@') < 0) {
             address =  address + "@localhost";
         } 
@@ -153,20 +157,22 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
         } catch (ParseException e) {
             throw new InvalidMappingException("Invalid emailAddress: " + address);
         }
-        getLogger().info("Add address mapping => " + address + " for user: " + user + " domain: " + domain);
-        return addMappingInternal(user, domain, address);
+        if (checkMapping(user,domain,address) == true) {          
+            getLogger().info("Add address mapping => " + address + " for user: " + user + " domain: " + domain);
+            return addMappingInternal(user, domain, address);
+        } else {
+            return false;
+        }   
     }
     
     /**
-     * @throws InvalidMappingException 
      * @see org.apache.james.services.VirtualUserTableManagement#removeAddressMapping(java.lang.String, java.lang.String, java.lang.String)
      */
     public synchronized boolean removeAddressMapping(String user, String domain, String address) throws InvalidMappingException {
-
         if (address.indexOf('@') < 0) {
             address =  address + "@localhost";
         } 
-        getLogger().info("Add address mapping => " + address + " for user: " + user + " domain: " + domain);
+        getLogger().info("Remove address mapping => " + address + " for user: " + user + " domain: " + domain);
         return removeMappingInternal(user,domain,address);
     }
     
@@ -174,17 +180,19 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
      * @see org.apache.james.services.VirtualUserTableManagement#addErrorMapping(java.lang.String, java.lang.String, java.lang.String)
      */
     public synchronized boolean addErrorMapping(String user, String domain, String error) throws InvalidMappingException {   
-        getLogger().info("Add error mapping => " + error + " for user: " + user + " domain: " + domain);
-        
-        return addMappingInternal(user,domain, "error:" + error);
+        if (checkMapping(user,domain,error) == true) {          
+            getLogger().info("Add error mapping => " + error + " for user: " + user + " domain: " + domain);
+            return addMappingInternal(user,domain, "error:" + error);
+        } else {
+            return false;
+        } 
     }
     
     /**
      * @see org.apache.james.services.VirtualUserTableManagement#removeErrorMapping(java.lang.String, java.lang.String, java.lang.String)
      */
     public synchronized boolean removeErrorMapping(String user, String domain, String error) throws InvalidMappingException {
-        getLogger().info("Add error mapping => " + error + " for user: " + user + " domain: " + domain);     
-    
+        getLogger().info("Remove error mapping => " + error + " for user: " + user + " domain: " + domain);     
         return removeMappingInternal(user,domain,"error:" + error);
     }
 
@@ -261,6 +269,20 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
             }
         }  
         return mapping.toString();  
+   }
+    
+   private boolean checkMapping(String user,String domain, String mapping) {
+       Collection mappings;
+       try {
+           mappings = getMappings(user,domain);
+       } catch (ErrorMappingException e) {
+           return false;
+       }
+       if (mappings != null && mappings.contains(mapping)) {
+           return false;
+       } else {
+           return true;
+       }
    }
 
  

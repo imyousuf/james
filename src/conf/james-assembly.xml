@@ -94,6 +94,7 @@
              role="org.apache.james.services.BayesianAnalyzerManagementService"/>
     <provide name="dnsserver" role="org.apache.james.services.DNSServer"/>
     <provide name="processormanagement" role="org.apache.james.services.ProcessorManagementService"/>
+    <provide name="virtualusertablemanagement" role="org.apache.james.services.VirtualUserTableManagementService"/>
 </block>
 
   <!-- The User Management block  -->
@@ -226,6 +227,7 @@
   <!-- The VirtualUserTable Management block  -->
   <block name="virtualusertablemanagement" class="org.apache.james.management.VirtualUserTableManagement" >
     <provide name="virtualusertable-store" role="org.apache.james.services.VirtualUserTableStore"/>
+    <provide name="defaultvirtualusertable" role="org.apache.james.services.VirtualUserTableManagement" />
   </block>
   
   <!-- VirtualUserTable Store -->

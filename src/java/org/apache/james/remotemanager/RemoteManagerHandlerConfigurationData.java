@@ -28,6 +28,7 @@ import org.apache.james.services.ProcessorManagementService;
 import org.apache.james.services.SpoolManagementService;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
+import org.apache.james.services.VirtualUserTableManagementService;
 
 import java.util.HashMap;
 
@@ -109,5 +110,11 @@ public interface RemoteManagerHandlerConfigurationData {
      * @return the ProcessorManagementService
      */
     ProcessorManagementService getProcessorManagement();
-
+    
+    /**
+     * Return the VirtualUserTableManagementService
+     * 
+     * @return the VirtualUserTableManagementService
+     */
+    VirtualUserTableManagementService getVirtualUserTableManagement();
 }
