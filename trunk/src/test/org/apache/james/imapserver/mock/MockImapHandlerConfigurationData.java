@@ -2,7 +2,6 @@ package org.apache.james.imapserver.mock;
 
 import org.apache.james.imapserver.ImapHandlerConfigurationData;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
-import org.apache.james.mailboxmanager.torque.TorqueMailboxManagerProvider;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.UsersRepository;
 
@@ -48,14 +47,6 @@ public class MockImapHandlerConfigurationData implements
             }
         }
         return mailboxManagerProvider;
-    }
-
-    public boolean doStreamdump() {
-        return true;
-    }
-
-    public String getStreamdumpDir() {
-        return "streamdump";
     }
 
 }

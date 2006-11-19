@@ -19,29 +19,14 @@
 
 package org.apache.james.imapserver;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.net.Socket;
-
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.avalon.excalibur.pool.Poolable;
-import org.apache.avalon.framework.activity.Disposable;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.Constants;
-import org.apache.james.imapserver.debug.CopyInputStream;
-import org.apache.james.imapserver.debug.SplitOutputStream;
-import org.apache.james.services.User;
-import org.apache.james.util.InternetPrintWriter;
-import org.apache.james.util.watchdog.Watchdog;
-import org.apache.james.util.watchdog.WatchdogTarget;
+import org.apache.james.core.AbstractJamesHandler;
+
+import java.io.IOException;
+import java.net.Socket;
 
 /**
  * The handler class for IMAP connections.
@@ -49,11 +34,11 @@ import org.apache.james.util.watchdog.WatchdogTarget;
  * should probably be rewritten from scratch.
  */
 public class ImapHandler
-        extends AbstractLogEnabled
+        extends AbstractJamesHandler
         implements ImapHandlerInterface, ConnectionHandler, Poolable, ImapConstants
 {
 
-    private String softwaretype = "JAMES IMAP4rev1 Server " + Constants.SOFTWARE_VERSION;
+    private String softwaretype = "JAMES "+VERSION+" Server " + Constants.SOFTWARE_VERSION;
     private final ImapRequestHandler requestHandler = new ImapRequestHandler();
     private ImapSession session;
 
@@ -61,58 +46,14 @@ public class ImapHandler
      * The per-service configuration data that applies to all handlers
      */
     private ImapHandlerConfigurationData theConfigData;
-
-    /**
-     * The thread executing this handler
-     */
-    private Thread handlerThread;
-
-    /**
-     * The TCP/IP socket over which the IMAP interaction
-     * is occurring
-     */
-    private Socket socket;
-
-    /**
-     * The reader associated with incoming characters.
-     */
-    private BufferedReader in;
-
-    /**
-     * The socket's input stream.
-     */
-    private InputStream ins;
-
-    /**
-     * The writer to which outgoing messages are written.
-     */
-    private PrintWriter out;
-
-    /**
-     * The socket's output stream
-     */
-    private OutputStream outs;
-
-    /**
-     * The watchdog being used by this handler to deal with idle timeouts.
-     */
-    private Watchdog theWatchdog;
-
-    /**
-     * The watchdog target that idles out this handler.
-     */
-    private WatchdogTarget theWatchdogTarget = new IMAPWatchdogTarget();
     
     private boolean handlerIsUp=false;
 
     /**
-     * @see org.apache.avalon.framework.logger.AbstractLogEnabled#enableLogging(org.apache.avalon.framework.logger.Logger)
+     * The session termination status
      */
-    public void enableLogging(Logger logger) { 
-        super.enableLogging(logger); 
-        setupLogger(requestHandler); 
-    }
-    
+    private boolean sessionEnded = false;
+
     /**
      * Set the configuration data for the handler.
      *
@@ -127,113 +68,72 @@ public class ImapHandler
         }
     }
 
-    /**
-     * Set the Watchdog for use by this handler.
-     *
-     * @param theWatchdog the watchdog
-     */
-    public void setWatchdog( Watchdog theWatchdog )
-    {
-        this.theWatchdog = theWatchdog;
-    }
-
-    /**
-     * Gets the Watchdog Target that should be used by Watchdogs managing
-     * this connection.
-     *
-     * @return the WatchdogTarget
-     */
-    WatchdogTarget getWatchdogTarget()
-    {
-        return theWatchdogTarget;
-    }
-
     public void forceConnectionClose(final String message) {
         getLogger().debug("forceConnectionClose: "+message);
         ImapResponse response = new ImapResponse(outs);
-        response.byeResponse(message);        
-        resetHandler();
+        response.byeResponse(message);
+        endSession();
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#endSession()
+     */
+    public void endSession() {
+        sessionEnded = true;
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#isSessionEnded()
+     */
+    public boolean isSessionEnded() {
+        return sessionEnded;
+    }
+
+    /**
+     * Resets the handler data to a basic state.
+     */
+    public void resetHandler() {
+        if (handlerIsUp == false) {
+            return;
+        }
+        handlerIsUp = false;
+        
+        // Clear user data
+        try {
+            if (session != null) {
+                session.closeMailbox();
+            }
+        } catch (Exception e) {
+            getLogger().error("session.cleanUp", e);
+        }
+        session = null;
+
+        // Clear config data
+        // Removed: we should never clean this one:
+        // theConfigData = null;
+    }
+    
+    protected void initHandler( Socket connection ) throws IOException {
+        handlerIsUp=true;
+        getLogger().debug("Accepting connection for "+connection.toString());
+        // DEBUG
+        
+        super.initHandler(connection);
     }
 
     /**
      * @see ConnectionHandler#handleConnection(Socket)
      */
-    public void handleConnection( Socket connection )
-            throws IOException
-    {
-        handlerIsUp=true;
-        getLogger().debug("Accepting connection for "+connection.toString());
-        // DEBUG
-        
-        String tcplogprefix= null;
-        if (theConfigData.doStreamdump()) {
-            String streamdumpDir=theConfigData.getStreamdumpDir();
-            tcplogprefix= streamdumpDir+"/TCP-IMAP."+System.currentTimeMillis()+".";
-            File logdir = new File(streamdumpDir);
-            if (!logdir.exists()) {
-                logdir.mkdir();
-            }
-        }
-        String remoteHost = "";
-        String remoteIP = "";
-
+    protected void handleProtocol() throws IOException {
         try {
-            this.socket = connection;
-            synchronized ( this ) {
-                handlerThread = Thread.currentThread();
-            }
-            ins = socket.getInputStream();
-            if (theConfigData.doStreamdump()) {
-                ins = new CopyInputStream(ins, new FileOutputStream(
-                        tcplogprefix + "in"));
-            }
-            in = new BufferedReader( new InputStreamReader( socket.getInputStream(), "ASCII" ), 512 );
-            remoteIP = socket.getInetAddress().getHostAddress();
-            remoteHost = socket.getInetAddress().getHostName();
-        }
-        catch ( IOException e ) {
-            if ( getLogger().isErrorEnabled() ) {
-                StringBuffer exceptionBuffer =
-                        new StringBuffer( 256 )
-                        .append( "Cannot open connection from " )
-                        .append( remoteHost )
-                        .append( " (" )
-                        .append( remoteIP )
-                        .append( "): " )
-                        .append( e.getMessage() );
-                getLogger().error( exceptionBuffer.toString(), e );
-            }
-            throw e;
-        }
-
-        if ( getLogger().isInfoEnabled() ) {
-            StringBuffer logBuffer =
-                    new StringBuffer( 128 )
-                    .append( "Connection from " )
-                    .append( remoteHost )
-                    .append( " (" )
-                    .append( remoteIP )
-                    .append( ") " );
-            getLogger().info( logBuffer.toString() );
-        }
-
-        try {
-            outs = new BufferedOutputStream( socket.getOutputStream(), 1024 );
-            if (theConfigData.doStreamdump()) {
-               outs = new SplitOutputStream(outs, new FileOutputStream(tcplogprefix+"out"));
-            }
-            out = new InternetPrintWriter( outs, true );
             ImapResponse response = new ImapResponse( outs );
 
             // Write welcome message
-            StringBuffer responseBuffer =
-                    new StringBuffer( 256 )
-                    .append( VERSION )
-                    .append( " Server " )
-                    .append( theConfigData.getHelloName() )
-                    .append( " ready" );
-            response.okResponse( null, responseBuffer.toString() );
+                 
+            response.okResponse(null, softwaretype + " Server "
+                    + theConfigData.getHelloName() + " ready");
 
+            sessionEnded = false;
             session = new ImapSessionImpl( theConfigData.getMailboxManagerProvider(),
                                            theConfigData.getUsersRepository(),
                                            this,
@@ -241,160 +141,53 @@ public class ImapHandler
                                            socket.getInetAddress().getHostAddress());
 
             theWatchdog.start();
-            while ( requestHandler.handleRequest( ins, outs, session ) ) {
-                if (!handlerIsUp) {
-                    getLogger().debug("Handler has been resetted");
-                    return;
-                }
+            while ( handlerIsUp && !sessionEnded && requestHandler.handleRequest( in, outs, session ) ) {
                 theWatchdog.reset();
             }
-            // TODO is this unreachable code because of !handlerIsUp -> return?
             theWatchdog.stop();
             
 
-            //Write BYE message.
-            if ( getLogger().isInfoEnabled() ) {
-                String user = "<unknown>";
-                User userObject = session.getUser();
-                if (userObject !=  null) {
-                    user = userObject.getUserName();
-                }
-                StringBuffer logBuffer =
-                        new StringBuffer( 128 )
-                        .append( "Connection for " )
-                        .append( user )
-                        .append( " from " )
-                        .append( remoteHost )
-                        .append( " (" )
-                        .append( remoteIP )
-                        .append( ") closed." );
-                getLogger().info( logBuffer.toString() );
-            }
+            // TODO (?) Write BYE message.
+            
+            getLogger().info(
+                    "Connection from " + remoteHost + " (" + remoteIP
+                            + ") closed.");
 
         }
-        catch (Exception e) {
-            out.println("Error closing connection.");
+        catch (ProtocolException e) {
+            throw new RuntimeException(e.getMessage(),e);
+        }
+    }
+    
+    /**
+     * Method which will be colled on error
+     *  
+     * @param e the RuntimeException
+     */
+    protected void errorHandler(RuntimeException e) {
+        if (e != null && e.getCause() instanceof ProtocolException) {
+            out.println("Protocol exception.");
             out.flush();
             StringBuffer exceptionBuffer =
                     new StringBuffer( 128 )
-                    .append( "Exception on connection from " )
+                    .append( "Protocol exception during connection from " )
                     .append( remoteHost )
                     .append( " (" )
                     .append( remoteIP )
                     .append( ") : " )
                     .append( e.getMessage() );
-            getLogger().error( exceptionBuffer.toString(), e );
-        }
-        finally {
-            resetHandler();
-        }
-    }
-
-    /**
-     * Resets the handler data to a basic state.
-     */
-    public void resetHandler()
-    {
-        if (handlerIsUp == false) {
-            return;
-        }
-        handlerIsUp = false;
-        if (theWatchdog != null) {
-            if (theWatchdog instanceof Disposable) {
-                ((Disposable) theWatchdog).dispose();
-            }
-            theWatchdog = null;
-        }
-
-        // Close and clear streams, sockets
-
-        try {
-            if ( socket != null ) {
-                socket.close();
-                socket = null;
-            }
-        }
-        catch ( IOException ioe ) {
-            // Ignoring exception on close
-        }
-        finally {
-            socket = null;
-        }
-
-        try {
-            if ( in != null ) {
-                in.close();
-            }
-        }
-        catch ( Exception e ) {
-            // Ignored
-        }
-        finally {
-            in = null;
-        }
-
-        try {
-            if ( out != null ) {
-                out.close();
-            }
-        }
-        catch ( Exception e ) {
-            // Ignored
-        }
-        finally {
-            out = null;
-        }
-
-        try {
-            if ( outs != null ) {
-                outs.close();
-            }
-        }
-        catch ( Exception e ) {
-            // Ignored
-        }
-        finally {
-            outs = null;
-        }
-
-        synchronized ( this ) {
-            // Interrupt the thread to recover from internal hangs
-            if ( handlerThread != null ) {
-                handlerThread.interrupt();
-                handlerThread = null;
-            }
-        }
-
-        // Clear user data
-        
-        try {
-               if (session != null) session.closeMailbox();
-        } catch (Exception e) {
-            getLogger().error("session.cleanUp", e);
-        }
-        session = null;
-
-        // Clear config data
-        theConfigData = null;
-    }
-
-    /**
-     * A private inner class which serves as an adaptor
-     * between the WatchdogTarget interface and this
-     * handler class.
-     */
-    private class IMAPWatchdogTarget
-            implements WatchdogTarget
-    {
-
-        /**
-         * @see WatchdogTarget#execute()
-         */
-        public void execute()
-        {
-            forceConnectionClose("IMAP Connection has idled out.");
+            getLogger().error( exceptionBuffer.toString(), e.getCause() );
+        } else {
+            super.errorHandler(e);
         }
     }
 
+    public void enableLogging(Logger logger) {
+        super.enableLogging(logger);
+        setupLogger(requestHandler);
+    }
+
+    
+    
 }
 

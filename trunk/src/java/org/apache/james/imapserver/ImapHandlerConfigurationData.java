@@ -52,10 +52,5 @@ public interface ImapHandlerConfigurationData
     UsersRepository getUsersRepository();
     
     MailboxManagerProvider getMailboxManagerProvider();
-    
-    boolean doStreamdump();
-    
-    String getStreamdumpDir();
-
 
 }

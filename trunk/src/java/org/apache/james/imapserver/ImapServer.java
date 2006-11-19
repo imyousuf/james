@@ -19,10 +19,6 @@
 
 package org.apache.james.imapserver;
 
-import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
-import org.apache.avalon.excalibur.pool.ObjectFactory;
-import org.apache.avalon.excalibur.pool.Poolable;
-import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Logger;
@@ -31,8 +27,6 @@ import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.core.AbstractJamesService;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 import org.apache.james.services.UsersRepository;
-import org.apache.james.util.watchdog.Watchdog;
-import org.apache.james.util.watchdog.WatchdogFactory;
 
 /**
  * TODO: this is a quick cut-and-paste hack from POP3Server. Should probably be
@@ -58,11 +52,6 @@ public class ImapServer extends AbstractJamesService
      * 20 KB.
      */
     private int lengthReset = 20 * 1024;
-
-    /**
-     * The factory used to generate Watchdog objects
-     */
-    private WatchdogFactory theWatchdogFactory;
 
     /**
      * The configuration data to be passed to the handler
@@ -101,25 +90,7 @@ public class ImapServer extends AbstractJamesService
             Configuration handlerConfiguration = configuration.getChild( "handler" );
             lengthReset = handlerConfiguration.getChild( "lengthReset" ).getValueAsInteger( lengthReset );
             getLogger().info( "The idle timeout will be reset every " + lengthReset + " bytes." );
-            boolean streamdump=handlerConfiguration.getChild("streamdump").getAttributeAsBoolean("enabled", false);
-            theConfigData.setStreamDump(streamdump);
-            String streamdumpDir=handlerConfiguration.getChild("streamdump").getAttribute("directory", null);
-            theConfigData.setStreamDumpDir(streamdumpDir);
         }
-    }
-
-    /**
-     * @see Initializable#initialize()
-     */
-    public void initialize() throws Exception
-    {
-
-        super.initialize();
-        if ( !isEnabled() ) {
-            return;
-        }
-
-        theWatchdogFactory = getWatchdogFactory();
     }
 
     /**
@@ -136,33 +107,6 @@ public class ImapServer extends AbstractJamesService
     public String getServiceType()
     {
         return "IMAP Service";
-    }
-
-    /**
-     * @see org.apache.avalon.cornerstone.services.connection.AbstractHandlerFactory#newHandler()
-     */
-    protected ConnectionHandler newHandler()
-            throws Exception
-    {
-        ImapHandler theHandler = (ImapHandler) theHandlerPool.get();
-
-        Watchdog theWatchdog = theWatchdogFactory.getWatchdog( theHandler.getWatchdogTarget() );
-
-        theHandler.setConfigurationData( theConfigData );
-
-        theHandler.setWatchdog( theWatchdog );
-        return theHandler;
-    }
-
-    /**
-     * @see org.apache.avalon.cornerstone.services.connection.ConnectionHandlerFactory#releaseConnectionHandler(ConnectionHandler)
-     */
-    public void releaseConnectionHandler( ConnectionHandler connectionHandler )
-    {
-        if ( !( connectionHandler instanceof ImapHandler ) ) {
-            throw new IllegalArgumentException( "Attempted to return non-ImapHandler to pool." );
-        }
-        theHandlerPool.put( ( Poolable ) connectionHandler );
     }
 
     /**
@@ -188,14 +132,6 @@ public class ImapServer extends AbstractJamesService
             return ImapHandler.class;
         }
 
-        /**
-         * @see ObjectFactory#decommission(Object)
-         */
-        public void decommission( Object object ) throws Exception
-        {
-            return;
-        }
-
     /**
      * A class to provide POP3 handler configuration to the handlers
      */
@@ -203,23 +139,12 @@ public class ImapServer extends AbstractJamesService
             implements ImapHandlerConfigurationData
     {
 
-        private String streamdumpDir = null;
-        private boolean streamdump = false;
         /**
          * @see ImapHandlerConfigurationData#getHelloName()
          */
         public String getHelloName()
         {
             return ImapServer.this.helloName;
-        }
-
-        public void setStreamDumpDir(String streamdumpDir) {
-            this.streamdumpDir=streamdumpDir;
-        }
-
-        public void setStreamDump(boolean streamdump) {
-            this.streamdump=streamdump;
-            
         }
 
         /**
@@ -240,14 +165,6 @@ public class ImapServer extends AbstractJamesService
 
         public MailboxManagerProvider getMailboxManagerProvider() {
           return ImapServer.this.mailboxManagerProvider;
-        }
-
-        public boolean doStreamdump() {
-            return streamdump;
-        }
-
-        public String getStreamdumpDir() {
-            return streamdumpDir;
         }
 
     }
