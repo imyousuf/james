@@ -26,6 +26,7 @@ import java.lang.reflect.Method;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -91,6 +92,7 @@ public class RemoteManagerHandler
         "SHOWMATCHERINFO",
         "ADDMAPPING",
         "REMOVEMAPPING",
+        "LISTMAPPING",
         "QUIT",
         "SHUTDOWN"
     });
@@ -112,6 +114,7 @@ public class RemoteManagerHandler
     private final static String ADD_MAPPING_ACTION = "ADD_MAPPING";
     private final static String REMOVE_MAPPING_ACTION = "REMOVE_MAPPING";
 
+    
     /**
      * Set the configuration data for the handler.
      *
@@ -505,6 +508,7 @@ public class RemoteManagerHandler
         out.println("user [repositoryname]                                                   change to another user repository");
         out.println("addmapping [table=virtualusertablename] user@domain mapping             add mapping for the given emailaddress");
         out.println("removemapping [table=virtualusertablename] user@domain mapping          remove mapping for the given emailaddress");
+        out.println("listmapping [table=virtualusertablename] user@domain                    list all mappings for the given emailaddress");
         out.println("listspool [spoolrepositoryname] ([header=name] [regex=value])           list all mails which reside in the spool and have an error state");
         out.println("flushspool [spoolrepositoryname] ([key] | [header=name] [regex=value])  try to resend the mail assing to the given key. If no key is given all mails get resend");
         out.println("deletespool [spoolrepositoryname] ([key] | [header=name] [regex=value]) delete the mail assign to the given key. If no key is given all mails get deleted");
@@ -1461,6 +1465,66 @@ public class RemoteManagerHandler
         }
         return true;
     }
+
+    private boolean doLISTMAPPING(String argument) {
+        String[] args = null;
+        String table = null;
+        String user = null;
+        String domain = null;
+
+        if (argument != null)
+            args = argument.split(" ");
+
+        // check if the command was called correct
+        if (argument == null || argument.trim().equals("") || args.length < 1 || args.length > 2) {
+            writeLoggedFlushedResponse("Usage: LISTMAPPING [table=table] user@domain");
+            return true;
+        }
+
+        if (args[0].startsWith("table=")) {
+            table = args[0].substring("table=".length());
+            if (args[1].indexOf("@") > 0) {
+                user = getMappingValue(args[1].split("@")[0]);
+                domain = getMappingValue(args[1].split("@")[1]);
+            } else {
+            writeLoggedFlushedResponse("Usage: LISTMAPPING [table=table] user@domain");
+                return true;
+            }
+        } else {
+            if (args[0].indexOf("@") > 0) {
+                user = getMappingValue(args[0].split("@")[0]);
+                domain = getMappingValue(args[0].split("@")[1]);
+            } else {
+            writeLoggedFlushedResponse("Usage: LISTMAPPING [table=table] user@domain");
+                return true;
+            }
+        }
+        
+        try {
+            Collection mappings = theConfigData.getVirtualUserTableManagement().getUserDomainMappings(table, user, domain);
+            if (mappings == null) {
+                out.println("No mappings found");
+                out.flush();
+            } else {
+                out.println("Mappings:");
+                
+                Iterator m = mappings.iterator();
+                while(m.hasNext()) {
+                    out.println(m.next());
+                }
+                out.flush();
+            }
+        } catch (VirtualUserTableManagementException e) {
+            getLogger().error("Error on  removing mapping: " + e);
+            out.println("Error on removing mapping: " + e);
+            out.flush();
+        } catch (IllegalArgumentException e) {
+            getLogger().error("Error on removing mapping: " + e);
+            out.println("Error on removing mapping: " + e);
+            out.flush();
+        }
+        return true;
+    }
     
     private String getMappingValue(String raw) {
         if (raw.equals("*")) {
@@ -1494,6 +1558,7 @@ public class RemoteManagerHandler
             }
             mapping = args[1];
         }
+        
         if (action.equals(ADD_MAPPING_ACTION)) {
             return theConfigData.getVirtualUserTableManagement().addMapping(table, user, domain, mapping);
         } else if (action.equals(REMOVE_MAPPING_ACTION)){
