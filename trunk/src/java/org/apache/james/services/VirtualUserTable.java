@@ -37,6 +37,16 @@ public interface VirtualUserTable {
     public static final String ROLE = "org.apache.james.services.VirtualUserTable";
     
     /**
+     * The prefix which is used for error mappings
+     */
+    public static final String ERROR_PREFIX = "error:";
+    
+    /**
+     * The prefix which is used for regex prefix
+     */
+    public static final String REGEX_PREFIX = "regex:";
+    
+    /**
      * Return the mapped MailAddress for the given address. Return null if no 
      * matched mapping was found
      * 

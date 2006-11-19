@@ -105,9 +105,9 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable implements Con
     }
 
     /**
-     * @see org.apache.james.services.VirtualUserTableManagement#getUserDomainMappings(java.lang.String, java.lang.String)
+     * @see org.apache.james.vut.AbstractVirtualUserTable#getUserDomainMappingsInternal(java.lang.String, java.lang.String)
      */
-    public Collection getUserDomainMappings(String user, String domain) {
+    public Collection getUserDomainMappingsInternal(String user, String domain) {
         Object maps = mappings.get(user + "@" + domain);
         if (maps != null) {
             return mappingToCollection(maps.toString());

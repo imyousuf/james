@@ -475,7 +475,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
     /**
      * @see org.apache.james.vut.AbstractVirtualUserTable#mapAddress(java.lang.String, java.lang.String)
      */
-    public Collection getUserDomainMappings(String user, String domain) throws InvalidMappingException {
+    protected Collection getUserDomainMappingsInternal(String user, String domain) {
         Connection conn = null;
         PreparedStatement mappingStmt = null;
         
