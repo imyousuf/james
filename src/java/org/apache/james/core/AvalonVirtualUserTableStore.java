@@ -82,6 +82,6 @@ public class AvalonVirtualUserTableStore
      * @see org.apache.james.core.AbstractAvalonStore#getStoreName()
      */
     public String getStoreName() {
-        return "AvalonVirtualUserStore";
+        return "AvalonVirtualUserTableStore";
     }
 }

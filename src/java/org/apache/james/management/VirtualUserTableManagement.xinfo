@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+
+<blockinfo>
+
+  <!-- section to describe block -->
+  <block>
+    <version>1.0</version>
+  </block>
+
+  <dependencies>
+    <dependency>
+      <service name="org.apache.james.services.VirtualUserTableStore" version="1.0"/>
+    </dependency>
+  </dependencies>
+</blockinfo>

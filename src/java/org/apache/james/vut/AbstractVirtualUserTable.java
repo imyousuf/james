@@ -190,6 +190,40 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
 
 
     /**
+     * @see org.apache.james.services.VirtualUserTableManagement#addMapping(java.lang.String, java.lang.String, java.lang.String)
+     */
+    public boolean addMapping(String user, String domain, String mapping) throws InvalidMappingException {
+        String map = mapping.toLowerCase();
+        String errorPrefix = "error:";
+        String regexPrefix = "regex:";
+    
+        if (map.startsWith(errorPrefix)) {
+            return addErrorMapping(user,domain,map.substring(errorPrefix.length()));
+        } else if (map.startsWith(regexPrefix)) {
+            return addRegexMapping(user,domain,map.substring(regexPrefix.length()));
+        } else {
+            return addAddressMapping(user,domain,map);
+        }
+    }
+    
+    /**
+     * @see org.apache.james.services.VirtualUserTableManagement#removeMapping(java.lang.String, java.lang.String, java.lang.String)
+     */
+    public boolean removeMapping(String user, String domain, String mapping) throws InvalidMappingException {
+        String map = mapping.toLowerCase();
+        String errorPrefix = "error:";
+        String regexPrefix = "regex:";
+    
+        if (map.startsWith(errorPrefix)) {
+            return removeErrorMapping(user,domain,map.substring(errorPrefix.length()));
+        } else if (map.startsWith(regexPrefix)) {
+            return removeRegexMapping(user,domain,map.substring(regexPrefix.length()));
+        } else {
+            return removeAddressMapping(user,domain,map);
+        }
+    }
+    
+    /**
      * Convert a raw mapping String to a Collection
      * 
      * @param rawMapping the mapping Strin

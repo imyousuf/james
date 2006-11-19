@@ -295,7 +295,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
             map.remove(mapping);
             return updateMapping(newUser,newDomain,CollectionToMapping(map));
         } else {
-            return removeMapping(newUser,newDomain,mapping);
+            return removeRawMapping(newUser,newDomain,mapping);
         }
     }
 
@@ -313,7 +313,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
         
             return updateMapping(newUser,newDomain,CollectionToMapping(map));
         }
-        return addMapping(newUser,newDomain,regex);
+        return addRawMapping(newUser,newDomain,regex);
     }
     
     /**
@@ -364,7 +364,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
      * @param mapping the mapping
      * @return true if succesfully
      */
-    private boolean removeMapping(String user, String domain, String mapping) {
+    private boolean removeRawMapping(String user, String domain, String mapping) {
         Connection conn = null;
         PreparedStatement mappingStmt = null;
 
@@ -402,7 +402,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
      * @param mapping the mapping 
      * @return true if successfully
      */
-    private boolean addMapping(String user, String domain, String mapping) {
+    private boolean addRawMapping(String user, String domain, String mapping) {
         Connection conn = null;
         PreparedStatement mappingStmt = null;
 

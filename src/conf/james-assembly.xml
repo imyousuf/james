@@ -223,6 +223,10 @@
   <block name="filesystem" class="org.apache.james.context.AvalonFileSystem">
   </block>
   
+  <!-- The VirtualUserTable Management block  -->
+  <block name="virtualusertablemanagement" class="org.apache.james.management.VirtualUserTableManagement" >
+    <provide name="virtualusertable-store" role="org.apache.james.services.VirtualUserTableStore"/>
+  </block>
   
   <!-- VirtualUserTable Store -->
   <block name="virtualusertable-store" class="org.apache.james.core.AvalonVirtualUserTableStore">
