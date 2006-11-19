@@ -28,6 +28,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
+import org.apache.james.imapserver.debug.SplitOutputStream;
 import org.apache.james.services.DNSServer;
 import org.apache.james.util.CRLFTerminatedReader;
 import org.apache.james.util.InternetPrintWriter;
@@ -36,6 +37,8 @@ import org.apache.james.util.watchdog.WatchdogTarget;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
@@ -114,13 +117,18 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
      * The DNSServer
      */
     protected DNSServer dnsServer = null;
+
+    /**
+     * Used for debug: if not null enable tcp stream dump.
+     */
+    private String tcplogprefix = null;
     
 
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
      */
     public void service(ServiceManager arg0) throws ServiceException {
-        dnsServer = (DNSServer) arg0.lookup(DNSServer.ROLE);
+        setDnsServer((DNSServer) arg0.lookup(DNSServer.ROLE));
     }
 
     /**
@@ -145,6 +153,10 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
             // to be ASCII
             inReader = new CRLFTerminatedReader(in, "ASCII");
             outs = new BufferedOutputStream(socket.getOutputStream(), 1024);
+            // enable tcp dump for debug
+            if (tcplogprefix != null) {
+                outs = new SplitOutputStream(outs, new FileOutputStream(tcplogprefix+"out"));
+            }
             out = new InternetPrintWriter(outs, true);
         } catch (RuntimeException e) {
             StringBuffer exceptionBuffer = 
@@ -317,7 +329,7 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
      *
      * @param theWatchdog the watchdog
      */
-    void setWatchdog(Watchdog theWatchdog) {
+    public void setWatchdog(Watchdog theWatchdog) {
         this.theWatchdog = theWatchdog;
     }
 
@@ -411,6 +423,28 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
             AbstractJamesHandler.this.idleClose();
         }
 
+    }
+
+    /**
+     * If not null, this will enable dump to file for tcp connections
+     * 
+     * @param streamDumpDir the dir
+     */
+    public void setStreamDumpDir(String streamDumpDir) {
+        if (streamDumpDir != null) {
+            String streamdumpDir=streamDumpDir;
+            this.tcplogprefix = streamdumpDir+"/TCP-DUMP."+System.currentTimeMillis()+".";
+            File logdir = new File(streamdumpDir);
+            if (!logdir.exists()) {
+                logdir.mkdir();
+            }
+        } else {
+            this.tcplogprefix = null;
+        }
+    }
+
+    public void setDnsServer(DNSServer dnsServer) {
+        this.dnsServer = dnsServer;
     }
 
 }

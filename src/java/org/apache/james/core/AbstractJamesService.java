@@ -186,6 +186,11 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
     private boolean connPerIPConfigured = false;
     private int connPerIP = 0;
 
+    /**
+     * If not null, it will be used to dump the tcp commands for debugging purpose
+     */
+    private String streamDumpDir = null;
+
     public void setConnectionManager(JamesConnectionManager connectionManager) {
         this.connectionManager = connectionManager;
     }
@@ -222,6 +227,12 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
         //       sense.  We should modify the config to get rid of it.
         //       Keeping it for now to maintain backwards compatibility.
         super.configure(handlerConfiguration);
+        
+        
+        boolean streamdump=handlerConfiguration.getChild("streamdump").getAttributeAsBoolean("enabled", false);
+        String streamdumpDir=streamdump ? handlerConfiguration.getChild("streamdump").getAttribute("directory", null) : null;
+        setStreamDumpDir(streamdumpDir);
+
 
         port = conf.getChild("port").getValueAsInteger(getDefaultPort());
 
@@ -337,6 +348,10 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
             .append(" per IP connections for " +getServiceType());
         getLogger().info(infoBuffer.toString());
         
+    }
+
+    protected void setStreamDumpDir(String streamdumpDir) {
+        this.streamDumpDir = streamdumpDir;
     }
 
     private void configureHelloName(Configuration handlerConfiguration) {
@@ -610,6 +625,7 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
         Watchdog theWatchdog = theWatchdogFactory.getWatchdog(theHandler.getWatchdogTarget());
 
         theHandler.setConfigurationData(getConfigurationData());
+        theHandler.setStreamDumpDir(streamDumpDir);
         theHandler.setWatchdog(theWatchdog);
         return theHandler;
     }

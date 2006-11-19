@@ -25,16 +25,22 @@ import java.net.Socket;
 
 import javax.mail.MessagingException;
 
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.configuration.DefaultConfiguration;
+import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.imapserver.ImapHandler;
 import org.apache.james.imapserver.TestConstants;
 import org.apache.james.imapserver.mock.MockImapHandlerConfigurationData;
 import org.apache.james.imapserver.mock.MockWatchdog;
 import org.apache.james.mailboxmanager.MailboxManagerException;
+import org.apache.james.services.DNSServer;
 import org.apache.james.test.mock.avalon.MockLogger;
 
 public class ImapServerLauncher  implements TestConstants 
 {
 
+
+    private DNSServer dnsServer;
 
     public void go() throws IOException, MessagingException, MailboxManagerException
     {
@@ -49,12 +55,14 @@ public class ImapServerLauncher  implements TestConstants
                         ImapHandler imapHandler=new ImapHandler();
                         imapHandler.enableLogging(new MockLogger());
                         imapHandler.setConfigurationData(theConfigData);
+                        imapHandler.setDnsServer(getDNSServer());
+                        imapHandler.setStreamDumpDir("streamdump");
                         imapHandler.setWatchdog(new MockWatchdog());
                         System.out.println("Handle connection "+s);
                         imapHandler.handleConnection(s);
                         System.out.println("Handle connection finished."+s);
     
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         throw new RuntimeException(e);
                     }       
                 }
@@ -63,6 +71,14 @@ public class ImapServerLauncher  implements TestConstants
             
         }
 
+    }
+    
+    public DNSServer getDNSServer() throws Exception {
+        dnsServer=new org.apache.james.dnsserver.DNSServer();
+        ContainerUtil.enableLogging(dnsServer, new MockLogger());
+        ContainerUtil.configure(dnsServer, new DefaultConfiguration("dnsserver"));
+        ContainerUtil.initialize(dnsServer);
+        return dnsServer; 
     }
 
     public static void main(String[] args)
