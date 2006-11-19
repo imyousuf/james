@@ -152,7 +152,7 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
             }
 
             SimpleMessageAttributes attrs = new SimpleMessageAttributes(result
-                    .getMimeMessage());
+                    .getMimeMessage(), getLogger());
 
             // ENVELOPE response
             if (fetch.envelope) {

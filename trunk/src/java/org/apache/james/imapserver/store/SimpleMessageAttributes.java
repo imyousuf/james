@@ -36,6 +36,7 @@ import javax.mail.internet.MimePart;
 import javax.mail.internet.ParseException;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.logger.Logger;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.dates.RFC822DateFormat;
 
@@ -94,6 +95,11 @@ public class SimpleMessageAttributes
     private String contentEncoding;
 
     SimpleMessageAttributes() {
+    }
+    
+    public SimpleMessageAttributes(MimeMessage mm, Logger logger) throws MessagingException {
+        enableLogging(logger);
+        setAttributesFor(mm);
     }
     
     public SimpleMessageAttributes(MimeMessage mm) throws MessagingException {
