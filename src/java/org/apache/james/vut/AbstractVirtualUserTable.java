@@ -27,7 +27,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.StringTokenizer;
+import java.util.Map;
 
 import javax.mail.internet.ParseException;
 
@@ -202,7 +202,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
      */
     public boolean addMapping(String user, String domain, String mapping) throws InvalidMappingException {
         String map = mapping.toLowerCase();
-    
+        
         if (map.startsWith(VirtualUserTable.ERROR_PREFIX)) {
             return addErrorMapping(user,domain,map.substring(VirtualUserTable.ERROR_PREFIX.length()));
         } else if (map.startsWith(VirtualUserTable.REGEX_PREFIX)) {
@@ -228,44 +228,19 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
     }
     
     /**
-     * Convert a raw mapping String to a Collection
-     * 
-     * @param rawMapping the mapping Strin
-     * @return map a collection which holds all mappings
+     * @see org.apache.james.services.VirtualUserTableManagement#getAllMappings()
      */
-    protected ArrayList mappingToCollection(String rawMapping) {
-        ArrayList map = new ArrayList();
-        StringTokenizer tokenizer = new StringTokenizer(rawMapping,
-        VirtualUserTableUtil.getSeparator(rawMapping));
-
-        while (tokenizer.hasMoreTokens()) {
-            String raw = tokenizer.nextToken().trim();
-            map.add(raw);
+    public Map getAllMappings() {
+        int count = 0;
+        Map mappings = getAllMappingsInternal();
+    
+        if (mappings != null) {
+            count = mappings.size();
         }
-        return map;
-   }
+        getLogger().debug("Retrieve all mappings. Mapping count: " + count);
+        return mappings;
+    }
     
-
-    /**
-     * Convert a Collection which holds mappings to a raw mapping String
-     * 
-     * @param map the Collection
-     * @return mapping the mapping String
-     */
-    protected String CollectionToMapping(Collection map) {
-        StringBuffer mapping = new StringBuffer();
-    
-        Iterator mappings = map.iterator();
-    
-        while (mappings.hasNext()) {
-            mapping.append(mappings.next());
-        
-            if (mappings.hasNext()) {
-                mapping.append(";");
-            }
-        }  
-        return mapping.toString();  
-   }
     
    private boolean checkMapping(String user,String domain, String mapping) {
        Collection mappings = getUserDomainMappings(user,domain);
@@ -388,4 +363,11 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
      * @return Collection which hold the mappings
      */
     protected abstract Collection getUserDomainMappingsInternal(String user, String domain);
+
+    /**
+     * Return a Map which holds all Mappings
+     * 
+     * @return Map
+     */
+    protected abstract Map getAllMappingsInternal();
 }

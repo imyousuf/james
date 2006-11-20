@@ -22,6 +22,7 @@
 package org.apache.james.core;
 
 import java.util.Collection;
+import java.util.Map;
 
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.service.ServiceException;
@@ -126,5 +127,12 @@ public class DefaultVirtualUserTable implements VirtualUserTableManagement, Serv
      */
     public boolean removeMapping(String user, String domain, String mapping) throws InvalidMappingException {
         return vut.removeMapping(user, domain, mapping);
+    }
+
+    /**
+     * @see org.apache.james.services.VirtualUserTableManagement#getAllMappings()
+     */
+    public Map getAllMappings() {
+        return vut.getAllMappings();
     }
 }

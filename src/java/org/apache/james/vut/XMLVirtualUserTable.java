@@ -59,7 +59,7 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable implements Con
         
         while (keys.hasNext()) {
             String key = keys.next().toString();
-            Collection values = mappingToCollection(mappings.get(key).toString());
+            Collection values = VirtualUserTableUtil.mappingToCollection(mappings.get(key).toString());
             
             String[] args1 = key.split("@");
             if (args1 != null && args1.length == 2) {
@@ -110,7 +110,7 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable implements Con
     public Collection getUserDomainMappingsInternal(String user, String domain) {
         Object maps = mappings.get(user + "@" + domain);
         if (maps != null) {
-            return mappingToCollection(maps.toString());
+            return VirtualUserTableUtil.mappingToCollection(maps.toString());
         } else {
             return null;
         }
@@ -128,5 +128,16 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable implements Con
      */
     public boolean containsDomain(String domain) {
         return domains.contains(domain);
+    }
+
+    /**
+     * @see org.apache.james.vut.AbstractVirtualUserTable#getAllMappingsInternal()
+     */
+    public Map getAllMappingsInternal() {
+        if (mappings.size() > 0) {
+                return mappings;
+        } else {
+            return null;
+        }
     }
 }

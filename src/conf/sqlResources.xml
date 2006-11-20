@@ -1002,6 +1002,8 @@
    
     <sql name="addMapping">insert into VirtualUserTable values(?,?,?) </sql>
     
+    <sql name="selectAllMappings">select * from VirtualUserTable </sql>
+    
     <sql name="selectDomains">select distinct domain from VirtualUserTable</sql>
     
     <sql name="selectDomain">select distinct domain from VirtualUserTable where domain = ? </sql>

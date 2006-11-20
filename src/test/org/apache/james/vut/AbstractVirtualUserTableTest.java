@@ -58,7 +58,8 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
             assertTrue("Added virtual mapping", virtualUserTable.addRegexMapping(user, domain, regex));
             assertTrue("Added virtual mapping", virtualUserTable.addRegexMapping(user, domain, regex2));
 
-            assertTrue("Two mappings",virtualUserTable.getMappings(user, domain).size() == 2);
+            assertEquals("Two mappings",virtualUserTable.getMappings(user, domain).size(), 2);           
+            assertEquals("One mappingline",virtualUserTable.getAllMappings().size(),1);
             
             // Test DomainList implementations!
             assertEquals("Four domains",virtualUserTable.getDomains().size(), 4);
@@ -75,6 +76,8 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
 
             assertTrue("remove virtual mapping", virtualUserTable.removeRegexMapping(user, domain, regex2));
             assertNull("No mapping",virtualUserTable.getMappings(user, domain));
+            assertNull("No mappings",virtualUserTable.getAllMappings());
+            
         } catch (InvalidMappingException e) {
             fail("Storing failed");
         }
@@ -96,7 +99,8 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
             assertTrue("Added virtual mapping", virtualUserTable.addAddressMapping(user, domain, address));
             assertTrue("Added virtual mapping", virtualUserTable.addAddressMapping(user, domain, address2));
 
-            assertTrue("Two mappings",virtualUserTable.getMappings(user, domain).size() == 2);
+            assertEquals("Two mappings",virtualUserTable.getMappings(user, domain).size(),2);
+            assertEquals("One mappingline",virtualUserTable.getAllMappings().size(),1);
         
             assertTrue("remove virtual mapping", virtualUserTable.removeAddressMapping(user, domain, address));
         
@@ -109,6 +113,8 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
 
             assertTrue("remove virtual mapping", virtualUserTable.removeAddressMapping(user, domain, address2));
             assertNull("No mapping",virtualUserTable.getMappings(user, domain));
+            assertNull("No mappings",virtualUserTable.getAllMappings());
+            
         } catch (InvalidMappingException e) {
             fail("Storing failed");
         }
@@ -126,6 +132,7 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
             assertNull("No mapping",virtualUserTable.getMappings(user, domain));
         
             assertTrue("Added virtual mapping", virtualUserTable.addErrorMapping(user, domain, error));
+            assertEquals("One mappingline",virtualUserTable.getAllMappings().size(),1);
 
             try {
                 virtualUserTable.getMappings(user, domain);
@@ -136,11 +143,12 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
 
             assertTrue("remove virtual mapping", virtualUserTable.removeErrorMapping(user, domain, error));
             assertNull("No mapping",virtualUserTable.getMappings(user, domain));
+            assertNull("No mappings",virtualUserTable.getAllMappings());
+            
         } catch (InvalidMappingException e) {
              fail("Storing failed");
         }
 
-    
     }
 
 }
