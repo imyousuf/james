@@ -149,7 +149,14 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         public boolean accept (String key, String state, long lastUpdated, String errorMessage) {
             if (state.equals(Mail.ERROR)) {
                 //Test the time...
-                int retries = Integer.parseInt(errorMessage);
+                int retries = 0;
+                
+                try {
+                    retries = Integer.parseInt(errorMessage);
+                } catch (NumberFormatException e) {
+                    // Something strange was happen with the errorMessage.. Ignore the Exception and try 
+                    // to deliver it now!
+                }
                 
                 // If the retries count is 0 we should try to send the mail now!
                 if (retries == 0) return true;
@@ -804,7 +811,14 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                 mail.setErrorMessage("0");
                 mail.setLastUpdated(new Date());
             }
-            int retries = Integer.parseInt(mail.getErrorMessage());
+            
+            int retries = 0;
+            try {
+                retries = Integer.parseInt(mail.getErrorMessage());
+            } catch (NumberFormatException e) {
+                // Something strange was happen with the errorMessage.. 
+            }
+            
             if (retries < maxRetries) {
                 logBuffer =
                     new StringBuffer(128)
