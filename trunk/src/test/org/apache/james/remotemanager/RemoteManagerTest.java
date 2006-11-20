@@ -25,18 +25,22 @@ import org.apache.avalon.cornerstone.services.sockets.SocketManager;
 import org.apache.avalon.cornerstone.services.threads.ThreadManager;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.commons.net.telnet.TelnetClient;
+import org.apache.james.management.VirtualUserTableManagement;
 import org.apache.james.services.AbstractDNSServer;
 import org.apache.james.services.DNSServer;
 import org.apache.james.services.JamesConnectionManager;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
+import org.apache.james.services.VirtualUserTableManagementService;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockServiceManager;
 import org.apache.james.test.mock.avalon.MockSocketManager;
 import org.apache.james.test.mock.avalon.MockThreadManager;
 import org.apache.james.test.mock.james.MockMailServer;
 import org.apache.james.test.mock.james.MockUsersStore;
+import org.apache.james.test.mock.james.MockVirtualUserTableManagementImpl;
+import org.apache.james.test.mock.james.MockVirtualUserTableStore;
 import org.apache.james.test.util.Util;
 import org.apache.james.userrepository.MockUsersRepository;
 import org.apache.james.util.InternetPrintWriter;
@@ -73,6 +77,7 @@ public class RemoteManagerTest extends TestCase {
     protected TelnetClient m_telnetClient;
     private MockUsersRepository m_mockUsersRepository;
     private MockMailServer mailServer;
+    private static final String VUT_TABLE = "VUT";
 
     protected void setUp() throws Exception {
         m_remoteManager = new RemoteManager();
@@ -169,6 +174,12 @@ public class RemoteManagerTest extends TestCase {
         serviceManager.put(SocketManager.ROLE, new MockSocketManager(m_remoteManagerListenerPort));
         serviceManager.put(ThreadManager.ROLE, new MockThreadManager());
         serviceManager.put(DNSServer.ROLE, setUpDNSServer());
+        
+        MockVirtualUserTableStore vutStore = new MockVirtualUserTableStore(); 
+        VirtualUserTableManagement vutManagement = new VirtualUserTableManagement();
+        vutManagement.setVirtualUserTableStore(vutStore);
+        vutManagement.setDefaultVirtualUserTable(new MockVirtualUserTableManagementImpl());
+        serviceManager.put(VirtualUserTableManagementService.ROLE, vutManagement);
         return serviceManager;
     }
     
@@ -515,5 +526,78 @@ public class RemoteManagerTest extends TestCase {
         assertFalse("password not changed to pWD2: "+lastLine, m_mockUsersRepository.test("testPwdUser", "pwd2"));
         assertTrue("password not changed to pWD2: "+lastLine, m_mockUsersRepository.test("testPwdUser", "pWD2"));
         
+    }
+    
+    public void testAddMapping() throws IOException {
+        String lastLine;
+        finishSetUp(m_testConfiguration);
+        connect();
+        login();
+        
+        sendCommand("addmapping test@test junit");
+        lastLine = getLastLine(readAnswer());
+        assertTrue("Add mapping", lastLine.endsWith("true"));
+        
+        sendCommand("addmapping test@test junit");
+        lastLine = getLastLine(readAnswer());
+        assertTrue("Not add mapping... allready exists",lastLine.endsWith("false"));
+    }
+    
+    public void testRemoveMapping() throws IOException {
+        String lastLine;
+        finishSetUp(m_testConfiguration);
+        connect();
+        login();
+        
+        sendCommand("addmapping test@test junit");
+        lastLine = getLastLine(readAnswer());
+        assertTrue("Add mapping", lastLine.endsWith("true"));
+        
+        sendCommand("removemapping test@test junit");
+        lastLine = getLastLine(readAnswer());
+        assertTrue("remove mapping",lastLine.endsWith("true"));
+        
+        sendCommand("removemapping test@test junit");
+        lastLine = getLastLine(readAnswer());
+        assertTrue("Not remove mapping... mapping not exists",lastLine.endsWith("false"));
+    }
+    
+    public void testListAllMappings() throws IOException {
+        String lastLine;
+        finishSetUp(m_testConfiguration);
+        connect();
+        login();
+
+        sendCommand("addmapping test@test junit");
+        lastLine = getLastLine(readAnswer());
+        assertTrue("Add mapping", lastLine.endsWith("true"));
+        
+        sendCommand("addmapping test2@test junit2");
+        lastLine = getLastLine(readAnswer());
+        assertTrue("Add mapping", lastLine.endsWith("true"));
+       
+        sendCommand("listallmappings");
+        List answer = readAnswer(3);
+        assertTrue("Read first mapping", answer.get(1).toString().endsWith("junit"));
+        assertTrue("Read second mapping line", answer.get(2).toString().endsWith("junit2"));
+    }
+    
+    public void testListMapping() throws IOException {
+        String lastLine;
+        finishSetUp(m_testConfiguration);
+        connect();
+        login();
+
+        sendCommand("addmapping test@test junit");
+        lastLine = getLastLine(readAnswer());
+        assertTrue("Add mapping", lastLine.endsWith("true"));
+        
+        sendCommand("addmapping test2@test junit2");
+        lastLine = getLastLine(readAnswer());
+        assertTrue("Add mapping", lastLine.endsWith("true"));
+       
+        sendCommand("listmapping test@test");
+        lastLine = readAnswer(2).get(1).toString();
+        assertTrue("list mapping", lastLine.endsWith("junit"));
     }
 }

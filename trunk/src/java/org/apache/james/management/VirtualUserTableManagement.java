@@ -22,6 +22,7 @@
 package org.apache.james.management;
 
 import java.util.Collection;
+import java.util.Map;
 
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
@@ -177,5 +178,12 @@ public class VirtualUserTableManagement implements Serviceable, VirtualUserTable
         } catch (InvalidMappingException e) {
             throw new VirtualUserTableManagementException(e);
         }
+    }
+
+    /**
+     * @see org.apache.james.services.VirtualUserTableManagementService#getAllMappings(java.lang.String)
+     */
+    public Map getAllMappings(String virtualUserTable) throws VirtualUserTableManagementException{
+        return getTable(virtualUserTable).getAllMappings();
     }
 }

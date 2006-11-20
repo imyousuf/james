@@ -22,6 +22,7 @@
 package org.apache.james.services;
 
 import java.util.Collection;
+import java.util.Map;
 
 import org.apache.james.vut.InvalidMappingException;
 
@@ -130,4 +131,12 @@ public interface VirtualUserTableManagement extends VirtualUserTable{
      * @throws InvalidMappingException
      */
     public boolean removeMapping(String user, String domain, String mapping) throws InvalidMappingException;
+
+
+    /**
+     * Return a Map which holds all mappings
+     * 
+     * @return Map which holds all mappings
+     */
+    public Map getAllMappings();
 }

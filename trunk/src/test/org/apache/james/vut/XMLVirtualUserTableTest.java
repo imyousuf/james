@@ -89,6 +89,7 @@ public class XMLVirtualUserTableTest extends TestCase {
     public void testGetMappings() throws ErrorMappingException {
         assertEquals("Found 2 mappings", table.getMappings(user, domain).size(), 2);
         assertEquals("Found 2 domains", table.getDomains().size(),2);
+        assertEquals("Found 2 mapping line", table.getAllMappings().size(),2);
     }
     
     public void testGetUserMappings() throws ErrorMappingException, InvalidMappingException {

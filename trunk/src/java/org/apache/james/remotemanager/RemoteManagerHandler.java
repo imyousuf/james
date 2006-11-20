@@ -30,6 +30,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.mail.internet.ParseException;
 
@@ -93,6 +94,7 @@ public class RemoteManagerHandler
         "ADDMAPPING",
         "REMOVEMAPPING",
         "LISTMAPPING",
+        "LISTALLMAPPINGS",
         "QUIT",
         "SHUTDOWN"
     });
@@ -254,6 +256,7 @@ public class RemoteManagerHandler
         } catch (NoSuchMethodException e) {
             return doUnknownCommand(rawCommand);
         } catch (Exception e) {
+            e.printStackTrace();
             writeLoggedFlushedResponse("could not execute command " + command);
         }
         return false;
@@ -509,6 +512,7 @@ public class RemoteManagerHandler
         out.println("addmapping [table=virtualusertablename] user@domain mapping             add mapping for the given emailaddress");
         out.println("removemapping [table=virtualusertablename] user@domain mapping          remove mapping for the given emailaddress");
         out.println("listmapping [table=virtualusertablename] user@domain                    list all mappings for the given emailaddress");
+        out.println("listallmappings [table=virtualusertablename]                            list all mappings");
         out.println("listspool [spoolrepositoryname] ([header=name] [regex=value])           list all mails which reside in the spool and have an error state");
         out.println("flushspool [spoolrepositoryname] ([key] | [header=name] [regex=value])  try to resend the mail assing to the given key. If no key is given all mails get resend");
         out.println("deletespool [spoolrepositoryname] ([key] | [header=name] [regex=value]) delete the mail assign to the given key. If no key is given all mails get deleted");
@@ -1521,6 +1525,51 @@ public class RemoteManagerHandler
         } catch (IllegalArgumentException e) {
             getLogger().error("Error on listing mapping: " + e);
             out.println("Error on listing mapping: " + e);
+            out.flush();
+        }
+        return true;
+    }
+    
+    private boolean doLISTALLMAPPINGS(String argument) {
+        String[] args = null;
+        String table = null;
+
+        if (argument != null)
+            args = argument.split(" ");
+
+        // check if the command was called correct
+        if (args != null && args.length > 1) {
+            writeLoggedFlushedResponse("Usage: LISTALLMAPPINGS [table=table]");
+            return true;
+        }
+
+        if (args != null && args[0].startsWith("table=")) {
+            table = args[0].substring("table=".length());
+       
+        } 
+        
+        try {
+            Map mappings = theConfigData.getVirtualUserTableManagement().getAllMappings(table);
+            if (mappings == null) {
+                out.println("No mappings found");
+                out.flush();
+            } else {
+                out.println("Mappings:");
+                
+                Iterator m = mappings.keySet().iterator();
+                while(m.hasNext()) {
+                    String key = m.next().toString();
+                    out.println(key + "  -> " + mappings.get(key));
+                }
+                out.flush();
+            }
+        } catch (VirtualUserTableManagementException e) {
+            getLogger().error("Error on listing all mapping: " + e);
+            out.println("Error on listing all mapping: " + e);
+            out.flush();
+        } catch (IllegalArgumentException e) {
+            getLogger().error("Error on listing all mapping: " + e);
+            out.println("Error on listing all mapping: " + e);
             out.flush();
         }
         return true;

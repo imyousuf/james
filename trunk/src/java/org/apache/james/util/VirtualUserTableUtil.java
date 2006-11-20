@@ -24,6 +24,7 @@ package org.apache.james.util;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.StringTokenizer;
 
@@ -162,5 +163,45 @@ public class VirtualUserTableUtil {
             map.add(tokenizer.nextToken().trim());
         }
         return map;
+    }
+     
+     /**
+      * Convert a raw mapping String to a Collection
+      * 
+      * @param rawMapping the mapping Strin
+      * @return map a collection which holds all mappings
+      */
+     public static ArrayList mappingToCollection(String rawMapping) {
+         ArrayList map = new ArrayList();
+         StringTokenizer tokenizer = new StringTokenizer(rawMapping,
+         VirtualUserTableUtil.getSeparator(rawMapping));
+
+         while (tokenizer.hasMoreTokens()) {
+             String raw = tokenizer.nextToken().trim();
+             map.add(raw);
+         }
+         return map;
+    }
+     
+
+     /**
+      * Convert a Collection which holds mappings to a raw mapping String
+      * 
+      * @param map the Collection
+      * @return mapping the mapping String
+      */
+     public static String CollectionToMapping(Collection map) {
+         StringBuffer mapping = new StringBuffer();
+     
+         Iterator mappings = map.iterator();
+     
+         while (mappings.hasNext()) {
+             mapping.append(mappings.next());
+         
+             if (mappings.hasNext()) {
+                 mapping.append(";");
+             }
+         }  
+         return mapping.toString();  
     }
 }

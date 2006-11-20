@@ -46,6 +46,7 @@ import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.services.FileSystem;
 import org.apache.james.util.JDBCUtil;
 import org.apache.james.util.SqlResources;
+import org.apache.james.util.VirtualUserTableUtil;
 
 /**
  * 
@@ -293,7 +294,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
 
         if (map != null && map.size() > 1) {
             map.remove(mapping);
-            return updateMapping(newUser,newDomain,CollectionToMapping(map));
+            return updateMapping(newUser,newDomain,VirtualUserTableUtil.CollectionToMapping(map));
         } else {
             return removeRawMapping(newUser,newDomain,mapping);
         }
@@ -311,7 +312,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
         if (map != null && map.size() != 0) {
             map.add(regex);
         
-            return updateMapping(newUser,newDomain,CollectionToMapping(map));
+            return updateMapping(newUser,newDomain,VirtualUserTableUtil.CollectionToMapping(map));
         }
         return addRawMapping(newUser,newDomain,regex);
     }
@@ -489,7 +490,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
                 mappingStmt.setString(2, domain);
                 mappingRS = mappingStmt.executeQuery();
                 if (mappingRS.next()) {
-                    return mappingToCollection(mappingRS.getString(1));
+                    return VirtualUserTableUtil.mappingToCollection(mappingRS.getString(1));
                 }
             } finally {
                 theJDBCUtil.closeJDBCResultSet(mappingRS);
@@ -571,6 +572,43 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
             theJDBCUtil.closeJDBCConnection(conn);
         }
         return false;
+    }
+
+    /**
+     * @see org.apache.james.vut.AbstractVirtualUserTable#getAllMappingsInternal()
+     */
+    public Map getAllMappingsInternal() {
+        Connection conn = null;
+        PreparedStatement mappingStmt = null;
+        HashMap mapping = new HashMap();
+        
+        try {
+            conn = dataSourceComponent.getConnection();
+            mappingStmt = conn.prepareStatement(sqlQueries.getSqlString("selectAllMappings", true));
+
+            ResultSet mappingRS = null;
+            try {
+                mappingRS = mappingStmt.executeQuery();
+                while(mappingRS.next()) {
+                    String user = mappingRS.getString(1);
+                    String domain = mappingRS.getString(2);
+                    String map = mappingRS.getString(3);
+                    
+                    mapping.put(user + "@" + domain,map);
+                }
+                
+                if (mapping.size() > 0 ) return mapping;
+            } finally {
+                theJDBCUtil.closeJDBCResultSet(mappingRS);
+            }
+            
+        } catch (SQLException sqle) {
+            getLogger().error("Error accessing database", sqle);
+        } finally {
+            theJDBCUtil.closeJDBCStatement(mappingStmt);
+            theJDBCUtil.closeJDBCConnection(conn);
+        }
+        return null;
     }
 }
 
