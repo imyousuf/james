@@ -377,7 +377,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             
         }  
     }
-    
+
     /*
      * private method to log the extended SendFailedException introduced in JavaMail 1.3.2.
      */
@@ -797,31 +797,13 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         } else {
             out.print("Temporary");
         }
-        StringBuffer logBuffer =  new StringBuffer(64)
+        StringBuffer logBuffer =
+            new StringBuffer(64)
                 .append(" exception delivering mail (")
                 .append(mail.getName())
-                .append(". ");
+                .append(": ");
         out.print(logBuffer.toString());
-        
-        // Try to log the remote mailserver answer to give some informations why the message was not accepted
-        if (ex instanceof SMTPSendFailedException) {
-            out.println("Remote Host said: " + ex.getMessage() + ".");
-        } else {
-            Exception e;
-            while ((e = ex.getNextException()) != null && e instanceof MessagingException) {
-                if (e instanceof SMTPAddressFailedException) {
-                    SMTPAddressFailedException exception = (SMTPAddressFailedException) e;
-                    Address[] addresses = exception.getInvalidAddresses();
-                    
-                    for(int i = 0; i < addresses.length; i++) {
-                        out.println(addresses[i] + " -> " + e.getMessage());
-                    }
-                }
-            }
-        } 
-
         if (isDebug) ex.printStackTrace(out);
-        
         log(sout.toString());
         if (!permanent) {
             if (!mail.getState().equals(Mail.ERROR)) {
@@ -886,8 +868,6 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         }
         return true;
     }
-    
-
 
     private void bounce(Mail mail, MessagingException ex) {
         StringWriter sout = new StringWriter();
