@@ -31,6 +31,7 @@ import java.util.Map;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.logger.LogEnabled;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
@@ -58,7 +59,7 @@ import org.apache.torque.util.BasePeer;
 import org.apache.torque.util.Transaction;
 
 public class TorqueMailboxManagerFactory implements MailboxManagerFactory,
-        Configurable, Initializable, Serviceable {
+        Configurable, Initializable, Serviceable, LogEnabled {
 
     private MailboxCache mailboxCache;
 
@@ -218,7 +219,7 @@ public class TorqueMailboxManagerFactory implements MailboxManagerFactory,
 
     protected Log getLog() {
         if (log == null) {
-            log = new SimpleLog("TorqueMailboxManagerProvider");
+            log = new SimpleLog("TorqueMailboxManagerFactory");
         }
         return log;
     }
