@@ -13,7 +13,7 @@
   
   <!-- interfaces that may be exported to manange this block -->
   <management-access-points>
-    <service name="org.apache.james.management.VirtualUserTableManagmentMBean"/>
+    <service name="org.apache.james.management.VirtualUserTableManagementMBean"/>
   </management-access-points>  
   
   <dependencies>

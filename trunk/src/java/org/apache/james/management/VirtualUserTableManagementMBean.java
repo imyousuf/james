@@ -31,7 +31,7 @@ import org.apache.james.vut.InvalidMappingException;
  * 
  * @phoenix:mx-topic name="VirtualUserTableAdministration"
  */
-public interface VirtualUserTableManagmentMBean {
+public interface VirtualUserTableManagementMBean {
     
     /**
      * Add regex mapping
