@@ -37,6 +37,7 @@ import javax.mail.internet.ParseException;
 import org.apache.james.Constants;
 import org.apache.james.core.AbstractJamesHandler;
 import org.apache.james.management.BayesianAnalyzerManagementException;
+import org.apache.james.management.DomainListManagementException;
 import org.apache.james.management.SpoolFilter;
 import org.apache.james.management.VirtualUserTableManagementException;
 import org.apache.james.services.JamesUser;
@@ -95,6 +96,9 @@ public class RemoteManagerHandler
         "REMOVEMAPPING",
         "LISTMAPPING",
         "LISTALLMAPPINGS",
+        "ADDDOMAIN",
+        "REMOVEDOMAIN",
+        "LISTDOMAINS",
         "QUIT",
         "SHUTDOWN"
     });
@@ -509,10 +513,13 @@ public class RemoteManagerHandler
         out.println("showforwarding [username]                                               shows a user's current email forwarding");
         out.println("unsetforwarding [username]                                              removes a forward");
         out.println("user [repositoryname]                                                   change to another user repository");
-        out.println("addmapping [table=virtualusertablename] user@domain mapping             add mapping for the given emailaddress");
-        out.println("removemapping [table=virtualusertablename] user@domain mapping          remove mapping for the given emailaddress");
-        out.println("listmapping [table=virtualusertablename] user@domain                    list all mappings for the given emailaddress");
-        out.println("listallmappings [table=virtualusertablename]                            list all mappings");
+        out.println("addmapping ([table=virtualusertablename]) [user@domain] [mapping]       add mapping for the given emailaddress");
+        out.println("removemapping ([table=virtualusertablename]) [user@domain] [mapping]    remove mapping for the given emailaddress");
+        out.println("listmapping ([table=virtualusertablename]) [user@domain]                list all mappings for the given emailaddress");
+        out.println("listallmappings ([table=virtualusertablename])                          list all mappings");
+        out.println("adddomain [domainname]                                                  add domain to local domains");
+        out.println("removedomain [domainname]                                               remove domain from local domains");
+        out.println("listdomains                                                             list local domains");
         out.println("listspool [spoolrepositoryname] ([header=name] [regex=value])           list all mails which reside in the spool and have an error state");
         out.println("flushspool [spoolrepositoryname] ([key] | [header=name] [regex=value])  try to resend the mail assing to the given key. If no key is given all mails get resend");
         out.println("deletespool [spoolrepositoryname] ([key] | [header=name] [regex=value]) delete the mail assign to the given key. If no key is given all mails get deleted");
@@ -1616,5 +1623,68 @@ public class RemoteManagerHandler
             throw new IllegalArgumentException("Invalid action: " + action);
         }   
     }
+    
+    private boolean doLISTDOMAINS(String argument) {
+        Collection domains = theConfigData.getDomainListManagement().getDomains();
+        if (domains == null) {
+            out.println("No domains found");
+            out.flush();
+        } else {
+            out.println("Domains:");
+                
+            Iterator d = domains.iterator();
+            while(d.hasNext()) {
+                out.println(d.next());
+            }
+            out.flush();
+        }   
+        return true;
+    }
 
+    private boolean doADDDOMAIN(String argument) {
+
+        // check if the command was called correct
+        if (argument == null) {
+            writeLoggedFlushedResponse("Usage: ADDDOMAIN domain");
+            return true;
+        }
+        
+        try {
+            if(theConfigData.getDomainListManagement().addDomain(argument)) {
+                out.println("Adding domain " + argument + " successful");
+                out.flush();
+            } else {
+                out.println("Adding domain " + argument + " fail");
+                out.flush();
+            }
+        } catch (DomainListManagementException e) {
+            getLogger().error("Error on adding domain: " + e);
+            out.println("Error on adding domain: " + e);
+            out.flush();
+        }
+        return true;
+    }
+    
+    private boolean doREMOVEDOMAIN(String argument) {
+        // check if the command was called correct
+        if (argument == null) {
+            writeLoggedFlushedResponse("Usage: REMOVEDOMAIN domain");
+            return true;
+        }
+        
+        try {
+            if(theConfigData.getDomainListManagement().removeDomain(argument)) {
+                out.println("Removing domain " + argument + " successful");
+                out.flush();
+            } else {
+                out.println("Removing domain " + argument + " fail");
+                out.flush();
+            }
+        } catch (DomainListManagementException e) {
+            getLogger().error("Error on removing domain: " + e);
+            out.println("Error on removing domain: " + e);
+            out.flush();
+        }
+        return true;
+    }
 }
