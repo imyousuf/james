@@ -40,12 +40,12 @@ class UnsubscribeCommand extends AuthenticatedStateCommand
     protected void doProcess( ImapRequestLineReader request,
                               ImapResponse response,
                               ImapSession session )
-            throws ProtocolException, MailboxException
-    {
+            throws ProtocolException, MailboxException  {
         String mailboxName = parser.mailbox( request );
         parser.endLine( request );
 
         try {
+            mailboxName=session.buildFullName(mailboxName);
             session.getMailboxManager().setSubscription(mailboxName,false);
         } catch (MailboxManagerException e) {
             throw new MailboxException(e);
@@ -55,14 +55,12 @@ class UnsubscribeCommand extends AuthenticatedStateCommand
     }
 
     /** @see ImapCommand#getName */
-    public String getName()
-    {
+    public String getName() {
         return NAME;
     }
 
     /** @see CommandTemplate#getArgSyntax */
-    public String getArgSyntax()
-    {
+    public String getArgSyntax() {
         return ARGS;
     }
 }
