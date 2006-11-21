@@ -103,13 +103,19 @@
     <provide name="localusersrepository" role="org.apache.james.services.UsersRepository"/>
     <provide name="users-store" role="org.apache.james.services.UsersStore"/>
   </block>
-
+    
     <!-- IMAP Server -->
+  <block name="imap-connections"
+         class="org.apache.james.util.connection.SimpleConnectionManager" >
+    <provide name="thread-manager"
+             role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
+  </block>  
+    
   <block name="imapserver" class="org.apache.james.imapserver.ImapServer" >
     <provide name="localusersrepository" role="org.apache.james.services.UsersRepository"/>
     <provide name="sockets"
              role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
-    <provide name="connections"
+    <provide name="imap-connections"
              role="org.apache.james.services.JamesConnectionManager"/>
     <provide name="James" role="org.apache.james.services.MailServer"/>
     <provide name="thread-manager"
