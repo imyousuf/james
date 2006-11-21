@@ -37,7 +37,7 @@ import org.apache.james.vut.InvalidMappingException;
  * Management for VirtualUserTables
  * 
  */
-public class VirtualUserTableManagement implements Serviceable, VirtualUserTableManagementService, VirtualUserTableManagmentMBean {
+public class VirtualUserTableManagement implements Serviceable, VirtualUserTableManagementService, VirtualUserTableManagementMBean {
 
     VirtualUserTableStore store;
     org.apache.james.services.VirtualUserTableManagement defaultVUT;    
@@ -75,6 +75,9 @@ public class VirtualUserTableManagement implements Serviceable, VirtualUserTable
             // Check if a table with the given name exists, if not throw an Exception
             if (vut == null) {
                 throw new VirtualUserTableManagementException("No VirtualUserTable with such name: " + tableName);
+            } else if (!(vut instanceof org.apache.james.services.VirtualUserTableManagement)){
+                // Used VUT not support management, throw an Exception
+                throw new VirtualUserTableManagementException("Used VirtualUserTable implementation not support management");
             } else {
                 return vut;
             }
