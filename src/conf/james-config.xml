@@ -111,7 +111,10 @@
       <!-- port 993 is the well-known/IANA registered port for IMAPs ie over SSL/TLS -->
       <!-- port 143 is the well-known/IANA registered port for Standard IMAP4 -->
       <port>10143</port>
+
       <handler>
+       <!-- RFC 3501 requires a minimum timeout of 30 minutes -->
+       <connectiontimeout>1800000</connectiontimeout>         
        <streamdump enabled="true" directory="../apps/james/streamdump" />
       </handler>      
    </imapserver>
