@@ -107,6 +107,16 @@
            <property name="torque.dsfactory.mailboxmanager.pool.maxActive" value="100" />
       </torque-properties>  
    </mailboxmanager>    
+
+   <imap-connections>
+      <!-- RFC 3501 requires a minimum timeout of 30 minutes -->
+      <idle-timeout>1800000</idle-timeout>
+      <max-connections>100</max-connections>
+      <!--
+      <max-connections-per-ip>0</max-connections-per-ip>
+      -->
+   </imap-connections>      
+    
    <imapserver enabled="true">
       <!-- port 993 is the well-known/IANA registered port for IMAPs ie over SSL/TLS -->
       <!-- port 143 is the well-known/IANA registered port for Standard IMAP4 -->
