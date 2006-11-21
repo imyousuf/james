@@ -22,10 +22,16 @@ package org.apache.james.imapserver;
 /**
  * @version $Revision: 109034 $
  */
-public class ProtocolException extends Exception
-{
-    public ProtocolException( String s )
-    {
-        super( s );
+public class ProtocolException extends Exception {
+
+    private static final long serialVersionUID = 8719349386686261422L;
+
+    public ProtocolException(final String s) {
+        super(s);
     }
+
+    public ProtocolException(final String s, final Throwable t) {
+        super(s, t);
+    }
+
 }
