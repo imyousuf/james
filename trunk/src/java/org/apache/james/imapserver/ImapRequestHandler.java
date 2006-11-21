@@ -46,7 +46,7 @@ public final class ImapRequestHandler extends AbstractLogEnabled {
     }
     
     /**
-     * This method parses POP3 commands read off the wire in handleConnection.
+     * This method parses IMAP commands read off the wire in handleConnection.
      * Actual processing of the command (possibly including additional back and
      * forth communication with the client) is delegated to one of a number of
      * command specific handler methods.  The primary purpose of this method is
@@ -61,10 +61,13 @@ public final class ImapRequestHandler extends AbstractLogEnabled {
             throws ProtocolException
     {
         ImapRequestLineReader request = new ImapRequestLineReader( input, output );
+        setupLogger(request);
+        
         try {
             request.nextChar();
         }
         catch ( ProtocolException e ) {
+            getLogger().debug("Cannot handling request: ", e);
             return false;
         }
 
