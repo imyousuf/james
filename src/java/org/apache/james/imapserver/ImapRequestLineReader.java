@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+
 /**
  * Wraps the client input reader with a bunch of convenience methods, allowing lookahead=1
  * on the underlying character stream.
@@ -30,7 +32,7 @@ import java.io.OutputStream;
  *
  * @version $Revision: 109034 $
  */
-public class ImapRequestLineReader
+public class ImapRequestLineReader extends AbstractLogEnabled
 {
     private InputStream input;
     private OutputStream output;
@@ -61,7 +63,7 @@ public class ImapRequestLineReader
         }
 
         if ( next == '\r' || next == '\n' ) {
-            throw new ProtocolException( "Missing argument." );
+            throw new ProtocolException( "Missing argument. (read \\n or \\r)" );
         }
 
         return next;
@@ -82,7 +84,7 @@ public class ImapRequestLineReader
                 next = input.read();
             }
             catch ( IOException e ) {
-                throw new ProtocolException( "Error reading from stream." );
+                throw new ProtocolException( "Error reading from stream.", e);
             }
             if ( next == -1 ) {
                 throw new ProtocolException( "Unexpected end of stream." );
@@ -119,8 +121,7 @@ public class ImapRequestLineReader
 
         // Check if we found extra characters.
         if ( next != '\n' ) {
-            // TODO debug log here and other exceptions
-            throw new ProtocolException( "Expected end-of-line, found more characters.");
+            throw new ProtocolException( "Expected end-of-line, found more characters. ("+((int)next)+")");
         }
     }
 
@@ -157,7 +158,7 @@ public class ImapRequestLineReader
                 int count = 0;
                 count = input.read( holder, readTotal, holder.length - readTotal );
                 if ( count == -1 ) {
-                    throw new ProtocolException( "Unexpectd end of stream." );
+                    throw new ProtocolException( "Unexpected end of stream." );
                 }
                 readTotal += count;
             }
@@ -166,7 +167,7 @@ public class ImapRequestLineReader
             nextChar = 0;
         }
         catch ( IOException e ) {
-            throw new ProtocolException( "Error reading from stream." );
+            throw new ProtocolException( "Error reading from stream." , e);
         }
 
     }
@@ -185,7 +186,7 @@ public class ImapRequestLineReader
             output.flush();
         }
         catch ( IOException e ) {
-            throw new ProtocolException("Unexpected exception in sending command continuation request.");
+            throw new ProtocolException("Unexpected exception in sending command continuation request.", e);
         }
     }
 
