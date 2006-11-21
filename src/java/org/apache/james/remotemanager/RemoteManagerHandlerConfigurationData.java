@@ -23,6 +23,7 @@ package org.apache.james.remotemanager;
 
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.james.services.BayesianAnalyzerManagementService;
+import org.apache.james.services.DomainListManagementService;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.ProcessorManagementService;
 import org.apache.james.services.SpoolManagementService;
@@ -117,4 +118,11 @@ public interface RemoteManagerHandlerConfigurationData {
      * @return the VirtualUserTableManagementService
      */
     VirtualUserTableManagementService getVirtualUserTableManagement();
+    
+    /**
+     * Return the DomainListManagementService
+     * 
+     * @return the DomainListManagementService
+     */
+    DomainListManagementService getDomainListManagement();
 }

@@ -24,10 +24,14 @@ package org.apache.james.remotemanager;
 import org.apache.avalon.cornerstone.services.sockets.SocketManager;
 import org.apache.avalon.cornerstone.services.threads.ThreadManager;
 import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.avalon.framework.service.ServiceException;
 import org.apache.commons.net.telnet.TelnetClient;
+import org.apache.james.domain.XMLDomainList;
+import org.apache.james.management.DomainListManagement;
 import org.apache.james.management.VirtualUserTableManagement;
 import org.apache.james.services.AbstractDNSServer;
 import org.apache.james.services.DNSServer;
+import org.apache.james.services.DomainListManagementService;
 import org.apache.james.services.JamesConnectionManager;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.UsersRepository;
@@ -77,7 +81,6 @@ public class RemoteManagerTest extends TestCase {
     protected TelnetClient m_telnetClient;
     private MockUsersRepository m_mockUsersRepository;
     private MockMailServer mailServer;
-    private static final String VUT_TABLE = "VUT";
 
     protected void setUp() throws Exception {
         m_remoteManager = new RemoteManager();
@@ -161,7 +164,7 @@ public class RemoteManagerTest extends TestCase {
         readAnswer(3);
     }
 
-    private MockServiceManager setUpServiceManager() {
+    private MockServiceManager setUpServiceManager() throws ServiceException {
         MockServiceManager serviceManager = new MockServiceManager();
         SimpleConnectionManager connectionManager = new SimpleConnectionManager();
         ContainerUtil.enableLogging(connectionManager, new MockLogger());
@@ -180,6 +183,15 @@ public class RemoteManagerTest extends TestCase {
         vutManagement.setVirtualUserTableStore(vutStore);
         vutManagement.setDefaultVirtualUserTable(new MockVirtualUserTableManagementImpl());
         serviceManager.put(VirtualUserTableManagementService.ROLE, vutManagement);
+        
+        XMLDomainList xml = new XMLDomainList();
+        ContainerUtil.enableLogging(xml, new MockLogger());
+        ContainerUtil.service(xml, serviceManager);
+        
+        DomainListManagement domManagement = new DomainListManagement();
+        domManagement.setDomainList(xml);
+        
+        serviceManager.put(DomainListManagementService.ROLE, domManagement);
         return serviceManager;
     }
     
@@ -191,6 +203,10 @@ public class RemoteManagerTest extends TestCase {
         
             public InetAddress getLocalHost() throws UnknownHostException {
                 return InetAddress.getLocalHost();
+            }
+            
+            public InetAddress[] getAllByName(String name) throws UnknownHostException {
+            return new InetAddress[]{InetAddress.getLocalHost()};
             }
         };
     
@@ -599,5 +615,64 @@ public class RemoteManagerTest extends TestCase {
         sendCommand("listmapping test@test");
         lastLine = readAnswer(2).get(1).toString();
         assertTrue("list mapping", lastLine.endsWith("junit"));
+    }
+    
+    public void testaddDomain() throws IOException {
+        String lastLine;
+        finishSetUp(m_testConfiguration);
+        connect();
+        login();
+
+        sendCommand("adddomain domain");
+        lastLine = getLastLine(readAnswer());
+        assertTrue("Add domain", lastLine.endsWith("successful"));
+       
+        sendCommand("adddomain domain");
+        lastLine = getLastLine(readAnswer());
+        assertTrue("Add domain which exists", lastLine.endsWith("fail"));
+       
+        sendCommand("listdomains");
+
+        lastLine = readAnswer(2).get(1).toString();
+        assertTrue("list domain", lastLine.endsWith("domain"));       
+    }
+    
+    public void testremoveDomain() throws IOException {
+        String lastLine;
+        finishSetUp(m_testConfiguration);
+        connect();
+        login();
+
+        sendCommand("adddomain domain");
+        lastLine = getLastLine(readAnswer());
+        assertTrue("Add domain", lastLine.endsWith("successful"));
+       
+        sendCommand("removedomain domain");
+        lastLine = getLastLine(readAnswer());
+        assertTrue("Remove domain", lastLine.endsWith("successful"));
+       
+        sendCommand("removedomain domain");
+        lastLine = getLastLine(readAnswer());
+        assertTrue("Remove domain which not exist", lastLine.endsWith("fail"));    
+    }
+    
+    public void testListDomains() throws IOException {
+        String lastLine;
+        finishSetUp(m_testConfiguration);
+        connect();
+        login();
+
+        sendCommand("adddomain domain");
+        lastLine = getLastLine(readAnswer());
+        assertTrue("Add domain", lastLine.endsWith("successful"));
+       
+        sendCommand("adddomain domain2");
+        lastLine = getLastLine(readAnswer());
+        assertTrue("Add domain", lastLine.endsWith("successful")); 
+        
+        sendCommand("listdomains");
+        List answer = readAnswer(3);
+        assertTrue("list domain 1", answer.get(1).toString().endsWith("domain")); 
+        assertTrue("list domain 2", answer.get(2).toString().endsWith("domain2"));   
     }
 }

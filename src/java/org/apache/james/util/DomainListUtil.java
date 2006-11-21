@@ -46,7 +46,13 @@ public class DomainListUtil {
         List domainIP = new ArrayList();
         if (domains.size() > 0 ) {
             for (int i = 0; i < domains.size(); i++) {
-                domainIP.addAll(getDomainIP(domains.get(i).toString(),dns,log));
+                List domList = getDomainIP(domains.get(i).toString(),dns,log);
+            
+                for(int i2 = 0; i2 < domList.size();i2++) {
+                    if(domainIP.contains(domList.get(i2)) == false) {
+                        domainIP.add(domList.get(i2));
+                    }
+                }
             }
         }
         return domainIP;    

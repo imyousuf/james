@@ -77,6 +77,8 @@ public class XMLDomainList extends AbstractDomainList implements Configurable {
     }
 
     /**
+     * The added domains will only added in memory!
+     * 
      * @see org.apache.james.domain.AbstractDomainList#addDomainInternal(java.lang.String)
      */
     protected boolean addDomainInternal(String domain) {

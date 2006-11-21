@@ -28,6 +28,7 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.core.AbstractJamesService;
 import org.apache.james.services.BayesianAnalyzerManagementService;
+import org.apache.james.services.DomainListManagementService;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.ProcessorManagementService;
 import org.apache.james.services.SpoolManagementService;
@@ -94,6 +95,8 @@ public class RemoteManager
     private ProcessorManagementService processorManagementService;
 
     private VirtualUserTableManagementService vutManagemenet;
+    
+    private DomainListManagementService domListManagement;
     
     /**
      * Set the UserStore 
@@ -168,6 +171,15 @@ public class RemoteManager
     }
     
     /**
+     * Set the DomainListManagementService
+     * 
+     * @param domListManagement the DomainListManagementService 
+     */
+    public void setDomainListManagement(DomainListManagementService domListManagement) {
+        this.domListManagement = domListManagement;
+    }
+    
+    /**
      * The configuration data to be passed to the handler
      */
     private RemoteManagerHandlerConfigurationData theConfigData
@@ -198,6 +210,7 @@ public class RemoteManager
         setBayesianAnalyzerManagement((BayesianAnalyzerManagementService) componentManager.lookup(BayesianAnalyzerManagementService.ROLE));     
         setProcessorManagement((ProcessorManagementService) componentManager.lookup(ProcessorManagementService.ROLE)); 
         setVirtualUserTableManagement((VirtualUserTableManagementService) componentManager.lookup(VirtualUserTableManagementService.ROLE));
+        setDomainListManagement((DomainListManagementService) componentManager.lookup(DomainListManagementService.ROLE));
     }
 
     /**
@@ -329,6 +342,13 @@ public class RemoteManager
          */
         public VirtualUserTableManagementService getVirtualUserTableManagement() {
             return RemoteManager.this.vutManagemenet;
+        }
+
+        /**
+         * @see org.apache.james.remotemanager.RemoteManagerHandlerConfigurationData#getDomainListManagement()
+         */
+        public DomainListManagementService getDomainListManagement() {
+            return RemoteManager.this.domListManagement;
         }
     }
 

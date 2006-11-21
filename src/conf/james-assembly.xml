@@ -95,6 +95,7 @@
     <provide name="dnsserver" role="org.apache.james.services.DNSServer"/>
     <provide name="processormanagement" role="org.apache.james.services.ProcessorManagementService"/>
     <provide name="virtualusertablemanagement" role="org.apache.james.services.VirtualUserTableManagementService"/>
+    <provide name="domainlistmanagement" role="org.apache.james.services.DomainListManagementService"/>
 </block>
 
   <!-- The User Management block  -->
@@ -238,7 +239,7 @@
     <provide name="dnsserver" role="org.apache.james.services.DNSServer"/>
   </block>
   
-    <block name="defaultvirtualusertable" class="org.apache.james.core.DefaultVirtualUserTable">
+  <block name="defaultvirtualusertable" class="org.apache.james.core.DefaultVirtualUserTable">
     <provide name="virtualusertable-store"
              role="org.apache.james.services.VirtualUserTableStore"/>
   </block>
@@ -278,6 +279,10 @@
   -->
   <!-- #################################################################### -->
   
+  <block name="domainlistmanagement" class="org.apache.james.management.DomainListManagement">
+    <provide name="domainlist"
+             role="org.apache.james.services.DomainList"/>
+  </block>
   
   <!-- Configuration for Cornerstone Blocks only after here
        NOTHING BELOW THIS SHOULD NEED CHANGING,
