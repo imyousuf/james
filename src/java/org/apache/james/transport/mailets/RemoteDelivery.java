@@ -466,7 +466,10 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                         .append("There are no DNS entries for the hostname ")
                         .append(host)
                         .append(".  I cannot determine where to send this message.");
-                    return failMessage(mail, new MessagingException(exceptionBuffer.toString()), false);
+                    
+                    // The domain has no dns entry.. Return a permanent error
+                    return failMessage(mail, new MessagingException(exceptionBuffer.toString()), true);
+
                 }
             } else {
                 targetServers = getGatewaySMTPHostAddresses(gatewayServer);
