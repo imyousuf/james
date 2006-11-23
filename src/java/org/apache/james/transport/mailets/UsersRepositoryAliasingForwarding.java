@@ -185,10 +185,8 @@ public class UsersRepositoryAliasingForwarding extends GenericMailet {
                 while (i.hasNext()) {
                     MailAddress nextMap = new MailAddress((String) i.next());
                     if (getMailetContext().isLocalServer(nextMap.getHost())) {
-                        System.err.println("L: "+nextMap);
                         localRecipients.add(nextMap);
                     } else {
-                        System.err.println("R: "+nextMap);
                         remoteRecipients.add(nextMap);
                     }
                 }
