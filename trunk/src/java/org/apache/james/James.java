@@ -39,6 +39,7 @@ import org.apache.commons.collections.map.ReferenceMap;
 import org.apache.james.core.MailHeaders;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MailetConfigImpl;
+import org.apache.james.dnsserver.TemporaryResolutionException;
 import org.apache.james.services.DNSServer;
 import org.apache.james.services.DomainList;
 import org.apache.james.services.FileSystem;
@@ -66,7 +67,9 @@ import javax.mail.internet.ParseException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.SequenceInputStream;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -579,7 +582,12 @@ public class James
      * @see org.apache.mailet.MailetContext#getMailServers(String)
      */
     public Collection getMailServers(String host) {
-        return lookupDNSServer().findMXRecords(host);
+        try {
+            return lookupDNSServer().findMXRecords(host);
+        } catch (TemporaryResolutionException e) {
+            //TODO: We only do this to not break backward compatiblity. Should fixed later
+            return Collections.unmodifiableCollection(new ArrayList(0));
+        }
     }
 
     /**
@@ -834,7 +842,12 @@ public class James
      * @return an Iterator over HostAddress instances, sorted by priority
      */
     public Iterator getSMTPHostAddresses(String domainName) {
-        return lookupDNSServer().getSMTPHostAddresses(domainName);
+        try {
+            return lookupDNSServer().getSMTPHostAddresses(domainName);
+        } catch (TemporaryResolutionException e) {
+            //TODO: We only do this to not break backward compatiblity. Should fixed later
+            return Collections.unmodifiableCollection(new ArrayList(0)).iterator();
+        }
     }
 
     protected DNSServer lookupDNSServer() {

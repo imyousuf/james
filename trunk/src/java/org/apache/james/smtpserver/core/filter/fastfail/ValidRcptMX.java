@@ -30,6 +30,7 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
+import org.apache.james.dnsserver.TemporaryResolutionException;
 import org.apache.james.services.DNSServer;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
@@ -140,9 +141,14 @@ public class ValidRcptMX extends AbstractJunkHandler implements CommandHandler,
         // Email should be deliver local
         if (domain.equals(LOCALHOST)) return false;
  
-        Iterator mx = dnsServer.findMXRecords(domain).iterator();
+        Iterator mx = null;
+        try {
+            mx = dnsServer.findMXRecords(domain).iterator();
+        } catch (TemporaryResolutionException e1) {
+            //  TODO: Should we reject temporary ?
+        }
 
-        if (mx.hasNext()) {
+        if (mx != null && mx.hasNext()) {
             while (mx.hasNext()) {
                 String mxRec = mx.next().toString();
 

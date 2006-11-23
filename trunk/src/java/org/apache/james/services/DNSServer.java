@@ -26,6 +26,8 @@ import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.apache.james.dnsserver.TemporaryResolutionException;
+
 /**
  * Provides abstraction for DNS resolutions. The interface is Mail specific.
  * It may be a good idea to make the interface more generic or expose 
@@ -50,8 +52,9 @@ public interface DNSServer {
      *
      * @return a unmodifiable list of handling servers corresponding to
      *         this mail domain name
+     * @throws TemporaryResolutionException get thrown on temporary problems 
      */
-    Collection findMXRecords(String hostname);
+    Collection findMXRecords(String hostname) throws TemporaryResolutionException;
 
     /**
      * Get a collection of DNS TXT Records
@@ -78,8 +81,9 @@ public interface DNSServer {
      * @since v2.2.0a16-unstable
      * @param domainName - the domain for which to find mail servers
      * @return an Iterator over HostAddress instances, sorted by priority
+     * @throws TemporaryResolutionException get thrown on temporary problems
      */
-    Iterator getSMTPHostAddresses(String domainName);
+    Iterator getSMTPHostAddresses(String domainName) throws TemporaryResolutionException;
     
     /**
      * @see java.net.InetAddress#getAllByName(String)
