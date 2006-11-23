@@ -30,6 +30,7 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
+import org.apache.james.dnsserver.TemporaryResolutionException;
 import org.apache.james.services.DNSServer;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
@@ -103,11 +104,16 @@ public class ValidSenderDomainHandler
          * don't check if the ip address is allowed to relay. Only check if it is set in the config. 
          */
         if (checkAuthClients || !session.isRelayingAllowed()) {
-            Collection records;
+            Collection records = null;
             
                 
             // try to resolv the provided domain in the senderaddress. If it can not resolved do not accept it.
-            records = dnsServer.findMXRecords(senderAddress.getHost());
+            try {
+                records = dnsServer.findMXRecords(senderAddress.getHost());
+            } catch (TemporaryResolutionException e) {
+                // TODO: Should we reject temporary ?
+            }
+        
             if (records == null || records.size() == 0) {
                 return true;
             }

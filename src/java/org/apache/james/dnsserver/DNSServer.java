@@ -257,8 +257,9 @@ public class DNSServer
      * @param hostname domain name to look up
      *
      * @return a list of MX records corresponding to this mail domain
+     * @throws TemporaryResolutionException get thrown on temporary problems
      */
-    private List findMXRecordsRaw(String hostname) {
+    private List findMXRecordsRaw(String hostname) throws TemporaryResolutionException {
         Record answers[] = lookup(hostname, Type.MX, "MX");
         List servers = new ArrayList();
         if (answers == null) {
@@ -282,7 +283,7 @@ public class DNSServer
     /**
      * @see org.apache.james.services.DNSServer#findMXRecords(String)
      */
-    public Collection findMXRecords(String hostname) {
+    public Collection findMXRecords(String hostname) throws TemporaryResolutionException {
         List servers = new ArrayList();
         try {
             servers = findMXRecordsRaw(hostname);
@@ -324,20 +325,36 @@ public class DNSServer
      * @param type the type of record desired
      * @param typeDesc the description of the record type, for debugging purpose
      */
-    protected Record[] lookup(String namestr, int type, String typeDesc) {
+    protected Record[] lookup(String namestr, int type, String typeDesc) throws TemporaryResolutionException {
         // Name name = null;
         try {
             // name = Name.fromString(namestr, Name.root);
             Lookup l = new Lookup(namestr, type);
+            
             l.setCache(cache);
             l.setResolver(resolver);
             l.setCredibility(dnsCredibility);
             l.setSearchPath(searchPaths);
-            return l.run();
+            Record[] r = l.run();
+            
+            if (l.getResult() == Lookup.TRY_AGAIN) {
+                throw new TemporaryResolutionException("DNSServer is temporary not reachable");
+            } else {
+                return r;
+            }
+            
             // return rawDNSLookup(name, false, type, typeDesc);
         } catch (TextParseException tpe) {
             // TODO: Figure out how to handle this correctly.
             getLogger().error("Couldn't parse name " + namestr, tpe);
+            return null;
+        }
+    }
+    
+    protected Record[] lookupNoException(String namestr, int type, String typeDesc) {
+        try {
+            return lookup(namestr, type, typeDesc);
+        } catch (TemporaryResolutionException e) {
             return null;
         }
     }
@@ -371,7 +388,7 @@ public class DNSServer
     /**
      * @see org.apache.james.services.DNSServer#getSMTPHostAddresses(String)
      */
-    public Iterator getSMTPHostAddresses(final String domainName) {
+    public Iterator getSMTPHostAddresses(final String domainName) throws TemporaryResolutionException {
         return new Iterator() {
             private Iterator mxHosts = findMXRecords(domainName).iterator();
             private Iterator addresses = null;
@@ -469,7 +486,8 @@ public class DNSServer
         try {
             return org.xbill.DNS.Address.getByAddress(name);
         } catch (UnknownHostException e) {
-            Record [] records = lookup(name, Type.A, "A");
+            Record[] records = lookupNoException(name, Type.A, "A");
+
             if (records != null && records.length >= 1) {
                 ARecord a = (ARecord) records[0];
                 return InetAddress.getByAddress(name, a.getAddress().getAddress());
@@ -486,7 +504,8 @@ public class DNSServer
             InetAddress addr = org.xbill.DNS.Address.getByAddress(name);
             return new InetAddress[] {addr};
         } catch (UnknownHostException e) {
-            Record [] records = lookup(name, Type.A, "A");
+            Record[] records = lookupNoException(name, Type.A, "A");
+            
             if (records != null && records.length >= 1) {
                 InetAddress [] addrs = new InetAddress[records.length];
                 for (int i = 0; i < records.length; i++) {
@@ -503,9 +522,7 @@ public class DNSServer
      */
     public Collection findTXTRecords(String hostname){
         List txtR = new ArrayList();
-        Record[] records;
-        
-        records = lookup(hostname, Type.TXT, "TXT");
+        Record[] records = lookupNoException(hostname, Type.TXT, "TXT");
     
         if (records != null) {
            for (int i = 0; i < records.length; i++) {
@@ -523,7 +540,8 @@ public class DNSServer
     public String getHostName(InetAddress addr){
         String result = null;
         Name name = ReverseMap.fromAddress(addr);
-        Record [] records = lookup(name.toString(), Type.PTR, "PTR");
+        Record[] records = lookupNoException(name.toString(), Type.PTR, "PTR");
+
         if (records == null) {
             result = addr.getHostAddress();
         } else {

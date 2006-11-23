@@ -27,6 +27,7 @@ import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
+import org.apache.james.dnsserver.TemporaryResolutionException;
 import org.apache.james.services.DNSServer;
 import org.apache.james.services.SpoolRepository;
 import org.apache.james.util.TimeConverter;
@@ -458,7 +459,19 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                 String host = rcpt.getHost();
 
                 //Lookup the possible targets
-                targetServers = getMailetContext().getSMTPHostAddresses(host);
+                try {
+                    targetServers = dnsServer.getSMTPHostAddresses(host);
+                } catch (TemporaryResolutionException e) {
+                    log("Temporary problem looking up mail server for host: " + host);
+                    StringBuffer exceptionBuffer =
+                        new StringBuffer(128)
+                        .append("Temporary problem looking up mail server for host: ")
+                        .append(host)
+                        .append(".  I cannot determine where to send this message.");
+                    
+                    // temporary problems
+                    return failMessage(mail, new MessagingException(exceptionBuffer.toString()), false);
+                }
                 if (!targetServers.hasNext()) {
                     log("No mail server found for: " + host);
                     StringBuffer exceptionBuffer =
