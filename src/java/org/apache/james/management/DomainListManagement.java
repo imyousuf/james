@@ -34,7 +34,7 @@ import org.apache.james.services.ManageableDomainList;
  * Provide management class for DomainLists
  */
 public class DomainListManagement implements DomainListManagementService,DomainListManagementMBean,Serviceable {
-    DomainList domList;
+    private DomainList domList;
     
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
@@ -52,7 +52,12 @@ public class DomainListManagement implements DomainListManagementService,DomainL
      */
     public boolean addDomain(String domain) throws DomainListManagementException {
         if (domList instanceof ManageableDomainList) {
-            return ((ManageableDomainList)domList).addDomain(domain);
+            try {
+                return ((ManageableDomainList)domList).addDomain(domain);
+            } catch (UnsupportedOperationException e) {
+                //TODO: Remove later. Temporary fix
+                throw new DomainListManagementException(e);
+            } 
         } else {
             throw new DomainListManagementException("Used DomainList implementation not support management");
         }
@@ -63,7 +68,12 @@ public class DomainListManagement implements DomainListManagementService,DomainL
      */
     public boolean removeDomain(String domain) throws DomainListManagementException {
         if (domList instanceof ManageableDomainList) {
-            return ((ManageableDomainList)domList).removeDomain(domain);
+            try {
+                return ((ManageableDomainList)domList).removeDomain(domain);
+            } catch (UnsupportedOperationException e) {
+                //TODO: Remove later. Temporary fix
+                throw new DomainListManagementException(e);
+            }
         } else {
            throw new DomainListManagementException("Used DomainList implementation not support management");
         }
