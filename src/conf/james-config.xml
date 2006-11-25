@@ -590,6 +590,10 @@ Regards, Postmaster XXX.YYY
             <delayTime>  3 hours </delayTime>
             <delayTime>  6 hours </delayTime>
             <maxRetries> 25 </maxRetries>
+            
+            <!-- The max reties which will used if no A or MX record for the domain was found. -->
+            <!-- If 0 it will fail on first time -->
+            <maxDnsProblemRetries> 0 </maxDnsProblemRetries>
 
             <!-- The number of threads that should be trying to deliver outgoing messages -->
             <deliveryThreads> 1 </deliveryThreads>
