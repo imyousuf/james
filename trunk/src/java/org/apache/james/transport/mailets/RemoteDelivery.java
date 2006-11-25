@@ -225,6 +225,9 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
     private MultipleDelayFilter delayFilter = new MultipleDelayFilter ();//used by accept to selcet the next mail ready for processing
     private Properties defprops = new Properties(); // default properties for the javamail Session
     
+    // The retry count dnsProblemErrors
+    private int dnsProblemRetry = 0;
+    
     /**
      * Initialize the mailet
      */
@@ -376,7 +379,12 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                 defprops.put(name,getInitParameter(name));
             }
             
-        }  
+        }
+        
+        String dnsRetry = getInitParameter("maxDnsProblemRetries");
+        if (dnsRetry != null && !dnsRetry.equals("")) {
+            dnsProblemRetry = Integer.parseInt(dnsRetry); 
+        }
     }
 
     /*
@@ -480,9 +488,18 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                         .append(host)
                         .append(".  I cannot determine where to send this message.");
                     
-                    // The domain has no dns entry.. Return a permanent error
-                    return failMessage(mail, new MessagingException(exceptionBuffer.toString()), true);
-
+                    int retry = 0;
+                    try {
+                        retry = Integer.parseInt(mail.getErrorMessage());
+                    } catch (NumberFormatException e) {
+                        // Unable to parse retryCount 
+                    }
+                    if (retry == 0 || retry > dnsProblemRetry) { 
+                        // The domain has no dns entry.. Return a permanent error
+                        return failMessage(mail, new MessagingException(exceptionBuffer.toString()), true);
+                    } else {
+                        return failMessage(mail, new MessagingException(exceptionBuffer.toString()), false);
+                    }
                 }
             } else {
                 targetServers = getGatewaySMTPHostAddresses(gatewayServer);
