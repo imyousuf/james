@@ -1103,6 +1103,58 @@
     <sql name="addDomain">insert into ${table} values (?) </sql>
     
     <sql name="removeDomain">delete from ${table} where domain = ? </sql>
+    
+        <!-- Statements used to create the table associated with this class. -->
+    <sql name="createTable" db="mysql">
+        CREATE TABLE ${table} (
+            domain varchar(100) NOT NULL default ''
+        )
+    </sql>
+    <sql name="createTable" db="hypersonic">
+        CREATE CACHED TABLE ${table} (
+            user varchar(100) NOT NULL default ''
+        )
+    </sql>
+    <sql name="createTable" db="hsqldb">
+        CREATE CACHED TABLE  ${table} (
+            domain varchar(100) NOT NULL default ''
+        )
+    </sql>
+    <sql name="createTable" db="mssql">
+        CREATE TABLE [${table}] (
+            [user] [domain] (100) NOT NULL default ''
+        )
+    </sql>
+    <sql name="createTable" db="oracle">
+        CREATE TABLE ${table} (
+            domain varchar2(100) NOT NULL default ''
+        )
+    </sql>
+    <sql name="createTable" db="postgresql">
+        CREATE TABLE ${table} (
+            domain varchar(64) NOT NULL default ''
+        )
+    </sql>
+    <sql name="createTable" db="sapdb">
+        CREATE TABLE ${table} (
+            domain varchar(100) NOT NULL default '',
+        )
+    </sql>
+    <sql name="createTable" db="db2">
+        CREATE TABLE ${table} (
+            domain varchar(100) NOT NULL default ''
+        )
+    </sql>
+    <sql name="createTable" db="ingres">
+        CREATE TABLE ${table} (
+            domain varchar(100) NOT NULL default ''
+        )
+    </sql>
+    <sql name="createTable" db="derby">
+        CREATE TABLE ${table} (
+            domain varchar (100) NOT NULL default ''
+        )
+    </sql>
 </sqlDefs>
 </sqlResources>
 
