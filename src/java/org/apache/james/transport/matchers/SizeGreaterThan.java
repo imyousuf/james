@@ -24,11 +24,8 @@ package org.apache.james.transport.matchers;
 import org.apache.mailet.GenericMatcher;
 import org.apache.mailet.Mail;
 
-import javax.mail.Header;
 import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.Locale;
 
 /**
@@ -42,28 +39,34 @@ public class SizeGreaterThan extends GenericMatcher {
 
     int cutoff = 0;
 
-    public void init() {
-        String amount = getCondition().trim().toLowerCase(Locale.US);
-        if (amount.endsWith("k")) {
-            amount = amount.substring(0, amount.length() - 1);
-            cutoff = Integer.parseInt(amount) * 1024;
-        } else if (amount.endsWith("m")) {
-            amount = amount.substring(0, amount.length() - 1);
-            cutoff = Integer.parseInt(amount) * 1024 * 1024;
+    public void init() throws MessagingException {
+        String amount = getCondition();
+        
+        if (amount != null) {
+            amount = amount.trim().toLowerCase(Locale.US);
         } else {
-            cutoff = Integer.parseInt(amount);
+            throw new MessagingException("Please configure an amount");
+        }
+        try {
+            if (amount.endsWith("k")) {
+                amount = amount.substring(0, amount.length() - 1);
+                cutoff = Integer.parseInt(amount) * 1024;
+            } else if (amount.endsWith("m")) {
+                amount = amount.substring(0, amount.length() - 1);
+                cutoff = Integer.parseInt(amount) * 1024 * 1024;
+            } else {
+                cutoff = Integer.parseInt(amount);
+            }
+        } catch (NumberFormatException e) {
+            throw new MessagingException("Invalid amount: " + amount);
         }
     }
 
+    /**
+     * @see org.apache.mailet.GenericMatcher#match(org.apache.mailet.Mail)
+     */
     public Collection match(Mail mail) throws MessagingException {
-        MimeMessage message = mail.getMessage();
-        //Calculate the size
-        int size = message.getSize();
-        Enumeration e = message.getAllHeaders();
-        while (e.hasMoreElements()) {
-            size += ((Header)e.nextElement()).toString().length();
-        }
-        if (size > cutoff) {
+        if (mail.getMessageSize() > cutoff) {
             return mail.getRecipients();
         } else {
             return null;
