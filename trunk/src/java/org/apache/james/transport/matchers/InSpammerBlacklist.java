@@ -44,18 +44,21 @@ import org.apache.mailet.Mail;
  * </ul>
  *
  * Example:
- * &lt;mailet match="InSpammerBlacklist=blackholes.mail-abuse.org" class="ToProcessor"&gt;
+ * &lt;mailet match="InSpammerBlacklist=blackholes.mail-abuse.org." class="ToProcessor"&gt;
  *   &lt;processor&gt;spam&lt;/processor&gt;
  * &lt;/mailet&gt;
  *
  */
 public class InSpammerBlacklist extends GenericMatcher {
-    String network = null;
+    private String network = null;
     
     private DNSServer dnsServer;
 
     public void init() throws MessagingException {
         network = getCondition();
+        
+        // check if the needed condition was given
+        if (network == null) throw new MessagingException("Please configure a blacklist");
         
         ServiceManager compMgr = (ServiceManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
         

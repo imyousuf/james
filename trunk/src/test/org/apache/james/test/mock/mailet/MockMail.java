@@ -53,6 +53,10 @@ public class MockMail implements Mail {
 
     private static final long serialVersionUID = 1L;
 
+    private long size = 0;
+    
+    private String remoteAddr ="127.0.0.1";
+    
     public String getName() {
         return name;
     }
@@ -86,7 +90,7 @@ public class MockMail implements Mail {
     }
 
     public String getRemoteAddr() {
-        return "my.mock.remote.host";
+        return remoteAddr;
     }
 
     public String getErrorMessage() {
@@ -132,7 +136,7 @@ public class MockMail implements Mail {
     }
 
     public long getMessageSize() throws MessagingException {
-        throw new UnsupportedOperationException("Unimplemented mock service");
+        return size;
     }
 
     public Date getLastUpdated() {
@@ -142,5 +146,12 @@ public class MockMail implements Mail {
     public void setLastUpdated(Date lastUpdated) {
         this.lastUpdated = lastUpdated;
     }
+    
+    public void setMessageSize(long size) {
+        this.size = size;
+    }
 
+    public void setRemoteAddr(String remoteAddr) {
+        this.remoteAddr = remoteAddr;
+    }
 }
