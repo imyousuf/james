@@ -386,6 +386,57 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             dnsProblemRetry = Integer.parseInt(dnsRetry); 
         }
     }
+    
+    /**
+     * Try to return a usefull logString created of the Exception which was given.
+     * Return null if nothing usefull could be done
+     * 
+     * @param e The MessagingException to use
+     * @return logString
+     */
+    private String exceptionToLogString(MessagingException e) {
+        if (e instanceof SMTPSendFailedException) {
+              return "RemoteHost said: " + e.getMessage();
+        } else if (e instanceof SendFailedException) {
+            SendFailedException exception  = (SendFailedException) e;
+            
+            // No error
+            if ( exception.getInvalidAddresses().length == 0 && 
+                exception.getValidUnsentAddresses().length == 0) return null;
+            
+             Exception ex;
+             StringBuffer sb = new StringBuffer();
+             boolean smtpExFound = false;
+             sb.append("RemoteHost said:");
+
+             while((ex = e.getNextException()) != null & ex instanceof MessagingException) {
+                 e = (MessagingException)ex;
+                 if (ex instanceof SMTPAddressFailedException) {
+                     SMTPAddressFailedException exc = (SMTPAddressFailedException) ex;
+                     sb.append(" ( " + exc.getAddress() + " - [" + exc.getMessage().replace("\n", "") + "] )");
+                     smtpExFound = true;
+                 } 
+             }
+             if (!smtpExFound) {
+                boolean invalidAddr = false;
+                sb.append(" ( ");
+            
+                if (exception.getInvalidAddresses().length > 0) {
+                    sb.append(exception.getInvalidAddresses());
+                    invalidAddr = true;
+                }
+                if (exception.getValidUnsentAddresses().length > 0) {
+                    if (invalidAddr == true) sb.append(" " );
+                    sb.append(exception.getValidUnsentAddresses());
+                }
+                sb.append(" - [");
+                sb.append(exception.getMessage().replace("\n", ""));
+                sb.append("] )");
+             }
+             return sb.toString();
+        }
+        return null;
+    }
 
     /*
      * private method to log the extended SendFailedException introduced in JavaMail 1.3.2.
@@ -830,11 +881,20 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         } else {
             out.print("Temporary");
         }
+        
+        String exceptionLog = exceptionToLogString(ex);
+        
         StringBuffer logBuffer =
             new StringBuffer(64)
                 .append(" exception delivering mail (")
-                .append(mail.getName())
-                .append(": ");
+                .append(mail.getName());
+        
+        if (exceptionLog != null) { 
+            logBuffer.append(". ");
+            logBuffer.append(exceptionLog);
+        }
+        
+        logBuffer.append(": ");
         out.print(logBuffer.toString());
         if (isDebug) ex.printStackTrace(out);
         log(sout.toString());
