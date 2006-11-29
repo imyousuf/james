@@ -75,6 +75,7 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Vector;
@@ -175,6 +176,8 @@ public class James
     private DomainList domains;
     
     private boolean virtualHosting = false;
+    
+    private String defaultDomain = null;
 
 
     /**
@@ -258,6 +261,13 @@ public class James
         }
         
         getLogger().info("VirtualHosting supported: " + virtualHosting);
+        
+        Configuration defaultDomainConfig = conf.getChild("defaultDomain");
+        if (defaultDomainConfig != null ) {
+            defaultDomain = defaultDomainConfig.getValue(null);
+        }
+        
+        getLogger().info("Defaultdomain: " + defaultDomain);
 
         // Add this to comp
         compMgr.put( MailServer.ROLE, this);
@@ -340,12 +350,20 @@ public class James
     }
 
     private void initializeServernamesAndPostmaster() throws ConfigurationException, ParseException {
-        
+        String defaultDomain = getDefaultDomain();
+        if (domains.containsDomain(defaultDomain) == false) {
+            if (domains instanceof ManageableDomainList) {
+                if(((ManageableDomainList) domains).addDomain(defaultDomain) != false) {
+                    throw new ConfigurationException("Configured defaultdomain could not get added to DomainList");
+                }
+            } else {
+                throw new ConfigurationException("Configured defaultDomain not exist in DomainList");
+            }
+        }
         serverNames = domains.getDomains();
 
         if (serverNames == null || serverNames.size() == 0) throw new ConfigurationException("No domainnames configured");
         
-        String defaultDomain = (String) serverNames.iterator().next();
         // used by RemoteDelivery for HELO
         attributes.put(Constants.DEFAULT_DOMAIN, defaultDomain);
 
@@ -914,5 +932,21 @@ public class James
      */
     public boolean supportVirtualHosting() {
         return virtualHosting;
+    }
+
+    /**
+     * @see org.apache.james.services.MailServer#getDefaultDomain()
+     */
+    public String getDefaultDomain() {
+        if (defaultDomain == null) {
+            List domainList = domains.getDomains();
+            if (domainList == null || domainList.isEmpty()) {
+                return "localhost";
+            } else {
+                return (String) domainList.get(0);
+            }  
+        } else {
+            return defaultDomain;
+        }
     }
 }

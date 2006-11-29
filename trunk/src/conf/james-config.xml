@@ -93,8 +93,14 @@
       </inboxRepository>
       -->
       
-      <!-- Set to true to support virtualHosting -->
+      <!-- Set to true to support virtualHosting. If virtualHosting support is enabled the server will accept thread every user independ on -->
+      <!-- domain level. -->
       <enableVirtualHosting> false </enableVirtualHosting>     
+      
+      <!-- Set the default domain which will be used if an email is send to a recipient without a domain part -->
+      <!-- If not defaultdomain is set the first domain of the DomainList get used -->
+      <defaultDomain> localhost </defaultDomain>
+      
    </James>
 
    <!-- Experimental IMAP support -->

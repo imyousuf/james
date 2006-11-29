@@ -118,7 +118,8 @@ public class RcptFilterCmdHandler extends AbstractLogEnabled implements
             }
             
             if (recipient.indexOf("@") < 0) {
-                recipient = recipient + "@localhost";
+                // set the default domain
+                recipient = recipient + "@" + session.getConfigurationData().getMailServer().getDefaultDomain();
             }
             
             try {

@@ -107,7 +107,7 @@ public abstract class AbstractVirtualUserTable extends GenericMailet
                         }
 
                         try {
-                            MailAddress target = (targetAddress.indexOf('@') < 0) ? new MailAddress(targetAddress, "localhost")
+                            MailAddress target = (targetAddress.indexOf('@') < 0) ? new MailAddress(targetAddress, (String) getMailetContext().getAttribute(Constants.DEFAULT_DOMAIN))
                                 : new MailAddress(targetAddress);
 
                             //Mark this source address as an address to remove from the recipient list

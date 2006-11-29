@@ -159,7 +159,7 @@ public class MailFilterCmdHandler
             } else {
                  
                 if (sender.indexOf("@") < 0) {
-                    sender = sender + "@localhost";
+                    sender = sender + "@" + session.getConfigurationData().getMailServer().getDefaultDomain();
                 }
                 
                 try {
