@@ -535,7 +535,6 @@ public class RemoteManagerHandler
         out.println("exportbayesiandata [file]                                               export the BayesianAnalysis data to a xml file");
         out.println("resetbayesiandata                                                       reset trained BayesianAnalysis data");
         out.println("memstat ([-gc])                                                         shows memory usage. When called with -gc the garbage collector get called");
-        out.println("memstat ([-gc])                                                         shows memory usage. When called with -gc the garbage collector get called");
         out.println("shutdown                                                                kills the current JVM (convenient when James is run as a daemon)");
         out.println("quit                                                                    close connection");
         out.flush();

@@ -316,7 +316,7 @@ public class RemoteManagerTest extends TestCase {
     }
 
     public void testQuit() throws IOException {
-        int helpLines = 39;
+        int helpLines = 38;
     
         finishSetUp(m_testConfiguration);
         connect();
@@ -372,7 +372,7 @@ public class RemoteManagerTest extends TestCase {
 
     private void delay() {
         try {
-            Thread.sleep(1000);
+            Thread.sleep(100);
         } catch (InterruptedException e) {
             ; // ignore
         }
