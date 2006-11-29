@@ -320,6 +320,19 @@ public class RemoteManagerHandler
             String response = responseBuffer.toString();
             writeLoggedResponse(response);
         } else {
+            if((username.indexOf("@") < 0) == false) {
+                if(theConfigData.getMailServer().supportVirtualHosting() == false) {
+                    out.println("Virtualhosting not supported");
+                    out.flush();
+                    return true;
+                }
+                String domain = username.split("@")[1];
+                if (theConfigData.getDomainListManagement().containsDomain(domain) == false) {
+                    out.println("Domain not exists: " + domain);
+                    out.flush();
+                    return true;
+                }
+            }
             success = users.addUser(username, passwd);
         }
         if ( success ) {
@@ -439,12 +452,28 @@ public class RemoteManagerHandler
      * @param argument the argument passed in with the command
      */
     private boolean doLISTUSERS(String argument) {
-        writeLoggedResponse("Existing accounts " + users.countUsers());
-        for (Iterator it = users.list(); it.hasNext();) {
-           writeLoggedResponse("user: " + (String) it.next());
+        if (argument == null) {
+            writeLoggedResponse("Existing accounts " + users.countUsers());
+            for (Iterator it = users.list(); it.hasNext();) {
+               writeLoggedResponse("user: " + (String) it.next());
+            }
+            out.flush();
+            return true;
+        } else {
+            if(theConfigData.getMailServer().supportVirtualHosting() == false) {
+                out.println("Virtualhosting not supported");
+                out.flush();
+                return true;
+            }
+        
+            ArrayList userList = getDomainUserList(argument);
+            writeLoggedResponse("Existing accounts from domain " + argument + " " + userList.size());
+            for (int i = 0; i <userList.size(); i++) {
+                writeLoggedResponse("user: " + userList.get(i));
+            }
+            out.flush();
+            return true;
         }
-        out.flush();
-        return true;
     }
 
     /**
@@ -454,8 +483,19 @@ public class RemoteManagerHandler
      * @param argument the argument passed in with the command
      */
     private boolean doCOUNTUSERS(String argument) {
-        writeLoggedFlushedResponse("Existing accounts " + users.countUsers());
-        return true;
+        if (argument == null) {
+            writeLoggedFlushedResponse("Existing accounts " + users.countUsers());
+            return true;
+        } else {
+            if(theConfigData.getMailServer().supportVirtualHosting() == false) {
+                out.println("Virtualhosting not supported");
+                out.flush();
+                return true;
+           }
+            
+           writeLoggedFlushedResponse("Existing accounts for domain " + argument + " " + getDomainUserList(argument).size());
+           return true;
+        }
     }
 
     /**
@@ -1685,5 +1725,24 @@ public class RemoteManagerHandler
             out.flush();
         }
         return true;
+    }
+    
+    /**
+     * Return an ArrayList which contains all usernames for the given domain
+     * 
+     * @param domain the domain
+     * @return ArrayList which contains the users
+     */
+    private ArrayList getDomainUserList(String domain) {
+        ArrayList userList = new ArrayList();
+        
+        for (Iterator it = users.list(); it.hasNext();) {
+           String user = (String) it.next();
+           if (user.endsWith(domain)) {
+               userList.add(user);
+           }
+        }
+        
+        return userList;
     }
 }

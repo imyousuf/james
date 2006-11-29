@@ -173,6 +173,9 @@ public class James
     private FileSystem fileSystem;
 
     private DomainList domains;
+    
+    private boolean virtualHosting = false;
+
 
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
@@ -248,6 +251,13 @@ public class James
         inboxRootURL = conf.getChild("inboxRepository").getChild("repository").getAttribute("destinationURL");
 
         getLogger().info("Private Repository LocalInbox opened");
+        
+        Configuration virtualHostingConfig = conf.getChild("enableVirtualHosting");
+        if (virtualHostingConfig != null ) {
+            virtualHosting = virtualHostingConfig.getValueAsBoolean(false);
+        }
+        
+        getLogger().info("VirtualHosting supported: " + virtualHosting);
 
         // Add this to comp
         compMgr.put( MailServer.ROLE, this);
@@ -501,6 +511,10 @@ public class James
      */
     public synchronized MailRepository getUserInbox(String userName) {
         MailRepository userInbox = null;
+        
+        if (virtualHosting == false && (userName.indexOf("@") < 0) == false) {
+            userName = userName.split("@")[0];
+        }
 
         userInbox = (MailRepository) mailboxes.get(userName);
 
@@ -520,11 +534,18 @@ public class James
             if (getLogger().isDebugEnabled()) {
                 getLogger().debug("Retrieving and caching inbox for " + userName );
             }
-            StringBuffer destinationBuffer =
-                new StringBuffer(192)
-                        .append(inboxRootURL)
-                        .append(userName)
-                        .append("/");
+
+            StringBuffer destinationBuffer = new StringBuffer(192);
+                  
+            if (virtualHosting == true && inboxRootURL.startsWith("file://") && !(userName.indexOf("@") < 0)) {
+                String userArgs[] = userName.split("@");
+                            
+                // build the url like : file://var/mail/inboxes/domain/username/
+                destinationBuffer.append(inboxRootURL).append(userArgs[1]).append("/").append(userArgs[0]).append("/");
+            } else {
+                destinationBuffer.append(inboxRootURL).append(userName).append("/");
+            }
+                 
             String destination = destinationBuffer.toString();
             try {
                 // Copy the inboxRepository configuration and modify the destinationURL
@@ -733,10 +754,14 @@ public class James
      * @see org.apache.mailet.MailetContext#isLocalEmail(org.apache.mailet.MailAddress)
      */
     public boolean isLocalEmail(MailAddress mailAddress) {
+    String userName = mailAddress.toString();
         if (!isLocalServer(mailAddress.getHost())) {
             return false;
         }
-        return localusers.contains(mailAddress.getUser());
+        if (virtualHosting == false) {
+            userName = mailAddress.getUser();
+        }
+        return localusers.contains(userName);
     }
 
     /**
@@ -882,5 +907,12 @@ public class James
         MailImpl m = new MailImpl(getId(),sender,recipients,msg);
         localDeliveryMailet.service(m);
         ContainerUtil.dispose(m);
+    }
+   
+    /**
+     * @see org.apache.james.services.MailServer#supportVirtualHosting()
+     */
+    public boolean supportVirtualHosting() {
+        return virtualHosting;
     }
 }

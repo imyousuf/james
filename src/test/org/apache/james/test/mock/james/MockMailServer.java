@@ -55,6 +55,9 @@ public class MockMailServer implements MailServer, Disposable {
 
     private HashMap inboxes;
     
+    private boolean virtualHosting;
+
+    
     public MockUsersRepository getUsersRepository() {
         return m_users;
     }
@@ -111,6 +114,7 @@ public class MockMailServer implements MailServer, Disposable {
         if (inboxes==null) {
             return null;
         } else {
+            if ((userName.indexOf("@") < 0) == false && supportVirtualHosting() == false) userName = userName.split("@")[0]; 
             return (MailRepository) inboxes.get(userName);
         }
         
@@ -182,6 +186,14 @@ public class MockMailServer implements MailServer, Disposable {
     
     public MailRepository getSentMailsRepository() {
         return mails;
+    }
+    
+    public void setVirtualHosting(boolean virtualHosting) {
+        this.virtualHosting = virtualHosting;
+    }
+
+    public boolean supportVirtualHosting() {
+        return virtualHosting;
     }
 }
 

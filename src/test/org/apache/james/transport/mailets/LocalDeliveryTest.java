@@ -221,6 +221,20 @@ public class LocalDeliveryTest extends TestCase {
         assertDeliveryWorked(mail, expectedMails);
     }
     */
+    
+    public void testSimpleDeliveryVirtualHosting() throws MessagingException {
+        //enable virtual hosting
+        mockMailServer.setVirtualHosting(true);
+        Mailet m = getMailet(null);
+           
+        Mail mail = createMail(new String[] {"virtual@hosting"});
+        m.service(mail);
+            
+        HashMap expectedMails = new HashMap();
+        expectedMails.put("virtual@hosting", new String[] {"virtual@hosting"});
+           
+        assertDeliveryWorked(mail, expectedMails);
+    }
 
     /**
      * @throws ParseException 
@@ -232,6 +246,10 @@ public class LocalDeliveryTest extends TestCase {
         mockUsersRepository.setForceUseJamesUser();
         mockUsersRepository.addUser("localuser", "password");
         mockUsersRepository.addUser("aliasedUser", "pass2");
+        
+        // VirtualHosting
+        mockUsersRepository.addUser("virtual@hosting","pass");
+
         DefaultJamesUser u = (DefaultJamesUser) mockUsersRepository.getUserByName("aliasedUser");
         u.setAliasing(true);
         u.setAlias("localuser");
@@ -254,6 +272,7 @@ public class LocalDeliveryTest extends TestCase {
         mailboxes = new HashMap();
         mailboxes.put("localuser", new InMemorySpoolRepository());
         mailboxes.put("aliasedUser", new InMemorySpoolRepository());
+        mailboxes.put("virtual@hosting",new InMemorySpoolRepository());
         Iterator mbi = mailboxes.keySet().iterator();
         while (mbi.hasNext()) {
             String mboxName = (String) mbi.next();
