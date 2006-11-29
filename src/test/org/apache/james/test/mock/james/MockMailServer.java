@@ -195,6 +195,10 @@ public class MockMailServer implements MailServer, Disposable {
     public boolean supportVirtualHosting() {
         return virtualHosting;
     }
+
+    public String getDefaultDomain() {
+        return "localhost";
+    }
 }
 
 

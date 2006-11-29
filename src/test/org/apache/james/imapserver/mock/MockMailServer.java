@@ -65,4 +65,8 @@ public class MockMailServer implements MailServer, TestConstants
         return false;
     }
 
+    public String getDefaultDomain() {
+        return "localhost";
+    }
+
 }
