@@ -60,5 +60,9 @@ public class MockMailServer implements MailServer, TestConstants
     {
         throw new RuntimeException("not implemented");
     }
+    
+    public boolean supportVirtualHosting() {
+        return false;
+    }
 
 }

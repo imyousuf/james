@@ -136,4 +136,11 @@ public interface MailServer
      * @return true if server is local, i.e. serviced by this mail context
      */
     boolean isLocalServer(String serverName);
+    
+    /**
+     * Return true if virtualHosting support is enabled, otherwise false
+     * 
+     * @return true or false
+     */
+    boolean supportVirtualHosting();
 }
