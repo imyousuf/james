@@ -316,6 +316,8 @@ public class RemoteManagerTest extends TestCase {
     }
 
     public void testQuit() throws IOException {
+        int helpLines = 39;
+    
         finishSetUp(m_testConfiguration);
         connect();
         login();
@@ -323,10 +325,11 @@ public class RemoteManagerTest extends TestCase {
         sendCommand("help");
         delay();
         assertTrue("command line is effective", readAnswer().size() > 0);
-
+        readAnswer(helpLines);
+        
         sendCommand("quit");
         delay();
-        readAnswer(0);
+        assertTrue("",readAnswer(1).contains("Bye"));
 
         sendCommand("help");
         delay();
