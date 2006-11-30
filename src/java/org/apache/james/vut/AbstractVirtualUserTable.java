@@ -95,12 +95,18 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
 
                         if (targetAddress == null) continue;
                     }
-            
+                    
+                    /* The VirtualUserTable not know anything about the defaultDomain. The defaultDomain should be added by the service which use 
+                     * the VirtualUserTable
+                     * 
                     if (targetAddress.indexOf('@') < 0) {
                          target = targetAddress + "@localhost";
                     } else {
                         target = targetAddress;
                     }
+                    */
+                    
+                    target = targetAddress;
             
                     // add mapping
                     mappings.add(target);
