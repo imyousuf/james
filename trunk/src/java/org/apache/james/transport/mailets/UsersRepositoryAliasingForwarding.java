@@ -177,13 +177,19 @@ public class UsersRepositoryAliasingForwarding extends GenericMailet {
                     throw new MessagingException(errorBuffer.toString());
             }
             
-            // TODO: what to do when mappings return null?
             if (mappings != null) {
                 Iterator i = mappings.iterator();
                 Collection remoteRecipients = new ArrayList();
                 Collection localRecipients = new ArrayList();
                 while (i.hasNext()) {
-                    MailAddress nextMap = new MailAddress((String) i.next());
+                    String rcpt = (String) i.next();
+                    
+                    if (rcpt.indexOf("@") < 0) {
+                        // the mapping contains no domain name, use the default domain
+                        rcpt = rcpt + "@" + getMailetContext().getAttribute(Constants.DEFAULT_DOMAIN);
+                    }
+                    
+                    MailAddress nextMap = new MailAddress(rcpt);
                     if (getMailetContext().isLocalServer(nextMap.getHost())) {
                         localRecipients.add(nextMap);
                     } else {
