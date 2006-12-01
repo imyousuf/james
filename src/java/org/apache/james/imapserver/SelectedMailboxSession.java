@@ -30,13 +30,16 @@ import java.util.TreeMap;
 
 import javax.mail.Flags;
 
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxListener;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 
-public class SelectedMailboxSession implements MailboxListener {
+import sun.security.action.GetLongAction;
+
+public class SelectedMailboxSession extends AbstractLogEnabled implements MailboxListener {
 
     private ImapSession _session;
     private boolean _readonly;
@@ -62,6 +65,7 @@ public class SelectedMailboxSession implements MailboxListener {
         try {
             _session.closeConnection("Mailbox " + mailbox.getName() + " has been deleted");
         } catch (MailboxManagerException e) {
+            getLogger().error("error closing connection", e);
         }
     }
 

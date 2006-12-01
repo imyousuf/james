@@ -22,6 +22,7 @@ package org.apache.james.imapserver;
 
 import javax.mail.Flags;
 
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.imapserver.store.MessageFlags;
 import org.apache.james.mailboxmanager.MailboxManagerException;
@@ -35,7 +36,7 @@ import org.apache.james.services.UsersRepository;
 /**
  * @version $Revision: 109034 $
  */
-public final class ImapSessionImpl implements ImapSession, ImapConstants
+public final class ImapSessionImpl extends AbstractLogEnabled implements ImapSession, ImapConstants
 {
     private ImapSessionState state = ImapSessionState.NON_AUTHENTICATED;
     private User user = null;
@@ -166,6 +167,7 @@ public final class ImapSessionImpl implements ImapSession, ImapConstants
     public void setSelected( ImapMailboxSession mailbox, boolean readOnly ) throws MailboxManagerException
     {
         SelectedMailboxSession sessionMailbox = new SelectedMailboxSession(mailbox, this, readOnly);
+        setupLogger(sessionMailbox);
         this.state = ImapSessionState.SELECTED;
         closeMailbox();
         this.selectedMailbox = sessionMailbox;

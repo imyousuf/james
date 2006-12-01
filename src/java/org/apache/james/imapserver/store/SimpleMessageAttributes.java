@@ -111,6 +111,7 @@ public class SimpleMessageAttributes
         try {
             internalDate = msg.getSentDate();
         } catch (MessagingException me) {
+            getLogger().debug("error getting sent date", me);
         }
         if (internalDate == null) {
             // TODO setAttributesFor: decide what to do when internalDate is null
@@ -137,59 +138,59 @@ public class SimpleMessageAttributes
             try {
                 subject = ((MimeMessage)part).getSubject();
             } catch (MessagingException me) {
-                if (DEBUG) getLogger().debug("Messaging Exception for getSubject: " + me);
+                getLogger().debug("Messaging Exception for getSubject: " + me, me);
             }
         }
         try {
             from = part.getHeader("From");
         } catch (MessagingException me) {
-            if (DEBUG) getLogger().debug("Messaging Exception for getHeader(From): " + me);
+            getLogger().debug("Messaging Exception for getHeader(From): " + me, me);
         }
         try {
             sender = part.getHeader("Sender");
         } catch (MessagingException me) {
-            if (DEBUG) getLogger().debug("Messaging Exception for getHeader(Sender): " + me);
+            getLogger().debug("Messaging Exception for getHeader(Sender): " + me, me);
         }
         try {
             replyTo = part.getHeader("Reply To");
         } catch (MessagingException me) {
-            if (DEBUG) getLogger().debug("Messaging Exception for getHeader(Reply To): " + me);
+            getLogger().debug("Messaging Exception for getHeader(Reply To): " + me, me);
         }
         try {
             to = part.getHeader("To");
         } catch (MessagingException me) {
-            if (DEBUG) getLogger().debug("Messaging Exception for getHeader(To): " + me);
+            getLogger().debug("Messaging Exception for getHeader(To): " + me, me);
         }
         try {
             cc = part.getHeader("Cc");
         } catch (MessagingException me) {
-            if (DEBUG) getLogger().debug("Messaging Exception for getHeader(To): " + me);
+            getLogger().debug("Messaging Exception for getHeader(To): " + me, me);
         }
         try {
             bcc = part.getHeader("Bcc");
         } catch (MessagingException me) {
-            if (DEBUG) getLogger().debug("Messaging Exception for getHeader(To): " + me);
+            getLogger().debug("Messaging Exception for getHeader(To): " + me, me);
         }
         try {
             inReplyTo = part.getHeader("In Reply To");
         } catch (MessagingException me) {
-            if (DEBUG) getLogger().debug("Messaging Exception for getHeader(In Reply To): " + me);
+            getLogger().debug("Messaging Exception for getHeader(In Reply To): " + me, me);
         }
         try {
             date = part.getHeader("Date");
         } catch (MessagingException me) {
-            if (DEBUG) getLogger().debug("Messaging Exception for getHeader(Date): " + me);
+           getLogger().debug("Messaging Exception for getHeader(Date): " + me, me);
         }
         try {
             messageID = part.getHeader("Message-ID");
         } catch (MessagingException me) {
-            if (DEBUG) getLogger().debug("Messaging Exception for getHeader(messageID): " + me);
+            getLogger().debug("Messaging Exception for getHeader(messageID): " + me, me);
         }
         String contentTypeLine = null;
         try {
             contentTypeLine = part.getContentType();
         } catch (MessagingException me) {
-            if (DEBUG) getLogger().debug("Messaging Exception for getContentType(): " + me);
+           getLogger().debug("Messaging Exception for getContentType(): " + me, me);
         }
         if (contentTypeLine !=null ) {
             decodeContentType(contentTypeLine);
@@ -197,12 +198,12 @@ public class SimpleMessageAttributes
         try {
             contentID = part.getContentID();
         } catch (MessagingException me) {
-            if (DEBUG) getLogger().debug("Messaging Exception for getContentUD(): " + me);
+            getLogger().debug("Messaging Exception for getContentUD(): " + me, me);
         }
         try {
             contentDesc = part.getDescription();
         } catch (MessagingException me) {
-            if (DEBUG) getLogger().debug("Messaging Exception for getDescription(): " + me);
+            getLogger().debug("Messaging Exception for getDescription(): " + me, me);
         }
         try {
             contentEncoding = part.getEncoding();
@@ -211,13 +212,13 @@ public class SimpleMessageAttributes
                 contentEncoding = "7BIT";
             }
         } catch (MessagingException me) {
-            if (DEBUG) getLogger().debug("Messaging Exception for getEncoding(): " + me);
+            getLogger().debug("Messaging Exception for getEncoding(): " + me, me);
         }
         if (DEBUG) {
             try {
                 String contentDisposition = part.getDisposition();
             } catch (MessagingException me) {
-                getLogger().debug("Messaging Exception for getEncoding(): " + me);
+                getLogger().debug("Messaging Exception for getEncoding(): " + me, me);
             }
         }
 
@@ -225,9 +226,9 @@ public class SimpleMessageAttributes
             // TODO this doesn't work
             lineCount = part.getLineCount();
         } catch (MessagingException me) {
-            if (DEBUG) getLogger().debug("Messaging Exception for getLineCount(): " + me);
+            getLogger().debug("Messaging Exception for getLineCount(): " + me, me);
         } catch (Exception e) {
-            if (DEBUG) getLogger().debug("Exception for getLineCount(): " + e);
+            getLogger().debug("Exception for getLineCount(): " + e, e);
         }
 
         // Recurse through any embedded parts
@@ -251,8 +252,7 @@ public class SimpleMessageAttributes
                     }
                 }
             } catch (Exception e) {
-                getLogger().debug("Messaging Exception for getContent(): " + e);
-                e.printStackTrace();
+                getLogger().debug("Messaging Exception for getContent(): " + e, e);
             }
         } else if (primaryType.equalsIgnoreCase("message")) {
             getLogger().info("This part contains an embedded message of subtype: " + secondaryType);
@@ -412,6 +412,7 @@ public class SimpleMessageAttributes
             try {
                 netAddr = new InternetAddress(address);
             } catch (AddressException ae) {
+                getLogger().debug("error parsing address", ae);
                 return null;
             }
             String personal = netAddr.getPersonal();
@@ -429,6 +430,7 @@ public class SimpleMessageAttributes
                 buf.append(SP);
                 buf.append(Q + mailAddr.getHost() + Q);
             } catch (ParseException pe) {
+                getLogger().debug("error parsing MailAddress", pe);
                 buf.append( NIL + SP + NIL);
             }
             buf.append(RB);
@@ -446,7 +448,7 @@ public class SimpleMessageAttributes
     void decodeContentType(String rawLine) {
         int slash = rawLine.indexOf("/");
         if( slash == -1){
-            if (DEBUG) getLogger().debug("decoding ... no slash found");
+            getLogger().debug("decoding ... no slash found");
             return;
         } else {
             primaryType = rawLine.substring(0, slash).trim();
@@ -562,9 +564,7 @@ public class SimpleMessageAttributes
             buf.append(RB);
             return buf.toString();
         } catch (Exception e) {
-            getLogger().error("Exception while parsing BodyStrucuture: " + e);
-            e.printStackTrace();
-            throw new RuntimeException("Exception in parseBodyStructure");
+            throw new RuntimeException("Exception in parseBodyStructure", e);
         }
     }
 

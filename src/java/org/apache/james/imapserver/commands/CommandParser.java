@@ -136,7 +136,7 @@ public class CommandParser
             return dateFormat.parse( dateString );
         }
         catch ( ParseException e ) {
-            throw new ProtocolException( "Invalid date format." );
+            throw new ProtocolException( "Invalid date format.", e);
         }
     }
 
@@ -160,7 +160,7 @@ public class CommandParser
             return dateFormat.parse( dateString );
         }
         catch ( ParseException e ) {
-            throw new ProtocolException( "Invalid date format." );
+            throw new ProtocolException( "Invalid date format.", e);
         }
     }
 
@@ -450,7 +450,7 @@ public class CommandParser
             }
         }
         catch ( NumberFormatException e ) {
-            throw new ProtocolException( "Invalid message set.");
+            throw new ProtocolException( "Invalid message set.", e);
         }
     }
 

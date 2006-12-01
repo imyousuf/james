@@ -194,8 +194,7 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
                 try {
                     handleBodyFetch(mimeMessage, sectionSpecifier, response);
                 } catch (MessagingException e) {
-                    // TODO chain exceptions
-                    throw new MailboxException(e.getMessage());
+                    throw new MailboxException(e.getMessage(), e);
                 }
             }
 
@@ -225,7 +224,7 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
                 mimeMessage.writeTo(new CRLFOutputStream(bout));
             }
             catch ( IOException e ) {
-                throw new ProtocolException( "Error reading message source" );
+                throw new ProtocolException( "Error reading message source", e);
             }
             byte[] bytes = bout.toByteArray();
             addLiteral( bytes, response );
@@ -267,7 +266,7 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
 
             }
             catch ( IOException e ) {
-                throw new ProtocolException( "Error reading message source" );
+                throw new ProtocolException( "Error reading message source", e);
             }
         }
         else {

@@ -38,6 +38,7 @@ import javax.mail.MessagingException;
 import javax.mail.Flags.Flag;
 import javax.mail.internet.MimeMessage;
 
+import org.apache.avalon.framework.logger.LogEnabled;
 import org.apache.james.imapserver.ImapRequestHandler;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ImapSessionImpl;
@@ -79,6 +80,7 @@ public abstract class AbstractSessionTest extends MockObjectTestCase implements 
         session = new ImapSessionImpl(theConfigData.getMailboxManagerProvider(),
                 theConfigData.getUsersRepository(), new MockImapHandler(),
                 HOST_NAME, HOST_ADDRESS);
+        ((LogEnabled)session).enableLogging(new MockLogger());
         handler = new ImapRequestHandler();
         handler.enableLogging(new MockLogger());
         mailboxManager=theConfigData.getMailboxManagerProvider().getMailboxManagerInstance(new MockUser());

@@ -155,7 +155,7 @@ class AppendCommand extends AuthenticatedStateCommand
                         messageBytes));
             } catch (Exception e) {
                 throw new ProtocolException("UnexpectedException: "
-                        + e.getMessage());
+                        + e.getMessage(), e);
 
             }
             return mm;
