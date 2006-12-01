@@ -73,4 +73,8 @@ public class SessionMailboxWrapper extends NumberStableSessionWrapper implements
         return true;
     }
 
+    public void remove(GeneralMessageSet set) throws MailboxManagerException {
+        mailbox.remove(toUidSet(set));
+    }
+
 }

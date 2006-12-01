@@ -52,6 +52,8 @@ import org.apache.james.mailboxmanager.torque.om.MessageRow;
 import org.apache.james.mailboxmanager.torque.om.MessageRowPeer;
 import org.apache.james.mailboxmanager.tracking.UidChangeTracker;
 import org.apache.james.mailboxmanager.tracking.UidRange;
+import org.apache.james.mailboxmanager.util.UidToKeyConverter;
+import org.apache.james.mailboxmanager.util.UidToKeyConverterImpl;
 import org.apache.torque.NoRowsException;
 import org.apache.torque.TooManyRowsException;
 import org.apache.torque.TorqueException;
@@ -71,12 +73,15 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
     private UidChangeTracker tracker;
 
     private MailboxEventDispatcher eventDispatcher = new MailboxEventDispatcher();
+
+    private UidToKeyConverter uidToKeyConverter;
     
     TorqueMailbox(MailboxRow mailboxRow, UidChangeTracker tracker, Log log) {
         setLog(log);
         this.mailboxRow = mailboxRow;
         this.tracker = tracker;
         tracker.addMailboxListener(getEventDispatcher());
+        getUidToKeyConverter().setUidValidity(mailboxRow.getUidValidity());
     }
 
     public int getMessageResultTypes() {
@@ -236,7 +241,8 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
     public MessageResult[] getMessages(GeneralMessageSet set, int result)
             throws MailboxManagerException {
         checkAccess();
-        if (!set.isValid()) {
+        set=toUidSet(set);
+        if (!set.isValid() || set.getType()==GeneralMessageSet.TYPE_NOTHING) {
             return new MessageResult[0];
         }
         Criteria c = criteriaForMessageSet(set);
@@ -307,6 +313,12 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
             messageResult.setInternalDate(messageRow.getInternalDate());
             result -= MessageResult.INTERNAL_DATE;
         }
+        if ((result & MessageResult.KEY) > 0) {
+            messageResult.setKey(getUidToKeyConverter().toKey(messageRow.getUid()));
+            result -= MessageResult.KEY;
+        }
+        
+        
         if (result != 0) {
             throw new RuntimeException("Unsupportet result: " + result);
         }
@@ -394,6 +406,10 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
     public MessageResult[] expunge(GeneralMessageSet set, int result)
             throws MailboxManagerException {
         checkAccess();
+        set=toUidSet(set);  
+        if (!set.isValid() || set.getType()==GeneralMessageSet.TYPE_NOTHING) {
+            return new MessageResult[0];
+        }
         try {
             // TODO put this into a serializable transaction
             final Criteria c = criteriaForMessageSet(set);
@@ -424,6 +440,10 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
             GeneralMessageSet set, MailboxListener silentListener)
             throws MailboxManagerException {
         checkAccess();
+        set=toUidSet(set);  
+        if (!set.isValid() || set.getType()==GeneralMessageSet.TYPE_NOTHING) {
+            return;
+        }        
         try {
             // TODO put this into a serializeable transaction
             final List messageRows = getMailboxRow()
@@ -531,7 +551,13 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
         this.mailboxRow = mailboxRow;
     }
 
-    public MessageResult[] search(GeneralMessageSet set, SearchTerm searchTerm, int result) {
+    public MessageResult[] search(GeneralMessageSet set, SearchTerm searchTerm,
+            int result) throws MailboxManagerException {
+        checkAccess();
+        set=toUidSet(set);
+        if (!set.isValid() || set.getType()==GeneralMessageSet.TYPE_NOTHING) {
+            return new MessageResult[0];
+        }
         final Log log = getLog();
         // TODO implementation
         if (log.isWarnEnabled()) {
@@ -540,5 +566,29 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
         MessageResult[] results = {};
         return results;
     }
+    
+    protected UidToKeyConverter getUidToKeyConverter() {
+        if (uidToKeyConverter == null) {
+            uidToKeyConverter = new UidToKeyConverterImpl();
+        }
+        return uidToKeyConverter;
+    }
 
+    public void remove(GeneralMessageSet set) throws MailboxManagerException {
+        setFlags(new Flags(Flags.Flag.DELETED), true, false, set, null);
+        expunge(set, MessageResult.NOTHING);
+    }
+
+    private GeneralMessageSet toUidSet(GeneralMessageSet set) {
+        if (set.getType()==GeneralMessageSet.TYPE_KEY) {
+            Long uid=getUidToKeyConverter().toUid(set.getKey());
+            if (uid!=null) {
+                set=GeneralMessageSetImpl.oneUid(uid.longValue());
+            } else {
+                set=GeneralMessageSetImpl.nothing();
+            }
+        }
+        return set;
+    }
+    
 }

@@ -15,6 +15,8 @@ public class GeneralMessageSetImpl implements GeneralMessageSet {
 
     private int msnTo;
 
+    private String key;
+
     private GeneralMessageSetImpl() {
     }
 
@@ -43,8 +45,7 @@ public class GeneralMessageSetImpl implements GeneralMessageSet {
     }
 
     public String getKey() throws IllegalStateException {
-        // TODO Auto-generated method stub
-        return null;
+        return key;
     }
 
     public Message getMessage() throws IllegalStateException {
@@ -130,6 +131,19 @@ public class GeneralMessageSetImpl implements GeneralMessageSet {
         gms.type = TYPE_MSN;
         gms.msnFrom = msn;
         gms.msnTo = msn;
+        return gms;
+    }
+
+    public static GeneralMessageSet oneKey(String key) {
+        GeneralMessageSetImpl gms = new GeneralMessageSetImpl();
+        gms.type = TYPE_KEY;
+        gms.key=key;
+        return gms; 
+    }
+
+    public static GeneralMessageSet nothing() {
+        GeneralMessageSetImpl gms = new GeneralMessageSetImpl();
+        gms.type = TYPE_NOTHING;
         return gms;
     }
 }

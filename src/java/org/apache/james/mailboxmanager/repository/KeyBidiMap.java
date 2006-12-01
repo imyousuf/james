@@ -26,20 +26,20 @@ import java.util.Collection;
  *
  */
 
-public interface UidToKeyBidiMap {
+public interface KeyBidiMap {
 
-    boolean containsKey(String key);
+    boolean containsExternalKey(String externalKey);
 
-    void put(String key, long uid);
+    void put(String externalKey, String internalKey);
 
-    void removeByKey(String key);
+    void removeByExternalKey(String key);
 
-    String[] getKeys();
+    String[] getExternalKeys();
 
-    String getByUid(long uid);
+    String getByInternalKey(String internalKey);
 
-    void retainAllListedAndAddedByKeys(String[] keysBefore, Collection keys);
+    void retainAllListedAndAddedByExternalKeys(String[] externalKeysBefore, Collection externalKeys);
 
-    long getByKey(String key);
+    String getByExternalKey(String externalKey);
 
 }
