@@ -94,6 +94,7 @@ public final class ImapRequestHandler extends AbstractLogEnabled {
             tag = parser.tag( request );
         }
         catch ( ProtocolException e ) {
+            getLogger().debug("error parsing request", e);
             response.badResponse( REQUEST_SYNTAX );
             return;
         }
@@ -108,6 +109,7 @@ public final class ImapRequestHandler extends AbstractLogEnabled {
             commandName = parser.atom( request );
         }
         catch ( ProtocolException e ) {
+            getLogger().debug("error parsing request", e);            
             response.commandError( REQUEST_SYNTAX );
             return;
         }

@@ -96,6 +96,10 @@ public class MailboxException extends Exception
         super(e);
     }
 
+    public MailboxException(String message, MessagingException e) {
+        super(message, e);
+    }
+
     public String getStatus()
     {
         return status;

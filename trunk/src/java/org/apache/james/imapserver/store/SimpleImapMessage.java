@@ -82,7 +82,7 @@ public class SimpleImapMessage
                 attributes.setAttributesFor( mimeMessage );
             }
             catch ( MessagingException e ) {
-                throw new MailboxException( "Could not parse mime message." );
+                throw new MailboxException( "Could not parse mime message.", e);
             }
         }
         return attributes;

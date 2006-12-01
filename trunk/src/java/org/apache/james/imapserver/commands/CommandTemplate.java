@@ -66,13 +66,16 @@ abstract class CommandTemplate
             doProcess( request, response, session );
         }
         catch ( MailboxException e ) {
+            getLogger().debug("error processing command ", e);
             response.commandFailed( this, e.getResponseCode(), e.getMessage() );
         }
         catch ( AuthorizationException e ) {
+            getLogger().debug("error processing command ", e);
             String msg = "Authorization error: Lacking permissions to perform requested operation.";
             response.commandFailed( this, msg );
         }
         catch ( ProtocolException e ) {
+            getLogger().debug("error processing command ", e);
             String msg = e.getMessage() + " Command should be '" +
                     getExpectedMessage() + "'";
             response.commandError( msg );

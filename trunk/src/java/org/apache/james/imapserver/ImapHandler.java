@@ -139,6 +139,7 @@ public class ImapHandler
                                            this,
                                            socket.getInetAddress().getHostName(),
                                            socket.getInetAddress().getHostAddress());
+            setupLogger(session);
 
             theWatchdog.start();
             while ( handlerIsUp && !sessionEnded && requestHandler.handleRequest( in, outs, session ) ) {
