@@ -24,8 +24,8 @@ import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
 import org.apache.james.imapserver.store.MailboxException;
-import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxManagerException;
+import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 
@@ -49,7 +49,7 @@ class CloseCommand extends SelectedStateCommand
         ImapMailboxSession mailbox = session.getSelected().getMailbox();
         if ( session.getSelected().getMailbox().isWriteable() ) {
             try {
-                mailbox.expunge(GeneralMessageSetImpl.all(),GeneralMessageSet.TYPE_NONE);
+                mailbox.expunge(GeneralMessageSetImpl.all(),MessageResult.NOTHING);
             } catch (MailboxManagerException e) {
                throw new MailboxException(e);
             }
