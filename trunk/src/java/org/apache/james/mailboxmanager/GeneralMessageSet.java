@@ -10,7 +10,7 @@ import javax.mail.Message;
 
 public interface GeneralMessageSet {
     
-    public static int TYPE_NONE=0;
+    public static int TYPE_NOTHING=0;
     public static int TYPE_MSN=1;
     public static int TYPE_UID=2;
     public static int TYPE_KEY=4;

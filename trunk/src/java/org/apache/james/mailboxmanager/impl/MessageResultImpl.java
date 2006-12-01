@@ -17,6 +17,7 @@ public class MessageResultImpl implements MessageResult {
     private Flags flags;
     private int size;
     private Date internalDate;
+    private String key;
     
 
     public MessageResultImpl(long uid) {
@@ -83,8 +84,7 @@ public class MessageResultImpl implements MessageResult {
     }
 
     public String getKey() {
-        // TODO Auto-generated method stub
-        return null;
+        return key;
     }
 
     public void setUid(long uid) {
@@ -159,6 +159,10 @@ public class MessageResultImpl implements MessageResult {
         }
         throw new IllegalArgumentException("unknown Flag: "+flag);
 
+    }
+
+    public void setKey(String key) {
+        this.key=key;
     }
 
 }
