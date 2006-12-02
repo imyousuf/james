@@ -21,12 +21,9 @@ package org.apache.james.mailboxmanager.repository;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.Iterator;
 
-import javax.mail.Flags;
 import javax.mail.MessagingException;
-import javax.mail.Flags.Flag;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.avalon.framework.activity.Initializable;
@@ -40,12 +37,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.core.MailImpl;
 import org.apache.james.mailboxmanager.MailboxManagerException;
-import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.Namespace;
-import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
-import org.apache.james.mailboxmanager.mailbox.FlaggedMailbox;
+import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.mailboxmanager.mailbox.MailboxSession;
-import org.apache.james.mailboxmanager.mailbox.UidMailbox;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 import org.apache.james.services.User;
@@ -64,7 +58,7 @@ public class MailboxManagerMailRepository extends AbstractMailRepository
     /**
      * used to map keys to uid and vice versa
      */
-    private UidToKeyBidiMap uidToKeyBidiMap = null;
+    private KeyBidiMap keyBidiMap = null;
 
     private MailboxManager mailboxManager;
 
@@ -74,15 +68,13 @@ public class MailboxManagerMailRepository extends AbstractMailRepository
 
     private User user;
 
-    protected long addUIDMessage(MimeMessage message) throws MessagingException {
+    protected String addMessage(MimeMessage message) throws MessagingException {
         try {
-            MessageResult mr = getMailboxGateKeeper().getMailbox().appendMessage(message,
-                    new Date(), MessageResult.UID);
-            return mr.getUid();
+            String myKey = getMailboxGateKeeper().getMailbox().store(message);
+            return myKey;
         } catch (MailboxManagerException e) {
             throw new MessagingException(e.getMessage(), e);
         }
-
     }
 
     /**
@@ -103,40 +95,39 @@ public class MailboxManagerMailRepository extends AbstractMailRepository
      */
     public synchronized void store(Mail mc) throws MessagingException {
         MimeMessage message = mc.getMessage();
-        String key = mc.getName();
-        
+        String externalKey = mc.getName();
+
         getLogger().debug("store key:" + mc.getName());
-        if (!message.isSet(Flag.RECENT)) {
-            getLogger().debug("Message didn't have RECENT flag");
-            message.setFlag(Flag.RECENT, true);
-        }
 
         boolean wasLocked = true;
         try {
             getMailboxGateKeeper().use();
-            
+
             synchronized (this) {
-                wasLocked = getLock().isLocked(key);
+                wasLocked = getLock().isLocked(externalKey);
                 if (!wasLocked) {
                     // If it wasn't locked, we want a lock during the store
-                    lock(key);
+                    lock(externalKey);
                 }
             }
 
             // insert or update, don't call remove(key) because of locking
-            if (getUidToKeyBidiMap().containsKey(key)) {
-                getLogger().info("remove message because of update Key:" + mc.getName());
-                doRemove(key,true);
+            if (getKeyBidiMap().containsExternalKey(externalKey)) {
+                getLogger().info(
+                        "remove message because of update Key:" + mc.getName());
+                doRemove(externalKey);
             }
-            long uid = addUIDMessage(message);
-            getUidToKeyBidiMap().put(key, uid);
+            String internalKey = addMessage(message);
+            getKeyBidiMap().put(externalKey, internalKey);
 
-            getLogger().info("message stored: UID: " + uid + " Key:" + mc.getName());
+            getLogger().info(
+                    "message stored: externalKey: " + externalKey
+                            + " internalKey:" + internalKey);
         } finally {
 
             if (!wasLocked) {
                 // If it wasn't locked, we need to unlock now
-                unlock(key);
+                unlock(externalKey);
                 synchronized (this) {
                     notify();
                 }
@@ -150,20 +141,20 @@ public class MailboxManagerMailRepository extends AbstractMailRepository
      * 
      * @return
      */
-    protected UidToKeyBidiMap getUidToKeyBidiMap() {
-        if (uidToKeyBidiMap == null) {
-            uidToKeyBidiMap = new UidToKeyBidiMapImpl();
+    protected KeyBidiMap getKeyBidiMap() {
+        if (keyBidiMap == null) {
+            keyBidiMap = new KeyBidiMapImpl();
         }
-        return uidToKeyBidiMap;
+        return keyBidiMap;
     }
 
     /**
      * Used for testing
      * 
-     * @param uidToKeyBidiMap
+     * @param keyBidiMap
      */
-    void setUidToKeyBidiMap(UidToKeyBidiMap uidToKeyBidiMap) {
-        this.uidToKeyBidiMap = uidToKeyBidiMap;
+    void setKeyBidiMap(KeyBidiMap keyBidiMap) {
+        this.keyBidiMap = keyBidiMap;
     }
 
     /**
@@ -194,13 +185,14 @@ public class MailboxManagerMailRepository extends AbstractMailRepository
      */
     public synchronized void remove(String key) throws MessagingException {
         getLogger().info(" remove key:" + key);
-        doLockedRemove(key,true);
+        doLockedRemove(key, true);
     }
 
-    protected void doLockedRemove(String key,boolean expunge) throws MessagingException {
+    protected void doLockedRemove(String key, boolean expunge)
+            throws MessagingException {
         if (lock(key)) {
             try {
-                doRemove(key,expunge);
+                doRemove(key);
             } finally {
                 unlock(key);
             }
@@ -209,18 +201,15 @@ public class MailboxManagerMailRepository extends AbstractMailRepository
             throw new MessagingException("could not optain lock for remove");
         }
     }
-    protected void doRemove(String key,boolean expunge) throws MessagingException {
+
+    protected void doRemove(String externalKey) throws MessagingException {
         try {
             getMailboxGateKeeper().use();
-            if (getUidToKeyBidiMap().containsKey(key)) {
-                long uid = getUidToKeyBidiMap().getByKey(key);
-                getMailboxGateKeeper().getMailbox().setFlags(
-                        new Flags(Flags.Flag.DELETED), true, false,
-                        GeneralMessageSetImpl.oneUid(uid), null);
-                getUidToKeyBidiMap().removeByKey(key);
-                if (expunge) {
-                    doExpunge();
-                }
+            if (getKeyBidiMap().containsExternalKey(externalKey)) {
+                String internalKey = getKeyBidiMap().getByExternalKey(
+                        externalKey);
+                getMailboxGateKeeper().getMailbox().remove(internalKey);
+                getKeyBidiMap().removeByExternalKey(externalKey);
             }
         } catch (MailboxManagerException e) {
             throw new MessagingException(e.getMessage(), e);
@@ -229,18 +218,6 @@ public class MailboxManagerMailRepository extends AbstractMailRepository
         }
     }
 
-    protected void doExpunge() {
-        try {
-            getLogger().debug("Expunge");
-            getMailboxGateKeeper().getMailbox().expunge(
-                    GeneralMessageSetImpl.all(), MessageResult.NOTHING);
-        } catch (MailboxManagerException e) {
-            getLogger().error("Error expunging mailbox",e);
-        } catch (MessagingException e) {
-            getLogger().error("Error expunging mailbox",e);
-        }       
-    }
-    
     /**
      * List string keys of messages in repository.
      * 
@@ -250,50 +227,42 @@ public class MailboxManagerMailRepository extends AbstractMailRepository
      * 
      */
     public Iterator list() throws MessagingException {
-        getLogger().debug("UIDPlusFolder list");
+        getLogger().debug("MailboxManagerMailRepository list");
         try {
             getMailboxGateKeeper().use();
-            FlaggedMailbox mailbox = getMailboxGateKeeper().getMailbox();
-            
+            Mailbox mailbox = getMailboxGateKeeper().getMailbox();
+
             // needed for retainAllListedAndAddedByKeys(String[], Collection)
-            String[] keysBefore = getUidToKeyBidiMap().getKeys();
-            
+            String[] externalKeysBefore = getKeyBidiMap().getExternalKeys();
+
             // get the messages
-            MessageResult[] messageResults = mailbox.getMessages(
-                    GeneralMessageSetImpl.all(), MessageResult.UID
-                            + MessageResult.FLAGS);
-            Collection keys = new ArrayList(messageResults.length);
-            for (int i = 0; i < messageResults.length; i++) {
-                
-                long uid = messageResults[i].getUid();
-                
-                if (!messageResults[i].getFlags().contains(Flags.Flag.DELETED)) {
+            Collection internalKeys = mailbox.list();
+            Collection externalKeys = new ArrayList(internalKeys.size());
+            for (Iterator iter = internalKeys.iterator(); iter.hasNext();) {
+                String internalKey = (String) iter.next();
+                String externalKey = getKeyBidiMap().getByInternalKey(
+                        internalKey);
 
-                    long uidvalidity = ((UidMailbox) mailbox).getUidValidity();
-                    // lookup uid
-
-                    String key = getUidToKeyBidiMap().getByUid(uid);
-                    if (key == null) {
-                        // generate new key
-                        key = "james-uid:" + uidvalidity + ";" + uid + ";"
-                                + System.currentTimeMillis() + ";"
-                                + getRandom().nextLong();
-                        getUidToKeyBidiMap().put(key, uid);
-                    }
-                    keys.add(key);
-                    getLogger().debug("list: UID: " + uid + " Key:" + key);
-                } else {
-                    getLogger().debug("don't list deleted UID:" + uid); 
+                if (externalKey == null) {
+                    // generate new key
+                    externalKey = "james-mailboxmanager:" + internalKey + ";"
+                            + System.currentTimeMillis() + ";"
+                            + getRandom().nextLong();
+                    getKeyBidiMap().put(externalKey, internalKey);
                 }
+                externalKeys.add(externalKey);
+                getLogger().debug(
+                        "list: externalKey: " + externalKey + " internalKey:"
+                                + internalKey);
             }
             // retain only listed keys, and keys added in the meantime (it would
             // be fatal to loose those)
             // I don't care about meanwhile removed, those will fail on next
             // access
             // it's a good idea to keep count of cached small
-            getUidToKeyBidiMap()
-                    .retainAllListedAndAddedByKeys(keysBefore, keys);
-            return keys.iterator();
+            getKeyBidiMap().retainAllListedAndAddedByExternalKeys(
+                    externalKeysBefore, externalKeys);
+            return externalKeys.iterator();
         } catch (MailboxManagerException e) {
             throw new MessagingException(e.getMessage(), e);
         } finally {
@@ -301,46 +270,30 @@ public class MailboxManagerMailRepository extends AbstractMailRepository
         }
     }
 
-    private MimeMessage getMessageFromInbox(String key)
+    private MimeMessage getMessageFromInbox(String externalKey)
             throws MessagingException {
-
-        long uid = getUidToKeyBidiMap().getByKey(key);
-        if (uid < 1) {
-            return null;
-        }
-        MessageResult[] messageResults;
+        String internalKey=getKeyBidiMap().getByExternalKey(externalKey);
+        MimeMessage mimeMessage = null;
         try {
             getMailboxGateKeeper().use();
-            messageResults = getMailboxGateKeeper().getMailbox().getMessages(
-                    GeneralMessageSetImpl.oneUid(uid),
-                    MessageResult.MIME_MESSAGE);
+            mimeMessage = getMailboxGateKeeper().getMailbox().retrieve(internalKey);
         } catch (MailboxManagerException e) {
             throw new MessagingException(e.getMessage(), e);
         } finally {
             getMailboxGateKeeper().free();
         }
 
-        MimeMessage mm = null;
-        if (messageResults.length == 1) {
-            mm = messageResults[0].getMimeMessage();
-        }
-        getLogger().debug("getMessageFromInbox: UID: " + uid + " Key:" + key);
-        if (mm == null) {
-            getUidToKeyBidiMap().removeByKey(key);
-            getLogger().info("Message not Found");
-        }
-        return mm;
+        return mimeMessage;
     }
 
     public void remove(Collection mails) throws MessagingException {
-        getLogger().debug("Remove by Collection KEYS:"+mails);
+        getLogger().debug("Remove by Collection KEYS:" + mails);
         try {
             getMailboxGateKeeper().use();
             for (Iterator iter = mails.iterator(); iter.hasNext();) {
                 Mail mail = (Mail) iter.next();
-                doRemove(mail.getName(), false);
+                doRemove(mail.getName());
             }
-            doExpunge();
         } finally {
             getMailboxGateKeeper().free();
         }
@@ -357,25 +310,25 @@ public class MailboxManagerMailRepository extends AbstractMailRepository
     class MailboxGateKeeper {
         int open = 0;
 
-        FlaggedMailbox mailbox = null;
+        MailboxSession mailboxSession = null;
 
         synchronized void use() {
             open++;
         }
 
-        synchronized void  free() {
+        synchronized void free() {
             if (open < 1) {
                 throw new RuntimeException("use<1 !");
             }
             open--;
             if (open < 1) {
                 if (open == 0) {
-                    if (mailbox != null) {
+                    if (mailboxSession != null) {
                         try {
-                            ((MailboxSession) mailbox).close();
+                            mailboxSession.close();
                         } catch (MailboxManagerException e) {
                         }
-                        mailbox=null;
+                        mailboxSession=null;
                     }
                 } else {
                     throw new RuntimeException("use<0 !");
@@ -383,20 +336,21 @@ public class MailboxManagerMailRepository extends AbstractMailRepository
             }
         }
 
-        synchronized FlaggedMailbox getMailbox()
-                throws MailboxManagerException, MessagingException {
+        synchronized Mailbox getMailbox() throws MailboxManagerException,
+                MessagingException {
             if (open < 1) {
                 throw new RuntimeException("use<1 !");
             }
-            if (mailbox == null) {
+            if (mailboxSession == null) {
                 Namespace ns = mailboxManagerProvider.getPersonalDefaultNamespace(
                         user);
 
-                String inbox=ns.getName() + ns.getHierarchyDelimter()+ "INBOX";
-                mailbox = getMailboxManager()
-                        .getImapMailboxSession(inbox);
+                String inbox = ns.getName() + ns.getHierarchyDelimter()
+                        + "INBOX";
+                mailboxSession = getMailboxManager().getImapMailboxSession(
+                        inbox);
             }
-            return mailbox;
+            return mailboxSession;
         }
     }
 
@@ -404,7 +358,7 @@ public class MailboxManagerMailRepository extends AbstractMailRepository
      * lazy loads a MailboxManager from MailboxManagerProvider
      * 
      */
-    
+
     protected MailboxManager getMailboxManager() throws MessagingException,
             MailboxManagerException {
         if (mailboxManager == null) {
@@ -427,9 +381,9 @@ public class MailboxManagerMailRepository extends AbstractMailRepository
     }
 
     public void configure(Configuration conf) throws ConfigurationException {
-        
+
         // fetch user name
-        
+
         String destinationUrl = conf.getAttribute("destinationURL");
         if (destinationUrl.endsWith("/")) {
             destinationUrl = destinationUrl.substring(0, destinationUrl
@@ -437,25 +391,28 @@ public class MailboxManagerMailRepository extends AbstractMailRepository
         }
         String userName = destinationUrl.substring(destinationUrl
                 .lastIndexOf('/') + 1);
-        getLogger().info("Configured for user: '"+userName+"' URL: '"+destinationUrl+"'");
-        setUser(new DefaultJamesUser(userName,"none"));
+        getLogger().info(
+                "Configured for user: '" + userName + "' URL: '"
+                        + destinationUrl + "'");
+        setUser(new DefaultJamesUser(userName, "none"));
     }
 
-
     public void setUser(User user) {
-        this.user=user;
+        this.user = user;
     }
 
     public void service(ServiceManager serviceManager) throws ServiceException {
-        MailboxManagerProvider mailboxManagerProvider =(MailboxManagerProvider) serviceManager.lookup("org.apache.james.mailboxmanager.manager.MailboxManagerProvider");
-        getLogger().debug("MailboxManagerMailRepository uses service "+mailboxManagerProvider);
+        MailboxManagerProvider mailboxManagerProvider = (MailboxManagerProvider) serviceManager
+                .lookup("org.apache.james.mailboxmanager.manager.MailboxManagerProvider");
+        getLogger().debug(
+                "MailboxManagerMailRepository uses service "
+                        + mailboxManagerProvider);
         setMailboxManagerProvider(mailboxManagerProvider);
     }
-    
-    
+
     protected Log getLogger() {
-        if (log==null) {
-            log=new SimpleLog("MailboxManagerMailRepository");
+        if (log == null) {
+            log = new SimpleLog("MailboxManagerMailRepository");
         }
         return log;
     }
