@@ -37,10 +37,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.core.MailImpl;
 import org.apache.james.mailboxmanager.MailboxManagerException;
-import org.apache.james.mailboxmanager.Namespace;
 import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.mailboxmanager.mailbox.MailboxSession;
-import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 import org.apache.james.services.User;
 import org.apache.james.userrepository.DefaultJamesUser;
@@ -55,18 +53,21 @@ import org.apache.mailet.Mail;
 public class MailboxManagerMailRepository extends AbstractMailRepository
         implements Configurable, Serviceable {
 
+    private static final String PREFIX = "mailboxmanager://";
+    
+    // TODO extract delimiter from namespaces
+    private static final String DL = ".";
+
     /**
      * used to map keys to uid and vice versa
      */
     private KeyBidiMap keyBidiMap = null;
 
-    private MailboxManager mailboxManager;
-
     private MailboxGateKeeper mailboxGateKeeper;
 
     private MailboxManagerProvider mailboxManagerProvider;
-
-    private User user;
+    
+    private String mailboxName;
 
     protected String addMessage(MimeMessage message) throws MessagingException {
         try {
@@ -343,34 +344,11 @@ public class MailboxManagerMailRepository extends AbstractMailRepository
                 throw new RuntimeException("use<1 !");
             }
             if (mailboxSession == null) {
-                Namespace ns = getMailboxManager().getPersonalDefaultNamespace(
-                        user);
-
-                String inbox = ns.getName() + ns.getHierarchyDelimter()
-                        + "INBOX";
-                getMailboxManager().createInbox(user);
-                mailboxSession = getMailboxManager().getImapMailboxSession(
-                        inbox);
+                mailboxSession = getMailboxManagerProvider().getMailboxSession(
+                        null, mailboxName, true);
             }
             return mailboxSession;
         }
-    }
-
-    /**
-     * lazy loads a MailboxManager from MailboxManagerProvider
-     * 
-     */
-
-    protected MailboxManager getMailboxManager() throws MessagingException,
-            MailboxManagerException {
-        if (mailboxManager == null) {
-            if (user == null) {
-                throw new MessagingException("user is null");
-            }
-            mailboxManager = getMailboxManagerProvider()
-                    .getMailboxManagerInstance(user);
-        }
-        return mailboxManager;
     }
 
     protected MailboxManagerProvider getMailboxManagerProvider() {
@@ -385,22 +363,38 @@ public class MailboxManagerMailRepository extends AbstractMailRepository
     public void configure(Configuration conf) throws ConfigurationException {
 
         // fetch user name
+        String destinationURL = conf.getAttribute("destinationURL");
+        String postfix = conf.getAttribute("postfix", null);
+        boolean translateDelimiter=conf.getAttributeAsBoolean("translateDelimiters",false);
 
-        String destinationUrl = conf.getAttribute("destinationURL");
-        if (destinationUrl.endsWith("/")) {
-            destinationUrl = destinationUrl.substring(0, destinationUrl
-                    .length() - 1);
+        // transform the URL
+        String name = destinationURL;
+        
+        // remove protocol prefix
+        if (!name.startsWith(PREFIX)) {
+            throw new ConfigurationException("url has to start with "+PREFIX);
         }
-        String userName = destinationUrl.substring(destinationUrl
-                .lastIndexOf('/') + 1);
+        name=name.substring(PREFIX.length());                
+        
+        
+        // translate delimiter
+        if (translateDelimiter) {
+            // remove trailing /
+            if (name.endsWith("/")) {
+                name = name.substring(0, name.length() - 1);
+            }
+            name=name.replaceAll("/", DL);
+        }
+        
+        // append postfix
+        if (postfix!=null) {
+            name += postfix;
+        }
+        
         getLogger().info(
-                "Configured for user: '" + userName + "' URL: '"
-                        + destinationUrl + "'");
-        setUser(new DefaultJamesUser(userName, "none"));
-    }
-
-    public void setUser(User user) {
-        this.user = user;
+                "Configured for mailbox: '" + name + "' URL: '"
+                        + destinationURL + "' translateDelimiter: "+translateDelimiter);
+        setMailboxName(name);
     }
 
     public void service(ServiceManager serviceManager) throws ServiceException {
@@ -417,6 +411,14 @@ public class MailboxManagerMailRepository extends AbstractMailRepository
             log = new SimpleLog("MailboxManagerMailRepository");
         }
         return log;
+    }
+
+    String getMailboxName() {
+        return mailboxName;
+    }
+
+    public void setMailboxName(String mailboxName) {
+        this.mailboxName = mailboxName;
     }
 
 }

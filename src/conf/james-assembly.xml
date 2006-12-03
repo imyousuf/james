@@ -39,10 +39,19 @@
              role="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector" />
   </block>
 
-  <block name="mailboxmanager" class="org.apache.james.mailboxmanager.torque.TorqueMailboxManagerProvider">
-    <provide name="filesystem" role="org.apache.james.services.FileSystem" />
-  </block>  
     
+  <block name="mailboxmanager" class="org.apache.james.mailboxmanager.impl.DefaultMailboxManagerProvider">
+      <provide name="filesystem" role="org.apache.james.services.FileSystem" />
+      <provide name="mailboxmanager-mailstore" role="org.apache.avalon.cornerstone.services.store.Store" />      
+  </block>  
+
+  <block name="mailboxmanager-mailstore" class="org.apache.james.mailboxmanager.mailstore.MyAvalonMailStore" >
+    <provide name="database-connections"
+             role="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector" />
+    <provide name="filesystem" role="org.apache.james.services.FileSystem" />     
+  </block>      
+ 
+   
   <!-- The James Spool Manager block  -->
   <block name="spoolmanager" class="org.apache.james.transport.JamesSpoolManager" >
     <provide name="spoolrepository" role="org.apache.james.services.SpoolRepository"/>
@@ -185,15 +194,9 @@
     <provide name="dnsserver" role="org.apache.james.services.DNSServer"/>
   </block>
 
-  <!-- The High Level Storage block 
-  <block name="mailstore" class="org.apache.james.core.AvalonMailStore" >
-    <provide name="database-connections"
-             role="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector" />
-    <provide name="filesystem" role="org.apache.james.services.FileSystem" />
-  </block>
-  -->
+  <!-- The High Level Storage block -->
     
-  <block name="mailstore" class="org.apache.james.mailboxmanager.repository.MyAvalonMailStore" >
+  <block name="mailstore" class="org.apache.james.core.AvalonMailStore" >
     <provide name="database-connections"
              role="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector" />
     <provide name="mailboxmanager"
