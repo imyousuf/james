@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
@@ -67,15 +68,12 @@ public class VirtualMailboxManagerFactoryTest extends MockObjectTestCase {
                                 "/org/apache/james/mailboxmanager/testdata/VirtualRepositoryMix.xml"));
         Configuration conf = confFile.getChild("mailboxmanager", false).getChild("factory",false);
 
-        Mock mockService = mock(ServiceManager.class);
-        mockService.expects(once()).method("lookup").with(eq(FileSystem.ROLE))
-                .will(returnValue(new MockFileSystem()));
+
 
         VirtualMailboxManagerFactory virtualMailboxManagerFactory = new VirtualMailboxManagerFactory();
         virtualMailboxManagerFactory.enableLogging(new MockLogger());
         virtualMailboxManagerFactory.configure(conf);
-        virtualMailboxManagerFactory.service((ServiceManager) mockService
-                .proxy());
+        virtualMailboxManagerFactory.service(getMockService());
 //        virtualMailboxManagerFactory.initialize();
 
         String[] expected = { "#system", "#user1", "#user2", "#user3", "#mail",
@@ -128,7 +126,7 @@ public class VirtualMailboxManagerFactoryTest extends MockObjectTestCase {
         VirtualMailboxManagerFactory virtualMailboxManagerFactory = new VirtualMailboxManagerFactory();
         virtualMailboxManagerFactory.enableLogging(new MockLogger());
         virtualMailboxManagerFactory.configure(conf);
-        virtualMailboxManagerFactory.service(null);
+        virtualMailboxManagerFactory.service(getMockService());
         virtualMailboxManagerFactory.initialize();
 
         String[] expected = { "#system", "#user1", "#user2", "#user3", "#mail",
@@ -189,6 +187,15 @@ public class VirtualMailboxManagerFactoryTest extends MockObjectTestCase {
 
     protected static Set toSet(Object[] o) {
         return new HashSet(Arrays.asList(o));
+    }
+    
+    protected ServiceManager getMockService() {
+        Mock mockService = mock(ServiceManager.class);
+        mockService.expects(atMostOnce()).method("lookup").with(eq(FileSystem.ROLE))
+                .will(returnValue(new MockFileSystem()));
+        mockService.expects(atMostOnce()).method("lookup").with(eq(Store.ROLE)).will(
+                returnValue(null));
+        return (ServiceManager) mockService.proxy();
     }
 
 }

@@ -26,15 +26,15 @@ import java.util.Iterator;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.core.MailImpl;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.mailbox.MailboxSession;
-import org.apache.james.mailboxmanager.mailstore.MailStoreMailboxManager;
 import org.apache.james.mailboxmanager.mailstore.MailstoreMailboxCache;
 import org.apache.james.services.MailRepository;
 import org.apache.mailet.Mail;
 
-public class MailRepositoryMailboxSession implements MailboxSession {
+public class MailRepositoryMailboxSession extends AbstractLogEnabled implements MailboxSession {
 
     private MailRepository target;
 
@@ -68,6 +68,7 @@ public class MailRepositoryMailboxSession implements MailboxSession {
     }
 
     public Collection list() throws MailboxManagerException {
+        getLogger().debug("list()");
         try {
             ArrayList list = new ArrayList();
             for (Iterator iter = target.list(); iter.hasNext();) {
@@ -80,6 +81,7 @@ public class MailRepositoryMailboxSession implements MailboxSession {
     }
 
     public void remove(String key) throws MailboxManagerException {
+        getLogger().debug("remove() "+key);
         try {
             target.remove(key);
         } catch (MessagingException e) {
@@ -88,6 +90,7 @@ public class MailRepositoryMailboxSession implements MailboxSession {
     }
 
     public MimeMessage retrieve(String key) throws MailboxManagerException {
+        getLogger().debug("retrieve() "+key);
         try {
             return target.retrieve(key).getMessage();
         } catch (MessagingException e) {
@@ -99,7 +102,9 @@ public class MailRepositoryMailboxSession implements MailboxSession {
         try {
             Mail mail=new MailImpl(message);
             target.store(mail);
-            return mail.getName();
+            String key=mail.getName();
+            getLogger().debug("store() "+key);
+            return key;
         } catch (MessagingException e) {
             throw new MailboxManagerException(e);
         }

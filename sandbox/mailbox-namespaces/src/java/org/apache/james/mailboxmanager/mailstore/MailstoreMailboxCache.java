@@ -28,6 +28,7 @@ import java.util.Set;
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
+import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.mailbox.MailboxSession;
@@ -60,10 +61,13 @@ public class MailstoreMailboxCache extends AbstractLogEnabled {
                 repository = (MailRepository) getMailStore().select(conf);
                 repositoryCash.put(url, repository);
                 sessionCash.put(url, new HashSet());
+                getLogger().debug("Added MailRepository "+url+ "to the cache");
             } catch (Exception e) {
                 getLogger().error("Error optaining repository " + url);
                 throw new MailboxManagerException(e);
             }
+        } else {
+            getLogger().debug("Optained MailRepository "+url+ "from the cache");
         }
         if (repository == null) {
             throw new MailboxManagerException("could not optain repository "
@@ -72,6 +76,7 @@ public class MailstoreMailboxCache extends AbstractLogEnabled {
         HashSet sessions = (HashSet) sessionCash.get(url);
         MailRepositoryMailboxSession mailboxSession = new MailRepositoryMailboxSession(
                 this, repository, mailboxName);
+        ContainerUtil.enableLogging(mailboxSession, getLogger().getChildLogger("session"));
         sessions.add(mailboxSession);
 
         return mailboxSession;
@@ -83,8 +88,10 @@ public class MailstoreMailboxCache extends AbstractLogEnabled {
         String url = buildUrl(mailboxName);
         Set sessions = (Set) sessionCash.get(url);
         if (sessions != null && sessions.remove(session)) {
+            getLogger().debug("session closed for MailRepository "+url);
             if (sessions.isEmpty()) {
                 repositoryCash.remove(url);
+                getLogger().debug("MailRepository "+url+ " removed from cache");
             }
         } else {
             throw new MailboxManagerException("session not open");
@@ -110,8 +117,12 @@ public class MailstoreMailboxCache extends AbstractLogEnabled {
 
         // TODO maybe INBOX treatment should only be done when in user
         // namespace
-        if (url.toUpperCase().endsWith(".INBOX")) {
-            url = url.substring(0, url.length() - 6);
+        if (url.toUpperCase().endsWith("INBOX")) {
+            url = url.substring(0, url.length() - 5);
+        }
+        
+        if (url.endsWith(".")) {
+            url = url.substring(0, url.length() - 1);
         }
 
         return url;

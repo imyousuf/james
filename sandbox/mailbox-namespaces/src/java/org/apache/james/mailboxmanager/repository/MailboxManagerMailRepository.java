@@ -37,10 +37,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.core.MailImpl;
 import org.apache.james.mailboxmanager.MailboxManagerException;
-import org.apache.james.mailboxmanager.Namespace;
 import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.mailboxmanager.mailbox.MailboxSession;
-import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 import org.apache.james.services.User;
 import org.apache.james.userrepository.DefaultJamesUser;
@@ -59,8 +57,6 @@ public class MailboxManagerMailRepository extends AbstractMailRepository
      * used to map keys to uid and vice versa
      */
     private KeyBidiMap keyBidiMap = null;
-
-    private MailboxManager mailboxManager;
 
     private MailboxGateKeeper mailboxGateKeeper;
 
@@ -342,33 +338,10 @@ public class MailboxManagerMailRepository extends AbstractMailRepository
                 throw new RuntimeException("use<1 !");
             }
             if (mailboxSession == null) {
-                Namespace ns = mailboxManagerProvider.getPersonalDefaultNamespace(
-                        user);
-
-                String inbox = ns.getName() + ns.getHierarchyDelimter()
-                        + "INBOX";
-                mailboxSession = getMailboxManager().getImapMailboxSession(
-                        inbox);
+                mailboxSession = getMailboxManagerProvider().getInboxSession(user);
             }
             return mailboxSession;
         }
-    }
-
-    /**
-     * lazy loads a MailboxManager from MailboxManagerProvider
-     * 
-     */
-
-    protected MailboxManager getMailboxManager() throws MessagingException,
-            MailboxManagerException {
-        if (mailboxManager == null) {
-            if (user == null) {
-                throw new MessagingException("user is null");
-            }
-            mailboxManager = getMailboxManagerProvider()
-                    .getMailboxManagerInstance(user);
-        }
-        return mailboxManager;
     }
 
     protected MailboxManagerProvider getMailboxManagerProvider() {

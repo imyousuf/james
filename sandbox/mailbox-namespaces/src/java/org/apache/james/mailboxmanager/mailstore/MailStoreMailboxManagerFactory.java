@@ -21,16 +21,22 @@ package org.apache.james.mailboxmanager.mailstore;
 
 import java.util.Map;
 
+import org.apache.avalon.cornerstone.services.store.Store;
+import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerFactory;
 import org.apache.james.services.User;
 
-public class MailStoreMailboxManagerFactory extends AbstractLogEnabled implements MailboxManagerFactory  {
+public class MailStoreMailboxManagerFactory extends AbstractLogEnabled
+        implements MailboxManagerFactory, Configurable, Serviceable {
     
     private MailstoreMailboxCache mailstoreMailboxCache;
 
@@ -46,7 +52,8 @@ public class MailStoreMailboxManagerFactory extends AbstractLogEnabled implement
     
     
     public void configure(Configuration conf) throws ConfigurationException {
-        getMailstoreMailboxCache().setRepositoryConf(conf.getChild("target").getChild("repository"));
+        getMailstoreMailboxCache().setRepositoryConf(
+                conf.getChild("repository", false));
         String destinationURL = conf.getChild("repository").getAttribute(
                 "destinationURL");
         getLogger().info("destinationURL:" + destinationURL);
@@ -75,5 +82,13 @@ public class MailStoreMailboxManagerFactory extends AbstractLogEnabled implement
     public Map getOpenMailboxSessionCountMap() {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    public void service(ServiceManager manager) throws ServiceException {
+        setMailStore((Store) manager.lookup(Store.ROLE));
+    }
+    
+    public void setMailStore(Store mailStore) {
+       getMailstoreMailboxCache().setMailStore(mailStore);
     }
 }

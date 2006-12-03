@@ -51,6 +51,8 @@ public class MailStoreMailboxCacheTest extends MockObjectTestCase {
     }
 
     public void testBuildUrlInbox() {
+        assertEquals("file://var/mail/inboxes/", mailstoreMailboxCache
+                .buildUrl("#mail.INBOX"));
         assertEquals("file://var/mail/inboxes/t1", mailstoreMailboxCache
                 .buildUrl("#mail.t1.INBOX"));
         assertEquals("file://var/mail/inboxes/t1.t2", mailstoreMailboxCache
