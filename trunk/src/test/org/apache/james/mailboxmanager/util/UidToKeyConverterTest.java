@@ -38,9 +38,9 @@ public class UidToKeyConverterTest extends TestCase {
     }
     
     public void testKeyToUidValid() {
-        assertEquals(Long.valueOf(3454),uidToKeyConverterImpl.toUid("JAMES-UID-KEY-(3454;123)"));
+        assertEquals(new Long(3454),uidToKeyConverterImpl.toUid("JAMES-UID-KEY-(3454;123)"));
         uidToKeyConverterImpl.setUidValidity(1);
-        assertEquals(Long.valueOf(2),uidToKeyConverterImpl.toUid("JAMES-UID-KEY-(2;1)"));
+        assertEquals(new Long(2),uidToKeyConverterImpl.toUid("JAMES-UID-KEY-(2;1)"));
     }
     
     public void testKeyToUidWrongUidValidity() {

@@ -72,7 +72,7 @@ public class VirtualMailboxManagerFactory extends AbstractLogEnabled implements
             mailboxManagerFactories.add(mailboxManagerFactory);
             ContainerUtil.enableLogging(mailboxManagerFactory, getLogger()
                     .getChildLogger(
-                            mailboxManagerFactory.getClass().getSimpleName()));
+                            mailboxManagerFactory.getClass().getName()));
             ContainerUtil.configure(mailboxManagerFactory, targetConf);
             
             Configuration[] pointConfs = conf.getChildren("point");
@@ -110,7 +110,7 @@ public class VirtualMailboxManagerFactory extends AbstractLogEnabled implements
         VirtualMailboxManager virtualMailboxManager = new VirtualMailboxManager();
         ContainerUtil.enableLogging(virtualMailboxManager, getLogger()
                 .getChildLogger(
-                        virtualMailboxManager.getClass().getSimpleName()));
+                        virtualMailboxManager.getClass().getName()));
         virtualMailboxManager.setMountMap(mountMap);
         virtualMailboxManager.setUser(user);
 
