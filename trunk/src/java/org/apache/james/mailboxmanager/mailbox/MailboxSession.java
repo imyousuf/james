@@ -19,9 +19,11 @@
 
 package org.apache.james.mailboxmanager.mailbox;
 
+import org.apache.james.mailboxmanager.MailboxManagerException;
+
 public interface MailboxSession extends Mailbox {
 
-    void close();
+    void close() throws MailboxManagerException;
 
     boolean isWriteable();
 

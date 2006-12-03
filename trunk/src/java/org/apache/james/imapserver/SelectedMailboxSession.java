@@ -37,8 +37,6 @@ import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 
-import sun.security.action.GetLongAction;
-
 public class SelectedMailboxSession extends AbstractLogEnabled implements MailboxListener {
 
     private ImapSession _session;
@@ -79,14 +77,12 @@ public class SelectedMailboxSession extends AbstractLogEnabled implements Mailbo
     }
     
 
-    public void close()
-    {
+    public void close() throws MailboxManagerException  {
         mailbox.close();
         mailbox=null;
     }
 
-    public void create()
-    {
+    public void create() {
         throw new RuntimeException("should not create a selected mailbox");
         
     }
