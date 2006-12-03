@@ -183,10 +183,13 @@ public final class ImapSessionImpl extends AbstractLogEnabled implements ImapSes
         return this.state;
     }
 
-    public void closeMailbox()
-    {
+    public void closeMailbox() {
         if (selectedMailbox != null) {
-            selectedMailbox.close();
+            try {
+                selectedMailbox.close();
+            } catch (MailboxManagerException e) {
+                getLogger().error("error closing Mailbox", e);
+            }
             selectedMailbox=null;
         }
         

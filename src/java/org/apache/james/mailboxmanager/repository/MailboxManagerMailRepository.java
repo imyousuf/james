@@ -324,8 +324,12 @@ public class MailboxManagerMailRepository extends AbstractMailRepository
             if (open < 1) {
                 if (open == 0) {
                     if (mailboxSession != null) {
-                        mailboxSession.close();
-                        mailboxSession = null;
+                        try {
+                            mailboxSession.close();
+                        } catch (MailboxManagerException e) {
+                            getLogger().error("error closing Mailbox", e);
+                        }
+                        mailboxSession=null;
                     }
                 } else {
                     throw new RuntimeException("use<0 !");
