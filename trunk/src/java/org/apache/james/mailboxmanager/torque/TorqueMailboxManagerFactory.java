@@ -42,9 +42,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.impl.AvalonLogger;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.mailboxmanager.MailboxManagerException;
-import org.apache.james.mailboxmanager.mailbox.MailboxSession;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
-import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
+import org.apache.james.mailboxmanager.manager.MailboxManagerFactory;
 import org.apache.james.mailboxmanager.torque.om.MailboxRowPeer;
 import org.apache.james.mailboxmanager.torque.om.MessageBodyPeer;
 import org.apache.james.mailboxmanager.torque.om.MessageFlagsPeer;
@@ -59,71 +58,83 @@ import org.apache.torque.TorqueException;
 import org.apache.torque.util.BasePeer;
 import org.apache.torque.util.Transaction;
 
-public class TorqueMailboxManagerProvider implements MailboxManagerProvider, Initializable, Configurable, LogEnabled, Serviceable  {
+public class TorqueMailboxManagerFactory implements MailboxManagerFactory,
+        Configurable, Initializable, Serviceable, LogEnabled {
 
     private MailboxCache mailboxCache;
 
     private BaseConfiguration torqueConf;
-    
+
     private boolean initialized;
 
     private Log log;
 
     private FileSystem fileSystem;
 
-    private static final String[] tableNames= new String[] {MailboxRowPeer.TABLE_NAME,MessageRowPeer.TABLE_NAME,MessageHeaderPeer.TABLE_NAME,MessageBodyPeer.TABLE_NAME,MessageFlagsPeer.TABLE_NAME};
+    private static final String[] tableNames = new String[] {
+            MailboxRowPeer.TABLE_NAME, MessageRowPeer.TABLE_NAME,
+            MessageHeaderPeer.TABLE_NAME, MessageBodyPeer.TABLE_NAME,
+            MessageFlagsPeer.TABLE_NAME };
 
-
-    public MailboxManager getMailboxManagerInstance(User user)         throws MailboxManagerException {
-        if (!initialized)  {
+    public MailboxManager getMailboxManagerInstance(User user)
+            throws MailboxManagerException {
+        if (!initialized) {
             throw new MailboxManagerException("must be initialized first!");
         }
-        return new TorqueMailboxManager(user, getMailboxCache(),getLog());
+        return new TorqueMailboxManager(user, getMailboxCache(), getLog());
     }
+
     public void initialize() throws Exception {
         if (!initialized) {
-            if (torqueConf==null) {
+            if (torqueConf == null) {
                 throw new RuntimeException("must be configured first!");
             }
             if (Torque.isInit()) {
                 throw new RuntimeException("Torque is already initialized!");
             }
-            Connection conn= null;
+            Connection conn = null;
             try {
                 Torque.init(torqueConf);
-                conn=Transaction.begin(MailboxRowPeer.DATABASE_NAME);
-                SqlResources sqlResources=new SqlResources();
-                sqlResources.init(fileSystem.getFile("file://conf/mailboxManagerSqlResources.xml"), TorqueMailboxManagerProvider.class.getName(), conn, new HashMap());
+                conn = Transaction.begin(MailboxRowPeer.DATABASE_NAME);
+                SqlResources sqlResources = new SqlResources();
+                sqlResources.init(fileSystem
+                        .getFile("file://conf/mailboxManagerSqlResources.xml"),
+                        TorqueMailboxManagerFactory.class.getName(), conn,
+                        new HashMap());
 
-                DatabaseMetaData dbMetaData=conn.getMetaData();
-                
+                DatabaseMetaData dbMetaData = conn.getMetaData();
+
                 for (int i = 0; i < tableNames.length; i++) {
                     if (!tableExists(dbMetaData, tableNames[i])) {
-                        BasePeer.executeStatement(sqlResources.getSqlString("createTable_"+tableNames[i]),conn);
-                        System.out.println("Created table "+tableNames[i]);
-                        getLog().info("Created table "+tableNames[i]);
-                     }                    
+                        BasePeer.executeStatement(sqlResources
+                                .getSqlString("createTable_" + tableNames[i]),
+                                conn);
+                        System.out.println("Created table " + tableNames[i]);
+                        getLog().info("Created table " + tableNames[i]);
+                    }
                 }
 
                 Transaction.commit(conn);
-                initialized=true;
+                initialized = true;
                 System.out.println("MailboxManager has been initialized");
                 getLog().info("MailboxManager has been initialized");
             } catch (Exception e) {
-                System.err.println("============================================");
+                System.err
+                        .println("============================================");
                 e.printStackTrace();
-                System.err.println("--------------------------------------------");
+                System.err
+                        .println("--------------------------------------------");
                 Transaction.safeRollback(conn);
                 try {
                     Torque.shutdown();
                 } catch (TorqueException e1) {
-                    
-                }  
+
+                }
                 throw new MailboxManagerException(e);
-            } 
+            }
         }
     }
-    
+
     public void configureDefaults()
             throws org.apache.commons.configuration.ConfigurationException {
         File configFile = new File("torque.properties");
@@ -152,14 +163,17 @@ public class TorqueMailboxManagerProvider implements MailboxManagerProvider, Ini
         }
     }
 
-    public void configure(org.apache.avalon.framework.configuration.Configuration conf) throws ConfigurationException {
-        torqueConf=new BaseConfiguration();
-        org.apache.avalon.framework.configuration.Configuration[] tps=conf.getChild("torque-properties").getChildren("property");
+    public void configure(
+            org.apache.avalon.framework.configuration.Configuration conf)
+            throws ConfigurationException {
+        torqueConf = new BaseConfiguration();
+        org.apache.avalon.framework.configuration.Configuration[] tps = conf
+                .getChild("torque-properties").getChildren("property");
         for (int i = 0; i < tps.length; i++) {
-            torqueConf.addProperty(tps[i].getAttribute("name"), tps[i].getAttribute("value"));
+            torqueConf.addProperty(tps[i].getAttribute("name"), tps[i]
+                    .getAttribute("value"));
         }
     }
-
 
     private boolean tableExists(DatabaseMetaData dbMetaData, String tableName)
             throws SQLException {
@@ -192,7 +206,7 @@ public class TorqueMailboxManagerProvider implements MailboxManagerProvider, Ini
     public void deleteEverything() throws MailboxManagerException {
         ((TorqueMailboxManager) getMailboxManagerInstance(null))
                 .deleteEverything();
-        mailboxCache=null;
+        mailboxCache = null;
     }
 
     public boolean isInitialized() {
@@ -203,44 +217,33 @@ public class TorqueMailboxManagerProvider implements MailboxManagerProvider, Ini
         return "TorqueMailboxManagerProvider";
     }
 
-
     protected Log getLog() {
         if (log == null) {
-            log = new SimpleLog("TorqueMailboxManagerProvider");
+            log = new SimpleLog("TorqueMailboxManagerFactory");
         }
         return log;
     }
-    
+
     public void enableLogging(Logger logger) {
-        log=new AvalonLogger(logger);
-        
+        log = new AvalonLogger(logger);
+
     }
-    
-    public void service(ServiceManager arg0) throws ServiceException {
-        setFileSystem((FileSystem) arg0.lookup(FileSystem.ROLE));
+
+    public void service(ServiceManager serviceManager) throws ServiceException {
+        setFileSystem((FileSystem) serviceManager.lookup(FileSystem.ROLE));
     }
-    
+
     protected void setFileSystem(FileSystem system) {
         this.fileSystem = system;
     }
-    public void deleteAllUserData(User authUser, User targetUser) {
+
+    public void addMountPoint(String point) {
         // TODO Auto-generated method stub
-        
-    }
-    public MailboxSession getInboxSession(User user) {
-        // TODO Auto-generated method stub
-        return null;
+
     }
 
-    public MailboxSession getMailboxSession(User authUser, String mailboxName, boolean autoCreate) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-    
-    
     public Map getOpenMailboxSessionCountMap() {
         return getMailboxCache().getOpenMailboxSessionCountMap();
     }
-    
 
 }

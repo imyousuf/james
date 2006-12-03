@@ -779,6 +779,7 @@
         </javac>
         <copy todir="${build.test.classes}">
             <fileset dir="${junitjava.dir}" includes="**/*.zone" />
+            <fileset dir="${junitjava.dir}" includes="**/*.xml" />        	
         </copy>
     </target>
 

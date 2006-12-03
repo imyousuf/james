@@ -17,30 +17,10 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.mailboxmanager.mock;
+package org.apache.james.mailboxmanager.mailstore;
 
-import org.apache.james.mailboxmanager.impl.DefaultMailboxManagerProvider;
-import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
-import org.apache.james.mailboxmanager.torque.TorqueMailboxManagerFactory;
-import org.apache.james.test.mock.james.MockFileSystem;
+import org.apache.james.core.AvalonMailStore;
 
-public class TorqueMailboxManagerProviderSingleton {
-    
-    
-    private static DefaultMailboxManagerProvider defaultMailboxManagerProvider;
-
-    public synchronized static MailboxManagerProvider getTorqueMailboxManagerProviderInstance() throws Exception {
-        if (defaultMailboxManagerProvider==null) {
-            TorqueMailboxManagerFactory torqueMailboxManagerFactory=new TorqueMailboxManagerFactory() {{
-                setFileSystem(new MockFileSystem());
-            }};
-            torqueMailboxManagerFactory.configureDefaults();
-            torqueMailboxManagerFactory.initialize();
-            defaultMailboxManagerProvider=new DefaultMailboxManagerProvider();
-            defaultMailboxManagerProvider.setMailboxManagerFactory(torqueMailboxManagerFactory);
-        }
-        return defaultMailboxManagerProvider;
-        
-    }
+public class MyAvalonMailStore extends AvalonMailStore {
 
 }

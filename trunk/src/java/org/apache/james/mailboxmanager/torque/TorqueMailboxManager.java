@@ -29,11 +29,7 @@ import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.ListResult;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
-import org.apache.james.mailboxmanager.Namespace;
-import org.apache.james.mailboxmanager.Namespaces;
 import org.apache.james.mailboxmanager.impl.ListResultImpl;
-import org.apache.james.mailboxmanager.impl.NamespaceImpl;
-import org.apache.james.mailboxmanager.impl.NamespacesImpl;
 import org.apache.james.mailboxmanager.mailbox.GeneralMailbox;
 import org.apache.james.mailboxmanager.mailbox.GeneralMailboxSession;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
@@ -50,10 +46,6 @@ import org.apache.torque.util.CountHelper;
 import org.apache.torque.util.Criteria;
 
 public class TorqueMailboxManager implements MailboxManager {
-    
-    public static final char HIERARCHY_DELIMITER='.';
-    
-    public static final String USER_NAMESPACE="#mail";
 
     private static Random random;
     private MailboxCache mailboxCache;
@@ -135,20 +127,6 @@ public class TorqueMailboxManager implements MailboxManager {
        return mailboxCache;
     }
     
-    public Namespaces getNamespaces(User forUser) {
-        NamespacesImpl nameSpaces=new NamespacesImpl();
-        nameSpaces.setShared(new Namespace[0]);
-        Namespace userNamespace=new NamespaceImpl(""+HIERARCHY_DELIMITER,USER_NAMESPACE);
-        nameSpaces.setUser(new Namespace[] {userNamespace}); 
-        Namespace personalDefault = getPersonalDefaultNamespace(forUser);
-        nameSpaces.setPersonal(new Namespace[] {personalDefault}); 
-        nameSpaces.setPersonalDefault(personalDefault);
-        return nameSpaces;
-    }
-
-    public Namespace getPersonalDefaultNamespace(User forUser) {
-        return new NamespaceImpl("" + HIERARCHY_DELIMITER,USER_NAMESPACE+HIERARCHY_DELIMITER+forUser.getUserName());
-    }
 
     public void createMailbox(String namespaceName)
             throws MailboxManagerException {

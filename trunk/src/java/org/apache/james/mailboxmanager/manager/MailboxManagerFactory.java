@@ -17,30 +17,22 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.mailboxmanager.mock;
+package org.apache.james.mailboxmanager.manager;
 
-import org.apache.james.mailboxmanager.impl.DefaultMailboxManagerProvider;
-import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
-import org.apache.james.mailboxmanager.torque.TorqueMailboxManagerFactory;
-import org.apache.james.test.mock.james.MockFileSystem;
+import java.util.Map;
 
-public class TorqueMailboxManagerProviderSingleton {
-    
-    
-    private static DefaultMailboxManagerProvider defaultMailboxManagerProvider;
+import org.apache.james.mailboxmanager.MailboxManagerException;
+import org.apache.james.services.User;
 
-    public synchronized static MailboxManagerProvider getTorqueMailboxManagerProviderInstance() throws Exception {
-        if (defaultMailboxManagerProvider==null) {
-            TorqueMailboxManagerFactory torqueMailboxManagerFactory=new TorqueMailboxManagerFactory() {{
-                setFileSystem(new MockFileSystem());
-            }};
-            torqueMailboxManagerFactory.configureDefaults();
-            torqueMailboxManagerFactory.initialize();
-            defaultMailboxManagerProvider=new DefaultMailboxManagerProvider();
-            defaultMailboxManagerProvider.setMailboxManagerFactory(torqueMailboxManagerFactory);
-        }
-        return defaultMailboxManagerProvider;
-        
-    }
+public interface MailboxManagerFactory {
+
+    public MailboxManager getMailboxManagerInstance(User user)
+            throws MailboxManagerException;
+
+    public void deleteEverything() throws MailboxManagerException;
+
+    public void addMountPoint(String point);
+
+    public Map getOpenMailboxSessionCountMap();
 
 }

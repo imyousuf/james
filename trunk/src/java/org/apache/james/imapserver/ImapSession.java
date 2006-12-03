@@ -115,8 +115,9 @@ public interface ImapSession
 
     /**
      * closes the Mailbox if needed
+     * @throws MailboxManagerException 
      */
-    void closeMailbox();
+    void closeMailbox() throws MailboxManagerException;
 
     MailboxManager getMailboxManager() throws MailboxManagerException;
 
