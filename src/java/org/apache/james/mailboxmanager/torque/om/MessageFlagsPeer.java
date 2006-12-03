@@ -1,7 +1,10 @@
 package org.apache.james.mailboxmanager.torque.om;
 
+import java.util.List;
+
 import javax.mail.Flags;
 
+import org.apache.torque.TorqueException;
 import org.apache.torque.util.Criteria;
 
 /**
@@ -41,5 +44,9 @@ public class MessageFlagsPeer
         if (flags.contains(Flags.Flag.SEEN)) {
             c.add(SEEN,value);
         }
+    }
+    
+    public static List doSelectJoinMessageRow(Criteria criteria) throws TorqueException {
+       return BaseMessageFlagsPeer.doSelectJoinMessageRow(criteria);
     }
 }
