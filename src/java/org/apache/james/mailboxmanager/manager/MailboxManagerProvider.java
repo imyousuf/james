@@ -39,11 +39,14 @@ public interface MailboxManagerProvider {
     
     MailboxSession getInboxSession(User user);
 
-    /** @param authUser the authorized User for checking credentials 
-        @param mailboxName a logical/hierarchical mailbox name **/ 
+    /** 
+     *  @param authUser the authorized User for checking credentials 
+     *  @param mailboxName a logical/hierarchical mailbox name *
+     *  @throws MailboxManagerException 
+     */ 
 
-    MailboxSession getMailboxSession(
-         User authUser, String mailboxName);
+    MailboxSession getMailboxSession(User authUser, String mailboxName,
+            boolean autoCreate) throws MailboxManagerException;
     
     /**
      * removes all data (mailboxes, quota, acls...) that is associated 
