@@ -245,11 +245,11 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
         if (!set.isValid() || set.getType()==GeneralMessageSet.TYPE_NOTHING) {
             return new MessageResult[0];
         }
-        Criteria c = criteriaForMessageSet(set);
         UidRange range = uidRangeForMessageSet(set);
         try {
-            List l = getMailboxRow().getMessageRows(c);
-
+            Criteria c = criteriaForMessageSet(set);
+            c.add(MessageFlagsPeer.MAILBOX_ID,getMailboxRow().getMailboxId());
+            List l = MessageFlagsPeer.doSelectJoinMessageRow(c);
             MessageResult[] messageResults = fillMessageResult(l, result
                     | MessageResult.UID | MessageResult.FLAGS);
             checkForScanGap(range.getFromUid());
@@ -280,7 +280,15 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
         MessageResult[] messageResults = new MessageResult[messageRows.size()];
         int i = 0;
         for (Iterator iter = messageRows.iterator(); iter.hasNext();) {
-            MessageRow messageRow = (MessageRow) iter.next();
+            MessageRow messageRow;
+            Object next=iter.next();
+            if (next instanceof MessageRow) {
+                messageRow=(MessageRow)next;
+            } else {
+                MessageFlags messageFlags=(MessageFlags)next;
+                messageRow=messageFlags.getMessageRow();
+                messageRow.setMessageFlags(messageFlags);
+            }
             messageResults[i] = fillMessageResult(messageRow, result);
             i++;
         }

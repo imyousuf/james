@@ -2,6 +2,7 @@
 package org.apache.james.mailboxmanager.torque.om;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.torque.TorqueException;
@@ -32,6 +33,11 @@ public  class MessageRow
             mf=(MessageFlags)l.get(0);
         }
         return mf;
+    }
+
+    public void setMessageFlags(MessageFlags messageFlags) {
+        this.collMessageFlagss=new ArrayList();
+        collMessageFlagss.add(messageFlags);
     }
 
 }
