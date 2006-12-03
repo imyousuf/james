@@ -323,6 +323,7 @@ public class MailboxManagerMailRepository extends AbstractMailRepository
                         try {
                             mailboxSession.close();
                         } catch (MailboxManagerException e) {
+                            getLogger().error("error closing Mailbox", e);
                         }
                         mailboxSession=null;
                     }
