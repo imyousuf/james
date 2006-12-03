@@ -65,6 +65,10 @@ import org.apache.james.services.User;
  */
 
 public interface MailboxManager {
+    
+    public static final char HIERARCHY_DELIMITER='.';
+    
+    public static final String USER_NAMESPACE="#mail";
 
     /**
      * get a session mailbox 
@@ -74,7 +78,8 @@ public interface MailboxManager {
      * @return
      * @throws MailboxManagerException 
      */
-    MailboxSession getMailboxSession(String mailboxName) throws MailboxManagerException;
+    MailboxSession getMailboxSession(String mailboxName, boolean autoCreate)
+            throws MailboxManagerException;
     
     /**
      * Supports 
@@ -160,6 +165,9 @@ public interface MailboxManager {
     boolean existsMailbox(String mailboxName) throws MailboxManagerException;
 
     void close();
+
+    // TODO maybe move createInbox to provider
+    boolean createInbox(User user) throws MailboxManagerException;
 
 }
 

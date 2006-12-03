@@ -348,6 +348,7 @@ public class MailboxManagerMailRepository extends AbstractMailRepository
 
                 String inbox = ns.getName() + ns.getHierarchyDelimter()
                         + "INBOX";
+                getMailboxManager().createInbox(user);
                 mailboxSession = getMailboxManager().getImapMailboxSession(
                         inbox);
             }

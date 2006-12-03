@@ -37,6 +37,7 @@ import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.GeneralMailboxSession;
+import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.mock.MockUser;
 import org.apache.james.mailboxmanager.mock.TorqueMailboxManagerProviderSingleton;
 import org.apache.james.mailboxmanager.redundant.AbstractMailRepositoryNativeTestCase;
@@ -45,6 +46,7 @@ import org.apache.james.mailboxmanager.repository.MailboxManagerMailRepository;
 public class TorqueMailboxManagerMailRepositoryNativeTestCase extends
         AbstractMailRepositoryNativeTestCase {
 
+    private static final String TUSER_INBOX = "#mail.tuser.INBOX";
     GeneralMailboxSession shadowMailbox = null;
 
     protected void configureRepository() throws Exception {
@@ -57,8 +59,8 @@ public class TorqueMailboxManagerMailRepositoryNativeTestCase extends
         Configuration conf = db
                 .build(
                         new ByteArrayInputStream(
-                                ("<repository destinationURL=\"mailboxmanager://users/tuser\" type=\"MAIL\"></repository>").getBytes()),
-                        "repository");
+                                ("<repository destinationURL=\"mailboxmanager://#mail/tuser\" postfix=\".INBOX\" translateDelimiters=\"true\" type=\"MAIL\"></repository>")
+                                        .getBytes()), "repository");
         mailboxManagerMailRepository.configure(conf);
         mailboxManagerMailRepository.initialize();
         mailboxManagerMailRepository.setMailboxManagerProvider(TorqueMailboxManagerProviderSingleton
@@ -135,10 +137,13 @@ public class TorqueMailboxManagerMailRepositoryNativeTestCase extends
     protected GeneralMailboxSession getShadowMailbox() {
         if (shadowMailbox == null) {
             try {
-                shadowMailbox = TorqueMailboxManagerProviderSingleton
-                        .getTorqueMailboxManagerProviderInstance()
-                        .getMailboxManagerInstance(new MockUser())
-                        .getGeneralMailboxSession("#mail.tuser.INBOX");
+                MailboxManager mailboxManager= TorqueMailboxManagerProviderSingleton
+                .getTorqueMailboxManagerProviderInstance()
+                .getMailboxManagerInstance(new MockUser());
+                if (!mailboxManager.existsMailbox(TUSER_INBOX)) {
+                    mailboxManager.createMailbox(TUSER_INBOX);
+                }
+                shadowMailbox = mailboxManager.getGeneralMailboxSession(TUSER_INBOX);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

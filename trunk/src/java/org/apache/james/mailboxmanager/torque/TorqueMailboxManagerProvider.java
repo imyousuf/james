@@ -232,7 +232,7 @@ public class TorqueMailboxManagerProvider implements MailboxManagerProvider, Ini
         return null;
     }
 
-    public MailboxSession getMailboxSession(User authUser, String mailboxName) {
+    public MailboxSession getMailboxSession(User authUser, String mailboxName, boolean autoCreate) {
         // TODO Auto-generated method stub
         return null;
     }
