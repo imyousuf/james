@@ -337,10 +337,19 @@ public class DNSServer
             l.setSearchPath(searchPaths);
             Record[] r = l.run();
             
-            if (l.getResult() == Lookup.TRY_AGAIN) {
-                throw new TemporaryResolutionException("DNSServer is temporary not reachable");
-            } else {
-                return r;
+            try {
+                if (l.getResult() == Lookup.TRY_AGAIN) {
+                    throw new TemporaryResolutionException(
+                            "DNSServer is temporary not reachable");
+                } else {
+                    return r;
+                }
+            } catch (IllegalStateException ise) {
+                // This is okay, because it mimics the original behaviour
+                // TODO find out if it's a bug in DNSJava 
+                getLogger().debug("Error determining result ", ise);
+                throw new TemporaryResolutionException(
+                        "DNSServer is temporary not reachable");
             }
             
             // return rawDNSLookup(name, false, type, typeDesc);
