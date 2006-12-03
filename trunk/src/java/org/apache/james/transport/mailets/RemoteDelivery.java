@@ -413,7 +413,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                  e = (MessagingException)ex;
                  if (ex instanceof SMTPAddressFailedException) {
                      SMTPAddressFailedException exc = (SMTPAddressFailedException) ex;
-                     sb.append(" ( " + exc.getAddress() + " - [" + exc.getMessage().replace("\n", "") + "] )");
+                     sb.append(" ( " + exc.getAddress() + " - [" + exc.getMessage().replaceAll("\\n", "") + "] )");
                      smtpExFound = true;
                  } 
              }
@@ -430,7 +430,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                     sb.append(exception.getValidUnsentAddresses());
                 }
                 sb.append(" - [");
-                sb.append(exception.getMessage().replace("\n", ""));
+                sb.append(exception.getMessage().replaceAll("\\n", ""));
                 sb.append("] )");
              }
              return sb.toString();
