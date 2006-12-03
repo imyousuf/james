@@ -26,6 +26,7 @@ import org.apache.james.mailboxmanager.mailbox.GeneralMailbox;
 import org.apache.james.mailboxmanager.mailbox.GeneralMailboxSession;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 import org.apache.james.mailboxmanager.mailbox.MailboxSession;
+import org.apache.james.services.User;
 
 
 /**
@@ -62,6 +63,10 @@ import org.apache.james.mailboxmanager.mailbox.MailboxSession;
  */
 
 public interface MailboxManager {
+    
+    public static final char HIERARCHY_DELIMITER='.';
+    
+    public static final String USER_NAMESPACE="#mail";
 
     /**
      * get a session mailbox 
@@ -71,7 +76,8 @@ public interface MailboxManager {
      * @return
      * @throws MailboxManagerException 
      */
-    MailboxSession getMailboxSession(String mailboxName) throws MailboxManagerException;
+    MailboxSession getMailboxSession(String mailboxName, boolean autoCreate)
+            throws MailboxManagerException;
     
     /**
      * Supports 
@@ -135,6 +141,9 @@ public interface MailboxManager {
     boolean existsMailbox(String mailboxName) throws MailboxManagerException;
 
     void close();
+
+    // TODO maybe move createInbox to provider
+    boolean createInbox(User user) throws MailboxManagerException;
 
 }
 

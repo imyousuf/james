@@ -123,9 +123,9 @@ public class VirtualMailboxManager extends AbstractLogEnabled implements
                 .getImapMailboxSession(mailboxName);
     }
 
-    public MailboxSession getMailboxSession(String mailboxName)
-            throws MailboxManagerException {
-        return getMailboxManager(mailboxName).getMailboxSession(mailboxName);
+    public MailboxSession getMailboxSession(String mailboxName,
+            boolean autoCreate) throws MailboxManagerException {
+        return getMailboxManager(mailboxName).getMailboxSession(mailboxName, autoCreate);
     }
 
     public ListResult[] list(String base, String expression, boolean subscribed)
@@ -163,6 +163,11 @@ public class VirtualMailboxManager extends AbstractLogEnabled implements
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public boolean createInbox(User user) throws MailboxManagerException {
+        String userInbox=USER_NAMESPACE+HIERARCHY_DELIMITER+user.getUserName()+HIERARCHY_DELIMITER+"INBOX";
+        return getMailboxManager(userInbox).createInbox(user);
     }
 
 }

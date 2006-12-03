@@ -69,8 +69,8 @@ public class MailStoreMailboxManager extends AbstractLogEnabled implements
         throw new RuntimeException("operation not supported");
     }
 
-    public MailboxSession getMailboxSession(String mailboxName)
-            throws MailboxManagerException {
+    public MailboxSession getMailboxSession(String mailboxName,
+            boolean autoCreate) throws MailboxManagerException {
         return mailstoreMailboxCache.getMailboxSession(mailboxName);
     }
 
@@ -100,6 +100,10 @@ public class MailStoreMailboxManager extends AbstractLogEnabled implements
 
     public void setUser(User user) {
         this.user=user;
+    }
+
+    public boolean createInbox(User user) throws MailboxManagerException {
+        return false;
     }
 
 }

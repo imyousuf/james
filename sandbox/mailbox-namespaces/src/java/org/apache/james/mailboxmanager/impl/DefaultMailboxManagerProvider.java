@@ -68,7 +68,7 @@ public class DefaultMailboxManagerProvider extends AbstractLogEnabled implements
     }
 
     public MailboxSession getInboxSession(User user) throws MailboxManagerException {
-        return getMailboxManagerInstance(user).getMailboxSession(getInboxName(user));
+        return getMailboxManagerInstance(user).getMailboxSession(getInboxName(user),true);
     }
 
     public MailboxManager getMailboxManagerInstance(User user)
@@ -76,9 +76,10 @@ public class DefaultMailboxManagerProvider extends AbstractLogEnabled implements
         return getMailboxManagerFactory().getMailboxManagerInstance(user);
     }
 
-    public MailboxSession getMailboxSession(User authUser, String mailboxName)
-            throws MailboxManagerException {
-        return getMailboxManagerInstance(authUser).getMailboxSession(mailboxName);
+    public MailboxSession getMailboxSession(User authUser, String mailboxName,
+            boolean autoCreate) throws MailboxManagerException {
+        return getMailboxManagerInstance(authUser).getMailboxSession(
+                mailboxName, autoCreate);
     }
 
     public Namespaces getNamespaces(User forUser) {

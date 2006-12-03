@@ -46,10 +46,6 @@ import org.apache.torque.util.CountHelper;
 import org.apache.torque.util.Criteria;
 
 public class TorqueMailboxManager implements MailboxManager {
-    
-    public static final char HIERARCHY_DELIMITER='.';
-    
-    public static final String USER_NAMESPACE="#mail";
 
     private static Random random;
     private MailboxCache mailboxCache;
@@ -64,8 +60,12 @@ public class TorqueMailboxManager implements MailboxManager {
         this.log=log;
     }
     
-    public MailboxSession getMailboxSession(String mailboxName)
-    throws MailboxManagerException {
+    public MailboxSession getMailboxSession(String mailboxName,
+            boolean autoCreate) throws MailboxManagerException {
+        if (autoCreate && !existsMailbox(mailboxName)) {
+            getLog().info("autocreated mailbox  " + mailboxName);
+            createMailbox(mailboxName);
+        }
         return getImapMailboxSession(mailboxName);
     }
     
@@ -76,35 +76,28 @@ public class TorqueMailboxManager implements MailboxManager {
         return getImapMailboxSession(mailboxName);
     }
     
+    public boolean createInbox(User user) throws MailboxManagerException {
+        // TODO should access getPersonalDefaultNameSpace...
+        String userInbox=USER_NAMESPACE+HIERARCHY_DELIMITER+user.getUserName()+HIERARCHY_DELIMITER+"INBOX";
+        if (!existsMailbox(userInbox)) {
+            createMailbox(userInbox);
+            getLog().info("autocreated Inbox  " + userInbox);
+            return true;    
+        }  else {
+            getLog().debug("Inbox already exists " + userInbox);
+            return false;    
+        }
+    }
+    
+    
+    
     public ImapMailboxSession getImapMailboxSession(String mailboxName)
             throws MailboxManagerException {
-        
-        // prepare to auto-create users Inbox
-        
-        // TODO inbox-auto-creation for authUser is not optimal. Use a autocreate boolean in getSessionMailbox?
-        // FIXME should access getPersonalDefaultNameSpace...
-        String userInbox=USER_NAMESPACE+HIERARCHY_DELIMITER+authUser.getUserName()+HIERARCHY_DELIMITER+"INBOX";
-        if (userInbox.length()==mailboxName.length()) {
-            int del=userInbox.length()-5;
-            if (userInbox.substring(0,del).equals(mailboxName.substring(0,del))) {
-                if (userInbox.substring(del).equalsIgnoreCase(mailboxName.substring(del))) {
-                    mailboxName=userInbox;
-                }
-            }
-        }
 
         try {
             synchronized (getMailboxCache()) {
                 MailboxRow mailboxRow = MailboxRowPeer
                         .retrieveByName(mailboxName);
-                if (mailboxRow == null) {
-                    if (userInbox.equals(mailboxName)) {
-                        // do auto creation
-                        createMailbox(mailboxName);
-                        mailboxRow = MailboxRowPeer.retrieveByName(mailboxName);
-                        getLog().info("autocreated Inbox  " + mailboxName);
-                    }
-                }
 
                 if (mailboxRow != null) {
                     UidChangeTracker tracker = (UidChangeTracker) getMailboxCache()

@@ -74,7 +74,7 @@
       <inboxRepository>
          <repository destinationURL="dbfile://maildb/inbox/" type="MAIL"/>
       </inboxRepository>
-      -->		  
+      -->         
       <!-- TEMPORARY DEFAULT: dbfile using Derby  -->
 
       <!-- Alternative inbox repository definition for mbox use. -->
@@ -90,7 +90,8 @@
       -->
       <!-- Experimental IMAP support -->
       <inboxRepository>
-         <repository destinationURL="mailboxmanager://users/" type="MAIL" />
+         <repository destinationURL="mailboxmanager://#mail/" 
+                     postfix=".INBOX" translateDelimiters="true" type="MAIL" />
       </inboxRepository>
    </James>
 
@@ -139,7 +140,7 @@
                         <repository destinationURL="file://var/mail/system/"
                             type="MAIL"/>
                     </target>
-                </mount>  				
+                </mount>                
                 <mount>
                     <point point="#mail.user1"/>
                     <target
@@ -1256,8 +1257,8 @@ Regards, Postmaster XXX.YYY
    </mailstore>
 
 
-   <!-- The Mailstore block used by mailboxmanager --> 	
-	
+   <!-- The Mailstore block used by mailboxmanager -->  
+    
    <mailboxmanager-mailstore>
       <repositories>
         <repository class="org.apache.james.mailboxmanager.repository.MailboxManagerMailRepository">
@@ -1397,7 +1398,7 @@ Regards, Postmaster XXX.YYY
       
    </mailboxmanager-mailstore>
 
-	
+    
    <!-- The User Storage block -->
    <users-store>
       <!-- Configure User Repositories here. -->

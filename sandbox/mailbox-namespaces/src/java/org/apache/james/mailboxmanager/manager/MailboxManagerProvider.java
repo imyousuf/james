@@ -47,8 +47,8 @@ public interface MailboxManagerProvider {
      *  @throws MailboxManagerException 
      */ 
 
-    MailboxSession getMailboxSession(
-         User authUser, String mailboxName) throws MailboxManagerException;
+    MailboxSession getMailboxSession(User authUser, String mailboxName,
+            boolean autoCreate) throws MailboxManagerException;
     
     /**
      * removes all data (mailboxes, quota, acls...) that is associated 
