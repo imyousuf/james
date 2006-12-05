@@ -28,6 +28,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
+import org.apache.james.imapserver.debug.CopyInputStream;
 import org.apache.james.imapserver.debug.SplitOutputStream;
 import org.apache.james.services.DNSServer;
 import org.apache.james.util.CRLFTerminatedReader;
@@ -151,12 +152,15 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
             // An ASCII encoding can be used because all transmissions other
             // that those in the message body command are guaranteed
             // to be ASCII
-            inReader = new CRLFTerminatedReader(in, "ASCII");
+            
             outs = new BufferedOutputStream(socket.getOutputStream(), 1024);
             // enable tcp dump for debug
             if (tcplogprefix != null) {
                 outs = new SplitOutputStream(outs, new FileOutputStream(tcplogprefix+"out"));
+                in = new CopyInputStream(in, new FileOutputStream(tcplogprefix+"in"));
             }
+            inReader = new CRLFTerminatedReader(in, "ASCII");
+            
             out = new InternetPrintWriter(outs, true);
         } catch (RuntimeException e) {
             StringBuffer exceptionBuffer = 
