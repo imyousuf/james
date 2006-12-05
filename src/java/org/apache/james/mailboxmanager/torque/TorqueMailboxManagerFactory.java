@@ -139,6 +139,7 @@ public class TorqueMailboxManagerFactory implements MailboxManagerFactory,
             throws org.apache.commons.configuration.ConfigurationException {
         File configFile = new File("torque.properties");
         if (configFile.canRead()) {
+            getLog().info("reading torque.properties...");
             torqueConf = new PropertiesConfiguration(configFile);
         } else {
             torqueConf = new BaseConfiguration();
