@@ -36,7 +36,7 @@ public  class MessageRow
     }
 
     public void setMessageFlags(MessageFlags messageFlags) {
-        this.collMessageFlagss=new ArrayList();
+        this.collMessageFlagss=new ArrayList(1);
         collMessageFlagss.add(messageFlags);
     }
 

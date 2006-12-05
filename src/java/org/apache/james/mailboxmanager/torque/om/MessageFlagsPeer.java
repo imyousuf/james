@@ -46,7 +46,5 @@ public class MessageFlagsPeer
         }
     }
     
-    public static List doSelectJoinMessageRow(Criteria criteria) throws TorqueException {
-       return BaseMessageFlagsPeer.doSelectJoinMessageRow(criteria);
-    }
+
 }
