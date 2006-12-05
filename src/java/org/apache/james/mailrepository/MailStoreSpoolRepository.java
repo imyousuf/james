@@ -70,7 +70,7 @@ public class MailStoreSpoolRepository
     private Configuration configuration;
 
     
-    private void setStore(Store store) {
+    public void setStore(Store store) {
         mailStore = store;
     }
 
