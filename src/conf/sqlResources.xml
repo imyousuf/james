@@ -1051,14 +1051,6 @@
             PRIMARY KEY (user,domain)
         )
     </sql>
-    <sql name="createTable" db="postgresql">
-        CREATE TABLE VirtualUserTable (
-            user varchar(64) NOT NULL default '',
-            domain varchar(255) NOT NULL default '',
-            target_address varchar(255) NOT NULL default '',
-            PRIMARY KEY (user,domain)
-        )
-    </sql>
     <sql name="createTable" db="sapdb">
         CREATE TABLE VirtualUserTable (
             user varchar(64) NOT NULL default '',
@@ -1084,6 +1076,14 @@
         )
     </sql>
     -->
+    <sql name="createTable" db="postgresql">
+        CREATE TABLE VirtualUserTable (
+            "user" varchar(64) NOT NULL default '',
+            domain varchar(255) NOT NULL default '',
+            target_address varchar(255) NOT NULL default '',
+            PRIMARY KEY ("user",domain)
+        )
+    </sql>
     <sql name="createTable" db="derby">
         CREATE TABLE VirtualUserTable (
             "user" varchar (64) NOT NULL default '',
