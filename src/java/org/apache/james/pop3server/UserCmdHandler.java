@@ -37,7 +37,6 @@ public class UserCmdHandler implements CommandHandler {
      * Handler method called upon receipt of a USER command.
      * Reads in the user id.
      *
-     * @param command the command parsed by the parseCommand method
      * @param argument the first argument parsed by the parseCommand method
      */
     private void doUSER(POP3Session session,String argument) {

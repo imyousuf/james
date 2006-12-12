@@ -119,7 +119,6 @@ public class PoolConnEntry implements java.sql.Connection{
     /**
      * Simple method to log any warnings on an entry (connection), and
      * then clear them.
-     * @throws java.sql.SQLException
      */
     public void clearWarnings() {
         try {

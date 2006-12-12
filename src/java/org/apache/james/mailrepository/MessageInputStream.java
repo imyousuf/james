@@ -192,7 +192,7 @@ final class MessageInputStream extends InputStream {
     }
 
     /**
-     * @see java.io.Closeable#close()
+     * @see java.io.InputStream#close()
      */
     public void close() throws IOException {
         if (caughtException != null || wrapped == null) {

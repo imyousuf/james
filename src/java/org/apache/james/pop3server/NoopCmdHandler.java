@@ -37,7 +37,6 @@ public class NoopCmdHandler implements CommandHandler {
      * Handler method called upon receipt of a NOOP command.
      * Like all good NOOPs, does nothing much.
      *
-     * @param command the command parsed by the parseCommand method
      * @param argument the first argument parsed by the parseCommand method
      */
     private void doNOOP(POP3Session session,String argument) {

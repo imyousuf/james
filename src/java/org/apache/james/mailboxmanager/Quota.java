@@ -95,7 +95,6 @@ public interface Quota {
      * 
      * @param base
      * @param expression
-     * @return
      */
 
     ListResult[] list(String base, String expression);
@@ -106,8 +105,6 @@ public interface Quota {
      * 
      * @param name
      *            mailbox name
-     * @param user
-     *            to check credentials
      * @throws IllegalArgumentException
      *             if the mailbox does not belong to this store TODO throw
      *             another exception
@@ -120,8 +117,6 @@ public interface Quota {
      * 
      * @param name
      *            mailbox name
-     * @param user
-     *            to check credentials
      */
 
     void removeMailbox(String name);

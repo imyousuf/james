@@ -90,7 +90,7 @@ public class CharTerminatedInputStream
      *
      * @return the byte read off the stream
      * @throws IOException if an IOException is encountered while reading off the stream
-     * @throws ProtocolException if the underlying stream returns -1 before the terminator is seen.
+     * throws ProtocolException if the underlying stream returns -1 before the terminator is seen.
      */
     public int read() throws IOException {
         if (endFound) {

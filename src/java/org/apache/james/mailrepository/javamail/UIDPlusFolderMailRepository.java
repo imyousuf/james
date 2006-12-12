@@ -155,7 +155,6 @@ public class UIDPlusFolderMailRepository extends
 
     /**
      * lazy loads UidToKeyBidiMap
-     * @return
      */
     protected UidToKeyBidiMap getUidToKeyBidiMap() {
         if (uidToKeyBidiMap == null) {

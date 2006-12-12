@@ -42,7 +42,6 @@ public class QuitCmdHandler extends AbstractLogEnabled implements CommandHandler
      * Handler method called upon receipt of a QUIT command.
      * This method handles cleanup of the POP3Handler state.
      *
-     * @param command the command parsed by the parseCommand method
      * @param argument the first argument parsed by the parseCommand method
      */
     private void doQUIT(POP3Session session,String argument) {

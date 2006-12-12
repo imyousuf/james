@@ -54,8 +54,7 @@ public class TopCmdHandler implements CommandHandler {
      * The expected command format is
      *  TOP [mail message number] [number of lines to return]
      *
-     * @param command the command parsed by the parseCommand method
-     * @param argument the first argument parsed by the parseCommand method
+     * @param arguments the first argument parsed by the parseCommand method
      */
     private void doTOP(POP3Session session,String arguments) {
         String responseString = null;

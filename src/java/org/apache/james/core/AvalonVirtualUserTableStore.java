@@ -65,7 +65,7 @@ public class AvalonVirtualUserTableStore
     }
 
     /**
-     * @see org.apache.james.core.AbstractAvalonStore#getClassInstance(java.lang.ClassLoader, java.lang.String, org.apache.avalon.framework.configuration.Configuration)
+     * @see org.apache.james.core.AbstractAvalonStore#getClassInstance(ClassLoader, String)
      */
     public Object getClassInstance(ClassLoader loader, String repClass) throws Exception {
         return (VirtualUserTable) loader.loadClass(repClass).newInstance();

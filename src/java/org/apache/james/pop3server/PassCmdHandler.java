@@ -41,7 +41,6 @@ public class PassCmdHandler extends AbstractLogEnabled implements CommandHandler
      * Handler method called upon receipt of a PASS command.
      * Reads in and validates the password.
      *
-     * @param command the command parsed by the parseCommand method
      * @param argument the first argument parsed by the parseCommand method
      */
     private void doPASS(POP3Session session,String argument) {

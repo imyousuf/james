@@ -747,7 +747,7 @@ public class NNTPHandler
      * Executes the STAT command.  Sets the current article pointer,
      * returns article information.
      *
-     * @param the argument passed in to the STAT command,
+     * @param param the argument passed in to the STAT command,
      *        which should be an article number or message id.
      *        If no parameter is provided, the current selected
      *        article is used.
@@ -810,7 +810,7 @@ public class NNTPHandler
      * Executes the BODY command.  Sets the current article pointer,
      * returns article information and body.
      *
-     * @param the argument passed in to the BODY command,
+     * @param param the argument passed in to the BODY command,
      *        which should be an article number or message id.
      *        If no parameter is provided, the current selected
      *        article is used.
@@ -878,7 +878,7 @@ public class NNTPHandler
      * Executes the HEAD command.  Sets the current article pointer,
      * returns article information and headers.
      *
-     * @param the argument passed in to the HEAD command,
+     * @param param the argument passed in to the HEAD command,
      *        which should be an article number or message id.
      *        If no parameter is provided, the current selected
      *        article is used.
@@ -946,7 +946,7 @@ public class NNTPHandler
      * Executes the ARTICLE command.  Sets the current article pointer,
      * returns article information and contents.
      *
-     * @param the argument passed in to the ARTICLE command,
+     * @param param the argument passed in to the ARTICLE command,
      *        which should be an article number or message id.
      *        If no parameter is provided, the current selected
      *        article is used.
@@ -1071,7 +1071,7 @@ public class NNTPHandler
     /**
      * Selects a group to be the current newsgroup.
      *
-     * @param group the name of the group being selected.
+     * @param groupName the name of the group being selected.
      */
     private void doGROUP(String groupName) {
         if (groupName == null) {
@@ -1354,7 +1354,7 @@ public class NNTPHandler
      * content and delivers to the spool.
      *
      * @param headers the headers of the message being read
-     * @param msgIn the stream containing the message content
+     * @param bodyIn the stream containing the message content
      */
     private void processMessage(MailHeaders headers, InputStream bodyIn)
         throws MessagingException {
@@ -1467,7 +1467,7 @@ public class NNTPHandler
      * Return whether the user associated with the connection (possibly no
      * user) is authorized to execute the command.
      *
-     * @param the command being tested
+     * @param command the command being tested
      * @return whether the command is authorized
      */
     private boolean isAuthorized(String command) {

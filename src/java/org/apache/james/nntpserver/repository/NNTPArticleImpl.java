@@ -239,7 +239,7 @@ class NNTPArticleImpl implements NNTPArticle {
      * Strips out newlines and tabs, converting them to spaces.
      * rfc2980: 2.8 XOVER requires newline and tab to be converted to spaces
      *
-     * @param the input String
+     * @param field the input String
      *
      * @return the cleaned string
      */

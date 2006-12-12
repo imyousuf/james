@@ -45,7 +45,6 @@ public class ListCmdHandler implements CommandHandler {
      * aggregate size, or optionally, the number and size of
      * a single message.
      *
-     * @param command the command parsed by the parseCommand method
      * @param argument the first argument parsed by the parseCommand method
      */
     private void doLIST(POP3Session session,String argument) {

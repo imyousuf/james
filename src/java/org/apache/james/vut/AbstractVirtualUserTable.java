@@ -64,7 +64,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
     
     
     /**
-     * @see org.apache.james.services.VirtualUserTable#getMapping(org.apache.mailet.MailAddress)
+     * @see org.apache.james.services.VirtualUserTable#getMappings(String, String)
      */
     public Collection getMappings(String user,String domain) throws ErrorMappingException {
 
@@ -327,7 +327,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
      * if no mapping should be performed. Multiple recipients may be specified by delineating
      * the mapped string with commas, semi-colons or colons.
      * 
-     * @param recipient the mapping of virtual to real recipients, as 
+     * @param user the mapping of virtual to real recipients, as 
      *    <code>MailAddress</code>es to <code>String</code>s.
      */
     protected abstract String mapAddress(String user, String domain);

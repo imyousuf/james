@@ -314,8 +314,6 @@ public class XMLResources
      * @param name     the name of the String resource required.
      * @param required true if the resource is required
      * @return the requested resource
-     * @throws ConfigurationException
-     *         if a required resource cannot be found.
      */
     public String getString(String name, boolean required)
     {

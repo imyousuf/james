@@ -43,7 +43,6 @@ public interface QuotaManager {
      * @param base
      * @param expression
      * @param user
-     * @return
      */
 
     ListResult[] listForRepository(String repositoryName, String base,
@@ -59,8 +58,7 @@ public interface QuotaManager {
      * @param expression
      *            like in list(), if empty only namespace-root quotas will be
      *            listet
-     * @param user
-     * @return
+     * @param requestingUser
      */
     Quota[] listQuotas(String repositoryName, String base, String expression,
             User requestingUser);

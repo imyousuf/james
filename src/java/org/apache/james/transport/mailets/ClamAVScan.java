@@ -103,7 +103,7 @@ import java.util.Set;
  *        <LI>parses the "<CODE>PORT <I>streamPort</I></CODE>" answer obtaining the port number;</LI>
  *        <LI>makes a second connection (the <I>stream connection</I>) to CLAMD at the same host (or IP)
  *            on the <I>streamPort</I> just obtained;</LI>
- *        <LI>sends the mime message to CLAMD (using {@link MimeMessage#writeTo(OutputStream)})
+ *        <LI>sends the mime message to CLAMD (using {@link MimeMessage#writeTo(java.io.OutputStream)})
  *            through the <I>stream connection</I>;</LI>
  *        <LI>closes the <I>stream connection</I>;</LI>
  *        <LI>gets the "<CODE>OK</CODE>" or "<CODE>... FOUND</CODE>" answer from the main connection;</LI>

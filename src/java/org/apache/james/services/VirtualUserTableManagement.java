@@ -60,7 +60,7 @@ public interface VirtualUserTableManagement extends VirtualUserTable{
      * 
      * @param user the username. Null if no username should be used
      * @param domain the domain. Null if no domain should be used
-     * @param regex the regex.
+     * @param address 
      * @return true if successfully
      * @throws InvalidMappingException get thrown if an invalid argument was given
      */
@@ -71,7 +71,7 @@ public interface VirtualUserTableManagement extends VirtualUserTable{
      * 
      * @param user the username. Null if no username should be used
      * @param domain the domain. Null if no domain should be used
-     * @param regex the regex.
+     * @param address 
      * @return true if successfully
      * @throws InvalidMappingException get thrown if an invalid argument was given
      */
@@ -82,7 +82,7 @@ public interface VirtualUserTableManagement extends VirtualUserTable{
      * 
      * @param user the username. Null if no username should be used
      * @param domain the domain. Null if no domain should be used
-     * @param regex the regex.
+     * @param error the regex.
      * @return true if successfully
      * @throws InvalidMappingException get thrown if an invalid argument was given
      */
@@ -93,7 +93,7 @@ public interface VirtualUserTableManagement extends VirtualUserTable{
      * 
      * @param user the username. Null if no username should be used
      * @param domain the domain. Null if no domain should be used
-     * @param regex the regex.
+     * @param error
      * @return true if successfully
      * @throws InvalidMappingException get thrown if an invalid argument was given
      */

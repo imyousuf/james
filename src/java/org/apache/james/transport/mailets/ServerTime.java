@@ -39,7 +39,7 @@ public class ServerTime extends GenericMailet {
      *
      * @param mail the mail being processed
      *
-     * @throws MessagingException if an error is encountered while formulating the reply message
+     * @throws javax.mail.MessagingException if an error is encountered while formulating the reply message
      */
     public void service(Mail mail) throws javax.mail.MessagingException {
         MimeMessage response = (MimeMessage)mail.getMessage().reply(false);

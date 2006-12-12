@@ -59,7 +59,7 @@ public class DomainListUtil {
     }
     
     /**
-     * @see #getDomainsIP(List)
+     * @see #getDomainsIP(List, DNSServer, Logger)
      */
     public static List getDomainIP(String domain, DNSServer dns, Logger log) {
         List domainIP = new ArrayList();

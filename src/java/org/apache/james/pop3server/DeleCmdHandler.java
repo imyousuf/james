@@ -41,7 +41,6 @@ public class DeleCmdHandler implements CommandHandler {
      * This command deletes a particular mail message from the
      * mailbox.
      *
-     * @param command the command parsed by the parseCommand method
      * @param argument the first argument parsed by the parseCommand method
      */
     private void doDELE(POP3Session session,String argument) {

@@ -49,7 +49,7 @@ import java.util.Properties;
  *
  * <br />
  * <br />
- * After formatting the text, the message is delivered with {@link #sendStandardReply}
+ * After formatting the text, the message is delivered with {@link #sendStandardReply(Mail, String, String, String)}
  *
  * Todo: make displaying the current member list optional
  *
@@ -104,7 +104,7 @@ public class Info extends BaseCommand {
      * Retrieve the current member list
      * @return the formatted member list
      *
-     * @see #getUsersRepository
+     * @see BaseCommand#getUsersRepository
      */
     protected String getMemberList() {
 

@@ -199,9 +199,6 @@ public abstract class AbstractNotify extends AbstractRedirect {
     }
 
     /**
-     * @return the value of the <CODE>sendingAddress</CODE> init parameter,
-     * or the value of the <CODE>sender</CODE> init parameter if missing,
-     * or the postmaster address if both are missing
      * @return the <CODE>sendingAddress</CODE> init parameter
      * or the <CODE>sender</CODE> init parameter
      * or the postmaster address if both are missing;

@@ -532,7 +532,7 @@ public class MailImpl implements Disposable, Mail {
     /**
      * Write the MailImpl to an <code>ObjectOutputStream</code>.
      *
-     * @param in the ObjectOutputStream to which the object is written
+     * @param out the ObjectOutputStream to which the object is written
      *
      * @throws IOException if an error occurs while writing to the stream
      */
@@ -629,7 +629,7 @@ public class MailImpl implements Disposable, Mail {
      * This methods provide cloning for serializable objects.
      * Mail Attributes are Serializable but not Clonable so we need a deep copy
      *
-     * @param input Object to be cloned
+     * @param o Object to be cloned
      * @return the cloned Object
      * @throws IOException
      * @throws ClassNotFoundException

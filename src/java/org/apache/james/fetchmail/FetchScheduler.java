@@ -42,8 +42,6 @@ import org.apache.avalon.framework.service.Serviceable;
  *
  * $Id$
  *
- *  @see org.apache.james.fetchmail.FetchMailOriginal#configure(Configuration) FetchMailOriginal
- *  
  */
 public class FetchScheduler
     extends AbstractLogEnabled

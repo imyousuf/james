@@ -116,7 +116,7 @@ public class UseHeaderRecipients extends GenericMailet {
      * Work through all the headers of the email with a matching name and
      * extract all the mail addresses as a collection of addresses.
      *
-     * @param mail the mail message to read
+     * @param message the mail message to read
      * @param name the header name as a String
      * @return the collection of MailAddress objects.
      */

@@ -23,7 +23,7 @@ public interface EffectiveRightsComputer {
      * used to filter the groups to retain only the ones the user is member of.<br 7>
      * TODO just a draft...
      * 
-     * @param groups
+     * @param groupMemberships
      */
     public void retainGroups(String[] groupMemberships);
 

@@ -93,7 +93,6 @@ public interface MessageResult extends Comparable {
      * MimeMessage.getReceivedDate()?
      * </p>
      * 
-     * @return
      */
 
     Date getInternalDate();
@@ -104,7 +103,6 @@ public interface MessageResult extends Comparable {
      * this way we don't need to create a lazy-loading MimeMessage instance just
      * for the Flags.
      * 
-     * @return
      */
     Flags getFlags();
 

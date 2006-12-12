@@ -843,8 +843,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
     /**
      * Converts a message to 7 bit.
      * 
-     * @param message
-     * @return
+     * @param part
      */
     private void convertTo7Bit(MimePart part) throws MessagingException, IOException {
         if (part.isMimeType("multipart/*")) {
@@ -869,8 +868,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
      * Insert the method's description here.
      * Creation date: (2/25/00 1:14:18 AM)
      * @param mail org.apache.james.core.MailImpl
-     * @param exception javax.mail.MessagingException
-     * @param boolean permanent
+     * @param ex javax.mail.MessagingException
+     * @param permanent
      * @return boolean Whether the message failed fully and can be deleted
      */
     private boolean failMessage(Mail mail, MessagingException ex, boolean permanent) {

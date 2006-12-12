@@ -63,7 +63,7 @@ import org.apache.james.services.User;
  */
 
 public interface MailboxManager {
-    
+
     public static final char HIERARCHY_DELIMITER='.';
     
     public static final String USER_NAMESPACE="#mail";
@@ -71,9 +71,7 @@ public interface MailboxManager {
     /**
      * get a session mailbox 
      * 
-     * @param nameSpaceName
-     * @param user
-     * @return
+     * @param mailboxName
      * @throws MailboxManagerException 
      */
     MailboxSession getMailboxSession(String mailboxName, boolean autoCreate)
@@ -83,7 +81,6 @@ public interface MailboxManager {
      * Supports 
      * 
      * @param mailboxName
-     * @return
      * @throws MailboxManagerException
      */
     
@@ -119,8 +116,6 @@ public interface MailboxManager {
      * @param subscribed
      *            if true, only list subscribed mailboxes (needs interaction
      *            with the user-object)
-     * @param user
-     * @return
      * @throws MailboxManagerException 
      */
 
@@ -133,7 +128,6 @@ public interface MailboxManager {
      * 
      * @param mailboxName
      * @param value
-     * @param user
      */
 
     void setSubscription(String mailboxName, boolean value) throws MailboxManagerException;

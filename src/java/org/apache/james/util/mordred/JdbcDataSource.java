@@ -290,7 +290,7 @@ public class JdbcDataSource extends AbstractLogEnabled
      * The dispose operation is called at the end of a components lifecycle.
      * Cleans up all JDBC connections.
      *
-     * @throws Exception if an error is encountered during shutdown
+     * throws Exception if an error is encountered during shutdown
      */
     public void dispose() {
         // Stop the background monitoring thread

@@ -697,7 +697,7 @@ protected void setDNSServer(DNSServer dnsServer)
     
     /**
      * Sets the blacklist.
-     * @param blacklist The blacklist to set
+     * @param blacklistValue The blacklist to set
      */
     protected void setBlacklist(String blacklistValue)
         throws ConfigurationException

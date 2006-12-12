@@ -221,7 +221,6 @@ public class ServerConnection extends AbstractLogEnabled
     /**
      * Returns a ClientConnectionRunner in the set managed by this ServerConnection object.
      *
-     * @param clientConnectionRunner the ClientConnectionRunner to be added
      */
     private ClientConnectionRunner addClientConnectionRunner()
             throws Exception {
@@ -558,7 +557,7 @@ public class ServerConnection extends AbstractLogEnabled
         }
 
         /**
-         * @see org.apache.avalon.excalibur.pool.ObjectFactory#decommision(Object)
+         * @see org.apache.avalon.excalibur.pool.ObjectFactory#decommission(Object)
          */
         public void decommission( Object object ) throws Exception {
             return;

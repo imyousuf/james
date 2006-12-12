@@ -27,8 +27,6 @@ public interface FolderAdapterFactory {
      * used by StoreGateKeeper to get the right FolderInterface implementation
      * 
      * @param folder JavaMail folder
-     * @return 
-     * @throws NoSuchMethodException if the Folder is not suitable
      */
     FolderInterface createAdapter(Folder folder);
 

@@ -71,8 +71,8 @@ public class SpoolManagement implements Serviceable, SpoolManagementService, Spo
     /**
      * Move all mails from the given repository to another repository matching the given filter criteria
      *
-     * @param srcspoolRepositoryURL the spool whose item are listed
-     * @param srcstate if not NULL, only mails with matching state are returned
+     * @param srcSpoolRepositoryURL the spool whose item are listed
+     * @param srcState if not NULL, only mails with matching state are returned
      * @param dstSpoolRepositoryURL the destination spool
      * @param dstState if not NULL, the state will be changed before storing the message to the new repository.
      * @param header if not NULL, only mails with at least one header with a value matching headerValueRegex are returned
@@ -93,10 +93,10 @@ public class SpoolManagement implements Serviceable, SpoolManagementService, Spo
     /**
      * Move all mails from the given repository to another repository matching the given filter criteria
      *
-     * @param srcspoolRepositoryURL the spool whose item are listed
+     * @param srcSpoolRepositoryURL the spool whose item are listed
      * @param dstSpoolRepositoryURL the destination spool
      * @param dstState if not NULL, the state will be changed before storing the message to the new repository.
-     * @param spoolFilter the filter to select messages from the source repository
+     * @param filter the filter to select messages from the source repository
      * @return a counter of moved mails
      * @throws ServiceException 
      * @throws MessagingException 

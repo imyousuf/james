@@ -50,7 +50,7 @@ import javax.mail.MessagingException;
  * <br />
  * <br />
  * Typically, IListServCommands will format some text to reply with based off of resource files
- * and calls to {@link org.apache.james.util.XMLResources#getString}
+ * and calls to {@link org.apache.james.util.XMLResources#getString(String)}
  *
  * This allows you to customize the messages sent by these commands by editing text files and not editing the javacode.
  *

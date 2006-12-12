@@ -140,7 +140,6 @@ public class MailboxManagerMailRepository extends AbstractMailRepository
     /**
      * lazy loads UidToKeyBidiMap
      * 
-     * @return
      */
     protected KeyBidiMap getKeyBidiMap() {
         if (keyBidiMap == null) {

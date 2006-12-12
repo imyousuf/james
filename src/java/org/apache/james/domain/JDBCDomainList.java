@@ -242,7 +242,7 @@ public class JDBCDomainList extends AbstractDomainList implements Serviceable,Co
     }
 
     /**
-     * @see org.apache.james.domain.AbstractDomainList#getInternalDomainList()
+     * @see org.apache.james.domain.AbstractDomainList#getDomainListInternal()
      */
     protected List getDomainListInternal() {
         List domains = new ArrayList();

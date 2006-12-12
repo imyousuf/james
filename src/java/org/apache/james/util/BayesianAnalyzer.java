@@ -31,6 +31,7 @@ import java.util.Iterator;
 import java.util.Collection;
 import java.util.ArrayList;
 
+import java.io.IOException;
 import java.io.Reader;
 
 /**
@@ -696,7 +697,7 @@ public class BayesianAnalyzer {
      * Compute the spamminess probability of the interesting tokens in
      * the tokenProbabilities SortedSet.
      *
-     * @param tokenProbabilities
+     * @param tokenProbabilityStrengths
      * @param workCorpus
      * @return  Computed spamminess.
      */

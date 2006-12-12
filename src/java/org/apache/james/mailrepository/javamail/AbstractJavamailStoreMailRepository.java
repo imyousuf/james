@@ -362,7 +362,7 @@ public abstract class AbstractJavamailStoreMailRepository extends
      * possibility to replace FolderGateKeeper implementation. Only used for
      * testing
      * 
-     * @param folderGateKeeper the FolgerGateKeeper to use
+     * @param gk the FolgerGateKeeper to use
      */
     void setFolderGateKeeper(FolderGateKeeper gk) {
         this.folderGateKeeper=gk;

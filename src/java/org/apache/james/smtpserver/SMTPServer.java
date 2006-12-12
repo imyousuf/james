@@ -366,7 +366,7 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
         }
         
         /**
-         * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#useHeloEnforcement()
+         * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#useHeloEhloEnforcement()
          */
         public boolean useHeloEhloEnforcement() {
             return SMTPServer.this.heloEhloEnforcement;

@@ -47,7 +47,7 @@ import java.util.Properties;
  *
  * <br />
  * <br />
- * After formatting the text, the message is delivered with {@link #sendStandardReply}
+ * After formatting the text, the message is delivered with {@link #sendStandardReply(Mail, String, String, String)}
  *
  * Note, prior to formatting and sending any text, the user is checked to see if they
  * are already subscribed to this list.  If not, they will be sent a confirmation mail to

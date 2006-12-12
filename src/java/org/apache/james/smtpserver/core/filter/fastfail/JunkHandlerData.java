@@ -69,7 +69,6 @@ public class JunkHandlerData {
     /**
      * Get the reponseString to return 
      * 
-     * @param session the SMTPSession
      * @return rejectResponseString
      */
     public String getRejectResponseString() {
@@ -79,7 +78,6 @@ public class JunkHandlerData {
     /**
      * Return the LogString if a JunkScore action is used
      * 
-     * @param session the SMTPSession
      * @return the LogString
      */
     public String getJunkScoreLogString() {
@@ -89,7 +87,6 @@ public class JunkHandlerData {
     /**
      * Return the LogString if a Reject action is used
      * 
-     * @param the SMTPSession
      * @return the LogString
      */
     public String getRejectLogString() {

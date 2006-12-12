@@ -71,7 +71,6 @@ public interface GeneralMailbox extends Mailbox, EventTriggerMailbox {
      * @param message has to belong to this mailbox and either come as the result from an appendMessage or
      * getMessages operation
      * @param result uid and msn will change TODO should key change, too?
-     * @return
      */
     
     MessageResult updateMessage(GeneralMessageSet messageSet, MimeMessage message, int result) throws MailboxManagerException;

@@ -335,12 +335,11 @@ public class SqlResources
     /**
      * Returns a named SQL string for the specified connection,
      * replacing parameters with the values set.
+     * throws ConfigurationException if a required resource cannot be found.
      * 
      * @param name     the name of the SQL resource required.
      * @param required true if the resource is required
      * @return the requested resource
-     * @throws ConfigurationException
-     *         if a required resource cannot be found.
      */
     public String getSqlString(String name, boolean required)
     {

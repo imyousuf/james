@@ -508,7 +508,7 @@ public abstract class AbstractRedirect extends GenericMailet {
      * Gets the <CODE>to</CODE> property,
      * built dynamically using the original Mail object.
      * Its outcome will be the the value the <I>TO:</I> header will be set to,
-     * that could be different from the real recipient (see {@link #getRecipients}).
+     * that could be different from the real recipient (see {@link Mail#getRecipients}).
      * Is a "getX(Mail)" method.
      *
      * @return {@link #replaceInternetAddresses} on {@link #getRecipients()},

@@ -285,7 +285,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
     }
     
     /**
-     * @see org.apache.james.vut.AbstractVirtualUserTable#removeRegexMappingInternal(java.lang.String, java.lang.String, java.lang.String)
+     * @see org.apache.james.vut.AbstractVirtualUserTable#removeMappingInternal(String, String, String)
      */
     public boolean removeMappingInternal(String user, String domain, String mapping) throws InvalidMappingException {
         String newUser = getUserString(user);
@@ -302,7 +302,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
 
 
     /**
-     * @see org.apache.james.vut.AbstractVirtualUserTable#addRegexMappingInternal(java.lang.String, java.lang.String, java.lang.String)
+     * @see org.apache.james.vut.AbstractVirtualUserTable#addMappingInternal(String, String, String)
      */
     public boolean addMappingInternal(String user, String domain, String regex) throws InvalidMappingException {
         String newUser = getUserString(user);
