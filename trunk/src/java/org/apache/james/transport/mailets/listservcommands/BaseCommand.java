@@ -45,7 +45,7 @@ import java.util.Properties;
  * BaseCommand is a convience base class for any class that wishes to implement {@link IListServCommand}.
  * It provides some functions like:
  * <ul>
- *  <li>{@link #log}
+ *  <li>{@link #log(String)}
  *  <li>{@link #sendStandardReply}
  *  <li>{@link #generateMail}
  * </ul>
@@ -155,7 +155,7 @@ public abstract class BaseCommand implements IListServCommand {
      * @throws MessagingException
      *
      * @see #generateMail
-     * @see MailetContext#sendMail
+     * @see MailetContext#sendMail(MimeMessage)
      */
     protected void sendStandardReply(Mail origMail, String subject, String message, String replyAddress) throws MessagingException {
         MailAddress senderAddress = origMail.getSender();

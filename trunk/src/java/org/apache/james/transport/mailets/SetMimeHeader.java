@@ -71,7 +71,6 @@ public class SetMimeHeader
      *
      * @param mail the mail being processed
      *
-     * @throws MessagingException if an error arises during message processing
      */
     public void service(Mail mail) {
         try {

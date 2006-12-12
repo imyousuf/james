@@ -161,7 +161,7 @@ public class KeyStoreHolder {
      * 
      * @param cert
      *            the certificate to validate
-     * @param certStore
+     * @param store
      *            other certificates that can be used to create a chain of trust
      *            to a known trusted certificate.
      * @param trustedStore

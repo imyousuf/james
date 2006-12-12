@@ -101,7 +101,6 @@ public interface DNSServer {
     public String getHostName(InetAddress addr);
     
     /**
-     * @see java.net.InetAddress.getLocalHost();
      */
     public InetAddress getLocalHost() throws UnknownHostException;
 }

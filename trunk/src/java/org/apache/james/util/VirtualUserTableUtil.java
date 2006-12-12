@@ -152,7 +152,6 @@ public class VirtualUserTableUtil {
      * Return a Collection which holds the extracted mappings of the given String
      * 
      * @param rawMapping
-     * @return
      */
      public static Collection getMappings(String rawMapping) {
         ArrayList map = new ArrayList();

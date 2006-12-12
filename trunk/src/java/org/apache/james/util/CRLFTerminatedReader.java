@@ -57,20 +57,20 @@ public class CRLFTerminatedReader extends Reader {
         }
     }
 
-    /**
-     * Constructs this CRLFTerminatedReader.
-     * @param in an InputStream
-     * @param charsetName the String name of a supported charset.  
-     * "ASCII" is common here.
-     * @throws UnsupportedEncodingException if the named charset
-     * is not supported
-     */
     InputStream in;
 
     public CRLFTerminatedReader(InputStream in) {
         this.in = in;
     }
 
+    /**
+     * Constructs this CRLFTerminatedReader.
+     * @param in an InputStream
+     * @param enc the String name of a supported charset.  
+     * "ASCII" is common here.
+     * @throws UnsupportedEncodingException if the named charset
+     * is not supported
+     */
     public CRLFTerminatedReader(InputStream in, String enc) throws UnsupportedEncodingException {
         this(in);
     }

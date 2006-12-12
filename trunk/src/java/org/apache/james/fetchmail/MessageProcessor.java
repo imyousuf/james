@@ -508,7 +508,7 @@ public class MessageProcessor extends ProcessorAbstract
     
     /**
      * Method rejectMaxMessageSizeExceeded.
-     * @param message size
+     * @param messageSize size
      * @throws MessagingException
      */
     protected void rejectMaxMessageSizeExceeded(int messageSize)
@@ -1343,7 +1343,7 @@ public class MessageProcessor extends ProcessorAbstract
 
     /**
      * Adds any  required error messages to a <code>Mail</code>. 
-     * @param aMail a Mail instance
+     * @param mail a Mail instance
      */
     protected void addErrorMessages(Mail mail) throws MessagingException
     {

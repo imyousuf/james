@@ -333,7 +333,7 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
     /**
      * Returns all the configured commandhandlers for the specified command
      *
-     * @param commandName the command name which will be key
+     * @param command the command name which will be key
      * @return List of commandhandlers
      */
     List getCommandHandlers(String command) {

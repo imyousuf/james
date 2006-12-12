@@ -39,7 +39,7 @@ import java.io.IOException;
  * and the signature are added.</p>
  *<p>The kind of signuture depends on the value of the &lt;keyHolderClass&gt; init parameter.
  *
- *  <P>Handles the following init parameters (will comment only the differences from {@link SMIMEAbstractSign}):</P>
+ *  <P>Handles the following init parameters (will comment only the differences from {@link AbstractSign}):</P>
  * <ul>
  * <li>&lt;keyHolderClass&gt;: Sets the class of the KeyHolder object that will handle the cryptography functions,
  * for example org.apache.james.security.SMIMEKeyHolder for SMIME.</li>

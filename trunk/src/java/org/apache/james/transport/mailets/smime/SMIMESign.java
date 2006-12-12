@@ -35,7 +35,7 @@ import java.io.IOException;
  * It is a concrete subclass of {@link Sign}, with very few modifications to it,
  * to specialize for SMIME.</p>
  *
- *  <P>Handles the following init parameters (will comment only the differences from {@link SMIMEAbstractSign}):</P>
+ *  <P>Handles the following init parameters (will comment only the differences from {@link AbstractSign}):</P>
  * <ul>
  * <li>&lt;debug&gt;.</li>
  * <li>&lt;keyStoreFileName&gt;.</li>

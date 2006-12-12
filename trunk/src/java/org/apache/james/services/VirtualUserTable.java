@@ -50,7 +50,7 @@ public interface VirtualUserTable {
      * Return the mapped MailAddress for the given address. Return null if no 
      * matched mapping was found
      * 
-     * @param mailaddress the MailAddress
+     * @param user the MailAddress
      * @return the mapped mailAddress
      * @throws ErrorMappingException get thrown if an error mapping was found
      */

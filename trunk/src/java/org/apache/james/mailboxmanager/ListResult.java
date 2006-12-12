@@ -8,7 +8,6 @@ public interface ListResult {
     
     /**
      * \Noinferiors, \Noselect, \Marked, \Unmarked TODO this should be done in a different way..
-     * @return
      */
     String[] getAttributes();
     

@@ -5,16 +5,12 @@ public interface AclManager {
     /**
      * 
      * @param mailboxName
-     * @param requestingUser to check credentials
-     * @return
      */
     GroupAcl[] getGroupAcls(String mailboxName);
     
     /**
      * 
      * @param mailboxName
-     * @param requestingUser to check credentials
-     * @return
      */
     UserAcl[] getUserAcls(String mailboxName);
     

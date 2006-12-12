@@ -167,7 +167,6 @@ public class URIRBLHandler extends AbstractJunkHandler implements MessageHandler
      * Recursively scans all MimeParts of an email for domain strings. Domain
      * strings that are found are added to the supplied HashSet.
      *
-     * @param domains HashSet for accumulating domain strings
      * @param part MimePart to scan
      * @return domains The HashSet that contains the domains which were extracted
      */

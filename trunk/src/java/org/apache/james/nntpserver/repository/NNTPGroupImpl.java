@@ -81,21 +81,21 @@ class NNTPGroupImpl extends AbstractLogEnabled implements NNTPGroup {
     }
 
     /**
-     * @see org.apache.james.nntpserver.NNTPGroup#getName()
+     * @see org.apache.james.nntpserver.repository.NNTPGroup#getName()
      */
     public String getName() {
         return root.getName();
     }
 
     /**
-     * @see org.apache.james.nntpserver.NNTPGroup#getDescription()
+     * @see org.apache.james.nntpserver.repository.NNTPGroup#getDescription()
      */
     public String getDescription() {
         return getName();
     }
 
     /**
-     * @see org.apache.james.nntpserver.NNTPGroup#isPostAllowed()
+     * @see org.apache.james.nntpserver.repository.NNTPGroup#isPostAllowed()
      */
     public boolean isPostAllowed() {
         return true;
@@ -128,7 +128,7 @@ class NNTPGroupImpl extends AbstractLogEnabled implements NNTPGroup {
     }
 
     /**
-     * @see org.apache.james.nntpserver.NNTPGroup#getNumberOfArticles()
+     * @see org.apache.james.nntpserver.repository.NNTPGroup#getNumberOfArticles()
      */
     public int getNumberOfArticles() {
         collectArticleRangeInfo();
@@ -136,7 +136,7 @@ class NNTPGroupImpl extends AbstractLogEnabled implements NNTPGroup {
     }
 
     /**
-     * @see org.apache.james.nntpserver.NNTPGroup#getFirstArticleNumber()
+     * @see org.apache.james.nntpserver.repository.NNTPGroup#getFirstArticleNumber()
      */
     public int getFirstArticleNumber() {
         collectArticleRangeInfo();
@@ -144,7 +144,7 @@ class NNTPGroupImpl extends AbstractLogEnabled implements NNTPGroup {
     }
 
     /**
-     * @see org.apache.james.nntpserver.NNTPGroup#getLastArticleNumber()
+     * @see org.apache.james.nntpserver.repository.NNTPGroup#getLastArticleNumber()
      */
     public int getLastArticleNumber() {
         collectArticleRangeInfo();
@@ -152,7 +152,7 @@ class NNTPGroupImpl extends AbstractLogEnabled implements NNTPGroup {
     }
 
     /**
-     * @see org.apache.james.nntpserver.NNTPGroup#getArticle(int)
+     * @see org.apache.james.nntpserver.repository.NNTPGroup#getArticle(int)
      */
     public NNTPArticle getArticle(int number) {
         File f = new File(root,number + "");
@@ -160,7 +160,7 @@ class NNTPGroupImpl extends AbstractLogEnabled implements NNTPGroup {
     }
 
     /**
-     * @see org.apache.james.nntpserver.NNTPGroup#getArticlesSince(Date)
+     * @see org.apache.james.nntpserver.repository.NNTPGroup#getArticlesSince(Date)
      */
     public Iterator getArticlesSince(Date dt) {
         File[] f = root.listFiles(new AndFileFilter
@@ -174,7 +174,7 @@ class NNTPGroupImpl extends AbstractLogEnabled implements NNTPGroup {
     }
 
     /**
-     * @see org.apache.james.nntpserver.NNTPGroup#getArticles()
+     * @see org.apache.james.nntpserver.repository.NNTPGroup#getArticles()
      */
     public Iterator getArticles() {
         File[] f = root.listFiles();

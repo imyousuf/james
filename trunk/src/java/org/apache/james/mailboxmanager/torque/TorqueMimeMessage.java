@@ -35,7 +35,6 @@ public class TorqueMimeMessage extends MimeMessage {
      * 
      * @param messageRow
      * @param log
-     * @return
      * @throws TorqueException
      * @throws MessagingException
      */

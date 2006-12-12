@@ -287,7 +287,7 @@ public abstract class Loader extends AbstractLogEnabled implements Serviceable, 
         }
 
         /**
-         * @see org.apache.mailet.MailetContext#storeMail(org.apache.mailet.MailAddress, org.apache.mailet.MailAddress, javax.mail.internet.MimeMessage)
+         * @see org.apache.mailet.MailetContext#storeMail(MailAddress, MailAddress, MimeMessage)
          */
         public void storeMail(MailAddress sender, MailAddress recipient, MimeMessage msg) throws MessagingException {
             mailetContext.storeMail(sender, recipient, msg);

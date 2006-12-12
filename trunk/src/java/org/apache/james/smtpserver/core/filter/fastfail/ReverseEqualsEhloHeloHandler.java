@@ -59,7 +59,7 @@ public class ReverseEqualsEhloHeloHandler extends ResolvableEhloHeloHandler {
     }
     
     /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getJunkScoreLogString(org.apache.james.smtpserver.SMTPSession)
+     * @see JunkHandlerData#getJunkScoreLogString()
      */
     protected String getJunkScoreLogString(SMTPSession session) {
         return "Provided EHLO/HELO " + session.getState().get(SMTPSession.CURRENT_HELO_NAME) + " not equal reverse of "
@@ -67,14 +67,14 @@ public class ReverseEqualsEhloHeloHandler extends ResolvableEhloHeloHandler {
     }
 
     /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getRejectLogString(org.apache.james.smtpserver.SMTPSession)
+     * @see JunkHandlerData#getRejectLogString()
      */
     protected String getRejectLogString(SMTPSession session) {
         return getResponseString(session);
     }
 
     /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getResponseString(org.apache.james.smtpserver.SMTPSession)
+     * @see JunkHandlerData#getRejectResponseString()
      */
     protected String getResponseString(SMTPSession session) {
         String responseString = "501 "
@@ -86,7 +86,7 @@ public class ReverseEqualsEhloHeloHandler extends ResolvableEhloHeloHandler {
     }
 
     /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getScoreName()
+     * @see JunkHandlerData#getScoreName()
      */
     protected String getScoreName() {
         return "ReverseEqualsEhloHeloCheck";

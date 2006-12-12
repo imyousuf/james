@@ -220,7 +220,6 @@ public class StateAwareProcessorList
      * This implementation shuts down the Processors managed by this
      * Component
      *
-     * @throws Exception if an error is encountered during shutdown
      * @see org.apache.avalon.framework.activity.Disposable#dispose()
      */
     public void dispose() {

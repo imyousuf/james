@@ -253,7 +253,7 @@ class NNTPSpooler extends AbstractLogEnabled
         /**
          * Process a file stored in the spool.
          *
-         * @param f the spool file being processed
+         * @param spoolFile the spool file being processed
          */
         private void process(File spoolFile) throws Exception {
             StringBuffer logBuffer =

@@ -132,7 +132,7 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
      * Private constructor providing an external reference counter.
      * 
      * @param original
-     * @param refCount
+     * @param writeable
      * @throws MessagingException
      */
     private MimeMessageCopyOnWriteProxy(MimeMessage original,

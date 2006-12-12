@@ -430,7 +430,7 @@ public class HashJavamailStoreMailRepository extends
          * 
          * @param key
          *            key of message
-         * @param decrease
+         * @param decrement
          *            if true, all message number greater than this are
          *            decremented
          */
@@ -589,7 +589,6 @@ public class HashJavamailStoreMailRepository extends
     /**
      * just uses a FolderAdapter to wrap around folder
      * 
-     * @see org.apache.james.mailrepository.javamailOLD.AbstractJavamailStoreMailRepository#createAdapter(Folder)
      */
     public FolderInterface createAdapter(Folder folder) {
         return new FolderAdapter(folder);

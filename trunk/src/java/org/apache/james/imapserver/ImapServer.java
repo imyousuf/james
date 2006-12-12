@@ -113,7 +113,7 @@ public class ImapServer extends AbstractJamesService
      * The factory for producing handlers.
      */
         /**
-         * @see ObjectFactory#newInstance()
+         * @see org.apache.avalon.excalibur.pool.ObjectFactory#newInstance()
          */
         public Object newInstance() throws Exception
         {
@@ -125,7 +125,7 @@ public class ImapServer extends AbstractJamesService
         }
 
         /**
-         * @see ObjectFactory#getCreatedClass()
+         * @see org.apache.avalon.excalibur.pool.ObjectFactory#getCreatedClass()
          */
         public Class getCreatedClass()
         {

@@ -47,7 +47,6 @@ public class RetrCmdHandler implements CommandHandler {
      * This command retrieves a particular mail message from the
      * mailbox.
      *
-     * @param command the command parsed by the parseCommand method
      * @param argument the first argument parsed by the parseCommand method
      */
     private void doRETR(POP3Session session,String argument) {

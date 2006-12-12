@@ -124,7 +124,7 @@ public abstract class GenericMatcher implements Matcher, MatcherConfig {
      * method and it will be called by GenericMatcher.init(MatcherConfig config).
      * The MatcherConfig object can still be retrieved via getMatcherConfig().</p>
      *
-     * @throws MatcherException
+     * @throws MessagingException
      *          if an exception occurs that interrupts the matcher's normal operation
      */
     public void init() throws MessagingException {

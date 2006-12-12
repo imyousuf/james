@@ -44,7 +44,6 @@ public class StatCmdHandler implements CommandHandler {
      * Returns the number of messages in the mailbox and its
      * aggregate size.
      *
-     * @param command the command parsed by the parseCommand method
      * @param argument the first argument parsed by the parseCommand method
      */
     private void doSTAT(POP3Session session,String argument) {

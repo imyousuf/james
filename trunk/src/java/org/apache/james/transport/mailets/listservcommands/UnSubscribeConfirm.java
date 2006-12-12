@@ -47,7 +47,7 @@ import java.util.Properties;
  *
  * <br />
  * <br />
- * After formatting the text, the message is delivered with {@link #sendStandardReply}
+ * After formatting the text, the message is delivered with {@link #sendStandardReply(Mail, String, String, String)}
  *
  * <br />
  * <br />

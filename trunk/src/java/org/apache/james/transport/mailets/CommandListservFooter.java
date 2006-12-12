@@ -130,7 +130,7 @@ public class CommandListservFooter extends AbstractAddFooter {
     }
 
     /**
-     * @see XMLResources#getString
+     * @see XMLResources#getString(String)
      * @param index either {@link #TEXT_PLAIN} or {@link #TEXT_HTML}
      * @return a formatted text with the proper list and domain
      */

@@ -65,7 +65,7 @@ public interface DomainList {
      * and add these to the domain service 
      * Default is true
      * 
-     * @param autodetect set to false for disable
+     * @param autodetectIP set to false for disable
      */
     public void setAutoDetectIP(boolean autodetectIP);
     

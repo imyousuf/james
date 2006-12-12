@@ -41,7 +41,6 @@ public class UidlCmdHandler implements CommandHandler {
      * Handler method called upon receipt of a UIDL command.
      * Returns a listing of message ids to the client.
      *
-     * @param command the command parsed by the parseCommand method
      * @param argument the first argument parsed by the parseCommand method
      */
     private void doUIDL(POP3Session session,String argument) {

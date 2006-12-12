@@ -294,7 +294,6 @@ public class ToMultiRepository extends GenericMailet {
      * repositoryurl/type
      *   
      * @param userName
-     * @return
      */
     private MailRepository getRepository(String userName) {
         MailRepository userInbox;

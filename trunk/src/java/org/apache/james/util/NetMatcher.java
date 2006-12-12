@@ -330,7 +330,7 @@ class InetNetwork
      * "address + mask" format, e.g. from xxx.xxx.xxx.xxx/yy
      * to xxx.xxx.xxx.xxx/yyy.yyy.yyy.yyy.
      * 
-     * @param simpleMask the xxx.xxx.xxx.xxx/yyy format
+     * @param netspec the xxx.xxx.xxx.xxx/yyy format
      * @return addrMask the xxx.xxx.xxx.xxx/yyy.yyy.yyy.yyy format 
      */
     static private String normalizeFromCIDR(final String netspec)

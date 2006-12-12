@@ -133,7 +133,7 @@ public interface Matcher {
      *
      * @param mail - the Mail object that contains the message and routing information
      * @return a Collection of String objects (recipients) that meet the match criteria
-     * @throws MessagingException - if an message or address parsing exception occurs or
+     * @throws javax.mail.MessagingException - if an message or address parsing exception occurs or
      *      an exception that interferes with the matcher's normal operation
      */
     Collection match( Mail mail ) throws javax.mail.MessagingException;

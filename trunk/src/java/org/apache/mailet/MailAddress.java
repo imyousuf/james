@@ -204,7 +204,6 @@ public class MailAddress implements java.io.Serializable {
      *
      * @return  a <code>String</code> object representing the user part
      *          of this email address.
-     * @throws  AddressException    if the parse failed
      */
     public String getUser() {
         return user;
