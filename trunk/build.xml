@@ -345,6 +345,11 @@
                 <param name="-doctitle" value="${Name} ${version}"/>
                 <param name="-windowtitle" value="${Name} API"/>
                 <param name="-bottom" value="&quot;Copyright &#169; ${year} Apache James Project. All Rights Reserved.&quot;"/>
+                <param name="-tag" value="phoenix\:mx\-topic:X"/>
+                <param name="-tag" value="phoenix\:mx\-operation:X"/>
+                <param name="-tag" value="phoenix\:mx\-description:X"/>
+                <param name="-tag" value="phoenix\:mx\-attribute:X"/>
+                <param name="-tag" value="phoenix\:mx\-isWriteable:X"/>
             </doclet>
         </javadoc>
         <echo message="Making Mailet Javadocs"/>
