@@ -102,6 +102,13 @@
       <!-- If not defaultdomain is set the first domain of the DomainList get used -->
       <defaultDomain> localhost </defaultDomain>
       
+      <!-- This is the name used by the server to identify itself in the RemoteManager -->
+      <!-- protocol.  If autodetect is TRUE, the server will discover its -->
+      <!-- own host name and use that in the protocol.  If discovery fails, -->
+      <!-- the value of 'localhost' is used.  If autodetect is FALSE, James -->
+      <!-- will use the specified value. -->
+      <!-- Set the default helloName which is used in all services if not overridden in the specific service-->
+      <helloName autodetect="true">myMailServer</helloName>
    </James>
 
     <!--
@@ -922,7 +929,9 @@ Regards, Postmaster XXX.YYY
          <!-- own host name and use that in the protocol.  If discovery fails, -->
          <!-- the value of 'localhost' is used.  If autodetect is FALSE, James -->
          <!-- will use the specified value. -->
+         <!--
          <helloName autodetect="true">myMailServer</helloName>
+         -->
          <administrator_accounts>
 <!-- CHECKME! -->
             <!-- Change the default login/password. -->
@@ -959,7 +968,9 @@ Regards, Postmaster XXX.YYY
          <!-- own host name and use that in the protocol.  If discovery fails, -->
          <!-- the value of 'localhost' is used.  If autodetect is FALSE, James -->
          <!-- will use the specified value. -->
+         <!--
          <helloName autodetect="true">myMailServer</helloName>
+         -->
          <connectiontimeout>120000</connectiontimeout>
       </handler>
    </pop3server>
@@ -988,7 +999,9 @@ Regards, Postmaster XXX.YYY
          <!-- own host name and use that in the protocol.  If discovery fails, -->
          <!-- the value of 'localhost' is used.  If autodetect is FALSE, James -->
          <!-- will use the specified value. -->
+         <!--
          <helloName autodetect="true">myMailServer</helloName>
+         -->
          <connectiontimeout>360000</connectiontimeout>
 
          <!--  Uncomment this if you want to require SMTP authentication.
@@ -1086,7 +1099,9 @@ Regards, Postmaster XXX.YYY
          <!-- own host name and use that in the protocol.  If discovery fails, -->
          <!-- the value of 'localhost' is used.  If autodetect is FALSE, James -->
          <!-- will use the specified value. -->
+         <!--
          <helloName autodetect="true">myMailServer</helloName>
+         -->
          <connectiontimeout>120000</connectiontimeout>
           <!-- Set the authRequired value to true to enable authenticated NNTP -->
          <authRequired>false</authRequired>

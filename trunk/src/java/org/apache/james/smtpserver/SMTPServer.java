@@ -148,8 +148,12 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
      */
     public void configure(final Configuration configuration) throws ConfigurationException {
         super.configure(configuration);
+        String hello = (String) mailetcontext.getAttribute(Constants.HELLO_NAME);
+        
         if (isEnabled()) {
-            mailetcontext.setAttribute(Constants.HELLO_NAME, helloName);
+            // TODO Remove this in next not backwards compatible release!
+            if (hello == null) mailetcontext.setAttribute(Constants.HELLO_NAME, helloName);
+            
             Configuration handlerConfiguration = configuration.getChild("handler");
             String authRequiredString = handlerConfiguration.getChild("authRequired").getValue("false").trim().toLowerCase();
             if (authRequiredString.equals("true")) authRequired = AUTH_REQUIRED;
@@ -241,7 +245,8 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
             ContainerUtil.configure(handlerChain,handlerConfiguration.getChild("handlerchain"));
 
         } else {
-            mailetcontext.setAttribute(Constants.HELLO_NAME, "localhost");
+            // TODO Remove this in next not backwards compatible release!
+            if (hello == null) mailetcontext.setAttribute(Constants.HELLO_NAME, "localhost");
         }
     }
     
@@ -297,7 +302,11 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
          * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#getHelloName()
          */
         public String getHelloName() {
-            return SMTPServer.this.helloName;
+            if (SMTPServer.this.helloName == null) {
+                return SMTPServer.this.mailServer.getHelloName();
+            } else {
+                return SMTPServer.this.helloName;
+            }
         }
 
         /**

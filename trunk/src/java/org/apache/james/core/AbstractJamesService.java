@@ -354,6 +354,16 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
         this.streamDumpDir = streamdumpDir;
     }
 
+    protected String getLocalHostName() {
+        String hostName = null;
+        try {
+            hostName = dnsServer.getHostName(dnsServer.getLocalHost());
+        } catch (UnknownHostException ue) {
+            hostName = "localhost";
+        }
+        return hostName;
+    }
+    
     private void configureHelloName(Configuration handlerConfiguration) {
         StringBuffer infoBuffer;
         String hostName = null;
@@ -371,11 +381,17 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
         getLogger().info(infoBuffer.toString());
 
         Configuration helloConf = handlerConfiguration.getChild(HELLO_NAME);
-        boolean autodetect = helloConf.getAttributeAsBoolean("autodetect", true);
-        if (autodetect) {
-            helloName = hostName;
+ 
+        if (helloConf != null) {
+            boolean autodetect = helloConf.getAttributeAsBoolean("autodetect", true);
+            if (autodetect) {
+                helloName = hostName;
+            } else {
+                // Should we use the defaultdomain here ?
+                helloName = helloConf.getValue("localhost");
+            }
         } else {
-            helloName = helloConf.getValue("localhost");
+            helloName = null;
         }
         infoBuffer =
             new StringBuffer(64)

@@ -151,4 +151,11 @@ public interface MailServer
      * @return the defaultdomain
      */
     String getDefaultDomain();
+    
+    /**
+     * Return the helloName which should use for all services by default
+     * 
+     * @return the helloName
+     */
+    String getHelloName();
 }

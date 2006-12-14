@@ -67,6 +67,7 @@ import javax.mail.internet.ParseException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.SequenceInputStream;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -178,6 +179,8 @@ public class James
     private boolean virtualHosting = false;
     
     private String defaultDomain = null;
+    
+    private String helloName = null;
 
 
     /**
@@ -268,6 +271,22 @@ public class James
         }
         
         getLogger().info("Defaultdomain: " + defaultDomain);
+        
+        Configuration helloNameConfig = conf.getChild("helloName");
+        if (helloNameConfig != null) {
+            boolean autodetect = helloNameConfig.getAttributeAsBoolean("autodetect", true);
+            if (autodetect) {
+                try {
+                    helloName = lookupDNSServer().getHostName(lookupDNSServer().getLocalHost());
+                } catch (UnknownHostException e) {
+                    helloName = "localhost";
+                }
+            } else {
+             // Should we use the defaultdomain here ?
+                helloName = helloNameConfig.getValue(defaultDomain);
+            }
+            attributes.put(Constants.HELLO_NAME, helloName);
+        }
 
         // Add this to comp
         compMgr.put( MailServer.ROLE, this);
@@ -947,6 +966,22 @@ public class James
             }  
         } else {
             return defaultDomain;
+        }
+    }
+
+    /**
+     * @see org.apache.james.services.MailServer#getHelloName()
+     */
+    public String getHelloName() {
+        if (helloName != null) {
+            return helloName;
+        } else {
+            String hello = (String) getAttribute(Constants.HELLO_NAME);   
+            if (hello == null) {
+                return defaultDomain;
+            } else {
+                return hello;
+            }
         }
     }
 }
