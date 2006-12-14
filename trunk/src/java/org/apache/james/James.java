@@ -268,6 +268,8 @@ public class James
         Configuration defaultDomainConfig = conf.getChild("defaultDomain");
         if (defaultDomainConfig != null ) {
             defaultDomain = defaultDomainConfig.getValue(null);
+        } else if (virtualHosting) {
+            throw new ConfigurationException("Please configure a defaultDomain if using VirtualHosting");
         }
         
         getLogger().info("Defaultdomain: " + defaultDomain);
@@ -282,7 +284,7 @@ public class James
                     helloName = "localhost";
                 }
             } else {
-             // Should we use the defaultdomain here ?
+                // Should we use the defaultdomain here ?
                 helloName = helloNameConfig.getValue(defaultDomain);
             }
             attributes.put(Constants.HELLO_NAME, helloName);
