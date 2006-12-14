@@ -199,6 +199,10 @@ public class MockMailServer implements MailServer, Disposable {
     public String getDefaultDomain() {
         return "localhost";
     }
+
+    public String getHelloName() {
+        return "localhost";
+    }
 }
 
 

@@ -26,6 +26,7 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.core.AbstractJamesService;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
+import org.apache.james.services.MailServer;
 import org.apache.james.services.UsersRepository;
 
 /**
@@ -61,6 +62,8 @@ public class ImapServer extends AbstractJamesService
 
     public MailboxManagerProvider mailboxManagerProvider;
 
+    private MailServer mailServer;
+
     public void service( ServiceManager serviceManager ) throws ServiceException
     {
         super.service( serviceManager );
@@ -70,10 +73,15 @@ public class ImapServer extends AbstractJamesService
         MailboxManagerProvider mailboxManagerProvider =(MailboxManagerProvider) serviceManager.lookup("org.apache.james.mailboxmanager.manager.MailboxManagerProvider");
         getLogger().debug("MailboxManagerMailRepository uses service "+mailboxManagerProvider);
         setMailboxManagerProvider(mailboxManagerProvider);
+        setMailServer((MailServer) serviceManager.lookup(MailServer.ROLE));
     }
 
     void setUserRepository(UsersRepository repository) {
         this.users=repository;
+    }
+    
+    void setMailServer(MailServer mailServer) {
+        this.mailServer = mailServer;
     }
 
     void setMailboxManagerProvider(MailboxManagerProvider mailboxManagerProvider) {
@@ -89,7 +97,7 @@ public class ImapServer extends AbstractJamesService
         if ( isEnabled() ) {
             Configuration handlerConfiguration = configuration.getChild( "handler" );
             lengthReset = handlerConfiguration.getChild( "lengthReset" ).getValueAsInteger( lengthReset );
-            getLogger().info( "The idle timeout will be reset every " + lengthReset + " bytes." );
+            getLogger().info( "The idle timeout will be reset every " + lengthReset + " bytes." );  
         }
     }
 
@@ -144,7 +152,11 @@ public class ImapServer extends AbstractJamesService
          */
         public String getHelloName()
         {
-            return ImapServer.this.helloName;
+            if (ImapServer.this.helloName == null) {
+                return ImapServer.this.mailServer.getHelloName();
+            } else {
+                return ImapServer.this.helloName;
+            }
         }
 
         /**

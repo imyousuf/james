@@ -69,4 +69,8 @@ public class MockMailServer implements MailServer, TestConstants
         return "localhost";
     }
 
+    public String getHelloName() {
+        return "localhost";
+    }
+
 }

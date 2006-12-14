@@ -27,6 +27,7 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.core.AbstractJamesService;
 import org.apache.james.nntpserver.repository.NNTPRepository;
+import org.apache.james.services.MailServer;
 import org.apache.james.services.UsersRepository;
 
 /**
@@ -50,6 +51,8 @@ public class NNTPServer extends AbstractJamesService implements NNTPServerMBean 
      */
     private UsersRepository userRepository = null;
 
+    private MailServer mailServer;
+
     /**
      * Set the UserRepository
      * 
@@ -66,6 +69,10 @@ public class NNTPServer extends AbstractJamesService implements NNTPServerMBean 
      */
     public void setRepository(NNTPRepository nntpRepository) {
         this.nntpRepository = nntpRepository;
+    }
+    
+    public void setMailServer(MailServer mailServer) {
+        this.mailServer = mailServer;
     }
 
     /**
@@ -86,6 +93,8 @@ public class NNTPServer extends AbstractJamesService implements NNTPServerMBean 
         NNTPRepository repo = (NNTPRepository)componentManager
             .lookup("org.apache.james.nntpserver.repository.NNTPRepository");
         setRepository(repo);
+        
+        setMailServer((MailServer) componentManager.lookup(MailServer.ROLE));
     }
 
     /**
@@ -147,7 +156,11 @@ public class NNTPServer extends AbstractJamesService implements NNTPServerMBean 
          * @see org.apache.james.nntpserver.NNTPHandlerConfigurationData#getHelloName()
          */
         public String getHelloName() {
-            return NNTPServer.this.helloName;
+            if (NNTPServer.this.helloName == null) {
+                return NNTPServer.this.mailServer.getHelloName();
+            } else {
+                return NNTPServer.this.helloName;
+            }
         }
 
         /**

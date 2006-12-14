@@ -178,6 +178,7 @@
     <provide name="thread-manager"
              role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
     <provide name="dnsserver" role="org.apache.james.services.DNSServer"/>
+    <provide name="James" role="org.apache.james.services.MailServer"/>
   </block>
 
   <!-- NNTP Repository -->

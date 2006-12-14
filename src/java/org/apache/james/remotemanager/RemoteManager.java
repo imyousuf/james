@@ -273,7 +273,11 @@ public class RemoteManager
          * @see org.apache.james.remotemanager.RemoteManagerHandlerConfigurationData#getHelloName()
          */
         public String getHelloName() {
-            return RemoteManager.this.helloName;
+            if (RemoteManager.this.helloName == null) {
+                return RemoteManager.this.mailServer.getHelloName();
+            } else {
+                return RemoteManager.this.helloName;
+            }
         }
 
         /**

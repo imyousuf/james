@@ -164,7 +164,11 @@ public class POP3Server extends AbstractJamesService implements POP3ServerMBean 
          * @see org.apache.james.pop3server.POP3HandlerConfigurationData#getHelloName()
          */
         public String getHelloName() {
-            return POP3Server.this.helloName;
+            if (POP3Server.this.helloName == null) {
+                return POP3Server.this.mailServer.getHelloName();
+            } else {
+                return POP3Server.this.helloName;
+            }
         }
 
         /**
