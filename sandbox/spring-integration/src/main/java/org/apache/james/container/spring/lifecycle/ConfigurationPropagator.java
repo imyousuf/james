@@ -68,9 +68,10 @@ public class ConfigurationPropagator extends AbstractPropagator implements BeanF
              }
              configurable.configure(componentConfiguration);
          } catch (ConfigurationException e) {
-             //throw new RuntimeException("could not configure component of type " + configurable.getClass(), e);
-         } catch (Exception e) {
-             //throw new RuntimeException("could not configure component of type " + serviceable.getClass(), e);
+             throw new RuntimeException("could not configure component of type " + configurable.getClass(), e);
          }
+//         catch (Exception e) {
+//             throw new RuntimeException("could not configure component of type " + serviceable.getClass(), e);
+//         }
      }
 }

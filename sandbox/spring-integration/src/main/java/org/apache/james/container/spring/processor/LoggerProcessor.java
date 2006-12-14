@@ -16,40 +16,35 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.container.spring.lifecycle;
+package org.apache.james.container.spring.processor;
 
-import java.util.Collection;
-
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.BeanFactoryUtils;
+import org.apache.avalon.framework.logger.LogEnabled;
+import org.apache.james.container.spring.logging.LoggerToComponentMapper;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.core.Ordered;
 
 /**
- * basis for iterating over all spring beans having some specific implementation 
+ * propagates Loggers for all avalon components
  */
-public abstract class AbstractPropagator {
+public class LoggerProcessor extends AbstractProcessor implements BeanPostProcessor, Ordered {
+    
+	private LoggerToComponentMapper loggerToComponentMapper;
 
-    private Collection excludeBeans;
-
-	public void postProcessBeanFactory(ConfigurableListableBeanFactory configurableListableBeanFactory) throws BeansException {
-
-        Class lifecycleInterface = getLifecycleInterface();
-        String[] beanNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(configurableListableBeanFactory, lifecycleInterface);
-        for (int i = 0; i < beanNames.length; i++) {
-            String beanName = beanNames[i];
-            if (excludeBeans == null || !excludeBeans.contains(beanName)) {
-	            Object bean = configurableListableBeanFactory.getBean(beanName);
-	            invokeLifecycleWorker(beanName, bean);
-            }
-        }
+    public int getOrder() {
+        return 0;
     }
     
-    public void setExcludeBeans(Collection excludeBeans) {
-    	this.excludeBeans=excludeBeans;
+    public void setLoggerToComponentMapper(LoggerToComponentMapper loggerToComponentMapper) {
+    	this.loggerToComponentMapper=loggerToComponentMapper;
     }
 
-    protected abstract Class getLifecycleInterface();
-
-    protected abstract void invokeLifecycleWorker(String beanName, Object bean);
+	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+		if (bean instanceof LogEnabled && isIncluded(beanName)) {
+	        LogEnabled logEnabled = (LogEnabled) bean;
+	        logEnabled.enableLogging(loggerToComponentMapper.getComponentLogger(beanName));	
+		}
+		return bean;
+	}
 
 }

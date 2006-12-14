@@ -11,7 +11,7 @@ from {James_Server}/bin/lib: all files
 from {James_Server}/build/lib: james-2.3.0.jar mailet-2.3.jar mailet-api-2.3.jar
 from {James_Server}/phoenix-bin/lib: all files
 from {James_Server}/phoenix-bin/tools/lib: spice-configkit-1.1.2.jar
-from the Spring Framework 2.0 distribution: spring.jar
+from the Spring Framework 2.0 distribution: spring.jar and commons-loggin.jar
 
 1.2 Using your own James configuration
 

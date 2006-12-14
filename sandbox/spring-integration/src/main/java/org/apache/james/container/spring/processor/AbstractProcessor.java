@@ -16,40 +16,33 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.container.spring.lifecycle;
+package org.apache.james.container.spring.processor;
 
 import java.util.Collection;
 
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.BeansException;
 
 /**
  * basis for iterating over all spring beans having some specific implementation 
  */
-public abstract class AbstractPropagator {
+public abstract class AbstractProcessor {
 
     private Collection excludeBeans;
 
-	public void postProcessBeanFactory(ConfigurableListableBeanFactory configurableListableBeanFactory) throws BeansException {
-
-        Class lifecycleInterface = getLifecycleInterface();
-        String[] beanNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(configurableListableBeanFactory, lifecycleInterface);
-        for (int i = 0; i < beanNames.length; i++) {
-            String beanName = beanNames[i];
-            if (excludeBeans == null || !excludeBeans.contains(beanName)) {
-	            Object bean = configurableListableBeanFactory.getBean(beanName);
-	            invokeLifecycleWorker(beanName, bean);
-            }
-        }
-    }
     
     public void setExcludeBeans(Collection excludeBeans) {
     	this.excludeBeans=excludeBeans;
     }
+    
+    protected boolean isIncluded(String beanName) {
+    	if (excludeBeans!=null) {
+    		return !excludeBeans.contains(beanName);
+    	} else {
+    		return true;
+    	}
+    }
 
-    protected abstract Class getLifecycleInterface();
-
-    protected abstract void invokeLifecycleWorker(String beanName, Object bean);
-
+	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+		return bean;
+	}
 }

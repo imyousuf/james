@@ -29,7 +29,7 @@ public class ServicePropagator extends AbstractPropagator implements BeanFactory
     protected void invokeLifecycleWorker(String beanName, Object bean) {
         Serviceable serviceable = (Serviceable) bean;
         try {
-            serviceable.service(serviceManager);
+            serviceable.service(serviceManager.getInstance(beanName));
         } catch (ServiceException e) {
             throw new RuntimeException("could not successfully run service method on component of type " + serviceable.getClass(), e);
         }

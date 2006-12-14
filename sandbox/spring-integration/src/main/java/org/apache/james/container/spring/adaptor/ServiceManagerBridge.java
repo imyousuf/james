@@ -29,49 +29,107 @@ import java.util.Map;
 /**
  * provides a Avalon-style service manager to all James components
  */
-public class ServiceManagerBridge implements ServiceManager, ApplicationContextAware {
+public class ServiceManagerBridge implements ApplicationContextAware {
 
-    private ApplicationContext applicationContext;
+	private ApplicationContext applicationContext;
 
-    public Object lookup(String componentIdentifier) throws ServiceException {
-        Object component = lookupByClassname(componentIdentifier);
-        if (component == null) component = lookupByBeanname(componentIdentifier);
+	private Map beanBlockInfos;
 
-        if (component == null) throw new ServiceException("could not resolve dependency " + componentIdentifier); // adhere to avalon service manager contract
-        return component;
-    }
+	private class ServiceManagerInstance implements ServiceManager {
 
-    private Object lookupByClassname(String componentIdentifier) {
-        Class lookupClass = null;
-        try {
-            lookupClass = Class.forName(componentIdentifier);
-        } catch (ClassNotFoundException e) {
-            return null;
-        }
-        Map beansOfType = applicationContext.getBeansOfType(lookupClass);
-        if (beansOfType.size() > 1) throw new RuntimeException("not yet supported");
-        if (beansOfType.size() == 0) return null; // try other method
-        Object bean = beansOfType.values().iterator().next();
-        return bean;
-    }
+		private Map beanBlockInfo;
+		
+		public ServiceManagerInstance(Map beanBlockInfo) {
+			this.beanBlockInfo=beanBlockInfo;
+		}
 
-    private Object lookupByBeanname(String componentIdentifier) {
-        return applicationContext.getBean(componentIdentifier);
-    }
+		public Object lookup(String componentIdentifier)
+				throws ServiceException {
+			Object component = lookupByClassname(componentIdentifier);
+			if (component == null)
+				component = lookupByBeanname(componentIdentifier);
 
-    public boolean hasService(String componentIdentifier) {
-        try {
-            return null != lookup(componentIdentifier);
-        } catch (ServiceException e) {
-            return false;
-        }
-    }
+			if (component == null)
+				throw new ServiceException("could not resolve dependency "
+						+ componentIdentifier); // adhere to avalon service
+												// manager contract
+			return component;
+		}
 
-    public void release(Object object) {
-        throw new IllegalStateException("not yet implemented");
-    }
+		private Object lookupByClassname(String className) {
+			
+			String beanName = getBeanName(className);
+			
+			if (beanName!=null) {
+				System.out.println("Lookup configured "+beanName);
+				return lookupByBeanname(beanName);
+			}
+			
+			Class lookupClass = null;
+			try {
+				lookupClass = Class.forName(className);
+			} catch (ClassNotFoundException e) {
+				return null;
+			}
+			
+			Map beansOfType = applicationContext.getBeansOfType(lookupClass);
+			if (beansOfType.size() > 1) {
+				System.err.println("not yet supported");
+				Thread.dumpStack();
+				System.exit(1);
+				throw new RuntimeException("not yet supported");
+			}
+			if (beansOfType.size() == 0)
+				return null; // try other method
+			Object bean = beansOfType.values().iterator().next();
+			return bean;
+		}
 
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
-    }
+		public boolean hasService(String componentIdentifier) {
+			try {
+				return null != lookup(componentIdentifier);
+			} catch (ServiceException e) {
+				return false;
+			}
+		}
+
+		public void release(Object object) {
+			throw new IllegalStateException("not yet implemented");
+		}
+		
+		protected String getBeanName(String className) {
+			String beanName = null;
+			if (beanBlockInfo!=null) {
+				
+				beanName= (String) beanBlockInfo.get(className);
+				System.out.println("We have a blockInfo! " +className+"  -> "+beanName);
+			} 
+			return beanName;
+		}
+	}
+	
+	private Object lookupByBeanname(String componentIdentifier) {
+		return applicationContext.getBean(componentIdentifier);
+	}
+
+	public void setApplicationContext(ApplicationContext applicationContext)
+			throws BeansException {
+		this.applicationContext = applicationContext;
+	}
+
+	public ServiceManager getInstance(String beanName) {
+		return new ServiceManagerInstance(getBeanBlockInfo(beanName));
+	}
+	
+	protected Map getBeanBlockInfo(String beanName) {
+		Map blockInfo = null;
+		if (beanBlockInfos!=null) {
+			blockInfo= (Map) beanBlockInfos.get(beanName);
+		} 
+		return blockInfo;
+	}
+
+	public void setBeanBlockInfos(Map beanBlockInfos) {
+		this.beanBlockInfos = beanBlockInfos;
+	}
 }
