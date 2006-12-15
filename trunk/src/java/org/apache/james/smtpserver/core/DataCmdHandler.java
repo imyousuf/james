@@ -210,11 +210,21 @@ public class DataCmdHandler
         MailHeaders newHeaders = new MailHeaders();
         
         String heloMode = (String) session.getConnectionState().get(SMTPSession.CURRENT_HELO_MODE);
-        
+        String heloName = (String) session.getConnectionState().get(SMTPSession.CURRENT_HELO_NAME);
+
         // Put our Received header first
         headerLineBuffer.append(RFC2822Headers.RECEIVED + ": from ")
-                        .append(session.getRemoteHost())
-                        .append(" ([")
+                        .append(session.getRemoteHost());
+        
+        if (heloName != null) {
+            headerLineBuffer.append(" (")
+                            .append(heloMode)
+                            .append(" ")
+                            .append(heloName)
+                            .append(") ");
+        }
+        
+        headerLineBuffer.append(" ([")
                         .append(session.getRemoteIPAddress())
                         .append("])");
 
