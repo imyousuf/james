@@ -208,6 +208,9 @@ public class DataCmdHandler
         // We will rebuild the header object to put our Received header at the top
         Enumeration headerLines = headers.getAllHeaderLines();
         MailHeaders newHeaders = new MailHeaders();
+        
+        String heloMode = (String) session.getConnectionState().get(SMTPSession.CURRENT_HELO_MODE);
+        
         // Put our Received header first
         headerLineBuffer.append(RFC2822Headers.RECEIVED + ": from ")
                         .append(session.getRemoteHost())
@@ -222,7 +225,16 @@ public class DataCmdHandler
                         .append(session.getConfigurationData().getHelloName())
                         .append(" (")
                         .append(SOFTWARE_TYPE)
-                        .append(") with SMTP ID ")
+                        .append(") with ");
+     
+        // Check if EHLO was used 
+        if ("EHLO".equals(heloMode)) {
+            headerLineBuffer.append("ESMTP");
+        } else {
+            headerLineBuffer.append("SMTP");
+        }
+        
+        headerLineBuffer.append(" ID ")
                         .append(session.getSessionID());
 
         if (((Collection) session.getState().get(SMTPSession.RCPT_LIST)).size() == 1) {
