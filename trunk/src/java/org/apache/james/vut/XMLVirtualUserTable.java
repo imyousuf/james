@@ -135,7 +135,14 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable implements Con
      */
     public Map getAllMappingsInternal() {
         if (mappings.size() > 0) {
-                return mappings;
+            Map mappingsNew = new HashMap();
+            Iterator maps = mappings.keySet().iterator();
+                
+            while (maps.hasNext()) {
+                String key = maps.next().toString();
+                mappingsNew.put(key, VirtualUserTableUtil.mappingToCollection(mappings.get(key).toString()));
+            }
+            return mappingsNew;
         } else {
             return null;
         }

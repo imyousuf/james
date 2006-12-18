@@ -23,6 +23,9 @@ package org.apache.james.vut;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
 
 import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -41,6 +44,32 @@ import org.apache.james.test.mock.util.AttrValConfiguration;
 import org.apache.james.test.util.Util;
 
 public class JDBCVirtualUserTableTest extends AbstractVirtualUserTableTest {
+    
+    public void tearDown() {
+        Map mappings = virtualUserTable.getAllMappings();
+    
+        if (mappings != null) {
+            Iterator mappingsIt = virtualUserTable.getAllMappings().keySet().iterator();
+    
+    
+            while(mappingsIt.hasNext()) {
+                String key = mappingsIt.next().toString();
+                String args[] = key.split("@");
+        
+                Collection map = (Collection) mappings.get(key);
+        
+                Iterator mapIt = map.iterator();
+        
+                while (mapIt.hasNext()) {
+                    try {
+                        virtualUserTable.removeMapping(args[0], args[1], mapIt.next().toString());
+                    } catch (InvalidMappingException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
     
     protected AbstractVirtualUserTable getVirtalUserTable() throws ServiceException, ConfigurationException, Exception {
         DefaultServiceManager serviceManager = new DefaultServiceManager();

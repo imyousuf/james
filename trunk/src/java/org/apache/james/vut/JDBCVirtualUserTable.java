@@ -80,7 +80,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
      * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
      */
     public void service(ServiceManager arg0) throws ServiceException {
-    super.service(arg0);
+        super.service(arg0);
         datasources = (DataSourceSelector)arg0.lookup(DataSourceSelector.ROLE); 
         setFileSystem((FileSystem) arg0.lookup(FileSystem.ROLE));
     }
@@ -594,7 +594,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
                     String domain = mappingRS.getString(2);
                     String map = mappingRS.getString(3);
                     
-                    mapping.put(user + "@" + domain,map);
+                    mapping.put(user + "@" + domain,VirtualUserTableUtil.mappingToCollection(map));
                 }
                 
                 if (mapping.size() > 0 ) return mapping;
