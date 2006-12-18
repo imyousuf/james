@@ -590,12 +590,6 @@ Regards, Postmaster XXX.YYY
             <gateway> otherserver.mydomain.com </gateway>
             <gatewayPort>25</gatewayPort>
             -->
-            
-            <!-- The name which will be used as HELO. If not set the heloName configured in James block -->
-            <!-- will be used. -->
-            <!--
-            <helloName> myMailServer </helloName> 
-            -->
          </mailet>
 
       </processor>
