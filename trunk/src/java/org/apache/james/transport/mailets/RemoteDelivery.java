@@ -228,8 +228,6 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
     // The retry count dnsProblemErrors
     private int dnsProblemRetry = 0;
     
-    private String helloName = null;
-    
     /**
      * Initialize the mailet
      */
@@ -387,9 +385,6 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         if (dnsRetry != null && !dnsRetry.equals("")) {
             dnsProblemRetry = Integer.parseInt(dnsRetry); 
         }
-        
-        helloName = getInitParameter("helloName");
-        
     }
     
     /**
@@ -1115,43 +1110,26 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
      * there are any
      */
     public void run() {
+
+        /* TODO: CHANGE ME!!! The problem is that we need to wait for James to
+         * finish initializing.  We expect the HELLO_NAME to be put into
+         * the MailetContext, but in the current configuration we get
+         * started before the SMTP Server, which establishes the value.
+         * Since there is no contractual guarantee that there will be a
+         * HELLO_NAME value, we can't just wait for it.  As a temporary
+         * measure, I'm inserting this philosophically unsatisfactory
+         * fix.
+         */
+        long stop = System.currentTimeMillis() + 60000;
+        while ((getMailetContext().getAttribute(Constants.HELLO_NAME) == null)
+               && stop > System.currentTimeMillis()) {
+            try {
+                Thread.sleep(1000);
+            } catch (Exception ignored) {} // wait for James to finish initializing
+        }
+
         //Checks the pool and delivers a mail message
         Properties props = new Properties();
-        
-        if (helloName == null) {
-            /* TODO: CHANGE ME!!! The problem is that we need to wait for James to
-             * finish initializing.  We expect the HELLO_NAME to be put into
-             * the MailetContext, but in the current configuration we get
-             * started before the SMTP Server, which establishes the value.
-             * Since there is no contractual guarantee that there will be a
-             * HELLO_NAME value, we can't just wait for it.  As a temporary
-             * measure, I'm inserting this philosophically unsatisfactory
-             * fix.
-             * 
-             * When we drop backward compatibility we can remove the waiting, cause if the heloName is configured
-             * in the james block it will be set in the attributes before the mailets get init
-             */
-            long stop = System.currentTimeMillis() + 60000;
-            while ((getMailetContext().getAttribute(Constants.HELLO_NAME) == null)
-                   && stop > System.currentTimeMillis()) {
-                try {
-                    Thread.sleep(1000);
-                } catch (Exception ignored) {} // wait for James to finish initializing
-            }
-            
-            String defaultDomain = (String) getMailetContext().getAttribute(Constants.HELLO_NAME);
-            if (defaultDomain != null) {
-                props.put("mail.smtp.localhost", defaultDomain);
-            } else {
-                defaultDomain = (String) getMailetContext().getAttribute(Constants.DEFAULT_DOMAIN);
-                if (defaultDomain != null) {
-                    props.put("mail.smtp.localhost", defaultDomain);
-                }
-            }
-        } else {
-            props.put("mail.smtp.localhost", helloName);
-        }
-        
         //Not needed for production environment
         props.put("mail.debug", "false");
         // Reactivated: javamail 1.3.2 should no more have problems with "250 OK"
@@ -1167,6 +1145,17 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
 
         props.put("mail.smtp.connectiontimeout", connectionTimeout + "");
         props.put("mail.smtp.sendpartial",String.valueOf(sendPartial));
+
+        //Set the hostname we'll use as this server
+        if (getMailetContext().getAttribute(Constants.HELLO_NAME) != null) {
+            props.put("mail.smtp.localhost", getMailetContext().getAttribute(Constants.HELLO_NAME));
+        }
+        else {
+            String defaultDomain = (String) getMailetContext().getAttribute(Constants.DEFAULT_DOMAIN);
+            if (defaultDomain != null) {
+                props.put("mail.smtp.localhost", defaultDomain);
+            }
+        }
 
         if (isBindUsed) {
             // undocumented JavaMail 1.2 feature, smtp transport will use
