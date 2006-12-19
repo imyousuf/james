@@ -47,7 +47,7 @@ public class DomainListUtil {
         if (domains.size() > 0 ) {
             for (int i = 0; i < domains.size(); i++) {
                 List domList = getDomainIP(domains.get(i).toString(),dns,log);
-            
+                
                 for(int i2 = 0; i2 < domList.size();i2++) {
                     if(domainIP.contains(domList.get(i2)) == false) {
                         domainIP.add(domList.get(i2));
@@ -66,7 +66,10 @@ public class DomainListUtil {
         try {
             InetAddress[]  addrs = dns.getAllByName(domain);
             for (int j = 0; j < addrs.length ; j++) {
-                domainIP.add(addrs[j].getHostAddress());
+                String ip = addrs[j].getHostAddress();
+                if (domainIP.contains(ip) == false) {
+                    domainIP.add(ip);
+                }
             }
         } catch (UnknownHostException e) {
             log.error("Cannot get IP address(es) for " + domain);
