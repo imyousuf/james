@@ -89,6 +89,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
      * @see org.apache.avalon.framework.configuration.Configurable#configure(org.apache.avalon.framework.configuration.Configuration)
      */
     public void configure(Configuration arg0) throws ConfigurationException {
+        super.configure(arg0);
         String destination = arg0.getAttribute("destinationURL",null);
     
         if (destination == null) {

@@ -31,6 +31,9 @@ import java.util.Map;
 
 import javax.mail.internet.ParseException;
 
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
@@ -49,11 +52,17 @@ import org.apache.oro.text.regex.Perl5Compiler;
  * 
  */
 public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
-    implements VirtualUserTable, VirtualUserTableManagement, DomainList, Serviceable {
+    implements VirtualUserTable, VirtualUserTableManagement, DomainList, Serviceable, Configurable {
     
     private boolean autoDetect = true;
     private boolean autoDetectIP = true;
     private DNSServer dns;
+    
+    // The maximum mappings which will process before throwing exception
+    private int mappingLimit = 10;
+       
+    // TODO: Should we use true or false as default ?
+    private boolean recursive = true;
 
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
@@ -64,9 +73,42 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
     
     
     /**
+     * @see org.apache.avalon.framework.configuration.Configurable#configure(org.apache.avalon.framework.configuration.Configuration)
+     */
+    public void configure(Configuration arg0) throws ConfigurationException {
+        Configuration recursiveConf = arg0.getChild("recursiveMapping", false);
+
+        if (recursiveConf != null) {
+            setRecursiveMapping(recursiveConf.getValueAsBoolean(true));
+        }
+        
+        Configuration mappingLimitConf = arg0.getChild("mappingLimit", false);
+        
+        if (mappingLimitConf != null )  {
+            setMappingLimit(mappingLimitConf.getValueAsInteger(10));
+        }
+    }
+    
+    public void setRecursiveMapping(boolean recursive) {
+        this.recursive = recursive;
+    }
+    
+    public void setMappingLimit(int mappingLimit) {
+        this.mappingLimit = mappingLimit;
+    }
+    
+    /**
      * @see org.apache.james.services.VirtualUserTable#getMappings(String, String)
      */
     public Collection getMappings(String user,String domain) throws ErrorMappingException {
+        return getMappings(user,domain,mappingLimit);
+    }
+    
+
+    public Collection getMappings(String user,String domain,int mappingLimit) throws ErrorMappingException {
+
+        // We have to much mappings throw ErrorMappingException to avoid infinity loop
+        if (mappingLimit == 0) throw new ErrorMappingException("554 Too many mappings to process");
 
         String targetString = mapAddress(user, domain);
         
@@ -77,15 +119,14 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
                 throw new ErrorMappingException(targetString.substring(VirtualUserTable.ERROR_PREFIX.length()));
 
             } else {
-                Iterator map= VirtualUserTableUtil.getMappings(targetString).iterator();
+                Iterator map = VirtualUserTableUtil.getMappings(targetString).iterator();
 
                 while (map.hasNext()) {
-                    String target;
-                    String targetAddress = map.next().toString();
+                    String target = map.next().toString();
 
-                    if (targetAddress.startsWith(VirtualUserTable.REGEX_PREFIX)) {
+                    if (target.startsWith(VirtualUserTable.REGEX_PREFIX)) {
                         try {
-                            targetAddress = VirtualUserTableUtil.regexMap(new MailAddress(user,domain), targetAddress);
+                            target = VirtualUserTableUtil.regexMap(new MailAddress(user,domain), target);
                         } catch (MalformedPatternException e) {
                             getLogger().error("Exception during regexMap processing: ", e);
                         } catch (ParseException e) {
@@ -93,30 +134,51 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
                             getLogger().error("Exception during regexMap processing: ", e);
                         } 
 
-                        if (targetAddress == null) continue;
+                        if (target == null) continue;
                     }
-                    
-                    /* The VirtualUserTable not know anything about the defaultDomain. The defaultDomain should be added by the service which use 
-                     * the VirtualUserTable
-                     * 
-                    if (targetAddress.indexOf('@') < 0) {
-                         target = targetAddress + "@localhost";
-                    } else {
-                        target = targetAddress;
-                    }
-                    */
-                    
-                    target = targetAddress;
-            
-                    // add mapping
-                    mappings.add(target);
 
                     StringBuffer buf = new StringBuffer().append("Valid virtual user mapping ")
                                                          .append(user).append("@").append(domain)
-                                                         .append(" to ").append(targetAddress);
+                                                         .append(" to ").append(target);
                     getLogger().debug(buf.toString());
-
-                 }
+                   
+                 
+                    if (recursive) {
+                    
+                        String userName = null;
+                        String domainName = null;
+                        String args[] = target.split("@");
+                                        
+                        if (args != null && args.length > 0) {
+                    
+                            userName = args[0];
+                            domainName = args[1];
+                        } else {
+                            // TODO Is that the right todo here?
+                            userName = target;
+                            domainName = domain;
+                        }
+                                        
+                        // Check if the returned mapping is the same as the input. If so return null to avoid loops
+                        if (userName.equalsIgnoreCase(user) && domainName.equalsIgnoreCase(domain)) {
+                            return null;
+                        }
+                                        
+                        Collection childMappings = getMappings(userName, domainName, mappingLimit -1);
+                    
+                        if (childMappings == null) {
+                             // add mapping
+                            mappings.add(target);
+                        } else {
+                            mappings.addAll(childMappings);         
+                        }
+                                        
+                    } else {
+                        mappings.add(target);
+                    }
+               
+                }
+                
             }
             return mappings;
         }
@@ -143,7 +205,6 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
 
     
     /**
-     * @throws InvalidMappingException 
      * @see org.apache.james.services.VirtualUserTableManagement#removeRegexMapping(java.lang.String, java.lang.String, java.lang.String)
      */
     public synchronized boolean removeRegexMapping(String user, String domain, String regex) throws InvalidMappingException {
@@ -274,13 +335,20 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
             
             getLogger().info("Local host is: " + hostName);
             
-            if (autoDetect == true && (!hostName.equals("localhost"))) {
-                domains.add(hostName.toLowerCase(Locale.US));
+            hostName = hostName.toLowerCase(Locale.US);
+            
+            if (autoDetect == true && hostName.equals("localhost") == false && domains.contains(hostName) == false) {
+                domains.add(hostName);
             }
 
             
             if (autoDetectIP == true) {
-                domains.addAll(DomainListUtil.getDomainsIP(domains,dns,getLogger()));
+                List ipList = DomainListUtil.getDomainsIP(domains,dns,getLogger());
+                for(int i = 0; i < ipList.size(); i++) {
+                    if (domains.contains(ipList.get(i)) == false) {
+                        domains.add(ipList.get(i));
+                    }
+                }
             }
        
             if (getLogger().isInfoEnabled()) {

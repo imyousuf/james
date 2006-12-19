@@ -37,15 +37,22 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable implements Con
     /**
      * Holds the configured mappings
      */
-    private Map mappings = new HashMap();
+    private Map mappings;
     
-    private List domains = new ArrayList(); 
+    private List domains;
+    
+    private final static String WILDCARD = "*";
     
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(org.apache.avalon.framework.configuration.Configuration)
      */
     public void configure(Configuration arg0) throws ConfigurationException {
+        super.configure(arg0);
         Configuration[] mapConf = arg0.getChildren("mapping");
+    
+        mappings = new HashMap();
+        domains = new ArrayList();
+        
         if (mapConf != null) {
             for (int i = 0; i < mapConf.length; i ++) {       
                 mappings.putAll(VirtualUserTableUtil.getXMLMappings(mapConf[i].getValue()));
@@ -59,12 +66,11 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable implements Con
         
         while (keys.hasNext()) {
             String key = keys.next().toString();
-            Collection values = VirtualUserTableUtil.mappingToCollection(mappings.get(key).toString());
-            
+
             String[] args1 = key.split("@");
-            if (args1 != null && args1.length == 2) {
+            if (args1 != null && args1.length > 1) {
                 String domain = args1[1].toLowerCase();
-                if (domains.contains(domain) == false) {
+                if (domains.contains(domain) == false && domain.equals(WILDCARD) == false) {
                     domains.add(domain);
                 }
             }

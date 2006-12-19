@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import org.apache.james.services.VirtualUserTable;
 import org.apache.mailet.MailAddress;
 import org.apache.oro.text.regex.MalformedPatternException;
 import org.apache.oro.text.regex.MatchResult;
@@ -44,6 +45,7 @@ public class VirtualUserTableUtil {
     
 
     public static String QUERY = "select VirtualUserTable.target_address from VirtualUserTable, VirtualUserTable as VUTDomains where (VirtualUserTable.user like ? or VirtualUserTable.user like '\\%') and (VirtualUserTable.domain like ? or (VirtualUserTable.domain like '\\%' and VUTDomains.domain like ?)) order by concat(VirtualUserTable.user,'@',VirtualUserTable.domain) desc limit 1";
+    
     /**
      * Processes regex virtual user mapping
      *
@@ -57,18 +59,20 @@ public class VirtualUserTableUtil {
      */
      public static String regexMap( MailAddress address, String targetString) throws MalformedPatternException {
         String result = null;
+        int identifierLength = VirtualUserTable.REGEX_PREFIX.length();
 
+        int msgPos = targetString.indexOf(':', identifierLength + 1);
 
-        //TODO: Throw exception on invalid syntax ?
-        int msgPos = targetString.indexOf(':', "regex:".length() + 1);
-
+        // Throw exception on invalid format
+        if (msgPos < identifierLength + 1) throw new MalformedPatternException("Regex should be formatted as regex:<regular-expression>:<parameterized-string>");
+        
         // log("regex: targetString = " + targetString);
         // log("regex: msgPos = " + msgPos);
         // log("regex: compile " + targetString.substring("regex:".length(), msgPos));
         // log("regex: address = " + address.toString());
         // log("regex: replace = " + targetString.substring(msgPos + 1));
 
-        Pattern pattern = new Perl5Compiler().compile(targetString.substring("regex:".length(), msgPos));
+        Pattern pattern = new Perl5Compiler().compile(targetString.substring(identifierLength, msgPos));
         Perl5Matcher matcher = new Perl5Matcher();
 
         if (matcher.matches(address.toString(), pattern)) {
@@ -125,7 +129,7 @@ public class VirtualUserTableUtil {
       */
      public static String getSeparator(String targetString) {
         return (targetString.indexOf(',') > -1 ? "," : (targetString
-        .indexOf(';') > -1 ? ";" : ((targetString.indexOf("regex:") > -1 || targetString.indexOf("error:") > -1)? "" : ":")));
+        .indexOf(';') > -1 ? ";" : ((targetString.indexOf(VirtualUserTable.ERROR_PREFIX) > -1 || targetString.indexOf(VirtualUserTable.REGEX_PREFIX) > -1)? "" : ":")));
      }
      
      /**

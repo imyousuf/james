@@ -21,8 +21,6 @@
 
 package org.apache.james.vut;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -33,7 +31,6 @@ import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.service.DefaultServiceManager;
 import org.apache.avalon.framework.service.ServiceException;
 
-import org.apache.james.services.AbstractDNSServer;
 import org.apache.james.services.DNSServer;
 import org.apache.james.services.FileSystem;
 
@@ -45,7 +42,7 @@ import org.apache.james.test.util.Util;
 
 public class JDBCVirtualUserTableTest extends AbstractVirtualUserTableTest {
     
-    public void tearDown() {
+    public void tearDown() throws Exception {
         Map mappings = virtualUserTable.getAllMappings();
     
         if (mappings != null) {
@@ -69,8 +66,12 @@ public class JDBCVirtualUserTableTest extends AbstractVirtualUserTableTest {
                 }
             }
         }
+        super.tearDown();
     }
     
+    /**
+     * @see org.apache.james.vut.AbstractVirtualUserTableTest#getVirtalUserTable()
+     */
     protected AbstractVirtualUserTable getVirtalUserTable() throws ServiceException, ConfigurationException, Exception {
         DefaultServiceManager serviceManager = new DefaultServiceManager();
         serviceManager.put(FileSystem.ROLE, new MockFileSystem());
@@ -87,54 +88,36 @@ public class JDBCVirtualUserTableTest extends AbstractVirtualUserTableTest {
         mr.configure(defaultConfiguration);
         mr.initialize();
         return mr;
-    }
+    }    
     
-    private DNSServer setUpDNSServer() {
-        DNSServer dns = new AbstractDNSServer() {
-            public String getHostName(InetAddress inet) {
-                return "test";
-            }
-            
-            public InetAddress[] getAllByName(String name) throws UnknownHostException {
-                return new InetAddress[] { InetAddress.getByName("127.0.0.1")};        
-            }
-            
-            public InetAddress getLocalHost() throws UnknownHostException {
-                return InetAddress.getLocalHost();
-            }
-        };
-        return dns;
-    }
-    
-    public void testStoreAndRetrieveWildCardAddressMapping() throws ErrorMappingException {
-        
-        String user = "test";
-        String user2 = "test2";
-        String domain = "localhost";
-        String address = "test@localhost2";
-        String address2 = "test@james";
-
-
-       try {
-                 
-            assertNull("No mapping",virtualUserTable.getMappings(user, domain));
-        
-            assertTrue("Added virtual mapping", virtualUserTable.addAddressMapping(null, domain, address));
-            assertTrue("Added virtual mapping", virtualUserTable.addAddressMapping(user, domain, address2));
-
-          
-            assertTrue("One mappings",virtualUserTable.getMappings(user, domain).size() == 1);
-            assertTrue("One mappings",virtualUserTable.getMappings(user2, domain).size() == 1);
-           
-            assertTrue("remove virtual mapping", virtualUserTable.removeAddressMapping(user, domain, address2));
-            assertTrue("remove virtual mapping", virtualUserTable.removeAddressMapping(null, domain, address));
-            assertNull("No mapping",virtualUserTable.getMappings(user, domain));
-            assertNull("No mapping",virtualUserTable.getMappings(user2, domain));
-      
-        } catch (InvalidMappingException e) {
-           fail("Storing failed");
+    /**
+     * @see org.apache.james.vut.AbstractVirtualUserTableTest#addMapping(java.lang.String, java.lang.String, java.lang.String, int)
+     */
+    protected boolean addMapping(String user, String domain, String mapping, int type) throws InvalidMappingException {
+        if (type == ERROR_TYPE) {
+            return virtualUserTable.addErrorMapping(user, domain, mapping);
+        } else if (type == REGEX_TYPE) {
+            return virtualUserTable.addRegexMapping(user, domain, mapping);
+        } else if (type == ADDRESS_TYPE) {
+            return virtualUserTable.addAddressMapping(user, domain, mapping);
+        } else {
+            return false;
         }
-    
+    }
+
+    /**
+     * @see org.apache.james.vut.AbstractVirtualUserTableTest#removeMapping(java.lang.String, java.lang.String, java.lang.String, int)
+     */
+    protected boolean removeMapping(String user, String domain, String mapping, int type) throws InvalidMappingException {
+        if (type == ERROR_TYPE) {
+            return virtualUserTable.removeErrorMapping(user, domain, mapping);
+        } else if (type == REGEX_TYPE) {
+            return virtualUserTable.removeRegexMapping(user, domain, mapping);
+        } else if (type == ADDRESS_TYPE) {
+            return virtualUserTable.removeAddressMapping(user, domain, mapping);
+        } else {
+            return false;
+        }
     }
     
 }

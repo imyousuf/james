@@ -20,21 +20,21 @@
 
 package org.apache.james.vut;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Collection;
 
-import junit.framework.TestCase;
 
 import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
+import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.DefaultServiceManager;
 import org.apache.avalon.framework.service.ServiceException;
 
-import org.apache.james.services.AbstractDNSServer;
 import org.apache.james.services.DNSServer;
 import org.apache.james.services.FileSystem;
+import org.apache.james.services.VirtualUserTable;
 
 import org.apache.james.test.mock.avalon.MockLogger;
 
@@ -42,58 +42,114 @@ import org.apache.james.test.mock.james.MockFileSystem;
 import org.apache.james.test.mock.util.AttrValConfiguration;
 
 import org.apache.james.test.util.Util;
+import org.apache.james.util.VirtualUserTableUtil;
 
-public class XMLVirtualUserTableTest extends TestCase {
-    private String user = "user1";
-    private String domain = "anydomain";
-    
-    AbstractVirtualUserTable table;
+public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
+    DefaultConfiguration defaultConfiguration = new DefaultConfiguration("conf");
     
     protected AbstractVirtualUserTable getVirtalUserTable() throws ServiceException, ConfigurationException, Exception {
         DefaultServiceManager serviceManager = new DefaultServiceManager();
         serviceManager.put(FileSystem.ROLE, new MockFileSystem());
         serviceManager.put(DataSourceSelector.ROLE, Util.getDataSourceSelector());
-        serviceManager.put(DNSServer.ROLE, new AbstractDNSServer() {
-            public InetAddress getLocalHost() throws UnknownHostException {
-                return InetAddress.getLocalHost();
-            }
-            
-            public InetAddress[] getAllByName(String domain) throws UnknownHostException{
-                throw new UnknownHostException();
-            }
-            
-            public String getHostName(InetAddress in) {
-                return "localHost";      
-            }
-        });
+        serviceManager.put(DNSServer.ROLE, setUpDNSServer());
         XMLVirtualUserTable mr = new XMLVirtualUserTable();
-        
+        ContainerUtil.enableLogging(mr, new MockLogger());
 
-        mr.enableLogging(new MockLogger());
-        DefaultConfiguration defaultConfiguration = new DefaultConfiguration("conf");
-        defaultConfiguration.addChild(new AttrValConfiguration("mapping",user + "@" + domain +"=user2@localhost;user3@localhost"));
-        defaultConfiguration.addChild(new AttrValConfiguration("mapping","*" + "@" + domain +"=user4@localhost;user5@localhost"));
-        mr.configure(defaultConfiguration);
-        mr.service(serviceManager);
+        ContainerUtil.service(mr, serviceManager);
+        ContainerUtil.configure(mr, defaultConfiguration);
         return mr;
     }
     
-    public void setUp() throws Exception {
-        table = getVirtalUserTable();
+    
+
+    /**
+     * @see org.apache.james.vut.AbstractVirtualUserTableTest#addMapping(java.lang.String, java.lang.String, java.lang.String, int)
+     */
+    protected boolean addMapping(String user, String domain, String mapping, int type) throws InvalidMappingException {
+        if (user == null) user = "*";
+        if (domain == null) domain = "*";
+        
+        Collection mappings = virtualUserTable.getUserDomainMappings(user, domain);
+
+        if (mappings == null) {
+            mappings = new ArrayList();
+        } else {
+           removeMappings(user,domain,mappings);
+        }
+    
+        if (type == ERROR_TYPE) {
+            mappings.add(VirtualUserTable.ERROR_PREFIX + mapping);
+        } else if (type == REGEX_TYPE) {
+            mappings.add(VirtualUserTable.REGEX_PREFIX + mapping);
+        } else if (type == ADDRESS_TYPE) {
+            mappings.add(mapping);
+        }
+        if (mappings.size() > 0) { 
+            defaultConfiguration.addChild(new AttrValConfiguration("mapping",user + "@" + domain +"=" + VirtualUserTableUtil.CollectionToMapping(mappings)));
+        }
+    
+        try {
+            ContainerUtil.configure(((XMLVirtualUserTable) virtualUserTable),defaultConfiguration);
+        } catch (ConfigurationException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * @see org.apache.james.vut.AbstractVirtualUserTableTest#removeMapping(java.lang.String, java.lang.String, java.lang.String, int)
+     */
+    protected boolean removeMapping(String user, String domain, String mapping, int type) throws InvalidMappingException {       
+        if (user == null) user = "*";
+        if (domain == null) domain = "*";
+        
+        Collection mappings = virtualUserTable.getUserDomainMappings(user, domain);
+        
+        if (mappings == null) {
+            return false;
+        }  
+    
+        removeMappings(user,domain, mappings);
+    
+        if (type == ERROR_TYPE) {
+            mappings.remove(VirtualUserTable.ERROR_PREFIX + mapping);
+        } else if (type == REGEX_TYPE) {
+            mappings.remove(VirtualUserTable.REGEX_PREFIX + mapping);
+        } else if (type == ADDRESS_TYPE) {
+            mappings.remove(mapping);    
+        } 
+
+        if (mappings.size() > 0) {
+            defaultConfiguration.addChild(new AttrValConfiguration("mapping",user + "@" + domain +"=" + VirtualUserTableUtil.CollectionToMapping(mappings)));
+        } 
+    
+        try {
+            ContainerUtil.configure(((XMLVirtualUserTable) virtualUserTable),defaultConfiguration);
+        } catch (ConfigurationException e) {
+            e.printStackTrace();
+           return false;
+        }
+        return true;
     }
     
-    public void tearDown() {
-        ContainerUtil.dispose(table);
-    }
     
-    public void testGetMappings() throws ErrorMappingException {
-        assertEquals("Found 2 mappings", table.getMappings(user, domain).size(), 2);
-        assertEquals("Found 2 domains", table.getDomains().size(),2);
-        assertEquals("Found 2 mapping line", table.getAllMappings().size(),2);
+    private void removeMappings(String user, String domain, Collection mappings) {
+        Configuration [] conf = defaultConfiguration.getChildren("mapping");
+        
+        for (int i = 0; i < conf.length; i++ ) {
+            DefaultConfiguration c = (DefaultConfiguration) conf[i];
+            try {
+                String mapping = user + "@" + domain + "=" + VirtualUserTableUtil.CollectionToMapping(mappings);
+            
+            
+                if (c.getValue().equalsIgnoreCase(mapping)){
+                    defaultConfiguration.removeChild(c);
+                }
+            } catch (ConfigurationException e) {
+                e.printStackTrace();
+            }
+        }
     }
-    
-    public void testGetUserMappings() throws ErrorMappingException, InvalidMappingException {
-        assertTrue("Found 1 mappings", table.getMappings("any", domain).size() == 2);
-        assertNull("Found 0 mappings", table.getUserDomainMappings("any", domain));
-    }
+
 }
