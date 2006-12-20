@@ -58,7 +58,7 @@ import java.util.List;
  */
 public class UsersLDAPRepository
     extends AbstractLogEnabled
-    implements UsersRepository, Serviceable, Configurable, Initializable{
+    implements UsersRepository, Configurable, Initializable{
 
     private DirContext ctx;
 
@@ -81,13 +81,6 @@ public class UsersLDAPRepository
     private String passwordAttr;
 
     /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
-     */
-    public void service(ServiceManager compMgr) {
-        // this.comp = compMgr;
-    }
-
-    /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
     public void configure(Configuration conf)
@@ -107,7 +100,12 @@ public class UsersLDAPRepository
         membersAttr = conf.getChild("MembersAttribute").getValue();
         manageGroupAttr
             = conf.getChild("ManageGroupAttribute").getValueAsBoolean( false );
-        groupAttr = conf.getChild("GroupAttribute").getValue();
+        
+        // Check if groupAttr is needed
+        if (manageGroupAttr == true) {
+            groupAttr = conf.getChild("GroupAttribute").getValue();
+        }
+        
         managePasswordAttr = conf.getChild("ManagePasswordAttribute").getValueAsBoolean( false );
         passwordAttr = conf.getChild("PasswordAttribute").getValue();
     }
@@ -138,7 +136,6 @@ public class UsersLDAPRepository
         baseURL = urlBuffer.toString() + baseNodeDN;
 
         getLogger().info("Creating initial context from " + baseURL);
-        //System.out.println("Creating initial context from " + baseURL);
 
         Hashtable env = new Hashtable();
         env.put(javax.naming.Context.INITIAL_CONTEXT_FACTORY,
