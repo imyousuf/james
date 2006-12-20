@@ -587,8 +587,11 @@ Regards, Postmaster XXX.YYY
          </mailet>
          -->
 
+         <!-- Experimental quota Matcher -->
+         <!-- This matcher need to calculate the mailbox size everytime it is called. This can slow down things if there are many mails in -->
+         <!-- the mailbox. Some users also report big problems with the matcher if a JDBC based mailrepository is used. -->
          <!-- Check if over quota -->
-         <!--
+         <!-- 
          <mailet match="RecipientIsOverFixedQuota=20M" class="Resend">
             <sender>postmaster</sender>
             <replyTo>postmaster</replyTo>
