@@ -29,7 +29,7 @@ import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
 /**
- * <P>Checks whether a recipient has exceeded a maximum allowed quota for messages
+ * <P>Experimental: Checks whether a recipient has exceeded a maximum allowed quota for messages
  * standing in his inbox. Such quota is <I>the same</I> for all users.</P>
  * <P>Will check if the total size of all his messages in the inbox are greater
  * than a certain number of bytes.  You can use 'k' and 'm' as optional postfixes.
@@ -50,7 +50,9 @@ import org.apache.mailet.MailAddress;
  * .
  * &lt;/processor&gt;
  * </CODE></PRE>
- *
+ * 
+ * <P>This matcher need to calculate the mailbox size everytime it is called. This can slow down things if there are many mails in
+ * the mailbox. Some users also report big problems with the matcher if a JDBC based mailrepository is used. </P>
  * @version 1.0.0, 2003-05-11
  */
 

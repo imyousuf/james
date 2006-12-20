@@ -38,10 +38,13 @@ import javax.mail.MessagingException;
 import java.util.Iterator;
 
 /**
- * <P>Abstract matcher checking whether a recipient has exceeded a maximum allowed
+ * <P>Experimental: Abstract matcher checking whether a recipient has exceeded a maximum allowed
  * <I>storage</I> quota for messages standing in his inbox.</P>
  * <P>"Storage quota" at this level is still an abstraction whose specific interpretation
  * will be done by subclasses (e.g. could be specific for each user or common to all of them).</P> 
+ *
+ * <P>This matcher need to calculate the mailbox size everytime it is called. This can slow down things if there are many mails in
+ * the mailbox. Some users also report big problems with the matcher if a JDBC based mailrepository is used. </P>
  *
  * @version CVS $Revision$ $Date$
  * @since 2.2.0
