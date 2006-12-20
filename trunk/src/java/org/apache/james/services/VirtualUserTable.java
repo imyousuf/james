@@ -42,9 +42,14 @@ public interface VirtualUserTable {
     public static final String ERROR_PREFIX = "error:";
     
     /**
-     * The prefix which is used for regex prefix
+     * The prefix which is used for regex mappings
      */
     public static final String REGEX_PREFIX = "regex:";
+    
+    /**
+     * The prefix which is used for alias domain mappings
+     */
+    public static final String ALIASDOMAIN_PREFIX = "domain:";
     
     /**
      * Return the mapped MailAddress for the given address. Return null if no 

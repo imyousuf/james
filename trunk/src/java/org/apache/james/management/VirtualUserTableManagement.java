@@ -189,4 +189,26 @@ public class VirtualUserTableManagement implements Serviceable, VirtualUserTable
     public Map getAllMappings(String virtualUserTable) throws VirtualUserTableManagementException{
         return getTable(virtualUserTable).getAllMappings();
     }
+
+    /**
+     * @see org.apache.james.services.VirtualUserTableManagementService#addAliasDomainMapping(java.lang.String, java.lang.String, java.lang.String)
+     */
+    public boolean addAliasDomainMapping(String virtualUserTable, String aliasDomain, String realDomain) throws VirtualUserTableManagementException {
+        try {
+            return getTable(virtualUserTable).addAliasDomainMapping(aliasDomain, realDomain);
+        } catch (InvalidMappingException e) {
+            throw new VirtualUserTableManagementException(e);
+        }
+    }
+
+    /**
+     * @see org.apache.james.services.VirtualUserTableManagementService#removeAliasDomainMapping(java.lang.String, java.lang.String, java.lang.String)
+     */
+    public boolean removeAliasDomainMapping(String virtualUserTable, String aliasDomain, String realDomain) throws VirtualUserTableManagementException {
+        try {
+            return getTable(virtualUserTable).removeAliasDomainMapping(aliasDomain, realDomain);
+        } catch (InvalidMappingException e) {
+            throw new VirtualUserTableManagementException(e);
+        }
+    }
 }

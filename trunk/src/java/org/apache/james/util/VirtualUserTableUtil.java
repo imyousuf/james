@@ -129,7 +129,8 @@ public class VirtualUserTableUtil {
       */
      public static String getSeparator(String targetString) {
         return (targetString.indexOf(',') > -1 ? "," : (targetString
-        .indexOf(';') > -1 ? ";" : ((targetString.indexOf(VirtualUserTable.ERROR_PREFIX) > -1 || targetString.indexOf(VirtualUserTable.REGEX_PREFIX) > -1)? "" : ":")));
+        .indexOf(';') > -1 ? ";" : ((targetString.indexOf(VirtualUserTable.ERROR_PREFIX) > -1 
+            || targetString.indexOf(VirtualUserTable.REGEX_PREFIX) > -1 || targetString.indexOf(VirtualUserTable.ALIASDOMAIN_PREFIX) > -1)? "" : ":")));
      }
      
      /**
@@ -156,16 +157,10 @@ public class VirtualUserTableUtil {
      * Return a Collection which holds the extracted mappings of the given String
      * 
      * @param rawMapping
+     * @deprecated Use mappingToCollection(String rawMapping)
      */
      public static Collection getMappings(String rawMapping) {
-        ArrayList map = new ArrayList();
-        StringTokenizer tokenizer = new StringTokenizer(rawMapping,
-        VirtualUserTableUtil.getSeparator(rawMapping));
-
-        while (tokenizer.hasMoreTokens()) {
-            map.add(tokenizer.nextToken().trim());
-        }
-        return map;
+        return mappingToCollection(rawMapping);
     }
      
      /**

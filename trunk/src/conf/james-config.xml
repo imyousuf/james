@@ -1504,10 +1504,19 @@ Regards, Postmaster XXX.YYY
    
    <!-- The VirtualUserTable Store block -->
    <virtualusertable-store>
-   
+      <!-- Configure VirtualUserTable stores here. -->
+      <!-- -->
+      <!-- If set recursiveMapping false only the first mapping will get processed. -->
+      <!-- Default true. -->
+      <!-- By setting the mappingLimit you can specify how much mapping will get processed -->
+      <!-- before a bounce will send. This avoid infinity loops. Default 10.  -->
+      
       <!-- The DefaultVirtualUserTable  for storing James' VirtualUserTable mappings. -->
       <!--
       <table name="DefaultVirtualUserTable" class="org.apache.james.vut.XMLVirtualUserTable">
+         <recursiveMapping> true </recursiveMapping>
+         <mappingLimit> 10 </mappingLimit>
+         
          <mapping> some@domain=someuser </mapping>
       </table>
       -->
@@ -1521,6 +1530,8 @@ Regards, Postmaster XXX.YYY
       <!-- The DefaultVirtualUserTable  for storing James' VirtualUserTable mappings. -->
       <!-- TEMPORARY DEFAULT: db using Derby  -->
       <table name="DefaultVirtualUserTable" class="org.apache.james.vut.JDBCVirtualUserTable" destinationURL="db://maildb/VirtualUserTable">
+         <recursiveMapping> true </recursiveMapping>
+         <mappingLimit> 10 </mappingLimit>
          <sqlFile>file://conf/sqlResources.xml</sqlFile>
       </table>
    </virtualusertable-store>

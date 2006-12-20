@@ -135,4 +135,18 @@ public class DefaultVirtualUserTable implements VirtualUserTableManagement, Serv
     public Map getAllMappings() {
         return vut.getAllMappings();
     }
+
+    /**
+     * @see org.apache.james.services.VirtualUserTableManagement#addAliasDomain(java.lang.String, java.lang.String)
+     */
+    public boolean addAliasDomainMapping(String aliasDomain, String realDomain) throws InvalidMappingException {
+        return vut.addAliasDomainMapping(aliasDomain, realDomain);
+    }
+
+    /**
+     * @see org.apache.james.services.VirtualUserTableManagement#removeAliasDomain(java.lang.String, java.lang.String)
+     */
+    public boolean removeAliasDomainMapping(String aliasDomain, String realDomain) throws InvalidMappingException {
+        return vut.removeAliasDomainMapping(aliasDomain, realDomain);
+    }
 }

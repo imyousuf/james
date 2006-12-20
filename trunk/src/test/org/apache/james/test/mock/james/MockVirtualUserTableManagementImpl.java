@@ -134,4 +134,12 @@ public class MockVirtualUserTableManagementImpl implements VirtualUserTableManag
         return false;
     }
 
+    public boolean addAliasDomainMapping(String aliasDomain, String realDomain) throws InvalidMappingException {
+    return addRawMapping(null,aliasDomain,VirtualUserTable.ALIASDOMAIN_PREFIX + realDomain);
+    }
+
+    public boolean removeAliasDomainMapping(String aliasDomain, String realDomain) throws InvalidMappingException {
+        return removeRawMapping(null,aliasDomain,VirtualUserTable.ALIASDOMAIN_PREFIX + realDomain);
+    }
+
 }

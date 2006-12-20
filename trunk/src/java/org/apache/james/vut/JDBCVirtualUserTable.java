@@ -254,9 +254,9 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
     }
     
     /**
-     * @see org.apache.james.vut.AbstractVirtualUserTable#mapAddress(java.lang.String, java.lang.String)
+     * @see org.apache.james.vut.AbstractVirtualUserTable#mapAddressInternal(java.lang.String, java.lang.String)
      */
-    public String mapAddress(String user, String domain) {
+    public String mapAddressInternal(String user, String domain) {
         Connection conn = null;
         PreparedStatement mappingStmt = null;
         try {

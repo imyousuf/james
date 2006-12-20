@@ -53,7 +53,7 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable implements Con
         mappings = new HashMap();
         domains = new ArrayList();
         
-        if (mapConf != null) {
+        if (mapConf != null && mapConf.length > 0) {
             for (int i = 0; i < mapConf.length; i ++) {       
                 mappings.putAll(VirtualUserTableUtil.getXMLMappings(mapConf[i].getValue()));
             }
@@ -96,10 +96,15 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable implements Con
     }
 
     /**
-     * @see org.apache.james.vut.AbstractVirtualUserTable#mapAddress(java.lang.String, java.lang.String)
+     * @see org.apache.james.vut.AbstractVirtualUserTable#mapAddressInternal(java.lang.String, java.lang.String)
      */
-    protected String mapAddress(String user, String domain) {
-        return VirtualUserTableUtil.getTargetString(user, domain, mappings);
+    protected String mapAddressInternal(String user, String domain) {
+        if (mappings == null) {
+            return null;
+        } else {
+            return VirtualUserTableUtil.getTargetString(user, domain, mappings);
+    
+        }
     }
 
     /**
@@ -114,11 +119,15 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable implements Con
      * @see org.apache.james.vut.AbstractVirtualUserTable#getUserDomainMappingsInternal(java.lang.String, java.lang.String)
      */
     public Collection getUserDomainMappingsInternal(String user, String domain) {
-        Object maps = mappings.get(user + "@" + domain);
-        if (maps != null) {
-            return VirtualUserTableUtil.mappingToCollection(maps.toString());
-        } else {
+        if (mappings == null) {
             return null;
+        } else {
+            String maps = (String) mappings.get(user + "@" + domain);
+            if (maps != null) {
+                return VirtualUserTableUtil.mappingToCollection(maps);
+            } else {
+                return null;
+            }
         }
     }
 
@@ -133,14 +142,18 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable implements Con
      * @see org.apache.james.services.DomainList#containsDomain(java.lang.String)
      */
     public boolean containsDomain(String domain) {
-        return domains.contains(domain);
+        if (domains == null) {
+            return false;
+        } else {
+            return domains.contains(domain);
+        }
     }
 
     /**
      * @see org.apache.james.vut.AbstractVirtualUserTable#getAllMappingsInternal()
      */
     public Map getAllMappingsInternal() {
-        if (mappings.size() > 0) {
+        if ( mappings != null && mappings.size() > 0) {
             Map mappingsNew = new HashMap();
             Iterator maps = mappings.keySet().iterator();
                 
