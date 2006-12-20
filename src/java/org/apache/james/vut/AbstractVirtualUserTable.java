@@ -278,7 +278,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
     /**
      * @see org.apache.james.services.VirtualUserTableManagement#addMapping(java.lang.String, java.lang.String, java.lang.String)
      */
-    public boolean addMapping(String user, String domain, String mapping) throws InvalidMappingException {
+    public synchronized boolean addMapping(String user, String domain, String mapping) throws InvalidMappingException {
         String map = mapping.toLowerCase();
         
         if (map.startsWith(VirtualUserTable.ERROR_PREFIX)) {
@@ -296,7 +296,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
     /**
      * @see org.apache.james.services.VirtualUserTableManagement#removeMapping(java.lang.String, java.lang.String, java.lang.String)
      */
-    public boolean removeMapping(String user, String domain, String mapping) throws InvalidMappingException {
+    public synchronized boolean removeMapping(String user, String domain, String mapping) throws InvalidMappingException {
         String map = mapping.toLowerCase();
     
         if (map.startsWith(VirtualUserTable.ERROR_PREFIX)) {
@@ -404,7 +404,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
     /**
      * @see org.apache.james.services.VirtualUserTableManagement#addAliasDomainMapping(java.lang.String, java.lang.String)
      */
-    public boolean addAliasDomainMapping(String aliasDomain, String realDomain) throws InvalidMappingException {
+    public synchronized boolean addAliasDomainMapping(String aliasDomain, String realDomain) throws InvalidMappingException {
         getLogger().info("Add domain mapping: " + aliasDomain  + " => " + realDomain);
         return addMappingInternal(null, aliasDomain, VirtualUserTable.ALIASDOMAIN_PREFIX + realDomain);
     }
@@ -412,7 +412,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
     /**
      * @see org.apache.james.services.VirtualUserTableManagement#removeAliasDomainMapping(java.lang.String, java.lang.String)
      */
-    public boolean removeAliasDomainMapping(String aliasDomain, String realDomain) throws InvalidMappingException {
+    public synchronized boolean removeAliasDomainMapping(String aliasDomain, String realDomain) throws InvalidMappingException {
         getLogger().info("Remove domain mapping: " + aliasDomain  + " => " + realDomain);
         return removeMappingInternal(null, aliasDomain, VirtualUserTable.ALIASDOMAIN_PREFIX + realDomain);
     }
