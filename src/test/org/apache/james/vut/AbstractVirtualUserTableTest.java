@@ -23,12 +23,16 @@ package org.apache.james.vut;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
 
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.james.services.AbstractDNSServer;
 import org.apache.james.services.DNSServer;
+import org.apache.james.services.VirtualUserTable;
 
 import junit.framework.TestCase;
 
@@ -38,14 +42,49 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
     protected final static int REGEX_TYPE = 0;
     protected final static int ERROR_TYPE = 1;
     protected final static int ADDRESS_TYPE = 2;
+    protected final static int ALIASDOMAIN_TYPE = 3;
     
     protected void setUp() throws Exception {
         virtualUserTable = getVirtalUserTable();
     }
     
     protected void tearDown() throws Exception {
-        super.tearDown();
+        Map mappings = virtualUserTable.getAllMappings();
+        
+        if (mappings != null) {
+            Iterator mappingsIt = virtualUserTable.getAllMappings().keySet().iterator();
+    
+    
+            while(mappingsIt.hasNext()) {
+                String key = mappingsIt.next().toString();
+                String args[] = key.split("@");
+        
+                Collection map = (Collection) mappings.get(key);
+        
+                Iterator mapIt = map.iterator();
+        
+                while (mapIt.hasNext()) {
+                    try {
+                        removeMapping(args[0], args[1], mapIt.next().toString());
+                    } catch (InvalidMappingException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
         ContainerUtil.dispose(virtualUserTable);
+    }
+    
+    private void removeMapping(String user, String domain, String rawMapping) throws InvalidMappingException {
+        if (rawMapping.startsWith(VirtualUserTable.ERROR_PREFIX)) {
+            removeMapping(user, domain, rawMapping.substring(VirtualUserTable.ERROR_PREFIX.length()), ERROR_TYPE);
+        } else if (rawMapping.startsWith(VirtualUserTable.REGEX_PREFIX)) {
+            removeMapping(user, domain, rawMapping.substring(VirtualUserTable.REGEX_PREFIX.length()), REGEX_TYPE);
+        } else if (rawMapping.startsWith(VirtualUserTable.ALIASDOMAIN_PREFIX)) {
+            removeMapping(user, domain, rawMapping.substring(VirtualUserTable.ALIASDOMAIN_PREFIX.length()), ALIASDOMAIN_TYPE);
+        } else {
+            removeMapping(user, domain, rawMapping, ADDRESS_TYPE);
+        }
     }
     
     protected abstract AbstractVirtualUserTable getVirtalUserTable() throws ServiceException, ConfigurationException, Exception;
@@ -88,8 +127,6 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
 
             assertEquals("Two mappings",virtualUserTable.getMappings(user, domain).size(), 2);           
             assertEquals("One mappingline",virtualUserTable.getAllMappings().size(),1);
-            
-            System.err.println("MAPPINGS:" + virtualUserTable.getAllMappings() + " domains:" + virtualUserTable.getDomains().size()); 
            
             // Test DomainList implementations!
             assertEquals("Three domains",virtualUserTable.getDomains().size(), 3);
@@ -251,4 +288,29 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
             fail("Storing failed");
         }
     }
+   
+    
+    public void testAliasDomainMapping() throws ErrorMappingException {
+        String domain = "realdomain";
+        String aliasDomain = "aliasdomain";
+        String user = "user";
+        String user2 = "user2";
+    
+        assertNull("No mappings",virtualUserTable.getAllMappings());
+        try {
+            assertTrue("Add mapping",addMapping(null, aliasDomain, user2 + "@" + domain, ADDRESS_TYPE));
+            assertTrue("Add aliasDomain mapping", addMapping(null, aliasDomain, domain, ALIASDOMAIN_TYPE));
+        
+            Iterator mappings = virtualUserTable.getMappings(user, aliasDomain).iterator();
+            assertEquals("Domain mapped as first ", mappings.next(), user + "@" + domain);
+            assertEquals("Address mapped as second ", mappings.next(), user2 + "@" + domain);
+            
+            assertTrue("Remove mapping", removeMapping(null, aliasDomain, user2 + "@" + domain, ADDRESS_TYPE));
+            assertTrue("Remove aliasDomain mapping", removeMapping(null, aliasDomain, domain, ALIASDOMAIN_TYPE));
+        
+        } catch (InvalidMappingException e) {
+            fail("Storing failed");
+        }
+    }
+    
 }

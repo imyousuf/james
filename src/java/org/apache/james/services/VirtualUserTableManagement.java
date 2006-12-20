@@ -140,4 +140,24 @@ public interface VirtualUserTableManagement extends VirtualUserTable{
      * @return Map which holds all mappings
      */
     public Map getAllMappings();
+    
+    /**
+     * Add aliasDomain mapping
+     * 
+     * @param aliasDomain the aliasdomain which should be mapped to the realDomain
+     * @param realDomain the realDomain
+     * @return true if successfilly
+     * @throws InvalidMappingException
+     */
+    public boolean addAliasDomainMapping(String aliasDomain, String realDomain) throws InvalidMappingException;
+    
+    /**
+     * Remove aliasDomain mapping
+     * 
+     * @param aliasDomain the aliasdomain which should be mapped to the realDomain
+     * @param realDomain the realDomain
+     * @return true if successfilly
+     * @throws InvalidMappingException
+     */
+    public boolean removeAliasDomainMapping(String aliasDomain, String realDomain) throws InvalidMappingException;
 }

@@ -30,7 +30,6 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.DefaultServiceManager;
-import org.apache.avalon.framework.service.ServiceException;
 
 import org.apache.james.services.DNSServer;
 import org.apache.james.services.FileSystem;
@@ -47,7 +46,7 @@ import org.apache.james.util.VirtualUserTableUtil;
 public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
     DefaultConfiguration defaultConfiguration = new DefaultConfiguration("conf");
     
-    protected AbstractVirtualUserTable getVirtalUserTable() throws ServiceException, ConfigurationException, Exception {
+    protected AbstractVirtualUserTable getVirtalUserTable() throws Exception {
         DefaultServiceManager serviceManager = new DefaultServiceManager();
         serviceManager.put(FileSystem.ROLE, new MockFileSystem());
         serviceManager.put(DataSourceSelector.ROLE, Util.getDataSourceSelector());
@@ -56,7 +55,6 @@ public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
         ContainerUtil.enableLogging(mr, new MockLogger());
 
         ContainerUtil.service(mr, serviceManager);
-        ContainerUtil.configure(mr, defaultConfiguration);
         return mr;
     }
     
@@ -83,7 +81,10 @@ public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
             mappings.add(VirtualUserTable.REGEX_PREFIX + mapping);
         } else if (type == ADDRESS_TYPE) {
             mappings.add(mapping);
+        }  else if (type == ALIASDOMAIN_TYPE) {
+            mappings.add(VirtualUserTable.ALIASDOMAIN_PREFIX + mapping);
         }
+        
         if (mappings.size() > 0) { 
             defaultConfiguration.addChild(new AttrValConfiguration("mapping",user + "@" + domain +"=" + VirtualUserTableUtil.CollectionToMapping(mappings)));
         }
@@ -91,8 +92,11 @@ public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
         try {
             ContainerUtil.configure(((XMLVirtualUserTable) virtualUserTable),defaultConfiguration);
         } catch (ConfigurationException e) {
-            e.printStackTrace();
-            return false;
+            if (mappings.size() > 0) {
+                return false;
+            } else {
+                return true;
+            }
         }
         return true;
     }
@@ -118,7 +122,9 @@ public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
             mappings.remove(VirtualUserTable.REGEX_PREFIX + mapping);
         } else if (type == ADDRESS_TYPE) {
             mappings.remove(mapping);    
-        } 
+        }  else if (type == ALIASDOMAIN_TYPE) {
+            mappings.remove(VirtualUserTable.ALIASDOMAIN_PREFIX + mapping);
+        }
 
         if (mappings.size() > 0) {
             defaultConfiguration.addChild(new AttrValConfiguration("mapping",user + "@" + domain +"=" + VirtualUserTableUtil.CollectionToMapping(mappings)));
@@ -127,8 +133,11 @@ public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
         try {
             ContainerUtil.configure(((XMLVirtualUserTable) virtualUserTable),defaultConfiguration);
         } catch (ConfigurationException e) {
-            e.printStackTrace();
-           return false;
+           if (mappings.size() > 0) {
+               return false;
+           } else {
+               return true;
+           }
         }
         return true;
     }

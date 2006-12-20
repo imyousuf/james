@@ -85,7 +85,11 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
         Configuration mappingLimitConf = arg0.getChild("mappingLimit", false);
         
         if (mappingLimitConf != null )  {
-            setMappingLimit(mappingLimitConf.getValueAsInteger(10));
+            try {
+                setMappingLimit(mappingLimitConf.getValueAsInteger(10));
+            } catch (IllegalArgumentException e) {
+                throw new ConfigurationException(e.getMessage());
+            }
         }
     }
     
@@ -93,7 +97,14 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
         this.recursive = recursive;
     }
     
-    public void setMappingLimit(int mappingLimit) {
+    /**
+     * Set the mappingLimit
+     * 
+     * @param mappingLimit the mappingLimit
+     * @throws IllegalArgumentException get thrown if mappingLimit smaller then 1 is used
+     */
+    public void setMappingLimit(int mappingLimit) throws IllegalArgumentException {
+        if (mappingLimit < 1) throw new IllegalArgumentException("The minimum mappingLimit is 1");
         this.mappingLimit = mappingLimit;
     }
     
@@ -119,7 +130,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
                 throw new ErrorMappingException(targetString.substring(VirtualUserTable.ERROR_PREFIX.length()));
 
             } else {
-                Iterator map = VirtualUserTableUtil.getMappings(targetString).iterator();
+                Iterator map = VirtualUserTableUtil.mappingToCollection(targetString).iterator();
 
                 while (map.hasNext()) {
                     String target = map.next().toString();
@@ -133,10 +144,12 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
                             // should never happen
                             getLogger().error("Exception during regexMap processing: ", e);
                         } 
-
-                        if (target == null) continue;
+                    } else if (target.startsWith(VirtualUserTable.ALIASDOMAIN_PREFIX)) {
+                        target = user + "@" + target.substring(VirtualUserTable.ALIASDOMAIN_PREFIX.length());
                     }
 
+                    if (target == null) continue;
+                    
                     StringBuffer buf = new StringBuffer().append("Valid virtual user mapping ")
                                                          .append(user).append("@").append(domain)
                                                          .append(" to ").append(target);
@@ -176,9 +189,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
                     } else {
                         mappings.add(target);
                     }
-               
-                }
-                
+                } 
             }
             return mappings;
         }
@@ -274,6 +285,9 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
             return addErrorMapping(user,domain,map.substring(VirtualUserTable.ERROR_PREFIX.length()));
         } else if (map.startsWith(VirtualUserTable.REGEX_PREFIX)) {
             return addRegexMapping(user,domain,map.substring(VirtualUserTable.REGEX_PREFIX.length()));
+        } else if (map.startsWith(VirtualUserTable.ALIASDOMAIN_PREFIX)) {
+            if (user != null) throw new InvalidMappingException("User must be null for aliasDomain mappings");
+            return addAliasDomainMapping(domain,map.substring(VirtualUserTable.ALIASDOMAIN_PREFIX.length()));
         } else {
             return addAddressMapping(user,domain,map);
         }
@@ -289,6 +303,9 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
             return removeErrorMapping(user,domain,map.substring(VirtualUserTable.ERROR_PREFIX.length()));
         } else if (map.startsWith(VirtualUserTable.REGEX_PREFIX)) {
             return removeRegexMapping(user,domain,map.substring(VirtualUserTable.REGEX_PREFIX.length()));
+        } else if (map.startsWith(VirtualUserTable.ALIASDOMAIN_PREFIX)) {
+            if (user != null) throw new InvalidMappingException("User must be null for aliasDomain mappings");
+            return removeAliasDomainMapping(domain,map.substring(VirtualUserTable.ALIASDOMAIN_PREFIX.length()));
         } else {
             return removeAddressMapping(user,domain,map);
         }
@@ -340,8 +357,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
             if (autoDetect == true && hostName.equals("localhost") == false && domains.contains(hostName) == false) {
                 domains.add(hostName);
             }
-
-            
+           
             if (autoDetectIP == true) {
                 List ipList = DomainListUtil.getDomainsIP(domains,dns,getLogger());
                 for(int i = 0; i < ipList.size(); i++) {
@@ -386,19 +402,56 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
     }
 
     /**
-     * Override to map virtual recipients to real recipients, both local and non-local.
-     * Each key in the provided map corresponds to a potential virtual recipient, stored as
-     * a <code>MailAddress</code> object.
-     * 
-     * Translate virtual recipients to real recipients by mapping a string containing the
-     * address of the real recipient as a value to a key. Leave the value <code>null<code>
-     * if no mapping should be performed. Multiple recipients may be specified by delineating
-     * the mapped string with commas, semi-colons or colons.
-     * 
-     * @param user the mapping of virtual to real recipients, as 
-     *    <code>MailAddress</code>es to <code>String</code>s.
+     * @see org.apache.james.services.VirtualUserTableManagement#addAliasDomainMapping(java.lang.String, java.lang.String)
      */
-    protected abstract String mapAddress(String user, String domain);
+    public boolean addAliasDomainMapping(String aliasDomain, String realDomain) throws InvalidMappingException {
+        getLogger().info("Add domain mapping: " + aliasDomain  + " => " + realDomain);
+        return addMappingInternal(null, aliasDomain, VirtualUserTable.ALIASDOMAIN_PREFIX + realDomain);
+    }
+    
+    /**
+     * @see org.apache.james.services.VirtualUserTableManagement#removeAliasDomainMapping(java.lang.String, java.lang.String)
+     */
+    public boolean removeAliasDomainMapping(String aliasDomain, String realDomain) throws InvalidMappingException {
+        getLogger().info("Remove domain mapping: " + aliasDomain  + " => " + realDomain);
+        return removeMappingInternal(null, aliasDomain, VirtualUserTable.ALIASDOMAIN_PREFIX + realDomain);
+    }
+    
+    /**
+     * Get all mappings for the given user and domain. If a aliasdomain mapping was found get sure it is in the map as first mapping. 
+     * 
+     * @param user the username
+     * @param domain the domain
+     * @return the mappings
+     */
+    private String mapAddress(String user,String domain) {
+       String mappings = mapAddressInternal(user, domain);
+
+        // check if we need to sort
+        // TODO: Maybe we should just return the aliasdomain mapping
+        if (mappings != null && mappings.indexOf(VirtualUserTable.ALIASDOMAIN_PREFIX) > -1) {
+            Collection mapCol = VirtualUserTableUtil.mappingToCollection(mappings);
+            Iterator mapIt = mapCol.iterator();
+        
+            List col = new ArrayList(mapCol.size());
+        
+            while (mapIt.hasNext()) {
+                int i = 0;
+                String mapping = mapIt.next().toString();
+        
+                if (mapping.startsWith(VirtualUserTable.ALIASDOMAIN_PREFIX)) {
+                    col.add(i,mapping);
+                    i++;
+                } else {
+                    col.add(mapping);
+                }
+            }
+            return VirtualUserTableUtil.CollectionToMapping(col);
+        } else {  
+            return mappings;
+        }
+    }
+      
     
     /**
      * Add new mapping
@@ -444,4 +497,19 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
      * @return Map
      */
     protected abstract Map getAllMappingsInternal();
+    
+    /**
+     * Override to map virtual recipients to real recipients, both local and non-local.
+     * Each key in the provided map corresponds to a potential virtual recipient, stored as
+     * a <code>MailAddress</code> object.
+     * 
+     * Translate virtual recipients to real recipients by mapping a string containing the
+     * address of the real recipient as a value to a key. Leave the value <code>null<code>
+     * if no mapping should be performed. Multiple recipients may be specified by delineating
+     * the mapped string with commas, semi-colons or colons.
+     * 
+     * @param user the mapping of virtual to real recipients, as 
+     *    <code>MailAddress</code>es to <code>String</code>s.
+     */
+    protected abstract String mapAddressInternal(String user, String domain);
 }
