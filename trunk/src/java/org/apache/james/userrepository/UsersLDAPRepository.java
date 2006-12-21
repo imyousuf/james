@@ -25,11 +25,7 @@ import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.services.User;
-import org.apache.james.services.UsersRepository;
 
 import javax.naming.AuthenticationException;
 import javax.naming.NamingEnumeration;
@@ -57,8 +53,8 @@ import java.util.List;
  * @version This is $Revision$
  */
 public class UsersLDAPRepository
-    extends AbstractLogEnabled
-    implements UsersRepository, Configurable, Initializable{
+    extends AbstractUsersRepository
+    implements Configurable, Initializable{
 
     private DirContext ctx;
 
@@ -83,8 +79,8 @@ public class UsersLDAPRepository
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
-    public void configure(Configuration conf)
-        throws ConfigurationException {
+    public void configure(Configuration conf) throws ConfigurationException {
+        super.configure(conf);
 
         LDAPHost = conf.getChild("LDAPServer").getValue();
         usersDomain = conf.getChild("domain").getValue("localhost");
@@ -98,8 +94,7 @@ public class UsersLDAPRepository
         password = conf.getChild("Password").getValue();
 
         membersAttr = conf.getChild("MembersAttribute").getValue();
-        manageGroupAttr
-            = conf.getChild("ManageGroupAttribute").getValueAsBoolean( false );
+        manageGroupAttr = conf.getChild("ManageGroupAttribute").getValueAsBoolean( false );
         
         // Check if groupAttr is needed
         if (manageGroupAttr == true) {
@@ -107,7 +102,11 @@ public class UsersLDAPRepository
         }
         
         managePasswordAttr = conf.getChild("ManagePasswordAttribute").getValueAsBoolean( false );
-        passwordAttr = conf.getChild("PasswordAttribute").getValue();
+        
+        // Check if passwordAttr is needed
+        if (managePasswordAttr) {
+            passwordAttr = conf.getChild("PasswordAttribute").getValue();
+        }
     }
 
     public void setServerRoot() {
@@ -234,9 +233,7 @@ public class UsersLDAPRepository
         }
         return result.iterator();
     }
-
-    // Methods from interface UsersRepository --------------------------
-
+    
     /**
      * Update the repository with the specified user object.  Unsupported for
      * this user repository type.
@@ -280,71 +277,6 @@ public class UsersLDAPRepository
      */
     public boolean updateUser(User user) {
         return false;
-    }
-
-    /**
-     * Adds userName to the MemberAttribute (specified in conf.xml) of this
-     * node.
-     * If ManageGroupAttribute (conf.xml) is TRUE then calls addGroupToUser.
-     */
-    public synchronized void addUser(String userName, Object attributes) {
-
-        String[] attrIDs = {membersAttr};
-
-        // First, add username to mailGroup at baseNode
-
-        try {
-            Attribute members = ctx.getAttributes("", attrIDs).get(membersAttr);
-
-
-            if (members != null && members.contains(userName)) {//user already here
-                StringBuffer infoBuffer =
-                    new StringBuffer(64)
-                            .append("Found ")
-                            .append(userName)
-                            .append(" already in mailGroup. ");
-                getLogger().info(infoBuffer.toString());
-                //System.out.println(infoBuffer.toString());
-
-            } else {
-                ctx.addToEnvironment(javax.naming.Context.SECURITY_AUTHENTICATION, authType);
-                ctx.addToEnvironment(javax.naming.Context.SECURITY_PRINCIPAL, principal);
-                ctx.addToEnvironment(javax.naming.Context.SECURITY_CREDENTIALS, password);
-
-                ModificationItem[] mods = new ModificationItem[1];
-                mods[0] = new ModificationItem(DirContext.ADD_ATTRIBUTE, new BasicAttribute(membersAttr, userName));
-
-                ctx.modifyAttributes("", mods);
-
-                ctx.addToEnvironment(javax.naming.Context.SECURITY_AUTHENTICATION, "none");
-                StringBuffer infoBuffer =
-                    new StringBuffer(128)
-                            .append(userName)
-                            .append(" added to mailGroup ")
-                            .append(baseNodeDN);
-                getLogger().info(infoBuffer.toString());
-                //System.out.println(infoBuffer.toString());
-            }
-        } catch (NamingException e) {
-            StringBuffer exceptionBuffer =
-                new StringBuffer(256)
-                        .append("Problem adding user ")
-                        .append(userName)
-                        .append(" to: ")
-                        .append(baseNodeDN)
-                        .append(e);
-            getLogger().error(exceptionBuffer.toString());
-        }
-
-        // Add attributes to user objects, if necessary
-
-        if (manageGroupAttr) {
-            addGroupToUser(userName);
-        }
-
-//        if (managePasswordAttr) {
-//            String userPassword = (String) attributes; // Not yet implemented
-//        }
     }
     
     /**
@@ -747,6 +679,77 @@ public class UsersLDAPRepository
         } catch (NamingException ne) {
             getLogger().warn("UsersLDAPRepository: Unexpected exception encountered while closing directory context: " + ne);
         }
+    }
+
+
+    /**
+     * Adds userName to the MemberAttribute (specified in conf.xml) of this
+     * node.
+     * If ManageGroupAttribute (conf.xml) is TRUE then calls addGroupToUser.
+     */
+    protected void doAddUser(User user) {
+        String userName = user.getUserName();
+        
+        String[] attrIDs = {membersAttr};
+
+        // First, add username to mailGroup at baseNode
+
+        try {
+            Attribute members = ctx.getAttributes("", attrIDs).get(membersAttr);
+
+
+            if (members != null && members.contains(userName)) {//user already here
+                StringBuffer infoBuffer =
+                    new StringBuffer(64)
+                            .append("Found ")
+                            .append(userName)
+                            .append(" already in mailGroup. ");
+                getLogger().info(infoBuffer.toString());
+                //System.out.println(infoBuffer.toString());
+
+            } else {
+                ctx.addToEnvironment(javax.naming.Context.SECURITY_AUTHENTICATION, authType);
+                ctx.addToEnvironment(javax.naming.Context.SECURITY_PRINCIPAL, principal);
+                ctx.addToEnvironment(javax.naming.Context.SECURITY_CREDENTIALS, password);
+
+                ModificationItem[] mods = new ModificationItem[1];
+                mods[0] = new ModificationItem(DirContext.ADD_ATTRIBUTE, new BasicAttribute(membersAttr, userName));
+
+                ctx.modifyAttributes("", mods);
+
+                ctx.addToEnvironment(javax.naming.Context.SECURITY_AUTHENTICATION, "none");
+                StringBuffer infoBuffer =
+                    new StringBuffer(128)
+                            .append(userName)
+                            .append(" added to mailGroup ")
+                            .append(baseNodeDN);
+                getLogger().info(infoBuffer.toString());
+                //System.out.println(infoBuffer.toString());
+            }
+        } catch (NamingException e) {
+            StringBuffer exceptionBuffer =
+                new StringBuffer(256)
+                        .append("Problem adding user ")
+                        .append(userName)
+                        .append(" to: ")
+                        .append(baseNodeDN)
+                        .append(e);
+            getLogger().error(exceptionBuffer.toString());
+        }
+
+        // Add attributes to user objects, if necessary
+
+        if (manageGroupAttr) {
+            addGroupToUser(userName);
+        }
+
+//        if (managePasswordAttr) {
+//            String userPassword = (String) attributes; // Not yet implemented
+//        }
+    }
+
+    protected void doUpdateUser(User user) {
+        // Do nothing
     }
 }
 
