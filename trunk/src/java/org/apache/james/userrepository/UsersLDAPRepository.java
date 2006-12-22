@@ -50,6 +50,8 @@ import java.util.List;
  *
  * This clas is a dummy for the proposal!
  *
+ * TODO: Check for aliases (mail attribute) 
+ * 
  * @version This is $Revision$
  */
 public class UsersLDAPRepository
@@ -75,6 +77,7 @@ public class UsersLDAPRepository
     private String groupAttr;
     private boolean managePasswordAttr;
     private String passwordAttr;
+    private SearchControls searchControls = new SearchControls();
 
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
@@ -82,6 +85,7 @@ public class UsersLDAPRepository
     public void configure(Configuration conf) throws ConfigurationException {
         super.configure(conf);
 
+        //TODO: Take care of baseNodeDN
         LDAPHost = conf.getChild("LDAPServer").getValue();
         usersDomain = conf.getChild("domain").getValue("localhost");
         rootNodeDN = conf.getChild("LDAPRoot").getValue();
@@ -132,7 +136,7 @@ public class UsersLDAPRepository
                     .append(LDAPHost)
                     .append("/");
         rootURL = urlBuffer.toString() + rootNodeDN;
-        baseURL = urlBuffer.toString() + baseNodeDN;
+        baseURL = urlBuffer.toString(); // + baseNodeDN;
 
         getLogger().info("Creating initial context from " + baseURL);
 
@@ -140,12 +144,16 @@ public class UsersLDAPRepository
         env.put(javax.naming.Context.INITIAL_CONTEXT_FACTORY,
                 "com.sun.jndi.ldap.LdapCtxFactory");
         env.put(javax.naming.Context.PROVIDER_URL, baseURL);
+        
+        env.put(javax.naming.Context.SECURITY_AUTHENTICATION, authType);
+        env.put(javax.naming.Context.SECURITY_PRINCIPAL, principal);
+        env.put(javax.naming.Context.SECURITY_CREDENTIALS, password);
+        
+        searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
-        try {
-            ctx = new InitialDirContext(env); // Could throw a NamingExcpetion
-        } catch (Exception e) {
-            getLogger().error("Exception creating InitialDirContext: ", e);
-        }
+
+        ctx = new InitialDirContext(env); // Could throw a NamingExcpetion
+
 
         getLogger().info("Initial context initialized from " + baseURL);
     }
@@ -183,13 +191,13 @@ public class UsersLDAPRepository
                 Attribute owner = new BasicAttribute("owner");
                 owner.add("JAMES-unassigned");
                 attrs.put(owner);
-
+/*
                 ctx.addToEnvironment(javax.naming.Context.SECURITY_AUTHENTICATION, authType);
                 ctx.addToEnvironment(javax.naming.Context.SECURITY_PRINCIPAL, principal);
                 ctx.addToEnvironment(javax.naming.Context.SECURITY_CREDENTIALS, password);
-
+*/
                 ctx.createSubcontext("cn=" + childName, attrs);
-                ctx.addToEnvironment(javax.naming.Context.SECURITY_AUTHENTICATION, "none");
+//                ctx.addToEnvironment(javax.naming.Context.SECURITY_AUTHENTICATION, "none");
 
                 StringBuffer destinationBuffer =
                     new StringBuffer(128)
@@ -213,25 +221,7 @@ public class UsersLDAPRepository
      * @return Iterator over a collection of Strings, each being one user in the repository.
      */
     public Iterator list() {
-
-        List result = new ArrayList();
-        // String filter = mailAddressAttr + "=*";
-        String[] attrIDs = {membersAttr};
-
-        try {
-            Attribute members
-                = ctx.getAttributes("", attrIDs).get(membersAttr);
-            if (members != null) {
-                NamingEnumeration enumeration = members.getAll();
-                while (enumeration.hasMore()) {
-                    result.add(enumeration.next());
-                }
-            }
-        } catch (NamingException e) {
-            getLogger().error("Problem listing mailboxes. " + e );
-
-        }
-        return result.iterator();
+        return getUsers().iterator();
     }
     
     /**
@@ -262,13 +252,33 @@ public class UsersLDAPRepository
      * @see org.apache.james.services.UsersRepository#containsCaseInsensitive(java.lang.String)
      */
     public boolean containsCaseInsensitive(String name) {
-        return contains(name);
+        return getUsers().contains(name);
     }
 
-    // TODO: This is in violation of the contract for the interface.
-    //       Should only return null if the user doesn't exist.  Otherwise
-    //       this should return a consistent string representation of the name
+    /**
+     * @see org.apache.james.services.UsersRepository#getRealName(java.lang.String)
+     */
     public String getRealName(String name) {
+        return getRealName(name, ignoreCase);
+    }
+    
+    /**
+     * Return the real name, given the ignoreCase boolean parameter
+     */
+    public String getRealName(String name, boolean ignoreCase) {
+        Iterator it = list();
+        while (it.hasNext()) {
+            String temp = (String) it.next();     
+            if (ignoreCase) {
+                if (name.equalsIgnoreCase(temp)) {
+                    return temp;
+                }
+            } else {
+                if (name.equals(temp)) {
+                    return temp;
+                }     
+            }
+        }
         return null;
     }
 
@@ -328,14 +338,14 @@ public class UsersLDAPRepository
                     //System.out.println(baseNodeDN + " already in user's Groups. ");
 
                 } else {
-
+/*
                     rootCtx.addToEnvironment(javax.naming.Context.SECURITY_AUTHENTICATION, authType);
                     rootCtx.addToEnvironment(javax.naming.Context.SECURITY_PRINCIPAL, principal);
                     rootCtx.addToEnvironment(javax.naming.Context.SECURITY_CREDENTIALS, password);
-
+*/
                     rootCtx.modifyAttributes(userDN, DirContext.ADD_ATTRIBUTE, new BasicAttributes(groupAttr, baseNodeDN, true));
 
-                    rootCtx.addToEnvironment(javax.naming.Context.SECURITY_AUTHENTICATION, "none");
+                    //rootCtx.addToEnvironment(javax.naming.Context.SECURITY_AUTHENTICATION, "none");
                     getLogger().info(baseNodeDN + " added to user's groups ");
                     //System.out.println(baseNodeDN + " added to users' groups ");
 
@@ -378,18 +388,18 @@ public class UsersLDAPRepository
 
             } else {
                 // First, remove username from mailGroup at baseNode
-
+/*
                 ctx.addToEnvironment(javax.naming.Context.SECURITY_AUTHENTICATION, authType);
                 ctx.addToEnvironment(javax.naming.Context.SECURITY_PRINCIPAL, principal);
                 ctx.addToEnvironment(javax.naming.Context.SECURITY_CREDENTIALS, password);
-
+*/
                 ModificationItem[] mods = new ModificationItem[1];
                 mods[0] = new ModificationItem(DirContext.REMOVE_ATTRIBUTE, new BasicAttribute(membersAttr, userName));
 
                 ctx.modifyAttributes("", mods);
 
 
-                ctx.addToEnvironment(javax.naming.Context.SECURITY_AUTHENTICATION, "none");
+//                ctx.addToEnvironment(javax.naming.Context.SECURITY_AUTHENTICATION, "none");
                 getLogger().info(userName + " removed from mailGroup. ");
                 //System.out.println(userName + " removed from mailGroup. ");
             }
@@ -458,11 +468,11 @@ public class UsersLDAPRepository
                     //System.out.println(baseNodeDN + " missing from users' Groups. ");
 
                 } else {
-
+/*
                     rootCtx.addToEnvironment(javax.naming.Context.SECURITY_AUTHENTICATION, authType);
                     rootCtx.addToEnvironment(javax.naming.Context.SECURITY_PRINCIPAL, principal);
                     rootCtx.addToEnvironment(javax.naming.Context.SECURITY_CREDENTIALS, password);
-
+*/
                     ModificationItem[] mods = new ModificationItem[1];
                     mods[0] = new ModificationItem(DirContext.REMOVE_ATTRIBUTE, new BasicAttribute(groupAttr, baseNodeDN));
 
@@ -470,7 +480,7 @@ public class UsersLDAPRepository
 
                     //rootCtx.modifyAttributes(userDN, DirContext.REPLACE_ATTRIBUTE, changes);
 
-                    rootCtx.addToEnvironment(javax.naming.Context.SECURITY_AUTHENTICATION, "none");
+//                    rootCtx.addToEnvironment(javax.naming.Context.SECURITY_AUTHENTICATION, "none");
                     getLogger().info(baseNodeDN + " removed from users' groups " );
                     //System.out.println(baseNodeDN + " removed from users' groups ");
 
@@ -508,31 +518,30 @@ public class UsersLDAPRepository
      */
     public boolean contains(String name) {
         boolean found = false;
-        String[] attrIDs = {membersAttr};
-
-        try {
-            Attribute members = ctx.getAttributes("", attrIDs).get(membersAttr);
-            if (members != null && members.contains(name)) {
+        if (ignoreCase) {
+            if(containsCaseInsensitive(name)) {
                 found = true;
-                StringBuffer infoBuffer =
-                    new StringBuffer(64)
-                            .append("Found ")
-                            .append(name)
-                            .append(" in mailGroup. ");
-                getLogger().info(infoBuffer.toString());
-                //System.out.println(infoBuffer.toString());
             }
-        } catch (NamingException e) {
-            StringBuffer exceptionBuffer =
-                new StringBuffer(256)
-                        .append("Problem finding user ")
-                        .append(name)
-                        .append(" : ")
-                        .append(e);
-            getLogger().error(exceptionBuffer.toString());
-            //System.out.println(exceptionBuffer.toString());
+        } else {
+           Iterator it = list();
+           
+           while (it.hasNext()) {
+               if (name.equals(it.next())) {
+                   found = true;
+               }
+           }
         }
-        return found;
+        
+        if(found) {
+            StringBuffer infoBuffer =
+                new StringBuffer(64)
+                        .append("Found ")
+                        .append(name)
+                        .append(" in mailGroup. ");
+            getLogger().info(infoBuffer.toString());
+            return true;
+        }
+        return false;
     }
 
 
@@ -643,22 +652,7 @@ public class UsersLDAPRepository
      * @see org.apache.james.services.UsersRepository#countUsers()
      */
     public int countUsers() {
-
-        String[] attrIDs = {membersAttr};
-        int result = -1;
-
-        try {
-            Attribute members = ctx.getAttributes("", attrIDs).get(membersAttr);
-            if (members != null) {
-                result = members.size();
-            } else {
-                result = 0;
-            }
-        } catch (NamingException e) {
-            getLogger().error("Problem counting users: "  + e);
-            //System.out.println("Problem counting users. ");
-        }
-        return result;
+        return getUsers().size();
     }
 
     /**
@@ -708,16 +702,17 @@ public class UsersLDAPRepository
                 //System.out.println(infoBuffer.toString());
 
             } else {
-                ctx.addToEnvironment(javax.naming.Context.SECURITY_AUTHENTICATION, authType);
+             /*
+            ctx.addToEnvironment(javax.naming.Context.SECURITY_AUTHENTICATION, authType);
                 ctx.addToEnvironment(javax.naming.Context.SECURITY_PRINCIPAL, principal);
                 ctx.addToEnvironment(javax.naming.Context.SECURITY_CREDENTIALS, password);
-
+*/
                 ModificationItem[] mods = new ModificationItem[1];
                 mods[0] = new ModificationItem(DirContext.ADD_ATTRIBUTE, new BasicAttribute(membersAttr, userName));
 
                 ctx.modifyAttributes("", mods);
 
-                ctx.addToEnvironment(javax.naming.Context.SECURITY_AUTHENTICATION, "none");
+//                ctx.addToEnvironment(javax.naming.Context.SECURITY_AUTHENTICATION, "none");
                 StringBuffer infoBuffer =
                     new StringBuffer(128)
                             .append(userName)
@@ -750,6 +745,39 @@ public class UsersLDAPRepository
 
     protected void doUpdateUser(User user) {
         // Do nothing
+    }
+    
+    /**
+     * Return a list of all users
+     * 
+     * @return
+     */
+    private List getUsers() {
+        List result = new ArrayList();
+        String filter = mailAddressAttr + "=*";
+
+        try {
+            NamingEnumeration results = ctx.search(rootNodeDN, filter, searchControls);
+            
+            while (results != null && results.hasMore()) {
+                Attributes members = ((SearchResult) results.next()).getAttributes();
+       
+                if (members != null) {
+
+                    Attribute attr = members.get(identAttr);
+                    if (attr != null) {
+                        NamingEnumeration e = attr.getAll();
+                        while (e.hasMore()) {
+                            result.add(e.next());
+                        }
+                    }
+                }
+            }
+        } catch (NamingException e) {
+            getLogger().error("Problem listing mailboxes. " + e );
+
+        }
+        return result;
     }
 }
 
