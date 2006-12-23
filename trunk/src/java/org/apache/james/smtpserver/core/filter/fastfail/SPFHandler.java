@@ -265,11 +265,7 @@ public class SPFHandler extends AbstractJunkHandler implements CommandHandler,
                         || recipientAddress.getUser().equalsIgnoreCase("abuse") || ((session
                         .isAuthRequired() && session.getUser() != null)))) {
             
-            //remove invalid data
-            session.getState().remove(SPF_BLOCKLISTED);
-            session.getState().remove(SPF_DETAIL);
-            session.getState().remove(SPF_TEMPBLOCKLISTED);
-            session.getState().remove(SPF_HEADER);
+
             return false;
         } else {
             // Check if session is blocklisted
