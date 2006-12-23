@@ -416,21 +416,18 @@ public class SPFHandlerTest extends TestCase {
 
         runHandlers(spf, mockedSMTPSession);
 
-        assertNull("not reject", mockedSMTPSession.getState().get(
+        assertNotNull("not removed this state", mockedSMTPSession.getState().get(
                 SPFHandler.SPF_BLOCKLISTED));
-        assertNull("no details ", mockedSMTPSession.getState().get(
+        assertNotNull("not removed this state", mockedSMTPSession.getState().get(
                 SPFHandler.SPF_DETAIL));
-        assertNull("No tempError", mockedSMTPSession.getState().get(
-                SPFHandler.SPF_TEMPBLOCKLISTED));
-        assertNull("no Header should present", mockedSMTPSession.getState()
+        assertNotNull("not removed this state", mockedSMTPSession.getState()
                 .get(SPFHandler.SPF_HEADER));
-        assertFalse(mockedSMTPSession.getStopHandlerProcessing());
+        assertFalse("not rejected", mockedSMTPSession.getStopHandlerProcessing());
     }
 
     public void testSPFpermErrorNotRejectAbuse() throws Exception {
         setupMockedSMTPSession("192.168.100.1", "spf4.james.apache.org",
-                new MailAddress("test@spf4.james.apache.org"), new MailAddress(
-                        "abuse@localhost"));
+                new MailAddress("test@spf4.james.apache.org"), new MailAddress("abuse@localhost"));
         SPFHandler spf = new SPFHandler();
 
         ContainerUtil.enableLogging(spf, new MockLogger());
@@ -442,15 +439,7 @@ public class SPFHandlerTest extends TestCase {
 
         runHandlers(spf, mockedSMTPSession);
 
-        assertNull("not reject", mockedSMTPSession.getState().get(
-                SPFHandler.SPF_BLOCKLISTED));
-        assertNull("no details ", mockedSMTPSession.getState().get(
-                SPFHandler.SPF_DETAIL));
-        assertNull("No tempError", mockedSMTPSession.getState().get(
-                SPFHandler.SPF_TEMPBLOCKLISTED));
-        assertNull("no Header should present", mockedSMTPSession.getState()
-                .get(SPFHandler.SPF_HEADER));
-        assertFalse(mockedSMTPSession.getStopHandlerProcessing());
+        assertFalse("not rejected",mockedSMTPSession.getStopHandlerProcessing());
     }
     
     public void testSPFpermErrorRejectDisabled() throws Exception {
