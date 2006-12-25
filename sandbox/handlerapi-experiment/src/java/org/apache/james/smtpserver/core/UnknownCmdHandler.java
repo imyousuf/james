@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.james.smtpserver.CommandHandler;
+import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
 
@@ -38,28 +39,25 @@ public class UnknownCmdHandler implements CommandHandler {
      */
     public static final String UNKNOWN_COMMAND = "UNKNOWN";
     
-    private boolean stopHandlerProcessing = true;
-
     /**
      * Handler method called upon receipt of an unrecognized command.
      * Returns an error response and logs the command.
      *
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
     **/
-    public void onCommand(SMTPSession session) {
+    public SMTPResponse onCommand(SMTPSession session, String command, String parameters) {
 
         //If there was message failure, don't consider it as an unknown command
         if (session.getState().get(SMTPSession.MESG_FAILED) != null) {
-            return;
+            return null;
         }
 
-        session.getResponseBuffer().append("500 "+DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.DELIVERY_INVALID_CMD))
+        StringBuffer result = new StringBuffer();
+        result.append(DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.DELIVERY_INVALID_CMD))
                       .append(" Command ")
                       .append(session.getCommandName())
                       .append(" unrecognized.");
-        String responseString = session.clearResponseBuffer();
-
-        session.writeResponse(responseString);
+        return new SMTPResponse("500", result);
     }
     
     /**

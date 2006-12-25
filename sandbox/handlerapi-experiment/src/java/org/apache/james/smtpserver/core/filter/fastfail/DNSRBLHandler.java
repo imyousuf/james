@@ -30,6 +30,7 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.james.services.DNSServer;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.ConnectHandler;
+import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.junkscore.JunkScore;
 import org.apache.james.util.mail.dsn.DSNStatus;
@@ -256,8 +257,9 @@ public class DNSRBLHandler
     /**
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
-    public void onCommand(SMTPSession session) {
-        doProcessing(session);       
+    public SMTPResponse onCommand(SMTPSession session, String command, String parameters) {
+        doProcessing(session);
+        return null;
     }
 
     /**
@@ -299,4 +301,5 @@ public class DNSRBLHandler
         data.setScoreName("DNSRBLCheck");
         return data;
     }
+
 }

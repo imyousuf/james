@@ -33,6 +33,7 @@ import org.apache.james.jspf.SPFResult;
 import org.apache.james.jspf.core.DNSService;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.MessageHandler;
+import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.Mail;
@@ -160,12 +161,13 @@ public class SPFHandler extends AbstractJunkHandler implements CommandHandler,
      * 
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
-    public void onCommand(SMTPSession session) {
+    public SMTPResponse onCommand(SMTPSession session, String command, String parameters) {
         if (session.getCommandName().equals("MAIL")) {
             doSPFCheck(session);
         } else if (session.getCommandName().equals("RCPT")) {
-            doProcessing(session);
+            return doProcessing(session);
         }
+        return null;
     }
 
     /**

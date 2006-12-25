@@ -151,9 +151,9 @@ public class RemoteManagerHandler
                 writeLoggedFlushedResponse(message);
             }
             writeLoggedFlushedResponse("Login id:");
-            login = inReader.readLine().trim();
+            login = readInputLineAsString().trim();
             writeLoggedFlushedResponse("Password:");
-            password = inReader.readLine().trim();
+            password = readInputLineAsString().trim();
         } while (!password.equals(theConfigData.getAdministrativeAccountData().get(login)) || password.length() == 0);
 
         StringBuffer messageBuffer =
@@ -176,7 +176,7 @@ public class RemoteManagerHandler
             out.print(theConfigData.getPrompt());
             out.flush();
             theWatchdog.start();
-            while (parseCommand(inReader.readLine())) {
+            while (parseCommand(readInputLineAsString())) {
                 theWatchdog.reset();
                 out.print(theConfigData.getPrompt());
                 out.flush();

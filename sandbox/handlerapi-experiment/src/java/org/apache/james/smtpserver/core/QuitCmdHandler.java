@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.james.smtpserver.CommandHandler;
+import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
 
@@ -43,8 +44,8 @@ public class QuitCmdHandler implements CommandHandler {
      *
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
-    public void onCommand(SMTPSession session) {
-        doQUIT(session, session.getCommandArgument());
+    public SMTPResponse onCommand(SMTPSession session, String command, String parameters) {
+        return doQUIT(session, parameters);
 
     }
 
@@ -57,19 +58,20 @@ public class QuitCmdHandler implements CommandHandler {
      * @param session SMTP session object
      * @param argument the argument passed in with the command by the SMTP client
      */
-    private void doQUIT(SMTPSession session, String argument) {
-
-        String responseString = "";
+    private SMTPResponse doQUIT(SMTPSession session, String argument) {
+        SMTPResponse ret;
         if ((argument == null) || (argument.length() == 0)) {
-            session.getResponseBuffer().append("221 "+DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.UNDEFINED_STATUS)+" ")
-                          .append(session.getConfigurationData().getHelloName())
-                          .append(" Service closing transmission channel");
-            responseString = session.clearResponseBuffer();
+            StringBuffer response = new StringBuffer();
+            response.append(DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.UNDEFINED_STATUS))
+                    .append(" ")
+                    .append(session.getConfigurationData().getHelloName())
+                    .append(" Service closing transmission channel");
+            ret = new SMTPResponse("221", response);
         } else {
-            responseString = "500 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Unexpected argument provided with QUIT command";
+            ret = new SMTPResponse("500", DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Unexpected argument provided with QUIT command");
         }
-        session.writeResponse(responseString);
-        session.endSession();
+        ret.setEndSession(true);
+        return ret;
     }
 
     /**

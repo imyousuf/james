@@ -47,6 +47,7 @@ import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.services.DNSServer;
 import org.apache.james.services.FileSystem;
 import org.apache.james.smtpserver.CommandHandler;
+import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.JDBCUtil;
 import org.apache.james.util.NetMatcher;
@@ -287,17 +288,18 @@ public class GreylistHandler extends AbstractLogEnabled implements
     /**
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
-    public void onCommand(SMTPSession session) {
+    public SMTPResponse onCommand(SMTPSession session, String command, String arguments) {
         if (!session.isRelayingAllowed() && !(session.isAuthRequired() && session.getUser() != null)) {
 
             if ((wNetworks == null) || (!wNetworks.matchInetNetwork(session.getRemoteIPAddress()))) {
-                doGreyListCheck(session, session.getCommandArgument());
+                return doGreyListCheck(session, session.getCommandArgument());
             } else {
                 getLogger().info("IpAddress " + session.getRemoteIPAddress() + " is whitelisted. Skip greylisting.");
             }
         } else {
             getLogger().info("IpAddress " + session.getRemoteIPAddress() + " is allowed to send. Skip greylisting.");
         }
+        return null;
     }
 
     /**
@@ -309,7 +311,7 @@ public class GreylistHandler extends AbstractLogEnabled implements
      *            SMTP session object
      * @param argument
      */
-    private void doGreyListCheck(SMTPSession session, String argument) {
+    private SMTPResponse doGreyListCheck(SMTPSession session, String argument) {
         String recip = "";
         String sender = "";
         MailAddress recipAddress = (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT);
@@ -321,6 +323,7 @@ public class GreylistHandler extends AbstractLogEnabled implements
         long time = System.currentTimeMillis();
         String ipAddress = session.getRemoteIPAddress();
     
+        SMTPResponse ret = null;
         try {
             long createTimeStamp = 0;
             int count = 0;
@@ -341,13 +344,8 @@ public class GreylistHandler extends AbstractLogEnabled implements
                 long acceptTime = createTimeStamp + tempBlockTime;
         
                 if ((time < acceptTime) && (count == 0)) {
-                    String responseString = "451 " + DSNStatus.getStatus(DSNStatus.TRANSIENT, DSNStatus.NETWORK_DIR_SERVER) 
-                        + " Temporary rejected: Reconnect to fast. Please try again later";
-
-                    // reconnect to fast block it again
-                    session.writeResponse(responseString);
-                    session.setStopHandlerProcessing(true);
-
+                    ret = new SMTPResponse("451", DSNStatus.getStatus(DSNStatus.TRANSIENT, DSNStatus.NETWORK_DIR_SERVER) 
+                        + " Temporary rejected: Reconnect to fast. Please try again later");
                 } else {
                     
                     getLogger().debug("Update triplet " + ipAddress + " | " + sender + " | " + recip + " -> timestamp: " + time);
@@ -363,11 +361,8 @@ public class GreylistHandler extends AbstractLogEnabled implements
                 insertTriplet(datasource.getConnection(), ipAddress, sender, recip, count, time);
       
                 // Tempory block on new triplet!
-                String responseString = "451 " + DSNStatus.getStatus(DSNStatus.TRANSIENT, DSNStatus.NETWORK_DIR_SERVER) 
-                    + " Temporary rejected: Please try again later";
-
-                session.writeResponse(responseString);
-                session.setStopHandlerProcessing(true);
+                ret = new SMTPResponse("451", DSNStatus.getStatus(DSNStatus.TRANSIENT, DSNStatus.NETWORK_DIR_SERVER) 
+                    + " Temporary rejected: Please try again later");
             }
 
             // some kind of random cleanup process
@@ -384,6 +379,7 @@ public class GreylistHandler extends AbstractLogEnabled implements
             // just log the exception
             getLogger().error("Error on SQLquery: " + e.getMessage());
         }
+        return ret;
     }
 
     /**

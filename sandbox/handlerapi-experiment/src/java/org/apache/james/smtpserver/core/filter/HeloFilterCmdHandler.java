@@ -27,6 +27,7 @@ import java.util.Collection;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.smtpserver.CommandHandler;
+import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
 
 
@@ -45,30 +46,25 @@ public class HeloFilterCmdHandler extends AbstractLogEnabled implements CommandH
      *
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
     **/
-    public void onCommand(SMTPSession session) {
-        doHELO(session, session.getCommandArgument());
+    public SMTPResponse onCommand(SMTPSession session, String command, String arguments) {
+        return doHELO(session, arguments);
     }
 
     /**
      * @param session SMTP session object
      * @param argument the argument passed in with the command by the SMTP client
      */
-    private void doHELO(SMTPSession session, String argument) {
-        String responseString = null;        
-
+    private SMTPResponse doHELO(SMTPSession session, String argument) {
         session.resetState();
               
         if (argument == null) {
-            responseString = "501 Domain address required: " + COMMAND_NAME;
-            session.writeResponse(responseString);
+            String responseString = "Domain address required: " + COMMAND_NAME;
             getLogger().info(responseString);
-            
-            // After this filter match we should not call any other handler!
-            session.setStopHandlerProcessing(true);
-         
+            return new SMTPResponse("501", responseString);
         } else {
             // store provided name
             session.getState().put(SMTPSession.CURRENT_HELO_NAME,argument);
+            return null;
         }
     }
     

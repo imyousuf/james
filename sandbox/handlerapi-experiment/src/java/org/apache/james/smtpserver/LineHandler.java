@@ -17,31 +17,16 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.smtpserver;
 
-import java.util.Collection;
-
-
 /**
- * Custom command handlers must implement this interface
- * The command handlers will be Server wide common to all the SMTPHandlers,
- * therefore the command handlers must store all the state information
- * in the SMTPSession object
+ * Custom line handlers must implement this interface
  */
- public interface CommandHandler {
+public interface LineHandler {
      
     /**
      * Handle the command
     **/
-    SMTPResponse onCommand(SMTPSession session, String command, String parameters);
-
-    /**
-     * Return a Collection of implemented commands
-     * 
-     * @return Collection which contains implemented commands
-     */
-    Collection getImplCommands();
+    void onLine(SMTPSession session, byte[] line);
     
 }

@@ -29,6 +29,7 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.smtpserver.CommandHandler;
+import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
 
 public class TarpitHandler extends AbstractLogEnabled implements
@@ -99,7 +100,7 @@ public class TarpitHandler extends AbstractLogEnabled implements
     /**
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
-    public void onCommand(SMTPSession session) {
+    public SMTPResponse onCommand(SMTPSession session, String command, String parameters) {
 
         int rcptCount = 0;
         rcptCount = session.getRcptCount();
@@ -111,6 +112,8 @@ public class TarpitHandler extends AbstractLogEnabled implements
             } catch (InterruptedException e) {
             }
         }
+        
+        return null;
     }
     
     /**

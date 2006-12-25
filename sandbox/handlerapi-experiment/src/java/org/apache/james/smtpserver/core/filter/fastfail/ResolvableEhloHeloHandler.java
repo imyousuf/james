@@ -27,6 +27,7 @@ import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.services.DNSServer;
 import org.apache.james.smtpserver.CommandHandler;
+import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.junkscore.JunkScore;
 import org.apache.james.util.mail.dsn.DSNStatus;
@@ -110,15 +111,14 @@ public class ResolvableEhloHeloHandler extends AbstractJunkHandler implements
     /**
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
-    public void onCommand(SMTPSession session) {
-        String argument = session.getCommandArgument();
-        String command = session.getCommandName();
+    public SMTPResponse onCommand(SMTPSession session, String command, String parameters) {
         if (command.equals("HELO")
                 || command.equals("EHLO")) {
-            checkEhloHelo(session, argument);
+            checkEhloHelo(session, parameters);
         } else if (command.equals("RCPT")) {
-            doProcessing(session);
+            return doProcessing(session);
         }
+        return null;
     }
 
     /**

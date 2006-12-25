@@ -26,7 +26,7 @@ import org.apache.james.Constants;
 import org.apache.james.core.AbstractJamesHandler;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailRepository;
-import org.apache.james.util.CRLFTerminatedReader;
+import org.apache.james.util.CRLFDelimitedByteBuffer;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.mailet.Mail;
 
@@ -208,7 +208,13 @@ public class POP3Handler
           mode = COMMAND_MODE;
 
           //parse the command
-          String cmdString =  readCommandLine();
+          String cmdString = null;
+          try {
+              cmdString = readInputLineAsString();
+          } catch (CRLFDelimitedByteBuffer.TerminationException te) {
+              writeLoggedFlushedResponse("-ERR Syntax error at character position " + te.position() + ". CR and LF must be CRLF paired.  See RFC 1939 #3.");
+          }
+
           if (cmdString == null) {
               break;
           }
@@ -303,24 +309,6 @@ public class POP3Handler
 
         // Clear config data
         theConfigData = null;
-    }
-
-    /**
-     * Reads a line of characters off the command line.
-     *
-     * @return the trimmed input line
-     * @throws IOException if an exception is generated reading in the input characters
-     */
-    public final String readCommandLine() throws IOException {
-        for (;;) try {
-            String commandLine = inReader.readLine();
-            if (commandLine != null) {
-                commandLine = commandLine.trim();
-            }
-            return commandLine;
-        } catch (CRLFTerminatedReader.TerminationException te) {
-            writeLoggedFlushedResponse("-ERR Syntax error at character position " + te.position() + ". CR and LF must be CRLF paired.  See RFC 1939 #3.");
-        }
     }
 
     /**

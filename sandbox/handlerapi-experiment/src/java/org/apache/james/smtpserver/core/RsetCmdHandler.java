@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.james.smtpserver.CommandHandler;
+import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
 
@@ -42,8 +43,8 @@ public class RsetCmdHandler implements CommandHandler {
      *
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
     **/
-    public void onCommand(SMTPSession session) {
-        doRSET(session, session.getCommandArgument());
+    public SMTPResponse onCommand(SMTPSession session, String command, String parameters) {
+        return doRSET(session, session.getCommandArgument());
     }
 
 
@@ -53,18 +54,15 @@ public class RsetCmdHandler implements CommandHandler {
      *
      * @param session SMTP session object
      * @param argument the argument passed in with the command by the SMTP client
+     * @return 
      */
-    private void doRSET(SMTPSession session, String argument) {
-        String responseString = "";
+    private SMTPResponse doRSET(SMTPSession session, String argument) {
         if ((argument == null) || (argument.length() == 0)) {
-
             session.resetState();
-
-            responseString = "250 "+DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.UNDEFINED_STATUS)+" OK";
+            return new SMTPResponse("250", DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.UNDEFINED_STATUS)+" OK");
         } else {
-            responseString = "500 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Unexpected argument provided with RSET command";
+            return new SMTPResponse("500", DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Unexpected argument provided with RSET command");
         }
-        session.writeResponse(responseString);
     }
 
     /**

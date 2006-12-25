@@ -26,7 +26,9 @@ import java.util.Collection;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.smtpserver.CommandHandler;
+import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.util.mail.SMTPRetCode;
 
 /**
  * Handles EHLO command
@@ -44,8 +46,8 @@ public class EhloCmdHandler extends AbstractLogEnabled implements
      *
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      **/
-    public void onCommand(SMTPSession session) {
-        doEHLO(session, session.getCommandArgument());
+    public SMTPResponse onCommand(SMTPSession session, String command, String arguments) {
+        return doEHLO(session, arguments);
     }
 
     /**
@@ -56,47 +58,34 @@ public class EhloCmdHandler extends AbstractLogEnabled implements
      * @param session SMTP session object
      * @param argument the argument passed in with the command by the SMTP client
      */
-    private void doEHLO(SMTPSession session, String argument) {
-        StringBuffer responseBuffer = session.getResponseBuffer();
-
+    private SMTPResponse doEHLO(SMTPSession session, String argument) {
+        SMTPResponse resp = new SMTPResponse();
+        resp.setRetCode(SMTPRetCode.MAIL_OK);
+        
         session.getConnectionState().put(SMTPSession.CURRENT_HELO_MODE, COMMAND_NAME);
 
-        ArrayList esmtpextensions = new ArrayList();
-
-        esmtpextensions.add(new StringBuffer(session.getConfigurationData()
+        resp.appendLine(new StringBuffer(session.getConfigurationData()
                 .getHelloName()).append(" Hello ").append(argument)
                 .append(" (").append(session.getRemoteHost()).append(" [")
-                .append(session.getRemoteIPAddress()).append("])").toString());
+                .append(session.getRemoteIPAddress()).append("])"));
 
         // Extension defined in RFC 1870
         long maxMessageSize = session.getConfigurationData()
                 .getMaxMessageSize();
         if (maxMessageSize > 0) {
-            esmtpextensions.add("SIZE " + maxMessageSize);
+            resp.appendLine("SIZE " + maxMessageSize);
         }
 
         if (session.isAuthRequired()) {
-            esmtpextensions.add("AUTH LOGIN PLAIN");
-            esmtpextensions.add("AUTH=LOGIN PLAIN");
+            resp.appendLine("AUTH LOGIN PLAIN");
+            resp.appendLine("AUTH=LOGIN PLAIN");
         }
 
-        esmtpextensions.add("PIPELINING");
-        esmtpextensions.add("ENHANCEDSTATUSCODES");
+        resp.appendLine("PIPELINING");
+        resp.appendLine("ENHANCEDSTATUSCODES");
         // see http://issues.apache.org/jira/browse/JAMES-419 
-        esmtpextensions.add("8BITMIME");
-
-        // Iterator i = esmtpextensions.iterator();
-        for (int i = 0; i < esmtpextensions.size(); i++) {
-            if (i == esmtpextensions.size() - 1) {
-                responseBuffer.append("250 ");
-                responseBuffer.append((String) esmtpextensions.get(i));
-                session.writeResponse(session.clearResponseBuffer());
-            } else {
-                responseBuffer.append("250-");
-                responseBuffer.append((String) esmtpextensions.get(i));
-                session.writeResponse(session.clearResponseBuffer());
-            }
-        }
+        resp.appendLine("8BITMIME");
+        return resp;
 
     }
     

@@ -26,6 +26,7 @@ import java.util.Collection;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.smtpserver.CommandHandler;
+import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
 
@@ -42,8 +43,8 @@ public class DataFilterCmdHandler
      *
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
-    public void onCommand(SMTPSession session) {
-        doDATA(session, session.getCommandArgument());
+    public SMTPResponse onCommand(SMTPSession session, String command, String parameters) {
+        return doDATA(session, parameters);
     }
 
 
@@ -51,28 +52,16 @@ public class DataFilterCmdHandler
      * @param session SMTP session object
      * @param argument the argument passed in with the command by the SMTP client
      */
-    private void doDATA(SMTPSession session, String argument) {
-        String responseString = null;
+    private SMTPResponse doDATA(SMTPSession session, String argument) {
         if ((argument != null) && (argument.length() > 0)) {
-            responseString = "500 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Unexpected argument provided with DATA command";
-            session.writeResponse(responseString);
-            
-            //TODO: Check if this should been!
+            return new SMTPResponse("500", DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Unexpected argument provided with DATA command");
         }
         if (!session.getState().containsKey(SMTPSession.SENDER)) {
-            responseString = "503 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" No sender specified";
-            session.writeResponse(responseString);
-            
-            // After this filter match we should not call any other handler!
-            session.setStopHandlerProcessing(true);
-            
+            return new SMTPResponse("503", DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" No sender specified");
         } else if (!session.getState().containsKey(SMTPSession.RCPT_LIST)) {
-            responseString = "503 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" No recipients specified";
-            session.writeResponse(responseString);
-            
-            // After this filter match we should not call any other handler!
-            session.setStopHandlerProcessing(true);
+            return new SMTPResponse("503", DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" No recipients specified");
         }
+        return null;
     }
     
     /**

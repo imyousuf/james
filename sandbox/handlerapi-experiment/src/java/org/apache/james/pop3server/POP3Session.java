@@ -25,7 +25,6 @@ package org.apache.james.pop3server;
 import org.apache.james.services.MailRepository;
 import org.apache.james.util.watchdog.Watchdog;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.List;
@@ -43,14 +42,6 @@ public interface POP3Session {
      * @param respString String that needs to send to the client
      */
     void writeResponse(String respString);
-
-    /**
-     * Reads a line of characters off the command line.
-     *
-     * @return the trimmed input line
-     * @throws IOException if an exception is generated reading in the input characters
-     */
-    String readCommandLine() throws IOException;
 
 
     /**

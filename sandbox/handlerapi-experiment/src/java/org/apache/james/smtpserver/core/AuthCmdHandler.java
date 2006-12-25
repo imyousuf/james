@@ -22,6 +22,8 @@
 package org.apache.james.smtpserver.core;
 
 import org.apache.james.smtpserver.CommandHandler;
+import org.apache.james.smtpserver.LineHandler;
+import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
@@ -31,7 +33,7 @@ import java.util.Collection;
 import java.util.Locale;
 import java.util.StringTokenizer;
 import org.apache.james.util.Base64;
-import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 
 /**
@@ -50,21 +52,14 @@ public class AuthCmdHandler
      * The text string for the SMTP AUTH type LOGIN.
      */
     private final static String AUTH_TYPE_LOGIN = "LOGIN";
-
+    
     /**
      * handles AUTH command
      *
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
-    public void onCommand(SMTPSession session) {
-        //deviation from the Main code
-        //Instead of throwing exception just end the session
-        try{
-            doAUTH(session, session.getCommandArgument());
-        } catch (Exception ex) {
-            getLogger().error("Exception occured:" + ex.getMessage());
-            session.endSession();
-        }
+    public SMTPResponse onCommand(SMTPSession session, String command, String argument) {
+        return doAUTH(session, argument);
     }
 
 
@@ -76,16 +71,12 @@ public class AuthCmdHandler
      * @param session SMTP session
      * @param argument the argument passed in with the command by the SMTP client
      */
-    private void doAUTH(SMTPSession session, String argument)
-            throws Exception {
-        String responseString = null;
+    private SMTPResponse doAUTH(SMTPSession session, String argument) {
         if (session.getUser() != null) {
-            responseString = "503 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" User has previously authenticated. "
-                        + " Further authentication is not required!";
-            session.writeResponse(responseString);
+            return new SMTPResponse("503", DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" User has previously authenticated. "
+                    + " Further authentication is not required!");
         } else if (argument == null) {
-            responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Usage: AUTH (authentication type) <challenge>";
-            session.writeResponse(responseString);
+            return new SMTPResponse("501", DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Usage: AUTH (authentication type) <challenge>");
         } else {
             String initialResponse = null;
             if ((argument != null) && (argument.indexOf(" ") > 0)) {
@@ -94,14 +85,50 @@ public class AuthCmdHandler
             }
             String authType = argument.toUpperCase(Locale.US);
             if (authType.equals(AUTH_TYPE_PLAIN)) {
-                doPlainAuth(session, initialResponse);
-                return;
+                String userpass;
+                if (initialResponse == null) {
+                    session.pushLineHandler(new LineHandler() {
+
+                        public void onLine(SMTPSession session, byte[] line) {
+                            try {
+                                String l = new String(line, "US-ASCII");
+                                System.err.println("((("+line+")))");
+                                SMTPResponse res = doPlainAuthPass(session, l);
+                                session.writeSMTPResponse(res);
+                            } catch (UnsupportedEncodingException e) {
+                                // TODO should never happen
+                                e.printStackTrace();
+                            }
+                        }
+                        
+                    });
+                    return new SMTPResponse("334", "OK. Continue authentication");
+                } else {
+                    userpass = initialResponse.trim();
+                    return doPlainAuthPass(session, userpass);
+                }
             } else if (authType.equals(AUTH_TYPE_LOGIN)) {
-                doLoginAuth(session, initialResponse);
-                return;
+                
+                if (initialResponse == null) {
+                    session.pushLineHandler(new LineHandler() {
+
+                        public void onLine(SMTPSession session, byte[] line) {
+                            try {
+                                session.writeSMTPResponse(doLoginAuthPass(session, new String(line, "US-ASCII"), true));
+                            } catch (UnsupportedEncodingException e) {
+                                // TODO should never happen
+                                e.printStackTrace();
+                            }
+                        }
+                        
+                    });
+                    return new SMTPResponse("334", "VXNlcm5hbWU6"); // base64 encoded "Username:"
+                } else {
+                    String user = initialResponse.trim();
+                    return doLoginAuthPass(session, user, false);
+                }
             } else {
-                doUnknownAuth(session, authType, initialResponse);
-                return;
+                return doUnknownAuth(session, authType, initialResponse);
             }
         }
     }
@@ -120,16 +147,8 @@ public class AuthCmdHandler
      * @param session SMTP session object
      * @param initialResponse the initial response line passed in with the AUTH command
      */
-    private void doPlainAuth(SMTPSession session, String initialResponse)
-            throws IOException {
-        String userpass = null, user = null, pass = null, responseString = null;
-        if (initialResponse == null) {
-            responseString = "334 OK. Continue authentication";
-            session.writeResponse(responseString);
-            userpass = session.readCommandLine();
-        } else {
-            userpass = initialResponse.trim();
-        }
+    private SMTPResponse doPlainAuthPass(SMTPSession session, String userpass) {
+        String user = null, pass = null;
         try {
             if (userpass != null) {
                 userpass = Base64.decodeAsString(userpass);
@@ -182,21 +201,18 @@ public class AuthCmdHandler
             // Ignored - this exception in parsing will be dealt
             // with in the if clause below
         }
+        session.popLineHandler();
         // Authenticate user
         if ((user == null) || (pass == null)) {
-            responseString = "501 Could not decode parameters for AUTH PLAIN";
-            session.writeResponse(responseString);
+            return new SMTPResponse("501", "Could not decode parameters for AUTH PLAIN");
         } else if (session.getConfigurationData().getUsersRepository().test(user, pass)) {
             session.setUser(user);
-            responseString = "235 Authentication Successful";
-            session.writeResponse(responseString);
             getLogger().info("AUTH method PLAIN succeeded");
+            return new SMTPResponse("235", "Authentication Successful");
         } else {
-            responseString = "535 Authentication Failed";
-            session.writeResponse(responseString);
             getLogger().error("AUTH method PLAIN failed");
+            return new SMTPResponse("535", "Authentication Failed");
         }
-        return;
     }
 
     /**
@@ -205,16 +221,7 @@ public class AuthCmdHandler
      * @param session SMTP session object
      * @param initialResponse the initial response line passed in with the AUTH command
      */
-    private void doLoginAuth(SMTPSession session, String initialResponse)
-            throws IOException {
-        String user = null, pass = null, responseString = null;
-        if (initialResponse == null) {
-            responseString = "334 VXNlcm5hbWU6"; // base64 encoded "Username:"
-            session.writeResponse(responseString);
-            user = session.readCommandLine();
-        } else {
-            user = initialResponse.trim();
-        }
+    private SMTPResponse doLoginAuthPass(SMTPSession session, String user, boolean inCustomeHandler) {
         if (user != null) {
             try {
                 user = Base64.decodeAsString(user);
@@ -224,9 +231,33 @@ public class AuthCmdHandler
                 user = null;
             }
         }
-        responseString = "334 UGFzc3dvcmQ6"; // base64 encoded "Password:"
-        session.writeResponse(responseString);
-        pass = session.readCommandLine();
+        if (inCustomeHandler) {
+            session.popLineHandler();
+        }
+        session.pushLineHandler(new LineHandler() {
+
+            private String user;
+
+            public void onLine(SMTPSession session, byte[] line) {
+                try {
+                    doLoginAuthPassCheck(session, user, new String(line, "US-ASCII"));
+                } catch (UnsupportedEncodingException e) {
+                    // TODO should never happen
+                    e.printStackTrace();
+                }
+            }
+
+            public LineHandler setUser(String user) {
+                this.user = user;
+                return this;
+            }
+            
+        }.setUser(user));
+        return new SMTPResponse("334", "UGFzc3dvcmQ6"); // base64 encoded "Password:"
+    }
+    
+    private void doLoginAuthPassCheck(SMTPSession session, String user, String pass) {
+        String responseString = null;
         if (pass != null) {
             try {
                 pass = Base64.decodeAsString(pass);
@@ -251,6 +282,8 @@ public class AuthCmdHandler
             // TODO: Make this string a more useful error message
             getLogger().error("AUTH method LOGIN failed");
         }
+        session.popLineHandler();
+        session.popLineHandler();
         session.writeResponse(responseString);
         return;
     }
@@ -262,9 +295,7 @@ public class AuthCmdHandler
      * @param authType the unknown auth type
      * @param initialResponse the initial response line passed in with the AUTH command
      */
-    private void doUnknownAuth(SMTPSession session, String authType, String initialResponse) {
-        String responseString = "504 Unrecognized Authentication Type";
-        session.writeResponse(responseString);
+    private SMTPResponse doUnknownAuth(SMTPSession session, String authType, String initialResponse) {
         if (getLogger().isErrorEnabled()) {
             StringBuffer errorBuffer =
                 new StringBuffer(128)
@@ -273,7 +304,7 @@ public class AuthCmdHandler
                         .append(" is an unrecognized authentication type");
             getLogger().error(errorBuffer.toString());
         }
-        return;
+        return new SMTPResponse("504", "Unrecognized Authentication Type");
     }
 
 

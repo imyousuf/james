@@ -31,7 +31,7 @@ import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.imapserver.debug.CopyInputStream;
 import org.apache.james.imapserver.debug.SplitOutputStream;
 import org.apache.james.services.DNSServer;
-import org.apache.james.util.CRLFTerminatedReader;
+import org.apache.james.util.CRLFDelimitedByteBuffer;
 import org.apache.james.util.InternetPrintWriter;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogTarget;
@@ -74,11 +74,11 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
      * The incoming stream of bytes coming from the socket.
      */
     protected InputStream in;
-
+    
     /**
-     * The reader associated with incoming characters.
+     * Manage inputstream as a bytebuffer
      */
-    protected CRLFTerminatedReader inReader;
+    private CRLFDelimitedByteBuffer bytebufferHandler;
 
     /**
      * The socket's output stream
@@ -159,8 +159,8 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
                 outs = new SplitOutputStream(outs, new FileOutputStream(tcplogprefix+"out"));
                 in = new CopyInputStream(in, new FileOutputStream(tcplogprefix+"in"));
             }
-            inReader = new CRLFTerminatedReader(in, "ASCII");
-            
+            bytebufferHandler = new CRLFDelimitedByteBuffer();
+
             out = new InternetPrintWriter(outs, true);
         } catch (RuntimeException e) {
             StringBuffer exceptionBuffer = 
@@ -211,15 +211,15 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
         }
 
         // Clear the streams
-        try {
-            if (inReader != null) {
-                inReader.close();
-            }
-        } catch (IOException ioe) {
-            getLogger().warn("Handler: Unexpected exception occurred while closing reader: " + ioe);
-        } finally {
-            inReader = null;
-        }
+//        try {
+//            if (inReader != null) {
+//                inReader.close();
+//            }
+//        } catch (IOException ioe) {
+//            getLogger().warn("Handler: Unexpected exception occurred while closing reader: " + ioe);
+//        } finally {
+//            inReader = null;
+//        }
 
         in = null;
 
@@ -449,6 +449,25 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
 
     public void setDnsServer(DNSServer dnsServer) {
         this.dnsServer = dnsServer;
+    }
+
+
+    public final byte[] readInputLine() throws IOException {
+        byte[] buffer = new byte[1000];
+        while (bytebufferHandler.isEmpty()) {
+            int length = in.read(buffer);
+            bytebufferHandler.write(buffer, length);
+        }
+        return bytebufferHandler.read();
+    }
+    
+    public final String readInputLineAsString() throws IOException {
+        byte[] buffer = new byte[1000];
+        while (bytebufferHandler.isEmpty()) {
+            int length = in.read(buffer);
+            bytebufferHandler.write(buffer, length);
+        }
+        return bytebufferHandler.readString();
     }
 
 }

@@ -282,7 +282,7 @@ public class NNTPHandler
         }
 
         theWatchdog.start();
-        while (parseCommand(inReader.readLine())) {
+        while (parseCommand(new String(readInputLine(), "US-ASCII"))) {
             theWatchdog.reset();
         }
         theWatchdog.stop();

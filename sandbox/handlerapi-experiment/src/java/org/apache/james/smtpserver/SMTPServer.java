@@ -338,7 +338,7 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
          * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#isAuthRequired(String)
          */
         public boolean isAuthRequired(String remoteIP) {
-              if (SMTPServer.this.authRequired == AUTH_ANNOUNCE) return true;
+            if (SMTPServer.this.authRequired == AUTH_ANNOUNCE) return true;
             boolean authRequired = SMTPServer.this.authRequired != AUTH_DISABLED;
             if (authorizedNetworks != null) {
                 authRequired = authRequired && !SMTPServer.this.authorizedNetworks.matchInetNetwork(remoteIP);

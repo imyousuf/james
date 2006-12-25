@@ -22,11 +22,8 @@
 package org.apache.james.smtpserver;
 
 
-import org.apache.james.util.watchdog.Watchdog;
 import org.apache.mailet.Mail;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Map;
 
 /**
@@ -43,6 +40,7 @@ public interface SMTPSession {
     public final static String CURRENT_HELO_MODE = "CURRENT_HELO_MODE"; // HELO or EHLO
     public final static String CURRENT_HELO_NAME = "CURRENT_HELO_NAME"; 
     public static final Object CURRENT_RECIPIENT = "CURRENT_RECIPIENT"; // Current recipient
+    public final static String SESSION_STATE_MAP = "SESSION_STATE_MAP"; // the Session state 
 
     /**
      * Writes response string to the client
@@ -57,7 +55,7 @@ public interface SMTPSession {
      * @return the trimmed input line
      * @throws IOException if an exception is generated reading in the input characters
      */
-    String readCommandLine() throws IOException;
+    // String readCommandLine() throws IOException;
 
 
     /**
@@ -74,13 +72,6 @@ public interface SMTPSession {
      * @return the data in the response buffer
      */
     String clearResponseBuffer();
-
-    /**
-     * Returns Inputstream for handling messages and commands
-     *
-     * @return InputStream object
-     */
-    InputStream getInputStream();
 
     /**
      * Returns currently process command name
@@ -135,13 +126,6 @@ public interface SMTPSession {
      *
      */
     void endSession();
-
-    /**
-     * Returns the session status
-     *
-     * @return if the session is open or closed
-     */
-    boolean isSessionEnded();
 
     /**
      * Returns Map that consists of the state of the SMTPSession per mail
@@ -206,13 +190,6 @@ public interface SMTPSession {
     void setUser(String user);
 
     /**
-     * Returns Watchdog object used for handling timeout
-     *
-     * @return Watchdog object
-     */
-    Watchdog getWatchdog();
-
-    /**
      * Returns the SMTP session id
      *
      * @return SMTP session id
@@ -240,12 +217,6 @@ public interface SMTPSession {
      */
     boolean getStopHandlerProcessing();
     
-    
-    /**
-     * Reset the Connection state
-     */
-    void resetConnectionState();
-    
     /**
      * Returns Map that consists of the state of the SMTPSession per connection
      *
@@ -253,5 +224,20 @@ public interface SMTPSession {
      */
     Map getConnectionState();
 
+    /**
+     * Put a new line handler in the chain
+     * @param overrideCommandHandler
+     */
+    void pushLineHandler(LineHandler overrideCommandHandler);
+    
+    /**
+     * Pop the last command handler 
+     */
+    void popLineHandler();
+
+    /**
+     * Write an SMTPResponse to the client
+     */
+    void writeSMTPResponse(SMTPResponse response);
 }
 

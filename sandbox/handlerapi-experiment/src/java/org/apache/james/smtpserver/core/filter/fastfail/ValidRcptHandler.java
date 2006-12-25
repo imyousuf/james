@@ -37,6 +37,7 @@ import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.services.VirtualUserTable;
 import org.apache.james.services.VirtualUserTableStore;
 import org.apache.james.smtpserver.CommandHandler;
+import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.james.vut.ErrorMappingException;
@@ -172,11 +173,12 @@ public class ValidRcptHandler extends AbstractLogEnabled implements CommandHandl
     /**
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
-    public void onCommand(SMTPSession session) {
+    public SMTPResponse onCommand(SMTPSession session, String command, String parameters) {
         if (!session.isRelayingAllowed() && !(session.isAuthRequired() && session.getUser() != null)) {
-            checkValidRcpt(session);
+            return checkValidRcpt(session);
         } else {
             getLogger().debug("Sender allowed");
+            return null;
         }
     }
     
@@ -186,8 +188,9 @@ public class ValidRcptHandler extends AbstractLogEnabled implements CommandHandl
      * Check if the recipient should be accepted
      * 
      * @param session The SMTPSession
+     * @return 
      */
-    private void checkValidRcpt(SMTPSession session) {
+    private SMTPResponse checkValidRcpt(SMTPSession session) {
         MailAddress rcpt = (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT);
         boolean invalidUser = true;
 
@@ -209,8 +212,7 @@ public class ValidRcptHandler extends AbstractLogEnabled implements CommandHandl
                 
                 getLogger().info("Rejected message. Reject Message: " + responseString);
             
-                session.writeResponse(responseString);
-                session.setStopHandlerProcessing(true);
+                return new SMTPResponse(responseString);
             }
         }
         
@@ -229,12 +231,9 @@ public class ValidRcptHandler extends AbstractLogEnabled implements CommandHandl
     
         if (invalidUser == true) {
             //user not exist
-            String responseString = "554 " + DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_MAILBOX) + " Unknown user: " + rcpt.toString();
-        
             getLogger().info("Rejected message. Unknown user: " + rcpt.toString());
-        
-            session.writeResponse(responseString);
-            session.setStopHandlerProcessing(true);
+            return new SMTPResponse("554", DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_MAILBOX) + " Unknown user: " + rcpt.toString());
         }
+        return null;
     }
 }

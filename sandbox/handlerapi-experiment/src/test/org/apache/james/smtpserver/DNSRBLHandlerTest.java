@@ -299,7 +299,7 @@ public class DNSRBLHandlerTest extends TestCase {
         assertNull("No details",mockedSMTPSession.getConnectionState().get(RBL_DETAIL_MAIL_ATTRIBUTE_NAME));
         assertNotNull("Listed on RBL",mockedSMTPSession.getConnectionState().get(RBL_BLOCKLISTED_MAIL_ATTRIBUTE_NAME));
         
-        rbl.onCommand(mockedSMTPSession);
+        rbl.onCommand(mockedSMTPSession,"RCPT","<test@test>");
         assertEquals("Score stored",((JunkScore) mockedSMTPSession.getConnectionState().get(JunkScore.JUNK_SCORE_SESSION)).getStoredScore("DNSRBLCheck"), 20.0, 0d);
     }
 

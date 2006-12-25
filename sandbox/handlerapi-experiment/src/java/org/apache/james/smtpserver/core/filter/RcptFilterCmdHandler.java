@@ -29,7 +29,9 @@ import java.util.StringTokenizer;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.smtpserver.CommandHandler;
+import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.MailAddress;
 
@@ -45,8 +47,8 @@ public class RcptFilterCmdHandler extends AbstractLogEnabled implements
      *
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
     **/
-    public void onCommand(SMTPSession session) {
-        doRCPT(session, session.getCommandArgument());
+    public SMTPResponse onCommand(SMTPSession session, String command, String parameters) {
+        return doRCPT(session, parameters);
     }
 
 
@@ -54,9 +56,7 @@ public class RcptFilterCmdHandler extends AbstractLogEnabled implements
      * @param session SMTP session object
      * @param argument the argument passed in with the command by the SMTP client
      */
-    private void doRCPT(SMTPSession session, String argument) {
-        String responseString = null;
-        
+    private SMTPResponse doRCPT(SMTPSession session, String argument) {
         String recipient = null;
         if ((argument != null) && (argument.indexOf(":") > 0)) {
             int colonIndex = argument.indexOf(":");
@@ -64,20 +64,10 @@ public class RcptFilterCmdHandler extends AbstractLogEnabled implements
             argument = argument.substring(0, colonIndex);
         }
         if (!session.getState().containsKey(SMTPSession.SENDER)) {
-            responseString = "503 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" Need MAIL before RCPT";
-            session.writeResponse(responseString);
-            
-            // After this filter match we should not call any other handler!
-            session.setStopHandlerProcessing(true);
-            
+            return new SMTPResponse("503", DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" Need MAIL before RCPT");
         } else if (argument == null || !argument.toUpperCase(Locale.US).equals("TO")
                    || recipient == null) {
-            responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_SYNTAX)+" Usage: RCPT TO:<recipient>";
-            session.writeResponse(responseString);
-            
-            // After this filter match we should not call any other handler!
-            session.setStopHandlerProcessing(true);
-            
+            return new SMTPResponse("501", DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_SYNTAX)+" Usage: RCPT TO:<recipient>");
         } else {
             Collection rcptColl = (Collection) session.getState().get(SMTPSession.RCPT_LIST);
             if (rcptColl == null) {
@@ -95,8 +85,6 @@ public class RcptFilterCmdHandler extends AbstractLogEnabled implements
                 recipient = recipient.substring(0, lastChar + 1);
             }
             if (session.getConfigurationData().useAddressBracketsEnforcement() && (!recipient.startsWith("<") || !recipient.endsWith(">"))) {
-                responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_SYNTAX)+" Syntax error in parameters or arguments";
-                session.writeResponse(responseString);
                 if (getLogger().isErrorEnabled()) {
                     StringBuffer errorBuffer =
                         new StringBuffer(192)
@@ -105,11 +93,7 @@ public class RcptFilterCmdHandler extends AbstractLogEnabled implements
                                 .append(getContext(session,null,recipient));
                     getLogger().error(errorBuffer.toString());
                 }
-                
-                // After this filter match we should not call any other handler!
-                session.setStopHandlerProcessing(true);
-                
-                return;
+                return new SMTPResponse("501", DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_SYNTAX)+" Syntax error in parameters or arguments");
             }
             MailAddress recipientAddress = null;
             //Remove < and >
@@ -125,14 +109,6 @@ public class RcptFilterCmdHandler extends AbstractLogEnabled implements
             try {
                 recipientAddress = new MailAddress(recipient);
             } catch (Exception pe) {
-                /*
-                 * from RFC2822;
-                 * 553 Requested action not taken: mailbox name not allowed
-                 *     (e.g., mailbox syntax incorrect)
-                 */
-                responseString = "553 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_SYNTAX)+" Syntax error in recipient address";
-                session.writeResponse(responseString);
-
                 if (getLogger().isErrorEnabled()) {
                     StringBuffer errorBuffer =
                         new StringBuffer(192)
@@ -141,78 +117,64 @@ public class RcptFilterCmdHandler extends AbstractLogEnabled implements
                                 .append(pe.getMessage());
                     getLogger().error(errorBuffer.toString());
                 }
-                
-                // After this filter match we should not call any other handler!
-                session.setStopHandlerProcessing(true);
-                
-                return;
+                /*
+                 * from RFC2822;
+                 * 553 Requested action not taken: mailbox name not allowed
+                 *     (e.g., mailbox syntax incorrect)
+                 */
+                return new SMTPResponse("553", DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_SYNTAX)+" Syntax error in recipient address");
             }
 
             
-
-            if (session.isAuthRequired() && !session.isRelayingAllowed()) {
-                // Make sure the mail is being sent locally if not
-                // authenticated else reject.
-                if (session.getUser() == null) {
-                    String toDomain = recipientAddress.getHost();
-                    if (!session.getConfigurationData().getMailServer().isLocalServer(toDomain)) {
-                        responseString = "530 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH)+" Authentication Required";
-                        session.writeResponse(responseString);
-                        StringBuffer sb = new StringBuffer(128);
-                        sb.append("Rejected message - authentication is required for mail request");
-                        sb.append(getContext(session,recipientAddress,recipient));
-                        getLogger().error(sb.toString());
-                        
-                        // After this filter match we should not call any other handler!
-                        session.setStopHandlerProcessing(true);
-                        
-                        return;
-                    }
-                } else {
-                    // Identity verification checking
-                    if (session.getConfigurationData().isVerifyIdentity()) {
-                        String authUser = (session.getUser()).toLowerCase(Locale.US);
-                        MailAddress senderAddress = (MailAddress) session.getState().get(SMTPSession.SENDER);
-
-                        if ((senderAddress == null) || (!authUser.equals(senderAddress.getUser())) ||
-                            (!session.getConfigurationData().getMailServer().isLocalServer(senderAddress.getHost()))) {
-                            responseString = "503 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH)+" Incorrect Authentication for Specified Email Address";
-                            session.writeResponse(responseString);
-                            if (getLogger().isErrorEnabled()) {
-                                StringBuffer errorBuffer =
-                                    new StringBuffer(128)
-                                        .append("User ")
-                                        .append(authUser)
-                                        .append(" authenticated, however tried sending email as ")
-                                        .append(senderAddress)
-                                        .append(getContext(session,recipientAddress,recipient));
-                                getLogger().error(errorBuffer.toString());
+            if (!session.isRelayingAllowed()) {
+                if (session.isAuthRequired()) {
+                    // Make sure the mail is being sent locally if not
+                    // authenticated else reject.
+                    if (session.getUser() == null) {
+                        String toDomain = recipientAddress.getHost();
+                        if (!session.getConfigurationData().getMailServer().isLocalServer(toDomain)) {
+                            StringBuffer sb = new StringBuffer(128);
+                            sb.append("Rejected message - authentication is required for mail request");
+                            sb.append(getContext(session,recipientAddress,recipient));
+                            getLogger().error(sb.toString());
+                            return new SMTPResponse("530", DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH)+" Authentication Required");
+                        }
+                    } else {
+                        // Identity verification checking
+                        if (session.getConfigurationData().isVerifyIdentity()) {
+                            String authUser = (session.getUser()).toLowerCase(Locale.US);
+                            MailAddress senderAddress = (MailAddress) session.getState().get(SMTPSession.SENDER);
+    
+                            if ((senderAddress == null) || (!authUser.equals(senderAddress.getUser())) ||
+                                (!session.getConfigurationData().getMailServer().isLocalServer(senderAddress.getHost()))) {
+                                if (getLogger().isErrorEnabled()) {
+                                    StringBuffer errorBuffer =
+                                        new StringBuffer(128)
+                                            .append("User ")
+                                            .append(authUser)
+                                            .append(" authenticated, however tried sending email as ")
+                                            .append(senderAddress)
+                                            .append(getContext(session,recipientAddress,recipient));
+                                    getLogger().error(errorBuffer.toString());
+                                }
+                                
+                                return new SMTPResponse("503", DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH)+" Incorrect Authentication for Specified Email Address");
                             }
-                            
-                            // After this filter match we should not call any other handler!
-                            session.setStopHandlerProcessing(true);
-                            
-                            return;
                         }
                     }
-                }
-            } else if (!session.isRelayingAllowed()) {
-                String toDomain = recipientAddress.getHost();
-                if (!session.getConfigurationData().getMailServer().isLocalServer(toDomain)) {
-                    responseString = "550 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH)+" Requested action not taken: relaying denied";
-                    session.writeResponse(responseString);
-                    StringBuffer errorBuffer = new StringBuffer(128)
-                        .append("Rejected message - ")
-                        .append(session.getRemoteIPAddress())
-                        .append(" not authorized to relay to ")
-                        .append(toDomain)
-                        .append(getContext(session,recipientAddress,recipient));
-                    getLogger().error(errorBuffer.toString());
-                    
-                    // After this filter match we should not call any other handler!
-                    session.setStopHandlerProcessing(true);
-                    
-                    return;
+                } else {
+                    String toDomain = recipientAddress.getHost();
+                    if (!session.getConfigurationData().getMailServer().isLocalServer(toDomain)) {
+                        StringBuffer errorBuffer = new StringBuffer(128)
+                            .append("Rejected message - ")
+                            .append(session.getRemoteIPAddress())
+                            .append(" not authorized to relay to ")
+                            .append(toDomain)
+                            .append(getContext(session,recipientAddress,recipient));
+                        getLogger().error(errorBuffer.toString());
+                        
+                        return new SMTPResponse("550", DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH)+" Requested action not taken: relaying denied");
+                    }
                 }
             }
             if (rcptOptionString != null) {
@@ -239,15 +201,14 @@ public class RcptFilterCmdHandler extends AbstractLogEnabled implements
                       getLogger().debug(debugBuffer.toString());
                   }
                   
-                  // After this filter match we should not call any other handler!
-                  session.setStopHandlerProcessing(true);
-                  
+                  return new SMTPResponse(SMTPRetCode.PARAMETER_NOT_IMPLEMENTED, "Unrecognized or unsupported option: "+rcptOptionName);
               }
               optionTokenizer = null;
             }
     
             session.getState().put(SMTPSession.CURRENT_RECIPIENT,recipientAddress);
         }
+        return null;
     }
 
 

@@ -26,6 +26,7 @@ import java.util.Collection;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.smtpserver.CommandHandler;
+import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.MailAddress;
@@ -41,8 +42,8 @@ public class RcptCmdHandler extends AbstractLogEnabled implements
      *
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
     **/
-    public void onCommand(SMTPSession session) {
-        doRCPT(session, session.getCommandArgument());
+    public SMTPResponse onCommand(SMTPSession session, String command, String parameters) {
+        return doRCPT(session, parameters);
     }
 
 
@@ -54,11 +55,7 @@ public class RcptCmdHandler extends AbstractLogEnabled implements
      * @param session SMTP session object
      * @param argument the argument passed in with the command by the SMTP client
      */
-    private void doRCPT(SMTPSession session, String argument) {
-       
-        String responseString = null;
-        StringBuffer responseBuffer = session.getResponseBuffer();
-
+    private SMTPResponse doRCPT(SMTPSession session, String argument) {
         Collection rcptColl = (Collection) session.getState().get(
                 SMTPSession.RCPT_LIST);
         if (rcptColl == null) {
@@ -68,13 +65,12 @@ public class RcptCmdHandler extends AbstractLogEnabled implements
                 SMTPSession.CURRENT_RECIPIENT);
         rcptColl.add(recipientAddress);
         session.getState().put(SMTPSession.RCPT_LIST, rcptColl);
-        responseBuffer.append(
-                "250 "
-                        + DSNStatus.getStatus(DSNStatus.SUCCESS,
-                                DSNStatus.ADDRESS_VALID) + " Recipient <")
-                .append(recipientAddress).append("> OK");
-        responseString = session.clearResponseBuffer();
-        session.writeResponse(responseString);
+        StringBuffer response = new StringBuffer();
+        response.append(DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.ADDRESS_VALID))
+                .append(" Recipient <")
+                .append(recipientAddress)
+                .append("> OK");
+        return new SMTPResponse("250", response);
              
     }
     

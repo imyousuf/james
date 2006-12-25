@@ -26,6 +26,7 @@ import java.util.Collection;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.smtpserver.CommandHandler;
+import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
 
@@ -44,28 +45,23 @@ public class EhloFilterCmdHandler extends AbstractLogEnabled implements CommandH
      *
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
     **/
-    public void onCommand(SMTPSession session) {
-        doEHLO(session, session.getCommandArgument());
+    public SMTPResponse onCommand(SMTPSession session, String command, String arguments) {
+        return doEHLO(session, arguments);
     }
 
     /**
      * @param session SMTP session object
      * @param argument the argument passed in with the command by the SMTP client
      */
-    private void doEHLO(SMTPSession session, String argument) {
-        String responseString = null;        
-     
+    private SMTPResponse doEHLO(SMTPSession session, String argument) {
         session.resetState();
         
         if (argument == null) {
-            responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Domain address required: " + COMMAND_NAME;
-            session.writeResponse(responseString);
-            
-            // After this filter match we should not call any other handler!
-            session.setStopHandlerProcessing(true);
+            return new SMTPResponse("501", DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Domain address required: " + COMMAND_NAME);
         } else {
             // store provided name
             session.getState().put(SMTPSession.CURRENT_HELO_NAME,argument);
+            return null;
         }
     }
     

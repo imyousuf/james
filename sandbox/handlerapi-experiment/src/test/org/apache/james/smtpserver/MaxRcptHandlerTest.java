@@ -52,10 +52,6 @@ public class MaxRcptHandlerTest extends TestCase{
                 return false;
             }
             
-            public void writeResponse(String resp) {
-                response = resp;
-            }
-            
             public void setStopHandlerProcessing(boolean processing) {
                 this.processing = processing;
             }
@@ -80,9 +76,9 @@ public class MaxRcptHandlerTest extends TestCase{
     
         handler.setAction("reject");
         handler.setMaxRcpt(2);
-        handler.onCommand(session);
+        SMTPResponse response = handler.onCommand(session,"RCPT","<test@test>");
     
-        assertNotNull("Rejected.. To many recipients", response);
+        assertEquals("Rejected.. To many recipients", response.getRetCode(), "452");
         assertTrue("Reject.. Stop processing",session.getStopHandlerProcessing());
     }
     
@@ -97,8 +93,8 @@ public class MaxRcptHandlerTest extends TestCase{
         handler.setAction("junkScore");
         handler.setScore(20);
         handler.setMaxRcpt(2);
-        handler.onCommand(session);
-    
+        SMTPResponse response = handler.onCommand(session,"RCPT","<test@test>");
+
         assertNull("Not Rejected.. we use junkScore action", response);
         assertFalse("Not Rejected.. we use junkScore action",session.getStopHandlerProcessing());
         assertEquals("Get Score", ((JunkScore) session.getState().get(JunkScore.JUNK_SCORE)).getStoredScore("MaxRcptCheck"),20.0,0d);
@@ -112,7 +108,7 @@ public class MaxRcptHandlerTest extends TestCase{
     
         handler.setAction("reject");
         handler.setMaxRcpt(4);
-        handler.onCommand(session);
+        SMTPResponse response = handler.onCommand(session,"RCPT","<test@test>");
     
         assertNull("Not Rejected..", response);
         assertFalse("Not stop processing",session.getStopHandlerProcessing());

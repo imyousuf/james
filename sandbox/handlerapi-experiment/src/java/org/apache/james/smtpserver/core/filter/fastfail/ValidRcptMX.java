@@ -33,6 +33,7 @@ import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.dnsserver.TemporaryResolutionException;
 import org.apache.james.services.DNSServer;
 import org.apache.james.smtpserver.CommandHandler;
+import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.NetMatcher;
 import org.apache.james.util.mail.dsn.DSNStatus;
@@ -116,8 +117,8 @@ public class ValidRcptMX extends AbstractJunkHandler implements CommandHandler,
     /**
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
-    public void onCommand(SMTPSession session) {
-        doProcessing(session);
+    public SMTPResponse onCommand(SMTPSession session, String command, String parameters) {
+        return doProcessing(session);
     }
 
     /**

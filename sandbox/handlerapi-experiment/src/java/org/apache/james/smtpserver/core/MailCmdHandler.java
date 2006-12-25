@@ -26,6 +26,7 @@ import java.util.Collection;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.smtpserver.CommandHandler;
+import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.MailAddress;
@@ -43,8 +44,8 @@ public class MailCmdHandler
      *
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
-    public void onCommand(SMTPSession session) {
-        doMAIL(session, session.getCommandArgument());
+    public SMTPResponse onCommand(SMTPSession session, String command, String arguments) {
+        return doMAIL(session, arguments);
     }
 
 
@@ -55,21 +56,12 @@ public class MailCmdHandler
      * @param session SMTP session object
      * @param argument the argument passed in with the command by the SMTP client
      */
-    private void doMAIL(SMTPSession session, String argument) {
-      
-        StringBuffer responseBuffer = session.getResponseBuffer();
-        String responseString = null;
-
-        MailAddress sender = (MailAddress) session.getState().get(
-                SMTPSession.SENDER);
-        responseBuffer.append(
-                "250 "
-                        + DSNStatus.getStatus(DSNStatus.SUCCESS,
-                                DSNStatus.ADDRESS_OTHER) + " Sender <").append(
-                sender).append("> OK");
-        responseString = session.clearResponseBuffer();
-        session.writeResponse(responseString);
-        
+    private SMTPResponse doMAIL(SMTPSession session, String argument) {
+        StringBuffer responseBuffer = new StringBuffer();
+        MailAddress sender = (MailAddress) session.getState().get(SMTPSession.SENDER);
+        responseBuffer.append(DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.ADDRESS_OTHER) + " Sender <")
+                .append(sender).append("> OK");
+        return new SMTPResponse("250", responseBuffer);
     }
     
     /**

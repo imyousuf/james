@@ -27,6 +27,7 @@ import java.util.Collection;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.smtpserver.CommandHandler;
+import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.MailAddress;
@@ -50,7 +51,7 @@ public class SupressDuplicateRcptHandler extends AbstractLogEnabled implements C
     /**
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
-    public void onCommand(SMTPSession session) {
+    public SMTPResponse onCommand(SMTPSession session, String command, String parameters) {
         MailAddress rcpt = (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT);
         Collection rcptList = (Collection) session.getState().get(SMTPSession.RCPT_LIST);
     
@@ -58,12 +59,13 @@ public class SupressDuplicateRcptHandler extends AbstractLogEnabled implements C
         if(rcptList != null && rcptList.contains(rcpt)) {
             StringBuffer responseBuffer = new StringBuffer();
         
-            responseBuffer.append("250 " + DSNStatus.getStatus(DSNStatus.SUCCESS, DSNStatus.ADDRESS_VALID) + " Recipient <")
-                          .append(rcpt.toString()).append("> OK");
-            session.writeResponse(responseBuffer.toString());
-            session.setStopHandlerProcessing(true);
-            
+            responseBuffer.append(DSNStatus.getStatus(DSNStatus.SUCCESS, DSNStatus.ADDRESS_VALID))
+                          .append(" Recipient <")
+                          .append(rcpt.toString())
+                          .append("> OK");
             getLogger().debug("Duplicate recipient not add to recipient list: " + rcpt.toString());
+            return new SMTPResponse("250", responseBuffer);
         }
+        return null;
     }
 }

@@ -25,6 +25,7 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.junkscore.JunkScore;
 import org.apache.james.util.junkscore.JunkScoreConfigUtil;
@@ -95,7 +96,7 @@ public abstract class AbstractJunkHandler extends AbstractLogEnabled implements 
      * 
      * @param session the SMTPSession
      */
-    protected void doProcessing(SMTPSession session) {
+    protected SMTPResponse doProcessing(SMTPSession session) {
         if (check(session)) {
             JunkHandlerData data = getJunkHandlerData(session);
             
@@ -110,11 +111,13 @@ public abstract class AbstractJunkHandler extends AbstractLogEnabled implements 
                 
                 if (data.getRejectLogString() != null) getLogger().info(data.getRejectLogString());
                 
-                session.writeResponse(response);
                 // After this filter match we should not call any other handler!
                 session.setStopHandlerProcessing(true);
+                
+                return new SMTPResponse(response);
             }
-        } 
+        }
+        return null;
     }
     
     /**

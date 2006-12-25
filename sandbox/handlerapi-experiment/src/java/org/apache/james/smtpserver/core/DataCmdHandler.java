@@ -27,13 +27,14 @@ import org.apache.james.core.MailHeaders;
 import org.apache.james.core.MailImpl;
 import org.apache.james.fetchmail.ReaderInputStream;
 import org.apache.james.smtpserver.CommandHandler;
+import org.apache.james.smtpserver.LineHandler;
 import org.apache.james.smtpserver.MessageSizeException;
+import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.SizeLimitedInputStream;
 import org.apache.james.util.CharTerminatedInputStream;
 import org.apache.james.util.DotStuffingInputStream;
 import org.apache.james.util.mail.dsn.DSNStatus;
-import org.apache.james.util.watchdog.BytesReadResetInputStream;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.RFC2822Headers;
 import org.apache.mailet.dates.RFC822DateFormat;
@@ -43,6 +44,9 @@ import javax.mail.MessagingException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.io.SequenceInputStream;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -89,8 +93,8 @@ public class DataCmdHandler
      *
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
-    public void onCommand(SMTPSession session) {
-        doDATA(session, session.getCommandArgument());
+    public SMTPResponse onCommand(SMTPSession session, String command, String parameters) {
+        return doDATA(session, parameters);
     }
 
 
@@ -102,16 +106,81 @@ public class DataCmdHandler
      * @param session SMTP session object
      * @param argument the argument passed in with the command by the SMTP client
      */
-    private void doDATA(SMTPSession session, String argument) {
+    private SMTPResponse doDATA(SMTPSession session, String argument) {
+        PipedInputStream messageIn = new PipedInputStream();
+        Thread t = new Thread() {
+            private PipedInputStream in;
+            private SMTPSession session;
 
-        String responseString = null;
-        responseString = "354 Ok Send data ending with <CRLF>.<CRLF>";
-        session.writeResponse(responseString);
-        InputStream msgIn = new CharTerminatedInputStream(session
-                .getInputStream(), SMTPTerminator);
+            public void run() {
+                handleStream(session, in);
+            }
+
+            public Thread setParam(SMTPSession session, PipedInputStream in) {
+                this.in = in;
+                this.session = session;
+                return this;
+            }
+        }.setParam(session, messageIn);
+        
+        t.start();
+        
+        OutputStream out;
         try {
-            msgIn = new BytesReadResetInputStream(msgIn, session.getWatchdog(),
-                    session.getConfigurationData().getResetLength());
+            out = new PipedOutputStream(messageIn);
+            session.pushLineHandler(new LineHandler() {
+
+                private OutputStream out;
+                private Thread worker;
+
+                public void onLine(SMTPSession session, byte[] line) {
+                    try {
+                        out.write(line);
+//                        out.write(13);
+//                        out.write(10);
+                        out.flush();
+                        // 46 is "."
+                        if (line.length == 3 && line[0] == 46) {
+                            try {
+                                worker.join();
+                            } catch (InterruptedException e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            }
+                        }
+                        
+                    } catch (IOException e) {
+                        // TODO Define what we have to do here!
+                        e.printStackTrace();
+                    }
+                }
+
+                public LineHandler setParam(OutputStream out, Thread t) {
+                    this.out = out;
+                    this.worker = t;
+                    return this;
+                };
+            
+            }.setParam(out,t));
+        } catch (IOException e1) {
+            // TODO Define what to do.
+            e1.printStackTrace();
+        }
+        
+        return new SMTPResponse("354", "Ok Send data ending with <CRLF>.<CRLF>");
+    }
+    
+
+    public void handleStream(SMTPSession session, InputStream stream) {
+        String responseString;
+        InputStream msgIn = new CharTerminatedInputStream(stream, SMTPTerminator);
+        try {
+            // 2006/12/24 - We can remove this now that every single line is pushed and
+            // reset the watchdog already in the handler.
+            // This means we don't use resetLength anymore and we can remove
+            // watchdog from the SMTPSession interface
+            // msgIn = new BytesReadResetInputStream(msgIn, session.getWatchdog(),
+            //         session.getConfigurationData().getResetLength());
 
             // if the message size limit has been set, we'll
             // wrap msgIn with a SizeLimitedInputStream
@@ -168,6 +237,7 @@ public class DataCmdHandler
                 getLogger().error(
                         "Unknown error occurred while processing DATA.", me);
             }
+            session.popLineHandler();
             session.writeResponse(responseString);
             return;
         } finally {
@@ -311,6 +381,8 @@ public class DataCmdHandler
                 mail.setAttribute(SMTP_AUTH_NETWORK_NAME,"true");
             }
             
+            session.popLineHandler();
+            
             session.setMail(mail);
         } catch (MessagingException me) {
             // if we get here, it means that we received a
@@ -355,5 +427,6 @@ public class DataCmdHandler
         
         return implCommands;
     }
+
 
 }
