@@ -40,19 +40,12 @@ import org.apache.mailet.MailAddress;
 import junit.framework.TestCase;
 
 public class ValidRcptMXTest extends TestCase {
-    private String response = null;
 
     private final static String INVALID_HOST = "invalid.host.de";
 
     private final static String INVALID_MX = "mx." + INVALID_HOST;
 
     private final static String LOOPBACK = "127.0.0.1";
-
-    protected void setUp() throws Exception {
-        response = null;
-
-        super.setUp();
-    }
 
     private SMTPSession setupMockedSMTPSession(final MailAddress rcpt) {
         SMTPSession session = new AbstractSMTPSession() {
@@ -62,10 +55,6 @@ public class ValidRcptMXTest extends TestCase {
             public Map getState() {
                 state.put(SMTPSession.CURRENT_RECIPIENT, rcpt);
                 return state;
-            }
-
-            public void writeResponse(String resp) {
-                response = resp;
             }
             
             public String getRemoteIPAddress() {
@@ -111,13 +100,14 @@ public class ValidRcptMXTest extends TestCase {
         bNetworks.add("127.0.0.1");
         
         DNSServer dns = setupMockedDNSServer();
+        SMTPSession session = setupMockedSMTPSession(new MailAddress("test@" + INVALID_HOST));
         ValidRcptMX handler = new ValidRcptMX();
 
         ContainerUtil.enableLogging(handler, new MockLogger());
 
         handler.setDNSServer(dns);
         handler.setBannedNetworks(bNetworks, dns);
-        handler.onCommand(setupMockedSMTPSession(new MailAddress("test@" + INVALID_HOST)));
+        SMTPResponse response = handler.onCommand(session, "RCPT", "<" + session.getState().get(SMTPSession.CURRENT_RECIPIENT + ">"));
 
         assertNotNull("Reject", response);
     }
@@ -139,7 +129,8 @@ public class ValidRcptMXTest extends TestCase {
 
         handler.setDNSServer(dns);
         handler.setBannedNetworks(bNetworks, dns);
-        handler.onCommand(session);
+        SMTPResponse response = handler.onCommand(session, "RCPT", "<" + session.getState().get(SMTPSession.CURRENT_RECIPIENT + ">"));
+
 
         assertNull("Not Reject", response);
         assertEquals("JunkScore added",((JunkScore) session.getState().get(JunkScore.JUNK_SCORE)).getStoredScore("ValidRcptMXCheck"),20.0, 0d);

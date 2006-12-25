@@ -56,7 +56,7 @@ public class URIRBLHandlerTest extends TestCase {
     private static final String URISERVER = "multi.surbl.org.";
     private SMTPSession mockedSMTPSession;
 
-    private String response = null;
+    private SMTPResponse response = null;
     
     public void setUp() {
         // reset reponse
@@ -104,8 +104,8 @@ public class URIRBLHandlerTest extends TestCase {
                 this.relayingAllowed = relayingAllowed;
             }
 
-            public void writeResponse(String respString) {
-                response = respString;
+            public void writeSMTPResponse(SMTPResponse resp) {
+            response = resp;
             }
             
             public void setStopHandlerProcessing(boolean processing) {
@@ -121,7 +121,7 @@ public class URIRBLHandlerTest extends TestCase {
 
     }
 
-    private String getResponse() {
+    private SMTPResponse getResponse() {
         return response;
     }
 

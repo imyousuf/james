@@ -189,20 +189,16 @@ public class SPFHandlerTest extends TestCase {
                 return connectionState;
             }
 
-            public void resetConnectionState() {
-                connectionState.clear();
-            }
-
         };
     }
 
     private void runHandlers(SPFHandler spf, SMTPSession mockedSMTPSession) {
+        MailAddress sender = (MailAddress) mockedSMTPSession.getState().get(SMTPSession.SENDER);
+        MailAddress rcpt = (MailAddress) mockedSMTPSession.getState().get(SMTPSession.CURRENT_RECIPIENT);
 
-        setCommand("MAIL");
-        spf.onCommand(mockedSMTPSession);
+        spf.onCommand(mockedSMTPSession, "MAIL", "<"+ sender + ">");
 
-        setCommand("RCPT");
-        spf.onCommand(mockedSMTPSession);
+        spf.onCommand(mockedSMTPSession,"RCPT","<" + rcpt + ">");
 
         spf.onMessage(mockedSMTPSession);
     }
@@ -303,11 +299,7 @@ public class SPFHandlerTest extends TestCase {
         
         spf.setBlockSoftFail(true);
 
-        setCommand("MAIL");
-        spf.onCommand(mockedSMTPSession);
-
-        setCommand("RCPT");
-        spf.onCommand(mockedSMTPSession);
+        runHandlers(spf, mockedSMTPSession);
 
         assertNotNull("reject", mockedSMTPSession.getState().get(
                 SPFHandler.SPF_BLOCKLISTED));

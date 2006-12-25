@@ -53,13 +53,13 @@ public class TarpitHandlerTest extends TestCase {
 
         // no tarpit used
         startTime = System.currentTimeMillis();
-        handler.onCommand(setupMockedSession(0));
+        handler.onCommand(setupMockedSession(0),"RCPT","<test@test>");
         assertTrue("No tarpit",
                 (System.currentTimeMillis() - startTime) < tarpitTime - tarpitTolerance);
 
         // tarpit used
         startTime = System.currentTimeMillis();
-        handler.onCommand(setupMockedSession(3));
+        handler.onCommand(setupMockedSession(3),"RCPT","<test2@test>");
         assertTrue("tarpit",
                 (System.currentTimeMillis() - startTime) >= tarpitTime - tarpitTolerance);
     }

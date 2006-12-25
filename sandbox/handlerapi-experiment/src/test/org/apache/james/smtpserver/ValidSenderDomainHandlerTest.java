@@ -39,12 +39,6 @@ import junit.framework.TestCase;
 
 public class ValidSenderDomainHandlerTest extends TestCase {
     
-    private String response = null;
-
-    public void setUp() {
-        response = null;
-    }
-    
     private DNSServer setupDNSServer() {
         DNSServer dns = new AbstractDNSServer(){
 
@@ -76,10 +70,6 @@ public class ValidSenderDomainHandlerTest extends TestCase {
                 return false;
             }
             
-            public void writeResponse(String resp) {
-                response = resp;
-            }
-            
             public void setStopHandlerProcessing(boolean processing) {
                 this.processing = processing;
             }
@@ -92,9 +82,6 @@ public class ValidSenderDomainHandlerTest extends TestCase {
         return session;
     }
     
-    private String getResponse() {
-        return response;
-    }
     
     // Test for JAMES-580
     public void testNullSenderNotReject() {
@@ -102,9 +89,9 @@ public class ValidSenderDomainHandlerTest extends TestCase {
         ContainerUtil.enableLogging(handler, new MockLogger());
         
         handler.setDnsServer(setupDNSServer());
-        handler.onCommand(setupMockedSession(null));
+        SMTPResponse response = handler.onCommand(setupMockedSession(null),"MAIL","<>");
         
-        assertNull("Not blocked cause its a nullsender",getResponse());
+        assertNull("Not blocked cause its a nullsender",response);
     }
     
     public void testInvalidSenderDomainAddJunkScore() throws ParseException {
@@ -115,9 +102,9 @@ public class ValidSenderDomainHandlerTest extends TestCase {
         handler.setAction("JunkScore");
         handler.setScore(20);
         handler.setDnsServer(setupDNSServer());
-        handler.onCommand(session);
+        SMTPResponse response = handler.onCommand(session,"MAIL","<" + session.getState().get(SMTPSession.SENDER) + ">");
         
-        assertNull("Not blocked cause we use JunkScore",getResponse());
+        assertNull("Not blocked cause we use JunkScore", response);
         assertEquals("JunkScore is stored",((JunkScore) session.getState().get(JunkScore.JUNK_SCORE)).getStoredScore("ValidSenderDomainCheck"),20.0,0d);
     }
     
@@ -126,8 +113,8 @@ public class ValidSenderDomainHandlerTest extends TestCase {
         SMTPSession session = setupMockedSession(new MailAddress("invalid@invalid"));
         ContainerUtil.enableLogging(handler, new MockLogger());
         handler.setDnsServer(setupDNSServer());
-        handler.onCommand(session);
+        SMTPResponse response = handler.onCommand(session,"MAIL","<" + session.getState().get(SMTPSession.SENDER) + ">");
         
-        assertNotNull("Blocked cause we use reject action",getResponse());
+        assertNotNull("Blocked cause we use reject action", response);
     }
 }

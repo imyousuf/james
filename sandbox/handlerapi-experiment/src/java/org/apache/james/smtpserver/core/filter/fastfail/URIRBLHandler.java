@@ -43,6 +43,7 @@ import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.services.DNSServer;
 import org.apache.james.smtpserver.MessageHandler;
+import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.james.util.urirbl.URIScanner;
@@ -160,7 +161,11 @@ public class URIRBLHandler extends AbstractJunkHandler implements MessageHandler
      * @see org.apache.james.smtpserver.MessageHandler#onMessage(SMTPSession)
      */
     public void onMessage(SMTPSession session) {
-        doProcessing(session);
+        SMTPResponse response = doProcessing(session);
+        
+        if (response != null) {
+            session.writeSMTPResponse(response);
+        }
     }
 
     /**

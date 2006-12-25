@@ -116,7 +116,7 @@ public class TarpitHandler extends AbstractLogEnabled implements
             try {
                 sleep(tarpitSleepTime);
             } catch (InterruptedException e) {
-        	// ignore
+            // ignore
             }
         }
         

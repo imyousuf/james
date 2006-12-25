@@ -47,12 +47,7 @@ public class ValidRcptHandlerTest extends TestCase {
     private final static String INVALID_USER = "invalid";
     private final static String USER1 = "user1";
     private final static String USER2 = "user2";
-    private String response = null;
     private MockServiceManager serviceMan;
-    
-    public void setUp() {
-        response = null;
-    }
     
     private SMTPSession setupMockedSMTPSession(final SMTPHandlerConfigurationData conf, final MailAddress rcpt, final boolean relayingAllowed, final boolean authRequired, final String username) {
         SMTPSession session = new AbstractSMTPSession() {
@@ -79,10 +74,6 @@ public class ValidRcptHandlerTest extends TestCase {
                 state.put(SMTPSession.CURRENT_RECIPIENT,rcpt);
 
                 return state;
-            }
-        
-            public void writeResponse(String resp) {
-                response = resp;
             }
         
             public void setStopHandlerProcessing(boolean stop) {
@@ -183,7 +174,7 @@ public class ValidRcptHandlerTest extends TestCase {
         SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(),new MailAddress(INVALID_USER + "@localhost"),false,false,null);
         ContainerUtil.enableLogging(handler,new MockLogger());
     
-        handler.onCommand(session);
+        SMTPResponse response = handler.onCommand(session,"RCPT","<" + session.getState().get(SMTPSession.CURRENT_RECIPIENT) + ">");
     
         assertTrue("Rejected",session.getStopHandlerProcessing());
         assertNotNull("Rejected",response);
@@ -195,7 +186,7 @@ public class ValidRcptHandlerTest extends TestCase {
         SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(),new MailAddress(INVALID_USER + "@localhost"),false,true,"authedUser");
         ContainerUtil.enableLogging(handler,new MockLogger());
     
-        handler.onCommand(session);
+        SMTPResponse response = handler.onCommand(session,"RCPT","<" + session.getState().get(SMTPSession.CURRENT_RECIPIENT) + ">");
     
         assertFalse("Not rejected",session.getStopHandlerProcessing());
         assertNull("Not rejected",response);
@@ -206,8 +197,9 @@ public class ValidRcptHandlerTest extends TestCase {
         ContainerUtil.service(handler, setUpServiceManager());
         SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(),new MailAddress(INVALID_USER + "@localhost"),true,false,null);
         ContainerUtil.enableLogging(handler,new MockLogger());
+
+        SMTPResponse response = handler.onCommand(session,"RCPT","<" + session.getState().get(SMTPSession.CURRENT_RECIPIENT) + ">");
     
-        handler.onCommand(session);
     
         assertFalse("Not rejected",session.getStopHandlerProcessing());
         assertNull("Not rejected",response);
@@ -219,7 +211,9 @@ public class ValidRcptHandlerTest extends TestCase {
         SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(),new MailAddress(VALID_USER + "@localhost"),false,false,null);
         ContainerUtil.enableLogging(handler,new MockLogger());
     
-        handler.onCommand(session);
+
+        SMTPResponse response = handler.onCommand(session,"RCPT","<" + session.getState().get(SMTPSession.CURRENT_RECIPIENT) + ">");
+    
     
         assertFalse("Not rejected",session.getStopHandlerProcessing());
         assertNull("Not rejected",response);
@@ -233,8 +227,9 @@ public class ValidRcptHandlerTest extends TestCase {
         ContainerUtil.enableLogging(handler,new MockLogger());
     
         handler.setValidRecipients(recipient);
-        handler.onCommand(session);
-        
+
+        SMTPResponse response = handler.onCommand(session,"RCPT","<" + session.getState().get(SMTPSession.CURRENT_RECIPIENT) + ">");
+    
     
         assertFalse("Not rejected",session.getStopHandlerProcessing());
         assertNull("Not rejected",response);
@@ -250,8 +245,9 @@ public class ValidRcptHandlerTest extends TestCase {
         ContainerUtil.enableLogging(handler,new MockLogger());
     
         handler.setValidDomains(domain);
-        handler.onCommand(session);
-        
+
+        SMTPResponse response = handler.onCommand(session,"RCPT","<" + session.getState().get(SMTPSession.CURRENT_RECIPIENT) + ">");
+    
     
         assertFalse("Not rejected",session.getStopHandlerProcessing());
         assertNull("Not rejected",response);
@@ -267,8 +263,9 @@ public class ValidRcptHandlerTest extends TestCase {
         ContainerUtil.enableLogging(handler,new MockLogger());
     
         handler.setValidRegex("reci.*");
-        handler.onCommand(session);
-        
+
+        SMTPResponse response = handler.onCommand(session,"RCPT","<" + session.getState().get(SMTPSession.CURRENT_RECIPIENT) + ">");
+    
     
         assertFalse("Not rejected",session.getStopHandlerProcessing());
         assertNull("Not rejected",response);
@@ -295,7 +292,9 @@ public class ValidRcptHandlerTest extends TestCase {
         ValidRcptHandler handler = new ValidRcptHandler();
         ContainerUtil.service(handler, setUpServiceManager());
         ContainerUtil.enableLogging(handler,new MockLogger());
-        handler.onCommand(session);
+
+        SMTPResponse response = handler.onCommand(session,"RCPT","<" + session.getState().get(SMTPSession.CURRENT_RECIPIENT) + ">");
+    
     
         assertNull("No reject",response);
         assertFalse("Not stop processing",session.getStopHandlerProcessing());
@@ -307,10 +306,11 @@ public class ValidRcptHandlerTest extends TestCase {
         ValidRcptHandler handler = new ValidRcptHandler();
         ContainerUtil.service(handler, setUpServiceManager());
         ContainerUtil.enableLogging(handler,new MockLogger());
-        handler.onCommand(session);
-     
-       assertNull("Valid Error mapping",session.getState().get("VALID_USER"));
-       assertNotNull("Error mapping",response);
-       assertTrue("Stop processing",session.getStopHandlerProcessing());
+
+        SMTPResponse response = handler.onCommand(session,"RCPT","<" + session.getState().get(SMTPSession.CURRENT_RECIPIENT) + ">");
+    
+        assertNull("Valid Error mapping",session.getState().get("VALID_USER"));
+        assertNotNull("Error mapping",response);
+        assertTrue("Stop processing",session.getStopHandlerProcessing());
     }
 }

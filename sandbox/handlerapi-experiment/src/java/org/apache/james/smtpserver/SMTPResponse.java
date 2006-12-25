@@ -47,13 +47,13 @@ public class SMTPResponse {
     }
     
     public SMTPResponse(String rawLine) {
-	String args[] = rawLine.split(" ");
-	if (args != null && args.length > 1) {
-	    this.setRetCode(args[0]);
-	    this.appendLine(new StringBuffer(rawLine.substring(args[0].length()+1)));
-	} else {
-	    // TODO: Throw exception ?
-	}
+    String args[] = rawLine.split(" ");
+    if (args != null && args.length > 1) {
+        this.setRetCode(args[0]);
+        this.appendLine(new StringBuffer(rawLine.substring(args[0].length()+1)));
+    } else {
+        // TODO: Throw exception ?
+    }
         this.rawLine = rawLine;
     }
     
