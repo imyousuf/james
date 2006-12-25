@@ -171,7 +171,7 @@ public class ValidRcptHandler extends AbstractLogEnabled implements CommandHandl
     }
 
     /**
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
+     * @see org.apache.james.smtpserver.CommandHandler#onCommand(org.apache.james.smtpserver.SMTPSession, java.lang.String, java.lang.String) 
      */
     public SMTPResponse onCommand(SMTPSession session, String command, String parameters) {
         if (!session.isRelayingAllowed() && !(session.isAuthRequired() && session.getUser() != null)) {

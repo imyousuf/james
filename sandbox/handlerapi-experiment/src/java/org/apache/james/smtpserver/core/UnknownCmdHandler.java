@@ -43,7 +43,7 @@ public class UnknownCmdHandler implements CommandHandler {
      * Handler method called upon receipt of an unrecognized command.
      * Returns an error response and logs the command.
      *
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
+     * @see org.apache.james.smtpserver.CommandHandler#onCommand(org.apache.james.smtpserver.SMTPSession, java.lang.String, java.lang.String) 
     **/
     public SMTPResponse onCommand(SMTPSession session, String command, String parameters) {
 

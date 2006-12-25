@@ -35,6 +35,10 @@ import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.MailAddress;
 
+/**
+ * Add MFDNSCheck feature to SMTPServer. This handler reject mail from domains which have not an an valid MX record.  
+ * 
+ */
 public class ValidSenderDomainHandler
     extends AbstractJunkHandler
     implements CommandHandler, Configurable, Serviceable {
@@ -83,7 +87,7 @@ public class ValidSenderDomainHandler
     }
     
     /**
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
+     * @see org.apache.james.smtpserver.CommandHandler#onCommand(org.apache.james.smtpserver.SMTPSession, java.lang.String, java.lang.String) 
      */
     public SMTPResponse onCommand(SMTPSession session, String command, String parameters) {
         return doProcessing(session);

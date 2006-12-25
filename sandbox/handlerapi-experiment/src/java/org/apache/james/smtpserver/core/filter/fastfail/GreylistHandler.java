@@ -286,7 +286,7 @@ public class GreylistHandler extends AbstractLogEnabled implements
     }
 
     /**
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
+     * @see org.apache.james.smtpserver.CommandHandler#onCommand(org.apache.james.smtpserver.SMTPSession, java.lang.String, java.lang.String) 
      */
     public SMTPResponse onCommand(SMTPSession session, String command, String arguments) {
         if (!session.isRelayingAllowed() && !(session.isAuthRequired() && session.getUser() != null)) {

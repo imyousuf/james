@@ -32,6 +32,10 @@ import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
 
+/**
+ * Add tarpit support to SMTPServer. See http://www.palomine.net/qmail/tarpit.html for more information
+ *
+ */
 public class TarpitHandler extends AbstractLogEnabled implements
         CommandHandler, Configurable {
 
@@ -92,14 +96,16 @@ public class TarpitHandler extends AbstractLogEnabled implements
      * @param timeInMillis
      *            Time in ms
      * @throws InterruptedException
+     * 
+     * TODO: Remember to add an sleep method to our IO implementation
      */
     private void sleep(float timeInMillis) throws InterruptedException {
         Thread.sleep((long) timeInMillis);
     }
 
     /**
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
-     */
+     * @see org.apache.james.smtpserver.CommandHandler#onCommand(org.apache.james.smtpserver.SMTPSession, java.lang.String, java.lang.String) 
+     */  
     public SMTPResponse onCommand(SMTPSession session, String command, String parameters) {
 
         int rcptCount = 0;
@@ -110,6 +116,7 @@ public class TarpitHandler extends AbstractLogEnabled implements
             try {
                 sleep(tarpitSleepTime);
             } catch (InterruptedException e) {
+        	// ignore
             }
         }
         

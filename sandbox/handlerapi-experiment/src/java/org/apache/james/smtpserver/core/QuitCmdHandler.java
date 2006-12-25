@@ -42,7 +42,7 @@ public class QuitCmdHandler implements CommandHandler {
     /**
      * handles QUIT command
      *
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
+     * @see org.apache.james.smtpserver.CommandHandler#onCommand(org.apache.james.smtpserver.SMTPSession, java.lang.String, java.lang.String) 
      */
     public SMTPResponse onCommand(SMTPSession session, String command, String parameters) {
         return doQUIT(session, parameters);
@@ -79,7 +79,7 @@ public class QuitCmdHandler implements CommandHandler {
      */
     public Collection getImplCommands() {
         Collection implCommands = new ArrayList();
-        implCommands.add("QUIT");
+        implCommands.add(COMMAND_NAME);
         
         return implCommands;
     }

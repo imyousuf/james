@@ -49,7 +49,9 @@ public class SupressDuplicateRcptHandler extends AbstractLogEnabled implements C
     }
 
     /**
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
+     * Ignore duplicated recipients and just return 250 as return code.
+     * 
+     * @see org.apache.james.smtpserver.CommandHandler#onCommand(org.apache.james.smtpserver.SMTPSession, java.lang.String, java.lang.String) 
      */
     public SMTPResponse onCommand(SMTPSession session, String command, String parameters) {
         MailAddress rcpt = (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT);

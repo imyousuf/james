@@ -159,12 +159,12 @@ public class SPFHandler extends AbstractJunkHandler implements CommandHandler,
     /**
      * Calls the SPFcheck
      * 
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
+     * @see org.apache.james.smtpserver.CommandHandler#onCommand(org.apache.james.smtpserver.SMTPSession, java.lang.String, java.lang.String) 
      */
     public SMTPResponse onCommand(SMTPSession session, String command, String parameters) {
-        if (session.getCommandName().equals("MAIL")) {
+        if (command.equals("MAIL")) {
             doSPFCheck(session);
-        } else if (session.getCommandName().equals("RCPT")) {
+        } else if (command.equals("RCPT")) {
             return doProcessing(session);
         }
         return null;

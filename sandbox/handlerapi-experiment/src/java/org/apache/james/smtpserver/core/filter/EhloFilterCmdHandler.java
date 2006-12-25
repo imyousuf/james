@@ -43,7 +43,7 @@ public class EhloFilterCmdHandler extends AbstractLogEnabled implements CommandH
     /**
      * processes EHLO command
      *
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
+     * @see org.apache.james.smtpserver.CommandHandler#onCommand(org.apache.james.smtpserver.SMTPSession, java.lang.String, java.lang.String) 
     **/
     public SMTPResponse onCommand(SMTPSession session, String command, String arguments) {
         return doEHLO(session, arguments);

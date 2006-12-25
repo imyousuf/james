@@ -40,7 +40,7 @@ public class RcptCmdHandler extends AbstractLogEnabled implements
     /**
      * handles RCPT command
      *
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
+     * @see org.apache.james.smtpserver.CommandHandler#onCommand(org.apache.james.smtpserver.SMTPSession, java.lang.String, java.lang.String) 
     **/
     public SMTPResponse onCommand(SMTPSession session, String command, String parameters) {
         return doRCPT(session, parameters);

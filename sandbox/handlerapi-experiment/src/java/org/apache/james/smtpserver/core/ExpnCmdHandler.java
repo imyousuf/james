@@ -44,7 +44,7 @@ public class ExpnCmdHandler implements CommandHandler {
      * This method informs the client that the command is
      * not implemented.
      *
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
+     * @see org.apache.james.smtpserver.CommandHandler#onCommand(org.apache.james.smtpserver.SMTPSession, java.lang.String, java.lang.String) 
      */
     public SMTPResponse onCommand(SMTPSession session, String command, String arguments) {
         return new SMTPResponse("502", DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SYSTEM_NOT_CAPABLE)+" EXPN is not supported");

@@ -39,13 +39,13 @@ public class HelpCmdHandler implements CommandHandler {
     private final static String COMMAND_NAME = "HELP";
 
 
-    /*
+    /**
      * handles HELP command
      *
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
+     * @see org.apache.james.smtpserver.CommandHandler#onCommand(org.apache.james.smtpserver.SMTPSession, java.lang.String, java.lang.String) 
     **/
     public SMTPResponse onCommand(SMTPSession session, String command, String arguments) {
-        return new SMTPResponse("502", DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SYSTEM_NOT_CAPABLE)+" HELP is not supported");
+        return new SMTPResponse("502", DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SYSTEM_NOT_CAPABLE)+" " + COMMAND_NAME + " is not supported");
     }
 
     /**
@@ -53,7 +53,7 @@ public class HelpCmdHandler implements CommandHandler {
      */
     public Collection getImplCommands() {
         Collection implCommands = new ArrayList();
-        implCommands.add("HELP");
+        implCommands.add(COMMAND_NAME);
         
         return implCommands;
     }

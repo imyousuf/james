@@ -109,11 +109,10 @@ public class ResolvableEhloHeloHandler extends AbstractJunkHandler implements
     }
 
     /**
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
+     * @see org.apache.james.smtpserver.CommandHandler#onCommand(org.apache.james.smtpserver.SMTPSession, java.lang.String, java.lang.String) 
      */
     public SMTPResponse onCommand(SMTPSession session, String command, String parameters) {
-        if (command.equals("HELO")
-                || command.equals("EHLO")) {
+        if (command.equals("HELO") || command.equals("EHLO")) {
             checkEhloHelo(session, parameters);
         } else if (command.equals("RCPT")) {
             return doProcessing(session);

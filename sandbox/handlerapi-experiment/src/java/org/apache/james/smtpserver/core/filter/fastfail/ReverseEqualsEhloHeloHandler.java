@@ -59,36 +59,21 @@ public class ReverseEqualsEhloHeloHandler extends ResolvableEhloHeloHandler {
     }
     
     /**
-     * @see JunkHandlerData#getJunkScoreLogString()
+     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getJunkHandlerData(org.apache.james.smtpserver.SMTPSession)
      */
-    protected String getJunkScoreLogString(SMTPSession session) {
-        return "Provided EHLO/HELO " + session.getState().get(SMTPSession.CURRENT_HELO_NAME) + " not equal reverse of "
-                    + session.getRemoteIPAddress() + ". Add junkScore: " + getScore();
-    }
-
-    /**
-     * @see JunkHandlerData#getRejectLogString()
-     */
-    protected String getRejectLogString(SMTPSession session) {
-        return getResponseString(session);
-    }
-
-    /**
-     * @see JunkHandlerData#getRejectResponseString()
-     */
-    protected String getResponseString(SMTPSession session) {
-        String responseString = "501 "
-            + DSNStatus.getStatus(DSNStatus.PERMANENT,
-                    DSNStatus.DELIVERY_INVALID_ARG)
-            + " Provided EHLO/HELO " + session.getState().get(SMTPSession.CURRENT_HELO_NAME) + " not equal reverse of "
-                    + session.getRemoteIPAddress();
-        return responseString;
-    }
-
-    /**
-     * @see JunkHandlerData#getScoreName()
-     */
-    protected String getScoreName() {
-        return "ReverseEqualsEhloHeloCheck";
+    public JunkHandlerData getJunkHandlerData(SMTPSession session) {
+        JunkHandlerData data = new JunkHandlerData();
+        
+        data.setJunkScoreLogString("Provided EHLO/HELO " + session.getState().get(SMTPSession.CURRENT_HELO_NAME) + " not equal reverse of "
+                + session.getRemoteIPAddress() + ". Add junkScore: " + getScore());
+        data.setRejectLogString("501 " + DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.DELIVERY_INVALID_ARG)
+        	+ " Provided EHLO/HELO " + session.getState().get(SMTPSession.CURRENT_HELO_NAME) + " not equal reverse of "
+                + session.getRemoteIPAddress());
+        
+        data.setRejectResponseString("501 " + DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.DELIVERY_INVALID_ARG)
+        	+ " Provided EHLO/HELO " + session.getState().get(SMTPSession.CURRENT_HELO_NAME) + " not equal reverse of "
+                + session.getRemoteIPAddress());
+        data.setScoreName("ReverseEqualsEhloHeloCheck");
+        return data;
     }
 }
