@@ -43,51 +43,6 @@ public interface SMTPSession {
     public final static String SESSION_STATE_MAP = "SESSION_STATE_MAP"; // the Session state 
 
     /**
-     * Writes response string to the client
-     *
-     * @param respString String that needs to send to the client
-     */
-   // void writeResponse(String respString);
-
-    /**
-     * Reads a line of characters off the command line.
-     *
-     * @return the trimmed input line
-     * @throws IOException if an exception is generated reading in the input characters
-     */
-    // String readCommandLine() throws IOException;
-
-
-    /**
-     * Returns ResponseBuffer, this optimizes the unecessary creation of resources
-     * by each handler object
-     *
-     * @return responseBuffer
-     */
-    StringBuffer getResponseBuffer();
-
-    /**
-     * Clears the response buffer, returning the String of characters in the buffer.
-     *
-     * @return the data in the response buffer
-     */
-    String clearResponseBuffer();
-
-    /**
-     * Returns currently process command name
-     *
-     * @return current command name
-     */
-    String getCommandName();
-
-    /**
-     * Returns currently process command argument
-     *
-     * @return current command argument
-     */
-    String getCommandArgument();
-
-    /**
      * Returns Mail object for message handlers to process
      *
      * @return Mail object
@@ -120,12 +75,6 @@ public interface SMTPSession {
      *
      */
     void abortMessage();
-
-    /**
-     * this makes the session to close
-     *
-     */
-    void endSession();
 
     /**
      * Returns Map that consists of the state of the SMTPSession per mail

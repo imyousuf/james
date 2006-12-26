@@ -159,7 +159,7 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
                 outs = new SplitOutputStream(outs, new FileOutputStream(tcplogprefix+"out"));
                 in = new CopyInputStream(in, new FileOutputStream(tcplogprefix+"in"));
             }
-            bytebufferHandler = new CRLFDelimitedByteBuffer();
+            bytebufferHandler = new CRLFDelimitedByteBuffer(in);
 
             out = new InternetPrintWriter(outs, true);
         } catch (RuntimeException e) {
@@ -453,20 +453,10 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
 
 
     public final byte[] readInputLine() throws IOException {
-        byte[] buffer = new byte[1000];
-        while (bytebufferHandler.isEmpty()) {
-            int length = in.read(buffer);
-            bytebufferHandler.write(buffer, length);
-        }
         return bytebufferHandler.read();
     }
     
     public final String readInputLineAsString() throws IOException {
-        byte[] buffer = new byte[1000];
-        while (bytebufferHandler.isEmpty()) {
-            int length = in.read(buffer);
-            bytebufferHandler.write(buffer, length);
-        }
         return bytebufferHandler.readString();
     }
 

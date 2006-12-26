@@ -95,6 +95,7 @@ public class AuthCmdHandler
                                 String l = new String(line, "US-ASCII");
                                 //System.err.println("((("+line+")))");
                                 SMTPResponse res = doPlainAuthPass(session, l);
+                                session.popLineHandler();
                                 session.writeSMTPResponse(res);
                             } catch (UnsupportedEncodingException e) {
                                 // TODO should never happen
@@ -115,7 +116,9 @@ public class AuthCmdHandler
 
                         public void onLine(SMTPSession session, byte[] line) {
                             try {
-                                session.writeSMTPResponse(doLoginAuthPass(session, new String(line, "US-ASCII"), true));
+                                SMTPResponse res = doLoginAuthPass(session, new String(line, "US-ASCII"));
+                                session.popLineHandler();
+                                session.writeSMTPResponse(res);
                             } catch (UnsupportedEncodingException e) {
                                 // TODO should never happen
                                 e.printStackTrace();
@@ -126,7 +129,7 @@ public class AuthCmdHandler
                     return new SMTPResponse("334", "VXNlcm5hbWU6"); // base64 encoded "Username:"
                 } else {
                     String user = initialResponse.trim();
-                    return doLoginAuthPass(session, user, false);
+                    return doLoginAuthPass(session, user);
                 }
             } else {
                 return doUnknownAuth(session, authType, initialResponse);
@@ -202,7 +205,6 @@ public class AuthCmdHandler
             // Ignored - this exception in parsing will be dealt
             // with in the if clause below
         }
-        session.popLineHandler();
         // Authenticate user
         if ((user == null) || (pass == null)) {
             return new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_ARGUMENTS, "Could not decode parameters for AUTH PLAIN");
@@ -222,7 +224,7 @@ public class AuthCmdHandler
      * @param session SMTP session object
      * @param initialResponse the initial response line passed in with the AUTH command
      */
-    private SMTPResponse doLoginAuthPass(SMTPSession session, String user, boolean inCustomeHandler) {
+    private SMTPResponse doLoginAuthPass(SMTPSession session, String user) {
         if (user != null) {
             try {
                 user = Base64.decodeAsString(user);
@@ -232,16 +234,15 @@ public class AuthCmdHandler
                 user = null;
             }
         }
-        if (inCustomeHandler) {
-            session.popLineHandler();
-        }
         session.pushLineHandler(new LineHandler() {
 
             private String user;
 
             public void onLine(SMTPSession session, byte[] line) {
                 try {
-                    doLoginAuthPassCheck(session, user, new String(line, "US-ASCII"));
+                    SMTPResponse res = doLoginAuthPassCheck(session, user, new String(line, "US-ASCII"));
+                    session.popLineHandler();
+                    session.writeSMTPResponse(res);
                 } catch (UnsupportedEncodingException e) {
                     // TODO should never happen
                     e.printStackTrace();
@@ -257,7 +258,7 @@ public class AuthCmdHandler
         return new SMTPResponse("334", "UGFzc3dvcmQ6"); // base64 encoded "Password:"
     }
     
-    private void doLoginAuthPassCheck(SMTPSession session, String user, String pass) {
+    private SMTPResponse doLoginAuthPassCheck(SMTPSession session, String user, String pass) {
         SMTPResponse response = null;
         if (pass != null) {
             try {
@@ -283,9 +284,7 @@ public class AuthCmdHandler
             // TODO: Make this string a more useful error message
             getLogger().error("AUTH method LOGIN failed");
         }
-        session.popLineHandler();
-        session.popLineHandler();
-        session.writeSMTPResponse(response);
+        return response;
     }
 
     /**

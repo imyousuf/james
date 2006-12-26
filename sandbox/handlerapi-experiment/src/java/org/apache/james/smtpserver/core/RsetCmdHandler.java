@@ -44,7 +44,7 @@ public class RsetCmdHandler implements CommandHandler {
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(org.apache.james.smtpserver.SMTPSession, java.lang.String, java.lang.String) 
     **/
     public SMTPResponse onCommand(SMTPSession session, String command, String parameters) {
-        return doRSET(session, session.getCommandArgument());
+        return doRSET(session, parameters);
     }
 
 
@@ -70,7 +70,7 @@ public class RsetCmdHandler implements CommandHandler {
      */
     public Collection getImplCommands() {
         Collection implCommands = new ArrayList();
-        implCommands.add("RSET");
+        implCommands.add(COMMAND_NAME);
         
         return implCommands;
     }

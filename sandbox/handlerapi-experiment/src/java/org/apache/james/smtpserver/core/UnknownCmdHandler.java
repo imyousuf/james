@@ -55,7 +55,7 @@ public class UnknownCmdHandler implements CommandHandler {
         StringBuffer result = new StringBuffer();
         result.append(DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.DELIVERY_INVALID_CMD))
                       .append(" Command ")
-                      .append(session.getCommandName())
+                      .append(command)
                       .append(" unrecognized.");
         return new SMTPResponse("500", result);
     }

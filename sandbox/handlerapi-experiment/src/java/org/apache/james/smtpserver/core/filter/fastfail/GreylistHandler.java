@@ -292,7 +292,7 @@ public class GreylistHandler extends AbstractLogEnabled implements
         if (!session.isRelayingAllowed() && !(session.isAuthRequired() && session.getUser() != null)) {
 
             if ((wNetworks == null) || (!wNetworks.matchInetNetwork(session.getRemoteIPAddress()))) {
-                return doGreyListCheck(session, session.getCommandArgument());
+                return doGreyListCheck(session, arguments);
             } else {
                 getLogger().info("IpAddress " + session.getRemoteIPAddress() + " is whitelisted. Skip greylisting.");
             }

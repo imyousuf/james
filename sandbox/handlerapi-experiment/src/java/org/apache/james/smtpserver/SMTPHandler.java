@@ -75,16 +75,6 @@ public class SMTPHandler
     private final static RFC822DateFormat rfc822DateFormat = new RFC822DateFormat();
 
     /**
-     * The name of the currently parsed command
-     */
-    String curCommandName =  null;
-
-    /**
-     * The value of the currently parsed command
-     */
-    String curCommandArgument =  null;
-
-    /**
      * The SMTPHandlerChain object set by SMTPServer
      */
     SMTPHandlerChain handlerChain = null;
@@ -147,11 +137,6 @@ public class SMTPHandler
     private HashMap connectionState = new HashMap();
     
     /**
-     * The per-handler response buffer used to marshal responses.
-     */
-    private StringBuffer responseBuffer = new StringBuffer(256);
-    
-    /**
      * If not null every line is sent to this command handler instead
      * of the default "command parsing -> dipatching" procedure.
      */
@@ -192,23 +177,22 @@ public class SMTPHandler
         // resetState();
         // resetConnectionState();
 
+        SMTPResponse welcomeResponse;
         // if no greeting was configured use a default
         if (smtpGreeting == null) {
             // Initially greet the connector
             // Format is:  Sat, 24 Jan 1998 13:16:09 -0500
-
-            responseBuffer.append("220 ")
+            welcomeResponse = new SMTPResponse("220",
+                          new StringBuffer(256)
                           .append(theConfigData.getHelloName())
                           .append(" SMTP Server (")
                           .append(SOFTWARE_TYPE)
                           .append(") ready ")
-                          .append(rfc822DateFormat.format(new Date()));
+                          .append(rfc822DateFormat.format(new Date())));
         } else {
-            responseBuffer.append("220 ")
-                          .append(smtpGreeting);
+            welcomeResponse = new SMTPResponse("220",smtpGreeting);
         }
-        String responseString = clearResponseBuffer();
-        writeLoggedFlushedResponse(responseString);
+        writeSMTPResponse(welcomeResponse);
 
         //the core in-protocol handling logic
         //run all the connection handlers, if it fast fails, end the session
@@ -250,8 +234,6 @@ public class SMTPHandler
         theWatchdog.start();
         while(!sessionEnded) {
           //Reset the current command values
-          curCommandName = null;
-          curCommandArgument = null;
           mode = COMMAND_MODE;
 
           //parse the command
@@ -312,6 +294,8 @@ public class SMTPHandler
                 cmdString = cmdString.trim();
             }
             
+            String curCommandArgument = null;
+            String curCommandName = null;
             int spaceIndex = cmdString.indexOf(" ");
             if (spaceIndex > 0) {
                 curCommandName = cmdString.substring(0, spaceIndex);
@@ -357,19 +341,22 @@ public class SMTPHandler
             } else {
                 // Iterator i = esmtpextensions.iterator();
                 for (int k = 0; k < response.getLines().size(); k++) {
-                    responseBuffer.append(response.getRetCode());
+                    StringBuffer respBuff = new StringBuffer(256);
+                    respBuff.append(response.getRetCode());
                     if (k == response.getLines().size() - 1) {
-                        responseBuffer.append(" ");
+                        respBuff.append(" ");
+                        respBuff.append(response.getLines().get(k));
+                        writeResponse(respBuff.toString());
                     } else {
-                        responseBuffer.append("-");
+                        respBuff.append("-");
+                        respBuff.append(response.getLines().get(k));
+                        writeResponse(respBuff.toString());
                     }
-                    responseBuffer.append(response.getLines().get(k));
-                    writeResponse(clearResponseBuffer());
                 }
             }
             
             if (response.isEndSession()) {
-                endSession();
+                sessionEnded = true;
             }
         }
     }
@@ -386,8 +373,6 @@ public class SMTPHandler
         // as the default.
         lineHandlers = null;
         pushLineHandler(this);
-
-        clearResponseBuffer();
 
         authenticatedUser = null;
         smtpID = null;
@@ -410,20 +395,6 @@ public class SMTPHandler
         if(mode == COMMAND_MODE) {
             mode = RESPONSE_MODE;
         }
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#getCommandName()
-     */
-    public String getCommandName() {
-        return curCommandName;
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#getCommandArgument()
-     */
-    public String getCommandArgument() {
-        return curCommandArgument;
     }
 
     /**
@@ -453,13 +424,6 @@ public class SMTPHandler
      */
     public String getRemoteIPAddress() {
         return remoteIP;
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#endSession()
-     */
-    public void endSession() {
-        sessionEnded = true;
     }
 
     /**
@@ -545,22 +509,6 @@ public class SMTPHandler
      */
     public void setUser(String userID) {
         authenticatedUser = userID;
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#getResponseBuffer()
-     */
-    public StringBuffer getResponseBuffer() {
-        return responseBuffer;
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#clearResponseBuffer()
-     */
-    public String clearResponseBuffer() {
-        String responseString = responseBuffer.toString();
-        responseBuffer.delete(0,responseBuffer.length());
-        return responseString;
     }
 
     /**

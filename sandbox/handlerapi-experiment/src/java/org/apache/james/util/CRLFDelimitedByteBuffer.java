@@ -20,6 +20,9 @@
 
 package org.apache.james.util;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 /*
  * A simple, synchronized, queue of CRLF-delimited lines.
  *
@@ -81,11 +84,14 @@ public class CRLFDelimitedByteBuffer {
         }
     }
 
-    public CRLFDelimitedByteBuffer() {
-        this(2048);
+    private InputStream input;
+
+    public CRLFDelimitedByteBuffer(InputStream input) {
+        this(input, 2048);
     }
 
-    public CRLFDelimitedByteBuffer(int maxLineLength) {
+    public CRLFDelimitedByteBuffer(InputStream input, int maxLineLength) {
+        this.input = input; 
         lines = new java.util.ArrayList();
         workLine = new byte[maxLineLength];
     }
@@ -94,11 +100,21 @@ public class CRLFDelimitedByteBuffer {
         return lines.isEmpty();
     }
 
-    synchronized public byte[] read() throws LineLengthExceededException, TerminationException {
+    synchronized public byte[] read() throws IOException, LineLengthExceededException, TerminationException {
+        byte[] buffer = new byte[1000];
+        while (isEmpty()) {
+            int length = input.read(buffer);
+            write(buffer, length);
+        }
         return lines.isEmpty() ? null : ((Line) lines.remove(0)).getBytes();
     }
 
-    synchronized public String readString() throws LineLengthExceededException, TerminationException {
+    synchronized public String readString() throws IOException, LineLengthExceededException, TerminationException {
+        byte[] buffer = new byte[1000];
+        while (isEmpty()) {
+            int length = input.read(buffer);
+            write(buffer, length);
+        }
         if (lines.isEmpty()) return null;
         else {
             byte[] bytes = ((Line) lines.remove(0)).getBytes();
