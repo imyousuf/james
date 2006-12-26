@@ -45,7 +45,6 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
     private boolean m_ehloResolv = false;
     private boolean m_senderDomainResolv = false;
     private boolean m_checkAuthNetworks = false;
-    private boolean m_checkAuthClients = false;
     private boolean m_heloEhloEnforcement = true;
     private boolean m_reverseEqualsHelo = false;
     private boolean m_reverseEqualsEhlo = false;
@@ -125,10 +124,6 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
         m_senderDomainResolv = true; 
     }
     
-    public void setCheckAuthClients(boolean ignore) {
-        m_checkAuthClients = ignore; 
-    }
-    
     public void setMaxRcpt(int maxRcpt) {
         m_maxRcpt = maxRcpt; 
     }
@@ -206,8 +201,8 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
             DefaultConfiguration d = createHandler(
                     ValidSenderDomainHandler.class.getName(), null);
             d.setAttribute("command", "MAIL");
-            d.addChild(Util.getValuedConfiguration("checkAuthClients",
-                    m_checkAuthClients + ""));
+            d.addChild(Util.getValuedConfiguration("checkAuthNetworks",
+                    m_checkAuthNetworks + ""));
             config.addChild(d);
         }
         if (m_maxRcpt > 0) {

@@ -22,17 +22,14 @@
 package org.apache.james.smtpserver;
 
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.james.Constants;
 import org.apache.james.core.AbstractJamesHandler;
 import org.apache.james.util.CRLFDelimitedByteBuffer;
 import org.apache.mailet.Mail;
-import org.apache.mailet.dates.RFC822DateFormat;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -59,20 +56,9 @@ public class SMTPHandler
     private final static byte MESSAGE_ABORT_MODE = 4;
 
     /**
-     * SMTP Server identification string used in SMTP headers
-     */
-    private final static String SOFTWARE_TYPE = "JAMES SMTP Server "
-                                                 + Constants.SOFTWARE_VERSION;
-
-    /**
      * Static Random instance used to generate SMTP ids
      */
     private final static Random random = new Random();
-
-    /**
-     * Static RFC822DateFormat used to generate date headers
-     */
-    private final static RFC822DateFormat rfc822DateFormat = new RFC822DateFormat();
 
     /**
      * The SMTPHandlerChain object set by SMTPServer
@@ -114,12 +100,6 @@ public class SMTPHandler
      * Whether the remote Server must send HELO/EHLO 
      */
     private boolean heloEhloEnforcement;
-    
-
-    /**
-     * The SMTPGreeting
-     */
-    private String smtpGreeting = null;
     
     /**
      * The id associated with this particular SMTP interaction.
@@ -171,28 +151,10 @@ public class SMTPHandler
         relayingAllowed = theConfigData.isRelayingAllowed(remoteIP);
         authRequired = theConfigData.isAuthRequired(remoteIP);
         heloEhloEnforcement = theConfigData.useHeloEhloEnforcement();
-        smtpGreeting = theConfigData.getSMTPGreeting();
         // Both called in resetHandler, we don't need to call them again here.
         // sessionEnded = false;
         // resetState();
         // resetConnectionState();
-
-        SMTPResponse welcomeResponse;
-        // if no greeting was configured use a default
-        if (smtpGreeting == null) {
-            // Initially greet the connector
-            // Format is:  Sat, 24 Jan 1998 13:16:09 -0500
-            welcomeResponse = new SMTPResponse("220",
-                          new StringBuffer(256)
-                          .append(theConfigData.getHelloName())
-                          .append(" SMTP Server (")
-                          .append(SOFTWARE_TYPE)
-                          .append(") ready ")
-                          .append(rfc822DateFormat.format(new Date())));
-        } else {
-            welcomeResponse = new SMTPResponse("220",smtpGreeting);
-        }
-        writeSMTPResponse(welcomeResponse);
 
         //the core in-protocol handling logic
         //run all the connection handlers, if it fast fails, end the session

@@ -542,7 +542,7 @@ public class SMTPServerTest extends TestCase {
     
     public void testSenderDomainResolvRelayClient() throws Exception {
         m_testConfiguration.setSenderDomainResolv();
-        m_testConfiguration.setCheckAuthClients(true);
+        m_testConfiguration.setCheckAuthNetworks(true);
         finishSetUp(m_testConfiguration);
 
         SMTPClient smtpProtocol1 = new SMTPClient();
