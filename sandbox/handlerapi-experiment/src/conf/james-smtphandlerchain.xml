@@ -86,7 +86,7 @@
      <!--
      <handler class="org.apache.james.smtpserver.core.filter.fastfail.ReverseEqualsEhloHeloHandler" command="EHLO,HELO">
          <action> reject </action>
-         <checkAuthClients> false </checkAuthClients>
+         <checkAuthNetworks> false </checkAuthNetworks>
          <checkAuthUsers> false </checkAuthUsers>
      </handler>
      -->
@@ -98,7 +98,7 @@
      <!--
      <handler class="org.apache.james.smtpserver.core.filter.fastfail.ValidSenderDomainHandler" command="MAIL">
          <action> reject </action>
-         <checkAuthClients> false </checkAuthClients>
+         <checkAuthNetworks> false </checkAuthNetworks>
          <checkAuthUsers> false </checkAuthUsers>
      </handler>
      -->

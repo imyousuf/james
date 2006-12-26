@@ -43,7 +43,7 @@ public class ValidSenderDomainHandler
     extends AbstractJunkHandler
     implements CommandHandler, Configurable, Serviceable {
     
-    private boolean checkAuthClients = false;
+    private boolean checkAuthNetworks = false;
     
     private DNSServer dnsServer = null;
 
@@ -53,9 +53,9 @@ public class ValidSenderDomainHandler
      */
     public void configure(Configuration handlerConfiguration) throws ConfigurationException {
         
-        Configuration configRelay = handlerConfiguration.getChild("checkAuthClients",false);
+        Configuration configRelay = handlerConfiguration.getChild("checkAuthNetworks",false);
         if(configRelay != null) {
-            setCheckAuthClients(configRelay.getValueAsBoolean(false));
+            setCheckAuthNetworks(configRelay.getValueAsBoolean(false));
         }
         
         super.configure(handlerConfiguration);
@@ -78,12 +78,12 @@ public class ValidSenderDomainHandler
     }
     
     /**
-     * Enable checking of authorized clients
+     * Enable checking of authorized networks
      * 
-     * @param checkAuthClients Set to true to enable
+     * @param checkAuthNetworks Set to true to enable
      */
-    public void setCheckAuthClients(boolean checkAuthClients) {
-        this.checkAuthClients = checkAuthClients;
+    public void setCheckAuthNetworks(boolean checkAuthNetworks) {
+        this.checkAuthNetworks = checkAuthNetworks;
     }
     
     /**
@@ -105,7 +105,7 @@ public class ValidSenderDomainHandler
         /**
          * don't check if the ip address is allowed to relay. Only check if it is set in the config. 
          */
-        if (checkAuthClients || !session.isRelayingAllowed()) {
+        if (checkAuthNetworks || !session.isRelayingAllowed()) {
             Collection records = null;
             
                 
