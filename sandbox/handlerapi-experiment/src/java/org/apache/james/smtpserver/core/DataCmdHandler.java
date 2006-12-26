@@ -27,7 +27,9 @@ import org.apache.james.core.MailHeaders;
 import org.apache.james.core.MailImpl;
 import org.apache.james.fetchmail.ReaderInputStream;
 import org.apache.james.smtpserver.CommandHandler;
+import org.apache.james.smtpserver.ExtensibleHandler;
 import org.apache.james.smtpserver.LineHandler;
+import org.apache.james.smtpserver.MessageHandler;
 import org.apache.james.smtpserver.MessageSizeException;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
@@ -62,7 +64,7 @@ import java.util.List;
  */
 public class DataCmdHandler
     extends AbstractLogEnabled
-    implements CommandHandler {
+    implements CommandHandler, ExtensibleHandler {
 
     private final static String SOFTWARE_TYPE = "JAMES SMTP Server "
                                                  + Constants.SOFTWARE_VERSION;
@@ -88,6 +90,8 @@ public class DataCmdHandler
      * The character array that indicates termination of an SMTP connection
      */
     private final static char[] SMTPTerminator = { '\r', '\n', '.', '\r', '\n' };
+
+    private List messageHandlers;
 
     /**
      * process DATA command
@@ -148,8 +152,8 @@ public class DataCmdHandler
                             }
                         }
                         
-                        // TODO move here the code to manage MessageHandlers
-                        
+                        // Handle MessageHandlers
+                        processExtensions(session);
                         
                     } catch (IOException e) {
                         // TODO Define what we have to do here!
@@ -426,6 +430,41 @@ public class DataCmdHandler
         implCommands.add("DATA");
         
         return implCommands;
+    }
+
+
+    public Class getMarkerInterface() {
+        return MessageHandler.class;
+    }
+
+
+    public void wireExtensions(List extension) {
+        this.messageHandlers = extension;
+    }
+
+    /**
+     * @param session
+     */
+    private void processExtensions(SMTPSession session) {
+        if(session.getMail() != null && messageHandlers != null) {
+            try {
+                getLogger().debug("executing message handlers");
+                int count = messageHandlers.size();
+                for(int i =0; i < count; i++) {
+                    SMTPResponse response = ((MessageHandler)messageHandlers.get(i)).onMessage(session);
+                    
+                    session.writeSMTPResponse(response);
+                    
+                    //if the response is received, stop processing of command handlers
+                    if(response != null) {
+                        break;
+                    }
+                }
+            } finally {
+                //do the clean up
+                session.resetState();
+            }
+        }
     }
 
 

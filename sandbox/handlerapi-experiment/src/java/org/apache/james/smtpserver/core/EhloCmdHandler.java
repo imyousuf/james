@@ -23,9 +23,11 @@ package org.apache.james.smtpserver.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.smtpserver.CommandHandler;
+import org.apache.james.smtpserver.ExtensibleHandler;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.SMTPRetCode;
@@ -34,12 +36,13 @@ import org.apache.james.util.mail.SMTPRetCode;
  * Handles EHLO command
  */
 public class EhloCmdHandler extends AbstractLogEnabled implements
-        CommandHandler {
+        CommandHandler, ExtensibleHandler {
 
     /**
      * The name of the command handled by the command handler
      */
     private final static String COMMAND_NAME = "EHLO";
+    private List ehloExtensions;
 
     /**
      * processes EHLO command
@@ -76,11 +79,8 @@ public class EhloCmdHandler extends AbstractLogEnabled implements
             resp.appendLine("SIZE " + maxMessageSize);
         }
 
-        if (session.isAuthRequired()) {
-            resp.appendLine("AUTH LOGIN PLAIN");
-            resp.appendLine("AUTH=LOGIN PLAIN");
-        }
-
+        processExtensions(session, resp);
+        
         resp.appendLine("PIPELINING");
         resp.appendLine("ENHANCEDSTATUSCODES");
         // see http://issues.apache.org/jira/browse/JAMES-419 
@@ -98,4 +98,34 @@ public class EhloCmdHandler extends AbstractLogEnabled implements
         
         return implCommands;
     }
+
+
+
+    public Class getMarkerInterface() {
+        return EhloExtension.class;
+    }
+
+
+    public void wireExtensions(List extension) {
+        this.ehloExtensions = extension;
+    }
+
+    /**
+     * @param session
+     */
+    private void processExtensions(SMTPSession session, SMTPResponse resp) {
+        if (ehloExtensions != null) {
+            int count = ehloExtensions.size();
+            for(int i =0; i < count; i++) {
+                List lines = ((EhloExtension)ehloExtensions.get(i)).getImplementedEsmtpFeatures(session);
+                if (lines != null) {
+                    for (int j = 0; j < lines.size(); j++) {
+                        resp.appendLine((String) lines.get(j));
+                    }
+                }
+            }
+        }
+    }
+
+
 }

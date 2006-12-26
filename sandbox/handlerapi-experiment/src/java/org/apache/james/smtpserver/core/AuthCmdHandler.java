@@ -31,6 +31,8 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
 import org.apache.james.util.Base64;
@@ -42,7 +44,7 @@ import java.io.UnsupportedEncodingException;
   */
 public class AuthCmdHandler
     extends AbstractLogEnabled
-    implements CommandHandler {
+    implements CommandHandler, EhloExtension {
 
     private abstract class AbstractSMTPLineHandler implements LineHandler {
         
@@ -309,5 +311,16 @@ public class AuthCmdHandler
         implCommands.add("AUTH");
         
         return implCommands;
+    }
+
+    public List getImplementedEsmtpFeatures(SMTPSession session) {
+        if (session.isAuthRequired()) {
+            List resp = new LinkedList();
+            resp.add("AUTH LOGIN PLAIN");
+            resp.add("AUTH=LOGIN PLAIN");
+            return resp;
+        } else {
+            return null;
+        }
     }  
 }

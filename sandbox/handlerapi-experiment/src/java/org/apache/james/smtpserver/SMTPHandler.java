@@ -191,32 +191,6 @@ public class SMTPHandler
           ((LineHandler) lineHandlers.getLast()).onLine(this, line);
           theWatchdog.reset();
           
-          //handle messages
-          if(getMail() != null) {
-              try {
-                  getLogger().debug("executing message handlers");
-                  List messageHandlers = handlerChain.getMessageHandlers();
-                  int count = messageHandlers.size();
-                  for(int i =0; i < count; i++) {
-                      SMTPResponse response = ((MessageHandler)messageHandlers.get(i)).onMessage(this);
-                      
-                      writeSMTPResponse(response);
-                      
-                      //if the response is received, stop processing of command handlers
-                      if(response != null) {
-                          break;
-                      }
-                  }
-              } finally {
-                  //do the clean up
-                  if(mail != null) {
-                      ContainerUtil.dispose(mail);
-              
-                      mail = null;
-                      resetState();
-                  }
-              }
-          }
         }
         theWatchdog.stop();
         getLogger().debug("Closing socket.");
@@ -363,11 +337,10 @@ public class SMTPHandler
      * @see org.apache.james.smtpserver.SMTPSession#resetState()
      */
     public void resetState() {
-        // We already clear the map, it should be enough
-//        ArrayList recipients = (ArrayList)state.get(RCPT_LIST);
-//        if (recipients != null) {
-//            recipients.clear();
-//        }
+        if(mail != null) {
+            ContainerUtil.dispose(mail);
+            mail = null;
+        }
         // remember the ehlo mode between resets
         Object currentHeloMode = getState().get(CURRENT_HELO_MODE);
 

@@ -40,6 +40,7 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -52,16 +53,37 @@ import java.util.Properties;
 public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable, Serviceable, Initializable {
 
     private HashMap commandHandlerMap = new HashMap();
-    private ArrayList messageHandlers = new ArrayList();
     private ArrayList connectHandlers = new ArrayList();
+    private List handlers = new LinkedList();
 
     private final CommandHandler unknownHandler = new UnknownCmdHandler();
     private ServiceManager serviceManager;
+    private boolean messageHandlerFound;
     
     private final static String[] mandatoryCommands = { "MAIL" , "RCPT", "DATA"};
 
     public void service(ServiceManager arg0) throws ServiceException {
         serviceManager = arg0;
+    }
+
+    /**
+     * ExtensibleHandler wiring
+     */
+    private void wireExtensibleHandlers() {
+        for (Iterator h = handlers.iterator(); h.hasNext(); ) {
+            Object handler = h.next();
+            if (handler instanceof ExtensibleHandler) {
+                Class markerInterface = ((ExtensibleHandler) handler).getMarkerInterface();
+                List extensions = new LinkedList();
+                for (Iterator c2 = handlers.iterator(); c2.hasNext(); ) {
+                    Object ext = c2.next();
+                    if (markerInterface.isInstance(ext)) {
+                        extensions.add(ext);
+                    }
+                }
+                ((ExtensibleHandler) handler).wireExtensions(extensions);
+            }
+        }
     }
 
     /**
@@ -149,7 +171,7 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
                         "No commandhandlers configured for mandatory commands");
             }
 
-            if (messageHandlers.size() == 0) {
+            if (!messageHandlerFound) {
                 if (getLogger().isErrorEnabled()) {
                     getLogger()
                             .error(
@@ -172,9 +194,11 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
             List handlers = (List) commandHandlerMap.get(h.next());
             Iterator h2 = handlers.iterator();
             while (h2.hasNext()) {
-              ContainerUtil.initialize(h2.next());
+                ContainerUtil.initialize(h2.next());
             }
         }
+        wireExtensibleHandlers();
+
     }
 
     /**
@@ -258,11 +282,15 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
 
             // if it is a message handler add it to list of message handlers
             if (handler instanceof MessageHandler) {
-                messageHandlers.add((MessageHandler) handler);
+                messageHandlerFound = true;
                 if (getLogger().isInfoEnabled()) {
                     getLogger().info("Added MessageHandler: " + className);
                 }
             }
+            
+            // fill the big handler table
+            handlers.add(handler);
+            
         } catch (ClassNotFoundException ex) {
             if (getLogger().isErrorEnabled()) {
                 getLogger().error("Failed to add Commandhandler: " + className,
@@ -342,15 +370,6 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
         }
 
         return handlers;
-    }
-
-    /**
-     * Returns all the configured message handlers
-     *
-     * @return List of message handlers
-     */
-    List getMessageHandlers() {
-        return messageHandlers;
     }
 
     /**
