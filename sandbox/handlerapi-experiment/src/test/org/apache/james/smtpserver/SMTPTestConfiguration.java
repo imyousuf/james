@@ -214,9 +214,6 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
         }
         config.addChild(createHandler(CoreCmdHandlerLoader.class.getName(),
                 null));
-        config.addChild(createHandler(
-                org.apache.james.smtpserver.core.SendMailHandler.class
-                        .getName(), null));
         handlerConfig.addChild(config);
         addChild(handlerConfig);
     }

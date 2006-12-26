@@ -34,6 +34,7 @@ import org.apache.james.smtpserver.core.RcptCmdHandler;
 import org.apache.james.smtpserver.core.RsetCmdHandler;
 import org.apache.james.smtpserver.core.SendMailHandler;
 import org.apache.james.smtpserver.core.VrfyCmdHandler;
+import org.apache.james.smtpserver.core.WelcomeMessageHandler;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.james.MockMailServer;
 import org.apache.james.test.mock.javaxmail.MockMimeMessage;
@@ -128,6 +129,8 @@ public class Util {
         handlerChainConfig.addChild(createCommandHandlerConfiguration("QUIT", QuitCmdHandler.class));
         // mail sender
         handlerChainConfig.addChild(createCommandHandlerConfiguration(null, SendMailHandler.class));
+        // welcome message handler
+        handlerChainConfig.addChild(createCommandHandlerConfiguration(null, WelcomeMessageHandler.class));
         return handlerChainConfig;
     }
 

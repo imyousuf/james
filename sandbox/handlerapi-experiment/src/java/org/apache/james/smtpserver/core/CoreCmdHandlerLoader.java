@@ -44,6 +44,7 @@ public class CoreCmdHandlerLoader implements CommandsHandler {
     private final Object RSETCMDHANDLER = RsetCmdHandler.class.getName();
     private final Object VRFYCMDHANDLER = VrfyCmdHandler.class.getName();
     private final Object WELCOMEMESSAGEHANDLER = WelcomeMessageHandler.class.getName();
+    private final Object SENDMAILHANDLER = SendMailHandler.class.getName();
    
     /**
      * @see org.apache.james.smtpserver.CommandsHandler#getCommands()
@@ -52,7 +53,8 @@ public class CoreCmdHandlerLoader implements CommandsHandler {
         Map commands = new HashMap();
         
         // Insert the basecommands in the Map
-        commands.put("", WELCOMEMESSAGEHANDLER);
+        commands.put("WelcomeMessageHandler", WELCOMEMESSAGEHANDLER);
+        commands.put("SendMailHandler", SENDMAILHANDLER);
         commands.put("AUTH", AUTHCMDHANDLER);
         commands.put("DATA", DATACMDHANDLER);
         commands.put("EHLO", EHLOCMDHANDLER);

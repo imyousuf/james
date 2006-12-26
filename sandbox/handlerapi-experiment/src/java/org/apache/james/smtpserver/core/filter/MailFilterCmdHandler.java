@@ -68,7 +68,7 @@ public class MailFilterCmdHandler
         }
         if (session.getState().containsKey(SMTPSession.SENDER)) {
             return new SMTPResponse("503", DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" Sender already specified");
-        } else if (!session.getConnectionState().containsKey(SMTPSession.CURRENT_HELO_MODE) && session.useHeloEhloEnforcement()) {
+        } else if (!session.getConnectionState().containsKey(SMTPSession.CURRENT_HELO_MODE) && session.getConfigurationData().useHeloEhloEnforcement()) {
             return new SMTPResponse("503", DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" Need HELO or EHLO before MAIL");
         } else if (argument == null || !argument.toUpperCase(Locale.US).equals("FROM")
                    || sender == null) {

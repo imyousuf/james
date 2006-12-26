@@ -93,11 +93,6 @@ public class SMTPHandler
      * whether or not this connection can relay without authentication
      */
     private boolean relayingAllowed;
-
-    /**
-     * Whether the remote Server must send HELO/EHLO 
-     */
-    private boolean heloEhloEnforcement;
     
     /**
      * The id associated with this particular SMTP interaction.
@@ -148,7 +143,6 @@ public class SMTPHandler
         smtpID = random.nextInt(1024) + "";
         relayingAllowed = theConfigData.isRelayingAllowed(remoteIP);
         authRequired = theConfigData.isAuthRequired(remoteIP);
-        heloEhloEnforcement = theConfigData.useHeloEhloEnforcement();
         // Both called in resetHandler, we don't need to call them again here.
         // sessionEnded = false;
         // resetState();
@@ -446,12 +440,6 @@ public class SMTPHandler
         return authRequired;
     }
 
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#useHeloEhloEnforcement()
-     */
-    public boolean useHeloEhloEnforcement() {
-        return heloEhloEnforcement;
-    }
     /**
      * @see org.apache.james.smtpserver.SMTPSession#getUser()
      */

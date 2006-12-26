@@ -110,13 +110,6 @@ public interface SMTPSession {
      * @return authentication required or not
      */
     boolean isAuthRequired();
-    
-    /**
-     * Returns whether remote server needs to send HELO/EHLO
-     *
-     * @return HELO/EHLO required or not
-     */
-    boolean useHeloEhloEnforcement();
 
     /**
      * Returns the user name associated with this SMTP interaction.

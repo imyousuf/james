@@ -32,7 +32,6 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.smtpserver.core.CoreCmdHandlerLoader;
-import org.apache.james.smtpserver.core.SendMailHandler;
 import org.apache.james.smtpserver.core.UnknownCmdHandler;
 import org.apache.james.smtpserver.core.filter.CoreFilterCmdHandlerLoader;
 
@@ -83,8 +82,6 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
                     CoreFilterCmdHandlerLoader.class.getName());
             cmds.setProperty("Default CoreCmdHandlerLoader", CoreCmdHandlerLoader.class
                     .getName());
-            cmds.setProperty("Default SendMailHandler", SendMailHandler.class
-                    .getName());
             Enumeration e = cmds.keys();
             while (e.hasMoreElements()) {
                 String cmdName = (String) e.nextElement();
@@ -111,8 +108,6 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
                         if (!className.equals(CoreFilterCmdHandlerLoader.class
                                 .getName())
                                 && !className.equals(CoreCmdHandlerLoader.class
-                                        .getName())
-                                && !className.equals(SendMailHandler.class
                                         .getName())) {
 
                             // load the handler
@@ -124,8 +119,6 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
                 // load the BaseCmdHandler and SendMailHandler
                 loadClass(classLoader, CoreCmdHandlerLoader.class.getName(),
                         addHandler(null, CoreCmdHandlerLoader.class.getName()));
-                loadClass(classLoader, SendMailHandler.class.getName(),
-                        addHandler(null, SendMailHandler.class.getName()));
             }
         }
 
