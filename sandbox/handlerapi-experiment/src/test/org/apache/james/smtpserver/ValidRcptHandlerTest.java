@@ -102,7 +102,7 @@ public class ValidRcptHandlerTest extends TestCase {
                 if (user.equals(USER1)) {
                     mappings.add("address@localhost");
                 } else if (user.equals(USER2)) {
-                    throw new ErrorMappingException("BOUNCE!");
+                    throw new ErrorMappingException("554 BOUNCE");
                 }
                 return mappings;
             }

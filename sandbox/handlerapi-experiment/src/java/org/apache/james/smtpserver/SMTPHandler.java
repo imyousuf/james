@@ -159,6 +159,9 @@ public class SMTPHandler
      */
     private LinkedList lineHandlers;
 
+    /**
+     * @see org.apache.james.core.AbstractJamesHandler#initHandler(java.net.Socket)
+     */
     protected void initHandler(Socket connection) throws IOException {
         super.initHandler(connection);
         pushLineHandler(this); 

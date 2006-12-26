@@ -32,31 +32,61 @@ public class SMTPResponse {
     private String rawLine = null;
     private boolean endSession = false;
     
+
     public SMTPResponse() {
-        
+        //TODO: Should we remove this constructur to force the developers to specify all needed informations ? 
     }
-    
+       
+    /**
+     * @see #SMTPResponse(String, StringBuffer)
+     */
     public SMTPResponse(String code, String description) {
+        if (code == null) throw new IllegalArgumentException("SMTPResponse code can not be null");
+        if (description == null) new IllegalArgumentException("SMTPResponse description can not be null");
+    
         this.setRetCode(code);
         this.appendLine(description);
+        this.rawLine = code + " " + description;
     }
     
+    /**
+     * Construct a new SMTPResponse. The given code and description can not be null, if null an IllegalArgumentException
+     * get thrown
+     * 
+     * @param code the returnCode
+     * @param description the description 
+     */
     public SMTPResponse(String code, StringBuffer description) {
+        if (code == null) throw new IllegalArgumentException("SMTPResponse code can not be null");
+        if (description == null) new IllegalArgumentException("SMTPResponse description can not be null");
+    
         this.setRetCode(code);
         this.appendLine(description);
+        this.rawLine = code + " " + description.toString();
     }
     
+    /**
+     * Construct a new SMTPResponse. The given rawLine need to be in format [SMTPResponseReturnCode SMTResponseDescription].
+     * If this is not the case an IllegalArgumentException get thrown.
+     * 
+     * @param rawLine the raw SMTPResponse
+     */
     public SMTPResponse(String rawLine) {
-    String args[] = rawLine.split(" ");
-    if (args != null && args.length > 1) {
-        this.setRetCode(args[0]);
-        this.appendLine(new StringBuffer(rawLine.substring(args[0].length()+1)));
-    } else {
-        // TODO: Throw exception ?
-    }
+        String args[] = rawLine.split(" ");
+        if (args != null && args.length > 1) {
+            this.setRetCode(args[0]);
+            this.appendLine(new StringBuffer(rawLine.substring(args[0].length()+1)));
+        } else {
+            throw new IllegalArgumentException("Invalid SMTPResponse format. Format should be [SMTPCode SMTPReply]");
+        }
         this.rawLine = rawLine;
     }
     
+    /**
+     * Append the responseLine to the SMTPResponse
+     * 
+     * @param line the responseLine to append
+     */
     public void appendLine(String line) {
         if (lines == null) {
             lines = new LinkedList();
@@ -64,35 +94,71 @@ public class SMTPResponse {
         lines.add(line);
     }
     
+    /**
+     * @see #appendLine(String)
+     */
     public void appendLine(StringBuffer line) {
-        if (lines == null) {
-            lines = new LinkedList();
-        }
-        lines.add(line);
+        appendLine(line.toString());
     }
-
+    
+    /**
+     * Return the SMTPCode 
+     * 
+     * @return the SMTPCode
+     */
     public String getRetCode() {
         return retCode;
     }
 
+    /**
+     * Set the SMTPCode
+     *  
+     * @param retCode the SMTPCode
+     */
     public void setRetCode(String retCode) {
         this.retCode = retCode;
     }
 
+    /**
+     * Return a List of all responseLines stored in this SMTPResponse
+     * 
+     * @return all responseLines
+     */
     public List getLines() {
         return lines;
     }
 
+    /**
+     * Return the raw representation of the Stored SMTPResponse
+     * 
+     * @return rawLine the raw SMTPResponse
+     */
     public String getRawLine() {
         return rawLine;
     }
 
+    /**
+     * Return true if the session is ended
+     * 
+     * @return true if session is ended
+     */
     public boolean isEndSession() {
         return endSession;
     }
 
+    /**
+     * Set to true to end the session
+     * 
+     * @param endSession
+     */
     public void setEndSession(boolean endSession) {
         this.endSession = endSession;
     }
 
+    /**
+     * @see java.lang.Object#toString()
+     */
+    public String toString() {
+        return getRetCode() + " " + getLines();
+    }
 }
