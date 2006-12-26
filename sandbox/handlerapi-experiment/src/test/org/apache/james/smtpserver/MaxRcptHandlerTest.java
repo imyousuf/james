@@ -37,8 +37,6 @@ import org.apache.james.util.junkscore.JunkScoreImpl;
 
 public class MaxRcptHandlerTest extends TestCase{
     
-    private String response;
-    
     private SMTPSession setupMockedSession(final int rcptCount) {
         SMTPSession session = new AbstractSMTPSession() {
             HashMap state = new HashMap();
@@ -79,7 +77,6 @@ public class MaxRcptHandlerTest extends TestCase{
         SMTPResponse response = handler.onCommand(session,"RCPT","<test@test>");
     
         assertEquals("Rejected.. To many recipients", response.getRetCode(), "452");
-        assertTrue("Reject.. Stop processing",session.getStopHandlerProcessing());
     }
     
     public void testAddScoreMaxRcpt() {
@@ -96,7 +93,6 @@ public class MaxRcptHandlerTest extends TestCase{
         SMTPResponse response = handler.onCommand(session,"RCPT","<test@test>");
 
         assertNull("Not Rejected.. we use junkScore action", response);
-        assertFalse("Not Rejected.. we use junkScore action",session.getStopHandlerProcessing());
         assertEquals("Get Score", ((JunkScore) session.getState().get(JunkScore.JUNK_SCORE)).getStoredScore("MaxRcptCheck"),20.0,0d);
     }
     
@@ -111,7 +107,6 @@ public class MaxRcptHandlerTest extends TestCase{
         SMTPResponse response = handler.onCommand(session,"RCPT","<test@test>");
     
         assertNull("Not Rejected..", response);
-        assertFalse("Not stop processing",session.getStopHandlerProcessing());
     }
 
 }

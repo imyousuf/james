@@ -124,10 +124,6 @@ public class SPFHandlerTest extends TestCase {
         };
     }
 
-    private void setCommand(String command) {
-        this.command = command;
-    }
-
     /**
      * Setup mocked smtpsession
      */
@@ -229,7 +225,6 @@ public class SPFHandlerTest extends TestCase {
         assertEquals("header", mockedSMTPSession.getState().get(
                 SPFHandler.SPF_HEADER), mockedSMTPSession.getMail()
                 .getAttribute(SPFHandler.SPF_HEADER_MAIL_ATTRIBUTE_NAME));
-        assertFalse(mockedSMTPSession.getStopHandlerProcessing());
     }
 
     public void testSPFfail() throws Exception {
@@ -254,7 +249,6 @@ public class SPFHandlerTest extends TestCase {
                 SPFHandler.SPF_TEMPBLOCKLISTED));
         assertNotNull("Header should present", mockedSMTPSession.getState()
                 .get(SPFHandler.SPF_HEADER));
-        assertTrue(mockedSMTPSession.getStopHandlerProcessing());
     }
 
     public void testSPFsoftFail() throws Exception {
@@ -282,7 +276,6 @@ public class SPFHandlerTest extends TestCase {
         assertEquals("header", mockedSMTPSession.getState().get(
                 SPFHandler.SPF_HEADER), mockedSMTPSession.getMail()
                 .getAttribute(SPFHandler.SPF_HEADER_MAIL_ATTRIBUTE_NAME));
-        assertFalse(mockedSMTPSession.getStopHandlerProcessing());
     }
 
     public void testSPFsoftFailRejectEnabled() throws Exception {
@@ -309,7 +302,6 @@ public class SPFHandlerTest extends TestCase {
                 SPFHandler.SPF_TEMPBLOCKLISTED));
         assertNotNull("Header should present", mockedSMTPSession.getState()
                 .get(SPFHandler.SPF_HEADER));
-        assertTrue(mockedSMTPSession.getStopHandlerProcessing());
     }
 
     public void testSPFpermError() throws Exception {
@@ -336,7 +328,6 @@ public class SPFHandlerTest extends TestCase {
                 SPFHandler.SPF_TEMPBLOCKLISTED));
         assertNotNull("Header should present", mockedSMTPSession.getState()
                 .get(SPFHandler.SPF_HEADER));
-        assertTrue(mockedSMTPSession.getStopHandlerProcessing());
     }
 
     public void testSPFtempError() throws Exception {
@@ -361,7 +352,6 @@ public class SPFHandlerTest extends TestCase {
                 SPFHandler.SPF_TEMPBLOCKLISTED));
         assertNotNull("Header should present", mockedSMTPSession.getState()
                 .get(SPFHandler.SPF_HEADER));
-        assertTrue(mockedSMTPSession.getStopHandlerProcessing());
     }
 
     public void testSPFNoRecord() throws Exception {
@@ -389,7 +379,6 @@ public class SPFHandlerTest extends TestCase {
         assertEquals("header", mockedSMTPSession.getState().get(
                 SPFHandler.SPF_HEADER), mockedSMTPSession.getMail()
                 .getAttribute(SPFHandler.SPF_HEADER_MAIL_ATTRIBUTE_NAME));
-        assertFalse(mockedSMTPSession.getStopHandlerProcessing());
     }
 
     public void testSPFpermErrorNotRejectPostmaster() throws Exception {
@@ -414,7 +403,6 @@ public class SPFHandlerTest extends TestCase {
                 SPFHandler.SPF_DETAIL));
         assertNotNull("not removed this state", mockedSMTPSession.getState()
                 .get(SPFHandler.SPF_HEADER));
-        assertFalse("not rejected", mockedSMTPSession.getStopHandlerProcessing());
     }
 
     public void testSPFpermErrorNotRejectAbuse() throws Exception {
@@ -430,8 +418,6 @@ public class SPFHandlerTest extends TestCase {
         spf.setBlockSoftFail(true);
 
         runHandlers(spf, mockedSMTPSession);
-
-        assertFalse("not rejected",mockedSMTPSession.getStopHandlerProcessing());
     }
     
     public void testSPFpermErrorRejectDisabled() throws Exception {
@@ -458,7 +444,6 @@ public class SPFHandlerTest extends TestCase {
                 SPFHandler.SPF_TEMPBLOCKLISTED));
         assertNotNull("Header should present", mockedSMTPSession.getState()
                 .get(SPFHandler.SPF_HEADER));
-        assertFalse(mockedSMTPSession.getStopHandlerProcessing());
     }
     
     public void testSPFfailAddJunkScore() throws Exception {
@@ -486,7 +471,6 @@ public class SPFHandlerTest extends TestCase {
                 SPFHandler.SPF_TEMPBLOCKLISTED));
         assertNotNull("Header should present", mockedSMTPSession.getState()
                 .get(SPFHandler.SPF_HEADER));
-        assertFalse("Not stopped", mockedSMTPSession.getStopHandlerProcessing());
         assertEquals("Score added",((JunkScore) mockedSMTPSession.getState().get(JunkScore.JUNK_SCORE)).getStoredScore("SPFCheck"), 20.0, 0d);
     }
 }

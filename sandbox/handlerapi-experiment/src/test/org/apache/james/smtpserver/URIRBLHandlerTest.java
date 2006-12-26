@@ -192,7 +192,6 @@ public class URIRBLHandlerTest extends TestCase {
         handler.setUriRblServer(servers);
         SMTPResponse response = handler.onMessage(session);
 
-        assertFalse("Not Stop handler processing", session.getStopHandlerProcessing());
         assertNull("Email was not rejected", response);
     }
     
@@ -210,7 +209,6 @@ public class URIRBLHandlerTest extends TestCase {
         handler.setUriRblServer(servers);
         SMTPResponse response = handler.onMessage(session);
 
-        assertTrue("Stop handler processing", session.getStopHandlerProcessing());
         assertNotNull("Email was rejected", response);
     }
     
@@ -228,7 +226,6 @@ public class URIRBLHandlerTest extends TestCase {
         handler.setUriRblServer(servers);
         SMTPResponse response = handler.onMessage(session);
 
-        assertTrue("Stop handler processing", session.getStopHandlerProcessing());
         assertNotNull("Email was rejected", response);
     }
     
@@ -249,7 +246,6 @@ public class URIRBLHandlerTest extends TestCase {
         handler.setScore(20);
         SMTPResponse response = handler.onMessage(session);
 
-        assertFalse("Not stop handler processing", session.getStopHandlerProcessing());
         assertNull("Email was not rejected", response);
         assertEquals("JunkScore added", ((JunkScore) session.getState().get(JunkScore.JUNK_SCORE)).getStoredScore("UriRBLCheck"), 20.0, 0d);
     }

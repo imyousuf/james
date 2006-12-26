@@ -107,14 +107,9 @@ public abstract class AbstractJunkHandler extends AbstractLogEnabled implements 
                 junk.setStoredScore(data.getScoreName(), getScore());
                  
             } else {
-                String response = data.getRejectResponseString();
-                
                 if (data.getRejectLogString() != null) getLogger().info(data.getRejectLogString());
                 
-                // After this filter match we should not call any other handler!
-                session.setStopHandlerProcessing(true);
-                
-                return new SMTPResponse(response);
+                return new SMTPResponse(data.getRejectResponseString());
             }
         }
         return null;

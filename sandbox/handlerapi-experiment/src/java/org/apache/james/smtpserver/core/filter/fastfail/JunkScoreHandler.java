@@ -133,8 +133,6 @@ public class JunkScoreHandler extends AbstractLogEnabled implements ConnectHandl
                     .append(composed.getCompleteStoredScores());
                 getLogger().info(buffer.toString());
                 
-                //session.writeResponse(responseString);
-                session.setStopHandlerProcessing(true);
                 session.abortMessage();
                 return new SMTPResponse(SMTPRetCode.TRANSACTION_FAILED, DSNStatus.getStatus(DSNStatus.PERMANENT,
                             DSNStatus.SECURITY_OTHER) + " This message reach the spam hits treshold. Please contact the Postmaster if the email is not SPAM. Message rejected");

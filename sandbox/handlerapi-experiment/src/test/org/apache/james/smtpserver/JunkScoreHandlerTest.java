@@ -39,7 +39,6 @@ import junit.framework.TestCase;
 
 public class JunkScoreHandlerTest extends TestCase {
     private String response = null;
-    private boolean stopped = false;
     private boolean messageAborted = false;
     private final static String KEY1 = "KEY1";
     private final static String KEY2 = "KEY2";
@@ -47,7 +46,6 @@ public class JunkScoreHandlerTest extends TestCase {
     private final static double SCORE2 = 7.1;
 
     public void setUp() {
-        stopped = false;
         messageAborted = false;
     }
     
@@ -64,10 +62,6 @@ public class JunkScoreHandlerTest extends TestCase {
 
             public Map getConnectionState() {
                 return cState;
-            }
-
-            public void setStopHandlerProcessing(boolean b) {
-                stopped = b;
             }
 
             public void abortMessage() {
@@ -131,7 +125,6 @@ public class JunkScoreHandlerTest extends TestCase {
         SMTPResponse response = handler.onMessage(session);
     
         assertNotNull("Rejected",response);
-        assertTrue("Rejected",stopped);
         assertTrue("Rejected",messageAborted);
     }
     
@@ -150,5 +143,6 @@ public class JunkScoreHandlerTest extends TestCase {
         MimeMessage message = session.getMail().getMessage();
         assertNotNull("Header added",message.getHeader("X-JUNKSCORE")[0]);
         assertNotNull("Header added",message.getHeader("X-JUNKSCORE-COMPOSED")[0]);
+        assertNull("Not rejected", response);
     }
 }

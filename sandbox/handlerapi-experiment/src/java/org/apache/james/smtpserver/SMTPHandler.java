@@ -151,8 +151,6 @@ public class SMTPHandler
      */
     private StringBuffer responseBuffer = new StringBuffer(256);
     
-    private boolean stopHandlerProcessing = false;
-    
     /**
      * If not null every line is sent to this command handler instead
      * of the default "command parsing -> dipatching" procedure.
@@ -331,7 +329,6 @@ public class SMTPHandler
             } else {
                 int count = commandHandlers.size();
                 for(int i = 0; i < count; i++) {
-                    setStopHandlerProcessing(false);
                     SMTPResponse response = ((CommandHandler)commandHandlers.get(i)).onCommand(this, curCommandName, curCommandArgument);
                     
                     writeSMTPResponse(response);
@@ -592,20 +589,6 @@ public class SMTPHandler
         }
 
         return count;
-    }
-    
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#setStopHandlerProcessing(boolean)
-     */
-    public void setStopHandlerProcessing(boolean stopHandlerProcessing) {
-        this.stopHandlerProcessing = stopHandlerProcessing;
-    }
-    
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#getStopHandlerProcessing()
-     */
-    public boolean getStopHandlerProcessing() {
-        return stopHandlerProcessing;
     }
     
     public void resetConnectionState() {

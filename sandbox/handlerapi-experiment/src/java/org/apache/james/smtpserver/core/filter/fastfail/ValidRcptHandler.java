@@ -207,13 +207,8 @@ public class ValidRcptHandler extends AbstractLogEnabled implements CommandHandl
                     invalidUser = false;
                 }
             } catch (ErrorMappingException e) {
-        
                 String responseString = e.getMessage();
-                
                 getLogger().info("Rejected message. Reject Message: " + responseString);
-            
-                session.setStopHandlerProcessing(true);
-                
                 return new SMTPResponse(responseString);
             }
         }
@@ -234,7 +229,6 @@ public class ValidRcptHandler extends AbstractLogEnabled implements CommandHandl
         if (invalidUser == true) {
             //user not exist
             getLogger().info("Rejected message. Unknown user: " + rcpt.toString());
-            session.setStopHandlerProcessing(true);
             return new SMTPResponse("554", DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_MAILBOX) + " Unknown user: " + rcpt.toString());
         }
         return null;

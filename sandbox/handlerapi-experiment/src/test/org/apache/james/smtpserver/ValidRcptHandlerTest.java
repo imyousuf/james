@@ -176,7 +176,6 @@ public class ValidRcptHandlerTest extends TestCase {
     
         SMTPResponse response = handler.onCommand(session,"RCPT","<" + session.getState().get(SMTPSession.CURRENT_RECIPIENT) + ">");
     
-        assertTrue("Rejected",session.getStopHandlerProcessing());
         assertNotNull("Rejected",response);
     }
     
@@ -188,7 +187,6 @@ public class ValidRcptHandlerTest extends TestCase {
     
         SMTPResponse response = handler.onCommand(session,"RCPT","<" + session.getState().get(SMTPSession.CURRENT_RECIPIENT) + ">");
     
-        assertFalse("Not rejected",session.getStopHandlerProcessing());
         assertNull("Not rejected",response);
     }
     
@@ -201,7 +199,6 @@ public class ValidRcptHandlerTest extends TestCase {
         SMTPResponse response = handler.onCommand(session,"RCPT","<" + session.getState().get(SMTPSession.CURRENT_RECIPIENT) + ">");
     
     
-        assertFalse("Not rejected",session.getStopHandlerProcessing());
         assertNull("Not rejected",response);
     }
     
@@ -214,8 +211,6 @@ public class ValidRcptHandlerTest extends TestCase {
 
         SMTPResponse response = handler.onCommand(session,"RCPT","<" + session.getState().get(SMTPSession.CURRENT_RECIPIENT) + ">");
     
-    
-        assertFalse("Not rejected",session.getStopHandlerProcessing());
         assertNull("Not rejected",response);
     }
     
@@ -230,8 +225,6 @@ public class ValidRcptHandlerTest extends TestCase {
 
         SMTPResponse response = handler.onCommand(session,"RCPT","<" + session.getState().get(SMTPSession.CURRENT_RECIPIENT) + ">");
     
-    
-        assertFalse("Not rejected",session.getStopHandlerProcessing());
         assertNull("Not rejected",response);
     }
     
@@ -248,8 +241,6 @@ public class ValidRcptHandlerTest extends TestCase {
 
         SMTPResponse response = handler.onCommand(session,"RCPT","<" + session.getState().get(SMTPSession.CURRENT_RECIPIENT) + ">");
     
-    
-        assertFalse("Not rejected",session.getStopHandlerProcessing());
         assertNull("Not rejected",response);
     }
     
@@ -266,8 +257,6 @@ public class ValidRcptHandlerTest extends TestCase {
 
         SMTPResponse response = handler.onCommand(session,"RCPT","<" + session.getState().get(SMTPSession.CURRENT_RECIPIENT) + ">");
     
-    
-        assertFalse("Not rejected",session.getStopHandlerProcessing());
         assertNull("Not rejected",response);
     }
     
@@ -295,9 +284,7 @@ public class ValidRcptHandlerTest extends TestCase {
 
         SMTPResponse response = handler.onCommand(session,"RCPT","<" + session.getState().get(SMTPSession.CURRENT_RECIPIENT) + ">");
     
-    
         assertNull("No reject",response);
-        assertFalse("Not stop processing",session.getStopHandlerProcessing());
     }
     
     public void testHasErrorMapping() throws Exception {
@@ -311,6 +298,5 @@ public class ValidRcptHandlerTest extends TestCase {
     
         assertNull("Valid Error mapping",session.getState().get("VALID_USER"));
         assertNotNull("Error mapping",response);
-        assertTrue("Stop processing",session.getStopHandlerProcessing());
     }
 }
