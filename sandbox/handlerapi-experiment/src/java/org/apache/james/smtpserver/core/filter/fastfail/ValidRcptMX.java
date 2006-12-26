@@ -175,8 +175,8 @@ public class ValidRcptMX extends AbstractJunkHandler implements CommandHandler,
         MailAddress rcpt = (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT);
         JunkHandlerData data = new JunkHandlerData();
 
-        data.setRejectResponseString("530" + DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_AUTH) + " Invalid MX " + session.getRemoteIPAddress() 
-            + " for domain " + rcpt.getHost() + ". Reject email");
+        data.setRejectResponseString(new SMTPResponse("530", DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_AUTH) + " Invalid MX " + session.getRemoteIPAddress() 
+            + " for domain " + rcpt.getHost() + ". Reject email"));
        
         data.setJunkScoreLogString("Invalid MX " + session.getRemoteIPAddress() + " for domain " + rcpt.getHost() + ". Add JunkScore: " + getScore());
         data.setRejectLogString("Invalid MX " + session.getRemoteIPAddress() + " for domain " + rcpt.getHost() + ". Reject email");

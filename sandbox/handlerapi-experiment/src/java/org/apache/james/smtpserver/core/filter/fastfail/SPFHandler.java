@@ -292,12 +292,12 @@ public class SPFHandler extends AbstractJunkHandler implements CommandHandler,
 
         // Check if session is blocklisted
         if (blocklisted != null && blocklisted.equals("true")) {
-            data.setRejectResponseString(SMTPRetCode.TRANSACTION_FAILED + " " + DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_AUTH) + " "
-                    + blocklistedDetail);
+            data.setRejectResponseString(new SMTPResponse(SMTPRetCode.TRANSACTION_FAILED,DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_AUTH) + " "
+                    + blocklistedDetail));
         } else if (tempBlocklisted != null
                 && tempBlocklisted.equals("true")) {
-            data.setRejectResponseString(SMTPRetCode.LOCAL_ERROR + " " + DSNStatus.getStatus(DSNStatus.TRANSIENT, DSNStatus.NETWORK_DIR_SERVER) + " "
-                    + "Temporarily rejected: Problem on SPF lookup");
+            data.setRejectResponseString(new SMTPResponse(SMTPRetCode.LOCAL_ERROR,DSNStatus.getStatus(DSNStatus.TRANSIENT, DSNStatus.NETWORK_DIR_SERVER) + " "
+                    + "Temporarily rejected: Problem on SPF lookup"));
         }
         data.setJunkScoreLogString("Not match SPF-Record. Add junkScore: " + getScore());
         data.setRejectLogString("Not match SPF-Record. Reject email");

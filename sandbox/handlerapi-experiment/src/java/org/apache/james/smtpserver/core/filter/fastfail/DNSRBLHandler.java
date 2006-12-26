@@ -292,11 +292,11 @@ public class DNSRBLHandler
         data.setRejectLogString("ipaddress " + session.getRemoteIPAddress() + " listed on RBL. Reject email");
     
         if (blocklistedDetail != null) {
-            data.setRejectResponseString("530 "+ DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH) + " " + blocklistedDetail);
+            data.setRejectResponseString(new SMTPResponse("530", DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH) + " " + blocklistedDetail));
         } else {
-            data.setRejectResponseString("530 "+ DSNStatus.getStatus(DSNStatus.PERMANENT,
+            data.setRejectResponseString(new SMTPResponse("530", DSNStatus.getStatus(DSNStatus.PERMANENT,
                             DSNStatus.SECURITY_AUTH)  + " Rejected: unauthenticated e-mail from " + session.getRemoteIPAddress() 
-                            + " is restricted.  Contact the postmaster for details.");
+                            + " is restricted.  Contact the postmaster for details."));
         }
         data.setScoreName("DNSRBLCheck");
         return data;

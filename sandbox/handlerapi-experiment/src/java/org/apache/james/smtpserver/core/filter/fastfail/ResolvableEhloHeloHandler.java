@@ -197,8 +197,8 @@ public class ResolvableEhloHeloHandler extends AbstractJunkHandler implements
                 + " Provided EHLO/HELO " + session.getState().get(SMTPSession.CURRENT_HELO_NAME) + " can not resolved");
     
         
-        data.setRejectResponseString("501 " + DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.DELIVERY_INVALID_ARG)
-                + " Provided EHLO/HELO " + session.getState().get(SMTPSession.CURRENT_HELO_NAME) + " can not resolved");
+        data.setRejectResponseString(new SMTPResponse("501", DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.DELIVERY_INVALID_ARG)
+                + " Provided EHLO/HELO " + session.getState().get(SMTPSession.CURRENT_HELO_NAME) + " can not resolved"));
 
         data.setScoreName("ResolvableEhloHeloCheck");
         return data;

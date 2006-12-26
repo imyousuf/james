@@ -21,12 +21,13 @@
 
 package org.apache.james.smtpserver.core.filter.fastfail;
 
+import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.util.mail.dsn.DSNStatus;
 
 public class JunkHandlerData {
     
     private String rejectLogString = "Bad email. Reject email";
-    private String rejectResponseString = "554 " + DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_OTHER) + " " + rejectLogString;
+    private SMTPResponse rejectResponseString = new SMTPResponse("554", DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_OTHER) + " " + rejectLogString);
     private String junkScoreLogString = "Bad email. Add JunkScore";
     private String scoreName = "JunkHandler";
     
@@ -35,7 +36,7 @@ public class JunkHandlerData {
      * 
      * @param rejectResponseString the responseString
      */
-    public void setRejectResponseString(String rejectResponseString) {
+    public void setRejectResponseString(SMTPResponse rejectResponseString) {
         this.rejectResponseString = rejectResponseString;
     }
     
@@ -71,7 +72,7 @@ public class JunkHandlerData {
      * 
      * @return rejectResponseString
      */
-    public String getRejectResponseString() {
+    public SMTPResponse getRejectResponseString() {
         return rejectResponseString;
     }
     

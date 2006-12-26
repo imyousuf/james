@@ -96,8 +96,8 @@ public class MaxRcptHandler extends AbstractJunkHandler implements
     public JunkHandlerData getJunkHandlerData(SMTPSession session) {
         JunkHandlerData data = new JunkHandlerData();
     
-        data.setRejectResponseString("452 "  + DSNStatus.getStatus(DSNStatus.NETWORK, DSNStatus.DELIVERY_TOO_MANY_REC)
-                + " Requested action not taken: max recipients reached");
+        data.setRejectResponseString(new SMTPResponse("452", DSNStatus.getStatus(DSNStatus.NETWORK, DSNStatus.DELIVERY_TOO_MANY_REC)
+                + " Requested action not taken: max recipients reached"));
         data.setJunkScoreLogString("Maximum recipients of " + maxRcpt + " reached. Add JunkScore: " +getScore());
         data.setRejectLogString("Maximum recipients of " + maxRcpt + " reached");
         data.setScoreName("MaxRcptCheck");

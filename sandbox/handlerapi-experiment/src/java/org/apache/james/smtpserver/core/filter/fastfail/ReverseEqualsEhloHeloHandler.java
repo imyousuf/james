@@ -19,6 +19,7 @@
 
 package org.apache.james.smtpserver.core.filter.fastfail;
 
+import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
 
@@ -70,9 +71,9 @@ public class ReverseEqualsEhloHeloHandler extends ResolvableEhloHeloHandler {
             + " Provided EHLO/HELO " + session.getState().get(SMTPSession.CURRENT_HELO_NAME) + " not equal reverse of "
                 + session.getRemoteIPAddress());
         
-        data.setRejectResponseString("501 " + DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.DELIVERY_INVALID_ARG)
+        data.setRejectResponseString(new SMTPResponse("501", DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.DELIVERY_INVALID_ARG)
             + " Provided EHLO/HELO " + session.getState().get(SMTPSession.CURRENT_HELO_NAME) + " not equal reverse of "
-                + session.getRemoteIPAddress());
+                + session.getRemoteIPAddress()));
         data.setScoreName("ReverseEqualsEhloHeloCheck");
         return data;
     }

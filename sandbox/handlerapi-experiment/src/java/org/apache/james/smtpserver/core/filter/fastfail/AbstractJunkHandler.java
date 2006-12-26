@@ -109,7 +109,7 @@ public abstract class AbstractJunkHandler extends AbstractLogEnabled implements 
             } else {
                 if (data.getRejectLogString() != null) getLogger().info(data.getRejectLogString());
                 
-                return new SMTPResponse(data.getRejectResponseString());
+                return data.getRejectResponseString();
             }
         }
         return null;

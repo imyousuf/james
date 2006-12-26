@@ -140,7 +140,7 @@ public class ValidSenderDomainHandler
         MailAddress senderAddress = (MailAddress) session.getState().get(SMTPSession.SENDER);
         JunkHandlerData data = new JunkHandlerData();
     
-        data.setRejectResponseString("501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_SYNTAX_SENDER)+ " sender " + senderAddress + " contains a domain with no valid MX records");
+        data.setRejectResponseString(new SMTPResponse("501",DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_SYNTAX_SENDER)+ " sender " + senderAddress + " contains a domain with no valid MX records"));
         data.setJunkScoreLogString("Sender " + senderAddress + " contains a domain with no valid MX records. Add Junkscore: " + getScore());
         data.setRejectLogString("Sender " + senderAddress + " contains a domain with no valid MX records");
         data.setScoreName("ValidSenderDomainCheck");

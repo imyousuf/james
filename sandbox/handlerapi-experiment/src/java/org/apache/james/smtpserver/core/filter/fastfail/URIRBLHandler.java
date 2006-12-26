@@ -280,12 +280,12 @@ public class URIRBLHandler extends AbstractJunkHandler implements MessageHandler
 
         if (detail != null) {
            
-            data.setRejectResponseString(SMTPRetCode.TRANSACTION_FAILED + " " + DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_OTHER)
+            data.setRejectResponseString(new SMTPResponse(SMTPRetCode.TRANSACTION_FAILED,DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_OTHER)
                 + "Rejected: message contains domain " + target + " listed by " + uRblServer +" . Details: " 
-                + detail);
+                + detail));
         } else {
-            data.setRejectResponseString(SMTPRetCode.TRANSACTION_FAILED + " " + DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_OTHER)
-                + " Rejected: message contains domain " + target + " listed by " + uRblServer);
+            data.setRejectResponseString(new SMTPResponse(SMTPRetCode.TRANSACTION_FAILED,DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_OTHER)
+                + " Rejected: message contains domain " + target + " listed by " + uRblServer));
         }  
 
         data.setJunkScoreLogString("Message sent by " + session.getRemoteIPAddress() + " restricted by " +  uRblServer + " because " + target + " is listed. Add junkScore: " + getScore());
