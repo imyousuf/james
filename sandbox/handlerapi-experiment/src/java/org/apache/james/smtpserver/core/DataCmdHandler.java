@@ -137,8 +137,6 @@ public class DataCmdHandler
                 public void onLine(SMTPSession session, byte[] line) {
                     try {
                         out.write(line);
-//                        out.write(13);
-//                        out.write(10);
                         out.flush();
                         // 46 is "."
                         if (line.length == 3 && line[0] == 46) {
@@ -149,6 +147,9 @@ public class DataCmdHandler
                                 e.printStackTrace();
                             }
                         }
+                        
+                        // TODO move here the code to manage MessageHandlers
+                        
                         
                     } catch (IOException e) {
                         // TODO Define what we have to do here!

@@ -48,12 +48,6 @@ public class SMTPHandler
     implements SMTPSession, LineHandler {
 
     /**
-     * The constants to indicate the current processing mode of the session
-     */
-    private final static byte COMMAND_MODE = 1;
-    private final static byte MESSAGE_RECEIVED_MODE = 3;
-
-    /**
      * Static Random instance used to generate SMTP ids
      */
     private final static Random random = new Random();
@@ -62,12 +56,6 @@ public class SMTPHandler
      * The SMTPHandlerChain object set by SMTPServer
      */
     SMTPHandlerChain handlerChain = null;
-
-
-    /**
-     * The mode of the current session
-     */
-    private byte mode;
 
     /**
      * The MailImpl object set by the DATA command
@@ -187,9 +175,6 @@ public class SMTPHandler
 
         theWatchdog.start();
         while(!sessionEnded) {
-          //Reset the current command values
-          mode = COMMAND_MODE;
-
           //parse the command
           byte[] line =  null;
           try {
@@ -207,7 +192,7 @@ public class SMTPHandler
           theWatchdog.reset();
           
           //handle messages
-          if(mode == MESSAGE_RECEIVED_MODE) {
+          if(getMail() != null) {
               try {
                   getLogger().debug("executing message handlers");
                   List messageHandlers = handlerChain.getMessageHandlers();
@@ -358,7 +343,6 @@ public class SMTPHandler
      */
     public void setMail(Mail mail) {
         this.mail = mail;
-        this.mode = MESSAGE_RECEIVED_MODE;
     }
 
     /**
