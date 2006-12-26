@@ -34,6 +34,7 @@ import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.SizeLimitedInputStream;
 import org.apache.james.util.CharTerminatedInputStream;
 import org.apache.james.util.DotStuffingInputStream;
+import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.RFC2822Headers;
@@ -172,7 +173,7 @@ public class DataCmdHandler
     
 
     public void handleStream(SMTPSession session, InputStream stream) {
-        String responseString;
+        SMTPResponse response = null;
         InputStream msgIn = new CharTerminatedInputStream(stream, SMTPTerminator);
         try {
             // 2006/12/24 - We can remove this now that every single line is pushed and
@@ -215,10 +216,9 @@ public class DataCmdHandler
                 session.getState().put(SMTPSession.MESG_FAILED, Boolean.TRUE);
                 // then let the client know that the size
                 // limit has been hit.
-                responseString = "552 "
-                        + DSNStatus.getStatus(DSNStatus.PERMANENT,
-                                DSNStatus.SYSTEM_MSG_TOO_BIG)
-                        + " Error processing message: " + e.getMessage();
+                response = new SMTPResponse(SMTPRetCode.QUOTA_EXCEEDED,DSNStatus.getStatus(DSNStatus.PERMANENT,
+                                DSNStatus.SYSTEM_MSG_TOO_BIG) + " Error processing message: " + e.getMessage());
+              
                 StringBuffer errorBuffer = new StringBuffer(256).append(
                         "Rejected message from ").append(
                         session.getState().get(SMTPSession.SENDER).toString())
@@ -230,15 +230,14 @@ public class DataCmdHandler
                                         .getMaxMessageSize());
                 getLogger().error(errorBuffer.toString());
             } else {
-                responseString = "451 "
-                        + DSNStatus.getStatus(DSNStatus.TRANSIENT,
-                                DSNStatus.UNDEFINED_STATUS)
-                        + " Error processing message: " + me.getMessage();
+                response = new SMTPResponse(SMTPRetCode.LOCAL_ERROR,DSNStatus.getStatus(DSNStatus.TRANSIENT,
+                                DSNStatus.UNDEFINED_STATUS) + " Error processing message: " + me.getMessage());
+                
                 getLogger().error(
                         "Unknown error occurred while processing DATA.", me);
             }
             session.popLineHandler();
-            session.writeResponse(responseString);
+            session.writeSMTPResponse(response);
             return;
         } finally {
             if (msgIn != null) {

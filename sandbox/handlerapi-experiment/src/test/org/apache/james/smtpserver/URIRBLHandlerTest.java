@@ -56,13 +56,6 @@ public class URIRBLHandlerTest extends TestCase {
     private static final String URISERVER = "multi.surbl.org.";
     private SMTPSession mockedSMTPSession;
 
-    private SMTPResponse response = null;
-    
-    public void setUp() {
-        // reset reponse
-        response = null;
-    }
-
     private SMTPSession setupMockedSMTPSession(final Mail mail) {
         mockedSMTPSession = new AbstractSMTPSession() {
 
@@ -103,10 +96,6 @@ public class URIRBLHandlerTest extends TestCase {
             public void setRelayingAllowed(boolean relayingAllowed) {
                 this.relayingAllowed = relayingAllowed;
             }
-
-            public void writeSMTPResponse(SMTPResponse resp) {
-            response = resp;
-            }
             
             public void setStopHandlerProcessing(boolean processing) {
                 this.processing = processing;
@@ -119,10 +108,6 @@ public class URIRBLHandlerTest extends TestCase {
 
         return mockedSMTPSession;
 
-    }
-
-    private SMTPResponse getResponse() {
-        return response;
     }
 
     private Mail setupMockedMail(MimeMessage message) {
@@ -205,10 +190,10 @@ public class URIRBLHandlerTest extends TestCase {
         ContainerUtil.enableLogging(handler, new MockLogger());
         handler.setDnsServer(setupMockedDnsServer());
         handler.setUriRblServer(servers);
-        handler.onMessage(session);
+        SMTPResponse response = handler.onMessage(session);
 
         assertFalse("Not Stop handler processing", session.getStopHandlerProcessing());
-        assertNull("Email was not rejected", getResponse());
+        assertNull("Email was not rejected", response);
     }
     
     public void testBlocked() throws IOException, MessagingException {
@@ -223,10 +208,10 @@ public class URIRBLHandlerTest extends TestCase {
         ContainerUtil.enableLogging(handler, new MockLogger());
         handler.setDnsServer(setupMockedDnsServer());
         handler.setUriRblServer(servers);
-        handler.onMessage(session);
+        SMTPResponse response = handler.onMessage(session);
 
         assertTrue("Stop handler processing", session.getStopHandlerProcessing());
-        assertNotNull("Email was rejected", getResponse());
+        assertNotNull("Email was rejected", response);
     }
     
     public void testBlockedMultiPart() throws IOException, MessagingException {
@@ -241,10 +226,10 @@ public class URIRBLHandlerTest extends TestCase {
         ContainerUtil.enableLogging(handler, new MockLogger());
         handler.setDnsServer(setupMockedDnsServer());
         handler.setUriRblServer(servers);
-        handler.onMessage(session);
+        SMTPResponse response = handler.onMessage(session);
 
         assertTrue("Stop handler processing", session.getStopHandlerProcessing());
-        assertNotNull("Email was rejected", getResponse());
+        assertNotNull("Email was rejected", response);
     }
     
     public void testAddJunkScore() throws IOException, MessagingException {
@@ -262,10 +247,10 @@ public class URIRBLHandlerTest extends TestCase {
         handler.setUriRblServer(servers);
         handler.setAction("junkScore");
         handler.setScore(20);
-        handler.onMessage(session);
+        SMTPResponse response = handler.onMessage(session);
 
         assertFalse("Not stop handler processing", session.getStopHandlerProcessing());
-        assertNull("Email was not rejected", getResponse());
+        assertNull("Email was not rejected", response);
         assertEquals("JunkScore added", ((JunkScore) session.getState().get(JunkScore.JUNK_SCORE)).getStoredScore("UriRBLCheck"), 20.0, 0d);
     }
 }

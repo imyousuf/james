@@ -45,6 +45,7 @@ import org.apache.james.services.DNSServer;
 import org.apache.james.smtpserver.MessageHandler;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.james.util.urirbl.URIScanner;
 
@@ -158,14 +159,10 @@ public class URIRBLHandler extends AbstractJunkHandler implements MessageHandler
     }
     
     /**
-     * @see org.apache.james.smtpserver.MessageHandler#onMessage(SMTPSession)
+     * @see org.apache.james.smtpserver.MessageHandler#onMessage(org.apache.james.smtpserver.SMTPSession)
      */
-    public void onMessage(SMTPSession session) {
-        SMTPResponse response = doProcessing(session);
-        
-        if (response != null) {
-            session.writeSMTPResponse(response);
-        }
+    public SMTPResponse onMessage(SMTPSession session) {
+        return doProcessing(session);
     }
 
     /**
@@ -283,11 +280,11 @@ public class URIRBLHandler extends AbstractJunkHandler implements MessageHandler
 
         if (detail != null) {
            
-            data.setRejectResponseString("554 " + DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_OTHER)
+            data.setRejectResponseString(SMTPRetCode.TRANSACTION_FAILED + " " + DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_OTHER)
                 + "Rejected: message contains domain " + target + " listed by " + uRblServer +" . Details: " 
                 + detail);
         } else {
-            data.setRejectResponseString("554 " + DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_OTHER)
+            data.setRejectResponseString(SMTPRetCode.TRANSACTION_FAILED + " " + DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_OTHER)
                 + " Rejected: message contains domain " + target + " listed by " + uRblServer);
         }  
 

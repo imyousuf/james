@@ -279,7 +279,10 @@ public class SMTPHandler
                   List messageHandlers = handlerChain.getMessageHandlers();
                   int count = messageHandlers.size();
                   for(int i =0; i < count; i++) {
-                      ((MessageHandler)messageHandlers.get(i)).onMessage(this);
+                      SMTPResponse response = ((MessageHandler)messageHandlers.get(i)).onMessage(this);
+                      
+                      writeSMTPResponse(response);
+                      
                       //if the response is received, stop processing of command handlers
                       if(mode == MESSAGE_ABORT_MODE) {
                           break;
@@ -403,10 +406,8 @@ public class SMTPHandler
         this.handlerChain = handlerChain;
     }
 
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#writeResponse(String)
-     */
-    public void writeResponse(String respString) {
+
+    private void writeResponse(String respString) {
         writeLoggedFlushedResponse(respString);
         //TODO Explain this well
         if(mode == COMMAND_MODE) {

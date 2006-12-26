@@ -25,6 +25,7 @@ import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.LineHandler;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 
@@ -73,10 +74,10 @@ public class AuthCmdHandler
      */
     private SMTPResponse doAUTH(SMTPSession session, String argument) {
         if (session.getUser() != null) {
-            return new SMTPResponse("503", DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" User has previously authenticated. "
+            return new SMTPResponse(SMTPRetCode.BAD_SEQUENCE, DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" User has previously authenticated. "
                     + " Further authentication is not required!");
         } else if (argument == null) {
-            return new SMTPResponse("501", DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Usage: AUTH (authentication type) <challenge>");
+            return new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_ARGUMENTS, DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Usage: AUTH (authentication type) <challenge>");
         } else {
             String initialResponse = null;
             if ((argument != null) && (argument.indexOf(" ") > 0)) {
@@ -92,7 +93,7 @@ public class AuthCmdHandler
                         public void onLine(SMTPSession session, byte[] line) {
                             try {
                                 String l = new String(line, "US-ASCII");
-                                System.err.println("((("+line+")))");
+                                //System.err.println("((("+line+")))");
                                 SMTPResponse res = doPlainAuthPass(session, l);
                                 session.writeSMTPResponse(res);
                             } catch (UnsupportedEncodingException e) {
@@ -204,14 +205,14 @@ public class AuthCmdHandler
         session.popLineHandler();
         // Authenticate user
         if ((user == null) || (pass == null)) {
-            return new SMTPResponse("501", "Could not decode parameters for AUTH PLAIN");
+            return new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_ARGUMENTS, "Could not decode parameters for AUTH PLAIN");
         } else if (session.getConfigurationData().getUsersRepository().test(user, pass)) {
             session.setUser(user);
             getLogger().info("AUTH method PLAIN succeeded");
-            return new SMTPResponse("235", "Authentication Successful");
+            return new SMTPResponse(SMTPRetCode.AUTH_OK, "Authentication Successful");
         } else {
             getLogger().error("AUTH method PLAIN failed");
-            return new SMTPResponse("535", "Authentication Failed");
+            return new SMTPResponse(SMTPRetCode.AUTH_FAILED, "Authentication Failed");
         }
     }
 
@@ -257,7 +258,7 @@ public class AuthCmdHandler
     }
     
     private void doLoginAuthPassCheck(SMTPSession session, String user, String pass) {
-        String responseString = null;
+        SMTPResponse response = null;
         if (pass != null) {
             try {
                 pass = Base64.decodeAsString(pass);
@@ -269,23 +270,22 @@ public class AuthCmdHandler
         }
         // Authenticate user
         if ((user == null) || (pass == null)) {
-            responseString = "501 Could not decode parameters for AUTH LOGIN";
+            response = new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_ARGUMENTS,"Could not decode parameters for AUTH LOGIN");
         } else if (session.getConfigurationData().getUsersRepository().test(user, pass)) {
             session.setUser(user);
-            responseString = "235 Authentication Successful";
+            response = new SMTPResponse(SMTPRetCode.AUTH_OK, "Authentication Successful");
             if (getLogger().isDebugEnabled()) {
                 // TODO: Make this string a more useful debug message
                 getLogger().debug("AUTH method LOGIN succeeded");
             }
         } else {
-            responseString = "535 Authentication Failed";
+            response = new SMTPResponse(SMTPRetCode.AUTH_FAILED, "Authentication Failed");
             // TODO: Make this string a more useful error message
             getLogger().error("AUTH method LOGIN failed");
         }
         session.popLineHandler();
         session.popLineHandler();
-        session.writeResponse(responseString);
-        return;
+        session.writeSMTPResponse(response);
     }
 
     /**
@@ -304,7 +304,7 @@ public class AuthCmdHandler
                         .append(" is an unrecognized authentication type");
             getLogger().error(errorBuffer.toString());
         }
-        return new SMTPResponse("504", "Unrecognized Authentication Type");
+        return new SMTPResponse(SMTPRetCode.PARAMETER_NOT_IMPLEMENTED, "Unrecognized Authentication Type");
     }
 
 

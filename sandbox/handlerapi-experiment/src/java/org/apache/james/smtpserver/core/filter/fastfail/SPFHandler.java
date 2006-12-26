@@ -35,6 +35,7 @@ import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.MessageHandler;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
@@ -240,15 +241,17 @@ public class SPFHandler extends AbstractJunkHandler implements CommandHandler,
 
         return commands;
     }
-
+    
     /**
-     * @see org.apache.james.smtpserver.MessageHandler#onMessage(SMTPSession)
+     * @see org.apache.james.smtpserver.MessageHandler#onMessage(org.apache.james.smtpserver.SMTPSession)
      */
-    public void onMessage(SMTPSession session) {
+    public SMTPResponse onMessage(SMTPSession session) {
         Mail mail = session.getMail();
 
         // Store the spf header as attribute for later using
         mail.setAttribute(SPF_HEADER_MAIL_ATTRIBUTE_NAME, (String) session.getState().get(SPF_HEADER));
+    
+        return null;
     }
     
 
@@ -289,11 +292,11 @@ public class SPFHandler extends AbstractJunkHandler implements CommandHandler,
 
         // Check if session is blocklisted
         if (blocklisted != null && blocklisted.equals("true")) {
-            data.setRejectResponseString("530 " + DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_AUTH) + " "
+            data.setRejectResponseString(SMTPRetCode.TRANSACTION_FAILED + " " + DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_AUTH) + " "
                     + blocklistedDetail);
         } else if (tempBlocklisted != null
                 && tempBlocklisted.equals("true")) {
-            data.setRejectResponseString("451 " + DSNStatus.getStatus(DSNStatus.TRANSIENT, DSNStatus.NETWORK_DIR_SERVER) + " "
+            data.setRejectResponseString(SMTPRetCode.LOCAL_ERROR + " " + DSNStatus.getStatus(DSNStatus.TRANSIENT, DSNStatus.NETWORK_DIR_SERVER) + " "
                     + "Temporarily rejected: Problem on SPF lookup");
         }
         data.setJunkScoreLogString("Not match SPF-Record. Add junkScore: " + getScore());

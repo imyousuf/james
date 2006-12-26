@@ -41,15 +41,8 @@ import org.apache.mailet.Mail;
 
 public class SpamAssassinHandlerTest extends TestCase {
     private SMTPSession mockedSMTPSession;
-
-    private String response = null;
-    
+ 
     public final static String SPAMD_HOST = "localhost";
-
-    public void setUp() {
-        // reset reponse
-        response = null;
-    }
 
     private SMTPSession setupMockedSMTPSession(final Mail mail) {
         mockedSMTPSession = new AbstractSMTPSession() {
@@ -89,18 +82,10 @@ public class SpamAssassinHandlerTest extends TestCase {
             public void setRelayingAllowed(boolean relayingAllowed) {
                 this.relayingAllowed = relayingAllowed;
             }
-
-            public void writeResponse(String respString) {
-                response = respString;
-            }
         };
 
         return mockedSMTPSession;
 
-    }
-
-    private String getResponse() {
-        return response;
     }
 
     private Mail setupMockedMail(MimeMessage message) {
@@ -132,9 +117,9 @@ public class SpamAssassinHandlerTest extends TestCase {
         handler.setSpamdHost(SPAMD_HOST);
         handler.setSpamdPort(port);
         handler.setSpamdRejectionHits(200.0);
-        handler.onMessage(session);
+        SMTPResponse response = handler.onMessage(session);
 
-        assertNull("Email was not rejected", getResponse());
+        assertNull("Email was not rejected", response);
         assertEquals("email was not spam", session.getMail().getAttribute(
                 SpamAssassinInvoker.FLAG_MAIL_ATTRIBUTE_NAME), "NO");
         assertNotNull("spam hits", session.getMail().getAttribute(
@@ -155,9 +140,9 @@ public class SpamAssassinHandlerTest extends TestCase {
         handler.setSpamdHost(SPAMD_HOST);
         handler.setSpamdPort(port);
         handler.setSpamdRejectionHits(2000.0);
-        handler.onMessage(session);
+        SMTPResponse response = handler.onMessage(session);
 
-        assertNull("Email was not rejected", getResponse());
+        assertNull("Email was not rejected", response);
         assertEquals("email was spam", session.getMail().getAttribute(
                 SpamAssassinInvoker.FLAG_MAIL_ATTRIBUTE_NAME), "YES");
         assertNotNull("spam hits", session.getMail().getAttribute(
@@ -177,9 +162,9 @@ public class SpamAssassinHandlerTest extends TestCase {
         handler.setSpamdHost(SPAMD_HOST);
         handler.setSpamdPort(port);
         handler.setSpamdRejectionHits(200.0);
-        handler.onMessage(session);
+        SMTPResponse response = handler.onMessage(session);
 
-        assertNotNull("Email was rejected", getResponse());
+        assertNotNull("Email was rejected", response);
         assertEquals("email was spam", session.getMail().getAttribute(
                 SpamAssassinInvoker.FLAG_MAIL_ATTRIBUTE_NAME), "YES");
         assertNotNull("spam hits", session.getMail().getAttribute(

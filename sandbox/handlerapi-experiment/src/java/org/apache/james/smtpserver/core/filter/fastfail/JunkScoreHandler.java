@@ -34,10 +34,12 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.smtpserver.ConnectHandler;
 import org.apache.james.smtpserver.MessageHandler;
+import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.junkscore.ComposedJunkScore;
 import org.apache.james.util.junkscore.JunkScore;
 import org.apache.james.util.junkscore.JunkScoreImpl;
+import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.james.util.mail.dsn.DSNStatus;
 
 /**
@@ -98,8 +100,8 @@ public class JunkScoreHandler extends AbstractLogEnabled implements ConnectHandl
     /**
      * @see org.apache.james.smtpserver.MessageHandler#onMessage(org.apache.james.smtpserver.SMTPSession)
      */
-    public void onMessage(SMTPSession session) {
-        checkScore(session);
+    public SMTPResponse onMessage(SMTPSession session) {
+        return checkScore(session);
     }
 
     /**
@@ -107,7 +109,7 @@ public class JunkScoreHandler extends AbstractLogEnabled implements ConnectHandl
      * 
      * @param session the SMTPSession
      */
-    private void checkScore(SMTPSession session) {
+    private SMTPResponse checkScore(SMTPSession session) {
         JunkScore score1 = (JunkScore) session.getConnectionState().get(JunkScore.JUNK_SCORE_SESSION);
         JunkScore score2 = (JunkScore) session.getState().get(JunkScore.JUNK_SCORE);
         JunkScore composed = new ComposedJunkScore(score1,score2);
@@ -119,27 +121,23 @@ public class JunkScoreHandler extends AbstractLogEnabled implements ConnectHandl
             session.getMail().setAttribute(JunkScore.JUNK_SCORE_COMPOSED_ATTR, String.valueOf(composed.getCompleteStoredScores()));
         } else if (action.equals(REJECT_ACTION)) {
             if (maxScore <  composed.getCompleteStoredScores()) {
-
-                
-                String responseString = "554 "
-                    + DSNStatus.getStatus(DSNStatus.PERMANENT,
-                            DSNStatus.SECURITY_OTHER)
-                    + " This message reach the spam hits treshold. Please contact the Postmaster if the email is not SPAM. Message rejected";
+ 
                 StringBuffer buffer = new StringBuffer(256).append(
                     "Rejected message from ").append(
                     session.getState().get(SMTPSession.SENDER)
                             .toString()).append(" from host ")
                     .append(session.getRemoteHost()).append(" (")
                     .append(session.getRemoteIPAddress()).append(
-                            ") " + responseString).append(
-                            ". Required rejection hits: "
-                                    + maxScore
-                                    + " hits: " + composed.getCompleteStoredScores());
+                            "). This message reach the smap hits treshold. Required rejection hits: ")
+                    .append(maxScore).append(" hits: ")
+                    .append(composed.getCompleteStoredScores());
                 getLogger().info(buffer.toString());
                 
-                session.writeResponse(responseString);
+                //session.writeResponse(responseString);
                 session.setStopHandlerProcessing(true);
                 session.abortMessage();
+                return new SMTPResponse(SMTPRetCode.TRANSACTION_FAILED, DSNStatus.getStatus(DSNStatus.PERMANENT,
+                            DSNStatus.SECURITY_OTHER) + " This message reach the spam hits treshold. Please contact the Postmaster if the email is not SPAM. Message rejected");
             }
         } else if (action.equals(HEADER_ACTION)) {
             try {
@@ -163,6 +161,7 @@ public class JunkScoreHandler extends AbstractLogEnabled implements ConnectHandl
                 getLogger().info("Unable to add Junkscore to header: " + e.getMessage());
             }
         }
+        return null;
     }
         
     /**

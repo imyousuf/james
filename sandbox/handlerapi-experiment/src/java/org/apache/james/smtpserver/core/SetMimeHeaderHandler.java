@@ -26,6 +26,7 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.james.smtpserver.MessageHandler;
+import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
 
 import javax.mail.internet.MimeMessage;
@@ -78,11 +79,13 @@ public class SetMimeHeaderHandler
         this.headerValue = headerValue;
     }
 
+
     /**
      * Adds header to the message
-     * @see org.apache.james.smtpserver#onMessage(SMTPSession)
+     *
+     * @see org.apache.james.smtpserver.MessageHandler#onMessage(org.apache.james.smtpserver.SMTPSession)
      */
-    public void onMessage(SMTPSession session) {
+    public SMTPResponse onMessage(SMTPSession session) {
         try {
             MimeMessage message = session.getMail().getMessage ();
 
@@ -95,6 +98,8 @@ public class SetMimeHeaderHandler
         } catch (javax.mail.MessagingException me) {
             getLogger().error(me.getMessage());
         }
+        
+        return null;
     }
 
 

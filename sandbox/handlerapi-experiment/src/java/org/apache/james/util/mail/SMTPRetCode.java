@@ -37,6 +37,9 @@ public class SMTPRetCode {
 
     // <domain> Service closing transmission channel
     public static final String SYSTEM_QUIT = "221";
+    
+    // Auth ok
+    public static final String AUTH_OK = "235";
 
     // Requested mail action okay, completed
     public static final String MAIL_OK = "250";
@@ -83,6 +86,9 @@ public class SMTPRetCode {
 
     // Command parameter not implemented
     public static final String PARAMETER_NOT_IMPLEMENTED = "504";
+    
+    // Auth failed
+    public static final String AUTH_FAILED = "535";
 
     // Requested action not taken: mailbox unavailable
     // (e.g., mailbox not found, no access, or command rejected

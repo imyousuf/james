@@ -28,7 +28,9 @@ import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.MessageHandler;
 import org.apache.james.smtpserver.MessageSizeException;
+import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.Mail;
 
@@ -57,12 +59,11 @@ public class SendMailHandler
      * Adds header to the message
      * @see org.apache.james.smtpserver#onMessage(SMTPSession)
      */
-    public void onMessage(SMTPSession session) {
+    public SMTPResponse onMessage(SMTPSession session) {
         getLogger().debug("sending mail");
 
         Mail mail = session.getMail();
-        
-        String responseString = null;
+
         try {
             mailServer.sendMail(mail);
             Collection theRecipients = mail.getRecipients();
@@ -96,7 +97,7 @@ public class SendMailHandler
                    session.getState().put(SMTPSession.MESG_FAILED, Boolean.TRUE);
                    // then let the client know that the size
                    // limit has been hit.
-                   responseString = "552 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SYSTEM_MSG_TOO_BIG)+" Error processing message.";
+                  
                    StringBuffer errorBuffer =
                      new StringBuffer(256)
                          .append("Rejected message from ")
@@ -108,17 +109,15 @@ public class SendMailHandler
                          .append(") exceeding system maximum message size of ")
                          .append(session.getConfigurationData().getMaxMessageSize());
                    getLogger().error(errorBuffer.toString());
+                   
+                   return new SMTPResponse(SMTPRetCode.MAIL_OK, DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SYSTEM_MSG_TOO_BIG)+" Error processing message.");
               } else {
-                   responseString = "451 "+DSNStatus.getStatus(DSNStatus.TRANSIENT,DSNStatus.UNDEFINED_STATUS)+" Error processing message.";
                    getLogger().error("Unknown error occurred while processing DATA.", me);
+                   
+                   return new SMTPResponse(SMTPRetCode.LOCAL_ERROR,DSNStatus.getStatus(DSNStatus.TRANSIENT,DSNStatus.UNDEFINED_STATUS)+" Error processing message.");
               }
-              session.writeResponse(responseString);
-              return;
          }
-         responseString = "250 "+DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.CONTENT_OTHER)+" Message received";
-         session.writeResponse(responseString);
-
-    
+         return new SMTPResponse(SMTPRetCode.MAIL_OK,DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.CONTENT_OTHER)+" Message received");
     }
 
 }

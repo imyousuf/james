@@ -47,7 +47,6 @@ public class JunkScoreHandlerTest extends TestCase {
     private final static double SCORE2 = 7.1;
 
     public void setUp() {
-        response = null;
         stopped = false;
         messageAborted = false;
     }
@@ -65,10 +64,6 @@ public class JunkScoreHandlerTest extends TestCase {
 
             public Map getConnectionState() {
                 return cState;
-            }
-
-            public void writeResponse(String resp) {
-                response = resp;
             }
 
             public void setStopHandlerProcessing(boolean b) {
@@ -133,7 +128,7 @@ public class JunkScoreHandlerTest extends TestCase {
         assertNull("Not rejected",response);
         ((JunkScore) session.getState().get(JunkScore.JUNK_SCORE)).setStoredScore(KEY1, SCORE1);
         ((JunkScore) session.getConnectionState().get(JunkScore.JUNK_SCORE_SESSION)).setStoredScore(KEY2, SCORE2);
-        handler.onMessage(session);
+        SMTPResponse response = handler.onMessage(session);
     
         assertNotNull("Rejected",response);
         assertTrue("Rejected",stopped);
@@ -150,7 +145,7 @@ public class JunkScoreHandlerTest extends TestCase {
         handler.onConnect(session);
         ((JunkScore) session.getState().get(JunkScore.JUNK_SCORE)).setStoredScore(KEY1, SCORE1);
         ((JunkScore) session.getConnectionState().get(JunkScore.JUNK_SCORE_SESSION)).setStoredScore(KEY2, SCORE2);
-        handler.onMessage(session);
+        SMTPResponse response = handler.onMessage(session);
     
         MimeMessage message = session.getMail().getMessage();
         assertNotNull("Header added",message.getHeader("X-JUNKSCORE")[0]);

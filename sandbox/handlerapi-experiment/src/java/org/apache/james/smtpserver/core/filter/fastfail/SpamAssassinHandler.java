@@ -30,8 +30,10 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.smtpserver.MessageHandler;
+import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.SpamAssassinInvoker;
+import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.Mail;
 
@@ -140,13 +142,13 @@ public class SpamAssassinHandler extends AbstractLogEnabled implements
     }
 
     /**
-     * @see org.apache.james.smtpserver.MessageHandler#onMessage(SMTPSession)
+     * @see org.apache.james.smtpserver.MessageHandler#onMessage(org.apache.james.smtpserver.SMTPSession)
      */
-    public void onMessage(SMTPSession session) {
+    public SMTPResponse onMessage(SMTPSession session) {
 
         // Not scan the message if relaying allowed
         if (session.isRelayingAllowed() && !checkAuthNetworks) {
-            return;
+            return null;
         }
 
         try {
@@ -174,25 +176,20 @@ public class SpamAssassinHandler extends AbstractLogEnabled implements
                     // if the hits are bigger the rejectionHits reject the
                     // message
                     if (spamdRejectionHits <= hits) {
-                        String responseString = "554 "
-                                + DSNStatus.getStatus(DSNStatus.PERMANENT,
-                                        DSNStatus.SECURITY_OTHER)
-                                + " This message reach the spam hits treshold. Please contact the Postmaster if the email is not SPAM. Message rejected";
                         StringBuffer buffer = new StringBuffer(256).append(
                                 "Rejected message from ").append(
                                 session.getState().get(SMTPSession.SENDER)
                                         .toString()).append(" from host ")
                                 .append(session.getRemoteHost()).append(" (")
-                                .append(session.getRemoteIPAddress()).append(
-                                        ") " + responseString).append(
-                                        ". Required rejection hits: "
-                                                + spamdRejectionHits
-                                                + " hits: " + hits);
+                                .append(session.getRemoteIPAddress()).append(") This message reach the spam hits treshold. Required rejection hits: ")
+                                .append(spamdRejectionHits).append(" hits: ")
+                                .append(hits);
                         getLogger().info(buffer.toString());
-                        session.writeResponse(responseString);
 
                         // Message reject .. abort it!
                         session.abortMessage();
+                        return new SMTPResponse(SMTPRetCode.TRANSACTION_FAILED,DSNStatus.getStatus(DSNStatus.PERMANENT,
+                                        DSNStatus.SECURITY_OTHER) + " This message reach the spam hits treshold. Please contact the Postmaster if the email is not SPAM. Message rejected");
                     }
                 } catch (NumberFormatException e) {
                     // hits unknown
@@ -201,6 +198,6 @@ public class SpamAssassinHandler extends AbstractLogEnabled implements
         } catch (MessagingException e) {
             getLogger().error(e.getMessage());
         }
-
+        return null;
     }
 }

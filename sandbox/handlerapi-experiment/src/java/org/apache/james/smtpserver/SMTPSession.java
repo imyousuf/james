@@ -47,7 +47,7 @@ public interface SMTPSession {
      *
      * @param respString String that needs to send to the client
      */
-    void writeResponse(String respString);
+   // void writeResponse(String respString);
 
     /**
      * Reads a line of characters off the command line.
