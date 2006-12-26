@@ -39,16 +39,11 @@ import junit.framework.TestCase;
 
 public class JunkScoreHandlerTest extends TestCase {
     private String response = null;
-    private boolean messageAborted = false;
     private final static String KEY1 = "KEY1";
     private final static String KEY2 = "KEY2";
     private final static double SCORE1 = 10.0;
     private final static double SCORE2 = 7.1;
 
-    public void setUp() {
-        messageAborted = false;
-    }
-    
     private SMTPSession setupMockedSMTPSession() {
         SMTPSession session = new AbstractSMTPSession() {
             HashMap state = new HashMap();
@@ -64,10 +59,6 @@ public class JunkScoreHandlerTest extends TestCase {
                 return cState;
             }
 
-            public void abortMessage() {
-                messageAborted = true;
-            }
-            
             public Mail getMail(){
                 if (m == null) m = getMockMail();
                 return m;
@@ -125,7 +116,6 @@ public class JunkScoreHandlerTest extends TestCase {
         SMTPResponse response = handler.onMessage(session);
     
         assertNotNull("Rejected",response);
-        assertTrue("Rejected",messageAborted);
     }
     
     public void testHeaderAction() throws ConfigurationException, MessagingException {

@@ -71,12 +71,6 @@ public interface SMTPSession {
     String getRemoteIPAddress();
 
     /**
-     * this makes the message to be dropped inprotocol
-     *
-     */
-    void abortMessage();
-
-    /**
      * Returns Map that consists of the state of the SMTPSession per mail
      *
      * @return map of the current SMTPSession state per mail

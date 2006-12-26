@@ -187,7 +187,6 @@ public class SpamAssassinHandler extends AbstractLogEnabled implements
                         getLogger().info(buffer.toString());
 
                         // Message reject .. abort it!
-                        session.abortMessage();
                         return new SMTPResponse(SMTPRetCode.TRANSACTION_FAILED,DSNStatus.getStatus(DSNStatus.PERMANENT,
                                         DSNStatus.SECURITY_OTHER) + " This message reach the spam hits treshold. Please contact the Postmaster if the email is not SPAM. Message rejected");
                     }

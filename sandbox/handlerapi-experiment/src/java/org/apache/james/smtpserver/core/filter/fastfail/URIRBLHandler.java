@@ -240,7 +240,6 @@ public class URIRBLHandler extends AbstractJunkHandler implements MessageHandler
                         session.getState().put(URBLSERVER, uRblServer);
                         session.getState().put(LISTED_DOMAIN,target);
 
-                        session.abortMessage();
                         return true;
 
                     } catch (UnknownHostException uhe) {

@@ -44,6 +44,26 @@ public class AuthCmdHandler
     extends AbstractLogEnabled
     implements CommandHandler {
 
+    private abstract class AbstractSMTPLineHandler implements LineHandler {
+        
+        public void onLine(SMTPSession session, byte[] line) {
+            try {
+                String l = new String(line, "US-ASCII");
+                //System.err.println("((("+line+")))");
+                SMTPResponse res = onCommand(session,l);
+                session.popLineHandler();
+                session.writeSMTPResponse(res);
+            } catch (UnsupportedEncodingException e) {
+                // TODO should never happen
+                e.printStackTrace();
+            }
+        }
+
+        protected abstract SMTPResponse onCommand(SMTPSession session, String l);
+    }
+
+
+
     /**
      * The text string for the SMTP AUTH type PLAIN.
      */
@@ -88,21 +108,10 @@ public class AuthCmdHandler
             if (authType.equals(AUTH_TYPE_PLAIN)) {
                 String userpass;
                 if (initialResponse == null) {
-                    session.pushLineHandler(new LineHandler() {
-
-                        public void onLine(SMTPSession session, byte[] line) {
-                            try {
-                                String l = new String(line, "US-ASCII");
-                                //System.err.println("((("+line+")))");
-                                SMTPResponse res = doPlainAuthPass(session, l);
-                                session.popLineHandler();
-                                session.writeSMTPResponse(res);
-                            } catch (UnsupportedEncodingException e) {
-                                // TODO should never happen
-                                e.printStackTrace();
-                            }
+                    session.pushLineHandler(new AbstractSMTPLineHandler() {
+                        protected SMTPResponse onCommand(SMTPSession session, String l) {
+                            return doPlainAuthPass(session, l);
                         }
-                        
                     });
                     return new SMTPResponse("334", "OK. Continue authentication");
                 } else {
@@ -112,19 +121,10 @@ public class AuthCmdHandler
             } else if (authType.equals(AUTH_TYPE_LOGIN)) {
                 
                 if (initialResponse == null) {
-                    session.pushLineHandler(new LineHandler() {
-
-                        public void onLine(SMTPSession session, byte[] line) {
-                            try {
-                                SMTPResponse res = doLoginAuthPass(session, new String(line, "US-ASCII"));
-                                session.popLineHandler();
-                                session.writeSMTPResponse(res);
-                            } catch (UnsupportedEncodingException e) {
-                                // TODO should never happen
-                                e.printStackTrace();
-                            }
+                    session.pushLineHandler(new AbstractSMTPLineHandler() {
+                        protected SMTPResponse onCommand(SMTPSession session, String l) {
+                            return doLoginAuthPass(session, l);
                         }
-                        
                     });
                     return new SMTPResponse("334", "VXNlcm5hbWU6"); // base64 encoded "Username:"
                 } else {
@@ -234,24 +234,17 @@ public class AuthCmdHandler
                 user = null;
             }
         }
-        session.pushLineHandler(new LineHandler() {
+        session.pushLineHandler(new AbstractSMTPLineHandler() {
 
             private String user;
-
-            public void onLine(SMTPSession session, byte[] line) {
-                try {
-                    SMTPResponse res = doLoginAuthPassCheck(session, user, new String(line, "US-ASCII"));
-                    session.popLineHandler();
-                    session.writeSMTPResponse(res);
-                } catch (UnsupportedEncodingException e) {
-                    // TODO should never happen
-                    e.printStackTrace();
-                }
-            }
 
             public LineHandler setUser(String user) {
                 this.user = user;
                 return this;
+            }
+
+            protected SMTPResponse onCommand(SMTPSession session, String l) {
+                return doLoginAuthPassCheck(session, user, l);
             }
             
         }.setUser(user));

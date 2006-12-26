@@ -51,9 +51,7 @@ public class SMTPHandler
      * The constants to indicate the current processing mode of the session
      */
     private final static byte COMMAND_MODE = 1;
-    private final static byte RESPONSE_MODE = 2;
     private final static byte MESSAGE_RECEIVED_MODE = 3;
-    private final static byte MESSAGE_ABORT_MODE = 4;
 
     /**
      * Static Random instance used to generate SMTP ids
@@ -226,7 +224,7 @@ public class SMTPHandler
                       writeSMTPResponse(response);
                       
                       //if the response is received, stop processing of command handlers
-                      if(mode == MESSAGE_ABORT_MODE) {
+                      if(response != null) {
                           break;
                       }
                   }
@@ -280,9 +278,12 @@ public class SMTPHandler
                     writeSMTPResponse(response);
                     
                     //if the response is received, stop processing of command handlers
-                    if(mode != COMMAND_MODE || response != null) {
+                    if(response != null) {
                         break;
                     }
+                    
+                    // NOTE we should never hit this line, otherwise we ended the CommandHandlers with
+                    // no responses.
                 }
 
             }        
@@ -299,7 +300,7 @@ public class SMTPHandler
         // Write a single-line or multiline response
         if (response != null) {
             if (response.getRawLine() != null) {
-                writeResponse(response.getRawLine());
+                writeLoggedFlushedResponse(response.getRawLine());
             } else {
                 // Iterator i = esmtpextensions.iterator();
                 for (int k = 0; k < response.getLines().size(); k++) {
@@ -308,11 +309,11 @@ public class SMTPHandler
                     if (k == response.getLines().size() - 1) {
                         respBuff.append(" ");
                         respBuff.append(response.getLines().get(k));
-                        writeResponse(respBuff.toString());
+                        writeLoggedFlushedResponse(respBuff.toString());
                     } else {
                         respBuff.append("-");
                         respBuff.append(response.getLines().get(k));
-                        writeResponse(respBuff.toString());
+                        writeLoggedResponse(respBuff.toString());
                     }
                 }
             }
@@ -350,14 +351,6 @@ public class SMTPHandler
         this.handlerChain = handlerChain;
     }
 
-
-    private void writeResponse(String respString) {
-        writeLoggedFlushedResponse(respString);
-        //TODO Explain this well
-        if(mode == COMMAND_MODE) {
-            mode = RESPONSE_MODE;
-        }
-    }
 
     /**
      * @see org.apache.james.smtpserver.SMTPSession#getMail()
@@ -478,13 +471,6 @@ public class SMTPHandler
      */
     public String getSessionID() {
         return smtpID;
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#abortMessage()
-     */
-    public void abortMessage() {
-        mode = MESSAGE_ABORT_MODE;
     }
     
     /**
