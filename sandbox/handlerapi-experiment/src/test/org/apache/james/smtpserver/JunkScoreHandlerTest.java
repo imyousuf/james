@@ -107,7 +107,6 @@ public class JunkScoreHandlerTest extends TestCase {
     
         handler.setAction("reject");
         handler.setMaxScore(15.0);
-        handler.onConnect(session);
         handler.onMessage(session);
 
         assertNull("Not rejected",response);
@@ -125,9 +124,8 @@ public class JunkScoreHandlerTest extends TestCase {
     
         handler.setAction("header");
 
-        handler.onConnect(session);
-        ((JunkScore) session.getState().get(JunkScore.JUNK_SCORE)).setStoredScore(KEY1, SCORE1);
-        ((JunkScore) session.getConnectionState().get(JunkScore.JUNK_SCORE_SESSION)).setStoredScore(KEY2, SCORE2);
+        JunkScoreHandler.getLazyJunkScoreHandler(session.getState(), JunkScore.JUNK_SCORE).setStoredScore(KEY1, SCORE1);
+        JunkScoreHandler.getLazyJunkScoreHandler(session.getConnectionState(), JunkScore.JUNK_SCORE_SESSION).setStoredScore(KEY2, SCORE2);
         SMTPResponse response = handler.onMessage(session);
     
         MimeMessage message = session.getMail().getMessage();

@@ -17,9 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
-
 package org.apache.james.smtpserver.core.filter.fastfail;
 
 import java.util.Iterator;
@@ -32,7 +29,6 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.smtpserver.ConnectHandler;
 import org.apache.james.smtpserver.MessageHandler;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
@@ -49,7 +45,7 @@ import org.apache.james.util.mail.dsn.DSNStatus;
  * -Compose action stores the junkScore values in the mail attributes
  * -Header action create headers which holds the junkScore for each check
  */
-public class JunkScoreHandler extends AbstractLogEnabled implements ConnectHandler, MessageHandler,Configurable {
+public class JunkScoreHandler extends AbstractLogEnabled implements MessageHandler, Configurable {
 
     private double maxScore = 0;
     private String action;
@@ -110,8 +106,9 @@ public class JunkScoreHandler extends AbstractLogEnabled implements ConnectHandl
      * @param session the SMTPSession
      */
     private SMTPResponse checkScore(SMTPSession session) {
-        JunkScore score1 = (JunkScore) session.getConnectionState().get(JunkScore.JUNK_SCORE_SESSION);
-        JunkScore score2 = (JunkScore) session.getState().get(JunkScore.JUNK_SCORE);
+        JunkScore score1 = getLazyJunkScoreHandler(session.getConnectionState(),JunkScore.JUNK_SCORE_SESSION);
+        JunkScore score2 = getLazyJunkScoreHandler(session.getState(),JunkScore.JUNK_SCORE);
+        
         JunkScore composed = new ComposedJunkScore(score1,score2);
         
         if (action.equals(COMPOSE_ACTION)) {
@@ -160,12 +157,13 @@ public class JunkScoreHandler extends AbstractLogEnabled implements ConnectHandl
         }
         return null;
     }
-        
-    /**
-     * @see org.apache.james.smtpserver.ConnectHandler#onConnect(org.apache.james.smtpserver.SMTPSession)
-     */
-    public void onConnect(SMTPSession session) {
-        session.getState().put(JunkScore.JUNK_SCORE, new JunkScoreImpl());
-        session.getConnectionState().put(JunkScore.JUNK_SCORE_SESSION, new JunkScoreImpl());
-    } 
+    
+    public static JunkScore getLazyJunkScoreHandler(Map state, String key) {
+        JunkScore score = (JunkScore) state.get(key);
+        if (score == null) {
+            score = new JunkScoreImpl();
+            state.put(key, score);
+        }
+        return score;
+    }
 }

@@ -137,6 +137,6 @@ public abstract class AbstractJunkHandler extends AbstractLogEnabled implements 
      * @return junkScore
      */
     protected JunkScore getJunkScore(SMTPSession session) {
-        return (JunkScore) session.getState().get(JunkScore.JUNK_SCORE);
+        return JunkScoreHandler.getLazyJunkScoreHandler(session.getState(), JunkScore.JUNK_SCORE);
     }
 }

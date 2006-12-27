@@ -279,7 +279,7 @@ public class DNSRBLHandler
      * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getJunkScore(org.apache.james.smtpserver.SMTPSession)
      */
     protected JunkScore getJunkScore(SMTPSession session) {
-        return (JunkScore) session.getConnectionState().get(JunkScore.JUNK_SCORE_SESSION);
+        return JunkScoreHandler.getLazyJunkScoreHandler(session.getConnectionState(), JunkScore.JUNK_SCORE_SESSION);
     }
     
     /**
