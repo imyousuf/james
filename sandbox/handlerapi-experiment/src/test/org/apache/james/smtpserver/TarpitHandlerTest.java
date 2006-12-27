@@ -34,6 +34,11 @@ public class TarpitHandlerTest extends TestCase {
             public int getRcptCount() {
                 return rcptCount;
             }
+            
+            public void sleep(long ms) {
+                // use the real code 
+                (new SMTPHandler()).sleep(ms);
+            }
 
         };
 

@@ -461,5 +461,16 @@ public class SMTPHandler
         }
         lineHandlers.addLast(lineHandler);
     }
+    
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#sleep(long)
+     */
+    public void sleep(long ms) {
+        try {
+            Thread.sleep(ms);
+        } catch (InterruptedException e) {
+            // ignore
+        }
+    }
 
 }

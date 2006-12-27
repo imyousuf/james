@@ -89,20 +89,7 @@ public class TarpitHandler extends AbstractLogEnabled implements
     public void setTarpitSleepTime(long tarpitSleepTime) {
         this.tarpitSleepTime = tarpitSleepTime;
     }
-
-    /**
-     * Add a sleep for the given milliseconds
-     * 
-     * @param timeInMillis
-     *            Time in ms
-     * @throws InterruptedException
-     * 
-     * TODO: Remember to add an sleep method to our IO implementation
-     */
-    private void sleep(float timeInMillis) throws InterruptedException {
-        Thread.sleep((long) timeInMillis);
-    }
-
+    
     /**
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(org.apache.james.smtpserver.SMTPSession, java.lang.String, java.lang.String) 
      */  
@@ -113,11 +100,7 @@ public class TarpitHandler extends AbstractLogEnabled implements
         rcptCount++;
 
         if (rcptCount > tarpitRcptCount) {
-            try {
-                sleep(tarpitSleepTime);
-            } catch (InterruptedException e) {
-            // ignore
-            }
+            session.sleep(tarpitSleepTime);
         }
         
         return null;

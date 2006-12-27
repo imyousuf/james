@@ -29,40 +29,6 @@ import java.util.Map;
  */
 public class AbstractSMTPSession implements SMTPSession {
 
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#abortMessage()
-     */
-    public void abortMessage() {
-        throw new UnsupportedOperationException("Unimplemented Stub Method");
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#clearResponseBuffer()
-     */
-    public String clearResponseBuffer() {
-        throw new UnsupportedOperationException("Unimplemented Stub Method");
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#endSession()
-     */
-    public void endSession() {
-        throw new UnsupportedOperationException("Unimplemented Stub Method");
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#getCommandArgument()
-     */
-    public String getCommandArgument() {
-        throw new UnsupportedOperationException("Unimplemented Stub Method");
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#getCommandName()
-     */
-    public String getCommandName() {
-        throw new UnsupportedOperationException("Unimplemented Stub Method");
-    }
 
     /**
      * @see org.apache.james.smtpserver.SMTPSession#getConfigurationData()
@@ -107,13 +73,6 @@ public class AbstractSMTPSession implements SMTPSession {
     }
 
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#getResponseBuffer()
-     */
-    public StringBuffer getResponseBuffer() {
-        throw new UnsupportedOperationException("Unimplemented Stub Method");
-    }
-
-    /**
      * @see org.apache.james.smtpserver.SMTPSession#getSessionID()
      */
     public String getSessionID() {
@@ -124,13 +83,6 @@ public class AbstractSMTPSession implements SMTPSession {
      * @see org.apache.james.smtpserver.SMTPSession#getState()
      */
     public Map getState() {
-        throw new UnsupportedOperationException("Unimplemented Stub Method");
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#getStopHandlerProcessing()
-     */
-    public boolean getStopHandlerProcessing() {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
     }
 
@@ -177,32 +129,12 @@ public class AbstractSMTPSession implements SMTPSession {
     }
 
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#setStopHandlerProcessing(boolean)
-     */
-    public void setStopHandlerProcessing(boolean b) {
-        throw new UnsupportedOperationException("Unimplemented Stub Method");
-    }
-
-    /**
      * @see org.apache.james.smtpserver.SMTPSession#setUser(java.lang.String)
      */
     public void setUser(String user) {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
     }
 
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#useHeloEhloEnforcement()
-     */
-    public boolean useHeloEhloEnforcement() {
-        throw new UnsupportedOperationException("Unimplemented Stub Method");
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#writeResponse(java.lang.String)
-     */
-    public void writeResponse(String respString) {
-        throw new UnsupportedOperationException("Unimplemented Stub Method");
-    }
 
     /**
      * @see org.apache.james.smtpserver.SMTPSession#popLineHandler()
@@ -222,6 +154,13 @@ public class AbstractSMTPSession implements SMTPSession {
      * @see org.apache.james.smtpserver.SMTPSession#writeSMTPResponse(org.apache.james.smtpserver.SMTPResponse)
      */
     public void writeSMTPResponse(SMTPResponse response) {
+        throw new UnsupportedOperationException("Unimplemented Stub Method");
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#sleep(long)
+     */
+    public void sleep(long ms) {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
     }
 

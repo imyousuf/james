@@ -62,6 +62,9 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
     
     private final static String[] mandatoryCommands = { "MAIL" , "RCPT", "DATA"};
 
+    /**
+     * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
+     */
     public void service(ServiceManager arg0) throws ServiceException {
         serviceManager = arg0;
     }

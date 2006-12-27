@@ -161,5 +161,12 @@ public interface SMTPSession {
      * Write an SMTPResponse to the client
      */
     void writeSMTPResponse(SMTPResponse response);
+    
+    /**
+     * Sleep for the given ms 
+     * 
+     * @param ms the time to sleep in milliseconds
+     */
+    void sleep(long ms);
 }
 
