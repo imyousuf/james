@@ -26,6 +26,7 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.RcptHook;
 
 import org.apache.mailet.MailAddress;
@@ -65,11 +66,11 @@ public class MaxRcptHandler extends AbstractLogEnabled implements
     /**
      * @see org.apache.james.smtpserver.hook.RcptHook#doRcpt(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
      */
-    public int doRcpt(SMTPSession session, MailAddress sender, MailAddress rcpt) {
+    public HookResult doRcpt(SMTPSession session, MailAddress sender, MailAddress rcpt) {
         if ((session.getRcptCount() + 1) > maxRcpt) {
-            return RcptHook.DENY;
+            return new HookResult(RcptHook.DENY);
         } else {
-            return RcptHook.OK;
+            return new HookResult(RcptHook.OK);
         }
     }
 

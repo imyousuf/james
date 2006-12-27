@@ -32,6 +32,7 @@ import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.ExtensibleHandler;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.RcptHook;
 import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.james.util.mail.dsn.DSNStatus;
@@ -52,7 +53,7 @@ public class RcptCmdHandler extends AbstractLogEnabled implements
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(org.apache.james.smtpserver.SMTPSession, java.lang.String, java.lang.String) 
     **/
     public SMTPResponse onCommand(SMTPSession session, String command, String parameters) {
-        SMTPResponse response = doRCPTFilter(session,parameters);
+        SMTPResponse response = doRCPTSyntaxFilter(session,parameters);
     
         if (response == null) {
             response = processExtensions(session);
@@ -76,10 +77,16 @@ public class RcptCmdHandler extends AbstractLogEnabled implements
             int count = rcptHooks.size();
             for(int i =0; i < count; i++) {
                     
-                int rCode = ((RcptHook) rcptHooks.get(i)).doRcpt(session, (MailAddress) session.getState().get(SMTPSession.SENDER), (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT));
-                    
+                HookResult result = ((RcptHook) rcptHooks.get(i)).doRcpt(session, (MailAddress) session.getState().get(SMTPSession.SENDER), (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT));
+                int rCode = result.getResult();
+                String smtpRetCode = result.getSmtpRetCode();
+                String smtpDesc = result.getSmtpDescription();
+                
                 if (rCode == RcptHook.DENY) {
-                    return new SMTPResponse(SMTPRetCode.TRANSACTION_FAILED,"Email rejected");
+                    if (smtpRetCode == null) smtpRetCode = SMTPRetCode.TRANSACTION_FAILED;
+                    if (smtpDesc == null) smtpDesc = "Email rejected";
+                    
+                    return new SMTPResponse(smtpRetCode, smtpDesc);
                 }else if (rCode == RcptHook.DENYSOFT) {
                     return new SMTPResponse(SMTPRetCode.LOCAL_ERROR,"Temporary problem. Please try again later");
                 }
@@ -121,7 +128,7 @@ public class RcptCmdHandler extends AbstractLogEnabled implements
      * @param session SMTP session object
      * @param argument the argument passed in with the command by the SMTP client
      */
-    private SMTPResponse doRCPTFilter(SMTPSession session, String argument) {
+    private SMTPResponse doRCPTSyntaxFilter(SMTPSession session, String argument) {
         String recipient = null;
         if ((argument != null) && (argument.indexOf(":") > 0)) {
             int colonIndex = argument.indexOf(":");
@@ -304,18 +311,18 @@ public class RcptCmdHandler extends AbstractLogEnabled implements
      * @see org.apache.james.smtpserver.ExtensibleHandler#getMarkerInterfaces()
      */
     public List getMarkerInterfaces() {
-    List classes = new ArrayList(1);
-    classes.add(RcptHook.class);
-    return classes;
+        List classes = new ArrayList(1);
+        classes.add(RcptHook.class);
+        return classes;
     }
 
     /**
      * @see org.apache.james.smtpserver.ExtensibleHandler#wireExtensions(java.lang.Class, java.util.List)
      */
     public void wireExtensions(Class interfaceName, List extension) {
-    if (RcptHook.class.equals(interfaceName)) {
+        if (RcptHook.class.equals(interfaceName)) {
             this.rcptHooks = extension; 
-    }
+        }
 
     }
 

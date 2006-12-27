@@ -67,7 +67,7 @@ public class MaxRcptHandlerTest extends TestCase{
     
         //handler.setAction("reject");
         handler.setMaxRcpt(2);
-        int resp = handler.doRcpt(session,null,new MailAddress("test@test"));
+        int resp = handler.doRcpt(session,null,new MailAddress("test@test")).getResult();
     
         assertEquals("Rejected.. To many recipients", resp, RcptHook.DENY);
     }
@@ -98,7 +98,7 @@ public class MaxRcptHandlerTest extends TestCase{
     
 
         handler.setMaxRcpt(4);
-        int resp = handler.doRcpt(session,null,new MailAddress("test@test"));
+        int resp = handler.doRcpt(session,null,new MailAddress("test@test")).getResult();
         
         assertEquals("Not Rejected..", resp, RcptHook.OK);
     }

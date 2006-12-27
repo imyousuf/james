@@ -17,17 +17,37 @@
  * under the License.                                           *
  ****************************************************************/
 
-
 package org.apache.james.smtpserver.hook;
 
-import org.apache.james.smtpserver.SMTPSession;
-import org.apache.mailet.MailAddress;
+public class HookResult {
 
-public interface RcptHook {
-    public final static int OK = 0;
-    public final static int DENY = 1;
-    public final static int DENYSOFT = 2;
+    private int result;
+    private String smtpRetCode;
+    private String smtpDescription;
     
-    public HookResult doRcpt(SMTPSession session, MailAddress sender, MailAddress rcpt);
-
+    public HookResult(int result, String smtpRetCode, String smtpDescription) {
+        this.result = result;
+        this.smtpRetCode = smtpRetCode;
+        this.smtpDescription = smtpDescription;
+    }
+    
+    public HookResult(int result, String smtpDescription) {
+        this(result,null,smtpDescription);
+    }
+    
+    public HookResult(int result) {
+        this(result,null,null);
+    }
+    
+    public int getResult() {
+        return result;
+    }
+    
+    public String getSmtpRetCode() {
+        return smtpRetCode;
+    }
+    
+    public String getSmtpDescription() {
+        return smtpDescription;
+    }
 }
