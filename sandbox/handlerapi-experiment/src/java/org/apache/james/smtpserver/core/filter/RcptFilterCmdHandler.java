@@ -64,10 +64,10 @@ public class RcptFilterCmdHandler extends AbstractLogEnabled implements
             argument = argument.substring(0, colonIndex);
         }
         if (!session.getState().containsKey(SMTPSession.SENDER)) {
-            return new SMTPResponse("503", DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" Need MAIL before RCPT");
+            return new SMTPResponse(SMTPRetCode.BAD_SEQUENCE, DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" Need MAIL before RCPT");
         } else if (argument == null || !argument.toUpperCase(Locale.US).equals("TO")
                    || recipient == null) {
-            return new SMTPResponse("501", DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_SYNTAX)+" Usage: RCPT TO:<recipient>");
+            return new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_ARGUMENTS, DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_SYNTAX)+" Usage: RCPT TO:<recipient>");
         } else {
             Collection rcptColl = (Collection) session.getState().get(SMTPSession.RCPT_LIST);
             if (rcptColl == null) {
@@ -93,7 +93,7 @@ public class RcptFilterCmdHandler extends AbstractLogEnabled implements
                                 .append(getContext(session,null,recipient));
                     getLogger().error(errorBuffer.toString());
                 }
-                return new SMTPResponse("501", DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_SYNTAX)+" Syntax error in parameters or arguments");
+                return new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_ARGUMENTS, DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_SYNTAX)+" Syntax error in parameters or arguments");
             }
             MailAddress recipientAddress = null;
             //Remove < and >
@@ -122,7 +122,7 @@ public class RcptFilterCmdHandler extends AbstractLogEnabled implements
                  * 553 Requested action not taken: mailbox name not allowed
                  *     (e.g., mailbox syntax incorrect)
                  */
-                return new SMTPResponse("553", DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_SYNTAX)+" Syntax error in recipient address");
+                return new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_MAILBOX, DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_SYNTAX)+" Syntax error in recipient address");
             }
 
             
@@ -137,7 +137,7 @@ public class RcptFilterCmdHandler extends AbstractLogEnabled implements
                             sb.append("Rejected message - authentication is required for mail request");
                             sb.append(getContext(session,recipientAddress,recipient));
                             getLogger().error(sb.toString());
-                            return new SMTPResponse("530", DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH)+" Authentication Required");
+                            return new SMTPResponse(SMTPRetCode.AUTH_REQUIRED, DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH)+" Authentication Required");
                         }
                     } else {
                         // Identity verification checking
@@ -158,7 +158,7 @@ public class RcptFilterCmdHandler extends AbstractLogEnabled implements
                                     getLogger().error(errorBuffer.toString());
                                 }
                                 
-                                return new SMTPResponse("503", DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH)+" Incorrect Authentication for Specified Email Address");
+                                return new SMTPResponse(SMTPRetCode.BAD_SEQUENCE, DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH)+" Incorrect Authentication for Specified Email Address");
                             }
                         }
                     }
@@ -173,7 +173,7 @@ public class RcptFilterCmdHandler extends AbstractLogEnabled implements
                             .append(getContext(session,recipientAddress,recipient));
                         getLogger().error(errorBuffer.toString());
                         
-                        return new SMTPResponse("550", DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH)+" Requested action not taken: relaying denied");
+                        return new SMTPResponse(SMTPRetCode.MAILBOX_PERM_UNAVAILABLE, DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH)+" Requested action not taken: relaying denied");
                     }
                 }
             }

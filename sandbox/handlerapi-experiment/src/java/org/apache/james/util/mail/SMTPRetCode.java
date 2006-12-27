@@ -53,6 +53,8 @@ public class SMTPRetCode {
     // (See section 3.5.3)
     public static final String MAIL_UNDEFINDED = "252";
 
+    public static final String AUTH_READY = "334";
+
     // Start mail input; end with <CRLF>.<CRLF>
     public static final String DATA_READY = "354";
 
@@ -61,6 +63,11 @@ public class SMTPRetCode {
     // must shut down)
     public static final String SERVICE_NOT_AVAILABLE = "421";
 
+    //This response to the AUTH command indicates that the user needs to
+    // transition to the selected authentication mechanism.  This typically
+    // done by authenticating once using the PLAIN authentication mechanism.
+    public static final String AUTH_PASSWORD_TRANSITION_ERROR = "432";
+    
     // Requested mail action not taken: mailbox unavailable
     // (e.g., mailbox busy)
     public static final String MAILBOX_TEMP_UNAVAILABLE = "450";
@@ -71,6 +78,10 @@ public class SMTPRetCode {
     // Requested action not taken: insufficient system storage
     public static final String SYSTEM_STORAGE_ERROR = "452";
 
+    //This response to the AUTH command indicates that the authentication
+    // failed due to a temporary server failure.
+    public static final String AUTH_TEMPORARY_ERROR = "454";
+    
     // Syntax error, command unrecognized
     // (This may include errors such as command line too long)
     public static final String SYNTAX_ERROR_COMMAND_UNRECOGNIZED = "500";
@@ -87,8 +98,23 @@ public class SMTPRetCode {
     // Command parameter not implemented
     public static final String PARAMETER_NOT_IMPLEMENTED = "504";
     
+    // This response may be returned by any command other than AUTH, EHLO,
+    // HELO, NOOP, RSET, or QUIT.  It indicates that server policy requires
+    // authentication in order to perform the requested action.
+    public static final String AUTH_REQUIRED = "530";
+    
     // Auth failed
     public static final String AUTH_FAILED = "535";
+    
+    // This response to the AUTH command indicates that the selected
+    // authentication mechanism is weaker than server policy permits for
+    // that user.
+    public static final String AUTH_MECHANISM_WEAK = "534";
+
+    // This response to the AUTH command indicates that the selected
+    // authentication mechanism may only be used when the underlying SMTP
+    // connection is encrypted.
+    public static final String AUTH_ENCRYPTION_REQUIRED = "538";
 
     // Requested action not taken: mailbox unavailable
     // (e.g., mailbox not found, no access, or command rejected

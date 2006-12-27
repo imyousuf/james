@@ -54,7 +54,7 @@ public class VrfyCmdHandler implements CommandHandler {
      */
     public Collection getImplCommands() {
         Collection implCommands = new ArrayList();
-        implCommands.add("VRFY");
+        implCommands.add(COMMAND_NAME);
         
         return implCommands;
     }

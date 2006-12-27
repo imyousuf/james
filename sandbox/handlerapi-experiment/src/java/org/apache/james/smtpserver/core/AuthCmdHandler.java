@@ -115,7 +115,7 @@ public class AuthCmdHandler
                             return doPlainAuthPass(session, l);
                         }
                     });
-                    return new SMTPResponse("334", "OK. Continue authentication");
+                    return new SMTPResponse(SMTPRetCode.AUTH_READY, "OK. Continue authentication");
                 } else {
                     userpass = initialResponse.trim();
                     return doPlainAuthPass(session, userpass);
@@ -128,7 +128,7 @@ public class AuthCmdHandler
                             return doLoginAuthPass(session, l);
                         }
                     });
-                    return new SMTPResponse("334", "VXNlcm5hbWU6"); // base64 encoded "Username:"
+                    return new SMTPResponse(SMTPRetCode.AUTH_READY, "VXNlcm5hbWU6"); // base64 encoded "Username:"
                 } else {
                     String user = initialResponse.trim();
                     return doLoginAuthPass(session, user);
@@ -250,7 +250,7 @@ public class AuthCmdHandler
             }
             
         }.setUser(user));
-        return new SMTPResponse("334", "UGFzc3dvcmQ6"); // base64 encoded "Password:"
+        return new SMTPResponse(SMTPRetCode.AUTH_READY, "UGFzc3dvcmQ6"); // base64 encoded "Password:"
     }
     
     private SMTPResponse doLoginAuthPassCheck(SMTPSession session, String user, String pass) {
@@ -313,6 +313,9 @@ public class AuthCmdHandler
         return implCommands;
     }
 
+    /**
+     * @see org.apache.james.smtpserver.core.EhloExtension#getImplementedEsmtpFeatures(org.apache.james.smtpserver.SMTPSession)
+     */
     public List getImplementedEsmtpFeatures(SMTPSession session) {
         if (session.isAuthRequired()) {
             List resp = new LinkedList();

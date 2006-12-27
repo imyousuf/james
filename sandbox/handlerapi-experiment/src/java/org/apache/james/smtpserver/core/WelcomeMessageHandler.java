@@ -24,6 +24,7 @@ import org.apache.james.Constants;
 import org.apache.james.smtpserver.ConnectHandler;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.mailet.dates.RFC822DateFormat;
 
 import java.util.Date;
@@ -55,7 +56,7 @@ public class WelcomeMessageHandler implements ConnectHandler {
         if (smtpGreeting == null) {
             // Initially greet the connector
             // Format is:  Sat, 24 Jan 1998 13:16:09 -0500
-            welcomeResponse = new SMTPResponse("220",
+            welcomeResponse = new SMTPResponse(SMTPRetCode.SERVICE_READY,
                           new StringBuffer(256)
                           .append(session.getConfigurationData().getHelloName())
                           .append(" SMTP Server (")
@@ -63,7 +64,7 @@ public class WelcomeMessageHandler implements ConnectHandler {
                           .append(") ready ")
                           .append(rfc822DateFormat.format(new Date())));
         } else {
-            welcomeResponse = new SMTPResponse("220",smtpGreeting);
+            welcomeResponse = new SMTPResponse(SMTPRetCode.SERVICE_READY,smtpGreeting);
         }
         session.writeSMTPResponse(welcomeResponse);
     }

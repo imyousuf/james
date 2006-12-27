@@ -31,6 +31,7 @@ import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
 
+import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.james.util.mail.dsn.DSNStatus;
 
 public class MaxRcptHandler extends AbstractJunkHandler implements
@@ -96,7 +97,7 @@ public class MaxRcptHandler extends AbstractJunkHandler implements
     public JunkHandlerData getJunkHandlerData(SMTPSession session) {
         JunkHandlerData data = new JunkHandlerData();
     
-        data.setRejectResponseString(new SMTPResponse("452", DSNStatus.getStatus(DSNStatus.NETWORK, DSNStatus.DELIVERY_TOO_MANY_REC)
+        data.setRejectResponseString(new SMTPResponse(SMTPRetCode.SYSTEM_STORAGE_ERROR, DSNStatus.getStatus(DSNStatus.NETWORK, DSNStatus.DELIVERY_TOO_MANY_REC)
                 + " Requested action not taken: max recipients reached"));
         data.setJunkScoreLogString("Maximum recipients of " + maxRcpt + " reached. Add JunkScore: " +getScore());
         data.setRejectLogString("Maximum recipients of " + maxRcpt + " reached");

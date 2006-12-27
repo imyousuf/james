@@ -173,7 +173,7 @@ public class DataCmdHandler
             e1.printStackTrace();
         }
         
-        return new SMTPResponse("354", "Ok Send data ending with <CRLF>.<CRLF>");
+        return new SMTPResponse(SMTPRetCode.DATA_READY, "Ok Send data ending with <CRLF>.<CRLF>");
     }
     
 
@@ -256,11 +256,6 @@ public class DataCmdHandler
         }
 
     }
-
-
-
-
-
 
 
     private MailHeaders processMailHeaders(SMTPSession session, MailHeaders headers)
@@ -433,11 +428,17 @@ public class DataCmdHandler
     }
 
 
+    /**
+     * @see org.apache.james.smtpserver.ExtensibleHandler#getMarkerInterface()
+     */
     public Class getMarkerInterface() {
         return MessageHandler.class;
     }
 
 
+    /**
+     * @see org.apache.james.smtpserver.ExtensibleHandler#wireExtensions(java.util.List)
+     */
     public void wireExtensions(List extension) {
         this.messageHandlers = extension;
     }

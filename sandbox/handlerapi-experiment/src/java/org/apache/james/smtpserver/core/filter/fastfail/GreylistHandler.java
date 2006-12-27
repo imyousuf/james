@@ -53,6 +53,7 @@ import org.apache.james.util.JDBCUtil;
 import org.apache.james.util.NetMatcher;
 import org.apache.james.util.SqlResources;
 import org.apache.james.util.TimeConverter;
+import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.MailAddress;
 
@@ -344,7 +345,7 @@ public class GreylistHandler extends AbstractLogEnabled implements
                 long acceptTime = createTimeStamp + tempBlockTime;
         
                 if ((time < acceptTime) && (count == 0)) {
-                    ret = new SMTPResponse("451", DSNStatus.getStatus(DSNStatus.TRANSIENT, DSNStatus.NETWORK_DIR_SERVER) 
+                    ret = new SMTPResponse(SMTPRetCode.LOCAL_ERROR, DSNStatus.getStatus(DSNStatus.TRANSIENT, DSNStatus.NETWORK_DIR_SERVER) 
                         + " Temporary rejected: Reconnect to fast. Please try again later");
                 } else {
                     
@@ -361,7 +362,7 @@ public class GreylistHandler extends AbstractLogEnabled implements
                 insertTriplet(datasource.getConnection(), ipAddress, sender, recip, count, time);
       
                 // Tempory block on new triplet!
-                ret = new SMTPResponse("451", DSNStatus.getStatus(DSNStatus.TRANSIENT, DSNStatus.NETWORK_DIR_SERVER) 
+                ret = new SMTPResponse(SMTPRetCode.LOCAL_ERROR, DSNStatus.getStatus(DSNStatus.TRANSIENT, DSNStatus.NETWORK_DIR_SERVER) 
                     + " Temporary rejected: Please try again later");
             }
 
@@ -674,6 +675,9 @@ public class GreylistHandler extends AbstractLogEnabled implements
         return wNetworks;
     }
 
+    /**
+     * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
+     */
     public Collection getImplCommands() {
         Collection c = new ArrayList();
         c.add("RCPT");

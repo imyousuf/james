@@ -27,6 +27,7 @@ import java.util.Collection;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.james.util.mail.dsn.DSNStatus;
 
 /**
@@ -57,7 +58,7 @@ public class UnknownCmdHandler implements CommandHandler {
                       .append(" Command ")
                       .append(command)
                       .append(" unrecognized.");
-        return new SMTPResponse("500", result);
+        return new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_COMMAND_UNRECOGNIZED, result);
     }
     
     /**
@@ -65,7 +66,7 @@ public class UnknownCmdHandler implements CommandHandler {
      */
     public Collection getImplCommands() {
         Collection implCommands = new ArrayList();
-        implCommands.add("UNKNOWN");
+        implCommands.add(UNKNOWN_COMMAND);
         
         return implCommands;
     }

@@ -30,6 +30,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.MailAddress;
 
@@ -67,12 +68,12 @@ public class MailFilterCmdHandler
             argument = argument.substring(0, colonIndex);
         }
         if (session.getState().containsKey(SMTPSession.SENDER)) {
-            return new SMTPResponse("503", DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" Sender already specified");
+            return new SMTPResponse(SMTPRetCode.BAD_SEQUENCE, DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" Sender already specified");
         } else if (!session.getConnectionState().containsKey(SMTPSession.CURRENT_HELO_MODE) && session.getConfigurationData().useHeloEhloEnforcement()) {
-            return new SMTPResponse("503", DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" Need HELO or EHLO before MAIL");
+            return new SMTPResponse(SMTPRetCode.BAD_SEQUENCE, DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" Need HELO or EHLO before MAIL");
         } else if (argument == null || !argument.toUpperCase(Locale.US).equals("FROM")
                    || sender == null) {
-            return new SMTPResponse("501", DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Usage: MAIL FROM:<sender>");
+            return new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_ARGUMENTS, DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Usage: MAIL FROM:<sender>");
         } else {
             sender = sender.trim();
             // the next gt after the first lt ... AUTH may add more <>
@@ -126,7 +127,7 @@ public class MailFilterCmdHandler
                             .append(": did not start and end with < >");
                     getLogger().error(errorBuffer.toString());
                 }
-                return new SMTPResponse("501", DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_SYNTAX_SENDER)+" Syntax error in MAIL command");
+                return new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_ARGUMENTS, DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_SYNTAX_SENDER)+" Syntax error in MAIL command");
             }
             MailAddress senderAddress = null;
             
@@ -155,7 +156,7 @@ public class MailFilterCmdHandler
                                     .append(pe.getMessage());
                         getLogger().error(errorBuffer.toString());
                     }
-                    return new SMTPResponse("501", DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_SYNTAX_SENDER)+" Syntax error in sender address");
+                    return new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_ARGUMENTS, DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_SYNTAX_SENDER)+" Syntax error in sender address");
                 }
             }
          
@@ -180,7 +181,7 @@ public class MailFilterCmdHandler
         } catch (NumberFormatException pe) {
             getLogger().error("Rejected syntactically incorrect value for SIZE parameter.");
             // This is a malformed option value.  We return an error
-            return new SMTPResponse("501", DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Syntactically incorrect value for SIZE parameter");
+            return new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_ARGUMENTS, DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Syntactically incorrect value for SIZE parameter");
         }
         if (getLogger().isDebugEnabled()) {
             StringBuffer debugBuffer =
@@ -208,7 +209,7 @@ public class MailFilterCmdHandler
                     .append("based on SIZE option.");
             getLogger().error(errorBuffer.toString());
             
-            return new SMTPResponse("552", DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SYSTEM_MSG_TOO_BIG)+" Message size exceeds fixed maximum message size");
+            return new SMTPResponse(SMTPRetCode.QUOTA_EXCEEDED, DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SYSTEM_MSG_TOO_BIG)+" Message size exceeds fixed maximum message size");
         } else {
             // put the message size in the message state so it can be used
             // later to restrict messages for user quotas, etc.

@@ -28,6 +28,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.MailAddress;
 
@@ -61,7 +62,7 @@ public class MailCmdHandler
         MailAddress sender = (MailAddress) session.getState().get(SMTPSession.SENDER);
         responseBuffer.append(DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.ADDRESS_OTHER) + " Sender <")
                 .append(sender).append("> OK");
-        return new SMTPResponse("250", responseBuffer);
+        return new SMTPResponse(SMTPRetCode.MAIL_OK, responseBuffer);
     }
     
     /**

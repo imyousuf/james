@@ -29,6 +29,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.MailAddress;
 
@@ -66,7 +67,7 @@ public class SupressDuplicateRcptHandler extends AbstractLogEnabled implements C
                           .append(rcpt.toString())
                           .append("> OK");
             getLogger().debug("Duplicate recipient not add to recipient list: " + rcpt.toString());
-            return new SMTPResponse("250", responseBuffer);
+            return new SMTPResponse(SMTPRetCode.MAIL_OK, responseBuffer);
         }
         return null;
     }

@@ -32,6 +32,7 @@ import org.apache.james.services.DNSServer;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.MailAddress;
 
@@ -140,7 +141,7 @@ public class ValidSenderDomainHandler
         MailAddress senderAddress = (MailAddress) session.getState().get(SMTPSession.SENDER);
         JunkHandlerData data = new JunkHandlerData();
     
-        data.setRejectResponseString(new SMTPResponse("501",DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_SYNTAX_SENDER)+ " sender " + senderAddress + " contains a domain with no valid MX records"));
+        data.setRejectResponseString(new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_ARGUMENTS,DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_SYNTAX_SENDER)+ " sender " + senderAddress + " contains a domain with no valid MX records"));
         data.setJunkScoreLogString("Sender " + senderAddress + " contains a domain with no valid MX records. Add Junkscore: " + getScore());
         data.setRejectLogString("Sender " + senderAddress + " contains a domain with no valid MX records");
         data.setScoreName("ValidSenderDomainCheck");

@@ -33,6 +33,7 @@ import org.apache.james.smtpserver.ConnectHandler;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.junkscore.JunkScore;
+import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.MailAddress;
 
@@ -291,9 +292,9 @@ public class DNSRBLHandler
         data.setRejectLogString("ipaddress " + session.getRemoteIPAddress() + " listed on RBL. Reject email");
     
         if (blocklistedDetail != null) {
-            data.setRejectResponseString(new SMTPResponse("530", DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH) + " " + blocklistedDetail));
+            data.setRejectResponseString(new SMTPResponse(SMTPRetCode.AUTH_REQUIRED, DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH) + " " + blocklistedDetail));
         } else {
-            data.setRejectResponseString(new SMTPResponse("530", DSNStatus.getStatus(DSNStatus.PERMANENT,
+            data.setRejectResponseString(new SMTPResponse(SMTPRetCode.AUTH_REQUIRED, DSNStatus.getStatus(DSNStatus.PERMANENT,
                             DSNStatus.SECURITY_AUTH)  + " Rejected: unauthenticated e-mail from " + session.getRemoteIPAddress() 
                             + " is restricted.  Contact the postmaster for details."));
         }

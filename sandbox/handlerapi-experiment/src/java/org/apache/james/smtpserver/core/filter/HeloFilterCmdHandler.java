@@ -25,16 +25,10 @@ package org.apache.james.smtpserver.core.filter;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.smtpserver.CommandHandler;
-import org.apache.james.smtpserver.SMTPResponse;
-import org.apache.james.smtpserver.SMTPSession;
-
-
 /**
   * Handles HELO command
   */
-public class HeloFilterCmdHandler extends AbstractLogEnabled implements CommandHandler {
+public class HeloFilterCmdHandler extends EhloFilterCmdHandler {
 
     /**
      * The name of the command handled by the command handler
@@ -42,38 +36,11 @@ public class HeloFilterCmdHandler extends AbstractLogEnabled implements CommandH
     private final static String COMMAND_NAME = "HELO";
       
     /**
-     * process HELO command
-     * 
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(org.apache.james.smtpserver.SMTPSession, java.lang.String, java.lang.String)
-     */
-    public SMTPResponse onCommand(SMTPSession session, String command, String arguments) {
-        return doHELO(session, arguments);
-    }
-
-    /**
-     * @param session SMTP session object
-     * @param argument the argument passed in with the command by the SMTP client
-     */
-    private SMTPResponse doHELO(SMTPSession session, String argument) {
-        session.resetState();
-              
-        if (argument == null) {
-            String responseString = "Domain address required: " + COMMAND_NAME;
-            getLogger().info(responseString);
-            return new SMTPResponse("501", responseString);
-        } else {
-            // store provided name
-            session.getState().put(SMTPSession.CURRENT_HELO_NAME,argument);
-            return null;
-        }
-    }
-    
-    /**
      * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
      */
     public Collection getImplCommands() {
         Collection implCommands = new ArrayList();
-        implCommands.add("HELO");
+        implCommands.add(COMMAND_NAME);
         
         return implCommands;
     }

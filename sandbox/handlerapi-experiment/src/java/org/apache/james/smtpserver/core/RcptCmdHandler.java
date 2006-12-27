@@ -28,6 +28,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.MailAddress;
 
@@ -70,7 +71,7 @@ public class RcptCmdHandler extends AbstractLogEnabled implements
                 .append(" Recipient <")
                 .append(recipientAddress)
                 .append("> OK");
-        return new SMTPResponse("250", response);
+        return new SMTPResponse(SMTPRetCode.MAIL_OK, response);
              
     }
     

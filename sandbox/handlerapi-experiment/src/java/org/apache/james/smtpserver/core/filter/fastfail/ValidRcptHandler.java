@@ -39,6 +39,7 @@ import org.apache.james.services.VirtualUserTableStore;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.james.vut.ErrorMappingException;
 import org.apache.mailet.MailAddress;
@@ -229,7 +230,7 @@ public class ValidRcptHandler extends AbstractLogEnabled implements CommandHandl
         if (invalidUser == true) {
             //user not exist
             getLogger().info("Rejected message. Unknown user: " + rcpt.toString());
-            return new SMTPResponse("554", DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_MAILBOX) + " Unknown user: " + rcpt.toString());
+            return new SMTPResponse(SMTPRetCode.TRANSACTION_FAILED, DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_MAILBOX) + " Unknown user: " + rcpt.toString());
         }
         return null;
     }

@@ -27,6 +27,7 @@ import java.util.Collection;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.james.util.mail.dsn.DSNStatus;
 
 /**
@@ -66,9 +67,9 @@ public class QuitCmdHandler implements CommandHandler {
                     .append(" ")
                     .append(session.getConfigurationData().getHelloName())
                     .append(" Service closing transmission channel");
-            ret = new SMTPResponse("221", response);
+            ret = new SMTPResponse(SMTPRetCode.SYSTEM_QUIT, response);
         } else {
-            ret = new SMTPResponse("500", DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Unexpected argument provided with QUIT command");
+            ret = new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_COMMAND_UNRECOGNIZED, DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Unexpected argument provided with QUIT command");
         }
         ret.setEndSession(true);
         return ret;

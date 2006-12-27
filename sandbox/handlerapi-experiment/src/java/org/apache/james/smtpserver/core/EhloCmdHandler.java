@@ -94,18 +94,22 @@ public class EhloCmdHandler extends AbstractLogEnabled implements
      */
     public Collection getImplCommands() {
         Collection implCommands = new ArrayList();
-        implCommands.add("EHLO");
+        implCommands.add(COMMAND_NAME);
         
         return implCommands;
     }
 
-
-
+    /**
+     * @see org.apache.james.smtpserver.ExtensibleHandler#getMarkerInterface()
+     */
     public Class getMarkerInterface() {
         return EhloExtension.class;
     }
 
 
+    /**
+     * @see org.apache.james.smtpserver.ExtensibleHandler#wireExtensions(java.util.List)
+     */
     public void wireExtensions(List extension) {
         this.ehloExtensions = extension;
     }

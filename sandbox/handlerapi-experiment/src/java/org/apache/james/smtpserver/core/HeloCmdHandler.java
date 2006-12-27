@@ -29,6 +29,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.util.mail.SMTPRetCode;
 
 
 /**
@@ -61,7 +62,7 @@ public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler
                 .append(" Hello ").append(argument).append(" (").append(
                         session.getRemoteHost()).append(" [").append(
                         session.getRemoteIPAddress()).append("])");
-        return new SMTPResponse("250", response);
+        return new SMTPResponse(SMTPRetCode.MAIL_OK, response);
     }
     
     /**
@@ -69,7 +70,7 @@ public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler
      */
     public Collection getImplCommands() {
         Collection implCommands = new ArrayList();
-        implCommands.add("HELO");
+        implCommands.add(COMMAND_NAME);
         
         return implCommands;
     } 

@@ -28,6 +28,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.james.util.mail.dsn.DSNStatus;
 
 /**
@@ -57,7 +58,7 @@ public class EhloFilterCmdHandler extends AbstractLogEnabled implements CommandH
         session.resetState();
         
         if (argument == null) {
-            return new SMTPResponse("501", DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Domain address required: " + COMMAND_NAME);
+            return new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_ARGUMENTS, DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Domain address required: " + COMMAND_NAME);
         } else {
             // store provided name
             session.getState().put(SMTPSession.CURRENT_HELO_NAME,argument);
@@ -70,7 +71,7 @@ public class EhloFilterCmdHandler extends AbstractLogEnabled implements CommandH
      */
     public Collection getImplCommands() {
         Collection implCommands = new ArrayList();
-        implCommands.add("EHLO");
+        implCommands.add(COMMAND_NAME);
         
         return implCommands;
     }
