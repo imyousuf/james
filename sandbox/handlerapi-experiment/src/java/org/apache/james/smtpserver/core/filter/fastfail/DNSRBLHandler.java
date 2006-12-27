@@ -258,8 +258,7 @@ public class DNSRBLHandler
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
     public SMTPResponse onCommand(SMTPSession session, String command, String parameters) {
-        doProcessing(session);
-        return null;
+        return doProcessing(session);
     }
 
     /**

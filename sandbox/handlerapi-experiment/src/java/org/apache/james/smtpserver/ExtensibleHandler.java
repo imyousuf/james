@@ -22,7 +22,7 @@ package org.apache.james.smtpserver;
 import java.util.List;
 
 /**
- * Hanlders extends this interface to be notified of available
+ * Handlers extends this interface to be notified of available
  * extensions of the given type.
  */
 public interface ExtensibleHandler {
