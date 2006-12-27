@@ -76,15 +76,18 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
         for (Iterator h = handlers.iterator(); h.hasNext(); ) {
             Object handler = h.next();
             if (handler instanceof ExtensibleHandler) {
-                Class markerInterface = ((ExtensibleHandler) handler).getMarkerInterface();
-                List extensions = new LinkedList();
-                for (Iterator c2 = handlers.iterator(); c2.hasNext(); ) {
-                    Object ext = c2.next();
-                    if (markerInterface.isInstance(ext)) {
-                        extensions.add(ext);
+                List markerInterfaces = ((ExtensibleHandler) handler).getMarkerInterfaces();
+                for (int i= 0;i < markerInterfaces.size(); i++) {
+                    Class markerInterface = (Class) markerInterfaces.get(i);
+                    List extensions = new LinkedList();
+                    for (Iterator c2 = handlers.iterator(); c2.hasNext(); ) {
+                        Object ext = c2.next();
+                        if (markerInterface.isInstance(ext)) {
+                            extensions.add(ext);
+                        }
                     }
+                    ((ExtensibleHandler) handler).wireExtensions(markerInterface,extensions);
                 }
-                ((ExtensibleHandler) handler).wireExtensions(extensions);
             }
         }
     }

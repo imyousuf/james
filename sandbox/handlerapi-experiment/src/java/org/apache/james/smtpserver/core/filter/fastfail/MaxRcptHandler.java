@@ -21,21 +21,17 @@
 
 package org.apache.james.smtpserver.core.filter.fastfail;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.james.smtpserver.CommandHandler;
-import org.apache.james.smtpserver.SMTPResponse;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.smtpserver.hook.RcptHook;
 
-import org.apache.james.util.mail.SMTPRetCode;
-import org.apache.james.util.mail.dsn.DSNStatus;
+import org.apache.mailet.MailAddress;
 
-public class MaxRcptHandler extends AbstractJunkHandler implements
-        CommandHandler, Configurable {
+public class MaxRcptHandler extends AbstractLogEnabled implements
+        RcptHook, Configurable {
 
     private int maxRcpt = 0;
 
@@ -53,7 +49,7 @@ public class MaxRcptHandler extends AbstractJunkHandler implements
                     "Please set the maxRcpt configuration value");
         }
         
-        super.configure(handlerConfiguration);
+        // super.configure(handlerConfiguration);
     }
 
     /**
@@ -65,35 +61,20 @@ public class MaxRcptHandler extends AbstractJunkHandler implements
     public void setMaxRcpt(int maxRcpt) {
         this.maxRcpt = maxRcpt;
     }
-
+   
     /**
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
+     * @see org.apache.james.smtpserver.hook.RcptHook#doRcpt(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
      */
-    public SMTPResponse onCommand(SMTPSession session, String command, String arguments) {
-        return doProcessing(session);
-    }
-    
-    /**
-     * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
-     */
-    public Collection getImplCommands() {
-        Collection implCommands = new ArrayList();
-        implCommands.add("RCPT");
-        
-        return implCommands;
+    public int doRcpt(SMTPSession session, MailAddress sender, MailAddress rcpt) {
+        if ((session.getRcptCount() + 1) > maxRcpt) {
+            return RcptHook.DENY;
+        } else {
+            return RcptHook.OK;
+        }
     }
 
-    /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#check(org.apache.james.smtpserver.SMTPSession)
-     */
-    protected boolean check(SMTPSession session) {
-        // check if the max recipients has reached
-        return ((session.getRcptCount() + 1) > maxRcpt);
-    }
 
-    /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getJunkHandlerData(org.apache.james.smtpserver.SMTPSession)
-     */
+    /*
     public JunkHandlerData getJunkHandlerData(SMTPSession session) {
         JunkHandlerData data = new JunkHandlerData();
     
@@ -104,4 +85,5 @@ public class MaxRcptHandler extends AbstractJunkHandler implements
         data.setScoreName("MaxRcptCheck");
         return data;
     }
+    */
 }

@@ -49,7 +49,8 @@ public class CoreFilterCmdHandlerLoader implements CommandsHandler {
         commands.put("EHLO", EHLOBASEFILTERCMDHANDLER);
         commands.put("HELO", HELOBASEFILTERCMDHANDLER);
         commands.put("MAIL", MAILBASEFILTERCMDHANDLER);
-        commands.put("RCPT", RCPTBASEFILTERCMDHANDLER);
+        // not needed any more the RCPT filters get loaded from the main class
+        //commands.put("RCPT", RCPTBASEFILTERCMDHANDLER);
         
         return commands;
     }

@@ -17,29 +17,17 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.smtpserver;
 
-import java.util.List;
+package org.apache.james.smtpserver.hook;
 
-/**
- * Handlers extends this interface to be notified of available
- * extensions of the given type.
- */
-public interface ExtensibleHandler {
-     
-    /**
-     * Return a List of interfaces of plugins that will
-     * extend this.
-     */
-    List getMarkerInterfaces();
+import org.apache.james.smtpserver.SMTPSession;
+import org.apache.mailet.MailAddress;
+
+public interface RcptHook {
+    public final static int OK = 0;
+    public final static int DENY = 1;
+    public final static int DENYSOFT = 2;
     
-    /**
-     * Method called during initialization after all the handlers have been declared
-     * in the handlerchain.
-     * 
-     * @param interfaceName
-     * @param extension a list of objects implementing the marker interface
-     */
-    void wireExtensions(Class interfaceName, List extension);
-    
+    public int doRcpt(SMTPSession session, MailAddress sender, MailAddress rcpt);
+
 }

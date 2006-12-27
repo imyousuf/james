@@ -438,18 +438,22 @@ public class DataCmdHandler
 
 
     /**
-     * @see org.apache.james.smtpserver.ExtensibleHandler#getMarkerInterface()
+     * @see org.apache.james.smtpserver.ExtensibleHandler#getMarkerInterfaces()
      */
-    public Class getMarkerInterface() {
-        return MessageHandler.class;
+    public List getMarkerInterfaces() {
+        List classes = new ArrayList(1);
+        classes.add(MessageHandler.class);
+        return classes;
     }
 
 
     /**
-     * @see org.apache.james.smtpserver.ExtensibleHandler#wireExtensions(java.util.List)
+     * @see org.apache.james.smtpserver.ExtensibleHandler#wireExtensions(java.lang.Class, java.util.List)
      */
-    public void wireExtensions(List extension) {
-        this.messageHandlers = extension;
+    public void wireExtensions(Class interfaceName, List extension) {
+        if (MessageHandler.class.equals(interfaceName)) {
+            this.messageHandlers = extension;
+        }
     }
 
     /**
