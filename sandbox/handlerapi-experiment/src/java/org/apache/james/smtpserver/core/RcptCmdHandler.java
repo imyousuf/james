@@ -55,15 +55,15 @@ public class RcptCmdHandler extends AbstractLogEnabled implements
         SMTPResponse response = doRCPTFilter(session,parameters);
     
         if (response == null) {
-        response = processExtensions(session);
-        if (response == null) {
-            return doRCPT(session, parameters);
+            response = processExtensions(session);
+            if (response == null) {
+                return doRCPT(session, parameters);
+            } else {
+                return response;
+            }
         } else {
-        return response;
+            return response;
         }
-    } else {
-        return response;
-    }
 
     }
 
@@ -76,7 +76,7 @@ public class RcptCmdHandler extends AbstractLogEnabled implements
             int count = rcptHooks.size();
             for(int i =0; i < count; i++) {
                     
-                int rCode = ((RcptHook) rcptHooks.get(i)).doRcpt(session, (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT), (MailAddress) session.getState().get(SMTPSession.SENDER));
+                int rCode = ((RcptHook) rcptHooks.get(i)).doRcpt(session, (MailAddress) session.getState().get(SMTPSession.SENDER), (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT));
                     
                 if (rCode == RcptHook.DENY) {
                     return new SMTPResponse(SMTPRetCode.TRANSACTION_FAILED,"Email rejected");
