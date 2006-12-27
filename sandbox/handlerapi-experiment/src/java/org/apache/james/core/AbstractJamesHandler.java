@@ -457,7 +457,12 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
     }
     
     public final String readInputLineAsString() throws IOException {
-        return bytebufferHandler.readString();
+        String line = bytebufferHandler.readString();
+        if (line != null && line.length() >= 2) {
+            return line.substring(0,line.length()-2);
+        } else {
+            return line;
+        }
     }
 
 }

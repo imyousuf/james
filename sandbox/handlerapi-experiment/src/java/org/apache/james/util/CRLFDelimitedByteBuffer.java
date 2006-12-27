@@ -111,8 +111,8 @@ public class CRLFDelimitedByteBuffer {
 
     synchronized public String readString() throws IOException, LineLengthExceededException, TerminationException {
         byte[] buffer = new byte[1000];
-        while (isEmpty()) {
-            int length = input.read(buffer);
+        int length;
+        while (lines.isEmpty() && isEmpty() && (length = input.read(buffer))!=-1) {
             write(buffer, length);
         }
         if (lines.isEmpty()) return null;
