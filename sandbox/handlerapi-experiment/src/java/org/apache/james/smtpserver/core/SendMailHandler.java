@@ -59,10 +59,8 @@ public class SendMailHandler
      * Adds header to the message
      * @see org.apache.james.smtpserver#onMessage(SMTPSession)
      */
-    public SMTPResponse onMessage(SMTPSession session) {
+    public SMTPResponse onMessage(SMTPSession session, Mail mail) {
         getLogger().debug("sending mail");
-
-        Mail mail = session.getMail();
 
         try {
             mailServer.sendMail(mail);

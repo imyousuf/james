@@ -45,12 +45,19 @@ public class SPFHandlerTest extends TestCase {
 
     private boolean relaying = false;
 
-    private String command = "MAIL";
+    private Mail mockMail = null;
 
     protected void setUp() throws Exception {
         super.setUp();
         setupMockedDnsService();
         setRelayingAllowed(false);
+        mockMail = new MockMail();
+    }
+
+    
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        ContainerUtil.dispose(mockMail);
     }
 
     /**
@@ -134,22 +141,6 @@ public class SPFHandlerTest extends TestCase {
 
             HashMap connectionState = new HashMap();
 
-            Mail mail = new MockMail();
-
-            boolean stopHandler = false;
-
-            public void writeResponse(String respString) {
-                // Do nothing
-            }
-
-            public String getCommandName() {
-                return command;
-            }
-
-            public Mail getMail() {
-                return mail;
-            }
-
             public String getRemoteIPAddress() {
                 return ip;
             }
@@ -173,14 +164,6 @@ public class SPFHandlerTest extends TestCase {
                 return 0;
             }
 
-            public void setStopHandlerProcessing(boolean b) {
-                stopHandler = b;
-            }
-
-            public boolean getStopHandlerProcessing() {
-                return stopHandler;
-            }
-
             public Map getConnectionState() {
                 return connectionState;
             }
@@ -196,7 +179,7 @@ public class SPFHandlerTest extends TestCase {
 
         spf.onCommand(mockedSMTPSession,"RCPT","<" + rcpt + ">");
 
-        spf.onMessage(mockedSMTPSession);
+        spf.onMessage(mockedSMTPSession, mockMail);
     }
 
     public void testSPFpass() throws Exception {
@@ -223,8 +206,7 @@ public class SPFHandlerTest extends TestCase {
         assertNotNull("Header should present", mockedSMTPSession.getState()
                 .get(SPFHandler.SPF_HEADER));
         assertEquals("header", mockedSMTPSession.getState().get(
-                SPFHandler.SPF_HEADER), mockedSMTPSession.getMail()
-                .getAttribute(SPFHandler.SPF_HEADER_MAIL_ATTRIBUTE_NAME));
+                SPFHandler.SPF_HEADER), mockMail.getAttribute(SPFHandler.SPF_HEADER_MAIL_ATTRIBUTE_NAME));
     }
 
     public void testSPFfail() throws Exception {
@@ -274,8 +256,7 @@ public class SPFHandlerTest extends TestCase {
         assertNotNull("Header should present", mockedSMTPSession.getState()
                 .get(SPFHandler.SPF_HEADER));
         assertEquals("header", mockedSMTPSession.getState().get(
-                SPFHandler.SPF_HEADER), mockedSMTPSession.getMail()
-                .getAttribute(SPFHandler.SPF_HEADER_MAIL_ATTRIBUTE_NAME));
+                SPFHandler.SPF_HEADER), mockMail.getAttribute(SPFHandler.SPF_HEADER_MAIL_ATTRIBUTE_NAME));
     }
 
     public void testSPFsoftFailRejectEnabled() throws Exception {
@@ -377,8 +358,7 @@ public class SPFHandlerTest extends TestCase {
         assertNotNull("Header should present", mockedSMTPSession.getState()
                 .get(SPFHandler.SPF_HEADER));
         assertEquals("header", mockedSMTPSession.getState().get(
-                SPFHandler.SPF_HEADER), mockedSMTPSession.getMail()
-                .getAttribute(SPFHandler.SPF_HEADER_MAIL_ATTRIBUTE_NAME));
+                SPFHandler.SPF_HEADER), mockMail.getAttribute(SPFHandler.SPF_HEADER_MAIL_ATTRIBUTE_NAME));
     }
 
     public void testSPFpermErrorNotRejectPostmaster() throws Exception {

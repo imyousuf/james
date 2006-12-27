@@ -21,6 +21,7 @@
 
 package org.apache.james.smtpserver.core;
 
+import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.Constants;
 import org.apache.james.core.MailHeaders;
@@ -38,6 +39,7 @@ import org.apache.james.util.CharTerminatedInputStream;
 import org.apache.james.util.DotStuffingInputStream;
 import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.james.util.mail.dsn.DSNStatus;
+import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.RFC2822Headers;
 import org.apache.mailet.dates.RFC822DateFormat;
@@ -92,6 +94,8 @@ public class DataCmdHandler
     private final static char[] SMTPTerminator = { '\r', '\n', '.', '\r', '\n' };
 
     private List messageHandlers;
+    
+    private final static String LAST_MAIL_KEY = "org.apache.james.smtpserver.core.DataCmdHandler.LAST_MAIL_KEY";
 
     /**
      * process DATA command
@@ -173,7 +177,7 @@ public class DataCmdHandler
             e1.printStackTrace();
         }
         
-        return new SMTPResponse(SMTPRetCode.DATA_READY, "Ok Send data ending with <CRLF>.<CRLF>");
+        return new SMTPResponse("354", "Ok Send data ending with <CRLF>.<CRLF>");
     }
     
 
@@ -256,6 +260,11 @@ public class DataCmdHandler
         }
 
     }
+
+
+
+
+
 
 
     private MailHeaders processMailHeaders(SMTPSession session, MailHeaders headers)
@@ -382,7 +391,7 @@ public class DataCmdHandler
             
             session.popLineHandler();
             
-            session.setMail(mail);
+            session.getState().put(LAST_MAIL_KEY, mail);
         } catch (MessagingException me) {
             // if we get here, it means that we received a
             // MessagingException, which would happen BEFORE we call
@@ -428,17 +437,11 @@ public class DataCmdHandler
     }
 
 
-    /**
-     * @see org.apache.james.smtpserver.ExtensibleHandler#getMarkerInterface()
-     */
     public Class getMarkerInterface() {
         return MessageHandler.class;
     }
 
 
-    /**
-     * @see org.apache.james.smtpserver.ExtensibleHandler#wireExtensions(java.util.List)
-     */
     public void wireExtensions(List extension) {
         this.messageHandlers = extension;
     }
@@ -447,12 +450,13 @@ public class DataCmdHandler
      * @param session
      */
     private void processExtensions(SMTPSession session) {
-        if(session.getMail() != null && messageHandlers != null) {
+        Object mail = session.getState().get(LAST_MAIL_KEY);
+        if(mail != null && mail instanceof Mail && messageHandlers != null) {
             try {
                 getLogger().debug("executing message handlers");
                 int count = messageHandlers.size();
                 for(int i =0; i < count; i++) {
-                    SMTPResponse response = ((MessageHandler)messageHandlers.get(i)).onMessage(session);
+                    SMTPResponse response = ((MessageHandler)messageHandlers.get(i)).onMessage(session, (Mail) mail);
                     
                     session.writeSMTPResponse(response);
                     
@@ -462,6 +466,12 @@ public class DataCmdHandler
                     }
                 }
             } finally {
+                // Dispose the mail object and remove it
+                if(mail != null) {
+                    ContainerUtil.dispose(mail);
+                    mail = null;
+                }
+                session.getState().remove(LAST_MAIL_KEY);
                 //do the clean up
                 session.resetState();
             }

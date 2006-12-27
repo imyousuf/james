@@ -21,10 +21,8 @@
 
 package org.apache.james.smtpserver;
 
-import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.core.AbstractJamesHandler;
 import org.apache.james.util.CRLFDelimitedByteBuffer;
-import org.apache.mailet.Mail;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -56,11 +54,6 @@ public class SMTPHandler
      * The SMTPHandlerChain object set by SMTPServer
      */
     SMTPHandlerChain handlerChain = null;
-
-    /**
-     * The MailImpl object set by the DATA command
-     */
-    private Mail mail = null;
 
     /**
      * The session termination status
@@ -306,20 +299,6 @@ public class SMTPHandler
 
 
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#getMail()
-     */
-    public Mail getMail() {
-        return mail;
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#setMail(Mail)
-     */
-    public void setMail(Mail mail) {
-        this.mail = mail;
-    }
-
-    /**
      * @see org.apache.james.smtpserver.SMTPSession#getRemoteHost()
      */
     public String getRemoteHost() {
@@ -337,10 +316,6 @@ public class SMTPHandler
      * @see org.apache.james.smtpserver.SMTPSession#resetState()
      */
     public void resetState() {
-        if(mail != null) {
-            ContainerUtil.dispose(mail);
-            mail = null;
-        }
         // remember the ehlo mode between resets
         Object currentHeloMode = getState().get(CURRENT_HELO_MODE);
 

@@ -66,10 +66,6 @@ public class SetMimeHeaderHandlerTest extends TestCase {
     private void setupMockedSMTPSession() {
         mockedSMTPSession = new AbstractSMTPSession() {
 
-            public Mail getMail() {
-                return mockedMail;
-            }
-
             public int getRcptCount() {
                 return 0;
             }
@@ -91,9 +87,9 @@ public class SetMimeHeaderHandlerTest extends TestCase {
 
         header.setHeaderName(HEADER_NAME);
         header.setHeaderValue(HEADER_VALUE);
-        header.onMessage(mockedSMTPSession);
+        header.onMessage(mockedSMTPSession, mockedMail);
 
-        assertEquals(HEADER_VALUE, mockedSMTPSession.getMail().getMessage()
+        assertEquals(HEADER_VALUE, mockedMail.getMessage()
                 .getHeader(HEADER_NAME)[0]);
     }
 
@@ -111,9 +107,9 @@ public class SetMimeHeaderHandlerTest extends TestCase {
 
         header.setHeaderName(HEADER_NAME);
         header.setHeaderValue(HEADER_VALUE);
-        header.onMessage(mockedSMTPSession);
+        header.onMessage(mockedSMTPSession, mockedMail);
 
-        assertEquals(HEADER_VALUE, mockedSMTPSession.getMail().getMessage()
+        assertEquals(HEADER_VALUE, mockedMail.getMessage()
                 .getHeader(HEADER_NAME)[0]);
     }
 

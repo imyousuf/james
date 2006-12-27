@@ -48,6 +48,7 @@ import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.james.util.urirbl.URIScanner;
+import org.apache.mailet.Mail;
 
 /**
  * Extract domains from message and check against URIRBLServer. For more informations see http://www.surbl.org
@@ -66,7 +67,8 @@ public class URIRBLHandler extends AbstractJunkHandler implements MessageHandler
     private final static String LISTED_DOMAIN ="LISTED_DOMAIN";
     
     private final static String URBLSERVER = "URBL_SERVER";
-    
+
+    private final static String TEMP_MAIL = "org.apache.james.smtpserver.core.filter.fastfail.URIRBLHandler.TEMP_MAIL";
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
@@ -159,10 +161,13 @@ public class URIRBLHandler extends AbstractJunkHandler implements MessageHandler
     }
     
     /**
-     * @see org.apache.james.smtpserver.MessageHandler#onMessage(org.apache.james.smtpserver.SMTPSession)
+     * @see org.apache.james.smtpserver.MessageHandler#onMessage(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.Mail)
      */
-    public SMTPResponse onMessage(SMTPSession session) {
-        return doProcessing(session);
+    public SMTPResponse onMessage(SMTPSession session, Mail mail) {
+        session.getState().put(TEMP_MAIL, mail);
+        SMTPResponse res = doProcessing(session);
+        session.getState().remove(TEMP_MAIL);
+        return res;
     }
 
     /**
@@ -215,7 +220,7 @@ public class URIRBLHandler extends AbstractJunkHandler implements MessageHandler
         }
         
         try {
-            message = session.getMail().getMessage();
+            message = ((Mail) session.getState().get(TEMP_MAIL)).getMessage();
 
             HashSet domains = scanMailForDomains(message);
 

@@ -17,12 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.smtpserver;
-
-
-import org.apache.mailet.Mail;
 
 import java.util.Map;
 
@@ -41,20 +36,6 @@ public interface SMTPSession {
     public final static String CURRENT_HELO_NAME = "CURRENT_HELO_NAME"; 
     public static final Object CURRENT_RECIPIENT = "CURRENT_RECIPIENT"; // Current recipient
     public final static String SESSION_STATE_MAP = "SESSION_STATE_MAP"; // the Session state 
-
-    /**
-     * Returns Mail object for message handlers to process
-     *
-     * @return Mail object
-     */
-    Mail getMail();
-
-    /**
-     * Sets the MailImpl object for further processing
-     *
-     * @param mail MailImpl object
-     */
-    void setMail(Mail mail);
 
     /**
      * Returns host name of the client

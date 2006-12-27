@@ -142,9 +142,9 @@ public class SpamAssassinHandler extends AbstractLogEnabled implements
     }
 
     /**
-     * @see org.apache.james.smtpserver.MessageHandler#onMessage(org.apache.james.smtpserver.SMTPSession)
+     * @see org.apache.james.smtpserver.MessageHandler#onMessage(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.Mail)
      */
-    public SMTPResponse onMessage(SMTPSession session) {
+    public SMTPResponse onMessage(SMTPSession session, Mail mail) {
 
         // Not scan the message if relaying allowed
         if (session.isRelayingAllowed() && !checkAuthNetworks) {
@@ -152,7 +152,6 @@ public class SpamAssassinHandler extends AbstractLogEnabled implements
         }
 
         try {
-            Mail mail = session.getMail();
             MimeMessage message = mail.getMessage();
             SpamAssassinInvoker sa = new SpamAssassinInvoker(spamdHost,
                     spamdPort);

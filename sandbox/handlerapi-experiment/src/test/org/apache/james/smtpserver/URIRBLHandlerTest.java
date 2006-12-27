@@ -55,8 +55,10 @@ public class URIRBLHandlerTest extends TestCase {
     private static final String GOOD_DOMAIN = "good.apache.org";
     private static final String URISERVER = "multi.surbl.org.";
     private SMTPSession mockedSMTPSession;
+    private Mail mockedMail;
 
     private SMTPSession setupMockedSMTPSession(final Mail mail) {
+        mockedMail = mail;
         mockedSMTPSession = new AbstractSMTPSession() {
 
             private HashMap state = new HashMap();
@@ -66,15 +68,6 @@ public class URIRBLHandlerTest extends TestCase {
             private String host = "localhost";
 
             private boolean relayingAllowed;
-
-            private boolean processing;
-            
-            public void abortMessage() {
-            }
-
-            public Mail getMail() {
-                return mail;
-            }
 
             public String getRemoteHost() {
                 return host;
@@ -95,14 +88,6 @@ public class URIRBLHandlerTest extends TestCase {
 
             public void setRelayingAllowed(boolean relayingAllowed) {
                 this.relayingAllowed = relayingAllowed;
-            }
-            
-            public void setStopHandlerProcessing(boolean processing) {
-                this.processing = processing;
-            }
-            
-            public boolean getStopHandlerProcessing() {
-                return processing;
             }
         };
 
@@ -190,7 +175,7 @@ public class URIRBLHandlerTest extends TestCase {
         ContainerUtil.enableLogging(handler, new MockLogger());
         handler.setDnsServer(setupMockedDnsServer());
         handler.setUriRblServer(servers);
-        SMTPResponse response = handler.onMessage(session);
+        SMTPResponse response = handler.onMessage(session, mockedMail);
 
         assertNull("Email was not rejected", response);
     }
@@ -207,7 +192,7 @@ public class URIRBLHandlerTest extends TestCase {
         ContainerUtil.enableLogging(handler, new MockLogger());
         handler.setDnsServer(setupMockedDnsServer());
         handler.setUriRblServer(servers);
-        SMTPResponse response = handler.onMessage(session);
+        SMTPResponse response = handler.onMessage(session, mockedMail);
 
         assertNotNull("Email was rejected", response);
     }
@@ -224,7 +209,7 @@ public class URIRBLHandlerTest extends TestCase {
         ContainerUtil.enableLogging(handler, new MockLogger());
         handler.setDnsServer(setupMockedDnsServer());
         handler.setUriRblServer(servers);
-        SMTPResponse response = handler.onMessage(session);
+        SMTPResponse response = handler.onMessage(session, mockedMail);
 
         assertNotNull("Email was rejected", response);
     }
@@ -244,7 +229,7 @@ public class URIRBLHandlerTest extends TestCase {
         handler.setUriRblServer(servers);
         handler.setAction("junkScore");
         handler.setScore(20);
-        SMTPResponse response = handler.onMessage(session);
+        SMTPResponse response = handler.onMessage(session, mockedMail);
 
         assertNull("Email was not rejected", response);
         assertEquals("JunkScore added", ((JunkScore) session.getState().get(JunkScore.JUNK_SCORE)).getStoredScore("UriRBLCheck"), 20.0, 0d);

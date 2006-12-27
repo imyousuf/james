@@ -48,7 +48,6 @@ public class JunkScoreHandlerTest extends TestCase {
         SMTPSession session = new AbstractSMTPSession() {
             HashMap state = new HashMap();
             HashMap cState = new HashMap();
-            Mail m = null;
         
             public Map getState() {
             state.put(SMTPSession.SENDER, "sender@localhost");
@@ -57,11 +56,6 @@ public class JunkScoreHandlerTest extends TestCase {
 
             public Map getConnectionState() {
                 return cState;
-            }
-
-            public Mail getMail(){
-                if (m == null) m = getMockMail();
-                return m;
             }
             
             public String getRemoteHost() {
@@ -107,12 +101,13 @@ public class JunkScoreHandlerTest extends TestCase {
     
         handler.setAction("reject");
         handler.setMaxScore(15.0);
-        handler.onMessage(session);
+        Mail m = getMockMail();
+        handler.onMessage(session, m);
 
         assertNull("Not rejected",response);
         ((JunkScore) session.getState().get(JunkScore.JUNK_SCORE)).setStoredScore(KEY1, SCORE1);
         ((JunkScore) session.getConnectionState().get(JunkScore.JUNK_SCORE_SESSION)).setStoredScore(KEY2, SCORE2);
-        SMTPResponse response = handler.onMessage(session);
+        SMTPResponse response = handler.onMessage(session, m);
     
         assertNotNull("Rejected",response);
     }
@@ -126,9 +121,10 @@ public class JunkScoreHandlerTest extends TestCase {
 
         JunkScoreHandler.getLazyJunkScoreHandler(session.getState(), JunkScore.JUNK_SCORE).setStoredScore(KEY1, SCORE1);
         JunkScoreHandler.getLazyJunkScoreHandler(session.getConnectionState(), JunkScore.JUNK_SCORE_SESSION).setStoredScore(KEY2, SCORE2);
-        SMTPResponse response = handler.onMessage(session);
+        Mail m = getMockMail();
+        SMTPResponse response = handler.onMessage(session,m);
     
-        MimeMessage message = session.getMail().getMessage();
+        MimeMessage message = m.getMessage();
         assertNotNull("Header added",message.getHeader("X-JUNKSCORE")[0]);
         assertNotNull("Header added",message.getHeader("X-JUNKSCORE-COMPOSED")[0]);
         assertNull("Not rejected", response);

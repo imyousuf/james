@@ -21,6 +21,8 @@
 
 package org.apache.james.smtpserver;
 
+import org.apache.mailet.Mail;
+
 /**
  * Custom message handlers must implement this interface
  * The message handlers will be server-wide common to all the SMTPHandlers,
@@ -31,6 +33,6 @@ public interface MessageHandler {
     /*
      * Handle Message
     **/
-    SMTPResponse onMessage(SMTPSession session);
+    SMTPResponse onMessage(SMTPSession session, Mail mail);
 
 }

@@ -37,6 +37,7 @@ import org.apache.james.util.junkscore.JunkScore;
 import org.apache.james.util.junkscore.JunkScoreImpl;
 import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.james.util.mail.dsn.DSNStatus;
+import org.apache.mailet.Mail;
 
 /**
  * Check if a configured JunkScore is reached and perform an action. Valid actions are: reject, compose, header. 
@@ -94,10 +95,10 @@ public class JunkScoreHandler extends AbstractLogEnabled implements MessageHandl
     }
     
     /**
-     * @see org.apache.james.smtpserver.MessageHandler#onMessage(org.apache.james.smtpserver.SMTPSession)
+     * @see org.apache.james.smtpserver.MessageHandler#onMessage(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.Mail)
      */
-    public SMTPResponse onMessage(SMTPSession session) {
-        return checkScore(session);
+    public SMTPResponse onMessage(SMTPSession session, Mail mail) {
+        return checkScore(session, mail);
     }
 
     /**
@@ -105,7 +106,7 @@ public class JunkScoreHandler extends AbstractLogEnabled implements MessageHandl
      * 
      * @param session the SMTPSession
      */
-    private SMTPResponse checkScore(SMTPSession session) {
+    private SMTPResponse checkScore(SMTPSession session, Mail mail) {
         JunkScore score1 = getLazyJunkScoreHandler(session.getConnectionState(),JunkScore.JUNK_SCORE_SESSION);
         JunkScore score2 = getLazyJunkScoreHandler(session.getState(),JunkScore.JUNK_SCORE);
         
@@ -113,9 +114,9 @@ public class JunkScoreHandler extends AbstractLogEnabled implements MessageHandl
         
         if (action.equals(COMPOSE_ACTION)) {
             // Save the scores attribute to maybe use it later!
-            session.getMail().setAttribute(JunkScore.JUNK_SCORE_SESSION_ATTR, String.valueOf(score1.getCompleteStoredScores()));
-            session.getMail().setAttribute(JunkScore.JUNK_SCORE_ATTR, String.valueOf(score2.getCompleteStoredScores()));
-            session.getMail().setAttribute(JunkScore.JUNK_SCORE_COMPOSED_ATTR, String.valueOf(composed.getCompleteStoredScores()));
+            mail.setAttribute(JunkScore.JUNK_SCORE_SESSION_ATTR, String.valueOf(score1.getCompleteStoredScores()));
+            mail.setAttribute(JunkScore.JUNK_SCORE_ATTR, String.valueOf(score2.getCompleteStoredScores()));
+            mail.setAttribute(JunkScore.JUNK_SCORE_COMPOSED_ATTR, String.valueOf(composed.getCompleteStoredScores()));
         } else if (action.equals(REJECT_ACTION)) {
             if (maxScore <  composed.getCompleteStoredScores()) {
  
@@ -135,7 +136,7 @@ public class JunkScoreHandler extends AbstractLogEnabled implements MessageHandl
             }
         } else if (action.equals(HEADER_ACTION)) {
             try {
-                MimeMessage message = session.getMail().getMessage();
+                MimeMessage message = mail.getMessage();
                 Map scores = composed.getStoredScores();
                 Iterator itScores = scores.keySet().iterator();
         

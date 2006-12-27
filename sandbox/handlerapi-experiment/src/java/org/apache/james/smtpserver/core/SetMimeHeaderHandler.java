@@ -28,6 +28,7 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.james.smtpserver.MessageHandler;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.mailet.Mail;
 
 import javax.mail.internet.MimeMessage;
 
@@ -83,11 +84,11 @@ public class SetMimeHeaderHandler
     /**
      * Adds header to the message
      *
-     * @see org.apache.james.smtpserver.MessageHandler#onMessage(org.apache.james.smtpserver.SMTPSession)
+     * @see org.apache.james.smtpserver.MessageHandler#onMessage(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.Mail)
      */
-    public SMTPResponse onMessage(SMTPSession session) {
+    public SMTPResponse onMessage(SMTPSession session, Mail mail) {
         try {
-            MimeMessage message = session.getMail().getMessage ();
+            MimeMessage message = mail.getMessage ();
 
             //Set the header name and value (supplied at init time).
             if(headerName != null) {

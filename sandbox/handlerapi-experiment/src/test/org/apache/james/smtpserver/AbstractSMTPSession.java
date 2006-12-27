@@ -20,8 +20,6 @@
 
 package org.apache.james.smtpserver;
 
-import org.apache.mailet.Mail;
-
 import java.util.Map;
 
 /**
@@ -41,13 +39,6 @@ public class AbstractSMTPSession implements SMTPSession {
      * @see org.apache.james.smtpserver.SMTPSession#getConnectionState()
      */
     public Map getConnectionState() {
-        throw new UnsupportedOperationException("Unimplemented Stub Method");
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#getMail()
-     */
-    public Mail getMail() {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
     }
 
@@ -111,13 +102,6 @@ public class AbstractSMTPSession implements SMTPSession {
      * @see org.apache.james.smtpserver.SMTPSession#resetState()
      */
     public void resetState() {
-        throw new UnsupportedOperationException("Unimplemented Stub Method");
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#setMail(org.apache.mailet.Mail)
-     */
-    public void setMail(Mail mail) {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
     }
 
