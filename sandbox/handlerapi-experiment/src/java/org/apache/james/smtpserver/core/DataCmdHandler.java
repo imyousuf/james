@@ -35,6 +35,7 @@ import org.apache.james.smtpserver.MessageSizeException;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.SizeLimitedInputStream;
+import org.apache.james.smtpserver.WiringException;
 import org.apache.james.util.CharTerminatedInputStream;
 import org.apache.james.util.DotStuffingInputStream;
 import org.apache.james.util.mail.SMTPRetCode;
@@ -448,11 +449,20 @@ public class DataCmdHandler
 
 
     /**
+     * @throws WiringException 
      * @see org.apache.james.smtpserver.ExtensibleHandler#wireExtensions(java.lang.Class, java.util.List)
      */
-    public void wireExtensions(Class interfaceName, List extension) {
+    public void wireExtensions(Class interfaceName, List extension) throws WiringException {
         if (MessageHandler.class.equals(interfaceName)) {
             this.messageHandlers = extension;
+            if (messageHandlers.size() == 0) {
+                if (getLogger().isErrorEnabled()) {
+                    getLogger()
+                            .error(
+                                    "No messageHandler configured. Check that SendMailHandler is configured in the SMTPHandlerChain");
+                }
+                throw new WiringException("No messageHandler configured");
+            }
         }
     }
 
