@@ -28,6 +28,8 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.RcptHook;
+import org.apache.james.util.mail.SMTPRetCode;
+import org.apache.james.util.mail.dsn.DSNStatus;
 
 import org.apache.mailet.MailAddress;
 
@@ -49,8 +51,6 @@ public class MaxRcptHandler extends AbstractLogEnabled implements
             throw new ConfigurationException(
                     "Please set the maxRcpt configuration value");
         }
-        
-        // super.configure(handlerConfiguration);
     }
 
     /**
@@ -68,23 +68,12 @@ public class MaxRcptHandler extends AbstractLogEnabled implements
      */
     public HookResult doRcpt(SMTPSession session, MailAddress sender, MailAddress rcpt) {
         if ((session.getRcptCount() + 1) > maxRcpt) {
-            return new HookResult(RcptHook.DENY);
+            getLogger().info("Maximum recipients of " + maxRcpt + " reached");
+            
+            return new HookResult(RcptHook.DENY, SMTPRetCode.SYSTEM_STORAGE_ERROR, DSNStatus.getStatus(DSNStatus.NETWORK, DSNStatus.DELIVERY_TOO_MANY_REC)
+                    + " Requested action not taken: max recipients reached");
         } else {
             return new HookResult(RcptHook.OK);
         }
     }
-
-
-    /*
-    public JunkHandlerData getJunkHandlerData(SMTPSession session) {
-        JunkHandlerData data = new JunkHandlerData();
-    
-        data.setRejectResponseString(new SMTPResponse(SMTPRetCode.SYSTEM_STORAGE_ERROR, DSNStatus.getStatus(DSNStatus.NETWORK, DSNStatus.DELIVERY_TOO_MANY_REC)
-                + " Requested action not taken: max recipients reached"));
-        data.setJunkScoreLogString("Maximum recipients of " + maxRcpt + " reached. Add JunkScore: " +getScore());
-        data.setRejectLogString("Maximum recipients of " + maxRcpt + " reached");
-        data.setScoreName("MaxRcptCheck");
-        return data;
-    }
-    */
 }

@@ -18,9 +18,12 @@
  ****************************************************************/
 package org.apache.james.smtpserver;
 
+import javax.mail.internet.ParseException;
+
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.smtpserver.core.filter.fastfail.TarpitHandler;
 import org.apache.james.test.mock.avalon.MockLogger;
+import org.apache.mailet.MailAddress;
 
 import junit.framework.TestCase;
 
@@ -45,7 +48,7 @@ public class TarpitHandlerTest extends TestCase {
         return session;
     }
 
-    public void testTarpit() {
+    public void testTarpit() throws ParseException {
         long tarpitTime = 1000;
         long tarpitTolerance = 100;
         long startTime;
@@ -58,13 +61,13 @@ public class TarpitHandlerTest extends TestCase {
 
         // no tarpit used
         startTime = System.currentTimeMillis();
-        handler.onCommand(setupMockedSession(0),"RCPT","<test@test>");
+        handler.doRcpt(setupMockedSession(0),null,new MailAddress("test@test"));
         assertTrue("No tarpit",
                 (System.currentTimeMillis() - startTime) < tarpitTime - tarpitTolerance);
 
         // tarpit used
         startTime = System.currentTimeMillis();
-        handler.onCommand(setupMockedSession(3),"RCPT","<test2@test>");
+        handler.doRcpt(setupMockedSession(3),null,new MailAddress("test@test"));
         assertTrue("tarpit",
                 (System.currentTimeMillis() - startTime) >= tarpitTime - tarpitTolerance);
     }

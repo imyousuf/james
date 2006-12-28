@@ -21,23 +21,21 @@
 
 package org.apache.james.smtpserver.core.filter.fastfail;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.smtpserver.CommandHandler;
-import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.smtpserver.hook.HookResult;
+import org.apache.james.smtpserver.hook.RcptHook;
+import org.apache.mailet.MailAddress;
 
 /**
  * Add tarpit support to SMTPServer. See http://www.palomine.net/qmail/tarpit.html for more information
  *
  */
 public class TarpitHandler extends AbstractLogEnabled implements
-        CommandHandler, Configurable {
+        RcptHook, Configurable {
 
     private int tarpitRcptCount = 0;
 
@@ -89,11 +87,11 @@ public class TarpitHandler extends AbstractLogEnabled implements
     public void setTarpitSleepTime(long tarpitSleepTime) {
         this.tarpitSleepTime = tarpitSleepTime;
     }
-    
+
     /**
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(org.apache.james.smtpserver.SMTPSession, java.lang.String, java.lang.String) 
-     */  
-    public SMTPResponse onCommand(SMTPSession session, String command, String parameters) {
+     * @see org.apache.james.smtpserver.hook.RcptHook#doRcpt(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
+     */
+    public HookResult doRcpt(SMTPSession session, MailAddress sender, MailAddress rcpt) {
 
         int rcptCount = 0;
         rcptCount = session.getRcptCount();
@@ -103,16 +101,6 @@ public class TarpitHandler extends AbstractLogEnabled implements
             session.sleep(tarpitSleepTime);
         }
         
-        return null;
-    }
-    
-    /**
-     * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
-     */
-    public Collection getImplCommands() {
-        Collection implCommands = new ArrayList();
-        implCommands.add("RCPT");
-        
-        return implCommands;
+        return new HookResult(RcptHook.OK);
     }
 }

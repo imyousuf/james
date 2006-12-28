@@ -27,12 +27,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.ExtensibleHandler;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
-import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.RcptHook;
 import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.james.util.mail.dsn.DSNStatus;
@@ -41,60 +39,11 @@ import org.apache.mailet.MailAddress;
 /**
   * Handles RCPT command
   */
-public class RcptCmdHandler extends AbstractLogEnabled implements
+public class RcptCmdHandler extends AbstractHookableCmdHandler implements
         CommandHandler, ExtensibleHandler {
 
     private List rcptHooks;
     
-    
-    /**
-     * handles RCPT command
-     *
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(org.apache.james.smtpserver.SMTPSession, java.lang.String, java.lang.String) 
-    **/
-    public SMTPResponse onCommand(SMTPSession session, String command, String parameters) {
-        SMTPResponse response = doRCPTSyntaxFilter(session,parameters);
-    
-        if (response == null) {
-            response = processExtensions(session);
-            if (response == null) {
-                return doRCPT(session, parameters);
-            } else {
-                return response;
-            }
-        } else {
-            return response;
-        }
-
-    }
-
-    /**
-     * @param session
-     */
-    private SMTPResponse processExtensions(SMTPSession session) {
-        if(rcptHooks != null) {
-            getLogger().debug("executing rcpt hook");
-            int count = rcptHooks.size();
-            for(int i =0; i < count; i++) {
-                    
-                HookResult result = ((RcptHook) rcptHooks.get(i)).doRcpt(session, (MailAddress) session.getState().get(SMTPSession.SENDER), (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT));
-                int rCode = result.getResult();
-                String smtpRetCode = result.getSmtpRetCode();
-                String smtpDesc = result.getSmtpDescription();
-                
-                if (rCode == RcptHook.DENY) {
-                    if (smtpRetCode == null) smtpRetCode = SMTPRetCode.TRANSACTION_FAILED;
-                    if (smtpDesc == null) smtpDesc = "Email rejected";
-                    
-                    return new SMTPResponse(smtpRetCode, smtpDesc);
-                }else if (rCode == RcptHook.DENYSOFT) {
-                    return new SMTPResponse(SMTPRetCode.LOCAL_ERROR,"Temporary problem. Please try again later");
-                }
-            }
-        }
-        return null;
-    }
-
 
     /**
      * Handler method called upon receipt of a RCPT command.
@@ -104,7 +53,7 @@ public class RcptCmdHandler extends AbstractLogEnabled implements
      * @param session SMTP session object
      * @param argument the argument passed in with the command by the SMTP client
      */
-    private SMTPResponse doRCPT(SMTPSession session, String argument) {
+    protected SMTPResponse doCoreCmd(SMTPSession session, String command, String parameters) {
         Collection rcptColl = (Collection) session.getState().get(
                 SMTPSession.RCPT_LIST);
         if (rcptColl == null) {
@@ -128,7 +77,7 @@ public class RcptCmdHandler extends AbstractLogEnabled implements
      * @param session SMTP session object
      * @param argument the argument passed in with the command by the SMTP client
      */
-    private SMTPResponse doRCPTSyntaxFilter(SMTPSession session, String argument) {
+     protected SMTPResponse doFilterChecks(SMTPSession session, String command, String argument) {
         String recipient = null;
         if ((argument != null) && (argument.indexOf(":") > 0)) {
             int colonIndex = argument.indexOf(":");
@@ -324,6 +273,13 @@ public class RcptCmdHandler extends AbstractLogEnabled implements
             this.rcptHooks = extension; 
         }
 
+    }
+    
+    /**
+     * @see org.apache.james.smtpserver.core.AbstractHookableCmdHandler#getHooks()
+     */
+    protected List getHooks() {
+        return rcptHooks;
     }
 
 }
