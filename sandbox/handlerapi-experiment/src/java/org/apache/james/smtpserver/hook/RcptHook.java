@@ -24,10 +24,6 @@ import org.apache.james.smtpserver.SMTPSession;
 import org.apache.mailet.MailAddress;
 
 public interface RcptHook {
-    public final static int OK = 0;
-    public final static int DENY = 1;
-    public final static int DENYSOFT = 2;
-    
     public HookResult doRcpt(SMTPSession session, MailAddress sender, MailAddress rcpt);
 
 }

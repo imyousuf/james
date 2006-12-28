@@ -34,9 +34,8 @@ import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.services.AbstractDNSServer;
 import org.apache.james.services.DNSServer;
 import org.apache.james.smtpserver.core.filter.fastfail.ResolvableEhloHeloHandler;
+import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.test.mock.avalon.MockLogger;
-import org.apache.james.util.junkscore.JunkScore;
-import org.apache.james.util.junkscore.JunkScoreImpl;
 import org.apache.mailet.MailAddress;
 
 public class ResolvableEhloHeloHandlerTest extends TestCase {
@@ -114,11 +113,11 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         
         handler.setDnsServer(setupMockDNSServer());
         
-        handler.onCommand(session, "HELO", INVALID_HOST);
+        handler.doHelo(session, INVALID_HOST);
         assertNotNull("Invalid HELO",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
         
-        SMTPResponse response = handler.onCommand(session, "RCPT", "<" + session.getState().get(SMTPSession.CURRENT_RECIPIENT) + ">");
-        assertNotNull("Reject", response);
+        int result = handler.doRcpt(session,null, (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT)).getResult();
+        assertEquals("Reject", result,HookReturnCode.DENY);
     }
     
     
@@ -130,11 +129,11 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         
         handler.setDnsServer(setupMockDNSServer());
   
-        handler.onCommand(session, "HELO", VALID_HOST);
+        handler.doHelo(session, VALID_HOST);
         assertNull("Valid HELO",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
 
-        SMTPResponse response = handler.onCommand(session, "RCPT", "<" + session.getState().get(SMTPSession.CURRENT_RECIPIENT) + ">");
-        assertNull("Not reject", response);
+        int result = handler.doRcpt(session,null, (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT)).getResult();
+        assertEquals("Not reject", result,HookReturnCode.DECLINED);
     }
     
     public void testNotRejectInvalidHeloAuthUser() throws ParseException {
@@ -145,12 +144,12 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         
         handler.setDnsServer(setupMockDNSServer());
         
-        handler.onCommand(session,"HELO", INVALID_HOST);
+        handler.doHelo(session, INVALID_HOST);
         assertNotNull("Value stored",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
 
 
-        SMTPResponse response = handler.onCommand(session, "RCPT", "<" + session.getState().get(SMTPSession.CURRENT_RECIPIENT) + ">");
-        assertNull("Not reject", response);
+        int result = handler.doRcpt(session,null, (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT)).getResult();
+        assertEquals("Not reject", result,HookReturnCode.DECLINED);
     }
     
     public void testRejectInvalidHeloAuthUser() throws ParseException {
@@ -162,12 +161,12 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         handler.setDnsServer(setupMockDNSServer());
         handler.setCheckAuthUsers(true);
 
-        handler.onCommand(session,"HELO", INVALID_HOST);
+        handler.doHelo(session, INVALID_HOST);
         assertNotNull("Value stored",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
         
         
-        SMTPResponse response = handler.onCommand(session, "RCPT", "<" + session.getState().get(SMTPSession.CURRENT_RECIPIENT) + ">");
-        assertNotNull("reject", response);
+        int result = handler.doRcpt(session,null, (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT)).getResult();
+        assertEquals("Reject", result,HookReturnCode.DENY);
     }
     
     public void testNotRejectRelay() throws ParseException {
@@ -179,11 +178,11 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         handler.setDnsServer(setupMockDNSServer());
         
 
-        handler.onCommand(session, "HELO", INVALID_HOST);
+        handler.doHelo(session, INVALID_HOST);
         assertNull("Value not stored",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
 
-        SMTPResponse response = handler.onCommand(session, "RCPT", "<" + session.getState().get(SMTPSession.CURRENT_RECIPIENT) + ">");
-        assertNull("Not reject", response);
+        int result = handler.doRcpt(session,null, (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT)).getResult();
+        assertEquals("Not reject", result,HookReturnCode.DECLINED);
     }
     
     public void testRejectRelay() throws ParseException {
@@ -195,12 +194,12 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         handler.setDnsServer(setupMockDNSServer());
         handler.setCheckAuthNetworks(true);
 
-        handler.onCommand(session,"HELO", INVALID_HOST);
+        handler.doHelo(session, INVALID_HOST);
         assertNotNull("Value stored",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
         
         
-        SMTPResponse response = handler.onCommand(session, "RCPT", "<" + session.getState().get(SMTPSession.CURRENT_RECIPIENT) + ">");
-        assertNotNull("Reject", response);
+        int result = handler.doRcpt(session,null, (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT)).getResult();
+        assertEquals("Reject", result,HookReturnCode.DENY);
     }
     
     public void testNotRejectInvalidHeloPostmaster() throws ParseException {
@@ -211,12 +210,11 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         
         handler.setDnsServer(setupMockDNSServer());
         
-        handler.onCommand(session, "HELO", INVALID_HOST);
+        handler.doHelo(session, INVALID_HOST);
         assertNotNull("stored",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
         
-        
-        SMTPResponse response = handler.onCommand(session, "RCPT", "<" + session.getState().get(SMTPSession.CURRENT_RECIPIENT) + ">");
-        assertNull("Not Reject", response);
+        int result = handler.doRcpt(session,null, (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT)).getResult();
+        assertEquals("Not reject", result,HookReturnCode.DECLINED);
     }
     
     public void testNotRejectInvalidHeloAbuse() throws ParseException {
@@ -227,33 +225,11 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         
         handler.setDnsServer(setupMockDNSServer());
         
-        handler.onCommand(session, "HELO", INVALID_HOST);
+        handler.doHelo(session, INVALID_HOST);
         assertNotNull("stored",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
         
         
-        SMTPResponse response = handler.onCommand(session, "RCPT", "<" + session.getState().get(SMTPSession.CURRENT_RECIPIENT) + ">");
-        assertNull("Not Reject", response);
-    }
-    
-    public void testAddJunkScoreInvalidHelo() throws ParseException {
-        SMTPSession session = setupMockSession(INVALID_HOST,false,false,null,new MailAddress("test@localhost"));
-        session.getConnectionState().put(JunkScore.JUNK_SCORE_SESSION, new JunkScoreImpl());
-        ResolvableEhloHeloHandler handler = new ResolvableEhloHeloHandler();
-        
-        ContainerUtil.enableLogging(handler,new MockLogger());
-        
-        handler.setDnsServer(setupMockDNSServer());
-        handler.setAction("junkScore");
-        handler.setScore(20);
-        
-
-        handler.onCommand(session, "HELO", INVALID_HOST);
-        assertNotNull("Invalid HELO",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
-        
-        
-        SMTPResponse response = handler.onCommand(session, "RCPT", "<" + session.getState().get(SMTPSession.CURRENT_RECIPIENT) + ">");
-        assertNull("Not Reject", response);
-        
-        assertEquals("JunkScore added", ((JunkScore) session.getConnectionState().get(JunkScore.JUNK_SCORE_SESSION)).getStoredScore("ResolvableEhloHeloCheck"), 20.0, 0d);
+        int result = handler.doRcpt(session,null, (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT)).getResult();
+        assertEquals("Not reject", result,HookReturnCode.DECLINED);
     }
 }

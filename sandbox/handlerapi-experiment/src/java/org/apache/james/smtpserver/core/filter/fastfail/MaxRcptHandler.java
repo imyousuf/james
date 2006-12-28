@@ -27,6 +27,7 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
+import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.smtpserver.hook.RcptHook;
 import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.james.util.mail.dsn.DSNStatus;
@@ -70,10 +71,10 @@ public class MaxRcptHandler extends AbstractLogEnabled implements
         if ((session.getRcptCount() + 1) > maxRcpt) {
             getLogger().info("Maximum recipients of " + maxRcpt + " reached");
             
-            return new HookResult(RcptHook.DENY, SMTPRetCode.SYSTEM_STORAGE_ERROR, DSNStatus.getStatus(DSNStatus.NETWORK, DSNStatus.DELIVERY_TOO_MANY_REC)
+            return new HookResult(HookReturnCode.DENY, SMTPRetCode.SYSTEM_STORAGE_ERROR, DSNStatus.getStatus(DSNStatus.NETWORK, DSNStatus.DELIVERY_TOO_MANY_REC)
                     + " Requested action not taken: max recipients reached");
         } else {
-            return new HookResult(RcptHook.OK);
+            return new HookResult(HookReturnCode.DECLINED);
         }
     }
 }

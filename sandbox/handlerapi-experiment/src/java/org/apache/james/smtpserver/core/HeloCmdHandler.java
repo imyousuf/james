@@ -24,47 +24,28 @@ package org.apache.james.smtpserver.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.smtpserver.hook.HeloHook;
 import org.apache.james.util.mail.SMTPRetCode;
+import org.apache.james.util.mail.dsn.DSNStatus;
 
 
 /**
   * Handles HELO command
   */
-public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler {
+public class HeloCmdHandler extends AbstractHookableCmdHandler implements CommandHandler {
 
     /**
      * The name of the command handled by the command handler
      */
     private final static String COMMAND_NAME = "HELO";   
-      
-    /**
-     * process HELO command
-     *
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(org.apache.james.smtpserver.SMTPSession, java.lang.String, java.lang.String) 
-    **/
-    public SMTPResponse onCommand(SMTPSession session, String command, String arguments) {
-        return doHELO(session, arguments);
-    }
-
-    /**
-     * @param session SMTP session object
-     * @param argument the argument passed in with the command by the SMTP client
-     */
-    private SMTPResponse doHELO(SMTPSession session, String argument) {
-        session.getConnectionState().put(SMTPSession.CURRENT_HELO_MODE, COMMAND_NAME);
-        StringBuffer response = new StringBuffer();
-        response.append(session.getConfigurationData().getHelloName())
-                .append(" Hello ").append(argument).append(" (").append(
-                        session.getRemoteHost()).append(" [").append(
-                        session.getRemoteIPAddress()).append("])");
-        return new SMTPResponse(SMTPRetCode.MAIL_OK, response);
-    }
     
+    private List hooks;
+      
     /**
      * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
      */
@@ -73,5 +54,58 @@ public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler
         implCommands.add(COMMAND_NAME);
         
         return implCommands;
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.core.AbstractHookableCmdHandler#doCoreCmd(org.apache.james.smtpserver.SMTPSession, java.lang.String, java.lang.String)
+     */
+    protected SMTPResponse doCoreCmd(SMTPSession session, String command, String parameters) {
+        session.getConnectionState().put(SMTPSession.CURRENT_HELO_MODE, COMMAND_NAME);
+        StringBuffer response = new StringBuffer();
+        response.append(session.getConfigurationData().getHelloName())
+                .append(" Hello ").append(parameters).append(" (").append(
+                        session.getRemoteHost()).append(" [").append(
+                        session.getRemoteIPAddress()).append("])");
+        return new SMTPResponse(SMTPRetCode.MAIL_OK, response);
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.core.AbstractHookableCmdHandler#doFilterChecks(org.apache.james.smtpserver.SMTPSession, java.lang.String, java.lang.String)
+     */
+    protected SMTPResponse doFilterChecks(SMTPSession session, String command, String parameters) {
+        session.resetState();
+        
+        if (parameters == null) {
+            return new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_ARGUMENTS, DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Domain address required: " + COMMAND_NAME);
+        } else {
+            // store provided name
+            session.getState().put(SMTPSession.CURRENT_HELO_NAME,parameters);
+            return null;
+        }
+    }
+    
+    /**
+     * @see org.apache.james.smtpserver.core.AbstractHookableCmdHandler#getHooks()
+     */
+    protected List getHooks() {
+    return hooks;
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.ExtensibleHandler#getMarkerInterfaces()
+     */
+    public List getMarkerInterfaces() {
+    List mInterfaces = new ArrayList(1);
+    mInterfaces.add(HeloHook.class);
+    return mInterfaces;
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.ExtensibleHandler#wireExtensions(java.lang.Class, java.util.List)
+     */
+    public void wireExtensions(Class interfaceName, List extension) {
+    if (HeloHook.class.equals(interfaceName)) {
+        hooks = extension;
+    }
     } 
 }

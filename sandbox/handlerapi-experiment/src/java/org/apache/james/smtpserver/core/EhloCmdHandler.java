@@ -25,33 +25,26 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.smtpserver.CommandHandler;
-import org.apache.james.smtpserver.ExtensibleHandler;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.smtpserver.hook.EhloHook;
 import org.apache.james.util.mail.SMTPRetCode;
+import org.apache.james.util.mail.dsn.DSNStatus;
 
 /**
  * Handles EHLO command
  */
-public class EhloCmdHandler extends AbstractLogEnabled implements
-        CommandHandler, ExtensibleHandler {
+public class EhloCmdHandler extends AbstractHookableCmdHandler implements
+        CommandHandler {
 
     /**
      * The name of the command handled by the command handler
      */
     private final static String COMMAND_NAME = "EHLO";
     private List ehloExtensions;
+    private List hooks;
 
-    /**
-     * processes EHLO command
-     *
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(org.apache.james.smtpserver.SMTPSession, java.lang.String, java.lang.String) 
-     **/
-    public SMTPResponse onCommand(SMTPSession session, String command, String arguments) {
-        return doEHLO(session, arguments);
-    }
 
     /**
      * Handler method called upon receipt of a EHLO command.
@@ -103,8 +96,9 @@ public class EhloCmdHandler extends AbstractLogEnabled implements
      * @see org.apache.james.smtpserver.ExtensibleHandler#getMarkerInterfaces()
      */
     public List getMarkerInterfaces() {
-        ArrayList classes = new ArrayList(1);
+        ArrayList classes = new ArrayList(2);
         classes.add(EhloExtension.class);
+        classes.add(EhloHook.class);
         return classes;
     }
 
@@ -114,6 +108,8 @@ public class EhloCmdHandler extends AbstractLogEnabled implements
     public void wireExtensions(Class interfaceName, List extension) {
         if (EhloExtension.class.equals(interfaceName)) {
             this.ehloExtensions = extension;
+        } else if (EhloHook.class.equals(interfaceName)) {
+            this.hooks = extension;
         }
     }
 
@@ -132,6 +128,35 @@ public class EhloCmdHandler extends AbstractLogEnabled implements
                 }
             }
         }
+    }
+    
+    /**
+     * @see org.apache.james.smtpserver.core.AbstractHookableCmdHandler#doCoreCmd(org.apache.james.smtpserver.SMTPSession, java.lang.String, java.lang.String)
+     */
+    protected SMTPResponse doCoreCmd(SMTPSession session, String command, String parameters) {
+        return doEHLO(session,parameters);
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.core.AbstractHookableCmdHandler#doFilterChecks(org.apache.james.smtpserver.SMTPSession, java.lang.String, java.lang.String)
+     */
+    protected SMTPResponse doFilterChecks(SMTPSession session, String command, String parameters) {
+        session.resetState();
+        
+        if (parameters == null) {
+            return new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_ARGUMENTS, DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Domain address required: " + COMMAND_NAME);
+        } else {
+            // store provided name
+            session.getState().put(SMTPSession.CURRENT_HELO_NAME,parameters);
+            return null;
+        }
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.core.AbstractHookableCmdHandler#getHooks()
+     */
+    protected List getHooks() {
+        return hooks;
     }
 
 

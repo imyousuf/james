@@ -19,34 +19,71 @@
 
 package org.apache.james.smtpserver.hook;
 
+/**
+ * Result which get used for hooks
+ * 
+ */
 public class HookResult {
 
     private int result;
     private String smtpRetCode;
     private String smtpDescription;
     
+    /**
+     * Construct new HookResult
+     * 
+     * @param result
+     * @param smtpRetCode 
+     * @param smtpDescription
+     */
     public HookResult(int result, String smtpRetCode, String smtpDescription) {
         this.result = result;
         this.smtpRetCode = smtpRetCode;
         this.smtpDescription = smtpDescription;
     }
     
+    /**
+     * Construct new HookResult
+     * 
+     * @param result
+     * @param smtpDescription
+     */
     public HookResult(int result, String smtpDescription) {
         this(result,null,smtpDescription);
     }
     
+    /**
+     * Construct new HookResult
+     * 
+     * @param result
+     */
     public HookResult(int result) {
         this(result,null,null);
     }
     
+    /**
+     * Return the result
+     * 
+     * @return result
+     */
     public int getResult() {
         return result;
     }
     
+    /**
+     * Return the SMTPRetCode which should used. If not set return null. 
+     * 
+     * @return smtpRetCode
+     */
     public String getSmtpRetCode() {
         return smtpRetCode;
     }
     
+    /**
+     * Return the SMTPDescription which should used. If not set return null
+     *  
+     * @return smtpDescription
+     */
     public String getSmtpDescription() {
         return smtpDescription;
     }

@@ -34,6 +34,7 @@ import org.apache.james.smtpserver.ConnectHandler;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
+import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.smtpserver.hook.RcptHook;
 import org.apache.james.util.junkscore.JunkScore;
 import org.apache.james.util.mail.SMTPRetCode;
@@ -259,14 +260,14 @@ public class DNSRBLHandler
                 !(session.isAuthRequired() && session.getUser() != null) && // Not (SMTP AUTH is enabled and not authenticated)
                 !(recipientAddress.getUser().equalsIgnoreCase("postmaster") || recipientAddress.getUser().equalsIgnoreCase("abuse"))) {
             if (blocklistedDetail == null) {
-                return new HookResult(RcptHook.DENY,DSNStatus.getStatus(DSNStatus.PERMANENT,
+                return new HookResult(HookReturnCode.DENY,DSNStatus.getStatus(DSNStatus.PERMANENT,
                         DSNStatus.SECURITY_AUTH)  + " Rejected: unauthenticated e-mail from " + session.getRemoteIPAddress() 
                         + " is restricted.  Contact the postmaster for details.");
             } else {
-                return new HookResult(RcptHook.DENY,"530",DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH) + " " + blocklistedDetail);
+                return new HookResult(HookReturnCode.DENY,"530",DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH) + " " + blocklistedDetail);
             }
            
         }
-        return new HookResult(RcptHook.OK);
+        return new HookResult(HookReturnCode.DECLINED);
     }
 }

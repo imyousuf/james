@@ -22,27 +22,29 @@ package org.apache.james.smtpserver.core.filter.fastfail;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.services.DNSServer;
-import org.apache.james.smtpserver.CommandHandler;
-import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
-import org.apache.james.util.junkscore.JunkScore;
+import org.apache.james.smtpserver.hook.EhloHook;
+import org.apache.james.smtpserver.hook.HeloHook;
+import org.apache.james.smtpserver.hook.HookResult;
+import org.apache.james.smtpserver.hook.HookReturnCode;
+import org.apache.james.smtpserver.hook.RcptHook;
 import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.james.util.mail.dsn.DSNStatus;
+
 import org.apache.mailet.MailAddress;
 
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Collection;
+
 
 /**
  * This CommandHandler can be used to reject not resolvable EHLO/HELO
  */
-public class ResolvableEhloHeloHandler extends AbstractJunkHandler implements
-        CommandHandler, Configurable, Serviceable {
+public class ResolvableEhloHeloHandler extends AbstractLogEnabled implements Configurable, Serviceable, RcptHook, EhloHook, HeloHook {
 
     public final static String BAD_EHLO_HELO = "BAD_EHLO_HELO";
 
@@ -68,8 +70,6 @@ public class ResolvableEhloHeloHandler extends AbstractJunkHandler implements
         if (configAuthUser != null) {
             setCheckAuthUsers(configAuthUser.getValueAsBoolean(false));
         }
-        
-        super.configure(handlerConfiguration);
     }
 
     /**
@@ -110,18 +110,6 @@ public class ResolvableEhloHeloHandler extends AbstractJunkHandler implements
     }
 
     /**
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(org.apache.james.smtpserver.SMTPSession, java.lang.String, java.lang.String) 
-     */
-    public SMTPResponse onCommand(SMTPSession session, String command, String parameters) {
-        if (command.equals("HELO") || command.equals("EHLO")) {
-            checkEhloHelo(session, parameters);
-        } else if (command.equals("RCPT")) {
-            return doProcessing(session);
-        }
-        return null;
-    }
-
-    /**
      * Check if EHLO/HELO is resolvable
      * 
      * @param session
@@ -145,26 +133,10 @@ public class ResolvableEhloHeloHandler extends AbstractJunkHandler implements
         }
     }
 
-
-    /**
-     * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
-     */
-    public Collection getImplCommands() {
-        Collection implCommands = new ArrayList();
-        implCommands.add("EHLO");
-        implCommands.add("HELO");
-        implCommands.add("RCPT");
-
-        return implCommands;
-    }
-
     /**
      * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#check(org.apache.james.smtpserver.SMTPSession)
      */
-    protected boolean check(SMTPSession session) {
-    
-        MailAddress rcpt = (MailAddress) session.getState().get(
-                SMTPSession.CURRENT_RECIPIENT);
+    protected boolean check(SMTPSession session,MailAddress rcpt) {
 
         // not reject it
         if (session.getState().get(BAD_EHLO_HELO) == null
@@ -179,29 +151,31 @@ public class ResolvableEhloHeloHandler extends AbstractJunkHandler implements
         return false;
     }
 
-
     /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getJunkScore(org.apache.james.smtpserver.SMTPSession)
+     * @see org.apache.james.smtpserver.hook.RcptHook#doRcpt(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
      */
-    protected JunkScore getJunkScore(SMTPSession session) {
-        return JunkScoreHandler.getLazyJunkScoreHandler(session.getConnectionState(), JunkScore.JUNK_SCORE_SESSION);
+    public HookResult doRcpt(SMTPSession session, MailAddress sender, MailAddress rcpt) {
+        if (check(session,rcpt)) {
+            return new HookResult(HookReturnCode.DENY,SMTPRetCode.SYNTAX_ERROR_ARGUMENTS,DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.DELIVERY_INVALID_ARG)
+                    + " Provided EHLO/HELO " + session.getState().get(SMTPSession.CURRENT_HELO_NAME) + " can not resolved.");
+        } else {
+            return new HookResult(HookReturnCode.DECLINED);
+        }
     }
-    
-    /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getJunkHandlerData(org.apache.james.smtpserver.SMTPSession)
-     */
-    public JunkHandlerData getJunkHandlerData(SMTPSession session) {
-        JunkHandlerData data = new JunkHandlerData();
-        
-        data.setJunkScoreLogString("Provided EHLO/HELO " + session.getState().get(SMTPSession.CURRENT_HELO_NAME) + " can not resolved. Add junkScore: " + getScore());
-        data.setRejectLogString("Provided EHLO/HELO " + session.getState().get(SMTPSession.CURRENT_HELO_NAME) + " can not resolved. Reject mail");
-    
-        
-        data.setRejectResponseString(new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_ARGUMENTS, DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.DELIVERY_INVALID_ARG)
-                + " Provided EHLO/HELO " + session.getState().get(SMTPSession.CURRENT_HELO_NAME) + " can not resolved"));
 
-        data.setScoreName("ResolvableEhloHeloCheck");
-        return data;
+    /**
+     * @see org.apache.james.smtpserver.hook.EhloHook#doEhlo(org.apache.james.smtpserver.SMTPSession, java.lang.String)
+     */
+    public HookResult doEhlo(SMTPSession session, String helo) {
+        return doHelo(session,helo);
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.hook.HeloHook#doHelo(org.apache.james.smtpserver.SMTPSession, java.lang.String)
+     */
+    public HookResult doHelo(SMTPSession session, String helo) {
+        checkEhloHelo(session, helo);
+        return new HookResult(HookReturnCode.DECLINED);
     }
 
 }

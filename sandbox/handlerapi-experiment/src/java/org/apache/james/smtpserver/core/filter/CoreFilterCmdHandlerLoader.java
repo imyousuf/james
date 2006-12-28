@@ -46,8 +46,8 @@ public class CoreFilterCmdHandlerLoader implements CommandsHandler {
         
         // Insert the basecommands in the Map
         commands.put("DATA", DATABASEFILTERCMDHANDLER);
-        commands.put("EHLO", EHLOBASEFILTERCMDHANDLER);
-        commands.put("HELO", HELOBASEFILTERCMDHANDLER);
+        //commands.put("EHLO", EHLOBASEFILTERCMDHANDLER);
+        //commands.put("HELO", HELOBASEFILTERCMDHANDLER);
         commands.put("MAIL", MAILBASEFILTERCMDHANDLER);
         // not needed any more the RCPT filters get loaded from the main class
         //commands.put("RCPT", RCPTBASEFILTERCMDHANDLER);

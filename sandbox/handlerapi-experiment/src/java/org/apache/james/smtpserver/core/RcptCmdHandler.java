@@ -28,7 +28,6 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 
 import org.apache.james.smtpserver.CommandHandler;
-import org.apache.james.smtpserver.ExtensibleHandler;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.RcptHook;
@@ -40,7 +39,7 @@ import org.apache.mailet.MailAddress;
   * Handles RCPT command
   */
 public class RcptCmdHandler extends AbstractHookableCmdHandler implements
-        CommandHandler, ExtensibleHandler {
+        CommandHandler {
 
     private List rcptHooks;
     

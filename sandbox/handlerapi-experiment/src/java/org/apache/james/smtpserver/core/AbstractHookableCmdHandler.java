@@ -28,13 +28,18 @@ import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.ExtensibleHandler;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.smtpserver.hook.EhloHook;
+import org.apache.james.smtpserver.hook.HeloHook;
 import org.apache.james.smtpserver.hook.HookResult;
+import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.smtpserver.hook.RcptHook;
 import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.mailet.MailAddress;
 
 /**
   * Abstract class which Handle hooks. 
+  * 
+  * TODO: Maybe we should take care of relaying etc here ?
   */
 public abstract class AbstractHookableCmdHandler extends AbstractLogEnabled implements
         CommandHandler, ExtensibleHandler {
@@ -48,6 +53,7 @@ public abstract class AbstractHookableCmdHandler extends AbstractLogEnabled impl
         SMTPResponse response = doFilterChecks(session,command,parameters);
     
         if (response == null) {
+            
             response = processHooks(session, command, parameters);
             if (response == null) {
                 return doCoreCmd(session, command, parameters);
@@ -78,6 +84,14 @@ public abstract class AbstractHookableCmdHandler extends AbstractLogEnabled impl
                 Object rawHook = hooks.get(i);
                 HookResult result = null;
                 
+                if ("HELO".equals(command) && rawHook instanceof HeloHook) {
+                    result = ((HeloHook) rawHook).doHelo(session, parameters);    
+                }
+                
+                if ("EHLO".equals(command) && rawHook instanceof EhloHook) {
+                    result = ((EhloHook) rawHook).doEhlo(session, parameters);    
+                }
+                
                 if ("RCPT".equals(command) && rawHook instanceof RcptHook) {
                     result = ((RcptHook) rawHook).doRcpt(session, (MailAddress) session.getState().get(SMTPSession.SENDER), (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT));
                 }
@@ -88,14 +102,16 @@ public abstract class AbstractHookableCmdHandler extends AbstractLogEnabled impl
                     int rCode = result.getResult();
                     String smtpRetCode = result.getSmtpRetCode();
                     String smtpDesc = result.getSmtpDescription();
-                
-                    if (rCode == RcptHook.DENY) {
+
+                    if (rCode == HookReturnCode.DENY) {
                         if (smtpRetCode == null) smtpRetCode = SMTPRetCode.TRANSACTION_FAILED;
                         if (smtpDesc == null) smtpDesc = "Email rejected";
-                    
+                        
                         return new SMTPResponse(smtpRetCode, smtpDesc);
-                    }else if (rCode == RcptHook.DENYSOFT) {
+                    }else if (rCode == HookReturnCode.DENYSOFT) {
                         return new SMTPResponse(SMTPRetCode.LOCAL_ERROR,"Temporary problem. Please try again later");
+                    } else if (rCode == HookReturnCode.OK) {
+                    return new SMTPResponse(SMTPRetCode.MAIL_OK,"Accepted.");
                     }
                 }
             }

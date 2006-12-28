@@ -27,6 +27,7 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
+import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.smtpserver.hook.RcptHook;
 import org.apache.mailet.MailAddress;
 
@@ -101,6 +102,6 @@ public class TarpitHandler extends AbstractLogEnabled implements
             session.sleep(tarpitSleepTime);
         }
         
-        return new HookResult(RcptHook.OK);
+        return new HookResult(HookReturnCode.DECLINED);
     }
 }

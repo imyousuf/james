@@ -31,6 +31,7 @@ import junit.framework.TestCase;
 
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.smtpserver.core.filter.fastfail.MaxRcptHandler;
+import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.smtpserver.hook.RcptHook;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.mailet.MailAddress;
@@ -69,7 +70,7 @@ public class MaxRcptHandlerTest extends TestCase{
         handler.setMaxRcpt(2);
         int resp = handler.doRcpt(session,null,new MailAddress("test@test")).getResult();
     
-        assertEquals("Rejected.. To many recipients", resp, RcptHook.DENY);
+        assertEquals("Rejected.. To many recipients", resp, HookReturnCode.DENY);
     }
     /*
     public void testAddScoreMaxRcpt() {
@@ -100,7 +101,7 @@ public class MaxRcptHandlerTest extends TestCase{
         handler.setMaxRcpt(4);
         int resp = handler.doRcpt(session,null,new MailAddress("test@test")).getResult();
         
-        assertEquals("Not Rejected..", resp, RcptHook.OK);
+        assertEquals("Not Rejected..", resp, HookReturnCode.DECLINED);
     }
 
 }
