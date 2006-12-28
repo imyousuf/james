@@ -16,30 +16,37 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
 package org.apache.james.smtpserver;
 
-import java.util.List;
+public class WiringException extends Exception {
 
-/**
- * Handlers extends this interface to be notified of available
- * extensions of the given type.
- */
-public interface ExtensibleHandler {
-     
     /**
-     * Return a List of interfaces of plugins that will
-     * extend this.
-     */
-    List getMarkerInterfaces();
-    
-    /**
-     * Method called during initialization after all the handlers have been declared
-     * in the handlerchain.
      * 
-     * @param interfaceName
-     * @param extension a list of objects implementing the marker interface
      */
-    void wireExtensions(Class interfaceName, List extension) throws WiringException;
-    
+    public WiringException() {
+        super();
+    }
+
+    /**
+     * @param arg0
+     * @param arg1
+     */
+    public WiringException(String arg0, Throwable arg1) {
+        super(arg0, arg1);
+    }
+
+    /**
+     * @param arg0
+     */
+    public WiringException(String arg0) {
+        super(arg0);
+    }
+
+    /**
+     * @param arg0
+     */
+    public WiringException(Throwable arg0) {
+        super(arg0);
+    }
+
 }

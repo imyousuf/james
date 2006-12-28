@@ -23,15 +23,13 @@ package org.apache.james.smtpserver;
 
 import org.apache.james.core.AbstractJamesHandler;
 import org.apache.james.util.CRLFDelimitedByteBuffer;
+import org.apache.james.util.mail.SMTPRetCode;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 
@@ -43,7 +41,7 @@ import java.util.Random;
  */
 public class SMTPHandler
     extends AbstractJamesHandler
-    implements SMTPSession, LineHandler {
+    implements SMTPSession {
 
     /**
      * Static Random instance used to generate SMTP ids
@@ -97,11 +95,16 @@ public class SMTPHandler
     private LinkedList lineHandlers;
 
     /**
+     * Connect Handlers
+     */
+    private LinkedList connectHandlers;
+
+    /**
      * @see org.apache.james.core.AbstractJamesHandler#initHandler(java.net.Socket)
      */
     protected void initHandler(Socket connection) throws IOException {
         super.initHandler(connection);
-        pushLineHandler(this); 
+        lineHandlers = handlerChain.getHandlers(LineHandler.class);
     }
 
     /**
@@ -155,7 +158,6 @@ public class SMTPHandler
         //message will not spooled.
 
         //Session started - RUN all connect handlers
-        List connectHandlers = handlerChain.getConnectHandlers();
         if(connectHandlers != null) {
             int count = connectHandlers.size();
             for(int i = 0; i < count; i++) {
@@ -173,15 +175,19 @@ public class SMTPHandler
           try {
               line = readInputLine();
           } catch (CRLFDelimitedByteBuffer.TerminationException e) {
-              writeLoggedFlushedResponse("501 Syntax error at character position " + e.position() + ". CR and LF must be CRLF paired.  See RFC 2821 #2.7.1.");
+              writeSMTPResponse(new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_ARGUMENTS, "Syntax error at character position " + e.position() + ". CR and LF must be CRLF paired.  See RFC 2821 #2.7.1."));
           } catch (CRLFDelimitedByteBuffer.LineLengthExceededException e) {
-              writeLoggedFlushedResponse("500 Line length exceeded. See RFC 2821 #4.5.3.1.");
+              writeSMTPResponse(new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_COMMAND_UNRECOGNIZED, "Line length exceeded. See RFC 2821 #4.5.3.1."));
           }
           if (line == null) {
               break;
           }
 
-          ((LineHandler) lineHandlers.getLast()).onLine(this, line);
+          if (lineHandlers.size() > 0) {
+              ((LineHandler) lineHandlers.getLast()).onLine(this, line);
+          } else {
+              sessionEnded = true;
+          }
           theWatchdog.reset();
           
         }
@@ -190,56 +196,6 @@ public class SMTPHandler
     }
 
     /**
-     * @see org.apache.james.smtpserver.LineHandler#onLine(org.apache.james.smtpserver.SMTPSession, byte[])
-     */
-    public void onLine(SMTPSession session, byte[] line) {
-        String cmdString;
-        try {
-            cmdString = new String(line, "US-ASCII");
-            if (cmdString != null) {
-                cmdString = cmdString.trim();
-            }
-            
-            String curCommandArgument = null;
-            String curCommandName = null;
-            int spaceIndex = cmdString.indexOf(" ");
-            if (spaceIndex > 0) {
-                curCommandName = cmdString.substring(0, spaceIndex);
-                curCommandArgument = cmdString.substring(spaceIndex + 1);
-            } else {
-                curCommandName = cmdString;
-            }
-            curCommandName = curCommandName.toUpperCase(Locale.US);
-
-            //fetch the command handlers registered to the command
-            List commandHandlers = handlerChain.getCommandHandlers(curCommandName);
-            if(commandHandlers == null) {
-                //end the session
-                sessionEnded = true;
-            } else {
-                int count = commandHandlers.size();
-                for(int i = 0; i < count; i++) {
-                    SMTPResponse response = ((CommandHandler)commandHandlers.get(i)).onCommand(this, curCommandName, curCommandArgument);
-                    
-                    writeSMTPResponse(response);
-                    
-                    //if the response is received, stop processing of command handlers
-                    if(response != null) {
-                        break;
-                    }
-                    
-                    // NOTE we should never hit this line, otherwise we ended the CommandHandlers with
-                    // no responses.
-                }
-
-            }        
-        } catch (UnsupportedEncodingException e) {
-            // TODO Define what to do
-            e.printStackTrace();
-        }
-    }
-
-    /*
      * @see org.apache.james.smtpserver.SMTPSession#writeSMTPResponse(org.apache.james.smtpserver.SMTPResponse)
      */
     public void writeSMTPResponse(SMTPResponse response) {
@@ -280,8 +236,7 @@ public class SMTPHandler
 
         // empty any previous line handler and add self (command dispatcher)
         // as the default.
-        lineHandlers = null;
-        pushLineHandler(this);
+        lineHandlers = handlerChain.getHandlers(LineHandler.class);
 
         authenticatedUser = null;
         smtpID = null;
@@ -295,6 +250,7 @@ public class SMTPHandler
      */
     public void setHandlerChain(SMTPHandlerChain handlerChain) {
         this.handlerChain = handlerChain;
+        connectHandlers = handlerChain.getHandlers(ConnectHandler.class);
     }
 
 
