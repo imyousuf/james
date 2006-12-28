@@ -23,33 +23,26 @@ package org.apache.james.smtpserver.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
-import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.smtpserver.WiringException;
+import org.apache.james.smtpserver.hook.QuitHook;
 import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.james.util.mail.dsn.DSNStatus;
 
 /**
   * Handles QUIT command
   */
-public class QuitCmdHandler implements CommandHandler {
+public class QuitCmdHandler extends AbstractHookableCmdHandler  {
 
     /**
      * The name of the command handled by the command handler
      */
     private final static String COMMAND_NAME = "QUIT";
-
-    /**
-     * handles QUIT command
-     *
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(org.apache.james.smtpserver.SMTPSession, java.lang.String, java.lang.String) 
-     */
-    public SMTPResponse onCommand(SMTPSession session, String command, String parameters) {
-        return doQUIT(session, parameters);
-
-    }
-
+    
+    private List hooks;
 
     /**
      * Handler method called upon receipt of a QUIT command.
@@ -83,6 +76,50 @@ public class QuitCmdHandler implements CommandHandler {
         implCommands.add(COMMAND_NAME);
         
         return implCommands;
+    }
+
+
+    /**
+     * @see org.apache.james.smtpserver.core.AbstractHookableCmdHandler#doCoreCmd(org.apache.james.smtpserver.SMTPSession, java.lang.String, java.lang.String)
+     */
+    protected SMTPResponse doCoreCmd(SMTPSession session, String command, String parameters) {
+    // TODO Auto-generated method stub
+    return doQUIT(session,parameters);
+    }
+
+
+    /**
+     * @see org.apache.james.smtpserver.core.AbstractHookableCmdHandler#doFilterChecks(org.apache.james.smtpserver.SMTPSession, java.lang.String, java.lang.String)
+     */
+    protected SMTPResponse doFilterChecks(SMTPSession session, String command, String parameters) {
+    return null;
+    }
+
+
+    /**
+     * @see org.apache.james.smtpserver.core.AbstractHookableCmdHandler#getHooks()
+     */
+    protected List getHooks() {
+    return hooks;
+    }
+
+
+    /**
+     * @see org.apache.james.smtpserver.ExtensibleHandler#getMarkerInterfaces()
+     */
+    public List getMarkerInterfaces() {
+    List interfaces = new ArrayList(1);
+    interfaces.add(QuitHook.class);
+    return interfaces;
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.ExtensibleHandler#wireExtensions(java.lang.Class, java.util.List)
+     */
+    public void wireExtensions(Class interfaceName, List extension) throws WiringException {
+    if (QuitHook.class.equals(interfaceName)) {
+        hooks = extension;
+    }
     }
 }
 

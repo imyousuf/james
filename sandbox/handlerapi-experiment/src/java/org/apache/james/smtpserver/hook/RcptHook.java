@@ -20,10 +20,25 @@
 
 package org.apache.james.smtpserver.hook;
 
+
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.mailet.MailAddress;
 
+
+/**
+ * Implement this interfaces to hook in the MAIL Command
+ * 
+ */
 public interface RcptHook {
+    
+    /**
+     * Return the HookResult after run the hook
+     * 
+     * @param session the SMTPSession
+     * @param sender the sender MailAddress
+     * @param rcpt the recipient MailAddress
+     * @return HookResult
+     */
     public HookResult doRcpt(SMTPSession session, MailAddress sender, MailAddress rcpt);
 
 }

@@ -33,6 +33,7 @@ import org.apache.james.smtpserver.hook.HeloHook;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.smtpserver.hook.MailHook;
+import org.apache.james.smtpserver.hook.QuitHook;
 import org.apache.james.smtpserver.hook.RcptHook;
 import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.mailet.MailAddress;
@@ -100,6 +101,12 @@ public abstract class AbstractHookableCmdHandler extends AbstractLogEnabled impl
                 if ("RCPT".equals(command) && rawHook instanceof RcptHook) {
                     result = ((RcptHook) rawHook).doRcpt(session, (MailAddress) session.getState().get(SMTPSession.SENDER), (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT));
                 }
+                
+                if("QUIT".equals(command) && rawHook instanceof QuitHook) {
+                    //TODO: Add the right returncode for Quit!
+                    //result = ((QuitHook) rawHook).doQuit(session);
+                }
+                    
                 
                 //TODO: Add more hooks
                 

@@ -19,30 +19,22 @@
 
 
 
-package org.apache.james.smtpserver.core.filter;
 
+package org.apache.james.smtpserver.hook;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import org.apache.james.smtpserver.SMTPSession;
 
 /**
-  * Handles HELO command
-  */
-public class HeloFilterCmdHandler extends EhloFilterCmdHandler {
+ * Implement this interfaces to hook in the MAIL Command
+ * 
+ */
+public interface QuitHook {
 
     /**
-     * The name of the command handled by the command handler
+     * Return the HookResult after run the hook
+     * 
+     * @param session the SMTPSession
+     * @return HockResult
      */
-    private final static String COMMAND_NAME = "HELO";
-      
-    /**
-     * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
-     */
-    public Collection getImplCommands() {
-        Collection implCommands = new ArrayList();
-        implCommands.add(COMMAND_NAME);
-        
-        return implCommands;
-    }
-    
+    public HookResult doQuit(SMTPSession session);
 }

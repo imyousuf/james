@@ -104,7 +104,13 @@ public class DataCmdHandler
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
     public SMTPResponse onCommand(SMTPSession session, String command, String parameters) {
-        return doDATA(session, parameters);
+        SMTPResponse response = doDATAFilter(session,parameters);
+        
+        if (response == null) {
+            return doDATA(session, parameters);
+        } else {
+            return response;
+        }
     }
 
 
@@ -498,5 +504,16 @@ public class DataCmdHandler
         }
     }
 
+    private SMTPResponse doDATAFilter(SMTPSession session, String argument) {
+        if ((argument != null) && (argument.length() > 0)) {
+            return new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_COMMAND_UNRECOGNIZED, DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Unexpected argument provided with DATA command");
+        }
+        if (!session.getState().containsKey(SMTPSession.SENDER)) {
+            return new SMTPResponse(SMTPRetCode.BAD_SEQUENCE, DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" No sender specified");
+        } else if (!session.getState().containsKey(SMTPSession.RCPT_LIST)) {
+            return new SMTPResponse(SMTPRetCode.BAD_SEQUENCE, DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" No recipients specified");
+        }
+        return null;
+    }
 
 }
