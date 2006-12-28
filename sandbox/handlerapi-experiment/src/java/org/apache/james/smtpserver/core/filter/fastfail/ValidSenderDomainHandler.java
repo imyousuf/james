@@ -18,20 +18,21 @@
  ****************************************************************/
 package org.apache.james.smtpserver.core.filter.fastfail;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.dnsserver.TemporaryResolutionException;
 import org.apache.james.services.DNSServer;
-import org.apache.james.smtpserver.CommandHandler;
-import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.smtpserver.hook.HookResult;
+import org.apache.james.smtpserver.hook.HookReturnCode;
+import org.apache.james.smtpserver.hook.MailHook;
 import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.MailAddress;
@@ -41,8 +42,8 @@ import org.apache.mailet.MailAddress;
  * 
  */
 public class ValidSenderDomainHandler
-    extends AbstractJunkHandler
-    implements CommandHandler, Configurable, Serviceable {
+    extends AbstractLogEnabled
+    implements MailHook, Configurable, Serviceable {
     
     private boolean checkAuthNetworks = false;
     
@@ -58,8 +59,6 @@ public class ValidSenderDomainHandler
         if(configRelay != null) {
             setCheckAuthNetworks(configRelay.getValueAsBoolean(false));
         }
-        
-        super.configure(handlerConfiguration);
     }
     
     /**
@@ -86,20 +85,9 @@ public class ValidSenderDomainHandler
     public void setCheckAuthNetworks(boolean checkAuthNetworks) {
         this.checkAuthNetworks = checkAuthNetworks;
     }
+
     
-    /**
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(org.apache.james.smtpserver.SMTPSession, java.lang.String, java.lang.String) 
-     */
-    public SMTPResponse onCommand(SMTPSession session, String command, String parameters) {
-        return doProcessing(session);
-    }
-    
-    /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#check(org.apache.james.smtpserver.SMTPSession)
-     */
-    protected boolean check(SMTPSession session) {
-        MailAddress senderAddress = (MailAddress) session.getState().get(SMTPSession.SENDER);
-            
+    protected boolean check(SMTPSession session, MailAddress senderAddress) {
         // null sender so return
         if (senderAddress == null) return false;
             
@@ -125,26 +113,13 @@ public class ValidSenderDomainHandler
     }
     
     /**
-     * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
+     * @see org.apache.james.smtpserver.hook.MailHook#doMail(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.MailAddress)
      */
-    public Collection getImplCommands() {
-        Collection implCommands = new ArrayList();
-        implCommands.add("MAIL");
-        
-        return implCommands;
-    }
-    
-    /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getJunkHandlerData(org.apache.james.smtpserver.SMTPSession)
-     */
-    public JunkHandlerData getJunkHandlerData(SMTPSession session) {
-        MailAddress senderAddress = (MailAddress) session.getState().get(SMTPSession.SENDER);
-        JunkHandlerData data = new JunkHandlerData();
-    
-        data.setRejectResponseString(new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_ARGUMENTS,DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_SYNTAX_SENDER)+ " sender " + senderAddress + " contains a domain with no valid MX records"));
-        data.setJunkScoreLogString("Sender " + senderAddress + " contains a domain with no valid MX records. Add Junkscore: " + getScore());
-        data.setRejectLogString("Sender " + senderAddress + " contains a domain with no valid MX records");
-        data.setScoreName("ValidSenderDomainCheck");
-        return data;
+    public HookResult doMail(SMTPSession session, MailAddress sender) {
+        if (check(session,sender)) {
+            return new HookResult(HookReturnCode.DENY,SMTPRetCode.SYNTAX_ERROR_ARGUMENTS,DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_SYNTAX_SENDER)+ " sender " + sender + " contains a domain with no valid MX records");
+        } else {
+            return new HookResult(HookReturnCode.DECLINED);
+        }
     }
 }

@@ -32,6 +32,7 @@ import org.apache.james.smtpserver.hook.EhloHook;
 import org.apache.james.smtpserver.hook.HeloHook;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookReturnCode;
+import org.apache.james.smtpserver.hook.MailHook;
 import org.apache.james.smtpserver.hook.RcptHook;
 import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.mailet.MailAddress;
@@ -77,7 +78,7 @@ public abstract class AbstractHookableCmdHandler extends AbstractLogEnabled impl
     private SMTPResponse processHooks(SMTPSession session,String command,String parameters) {
         List hooks = getHooks();
         
-    if(hooks != null) {
+        if(hooks != null) {
             getLogger().debug("executing  hooks");
             int count = hooks.size();
             for(int i =0; i < count; i++) {
@@ -90,6 +91,10 @@ public abstract class AbstractHookableCmdHandler extends AbstractLogEnabled impl
                 
                 if ("EHLO".equals(command) && rawHook instanceof EhloHook) {
                     result = ((EhloHook) rawHook).doEhlo(session, parameters);    
+                }
+                
+                if ("MAIL".equals(command) && rawHook instanceof MailHook) {
+                    result = ((MailHook) rawHook).doMail(session, (MailAddress) session.getState().get(SMTPSession.SENDER));
                 }
                 
                 if ("RCPT".equals(command) && rawHook instanceof RcptHook) {
@@ -109,9 +114,15 @@ public abstract class AbstractHookableCmdHandler extends AbstractLogEnabled impl
                         
                         return new SMTPResponse(smtpRetCode, smtpDesc);
                     }else if (rCode == HookReturnCode.DENYSOFT) {
-                        return new SMTPResponse(SMTPRetCode.LOCAL_ERROR,"Temporary problem. Please try again later");
+                        if (smtpRetCode == null) smtpRetCode = SMTPRetCode.LOCAL_ERROR;
+                        if (smtpDesc == null) smtpDesc = "Temporary problem. Please try again later";
+                        
+                        return new SMTPResponse(smtpRetCode,smtpDesc);
                     } else if (rCode == HookReturnCode.OK) {
-                    return new SMTPResponse(SMTPRetCode.MAIL_OK,"Accepted.");
+                        if (smtpRetCode == null) smtpRetCode = SMTPRetCode.MAIL_OK;
+                        if (smtpDesc == null) smtpDesc = "Command accepted";
+                        
+                        return new SMTPResponse(smtpRetCode,smtpDesc);
                     }
                 }
             }

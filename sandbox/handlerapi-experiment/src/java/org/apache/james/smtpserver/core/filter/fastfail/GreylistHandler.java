@@ -46,9 +46,10 @@ import org.apache.avalon.framework.service.Serviceable;
 
 import org.apache.james.services.DNSServer;
 import org.apache.james.services.FileSystem;
-import org.apache.james.smtpserver.CommandHandler;
-import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.smtpserver.hook.HookResult;
+import org.apache.james.smtpserver.hook.HookReturnCode;
+import org.apache.james.smtpserver.hook.RcptHook;
 import org.apache.james.util.JDBCUtil;
 import org.apache.james.util.NetMatcher;
 import org.apache.james.util.SqlResources;
@@ -61,7 +62,7 @@ import org.apache.mailet.MailAddress;
  * GreylistHandler which can be used to activate Greylisting
  */
 public class GreylistHandler extends AbstractLogEnabled implements
-    CommandHandler, Configurable, Serviceable, Initializable {
+    RcptHook, Configurable, Serviceable, Initializable {
 
     private DataSourceSelector datasources = null;
 
@@ -286,45 +287,16 @@ public class GreylistHandler extends AbstractLogEnabled implements
         this.unseenLifeTime = TimeConverter.getMilliSeconds(unseenLifeTime);
     }
 
-    /**
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(org.apache.james.smtpserver.SMTPSession, java.lang.String, java.lang.String) 
-     */
-    public SMTPResponse onCommand(SMTPSession session, String command, String arguments) {
-        if (!session.isRelayingAllowed() && !(session.isAuthRequired() && session.getUser() != null)) {
-
-            if ((wNetworks == null) || (!wNetworks.matchInetNetwork(session.getRemoteIPAddress()))) {
-                return doGreyListCheck(session, arguments);
-            } else {
-                getLogger().info("IpAddress " + session.getRemoteIPAddress() + " is whitelisted. Skip greylisting.");
-            }
-        } else {
-            getLogger().info("IpAddress " + session.getRemoteIPAddress() + " is allowed to send. Skip greylisting.");
-        }
-        return null;
-    }
-
-    /**
-     * Handler method called upon receipt of a RCPT command. Calls a greylist
-     * check
-     * 
-     * 
-     * @param session
-     *            SMTP session object
-     * @param argument
-     */
-    private SMTPResponse doGreyListCheck(SMTPSession session, String argument) {
+    private HookResult doGreyListCheck(SMTPSession session, MailAddress senderAddress, MailAddress recipAddress) {
         String recip = "";
         String sender = "";
-        MailAddress recipAddress = (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT);
-        MailAddress senderAddress = (MailAddress) session.getState().get(SMTPSession.SENDER);
 
         if (recipAddress != null) recip = recipAddress.toString();
         if (senderAddress != null) sender = senderAddress.toString();
     
         long time = System.currentTimeMillis();
         String ipAddress = session.getRemoteIPAddress();
-    
-        SMTPResponse ret = null;
+        
         try {
             long createTimeStamp = 0;
             int count = 0;
@@ -345,7 +317,7 @@ public class GreylistHandler extends AbstractLogEnabled implements
                 long acceptTime = createTimeStamp + tempBlockTime;
         
                 if ((time < acceptTime) && (count == 0)) {
-                    ret = new SMTPResponse(SMTPRetCode.LOCAL_ERROR, DSNStatus.getStatus(DSNStatus.TRANSIENT, DSNStatus.NETWORK_DIR_SERVER) 
+                    return new HookResult(HookReturnCode.DENYSOFT, SMTPRetCode.LOCAL_ERROR, DSNStatus.getStatus(DSNStatus.TRANSIENT, DSNStatus.NETWORK_DIR_SERVER) 
                         + " Temporary rejected: Reconnect to fast. Please try again later");
                 } else {
                     
@@ -362,7 +334,7 @@ public class GreylistHandler extends AbstractLogEnabled implements
                 insertTriplet(datasource.getConnection(), ipAddress, sender, recip, count, time);
       
                 // Tempory block on new triplet!
-                ret = new SMTPResponse(SMTPRetCode.LOCAL_ERROR, DSNStatus.getStatus(DSNStatus.TRANSIENT, DSNStatus.NETWORK_DIR_SERVER) 
+                return new HookResult(HookReturnCode.DENYSOFT, SMTPRetCode.LOCAL_ERROR, DSNStatus.getStatus(DSNStatus.TRANSIENT, DSNStatus.NETWORK_DIR_SERVER) 
                     + " Temporary rejected: Please try again later");
             }
 
@@ -380,7 +352,7 @@ public class GreylistHandler extends AbstractLogEnabled implements
             // just log the exception
             getLogger().error("Error on SQLquery: " + e.getMessage());
         }
-        return ret;
+        return new HookResult(HookReturnCode.DECLINED);
     }
 
     /**
@@ -676,11 +648,19 @@ public class GreylistHandler extends AbstractLogEnabled implements
     }
 
     /**
-     * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
+     * @see org.apache.james.smtpserver.hook.RcptHook#doRcpt(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
      */
-    public Collection getImplCommands() {
-        Collection c = new ArrayList();
-        c.add("RCPT");
-        return c;
+    public HookResult doRcpt(SMTPSession session, MailAddress sender, MailAddress rcpt) {
+        if (!session.isRelayingAllowed() && !(session.isAuthRequired() && session.getUser() != null)) {
+
+            if ((wNetworks == null) || (!wNetworks.matchInetNetwork(session.getRemoteIPAddress()))) {
+                return doGreyListCheck(session, sender,rcpt);
+            } else {
+                getLogger().info("IpAddress " + session.getRemoteIPAddress() + " is whitelisted. Skip greylisting.");
+            }
+        } else {
+            getLogger().info("IpAddress " + session.getRemoteIPAddress() + " is allowed to send. Skip greylisting.");
+        }
+        return new HookResult(HookReturnCode.DECLINED);
     }
 }

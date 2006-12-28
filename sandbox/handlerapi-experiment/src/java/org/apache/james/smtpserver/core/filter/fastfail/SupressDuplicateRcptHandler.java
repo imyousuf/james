@@ -22,13 +22,13 @@
 
 package org.apache.james.smtpserver.core.filter.fastfail;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.smtpserver.CommandHandler;
-import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.smtpserver.hook.HookResult;
+import org.apache.james.smtpserver.hook.HookReturnCode;
+import org.apache.james.smtpserver.hook.RcptHook;
 import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.MailAddress;
@@ -37,25 +37,12 @@ import org.apache.mailet.MailAddress;
  * 
  * This handler can be used to just ignore duplicated recipients. 
  */
-public class SupressDuplicateRcptHandler extends AbstractLogEnabled implements CommandHandler {
+public class SupressDuplicateRcptHandler extends AbstractLogEnabled implements RcptHook {
 
     /**
-     * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
+     * @see org.apache.james.smtpserver.hook.RcptHook#doRcpt(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
      */
-    public Collection getImplCommands() {
-        Collection c = new ArrayList();
-        c.add("RCPT");
-    
-        return c;
-    }
-
-    /**
-     * Ignore duplicated recipients and just return 250 as return code.
-     * 
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(org.apache.james.smtpserver.SMTPSession, java.lang.String, java.lang.String) 
-     */
-    public SMTPResponse onCommand(SMTPSession session, String command, String parameters) {
-        MailAddress rcpt = (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT);
+    public HookResult doRcpt(SMTPSession session, MailAddress sender, MailAddress rcpt) {
         Collection rcptList = (Collection) session.getState().get(SMTPSession.RCPT_LIST);
     
         // Check if the recipient is allready in the rcpt list
@@ -67,8 +54,8 @@ public class SupressDuplicateRcptHandler extends AbstractLogEnabled implements C
                           .append(rcpt.toString())
                           .append("> OK");
             getLogger().debug("Duplicate recipient not add to recipient list: " + rcpt.toString());
-            return new SMTPResponse(SMTPRetCode.MAIL_OK, responseBuffer);
+            return new HookResult(HookReturnCode.OK,SMTPRetCode.MAIL_OK, responseBuffer.toString());
         }
-        return null;
+        return new HookResult(HookReturnCode.DECLINED);
     }
 }
