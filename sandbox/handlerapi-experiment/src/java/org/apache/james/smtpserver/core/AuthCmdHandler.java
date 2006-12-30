@@ -21,22 +21,27 @@
 
 package org.apache.james.smtpserver.core;
 
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.smtpserver.CommandHandler;
+import org.apache.james.smtpserver.ExtensibleHandler;
 import org.apache.james.smtpserver.LineHandler;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.smtpserver.WiringException;
+import org.apache.james.smtpserver.hook.AuthHook;
+import org.apache.james.smtpserver.hook.HookResult;
+import org.apache.james.smtpserver.hook.HookReturnCode;
+import org.apache.james.util.Base64;
 import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.james.util.mail.dsn.DSNStatus;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
-import org.apache.james.util.Base64;
-import java.io.UnsupportedEncodingException;
 
 
 /**
@@ -44,7 +49,7 @@ import java.io.UnsupportedEncodingException;
   */
 public class AuthCmdHandler
     extends AbstractLogEnabled
-    implements CommandHandler, EhloExtension {
+    implements CommandHandler, EhloExtension, ExtensibleHandler {
 
     private abstract class AbstractSMTPLineHandler implements LineHandler {
         
@@ -75,6 +80,11 @@ public class AuthCmdHandler
      * The text string for the SMTP AUTH type LOGIN.
      */
     private final static String AUTH_TYPE_LOGIN = "LOGIN";
+
+    /**
+     * The AuthHooks
+     */
+    private List hooks;
     
     /**
      * handles AUTH command
@@ -208,16 +218,7 @@ public class AuthCmdHandler
             // with in the if clause below
         }
         // Authenticate user
-        if ((user == null) || (pass == null)) {
-            return new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_ARGUMENTS, "Could not decode parameters for AUTH PLAIN");
-        } else if (session.getConfigurationData().getUsersRepository().test(user, pass)) {
-            session.setUser(user);
-            getLogger().info("AUTH method PLAIN succeeded");
-            return new SMTPResponse(SMTPRetCode.AUTH_OK, "Authentication Successful");
-        } else {
-            getLogger().error("AUTH method PLAIN failed");
-            return new SMTPResponse(SMTPRetCode.AUTH_FAILED, "Authentication Failed");
-        }
+        return doAuthTest(session, user, pass, "PLAIN");
     }
 
     /**
@@ -254,7 +255,6 @@ public class AuthCmdHandler
     }
     
     private SMTPResponse doLoginAuthPassCheck(SMTPSession session, String user, String pass) {
-        SMTPResponse response = null;
         if (pass != null) {
             try {
                 pass = Base64.decodeAsString(pass);
@@ -265,21 +265,93 @@ public class AuthCmdHandler
             }
         }
         // Authenticate user
+        return doAuthTest(session, user, pass, "LOGIN");
+    }
+
+
+
+    /**
+     * @param session
+     * @param user
+     * @param pass
+     * @param authType
+     * @return
+     */
+    private SMTPResponse doAuthTest(SMTPSession session, String user, String pass, String authType) {
         if ((user == null) || (pass == null)) {
-            response = new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_ARGUMENTS,"Could not decode parameters for AUTH LOGIN");
-        } else if (session.getConfigurationData().getUsersRepository().test(user, pass)) {
-            session.setUser(user);
-            response = new SMTPResponse(SMTPRetCode.AUTH_OK, "Authentication Successful");
-            if (getLogger().isDebugEnabled()) {
-                // TODO: Make this string a more useful debug message
-                getLogger().debug("AUTH method LOGIN succeeded");
+            return new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_ARGUMENTS,"Could not decode parameters for AUTH "+authType);
+        }
+
+        SMTPResponse res = null;
+        
+        List hooks = getHooks();
+
+        if (hooks != null) {
+            getLogger().debug("executing  hooks");
+            int count = hooks.size();
+            for (int i = 0; i < count; i++) {
+                Object rawHook = hooks.get(i);
+                res = calcDefaultSMTPResponse(((AuthHook) rawHook).doAuth(session,
+                        user, pass));
+                
+                if (res != null) {
+                    if (SMTPRetCode.AUTH_FAILED.equals(res.getRetCode())) {
+                        getLogger().error("AUTH method "+authType+" failed");
+                    } else if (SMTPRetCode.AUTH_OK.equals(res.getRetCode())) {
+                        if (getLogger().isDebugEnabled()) {
+                            // TODO: Make this string a more useful debug message
+                            getLogger().debug("AUTH method "+authType+" succeeded");
+                        }
+                    }
+                    return res;
+                }
+            }
+        }
+
+        res = new SMTPResponse(SMTPRetCode.AUTH_FAILED, "Authentication Failed");
+        // TODO: Make this string a more useful error message
+        getLogger().error("AUTH method "+authType+" failed");
+        return res;
+    }
+
+
+    /**
+     * @param result
+     */
+    protected SMTPResponse calcDefaultSMTPResponse(HookResult result) {
+        if (result != null) {
+            int rCode = result.getResult();
+            String smtpRetCode = result.getSmtpRetCode();
+            String smtpDesc = result.getSmtpDescription();
+    
+            if (rCode == HookReturnCode.DENY) {
+                if (smtpRetCode == null)
+                    smtpRetCode = SMTPRetCode.AUTH_FAILED;
+                if (smtpDesc == null)
+                    smtpDesc = "Authentication Failed";
+    
+                return new SMTPResponse(smtpRetCode, smtpDesc);
+            } else if (rCode == HookReturnCode.DENYSOFT) {
+                if (smtpRetCode == null)
+                    smtpRetCode = SMTPRetCode.LOCAL_ERROR;
+                if (smtpDesc == null)
+                    smtpDesc = "Temporary problem. Please try again later";
+    
+                return new SMTPResponse(smtpRetCode, smtpDesc);
+            } else if (rCode == HookReturnCode.OK) {
+                if (smtpRetCode == null)
+                    smtpRetCode = SMTPRetCode.AUTH_OK;
+                if (smtpDesc == null)
+                    smtpDesc = "Authentication Succesfull";
+    
+                return new SMTPResponse(smtpRetCode, smtpDesc);
+            } else {
+                // TODO !? What do we have to do? Is there a default?
+                return null;
             }
         } else {
-            response = new SMTPResponse(SMTPRetCode.AUTH_FAILED, "Authentication Failed");
-            // TODO: Make this string a more useful error message
-            getLogger().error("AUTH method LOGIN failed");
+            return null;
         }
-        return response;
     }
 
     /**
@@ -325,5 +397,39 @@ public class AuthCmdHandler
         } else {
             return null;
         }
-    }  
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.ExtensibleHandler#getMarkerInterfaces()
+     */
+    public List getMarkerInterfaces() {
+        List classes = new ArrayList(1);
+        classes.add(AuthHook.class);
+        return classes;
+    }
+
+
+    /**
+     * @see org.apache.james.smtpserver.ExtensibleHandler#wireExtensions(java.lang.Class, java.util.List)
+     */
+    public void wireExtensions(Class interfaceName, List extension) throws WiringException {
+        if (AuthHook.class.equals(interfaceName)) {
+            this.hooks = extension;
+            // If no AuthHook is configured then we revert to the default LocalUsersRespository check
+            if (hooks == null || hooks.size() == 0) {
+                throw new WiringException("AuthCmdHandler used without AuthHooks");
+            }
+        }
+    }
+    
+
+    /**
+     * Return a list which holds all hooks for the cmdHandler
+     * 
+     * @return
+     */
+    protected List getHooks() {
+        return hooks;
+    }
+
 }

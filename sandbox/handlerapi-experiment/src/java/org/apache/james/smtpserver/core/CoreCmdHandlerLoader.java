@@ -45,6 +45,7 @@ public class CoreCmdHandlerLoader implements HandlersPackage {
     private final Object VRFYCMDHANDLER = VrfyCmdHandler.class.getName();
     private final Object WELCOMEMESSAGEHANDLER = WelcomeMessageHandler.class.getName();
     private final Object SENDMAILHANDLER = SendMailHandler.class.getName();
+    private final Object USERSREPOSITORYAUTHHANDLER = UsersRepositoryAuthHook.class.getName();
    
     /**
      * @see org.apache.james.smtpserver.HandlersPackage#getHandlers()
@@ -67,6 +68,7 @@ public class CoreCmdHandlerLoader implements HandlersPackage {
         commands.add(RCPTCMDHANDLER);
         commands.add(RSETCMDHANDLER);
         commands.add(VRFYCMDHANDLER);
+        commands.add(USERSREPOSITORYAUTHHANDLER);
         
         return commands;
     }
