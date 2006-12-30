@@ -188,7 +188,7 @@ public class URIRBLHandler extends AbstractLogEnabled implements MessageHook,
             }  
 
         } else {
-            return null;
+            return new HookResult(HookReturnCode.DECLINED);
         }
     }
 

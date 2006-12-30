@@ -196,6 +196,6 @@ public class SpamAssassinHandler extends AbstractLogEnabled implements
         } catch (MessagingException e) {
             getLogger().error(e.getMessage());
         }
-        return null;
+        return new HookResult(HookReturnCode.DECLINED);
     }
 }

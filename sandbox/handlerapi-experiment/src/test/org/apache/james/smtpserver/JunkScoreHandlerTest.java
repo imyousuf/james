@@ -30,6 +30,7 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.smtpserver.core.filter.fastfail.JunkScoreHandler;
 import org.apache.james.smtpserver.hook.HookResult;
+import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.javaxmail.MockMimeMessage;
 import org.apache.james.test.mock.mailet.MockMail;
@@ -110,7 +111,7 @@ public class JunkScoreHandlerTest extends TestCase {
         ((JunkScore) session.getConnectionState().get(JunkScore.JUNK_SCORE_SESSION)).setStoredScore(KEY2, SCORE2);
         HookResult response = handler.onMessage(session, m);
     
-        assertNotNull("Rejected",response);
+        assertEquals("Rejected",response.getResult(), HookReturnCode.DENY);
     }
     
     public void testHeaderAction() throws ConfigurationException, MessagingException {
@@ -128,6 +129,6 @@ public class JunkScoreHandlerTest extends TestCase {
         MimeMessage message = m.getMessage();
         assertNotNull("Header added",message.getHeader("X-JUNKSCORE")[0]);
         assertNotNull("Header added",message.getHeader("X-JUNKSCORE-COMPOSED")[0]);
-        assertNull("Not rejected", response);
+        assertEquals("Not rejected", response.getResult(),HookReturnCode.DECLINED);
     }
 }

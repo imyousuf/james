@@ -156,7 +156,7 @@ public class JunkScoreHandler extends AbstractLogEnabled implements MessageHook,
                 getLogger().info("Unable to add Junkscore to header: " + e.getMessage());
             }
         }
-        return null;
+        return new HookResult(HookReturnCode.DECLINED);
     }
     
     public static JunkScore getLazyJunkScoreHandler(Map state, String key) {

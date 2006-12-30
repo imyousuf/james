@@ -82,7 +82,7 @@ public abstract class AbstractHookableCmdHandler extends AbstractLogEnabled
         List hooks = getHooks();
 
         if (hooks != null) {
-            getLogger().debug("executing  hooks");
+            getLogger().debug("executing hooks");
             int count = hooks.size();
             for (int i = 0; i < count; i++) {
                 Object rawHook = hooks.get(i);

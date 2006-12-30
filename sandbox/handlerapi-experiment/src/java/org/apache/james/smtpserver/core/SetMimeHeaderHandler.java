@@ -27,6 +27,7 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
+import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.smtpserver.hook.MessageHook;
 import org.apache.mailet.Mail;
 
@@ -100,7 +101,7 @@ public class SetMimeHeaderHandler
             getLogger().error(me.getMessage());
         }
         
-        return null;
+        return new HookResult(HookReturnCode.DECLINED);
     }
 
 

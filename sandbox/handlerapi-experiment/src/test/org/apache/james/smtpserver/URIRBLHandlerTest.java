@@ -43,6 +43,7 @@ import org.apache.james.services.AbstractDNSServer;
 import org.apache.james.services.DNSServer;
 import org.apache.james.smtpserver.core.filter.fastfail.URIRBLHandler;
 import org.apache.james.smtpserver.hook.HookResult;
+import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.javaxmail.MockMimeMessage;
 import org.apache.james.test.mock.mailet.MockMail;
@@ -176,7 +177,7 @@ public class URIRBLHandlerTest extends TestCase {
         handler.setUriRblServer(servers);
         HookResult response = handler.onMessage(session, mockedMail);
 
-        assertNull("Email was not rejected", response);
+        assertEquals("Email was not rejected", response.getResult(),HookReturnCode.DECLINED);
     }
     
     public void testBlocked() throws IOException, MessagingException {
@@ -193,7 +194,7 @@ public class URIRBLHandlerTest extends TestCase {
         handler.setUriRblServer(servers);
         HookResult response = handler.onMessage(session, mockedMail);
 
-        assertNotNull("Email was rejected", response);
+        assertEquals("Email was rejected", response.getResult(), HookReturnCode.DENY);
     }
     
     public void testBlockedMultiPart() throws IOException, MessagingException {
@@ -210,7 +211,7 @@ public class URIRBLHandlerTest extends TestCase {
         handler.setUriRblServer(servers);
         HookResult response = handler.onMessage(session, mockedMail);
 
-        assertNotNull("Email was rejected", response);
+        assertEquals("Email was rejected", response.getResult(), HookReturnCode.DENY);
     }
 
     /*

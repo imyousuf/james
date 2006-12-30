@@ -32,6 +32,7 @@ import junit.framework.TestCase;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.smtpserver.core.filter.fastfail.SpamAssassinHandler;
 import org.apache.james.smtpserver.hook.HookResult;
+import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.javaxmail.MockMimeMessage;
 import org.apache.james.test.mock.mailet.MockMail;
@@ -116,7 +117,7 @@ public class SpamAssassinHandlerTest extends TestCase {
         handler.setSpamdRejectionHits(200.0);
         HookResult response = handler.onMessage(session, mockedMail);
 
-        assertNull("Email was not rejected", response);
+        assertEquals("Email was not rejected", response.getResult(), HookReturnCode.DECLINED);
         assertEquals("email was not spam", mockedMail.getAttribute(
                 SpamAssassinInvoker.FLAG_MAIL_ATTRIBUTE_NAME), "NO");
         assertNotNull("spam hits", mockedMail.getAttribute(
@@ -139,7 +140,7 @@ public class SpamAssassinHandlerTest extends TestCase {
         handler.setSpamdRejectionHits(2000.0);
         HookResult response = handler.onMessage(session, mockedMail);
 
-        assertNull("Email was not rejected", response);
+        assertEquals("Email was not rejected", response.getResult(), HookReturnCode.DECLINED);
         assertEquals("email was spam", mockedMail.getAttribute(
                 SpamAssassinInvoker.FLAG_MAIL_ATTRIBUTE_NAME), "YES");
         assertNotNull("spam hits", mockedMail.getAttribute(
@@ -161,7 +162,7 @@ public class SpamAssassinHandlerTest extends TestCase {
         handler.setSpamdRejectionHits(200.0);
         HookResult response = handler.onMessage(session, mockedMail);
 
-        assertNotNull("Email was rejected", response);
+        assertEquals("Email was rejected", response.getResult(), HookReturnCode.DENY);
         assertEquals("email was spam", mockedMail.getAttribute(
                 SpamAssassinInvoker.FLAG_MAIL_ATTRIBUTE_NAME), "YES");
         assertNotNull("spam hits", mockedMail.getAttribute(
