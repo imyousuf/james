@@ -21,15 +21,15 @@
 
 package org.apache.james.smtpserver.core;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.apache.james.smtpserver.HandlersPackage;
 
-import org.apache.james.smtpserver.CommandsHandler;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * This class represent the base command handlers which are shipped with james.
  */
-public class CoreCmdHandlerLoader implements CommandsHandler {
+public class CoreCmdHandlerLoader implements HandlersPackage {
 
     private final Object AUTHCMDHANDLER = AuthCmdHandler.class.getName();
     private final Object DATACMDHANDLER = DataCmdHandler.class.getName();
@@ -47,26 +47,26 @@ public class CoreCmdHandlerLoader implements CommandsHandler {
     private final Object SENDMAILHANDLER = SendMailHandler.class.getName();
    
     /**
-     * @see org.apache.james.smtpserver.CommandsHandler#getCommands()
+     * @see org.apache.james.smtpserver.HandlersPackage#getHandlers()
      */
-    public Map getCommands() {
-        Map commands = new HashMap();
+    public List getHandlers() {
+        List commands = new LinkedList();
         
         // Insert the basecommands in the Map
-        commands.put("WelcomeMessageHandler", WELCOMEMESSAGEHANDLER);
-        commands.put("SendMailHandler", SENDMAILHANDLER);
-        commands.put("AUTH", AUTHCMDHANDLER);
-        commands.put("DATA", DATACMDHANDLER);
-        commands.put("EHLO", EHLOCMDHANDLER);
-        commands.put("EXPN", EXPNCMDHANDLER);
-        commands.put("HELO", HELOCMDHANDLER);
-        commands.put("HELP", HELPCMDHANDLER);
-        commands.put("MAIL", MAILCMDHANDLER);
-        commands.put("NOOP", NOOPCMDHANDLER);
-        commands.put("QUIT", QUITCMDHANDLER);
-        commands.put("RCPT", RCPTCMDHANDLER);
-        commands.put("RSET", RSETCMDHANDLER);
-        commands.put("VRFY", VRFYCMDHANDLER);
+        commands.add(WELCOMEMESSAGEHANDLER);
+        commands.add(SENDMAILHANDLER);
+        commands.add(AUTHCMDHANDLER);
+        commands.add(DATACMDHANDLER);
+        commands.add(EHLOCMDHANDLER);
+        commands.add(EXPNCMDHANDLER);
+        commands.add(HELOCMDHANDLER);
+        commands.add(HELPCMDHANDLER);
+        commands.add(MAILCMDHANDLER);
+        commands.add(NOOPCMDHANDLER);
+        commands.add(QUITCMDHANDLER);
+        commands.add(RCPTCMDHANDLER);
+        commands.add(RSETCMDHANDLER);
+        commands.add(VRFYCMDHANDLER);
         
         return commands;
     }

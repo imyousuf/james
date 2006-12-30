@@ -37,7 +37,6 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -168,18 +167,14 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
 
             // if it is a commands handler add it to the map with key as command
             // name
-            if (handler instanceof CommandsHandler) {
-                Map c = ((CommandsHandler) handler).getCommands();
+            if (handler instanceof HandlersPackage) {
+                List c = ((HandlersPackage) handler).getHandlers();
 
-                Iterator cmdKeys = c.keySet().iterator();
-
-                while (cmdKeys.hasNext()) {
-                    String commandName = cmdKeys.next().toString();
-                    String cName = c.get(commandName).toString();
+                for (Iterator i = c.iterator(); i.hasNext(); ) {
+                    String cName = i.next().toString();
 
                     DefaultConfiguration cmdConf = new DefaultConfiguration(
                             "handler");
-                    cmdConf.setAttribute("command", commandName);
                     cmdConf.setAttribute("class", cName);
 
                     loadClass(classLoader, cName, cmdConf);

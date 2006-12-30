@@ -21,15 +21,15 @@
 
 package org.apache.james.smtpserver;
 
-import java.util.Map;
+import java.util.List;
 
-public interface CommandsHandler {
+public interface HandlersPackage {
     
     /**
      * Return a Map which contains a set of CommandHandlers
      * 
      * @return Map
      */
-    Map getCommands();
+    List getHandlers();
 
 }
