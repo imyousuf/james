@@ -29,12 +29,11 @@ import org.apache.james.jspf.SPF;
 import org.apache.james.jspf.SPF1Utils;
 import org.apache.james.jspf.SPFResult;
 import org.apache.james.jspf.core.DNSService;
-import org.apache.james.smtpserver.MessageHandler;
-import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.smtpserver.hook.MailHook;
+import org.apache.james.smtpserver.hook.MessageHook;
 import org.apache.james.smtpserver.hook.RcptHook;
 import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.james.util.mail.dsn.DSNStatus;
@@ -54,7 +53,7 @@ import org.apache.mailet.MailAddress;
  * &lt;/handler&gt;
  */
 public class SPFHandler extends AbstractLogEnabled implements MailHook, RcptHook,
-        MessageHandler,Initializable {
+        MessageHook,Initializable {
 
     public static final String SPF_BLOCKLISTED = "SPF_BLOCKLISTED";
 
@@ -215,9 +214,9 @@ public class SPFHandler extends AbstractLogEnabled implements MailHook, RcptHook
     }
 
     /**
-     * @see org.apache.james.smtpserver.MessageHandler#onMessage(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.Mail)
+     * @see org.apache.james.smtpserver.hook.MessageHook#onMessage(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.Mail)
      */
-    public SMTPResponse onMessage(SMTPSession session, Mail mail) {
+    public HookResult onMessage(SMTPSession session, Mail mail) {
         // Store the spf header as attribute for later using
         mail.setAttribute(SPF_HEADER_MAIL_ATTRIBUTE_NAME, (String) session.getState().get(SPF_HEADER));
     

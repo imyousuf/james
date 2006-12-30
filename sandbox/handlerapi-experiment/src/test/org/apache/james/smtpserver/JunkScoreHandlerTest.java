@@ -29,6 +29,7 @@ import javax.mail.internet.MimeMessage;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.smtpserver.core.filter.fastfail.JunkScoreHandler;
+import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.javaxmail.MockMimeMessage;
 import org.apache.james.test.mock.mailet.MockMail;
@@ -107,7 +108,7 @@ public class JunkScoreHandlerTest extends TestCase {
         assertNull("Not rejected",response);
         ((JunkScore) session.getState().get(JunkScore.JUNK_SCORE)).setStoredScore(KEY1, SCORE1);
         ((JunkScore) session.getConnectionState().get(JunkScore.JUNK_SCORE_SESSION)).setStoredScore(KEY2, SCORE2);
-        SMTPResponse response = handler.onMessage(session, m);
+        HookResult response = handler.onMessage(session, m);
     
         assertNotNull("Rejected",response);
     }
@@ -122,7 +123,7 @@ public class JunkScoreHandlerTest extends TestCase {
         JunkScoreHandler.getLazyJunkScoreHandler(session.getState(), JunkScore.JUNK_SCORE).setStoredScore(KEY1, SCORE1);
         JunkScoreHandler.getLazyJunkScoreHandler(session.getConnectionState(), JunkScore.JUNK_SCORE_SESSION).setStoredScore(KEY2, SCORE2);
         Mail m = getMockMail();
-        SMTPResponse response = handler.onMessage(session,m);
+        HookResult response = handler.onMessage(session,m);
     
         MimeMessage message = m.getMessage();
         assertNotNull("Header added",message.getHeader("X-JUNKSCORE")[0]);

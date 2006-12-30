@@ -31,6 +31,7 @@ import junit.framework.TestCase;
 
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.smtpserver.core.filter.fastfail.SpamAssassinHandler;
+import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.javaxmail.MockMimeMessage;
 import org.apache.james.test.mock.mailet.MockMail;
@@ -113,7 +114,7 @@ public class SpamAssassinHandlerTest extends TestCase {
         handler.setSpamdHost(SPAMD_HOST);
         handler.setSpamdPort(port);
         handler.setSpamdRejectionHits(200.0);
-        SMTPResponse response = handler.onMessage(session, mockedMail);
+        HookResult response = handler.onMessage(session, mockedMail);
 
         assertNull("Email was not rejected", response);
         assertEquals("email was not spam", mockedMail.getAttribute(
@@ -136,7 +137,7 @@ public class SpamAssassinHandlerTest extends TestCase {
         handler.setSpamdHost(SPAMD_HOST);
         handler.setSpamdPort(port);
         handler.setSpamdRejectionHits(2000.0);
-        SMTPResponse response = handler.onMessage(session, mockedMail);
+        HookResult response = handler.onMessage(session, mockedMail);
 
         assertNull("Email was not rejected", response);
         assertEquals("email was spam", mockedMail.getAttribute(
@@ -158,7 +159,7 @@ public class SpamAssassinHandlerTest extends TestCase {
         handler.setSpamdHost(SPAMD_HOST);
         handler.setSpamdPort(port);
         handler.setSpamdRejectionHits(200.0);
-        SMTPResponse response = handler.onMessage(session, mockedMail);
+        HookResult response = handler.onMessage(session, mockedMail);
 
         assertNotNull("Email was rejected", response);
         assertEquals("email was spam", mockedMail.getAttribute(

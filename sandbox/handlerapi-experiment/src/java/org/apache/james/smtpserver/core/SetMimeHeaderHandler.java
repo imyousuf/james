@@ -21,13 +21,13 @@
 
 package org.apache.james.smtpserver.core;
 
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.james.smtpserver.MessageHandler;
-import org.apache.james.smtpserver.SMTPResponse;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.smtpserver.hook.HookResult;
+import org.apache.james.smtpserver.hook.MessageHook;
 import org.apache.mailet.Mail;
 
 import javax.mail.internet.MimeMessage;
@@ -38,7 +38,7 @@ import javax.mail.internet.MimeMessage;
   */
 public class SetMimeHeaderHandler
     extends AbstractLogEnabled
-    implements MessageHandler, Configurable {
+    implements MessageHook, Configurable {
 
     /**
      * The header name and value that needs to be added
@@ -84,9 +84,9 @@ public class SetMimeHeaderHandler
     /**
      * Adds header to the message
      *
-     * @see org.apache.james.smtpserver.MessageHandler#onMessage(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.Mail)
+     * @see org.apache.james.smtpserver.hook.MessageHook#onMessage(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.Mail)
      */
-    public SMTPResponse onMessage(SMTPSession session, Mail mail) {
+    public HookResult onMessage(SMTPSession session, Mail mail) {
         try {
             MimeMessage message = mail.getMessage ();
 

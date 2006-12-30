@@ -26,11 +26,11 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.services.MailServer;
-import org.apache.james.smtpserver.MessageHandler;
 import org.apache.james.smtpserver.MessageSizeException;
-import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
-import org.apache.james.util.mail.SMTPRetCode;
+import org.apache.james.smtpserver.hook.HookResult;
+import org.apache.james.smtpserver.hook.HookReturnCode;
+import org.apache.james.smtpserver.hook.MessageHook;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.Mail;
 
@@ -44,7 +44,7 @@ import java.util.Collection;
   */
 public class SendMailHandler
     extends AbstractLogEnabled
-    implements MessageHandler, Serviceable {
+    implements MessageHook, Serviceable {
 
     private MailServer mailServer;
 
@@ -59,7 +59,7 @@ public class SendMailHandler
      * Adds header to the message
      * @see org.apache.james.smtpserver#onMessage(SMTPSession)
      */
-    public SMTPResponse onMessage(SMTPSession session, Mail mail) {
+    public HookResult onMessage(SMTPSession session, Mail mail) {
         getLogger().debug("sending mail");
 
         try {
@@ -108,14 +108,14 @@ public class SendMailHandler
                          .append(session.getConfigurationData().getMaxMessageSize());
                    getLogger().error(errorBuffer.toString());
                    
-                   return new SMTPResponse(SMTPRetCode.MAIL_OK, DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SYSTEM_MSG_TOO_BIG)+" Error processing message.");
+                   return new HookResult(HookReturnCode.OK, DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SYSTEM_MSG_TOO_BIG)+" Error processing message.");
               } else {
                    getLogger().error("Unknown error occurred while processing DATA.", me);
                    
-                   return new SMTPResponse(SMTPRetCode.LOCAL_ERROR,DSNStatus.getStatus(DSNStatus.TRANSIENT,DSNStatus.UNDEFINED_STATUS)+" Error processing message.");
+                   return new HookResult(HookReturnCode.DENYSOFT,DSNStatus.getStatus(DSNStatus.TRANSIENT,DSNStatus.UNDEFINED_STATUS)+" Error processing message.");
               }
          }
-         return new SMTPResponse(SMTPRetCode.MAIL_OK,DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.CONTENT_OTHER)+" Message received");
+         return new HookResult(HookReturnCode.OK, DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.CONTENT_OTHER)+" Message received");
     }
 
 }

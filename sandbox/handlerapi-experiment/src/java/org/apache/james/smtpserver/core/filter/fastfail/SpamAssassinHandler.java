@@ -20,22 +20,22 @@
 
 package org.apache.james.smtpserver.core.filter.fastfail;
 
-import java.util.Iterator;
-
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
-
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.smtpserver.MessageHandler;
-import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.smtpserver.hook.HookResult;
+import org.apache.james.smtpserver.hook.HookReturnCode;
+import org.apache.james.smtpserver.hook.MessageHook;
 import org.apache.james.util.SpamAssassinInvoker;
-import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.Mail;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+
+import java.util.Iterator;
 
 /**
  * This MessageHandler could be used to check message against spamd before
@@ -54,7 +54,7 @@ import org.apache.mailet.Mail;
  * &lt;checkAuthNetworks&gt;false&lt;/checkAuthNetworks&gt; &lt;/handler&gt;
  */
 public class SpamAssassinHandler extends AbstractLogEnabled implements
-        MessageHandler, Configurable {
+        MessageHook, Configurable {
 
     /**
      * The port spamd is listen on
@@ -142,9 +142,9 @@ public class SpamAssassinHandler extends AbstractLogEnabled implements
     }
 
     /**
-     * @see org.apache.james.smtpserver.MessageHandler#onMessage(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.Mail)
+     * @see org.apache.james.smtpserver.hook.MessageHook#onMessage(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.Mail)
      */
-    public SMTPResponse onMessage(SMTPSession session, Mail mail) {
+    public HookResult onMessage(SMTPSession session, Mail mail) {
 
         // Not scan the message if relaying allowed
         if (session.isRelayingAllowed() && !checkAuthNetworks) {
@@ -186,7 +186,7 @@ public class SpamAssassinHandler extends AbstractLogEnabled implements
                         getLogger().info(buffer.toString());
 
                         // Message reject .. abort it!
-                        return new SMTPResponse(SMTPRetCode.TRANSACTION_FAILED,DSNStatus.getStatus(DSNStatus.PERMANENT,
+                        return new HookResult(HookReturnCode.DENY,DSNStatus.getStatus(DSNStatus.PERMANENT,
                                         DSNStatus.SECURITY_OTHER) + " This message reach the spam hits treshold. Please contact the Postmaster if the email is not SPAM. Message rejected");
                     }
                 } catch (NumberFormatException e) {

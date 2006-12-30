@@ -108,7 +108,7 @@ public abstract class AbstractHookableCmdHandler extends AbstractLogEnabled
     /**
      * @param result
      */
-    protected SMTPResponse calcDefaultSMTPResponse(HookResult result) {
+    public static SMTPResponse calcDefaultSMTPResponse(HookResult result) {
         if (result != null) {
             int rCode = result.getResult();
             String smtpRetCode = result.getSmtpRetCode();

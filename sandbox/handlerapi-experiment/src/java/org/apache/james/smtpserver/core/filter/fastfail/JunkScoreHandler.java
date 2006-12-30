@@ -19,25 +19,25 @@
 
 package org.apache.james.smtpserver.core.filter.fastfail;
 
-import java.util.Iterator;
-import java.util.Map;
-
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
-
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.smtpserver.MessageHandler;
-import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.smtpserver.hook.HookResult;
+import org.apache.james.smtpserver.hook.HookReturnCode;
+import org.apache.james.smtpserver.hook.MessageHook;
 import org.apache.james.util.junkscore.ComposedJunkScore;
 import org.apache.james.util.junkscore.JunkScore;
 import org.apache.james.util.junkscore.JunkScoreImpl;
-import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.Mail;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Check if a configured JunkScore is reached and perform an action. Valid actions are: reject, compose, header. 
@@ -46,7 +46,7 @@ import org.apache.mailet.Mail;
  * -Compose action stores the junkScore values in the mail attributes
  * -Header action create headers which holds the junkScore for each check
  */
-public class JunkScoreHandler extends AbstractLogEnabled implements MessageHandler, Configurable {
+public class JunkScoreHandler extends AbstractLogEnabled implements MessageHook, Configurable {
 
     private double maxScore = 0;
     private String action;
@@ -95,9 +95,9 @@ public class JunkScoreHandler extends AbstractLogEnabled implements MessageHandl
     }
     
     /**
-     * @see org.apache.james.smtpserver.MessageHandler#onMessage(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.Mail)
+     * @see org.apache.james.smtpserver.hook.MessageHook#onMessage(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.Mail)
      */
-    public SMTPResponse onMessage(SMTPSession session, Mail mail) {
+    public HookResult onMessage(SMTPSession session, Mail mail) {
         return checkScore(session, mail);
     }
 
@@ -106,7 +106,7 @@ public class JunkScoreHandler extends AbstractLogEnabled implements MessageHandl
      * 
      * @param session the SMTPSession
      */
-    private SMTPResponse checkScore(SMTPSession session, Mail mail) {
+    private HookResult checkScore(SMTPSession session, Mail mail) {
         JunkScore score1 = getLazyJunkScoreHandler(session.getConnectionState(),JunkScore.JUNK_SCORE_SESSION);
         JunkScore score2 = getLazyJunkScoreHandler(session.getState(),JunkScore.JUNK_SCORE);
         
@@ -131,7 +131,7 @@ public class JunkScoreHandler extends AbstractLogEnabled implements MessageHandl
                     .append(composed.getCompleteStoredScores());
                 getLogger().info(buffer.toString());
                 
-                return new SMTPResponse(SMTPRetCode.TRANSACTION_FAILED, DSNStatus.getStatus(DSNStatus.PERMANENT,
+                return new HookResult(HookReturnCode.DENY, DSNStatus.getStatus(DSNStatus.PERMANENT,
                             DSNStatus.SECURITY_OTHER) + " This message reach the spam hits treshold. Please contact the Postmaster if the email is not SPAM. Message rejected");
             }
         } else if (action.equals(HEADER_ACTION)) {

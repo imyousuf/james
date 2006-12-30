@@ -30,12 +30,12 @@ import org.apache.james.fetchmail.ReaderInputStream;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.ExtensibleHandler;
 import org.apache.james.smtpserver.LineHandler;
-import org.apache.james.smtpserver.MessageHandler;
 import org.apache.james.smtpserver.MessageSizeException;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.SizeLimitedInputStream;
 import org.apache.james.smtpserver.WiringException;
+import org.apache.james.smtpserver.hook.MessageHook;
 import org.apache.james.util.CharTerminatedInputStream;
 import org.apache.james.util.DotStuffingInputStream;
 import org.apache.james.util.mail.SMTPRetCode;
@@ -449,7 +449,7 @@ public class DataCmdHandler
      */
     public List getMarkerInterfaces() {
         List classes = new ArrayList(1);
-        classes.add(MessageHandler.class);
+        classes.add(MessageHook.class);
         return classes;
     }
 
@@ -459,7 +459,7 @@ public class DataCmdHandler
      * @see org.apache.james.smtpserver.ExtensibleHandler#wireExtensions(java.lang.Class, java.util.List)
      */
     public void wireExtensions(Class interfaceName, List extension) throws WiringException {
-        if (MessageHandler.class.equals(interfaceName)) {
+        if (MessageHook.class.equals(interfaceName)) {
             this.messageHandlers = extension;
             if (messageHandlers.size() == 0) {
                 if (getLogger().isErrorEnabled()) {
@@ -482,12 +482,11 @@ public class DataCmdHandler
                 getLogger().debug("executing message handlers");
                 int count = messageHandlers.size();
                 for(int i =0; i < count; i++) {
-                    SMTPResponse response = ((MessageHandler)messageHandlers.get(i)).onMessage(session, (Mail) mail);
-                    
-                    session.writeSMTPResponse(response);
+                    SMTPResponse response = AbstractHookableCmdHandler.calcDefaultSMTPResponse(((MessageHook)messageHandlers.get(i)).onMessage(session, (Mail) mail));
                     
                     //if the response is received, stop processing of command handlers
                     if(response != null) {
+                        session.writeSMTPResponse(response);
                         break;
                     }
                 }
