@@ -27,14 +27,16 @@ import java.util.Iterator;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.dnsserver.TemporaryResolutionException;
 import org.apache.james.services.DNSServer;
-import org.apache.james.smtpserver.CommandHandler;
-import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.smtpserver.hook.HookResult;
+import org.apache.james.smtpserver.hook.HookReturnCode;
+import org.apache.james.smtpserver.hook.RcptHook;
 import org.apache.james.util.NetMatcher;
 import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.james.util.mail.dsn.DSNStatus;
@@ -44,7 +46,7 @@ import org.apache.mailet.MailAddress;
  * This class can be used to reject email with bogus MX which is send from a authorized user or an authorized
  * network.
  */
-public class ValidRcptMX extends AbstractJunkHandler implements CommandHandler,
+public class ValidRcptMX extends AbstractLogEnabled implements RcptHook,
     Serviceable {
 
     private DNSServer dnsServer = null;
@@ -81,7 +83,6 @@ public class ValidRcptMX extends AbstractJunkHandler implements CommandHandler,
                 "Please configure at least on invalid MX network");
         }
         
-        super.configure(arg0);
     }
 
     /**
@@ -107,22 +108,6 @@ public class ValidRcptMX extends AbstractJunkHandler implements CommandHandler,
     }
 
     /**
-     * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
-     */
-    public Collection getImplCommands() {
-        Collection c = new ArrayList();
-        c.add("RCPT");
-        return c;
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(org.apache.james.smtpserver.SMTPSession, java.lang.String, java.lang.String) 
-     */
-    public SMTPResponse onCommand(SMTPSession session, String command, String parameters) {
-        return doProcessing(session);
-    }
-
-    /**
      * Set the DNSServer
      * 
      * @param dnsServer
@@ -133,55 +118,40 @@ public class ValidRcptMX extends AbstractJunkHandler implements CommandHandler,
     }
 
     /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#check(org.apache.james.smtpserver.SMTPSession)
+     * @see org.apache.james.smtpserver.hook.RcptHook#doRcpt(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
      */
-    protected boolean check(SMTPSession session) {
-        MailAddress rcpt = (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT);
+    public HookResult doRcpt(SMTPSession session, MailAddress sender, MailAddress rcpt) {
 
         String domain = rcpt.getHost();
 
         // Email should be deliver local
-        if (domain.equals(LOCALHOST)) return false;
+        if (!domain.equals(LOCALHOST)) {
  
-        Iterator mx = null;
-        try {
-            mx = dnsServer.findMXRecords(domain).iterator();
-        } catch (TemporaryResolutionException e1) {
-            //  TODO: Should we reject temporary ?
-        }
+            Iterator mx = null;
+            try {
+                mx = dnsServer.findMXRecords(domain).iterator();
+            } catch (TemporaryResolutionException e1) {
+                return new HookResult(HookReturnCode.DENYSOFT);
+            }
 
-        if (mx != null && mx.hasNext()) {
-            while (mx.hasNext()) {
-                String mxRec = mx.next().toString();
+            if (mx != null && mx.hasNext()) {
+                while (mx.hasNext()) {
+                    String mxRec = mx.next().toString();
 
-                try {
-                    String ip = dnsServer.getByName(mxRec).getHostAddress();
+                     try {
+                        String ip = dnsServer.getByName(mxRec).getHostAddress();
 
-                    // Check for invalid MX
-                    if (bNetwork.matchInetNetwork(ip)) {
-                        return true;
+                        // Check for invalid MX
+                        if (bNetwork.matchInetNetwork(ip)) {
+                            return new HookResult(HookReturnCode.DENY,SMTPRetCode.AUTH_REQUIRED, DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_AUTH) + " Invalid MX " + session.getRemoteIPAddress() 
+                                    + " for domain " + rcpt.getHost() + ". Reject email");
+                        }
+                    } catch (UnknownHostException e) {
+                        // Ignore this
                     }
-                } catch (UnknownHostException e) {
-                    // Ignore this
                 }
             }
         }
-        return false;
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getJunkHandlerData(org.apache.james.smtpserver.SMTPSession)
-     */
-    public JunkHandlerData getJunkHandlerData(SMTPSession session) {
-        MailAddress rcpt = (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT);
-        JunkHandlerData data = new JunkHandlerData();
-
-        data.setRejectResponseString(new SMTPResponse(SMTPRetCode.AUTH_REQUIRED, DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_AUTH) + " Invalid MX " + session.getRemoteIPAddress() 
-            + " for domain " + rcpt.getHost() + ". Reject email"));
-       
-        data.setJunkScoreLogString("Invalid MX " + session.getRemoteIPAddress() + " for domain " + rcpt.getHost() + ". Add JunkScore: " + getScore());
-        data.setRejectLogString("Invalid MX " + session.getRemoteIPAddress() + " for domain " + rcpt.getHost() + ". Reject email");
-        data.setScoreName("ValidRcptMXCheck");
-        return data;
+        return new HookResult(HookReturnCode.DECLINED);
     }
 }

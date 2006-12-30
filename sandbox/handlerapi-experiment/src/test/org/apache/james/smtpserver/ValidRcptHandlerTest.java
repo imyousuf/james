@@ -32,6 +32,7 @@ import org.apache.james.services.MailServer;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.VirtualUserTable;
 import org.apache.james.smtpserver.core.filter.fastfail.ValidRcptHandler;
+import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockServiceManager;
 import org.apache.james.userrepository.MockUsersRepository;
@@ -74,14 +75,6 @@ public class ValidRcptHandlerTest extends TestCase {
                 state.put(SMTPSession.CURRENT_RECIPIENT,rcpt);
 
                 return state;
-            }
-        
-            public void setStopHandlerProcessing(boolean stop) {
-                this.stop = stop;
-            }
-        
-            public boolean getStopHandlerProcessing() {
-                return stop;
             }
         };
     
@@ -174,9 +167,9 @@ public class ValidRcptHandlerTest extends TestCase {
         SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(),new MailAddress(INVALID_USER + "@localhost"),false,false,null);
         ContainerUtil.enableLogging(handler,new MockLogger());
     
-        SMTPResponse response = handler.onCommand(session,"RCPT","<" + session.getState().get(SMTPSession.CURRENT_RECIPIENT) + ">");
+        int rCode = handler.doRcpt(session, null, (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT)).getResult();
     
-        assertNotNull("Rejected",response);
+        assertEquals("Rejected",rCode,HookReturnCode.DENY);
     }
     
     public void testNotRejectInvalidUserAuth() throws Exception {
@@ -185,9 +178,9 @@ public class ValidRcptHandlerTest extends TestCase {
         SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(),new MailAddress(INVALID_USER + "@localhost"),false,true,"authedUser");
         ContainerUtil.enableLogging(handler,new MockLogger());
     
-        SMTPResponse response = handler.onCommand(session,"RCPT","<" + session.getState().get(SMTPSession.CURRENT_RECIPIENT) + ">");
-    
-        assertNull("Not rejected",response);
+        int rCode = handler.doRcpt(session, null, (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT)).getResult();
+        
+        assertEquals("Not rejected",rCode,HookReturnCode.DECLINED);
     }
     
     public void testNotRejectInvalidUserRelay() throws Exception {
@@ -196,10 +189,9 @@ public class ValidRcptHandlerTest extends TestCase {
         SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(),new MailAddress(INVALID_USER + "@localhost"),true,false,null);
         ContainerUtil.enableLogging(handler,new MockLogger());
 
-        SMTPResponse response = handler.onCommand(session,"RCPT","<" + session.getState().get(SMTPSession.CURRENT_RECIPIENT) + ">");
-    
-    
-        assertNull("Not rejected",response);
+        int rCode = handler.doRcpt(session, null, (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT)).getResult();
+        
+        assertEquals("Not rejected",rCode,HookReturnCode.DECLINED);
     }
     
     public void testNotRejectValidUser() throws Exception {
@@ -208,10 +200,9 @@ public class ValidRcptHandlerTest extends TestCase {
         SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(),new MailAddress(VALID_USER + "@localhost"),false,false,null);
         ContainerUtil.enableLogging(handler,new MockLogger());
     
-
-        SMTPResponse response = handler.onCommand(session,"RCPT","<" + session.getState().get(SMTPSession.CURRENT_RECIPIENT) + ">");
-    
-        assertNull("Not rejected",response);
+        int rCode = handler.doRcpt(session, null, (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT)).getResult();
+        
+        assertEquals("Not rejected",rCode,HookReturnCode.DECLINED);
     }
     
     public void testNotRejectValidUserRecipient() throws Exception {
@@ -223,9 +214,9 @@ public class ValidRcptHandlerTest extends TestCase {
     
         handler.setValidRecipients(recipient);
 
-        SMTPResponse response = handler.onCommand(session,"RCPT","<" + session.getState().get(SMTPSession.CURRENT_RECIPIENT) + ">");
-    
-        assertNull("Not rejected",response);
+        int rCode = handler.doRcpt(session, null, (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT)).getResult();
+        
+        assertEquals("Not rejected",rCode,HookReturnCode.DECLINED);
     }
     
     public void testNotRejectValidUserDomain() throws Exception {
@@ -239,9 +230,9 @@ public class ValidRcptHandlerTest extends TestCase {
     
         handler.setValidDomains(domain);
 
-        SMTPResponse response = handler.onCommand(session,"RCPT","<" + session.getState().get(SMTPSession.CURRENT_RECIPIENT) + ">");
-    
-        assertNull("Not rejected",response);
+        int rCode = handler.doRcpt(session, null, (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT)).getResult();
+        
+        assertEquals("Not rejected",rCode,HookReturnCode.DECLINED);
     }
     
     public void testNotRejectValidUserRegex() throws Exception {
@@ -255,9 +246,9 @@ public class ValidRcptHandlerTest extends TestCase {
     
         handler.setValidRegex("reci.*");
 
-        SMTPResponse response = handler.onCommand(session,"RCPT","<" + session.getState().get(SMTPSession.CURRENT_RECIPIENT) + ">");
-    
-        assertNull("Not rejected",response);
+        int rCode = handler.doRcpt(session, null, (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT)).getResult();
+        
+        assertEquals("Not rejected",rCode,HookReturnCode.DECLINED);
     }
     
     public void testInvalidRegex() throws Exception{
@@ -282,9 +273,9 @@ public class ValidRcptHandlerTest extends TestCase {
         ContainerUtil.service(handler, setUpServiceManager());
         ContainerUtil.enableLogging(handler,new MockLogger());
 
-        SMTPResponse response = handler.onCommand(session,"RCPT","<" + session.getState().get(SMTPSession.CURRENT_RECIPIENT) + ">");
-    
-        assertNull("No reject",response);
+        int rCode = handler.doRcpt(session, null, (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT)).getResult();
+        
+        assertEquals("Not rejected",rCode,HookReturnCode.DECLINED);
     }
     
     public void testHasErrorMapping() throws Exception {
@@ -294,9 +285,9 @@ public class ValidRcptHandlerTest extends TestCase {
         ContainerUtil.service(handler, setUpServiceManager());
         ContainerUtil.enableLogging(handler,new MockLogger());
 
-        SMTPResponse response = handler.onCommand(session,"RCPT","<" + session.getState().get(SMTPSession.CURRENT_RECIPIENT) + ">");
+        int rCode = handler.doRcpt(session, null,(MailAddress)session.getState().get(SMTPSession.CURRENT_RECIPIENT)).getResult();
     
         assertNull("Valid Error mapping",session.getState().get("VALID_USER"));
-        assertNotNull("Error mapping",response);
+        assertEquals("Error mapping",rCode, HookReturnCode.DENY);
     }
 }

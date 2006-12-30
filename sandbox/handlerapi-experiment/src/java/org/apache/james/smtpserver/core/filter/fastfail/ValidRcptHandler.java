@@ -36,9 +36,11 @@ import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.services.VirtualUserTable;
 import org.apache.james.services.VirtualUserTableStore;
-import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.smtpserver.hook.HookResult;
+import org.apache.james.smtpserver.hook.HookReturnCode;
+import org.apache.james.smtpserver.hook.RcptHook;
 import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.james.vut.ErrorMappingException;
@@ -51,7 +53,7 @@ import org.apache.oro.text.regex.Perl5Matcher;
 /**
  * Handler which reject invalid recipients
  */
-public class ValidRcptHandler extends AbstractLogEnabled implements CommandHandler, Configurable, Serviceable {
+public class ValidRcptHandler extends AbstractLogEnabled implements RcptHook, Configurable, Serviceable {
     
     private Collection recipients = new ArrayList();
     private Collection domains = new ArrayList();
@@ -162,76 +164,55 @@ public class ValidRcptHandler extends AbstractLogEnabled implements CommandHandl
     }
 
     /**
-     * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
+     * @see org.apache.james.smtpserver.hook.RcptHook#doRcpt(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
      */
-    public Collection getImplCommands() {
-        Collection c = new ArrayList();
-        c.add("RCPT");
-            
-        return c;
-    }
+    public HookResult doRcpt(SMTPSession session, MailAddress sender, MailAddress rcpt) {
+        
+    if (!session.isRelayingAllowed() && !(session.isAuthRequired() && session.getUser() != null)) {
+            boolean invalidUser = true;
 
-    /**
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(org.apache.james.smtpserver.SMTPSession, java.lang.String, java.lang.String) 
-     */
-    public SMTPResponse onCommand(SMTPSession session, String command, String parameters) {
-        if (!session.isRelayingAllowed() && !(session.isAuthRequired() && session.getUser() != null)) {
-            return checkValidRcpt(session);
+            if (session.getConfigurationData().getUsersRepository().contains(rcpt.getUser()) == true || recipients.contains(rcpt.toString().toLowerCase()) || domains.contains(rcpt.getHost().toLowerCase())) {
+                invalidUser = false;
+            }
+
+            // check if an valid virtual mapping exists
+            if (invalidUser == true  && vut == true) {
+                try {
+                    Collection targetString = table.getMappings(rcpt.getUser(), rcpt.getHost());
+            
+                    if (targetString != null && targetString.isEmpty() == false) {
+                        invalidUser = false;
+                    }
+                } catch (ErrorMappingException e) {
+                    String responseString = e.getMessage();
+                    getLogger().info("Rejected message. Reject Message: " + responseString);
+                    SMTPResponse resp = new SMTPResponse(responseString);
+                    return new HookResult(HookReturnCode.DENY,resp.getRetCode(),(String) resp.getLines().get(0));
+                }
+            }
+            
+            if (invalidUser == true && !regex.isEmpty()) {
+                Iterator reg = regex.iterator();
+                Perl5Matcher matcher  = new Perl5Matcher();
+                
+                while (reg.hasNext()) {
+                    if (matcher.matches(rcpt.toString(), (Pattern) reg.next())) {
+                        // regex match
+                        invalidUser = false;
+                        break;
+                    }
+                }
+            }
+        
+            if (invalidUser == true) {
+                //user not exist
+                getLogger().info("Rejected message. Unknown user: " + rcpt.toString());
+                return new HookResult(HookReturnCode.DENY,SMTPRetCode.TRANSACTION_FAILED, DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_MAILBOX) + " Unknown user: " + rcpt.toString());
+            }
+            return new HookResult(HookReturnCode.DECLINED);
         } else {
             getLogger().debug("Sender allowed");
-            return null;
+            return new HookResult(HookReturnCode.DECLINED);
         }
-    }
-    
-    
-    
-    /**
-     * Check if the recipient should be accepted
-     * 
-     * @param session The SMTPSession
-     * @return 
-     */
-    private SMTPResponse checkValidRcpt(SMTPSession session) {
-        MailAddress rcpt = (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT);
-        boolean invalidUser = true;
-
-        if (session.getConfigurationData().getUsersRepository().contains(rcpt.getUser()) == true || recipients.contains(rcpt.toString().toLowerCase()) || domains.contains(rcpt.getHost().toLowerCase())) {
-            invalidUser = false;
-        }
-
-        // check if an valid virtual mapping exists
-        if (invalidUser == true  && vut == true) {
-            try {
-                Collection targetString = table.getMappings(rcpt.getUser(), rcpt.getHost());
-        
-                if (targetString != null && targetString.isEmpty() == false) {
-                    invalidUser = false;
-                }
-            } catch (ErrorMappingException e) {
-                String responseString = e.getMessage();
-                getLogger().info("Rejected message. Reject Message: " + responseString);
-                return new SMTPResponse(responseString);
-            }
-        }
-        
-        if (invalidUser == true && !regex.isEmpty()) {
-            Iterator reg = regex.iterator();
-            Perl5Matcher matcher  = new Perl5Matcher();
-            
-            while (reg.hasNext()) {
-                if (matcher.matches(rcpt.toString(), (Pattern) reg.next())) {
-                    // regex match
-                    invalidUser = false;
-                    break;
-                }
-            }
-        }
-    
-        if (invalidUser == true) {
-            //user not exist
-            getLogger().info("Rejected message. Unknown user: " + rcpt.toString());
-            return new SMTPResponse(SMTPRetCode.TRANSACTION_FAILED, DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_MAILBOX) + " Unknown user: " + rcpt.toString());
-        }
-        return null;
     }
 }
