@@ -47,6 +47,8 @@ public class CoreCmdHandlerLoader implements HandlersPackage {
     private final Object SENDMAILHANDLER = SendMailHandler.class.getName();
     private final Object USERSREPOSITORYAUTHHANDLER = UsersRepositoryAuthHook.class.getName();
     private final Object POSTMASTERABUSEHOOK = PostmasterAbuseRcptHook.class.getName();
+    private final Object AUTHREQUIREDTORELAY = AuthRequiredToRelayRcptHook.class.getName();
+    private final Object SENDERAUTHIDENTITYVERIFICATION = SenderAuthIdentifyVerificationRcptHook.class.getName();
    
     /**
      * @see org.apache.james.smtpserver.HandlersPackage#getHandlers()
@@ -70,6 +72,8 @@ public class CoreCmdHandlerLoader implements HandlersPackage {
         commands.add(RSETCMDHANDLER);
         commands.add(VRFYCMDHANDLER);
         commands.add(USERSREPOSITORYAUTHHANDLER);
+        commands.add(AUTHREQUIREDTORELAY);
+        commands.add(SENDERAUTHIDENTITYVERIFICATION);
         commands.add(POSTMASTERABUSEHOOK);
         
         return commands;

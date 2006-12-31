@@ -1465,7 +1465,7 @@ public class SMTPServerTest extends TestCase {
         smtpProtocol.setSender(sender);
 
         smtpProtocol.addRecipient("mail@sample.com");
-        assertEquals("reject", 550, smtpProtocol
+        assertEquals("reject: "+smtpProtocol.getReplyString(), 550, smtpProtocol
                 .getReplyCode());
 
         smtpProtocol.sendShortMessageData("Subject: test\r\n\r\nTest body testDNSRBLRejectWorks\r\n");
