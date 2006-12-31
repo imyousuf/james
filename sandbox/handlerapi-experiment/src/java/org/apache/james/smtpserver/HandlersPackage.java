@@ -23,6 +23,11 @@ package org.apache.james.smtpserver;
 
 import java.util.List;
 
+/**
+ * Provides a mean to bundle a set of handlers (defined by their classnames) within
+ * a single object.
+ * This is used for the default set of CoreCommands.
+ */
 public interface HandlersPackage {
     
     /**

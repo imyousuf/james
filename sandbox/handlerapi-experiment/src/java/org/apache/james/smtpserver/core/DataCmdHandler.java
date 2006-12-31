@@ -26,18 +26,17 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.Constants;
 import org.apache.james.core.MailHeaders;
 import org.apache.james.core.MailImpl;
-import org.apache.james.fetchmail.ReaderInputStream;
+import org.apache.james.core.MimeMessageCopyOnWriteProxy;
+import org.apache.james.core.MimeMessageInputStreamSource;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.ExtensibleHandler;
 import org.apache.james.smtpserver.LineHandler;
 import org.apache.james.smtpserver.MessageSizeException;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
-import org.apache.james.smtpserver.SizeLimitedInputStream;
+import org.apache.james.smtpserver.SizeLimitedOutputStream;
 import org.apache.james.smtpserver.WiringException;
 import org.apache.james.smtpserver.hook.MessageHook;
-import org.apache.james.util.CharTerminatedInputStream;
-import org.apache.james.util.DotStuffingInputStream;
 import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.Mail;
@@ -47,14 +46,9 @@ import org.apache.mailet.dates.RFC822DateFormat;
 
 import javax.mail.MessagingException;
 
-import java.io.ByteArrayInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
-import java.io.SequenceInputStream;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -123,154 +117,131 @@ public class DataCmdHandler
      * @param argument the argument passed in with the command by the SMTP client
      */
     private SMTPResponse doDATA(SMTPSession session, String argument) {
-        PipedInputStream messageIn = new PipedInputStream();
-        Thread t = new Thread() {
-            private PipedInputStream in;
-            private SMTPSession session;
-
-            public void run() {
-                handleStream(session, in);
+        long maxMessageSize = session.getConfigurationData().getMaxMessageSize();
+        if (maxMessageSize > 0) {
+            if (getLogger().isDebugEnabled()) {
+                StringBuffer logBuffer = new StringBuffer(128).append(
+                        "Using SizeLimitedInputStream ").append(
+                        " with max message size: ").append(maxMessageSize);
+                getLogger().debug(logBuffer.toString());
             }
+        }
 
-            public Thread setParam(SMTPSession session, PipedInputStream in) {
-                this.in = in;
-                this.session = session;
-                return this;
-            }
-        }.setParam(session, messageIn);
-        
-        t.start();
-        
-        OutputStream out;
         try {
-            out = new PipedOutputStream(messageIn);
+            MimeMessageInputStreamSource mmiss = new MimeMessageInputStreamSource(session.getConfigurationData().getMailServer().getId());
+            OutputStream out = mmiss.getWritableOutputStream();
+
+            // Prepend output headers with out Received
+            MailHeaders mh = createNewReceivedMailHeaders(session);
+            for (Enumeration en = mh.getAllHeaderLines(); en.hasMoreElements(); ) {
+                out.write(en.nextElement().toString().getBytes());
+                out.write("\r\n".getBytes());
+            }
+            
+            if (maxMessageSize > 0) {
+                out = new SizeLimitedOutputStream(out, maxMessageSize);
+            }
+            
+            // out = new PipedOutputStream(messageIn);
             session.pushLineHandler(new LineHandler() {
 
                 private OutputStream out;
-                private Thread worker;
+                private MimeMessageInputStreamSource mmiss;
 
                 public void onLine(SMTPSession session, byte[] line) {
                     try {
-                        out.write(line);
-                        out.flush();
                         // 46 is "."
+                        // Stream terminated
                         if (line.length == 3 && line[0] == 46) {
+                            out.flush();
+                            out.close();
+                            
+                            List recipientCollection = (List) session.getState().get(SMTPSession.RCPT_LIST);
+                            MailImpl mail =
+                                new MailImpl(session.getConfigurationData().getMailServer().getId(),
+                                             (MailAddress) session.getState().get(SMTPSession.SENDER),
+                                             recipientCollection);
+                            MimeMessageCopyOnWriteProxy mimeMessageCopyOnWriteProxy = null;
                             try {
-                                worker.join();
-                            } catch (InterruptedException e) {
+                                mimeMessageCopyOnWriteProxy = new MimeMessageCopyOnWriteProxy(mmiss);
+                                mail.setMessage(mimeMessageCopyOnWriteProxy);
+                                
+                                mailPostProcessor(session, mail);
+                                
+                                processExtensions(session);
+                                
+                                session.popLineHandler();
+                                
+                            } catch (MessagingException e) {
                                 // TODO Auto-generated catch block
                                 e.printStackTrace();
+                            } finally {
+                                ContainerUtil.dispose(mimeMessageCopyOnWriteProxy);
+                                ContainerUtil.dispose(mmiss);
                             }
+                            
+                        // DotStuffing.
+                        } else if (line[0] == 46 && line[1] == 46) {
+                            out.write(line,1,line.length-1);
+                        // Standard write
+                        } else {
+                            out.write(line);
                         }
-                        
-                        // Handle MessageHandlers
-                        processExtensions(session);
-                        
+                        out.flush();
                     } catch (IOException e) {
-                        // TODO Define what we have to do here!
-                        e.printStackTrace();
+                        SMTPResponse response;
+                        if (e != null && e instanceof MessageSizeException) {
+                            // Add an item to the state to suppress
+                            // logging of extra lines of data
+                            // that are sent after the size limit has
+                            // been hit.
+                            session.getState().put(SMTPSession.MESG_FAILED, Boolean.TRUE);
+                            // then let the client know that the size
+                            // limit has been hit.
+                            response = new SMTPResponse(SMTPRetCode.QUOTA_EXCEEDED,DSNStatus.getStatus(DSNStatus.PERMANENT,
+                                            DSNStatus.SYSTEM_MSG_TOO_BIG) + " Error processing message: " + e.getMessage());
+                          
+                            StringBuffer errorBuffer = new StringBuffer(256).append(
+                                    "Rejected message from ").append(
+                                    session.getState().get(SMTPSession.SENDER).toString())
+                                    .append(" from host ").append(session.getRemoteHost())
+                                    .append(" (").append(session.getRemoteIPAddress())
+                                    .append(") exceeding system maximum message size of ")
+                                    .append(
+                                            session.getConfigurationData()
+                                                    .getMaxMessageSize());
+                            getLogger().error(errorBuffer.toString());
+                        } else {
+                            response = new SMTPResponse(SMTPRetCode.LOCAL_ERROR,DSNStatus.getStatus(DSNStatus.TRANSIENT,
+                                            DSNStatus.UNDEFINED_STATUS) + " Error processing message: " + e.getMessage());
+                            
+                            getLogger().error(
+                                    "Unknown error occurred while processing DATA.", e);
+                        }
+                        session.popLineHandler();
+                        session.writeSMTPResponse(response);
+                        return;
                     }
                 }
 
-                public LineHandler setParam(OutputStream out, Thread t) {
+                public LineHandler setParam(MimeMessageInputStreamSource mmiss, OutputStream out) throws MessagingException, FileNotFoundException {
+                    this.mmiss = mmiss;
                     this.out = out;
-                    this.worker = t;
                     return this;
                 };
             
-            }.setParam(out,t));
+            }.setParam(mmiss, out));
+            
         } catch (IOException e1) {
             // TODO Define what to do.
+            e1.printStackTrace();
+        } catch (MessagingException e1) {
             e1.printStackTrace();
         }
         
         return new SMTPResponse(SMTPRetCode.DATA_READY, "Ok Send data ending with <CRLF>.<CRLF>");
     }
     
-
-    public void handleStream(SMTPSession session, InputStream stream) {
-        SMTPResponse response = null;
-        InputStream msgIn = new CharTerminatedInputStream(stream, SMTPTerminator);
-        try {
-            // 2006/12/24 - We can remove this now that every single line is pushed and
-            // reset the watchdog already in the handler.
-            // This means we don't use resetLength anymore and we can remove
-            // watchdog from the SMTPSession interface
-            // msgIn = new BytesReadResetInputStream(msgIn, session.getWatchdog(),
-            //         session.getConfigurationData().getResetLength());
-
-            // if the message size limit has been set, we'll
-            // wrap msgIn with a SizeLimitedInputStream
-            long maxMessageSize = session.getConfigurationData()
-                    .getMaxMessageSize();
-            if (maxMessageSize > 0) {
-                if (getLogger().isDebugEnabled()) {
-                    StringBuffer logBuffer = new StringBuffer(128).append(
-                            "Using SizeLimitedInputStream ").append(
-                            " with max message size: ").append(maxMessageSize);
-                    getLogger().debug(logBuffer.toString());
-                }
-                msgIn = new SizeLimitedInputStream(msgIn, maxMessageSize);
-            }
-            // Removes the dot stuffing
-            msgIn = new DotStuffingInputStream(msgIn);
-            // Parse out the message headers
-            MailHeaders headers = new MailHeaders(msgIn);
-            headers = processMailHeaders(session, headers);
-            processMail(session, headers, msgIn);
-            headers = null;
-        } catch (MessagingException me) {
-            // Grab any exception attached to this one.
-            Exception e = me.getNextException();
-            // If there was an attached exception, and it's a
-            // MessageSizeException
-            if (e != null && e instanceof MessageSizeException) {
-                // Add an item to the state to suppress
-                // logging of extra lines of data
-                // that are sent after the size limit has
-                // been hit.
-                session.getState().put(SMTPSession.MESG_FAILED, Boolean.TRUE);
-                // then let the client know that the size
-                // limit has been hit.
-                response = new SMTPResponse(SMTPRetCode.QUOTA_EXCEEDED,DSNStatus.getStatus(DSNStatus.PERMANENT,
-                                DSNStatus.SYSTEM_MSG_TOO_BIG) + " Error processing message: " + e.getMessage());
-              
-                StringBuffer errorBuffer = new StringBuffer(256).append(
-                        "Rejected message from ").append(
-                        session.getState().get(SMTPSession.SENDER).toString())
-                        .append(" from host ").append(session.getRemoteHost())
-                        .append(" (").append(session.getRemoteIPAddress())
-                        .append(") exceeding system maximum message size of ")
-                        .append(
-                                session.getConfigurationData()
-                                        .getMaxMessageSize());
-                getLogger().error(errorBuffer.toString());
-            } else {
-                response = new SMTPResponse(SMTPRetCode.LOCAL_ERROR,DSNStatus.getStatus(DSNStatus.TRANSIENT,
-                                DSNStatus.UNDEFINED_STATUS) + " Error processing message: " + me.getMessage());
-                
-                getLogger().error(
-                        "Unknown error occurred while processing DATA.", me);
-            }
-            session.popLineHandler();
-            session.writeSMTPResponse(response);
-            return;
-        } finally {
-            if (msgIn != null) {
-                try {
-                    msgIn.close();
-                } catch (Exception e) {
-                    // Ignore close exception
-                }
-                msgIn = null;
-            }
-        }
-
-    }
-
-
-
-
 
 
 
@@ -289,9 +260,26 @@ public class DataCmdHandler
         // Received: header may precede it, but the Return-Path header
         // should be removed when making final delivery.
      // headers.removeHeader(RFC2822Headers.RETURN_PATH);
-        StringBuffer headerLineBuffer = new StringBuffer(512);
         // We will rebuild the header object to put our Received header at the top
         Enumeration headerLines = headers.getAllHeaderLines();
+        MailHeaders newHeaders = createNewReceivedMailHeaders(session);
+
+        // Add all the original message headers back in next
+        while (headerLines.hasMoreElements()) {
+            newHeaders.addHeaderLine((String) headerLines.nextElement());
+        }
+        return newHeaders;
+    }
+
+
+    /**
+     * @param session
+     * @param headerLineBuffer
+     * @return
+     * @throws MessagingException
+     */
+    private MailHeaders createNewReceivedMailHeaders(SMTPSession session) throws MessagingException {
+        StringBuffer headerLineBuffer = new StringBuffer(512);
         MailHeaders newHeaders = new MailHeaders();
         
         String heloMode = (String) session.getConnectionState().get(SMTPSession.CURRENT_HELO_MODE);
@@ -351,86 +339,26 @@ public class DataCmdHandler
         }
         headerLineBuffer = null;
         newHeaders.addHeaderLine("          " + rfc822DateFormat.format(new Date()));
-
-        // Add all the original message headers back in next
-        while (headerLines.hasMoreElements()) {
-            newHeaders.addHeaderLine((String) headerLines.nextElement());
-        }
         return newHeaders;
     }
 
+
     /**
-     * Processes the mail message coming in off the wire.  Reads the
-     * content and delivers to the spool.
-     *
-     * @param session SMTP session object
-     * @param headers the headers of the mail being read
-     * @param msgIn the stream containing the message content
+     * @param session
+     * @param mail
      */
-    private void processMail(SMTPSession session, MailHeaders headers, InputStream msgIn)
-        throws MessagingException {
-        ByteArrayInputStream headersIn = null;
-        MailImpl mail = null;
-        List recipientCollection = null;
-        try {
-            headersIn = new ByteArrayInputStream(headers.toByteArray());
-            recipientCollection = (List) session.getState().get(SMTPSession.RCPT_LIST);
-            mail =
-                new MailImpl(session.getConfigurationData().getMailServer().getId(),
-                             (MailAddress) session.getState().get(SMTPSession.SENDER),
-                             recipientCollection,
-                             new SequenceInputStream(new SequenceInputStream(headersIn, msgIn),
-                                     new ReaderInputStream(new StringReader("\r\n"))));
-            // Call mail.getSize() to force the message to be
-            // loaded. Need to do this to enforce the size limit
-            if (session.getConfigurationData().getMaxMessageSize() > 0) {
-                mail.getMessageSize();
-            }
-            mail.setRemoteHost(session.getRemoteHost());
-            mail.setRemoteAddr(session.getRemoteIPAddress());
-            if (session.getUser() != null) {
-                mail.setAttribute(SMTP_AUTH_USER_ATTRIBUTE_NAME, session.getUser());
-            }
-            
-            if (session.isRelayingAllowed()) {
-                mail.setAttribute(SMTP_AUTH_NETWORK_NAME,"true");
-            }
-            
-            session.popLineHandler();
-            
-            session.getState().put(LAST_MAIL_KEY, mail);
-        } catch (MessagingException me) {
-            // if we get here, it means that we received a
-            // MessagingException, which would happen BEFORE we call
-            // session.setMail, so the mail object is still strictly
-            // local to us, and we really should clean it up before
-            // re-throwing the MessagingException for our call chain
-            // to process.
-            //
-            // So why has this worked at all so far?  Initial
-            // conjecture is that it has depended upon finalize to
-            // call dispose.  Not in the MailImpl, which doesn't have
-            // one, but even further down in the MimeMessageInputStreamSource.
-
-            if (mail != null) {
-                mail.dispose();
-            }
-            throw me;
-        } finally {
-            if (recipientCollection != null) {
-                recipientCollection.clear();
-            }
-            recipientCollection = null;
-            if (headersIn != null) {
-                try {
-                    headersIn.close();
-                } catch (IOException ioe) {
-                    // Ignore exception on close.
-                }
-            }
-            headersIn = null;
+    private void mailPostProcessor(SMTPSession session, MailImpl mail) {
+        mail.setRemoteHost(session.getRemoteHost());
+        mail.setRemoteAddr(session.getRemoteIPAddress());
+        if (session.getUser() != null) {
+            mail.setAttribute(SMTP_AUTH_USER_ATTRIBUTE_NAME, session.getUser());
         }
-
+        
+        if (session.isRelayingAllowed()) {
+            mail.setAttribute(SMTP_AUTH_NETWORK_NAME,"true");
+        }
+        
+        session.getState().put(LAST_MAIL_KEY, mail);
     }
     
     /**

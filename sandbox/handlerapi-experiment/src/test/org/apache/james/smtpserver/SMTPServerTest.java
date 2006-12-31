@@ -281,7 +281,7 @@ public class SMTPServerTest extends TestCase {
 
         int size = ((MimeMessage) m_mailServer.getLastMail().getMessage()).getSize();
 
-        assertEquals(size, 2);
+        assertEquals(2, size);
     }
 
     public void testSimpleMailSendWithHELO() throws Exception {

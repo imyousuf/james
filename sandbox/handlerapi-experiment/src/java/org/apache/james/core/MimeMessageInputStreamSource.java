@@ -26,6 +26,7 @@ import javax.mail.util.SharedFileInputStream;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -57,6 +58,21 @@ public class MimeMessageInputStreamSource
      */
     String sourceId;
 
+    public MimeMessageInputStreamSource(String key) throws MessagingException {
+        try {
+            file = File.createTempFile(key, ".m64");
+            sourceId = file.getCanonicalPath();
+        } catch (IOException e) {
+            throw new MessagingException("Unable to get canonical file path: " + e.getMessage(), e);
+        } finally {
+            // if sourceId is null while file is not null then we had
+            // an IOxception and we have to clean the file.
+            if (sourceId == null && file != null) {
+                file.delete();
+            }
+        }
+    }
+    
     /**
      * Construct a new MimeMessageInputStreamSource from an
      * <code>InputStream</code> that contains the bytes of a
@@ -72,17 +88,16 @@ public class MimeMessageInputStreamSource
             throws MessagingException {
         //We want to immediately read this into a temporary file
         //Create a temp file and channel the input stream into it
+        this(key);
         OutputStream fout = null;
         try {
-            file = File.createTempFile(key, ".m64");
-            fout = new BufferedOutputStream(new FileOutputStream(file));
+            fout = new BufferedOutputStream(getWritableOutputStream());
             int b = -1;
             while ((b = in.read()) != -1) {
                 fout.write(b);
             }
             fout.flush();
 
-            sourceId = file.getCanonicalPath();
         } catch (IOException ioe) {
             throw new MessagingException("Unable to retrieve the data: " + ioe.getMessage(), ioe);
         } finally {
@@ -101,13 +116,15 @@ public class MimeMessageInputStreamSource
             } catch (IOException ioe) {
                 // Ignored - logging unavailable to log this non-fatal error.
             }
-            
-            // if sourceId is null while file is not null then we had
-            // an IOxception and we have to clean the file.
-            if (sourceId == null && file != null) {
-                file.delete();
-            }
         }
+    }
+
+    /**
+     * @return
+     * @throws FileNotFoundException
+     */
+    public OutputStream getWritableOutputStream() throws FileNotFoundException {
+        return new FileOutputStream(file);
     }
 
     /**
