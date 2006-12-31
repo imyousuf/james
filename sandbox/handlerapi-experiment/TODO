@@ -6,3 +6,7 @@
 - Check AuthRequiredToRelayRcptHook to see if it is correct to return different SMTP codes if Auth is announced (for relaying denied)
 - Remove CURRENT_RECIPIENT key from state usage: I think we don't use it anymore but in tests.
 - Check why testDNSRBLRehectWorks was expecting 550, while we return now 554 (or maybe we should return 530, but not 550).
+- RcptOptions: introduce a new extension points to have Handlers to declare support for given command options so that the syntax check can support them.
+  - maybe also add to Mail and Rcpt standard hooks an options map parameter (MAIL's SIZE, RCPT's ORCPT/NOTIFY keyworks)
+  - or maybe another non public api hook to be implemented by smtp extensions.
+- The AuthHook define a way to hook plain text user-pass tuple: this mean this won't work as soon as we'll try to implement another SASL mechanism: this is a common issue with POP3 APOP and IMAP SALS auth.
