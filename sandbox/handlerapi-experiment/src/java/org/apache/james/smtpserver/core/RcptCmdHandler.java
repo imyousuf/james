@@ -94,188 +94,190 @@ public class RcptCmdHandler extends AbstractHookableCmdHandler implements
                     DSNStatus.getStatus(DSNStatus.PERMANENT,
                             DSNStatus.DELIVERY_SYNTAX)
                             + " Usage: RCPT TO:<recipient>");
-        } else {
-            Collection rcptColl = (Collection) session.getState().get(
-                    SMTPSession.RCPT_LIST);
-            if (rcptColl == null) {
-                rcptColl = new ArrayList();
-            }
-            recipient = recipient.trim();
-            int lastChar = recipient.lastIndexOf('>');
-            // Check to see if any options are present and, if so, whether they
-            // are correctly formatted
-            // (separated from the closing angle bracket by a ' ').
-            String rcptOptionString = null;
-            if ((lastChar > 0) && (recipient.length() > lastChar + 2)
-                    && (recipient.charAt(lastChar + 1) == ' ')) {
-                rcptOptionString = recipient.substring(lastChar + 2);
+        }
 
-                // Remove the options from the recipient
-                recipient = recipient.substring(0, lastChar + 1);
+        Collection rcptColl = (Collection) session.getState().get(
+                SMTPSession.RCPT_LIST);
+        if (rcptColl == null) {
+            rcptColl = new ArrayList();
+        }
+        recipient = recipient.trim();
+        int lastChar = recipient.lastIndexOf('>');
+        // Check to see if any options are present and, if so, whether they
+        // are correctly formatted
+        // (separated from the closing angle bracket by a ' ').
+        String rcptOptionString = null;
+        if ((lastChar > 0) && (recipient.length() > lastChar + 2)
+                && (recipient.charAt(lastChar + 1) == ' ')) {
+            rcptOptionString = recipient.substring(lastChar + 2);
+
+            // Remove the options from the recipient
+            recipient = recipient.substring(0, lastChar + 1);
+        }
+        if (session.getConfigurationData().useAddressBracketsEnforcement()
+                && (!recipient.startsWith("<") || !recipient.endsWith(">"))) {
+            if (getLogger().isErrorEnabled()) {
+                StringBuffer errorBuffer = new StringBuffer(192).append(
+                        "Error parsing recipient address: ").append(
+                        "Address did not start and end with < >").append(
+                        getContext(session, null, recipient));
+                getLogger().error(errorBuffer.toString());
             }
-            if (session.getConfigurationData().useAddressBracketsEnforcement()
-                    && (!recipient.startsWith("<") || !recipient.endsWith(">"))) {
-                if (getLogger().isErrorEnabled()) {
-                    StringBuffer errorBuffer = new StringBuffer(192).append(
-                            "Error parsing recipient address: ").append(
-                            "Address did not start and end with < >").append(
-                            getContext(session, null, recipient));
-                    getLogger().error(errorBuffer.toString());
+            return new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_ARGUMENTS,
+                    DSNStatus.getStatus(DSNStatus.PERMANENT,
+                            DSNStatus.DELIVERY_SYNTAX)
+                            + " Syntax error in parameters or arguments");
+        }
+        MailAddress recipientAddress = null;
+        // Remove < and >
+        if (session.getConfigurationData().useAddressBracketsEnforcement()
+                || (recipient.startsWith("<") && recipient.endsWith(">"))) {
+            recipient = recipient.substring(1, recipient.length() - 1);
+        }
+
+        if (recipient.indexOf("@") < 0) {
+            // set the default domain
+            recipient = recipient
+                    + "@"
+                    + session.getConfigurationData().getMailServer()
+                            .getDefaultDomain();
+        }
+
+        try {
+            recipientAddress = new MailAddress(recipient);
+        } catch (Exception pe) {
+            if (getLogger().isErrorEnabled()) {
+                StringBuffer errorBuffer = new StringBuffer(192).append(
+                        "Error parsing recipient address: ").append(
+                        getContext(session, recipientAddress, recipient))
+                        .append(pe.getMessage());
+                getLogger().error(errorBuffer.toString());
+            }
+            /*
+             * from RFC2822; 553 Requested action not taken: mailbox name
+             * not allowed (e.g., mailbox syntax incorrect)
+             */
+            return new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_MAILBOX,
+                    DSNStatus.getStatus(DSNStatus.PERMANENT,
+                            DSNStatus.ADDRESS_SYNTAX)
+                            + " Syntax error in recipient address");
+        }
+
+        if (rcptOptionString != null) {
+
+            StringTokenizer optionTokenizer = new StringTokenizer(
+                    rcptOptionString, " ");
+            while (optionTokenizer.hasMoreElements()) {
+                String rcptOption = optionTokenizer.nextToken();
+                int equalIndex = rcptOption.indexOf('=');
+                String rcptOptionName = rcptOption;
+                String rcptOptionValue = "";
+                if (equalIndex > 0) {
+                    rcptOptionName = rcptOption.substring(0, equalIndex)
+                            .toUpperCase(Locale.US);
+                    rcptOptionValue = rcptOption.substring(equalIndex + 1);
                 }
-                return new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_ARGUMENTS,
-                        DSNStatus.getStatus(DSNStatus.PERMANENT,
-                                DSNStatus.DELIVERY_SYNTAX)
-                                + " Syntax error in parameters or arguments");
-            }
-            MailAddress recipientAddress = null;
-            // Remove < and >
-            if (session.getConfigurationData().useAddressBracketsEnforcement()
-                    || (recipient.startsWith("<") && recipient.endsWith(">"))) {
-                recipient = recipient.substring(1, recipient.length() - 1);
-            }
-
-            if (recipient.indexOf("@") < 0) {
-                // set the default domain
-                recipient = recipient
-                        + "@"
-                        + session.getConfigurationData().getMailServer()
-                                .getDefaultDomain();
-            }
-
-            try {
-                recipientAddress = new MailAddress(recipient);
-            } catch (Exception pe) {
-                if (getLogger().isErrorEnabled()) {
-                    StringBuffer errorBuffer = new StringBuffer(192).append(
-                            "Error parsing recipient address: ").append(
-                            getContext(session, recipientAddress, recipient))
-                            .append(pe.getMessage());
-                    getLogger().error(errorBuffer.toString());
+                // Unexpected option attached to the RCPT command
+                if (getLogger().isDebugEnabled()) {
+                    StringBuffer debugBuffer = new StringBuffer(128)
+                            .append(
+                                    "RCPT command had unrecognized/unexpected option ")
+                            .append(rcptOptionName).append(" with value ")
+                            .append(rcptOptionValue).append(
+                                    getContext(session, recipientAddress,
+                                            recipient));
+                    getLogger().debug(debugBuffer.toString());
                 }
-                /*
-                 * from RFC2822; 553 Requested action not taken: mailbox name
-                 * not allowed (e.g., mailbox syntax incorrect)
-                 */
-                return new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_MAILBOX,
-                        DSNStatus.getStatus(DSNStatus.PERMANENT,
-                                DSNStatus.ADDRESS_SYNTAX)
-                                + " Syntax error in recipient address");
+
+                return new SMTPResponse(
+                        SMTPRetCode.PARAMETER_NOT_IMPLEMENTED,
+                        "Unrecognized or unsupported option: "
+                                + rcptOptionName);
             }
+            optionTokenizer = null;
+        }
 
-            if (!session.isRelayingAllowed()) {
-                if (session.isAuthRequired()) {
-                    // Make sure the mail is being sent locally if not
-                    // authenticated else reject.
-                    if (session.getUser() == null) {
-                        String toDomain = recipientAddress.getHost();
-                        if (!session.getConfigurationData().getMailServer()
-                                .isLocalServer(toDomain)) {
-                            StringBuffer sb = new StringBuffer(128);
-                            sb
-                                    .append("Rejected message - authentication is required for mail request");
-                            sb.append(getContext(session, recipientAddress,
-                                    recipient));
-                            getLogger().error(sb.toString());
-                            return new SMTPResponse(SMTPRetCode.AUTH_REQUIRED,
-                                    DSNStatus.getStatus(DSNStatus.PERMANENT,
-                                            DSNStatus.SECURITY_AUTH)
-                                            + " Authentication Required");
-                        }
-                    } else {
-                        // Identity verification checking
-                        if (session.getConfigurationData().isVerifyIdentity()) {
-                            String authUser = (session.getUser())
-                                    .toLowerCase(Locale.US);
-                            MailAddress senderAddress = (MailAddress) session
-                                    .getState().get(SMTPSession.SENDER);
-
-                            if ((senderAddress == null)
-                                    || (!authUser.equals(senderAddress
-                                            .getUser()))
-                                    || (!session.getConfigurationData()
-                                            .getMailServer().isLocalServer(
-                                                    senderAddress.getHost()))) {
-                                if (getLogger().isErrorEnabled()) {
-                                    StringBuffer errorBuffer = new StringBuffer(
-                                            128)
-                                            .append("User ")
-                                            .append(authUser)
-                                            .append(
-                                                    " authenticated, however tried sending email as ")
-                                            .append(senderAddress).append(
-                                                    getContext(session,
-                                                            recipientAddress,
-                                                            recipient));
-                                    getLogger().error(errorBuffer.toString());
-                                }
-
-                                return new SMTPResponse(
-                                        SMTPRetCode.BAD_SEQUENCE,
-                                        DSNStatus.getStatus(
-                                                DSNStatus.PERMANENT,
-                                                DSNStatus.SECURITY_AUTH)
-                                                + " Incorrect Authentication for Specified Email Address");
-                            }
-                        }
-                    }
-                } else {
+        if (!session.isRelayingAllowed()) {
+            if (session.isAuthRequired()) {
+                // Make sure the mail is being sent locally if not
+                // authenticated else reject.
+                if (session.getUser() == null) {
                     String toDomain = recipientAddress.getHost();
                     if (!session.getConfigurationData().getMailServer()
                             .isLocalServer(toDomain)) {
-                        StringBuffer errorBuffer = new StringBuffer(128)
-                                .append("Rejected message - ").append(
-                                        session.getRemoteIPAddress()).append(
-                                        " not authorized to relay to ").append(
-                                        toDomain).append(
-                                        getContext(session, recipientAddress,
-                                                recipient));
-                        getLogger().error(errorBuffer.toString());
-
-                        return new SMTPResponse(
-                                SMTPRetCode.MAILBOX_PERM_UNAVAILABLE,
+                        StringBuffer sb = new StringBuffer(128);
+                        sb
+                                .append("Rejected message - authentication is required for mail request");
+                        sb.append(getContext(session, recipientAddress,
+                                recipient));
+                        getLogger().error(sb.toString());
+                        return new SMTPResponse(SMTPRetCode.AUTH_REQUIRED,
                                 DSNStatus.getStatus(DSNStatus.PERMANENT,
                                         DSNStatus.SECURITY_AUTH)
-                                        + " Requested action not taken: relaying denied");
+                                        + " Authentication Required");
+                    }
+                } else {
+                    // Identity verification checking
+                    if (session.getConfigurationData().isVerifyIdentity()) {
+                        String authUser = (session.getUser())
+                                .toLowerCase(Locale.US);
+                        MailAddress senderAddress = (MailAddress) session
+                                .getState().get(SMTPSession.SENDER);
+
+                        if ((senderAddress == null)
+                                || (!authUser.equals(senderAddress
+                                        .getUser()))
+                                || (!session.getConfigurationData()
+                                        .getMailServer().isLocalServer(
+                                                senderAddress.getHost()))) {
+                            if (getLogger().isErrorEnabled()) {
+                                StringBuffer errorBuffer = new StringBuffer(
+                                        128)
+                                        .append("User ")
+                                        .append(authUser)
+                                        .append(
+                                                " authenticated, however tried sending email as ")
+                                        .append(senderAddress).append(
+                                                getContext(session,
+                                                        recipientAddress,
+                                                        recipient));
+                                getLogger().error(errorBuffer.toString());
+                            }
+
+                            return new SMTPResponse(
+                                    SMTPRetCode.BAD_SEQUENCE,
+                                    DSNStatus.getStatus(
+                                            DSNStatus.PERMANENT,
+                                            DSNStatus.SECURITY_AUTH)
+                                            + " Incorrect Authentication for Specified Email Address");
+                        }
                     }
                 }
-            }
-            if (rcptOptionString != null) {
-
-                StringTokenizer optionTokenizer = new StringTokenizer(
-                        rcptOptionString, " ");
-                while (optionTokenizer.hasMoreElements()) {
-                    String rcptOption = optionTokenizer.nextToken();
-                    int equalIndex = rcptOption.indexOf('=');
-                    String rcptOptionName = rcptOption;
-                    String rcptOptionValue = "";
-                    if (equalIndex > 0) {
-                        rcptOptionName = rcptOption.substring(0, equalIndex)
-                                .toUpperCase(Locale.US);
-                        rcptOptionValue = rcptOption.substring(equalIndex + 1);
-                    }
-                    // Unexpected option attached to the RCPT command
-                    if (getLogger().isDebugEnabled()) {
-                        StringBuffer debugBuffer = new StringBuffer(128)
-                                .append(
-                                        "RCPT command had unrecognized/unexpected option ")
-                                .append(rcptOptionName).append(" with value ")
-                                .append(rcptOptionValue).append(
-                                        getContext(session, recipientAddress,
-                                                recipient));
-                        getLogger().debug(debugBuffer.toString());
-                    }
+            } else {
+                String toDomain = recipientAddress.getHost();
+                if (!session.getConfigurationData().getMailServer()
+                        .isLocalServer(toDomain)) {
+                    StringBuffer errorBuffer = new StringBuffer(128)
+                            .append("Rejected message - ").append(
+                                    session.getRemoteIPAddress()).append(
+                                    " not authorized to relay to ").append(
+                                    toDomain).append(
+                                    getContext(session, recipientAddress,
+                                            recipient));
+                    getLogger().error(errorBuffer.toString());
 
                     return new SMTPResponse(
-                            SMTPRetCode.PARAMETER_NOT_IMPLEMENTED,
-                            "Unrecognized or unsupported option: "
-                                    + rcptOptionName);
+                            SMTPRetCode.MAILBOX_PERM_UNAVAILABLE,
+                            DSNStatus.getStatus(DSNStatus.PERMANENT,
+                                    DSNStatus.SECURITY_AUTH)
+                                    + " Requested action not taken: relaying denied");
                 }
-                optionTokenizer = null;
             }
-
-            session.getState().put(SMTPSession.CURRENT_RECIPIENT,
-                    recipientAddress);
         }
+
+        session.getState().put(SMTPSession.CURRENT_RECIPIENT,
+                recipientAddress);
+
         return null;
     }
 
