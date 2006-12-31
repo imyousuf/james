@@ -21,15 +21,6 @@
 
 package org.apache.james.smtpserver;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.mail.internet.ParseException;
-
-import junit.framework.TestCase;
-
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.services.AbstractDNSServer;
 import org.apache.james.services.DNSServer;
@@ -37,6 +28,15 @@ import org.apache.james.smtpserver.core.filter.fastfail.ResolvableEhloHeloHandle
 import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.mailet.MailAddress;
+
+import javax.mail.internet.ParseException;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.HashMap;
+import java.util.Map;
+
+import junit.framework.TestCase;
 
 public class ResolvableEhloHeloHandlerTest extends TestCase {
 
@@ -50,13 +50,8 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         
         SMTPSession session = new AbstractSMTPSession() {
 
-            boolean stop = false;
             HashMap connectionMap = new HashMap();
             HashMap map = new HashMap();
-            
-            public String getCommandArgument() {
-                return argument;
-            }
             
             public boolean isAuthRequired() {
                 return authRequired;
@@ -72,14 +67,6 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
             
             public boolean isRelayingAllowed() {
                 return relaying;
-            }
-            
-            public void setStopHandlerProcessing(boolean stop) {
-                this.stop = stop;
-            }
-            
-            public boolean getStopHandlerProcessing() {
-                return stop;
             }
             
             public Map getState() {
@@ -201,7 +188,10 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         int result = handler.doRcpt(session,null, (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT)).getResult();
         assertEquals("Reject", result,HookReturnCode.DENY);
     }
-    
+
+    /* This is no more handled by the Resolvable handler
+     * TODO: we should move this tests to generic RFC compliance tests against the full default
+     * SMTPServer.
     public void testNotRejectInvalidHeloPostmaster() throws ParseException {
         SMTPSession session = setupMockSession(INVALID_HOST,false,false,null,new MailAddress("postmaster@localhost"));
         ResolvableEhloHeloHandler handler = new ResolvableEhloHeloHandler();
@@ -232,4 +222,5 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         int result = handler.doRcpt(session,null, (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT)).getResult();
         assertEquals("Not reject", result,HookReturnCode.DECLINED);
     }
+    */
 }

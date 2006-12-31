@@ -139,9 +139,7 @@ public class ResolvableEhloHeloHandler extends AbstractLogEnabled implements Con
     protected boolean check(SMTPSession session,MailAddress rcpt) {
 
         // not reject it
-        if (session.getState().get(BAD_EHLO_HELO) == null
-                || rcpt.getUser().equalsIgnoreCase("postmaster")
-                || rcpt.getUser().equalsIgnoreCase("abuse"))
+        if (session.getState().get(BAD_EHLO_HELO) == null)
             return false;
 
         // Check if the client was authenticated

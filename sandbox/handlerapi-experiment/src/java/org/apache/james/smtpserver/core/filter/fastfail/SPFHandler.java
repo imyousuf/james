@@ -227,11 +227,8 @@ public class SPFHandler extends AbstractLogEnabled implements MailHook, RcptHook
      * @see org.apache.james.smtpserver.hook.RcptHook#doRcpt(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
      */
     public HookResult doRcpt(SMTPSession session, MailAddress sender, MailAddress rcpt) {
-        // Check if the recipient is postmaster or abuse..
         if (rcpt != null
-                && (rcpt.getUser().equalsIgnoreCase("postmaster")
-                        || rcpt.getUser().equalsIgnoreCase("abuse") || ((session
-                        .isAuthRequired() && session.getUser() != null)))) {
+                && (((session.isAuthRequired() && session.getUser() != null)))) {
             
 
             return new HookResult(HookReturnCode.DECLINED);
