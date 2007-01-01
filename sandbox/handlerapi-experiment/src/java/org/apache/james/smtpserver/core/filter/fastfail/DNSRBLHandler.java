@@ -34,7 +34,6 @@ import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.smtpserver.hook.RcptHook;
-import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.MailAddress;
 
@@ -255,11 +254,11 @@ public class DNSRBLHandler
                 !(session.isAuthRequired() && session.getUser() != null) // Not (SMTP AUTH is enabled and not authenticated)
                 ) {
             if (blocklistedDetail == null) {
-                return new HookResult(HookReturnCode.DENY,SMTPRetCode.AUTH_REQUIRED,DSNStatus.getStatus(DSNStatus.PERMANENT,
+                return new HookResult(HookReturnCode.DENY,DSNStatus.getStatus(DSNStatus.PERMANENT,
                         DSNStatus.SECURITY_AUTH)  + " Rejected: unauthenticated e-mail from " + session.getRemoteIPAddress() 
                         + " is restricted.  Contact the postmaster for details.");
             } else {
-                return new HookResult(HookReturnCode.DENY,SMTPRetCode.AUTH_REQUIRED,DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH) + " " + blocklistedDetail);
+                return new HookResult(HookReturnCode.DENY,DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH) + " " + blocklistedDetail);
             }
            
         }
