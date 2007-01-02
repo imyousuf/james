@@ -406,6 +406,9 @@ public class SMTPServerTest extends TestCase {
         
         // this should give a 501 code cause the helo could not resolved
         assertEquals("expected error: helo could not resolved", 501, smtpProtocol1.getReplyCode());
+        
+        // check if not rejected on postmaster and abuse
+        testNotRejectOnPostmasterAbuse(smtpProtocol1);
             
         smtpProtocol1.sendCommand("helo", helo2);
         smtpProtocol1.setSender(mail);
@@ -459,6 +462,9 @@ public class SMTPServerTest extends TestCase {
             // this should give a 501 code cause the helo not equal reverse of ip
             assertEquals("expected error: helo not equals reverse of ip", 501,
                     smtpProtocol1.getReplyCode());
+            
+            // check if not rejected on postmaster and abuse
+            testNotRejectOnPostmasterAbuse(smtpProtocol1);
     
             smtpProtocol1.sendCommand("helo", helo2);
             smtpProtocol1.setSender(mail);
@@ -593,6 +599,9 @@ public class SMTPServerTest extends TestCase {
         smtpProtocol1.addRecipient(rcpt2);
         assertEquals("expected 452 error", 452, smtpProtocol1.getReplyCode());
         
+        // check if not rejected on postmaster and abuse
+        testNotRejectOnPostmasterAbuse(smtpProtocol1);
+        
         smtpProtocol1.sendShortMessageData("Subject: test\r\n\r\nTest body testMaxRcpt1\r\n");
         
         // After the data is send the rcpt count is set back to 0.. So a new mail with rcpt should be accepted
@@ -652,6 +661,9 @@ public class SMTPServerTest extends TestCase {
         
         // this should give a 501 code cause the ehlo could not resolved
         assertEquals("expected error: ehlo could not resolved", 501, smtpProtocol1.getReplyCode());
+        
+        // check if not rejected on postmaster and abuse
+        testNotRejectOnPostmasterAbuse(smtpProtocol1);
             
         smtpProtocol1.sendCommand("ehlo", ehlo2);
         smtpProtocol1.setSender(mail);
@@ -701,6 +713,9 @@ public class SMTPServerTest extends TestCase {
         
         // this should give a 501 code cause the ehlo could not resolved
         assertEquals("expected error: ehlo could not resolved", 501, smtpProtocol1.getReplyCode());
+        
+        // check if not rejected on postmaster and abuse
+        testNotRejectOnPostmasterAbuse(smtpProtocol1);
             
         smtpProtocol1.sendCommand("ehlo", ehlo2);
         smtpProtocol1.setSender(mail);
@@ -740,6 +755,9 @@ public class SMTPServerTest extends TestCase {
             // this should give a 501 code cause the ehlo not equals reverse of ip
             assertEquals("expected error: ehlo not equals reverse of ip", 501,
                     smtpProtocol1.getReplyCode());
+            
+            // check if not rejected on postmaster and abuse
+            testNotRejectOnPostmasterAbuse(smtpProtocol1);
     
             smtpProtocol1.sendCommand("ehlo", ehlo2);
             smtpProtocol1.setSender(mail);
@@ -1464,9 +1482,12 @@ public class SMTPServerTest extends TestCase {
 
         smtpProtocol.setSender(sender);
 
-        smtpProtocol.addRecipient("mail@sample.com");
+        smtpProtocol.addRecipient("mail@localhost");
         assertEquals("reject: "+smtpProtocol.getReplyString(), 554, smtpProtocol
                 .getReplyCode());
+        
+        // check if not rejected on postmaster and abuse
+        testNotRejectOnPostmasterAbuse(smtpProtocol);
 
         smtpProtocol.sendShortMessageData("Subject: test\r\n\r\nTest body testDNSRBLRejectWorks\r\n");
 
@@ -1657,5 +1678,22 @@ public class SMTPServerTest extends TestCase {
         in.close();
         out.close();
         client.close();
+    }
+    
+    
+    /**
+     * Testmethod which should get called in all fastfail tests after a reject
+     * 
+     * @param smtpProtocol
+     * @throws Exception
+     */
+    private void testNotRejectOnPostmasterAbuse(SMTPClient smtpProtocol) throws Exception { 
+        smtpProtocol.addRecipient("postmaster");
+        assertEquals("Not reject emails to postmaster"+ smtpProtocol.getReplyString(), 250, smtpProtocol
+                .getReplyCode());
+        
+        smtpProtocol.addRecipient("abuse");
+        assertEquals("Not reject emails to abuse"+ smtpProtocol.getReplyString(), 250, smtpProtocol
+                .getReplyCode());
     }
 }

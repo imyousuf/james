@@ -104,6 +104,11 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
 
             // load the configured handlers
             if (children != null) {
+
+                // load the core handlers
+                loadClass(classLoader, CoreCmdHandlerLoader.class.getName(),
+                        addHandler(null, CoreCmdHandlerLoader.class.getName()));
+                
                 for (int i = 0; i < children.length; i++) {
                     String className = children[i].getAttribute("class");
                     if (className != null) {
@@ -118,9 +123,6 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
                     }
                 }
 
-                // load the BaseCmdHandler and SendMailHandler
-                loadClass(classLoader, CoreCmdHandlerLoader.class.getName(),
-                        addHandler(null, CoreCmdHandlerLoader.class.getName()));
             }
         }
     }

@@ -82,10 +82,10 @@ public abstract class AbstractHookableCmdHandler extends AbstractLogEnabled
         List hooks = getHooks();
 
         if (hooks != null) {
-            getLogger().debug("executing hooks");
             int count = hooks.size();
             for (int i = 0; i < count; i++) {
                 Object rawHook = hooks.get(i);
+                getLogger().debug("executing hook " + rawHook.getClass().getName());
                 SMTPResponse res = callHook(rawHook, session, parameters);
                 if (res != null) {
                     return res;

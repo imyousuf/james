@@ -1,7 +1,6 @@
 - Enable From/Sender and Date checks on message received
 - Find a way to handle the old JunkHandlerScore stuff
 - Check DataCmdHandler for correct clean-up on every exceptions
-- Move abuse/postmaster tests from ResolvableEhloHeloHandlerTest to a generic SMTPServer compliance test
 - on Rcpt message reject, the original code was logging a lot of informations. Maybe we should change the Hook callers to do something similar (in RcptCmdHandler create a log string including context() call)
 - Check AuthRequiredToRelayRcptHook to see if it is correct to return different SMTP codes if Auth is announced (for relaying denied)
 - Remove CURRENT_RECIPIENT key from state usage: I think we don't use it anymore but in tests.
