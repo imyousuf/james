@@ -168,7 +168,7 @@ public class ValidRcptHandler extends AbstractLogEnabled implements RcptHook, Co
      */
     public HookResult doRcpt(SMTPSession session, MailAddress sender, MailAddress rcpt) {
         
-    if (!session.isRelayingAllowed() && session.getUser() == null) {
+        if (!session.isRelayingAllowed() && session.getUser() == null) {
             boolean invalidUser = true;
 
             if (session.getConfigurationData().getUsersRepository().contains(rcpt.getUser()) == true || recipients.contains(rcpt.toString().toLowerCase()) || domains.contains(rcpt.getHost().toLowerCase())) {
@@ -209,10 +209,9 @@ public class ValidRcptHandler extends AbstractLogEnabled implements RcptHook, Co
                 getLogger().info("Rejected message. Unknown user: " + rcpt.toString());
                 return new HookResult(HookReturnCode.DENY,SMTPRetCode.TRANSACTION_FAILED, DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_MAILBOX) + " Unknown user: " + rcpt.toString());
             }
-            return new HookResult(HookReturnCode.DECLINED);
         } else {
             getLogger().debug("Sender allowed");
-            return new HookResult(HookReturnCode.DECLINED);
         }
+        return new HookResult(HookReturnCode.DECLINED);
     }
 }
