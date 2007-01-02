@@ -143,7 +143,7 @@ public class ResolvableEhloHeloHandler extends AbstractLogEnabled implements Con
             return false;
 
         // Check if the client was authenticated
-        if (!(session.isAuthRequired() && session.getUser() != null && !checkAuthUsers)) {
+        if (!(session.isAuthSupported() && session.getUser() != null && !checkAuthUsers)) {
             return true;
         }
         return false;

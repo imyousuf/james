@@ -51,7 +51,6 @@ public class ValidRcptMXTest extends TestCase {
             HashMap state = new HashMap();
             
             public Map getState() {
-                state.put(SMTPSession.CURRENT_RECIPIENT, rcpt);
                 return state;
             }
             
@@ -94,14 +93,15 @@ public class ValidRcptMXTest extends TestCase {
         bNetworks.add("127.0.0.1");
         
         DNSServer dns = setupMockedDNSServer();
-        SMTPSession session = setupMockedSMTPSession(new MailAddress("test@" + INVALID_HOST));
+        MailAddress mailAddress = new MailAddress("test@" + INVALID_HOST);
+        SMTPSession session = setupMockedSMTPSession(mailAddress);
         ValidRcptMX handler = new ValidRcptMX();
 
         ContainerUtil.enableLogging(handler, new MockLogger());
 
         handler.setDNSServer(dns);
         handler.setBannedNetworks(bNetworks, dns);
-        int rCode = handler.doRcpt(session, null, (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT)).getResult();
+        int rCode = handler.doRcpt(session, null, mailAddress).getResult();
 
         assertEquals("Reject", rCode, HookReturnCode.DENY);
     }

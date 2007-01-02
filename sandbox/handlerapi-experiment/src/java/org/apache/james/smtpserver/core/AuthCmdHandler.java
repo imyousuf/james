@@ -389,7 +389,7 @@ public class AuthCmdHandler
      * @see org.apache.james.smtpserver.core.EhloExtension#getImplementedEsmtpFeatures(org.apache.james.smtpserver.SMTPSession)
      */
     public List getImplementedEsmtpFeatures(SMTPSession session) {
-        if (session.isAuthRequired()) {
+        if (session.isAuthSupported()) {
             List resp = new LinkedList();
             resp.add("AUTH LOGIN PLAIN");
             resp.add("AUTH=LOGIN PLAIN");

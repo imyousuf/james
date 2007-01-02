@@ -168,7 +168,7 @@ public class ValidRcptHandler extends AbstractLogEnabled implements RcptHook, Co
      */
     public HookResult doRcpt(SMTPSession session, MailAddress sender, MailAddress rcpt) {
         
-    if (!session.isRelayingAllowed() && !(session.isAuthRequired() && session.getUser() != null)) {
+    if (!session.isRelayingAllowed() && session.getUser() == null) {
             boolean invalidUser = true;
 
             if (session.getConfigurationData().getUsersRepository().contains(rcpt.getUser()) == true || recipients.contains(rcpt.toString().toLowerCase()) || domains.contains(rcpt.getHost().toLowerCase())) {

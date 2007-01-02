@@ -130,7 +130,6 @@ public class DNSRBLHandlerTest extends TestCase {
             }
 
             public Map getState() {
-                state.put(SMTPSession.CURRENT_RECIPIENT, rcpt);
                 return state;
             }
 
@@ -138,7 +137,7 @@ public class DNSRBLHandlerTest extends TestCase {
                 return relaying;
             }
 
-            public boolean isAuthRequired() {
+            public boolean isAuthSupported() {
                 return false;
             }
 

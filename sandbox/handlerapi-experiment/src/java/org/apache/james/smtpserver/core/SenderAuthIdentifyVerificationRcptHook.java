@@ -41,8 +41,7 @@ public class SenderAuthIdentifyVerificationRcptHook extends AbstractLogEnabled
      */
     public HookResult doRcpt(SMTPSession session, MailAddress sender,
             MailAddress rcpt) {
-        if (!session.isRelayingAllowed() && session.isAuthRequired()
-                && session.getUser() != null
+        if (!session.isRelayingAllowed() && session.getUser() != null
                 && session.getConfigurationData().isVerifyIdentity()) {
             String authUser = (session.getUser()).toLowerCase(Locale.US);
             MailAddress senderAddress = (MailAddress) session.getState().get(

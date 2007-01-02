@@ -324,7 +324,7 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
         }
 
         /**
-         * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#isAuthRequired(String)
+         * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#isAuthSupported(String)
          */
         public boolean isRelayingAllowed(String remoteIP) {
             boolean relayingAllowed = false;
@@ -335,22 +335,15 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
         }
 
         /**
-         * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#isAuthRequired(String)
+         * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#isAuthSupported(String)
          */
-        public boolean isAuthRequired(String remoteIP) {
+        public boolean isAuthSupported(String remoteIP) {
             if (SMTPServer.this.authRequired == AUTH_ANNOUNCE) return true;
             boolean authRequired = SMTPServer.this.authRequired != AUTH_DISABLED;
             if (authorizedNetworks != null) {
                 authRequired = authRequired && !SMTPServer.this.authorizedNetworks.matchInetNetwork(remoteIP);
             }
             return authRequired;
-        }
-
-        /**
-         * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#isAuthRequired()
-         */
-        public boolean isAuthRequired() {
-            return SMTPServer.this.authRequired != AUTH_DISABLED;
         }
 
         /**

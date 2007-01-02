@@ -67,14 +67,7 @@ public interface SMTPHandlerConfigurationData {
      * @param remoteIP the remote IP address in String form
      * @return whether SMTP authentication is on
      */
-    boolean isAuthRequired(String remoteIP);
-
-    /**
-     * Returns whether SMTP auth is active for this server.
-     *
-     * @return whether SMTP authentication is on
-     */
-    boolean isAuthRequired();
+    boolean isAuthSupported(String remoteIP);
 
     /**
      * Returns whether the service validates the identity

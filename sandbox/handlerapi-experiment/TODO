@@ -3,7 +3,6 @@
 - Check DataCmdHandler for correct clean-up on every exceptions
 - on Rcpt message reject, the original code was logging a lot of informations. Maybe we should change the Hook callers to do something similar (in RcptCmdHandler create a log string including context() call)
 - Check AuthRequiredToRelayRcptHook to see if it is correct to return different SMTP codes if Auth is announced (for relaying denied)
-- Remove CURRENT_RECIPIENT key from state usage: I think we don't use it anymore but in tests.
 - RcptOptions: introduce a new extension points to have Handlers to declare support for given command options so that the syntax check can support them.
   - maybe also add to Mail and Rcpt standard hooks an options map parameter (MAIL's SIZE, RCPT's ORCPT/NOTIFY keyworks)
   - or maybe another non public api hook to be implemented by smtp extensions.

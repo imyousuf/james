@@ -251,7 +251,7 @@ public class DNSRBLHandler
         String blocklisted = (String) session.getConnectionState().get(RBL_BLOCKLISTED_MAIL_ATTRIBUTE_NAME);
 
         if (blocklisted != null && // was found in the RBL
-                !(session.isAuthRequired() && session.getUser() != null) // Not (SMTP AUTH is enabled and not authenticated)
+                session.getUser() == null // Not authenticated
                 ) {
             if (blocklistedDetail == null) {
                 return new HookResult(HookReturnCode.DENY,DSNStatus.getStatus(DSNStatus.PERMANENT,

@@ -85,9 +85,9 @@ public class AbstractSMTPSession implements SMTPSession {
     }
 
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#isAuthRequired()
+     * @see org.apache.james.smtpserver.SMTPSession#isAuthSupported()
      */
-    public boolean isAuthRequired() {
+    public boolean isAuthSupported() {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
     }
 

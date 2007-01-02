@@ -133,7 +133,7 @@ public class SPFHandlerTest extends TestCase {
      * Setup mocked smtpsession
      */
     private void setupMockedSMTPSession(final String ip, final String helo,
-            final MailAddress sender, final MailAddress recipient) {
+            final MailAddress sender) {
         mockedSMTPSession = new AbstractSMTPSession() {
             HashMap state = new HashMap();
 
@@ -146,7 +146,6 @@ public class SPFHandlerTest extends TestCase {
             public Map getState() {
                 state.put(SMTPSession.CURRENT_HELO_NAME, helo);
                 state.put(SMTPSession.SENDER, sender);
-                state.put(SMTPSession.CURRENT_RECIPIENT, recipient);
                 return state;
             }
 
@@ -154,7 +153,7 @@ public class SPFHandlerTest extends TestCase {
                 return relaying;
             }
 
-            public boolean isAuthRequired() {
+            public boolean isAuthSupported() {
                 return false;
             }
 
@@ -169,9 +168,8 @@ public class SPFHandlerTest extends TestCase {
         };
     }
 
-    private void runHandlers(SPFHandler spf, SMTPSession mockedSMTPSession) {
+    private void runHandlers(SPFHandler spf, SMTPSession mockedSMTPSession, MailAddress rcpt) {
         MailAddress sender = (MailAddress) mockedSMTPSession.getState().get(SMTPSession.SENDER);
-        MailAddress rcpt = (MailAddress) mockedSMTPSession.getState().get(SMTPSession.CURRENT_RECIPIENT);
 
         spf.doMail(mockedSMTPSession, sender);
 
@@ -181,9 +179,10 @@ public class SPFHandlerTest extends TestCase {
     }
 
     public void testSPFpass() throws Exception {
+        MailAddress mailAddress = new MailAddress(
+                                "test@localhost");
         setupMockedSMTPSession("192.168.100.1", "spf1.james.apache.org",
-                new MailAddress("test@spf1.james.apache.org"), new MailAddress(
-                        "test@localhost"));
+                new MailAddress("test@spf1.james.apache.org"));
         SPFHandler spf = new SPFHandler();
 
 
@@ -193,7 +192,7 @@ public class SPFHandlerTest extends TestCase {
         
         spf.initialize();
 
-        runHandlers(spf, mockedSMTPSession);
+        runHandlers(spf, mockedSMTPSession, mailAddress);
 
         assertNull("Not reject", mockedSMTPSession.getState().get(
                 SPFHandler.SPF_BLOCKLISTED));
@@ -208,9 +207,10 @@ public class SPFHandlerTest extends TestCase {
     }
 
     public void testSPFfail() throws Exception {
+        MailAddress mailAddress = new MailAddress(
+                                "test@localhost");
         setupMockedSMTPSession("192.168.100.1", "spf2.james.apache.org",
-                new MailAddress("test@spf2.james.apache.org"), new MailAddress(
-                        "test@localhost"));
+                new MailAddress("test@spf2.james.apache.org"));
         SPFHandler spf = new SPFHandler();
 
         ContainerUtil.enableLogging(spf, new MockLogger());
@@ -219,7 +219,7 @@ public class SPFHandlerTest extends TestCase {
         
         spf.initialize();
 
-        runHandlers(spf, mockedSMTPSession);
+        runHandlers(spf, mockedSMTPSession, mailAddress);
 
         assertNotNull("reject", mockedSMTPSession.getState().get(
                 SPFHandler.SPF_BLOCKLISTED));
@@ -232,9 +232,10 @@ public class SPFHandlerTest extends TestCase {
     }
 
     public void testSPFsoftFail() throws Exception {
+        MailAddress mailAddress = new MailAddress(
+                                "test@localhost");
         setupMockedSMTPSession("192.168.100.1", "spf3.james.apache.org",
-                new MailAddress("test@spf3.james.apache.org"), new MailAddress(
-                        "test@localhost"));
+                new MailAddress("test@spf3.james.apache.org"));
         SPFHandler spf = new SPFHandler();
 
         ContainerUtil.enableLogging(spf, new MockLogger());
@@ -243,7 +244,7 @@ public class SPFHandlerTest extends TestCase {
         
         spf.initialize();
 
-        runHandlers(spf, mockedSMTPSession);
+        runHandlers(spf, mockedSMTPSession, mailAddress);
 
         assertNull("not reject", mockedSMTPSession.getState().get(
                 SPFHandler.SPF_BLOCKLISTED));
@@ -258,9 +259,10 @@ public class SPFHandlerTest extends TestCase {
     }
 
     public void testSPFsoftFailRejectEnabled() throws Exception {
+        MailAddress mailAddress = new MailAddress(
+                                "test@localhost");
         setupMockedSMTPSession("192.168.100.1", "spf3.james.apache.org",
-                new MailAddress("test@spf3.james.apache.org"), new MailAddress(
-                        "test@localhost"));
+                new MailAddress("test@spf3.james.apache.org"));
         SPFHandler spf = new SPFHandler();
 
         ContainerUtil.enableLogging(spf, new MockLogger());
@@ -271,7 +273,7 @@ public class SPFHandlerTest extends TestCase {
         
         spf.setBlockSoftFail(true);
 
-        runHandlers(spf, mockedSMTPSession);
+        runHandlers(spf, mockedSMTPSession, mailAddress);
 
         assertNotNull("reject", mockedSMTPSession.getState().get(
                 SPFHandler.SPF_BLOCKLISTED));
@@ -284,9 +286,10 @@ public class SPFHandlerTest extends TestCase {
     }
 
     public void testSPFpermError() throws Exception {
+        MailAddress mailAddress = new MailAddress(
+                                "test@localhost");
         setupMockedSMTPSession("192.168.100.1", "spf4.james.apache.org",
-                new MailAddress("test@spf4.james.apache.org"), new MailAddress(
-                        "test@localhost"));
+                new MailAddress("test@spf4.james.apache.org"));
         SPFHandler spf = new SPFHandler();
 
         ContainerUtil.enableLogging(spf, new MockLogger());
@@ -297,7 +300,7 @@ public class SPFHandlerTest extends TestCase {
         
         spf.setBlockSoftFail(true);
 
-        runHandlers(spf, mockedSMTPSession);
+        runHandlers(spf, mockedSMTPSession, mailAddress);
 
         assertNotNull("reject", mockedSMTPSession.getState().get(
                 SPFHandler.SPF_BLOCKLISTED));
@@ -310,9 +313,10 @@ public class SPFHandlerTest extends TestCase {
     }
 
     public void testSPFtempError() throws Exception {
+        MailAddress mailAddress = new MailAddress(
+                                "test@localhost");
         setupMockedSMTPSession("192.168.100.1", "spf5.james.apache.org",
-                new MailAddress("test@spf5.james.apache.org"), new MailAddress(
-                        "test@localhost"));
+                new MailAddress("test@spf5.james.apache.org"));
         SPFHandler spf = new SPFHandler();
 
         ContainerUtil.enableLogging(spf, new MockLogger());
@@ -321,7 +325,7 @@ public class SPFHandlerTest extends TestCase {
 
         spf.initialize();
         
-        runHandlers(spf, mockedSMTPSession);
+        runHandlers(spf, mockedSMTPSession, mailAddress);
 
         assertNull("no reject", mockedSMTPSession.getState().get(
                 SPFHandler.SPF_BLOCKLISTED));
@@ -334,9 +338,10 @@ public class SPFHandlerTest extends TestCase {
     }
 
     public void testSPFNoRecord() throws Exception {
+        MailAddress mailAddress = new MailAddress(
+                                "test@localhost");
         setupMockedSMTPSession("192.168.100.1", "spf6.james.apache.org",
-                new MailAddress("test@spf6.james.apache.org"), new MailAddress(
-                        "test@localhost"));
+                new MailAddress("test@spf6.james.apache.org"));
         SPFHandler spf = new SPFHandler();
 
         ContainerUtil.enableLogging(spf, new MockLogger());
@@ -345,7 +350,7 @@ public class SPFHandlerTest extends TestCase {
 
         spf.initialize();
         
-        runHandlers(spf, mockedSMTPSession);
+        runHandlers(spf, mockedSMTPSession, mailAddress);
 
         assertNull("no reject", mockedSMTPSession.getState().get(
                 SPFHandler.SPF_BLOCKLISTED));
@@ -360,9 +365,10 @@ public class SPFHandlerTest extends TestCase {
     }
 
     public void testSPFpermErrorNotRejectPostmaster() throws Exception {
+        MailAddress mailAddress = new MailAddress(
+                                "postmaster@localhost");
         setupMockedSMTPSession("192.168.100.1", "spf4.james.apache.org",
-                new MailAddress("test@spf4.james.apache.org"), new MailAddress(
-                        "postmaster@localhost"));
+                new MailAddress("test@spf4.james.apache.org"));
         SPFHandler spf = new SPFHandler();
 
         ContainerUtil.enableLogging(spf, new MockLogger());
@@ -373,7 +379,7 @@ public class SPFHandlerTest extends TestCase {
         
         spf.setBlockSoftFail(true);
 
-        runHandlers(spf, mockedSMTPSession);
+        runHandlers(spf, mockedSMTPSession, mailAddress);
 
         assertNotNull("not removed this state", mockedSMTPSession.getState().get(
                 SPFHandler.SPF_BLOCKLISTED));
@@ -384,8 +390,9 @@ public class SPFHandlerTest extends TestCase {
     }
 
     public void testSPFpermErrorNotRejectAbuse() throws Exception {
+        MailAddress mailAddress = new MailAddress("abuse@localhost");
         setupMockedSMTPSession("192.168.100.1", "spf4.james.apache.org",
-                new MailAddress("test@spf4.james.apache.org"), new MailAddress("abuse@localhost"));
+                new MailAddress("test@spf4.james.apache.org"));
         SPFHandler spf = new SPFHandler();
 
         ContainerUtil.enableLogging(spf, new MockLogger());
@@ -395,13 +402,14 @@ public class SPFHandlerTest extends TestCase {
         spf.setDNSService(mockedDnsService);
         spf.setBlockSoftFail(true);
 
-        runHandlers(spf, mockedSMTPSession);
+        runHandlers(spf, mockedSMTPSession, mailAddress);
     }
     
     public void testSPFpermErrorRejectDisabled() throws Exception {
+        MailAddress mailAddress = new MailAddress(
+                                "test@localhost");
         setupMockedSMTPSession("192.168.100.1", "spf4.james.apache.org",
-                new MailAddress("test@spf4.james.apache.org"), new MailAddress(
-                        "test@localhost"));
+                new MailAddress("test@spf4.james.apache.org"));
         SPFHandler spf = new SPFHandler();
 
         ContainerUtil.enableLogging(spf, new MockLogger());
@@ -412,7 +420,7 @@ public class SPFHandlerTest extends TestCase {
         
         spf.setBlockPermError(false);
 
-        runHandlers(spf, mockedSMTPSession);
+        runHandlers(spf, mockedSMTPSession, mailAddress);
 
         assertNull("not reject", mockedSMTPSession.getState().get(
                 SPFHandler.SPF_BLOCKLISTED));

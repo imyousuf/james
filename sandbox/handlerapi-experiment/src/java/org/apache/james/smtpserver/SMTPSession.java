@@ -34,7 +34,6 @@ public interface SMTPSession {
     public final static String RCPT_LIST = "RCPT_LIST";   // The message recipients
     public final static String CURRENT_HELO_MODE = "CURRENT_HELO_MODE"; // HELO or EHLO
     public final static String CURRENT_HELO_NAME = "CURRENT_HELO_NAME"; 
-    public static final Object CURRENT_RECIPIENT = "CURRENT_RECIPIENT"; // Current recipient
     public final static String SESSION_STATE_MAP = "SESSION_STATE_MAP"; // the Session state 
 
     /**
@@ -90,7 +89,7 @@ public interface SMTPSession {
      *
      * @return authentication required or not
      */
-    boolean isAuthRequired();
+    boolean isAuthSupported();
 
     /**
      * Returns the user name associated with this SMTP interaction.

@@ -38,6 +38,8 @@ import java.util.StringTokenizer;
 public class RcptCmdHandler extends AbstractHookableCmdHandler implements
         CommandHandler {
 
+    public static final Object CURRENT_RECIPIENT = "CURRENT_RECIPIENT"; // Current recipient
+
     /**
      * Handler method called upon receipt of a RCPT command. Reads recipient.
      * Does some connection validation.
@@ -56,7 +58,7 @@ public class RcptCmdHandler extends AbstractHookableCmdHandler implements
             rcptColl = new ArrayList();
         }
         MailAddress recipientAddress = (MailAddress) session.getState().get(
-                SMTPSession.CURRENT_RECIPIENT);
+                CURRENT_RECIPIENT);
         rcptColl.add(recipientAddress);
         session.getState().put(SMTPSession.RCPT_LIST, rcptColl);
         StringBuffer response = new StringBuffer();
@@ -197,8 +199,7 @@ public class RcptCmdHandler extends AbstractHookableCmdHandler implements
             optionTokenizer = null;
         }
 
-        session.getState().put(SMTPSession.CURRENT_RECIPIENT,
-                recipientAddress);
+        session.getState().put(CURRENT_RECIPIENT,recipientAddress);
 
         return null;
     }
@@ -249,8 +250,7 @@ public class RcptCmdHandler extends AbstractHookableCmdHandler implements
             String parameters) {
         return calcDefaultSMTPResponse(((RcptHook) rawHook).doRcpt(session,
                 (MailAddress) session.getState().get(SMTPSession.SENDER),
-                (MailAddress) session.getState().get(
-                        SMTPSession.CURRENT_RECIPIENT)));
+                (MailAddress) session.getState().get(CURRENT_RECIPIENT)));
     }
 
 }

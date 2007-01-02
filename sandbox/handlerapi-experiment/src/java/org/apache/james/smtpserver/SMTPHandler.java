@@ -66,7 +66,7 @@ public class SMTPHandler
     /**
      * whether or not authorization is required for this connection
      */
-    private boolean authRequired;
+    private boolean authSupported;
 
     /**
      * whether or not this connection can relay without authentication
@@ -126,7 +126,7 @@ public class SMTPHandler
     protected void handleProtocol() throws IOException {
         smtpID = random.nextInt(1024) + "";
         relayingAllowed = theConfigData.isRelayingAllowed(remoteIP);
-        authRequired = theConfigData.isAuthRequired(remoteIP);
+        authSupported = theConfigData.isAuthSupported(remoteIP);
         // Both called in resetHandler, we don't need to call them again here.
         // sessionEnded = false;
         // resetState();
@@ -322,10 +322,10 @@ public class SMTPHandler
     }
 
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#isAuthRequired()
+     * @see org.apache.james.smtpserver.SMTPSession#isAuthSupported()
      */
-    public boolean isAuthRequired() {
-        return authRequired;
+    public boolean isAuthSupported() {
+        return authSupported;
     }
 
     /**

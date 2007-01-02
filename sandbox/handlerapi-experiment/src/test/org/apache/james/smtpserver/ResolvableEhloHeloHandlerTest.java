@@ -53,7 +53,7 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
             HashMap connectionMap = new HashMap();
             HashMap map = new HashMap();
             
-            public boolean isAuthRequired() {
+            public boolean isAuthSupported() {
                 return authRequired;
             }
             
@@ -70,7 +70,6 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
             }
             
             public Map getState() {
-                map.put(SMTPSession.CURRENT_RECIPIENT, recipient);
                 return map;
             }
             
@@ -93,7 +92,8 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
     }
     
     public void testRejectInvalidHelo() throws ParseException {
-        SMTPSession session = setupMockSession(INVALID_HOST,false,false,null,new MailAddress("test@localhost"));
+        MailAddress mailAddress = new MailAddress("test@localhost");
+        SMTPSession session = setupMockSession(INVALID_HOST,false,false,null,mailAddress);
         ResolvableEhloHeloHandler handler = new ResolvableEhloHeloHandler();
         
         ContainerUtil.enableLogging(handler,new MockLogger());
@@ -103,13 +103,14 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         handler.doHelo(session, INVALID_HOST);
         assertNotNull("Invalid HELO",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
         
-        int result = handler.doRcpt(session,null, (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT)).getResult();
+        int result = handler.doRcpt(session,null, mailAddress).getResult();
         assertEquals("Reject", result,HookReturnCode.DENY);
     }
     
     
     public void testNotRejectValidHelo() throws ParseException {
-        SMTPSession session = setupMockSession(VALID_HOST,false,false,null,new MailAddress("test@localhost"));
+        MailAddress mailAddress = new MailAddress("test@localhost");
+        SMTPSession session = setupMockSession(VALID_HOST,false,false,null,mailAddress);
         ResolvableEhloHeloHandler handler = new ResolvableEhloHeloHandler();
         
         ContainerUtil.enableLogging(handler,new MockLogger());
@@ -119,12 +120,13 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         handler.doHelo(session, VALID_HOST);
         assertNull("Valid HELO",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
 
-        int result = handler.doRcpt(session,null, (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT)).getResult();
+        int result = handler.doRcpt(session,null, mailAddress).getResult();
         assertEquals("Not reject", result,HookReturnCode.DECLINED);
     }
     
     public void testNotRejectInvalidHeloAuthUser() throws ParseException {
-        SMTPSession session = setupMockSession(INVALID_HOST,false,true,"valid@user",new MailAddress("test@localhost"));
+        MailAddress mailAddress = new MailAddress("test@localhost");
+        SMTPSession session = setupMockSession(INVALID_HOST,false,true,"valid@user",mailAddress);
         ResolvableEhloHeloHandler handler = new ResolvableEhloHeloHandler();
         
         ContainerUtil.enableLogging(handler,new MockLogger());
@@ -135,12 +137,13 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         assertNotNull("Value stored",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
 
 
-        int result = handler.doRcpt(session,null, (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT)).getResult();
+        int result = handler.doRcpt(session,null, mailAddress).getResult();
         assertEquals("Not reject", result,HookReturnCode.DECLINED);
     }
     
     public void testRejectInvalidHeloAuthUser() throws ParseException {
-        SMTPSession session = setupMockSession(INVALID_HOST,false,true,"valid@user",new MailAddress("test@localhost"));
+        MailAddress mailAddress = new MailAddress("test@localhost");
+        SMTPSession session = setupMockSession(INVALID_HOST,false,true,"valid@user",mailAddress);
         ResolvableEhloHeloHandler handler = new ResolvableEhloHeloHandler();
         
         ContainerUtil.enableLogging(handler,new MockLogger());
@@ -152,12 +155,13 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         assertNotNull("Value stored",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
         
         
-        int result = handler.doRcpt(session,null, (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT)).getResult();
+        int result = handler.doRcpt(session,null, mailAddress).getResult();
         assertEquals("Reject", result,HookReturnCode.DENY);
     }
     
     public void testNotRejectRelay() throws ParseException {
-        SMTPSession session = setupMockSession(INVALID_HOST,true,false,null,new MailAddress("test@localhost"));
+        MailAddress mailAddress = new MailAddress("test@localhost");
+        SMTPSession session = setupMockSession(INVALID_HOST,true,false,null,mailAddress);
         ResolvableEhloHeloHandler handler = new ResolvableEhloHeloHandler();
         
         ContainerUtil.enableLogging(handler,new MockLogger());
@@ -168,12 +172,13 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         handler.doHelo(session, INVALID_HOST);
         assertNull("Value not stored",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
 
-        int result = handler.doRcpt(session,null, (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT)).getResult();
+        int result = handler.doRcpt(session,null, mailAddress).getResult();
         assertEquals("Not reject", result,HookReturnCode.DECLINED);
     }
     
     public void testRejectRelay() throws ParseException {
-        SMTPSession session = setupMockSession(INVALID_HOST,true,false,null,new MailAddress("test@localhost"));
+        MailAddress mailAddress = new MailAddress("test@localhost");
+        SMTPSession session = setupMockSession(INVALID_HOST,true,false,null,mailAddress);
         ResolvableEhloHeloHandler handler = new ResolvableEhloHeloHandler();
         
         ContainerUtil.enableLogging(handler,new MockLogger());
@@ -185,7 +190,7 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         assertNotNull("Value stored",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
         
         
-        int result = handler.doRcpt(session,null, (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT)).getResult();
+        int result = handler.doRcpt(session,null, mailAddress).getResult();
         assertEquals("Reject", result,HookReturnCode.DENY);
     }
 
