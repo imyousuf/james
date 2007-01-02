@@ -8,3 +8,5 @@
 - The AuthHook define a way to hook plain text user-pass tuple: this mean this won't work as soon as we'll try to implement another SASL mechanism: this is a common issue with POP3 APOP and IMAP SALS auth.
 - Decide what to do with services and DI (logging and more).
 - SenderAuthIdentifyVerificationRcptHook use session.getConfigurationData().isVerifyIdentity() to decide wether to enable itself or not: isn't it better to add the handler to the config and commenting/uncommenting the handler already do the trick? If so we shoudl simply remove that configuration and remove the check in the code.
+- I would like to Merge HeloHook and EhloHook to a single hook. They are alternative and I think there is no need for both in the high-level api. less is more ;-)
+  (currently we have a single handler implementing both hook and doing the same thing for both).
