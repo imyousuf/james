@@ -23,7 +23,11 @@ Releases:
 
 Votes:
 	Open:
-		
+	norman [VOTE] Using of 2.3 branch
+    
+    bago [VOTE] InetAddress unbounded cache patch backport 
+    
+    
 	Resolved:
 	bago [VOTE] James Server future releases/road maps	
 		Unanimous +1 to "next-major"
