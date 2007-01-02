@@ -53,6 +53,8 @@ public class AuthRequiredToRelayRcptHook extends AbstractLogEnabled implements
                 } else {
                     return new HookResult(
                             HookReturnCode.DENY,
+                            // sendmail returns 554 (SMTPRetCode.TRANSACTION_FAILED).
+                            // it is not clear in RFC wether it is better to use 550 or 554.
                             SMTPRetCode.MAILBOX_PERM_UNAVAILABLE,
                             DSNStatus.getStatus(DSNStatus.PERMANENT,
                                     DSNStatus.SECURITY_AUTH)

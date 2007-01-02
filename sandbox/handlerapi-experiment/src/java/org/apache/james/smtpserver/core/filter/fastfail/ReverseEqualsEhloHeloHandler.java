@@ -28,32 +28,20 @@ import java.net.UnknownHostException;
 public class ReverseEqualsEhloHeloHandler extends ResolvableEhloHeloHandler {
 
     /**
-     * Method which get called on HELO/EHLO
-     * 
-     * @param session The SMTPSession
-     * @param argument The argument
+     * @see org.apache.james.smtpserver.core.filter.fastfail.ResolvableEhloHeloHandler#isBadHelo(org.apache.james.smtpserver.SMTPSession, java.lang.String)
      */
-    protected void checkEhloHelo(SMTPSession session, String argument) {
-        /**
-         * don't check if the ip address is allowed to relay. Only check if it
-         * is set in the config. ed.
-         */
-        if (!session.isRelayingAllowed() || checkAuthNetworks) {
-            boolean badHelo = false;
-            try {
-                // get reverse entry
-                String reverse = dnsServer.getHostName(dnsServer.getByName(
-                        session.getRemoteIPAddress()));
-                if (!argument.equals(reverse)) {
-                    badHelo = true;
-                }
-            } catch (UnknownHostException e) {
-                badHelo = true;
+    protected boolean isBadHelo(SMTPSession session, String argument) {
+        try {
+            // get reverse entry
+            String reverse = dnsServer.getHostName(dnsServer.getByName(
+                    session.getRemoteIPAddress()));
+            if (!argument.equals(reverse)) {
+                return true;
             }
-
-            // bad EHLO/HELO
-            if (badHelo)
-                session.getState().put(BAD_EHLO_HELO, "true");
+        } catch (UnknownHostException e) {
+            return true;
         }
+        return false;
     }
+    
 }

@@ -90,25 +90,25 @@ public class ValidSenderDomainHandler
     protected boolean check(SMTPSession session, MailAddress senderAddress) {
         // null sender so return
         if (senderAddress == null) return false;
-            
-        /**
-         * don't check if the ip address is allowed to relay. Only check if it is set in the config. 
-         */
-        if (checkAuthNetworks || !session.isRelayingAllowed()) {
-            Collection records = null;
-            
-                
-            // try to resolv the provided domain in the senderaddress. If it can not resolved do not accept it.
-            try {
-                records = dnsServer.findMXRecords(senderAddress.getHost());
-            } catch (TemporaryResolutionException e) {
-                // TODO: Should we reject temporary ?
-            }
-        
-            if (records == null || records.size() == 0) {
-                return true;
-            }
+
+        // Not scan the message if relaying allowed
+        if (session.isRelayingAllowed() && !checkAuthNetworks) {
+            return false;
         }
+
+        Collection records = null;
+            
+        // try to resolv the provided domain in the senderaddress. If it can not resolved do not accept it.
+        try {
+            records = dnsServer.findMXRecords(senderAddress.getHost());
+        } catch (TemporaryResolutionException e) {
+            // TODO: Should we reject temporary ?
+        }
+    
+        if (records == null || records.size() == 0) {
+            return true;
+        }
+
         return false;
     }
     

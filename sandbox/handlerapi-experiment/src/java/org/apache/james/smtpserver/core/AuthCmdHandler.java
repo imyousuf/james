@@ -45,8 +45,13 @@ import java.util.StringTokenizer;
 
 
 /**
-  * handles AUTH command
-  */
+ * handles AUTH command
+ * 
+ * Note: we could extend this to use java5 sasl standard libraries and provide client
+ * support against a server implemented via non-james specific hooks.
+ * This would allow us to reuse hooks between imap4/pop3/smtp and eventually different
+ * system (simple pluggabilty against external authentication services).
+ */
 public class AuthCmdHandler
     extends AbstractLogEnabled
     implements CommandHandler, EhloExtension, ExtensibleHandler {

@@ -118,19 +118,31 @@ public class ResolvableEhloHeloHandler extends AbstractLogEnabled implements Con
      *            The argument
      */
     protected void checkEhloHelo(SMTPSession session, String argument) {
-        /**
-         * don't check if the ip address is allowed to relay. Only check if it
-         * is set in the config.
-         */
-        if (!session.isRelayingAllowed() || checkAuthNetworks) {
-            // try to resolv the provided helo. If it can not resolved do not
-            // accept it.
-            try {
-                dnsServer.getByName(argument);
-            } catch (UnknownHostException e) {
-                session.getState().put(BAD_EHLO_HELO, "true");
-            }
+        // Not scan the message if relaying allowed
+        if (session.isRelayingAllowed() && !checkAuthNetworks) {
+            return;
         }
+        
+        if (isBadHelo(session, argument)) {
+            session.getState().put(BAD_EHLO_HELO, "true");
+        }
+    }
+    
+    /**
+     * @param session the SMTPSession
+     * @param argument the argument
+     * @return true if the helo is bad.
+     */
+    protected boolean isBadHelo(SMTPSession session, String argument) {
+        // try to resolv the provided helo. If it can not resolved do not
+        // accept it.
+        try {
+            dnsServer.getByName(argument);
+        } catch (UnknownHostException e) {
+            return true;
+        }
+        return false;
+        
     }
 
     /**
@@ -143,7 +155,7 @@ public class ResolvableEhloHeloHandler extends AbstractLogEnabled implements Con
             return false;
 
         // Check if the client was authenticated
-        if (!(session.isAuthSupported() && session.getUser() != null && !checkAuthUsers)) {
+        if ((session.getUser() == null || checkAuthUsers)) {
             return true;
         }
         return false;
