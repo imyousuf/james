@@ -44,6 +44,7 @@ public class CoreCmdHandlerLoader implements HandlersPackage {
     private final Object RSETCMDHANDLER = RsetCmdHandler.class.getName();
     private final Object VRFYCMDHANDLER = VrfyCmdHandler.class.getName();
     private final Object WELCOMEMESSAGEHANDLER = WelcomeMessageHandler.class.getName();
+    private final Object ADDDEFAULTATTRIBUTESHANDLER = AddDefaultAttributesMessageHook.class.getClass();
     private final Object SENDMAILHANDLER = SendMailHandler.class.getName();
     private final Object USERSREPOSITORYAUTHHANDLER = UsersRepositoryAuthHook.class.getName();
     private final Object POSTMASTERABUSEHOOK = PostmasterAbuseRcptHook.class.getName();
@@ -58,6 +59,7 @@ public class CoreCmdHandlerLoader implements HandlersPackage {
         
         // Insert the basecommands in the Map
         commands.add(WELCOMEMESSAGEHANDLER);
+        commands.add(ADDDEFAULTATTRIBUTESHANDLER);
         commands.add(SENDMAILHANDLER);
         commands.add(AUTHCMDHANDLER);
         commands.add(DATACMDHANDLER);

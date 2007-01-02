@@ -163,16 +163,6 @@ public class DataCmdHandler
 
     // Keys used to store/lookup data in the internal state hash map
 
-    /**
-     * The mail attribute holding the SMTP AUTH user name, if any.
-     */
-    private final static String SMTP_AUTH_USER_ATTRIBUTE_NAME = "org.apache.james.SMTPAuthUser";
-
-    /**
-     * The mail attribute which get set if the client is allowed to relay
-     */
-    private final static String SMTP_AUTH_NETWORK_NAME = "org.apache.james.SMTPIsAuthNetwork";
-
     private List messageHandlers;
     
     /**
@@ -352,15 +342,6 @@ public class DataCmdHandler
      * @param mail
      */
     private void mailPostProcessor(SMTPSession session, MailImpl mail) {
-        mail.setRemoteHost(session.getRemoteHost());
-        mail.setRemoteAddr(session.getRemoteIPAddress());
-        if (session.getUser() != null) {
-            mail.setAttribute(SMTP_AUTH_USER_ATTRIBUTE_NAME, session.getUser());
-        }
-        
-        if (session.isRelayingAllowed()) {
-            mail.setAttribute(SMTP_AUTH_NETWORK_NAME,"true");
-        }
     }
     
     /**
