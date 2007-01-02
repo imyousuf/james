@@ -28,7 +28,7 @@ import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.MailAddress;
 
 /**
- * Handler which whitelist "postmaster" and "abuse" recipients.
+ * Handler which check for authenticated users
  */
 public class AuthRequiredToRelayRcptHook extends AbstractLogEnabled implements
         RcptHook {
