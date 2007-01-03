@@ -30,7 +30,7 @@ import org.apache.mailet.dates.RFC822DateFormat;
 import java.util.Date;
 
 /**
- * This ConnectHandler can be used to activate pop-before-smtp
+ * This ConnectHandler print the greeting on connecting
  */
 public class WelcomeMessageHandler implements ConnectHandler {
 

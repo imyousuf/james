@@ -193,39 +193,4 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         int result = handler.doRcpt(session,null, mailAddress).getResult();
         assertEquals("Reject", result,HookReturnCode.DENY);
     }
-
-    /* This is no more handled by the Resolvable handler
-     * TODO: we should move this tests to generic RFC compliance tests against the full default
-     * SMTPServer.
-    public void testNotRejectInvalidHeloPostmaster() throws ParseException {
-        SMTPSession session = setupMockSession(INVALID_HOST,false,false,null,new MailAddress("postmaster@localhost"));
-        ResolvableEhloHeloHandler handler = new ResolvableEhloHeloHandler();
-        
-        ContainerUtil.enableLogging(handler,new MockLogger());
-        
-        handler.setDnsServer(setupMockDNSServer());
-        
-        handler.doHelo(session, INVALID_HOST);
-        assertNotNull("stored",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
-        
-        int result = handler.doRcpt(session,null, (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT)).getResult();
-        assertEquals("Not reject", result,HookReturnCode.DECLINED);
-    }
-    
-    public void testNotRejectInvalidHeloAbuse() throws ParseException {
-        SMTPSession session = setupMockSession(INVALID_HOST,false,false,null,new MailAddress("abuse@localhost"));
-        ResolvableEhloHeloHandler handler = new ResolvableEhloHeloHandler();
-        
-        ContainerUtil.enableLogging(handler,new MockLogger());
-        
-        handler.setDnsServer(setupMockDNSServer());
-        
-        handler.doHelo(session, INVALID_HOST);
-        assertNotNull("stored",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
-        
-        
-        int result = handler.doRcpt(session,null, (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT)).getResult();
-        assertEquals("Not reject", result,HookReturnCode.DECLINED);
-    }
-    */
 }

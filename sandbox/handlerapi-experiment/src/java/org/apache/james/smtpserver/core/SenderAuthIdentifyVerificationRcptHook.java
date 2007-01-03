@@ -30,7 +30,7 @@ import org.apache.mailet.MailAddress;
 import java.util.Locale;
 
 /**
- * Handler which whitelist "postmaster" and "abuse" recipients.
+ * Handler which check if the authenticated user is incorrect
  */
 public class SenderAuthIdentifyVerificationRcptHook extends AbstractLogEnabled
         implements RcptHook {

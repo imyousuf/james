@@ -156,6 +156,10 @@ public class SPFHandlerTest extends TestCase {
             public boolean isAuthSupported() {
                 return false;
             }
+            
+            public String getUser() {
+        	return null;
+            }
 
             public int getRcptCount() {
                 return 0;

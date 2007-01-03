@@ -113,10 +113,10 @@ public class URIRBLHandlerTest extends TestCase {
     public MimeMessage setupMockedMimeMessageMP(String text) throws MessagingException {
         MimeMessage message = new MimeMessage(new MockMimeMessage());
         
-//      Create the message part 
+        // Create the message part 
         BodyPart messageBodyPart = new MimeBodyPart();
 
-//         Fill the message
+        // Fill the message
         messageBodyPart.setText(text);
 
         Multipart multipart = new MimeMultipart();
