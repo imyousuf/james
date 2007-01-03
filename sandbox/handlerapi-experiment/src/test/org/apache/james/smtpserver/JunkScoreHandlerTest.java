@@ -34,17 +34,11 @@ import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.javaxmail.MockMimeMessage;
 import org.apache.james.test.mock.mailet.MockMail;
-import org.apache.james.util.junkscore.JunkScore;
 import org.apache.mailet.Mail;
 
 import junit.framework.TestCase;
 
 public class JunkScoreHandlerTest extends TestCase {
-    private String response = null;
-    private final static String KEY1 = "KEY1";
-    private final static String KEY2 = "KEY2";
-    private final static double SCORE1 = 10.0;
-    private final static double SCORE2 = 7.1;
 
     private SMTPSession setupMockedSMTPSession() {
         SMTPSession session = new AbstractSMTPSession() {
@@ -52,7 +46,7 @@ public class JunkScoreHandlerTest extends TestCase {
             HashMap cState = new HashMap();
         
             public Map getState() {
-            state.put(SMTPSession.SENDER, "sender@localhost");
+                state.put(SMTPSession.SENDER, "sender@localhost");
                 return state;
             }
 
@@ -96,39 +90,60 @@ public class JunkScoreHandlerTest extends TestCase {
     }
     
     public void testRejectAction() throws ConfigurationException {
-
+        Map mappings = new HashMap();
+        Object c = getDummyClass();
+        Object o = new Object().getClass();
+        
+        mappings.put(c.getClass().getName(), "20.0");
+        
         SMTPSession session = setupMockedSMTPSession();
         JunkScoreHandler handler = new JunkScoreHandler();
         ContainerUtil.enableLogging(handler,new MockLogger());
-    
+        
         handler.setAction("reject");
         handler.setMaxScore(15.0);
         Mail m = getMockMail();
         handler.onMessage(session, m);
 
-        assertNull("Not rejected",response);
-        ((JunkScore) session.getState().get(JunkScore.JUNK_SCORE)).setStoredScore(KEY1, SCORE1);
-        ((JunkScore) session.getConnectionState().get(JunkScore.JUNK_SCORE_SESSION)).setStoredScore(KEY2, SCORE2);
-        HookResult response = handler.onMessage(session, m);
-    
-        assertEquals("Rejected",response.getResult(), HookReturnCode.DENY);
+        handler.setScoreMappings(mappings);
+        
+        assertEquals("HookResult not changed", handler.onHookResult(session, new HookResult(HookReturnCode.DENY), o).getResult(), HookReturnCode.DENY);
+
+        assertEquals("HookResult changed", handler.onHookResult(session, new HookResult(HookReturnCode.DENY), c).getResult(), HookReturnCode.DECLINED);
+
+        assertEquals("Rejected", handler.onMessage(session, m).getResult(), HookReturnCode.DENY);
     }
+
     
     public void testHeaderAction() throws ConfigurationException, MessagingException {
+        Map mappings = new HashMap();
+        Object c = getDummyClass();
+        
+        mappings.put(c.getClass().getName(), "20.0");
+        
         SMTPSession session = setupMockedSMTPSession();
         JunkScoreHandler handler = new JunkScoreHandler();
         ContainerUtil.enableLogging(handler,new MockLogger());
     
         handler.setAction("header");
+        handler.setScoreMappings(mappings);
 
-        JunkScoreHandler.getLazyJunkScoreHandler(session.getState(), JunkScore.JUNK_SCORE).setStoredScore(KEY1, SCORE1);
-        JunkScoreHandler.getLazyJunkScoreHandler(session.getConnectionState(), JunkScore.JUNK_SCORE_SESSION).setStoredScore(KEY2, SCORE2);
         Mail m = getMockMail();
-        HookResult response = handler.onMessage(session,m);
+        assertEquals("HookResult changed", handler.onHookResult(session, new HookResult(HookReturnCode.DENY), c).getResult(), HookReturnCode.DECLINED);
+
+        assertEquals("Not rejected", handler.onMessage(session,m).getResult(),HookReturnCode.DECLINED);
     
         MimeMessage message = m.getMessage();
         assertNotNull("Header added",message.getHeader("X-JUNKSCORE")[0]);
-        assertNotNull("Header added",message.getHeader("X-JUNKSCORE-COMPOSED")[0]);
-        assertEquals("Not rejected", response.getResult(),HookReturnCode.DECLINED);
     }
+    
+    
+    private DummyClass getDummyClass() {
+        return new DummyClass();
+    }
+    
+    private class DummyClass{
+        // just a dummy class for testing
+    }
+    
 }

@@ -158,7 +158,7 @@ public class SPFHandlerTest extends TestCase {
             }
             
             public String getUser() {
-        	return null;
+            return null;
             }
 
             public int getRcptCount() {

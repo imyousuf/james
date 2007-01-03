@@ -1,5 +1,4 @@
 - Enable From/Sender and Date checks on message received
-- Find a way to handle the old JunkHandlerScore stuff
 - Check DataCmdHandler for correct clean-up on every exceptions
 - on Rcpt message reject, the original code was logging a lot of informations. Maybe we should change the Hook callers to do something similar (in RcptCmdHandler create a log string including context() call)
 - RcptOptions: introduce a new extension points to have Handlers to declare support for given command options so that the syntax check can support them.
@@ -10,3 +9,4 @@
 - SenderAuthIdentifyVerificationRcptHook use session.getConfigurationData().isVerifyIdentity() to decide wether to enable itself or not: isn't it better to add the handler to the config and commenting/uncommenting the handler already do the trick? If so we shoudl simply remove that configuration and remove the check in the code.
 - I would like to Merge HeloHook and EhloHook to a single hook. They are alternative and I think there is no need for both in the high-level api. less is more ;-)
   (currently we have a single handler implementing both hook and doing the same thing for both).
+- Let AuthCmdHandler and EhloCmdHandler handler HookResultHook too

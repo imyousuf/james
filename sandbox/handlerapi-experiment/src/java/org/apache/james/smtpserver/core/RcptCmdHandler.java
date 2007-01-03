@@ -22,6 +22,7 @@ package org.apache.james.smtpserver.core;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.RcptHook;
 import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.james.util.mail.dsn.DSNStatus;
@@ -246,11 +247,11 @@ public class RcptCmdHandler extends AbstractHookableCmdHandler implements
      * @see org.apache.james.smtpserver.core.AbstractHookableCmdHandler#callHook(java.lang.Object,
      *      org.apache.james.smtpserver.SMTPSession, java.lang.String)
      */
-    protected SMTPResponse callHook(Object rawHook, SMTPSession session,
+    protected HookResult callHook(Object rawHook, SMTPSession session,
             String parameters) {
-        return calcDefaultSMTPResponse(((RcptHook) rawHook).doRcpt(session,
+        return ((RcptHook) rawHook).doRcpt(session,
                 (MailAddress) session.getState().get(SMTPSession.SENDER),
-                (MailAddress) session.getState().get(CURRENT_RECIPIENT)));
+                (MailAddress) session.getState().get(CURRENT_RECIPIENT));
     }
 
 }

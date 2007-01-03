@@ -21,6 +21,7 @@ package org.apache.james.smtpserver.core;
 
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.QuitHook;
 import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.james.util.mail.dsn.DSNStatus;
@@ -106,8 +107,8 @@ public class QuitCmdHandler extends AbstractHookableCmdHandler {
     /**
      * @see org.apache.james.smtpserver.core.AbstractHookableCmdHandler#callHook(java.lang.Object, org.apache.james.smtpserver.SMTPSession, java.lang.String)
      */
-    protected SMTPResponse callHook(Object rawHook, SMTPSession session, String parameters) {
-        return calcDefaultSMTPResponse(((QuitHook) rawHook).doQuit(session));
+    protected HookResult callHook(Object rawHook, SMTPSession session, String parameters) {
+        return ((QuitHook) rawHook).doQuit(session);
     }
 
 }

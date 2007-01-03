@@ -25,6 +25,7 @@ import org.apache.james.smtpserver.ExtensibleHandler;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
+import org.apache.james.smtpserver.hook.HookResultHook;
 import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.util.mail.SMTPRetCode;
 
@@ -41,6 +42,7 @@ public abstract class AbstractHookableCmdHandler extends AbstractLogEnabled
 
 
     private List hooks;
+    private List rHooks;
 
     /**
      * Handle command processing
@@ -80,13 +82,20 @@ public abstract class AbstractHookableCmdHandler extends AbstractLogEnabled
     private SMTPResponse processHooks(SMTPSession session, String command,
             String parameters) {
         List hooks = getHooks();
-
         if (hooks != null) {
             int count = hooks.size();
             for (int i = 0; i < count; i++) {
                 Object rawHook = hooks.get(i);
                 getLogger().debug("executing hook " + rawHook.getClass().getName());
-                SMTPResponse res = callHook(rawHook, session, parameters);
+                HookResult hRes = callHook(rawHook, session, parameters);
+                if (rHooks != null) {
+                    for (int i2 = 0; i2 < rHooks.size(); i2++) {
+                        Object rHook = rHooks.get(i2);
+                        getLogger().debug("executing hook " + rHook);
+                        hRes = ((HookResultHook) rHook).onHookResult(session, hRes, rawHook);
+                    }
+                }
+                SMTPResponse res = HookResultToSMTPResponse(hRes);
                 if (res != null) {
                     return res;
                 }
@@ -101,10 +110,20 @@ public abstract class AbstractHookableCmdHandler extends AbstractLogEnabled
      * @param rawHook the hook (to be casted)
      * @param session the session
      * @param parameters the parameters
-     * @return the SMTPResponse, can be calculated using calcDefaultSMTPResponse.
+     * @return the HookResult, will be calculated using HookResultToSMTPResponse.
      */
-    protected abstract SMTPResponse callHook(Object rawHook, SMTPSession session, String parameters);
+    protected abstract HookResult callHook(Object rawHook, SMTPSession session, String parameters);
 
+    /**
+     * Convert the HookResult to SMTPResponse using default values. Should be override for using own values
+     * 
+     * @param result
+     * @return
+     */
+    protected SMTPResponse HookResultToSMTPResponse(HookResult result) {
+        return calcDefaultSMTPResponse(result);
+    }
+    
     /**
      * @param result
      */
@@ -173,6 +192,7 @@ public abstract class AbstractHookableCmdHandler extends AbstractLogEnabled
     public List getMarkerInterfaces() {
         List classes = new ArrayList(1);
         classes.add(getHookInterface());
+        classes.add(HookResultHook.class);
         return classes;
     }
 
@@ -188,6 +208,8 @@ public abstract class AbstractHookableCmdHandler extends AbstractLogEnabled
     public void wireExtensions(Class interfaceName, List extension) {
         if (getHookInterface().equals(interfaceName)) {
             this.hooks = extension;
+        } else if (HookResultHook.class.equals(interfaceName)) {
+            this.rHooks = extension;
         }
 
     }

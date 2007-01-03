@@ -25,6 +25,7 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.james.smtpserver.core.CoreCmdHandlerLoader;
 import org.apache.james.smtpserver.core.filter.fastfail.DNSRBLHandler;
+import org.apache.james.smtpserver.core.filter.fastfail.JunkScoreHandler;
 import org.apache.james.smtpserver.core.filter.fastfail.MaxRcptHandler;
 import org.apache.james.smtpserver.core.filter.fastfail.ResolvableEhloHeloHandler;
 import org.apache.james.smtpserver.core.filter.fastfail.ReverseEqualsEhloHeloHandler;
@@ -50,6 +51,7 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
     private int m_maxRcpt = 0;
     private boolean m_useRBL = false;
     private boolean m_addressBracketsEnforcement = true;
+    private boolean m_useJunkScore = false;
 
     
     public SMTPTestConfiguration(int smtpListenerPort) {
@@ -138,6 +140,10 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
     public void setAddressBracketsEnforcement(boolean addressBracketsEnforcement) {
         this.m_addressBracketsEnforcement = addressBracketsEnforcement;
     }
+    
+    public void useJunkScore(boolean useJunkScore) {
+    this.m_useJunkScore = useJunkScore;
+    }
 
     public void init() throws ConfigurationException {
 
@@ -207,6 +213,27 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
             d.addChild(Util.getValuedConfiguration("maxRcpt", m_maxRcpt + ""));
             config.addChild(d);
         }
+        if (m_useJunkScore) {
+            DefaultConfiguration handler = new DefaultConfiguration("handler");
+            handler.setAttribute("class", JunkScoreHandler.class.getName());
+
+            DefaultConfiguration mapping = new DefaultConfiguration("mappings");
+            mapping.setValue(DNSRBLHandler.class.getName() + "=" + "25.0");
+            handler.addChild(mapping);
+            
+            DefaultConfiguration action = new DefaultConfiguration("action");
+            action.setValue("reject");
+            handler.addChild(action);
+            
+            DefaultConfiguration score = new DefaultConfiguration("maxScore");
+            score.setValue("15.0");
+            handler.addChild(score);
+            
+            
+            config.addChild(handler);
+
+        }
+        
         config.addChild(createHandler(CoreCmdHandlerLoader.class.getName(),
                 null));
         handlerConfig.addChild(config);

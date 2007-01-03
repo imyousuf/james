@@ -36,6 +36,8 @@ import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.SizeLimitedOutputStream;
 import org.apache.james.smtpserver.WiringException;
+import org.apache.james.smtpserver.hook.HookResult;
+import org.apache.james.smtpserver.hook.HookResultHook;
 import org.apache.james.smtpserver.hook.MessageHook;
 import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.james.util.mail.dsn.DSNStatus;
@@ -61,7 +63,7 @@ import java.util.List;
 public class DataCmdHandler
     extends AbstractLogEnabled
     implements CommandHandler, ExtensibleHandler {
-
+    
     private final class DataLineHandler implements LineHandler {
         public void onLine(SMTPSession session, byte[] line) {
             MimeMessageInputStreamSource mmiss = (MimeMessageInputStreamSource) session.getState().get(DATA_MIMEMESSAGE_STREAMSOURCE);
@@ -164,6 +166,8 @@ public class DataCmdHandler
     // Keys used to store/lookup data in the internal state hash map
 
     private List messageHandlers;
+    
+    private List rHooks;
     
     /**
      * process DATA command
@@ -359,8 +363,9 @@ public class DataCmdHandler
      * @see org.apache.james.smtpserver.ExtensibleHandler#getMarkerInterfaces()
      */
     public List getMarkerInterfaces() {
-        List classes = new ArrayList(1);
+        List classes = new ArrayList(2);
         classes.add(MessageHook.class);
+        classes.add(HookResultHook.class);
         return classes;
     }
 
@@ -380,6 +385,8 @@ public class DataCmdHandler
                 }
                 throw new WiringException("No messageHandler configured");
             }
+        } else if (HookResultHook.class.equals(interfaceName)) {
+            this.rHooks = extension;
         }
     }
 
@@ -389,10 +396,21 @@ public class DataCmdHandler
     private void processExtensions(SMTPSession session, Mail mail) {
         if(mail != null && mail instanceof Mail && messageHandlers != null) {
             try {
-                getLogger().debug("executing message handlers");
                 int count = messageHandlers.size();
                 for(int i =0; i < count; i++) {
-                    SMTPResponse response = AbstractHookableCmdHandler.calcDefaultSMTPResponse(((MessageHook)messageHandlers.get(i)).onMessage(session, (Mail) mail));
+                    Object rawHandler =  messageHandlers.get(i);
+                    getLogger().debug("executing message handler " + rawHandler);
+                    HookResult hRes = ((MessageHook)rawHandler).onMessage(session, (Mail) mail);
+                    
+                    if (rHooks != null) {
+                        for (int i2 = 0; i2 < rHooks.size(); i2++) {
+                            Object rHook = rHooks.get(i2);
+                            getLogger().debug("executing hook " + rHook);
+                            hRes = ((HookResultHook) rHook).onHookResult(session, hRes, rawHandler);
+                        }
+                    }
+                    
+                    SMTPResponse response = AbstractHookableCmdHandler.calcDefaultSMTPResponse(hRes);
                     
                     //if the response is received, stop processing of command handlers
                     if(response != null) {

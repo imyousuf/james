@@ -1696,4 +1696,36 @@ public class SMTPServerTest extends TestCase {
         assertEquals("Not reject emails to abuse"+ smtpProtocol.getReplyString(), 250, smtpProtocol
                 .getReplyCode());
     }
+    
+    public void testJunkScore() throws Exception {
+        m_testConfiguration.setAuthorizedAddresses("192.168.0.1/32");
+        m_testConfiguration.useRBL(true);
+        m_testConfiguration.useJunkScore(true);
+        finishSetUp(m_testConfiguration);
+
+        m_dnsServer.setLocalhostByName(InetAddress.getByName("127.0.0.1"));
+
+        SMTPClient smtpProtocol = new SMTPClient();
+        smtpProtocol.connect("127.0.0.1", m_smtpListenerPort);
+
+        smtpProtocol.sendCommand("ehlo", InetAddress.getLocalHost().toString());
+
+        String sender = "test_user_smtp@localhost";
+
+        smtpProtocol.setSender(sender);
+
+        smtpProtocol.addRecipient("mail@localhost");
+        assertEquals("not reject: "+smtpProtocol.getReplyString(), 250, smtpProtocol
+                .getReplyCode());
+
+        smtpProtocol.sendShortMessageData("Subject: test\r\n\r\nTest body testDNSRBLRejectWorks\r\n");
+        assertEquals("reject: "+smtpProtocol.getReplyString(), 554, smtpProtocol
+                .getReplyCode());
+        
+        smtpProtocol.quit();
+
+        // mail was rejected by SMTPServer
+        assertNull("mail reject by mail server", m_mailServer
+                .getLastMail());
+    }
 }
