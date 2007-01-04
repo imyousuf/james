@@ -310,7 +310,16 @@ public class DataCmdHandler
      
         // Check if EHLO was used 
         if ("EHLO".equals(heloMode)) {
-            headerLineBuffer.append("ESMTP");
+            // Not succesfull auth
+            if (session.getUser() == null) {
+                headerLineBuffer.append("ESMTP");  
+            } else {
+                // See RFC3848
+                // The new keyword "ESMTPA" indicates the use of ESMTP when the SMTP
+                // AUTH [3] extension is also used and authentication is successfully
+                // achieved.
+                headerLineBuffer.append("ESMTPA");
+            }
         } else {
             headerLineBuffer.append("SMTP");
         }
