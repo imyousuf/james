@@ -604,10 +604,9 @@ public class MBoxMailRepository
      * @see org.apache.james.services.MailRepository#remove(Mail)
      */
     public void remove(Mail mail) {
-        // Convert the message into a key
-        Vector delVec = new Vector();
-        delVec.addElement(mail);
-        remove(delVec);
+        ArrayList remArray = new ArrayList();
+        remArray.add(mail);
+        remove(remArray);
     }
 
     /**
@@ -762,7 +761,7 @@ public class MBoxMailRepository
             return; // No lock, so exit
         }
         ArrayList keys = new ArrayList();
-        keys.add(key);
+        keys.add(retrieve(key));
 
         this.remove(keys);
         unlockMBox();
