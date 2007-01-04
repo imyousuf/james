@@ -30,6 +30,7 @@ import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.WiringException;
 import org.apache.james.smtpserver.hook.AuthHook;
 import org.apache.james.smtpserver.hook.HookResult;
+import org.apache.james.smtpserver.hook.HookResultHook;
 import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.util.Base64;
 import org.apache.james.util.mail.SMTPRetCode;
@@ -90,6 +91,8 @@ public class AuthCmdHandler
      * The AuthHooks
      */
     private List hooks;
+    
+    private List rHooks;
     
     /**
      * handles AUTH command
@@ -290,14 +293,25 @@ public class AuthCmdHandler
         SMTPResponse res = null;
         
         List hooks = getHooks();
-
+        
         if (hooks != null) {
-            getLogger().debug("executing  hooks");
             int count = hooks.size();
             for (int i = 0; i < count; i++) {
                 Object rawHook = hooks.get(i);
-                res = calcDefaultSMTPResponse(((AuthHook) rawHook).doAuth(session,
-                        user, pass));
+                getLogger().debug("executing  hook " + rawHook);
+                
+                HookResult hRes = ((AuthHook) rawHook).doAuth(session, user, pass);
+                
+                if (rHooks != null) {
+                    for (int i2 = 0; i2 < rHooks.size(); i2++) {
+                        Object rHook = rHooks.get(i2);
+                        getLogger().debug("executing  hook " + rHook);
+                    
+                        hRes = ((HookResultHook) rHook).onHookResult(session, hRes, rHook);
+                    }
+                }
+                
+                res = calcDefaultSMTPResponse(hRes);
                 
                 if (res != null) {
                     if (SMTPRetCode.AUTH_FAILED.equals(res.getRetCode())) {
@@ -321,7 +335,10 @@ public class AuthCmdHandler
 
 
     /**
-     * @param result
+     * Calculate the SMTPResponse for the given result
+     * 
+     * @param result the HookResult which should converted to SMTPResponse
+     * @return the calculated SMTPResponse for the given HookReslut
      */
     protected SMTPResponse calcDefaultSMTPResponse(HookResult result) {
         if (result != null) {
@@ -424,6 +441,8 @@ public class AuthCmdHandler
             if (hooks == null || hooks.size() == 0) {
                 throw new WiringException("AuthCmdHandler used without AuthHooks");
             }
+        } else if (HookResultHook.class.equals(interfaceName)) {
+            this.rHooks = extension;
         }
     }
     

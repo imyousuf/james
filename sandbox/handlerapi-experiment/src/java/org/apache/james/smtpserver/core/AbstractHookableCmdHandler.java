@@ -35,7 +35,6 @@ import java.util.List;
 /**
  * Abstract class which Handle hooks.
  * 
- * TODO: Maybe we should take care of relaying etc here ?
  */
 public abstract class AbstractHookableCmdHandler extends AbstractLogEnabled
         implements CommandHandler, ExtensibleHandler {
@@ -197,7 +196,9 @@ public abstract class AbstractHookableCmdHandler extends AbstractLogEnabled
     }
 
     /**
-     * @return
+     * Return the interface which hooks need to implement to hook in
+     * 
+     * @return interface
      */
     protected abstract Class getHookInterface();
 

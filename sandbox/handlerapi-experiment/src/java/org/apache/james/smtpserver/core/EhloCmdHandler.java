@@ -44,6 +44,7 @@ public class EhloCmdHandler extends AbstractHookableCmdHandler implements
 
     private List ehloExtensions;
 
+    
     /**
      * Handler method called upon receipt of a EHLO command. Responds with a
      * greeting and informs the client whether client authentication is
@@ -114,7 +115,10 @@ public class EhloCmdHandler extends AbstractHookableCmdHandler implements
     }
 
     /**
-     * @param session
+     * Process the ehloExtensions
+     * 
+     * @param session SMTPSession 
+     * @param resp SMTPResponse
      */
     private void processExtensions(SMTPSession session, SMTPResponse resp) {
         if (ehloExtensions != null) {
@@ -166,13 +170,11 @@ public class EhloCmdHandler extends AbstractHookableCmdHandler implements
     protected Class getHookInterface() {
         return EhloHook.class;
     }
-
-    /*
-     * (non-Javadoc)
+    
+    /**
      * @see org.apache.james.smtpserver.core.AbstractHookableCmdHandler#callHook(java.lang.Object, org.apache.james.smtpserver.SMTPSession, java.lang.String)
      */
     protected HookResult callHook(Object rawHook, SMTPSession session, String parameters) {
         return ((EhloHook) rawHook).doEhlo(session, parameters);
     }
-
 }
