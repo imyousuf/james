@@ -69,6 +69,7 @@ public class ComposedJunkScore implements JunkScore {
         Map m = new HashMap(score1.getStoredScores());
         m.putAll(score2.getStoredScores());
         return m;
+        
     }
 
     /**
