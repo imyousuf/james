@@ -189,7 +189,7 @@ public abstract class AbstractHookableCmdHandler extends AbstractLogEnabled
      * @see org.apache.james.smtpserver.ExtensibleHandler#getMarkerInterfaces()
      */
     public List getMarkerInterfaces() {
-        List classes = new ArrayList(1);
+        List classes = new ArrayList(2);
         classes.add(getHookInterface());
         classes.add(HookResultHook.class);
         return classes;
