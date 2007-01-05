@@ -32,7 +32,7 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.smtpserver.core.CoreCmdHandlerLoader;
-import org.apache.james.smtpserver.core.SendMailHandler;
+import org.apache.james.smtpserver.core.CoreMessageHookLoader;
 
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -59,6 +59,7 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
 
     /**
      * ExtensibleHandler wiring
+     * 
      * @throws WiringException 
      */
     private void wireExtensibleHandlers() throws WiringException {
@@ -123,9 +124,9 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
                         }
                     }
                 }
-                // load the sendmail handler
-                // TODO: Should move this to an extra loader ?
-                loadClass(classLoader, SendMailHandler.class.getName(), addHandler(null, SendMailHandler.class.getName()));
+                // load core messageHandlers
+                loadClass(classLoader, CoreMessageHookLoader.class.getName(),
+                        addHandler(null, CoreMessageHookLoader.class.getName()));
 
             }
         }
