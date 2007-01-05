@@ -10,3 +10,4 @@
 - I would like to Merge HeloHook and EhloHook to a single hook. They are alternative and I think there is no need for both in the high-level api. less is more ;-)
   (currently we have a single handler implementing both hook and doing the same thing for both).
 - Check if we can delete the ComposedJunkScore class. I think the class is not needed anymore
+- We should probably move logging of ok/deny operations from specific hooks to this Hook result interceptor
