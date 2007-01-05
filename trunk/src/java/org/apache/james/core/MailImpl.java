@@ -27,7 +27,6 @@ import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.RFC2822Headers;
 
-import javax.mail.Address;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
@@ -216,36 +215,6 @@ public class MailImpl implements Disposable, Mail {
     }
 
     /**
-     * A constructor which will attempt to obtain sender and recipients from the headers of the MimeMessage supplied.
-     * @param message - a MimeMessage from which to construct a Mail
-     */
-    public MailImpl(MimeMessage message) throws MessagingException {
-        this();
-        MailAddress sender = getReturnPath(message);
-        Collection recipients = null;
-        Address[] addresses = message.getRecipients(MimeMessage.RecipientType.TO);
-        if (addresses != null) {
-            recipients = new ArrayList();
-            for (int i = 0; i < addresses.length; i++) {
-                try {
-                    recipients.add(new MailAddress(new InternetAddress(addresses[i].toString(), false)));
-                } catch (ParseException pe) {
-                    // RFC 2822 section 3.4 allows To: fields without <>
-                    // Let's give this one more try with <>.
-                    try {
-                        recipients.add(new MailAddress("<" + new InternetAddress(addresses[i].toString()).toString() + ">"));
-                    } catch (ParseException _) {
-                        throw new MessagingException("Could not parse address: " + addresses[i].toString() + " from " + message.getHeader(RFC2822Headers.TO, ", "), pe);
-                    }
-                }
-            }
-        }
-        this.name = message.toString();
-        this.sender = sender;
-        this.recipients = recipients;
-        this.setMessage(message);
-    }
-    /**
      * Gets the MailAddress corresponding to the existing "Return-Path" of
      * <I>message</I>.
      * If missing or empty returns <CODE>null</CODE>,
@@ -405,6 +374,11 @@ public class MailImpl implements Disposable, Mail {
      * @param message the new MimeMessage associated with this MailImpl
      */
     public void setMessage(MimeMessage message) {
+    
+        //TODO: We should use the MimeMessageCopyOnWriteProxy
+        //      everytime we set the MimeMessage. We should
+        //      investigate if we should wrap it here
+    
         if (this.message != message) {
             // If a setMessage is called on a Mail that already have a message
             // (discouraged) we have to make sure that the message we remove is

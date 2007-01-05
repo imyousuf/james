@@ -100,7 +100,9 @@ public class MailRepositoryMailboxSession extends AbstractLogEnabled implements 
 
     public String store(MimeMessage message) throws MailboxManagerException {
         try {
-            Mail mail=new MailImpl(message);
+            Mail mail=new MailImpl();
+            mail.setMessage(message);
+            mail.setName(message.toString());
             target.store(mail);
             String key=mail.getName();
             getLogger().debug("store() "+key);

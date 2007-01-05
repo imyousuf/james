@@ -80,7 +80,6 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Properties;
-import java.util.Vector;
 
 /**
  * Implementation of a MailRepository using UNIX mbox files.
@@ -577,25 +576,23 @@ public class MBoxMailRepository
 
         loadKeys();
         MailImpl res = null;
-        try {
-            MimeMessage foundMessage = findMessage(key);
-            if (foundMessage == null) {
-                getLogger().error("found message is null!");
-                return null;
-            }
-            res = new MailImpl(foundMessage);
-            res.setName(key);
-            if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
-                StringBuffer logBuffer =
-                        new StringBuffer(128)
-                        .append(this.getClass().getName())
-                        .append(" Retrieving entry for key ")
-                        .append(key);
 
-                getLogger().debug(logBuffer.toString());
-            }
-        } catch (MessagingException e) {
-            getLogger().error("Unable to parse mime message for " + mboxFile + "\n" + e.getMessage(), e);
+        MimeMessage foundMessage = findMessage(key);
+        if (foundMessage == null) {
+            getLogger().error("found message is null!");
+            return null;
+        }
+        res = new MailImpl();
+        res.setMessage(foundMessage);
+        res.setName(key);
+        if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
+            StringBuffer logBuffer =
+                    new StringBuffer(128)
+                    .append(this.getClass().getName())
+                    .append(" Retrieving entry for key ")
+                    .append(key);
+
+            getLogger().debug(logBuffer.toString());
         }
         return res;
     }

@@ -190,7 +190,8 @@ public class UIDPlusFolderMailRepository extends
                     (UIDFolder) getFolderGateKeeper().getOpenFolder());
             if (mm == null)
                 return null;
-            Mail mail = new MailImpl(mm);
+            Mail mail = new MailImpl();
+            mail.setMessage(mm);
             mail.setName(key);
             return mail;
         } finally {
