@@ -293,7 +293,8 @@ public class AddFooterTest extends TestCase {
 
         mailet.init(mci);
 
-        Mail mail = new MailImpl(new MimeMessage(Session
+        Mail mail = new MailImpl();
+        mail.setMessage(new MimeMessage(Session
                 .getDefaultInstance(new Properties()),
                 new ByteArrayInputStream(asciisource.getBytes())));
 

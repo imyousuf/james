@@ -201,7 +201,8 @@ public class HashJavamailStoreMailRepository extends
             getFolderGateKeeper().use();
             MimeMessage mm = getMessageFromInbox(key);
             if (mm != null) {
-                m = new MailImpl(mm);
+                m = new MailImpl();
+                m.setMessage(mm);
                 m.setName(key);
             } else {
                 log.debug("could not retrieve a MimeMessage from folder");

@@ -40,8 +40,6 @@ import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.mailboxmanager.mailbox.MailboxSession;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
-import org.apache.james.services.User;
-import org.apache.james.userrepository.DefaultJamesUser;
 import org.apache.mailet.Mail;
 
 /**
@@ -172,7 +170,8 @@ public class MailboxManagerMailRepository extends AbstractMailRepository
         MimeMessage mm = getMessageFromInbox(key);
         if (mm == null)
             return null;
-        Mail mail = new MailImpl(mm);
+        Mail mail = new MailImpl();
+        mail.setMessage(mm);
         mail.setName(key);
         return mail;
     }
