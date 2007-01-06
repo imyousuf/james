@@ -33,6 +33,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.net.Socket;
 
 /**
  * General IO Stream manipulation.
@@ -207,6 +208,22 @@ public final class IOUtil
         }
         catch( final IOException ioe )
         {
+        }
+    }
+
+    /**
+     * Unconditionally close an <code>InputStream</code>.
+     * Equivalent to {@link Socket#close()}, except any exceptions will be ignored.
+     * @param input A (possibly null) InputStream
+     */
+    public static void shutdownSocket( final Socket socket ) {
+        if( null == socket ) {
+            return;
+        }
+
+        try {
+            socket.close();
+        } catch( final IOException ioe ){
         }
     }
 
