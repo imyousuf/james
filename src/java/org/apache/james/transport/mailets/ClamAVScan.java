@@ -21,6 +21,7 @@
 
 package org.apache.james.transport.mailets;
 
+import org.apache.james.util.io.IOUtil;
 import org.apache.mailet.RFC2822Headers;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
@@ -681,31 +682,11 @@ public class ClamAVScan extends GenericMailet {
             log("Exception caught calling CLAMD on " + socket.getInetAddress() + ": " + ex.getMessage(), ex);
             throw new MessagingException("Exception caught", ex);
         } finally {
-            try {
-                if (reader != null) {
-                    reader.close();
-                }
-            } catch (Throwable t) {}
-            try {
-                if (writer != null) {
-                    writer.close();
-                }
-            } catch (Throwable t) {}
-            try {
-                if (bos != null) {
-                    bos.close();
-                }
-            } catch (Throwable t) {}
-            try {
-                if (streamSocket != null) {
-                    streamSocket.close();
-                }
-            } catch (Throwable t) {}
-            try {
-                if (socket != null) {
-                    socket.close();
-                }
-            } catch (Throwable t) {}
+            IOUtil.shutdownReader(reader);
+            IOUtil.shutdownWriter(writer);
+            IOUtil.shutdownStream(bos);
+            IOUtil.shutdownSocket(streamSocket);
+            IOUtil.shutdownSocket(socket);
         }
         
     }
