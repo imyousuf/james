@@ -85,14 +85,6 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
     private int authRequired = AUTH_DISABLED;
 
     /**
-     * Whether the server verifies that the user
-     * actually sending an email matches the
-     * authentication credentials attached to the
-     * SMTP interaction.
-     */
-    private boolean verifyIdentity = false;
-
-    /**
      * Whether the server needs helo to be send first
      */
     private boolean heloEhloEnforcement = false;
@@ -159,13 +151,8 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
             if (authRequiredString.equals("true")) authRequired = AUTH_REQUIRED;
             else if (authRequiredString.equals("announce")) authRequired = AUTH_ANNOUNCE;
             else authRequired = AUTH_DISABLED;
-            verifyIdentity = handlerConfiguration.getChild("verifyIdentity").getValueAsBoolean(false);
             if (authRequired != AUTH_DISABLED) {
-                if (verifyIdentity) {
-                    getLogger().info("This SMTP server requires authentication and verifies that the authentication credentials match the sender address.");
-                } else {
-                    getLogger().info("This SMTP server requires authentication, but doesn't verify that the authentication credentials match the sender address.");
-                }
+                getLogger().info("This SMTP server requires authentication.");
             } else {
                 getLogger().info("This SMTP server does not require authentication.");
             }
@@ -344,13 +331,6 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
                 authRequired = authRequired && !SMTPServer.this.authorizedNetworks.matchInetNetwork(remoteIP);
             }
             return authRequired;
-        }
-
-        /**
-         * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#isVerifyIdentity()
-         */
-        public boolean isVerifyIdentity() {
-            return SMTPServer.this.verifyIdentity;
         }
 
         /**

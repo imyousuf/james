@@ -248,19 +248,20 @@ public class DNSRBLHandler
      * @see org.apache.james.smtpserver.hook.RcptHook#doRcpt(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
      */
     public HookResult doRcpt(SMTPSession session, MailAddress sender, MailAddress rcpt) {
-        String blocklisted = (String) session.getConnectionState().get(RBL_BLOCKLISTED_MAIL_ATTRIBUTE_NAME);
-
-        if (blocklisted != null && // was found in the RBL
-                session.getUser() == null // Not authenticated
-                ) {
-            if (blocklistedDetail == null) {
-                return new HookResult(HookReturnCode.DENY,DSNStatus.getStatus(DSNStatus.PERMANENT,
-                        DSNStatus.SECURITY_AUTH)  + " Rejected: unauthenticated e-mail from " + session.getRemoteIPAddress() 
-                        + " is restricted.  Contact the postmaster for details.");
-            } else {
-                return new HookResult(HookReturnCode.DENY,DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH) + " " + blocklistedDetail);
+        
+        if (!session.isRelayingAllowed()) {
+            String blocklisted = (String) session.getConnectionState().get(RBL_BLOCKLISTED_MAIL_ATTRIBUTE_NAME);
+    
+            if (blocklisted != null) { // was found in the RBL
+                if (blocklistedDetail == null) {
+                    return new HookResult(HookReturnCode.DENY,DSNStatus.getStatus(DSNStatus.PERMANENT,
+                            DSNStatus.SECURITY_AUTH)  + " Rejected: unauthenticated e-mail from " + session.getRemoteIPAddress() 
+                            + " is restricted.  Contact the postmaster for details.");
+                } else {
+                    return new HookResult(HookReturnCode.DENY,DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH) + " " + blocklistedDetail);
+                }
+               
             }
-           
         }
         return new HookResult(HookReturnCode.DECLINED);
     }

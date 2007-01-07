@@ -27,13 +27,13 @@ import org.apache.james.smtpserver.hook.HookReturnCode;
  * This Auth hook can be used to authenticate against the james user repository
  */
 public class UsersRepositoryAuthHook implements AuthHook {
-    
     /**
      * @see org.apache.james.smtpserver.hook.AuthHook#doAuth(org.apache.james.smtpserver.SMTPSession, java.lang.String, java.lang.String)
      */
     public HookResult doAuth(SMTPSession session, String username, String password) {
         if (session.getConfigurationData().getUsersRepository().test(username, password)) {
             session.setUser(username);
+            session.setRelayingAllowed(true);
             return new HookResult(HookReturnCode.OK, "Authentication Successful");
         }
         return new HookResult(HookReturnCode.DECLINED);

@@ -16,26 +16,31 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
+package org.apache.james.smtpserver.core;
 
-
-
-
-package org.apache.james.smtpserver.hook;
-
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.smtpserver.hook.HookResult;
+import org.apache.james.smtpserver.hook.HookReturnCode;
+import org.apache.james.smtpserver.hook.RcptHook;
+import org.apache.mailet.MailAddress;
 
 /**
- * Implement this interfaces to hook in the EHLO Command
- * 
+ * This hook will stop the hook chain if relaying is allowed
  */
-public interface EhloHook {
+public class AcceptRecipientIfRelayingIsAllowed extends AbstractLogEnabled implements
+        RcptHook {
 
     /**
-     * Return the HookResult after run the hook
-     * 
-     * @param session the SMTPSession
-     * @param ehlo the ehlo name
-     * @return HockResult
+     * @see org.apache.james.smtpserver.hook.RcptHook#doRcpt(org.apache.james.smtpserver.SMTPSession,
+     *      org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
      */
-    public HookResult doEhlo(SMTPSession session, String ehlo);
+    public HookResult doRcpt(SMTPSession session, MailAddress sender,
+            MailAddress rcpt) {
+        if (session.isRelayingAllowed()) {
+            return new HookResult(HookReturnCode.OK);
+        }
+        return new HookResult(HookReturnCode.DECLINED);
+    }
+
 }

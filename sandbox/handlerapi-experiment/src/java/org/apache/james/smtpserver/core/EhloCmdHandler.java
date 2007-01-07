@@ -22,7 +22,7 @@ package org.apache.james.smtpserver.core;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
-import org.apache.james.smtpserver.hook.EhloHook;
+import org.apache.james.smtpserver.hook.HeloHook;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.james.util.mail.dsn.DSNStatus;
@@ -44,7 +44,6 @@ public class EhloCmdHandler extends AbstractHookableCmdHandler implements
 
     private List ehloExtensions;
 
-    
     /**
      * Handler method called upon receipt of a EHLO command. Responds with a
      * greeting and informs the client whether client authentication is
@@ -168,13 +167,14 @@ public class EhloCmdHandler extends AbstractHookableCmdHandler implements
      * @see org.apache.james.smtpserver.core.AbstractHookableCmdHandler#getHookInterface()
      */
     protected Class getHookInterface() {
-        return EhloHook.class;
+        return HeloHook.class;
     }
-    
+
     /**
      * @see org.apache.james.smtpserver.core.AbstractHookableCmdHandler#callHook(java.lang.Object, org.apache.james.smtpserver.SMTPSession, java.lang.String)
      */
     protected HookResult callHook(Object rawHook, SMTPSession session, String parameters) {
-        return ((EhloHook) rawHook).doEhlo(session, parameters);
+        return ((HeloHook) rawHook).doHelo(session, parameters);
     }
+
 }

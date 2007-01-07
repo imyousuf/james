@@ -70,14 +70,6 @@ public interface SMTPHandlerConfigurationData {
     boolean isAuthSupported(String remoteIP);
 
     /**
-     * Returns whether the service validates the identity
-     * of its senders.
-     *
-     * @return whether SMTP authentication is on
-     */
-    boolean isVerifyIdentity();
-    
-    /**
      * Returns whether the remote server needs to send a HELO/EHLO
      * of its senders.
      *

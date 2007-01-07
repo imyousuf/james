@@ -124,6 +124,8 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         assertEquals("Not reject", result,HookReturnCode.DECLINED);
     }
     
+    /* This is no more valid because it is handled by the hook sequence instead of
+     * checking it in each hook implementation.
     public void testNotRejectInvalidHeloAuthUser() throws ParseException {
         MailAddress mailAddress = new MailAddress("test@localhost");
         SMTPSession session = setupMockSession(INVALID_HOST,false,true,"valid@user",mailAddress);
@@ -140,6 +142,7 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         int result = handler.doRcpt(session,null, mailAddress).getResult();
         assertEquals("Not reject", result,HookReturnCode.DECLINED);
     }
+     */
     
     public void testRejectInvalidHeloAuthUser() throws ParseException {
         MailAddress mailAddress = new MailAddress("test@localhost");
@@ -149,7 +152,6 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         ContainerUtil.enableLogging(handler,new MockLogger());
         
         handler.setDnsServer(setupMockDNSServer());
-        handler.setCheckAuthUsers(true);
 
         handler.doHelo(session, INVALID_HOST);
         assertNotNull("Value stored",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
@@ -194,3 +196,4 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         assertEquals("Reject", result,HookReturnCode.DENY);
     }
 }
+    

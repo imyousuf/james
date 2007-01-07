@@ -28,7 +28,6 @@ import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.services.DNSServer;
 import org.apache.james.smtpserver.SMTPSession;
-import org.apache.james.smtpserver.hook.EhloHook;
 import org.apache.james.smtpserver.hook.HeloHook;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookReturnCode;
@@ -44,13 +43,11 @@ import java.net.UnknownHostException;
 /**
  * This CommandHandler can be used to reject not resolvable EHLO/HELO
  */
-public class ResolvableEhloHeloHandler extends AbstractLogEnabled implements Configurable, Serviceable, RcptHook, EhloHook, HeloHook {
+public class ResolvableEhloHeloHandler extends AbstractLogEnabled implements Configurable, Serviceable, RcptHook, HeloHook {
 
     public final static String BAD_EHLO_HELO = "BAD_EHLO_HELO";
 
     protected boolean checkAuthNetworks = false;
-
-    private boolean checkAuthUsers = false;
 
     protected DNSServer dnsServer = null;
 
@@ -63,12 +60,6 @@ public class ResolvableEhloHeloHandler extends AbstractLogEnabled implements Con
                 "checkAuthNetworks", false);
         if (configRelay != null) {
             setCheckAuthNetworks(configRelay.getValueAsBoolean(false));
-        }
-
-        Configuration configAuthUser = handlerConfiguration.getChild(
-                "checkAuthUsers", false);
-        if (configAuthUser != null) {
-            setCheckAuthUsers(configAuthUser.getValueAsBoolean(false));
         }
     }
 
@@ -87,16 +78,6 @@ public class ResolvableEhloHeloHandler extends AbstractLogEnabled implements Con
      */
     public void setCheckAuthNetworks(boolean checkAuthNetworks) {
         this.checkAuthNetworks = checkAuthNetworks;
-    }
-
-    /**
-     * Set to true if Auth users should be included in the EHLO/HELO check
-     * 
-     * @param checkAuthUsers
-     *            Set to true to enable
-     */
-    public void setCheckAuthUsers(boolean checkAuthUsers) {
-        this.checkAuthUsers = checkAuthUsers;
     }
 
     /**
@@ -125,6 +106,7 @@ public class ResolvableEhloHeloHandler extends AbstractLogEnabled implements Con
         
         if (isBadHelo(session, argument)) {
             session.getState().put(BAD_EHLO_HELO, "true");
+            System.out.println("bad_ehlo!");
         }
     }
     
@@ -149,35 +131,27 @@ public class ResolvableEhloHeloHandler extends AbstractLogEnabled implements Con
      * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#check(org.apache.james.smtpserver.SMTPSession)
      */
     protected boolean check(SMTPSession session,MailAddress rcpt) {
-
         // not reject it
-        if (session.getState().get(BAD_EHLO_HELO) == null)
+        if (session.getState().get(BAD_EHLO_HELO) == null) {
+            System.out.println("doRcpt1");
             return false;
-
-        // Check if the client was authenticated
-        if ((session.getUser() == null || checkAuthUsers)) {
-            return true;
         }
-        return false;
+
+            System.out.println("doRcpt2");
+        return true;
     }
 
     /**
      * @see org.apache.james.smtpserver.hook.RcptHook#doRcpt(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
      */
     public HookResult doRcpt(SMTPSession session, MailAddress sender, MailAddress rcpt) {
+        System.out.println("doRcpt");
         if (check(session,rcpt)) {
             return new HookResult(HookReturnCode.DENY,SMTPRetCode.SYNTAX_ERROR_ARGUMENTS,DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.DELIVERY_INVALID_ARG)
                     + " Provided EHLO/HELO " + session.getState().get(SMTPSession.CURRENT_HELO_NAME) + " can not resolved.");
         } else {
             return new HookResult(HookReturnCode.DECLINED);
         }
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.hook.EhloHook#doEhlo(org.apache.james.smtpserver.SMTPSession, java.lang.String)
-     */
-    public HookResult doEhlo(SMTPSession session, String helo) {
-        return doHelo(session,helo);
     }
 
     /**

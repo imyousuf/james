@@ -58,8 +58,12 @@ public class MailCmdHandler extends AbstractHookableCmdHandler implements
         MailAddress sender = (MailAddress) session.getState().get(
                 SMTPSession.SENDER);
         responseBuffer.append(
-                DSNStatus.getStatus(DSNStatus.SUCCESS, DSNStatus.ADDRESS_OTHER)
-                        + " Sender <").append(sender).append("> OK");
+                DSNStatus.getStatus(DSNStatus.SUCCESS, DSNStatus.ADDRESS_OTHER))
+                .append(" Sender <");
+        if (sender != null) {
+            responseBuffer.append(sender);
+        }
+        responseBuffer.append("> OK");
         return new SMTPResponse(SMTPRetCode.MAIL_OK, responseBuffer);
     }
 

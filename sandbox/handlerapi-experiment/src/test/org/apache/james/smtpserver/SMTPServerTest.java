@@ -885,11 +885,13 @@ public class SMTPServerTest extends TestCase {
         String userName = "test_user_smtp";
         m_usersRepository.addUser(userName, "pwd");
 
-        smtpProtocol.setSender("");
-
         smtpProtocol.sendCommand("AUTH PLAIN");
         smtpProtocol.sendCommand(Base64.encodeAsString("\0"+userName+"\0pwd\0"));
         assertEquals("authenticated", 235, smtpProtocol.getReplyCode());
+
+        smtpProtocol.setSender("");
+        assertEquals("expected sender ok", 250, smtpProtocol.getReplyCode());
+
 
         smtpProtocol.addRecipient("mail@sample.com");
         assertEquals("expected error", 503, smtpProtocol.getReplyCode());

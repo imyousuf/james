@@ -228,7 +228,7 @@ public class SPFHandler extends AbstractLogEnabled implements MailHook, RcptHook
      * @see org.apache.james.smtpserver.hook.RcptHook#doRcpt(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
      */
     public HookResult doRcpt(SMTPSession session, MailAddress sender, MailAddress rcpt) {
-        if (session.getUser() == null) {
+        if (!session.isRelayingAllowed()) {
             // Check if session is blocklisted
             if (session.getState().get(SPF_BLOCKLISTED)!= null) {
                 return new HookResult(HookReturnCode.DENY,DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_AUTH) + " "

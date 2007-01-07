@@ -651,7 +651,7 @@ public class GreylistHandler extends AbstractLogEnabled implements
      * @see org.apache.james.smtpserver.hook.RcptHook#doRcpt(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
      */
     public HookResult doRcpt(SMTPSession session, MailAddress sender, MailAddress rcpt) {
-        if (!session.isRelayingAllowed() && session.getUser() == null) {
+        if (!session.isRelayingAllowed()) {
 
             if ((wNetworks == null) || (!wNetworks.matchInetNetwork(session.getRemoteIPAddress()))) {
                 return doGreyListCheck(session, sender,rcpt);

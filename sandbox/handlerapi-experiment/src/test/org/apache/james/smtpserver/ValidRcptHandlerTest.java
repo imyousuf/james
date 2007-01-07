@@ -137,10 +137,6 @@ public class ValidRcptHandlerTest extends TestCase {
                 throw new UnsupportedOperationException("Unimplemented Stub Method");
             }
 
-            public boolean isVerifyIdentity() {
-                throw new UnsupportedOperationException("Unimplemented Stub Method");
-            }
-
             public boolean useHeloEhloEnforcement() {
                 throw new UnsupportedOperationException("Unimplemented Stub Method");
             }
