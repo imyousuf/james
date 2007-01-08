@@ -34,8 +34,8 @@ Votes:
 		0 to "next-minor"
 		
     norman [VOTE] Using of 2.3 branch
-        -1 to "Commit fixes and new "minor" features to 2.3 branch"
-        -0 to "Commit only bugfixes to 2.3 branch"
+        3x -1, 1x +1 to "Commit fixes and new "minor" features to 2.3 branch"
+        3x +1, 1x -0 to "Commit only bugfixes to 2.3 branch"
 	
 Polls/Proposals:
 	Open:
