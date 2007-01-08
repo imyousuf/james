@@ -23,12 +23,11 @@ Releases:
 
 Votes:
 	Open:
-
+    danny [VOTE] Mailet API as sub-project  
     bago [VOTE] InetAddress unbounded cache patch backport 
     
     
 	Resolved:
-
 	bago [VOTE] James Server future releases/road maps	
 		Unanimous +1 to "next-major"
 		0 to "next-minor"
@@ -39,10 +38,11 @@ Votes:
 	
 Polls/Proposals:
 	Open:
-	danny [PROPOSAL] - API requires service location
+	danny [PROPOSAL] - James to require jdk 1.5.x +
 
 	Resolved:
-	
+	danny [PROPOSAL] - API requires service location
+        Discussions have changed the focus to the use of DI and the possible mandated use of annotations
 
 Branches:
 
