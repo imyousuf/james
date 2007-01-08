@@ -590,11 +590,6 @@ Regards, Postmaster XXX.YYY
             <gateway> otherserver.mydomain.com </gateway>
             <gatewayPort>25</gatewayPort>
             -->
-            
-            <!-- Set the HELO/EHLO name to use when connectiong to remote SMTP-Server -->
-            <!--
-            <mail.smtp.localhost>myMailServer</mail.smtp.localhost>
-            -->
          </mailet>
 
       </processor>

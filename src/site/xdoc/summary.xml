@@ -82,7 +82,7 @@ component that allows the administrator to configure James to retrieve email fro
 servers and deliver them to the local spool.  This is useful for consolidating mail delivered to a
 number of accounts on different machines to a single account.</p>
 
-<p>More information on configuring FetchMail can be found <a href="fetchmail_configuration.html">here</a>.</p>
+<p>More information on configuring FetchMail can be found <a href="fetchpop_configuration.html">here</a>.</p>
 </section>
 <section name="The SpoolManager, Matchers, and Mailets">
 

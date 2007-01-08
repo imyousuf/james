@@ -230,7 +230,7 @@ public class POP3Handler
             // in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "ASCII"), 512);
             in = new CRLFTerminatedReader(new BufferedInputStream(socket.getInputStream(), 512), "ASCII");
             remoteIP = socket.getInetAddress().getHostAddress ();
-            remoteHost = org.apache.james.dnsserver.DNSServer.getHostName(socket.getInetAddress());
+            remoteHost = socket.getInetAddress().getHostName ();
         } catch (Exception e) {
             if (getLogger().isErrorEnabled()) {
                 StringBuffer exceptionBuffer =

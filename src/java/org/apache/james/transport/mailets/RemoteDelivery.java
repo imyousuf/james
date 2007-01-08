@@ -221,7 +221,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
 
     private Perl5Matcher delayTimeMatcher; //matcher use at init time to parse delaytime parameters
     private MultipleDelayFilter delayFilter = new MultipleDelayFilter ();//used by accept to selcet the next mail ready for processing
-    private Properties defprops = new Properties(); // default properties for the javamail Session
+
     
     /**
      * Initialize the mailet
@@ -357,17 +357,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         } catch (UnknownHostException e) {
             log("Invalid bind setting (" + bindAddress + "): " + e.toString());
         }
-        
-        Iterator i = getInitParameterNames();
-        while (i.hasNext()) {
-            String name = (String) i.next();
-            if (name.startsWith("mail.")) {
-                defprops.put(name,getInitParameter(name));
-            }
-            
-        }
     }
-    
+
     /*
      * private method to log the extended SendFailedException introduced in JavaMail 1.3.2.
      */
@@ -1102,8 +1093,6 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             props.put("mail.smtp.auth","true");
         }
 
-        props.putAll(defprops);
-        
         Session session = Session.getInstance(props, null);
         try {
             while (!Thread.interrupted() && !destroyed) {

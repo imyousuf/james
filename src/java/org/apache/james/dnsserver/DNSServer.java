@@ -521,18 +521,6 @@ public class DNSServer
     }
 
     /**
-     * Simple backport from trunk of method to use dnsjava for hostname
-     * resolution, avoiding the cache inside of InetAddress.
-     */
-    public static String getHostName(InetAddress addr){
-        try {
-            return org.xbill.DNS.Address.getHostName(addr);
-        } catch (UnknownHostException e) {
-            return addr.getHostAddress();
-        }
-    }
-
-    /**
      * The dispose operation is called at the end of a components lifecycle.
      * Instances of this class use this method to release and destroy any
      * resources that they own.
