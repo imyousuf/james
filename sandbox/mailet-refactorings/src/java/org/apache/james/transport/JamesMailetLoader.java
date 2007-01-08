@@ -20,6 +20,9 @@
 
 package org.apache.james.transport;
 import javax.mail.MessagingException;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.sql.DataSource;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -27,8 +30,14 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.james.core.MailetConfigImpl;
 import org.apache.james.services.MailetLoader;
 
+import org.apache.mailet.DataSourceInject;
 import org.apache.mailet.Mailet;
 import org.apache.mailet.MailetException;
+import org.apache.mailet.MailetServiceJNDIRegistration;
+import org.apache.mailet.ServiceInject;
+import sun.util.logging.resources.logging;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.*;
 /**
  * Loads Mailets for use inside James.
  *
@@ -56,6 +65,23 @@ public class JamesMailetLoader extends Loader implements MailetLoader {
                     configImpl.setConfiguration(configuration);
                     configImpl.setMailetContext(new MailetContextWrapper(mailetContext, getLogger().getChildLogger(mailetName))); 
                     mailet.init(configImpl);
+                    
+                    for (Method m : mailet.getClass().getMethods()) {
+                        if (m.isAnnotationPresent(DataSourceInject.class)) {
+                            Annotation ann = m.getAnnotation(DataSourceInject.class);
+                            String key = ((DataSourceInject)ann).dsName();
+                            System.out.println(mailet.getMailetInfo()+" requires datasource "+key);
+                            String name=MailetServiceJNDIRegistration.DATA_SOURCE_CONTEXT+"/"+key;
+                            Context context=new InitialContext();
+                            DataSource datasource = (DataSource) context.lookup(name);
+                            Object[] args = new Object[1];
+                            args[0]=datasource;
+                            System.out.println(key+" is "+datasource);
+                            m.invoke(mailet, args);
+                            
+                        }
+                     }
+                    
                     return mailet;
                 } catch (ClassNotFoundException cnfe) {
                     //do this so we loop through all the packages

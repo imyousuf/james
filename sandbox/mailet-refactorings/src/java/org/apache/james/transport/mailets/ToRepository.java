@@ -23,10 +23,13 @@ package org.apache.james.transport.mailets;
 
 
 
+import javax.sql.DataSource;
+import org.apache.mailet.DataSourceInject;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailRepository;
 import org.apache.mailet.MailetException;
+import org.apache.mailet.ServiceInject;
 
 /**
  * Stores incoming Mail in the specified Repository.
@@ -54,9 +57,16 @@ public class ToRepository extends GenericMailet {
      */
     private String repositoryPath;
 
+    
+    @DataSourceInject(dsName="maildb")public void setDatasource(DataSource d) {
+        System.out.println(" just for kicks ... mailet got datasource ... "+d);
+    }
+    
     /**
      * Initialize the mailet, loading configuration information.
      */
+    
+    
     public void init() {
         repositoryPath = getInitParameter("repositoryPath");
         try {
