@@ -532,7 +532,7 @@ public class RemoteManagerHandler
     }
 
     /**
-     * Handler method called upon receipt of an HELP command.
+     * Handler method called upon receipt of a HELP command.
      * Returns whether further commands should be read off the wire.
      *
      * @param argument the argument passed in with the command
@@ -562,7 +562,7 @@ public class RemoteManagerHandler
         out.println("listdomains                                                             list local domains");
         out.println("listspool [spoolrepositoryname] ([header=name] [regex=value])           list all mails which reside in the spool and have an error state");
         out.println("flushspool [spoolrepositoryname] ([key] | [header=name] [regex=value])  try to resend the mail assing to the given key. If no key is given all mails get resend");
-        out.println("deletespool [spoolrepositoryname] ([key] | [header=name] [regex=value]) delete the mail assign to the given key. If no key is given all mails get deleted");
+        out.println("deletespool [spoolrepositoryname] ([key] | [header=name] [regex=value]) delete the mail assigned to the given key. If no key is given all mails get deleted");
         out.println("movemails [srcSpoolrepositoryname] [dstSpoolrepositoryname] ([header=headername] [regex=regexValue])");
         out.println("    [srcstate=sourcestate] [dststate=destinationstate]                  move mails from the source repository to the destination repository.");
         out.println("listprocessors [processorname]                                          list names of all processors");
