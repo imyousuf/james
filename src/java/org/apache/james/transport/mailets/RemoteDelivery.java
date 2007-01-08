@@ -223,7 +223,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
 
     private Perl5Matcher delayTimeMatcher; //matcher use at init time to parse delaytime parameters
     private MultipleDelayFilter delayFilter = new MultipleDelayFilter ();//used by accept to selcet the next mail ready for processing
-
+    private Properties defprops = new Properties(); // default properties for the javamail Session
     
     /**
      * Initialize the mailet
@@ -358,6 +358,14 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             if (isBindUsed) RemoteDeliverySocketFactory.setBindAdress(bindAddress);
         } catch (UnknownHostException e) {
             log("Invalid bind setting (" + bindAddress + "): " + e.toString());
+        }
+        
+        Iterator i = getInitParameterNames();
+        while (i.hasNext()) {
+            String name = (String) i.next();
+            if (name.startsWith("mail.")) {
+                defprops.put(name,getInitParameter(name));
+            }
         }
     }
 
@@ -1035,7 +1043,6 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
      * there are any
      */
     public void run() {
-
         /* TODO: CHANGE ME!!! The problem is that we need to wait for James to
          * finish initializing.  We expect the HELLO_NAME to be put into
          * the MailetContext, but in the current configuration we get
@@ -1047,9 +1054,10 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
          */
         long stop = System.currentTimeMillis() + 60000;
         while ((getMailetContext().getAttribute(Constants.HELLO_NAME) == null)
-               && stop > System.currentTimeMillis()) {
+            && stop > System.currentTimeMillis()) {
+            
             try {
-                Thread.sleep(1000);
+               Thread.sleep(1000);
             } catch (Exception ignored) {} // wait for James to finish initializing
         }
 
@@ -1073,9 +1081,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
 
         //Set the hostname we'll use as this server
         if (getMailetContext().getAttribute(Constants.HELLO_NAME) != null) {
-            props.put("mail.smtp.localhost", getMailetContext().getAttribute(Constants.HELLO_NAME));
-        }
-        else {
+           props.put("mail.smtp.localhost", getMailetContext().getAttribute(Constants.HELLO_NAME));
+        } else {
             String defaultDomain = (String) getMailetContext().getAttribute(Constants.DEFAULT_DOMAIN);
             if (defaultDomain != null) {
                 props.put("mail.smtp.localhost", defaultDomain);
@@ -1095,6 +1102,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             props.put("mail.smtp.auth","true");
         }
 
+        props.putAll(defprops);
+        
         Session session = Session.getInstance(props, null);
         try {
             while (!Thread.interrupted() && !destroyed) {
