@@ -8,4 +8,3 @@
 - Decide what to do with services and DI (logging and more).
 - Check if we can delete the ComposedJunkScore class. I think the class is not needed anymore
 - We should probably move logging of ok/deny operations from specific hooks to this Hook result interceptor
-- ValidRcptHandlerTest.testNotRejectInvalidUserAuth fails: imho (bago) the test is wrong, but we should check it.
