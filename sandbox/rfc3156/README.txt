@@ -1,3 +1,5 @@
+NOTE: This is the RFC 3156 OpenPGP/SMIME Development branch
+
   =======================================================================
   ===         The Apache Software Foundation JAMES Server             ===
   =======================================================================
