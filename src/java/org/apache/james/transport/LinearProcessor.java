@@ -58,7 +58,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Random;
 
 /**
  * Implements a processor for mails, directing the mail down
@@ -96,8 +95,6 @@ import java.util.Random;
 public class LinearProcessor 
     extends AbstractLogEnabled
     implements Disposable, Configurable, Serviceable, MailProcessor, MailetContainer {
-
-    private static final Random random = new Random();  // Used to generate new mail names
 
     /**
      *  The name of the matcher used to terminate the matcher chain.  The
@@ -431,7 +428,7 @@ public class LinearProcessor
                 // There are a mix of recipients and not recipients.
                 // We need to clone this message, put the notRecipients on the clone
                 // and store it in the next spot
-                Mail notMail = new MailImpl(mail,newName(mail));
+                Mail notMail = new MailImpl(mail);
                 notMail.setRecipients(notRecipients);
                 // set the state to the current processor
                 notMail.setState(originalState);
@@ -499,22 +496,6 @@ public class LinearProcessor
 
         }
     }
-
-    /**
-     * Create a unique new primary key name.
-     *
-     * @param mail the mail to use as the basis for the new mail name
-     * @return a new name
-     */
-    private String newName(Mail mail) {
-        StringBuffer nameBuffer =
-            new StringBuffer(64)
-                    .append(mail.getName())
-                    .append("-!")
-                    .append(random.nextInt(1048576));
-        return nameBuffer.toString();
-    }
-
 
 
     /**
