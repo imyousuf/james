@@ -76,7 +76,7 @@ def ProcessHeaders(headers, to_addrs, extract, fullname, from_addr):
 
 def main(argv):
     try:
-        optlist, list = getopt.getopt(sys.argv[1:], 'f:F:ht')
+        optlist, list = getopt.getopt(sys.argv[1:], 'f:F:hti')
     except getopt.GetoptError:
         Usage()
         print >> sys.stderr, "called exception"
@@ -120,15 +120,10 @@ def main(argv):
 
     msg = "\r\n".join(msg)
 
-#    print "MAIL FROM: " + from_addr
-#    print "RCPT TO: " + ", ".join(to_addrs)
-#    print msg
-
     if not to_addrs:
         print >> sys.stderr, "Must specify recipients on command line, or use -t with To: headers in message"
         sys.exit(0)
 
-#    sys.exit(0)
 
     server = smtplib.SMTP('127.0.0.1')
     server.set_debuglevel(0)
