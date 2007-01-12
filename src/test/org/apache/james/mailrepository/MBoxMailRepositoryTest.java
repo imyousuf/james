@@ -20,6 +20,10 @@
 
 package org.apache.james.mailrepository;
 
+import java.util.Iterator;
+
+import junit.framework.TestCase;
+
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.service.ServiceException;
@@ -30,29 +34,33 @@ import org.apache.james.test.mock.avalon.MockLogger;
  * NOTE NOTE NOTE: this test is disabled because MBoxMailRepository does not
  * currently support most simple operations for the MailRepository interface.
  */
-public class MBoxMailRepositoryTest extends AbstractMailRepositoryTest {
+public class MBoxMailRepositoryTest extends TestCase {
 
-    /**
-     * @return
-     * @throws ServiceException
-     * @throws ConfigurationException
-     * @throws Exception
-     */
+    
     protected MailRepository getMailRepository() throws ServiceException, ConfigurationException, Exception {
         MBoxMailRepository mr = new MBoxMailRepository();
 
         mr.enableLogging(new MockLogger());
         DefaultConfiguration defaultConfiguration = new DefaultConfiguration("ReposConf");
-        defaultConfiguration.setAttribute("destinationURL","mbox://target/var/mr/mbox");
+        defaultConfiguration.setAttribute("destinationURL","mbox://src/test/org/apache/james/mailrepository/testdata/inbox");
         defaultConfiguration.setAttribute("type","MAIL");
         mr.configure(defaultConfiguration);
         return mr;
     }
 
-    public void runBare() throws Throwable {
-        System.err.println("TEST DISABLED!");
-        // Decomment this or remove this method to re-enable the MBoxRepository testing
-        // super.runBare();
+    // Try to write a unit test for JAMES-744. At the moment it seems that we cannot reproduce it.
+    public void testReadMboxrdFile() throws ServiceException, ConfigurationException, Exception {
+        MailRepository mr = getMailRepository();
+    
+        Iterator keys = mr.list();
+    
+        assertTrue("Two messages in list", keys.hasNext());
+        keys.next();
+    
+        assertTrue("One messages in list", keys.hasNext());
+        keys.next();
+    
+        assertFalse("No messages", keys.hasNext());
     }
 
 }
