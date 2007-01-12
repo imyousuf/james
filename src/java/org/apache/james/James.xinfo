@@ -45,6 +45,9 @@
     <dependency>
       <service name="org.apache.james.services.DomainList" version="1.0"/>
     </dependency>
+    <dependency>
+      <service name="org.apache.james.mailboxmanager.manager.MailboxManagerProvider" version="1.0"/>
+    </dependency>      
   </dependencies>
 
 
