@@ -47,8 +47,17 @@ def ProcessHeaders(headers, to_addrs, extract, fullname, from_addr):
     for header in headers:
         if header.startswith("To:"):
             if extract:
-                to = header[3:]
-                to_addrs.append(to[("<" + to).rfind("<"):(to + ">").find(">")])
+
+                #to = header[3:]
+                #to_addrs.append(to[("<" + to).rfind("<"):(to + ">").find(">")])
+
+                allRecipientsString = header[3:]
+                allRecipientsArray = allRecipientsString.split(',')
+                
+                for recipient in allRecipientsArray:
+
+                  to_addrs.append(recipient[("<" + recipient).rfind("<"):(recipient + ">").find(">")])
+
         elif header.startswith("From:"):
             hasFrom = True
            
@@ -74,7 +83,7 @@ def main(argv):
         sys.exit(2)
 
     to_addrs = list
-    from_addr = os.environ['USER'] + '@' + socket.getfqdn()
+    from_addr = "postmaster@localhost"
 
     fullname = ""
     extract = False
