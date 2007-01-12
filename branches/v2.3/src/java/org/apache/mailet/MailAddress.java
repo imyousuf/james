@@ -170,9 +170,7 @@ public class MailAddress implements java.io.Serializable {
      * @throws  ParseException    if the parse failed
      */
     public MailAddress(String newUser, String newHost) throws ParseException {
-        /* NEEDS TO BE REWORKED TO VALIDATE EACH CHAR */
-        user = newUser;
-        host = newHost;
+        this(newUser+ "@" + newHost);
     }
 
     /**
@@ -218,6 +216,12 @@ public class MailAddress implements java.io.Serializable {
         return addressBuffer.toString();
     }
 
+    
+    /**
+     * Return MailAddress as InternetAddress
+     * 
+     * @return the address
+     */
     public InternetAddress toInternetAddress() {
         try {
             return new InternetAddress(toString());
