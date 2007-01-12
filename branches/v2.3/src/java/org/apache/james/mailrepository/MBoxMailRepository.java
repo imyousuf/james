@@ -81,7 +81,6 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Properties;
-import java.util.Vector;
 
 /**
  * Implementation of a MailRepository using UNIX mbox files.
@@ -605,10 +604,9 @@ public class MBoxMailRepository
      * @param mail
      */
     public void remove(Mail mail) {
-        // Convert the message into a key
-        Vector delVec = new Vector();
-        delVec.addElement(mail);
-        remove(delVec);
+        ArrayList remArray = new ArrayList();
+        remArray.add(mail);
+        remove(remArray);
     }
 
     /**
@@ -766,7 +764,7 @@ public class MBoxMailRepository
             return; // No lock, so exit
         }
         ArrayList keys = new ArrayList();
-        keys.add(key);
+        keys.add(retrieve(key));
 
         this.remove(keys);
         unlockMBox();
