@@ -37,6 +37,8 @@
              role="org.apache.avalon.cornerstone.services.scheduler.TimeScheduler"/>
     <provide name="database-connections"
              role="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector" />
+    <provide name="mailboxmanager"
+             role="org.apache.james.mailboxmanager.manager.MailboxManagerProvider" />         
   </block>
 
     
