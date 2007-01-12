@@ -242,6 +242,8 @@ public class ServerConnection extends AbstractLogEnabled
                 runnerPool.put(clientConnectionRunner);
             }
         }
+
+        synchronized (this) { notify(); } // match the wait(...) in the run() inner loop before accept().
     }
 
     /**
@@ -271,7 +273,13 @@ public class ServerConnection extends AbstractLogEnabled
             try {
                 Socket clientSocket = null;
                 try {
+                    while (maxOpenConn > 0 && clientConnectionRunners.size() >= maxOpenConn) {
+                        getLogger().warn("Maximum number of open connections (" +  clientConnectionRunners.size() + ") in use.");
+                        synchronized (this) { wait(10000); }
+                    }
+
                     clientSocket = serverSocket.accept();
+
                 } catch( InterruptedIOException iioe ) {
                     // This exception is expected upon ServerConnection shutdown.
                     // See the POLLING_INTERVAL comment
