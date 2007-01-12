@@ -83,8 +83,13 @@ def main(argv):
         sys.exit(2)
 
     to_addrs = list
-    from_addr = "postmaster@localhost"
-
+    
+    try:
+        from_addr = os.environ['USER'] + '@' + socket.getfqdn()
+    except KeyError:
+        from_addr = "root@" + socket.getfqdn()
+        
+        
     fullname = ""
     extract = False
 
