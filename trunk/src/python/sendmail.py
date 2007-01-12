@@ -130,7 +130,7 @@ def main(argv):
 
 #    sys.exit(0)
 
-    server = smtplib.SMTP('localhost')
+    server = smtplib.SMTP('127.0.0.1')
     server.set_debuglevel(0)
     server.sendmail(from_addr, to_addrs, msg)
     server.quit()
