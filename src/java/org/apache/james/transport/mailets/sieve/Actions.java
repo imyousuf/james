@@ -170,7 +170,9 @@ public class Actions
     public static void execute(ActionKeep anAction, Mail aMail,
             MailetContext aMailetContext) throws MessagingException
     {
-        ActionFileInto action = new ActionFileInto("INBOX");
+        MailAddress recipient = getSoleRecipient(aMail);
+        String inbox="#mail."+recipient.getUser()+".INBOX";
+        ActionFileInto action = new ActionFileInto(inbox);
         execute(action, aMail, aMailetContext);
     }
 
