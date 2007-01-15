@@ -87,7 +87,7 @@ def main(argv):
     try:
         from_addr = os.environ['USER'] + '@' + socket.getfqdn()
     except KeyError:
-        from_addr = "root@" + socket.getfqdn()
+        from_addr = "nobody@" + socket.getfqdn()
         
         
     fullname = ""
