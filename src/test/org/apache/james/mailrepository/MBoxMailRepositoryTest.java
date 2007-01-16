@@ -31,8 +31,11 @@ import org.apache.james.services.MailRepository;
 import org.apache.james.test.mock.avalon.MockLogger;
 
 /**
- * NOTE NOTE NOTE: this test is disabled because MBoxMailRepository does not
+ * NOTE this test *WAS* disabled because MBoxMailRepository does not
  * currently support most simple operations for the MailRepository interface.
+ * 
+ * NOTE this previously extended AbstractMailRepositoryTest to run all of the
+ * common mail repository tests on the MBox implementation.
  */
 public class MBoxMailRepositoryTest extends TestCase {
 
@@ -42,7 +45,7 @@ public class MBoxMailRepositoryTest extends TestCase {
 
         mr.enableLogging(new MockLogger());
         DefaultConfiguration defaultConfiguration = new DefaultConfiguration("ReposConf");
-        defaultConfiguration.setAttribute("destinationURL","mbox://src/test/org/apache/james/mailrepository/testdata/inbox");
+        defaultConfiguration.setAttribute("destinationURL","mbox://src/test/org/apache/james/mailrepository/testdata/Inbox");
         defaultConfiguration.setAttribute("type","MAIL");
         mr.configure(defaultConfiguration);
         return mr;
@@ -62,6 +65,14 @@ public class MBoxMailRepositoryTest extends TestCase {
     
         assertFalse("No messages", keys.hasNext());
     }
+
+    /*
+    public void runBare() throws Throwable {
+        System.err.println("TEST DISABLED!");
+        // Decomment this or remove this method to re-enable the MBoxRepository testing
+        // super.runBare();
+    }
+    */
 
 }
 
