@@ -37,7 +37,6 @@ import org.apache.james.Constants;
 import org.apache.james.mailboxmanager.mailbox.MailboxSession;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 import org.apache.james.userrepository.DefaultUser;
-import org.apache.jsieve.SieveException;
 import org.apache.jsieve.SieveFactory;
 import org.apache.jsieve.mail.MailAdapter;
 import org.apache.mailet.GenericMailet;
@@ -201,14 +200,14 @@ public class SieveToMultiMailbox extends GenericMailet {
         String sieveFileName="../apps/james/var/sieve/"+username+".sieve";
         if (new File(sieveFileName).canRead()) {
             getMailetContext().log("Passing over to sieve delivery for "+username);
-            storeMessageSieve(sieveFileName, mail);
+            storeMessageSieve(sieveFileName, username, mail);
         } else {
             getMailetContext().log(new File(sieveFileName).getAbsolutePath()+ " does not exists");
             storeMessageInbox(username, mail.getMessage());
         }
     }
     
-    void storeMessageSieve(String sieveFileName, Mail aMail) throws MessagingException {
+    void storeMessageSieve(String sieveFileName, String username, Mail aMail) throws MessagingException {
         // Evaluate the script against the mail
         try
         {
@@ -221,20 +220,14 @@ public class SieveToMultiMailbox extends GenericMailet {
         }
         catch (Exception ex)
         {
-            log("Exception evaluating Sieve script", ex);
-            // If there were errors, we redirect the email to the ERROR
-            // processor.
-            // In order for this server to meet the requirements of the SMTP
-            // specification,
-            // mails on the ERROR processor must be returned to the sender.
-            // Note that this
-            // email doesn't include any details regarding the details of the
-            // failure(s).
-            // In the future we may wish to address this.
-            getMailetContext().sendMail(aMail.getSender(),
-                    aMail.getRecipients(), aMail.getMessage(), Mail.ERROR);
-            throw new MessagingException("Exception evaluating Sieve script",
-                    ex);
+            //
+            // SLIEVE is a mail filtering protocol.
+            // Rejecting the mail because it cannot be filtered
+            // seems very unfriendly.
+            // So just log and store in INBOX.
+            //
+            log("Cannot evaluate Sieve script. Storing mail in user INBOX.", ex);
+            storeMessageInbox(username, aMail.getMessage());
         }
     }
     
