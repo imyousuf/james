@@ -16,18 +16,13 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
-
 package org.apache.james.smtpserver.hook;
-
 
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.mailet.MailAddress;
 
-
 /**
  * Implement this interfaces to hook in the MAIL Command
- * 
  */
 public interface RcptHook {
     

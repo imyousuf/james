@@ -17,10 +17,15 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.smtpserver;
+package org.apache.james.smtpserver.core;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.smtpserver.core.UnknownCmdHandler;
+import org.apache.james.smtpserver.CommandHandler;
+import org.apache.james.smtpserver.ExtensibleHandler;
+import org.apache.james.smtpserver.LineHandler;
+import org.apache.james.smtpserver.SMTPResponse;
+import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.smtpserver.WiringException;
 import org.apache.james.util.mail.SMTPRetCode;
 
 import java.io.UnsupportedEncodingException;

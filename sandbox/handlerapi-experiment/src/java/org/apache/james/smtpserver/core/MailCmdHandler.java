@@ -24,13 +24,18 @@ import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.MailHook;
+import org.apache.james.smtpserver.hook.MailParametersHook;
 import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.MailAddress;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 /**
@@ -39,9 +44,10 @@ import java.util.StringTokenizer;
 public class MailCmdHandler extends AbstractHookableCmdHandler implements
         CommandHandler {
 
-    private final static String MAIL_OPTION_SIZE = "SIZE";
-
-    private final static String MESG_SIZE = "MESG_SIZE"; // The size of the
+    /**
+     * A map of parameterHooks
+     */
+    private Map paramHooks;
                                                             // message
 
     /**
@@ -155,9 +161,9 @@ public class MailCmdHandler extends AbstractHookableCmdHandler implements
 
                     // Handle the SIZE extension keyword
 
-                    if (mailOptionName.startsWith(MAIL_OPTION_SIZE)) {
-                        SMTPResponse res = doMailSize(session, mailOptionValue,
-                                sender);
+                    if (paramHooks.containsKey(mailOptionName)) {
+                        MailParametersHook hook = (MailParametersHook) paramHooks.get(mailOptionName);
+                        SMTPResponse res = calcDefaultSMTPResponse(hook.doMailParameter(session, mailOptionName, mailOptionValue));
                         if (res != null) {
                             return res;
                         }
@@ -229,67 +235,6 @@ public class MailCmdHandler extends AbstractHookableCmdHandler implements
         }
         return null;
     }
-
-    /**
-     * Handles the SIZE MAIL option.
-     * 
-     * @param session
-     *            SMTP session object
-     * @param mailOptionValue
-     *            the option string passed in with the SIZE option
-     * @param tempSender
-     *            the sender specified in this mail command (for logging
-     *            purpose)
-     * @return true if further options should be processed, false otherwise
-     */
-    private SMTPResponse doMailSize(SMTPSession session,
-            String mailOptionValue, String tempSender) {
-        int size = 0;
-        try {
-            size = Integer.parseInt(mailOptionValue);
-        } catch (NumberFormatException pe) {
-            getLogger()
-                    .error(
-                            "Rejected syntactically incorrect value for SIZE parameter.");
-            // This is a malformed option value. We return an error
-            return new SMTPResponse(
-                    SMTPRetCode.SYNTAX_ERROR_ARGUMENTS,
-                    DSNStatus.getStatus(DSNStatus.PERMANENT,
-                            DSNStatus.DELIVERY_INVALID_ARG)
-                            + " Syntactically incorrect value for SIZE parameter");
-        }
-        if (getLogger().isDebugEnabled()) {
-            StringBuffer debugBuffer = new StringBuffer(128).append(
-                    "MAIL command option SIZE received with value ").append(
-                    size).append(".");
-            getLogger().debug(debugBuffer.toString());
-        }
-        long maxMessageSize = session.getConfigurationData()
-                .getMaxMessageSize();
-        if ((maxMessageSize > 0) && (size > maxMessageSize)) {
-            // Let the client know that the size limit has been hit.
-            StringBuffer errorBuffer = new StringBuffer(256).append(
-                    "Rejected message from ").append(
-                    tempSender != null ? tempSender : null).append(
-                    " from host ").append(session.getRemoteHost()).append(" (")
-                    .append(session.getRemoteIPAddress()).append(") of size ")
-                    .append(size).append(
-                            " exceeding system maximum message size of ")
-                    .append(maxMessageSize).append("based on SIZE option.");
-            getLogger().error(errorBuffer.toString());
-
-            return new SMTPResponse(SMTPRetCode.QUOTA_EXCEEDED, DSNStatus
-                    .getStatus(DSNStatus.PERMANENT,
-                            DSNStatus.SYSTEM_MSG_TOO_BIG)
-                    + " Message size exceeds fixed maximum message size");
-        } else {
-            // put the message size in the message state so it can be used
-            // later to restrict messages for user quotas, etc.
-            session.getState().put(MESG_SIZE, new Integer(size));
-        }
-        return null;
-    }
-
     /**
      * @see org.apache.james.smtpserver.core.AbstractHookableCmdHandler#getHookInterface()
      */
@@ -303,6 +248,34 @@ public class MailCmdHandler extends AbstractHookableCmdHandler implements
      */
     protected HookResult callHook(Object rawHook, SMTPSession session, String parameters) {
         return ((MailHook) rawHook).doMail(session,(MailAddress) session.getState().get(SMTPSession.SENDER));
+    }
+
+    
+    /**
+     * @see org.apache.james.smtpserver.core.AbstractHookableCmdHandler#getMarkerInterfaces()
+     */
+    public List getMarkerInterfaces() {
+        List l = super.getMarkerInterfaces();
+        l.add(MailParametersHook.class);
+        return l;
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.core.AbstractHookableCmdHandler#wireExtensions(java.lang.Class, java.util.List)
+     */
+    public void wireExtensions(Class interfaceName, List extension) {
+        if (MailParametersHook.class.equals(interfaceName)) {
+            this.paramHooks = new HashMap();
+            for (Iterator i = extension.iterator(); i.hasNext(); ) {
+                MailParametersHook hook = (MailParametersHook) i.next();
+                String[] params = hook.getMailParamNames();
+                for (int k = 0; k < params.length; k++) {
+                    paramHooks.put(params[k], hook);
+                }
+            }
+        } else {
+            super.wireExtensions(interfaceName, extension);
+        }
     }
 
 

@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.smtpserver.core;
+package org.apache.james.smtpserver.core.esmtp;
 
 import org.apache.james.smtpserver.SMTPSession;
 

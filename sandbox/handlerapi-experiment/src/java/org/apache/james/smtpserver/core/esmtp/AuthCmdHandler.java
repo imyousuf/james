@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.smtpserver.core;
+package org.apache.james.smtpserver.core.esmtp;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.smtpserver.CommandHandler;
@@ -32,6 +32,7 @@ import org.apache.james.smtpserver.hook.AuthHook;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookResultHook;
 import org.apache.james.smtpserver.hook.HookReturnCode;
+import org.apache.james.smtpserver.hook.MailParametersHook;
 import org.apache.james.util.Base64;
 import org.apache.james.util.mail.SMTPRetCode;
 import org.apache.james.util.mail.dsn.DSNStatus;
@@ -55,14 +56,13 @@ import java.util.StringTokenizer;
  */
 public class AuthCmdHandler
     extends AbstractLogEnabled
-    implements CommandHandler, EhloExtension, ExtensibleHandler {
+    implements CommandHandler, EhloExtension, ExtensibleHandler, MailParametersHook {
 
     private abstract class AbstractSMTPLineHandler implements LineHandler {
         
         public void onLine(SMTPSession session, byte[] line) {
             try {
                 String l = new String(line, "US-ASCII");
-                //System.err.println("((("+line+")))");
                 SMTPResponse res = onCommand(session,l);
                 session.popLineHandler();
                 session.writeSMTPResponse(res);
@@ -408,7 +408,7 @@ public class AuthCmdHandler
     }
 
     /**
-     * @see org.apache.james.smtpserver.core.EhloExtension#getImplementedEsmtpFeatures(org.apache.james.smtpserver.SMTPSession)
+     * @see org.apache.james.smtpserver.core.esmtp.EhloExtension#getImplementedEsmtpFeatures(org.apache.james.smtpserver.SMTPSession)
      */
     public List getImplementedEsmtpFeatures(SMTPSession session) {
         if (session.isAuthSupported()) {
@@ -454,6 +454,22 @@ public class AuthCmdHandler
      */
     protected List getHooks() {
         return hooks;
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.hook.MailParametersHook#doMailParameter(org.apache.james.smtpserver.SMTPSession, java.lang.String, java.lang.String)
+     */
+    public HookResult doMailParameter(SMTPSession session, String paramName, String paramValue) {
+        // Ignore the AUTH command.
+        // TODO we should at least check for correct syntax and put the result in session
+        return new HookResult(HookReturnCode.DECLINED);
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.hook.MailParametersHook#getMailParamNames()
+     */
+    public String[] getMailParamNames() {
+        return new String[] { "AUTH" };
     }
 
 }

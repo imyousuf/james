@@ -29,7 +29,6 @@ import java.util.Map;
 public interface SMTPSession {
 
     // Keys used to store/lookup data in the internal state hash map
-    public final static String MESG_FAILED = "MESG_FAILED";   // Message failed flag
     public final static String SENDER = "SENDER_ADDRESS";     // Sender's email address
     public final static String RCPT_LIST = "RCPT_LIST";   // The message recipients
     public final static String CURRENT_HELO_MODE = "CURRENT_HELO_MODE"; // HELO or EHLO

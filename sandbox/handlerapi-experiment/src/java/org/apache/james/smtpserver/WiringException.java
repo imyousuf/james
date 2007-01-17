@@ -23,6 +23,11 @@ public class WiringException extends Exception {
     /**
      * 
      */
+    private static final long serialVersionUID = 8824880646965171467L;
+
+    /**
+     * Empty constructor
+     */
     public WiringException() {
         super();
     }

@@ -47,12 +47,6 @@ public class UnknownCmdHandler implements CommandHandler {
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(org.apache.james.smtpserver.SMTPSession, java.lang.String, java.lang.String) 
     **/
     public SMTPResponse onCommand(SMTPSession session, String command, String parameters) {
-
-        //If there was message failure, don't consider it as an unknown command
-        if (session.getState().get(SMTPSession.MESG_FAILED) != null) {
-            return null;
-        }
-
         StringBuffer result = new StringBuffer();
         result.append(DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.DELIVERY_INVALID_CMD))
                       .append(" Command ")

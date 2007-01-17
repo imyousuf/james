@@ -136,9 +136,9 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
      * @see org.apache.avalon.framework.activity.Initializable#initialize()
      */
     public void initialize() throws Exception {
-        SMTPCommandDispatcherLineHandler commandDispatcherLineHandler = new SMTPCommandDispatcherLineHandler();
-        commandDispatcherLineHandler.enableLogging(getLogger());
-        handlers.add(commandDispatcherLineHandler);
+//        SMTPCommandDispatcherLineHandler commandDispatcherLineHandler = new SMTPCommandDispatcherLineHandler();
+//        commandDispatcherLineHandler.enableLogging(getLogger());
+//        handlers.add(commandDispatcherLineHandler);
         
         Iterator h = handlers.iterator();
     

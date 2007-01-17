@@ -94,7 +94,7 @@ public abstract class AbstractHookableCmdHandler extends AbstractLogEnabled
                         hRes = ((HookResultHook) rHook).onHookResult(session, hRes, rawHook);
                     }
                 }
-                SMTPResponse res = HookResultToSMTPResponse(hRes);
+                SMTPResponse res = calcDefaultSMTPResponse(hRes);
                 if (res != null) {
                     return res;
                 }
@@ -116,15 +116,8 @@ public abstract class AbstractHookableCmdHandler extends AbstractLogEnabled
     /**
      * Convert the HookResult to SMTPResponse using default values. Should be override for using own values
      * 
-     * @param result
-     * @return
-     */
-    protected SMTPResponse HookResultToSMTPResponse(HookResult result) {
-        return calcDefaultSMTPResponse(result);
-    }
-    
-    /**
-     * @param result
+     * @param result HookResult
+     * @return SMTPResponse
      */
     public static SMTPResponse calcDefaultSMTPResponse(HookResult result) {
         if (result != null) {

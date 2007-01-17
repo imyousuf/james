@@ -22,6 +22,9 @@
 package org.apache.james.smtpserver.core;
 
 import org.apache.james.smtpserver.HandlersPackage;
+import org.apache.james.smtpserver.core.esmtp.AuthCmdHandler;
+import org.apache.james.smtpserver.core.esmtp.EhloCmdHandler;
+import org.apache.james.smtpserver.core.esmtp.MailSizeEsmtpExtension;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -31,6 +34,7 @@ import java.util.List;
  */
 public class CoreCmdHandlerLoader implements HandlersPackage {
 
+    private final Object COMMANDDISPATCHER = SMTPCommandDispatcherLineHandler.class.getName();
     private final Object AUTHCMDHANDLER = AuthCmdHandler.class.getName();
     private final Object DATACMDHANDLER = DataCmdHandler.class.getName();
     private final Object EHLOCMDHANDLER = EhloCmdHandler.class.getName();
@@ -43,11 +47,13 @@ public class CoreCmdHandlerLoader implements HandlersPackage {
     private final Object RCPTCMDHANDLER = RcptCmdHandler.class.getName();
     private final Object RSETCMDHANDLER = RsetCmdHandler.class.getName();
     private final Object VRFYCMDHANDLER = VrfyCmdHandler.class.getName();
+    private final Object MAILSIZEHOOK = MailSizeEsmtpExtension.class.getName();
     private final Object WELCOMEMESSAGEHANDLER = WelcomeMessageHandler.class.getName();
     private final Object USERSREPOSITORYAUTHHANDLER = UsersRepositoryAuthHook.class.getName();
     private final Object POSTMASTERABUSEHOOK = PostmasterAbuseRcptHook.class.getName();
     private final Object AUTHREQUIREDTORELAY = AuthRequiredToRelayRcptHook.class.getName();
     private final Object SENDERAUTHIDENTITYVERIFICATION = SenderAuthIdentifyVerificationRcptHook.class.getName();
+    private final Object DATALINEMESSAGEHOOKHANDLER = DataLineMessageHookHandler.class.getName();
    
     /**
      * @see org.apache.james.smtpserver.HandlersPackage#getHandlers()
@@ -57,6 +63,7 @@ public class CoreCmdHandlerLoader implements HandlersPackage {
         
         // Insert the basecommands in the Map
         commands.add(WELCOMEMESSAGEHANDLER);
+        commands.add(COMMANDDISPATCHER);
         commands.add(AUTHCMDHANDLER);
         commands.add(DATACMDHANDLER);
         commands.add(EHLOCMDHANDLER);
@@ -69,10 +76,12 @@ public class CoreCmdHandlerLoader implements HandlersPackage {
         commands.add(RCPTCMDHANDLER);
         commands.add(RSETCMDHANDLER);
         commands.add(VRFYCMDHANDLER);
+        commands.add(MAILSIZEHOOK);
         commands.add(USERSREPOSITORYAUTHHANDLER);
         commands.add(AUTHREQUIREDTORELAY);
         commands.add(SENDERAUTHIDENTITYVERIFICATION);
         commands.add(POSTMASTERABUSEHOOK);
+        commands.add(DATALINEMESSAGEHOOKHANDLER);
         
         return commands;
     }

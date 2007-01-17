@@ -24,7 +24,6 @@ import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
-import org.apache.james.smtpserver.MessageSizeException;
 import org.apache.james.userrepository.MockUsersRepository;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
@@ -46,7 +45,6 @@ public class MockMailServer implements MailServer, Disposable {
     private final MockUsersRepository m_users = new MockUsersRepository();
 
     private static int m_counter = 0;
-    private int m_maxMessageSizeBytes = 0;
 
     // private final ArrayList mails = new ArrayList();
     
@@ -81,13 +79,8 @@ public class MockMailServer implements MailServer, Disposable {
     }
 
     public void sendMail(Mail mail) throws MessagingException {
-        int bodySize = mail.getMessage().getSize();
-        try {
-            if (m_maxMessageSizeBytes != 0 && m_maxMessageSizeBytes < bodySize) throw new MessageSizeException();
-        } catch (MessageSizeException e) {
-            throw new MessagingException("message size exception is nested", e);
-        }
-        
+        // if we don't call this the body is lost because the source stream is disposed.
+        mail.getMessage().getSize();
         lastMailKey = mail.getName();
         mails.store(mail);
         // sendMail(mail.getSender(), mail.getRecipients(), mail.getMessage());
@@ -159,10 +152,6 @@ public class MockMailServer implements MailServer, Disposable {
             e.printStackTrace();
         }
         return null;
-    }
-
-    public void setMaxMessageSizeBytes(int maxMessageSizeBytes) {
-        m_maxMessageSizeBytes = maxMessageSizeBytes;
     }
 
     public void dispose() {

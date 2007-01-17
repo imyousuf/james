@@ -17,11 +17,12 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.smtpserver.core;
+package org.apache.james.smtpserver.core.esmtp;
 
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.smtpserver.core.AbstractHookableCmdHandler;
 import org.apache.james.smtpserver.hook.HeloHook;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.util.mail.SMTPRetCode;
@@ -65,13 +66,6 @@ public class EhloCmdHandler extends AbstractHookableCmdHandler implements
                 .getHelloName()).append(" Hello ").append(argument)
                 .append(" (").append(session.getRemoteHost()).append(" [")
                 .append(session.getRemoteIPAddress()).append("])"));
-
-        // Extension defined in RFC 1870
-        long maxMessageSize = session.getConfigurationData()
-                .getMaxMessageSize();
-        if (maxMessageSize > 0) {
-            resp.appendLine("SIZE " + maxMessageSize);
-        }
 
         processExtensions(session, resp);
 

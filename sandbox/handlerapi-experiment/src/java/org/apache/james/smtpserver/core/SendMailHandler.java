@@ -26,7 +26,6 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.services.MailServer;
-import org.apache.james.smtpserver.MessageSizeException;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookReturnCode;
@@ -82,40 +81,11 @@ public class SendMailHandler
                          .append(recipientString);
                 getLogger().info(infoBuffer.toString());
             }
-         } catch (MessagingException me) {
-              // Grab any exception attached to this one.
-              Exception e = me.getNextException();
-              // If there was an attached exception, and it's a
-              // MessageSizeException
-              if (e != null && e instanceof MessageSizeException) {
-                   // Add an item to the state to suppress
-                   // logging of extra lines of data
-                   // that are sent after the size limit has
-                   // been hit.
-                   session.getState().put(SMTPSession.MESG_FAILED, Boolean.TRUE);
-                   // then let the client know that the size
-                   // limit has been hit.
-                  
-                   StringBuffer errorBuffer =
-                     new StringBuffer(256)
-                         .append("Rejected message from ")
-                         .append(session.getState().get(SMTPSession.SENDER).toString())
-                         .append(" from host ")
-                         .append(session.getRemoteHost())
-                         .append(" (")
-                         .append(session.getRemoteIPAddress())
-                         .append(") exceeding system maximum message size of ")
-                         .append(session.getConfigurationData().getMaxMessageSize());
-                   getLogger().error(errorBuffer.toString());
-                   
-                   return new HookResult(HookReturnCode.OK, DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SYSTEM_MSG_TOO_BIG)+" Error processing message.");
-              } else {
-                   getLogger().error("Unknown error occurred while processing DATA.", me);
-                   
-                   return new HookResult(HookReturnCode.DENYSOFT,DSNStatus.getStatus(DSNStatus.TRANSIENT,DSNStatus.UNDEFINED_STATUS)+" Error processing message.");
-              }
-         }
-         return new HookResult(HookReturnCode.OK, DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.CONTENT_OTHER)+" Message received");
+        } catch (MessagingException me) {
+            getLogger().error("Unknown error occurred while processing DATA.", me);
+            return new HookResult(HookReturnCode.DENYSOFT,DSNStatus.getStatus(DSNStatus.TRANSIENT,DSNStatus.UNDEFINED_STATUS)+" Error processing message.");
+        }
+        return new HookResult(HookReturnCode.OK, DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.CONTENT_OTHER)+" Message received");
     }
 
 }
