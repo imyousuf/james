@@ -23,11 +23,12 @@ Releases:
 
 Votes:
 	Open:
-    danny [VOTE] Mailet API as sub-project  
     bago [VOTE] InetAddress unbounded cache patch backport 
     
     
 	Resolved:
+    danny [VOTE] Mailet API as sub-project  
+        8 +1's no -1's
 	bago [VOTE] James Server future releases/road maps	
 		Unanimous +1 to "next-major"
 		0 to "next-minor"
