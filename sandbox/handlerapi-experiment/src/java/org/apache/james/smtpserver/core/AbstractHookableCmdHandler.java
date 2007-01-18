@@ -147,7 +147,7 @@ public abstract class AbstractHookableCmdHandler extends AbstractLogEnabled
     
                 return new SMTPResponse(smtpRetCode, smtpDesc);
             } else {
-                // TODO !? What do we have to do? Is there a default?
+                // Return null as default
                 return null;
             }
         } else {

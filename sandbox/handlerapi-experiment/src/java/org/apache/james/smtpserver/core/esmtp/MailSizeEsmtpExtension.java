@@ -78,9 +78,8 @@ public class MailSizeEsmtpExtension extends AbstractLogEnabled implements
         try {
             size = Integer.parseInt(mailOptionValue);
         } catch (NumberFormatException pe) {
-            getLogger()
-                    .error(
-                            "Rejected syntactically incorrect value for SIZE parameter.");
+            getLogger().error("Rejected syntactically incorrect value for SIZE parameter.");
+            
             // This is a malformed option value. We return an error
             return new HookResult(HookReturnCode.DENY, 
                     SMTPRetCode.SYNTAX_ERROR_ARGUMENTS,
@@ -120,6 +119,9 @@ public class MailSizeEsmtpExtension extends AbstractLogEnabled implements
         return null;
     }
 
+    /**
+     * @see org.apache.james.smtpserver.core.DataLineFilter#onLine(org.apache.james.smtpserver.SMTPSession, byte[], org.apache.james.smtpserver.LineHandler)
+     */
     public void onLine(SMTPSession session, byte[] line, LineHandler next) {
         Boolean failed = (Boolean) session.getState().get(MESG_FAILED);
         // If we already defined we failed and sent a reply we should simply
@@ -156,6 +158,9 @@ public class MailSizeEsmtpExtension extends AbstractLogEnabled implements
         }
     }
 
+    /**
+     * @see org.apache.james.smtpserver.hook.MessageHook#onMessage(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.Mail)
+     */
     public HookResult onMessage(SMTPSession session, Mail mail) {
         Boolean failed = (Boolean) session.getState().get(MESG_FAILED);
         if (failed != null && failed.booleanValue()) {

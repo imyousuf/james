@@ -294,7 +294,6 @@ public class DataCmdHandler
 
 
     /**
-     * @throws WiringException 
      * @see org.apache.james.smtpserver.ExtensibleHandler#wireExtensions(java.lang.Class, java.util.List)
      */
     public void wireExtensions(Class interfaceName, List extension) throws WiringException {
