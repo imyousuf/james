@@ -35,7 +35,6 @@
          <blacklist> sbl-xbl.spamhaus.org. </blacklist>
          <blacklist> dul.dnsbl.sorbs.net. </blacklist>
          <blacklist> list.dsbl.org. </blacklist>
-         <blacklist> relays.ordb.org. </blacklist>
       </rblservers>
    </handler>            
    -->            
