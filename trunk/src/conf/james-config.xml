@@ -481,13 +481,7 @@ Regards, Postmaster XXX.YYY
            <processor> spam </processor>
            <notice>550 Requested action not taken: rejected - see http://njabl.org/ </notice>
          </mailet>
-
-         <mailet match="InSpammerBlacklist=relays.ordb.org."
-                 class="ToProcessor">
-           <processor> spam </processor>
-           <notice>550 Requested action not taken: rejected - see http://www.ordb.org/ </notice>
-         </mailet>
-
+         
          <!-- Sample matching to kill a message (send to Null) -->
          <!--
          <mailet match="RecipientIs=badboy@badhost" class="Null"/>
