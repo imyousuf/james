@@ -77,7 +77,7 @@ public abstract class AbstractDomainList extends AbstractLogEnabled implements S
        
             if (getLogger().isInfoEnabled()) {
                 for (Iterator i = domains.iterator(); i.hasNext(); ) {
-                    getLogger().info("Handling mail for: " + i.next());
+                    getLogger().debug("Handling mail for: " + i.next());
                 }
             }  
             return domains;
