@@ -71,7 +71,7 @@ public class XMLDomainList extends AbstractDomainList implements Configurable {
         // This is set to true to get sure now new domain can get added or removed
         // after the domains were retrieved by James.java. See is a workaround!
         managementDisabled = true;
-        return domainNames;
+        return new ArrayList(domainNames);
     }
 
     /**
