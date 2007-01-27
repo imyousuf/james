@@ -490,13 +490,12 @@ public class SMTPServerTest extends TestCase {
         smtpProtocol1.helo(InetAddress.getLocalHost().toString());
 
         String sender1 = "mail_sender1@xfwrqqfgfe.de";
-        String sender2 = "mail_sender2@james.apache.org";
         
         smtpProtocol1.setSender(sender1);
         assertEquals("expected 501 error", 501, smtpProtocol1.getReplyCode());
-    
-        smtpProtocol1.setSender(sender2);
-
+        
+        smtpProtocol1.addRecipient("test@localhost");
+        assertEquals("Recipient not accepted cause no valid sender", 503, smtpProtocol1.getReplyCode());
         smtpProtocol1.quit();
         
     }
