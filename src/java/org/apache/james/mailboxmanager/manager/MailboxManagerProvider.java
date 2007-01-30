@@ -65,7 +65,7 @@ public interface MailboxManagerProvider {
      * @param forUser TODO
      * @param user
      * 
-     * @return
+     * @return <code>Namespaces</code> TODO: allows nulls?
      */
     Namespaces getNamespaces(User forUser);
 
@@ -76,7 +76,7 @@ public interface MailboxManagerProvider {
      * TODO add a convinience method to get directly a session mailbox for a users inbox
      * @param forUser TODO
      * 
-     * @return
+     * @return <code>Namespace</code> TODO: allows nulls?
      */
     Namespace getPersonalDefaultNamespace(User forUser);
 
