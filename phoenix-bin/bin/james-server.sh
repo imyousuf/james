@@ -137,6 +137,10 @@ if [ "$PHOENIX_SECURE" != "false" ] ; then
   JVM_OPTS="$JVM_OPTS -Djava.security.manager"
 fi
 
+# Make sure we don't run with a never expiring cache for InetAddress
+# In Phoenix Main this is read and applied as Security.setProperty
+PHOENIX_JVM_OPTS="$PHOENIX_JVM_OPTS -Dnetworkaddress.cache.ttl=300"
+
 # change to the bin directory
 cd $PHOENIX_HOME/bin
 
