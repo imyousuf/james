@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+
+<blockinfo>
+
+  <!-- section to describe block -->
+  <block>
+    <version>1.0</version>
+  </block>
+
+  <services>
+    <service name="org.apache.james.services.SpoolManagementService" version="1.0" />
+  </services>
+    
+  <!-- interfaces that may be exported to manange this block -->
+  <management-access-points>
+    <service name="org.apache.james.management.SpoolManagementMBean"/>
+  </management-access-points>
+
+  <dependencies>
+    <dependency>
+      <service name="org.apache.avalon.cornerstone.services.store.Store" version="1.0"/>
+    </dependency>
+  </dependencies>
+</blockinfo>
