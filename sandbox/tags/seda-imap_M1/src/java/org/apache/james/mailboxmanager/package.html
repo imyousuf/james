@@ -1,0 +1,19 @@
+<html>
+  <head>
+    <title></title>
+  </head>
+  <body>
+    <p> This is now some kind of complete as it reflects the ideas I have in mind. Of
+    course it's still far away from being finished. There maybe cleaner ways than MessageResult
+    and GeneralMessageSet... It would be much easier to just write an API for a JDBC based
+    IMAP backend. I hope for discussion and help to make this fit into James.</p>
+    <p> Main topic of discussion should be MailboxRepository and the interfaces which
+      ImapMailbox extends.
+      <br/> Quota and Acl/Rights will stay drafts until the time has come. </p>
+    <p>The level of integration into James code base is an important question. It should be
+      possible to introduce this without having to touch existing James code.
+      NamespaceMailRepository will lookup and wrap a Mailbox. In a long term view more
+      integration should be done like using namespaces in whole james, because it makes no
+      sense to deal with two different approaches which blows up code base.</p>
+  </body>
+</html>
