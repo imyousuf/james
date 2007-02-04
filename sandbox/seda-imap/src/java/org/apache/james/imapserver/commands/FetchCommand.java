@@ -34,6 +34,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.james.core.MimeMessageWrapper;
+import org.apache.james.imapserver.AuthorizationException;
 import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
@@ -61,54 +62,6 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
     public static final String ARGS = "<message-set> <fetch-profile>";
 
     private FetchCommandParser parser = new FetchCommandParser();
-
-    /** @see CommandTemplate#doProcess */
-    protected void doProcess( ImapRequestLineReader request,
-                              ImapResponse response,
-                              ImapSession session )
-            throws ProtocolException, MailboxException
-    {
-        doProcess( request, response, session, false );
-    }
-
-    public void doProcess( ImapRequestLineReader request,
-                              ImapResponse response,
-                              ImapSession session,
-                              boolean useUids )
-            throws ProtocolException, MailboxException
-    {
-        IdRange[] idSet = parser.parseIdRange( request );
-        FetchRequest fetch = parser.fetchRequest( request );
-        parser.endLine( request );
-        
-        if (useUids) {
-            fetch.uid = true;
-        }
-
-        // TODO only fetch needed results
-        int resultToFetch = MessageResult.FLAGS | MessageResult.MIME_MESSAGE
-                | MessageResult.INTERNAL_DATE | MessageResult.MSN
-                | MessageResult.SIZE;
-        ImapMailboxSession mailbox = session.getSelected().getMailbox();
-        for (int i = 0; i < idSet.length; i++) {
-            GeneralMessageSet messageSet=GeneralMessageSetImpl.range(idSet[i].getLowVal(),idSet[i].getHighVal(),useUids);
-            MessageResult[] result;
-            try {
-                result = mailbox.getMessages(messageSet,resultToFetch);
-            } catch (MailboxManagerException e) {
-                throw new MailboxException(e);
-            }
-            for (int j = 0; j < result.length; j++) {
-                String msgData = outputMessage( fetch, result[j], mailbox, useUids );
-                response.fetchResponse( result[j].getMsn(), msgData );
-
-            }
-        }
-
-        boolean omitExpunged = (!useUids);
-        session.unsolicitedResponses( response, omitExpunged , useUids);
-        response.commandComplete( this );
-    }
 
     private String outputMessage(FetchRequest fetch, MessageResult result,
             ImapMailboxSession mailbox, boolean useUids)
@@ -548,6 +501,108 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
         }
     }
 
+    protected AbstractImapCommandMessage decode(ImapRequestLineReader request) throws ProtocolException {
+        final AbstractImapCommandMessage result = decode(request, false);
+        return result;
+    }
+
+    public AbstractImapCommandMessage decode(ImapRequestLineReader request, boolean useUids) throws ProtocolException {
+        IdRange[] idSet = parser.parseIdRange( request );
+        FetchRequest fetch = parser.fetchRequest( request );
+        parser.endLine( request );
+        
+        final FetchCommandMessage result = new FetchCommandMessage(useUids, idSet, fetch);
+        return result;
+    }
+    
+    private class FetchCommandMessage extends AbstractImapCommandMessage {
+        private final boolean useUids;
+        private final IdRange[] idSet;
+        private final FetchRequest fetch;
+        
+
+        public FetchCommandMessage(final boolean useUids, final IdRange[] idSet, final FetchRequest fetch) {
+            super();
+            this.useUids = useUids;
+            this.idSet = idSet;
+            this.fetch = fetch;
+            if (useUids) {
+                fetch.uid = true;
+            }
+        }
+
+
+        protected ImapResponseMessage doProcess(ImapSession session) throws MailboxException, AuthorizationException, ProtocolException {
+            
+            FetchResponseMessage result = new FetchResponseMessage(FetchCommand.this, useUids);
+            // TODO only fetch needed results
+            int resultToFetch = MessageResult.FLAGS | MessageResult.MIME_MESSAGE
+                    | MessageResult.INTERNAL_DATE | MessageResult.MSN
+                    | MessageResult.SIZE;
+            ImapMailboxSession mailbox = session.getSelected().getMailbox();
+            for (int i = 0; i < idSet.length; i++) {
+                GeneralMessageSet messageSet=GeneralMessageSetImpl.range(idSet[i].getLowVal(),idSet[i].getHighVal(),useUids);
+                MessageResult[] fetchResults;
+                try {
+                    fetchResults = mailbox.getMessages(messageSet,resultToFetch);
+                } catch (MailboxManagerException e) {
+                    throw new MailboxException(e);
+                }
+                for (int j = 0; j < fetchResults.length; j++) {
+                    String msgData = outputMessage( fetch, fetchResults[j], mailbox, useUids );
+                    // TODO: this is inefficient
+                    // TODO: stream output upon response
+                    result.addMessageData(fetchResults[j].getMsn(), msgData );
+                }
+            }
+            return result;
+        }
+    }
+
+    private static class FetchResponseMessage extends AbstractCommandResponseMessage {
+
+        private final boolean useUids;
+        
+        public FetchResponseMessage(final ImapCommand command, final boolean useUids) {
+            super(command);
+            this.useUids = useUids;
+        }
+
+        private List messages = new ArrayList();
+        
+        public void addMessageData(int number, String messageData) {
+            final MessageData data = new MessageData(number, messageData);
+            messages.add(data);
+        }
+        
+        void doEncode(ImapResponse response, ImapSession session, ImapCommand command) throws MailboxException {
+            for (final Iterator it=messages.iterator();it.hasNext();) {
+                MessageData data = (MessageData) it.next();
+                data.encode(response);
+            }
+            boolean omitExpunged = (!useUids);
+            session.unsolicitedResponses( response, omitExpunged , useUids);
+            response.commandComplete( command );
+            
+        }
+        
+        private class MessageData {
+            // TODO: this is not an efficient solution
+            // TODO: would be better to lazy load and stream on output
+            // TODO: this is just a transitional solution
+            private final int number;
+            private final String data;
+            public MessageData(final int number, final String data) {
+                super();
+                this.number = number;
+                this.data = data;
+            }
+            
+            public void encode(ImapResponse response) {
+                response.fetchResponse(number, data);
+            }
+        }
+    }
 }
 /*
 6.4.5.  FETCH Command

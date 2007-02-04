@@ -39,6 +39,7 @@ public interface ImapSession
     /**
      * Sends any unsolicited responses to the client, such as EXISTS and FLAGS
      * responses when the selected mailbox is modified by another user.
+     * TODO: this probably should not throw a MailboxException
      * @param response The response to write to
      */
     void unsolicitedResponses( ImapResponse response, boolean useUid ) throws MailboxException;

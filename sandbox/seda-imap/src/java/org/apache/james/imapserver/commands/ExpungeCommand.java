@@ -19,8 +19,8 @@
 
 package org.apache.james.imapserver.commands;
 
+import org.apache.james.imapserver.AuthorizationException;
 import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
 import org.apache.james.imapserver.store.MailboxException;
@@ -38,29 +38,8 @@ class ExpungeCommand extends SelectedStateCommand
 {
     public static final String NAME = "EXPUNGE";
     public static final String ARGS = null;
-
-    /** @see CommandTemplate#doProcess */
-    protected void doProcess( ImapRequestLineReader request,
-                              ImapResponse response,
-                              ImapSession session )
-            throws ProtocolException, MailboxException
-    {
-        parser.endLine( request );
-
-        ImapMailboxSession mailbox = session.getSelected().getMailbox();
-        if (!mailbox.isWriteable()) {
-            response.commandFailed( this, "Mailbox selected read only." );
-        }
-       
-        try {
-            mailbox.expunge(GeneralMessageSetImpl.all(),MessageResult.NOTHING);
-        } catch (MailboxManagerException e) {
-            throw new MailboxException(e);
-        }
-
-        session.unsolicitedResponses( response, false );
-        response.commandComplete( this );
-    }
+    
+    private ExpungeCommandMessage message = new ExpungeCommandMessage();
 
     /** @see ImapCommand#getName */
     public String getName()
@@ -72,6 +51,31 @@ class ExpungeCommand extends SelectedStateCommand
     public String getArgSyntax()
     {
         return ARGS;
+    }
+
+    protected AbstractImapCommandMessage decode(ImapRequestLineReader request) throws ProtocolException {
+        parser.endLine( request );
+        return message;
+    }
+    
+    private class ExpungeCommandMessage extends AbstractImapCommandMessage {
+
+        protected ImapResponseMessage doProcess(ImapSession session) throws MailboxException, AuthorizationException, ProtocolException {
+            ImapResponseMessage result;
+            ImapMailboxSession mailbox = session.getSelected().getMailbox();
+            if (!mailbox.isWriteable()) {
+                result = new CommandFailedResponseMessage(ExpungeCommand.this, "Mailbox selected read only." );
+            } else {
+                try {
+                    mailbox.expunge(GeneralMessageSetImpl.all(),MessageResult.NOTHING);
+                    result = new CommandCompleteResponseMessage(false, ExpungeCommand.this);
+                } catch (MailboxManagerException e) {
+                    throw new MailboxException(e);
+                }
+            }
+            return result;
+        }
+        
     }
 }
 /*

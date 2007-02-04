@@ -19,10 +19,12 @@
 
 package org.apache.james.imapserver.commands;
 
+import org.apache.james.imapserver.AuthorizationException;
 import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
+import org.apache.james.imapserver.store.MailboxException;
 
 /**
  * Handles processeing for the LOGOUT imap command.
@@ -35,18 +37,9 @@ class LogoutCommand extends CommandTemplate
     public static final String ARGS = null;
     public static final String BYE_MESSAGE = VERSION + SP + "Server logging out";
 
-    /** @see CommandTemplate#doProcess */
-    protected void doProcess( ImapRequestLineReader request,
-                              ImapResponse response,
-                              ImapSession session ) throws ProtocolException
-    {
-        parser.endLine( request );
-
-        response.byeResponse( BYE_MESSAGE );
-        response.commandComplete( this );
-        session.closeConnection();
-    }
-
+    private final LogoutCommandMessage message = new LogoutCommandMessage();
+    private final LogoutResponseMessage response = new LogoutResponseMessage(this);
+    
     /** @see ImapCommand#getName */
     public String getName()
     {
@@ -57,6 +50,37 @@ class LogoutCommand extends CommandTemplate
     public String getArgSyntax()
     {
         return ARGS;
+    }
+
+    protected AbstractImapCommandMessage decode(ImapRequestLineReader request) throws ProtocolException {
+        parser.endLine( request );
+        return message;
+    }
+    
+    private class LogoutCommandMessage extends AbstractImapCommandMessage {
+
+        protected ImapResponseMessage doProcess(ImapSession session) throws MailboxException, AuthorizationException, ProtocolException {
+            return response;
+        }
+        
+    }
+    
+    private static class LogoutResponseMessage extends AbstractCommandResponseMessage implements ImapCommandMessage {
+
+        public LogoutResponseMessage(ImapCommand command) {
+            super(command);
+        }
+
+        void doEncode(ImapResponse response, ImapSession session, ImapCommand command) throws MailboxException {
+            response.byeResponse( BYE_MESSAGE );
+            response.commandComplete( command );
+            // TODO: think about how this will work with SEDA
+            session.closeConnection();            
+        }
+
+        public ImapResponseMessage process(ImapSession session) {
+            return this;
+        }
     }
 }
 

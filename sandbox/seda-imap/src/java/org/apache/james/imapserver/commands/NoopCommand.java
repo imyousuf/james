@@ -20,10 +20,7 @@
 package org.apache.james.imapserver.commands;
 
 import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ImapResponse;
-import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
-import org.apache.james.imapserver.store.MailboxException;
 
 /**
  * Handles processeing for the NOOP imap command.
@@ -34,17 +31,7 @@ class NoopCommand extends CommandTemplate
 {
     public static final String NAME = "NOOP";
     public static final String ARGS = null;
-
-    /** @see org.apache.james.imapserver.commands.CommandTemplate#doProcess */
-    protected void doProcess( ImapRequestLineReader request,
-                              ImapResponse response,
-                              ImapSession session ) throws ProtocolException, MailboxException
-    {
-        parser.endLine( request );
-        session.unsolicitedResponses( response, false );
-        response.commandComplete( this );
-    }
-
+    
     /** @see ImapCommand#getName */
     public String getName()
     {
@@ -55,6 +42,11 @@ class NoopCommand extends CommandTemplate
     public String getArgSyntax()
     {
         return ARGS;
+    }
+
+    protected AbstractImapCommandMessage decode(ImapRequestLineReader request) throws ProtocolException {
+        parser.endLine( request );
+        return new CompleteCommandMessage(false);
     }
 }
 

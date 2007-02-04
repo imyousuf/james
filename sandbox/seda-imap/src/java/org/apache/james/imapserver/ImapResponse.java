@@ -19,29 +19,31 @@
 
 package org.apache.james.imapserver;
 
-import java.io.OutputStream;
-import java.io.PrintWriter;
-
 import javax.mail.Flags;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.imapserver.commands.ImapCommand;
 import org.apache.james.imapserver.store.MessageFlags;
-import org.apache.james.util.InternetPrintWriter;
 
 /**
  * Class providing methods to send response messages from the server
  * to the client.
  */
-public class ImapResponse  extends AbstractLogEnabled implements ImapConstants {
+public class ImapResponse extends AbstractLogEnabled implements ImapConstants, ImapResponseWriter {
     
-    private PrintWriter writer;
+    public static final String FETCH = "FETCH";
+    public static final String EXPUNGE = "EXPUNGE";
+    public static final String RECENT = "RECENT";
+    public static final String EXISTS = "EXISTS";
+    public static final String FLAGS = "FLAGS";
+    public static final String FAILED = "failed.";
+    private final ImapResponseWriter writer;
     private String tag = UNTAGGED;
 
-    public ImapResponse( OutputStream output )
+    public ImapResponse( final ImapResponseWriter writer )
     {
-        this.writer = new InternetPrintWriter( output, true );
+        this.writer = writer;
     }
 
     public void setTag( String tag )
@@ -112,11 +114,11 @@ public class ImapResponse  extends AbstractLogEnabled implements ImapConstants {
         message( NO );
         responseCode( responseCode );
         commandName( command );
-        message( "failed." );
+        message( FAILED );
         message( reason );
         end();
         final Logger logger = getLogger();
-        if (logger.isInfoEnabled()) {
+        if (logger!= null && logger.isInfoEnabled()) {
             logger.info("COMMAND FAILED [" + responseCode + "] - " + reason);
         }
     }
@@ -136,7 +138,7 @@ public class ImapResponse  extends AbstractLogEnabled implements ImapConstants {
         message( message );
         end();
         final Logger logger = getLogger();
-        if (logger.isInfoEnabled()) {
+        if (logger != null && logger.isInfoEnabled()) {
             logger.info("ERROR - " + message); 
         }
     }
@@ -151,7 +153,7 @@ public class ImapResponse  extends AbstractLogEnabled implements ImapConstants {
         message( message );
         end();
         final Logger logger = getLogger(); 
-        if (logger.isInfoEnabled()) { 
+        if (logger != null && logger.isInfoEnabled()) { 
             logger.info("BAD - " + message); 
         }
     }
@@ -174,7 +176,7 @@ public class ImapResponse  extends AbstractLogEnabled implements ImapConstants {
     public void flagsResponse( Flags flags )
     {
         untagged();
-        message( "FLAGS" );
+        message( FLAGS );
         message( MessageFlags.format(flags) );
         end();
     }
@@ -183,7 +185,7 @@ public class ImapResponse  extends AbstractLogEnabled implements ImapConstants {
     {
         untagged();
         message( count );
-        message( "EXISTS" );
+        message( EXISTS );
         end();
     }
 
@@ -191,7 +193,7 @@ public class ImapResponse  extends AbstractLogEnabled implements ImapConstants {
     {
         untagged();
         message( count );
-        message( "RECENT" );
+        message( RECENT );
         end();
     }
 
@@ -199,7 +201,7 @@ public class ImapResponse  extends AbstractLogEnabled implements ImapConstants {
     {
         untagged();
         message( msn );
-        message( "EXPUNGE" );
+        message( EXPUNGE );
         end();
     }
 
@@ -207,7 +209,7 @@ public class ImapResponse  extends AbstractLogEnabled implements ImapConstants {
     {
         untagged();
         message( msn );
-        message( "FETCH" );
+        message( FETCH );
         message( "(" + msgData + ")" );
         end();
     }
@@ -250,50 +252,48 @@ public class ImapResponse  extends AbstractLogEnabled implements ImapConstants {
         untaggedResponse(BYE + SP + message);
     }
 
-    private void untagged()
+    public void untagged()
     {
-        writer.print( UNTAGGED );
+        writer.untagged();
     }
 
     private void tag()
     {
-        writer.print( tag );
+        writer.tag(tag);
     }
 
-    private void commandName( ImapCommand command )
+    private void commandName( final ImapCommand command )
     {
-        String name = command.getName();
-        writer.print( SP );
-        writer.print( name );
+        final String name = command.getName();
+        commandName(name);
     }
 
-    private void message( String message )
+    public void commandName(final String name) {
+        writer.commandName(name);
+    }
+
+    public void message( final String message )
     {
         if ( message != null ) {
-            writer.print( SP );
-            writer.print( message );
+            writer.message(message);
         }
     }
 
-    private void message( int number )
+    public void message( final int number )
     {
-        writer.print( SP );
-        writer.print( number );
+        writer.message(number);
     }
 
-    private void responseCode( String responseCode )
+    public void responseCode( final String responseCode )
     {
         if ( responseCode != null ) {
-            writer.print( " [" );
-            writer.print( responseCode );
-            writer.print( "]" );
+            writer.responseCode(responseCode);
         }
     }
 
-    private void end()
+    public void end()
     {
-        writer.println();
-        writer.flush();
+        writer.end();
     }
 
     public void permanentFlagsResponse(Flags flags) {
@@ -301,5 +301,9 @@ public class ImapResponse  extends AbstractLogEnabled implements ImapConstants {
         message(OK);
         responseCode("PERMANENTFLAGS " + MessageFlags.format(flags));
         end();
+    }
+
+    public void tag(String tag) {
+        writer.tag(tag);
     }
 }

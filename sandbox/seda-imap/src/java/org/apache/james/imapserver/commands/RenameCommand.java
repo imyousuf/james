@@ -21,7 +21,6 @@ package org.apache.james.imapserver.commands;
 
 import org.apache.james.imapserver.AuthorizationException;
 import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
 import org.apache.james.imapserver.store.MailboxException;
@@ -37,28 +36,6 @@ class RenameCommand extends AuthenticatedStateCommand
     public static final String NAME = "RENAME";
     public static final String ARGS = "existing-mailbox-name SPACE new-mailbox-name";
 
-    /** @see CommandTemplate#doProcess */
-    protected void doProcess( ImapRequestLineReader request,
-                              ImapResponse response,
-                              ImapSession session )
-            throws ProtocolException, MailboxException, AuthorizationException
-    {
-        String existingName = parser.mailbox( request );
-        String newName = parser.mailbox( request );
-        parser.endLine( request );
-
-        try {
-            existingName=session.buildFullName(existingName);
-            newName=session.buildFullName(newName);
-            session.getMailboxManager().renameMailbox( existingName, newName );
-        } catch (MailboxManagerException e) {
-           throw new MailboxException(e);
-        }
-
-        session.unsolicitedResponses( response , false );
-        response.commandComplete( this );
-    }
-
     /** @see ImapCommand#getName */
     public String getName()
     {
@@ -71,6 +48,36 @@ class RenameCommand extends AuthenticatedStateCommand
         return ARGS;
     }
 
+    protected AbstractImapCommandMessage decode(ImapRequestLineReader request) throws ProtocolException {
+        final String existingName = parser.mailbox( request );
+        final String newName = parser.mailbox( request );
+        parser.endLine( request );
+        return new RenameCommandMessage(existingName, newName);
+    }
+
+    private class RenameCommandMessage extends AbstractImapCommandMessage {
+        private final String existingName;
+        private final String newName;
+        
+        public RenameCommandMessage(final String existingName, final String newName) {
+            super();
+            this.existingName = existingName;
+            this.newName = newName;
+        }
+
+        protected ImapResponseMessage doProcess(ImapSession session) throws MailboxException, AuthorizationException, ProtocolException {
+            try {
+                final String fullExistingName=session.buildFullName(this.existingName);
+                final String fullNewName=session.buildFullName(this.newName);
+                session.getMailboxManager().renameMailbox( fullExistingName, fullNewName );
+            } catch (MailboxManagerException e) {
+               throw new MailboxException(e);
+            }
+
+            return new CommandCompleteResponseMessage(false, RenameCommand.this);
+        }
+        
+    }
 }
 
 /*

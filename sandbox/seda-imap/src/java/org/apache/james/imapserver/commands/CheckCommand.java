@@ -20,13 +20,10 @@
 package org.apache.james.imapserver.commands;
 
 import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ImapResponse;
-import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
-import org.apache.james.imapserver.store.MailboxException;
 
 /**
- * Handles processeing for the CHECK imap command.
+ * Handles processing for the CHECK imap command.
  *
  * @version $Revision: 109034 $
  */
@@ -35,14 +32,9 @@ class CheckCommand extends SelectedStateCommand
     public static final String NAME = "CHECK";
     public static final String ARGS = null;
 
-    /** @see CommandTemplate#doProcess */
-    protected void doProcess( ImapRequestLineReader request,
-                              ImapResponse response,
-                              ImapSession session ) throws ProtocolException, MailboxException
-    {
+    protected AbstractImapCommandMessage decode(ImapRequestLineReader request) throws ProtocolException {
         parser.endLine( request );
-        session.unsolicitedResponses( response , false);
-        response.commandComplete( this );
+        return new CompleteCommandMessage(false);
     }
 
     /** @see ImapCommand#getName */
@@ -57,3 +49,30 @@ class CheckCommand extends SelectedStateCommand
         return ARGS;
     }
 }
+
+/*
+   6.4.1.  CHECK Command
+
+   Arguments:  none
+
+   Responses:  no specific responses for this command
+
+   Result:     OK - check completed
+               BAD - command unknown or arguments invalid
+
+      The CHECK command requests a checkpoint of the currently selected
+      mailbox.  A checkpoint refers to any implementation-dependent
+      housekeeping associated with the mailbox (e.g. resolving the
+      server's in-memory state of the mailbox with the state on its
+      disk) that is not normally executed as part of each command.  A
+      checkpoint MAY take a non-instantaneous amount of real time to
+      complete.  If a server implementation has no such housekeeping
+      considerations, CHECK is equivalent to NOOP.
+
+      There is no guarantee that an EXISTS untagged response will happen
+      as a result of CHECK.  NOOP, not CHECK, SHOULD be used for new
+      mail polling.
+
+   Example:    C: FXXZ CHECK
+               S: FXXZ OK CHECK Completed
+*/

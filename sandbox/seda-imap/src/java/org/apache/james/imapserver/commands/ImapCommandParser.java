@@ -19,20 +19,23 @@
 
 package org.apache.james.imapserver.commands;
 
-/**
- * TODO: sort out inheritance heirarchy.
- * @version $Revision: 109034 $
- */
-class ExamineCommand extends SelectCommand
-{
-    public static final String NAME = "EXAMINE";
+import org.apache.james.imapserver.ImapRequestLineReader;
 
-    public ExamineCommand() {
-        super(true);
-    }
-    
-    public String getName()
-    {
-        return NAME;
-    }
+/**
+ * <p>
+ * Parses IMAP request into a command message.
+ * </p>
+ * <p>
+ * <strong>Note:</strong> this is a transitional API
+ * and is liable to change.
+ * </p>
+ */
+public interface ImapCommandParser {
+    /**
+     * Parses IMAP request.
+     * TODO: consider error handling
+     * @param request <code>ImapRequestLineReader</code>, not null
+     * @return <code>ImapCommandMessage</code>
+     */
+    ImapCommandMessage parse(ImapRequestLineReader request);
 }

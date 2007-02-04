@@ -17,22 +17,50 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.imapserver.commands;
+package org.apache.james.imapserver;
 
 /**
- * TODO: sort out inheritance heirarchy.
- * @version $Revision: 109034 $
+ * <p>Writes IMAP response.</p>
+ * <p>Factors out basic IMAP reponse writing operations 
+ * from higher level ones.</p>
  */
-class ExamineCommand extends SelectCommand
-{
-    public static final String NAME = "EXAMINE";
+public interface ImapResponseWriter {
 
-    public ExamineCommand() {
-        super(true);
-    }
-    
-    public String getName()
-    {
-        return NAME;
-    }
+    /**
+     * Starts an untagged response.
+     *
+     */
+    void untagged();
+
+    /**
+     * Starts a tagged response.
+     * @param tag the tag, not null
+     */
+    void tag(String tag);
+
+    /**
+     * Writes a command name.
+     * @param commandName the command name, not null
+     */
+    void commandName( String commandName );
+
+    /**
+     * Writes a message.
+     * @param message the message, not null
+     */
+    void message( String message );
+
+    void message( int number );
+
+    /**
+     * Writes a response code.
+     * @param responseCode the response code, not null
+     */
+    void responseCode( String responseCode );
+
+    /**
+     * Ends a response.
+     *
+     */
+    void end();
 }

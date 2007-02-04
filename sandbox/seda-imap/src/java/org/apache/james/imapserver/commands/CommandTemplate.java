@@ -20,6 +20,7 @@
 package org.apache.james.imapserver.commands;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.imapserver.AuthorizationException;
 import org.apache.james.imapserver.ImapConstants;
 import org.apache.james.imapserver.ImapRequestLineReader;
@@ -27,6 +28,7 @@ import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ImapSessionState;
 import org.apache.james.imapserver.ProtocolException;
+import org.apache.james.imapserver.encode.RecordingImapResponseWriter;
 import org.apache.james.imapserver.store.MailboxException;
 
 /**
@@ -37,7 +39,7 @@ import org.apache.james.imapserver.store.MailboxException;
  */
 abstract class CommandTemplate
         extends AbstractLogEnabled
-        implements ImapCommand, ImapConstants
+        implements ImapCommand, ImapConstants, ImapCommandParser
 {
     protected CommandParser parser = new CommandParser();
 
@@ -82,6 +84,38 @@ abstract class CommandTemplate
         }
     }
 
+    
+    /**
+     * Parses a request into a command message
+     * for later processing.
+     * @param request <code>ImapRequestLineReader</code>, not null
+     * @return <code>ImapCommandMessage</code>, not null
+     */
+    public ImapCommandMessage parse( ImapRequestLineReader request ) {
+        ImapCommandMessage message;
+        try {
+            
+            message = decode(request);
+            
+        } catch ( ProtocolException e ) {
+            getLogger().debug("error processing command ", e);
+            String msg = e.getMessage() + " Command should be '" +
+                    getExpectedMessage() + "'";
+            message = new ErrorResponseMessage( msg );
+        }
+        return message;
+    }
+
+    /**
+     * Parses a request into a command message
+     * for later processing.
+     * @param request <code>ImapRequestLineReader</code>, not null
+     * @return <code>ImapCommandMessage</code>, not null
+     * @throws ProtocolException if the request cannot be parsed
+     */
+    protected abstract AbstractImapCommandMessage decode( ImapRequestLineReader request ) 
+        throws ProtocolException;
+    
     /**
      * This is the method overridden by specific command implementations to
      * perform commend-specific processing.
@@ -90,10 +124,14 @@ abstract class CommandTemplate
      * @param response The server response
      * @param session The current client session
      */
-    protected abstract void doProcess( ImapRequestLineReader request,
+    protected final void doProcess( ImapRequestLineReader request,
                                        ImapResponse response,
                                        ImapSession session )
-            throws ProtocolException, MailboxException, AuthorizationException;
+            throws ProtocolException, MailboxException, AuthorizationException {
+        AbstractImapCommandMessage message = decode( request );
+        ImapResponseMessage responseMessage = message.doProcess( session );
+        responseMessage.encode(response, session);
+    }
 
     /**
      * Provides a message which describes the expected format and arguments
@@ -132,5 +170,55 @@ abstract class CommandTemplate
     public CommandParser getParser()
     {
         return parser;
+    }
+    
+    protected abstract class AbstractImapCommandMessage implements ImapCommandMessage {
+
+        public ImapResponseMessage process(ImapSession session) {
+            ImapResponseMessage result;
+            final Logger logger = getLogger();
+            try {
+                result = doProcess( session );
+            }
+            catch ( MailboxException e ) {
+                if (logger != null) {
+                    logger.debug("error processing command ", e);
+                }
+                result = new CommandFailedResponseMessage( CommandTemplate.this, e.getResponseCode(), e.getMessage() );
+            }
+            catch ( AuthorizationException e ) {
+                if (logger != null) {
+                    logger.debug("error processing command ", e);
+                }
+                String msg = "Authorization error: Lacking permissions to perform requested operation.";
+                result = new CommandFailedResponseMessage( CommandTemplate.this, null, msg );
+            }
+            catch ( ProtocolException e ) {
+                if (logger != null) {
+                    logger.debug("error processing command ", e);
+                }
+                String msg = e.getMessage() + " Command should be '" +
+                        getExpectedMessage() + "'";
+                result = new ErrorResponseMessage( msg );
+            }
+            return result;
+        }
+        
+        protected abstract ImapResponseMessage doProcess(ImapSession session) throws MailboxException, AuthorizationException, ProtocolException;
+    }
+    
+    protected class CompleteCommandMessage extends AbstractImapCommandMessage {
+
+        private final boolean useUids;
+        
+        public CompleteCommandMessage(final boolean useUids) {
+            this.useUids = useUids;
+        }
+        
+        protected ImapResponseMessage doProcess(ImapSession session) throws MailboxException, AuthorizationException, ProtocolException {
+            final CommandCompleteResponseMessage result = new CommandCompleteResponseMessage(useUids, CommandTemplate.this);
+            return result;
+        }
+        
     }
 }

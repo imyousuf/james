@@ -21,7 +21,6 @@ package org.apache.james.imapserver.commands;
 
 import org.apache.james.imapserver.AuthorizationException;
 import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
 import org.apache.james.imapserver.store.MailboxException;
@@ -37,27 +36,6 @@ class CreateCommand extends AuthenticatedStateCommand
     public static final String NAME = "CREATE";
     public static final String ARGS = "<mailbox>";
 
-    /** @see CommandTemplate#doProcess */
-    protected void doProcess( ImapRequestLineReader request,
-                              ImapResponse response,
-                              ImapSession session )
-            throws ProtocolException, MailboxException, AuthorizationException
-    {
-        String mailboxName = parser.mailbox( request );
-        parser.endLine( request );
-
-
-        try {
-
-            mailboxName=session.buildFullName(mailboxName);
-            session.getMailboxManager().createMailbox(mailboxName );
-        } catch (MailboxManagerException e) {
-           throw new MailboxException(e);
-        }
-        session.unsolicitedResponses( response, false );
-        response.commandComplete( this );
-    }
-
     /** @see ImapCommand#getName */
     public String getName()
     {
@@ -70,6 +48,30 @@ class CreateCommand extends AuthenticatedStateCommand
         return ARGS;
     }
 
+    protected AbstractImapCommandMessage decode(ImapRequestLineReader request) throws ProtocolException {
+        String mailboxName = parser.mailbox( request );
+        parser.endLine( request );
+        final CreateCommandMessage result = new CreateCommandMessage(mailboxName);
+        return result;
+    }
+
+    private class CreateCommandMessage extends AbstractImapCommandMessage {
+        private final String mailboxName;
+        public CreateCommandMessage(final String mailboxName) {
+            this.mailboxName = mailboxName;
+        }
+        
+        protected ImapResponseMessage doProcess(ImapSession session) throws MailboxException, AuthorizationException, ProtocolException {
+            try {
+
+                final String fullMailboxName=session.buildFullName(this.mailboxName);
+                session.getMailboxManager().createMailbox(fullMailboxName );
+            } catch (MailboxManagerException e) {
+               throw new MailboxException(e);
+            }
+            return new CommandCompleteResponseMessage(false, CreateCommand.this);
+        }
+    }
 }
 
 /*

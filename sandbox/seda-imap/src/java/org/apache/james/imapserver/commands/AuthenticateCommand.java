@@ -19,10 +19,11 @@
 
 package org.apache.james.imapserver.commands;
 
+import org.apache.james.imapserver.AuthorizationException;
 import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
+import org.apache.james.imapserver.store.MailboxException;
 
 /**
  * Handles processeing for the AUTHENTICATE imap command.
@@ -33,20 +34,30 @@ class AuthenticateCommand extends NonAuthenticatedStateCommand
 {
     public static final String NAME = "AUTHENTICATE";
     public static final String ARGS = "<auth_type> *(CRLF base64)";
-
-    /** @see CommandTemplate#doProcess */
-    protected void doProcess( ImapRequestLineReader request,
-                              ImapResponse response,
-                              ImapSession session
-                              ) throws ProtocolException
-    {
+    
+    protected AbstractImapCommandMessage decode(ImapRequestLineReader request) throws ProtocolException {
         String authType = parser.astring( request );
-        parser.endLine( request );
-
-        response.commandFailed( this, "Unsupported authentication mechanism '" +
-                                      authType + "'" );
+        parser.endLine( request );        
+        final AuthenticateCommandMessage result = new AuthenticateCommandMessage(authType);
+        return result;
     }
 
+    private class AuthenticateCommandMessage extends AbstractImapCommandMessage {
+
+        private final String authType;
+        
+        public AuthenticateCommandMessage(final String authType) {
+            this.authType = authType;
+        }
+        
+        protected ImapResponseMessage doProcess(ImapSession session) throws MailboxException, AuthorizationException, ProtocolException {
+            final CommandFailedResponseMessage result = new CommandFailedResponseMessage(AuthenticateCommand.this, 
+                                "Unsupported authentication mechanism '" + authType + "'");
+            return result;
+        }
+        
+    }
+    
     /** @see ImapCommand#getName */
     public String getName()
     {

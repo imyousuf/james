@@ -21,12 +21,10 @@ package org.apache.james.imapserver.commands;
 
 import org.apache.james.imapserver.AuthorizationException;
 import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
-import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 
 /**
  * Handles processeing for the DELETE imap command.
@@ -38,33 +36,6 @@ class DeleteCommand extends AuthenticatedStateCommand
     public static final String NAME = "DELETE";
     public static final String ARGS = "<mailbox>";
 
-    /** @see CommandTemplate#doProcess */
-    protected void doProcess( ImapRequestLineReader request,
-                              ImapResponse response,
-                              ImapSession session )
-            throws ProtocolException, MailboxException, AuthorizationException
-    {
-
-        String mailboxName = parser.mailbox( request );
-        parser.endLine( request );
-
-        try {
-            mailboxName = session.buildFullName(mailboxName);
-            if (session.getSelected() != null) {
-                if (session.getSelected().getMailbox().getName().equals(
-                        mailboxName)) {
-                    session.deselect();
-                }
-            }
-            session.getMailboxManager().deleteMailbox(mailboxName);
-        } catch (MailboxManagerException e) {
-            throw new MailboxException(e);
-        }
-
-        session.unsolicitedResponses( response, false );
-        response.commandComplete( this );
-    }
-
     /** @see ImapCommand#getName */
     public String getName()
     {
@@ -75,6 +46,41 @@ class DeleteCommand extends AuthenticatedStateCommand
     public String getArgSyntax()
     {
         return ARGS;
+    }
+
+    protected AbstractImapCommandMessage decode(ImapRequestLineReader request) throws ProtocolException {
+        String mailboxName = parser.mailbox( request );
+        parser.endLine( request );
+        final DeleteCommandMessage result = new DeleteCommandMessage(mailboxName);
+        return result;
+    }
+    
+    private class DeleteCommandMessage extends AbstractImapCommandMessage {
+        private final String mailboxName;
+        public DeleteCommandMessage(final String mailboxName) {
+            super();
+            this.mailboxName = mailboxName;
+        }
+        
+        protected ImapResponseMessage doProcess(ImapSession session) throws MailboxException, AuthorizationException, ProtocolException {
+            try {
+                final String fullMailboxName = session.buildFullName(this.mailboxName);
+                if (session.getSelected() != null) {
+                    if (session.getSelected().getMailbox().getName().equals(
+                            fullMailboxName)) {
+                        session.deselect();
+                    }
+                }
+                session.getMailboxManager().deleteMailbox(fullMailboxName);
+            } catch (MailboxManagerException e) {
+                throw new MailboxException(e);
+            }
+
+            final CommandCompleteResponseMessage result = new CommandCompleteResponseMessage(false, DeleteCommand.this);
+            return result;
+        }
+
+
     }
 }
 

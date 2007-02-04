@@ -19,6 +19,7 @@
 
 package org.apache.james.imapserver.commands;
 
+import org.apache.james.imapserver.AuthorizationException;
 import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
@@ -38,29 +39,45 @@ class CloseCommand extends SelectedStateCommand
 {
     public static final String NAME = "CLOSE";
     public static final String ARGS = null;
+    
+    private final CloseCommandMessage message = new CloseCommandMessage();
+    private final CloseResponseMessage response = new CloseResponseMessage(this);
 
-    /** @see CommandTemplate#doProcess */
-    protected void doProcess( ImapRequestLineReader request,
-                              ImapResponse response,
-                              ImapSession session )
-            throws ProtocolException, MailboxException
-    {
-        parser.endLine( request );
-        ImapMailboxSession mailbox = session.getSelected().getMailbox();
-        if ( session.getSelected().getMailbox().isWriteable() ) {
-            try {
-                mailbox.expunge(GeneralMessageSetImpl.all(),MessageResult.NOTHING);
-            } catch (MailboxManagerException e) {
-               throw new MailboxException(e);
-            }
+    private static class CloseResponseMessage extends AbstractCommandResponseMessage {
+        public CloseResponseMessage(ImapCommand command) {
+            super(command);
         }
-        session.deselect();
-        
-//      Don't send unsolicited responses on close.
-        session.unsolicitedResponses( response, false );
-        response.commandComplete( this );
-    }
 
+        void doEncode(ImapResponse response, ImapSession session, ImapCommand command) throws MailboxException {
+            //TODO: the following comment was present in the code before refactoring
+            //TODO: doesn't seem to match the implementation
+            //TODO: check that implementation is correct
+//          Don't send unsolicited responses on close.
+            session.unsolicitedResponses( response, false );
+            response.commandComplete( command );
+        }
+    }
+    
+    private class CloseCommandMessage extends AbstractImapCommandMessage {
+
+        protected ImapResponseMessage doProcess(ImapSession session) throws MailboxException, AuthorizationException, ProtocolException {
+            ImapMailboxSession mailbox = session.getSelected().getMailbox();
+            if ( session.getSelected().getMailbox().isWriteable() ) {
+                try {
+                    mailbox.expunge(GeneralMessageSetImpl.all(),MessageResult.NOTHING);
+                } catch (MailboxManagerException e) {
+                   throw new MailboxException(e);
+                }
+            }
+            session.deselect();
+            return response;
+        }
+    }
+    
+    protected AbstractImapCommandMessage decode(ImapRequestLineReader request) throws ProtocolException {
+        parser.endLine( request );
+        return message;
+    }
 
     /** @see ImapCommand#getName */
     public String getName()

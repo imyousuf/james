@@ -19,8 +19,8 @@
 
 package org.apache.james.imapserver.commands;
 
+import org.apache.james.imapserver.AuthorizationException;
 import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
 import org.apache.james.imapserver.store.MailboxException;
@@ -36,24 +36,6 @@ class UnsubscribeCommand extends AuthenticatedStateCommand
     public static final String NAME = "UNSUBSCRIBE";
     public static final String ARGS = "<mailbox>";
 
-    /** @see CommandTemplate#doProcess */
-    protected void doProcess( ImapRequestLineReader request,
-                              ImapResponse response,
-                              ImapSession session )
-            throws ProtocolException, MailboxException  {
-        String mailboxName = parser.mailbox( request );
-        parser.endLine( request );
-
-        try {
-            mailboxName=session.buildFullName(mailboxName);
-            session.getMailboxManager().setSubscription(mailboxName,false);
-        } catch (MailboxManagerException e) {
-            throw new MailboxException(e);
-        }
-        session.unsolicitedResponses( response , false );
-        response.commandComplete( this );
-    }
-
     /** @see ImapCommand#getName */
     public String getName() {
         return NAME;
@@ -62,5 +44,31 @@ class UnsubscribeCommand extends AuthenticatedStateCommand
     /** @see CommandTemplate#getArgSyntax */
     public String getArgSyntax() {
         return ARGS;
+    }
+
+    protected AbstractImapCommandMessage decode(ImapRequestLineReader request) throws ProtocolException {
+        final String mailboxName = parser.mailbox( request );
+        parser.endLine( request );
+        return new UnsubscribeCommandMessage(mailboxName);
+    }
+    
+    private class UnsubscribeCommandMessage extends AbstractImapCommandMessage {
+        private final String mailboxName;
+
+        public UnsubscribeCommandMessage(final String mailboxName) {
+            super();
+            this.mailboxName = mailboxName;
+        }
+
+        protected ImapResponseMessage doProcess(ImapSession session) throws MailboxException, AuthorizationException, ProtocolException {
+            try {
+                final String fullMailboxName=session.buildFullName(this.mailboxName);
+                session.getMailboxManager().setSubscription(fullMailboxName,false);
+            } catch (MailboxManagerException e) {
+                throw new MailboxException(e);
+            }
+            return new CommandCompleteResponseMessage(false, UnsubscribeCommand.this);
+        }
+        
     }
 }

@@ -19,10 +19,11 @@
 
 package org.apache.james.imapserver.commands;
 
+import org.apache.james.imapserver.AuthorizationException;
 import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
+import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.services.User;
 
 
@@ -36,27 +37,6 @@ class LoginCommand extends NonAuthenticatedStateCommand
     public static final String NAME = "LOGIN";
     public static final String ARGS = "<userid> <password>";
 
-    /** @see CommandTemplate#doProcess */
-    protected void doProcess( ImapRequestLineReader request,
-                              ImapResponse response,
-                              ImapSession session )
-            throws ProtocolException
-    {
-        String userid = parser.astring( request );
-        String password = parser.astring( request );
-        parser.endLine( request );
-
-        if ( session.getUsers().test( userid, password ) ) {
-            User user = session.getUsers().getUserByName( userid );
-            session.setAuthenticated( user );
-            response.commandComplete( this );
-
-        }
-        else {
-            response.commandFailed( this, "Invalid login/password" );
-        }
-    }
-
     /** @see ImapCommand#getName */
     public String getName()
     {
@@ -67,6 +47,38 @@ class LoginCommand extends NonAuthenticatedStateCommand
     public String getArgSyntax()
     {
         return ARGS;
+    }
+
+    protected AbstractImapCommandMessage decode(ImapRequestLineReader request) throws ProtocolException {
+        final String userid = parser.astring( request );
+        final String password = parser.astring( request );
+        parser.endLine( request );
+        return new LoginCommandMessage(userid, password);
+    }
+    
+    private class LoginCommandMessage extends AbstractImapCommandMessage {
+        private final String userid;
+        private final String password;
+        
+        public LoginCommandMessage(final String userid, final String password) {
+            super();
+            this.userid = userid;
+            this.password = password;
+        }
+
+        protected ImapResponseMessage doProcess(ImapSession session) throws MailboxException, AuthorizationException, ProtocolException {
+            ImapResponseMessage result;
+            if ( session.getUsers().test( userid, password ) ) {
+                User user = session.getUsers().getUserByName( userid );
+                session.setAuthenticated( user );
+                result = CommandCompleteResponseMessage.createWithNoUnsolictedResponses(LoginCommand.this);
+            }
+            else {
+                result = new CommandFailedResponseMessage( LoginCommand.this, "Invalid login/password" );
+            }
+            return result;
+        }
+        
     }
 }
 

@@ -21,6 +21,7 @@ package org.apache.james.imapserver.commands;
 
 import javax.mail.Flags;
 
+import org.apache.james.imapserver.AuthorizationException;
 import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
@@ -42,66 +43,8 @@ class StoreCommand extends SelectedStateCommand implements UidEnabledCommand
     public static final String NAME = "STORE";
     public static final String ARGS = "<Message-set> ['+'|'-']FLAG[.SILENT] <flag-list>";
 
-    private final StoreCommandParser parser = new StoreCommandParser();
-
-    /** @see CommandTemplate#doProcess */
-    protected void doProcess( ImapRequestLineReader request,
-                              ImapResponse response,
-                              ImapSession session )
-            throws ProtocolException, MailboxException
-    {
-        doProcess( request, response, session , false );
-    }
-
-    public void doProcess( ImapRequestLineReader request,
-                              ImapResponse response,
-                              ImapSession session,
-                              boolean useUids )
-            throws ProtocolException, MailboxException
-    {
-        IdRange[] idSet = parser.parseIdRange( request );
-        StoreDirective directive = parser.storeDirective( request );
-        Flags flags = parser.flagList( request );
-        parser.endLine( request );
-
-        ImapMailboxSession mailbox = session.getSelected().getMailbox();
-        MailboxListener silentListener = null;
-
-        final boolean replace;
-        final boolean value;
-        if (directive.getSign() < 0) {
-            value=false;
-            replace=false;
-        }
-        else if (directive.getSign() > 0) {
-            value=true;
-            replace=false;
-        }
-        else {
-            replace=true;
-            value=true;
-        }
-        try {
-            if (directive.isSilent()) {
-                silentListener = session.getSelected().getMailbox();
-            }
-            for (int i = 0; i < idSet.length; i++) {
-                final GeneralMessageSet messageSet = GeneralMessageSetImpl
-                        .range(idSet[i].getLowVal(), idSet[i].getHighVal(),
-                                useUids);
-
-                mailbox.setFlags(flags, value, replace, messageSet,
-                        silentListener);
-            }
-        } catch (MailboxManagerException e) {
-            throw new MailboxException(e);
-        }
-        boolean omitExpunged = (!useUids);
-        session.unsolicitedResponses( response, omitExpunged , useUids);
-        response.commandComplete( this );
-    }
-
-
+    private StoreCommandParser parser = new StoreCommandParser();
+    
     /** @see ImapCommand#getName */
     public String getName()
     {
@@ -168,6 +111,90 @@ class StoreCommand extends SelectedStateCommand implements UidEnabledCommand
         {
             return silent;
         }
+    }
+
+    protected AbstractImapCommandMessage decode(ImapRequestLineReader request) throws ProtocolException {
+        return decode(request, false);
+    }
+
+    public AbstractImapCommandMessage decode(ImapRequestLineReader request, boolean useUids) throws ProtocolException {
+        
+        final IdRange[] idSet = parser.parseIdRange( request );
+        final StoreDirective directive = parser.storeDirective( request );
+        final Flags flags = parser.flagList( request );
+        parser.endLine( request );
+        return new StoreCommandMessage(idSet, directive, flags, useUids);
+    }
+    
+    private class StoreCommandMessage extends AbstractImapCommandMessage {
+        private final IdRange[] idSet;
+        private final StoreDirective directive;
+        private final Flags flags;
+        private final boolean useUids;
+        
+        public StoreCommandMessage(final IdRange[] idSet, final StoreDirective directive, final Flags flags, final boolean useUids) {
+            super();
+            this.idSet = idSet;
+            this.directive = directive;
+            this.flags = flags;
+            this.useUids = useUids;
+        }
+        
+        protected ImapResponseMessage doProcess(ImapSession session) throws MailboxException, AuthorizationException, ProtocolException {
+
+            ImapMailboxSession mailbox = session.getSelected().getMailbox();
+            MailboxListener silentListener = null;
+
+            final boolean replace;
+            final boolean value;
+            if (directive.getSign() < 0) {
+                value=false;
+                replace=false;
+            }
+            else if (directive.getSign() > 0) {
+                value=true;
+                replace=false;
+            }
+            else {
+                replace=true;
+                value=true;
+            }
+            try {
+                if (directive.isSilent()) {
+                    silentListener = session.getSelected().getMailbox();
+                }
+                for (int i = 0; i < idSet.length; i++) {
+                    final GeneralMessageSet messageSet = GeneralMessageSetImpl
+                            .range(idSet[i].getLowVal(), idSet[i].getHighVal(),
+                                    useUids);
+
+                    mailbox.setFlags(flags, value, replace, messageSet,
+                            silentListener);
+                }
+            } catch (MailboxManagerException e) {
+                throw new MailboxException(e);
+            }
+            
+            final StoreResponseMessage result = new StoreResponseMessage(StoreCommand.this, useUids);
+            return result;
+        }
+    }
+    
+    private static class StoreResponseMessage extends AbstractCommandResponseMessage {
+        // TODO: use factory to improve memory usage
+        private final boolean useUids;
+        
+        public StoreResponseMessage(ImapCommand command, final boolean useUids) {
+            super(command);
+            this.useUids = useUids;
+        }
+
+        void doEncode(ImapResponse response, ImapSession session, ImapCommand command) throws MailboxException {
+            boolean omitExpunged = (!useUids);
+            session.unsolicitedResponses( response, omitExpunged , useUids);
+            response.commandComplete( command );            
+        }
+        
     }
 }
 /*

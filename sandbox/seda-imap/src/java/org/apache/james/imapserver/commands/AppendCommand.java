@@ -29,7 +29,6 @@ import javax.mail.Flags;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
 import org.apache.james.imapserver.store.MailboxException;
@@ -47,13 +46,9 @@ class AppendCommand extends AuthenticatedStateCommand
     public static final String ARGS = "<mailbox> [<flag_list>] [<date_time>] literal";
 
     private AppendCommandParser parser = new AppendCommandParser();
+    private CommandCompleteResponseMessage response = new CommandCompleteResponseMessage(false, this);
 
-    /** @see CommandTemplate#doProcess */
-    protected void doProcess( ImapRequestLineReader request,
-                              ImapResponse response,
-                              ImapSession session )
-            throws ProtocolException, MailboxException
-    {
+    protected AbstractImapCommandMessage decode(ImapRequestLineReader request) throws ProtocolException {
         String mailboxName = parser.mailbox( request );
         Flags flags = parser.optionalAppendFlags( request );
         if ( flags == null ) {
@@ -65,27 +60,10 @@ class AppendCommand extends AuthenticatedStateCommand
         }
         MimeMessage message = parser.mimeMessage( request );
         parser.endLine( request );
-
-        ImapMailboxSession mailbox = null;
-        try {
-            mailboxName=session.buildFullName(mailboxName);
-            mailbox = session.getMailboxManager().getImapMailboxSession(mailboxName);
-        }
-        catch ( MailboxManagerException mme ) {
-            MailboxException me = new MailboxException(mme);
-            me.setResponseCode( "TRYCREATE" );
-            throw me;
-        }
-
-        try {
-            mailbox.appendMessage( message, datetime ,0);
-        } catch (MailboxManagerException e) {
-            // TODO why not TRYCREATE?
-            throw new MailboxException(e);
-        }
-
-        session.unsolicitedResponses( response, false);
-        response.commandComplete( this );
+        // TODO: use an object pool
+        final AppendCommandMessage result = new AppendCommandMessage(mailboxName, 
+                flags, datetime, message);
+        return result;
     }
 
     /** @see ImapCommand#getName */
@@ -100,8 +78,61 @@ class AppendCommand extends AuthenticatedStateCommand
         return ARGS;
     }
 
+    private class AppendCommandMessage extends AbstractImapCommandMessage {
+        private String mailboxName;
+        private Flags flags;
+        private Date datetime;
+        private MimeMessage message;
+                
+        public AppendCommandMessage(String mailboxName, Flags flags, 
+                Date datetime, MimeMessage message) {
+            super();
+            this.mailboxName = mailboxName;
+            this.flags = flags;
+            this.datetime = datetime;
+            this.message = message;
+        }
+
+        public Date getDatetime() {
+            return datetime;
+        }
+
+        public Flags getFlags() {
+            return flags;
+        }
+
+        public String getMailboxName() {
+            return mailboxName;
+        }
+
+        public MimeMessage getMessage() {
+            return message;
+        }
+        
+        public ImapResponseMessage doProcess( final ImapSession session ) throws MailboxException {
+            ImapMailboxSession mailbox = null;
+            try {
+                mailboxName=session.buildFullName(mailboxName);
+                mailbox = session.getMailboxManager().getImapMailboxSession(mailboxName);
+            }
+            catch ( MailboxManagerException mme ) {
+                MailboxException me = new MailboxException(mme);
+                me.setResponseCode( "TRYCREATE" );
+                throw me;
+            }
+
+            try {
+                mailbox.appendMessage( message, datetime ,0);
+            } catch (MailboxManagerException e) {
+                // TODO why not TRYCREATE?
+                throw new MailboxException(e);
+            }
+            return response;
+        }
+    }
+    
     private class AppendCommandParser extends CommandParser
-    {
+    {        
         /**
          * If the next character in the request is a '(', tries to read
          * a "flag_list" argument from the request. If not, returns a

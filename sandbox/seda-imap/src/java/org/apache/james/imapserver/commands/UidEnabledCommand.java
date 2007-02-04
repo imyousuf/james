@@ -20,19 +20,13 @@
 package org.apache.james.imapserver.commands;
 
 import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ImapResponse;
-import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
-import org.apache.james.imapserver.store.MailboxException;
+import org.apache.james.imapserver.commands.CommandTemplate.AbstractImapCommandMessage;
 
 /**
  * @version $Revision: 109034 $
  */
-public interface UidEnabledCommand
+interface UidEnabledCommand
 {
-    void doProcess( ImapRequestLineReader request,
-                              ImapResponse response,
-                              ImapSession session,
-                              boolean useUids)
-            throws ProtocolException, MailboxException;
+    AbstractImapCommandMessage decode(final ImapRequestLineReader request, final boolean useUids) throws ProtocolException;
 }

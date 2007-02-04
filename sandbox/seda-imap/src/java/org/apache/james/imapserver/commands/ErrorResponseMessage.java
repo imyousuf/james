@@ -19,20 +19,26 @@
 
 package org.apache.james.imapserver.commands;
 
-/**
- * TODO: sort out inheritance heirarchy.
- * @version $Revision: 109034 $
- */
-class ExamineCommand extends SelectCommand
-{
-    public static final String NAME = "EXAMINE";
+import org.apache.james.imapserver.ImapResponse;
+import org.apache.james.imapserver.ImapSession;
 
-    public ExamineCommand() {
-        super(true);
+/**
+ * Carries an error response.
+ * 
+ */
+public class ErrorResponseMessage implements ImapResponseMessage, ImapCommandMessage {
+
+    private final String message;
+    
+    public ErrorResponseMessage(final String message) {
+        this.message = message;
     }
     
-    public String getName()
-    {
-        return NAME;
+    public void encode(ImapResponse response, ImapSession session) {
+        response.commandError(message);
+    }
+
+    public ImapResponseMessage process(ImapSession session) {
+        return this;
     }
 }

@@ -19,6 +19,7 @@
 
 package org.apache.james.imapserver.commands;
 
+import org.apache.james.imapserver.AuthorizationException;
 import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
@@ -37,16 +38,11 @@ class CapabilityCommand extends CommandTemplate
 
     public static final String CAPABILITY_RESPONSE = NAME + SP + VERSION + SP + CAPABILITIES;
 
-    /** @see CommandTemplate#doProcess */
-    protected void doProcess( ImapRequestLineReader request,
-                              ImapResponse response,
-                              ImapSession session )
-            throws ProtocolException, MailboxException
-    {
+    private final CapabilityCommandMessage message = new CapabilityCommandMessage();
+    
+    protected AbstractImapCommandMessage decode(ImapRequestLineReader request) throws ProtocolException {
         parser.endLine( request );
-        response.untaggedResponse( CAPABILITY_RESPONSE );
-        session.unsolicitedResponses( response, false);
-        response.commandComplete( this );
+        return message;
     }
 
     /** @see ImapCommand#getName */
@@ -59,6 +55,28 @@ class CapabilityCommand extends CommandTemplate
     public String getArgSyntax()
     {
         return ARGS;
+    }
+    
+    private static class CapabilityReponseMessage extends AbstractCommandResponseMessage {
+
+        public CapabilityReponseMessage(ImapCommand command) {
+            super(command);
+        }
+
+        void doEncode(ImapResponse response, ImapSession session, ImapCommand command) throws MailboxException {
+            response.untaggedResponse( CAPABILITY_RESPONSE );
+            session.unsolicitedResponses( response, false);
+            response.commandComplete( command );            
+        }
+        
+    }
+    
+    private class CapabilityCommandMessage extends AbstractImapCommandMessage {
+
+        protected ImapResponseMessage doProcess(ImapSession session) throws MailboxException, AuthorizationException, ProtocolException {
+            final CapabilityReponseMessage result = new CapabilityReponseMessage(CapabilityCommand.this);
+            return result;
+        }
     }
 }
 

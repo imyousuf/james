@@ -20,6 +20,7 @@
 package org.apache.james.imapserver.commands;
 
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.james.imapserver.AuthorizationException;
 import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
@@ -45,82 +46,6 @@ class StatusCommand extends AuthenticatedStateCommand
     private static final String UNSEEN = "UNSEEN";
 
     private StatusCommandParser parser = new StatusCommandParser();
-
-    /** @see CommandTemplate#doProcess */
-    protected void doProcess( ImapRequestLineReader request,
-                              ImapResponse response,
-                              ImapSession session )
-            throws ProtocolException, MailboxException
-    {
-        String mailboxName = parser.mailbox( request );
-        StatusDataItems statusDataItems = parser.statusDataItems( request );
-        parser.endLine( request );
-
-        final Logger logger = getLogger(); 
-
-        StringBuffer buffer = new StringBuffer( mailboxName );
-        buffer.append( SP );
-        buffer.append( "(" );
-        try {
-            String fullMailboxName= session.buildFullName(mailboxName);
-            
-            if (logger.isDebugEnabled()) { 
-                logger.debug("Status called on mailbox named " + mailboxName + " (" + fullMailboxName + ")"); 
-            }
-            
-            ImapMailboxSession mailbox = session.getMailboxManager().getImapMailboxSession(fullMailboxName);
-            
-            if (statusDataItems.messages) {
-                buffer.append(MESSAGES);
-                buffer.append(SP);
-
-                buffer.append(mailbox.getMessageCount());
-
-                buffer.append(SP);
-            }
-
-            if (statusDataItems.recent) {
-                buffer.append(RECENT);
-                buffer.append(SP);
-                buffer.append(mailbox.getRecentCount(false));
-                buffer.append(SP);
-            }
-
-            if (statusDataItems.uidNext) {
-                buffer.append(UIDNEXT);
-                buffer.append(SP);
-                buffer.append(mailbox.getUidNext());
-                buffer.append(SP);
-            }
-
-            if (statusDataItems.uidValidity) {
-                buffer.append(UIDVALIDITY);
-                buffer.append(SP);
-                buffer.append(mailbox.getUidValidity());
-                buffer.append(SP);
-            }
-
-            if (statusDataItems.unseen) {
-                buffer.append(UNSEEN);
-                buffer.append(SP);
-                buffer.append(mailbox.getUnseenCount());
-                buffer.append(SP);
-            }
-        } catch (MailboxManagerException e) {
-            if (logger.isDebugEnabled()) { 
-                logger.debug("STATUS command failed: ", e); 
-            }
-            throw new MailboxException(e);
-        }
-        if ( buffer.charAt( buffer.length() - 1 ) == ' ' ) {
-            buffer.setLength( buffer.length() - 1 );
-        }
-        buffer.append(')');
-        response.commandResponse( this, buffer.toString());
-
-        session.unsolicitedResponses( response, false );
-        response.commandComplete( this );
-    }
 
     /** @see ImapCommand#getName */
     public String getName()
@@ -188,6 +113,105 @@ class StatusCommand extends AuthenticatedStateCommand
         boolean uidNext;
         boolean uidValidity;
         boolean unseen;
+    }
+
+    protected AbstractImapCommandMessage decode(ImapRequestLineReader request) throws ProtocolException {
+        final String mailboxName = parser.mailbox( request );
+        final StatusDataItems statusDataItems = parser.statusDataItems( request );
+        parser.endLine( request );
+        final StatusCommandMessage result = new StatusCommandMessage(mailboxName, statusDataItems);
+        return result;
+    }
+    
+    private class StatusCommandMessage extends AbstractImapCommandMessage {
+        private final String mailboxName;
+        private final StatusDataItems statusDataItems;
+        
+        public StatusCommandMessage(final String mailboxName, final StatusDataItems statusDataItems) {
+            super();
+            this.mailboxName = mailboxName;
+            this.statusDataItems = statusDataItems;
+        }
+        
+        protected ImapResponseMessage doProcess(ImapSession session) throws MailboxException, AuthorizationException, ProtocolException {
+            final Logger logger = getLogger(); 
+
+            StringBuffer buffer = new StringBuffer( mailboxName );
+            buffer.append( SP );
+            buffer.append( "(" );
+            try {
+                String fullMailboxName= session.buildFullName(mailboxName);
+                
+                if (logger != null && logger.isDebugEnabled()) { 
+                    logger.debug("Status called on mailbox named " + mailboxName + " (" + fullMailboxName + ")"); 
+                }
+                
+                ImapMailboxSession mailbox = session.getMailboxManager().getImapMailboxSession(fullMailboxName);
+                
+                if (statusDataItems.messages) {
+                    buffer.append(MESSAGES);
+                    buffer.append(SP);
+
+                    buffer.append(mailbox.getMessageCount());
+
+                    buffer.append(SP);
+                }
+
+                if (statusDataItems.recent) {
+                    buffer.append(RECENT);
+                    buffer.append(SP);
+                    buffer.append(mailbox.getRecentCount(false));
+                    buffer.append(SP);
+                }
+
+                if (statusDataItems.uidNext) {
+                    buffer.append(UIDNEXT);
+                    buffer.append(SP);
+                    buffer.append(mailbox.getUidNext());
+                    buffer.append(SP);
+                }
+
+                if (statusDataItems.uidValidity) {
+                    buffer.append(UIDVALIDITY);
+                    buffer.append(SP);
+                    buffer.append(mailbox.getUidValidity());
+                    buffer.append(SP);
+                }
+
+                if (statusDataItems.unseen) {
+                    buffer.append(UNSEEN);
+                    buffer.append(SP);
+                    buffer.append(mailbox.getUnseenCount());
+                    buffer.append(SP);
+                }
+            } catch (MailboxManagerException e) {
+                if (logger != null && logger.isDebugEnabled()) { 
+                    logger.debug("STATUS command failed: ", e); 
+                }
+                throw new MailboxException(e);
+            }
+            if ( buffer.charAt( buffer.length() - 1 ) == ' ' ) {
+                buffer.setLength( buffer.length() - 1 );
+            }
+            buffer.append(')');
+            final StatusResponseMessage result = new StatusResponseMessage(StatusCommand.this, buffer.toString());
+            return result;
+        }
+    }
+    
+    private static class StatusResponseMessage extends AbstractCommandResponseMessage {
+        private final String message;
+        
+        public StatusResponseMessage(ImapCommand command, final String message) {
+            super(command);
+            this.message = message;
+        }
+
+        void doEncode(ImapResponse response, ImapSession session, ImapCommand command) throws MailboxException {
+            response.commandResponse( command, message);
+            session.unsolicitedResponses( response, false );
+            response.commandComplete( command );
+        }
     }
 }
 /*

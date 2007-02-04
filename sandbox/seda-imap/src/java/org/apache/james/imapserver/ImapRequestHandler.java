@@ -27,6 +27,7 @@ import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.imapserver.commands.CommandParser;
 import org.apache.james.imapserver.commands.ImapCommand;
 import org.apache.james.imapserver.commands.ImapCommandFactory;
+import org.apache.james.imapserver.encode.OutputStreamImapResponseWriter;
 
 /**
  * @version $Revision: 109034 $
@@ -71,7 +72,7 @@ public final class ImapRequestHandler extends AbstractLogEnabled {
             return false;
         }
 
-        ImapResponse response = new ImapResponse( output );
+        ImapResponse response = new ImapResponse( new OutputStreamImapResponseWriter( output ));
         response.enableLogging(getLogger()); 
 
         doProcessRequest( request, response, session );

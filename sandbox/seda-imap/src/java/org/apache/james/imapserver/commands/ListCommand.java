@@ -19,6 +19,11 @@
 
 package org.apache.james.imapserver.commands;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import org.apache.james.imapserver.AuthorizationException;
 import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
@@ -39,127 +44,6 @@ class ListCommand extends AuthenticatedStateCommand
     public static final String ARGS = "<reference-name> <mailbox-name-with-wildcards>";
 
     private ListCommandParser parser = new ListCommandParser();
-
-    /** @see CommandTemplate#doProcess */
-    protected void doProcess( ImapRequestLineReader request,
-                              ImapResponse response,
-                              ImapSession session )
-            throws ProtocolException, MailboxException
-    {
-        String referenceName = parser.mailbox( request );
-        String mailboxPattern = parser.listMailbox( request );
-        parser.endLine( request );
-
-        // Should the #user.userName section be removed from names returned?
-        boolean removeUserPrefix;
-
-        ListResult[] listResults;
-        
-        String personalNamespace = USER_NAMESPACE + HIERARCHY_DELIMITER_CHAR +
-        session.getUser().getUserName();
-        
-        if ( mailboxPattern.length() == 0 ) {
-            // An empty mailboxPattern signifies a request for the hierarchy delimiter
-            // and root name of the referenceName argument
-
-            String referenceRoot;
-            if ( referenceName.startsWith( NAMESPACE_PREFIX ) )
-            {
-                // A qualified reference name - get the first element,
-                // and don't remove the user prefix
-                removeUserPrefix = false;
-                int firstDelimiter = referenceName.indexOf( HIERARCHY_DELIMITER_CHAR );
-                if ( firstDelimiter == -1 ) {
-                    referenceRoot = referenceName;
-                }
-                else {
-                    referenceRoot = referenceName.substring(0, firstDelimiter );
-                }
-            }
-            else {
-                // A relative reference name - need to remove user prefix from results.
-                referenceRoot = "";
-                removeUserPrefix = true;
-                
-            }
-
-            // Get the mailbox for the reference name.
-            listResults = new ListResult[1];
-            listResults[0]=new ListResultImpl(referenceRoot,HIERARCHY_DELIMITER);
-        }
-        else {
-
-            // If the mailboxPattern is fully qualified, ignore the
-            // reference name.
-            if ( mailboxPattern.charAt( 0 ) == NAMESPACE_PREFIX_CHAR ) {
-                referenceName="";
-            }
-
-            // If the search pattern is relative, need to remove user prefix from results.
-            removeUserPrefix = ( (referenceName+mailboxPattern).charAt(0) != NAMESPACE_PREFIX_CHAR );
-
-            if (removeUserPrefix) {
-                referenceName=personalNamespace+"."+referenceName;
-            }
-            
-            listResults = doList( session, referenceName, mailboxPattern );
-        }
-
-
-        int prefixLength = personalNamespace.length();
-
-       for (int i = 0; i < listResults.length; i++) {
-            StringBuffer message = new StringBuffer( "(" );
-            String[] attrs=listResults[i].getAttributes();
-            for (int j = 0; j < attrs.length; j++) {
-                if (j > 0) {
-                    message.append(' ');
-                }
-                message.append( attrs[j] );
-            }
-            message.append( ") \"" );
-            message.append( listResults[i].getHierarchyDelimiter() );
-            message.append( "\" " );
-
-            String mailboxName = listResults[i].getName();
-            if ( removeUserPrefix ) {
-                if ( mailboxName.length() <= prefixLength ) {
-                    mailboxName = "";
-                }
-                else {
-                    mailboxName = mailboxName.substring( prefixLength + 1 );
-                }
-            }
-
-            // TODO: need to check if the mailbox name needs quoting.
-            if ( mailboxName.length() == 0 ) {
-                message.append("\"\"");
-            }
-            else {
-                message.append( mailboxName );
-            }
-
-            response.commandResponse( this, message.toString() );
-        }
-
-        session.unsolicitedResponses( response, false );
-        response.commandComplete( this );
-    }
-
-    protected ListResult[] doList( ImapSession session, String base, String pattern ) throws MailboxException {
-        return doList(  session,  base,  pattern, false);
-    }
-    
-    
-    protected ListResult[] doList( ImapSession session, String base, String pattern, boolean subscribed ) throws MailboxException
-    {
-        try {
-            return session.getMailboxManager().list(base,pattern,false);
-        } catch (MailboxManagerException e) {
-            throw new MailboxException(e);  
-        }
-    }
-
 
     /** @see ImapCommand#getName */
     public String getName()
@@ -204,6 +88,161 @@ class ListCommand extends AuthenticatedStateCommand
                 return super.isValid( chr );
             }
         }
+    }
+
+    protected ListResult[] doList( ImapSession session, String base, String pattern ) throws MailboxException {
+        return doList(  session,  base,  pattern, false);
+    }
+    
+    
+    protected ListResult[] doList( ImapSession session, String base, String pattern, boolean subscribed ) throws MailboxException
+    {
+        try {
+            return session.getMailboxManager().list(base,pattern,false);
+        } catch (MailboxManagerException e) {
+            throw new MailboxException(e);  
+        }
+    }
+    
+    protected AbstractImapCommandMessage decode(ImapRequestLineReader request) throws ProtocolException {
+        String referenceName = parser.mailbox( request );
+        String mailboxPattern = parser.listMailbox( request );
+        parser.endLine( request );
+        final ListCommandMessage result = new ListCommandMessage(referenceName, mailboxPattern);
+        return result;
+    }
+    
+    private class ListCommandMessage extends AbstractImapCommandMessage {
+        private final String baseReferenceName;
+        private final String mailboxPattern;
+
+        public ListCommandMessage(final String referenceName, final String mailboxPattern) {
+            super();
+            this.baseReferenceName = referenceName;
+            this.mailboxPattern = mailboxPattern;
+        }
+        
+        protected ImapResponseMessage doProcess(ImapSession session) throws MailboxException, AuthorizationException, ProtocolException {
+
+            final ListResponseMessage result = new ListResponseMessage(ListCommand.this);
+            String referenceName = this.baseReferenceName;
+            // Should the #user.userName section be removed from names returned?
+            boolean removeUserPrefix;
+
+            ListResult[] listResults;
+
+            String personalNamespace = USER_NAMESPACE + HIERARCHY_DELIMITER_CHAR +
+            session.getUser().getUserName();
+
+            if ( mailboxPattern.length() == 0 ) {
+                // An empty mailboxPattern signifies a request for the hierarchy delimiter
+                // and root name of the referenceName argument
+
+                String referenceRoot;
+                if ( referenceName.startsWith( NAMESPACE_PREFIX ) )
+                {
+                    // A qualified reference name - get the first element,
+                    // and don't remove the user prefix
+                    removeUserPrefix = false;
+                    int firstDelimiter = referenceName.indexOf( HIERARCHY_DELIMITER_CHAR );
+                    if ( firstDelimiter == -1 ) {
+                        referenceRoot = referenceName;
+                    }
+                    else {
+                        referenceRoot = referenceName.substring(0, firstDelimiter );
+                    }
+                }
+                else {
+                    // A relative reference name - need to remove user prefix from results.
+                    referenceRoot = "";
+                    removeUserPrefix = true;
+
+                }
+
+                // Get the mailbox for the reference name.
+                listResults = new ListResult[1];
+                listResults[0]=new ListResultImpl(referenceRoot,HIERARCHY_DELIMITER);
+            }
+            else {
+
+                // If the mailboxPattern is fully qualified, ignore the
+                // reference name.
+                if ( mailboxPattern.charAt( 0 ) == NAMESPACE_PREFIX_CHAR ) {
+                    referenceName="";
+                }
+
+                // If the search pattern is relative, need to remove user prefix from results.
+                removeUserPrefix = ( (referenceName+mailboxPattern).charAt(0) != NAMESPACE_PREFIX_CHAR );
+
+                if (removeUserPrefix) {
+                    referenceName=personalNamespace+"."+referenceName;
+                }
+
+                listResults = doList( session, referenceName, mailboxPattern );
+            }
+
+
+            int prefixLength = personalNamespace.length();
+
+            for (int i = 0; i < listResults.length; i++) {
+                StringBuffer message = new StringBuffer( "(" );
+                String[] attrs=listResults[i].getAttributes();
+                for (int j = 0; j < attrs.length; j++) {
+                    if (j > 0) {
+                        message.append(' ');
+                    }
+                    message.append( attrs[j] );
+                }
+                message.append( ") \"" );
+                message.append( listResults[i].getHierarchyDelimiter() );
+                message.append( "\" " );
+
+                String mailboxName = listResults[i].getName();
+                if ( removeUserPrefix ) {
+                    if ( mailboxName.length() <= prefixLength ) {
+                        mailboxName = "";
+                    }
+                    else {
+                        mailboxName = mailboxName.substring( prefixLength + 1 );
+                    }
+                }
+
+                // TODO: need to check if the mailbox name needs quoting.
+                if ( mailboxName.length() == 0 ) {
+                    message.append("\"\"");
+                }
+                else {
+                    message.append( mailboxName );
+                }
+
+                result.addMessageData( message.toString() );
+            }
+            return result;
+        }
+    }
+    
+    private class ListResponseMessage extends AbstractCommandResponseMessage {
+        private List messages = new ArrayList();
+        
+        public ListResponseMessage(ImapCommand command) {
+            super(command);
+        }
+        
+        public void addMessageData(String message) {
+            // TODO: this isn't efficient
+            // TODO: better to stream results
+            messages.add(message);
+        }
+        
+        void doEncode(ImapResponse response, ImapSession session, ImapCommand command) throws MailboxException {
+            for (final Iterator it=messages.iterator();it.hasNext();) {
+                String message = (String) it.next();
+                response.commandResponse(command, message);
+            }
+            session.unsolicitedResponses( response, false );
+            response.commandComplete( command );
+        }
+        
     }
 }
 
