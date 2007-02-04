@@ -213,6 +213,16 @@ public class RemoteManagerTest extends TestCase {
         return dns;
     }
 
+    public void testCustomCommand() throws Exception {
+        finishSetUp(m_testConfiguration);
+        connect();
+        login();
+
+        sendCommand("echo hsif eht lla rof sknaht");
+        String lastLine = getLastLine(readAnswer());
+        assertEquals("Arguments echoed", "hsif eht lla rof sknaht", lastLine);
+    }
+    
     public void testLogin() throws IOException {
         finishSetUp(m_testConfiguration);
         connect();

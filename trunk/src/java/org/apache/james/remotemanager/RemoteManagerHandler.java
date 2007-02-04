@@ -113,6 +113,8 @@ public class RemoteManagerHandler
      */
     private UsersRepository users;
     
+    private CommandRegistry commandRegistry;
+    
     private final static String HEADER_IDENTIFIER = "header=";
     private final static String REGEX_IDENTIFIER = "regex=";
     private final static String KEY_IDENTIFIER = "key=";
@@ -132,6 +134,9 @@ public class RemoteManagerHandler
 
             // Reset the users repository to the default.
             users = theConfigData.getUsersRepository();
+            
+            Command[] commands = theConfigData.getCommands();
+            commandRegistry = new CommandRegistry(commands);
         } else {
             throw new IllegalArgumentException("Configuration object does not implement RemoteManagerHandlerConfigurationData");
         }
@@ -249,7 +254,11 @@ public class RemoteManagerHandler
         }
         command = command.toUpperCase(Locale.US);
         
-        if (!COMMANDLIST.contains(command)) return doUnknownCommand(command);
+        if (!COMMANDLIST.contains(command)) {
+            final boolean result = commandRegistry.execute(command, argument, out);
+            out.flush();
+            return result;
+        }
         
         try {
             Method method = getClass().getDeclaredMethod("do"+command, WORKER_METHOD_PARAMETERSET);
