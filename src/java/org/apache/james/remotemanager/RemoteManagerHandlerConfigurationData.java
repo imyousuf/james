@@ -125,4 +125,10 @@ public interface RemoteManagerHandlerConfigurationData {
      * @return the DomainListManagementService
      */
     DomainListManagementService getDomainListManagement();
+    
+    /**
+     * Gets avaliable commands.
+     * @return <code>Command</code>'s, not null possibly empty
+    */
+    Command[] getCommands();
 }

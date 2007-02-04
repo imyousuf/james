@@ -22,8 +22,10 @@
 package org.apache.james.remotemanager;
 
 import org.apache.avalon.cornerstone.services.store.Store;
+import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.core.AbstractJamesService;
@@ -36,6 +38,8 @@ import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
 import org.apache.james.services.VirtualUserTableManagementService;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 
 /**
@@ -83,6 +87,8 @@ public class RemoteManager
      * The reference to the Store
      */
     private Store store;
+    
+    private Command[] commands = {};
     
     /**
      * reference to administration of Bayesian analyzer
@@ -232,9 +238,40 @@ public class RemoteManager
             if (promtConfiguration != null) prompt = promtConfiguration.getValue();
             if (prompt == null) prompt = ""; 
             else if (!prompt.equals("") && !prompt.endsWith(" ")) prompt += " "; 
+            configureCommands(configuration);
         }
     }
   
+    private void configureCommands(final Configuration configuration) throws ConfigurationException {
+        Collection commands = new ArrayList();
+        Configuration[] commandConfigurations = configuration.getChildren( "command" );
+        if (commandConfigurations != null) {
+            for(int i=0;i<commandConfigurations.length;i++) {
+                final Configuration commandConfiguration = commandConfigurations[i];
+                Configuration classConfiguration 
+                = commandConfiguration.getChild( "class-name" );
+                String className = classConfiguration.getValue();
+                if (className != null) {
+                    try {
+                        Command command 
+                        = (Command) Class.forName(className).newInstance();
+                        if (command instanceof Configurable) {
+                            Configurable configurable = (Configurable) command;
+                            configurable.configure(commandConfiguration);
+                        }
+                        commands.add(command);
+                    } catch (Exception e) {
+                        final Logger logger = getLogger();
+                        if (logger != null) {
+                            logger.error("Failed to load custom command", e);
+                        }
+                    }
+                }
+            }
+        }
+        this.commands = (Command[]) commands.toArray(this.commands);
+    }
+    
     /**
      * @see org.apache.james.core.AbstractJamesService#getDefaultPort()
      */
@@ -353,6 +390,13 @@ public class RemoteManager
          */
         public DomainListManagementService getDomainListManagement() {
             return RemoteManager.this.domListManagement;
+        }
+        
+        /**
+         * @see org.apache.james.neo.remotemanager.RemoteManagerHandlerConfigurationData#getCommands()
+         */
+        public Command[] getCommands() {
+            return RemoteManager.this.commands;
         }
     }
 

@@ -30,12 +30,27 @@ public class RemoteManagerTestConfiguration extends DefaultConfiguration {
     private Integer m_connectionLimit = null;
     private String m_loginName = "testLogin";
     private String m_loginPassword = "testPassword";
-
+    private String commandClassName = "org.apache.james.remotemanager.EchoCommand";
+    
     public RemoteManagerTestConfiguration(int smtpListenerPort) {
         super("smptserver");
 
         m_remoteManagerListenerPort = smtpListenerPort;
     }
+
+    
+    
+    public String getCommandClassName() {
+        return commandClassName;
+    }
+
+
+
+    public void setCommandClassName(String commandClassName) {
+        this.commandClassName = commandClassName;
+    }
+
+
 
     public void setConnectionLimit(int iConnectionLimit) {
         m_connectionLimit = new Integer(iConnectionLimit);
@@ -82,6 +97,11 @@ public class RemoteManagerTestConfiguration extends DefaultConfiguration {
 
         handlerConfig.addChild(Util.createRemoteManagerHandlerChainConfiguration());
         addChild(handlerConfig);
+        
+        DefaultConfiguration commandConfiguration = new DefaultConfiguration("command");
+        commandConfiguration.addChild(Util.getValuedConfiguration("class-name", commandClassName));
+        
+        addChild(commandConfiguration);
     }
 
 }
