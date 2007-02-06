@@ -12,6 +12,18 @@ Here are the differences between the svn version and this one:
 
 - upgraded wrapper.* files to 3.2.0 release (http://wrapper.tanukisoftware.org/)
 
+- added this code to org.apache.avalon.phoenix.launcher.Main:121:
+  ---------------------------------
+    // Set the Security property to the same value of the system property.
+    String ttlcache = System.getProperty("networkaddress.cache.ttl");
+    if (ttlcache != null) {
+        Security.setProperty("networkaddress.cache.ttl" , ttlcache);
+    }
+  ---------------------------------
+
+- added a "-Dnetworkaddress.cache.ttl=300" to all executing scripts:
+  wrapper.conf, phoenix.sh, run.bat, james-server.sh
+
 Changed the build.xml to reflect the changes.
 
 Rebuilt.
