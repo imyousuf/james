@@ -46,28 +46,28 @@ class UnsubscribeCommand extends AuthenticatedStateCommand
         return ARGS;
     }
 
-    protected AbstractImapCommandMessage decode(ImapRequestLineReader request) throws ProtocolException {
+    protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
         final String mailboxName = parser.mailbox( request );
         parser.endLine( request );
-        return new UnsubscribeCommandMessage(mailboxName);
+        return new UnsubscribeCommandMessage(mailboxName, tag);
     }
     
     private class UnsubscribeCommandMessage extends AbstractImapCommandMessage {
         private final String mailboxName;
 
-        public UnsubscribeCommandMessage(final String mailboxName) {
-            super();
+        public UnsubscribeCommandMessage(final String mailboxName, final String tag) {
+            super(tag);
             this.mailboxName = mailboxName;
         }
 
-        protected ImapResponseMessage doProcess(ImapSession session) throws MailboxException, AuthorizationException, ProtocolException {
+        protected ImapResponseMessage doProcess(ImapSession session, String tag) throws MailboxException, AuthorizationException, ProtocolException {
             try {
                 final String fullMailboxName=session.buildFullName(this.mailboxName);
                 session.getMailboxManager().setSubscription(fullMailboxName,false);
             } catch (MailboxManagerException e) {
                 throw new MailboxException(e);
             }
-            return new CommandCompleteResponseMessage(false, UnsubscribeCommand.this);
+            return new CommandCompleteResponseMessage(false, UnsubscribeCommand.this, tag);
         }
         
     }

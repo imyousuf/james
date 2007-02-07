@@ -49,32 +49,32 @@ class LoginCommand extends NonAuthenticatedStateCommand
         return ARGS;
     }
 
-    protected AbstractImapCommandMessage decode(ImapRequestLineReader request) throws ProtocolException {
+    protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
         final String userid = parser.astring( request );
         final String password = parser.astring( request );
         parser.endLine( request );
-        return new LoginCommandMessage(userid, password);
+        return new LoginCommandMessage(userid, password, tag);
     }
     
     private class LoginCommandMessage extends AbstractImapCommandMessage {
         private final String userid;
         private final String password;
         
-        public LoginCommandMessage(final String userid, final String password) {
-            super();
+        public LoginCommandMessage(final String userid, final String password, String tag) {
+            super(tag);
             this.userid = userid;
             this.password = password;
         }
 
-        protected ImapResponseMessage doProcess(ImapSession session) throws MailboxException, AuthorizationException, ProtocolException {
+        protected ImapResponseMessage doProcess(ImapSession session, String tag) throws MailboxException, AuthorizationException, ProtocolException {
             ImapResponseMessage result;
             if ( session.getUsers().test( userid, password ) ) {
                 User user = session.getUsers().getUserByName( userid );
                 session.setAuthenticated( user );
-                result = CommandCompleteResponseMessage.createWithNoUnsolictedResponses(LoginCommand.this);
+                result = CommandCompleteResponseMessage.createWithNoUnsolictedResponses(LoginCommand.this, tag);
             }
             else {
-                result = new CommandFailedResponseMessage( LoginCommand.this, "Invalid login/password" );
+                result = new CommandFailedResponseMessage( LoginCommand.this, "Invalid login/password", tag );
             }
             return result;
         }

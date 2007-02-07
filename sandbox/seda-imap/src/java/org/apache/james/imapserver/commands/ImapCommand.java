@@ -51,8 +51,9 @@ public interface ImapCommand
      * @param request The current client request
      * @param response The current server response
      * @param session The current session
+     * @param tag TODO
      */
     void process( ImapRequestLineReader request,
                   ImapResponse response,
-                  ImapSession session );
+                  ImapSession session, String tag );
 }

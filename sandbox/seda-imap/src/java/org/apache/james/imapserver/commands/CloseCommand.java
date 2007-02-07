@@ -39,28 +39,29 @@ class CloseCommand extends SelectedStateCommand
 {
     public static final String NAME = "CLOSE";
     public static final String ARGS = null;
-    
-    private final CloseCommandMessage message = new CloseCommandMessage();
-    private final CloseResponseMessage response = new CloseResponseMessage(this);
 
     private static class CloseResponseMessage extends AbstractCommandResponseMessage {
-        public CloseResponseMessage(ImapCommand command) {
-            super(command);
+        public CloseResponseMessage(ImapCommand command, String tag) {
+            super(command, tag);
         }
 
-        void doEncode(ImapResponse response, ImapSession session, ImapCommand command) throws MailboxException {
+        void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
             //TODO: the following comment was present in the code before refactoring
             //TODO: doesn't seem to match the implementation
             //TODO: check that implementation is correct
 //          Don't send unsolicited responses on close.
             session.unsolicitedResponses( response, false );
-            response.commandComplete( command );
+            response.commandComplete( command , tag);
         }
     }
     
     private class CloseCommandMessage extends AbstractImapCommandMessage {
-
-        protected ImapResponseMessage doProcess(ImapSession session) throws MailboxException, AuthorizationException, ProtocolException {
+        
+        public CloseCommandMessage(final String tag) {
+            super(tag);
+        }
+        
+        protected ImapResponseMessage doProcess(ImapSession session, String tag) throws MailboxException, AuthorizationException, ProtocolException {
             ImapMailboxSession mailbox = session.getSelected().getMailbox();
             if ( session.getSelected().getMailbox().isWriteable() ) {
                 try {
@@ -70,13 +71,14 @@ class CloseCommand extends SelectedStateCommand
                 }
             }
             session.deselect();
-            return response;
+            final CloseResponseMessage result = new CloseResponseMessage(CloseCommand.this, tag);
+            return result;
         }
     }
     
-    protected AbstractImapCommandMessage decode(ImapRequestLineReader request) throws ProtocolException {
+    protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
         parser.endLine( request );
-        return message;
+        return new CloseCommandMessage(tag);
     }
 
     /** @see ImapCommand#getName */

@@ -113,17 +113,17 @@ class StoreCommand extends SelectedStateCommand implements UidEnabledCommand
         }
     }
 
-    protected AbstractImapCommandMessage decode(ImapRequestLineReader request) throws ProtocolException {
-        return decode(request, false);
+    protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
+        return decode(request, false, tag);
     }
 
-    public AbstractImapCommandMessage decode(ImapRequestLineReader request, boolean useUids) throws ProtocolException {
+    public AbstractImapCommandMessage decode(ImapRequestLineReader request, boolean useUids, String tag) throws ProtocolException {
         
         final IdRange[] idSet = parser.parseIdRange( request );
         final StoreDirective directive = parser.storeDirective( request );
         final Flags flags = parser.flagList( request );
         parser.endLine( request );
-        return new StoreCommandMessage(idSet, directive, flags, useUids);
+        return new StoreCommandMessage(idSet, directive, flags, useUids, tag);
     }
     
     private class StoreCommandMessage extends AbstractImapCommandMessage {
@@ -132,15 +132,16 @@ class StoreCommand extends SelectedStateCommand implements UidEnabledCommand
         private final Flags flags;
         private final boolean useUids;
         
-        public StoreCommandMessage(final IdRange[] idSet, final StoreDirective directive, final Flags flags, final boolean useUids) {
-            super();
+        public StoreCommandMessage(final IdRange[] idSet, final StoreDirective directive, final Flags flags, 
+                final boolean useUids, final String tag) {
+            super(tag);
             this.idSet = idSet;
             this.directive = directive;
             this.flags = flags;
             this.useUids = useUids;
         }
         
-        protected ImapResponseMessage doProcess(ImapSession session) throws MailboxException, AuthorizationException, ProtocolException {
+        protected ImapResponseMessage doProcess(ImapSession session, String tag) throws MailboxException, AuthorizationException, ProtocolException {
 
             ImapMailboxSession mailbox = session.getSelected().getMailbox();
             MailboxListener silentListener = null;
@@ -175,24 +176,24 @@ class StoreCommand extends SelectedStateCommand implements UidEnabledCommand
                 throw new MailboxException(e);
             }
             
-            final StoreResponseMessage result = new StoreResponseMessage(StoreCommand.this, useUids);
+            final StoreResponseMessage result = 
+                new StoreResponseMessage(StoreCommand.this, useUids, tag);
             return result;
         }
     }
     
     private static class StoreResponseMessage extends AbstractCommandResponseMessage {
-        // TODO: use factory to improve memory usage
         private final boolean useUids;
         
-        public StoreResponseMessage(ImapCommand command, final boolean useUids) {
-            super(command);
+        public StoreResponseMessage(ImapCommand command, final boolean useUids, final String tag) {
+            super(command, tag);
             this.useUids = useUids;
         }
 
-        void doEncode(ImapResponse response, ImapSession session, ImapCommand command) throws MailboxException {
+        void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
             boolean omitExpunged = (!useUids);
             session.unsolicitedResponses( response, omitExpunged , useUids);
-            response.commandComplete( command );            
+            response.commandComplete( command, tag );            
         }
         
     }

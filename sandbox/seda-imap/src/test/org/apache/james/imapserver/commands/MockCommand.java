@@ -15,7 +15,7 @@ public class MockCommand extends CommandTemplate {
         return NAME;
     }
 
-    protected AbstractImapCommandMessage decode(ImapRequestLineReader request) throws ProtocolException {
+    protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
         // TODO implementation
         return null;
     }

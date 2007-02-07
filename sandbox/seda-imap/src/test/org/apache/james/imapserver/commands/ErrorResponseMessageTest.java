@@ -38,8 +38,7 @@ public class ErrorResponseMessageTest extends TestCase {
         super.setUp();
         writer = new MockImapResponseWriter();
         response = new ImapResponse(writer);
-        response.setTag(TAG);
-        message = new ErrorResponseMessage(ERROR);
+        message = new ErrorResponseMessage(ERROR, TAG);
     }
 
     protected void tearDown() throws Exception {

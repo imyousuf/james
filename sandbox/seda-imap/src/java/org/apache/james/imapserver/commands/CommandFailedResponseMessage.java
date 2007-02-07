@@ -27,23 +27,25 @@ class CommandFailedResponseMessage implements ImapResponseMessage {
     private final ImapCommand command;
     private final String responseCode;
     private final String reason;
+    private final String tag;
     
-    public CommandFailedResponseMessage(final ImapCommand command, final String reason) {
-        this(command, null, reason);
+    public CommandFailedResponseMessage(final ImapCommand command, final String reason, String tag) {
+        this(command, null, reason, tag);
     }
         
-    public CommandFailedResponseMessage(final ImapCommand command, final String responseCode, final String reason) {
+    public CommandFailedResponseMessage(final ImapCommand command, final String responseCode, final String reason, String tag) {
         super();
         this.command = command;
         this.responseCode = responseCode;
         this.reason = reason;
+        this.tag = tag;
     }
 
     public void encode(ImapResponse response, ImapSession session) {
         if (responseCode == null) {
-            response.commandFailed(command, reason);
+            response.commandFailed(command, reason, tag);
         } else {
-            response.commandFailed(command, responseCode, reason);
+            response.commandFailed(command, responseCode, reason, tag);
         }
     }
 

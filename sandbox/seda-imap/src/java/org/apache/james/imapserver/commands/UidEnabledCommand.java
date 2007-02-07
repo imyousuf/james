@@ -28,5 +28,6 @@ import org.apache.james.imapserver.commands.CommandTemplate.AbstractImapCommandM
  */
 interface UidEnabledCommand
 {
-    AbstractImapCommandMessage decode(final ImapRequestLineReader request, final boolean useUids) throws ProtocolException;
+    AbstractImapCommandMessage decode(final ImapRequestLineReader request, 
+            final boolean useUids, String tag) throws ProtocolException;
 }

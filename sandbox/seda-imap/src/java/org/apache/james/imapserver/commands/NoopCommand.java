@@ -44,9 +44,9 @@ class NoopCommand extends CommandTemplate
         return ARGS;
     }
 
-    protected AbstractImapCommandMessage decode(ImapRequestLineReader request) throws ProtocolException {
+    protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
         parser.endLine( request );
-        return new CompleteCommandMessage(false);
+        return new CompleteCommandMessage(false, tag);
     }
 }
 

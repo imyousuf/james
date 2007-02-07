@@ -35,10 +35,10 @@ class AuthenticateCommand extends NonAuthenticatedStateCommand
     public static final String NAME = "AUTHENTICATE";
     public static final String ARGS = "<auth_type> *(CRLF base64)";
     
-    protected AbstractImapCommandMessage decode(ImapRequestLineReader request) throws ProtocolException {
+    protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
         String authType = parser.astring( request );
         parser.endLine( request );        
-        final AuthenticateCommandMessage result = new AuthenticateCommandMessage(authType);
+        final AuthenticateCommandMessage result = new AuthenticateCommandMessage(authType, tag);
         return result;
     }
 
@@ -46,13 +46,14 @@ class AuthenticateCommand extends NonAuthenticatedStateCommand
 
         private final String authType;
         
-        public AuthenticateCommandMessage(final String authType) {
+        public AuthenticateCommandMessage(final String authType, final String tag) {
+            super(tag);
             this.authType = authType;
         }
         
-        protected ImapResponseMessage doProcess(ImapSession session) throws MailboxException, AuthorizationException, ProtocolException {
+        protected ImapResponseMessage doProcess(ImapSession session, String tag) throws MailboxException, AuthorizationException, ProtocolException {
             final CommandFailedResponseMessage result = new CommandFailedResponseMessage(AuthenticateCommand.this, 
-                                "Unsupported authentication mechanism '" + authType + "'");
+                                "Unsupported authentication mechanism '" + authType + "'", tag);
             return result;
         }
         

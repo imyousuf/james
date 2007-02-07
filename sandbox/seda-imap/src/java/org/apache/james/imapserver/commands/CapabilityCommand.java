@@ -38,11 +38,10 @@ class CapabilityCommand extends CommandTemplate
 
     public static final String CAPABILITY_RESPONSE = NAME + SP + VERSION + SP + CAPABILITIES;
 
-    private final CapabilityCommandMessage message = new CapabilityCommandMessage();
-    
-    protected AbstractImapCommandMessage decode(ImapRequestLineReader request) throws ProtocolException {
+    protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
         parser.endLine( request );
-        return message;
+        final CapabilityCommandMessage result = new CapabilityCommandMessage(tag);
+        return result;
     }
 
     /** @see ImapCommand#getName */
@@ -59,22 +58,26 @@ class CapabilityCommand extends CommandTemplate
     
     private static class CapabilityReponseMessage extends AbstractCommandResponseMessage {
 
-        public CapabilityReponseMessage(ImapCommand command) {
-            super(command);
+        public CapabilityReponseMessage(ImapCommand command, String tag) {
+            super(command, tag);
         }
 
-        void doEncode(ImapResponse response, ImapSession session, ImapCommand command) throws MailboxException {
+        void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
             response.untaggedResponse( CAPABILITY_RESPONSE );
             session.unsolicitedResponses( response, false);
-            response.commandComplete( command );            
+            response.commandComplete( command , tag );            
         }
         
     }
     
     private class CapabilityCommandMessage extends AbstractImapCommandMessage {
 
-        protected ImapResponseMessage doProcess(ImapSession session) throws MailboxException, AuthorizationException, ProtocolException {
-            final CapabilityReponseMessage result = new CapabilityReponseMessage(CapabilityCommand.this);
+        public CapabilityCommandMessage(final String tag) {
+            super(tag);
+        }
+        
+        protected ImapResponseMessage doProcess(ImapSession session, String tag) throws MailboxException, AuthorizationException, ProtocolException {
+            final CapabilityReponseMessage result = new CapabilityReponseMessage(CapabilityCommand.this, tag);
             return result;
         }
     }

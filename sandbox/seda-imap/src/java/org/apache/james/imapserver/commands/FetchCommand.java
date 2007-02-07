@@ -501,17 +501,17 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
         }
     }
 
-    protected AbstractImapCommandMessage decode(ImapRequestLineReader request) throws ProtocolException {
-        final AbstractImapCommandMessage result = decode(request, false);
+    protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
+        final AbstractImapCommandMessage result = decode(request, false, tag);
         return result;
     }
 
-    public AbstractImapCommandMessage decode(ImapRequestLineReader request, boolean useUids) throws ProtocolException {
+    public AbstractImapCommandMessage decode(ImapRequestLineReader request, boolean useUids, String tag) throws ProtocolException {
         IdRange[] idSet = parser.parseIdRange( request );
         FetchRequest fetch = parser.fetchRequest( request );
         parser.endLine( request );
         
-        final FetchCommandMessage result = new FetchCommandMessage(useUids, idSet, fetch);
+        final FetchCommandMessage result = new FetchCommandMessage(useUids, idSet, fetch, tag);
         return result;
     }
     
@@ -519,10 +519,10 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
         private final boolean useUids;
         private final IdRange[] idSet;
         private final FetchRequest fetch;
-        
 
-        public FetchCommandMessage(final boolean useUids, final IdRange[] idSet, final FetchRequest fetch) {
-            super();
+        public FetchCommandMessage(final boolean useUids, final IdRange[] idSet, 
+                final FetchRequest fetch, String tag) {
+            super(tag);
             this.useUids = useUids;
             this.idSet = idSet;
             this.fetch = fetch;
@@ -532,9 +532,10 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
         }
 
 
-        protected ImapResponseMessage doProcess(ImapSession session) throws MailboxException, AuthorizationException, ProtocolException {
+        protected ImapResponseMessage doProcess(ImapSession session, String tag) throws MailboxException, AuthorizationException, ProtocolException {
             
-            FetchResponseMessage result = new FetchResponseMessage(FetchCommand.this, useUids);
+            FetchResponseMessage result = 
+                new FetchResponseMessage(FetchCommand.this, useUids, tag);
             // TODO only fetch needed results
             int resultToFetch = MessageResult.FLAGS | MessageResult.MIME_MESSAGE
                     | MessageResult.INTERNAL_DATE | MessageResult.MSN
@@ -563,8 +564,9 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
 
         private final boolean useUids;
         
-        public FetchResponseMessage(final ImapCommand command, final boolean useUids) {
-            super(command);
+        public FetchResponseMessage(final ImapCommand command, final boolean useUids, 
+                final String tag) {
+            super(command, tag);
             this.useUids = useUids;
         }
 
@@ -575,14 +577,14 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
             messages.add(data);
         }
         
-        void doEncode(ImapResponse response, ImapSession session, ImapCommand command) throws MailboxException {
+        void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
             for (final Iterator it=messages.iterator();it.hasNext();) {
                 MessageData data = (MessageData) it.next();
                 data.encode(response);
             }
             boolean omitExpunged = (!useUids);
             session.unsolicitedResponses( response, omitExpunged , useUids);
-            response.commandComplete( command );
+            response.commandComplete( command, tag );
             
         }
         

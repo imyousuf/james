@@ -48,21 +48,22 @@ class DeleteCommand extends AuthenticatedStateCommand
         return ARGS;
     }
 
-    protected AbstractImapCommandMessage decode(ImapRequestLineReader request) throws ProtocolException {
+    protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
         String mailboxName = parser.mailbox( request );
         parser.endLine( request );
-        final DeleteCommandMessage result = new DeleteCommandMessage(mailboxName);
+        final DeleteCommandMessage result = 
+            new DeleteCommandMessage( mailboxName, tag );
         return result;
     }
     
     private class DeleteCommandMessage extends AbstractImapCommandMessage {
         private final String mailboxName;
-        public DeleteCommandMessage(final String mailboxName) {
-            super();
+        public DeleteCommandMessage(final String mailboxName, final String tag) {
+            super(tag);
             this.mailboxName = mailboxName;
         }
         
-        protected ImapResponseMessage doProcess(ImapSession session) throws MailboxException, AuthorizationException, ProtocolException {
+        protected ImapResponseMessage doProcess(ImapSession session, String tag) throws MailboxException, AuthorizationException, ProtocolException {
             try {
                 final String fullMailboxName = session.buildFullName(this.mailboxName);
                 if (session.getSelected() != null) {
@@ -76,7 +77,8 @@ class DeleteCommand extends AuthenticatedStateCommand
                 throw new MailboxException(e);
             }
 
-            final CommandCompleteResponseMessage result = new CommandCompleteResponseMessage(false, DeleteCommand.this);
+            final CommandCompleteResponseMessage result = 
+                new CommandCompleteResponseMessage(false, DeleteCommand.this, tag);
             return result;
         }
 

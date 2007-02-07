@@ -32,9 +32,9 @@ class CheckCommand extends SelectedStateCommand
     public static final String NAME = "CHECK";
     public static final String ARGS = null;
 
-    protected AbstractImapCommandMessage decode(ImapRequestLineReader request) throws ProtocolException {
+    protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
         parser.endLine( request );
-        return new CompleteCommandMessage(false);
+        return new CompleteCommandMessage(false, tag);
     }
 
     /** @see ImapCommand#getName */

@@ -45,30 +45,31 @@ class SubscribeCommand extends AuthenticatedStateCommand {
         return ARGS;
     }
 
-    protected AbstractImapCommandMessage decode(ImapRequestLineReader request) throws ProtocolException {
+    protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
         final String mailboxName = parser.mailbox( request );
         parser.endLine( request );
         
-        final SubscribeCommandMessage result = new SubscribeCommandMessage(mailboxName);
+        final SubscribeCommandMessage result = 
+            new SubscribeCommandMessage(mailboxName, tag);
         return result;
     }
     
     private class SubscribeCommandMessage extends AbstractImapCommandMessage {
         private final String mailboxName;
         
-        public SubscribeCommandMessage(final String mailboxName) {
-            super();
+        public SubscribeCommandMessage(final String mailboxName, final String tag) {
+            super(tag);
             this.mailboxName = mailboxName;
         }
 
-        protected ImapResponseMessage doProcess(ImapSession session) throws MailboxException, AuthorizationException, ProtocolException {
+        protected ImapResponseMessage doProcess(ImapSession session, String tag) throws MailboxException, AuthorizationException, ProtocolException {
             try {
                 final String fullMailboxName = session.buildFullName(this.mailboxName);
                 session.getMailboxManager().setSubscription(fullMailboxName,true);
             } catch (MailboxManagerException e) {
                throw new MailboxException(e);
             }
-            return new CommandCompleteResponseMessage(false, SubscribeCommand.this);
+            return new CommandCompleteResponseMessage(false, SubscribeCommand.this, tag);
         }
         
     }

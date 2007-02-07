@@ -35,7 +35,8 @@ public interface ImapCommandParser {
      * Parses IMAP request.
      * TODO: consider error handling
      * @param request <code>ImapRequestLineReader</code>, not null
+     * @param tag TODO
      * @return <code>ImapCommandMessage</code>
      */
-    ImapCommandMessage parse(ImapRequestLineReader request);
+    ImapCommandMessage parse(ImapRequestLineReader request, String tag);
 }

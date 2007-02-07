@@ -29,13 +29,15 @@ import org.apache.james.imapserver.ImapSession;
 public class ErrorResponseMessage implements ImapResponseMessage, ImapCommandMessage {
 
     private final String message;
+    private final String tag;
     
-    public ErrorResponseMessage(final String message) {
+    public ErrorResponseMessage(final String message, String tag) {
         this.message = message;
+        this.tag = tag;
     }
     
     public void encode(ImapResponse response, ImapSession session) {
-        response.commandError(message);
+        response.commandError(message, tag);
     }
 
     public ImapResponseMessage process(ImapSession session) {

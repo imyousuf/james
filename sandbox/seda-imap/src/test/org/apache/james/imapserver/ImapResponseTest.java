@@ -38,8 +38,7 @@ public class ImapResponseTest extends TestCase {
         super.setUp();
         command = new MockCommand();
         writer = new MockImapResponseWriter();
-        response = new ImapResponse(writer);
-        response.setTag(TAG);
+        response = new ImapResponse(writer);;
     }
 
     protected void tearDown() throws Exception {
@@ -47,7 +46,7 @@ public class ImapResponseTest extends TestCase {
     }
 
     public void testCommandCompleteImapCommand() {
-        response.commandComplete(command);
+        response.commandComplete(command, TAG);
         assertEquals(5, writer.operations.size());
         assertEquals(new MockImapResponseWriter.TagOperation(TAG), writer.operations.get(0));
         assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapConstants.OK), 
@@ -62,7 +61,7 @@ public class ImapResponseTest extends TestCase {
 
     public void testCommandCompleteImapCommandString() {
         final String code = "responseCode";
-        response.commandComplete(command, code);
+        response.commandComplete(command, code, TAG);
         assertEquals(6, writer.operations.size());
         assertEquals(new MockImapResponseWriter.TagOperation(TAG), writer.operations.get(0));
         assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapConstants.OK), 
@@ -79,7 +78,7 @@ public class ImapResponseTest extends TestCase {
 
     public void testCommandFailedImapCommandString() {
         final String reason = "A reason";
-        response.commandFailed(command, reason);
+        response.commandFailed(command, reason, TAG);
         assertEquals(6, writer.operations.size());
         assertEquals(new MockImapResponseWriter.TagOperation(TAG), writer.operations.get(0));
         assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapConstants.NO), 
@@ -97,7 +96,7 @@ public class ImapResponseTest extends TestCase {
     public void testCommandFailedImapCommandStringString() {
         final String reason = "A reason";
         final String code = "A code";
-        response.commandFailed(command, code, reason);
+        response.commandFailed(command, code, reason, TAG);
         assertEquals(7, writer.operations.size());
         assertEquals(new MockImapResponseWriter.TagOperation(TAG), writer.operations.get(0));
         assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapConstants.NO), 
@@ -116,7 +115,7 @@ public class ImapResponseTest extends TestCase {
 
     public void testCommandError() {
         String message = "A message";
-        response.commandError(message);
+        response.commandError(message, TAG);
         assertEquals(4, writer.operations.size());
         assertEquals(new MockImapResponseWriter.TagOperation(TAG), writer.operations.get(0));
         assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapConstants.BAD), 
@@ -240,7 +239,7 @@ public class ImapResponseTest extends TestCase {
 
     public void testTaggedResponse() {
         String message = "A message";
-        response.taggedResponse(message);
+        response.taggedResponse(message, TAG);
         assertEquals(3, writer.operations.size());
         assertEquals(new MockImapResponseWriter.TagOperation(TAG), writer.operations.get(0));
         assertEquals(new MockImapResponseWriter.TextMessageOperation(message),

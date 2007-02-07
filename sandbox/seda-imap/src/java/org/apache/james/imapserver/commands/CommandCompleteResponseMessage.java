@@ -31,16 +31,16 @@ public class CommandCompleteResponseMessage extends AbstractCommandResponseMessa
      * @param command <code>ImapCommand</code>, not null
      * @return <code>ImapResponseMessage</code>, not null
      */
-    public static final ImapResponseMessage createWithNoUnsolictedResponses(final ImapCommand command) {
-        final CommandCompleteResponseMessage result = new CommandCompleteResponseMessage(command);
+    public static final ImapResponseMessage createWithNoUnsolictedResponses(final ImapCommand command, String tag) {
+        final CommandCompleteResponseMessage result = new CommandCompleteResponseMessage(command, tag);
         return result;
     }
     
     private final boolean useUids;
     private final boolean writeUnsolicited;
     
-    private CommandCompleteResponseMessage(final ImapCommand command) {
-        super(command);
+    private CommandCompleteResponseMessage(final ImapCommand command, String tag) {
+        super(command, tag);
         writeUnsolicited = false;
         this.useUids = false;
     }
@@ -53,16 +53,16 @@ public class CommandCompleteResponseMessage extends AbstractCommandResponseMessa
      * @param useUids true if uids should be used, false otherwise
      * @param command <code>ImapCommand</code>, not null
      */
-    public CommandCompleteResponseMessage(final boolean useUids, final ImapCommand command) {
-        super(command);
+    public CommandCompleteResponseMessage(final boolean useUids, final ImapCommand command, final String tag) {
+        super(command, tag);
         writeUnsolicited = true;
         this.useUids = useUids;
     }
 
-    void doEncode(ImapResponse response, ImapSession session, ImapCommand command) throws MailboxException {
+    void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
         if (writeUnsolicited) {
             session.unsolicitedResponses( response, useUids);
         }
-        response.commandComplete( command );
+        response.commandComplete( command , tag );
     }
 }

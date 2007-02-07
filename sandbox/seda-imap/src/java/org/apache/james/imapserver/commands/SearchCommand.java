@@ -89,15 +89,15 @@ class SearchCommand extends SelectedStateCommand implements UidEnabledCommand
 
     }
 
-    protected AbstractImapCommandMessage decode(ImapRequestLineReader request) throws ProtocolException {
-        return decode(request, false);
+    protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
+        return decode(request, false, tag);
     }
 
-    public AbstractImapCommandMessage decode(ImapRequestLineReader request, boolean useUids) throws ProtocolException {
+    public AbstractImapCommandMessage decode(ImapRequestLineReader request, boolean useUids, String tag) throws ProtocolException {
         // Parse the search term from the request
         final SearchTerm searchTerm = parser.searchTerm( request );
         parser.endLine( request );
-        final SearchImapCommand result = new SearchImapCommand(searchTerm, useUids);
+        final SearchImapCommand result = new SearchImapCommand(searchTerm, useUids, tag);
         return result;
     }
     
@@ -105,13 +105,14 @@ class SearchCommand extends SelectedStateCommand implements UidEnabledCommand
         private final SearchTerm searchTerm;
         private final boolean useUids;
 
-        public SearchImapCommand(final SearchTerm searchTerm, final boolean useUids) {
-            super();
+        public SearchImapCommand(final SearchTerm searchTerm, final boolean useUids,
+                final String tag) {
+            super(tag);
             this.searchTerm = searchTerm;
             this.useUids = useUids;
         }
 
-        protected ImapResponseMessage doProcess(ImapSession session) throws MailboxException, AuthorizationException, ProtocolException {
+        protected ImapResponseMessage doProcess(ImapSession session, String tag) throws MailboxException, AuthorizationException, ProtocolException {
             ImapMailboxSession mailbox = session.getSelected().getMailbox();
             final int resultCode;
             if (useUids) {
@@ -139,7 +140,8 @@ class SearchCommand extends SelectedStateCommand implements UidEnabledCommand
                 }
             }
             final SearchResponseMessage result = 
-                new SearchResponseMessage(SearchCommand.this, idList.toString(), useUids);
+                new SearchResponseMessage(SearchCommand.this, idList.toString(), 
+                        useUids, tag);
             return result;
         }
     }
@@ -148,18 +150,19 @@ class SearchCommand extends SelectedStateCommand implements UidEnabledCommand
         private final String idList;
         private final boolean useUids;
         
-        public SearchResponseMessage(final ImapCommand command, final String idList, final boolean useUids) {
-            super(command);
+        public SearchResponseMessage(final ImapCommand command, final String idList, 
+                final boolean useUids, final String tag) {
+            super(command, tag);
             this.idList = idList;
             this.useUids = useUids;
         }
         
-        void doEncode(ImapResponse response, ImapSession session, ImapCommand command) throws MailboxException {
+        void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
             
             response.commandResponse( command, idList );
             boolean omitExpunged = (!useUids);
             session.unsolicitedResponses( response, omitExpunged, useUids );
-            response.commandComplete( command );  
+            response.commandComplete( command, tag );  
         }
         
     }

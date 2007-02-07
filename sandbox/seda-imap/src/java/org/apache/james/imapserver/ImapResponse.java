@@ -39,16 +39,10 @@ public class ImapResponse extends AbstractLogEnabled implements ImapConstants, I
     public static final String FLAGS = "FLAGS";
     public static final String FAILED = "failed.";
     private final ImapResponseWriter writer;
-    private String tag = UNTAGGED;
 
     public ImapResponse( final ImapResponseWriter writer )
     {
         this.writer = writer;
-    }
-
-    public void setTag( String tag )
-    {
-        this.tag = tag;
     }
 
     /**
@@ -58,9 +52,9 @@ public class ImapResponse extends AbstractLogEnabled implements ImapConstants, I
      *
      * @param command The ImapCommand which was completed.
      */
-    public void commandComplete( ImapCommand command )
+    public void commandComplete( final ImapCommand command, final String tag )
     {
-        commandComplete( command, null );
+        commandComplete( command, null , tag);
     }
 
     /**
@@ -72,9 +66,9 @@ public class ImapResponse extends AbstractLogEnabled implements ImapConstants, I
      * @param command The ImapCommand which was completed.
      * @param responseCode A string response code to send to the client.
      */
-    public void commandComplete( ImapCommand command, String responseCode )
+    public void commandComplete( final ImapCommand command, final String responseCode, final String tag)
     {
-        tag();
+        tag(tag);
         message( OK );
         responseCode( responseCode );
         commandName( command );
@@ -91,9 +85,9 @@ public class ImapResponse extends AbstractLogEnabled implements ImapConstants, I
      * @param command The ImapCommand which failed.
      * @param reason A message describing why the command failed.
      */
-    public void commandFailed( ImapCommand command, String reason )
+    public void commandFailed( final ImapCommand command, final String reason , final String tag)
     {
-        commandFailed( command, null, reason );
+        commandFailed( command, null, reason , tag);
     }
 
     /**
@@ -108,9 +102,10 @@ public class ImapResponse extends AbstractLogEnabled implements ImapConstants, I
      */
     public void commandFailed( ImapCommand command,
                                String responseCode,
-                               String reason )
+                               String reason, 
+                               final String tag)
     {
-        tag();
+        tag(tag);
         message( NO );
         responseCode( responseCode );
         commandName( command );
@@ -131,9 +126,9 @@ public class ImapResponse extends AbstractLogEnabled implements ImapConstants, I
      *
      * @param message The descriptive error message.
      */
-    public void commandError( String message )
+    public void commandError( final String message, final String tag )
     {
-        tag();
+        tag(tag);
         message( BAD );
         message( message );
         end();
@@ -228,9 +223,9 @@ public class ImapResponse extends AbstractLogEnabled implements ImapConstants, I
      *
      * @param message The message to write to the client.
      */
-    public void taggedResponse( String message )
+    public void taggedResponse( String message, String tag )
     {
-        tag();
+        tag(tag);
         message( message );
         end();
     }
@@ -255,11 +250,6 @@ public class ImapResponse extends AbstractLogEnabled implements ImapConstants, I
     public void untagged()
     {
         writer.untagged();
-    }
-
-    private void tag()
-    {
-        writer.tag(tag);
     }
 
     private void commandName( final ImapCommand command )

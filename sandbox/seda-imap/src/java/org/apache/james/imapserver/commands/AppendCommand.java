@@ -46,9 +46,8 @@ class AppendCommand extends AuthenticatedStateCommand
     public static final String ARGS = "<mailbox> [<flag_list>] [<date_time>] literal";
 
     private AppendCommandParser parser = new AppendCommandParser();
-    private CommandCompleteResponseMessage response = new CommandCompleteResponseMessage(false, this);
 
-    protected AbstractImapCommandMessage decode(ImapRequestLineReader request) throws ProtocolException {
+    protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
         String mailboxName = parser.mailbox( request );
         Flags flags = parser.optionalAppendFlags( request );
         if ( flags == null ) {
@@ -62,7 +61,7 @@ class AppendCommand extends AuthenticatedStateCommand
         parser.endLine( request );
         // TODO: use an object pool
         final AppendCommandMessage result = new AppendCommandMessage(mailboxName, 
-                flags, datetime, message);
+                flags, datetime, message, tag);
         return result;
     }
 
@@ -85,8 +84,8 @@ class AppendCommand extends AuthenticatedStateCommand
         private MimeMessage message;
                 
         public AppendCommandMessage(String mailboxName, Flags flags, 
-                Date datetime, MimeMessage message) {
-            super();
+                Date datetime, MimeMessage message, String tag) {
+            super(tag);
             this.mailboxName = mailboxName;
             this.flags = flags;
             this.datetime = datetime;
@@ -109,7 +108,7 @@ class AppendCommand extends AuthenticatedStateCommand
             return message;
         }
         
-        public ImapResponseMessage doProcess( final ImapSession session ) throws MailboxException {
+        public ImapResponseMessage doProcess( final ImapSession session, String tag ) throws MailboxException {
             ImapMailboxSession mailbox = null;
             try {
                 mailboxName=session.buildFullName(mailboxName);
@@ -127,7 +126,7 @@ class AppendCommand extends AuthenticatedStateCommand
                 // TODO why not TRYCREATE?
                 throw new MailboxException(e);
             }
-            return response;
+            return new CommandCompleteResponseMessage(false, AppendCommand.this, tag);
         }
     }
     

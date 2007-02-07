@@ -40,7 +40,6 @@ public class CommandFailedResponseMessageTest extends TestCase {
         super.setUp();
         writer = new MockImapResponseWriter();
         response = new ImapResponse(writer);
-        response.setTag(TAG);
         command = new MockCommand();
         session = new MockImapSession();
     }
@@ -53,7 +52,7 @@ public class CommandFailedResponseMessageTest extends TestCase {
         String code = "A code";
         String message = "A message";
         CommandFailedResponseMessage responseMessage 
-            = new CommandFailedResponseMessage(command, code, message);
+            = new CommandFailedResponseMessage(command, code, message, TAG);
         responseMessage.encode(response, session);
         assertEquals(7, writer.operations.size());
         assertEquals(new MockImapResponseWriter.TagOperation(TAG), writer.operations.get(0));
@@ -74,7 +73,7 @@ public class CommandFailedResponseMessageTest extends TestCase {
     public void testWithoutResponseCode() throws Exception {
         String message = "A message";
         CommandFailedResponseMessage responseMessage 
-            = new CommandFailedResponseMessage(command, message);
+            = new CommandFailedResponseMessage(command, message, TAG);
         responseMessage.encode(response, session);
         assertEquals(6, writer.operations.size());
         assertEquals(new MockImapResponseWriter.TagOperation(TAG), writer.operations.get(0));

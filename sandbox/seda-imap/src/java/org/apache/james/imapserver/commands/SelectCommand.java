@@ -64,10 +64,10 @@ class SelectCommand extends AuthenticatedStateCommand
         return ARGS;
     }
 
-    protected AbstractImapCommandMessage decode(ImapRequestLineReader request) throws ProtocolException {
+    protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
         final String mailboxName = parser.mailbox( request );
         parser.endLine( request );
-        final SelectCommandMessage result = new SelectCommandMessage(mailboxName, isExamine);
+        final SelectCommandMessage result = new SelectCommandMessage(mailboxName, isExamine, tag);
         return result;
     }
     
@@ -75,13 +75,14 @@ class SelectCommand extends AuthenticatedStateCommand
         private final String mailboxName;
         private final boolean isExamine;
         
-        public SelectCommandMessage(final String mailboxName, final boolean isExamine) {
-            super();
+        public SelectCommandMessage(final String mailboxName, final boolean isExamine,
+                final String tag) {
+            super(tag);
             this.mailboxName = mailboxName;
             this.isExamine = isExamine;
         }
 
-        protected ImapResponseMessage doProcess(ImapSession session) throws MailboxException, AuthorizationException, ProtocolException {
+        protected ImapResponseMessage doProcess(ImapSession session, String tag) throws MailboxException, AuthorizationException, ProtocolException {
             ImapResponseMessage result;
             session.deselect();
             try {
@@ -96,7 +97,8 @@ class SelectCommand extends AuthenticatedStateCommand
                 final MessageResult firstUnseen = mailbox.getFirstUnseen(MessageResult.MSN);
                 final int messageCount = mailbox.getMessageCount();
                 result = new SelectResponseMessage(SelectCommand.this, permanentFlags, 
-                        writeable, recentCount, uidValidity, firstUnseen, messageCount);
+                        writeable, recentCount, uidValidity, firstUnseen, messageCount,
+                        tag);
             } catch (MailboxManagerException e) {
                 throw new MailboxException(e);
             }
@@ -123,12 +125,11 @@ class SelectCommand extends AuthenticatedStateCommand
         private final MessageResult firstUnseen;
         private final int messageCount;
 
-
         public SelectResponseMessage(ImapCommand command, final Flags permanentFlags,
                 final boolean writeable, final int recentCount, 
                 final long uidValidity, final MessageResult firstUnseen,
-                final int messageCount) {
-            super(command);
+                final int messageCount, final String tag) {
+            super(command, tag);
             this.permanentFlags = permanentFlags;
             this.writeable = writeable;
             this.recentCount = recentCount;
@@ -137,7 +138,7 @@ class SelectCommand extends AuthenticatedStateCommand
             this.messageCount = messageCount;
         }        
         
-        void doEncode(ImapResponse response, ImapSession session, ImapCommand command) throws MailboxException {
+        void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
             response.flagsResponse(permanentFlags);
             response.recentResponse(recentCount);
             response.okResponse("UIDVALIDITY " + uidValidity, null);
@@ -150,9 +151,9 @@ class SelectCommand extends AuthenticatedStateCommand
             }
             response.permanentFlagsResponse(permanentFlags);
             if (!writeable) {
-                response.commandComplete(command, "READ-ONLY");
+                response.commandComplete(command, "READ-ONLY", tag);
             } else {
-                response.commandComplete(command, "READ-WRITE");
+                response.commandComplete(command, "READ-WRITE", tag);
             }
         }
     }

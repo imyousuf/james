@@ -51,7 +51,7 @@ class UidCommand extends SelectedStateCommand
         this.commandFactory = imapCommandFactory;
     }
 
-    protected AbstractImapCommandMessage decode(ImapRequestLineReader request) throws ProtocolException {
+    protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
         String commandName = parser.atom( request );
         ImapCommand command = commandFactory.getCommand( commandName );
         if ( command == null ||
@@ -59,7 +59,7 @@ class UidCommand extends SelectedStateCommand
             throw new ProtocolException("Invalid UID command: '" + commandName + "'" );
         }
         final UidEnabledCommand uidEnabled = (UidEnabledCommand) command;
-        final AbstractImapCommandMessage result = uidEnabled.decode( request, true );
+        final AbstractImapCommandMessage result = uidEnabled.decode( request, true, tag );
         return result;
     }
 }

@@ -105,13 +105,12 @@ public final class ImapRequestHandler extends AbstractLogEnabled {
             logger.debug( "Got <tag>: " + tag );
         }
         
-        response.setTag( tag );
         try {
             commandName = parser.atom( request );
         }
         catch ( ProtocolException e ) {
             getLogger().debug("error parsing request", e);            
-            response.commandError( REQUEST_SYNTAX );
+            response.commandError( REQUEST_SYNTAX , tag);
             return;
         }
 
@@ -122,16 +121,16 @@ public final class ImapRequestHandler extends AbstractLogEnabled {
         ImapCommand command = imapCommands.getCommand( commandName );
         if ( command == null )
         {
-            response.commandError( "Invalid command.");
+            response.commandError( "Invalid command.", tag);
             return;
         }
 
         if ( !command.validForState( session.getState() ) ) {
-            response.commandFailed( command, "Command not valid in this state" );
+            response.commandFailed( command, "Command not valid in this state", tag );
             return;
         }
 
-        command.process( request, response, session );
+        command.process( request, response, session, tag );
     }
 
 

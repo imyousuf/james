@@ -28,10 +28,12 @@ import org.apache.james.imapserver.store.MailboxException;
 public abstract class AbstractCommandResponseMessage extends AbstractLogEnabled implements ImapResponseMessage {
 
     private final ImapCommand command;
+    private final String tag;
 
-    public AbstractCommandResponseMessage(final ImapCommand command) {
+    public AbstractCommandResponseMessage(final ImapCommand command, final String tag) {
         super();
         this.command = command;
+        this.tag = tag;
     }
     
     public ImapCommand getCommand() {
@@ -40,7 +42,7 @@ public abstract class AbstractCommandResponseMessage extends AbstractLogEnabled 
 
     public void encode(ImapResponse response, ImapSession session) {
         try {
-            doEncode(response, session, command);
+            doEncode(response, session, command, tag);
         } catch (MailboxException e) {
             // TODO: it seems wrong for session to throw a mailbox exception
             // TODO: really, errors in unsolicited response should not
@@ -49,9 +51,9 @@ public abstract class AbstractCommandResponseMessage extends AbstractLogEnabled 
             if (logger != null) {
                 logger.debug("error processing command ", e);
             }
-            response.commandFailed( command, e.getResponseCode(), e.getMessage() );            
+            response.commandFailed( command, e.getResponseCode(), e.getMessage(), tag );            
         }
     }
-    abstract void doEncode(ImapResponse response, ImapSession session, ImapCommand command) throws MailboxException;
+    abstract void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException;
 
 }

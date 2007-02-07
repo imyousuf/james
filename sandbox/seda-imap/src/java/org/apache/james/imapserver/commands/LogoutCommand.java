@@ -37,9 +37,6 @@ class LogoutCommand extends CommandTemplate
     public static final String ARGS = null;
     public static final String BYE_MESSAGE = VERSION + SP + "Server logging out";
 
-    private final LogoutCommandMessage message = new LogoutCommandMessage();
-    private final LogoutResponseMessage response = new LogoutResponseMessage(this);
-    
     /** @see ImapCommand#getName */
     public String getName()
     {
@@ -52,28 +49,34 @@ class LogoutCommand extends CommandTemplate
         return ARGS;
     }
 
-    protected AbstractImapCommandMessage decode(ImapRequestLineReader request) throws ProtocolException {
+    protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
         parser.endLine( request );
-        return message;
+        return new LogoutCommandMessage(tag);
     }
     
     private class LogoutCommandMessage extends AbstractImapCommandMessage {
 
-        protected ImapResponseMessage doProcess(ImapSession session) throws MailboxException, AuthorizationException, ProtocolException {
-            return response;
+        
+        public LogoutCommandMessage(final String tag) {
+            super(tag);
+        }
+        
+        protected ImapResponseMessage doProcess(ImapSession session, String tag) throws MailboxException, AuthorizationException, ProtocolException {
+            final LogoutResponseMessage result = new LogoutResponseMessage(LogoutCommand.this, tag);
+            return result;
         }
         
     }
     
     private static class LogoutResponseMessage extends AbstractCommandResponseMessage implements ImapCommandMessage {
 
-        public LogoutResponseMessage(ImapCommand command) {
-            super(command);
+        public LogoutResponseMessage(final ImapCommand command, final String tag) {
+            super(command, tag);
         }
 
-        void doEncode(ImapResponse response, ImapSession session, ImapCommand command) throws MailboxException {
+        void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
             response.byeResponse( BYE_MESSAGE );
-            response.commandComplete( command );
+            response.commandComplete( command, tag );
             // TODO: think about how this will work with SEDA
             session.closeConnection();            
         }

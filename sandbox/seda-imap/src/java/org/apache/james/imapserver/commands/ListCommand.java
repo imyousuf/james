@@ -104,11 +104,11 @@ class ListCommand extends AuthenticatedStateCommand
         }
     }
     
-    protected AbstractImapCommandMessage decode(ImapRequestLineReader request) throws ProtocolException {
+    protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
         String referenceName = parser.mailbox( request );
         String mailboxPattern = parser.listMailbox( request );
         parser.endLine( request );
-        final ListCommandMessage result = new ListCommandMessage(referenceName, mailboxPattern);
+        final ListCommandMessage result = new ListCommandMessage(referenceName, mailboxPattern, tag);
         return result;
     }
     
@@ -116,15 +116,16 @@ class ListCommand extends AuthenticatedStateCommand
         private final String baseReferenceName;
         private final String mailboxPattern;
 
-        public ListCommandMessage(final String referenceName, final String mailboxPattern) {
-            super();
+        public ListCommandMessage(final String referenceName, final String mailboxPattern,
+                final String tag) {
+            super(tag);
             this.baseReferenceName = referenceName;
             this.mailboxPattern = mailboxPattern;
         }
         
-        protected ImapResponseMessage doProcess(ImapSession session) throws MailboxException, AuthorizationException, ProtocolException {
+        protected ImapResponseMessage doProcess(ImapSession session, String tag) throws MailboxException, AuthorizationException, ProtocolException {
 
-            final ListResponseMessage result = new ListResponseMessage(ListCommand.this);
+            final ListResponseMessage result = new ListResponseMessage(ListCommand.this, tag);
             String referenceName = this.baseReferenceName;
             // Should the #user.userName section be removed from names returned?
             boolean removeUserPrefix;
@@ -224,8 +225,8 @@ class ListCommand extends AuthenticatedStateCommand
     private class ListResponseMessage extends AbstractCommandResponseMessage {
         private List messages = new ArrayList();
         
-        public ListResponseMessage(ImapCommand command) {
-            super(command);
+        public ListResponseMessage(final ImapCommand command, final String tag) {
+            super(command, tag);
         }
         
         public void addMessageData(String message) {
@@ -234,13 +235,13 @@ class ListCommand extends AuthenticatedStateCommand
             messages.add(message);
         }
         
-        void doEncode(ImapResponse response, ImapSession session, ImapCommand command) throws MailboxException {
+        void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
             for (final Iterator it=messages.iterator();it.hasNext();) {
                 String message = (String) it.next();
                 response.commandResponse(command, message);
             }
             session.unsolicitedResponses( response, false );
-            response.commandComplete( command );
+            response.commandComplete( command, tag );
         }
         
     }

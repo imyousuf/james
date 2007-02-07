@@ -48,24 +48,25 @@ class RenameCommand extends AuthenticatedStateCommand
         return ARGS;
     }
 
-    protected AbstractImapCommandMessage decode(ImapRequestLineReader request) throws ProtocolException {
+    protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
         final String existingName = parser.mailbox( request );
         final String newName = parser.mailbox( request );
         parser.endLine( request );
-        return new RenameCommandMessage(existingName, newName);
+        return new RenameCommandMessage(existingName, newName, tag);
     }
 
     private class RenameCommandMessage extends AbstractImapCommandMessage {
         private final String existingName;
         private final String newName;
         
-        public RenameCommandMessage(final String existingName, final String newName) {
-            super();
+        public RenameCommandMessage(final String existingName, final String newName, 
+                final String tag) {
+            super(tag);
             this.existingName = existingName;
             this.newName = newName;
         }
 
-        protected ImapResponseMessage doProcess(ImapSession session) throws MailboxException, AuthorizationException, ProtocolException {
+        protected ImapResponseMessage doProcess(ImapSession session, String tag) throws MailboxException, AuthorizationException, ProtocolException {
             try {
                 final String fullExistingName=session.buildFullName(this.existingName);
                 final String fullNewName=session.buildFullName(this.newName);
@@ -74,9 +75,8 @@ class RenameCommand extends AuthenticatedStateCommand
                throw new MailboxException(e);
             }
 
-            return new CommandCompleteResponseMessage(false, RenameCommand.this);
+            return new CommandCompleteResponseMessage(false, RenameCommand.this, tag);
         }
-        
     }
 }
 

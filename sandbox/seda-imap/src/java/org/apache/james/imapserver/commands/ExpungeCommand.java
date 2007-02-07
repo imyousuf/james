@@ -39,8 +39,6 @@ class ExpungeCommand extends SelectedStateCommand
     public static final String NAME = "EXPUNGE";
     public static final String ARGS = null;
     
-    private ExpungeCommandMessage message = new ExpungeCommandMessage();
-
     /** @see ImapCommand#getName */
     public String getName()
     {
@@ -53,22 +51,27 @@ class ExpungeCommand extends SelectedStateCommand
         return ARGS;
     }
 
-    protected AbstractImapCommandMessage decode(ImapRequestLineReader request) throws ProtocolException {
+    protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
         parser.endLine( request );
-        return message;
+        final ExpungeCommandMessage result = new ExpungeCommandMessage(tag);
+        return result;
     }
     
     private class ExpungeCommandMessage extends AbstractImapCommandMessage {
 
-        protected ImapResponseMessage doProcess(ImapSession session) throws MailboxException, AuthorizationException, ProtocolException {
+        public ExpungeCommandMessage(final String tag) {
+            super(tag);
+        }
+        
+        protected ImapResponseMessage doProcess(ImapSession session, String tag) throws MailboxException, AuthorizationException, ProtocolException {
             ImapResponseMessage result;
             ImapMailboxSession mailbox = session.getSelected().getMailbox();
             if (!mailbox.isWriteable()) {
-                result = new CommandFailedResponseMessage(ExpungeCommand.this, "Mailbox selected read only." );
+                result = new CommandFailedResponseMessage(ExpungeCommand.this, "Mailbox selected read only.", tag );
             } else {
                 try {
                     mailbox.expunge(GeneralMessageSetImpl.all(),MessageResult.NOTHING);
-                    result = new CommandCompleteResponseMessage(false, ExpungeCommand.this);
+                    result = new CommandCompleteResponseMessage(false, ExpungeCommand.this, tag);
                 } catch (MailboxManagerException e) {
                     throw new MailboxException(e);
                 }
