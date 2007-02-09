@@ -130,7 +130,7 @@ abstract class CommandTemplate
                                        ImapSession session, String tag )
             throws ProtocolException, MailboxException, AuthorizationException {
         AbstractImapCommandMessage message = decode( request, tag );
-        ImapResponseMessage responseMessage = message.doProcess( session, tag );
+        ImapResponseMessage responseMessage = message.doProcess( session );
         responseMessage.encode(response, session);
     }
 
@@ -183,7 +183,7 @@ abstract class CommandTemplate
             ImapResponseMessage result;
             final Logger logger = getLogger();
             try {
-                result = doProcess( session, tag );
+                result = doProcess(session);
             }
             catch ( MailboxException e ) {
                 if (logger != null) {
@@ -207,6 +207,18 @@ abstract class CommandTemplate
                 String msg = e.getMessage() + " Command should be '" +
                         getExpectedMessage() + "'";
                 result = new ErrorResponseMessage( msg, tag );
+            }
+            return result;
+        }
+        
+        final ImapResponseMessage doProcess(ImapSession session) throws MailboxException, AuthorizationException, ProtocolException {
+            ImapResponseMessage result;
+            if ( !validForState( session.getState() ) ) {
+                result = 
+                    new CommandFailedResponseMessage(CommandTemplate.this, 
+                            "Command not valid in this state", tag );
+            } else {
+                result = doProcess( session, tag );
             }
             return result;
         }

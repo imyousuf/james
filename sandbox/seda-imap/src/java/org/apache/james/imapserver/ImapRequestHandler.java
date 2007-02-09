@@ -125,11 +125,6 @@ public final class ImapRequestHandler extends AbstractLogEnabled {
             return;
         }
 
-        if ( !command.validForState( session.getState() ) ) {
-            response.commandFailed( command, "Command not valid in this state", tag );
-            return;
-        }
-
         command.process( request, response, session, tag );
     }
 
