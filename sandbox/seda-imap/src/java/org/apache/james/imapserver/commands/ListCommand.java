@@ -90,42 +90,35 @@ class ListCommand extends AuthenticatedStateCommand
         }
     }
 
-    protected ListResult[] doList( ImapSession session, String base, String pattern ) throws MailboxException {
-        return doList(  session,  base,  pattern, false);
-    }
-    
-    
-    protected ListResult[] doList( ImapSession session, String base, String pattern, boolean subscribed ) throws MailboxException
-    {
-        try {
-            return session.getMailboxManager().list(base,pattern,false);
-        } catch (MailboxManagerException e) {
-            throw new MailboxException(e);  
-        }
-    }
-    
+
     protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
         String referenceName = parser.mailbox( request );
         String mailboxPattern = parser.listMailbox( request );
         parser.endLine( request );
-        final ListCommandMessage result = new ListCommandMessage(referenceName, mailboxPattern, tag);
+        final ListCommandMessage result = createMessage(referenceName, mailboxPattern, tag);
         return result;
     }
     
-    private class ListCommandMessage extends AbstractImapCommandMessage {
+    protected ListCommandMessage createMessage(final String referenceName, final String mailboxPattern, final String tag) 
+    {
+        final ListCommandMessage result = new ListCommandMessage(this, referenceName, mailboxPattern, tag);
+        return result;
+    }
+    
+    protected static class ListCommandMessage extends AbstractImapCommandMessage {
         private final String baseReferenceName;
         private final String mailboxPattern;
 
-        public ListCommandMessage(final String referenceName, final String mailboxPattern,
+        public ListCommandMessage(final ImapCommand command, final String referenceName, final String mailboxPattern,
                 final String tag) {
-            super(tag);
+            super(tag, command);
             this.baseReferenceName = referenceName;
             this.mailboxPattern = mailboxPattern;
         }
         
-        protected ImapResponseMessage doProcess(ImapSession session, String tag) throws MailboxException, AuthorizationException, ProtocolException {
+        protected ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
 
-            final ListResponseMessage result = new ListResponseMessage(ListCommand.this, tag);
+            final ListResponseMessage result = new ListResponseMessage(command, tag);
             String referenceName = this.baseReferenceName;
             // Should the #user.userName section be removed from names returned?
             boolean removeUserPrefix;
@@ -220,9 +213,22 @@ class ListCommand extends AuthenticatedStateCommand
             }
             return result;
         }
+        
+        protected ListResult[] doList( ImapSession session, String base, String pattern ) throws MailboxException {
+            return doList(  session,  base,  pattern, false);
+        }
+        
+        protected ListResult[] doList( ImapSession session, String base, String pattern, boolean subscribed ) throws MailboxException
+        {
+            try {
+                return session.getMailboxManager().list(base,pattern,false);
+            } catch (MailboxManagerException e) {
+                throw new MailboxException(e);  
+            }
+        }
     }
     
-    private class ListResponseMessage extends AbstractCommandResponseMessage {
+    private static class ListResponseMessage extends AbstractCommandResponseMessage {
         private List messages = new ArrayList();
         
         public ListResponseMessage(final ImapCommand command, final String tag) {

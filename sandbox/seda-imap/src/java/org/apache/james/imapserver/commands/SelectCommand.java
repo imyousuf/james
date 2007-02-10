@@ -67,22 +67,22 @@ class SelectCommand extends AuthenticatedStateCommand
     protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
         final String mailboxName = parser.mailbox( request );
         parser.endLine( request );
-        final SelectCommandMessage result = new SelectCommandMessage(mailboxName, isExamine, tag);
+        final SelectCommandMessage result = new SelectCommandMessage(this, mailboxName, isExamine, tag);
         return result;
     }
     
-    private class SelectCommandMessage extends AbstractImapCommandMessage {
+    private static class SelectCommandMessage extends AbstractImapCommandMessage {
         private final String mailboxName;
         private final boolean isExamine;
         
-        public SelectCommandMessage(final String mailboxName, final boolean isExamine,
+        public SelectCommandMessage(final ImapCommand command, final String mailboxName, final boolean isExamine,
                 final String tag) {
-            super(tag);
+            super(tag, command);
             this.mailboxName = mailboxName;
             this.isExamine = isExamine;
         }
 
-        protected ImapResponseMessage doProcess(ImapSession session, String tag) throws MailboxException, AuthorizationException, ProtocolException {
+        protected ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
             ImapResponseMessage result;
             session.deselect();
             try {
@@ -96,7 +96,7 @@ class SelectCommand extends AuthenticatedStateCommand
                 final long uidValidity = mailbox.getUidValidity();
                 final MessageResult firstUnseen = mailbox.getFirstUnseen(MessageResult.MSN);
                 final int messageCount = mailbox.getMessageCount();
-                result = new SelectResponseMessage(SelectCommand.this, permanentFlags, 
+                result = new SelectResponseMessage(command, permanentFlags, 
                         writeable, recentCount, uidValidity, firstUnseen, messageCount,
                         tag);
             } catch (MailboxManagerException e) {

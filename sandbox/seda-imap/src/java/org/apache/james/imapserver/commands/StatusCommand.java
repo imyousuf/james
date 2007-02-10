@@ -120,21 +120,21 @@ class StatusCommand extends AuthenticatedStateCommand
         final StatusDataItems statusDataItems = parser.statusDataItems( request );
         parser.endLine( request );
         final StatusCommandMessage result = 
-            new StatusCommandMessage(mailboxName, statusDataItems, tag);
+            new StatusCommandMessage(this, mailboxName, statusDataItems, tag);
         return result;
     }
     
-    private class StatusCommandMessage extends AbstractImapCommandMessage {
+    private static class StatusCommandMessage extends AbstractImapCommandMessage {
         private final String mailboxName;
         private final StatusDataItems statusDataItems;
         
-        public StatusCommandMessage(final String mailboxName, final StatusDataItems statusDataItems, final String tag) {
-            super(tag);
+        public StatusCommandMessage(final ImapCommand command, final String mailboxName, final StatusDataItems statusDataItems, final String tag) {
+            super(tag, command);
             this.mailboxName = mailboxName;
             this.statusDataItems = statusDataItems;
         }
         
-        protected ImapResponseMessage doProcess(ImapSession session, String tag) throws MailboxException, AuthorizationException, ProtocolException {
+        protected ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
             final Logger logger = getLogger(); 
 
             StringBuffer buffer = new StringBuffer( mailboxName );
@@ -196,7 +196,7 @@ class StatusCommand extends AuthenticatedStateCommand
             }
             buffer.append(')');
             final StatusResponseMessage result = 
-                new StatusResponseMessage(StatusCommand.this, buffer.toString(), tag);
+                new StatusResponseMessage(command, buffer.toString(), tag);
             return result;
         }
     }

@@ -51,21 +51,21 @@ class CopyCommand extends SelectedStateCommand implements UidEnabledCommand
         return ARGS;
     }
 
-    private class CopyCommandMessage extends AbstractImapCommandMessage {
+    private static class CopyCommandMessage extends AbstractImapCommandMessage {
 
         private final IdRange[] idSet;
         private final String mailboxName;
         private final boolean useUids;
 
-        public CopyCommandMessage(final IdRange[] idSet, final String mailboxName, 
+        public CopyCommandMessage(final ImapCommand command, final IdRange[] idSet, final String mailboxName, 
                 final boolean useUids, final String tag) {
-            super(tag);
+            super(tag, command);
             this.idSet = idSet;
             this.mailboxName = mailboxName;
             this.useUids = useUids;
         }
 
-        protected ImapResponseMessage doProcess(ImapSession session, String tag) throws MailboxException, AuthorizationException, ProtocolException {
+        protected ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
             ImapMailboxSession currentMailbox = session.getSelected().getMailbox();
             try {
                 String fullMailboxName = session.buildFullName(this.mailboxName);
@@ -82,7 +82,7 @@ class CopyCommand extends SelectedStateCommand implements UidEnabledCommand
                 throw new MailboxException(e);
             } 
             final CommandCompleteResponseMessage result = 
-                new CommandCompleteResponseMessage(useUids, CopyCommand.this, tag);
+                new CommandCompleteResponseMessage(useUids, command, tag);
             return result;
         }
     }
@@ -96,7 +96,7 @@ class CopyCommand extends SelectedStateCommand implements UidEnabledCommand
         String mailboxName = parser.mailbox( request );
         parser.endLine( request );
         final CopyCommandMessage result = 
-            new CopyCommandMessage(idSet, mailboxName, useUids, tag);
+            new CopyCommandMessage(this, idSet, mailboxName, useUids, tag);
         return result;
     }
 }

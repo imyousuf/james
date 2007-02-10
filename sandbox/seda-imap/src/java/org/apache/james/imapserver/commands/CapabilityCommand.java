@@ -40,7 +40,7 @@ class CapabilityCommand extends CommandTemplate
 
     protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
         parser.endLine( request );
-        final CapabilityCommandMessage result = new CapabilityCommandMessage(tag);
+        final CapabilityCommandMessage result = new CapabilityCommandMessage(this, tag);
         return result;
     }
 
@@ -70,14 +70,14 @@ class CapabilityCommand extends CommandTemplate
         
     }
     
-    private class CapabilityCommandMessage extends AbstractImapCommandMessage {
+    private static class CapabilityCommandMessage extends AbstractImapCommandMessage {
 
-        public CapabilityCommandMessage(final String tag) {
-            super(tag);
+        public CapabilityCommandMessage(final ImapCommand command, final String tag) {
+            super(tag, command);
         }
         
-        protected ImapResponseMessage doProcess(ImapSession session, String tag) throws MailboxException, AuthorizationException, ProtocolException {
-            final CapabilityReponseMessage result = new CapabilityReponseMessage(CapabilityCommand.this, tag);
+        protected ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
+            final CapabilityReponseMessage result = new CapabilityReponseMessage(command, tag);
             return result;
         }
     }

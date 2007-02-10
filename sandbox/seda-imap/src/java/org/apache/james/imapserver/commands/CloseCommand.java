@@ -55,13 +55,13 @@ class CloseCommand extends SelectedStateCommand
         }
     }
     
-    private class CloseCommandMessage extends AbstractImapCommandMessage {
+    private static class CloseCommandMessage extends AbstractImapCommandMessage {
         
-        public CloseCommandMessage(final String tag) {
-            super(tag);
+        public CloseCommandMessage(final ImapCommand command, final String tag) {
+            super(tag, command);
         }
         
-        protected ImapResponseMessage doProcess(ImapSession session, String tag) throws MailboxException, AuthorizationException, ProtocolException {
+        protected ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
             ImapMailboxSession mailbox = session.getSelected().getMailbox();
             if ( session.getSelected().getMailbox().isWriteable() ) {
                 try {
@@ -71,14 +71,14 @@ class CloseCommand extends SelectedStateCommand
                 }
             }
             session.deselect();
-            final CloseResponseMessage result = new CloseResponseMessage(CloseCommand.this, tag);
+            final CloseResponseMessage result = new CloseResponseMessage(command, tag);
             return result;
         }
     }
     
     protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
         parser.endLine( request );
-        return new CloseCommandMessage(tag);
+        return new CloseCommandMessage(this, tag);
     }
 
     /** @see ImapCommand#getName */

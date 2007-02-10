@@ -105,6 +105,28 @@ abstract class CommandTemplate
         return message;
     }
 
+    
+    /**
+     * Provides a message which describes the expected format and arguments
+     * for this command. This is used to provide user feedback when a command
+     * request is malformed.
+     *
+     * @return A message describing the command protocol format.
+     */
+    public String getExpectedMessage()
+    {
+        StringBuffer syntax = new StringBuffer( "<tag> " );
+        syntax.append( getName() );
+
+        String args = getArgSyntax();
+        if ( args != null && args.length() > 0 ) {
+            syntax.append( " " );
+            syntax.append( args );
+        }
+
+        return syntax.toString();
+    }
+    
     /**
      * Parses a request into a command message
      * for later processing.
@@ -134,26 +156,6 @@ abstract class CommandTemplate
         responseMessage.encode(response, session);
     }
 
-    /**
-     * Provides a message which describes the expected format and arguments
-     * for this command. This is used to provide user feedback when a command
-     * request is malformed.
-     *
-     * @return A message describing the command protocol format.
-     */
-    protected String getExpectedMessage()
-    {
-        StringBuffer syntax = new StringBuffer( "<tag> " );
-        syntax.append( getName() );
-
-        String args = getArgSyntax();
-        if ( args != null && args.length() > 0 ) {
-            syntax.append( " " );
-            syntax.append( args );
-        }
-
-        return syntax.toString();
-    }
 
     /**
      * Provides the syntax for the command arguments if any. This value is used
@@ -165,7 +167,7 @@ abstract class CommandTemplate
      * @return The syntax for the command arguments, or <code>null</code> for
      *         commands without arguments.
      */
-    protected abstract String getArgSyntax();
+    public abstract String getArgSyntax();
 
 
     public CommandParser getParser()
@@ -173,11 +175,13 @@ abstract class CommandTemplate
         return parser;
     }
     
-    protected abstract class AbstractImapCommandMessage implements ImapCommandMessage {
+    protected abstract static class AbstractImapCommandMessage extends AbstractLogEnabled implements ImapCommandMessage {
         private final String tag;
+        private final ImapCommand command;
         
-        public AbstractImapCommandMessage(final String tag) {
+        public AbstractImapCommandMessage(final String tag, final ImapCommand command) {
             this.tag = tag;
+            this.command = command;
         }
         public ImapResponseMessage process(ImapSession session) {
             ImapResponseMessage result;
@@ -189,7 +193,7 @@ abstract class CommandTemplate
                 if (logger != null) {
                     logger.debug("error processing command ", e);
                 }
-                result = new CommandFailedResponseMessage( CommandTemplate.this, e.getResponseCode(), 
+                result = new CommandFailedResponseMessage( command, e.getResponseCode(), 
                         e.getMessage(), tag );
             }
             catch ( AuthorizationException e ) {
@@ -197,7 +201,7 @@ abstract class CommandTemplate
                     logger.debug("error processing command ", e);
                 }
                 String msg = "Authorization error: Lacking permissions to perform requested operation.";
-                result = new CommandFailedResponseMessage( CommandTemplate.this, null, 
+                result = new CommandFailedResponseMessage( command, null, 
                         msg, tag );
             }
             catch ( ProtocolException e ) {
@@ -205,7 +209,7 @@ abstract class CommandTemplate
                     logger.debug("error processing command ", e);
                 }
                 String msg = e.getMessage() + " Command should be '" +
-                        getExpectedMessage() + "'";
+                        command.getExpectedMessage() + "'";
                 result = new ErrorResponseMessage( msg, tag );
             }
             return result;
@@ -213,30 +217,30 @@ abstract class CommandTemplate
         
         final ImapResponseMessage doProcess(ImapSession session) throws MailboxException, AuthorizationException, ProtocolException {
             ImapResponseMessage result;
-            if ( !validForState( session.getState() ) ) {
+            if ( !command.validForState( session.getState() ) ) {
                 result = 
-                    new CommandFailedResponseMessage(CommandTemplate.this, 
+                    new CommandFailedResponseMessage(command, 
                             "Command not valid in this state", tag );
             } else {
-                result = doProcess( session, tag );
+                result = doProcess( session, tag, command );
             }
             return result;
         }
         
-        protected abstract ImapResponseMessage doProcess(ImapSession session, String tag) throws MailboxException, AuthorizationException, ProtocolException;
+        protected abstract ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException;
     }
     
-    protected class CompleteCommandMessage extends AbstractImapCommandMessage {
+    protected static class CompleteCommandMessage extends AbstractImapCommandMessage {
 
         private final boolean useUids;
         
-        public CompleteCommandMessage(final boolean useUids, final String tag) {
-            super(tag);
+        public CompleteCommandMessage(final ImapCommand command, final boolean useUids, final String tag) {
+            super(tag, command);
             this.useUids = useUids;
         }
         
-        protected ImapResponseMessage doProcess(ImapSession session, String tag) throws MailboxException, AuthorizationException, ProtocolException {
-            final CommandCompleteResponseMessage result = new CommandCompleteResponseMessage(useUids, CommandTemplate.this, tag);
+        protected ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
+            final CommandCompleteResponseMessage result = new CommandCompleteResponseMessage(useUids, command, tag);
             return result;
         }
         

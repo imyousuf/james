@@ -51,18 +51,17 @@ class LogoutCommand extends CommandTemplate
 
     protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
         parser.endLine( request );
-        return new LogoutCommandMessage(tag);
+        return new LogoutCommandMessage(this, tag);
     }
     
-    private class LogoutCommandMessage extends AbstractImapCommandMessage {
+    private static class LogoutCommandMessage extends AbstractImapCommandMessage {
 
-        
-        public LogoutCommandMessage(final String tag) {
-            super(tag);
+        public LogoutCommandMessage(final ImapCommand command, final String tag) {
+            super(tag, command);
         }
         
-        protected ImapResponseMessage doProcess(ImapSession session, String tag) throws MailboxException, AuthorizationException, ProtocolException {
-            final LogoutResponseMessage result = new LogoutResponseMessage(LogoutCommand.this, tag);
+        protected ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
+            final LogoutResponseMessage result = new LogoutResponseMessage(command, tag);
             return result;
         }
         

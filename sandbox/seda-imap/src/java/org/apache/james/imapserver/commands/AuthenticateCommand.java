@@ -38,21 +38,21 @@ class AuthenticateCommand extends NonAuthenticatedStateCommand
     protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
         String authType = parser.astring( request );
         parser.endLine( request );        
-        final AuthenticateCommandMessage result = new AuthenticateCommandMessage(authType, tag);
+        final AuthenticateCommandMessage result = new AuthenticateCommandMessage(this, authType, tag);
         return result;
     }
 
-    private class AuthenticateCommandMessage extends AbstractImapCommandMessage {
+    private static class AuthenticateCommandMessage extends AbstractImapCommandMessage {
 
         private final String authType;
         
-        public AuthenticateCommandMessage(final String authType, final String tag) {
-            super(tag);
+        public AuthenticateCommandMessage(final ImapCommand command, final String authType, final String tag) {
+            super(tag, command);
             this.authType = authType;
         }
         
-        protected ImapResponseMessage doProcess(ImapSession session, String tag) throws MailboxException, AuthorizationException, ProtocolException {
-            final CommandFailedResponseMessage result = new CommandFailedResponseMessage(AuthenticateCommand.this, 
+        protected ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
+            final CommandFailedResponseMessage result = new CommandFailedResponseMessage(command, 
                                 "Unsupported authentication mechanism '" + authType + "'", tag);
             return result;
         }

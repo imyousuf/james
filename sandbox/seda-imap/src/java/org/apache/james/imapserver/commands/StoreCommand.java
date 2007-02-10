@@ -123,25 +123,25 @@ class StoreCommand extends SelectedStateCommand implements UidEnabledCommand
         final StoreDirective directive = parser.storeDirective( request );
         final Flags flags = parser.flagList( request );
         parser.endLine( request );
-        return new StoreCommandMessage(idSet, directive, flags, useUids, tag);
+        return new StoreCommandMessage(this, idSet, directive, flags, useUids, tag);
     }
     
-    private class StoreCommandMessage extends AbstractImapCommandMessage {
+    private static class StoreCommandMessage extends AbstractImapCommandMessage {
         private final IdRange[] idSet;
         private final StoreDirective directive;
         private final Flags flags;
         private final boolean useUids;
         
-        public StoreCommandMessage(final IdRange[] idSet, final StoreDirective directive, final Flags flags, 
+        public StoreCommandMessage(final ImapCommand command, final IdRange[] idSet, final StoreDirective directive, final Flags flags, 
                 final boolean useUids, final String tag) {
-            super(tag);
+            super(tag, command);
             this.idSet = idSet;
             this.directive = directive;
             this.flags = flags;
             this.useUids = useUids;
         }
         
-        protected ImapResponseMessage doProcess(ImapSession session, String tag) throws MailboxException, AuthorizationException, ProtocolException {
+        protected ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
 
             ImapMailboxSession mailbox = session.getSelected().getMailbox();
             MailboxListener silentListener = null;
@@ -177,7 +177,7 @@ class StoreCommand extends SelectedStateCommand implements UidEnabledCommand
             }
             
             final StoreResponseMessage result = 
-                new StoreResponseMessage(StoreCommand.this, useUids, tag);
+                new StoreResponseMessage(command, useUids, tag);
             return result;
         }
     }

@@ -53,28 +53,28 @@ class LoginCommand extends NonAuthenticatedStateCommand
         final String userid = parser.astring( request );
         final String password = parser.astring( request );
         parser.endLine( request );
-        return new LoginCommandMessage(userid, password, tag);
+        return new LoginCommandMessage(this, userid, password, tag);
     }
     
-    private class LoginCommandMessage extends AbstractImapCommandMessage {
+    private static class LoginCommandMessage extends AbstractImapCommandMessage {
         private final String userid;
         private final String password;
         
-        public LoginCommandMessage(final String userid, final String password, String tag) {
-            super(tag);
+        public LoginCommandMessage(final ImapCommand command, final String userid, final String password, String tag) {
+            super(tag, command);
             this.userid = userid;
             this.password = password;
         }
 
-        protected ImapResponseMessage doProcess(ImapSession session, String tag) throws MailboxException, AuthorizationException, ProtocolException {
+        protected ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
             ImapResponseMessage result;
             if ( session.getUsers().test( userid, password ) ) {
                 User user = session.getUsers().getUserByName( userid );
                 session.setAuthenticated( user );
-                result = CommandCompleteResponseMessage.createWithNoUnsolictedResponses(LoginCommand.this, tag);
+                result = CommandCompleteResponseMessage.createWithNoUnsolictedResponses(command, tag);
             }
             else {
-                result = new CommandFailedResponseMessage( LoginCommand.this, "Invalid login/password", tag );
+                result = new CommandFailedResponseMessage( command, "Invalid login/password", tag );
             }
             return result;
         }

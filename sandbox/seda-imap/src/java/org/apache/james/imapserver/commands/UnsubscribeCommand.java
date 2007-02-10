@@ -49,25 +49,25 @@ class UnsubscribeCommand extends AuthenticatedStateCommand
     protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
         final String mailboxName = parser.mailbox( request );
         parser.endLine( request );
-        return new UnsubscribeCommandMessage(mailboxName, tag);
+        return new UnsubscribeCommandMessage(this, mailboxName, tag);
     }
     
-    private class UnsubscribeCommandMessage extends AbstractImapCommandMessage {
+    private static class UnsubscribeCommandMessage extends AbstractImapCommandMessage {
         private final String mailboxName;
 
-        public UnsubscribeCommandMessage(final String mailboxName, final String tag) {
-            super(tag);
+        public UnsubscribeCommandMessage(final ImapCommand command, final String mailboxName, final String tag) {
+            super(tag, command);
             this.mailboxName = mailboxName;
         }
 
-        protected ImapResponseMessage doProcess(ImapSession session, String tag) throws MailboxException, AuthorizationException, ProtocolException {
+        protected ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
             try {
                 final String fullMailboxName=session.buildFullName(this.mailboxName);
                 session.getMailboxManager().setSubscription(fullMailboxName,false);
             } catch (MailboxManagerException e) {
                 throw new MailboxException(e);
             }
-            return new CommandCompleteResponseMessage(false, UnsubscribeCommand.this, tag);
+            return new CommandCompleteResponseMessage(false, command, tag);
         }
         
     }

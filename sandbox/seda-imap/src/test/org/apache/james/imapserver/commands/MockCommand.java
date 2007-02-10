@@ -7,7 +7,7 @@ public class MockCommand extends CommandTemplate {
 
     public static final String NAME = "MOCK";
 
-    protected String getArgSyntax() {
+    public String getArgSyntax() {
         return null;
     }
 

@@ -51,18 +51,18 @@ class CreateCommand extends AuthenticatedStateCommand
     protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
         String mailboxName = parser.mailbox( request );
         parser.endLine( request );
-        final CreateCommandMessage result = new CreateCommandMessage(mailboxName, tag);
+        final CreateCommandMessage result = new CreateCommandMessage(this, mailboxName, tag);
         return result;
     }
 
-    private class CreateCommandMessage extends AbstractImapCommandMessage {
+    private static class CreateCommandMessage extends AbstractImapCommandMessage {
         private final String mailboxName;
-        public CreateCommandMessage(final String mailboxName, final String tag) {
-            super(tag);
+        public CreateCommandMessage(final ImapCommand command, final String mailboxName, final String tag) {
+            super(tag, command);
             this.mailboxName = mailboxName;
         }
         
-        protected ImapResponseMessage doProcess(ImapSession session, String tag) throws MailboxException, AuthorizationException, ProtocolException {
+        protected ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
             try {
 
                 final String fullMailboxName=session.buildFullName(this.mailboxName);
@@ -70,7 +70,7 @@ class CreateCommand extends AuthenticatedStateCommand
             } catch (MailboxManagerException e) {
                throw new MailboxException(e);
             }
-            return new CommandCompleteResponseMessage(false, CreateCommand.this, tag);
+            return new CommandCompleteResponseMessage(false, command, tag);
         }
     }
 }

@@ -60,7 +60,7 @@ class AppendCommand extends AuthenticatedStateCommand
         MimeMessage message = parser.mimeMessage( request );
         parser.endLine( request );
         // TODO: use an object pool
-        final AppendCommandMessage result = new AppendCommandMessage(mailboxName, 
+        final AppendCommandMessage result = new AppendCommandMessage(this, mailboxName, 
                 flags, datetime, message, tag);
         return result;
     }
@@ -77,15 +77,15 @@ class AppendCommand extends AuthenticatedStateCommand
         return ARGS;
     }
 
-    private class AppendCommandMessage extends AbstractImapCommandMessage {
+    private static class AppendCommandMessage extends AbstractImapCommandMessage {
         private String mailboxName;
         private Flags flags;
         private Date datetime;
         private MimeMessage message;
                 
-        public AppendCommandMessage(String mailboxName, Flags flags, 
+        public AppendCommandMessage(ImapCommand command, String mailboxName, Flags flags, 
                 Date datetime, MimeMessage message, String tag) {
-            super(tag);
+            super(tag, command);
             this.mailboxName = mailboxName;
             this.flags = flags;
             this.datetime = datetime;
@@ -108,7 +108,7 @@ class AppendCommand extends AuthenticatedStateCommand
             return message;
         }
         
-        public ImapResponseMessage doProcess( final ImapSession session, String tag ) throws MailboxException {
+        public ImapResponseMessage doProcess( final ImapSession session, String tag, ImapCommand command ) throws MailboxException {
             ImapMailboxSession mailbox = null;
             try {
                 mailboxName=session.buildFullName(mailboxName);
@@ -126,7 +126,7 @@ class AppendCommand extends AuthenticatedStateCommand
                 // TODO why not TRYCREATE?
                 throw new MailboxException(e);
             }
-            return new CommandCompleteResponseMessage(false, AppendCommand.this, tag);
+            return new CommandCompleteResponseMessage(false, command, tag);
         }
     }
     

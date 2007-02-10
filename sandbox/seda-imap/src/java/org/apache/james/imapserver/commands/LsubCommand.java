@@ -30,14 +30,29 @@ class LsubCommand extends ListCommand
 {
     public static final String NAME = "LSUB";
 
-    protected ListResult[] doList( ImapSession session, String base, String pattern )  throws MailboxException
-    {
-        return doList(session,base,pattern,true);
-    }
+
 
     /** @see ImapCommand#getName */
     public String getName()
     {
         return NAME;
+    }
+    
+    
+    
+    protected ListCommandMessage createMessage(String referenceName, String mailboxPattern, String tag) {
+        return new LsubListCommandMessage(this, referenceName, mailboxPattern, tag);
+    }
+
+    private static class LsubListCommandMessage extends ListCommandMessage 
+    {
+        public LsubListCommandMessage(ImapCommand command, String referenceName, String mailboxPattern, String tag) {
+            super(command, referenceName, mailboxPattern, tag);
+        }
+
+        protected ListResult[] doList( ImapSession session, String base, String pattern )  throws MailboxException
+        {
+            return doList(session,base,pattern,true);
+        }
     }
 }

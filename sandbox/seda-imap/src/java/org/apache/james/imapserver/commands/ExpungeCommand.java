@@ -53,25 +53,25 @@ class ExpungeCommand extends SelectedStateCommand
 
     protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
         parser.endLine( request );
-        final ExpungeCommandMessage result = new ExpungeCommandMessage(tag);
+        final ExpungeCommandMessage result = new ExpungeCommandMessage(this, tag);
         return result;
     }
     
-    private class ExpungeCommandMessage extends AbstractImapCommandMessage {
+    private static class ExpungeCommandMessage extends AbstractImapCommandMessage {
 
-        public ExpungeCommandMessage(final String tag) {
-            super(tag);
+        public ExpungeCommandMessage(final ImapCommand command, final String tag) {
+            super(tag, command);
         }
         
-        protected ImapResponseMessage doProcess(ImapSession session, String tag) throws MailboxException, AuthorizationException, ProtocolException {
+        protected ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
             ImapResponseMessage result;
             ImapMailboxSession mailbox = session.getSelected().getMailbox();
             if (!mailbox.isWriteable()) {
-                result = new CommandFailedResponseMessage(ExpungeCommand.this, "Mailbox selected read only.", tag );
+                result = new CommandFailedResponseMessage(command, "Mailbox selected read only.", tag );
             } else {
                 try {
                     mailbox.expunge(GeneralMessageSetImpl.all(),MessageResult.NOTHING);
-                    result = new CommandCompleteResponseMessage(false, ExpungeCommand.this, tag);
+                    result = new CommandCompleteResponseMessage(false, command, tag);
                 } catch (MailboxManagerException e) {
                     throw new MailboxException(e);
                 }
