@@ -50,20 +50,6 @@ class NoopCommand extends CommandTemplate
         final AbstractImapCommandMessage result = parser.decode(request, tag);
         return result;
     }
-    
-    private static class NoopCommandParser extends CommandParser {
-
-        public NoopCommandParser(ImapCommand command) {
-            super(command);
-        }
-
-        protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
-            endLine( request );
-            final CompleteCommandMessage result = new CompleteCommandMessage(command, false, tag);
-            return result;
-        }
-        
-    }
 }
 
 /*

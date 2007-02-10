@@ -50,22 +50,6 @@ class RenameCommand extends AuthenticatedStateCommand
         final AbstractImapCommandMessage result = parser.decode(request, tag);
         return result;
     }
-    
-    private static class RenameCommandParser extends CommandParser {
-
-        public RenameCommandParser(ImapCommand command) {
-            super(command);
-        }
-
-        protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
-            final String existingName = mailbox( request );
-            final String newName = mailbox( request );
-            endLine( request );
-            final RenameCommandMessage result = new RenameCommandMessage(command, existingName, newName, tag);
-            return result;
-        }
-        
-    }
 }
 
 /*

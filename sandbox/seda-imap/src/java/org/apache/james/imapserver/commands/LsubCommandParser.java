@@ -16,35 +16,16 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
 package org.apache.james.imapserver.commands;
 
-import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ProtocolException;
+class LsubCommandParser extends ListCommandParser {
 
-/**
- * Handles processeing for the SUBSCRIBE imap command.
- *
- * @version $Revision: 109034 $
- */
-class SubscribeCommand extends AuthenticatedStateCommand {
-    public static final String NAME = "SUBSCRIBE";
-    public static final String ARGS = "<mailbox>";
-
-    private final SubscribeCommandParser parser = new SubscribeCommandParser(this);
-    
-    /** @see ImapCommand#getName */
-    public String getName() {
-        return NAME;
+    public LsubCommandParser(ImapCommand command) {
+        super(command);
     }
 
-    /** @see CommandTemplate#getArgSyntax */
-    public String getArgSyntax() {
-        return ARGS;
-    }
-
-    protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
-        final AbstractImapCommandMessage result = parser.decode(request, tag);
+    protected ListCommandMessage createMessage(ImapCommand command, String referenceName, String mailboxPattern, String tag) {
+        final LsubListCommandMessage result = new LsubListCommandMessage(command, referenceName, mailboxPattern, tag);
         return result;
     }
 }

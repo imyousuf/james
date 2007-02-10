@@ -19,7 +19,6 @@
 
 package org.apache.james.imapserver.commands;
 
-import javax.mail.Flags;
 
 import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ProtocolException;
@@ -46,54 +45,6 @@ class StoreCommand extends SelectedStateCommand implements UidEnabledCommand
     public String getArgSyntax()
     {
         return ARGS;
-    }
-
-    private static class StoreCommandParser extends UidCommandParser
-    {
-        public StoreCommandParser(ImapCommand command) {
-            super(command);
-        }
-
-        StoreDirective storeDirective( ImapRequestLineReader request ) throws ProtocolException
-        {
-            int sign = 0;
-            boolean silent = false;
-
-            char next = request.nextWordChar();
-            if ( next == '+' ) {
-                sign = 1;
-                request.consume();
-            }
-            else if ( next == '-' ) {
-                sign = -1;
-                request.consume();
-            }
-            else {
-                sign = 0;
-            }
-
-            String directive = consumeWord( request, new NoopCharValidator() );
-            if ( "FLAGS".equalsIgnoreCase( directive ) ) {
-                silent = false;
-            }
-            else if ( "FLAGS.SILENT".equalsIgnoreCase( directive ) ) {
-                silent = true;
-            }
-            else {
-                throw new ProtocolException( "Invalid Store Directive: '" + directive + "'" );
-            }
-            return new StoreDirective( sign, silent );
-        }
-
-        protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag, boolean useUids) throws ProtocolException {
-            final IdRange[] idSet = parseIdRange( request );
-            final StoreDirective directive = storeDirective( request );
-            final Flags flags = flagList( request );
-            endLine( request );
-            final StoreCommandMessage result = 
-                new StoreCommandMessage(command, idSet, directive, flags, useUids, tag);
-            return result;
-        }
     }
 
     protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {

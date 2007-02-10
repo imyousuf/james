@@ -50,20 +50,6 @@ class CloseCommand extends SelectedStateCommand
     {
         return ARGS;
     }
-    
-    private static class CloseCommandParser extends CommandParser {
-
-        public CloseCommandParser(ImapCommand command) {
-            super(command);
-        }
-
-        protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
-            endLine( request );
-            final CloseCommandMessage result = new CloseCommandMessage(command, tag);
-            return result;
-        }
-        
-    }
 }
 /*
 6.4.2.  CLOSE Command

@@ -50,21 +50,6 @@ class CreateCommand extends AuthenticatedStateCommand
         final AbstractImapCommandMessage result = parser.decode(request, tag);
         return result;
     }
-    
-    private static class CreateCommandParser extends CommandParser {
-
-        public CreateCommandParser(ImapCommand command) {
-            super(command);
-        }
-
-        protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
-            String mailboxName = mailbox( request );
-            endLine( request );
-            final CreateCommandMessage result = new CreateCommandMessage(command, mailboxName, tag);
-            return result;
-        }
-        
-    }
 }
 
 /*

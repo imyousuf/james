@@ -22,29 +22,27 @@ package org.apache.james.imapserver.commands;
 import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ProtocolException;
 
-/**
- * Handles processeing for the SUBSCRIBE imap command.
- *
- * @version $Revision: 109034 $
- */
-class SubscribeCommand extends AuthenticatedStateCommand {
-    public static final String NAME = "SUBSCRIBE";
-    public static final String ARGS = "<mailbox>";
+abstract class AbstractUidCommandParser extends CommandParser {
 
-    private final SubscribeCommandParser parser = new SubscribeCommandParser(this);
+    private final ImapCommand command;
     
-    /** @see ImapCommand#getName */
-    public String getName() {
-        return NAME;
+    public AbstractUidCommandParser(ImapCommand command) {
+        super(command);
+        this.command = command;
     }
 
-    /** @see CommandTemplate#getArgSyntax */
-    public String getArgSyntax() {
-        return ARGS;
-    }
-
-    protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
-        final AbstractImapCommandMessage result = parser.decode(request, tag);
+    protected AbstractImapCommandMessage decode(ImapCommand command,
+            ImapRequestLineReader request, String tag) throws ProtocolException {
+        final AbstractImapCommandMessage result = decode(command, request, tag, false);
         return result;
     }
+    
+    public AbstractImapCommandMessage decode(ImapRequestLineReader request, 
+            String tag, boolean useUids) throws ProtocolException {
+        final AbstractImapCommandMessage result = decode(command, request, tag, useUids);
+        return result;
+    }
+
+    protected abstract AbstractImapCommandMessage decode(ImapCommand command,
+            ImapRequestLineReader request, String tag, boolean useUids) throws ProtocolException;
 }

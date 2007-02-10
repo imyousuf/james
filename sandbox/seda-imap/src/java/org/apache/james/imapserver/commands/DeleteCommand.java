@@ -50,22 +50,6 @@ class DeleteCommand extends AuthenticatedStateCommand
         final AbstractImapCommandMessage result = parser.decode(request, tag);
         return result;
     }
-    
-    private static class DeleteCommandParser extends CommandParser {
-
-        public DeleteCommandParser(ImapCommand command) {
-            super(command);
-        }
-
-        protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
-            String mailboxName = mailbox( request );
-            endLine( request );
-            final DeleteCommandMessage result = 
-                new DeleteCommandMessage( command, mailboxName, tag );
-            return result;
-        }
-        
-    }
 }
 
 /*

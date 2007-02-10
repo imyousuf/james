@@ -52,66 +52,6 @@ class StatusCommand extends AuthenticatedStateCommand
         return ARGS;
     }
 
-    private static class StatusCommandParser extends CommandParser
-    {
-        public StatusCommandParser(ImapCommand command) {
-            super(command);
-        }
-
-        StatusDataItems statusDataItems( ImapRequestLineReader request )
-                throws ProtocolException
-        {
-            StatusDataItems items = new StatusDataItems();
-
-            request.nextWordChar();
-            consumeChar( request, '(' );
-            CharacterValidator validator = new NoopCharValidator();
-            String nextWord = consumeWord( request, validator );
-            while ( ! nextWord.endsWith(")" ) ) {
-                addItem( nextWord, items );
-                nextWord = consumeWord( request, validator );
-            }
-            // Got the closing ")", may be attached to a word.
-            if ( nextWord.length() > 1 ) {
-                addItem( nextWord.substring(0, nextWord.length() - 1 ), items );
-            }
-
-            return items;
-        }
-
-        private void addItem( String nextWord, StatusDataItems items )
-                throws ProtocolException
-        {
-            if ( nextWord.equals( MESSAGES ) ) {
-                items.messages = true;
-            }
-            else if ( nextWord.equals( RECENT ) ) {
-                items.recent = true;
-            }
-            else if ( nextWord.equals( UIDNEXT ) ) {
-                items.uidNext = true;
-            }
-            else if ( nextWord.equals( UIDVALIDITY ) ) {
-                items.uidValidity = true;
-            }
-            else if ( nextWord.equals( UNSEEN ) ) {
-                items.unseen = true;
-            }
-            else {
-                throw new ProtocolException( "Unknown status item: '" + nextWord + "'" );
-            }
-        }
-
-        protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
-            final String mailboxName = mailbox( request );
-            final StatusDataItems statusDataItems = statusDataItems( request );
-            endLine( request );
-            final StatusCommandMessage result = 
-                new StatusCommandMessage(command, mailboxName, statusDataItems, tag);
-            return result;
-        }
-    }
-
     protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
         final AbstractImapCommandMessage result = parser.decode(request, tag);
         return result;

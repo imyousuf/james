@@ -47,58 +47,6 @@ class ListCommand extends AuthenticatedStateCommand
         return ARGS;
     }
 
-    protected static class ListCommandParser extends UidCommandParser
-    {
-        public ListCommandParser(ImapCommand command) {
-            super(command);
-        }
-
-        /**
-         * Reads an argument of type "list_mailbox" from the request, which is
-         * the second argument for a LIST or LSUB command. Valid values are a "string"
-         * argument, an "atom" with wildcard characters.
-         * @return An argument of type "list_mailbox"
-         */
-        public String listMailbox( ImapRequestLineReader request ) throws ProtocolException
-        {
-            char next = request.nextWordChar();
-            switch ( next ) {
-                case '"':
-                    return consumeQuoted( request );
-                case '{':
-                    return consumeLiteral( request );
-                default:
-                    return consumeWord( request, new ListCharValidator() );
-            }
-        }
-
-        private class ListCharValidator extends ATOM_CHARValidator
-        {
-            public boolean isValid( char chr )
-            {
-                if ( isListWildcard( chr ) ) {
-                    return true;
-                }
-                return super.isValid( chr );
-            }
-        }
-
-        protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag, boolean useUids) throws ProtocolException {
-            String referenceName = mailbox( request );
-            String mailboxPattern = listMailbox( request );
-            endLine( request );
-            final ListCommandMessage result = createMessage(command, referenceName, mailboxPattern, tag);
-            return result;
-        }
-        
-        protected ListCommandMessage createMessage(ImapCommand command, final String referenceName, final String mailboxPattern, final String tag) 
-        {
-            final ListCommandMessage result = new ListCommandMessage(command, referenceName, mailboxPattern, tag);
-            return result;
-        }
-    }
-
-
     protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
         final AbstractImapCommandMessage result = parser.decode(request, tag);
         return result;

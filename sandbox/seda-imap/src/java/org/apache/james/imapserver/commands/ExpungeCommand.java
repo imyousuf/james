@@ -50,20 +50,6 @@ class ExpungeCommand extends SelectedStateCommand
         final AbstractImapCommandMessage result = parser.decode(request, tag);
         return result;
     }
-    
-    private static class ExpungeCommandParser extends CommandParser {
-
-        public ExpungeCommandParser(ImapCommand command) {
-            super(command);
-        }
-
-        protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
-            endLine( request );
-            final ExpungeCommandMessage result = new ExpungeCommandMessage(command, tag);
-            return result;
-        }
-        
-    }
 }
 /*
 6.4.3.  EXPUNGE Command

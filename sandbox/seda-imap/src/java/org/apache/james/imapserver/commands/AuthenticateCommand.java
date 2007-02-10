@@ -50,21 +50,6 @@ class AuthenticateCommand extends NonAuthenticatedStateCommand
     {
         return ARGS;
     }
-    
-    private static class AuthenticateCommandParser extends CommandParser {
-
-        public AuthenticateCommandParser(ImapCommand command) {
-            super(command);
-        }
-
-        protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
-            String authType = astring( request );
-            endLine( request );        
-            final AuthenticateCommandMessage result = new AuthenticateCommandMessage(command, authType, tag);
-            return result;
-        }
-        
-    }
 }
 
 /*

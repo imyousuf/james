@@ -18,32 +18,53 @@
  ****************************************************************/
 package org.apache.james.imapserver.commands;
 
+import javax.mail.Message;
+import javax.mail.search.SearchTerm;
+
 import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ProtocolException;
 
-class UidCommandParser extends CommandParser {
-    private final ImapCommandFactory commandFactory;
-
-    public UidCommandParser(ImapCommand command, final ImapCommandFactory commandFactory) {
+class SearchCommandParser extends AbstractUidCommandParser
+{
+    public SearchCommandParser(ImapCommand command) {
         super(command);
-        this.commandFactory = commandFactory;
     }
 
-    protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
-        // TODO: check the logic against the specification:
-        // TODO: suspect that it is now bust
-        // TODO: the command written may be wrong
-        // TODO: this will be easier to fix a little later
-        // TODO: also not sure whether the old implementation shares this flaw 
-        String commandName = atom( request );
-        ImapCommand helperCommand = commandFactory.getCommand( commandName );
-        if ( helperCommand == null ||
-             ! (helperCommand instanceof UidEnabledCommand ) ) {
-            throw new ProtocolException("Invalid UID command: '" + commandName + "'" );
+    /**
+     * Parses the request argument into a valid search term.
+     * Not yet implemented - all searches will return everything for now.
+     * TODO implement search
+     */
+    public SearchTerm searchTerm( ImapRequestLineReader request )
+            throws ProtocolException
+    {
+        // Dummy implementation
+        // Consume to the end of the line.
+        char next = request.nextChar();
+        while ( next != '\n' ) {
+            request.consume();
+            next = request.nextChar();
         }
-        final UidEnabledCommand uidEnabled = (UidEnabledCommand) helperCommand;
-        final AbstractImapCommandMessage result = uidEnabled.decode( request, true, tag );
+
+        // Return a search term that matches everything.
+        return new SearchTerm()
+        {
+            private static final long serialVersionUID = 5290284637903768771L;
+
+            public boolean match( Message message )
+            {
+                return true;
+            }
+        };
+    }
+
+    protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag, boolean useUids) throws ProtocolException {
+        // Parse the search term from the request
+        final SearchTerm searchTerm = searchTerm( request );
+        endLine( request );
+        final SearchImapCommand result 
+            = new SearchImapCommand(command, searchTerm, useUids, tag);
         return result;
     }
-    
+
 }

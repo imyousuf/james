@@ -50,20 +50,6 @@ class CheckCommand extends SelectedStateCommand
     {
         return ARGS;
     }
-    
-    private static class CheckCommandParser extends CommandParser {
-
-        public CheckCommandParser(ImapCommand command) {
-            super(command);
-        }
-
-        protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
-            endLine( request );
-            final CompleteCommandMessage result = new CompleteCommandMessage(command, false, tag);
-            return result;
-        }
-        
-    }
 }
 
 /*

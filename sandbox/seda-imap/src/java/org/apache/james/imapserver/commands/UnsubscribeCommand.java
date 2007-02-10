@@ -48,19 +48,4 @@ class UnsubscribeCommand extends AuthenticatedStateCommand
         final AbstractImapCommandMessage result = parser.decode(request, tag);
         return result;
     }
-    
-    private static class UnsubscribeCommandParser extends CommandParser {
-
-        public UnsubscribeCommandParser(ImapCommand command) {
-            super(command);
-        }
-
-        protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
-            final String mailboxName = mailbox( request );
-            endLine( request );
-            final UnsubscribeCommandMessage result = new UnsubscribeCommandMessage(command, mailboxName, tag);
-            return result;
-        }
-        
-    }
 }

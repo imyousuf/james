@@ -56,31 +56,4 @@ class UidCommand extends SelectedStateCommand
         final AbstractImapCommandMessage result = parser.decode(request, tag);
         return result;
     }
-    
-    private class UidCommandParser extends CommandParser {
-        private final ImapCommandFactory commandFactory;
-
-        public UidCommandParser(ImapCommand command, final ImapCommandFactory commandFactory) {
-            super(command);
-            this.commandFactory = commandFactory;
-        }
-
-        protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
-            // TODO: check the logic against the specification:
-            // TODO: suspect that it is now bust
-            // TODO: the command written may be wrong
-            // TODO: this will be easier to fix a little later
-            // TODO: also not sure whether the old implementation shares this flaw 
-            String commandName = atom( request );
-            ImapCommand helperCommand = commandFactory.getCommand( commandName );
-            if ( helperCommand == null ||
-                 ! (helperCommand instanceof UidEnabledCommand ) ) {
-                throw new ProtocolException("Invalid UID command: '" + commandName + "'" );
-            }
-            final UidEnabledCommand uidEnabled = (UidEnabledCommand) helperCommand;
-            final AbstractImapCommandMessage result = uidEnabled.decode( request, true, tag );
-            return result;
-        }
-        
-    }
 }

@@ -59,23 +59,6 @@ class SelectCommand extends AuthenticatedStateCommand
         final AbstractImapCommandMessage result = parser.decode(request, tag);
         return result;
     }
-    
-    private static class SelectCommandParser extends CommandParser {
-        private final boolean isExamine;
-        
-        public SelectCommandParser(ImapCommand command, boolean isExamine) {
-            super(command);
-            this.isExamine = isExamine;
-        }
-
-        protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
-            final String mailboxName = mailbox( request );
-            endLine( request );
-            final SelectCommandMessage result = new SelectCommandMessage(command, mailboxName, isExamine, tag);
-            return result;
-        }
-        
-    }
 }
 
 /*

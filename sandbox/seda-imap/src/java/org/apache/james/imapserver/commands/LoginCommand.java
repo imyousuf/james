@@ -51,22 +51,6 @@ class LoginCommand extends NonAuthenticatedStateCommand
         final AbstractImapCommandMessage result = parser.decode(request, tag);
         return result;
     }
-    
-    private static class LoginCommandParser extends CommandParser {
-
-        public LoginCommandParser(ImapCommand command) {
-            super(command);
-        }
-
-        protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
-            final String userid = astring( request );
-            final String password = astring( request );
-            endLine( request );
-            final LoginCommandMessage result = new LoginCommandMessage(command, userid, password, tag);
-            return result;
-        }
-        
-    }
 }
 
 /*

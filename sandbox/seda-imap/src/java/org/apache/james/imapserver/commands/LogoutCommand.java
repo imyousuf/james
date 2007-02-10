@@ -33,7 +33,7 @@ class LogoutCommand extends CommandTemplate
     public static final String ARGS = null;
     public static final String BYE_MESSAGE = VERSION + SP + "Server logging out";
 
-    private final LoginCommandParser parser = new LoginCommandParser(this);
+    private final LogoutCommandParser parser = new LogoutCommandParser(this);
     
     /** @see ImapCommand#getName */
     public String getName()
@@ -50,20 +50,6 @@ class LogoutCommand extends CommandTemplate
     protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
         final AbstractImapCommandMessage result = parser.decode(request, tag);
         return result;
-    }
-    
-    private static class LoginCommandParser extends CommandParser {
-
-        public LoginCommandParser(ImapCommand command) {
-            super(command);
-        }
-
-        protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
-            endLine( request );
-            final LogoutCommandMessage result = new LogoutCommandMessage(command, tag);
-            return result;
-        }
-        
     }
 }
 

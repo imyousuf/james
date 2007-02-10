@@ -19,8 +19,6 @@
 
 package org.apache.james.imapserver.commands;
 
-import javax.mail.Message;
-import javax.mail.search.SearchTerm;
 
 import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ProtocolException;
@@ -47,51 +45,6 @@ class SearchCommand extends SelectedStateCommand implements UidEnabledCommand
     public String getArgSyntax()
     {
         return ARGS;
-    }
-
-    private static class SearchCommandParser extends UidCommandParser
-    {
-        public SearchCommandParser(ImapCommand command) {
-            super(command);
-        }
-
-        /**
-         * Parses the request argument into a valid search term.
-         * Not yet implemented - all searches will return everything for now.
-         * TODO implement search
-         */
-        public SearchTerm searchTerm( ImapRequestLineReader request )
-                throws ProtocolException
-        {
-            // Dummy implementation
-            // Consume to the end of the line.
-            char next = request.nextChar();
-            while ( next != '\n' ) {
-                request.consume();
-                next = request.nextChar();
-            }
-
-            // Return a search term that matches everything.
-            return new SearchTerm()
-            {
-                private static final long serialVersionUID = 5290284637903768771L;
-
-                public boolean match( Message message )
-                {
-                    return true;
-                }
-            };
-        }
-
-        protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag, boolean useUids) throws ProtocolException {
-            // Parse the search term from the request
-            final SearchTerm searchTerm = searchTerm( request );
-            endLine( request );
-            final SearchImapCommand result 
-                = new SearchImapCommand(command, searchTerm, useUids, tag);
-            return result;
-        }
-
     }
 
     protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {

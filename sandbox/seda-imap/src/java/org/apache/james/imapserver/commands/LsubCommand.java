@@ -42,16 +42,4 @@ class LsubCommand extends ListCommand
         final AbstractImapCommandMessage result = parser.decode(request, tag);
         return result;
     }
-
-    private class LsubCommandParser extends ListCommandParser {
-
-        public LsubCommandParser(ImapCommand command) {
-            super(command);
-        }
-
-        protected ListCommandMessage createMessage(ImapCommand command, String referenceName, String mailboxPattern, String tag) {
-            final LsubListCommandMessage result = new LsubListCommandMessage(command, referenceName, mailboxPattern, tag);
-            return result;
-        }
-    }
 }

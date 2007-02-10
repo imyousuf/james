@@ -52,20 +52,6 @@ class CapabilityCommand extends CommandTemplate
     {
         return ARGS;
     }
-    
-    private static class CapabilityCommandParser extends CommandParser {
-
-        public CapabilityCommandParser(ImapCommand command) {
-            super(command);
-        }
-
-        protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
-            endLine( request );
-            final CapabilityCommandMessage result = new CapabilityCommandMessage(command, tag);
-            return result;
-        }
-        
-    }
 }
 
 /*

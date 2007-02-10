@@ -53,23 +53,6 @@ class CopyCommand extends SelectedStateCommand implements UidEnabledCommand
     public AbstractImapCommandMessage decode(final ImapRequestLineReader request, final boolean useUids, String tag) throws ProtocolException {
         return parser.decode(request, tag, useUids);
     }
-    
-    private static class CopyCommandParser extends UidCommandParser {
-
-        public CopyCommandParser(ImapCommand command) {
-            super(command);
-        }
-
-        protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag, boolean useUids) throws ProtocolException {
-            IdRange[] idSet = parseIdRange( request );
-            String mailboxName = mailbox( request );
-            endLine( request );
-            final CopyCommandMessage result = 
-                new CopyCommandMessage(command, idSet, mailboxName, useUids, tag);
-            return result;
-        }
-        
-    }
 }
 /*
 6.4.7.  COPY Command
