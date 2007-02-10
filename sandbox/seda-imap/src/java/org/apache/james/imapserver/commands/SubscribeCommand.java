@@ -31,6 +31,8 @@ class SubscribeCommand extends AuthenticatedStateCommand {
     public static final String NAME = "SUBSCRIBE";
     public static final String ARGS = "<mailbox>";
 
+    private final SubscribeCommandParser parser = new SubscribeCommandParser(this);
+    
     /** @see ImapCommand#getName */
     public String getName() {
         return NAME;
@@ -42,11 +44,24 @@ class SubscribeCommand extends AuthenticatedStateCommand {
     }
 
     protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
-        final String mailboxName = parser.mailbox( request );
-        parser.endLine( request );
-        
-        final SubscribeCommandMessage result = 
-            new SubscribeCommandMessage(this, mailboxName, tag);
+        final AbstractImapCommandMessage result = parser.decode(request, tag);
         return result;
+    }
+    
+    private static class SubscribeCommandParser extends CommandParser {
+
+        public SubscribeCommandParser(ImapCommand command) {
+            super(command);
+        }
+
+        protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
+            final String mailboxName = mailbox( request );
+            endLine( request );
+            
+            final SubscribeCommandMessage result = 
+                new SubscribeCommandMessage(command, mailboxName, tag);
+            return result;
+        }
+        
     }
 }

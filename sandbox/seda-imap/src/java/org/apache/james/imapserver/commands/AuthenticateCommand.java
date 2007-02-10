@@ -32,10 +32,10 @@ class AuthenticateCommand extends NonAuthenticatedStateCommand
     public static final String NAME = "AUTHENTICATE";
     public static final String ARGS = "<auth_type> *(CRLF base64)";
     
+    private final AuthenticateCommandParser parser = new AuthenticateCommandParser(this);
+    
     protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
-        String authType = parser.astring( request );
-        parser.endLine( request );        
-        final AuthenticateCommandMessage result = new AuthenticateCommandMessage(this, authType, tag);
+        final AbstractImapCommandMessage result = parser.decode(request, tag);
         return result;
     }
 
@@ -49,6 +49,21 @@ class AuthenticateCommand extends NonAuthenticatedStateCommand
     public String getArgSyntax()
     {
         return ARGS;
+    }
+    
+    private static class AuthenticateCommandParser extends CommandParser {
+
+        public AuthenticateCommandParser(ImapCommand command) {
+            super(command);
+        }
+
+        protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
+            String authType = astring( request );
+            endLine( request );        
+            final AuthenticateCommandMessage result = new AuthenticateCommandMessage(command, authType, tag);
+            return result;
+        }
+        
     }
 }
 

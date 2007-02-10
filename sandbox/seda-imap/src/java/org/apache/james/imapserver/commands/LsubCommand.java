@@ -19,6 +19,9 @@
 
 package org.apache.james.imapserver.commands;
 
+import org.apache.james.imapserver.ImapRequestLineReader;
+import org.apache.james.imapserver.ProtocolException;
+
 
 /**
  * @version $Revision: 109034 $
@@ -27,7 +30,7 @@ class LsubCommand extends ListCommand
 {
     public static final String NAME = "LSUB";
 
-
+    private final LsubCommandParser parser = new LsubCommandParser(this);
 
     /** @see ImapCommand#getName */
     public String getName()
@@ -35,9 +38,20 @@ class LsubCommand extends ListCommand
         return NAME;
     }
     
-    
-    
-    protected ListCommandMessage createMessage(String referenceName, String mailboxPattern, String tag) {
-        return new LsubListCommandMessage(this, referenceName, mailboxPattern, tag);
+    protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
+        final AbstractImapCommandMessage result = parser.decode(request, tag);
+        return result;
+    }
+
+    private class LsubCommandParser extends ListCommandParser {
+
+        public LsubCommandParser(ImapCommand command) {
+            super(command);
+        }
+
+        protected ListCommandMessage createMessage(ImapCommand command, String referenceName, String mailboxPattern, String tag) {
+            final LsubListCommandMessage result = new LsubListCommandMessage(command, referenceName, mailboxPattern, tag);
+            return result;
+        }
     }
 }

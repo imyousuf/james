@@ -41,23 +41,10 @@ class AppendCommand extends AuthenticatedStateCommand
     public static final String NAME = "APPEND";
     public static final String ARGS = "<mailbox> [<flag_list>] [<date_time>] literal";
 
-    private AppendCommandParser parser = new AppendCommandParser();
+    private AppendCommandParser parser = new AppendCommandParser(this);
 
     protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
-        String mailboxName = parser.mailbox( request );
-        Flags flags = parser.optionalAppendFlags( request );
-        if ( flags == null ) {
-            flags = new Flags();
-        }
-        Date datetime = parser.optionalDateTime( request );
-        if ( datetime == null ) {
-            datetime = new Date();
-        }
-        MimeMessage message = parser.mimeMessage( request );
-        parser.endLine( request );
-        // TODO: use an object pool
-        final AppendCommandMessage result = new AppendCommandMessage(this, mailboxName, 
-                flags, datetime, message, tag);
+        final AbstractImapCommandMessage result = parser.decode(request, tag);
         return result;
     }
 
@@ -75,6 +62,11 @@ class AppendCommand extends AuthenticatedStateCommand
 
     private static class AppendCommandParser extends CommandParser
     {        
+
+        public AppendCommandParser(ImapCommand command) {
+            super(command);
+        }
+
         /**
          * If the next character in the request is a '(', tries to read
          * a "flag_list" argument from the request. If not, returns a
@@ -132,6 +124,24 @@ class AppendCommand extends AuthenticatedStateCommand
 
             }
             return mm;
+        }
+
+        protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
+            String mailboxName = mailbox( request );
+            Flags flags = optionalAppendFlags( request );
+            if ( flags == null ) {
+                flags = new Flags();
+            }
+            Date datetime = optionalDateTime( request );
+            if ( datetime == null ) {
+                datetime = new Date();
+            }
+            MimeMessage message = mimeMessage( request );
+            endLine( request );
+            // TODO: use an object pool
+            final AppendCommandMessage result = new AppendCommandMessage(command, mailboxName, 
+                    flags, datetime, message, tag);
+            return result;
         }
     }
 

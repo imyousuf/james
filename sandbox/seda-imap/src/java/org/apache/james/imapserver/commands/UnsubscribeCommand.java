@@ -32,6 +32,8 @@ class UnsubscribeCommand extends AuthenticatedStateCommand
     public static final String NAME = "UNSUBSCRIBE";
     public static final String ARGS = "<mailbox>";
 
+    private final UnsubscribeCommandParser parser = new UnsubscribeCommandParser(this);
+    
     /** @see ImapCommand#getName */
     public String getName() {
         return NAME;
@@ -43,8 +45,22 @@ class UnsubscribeCommand extends AuthenticatedStateCommand
     }
 
     protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
-        final String mailboxName = parser.mailbox( request );
-        parser.endLine( request );
-        return new UnsubscribeCommandMessage(this, mailboxName, tag);
+        final AbstractImapCommandMessage result = parser.decode(request, tag);
+        return result;
+    }
+    
+    private static class UnsubscribeCommandParser extends CommandParser {
+
+        public UnsubscribeCommandParser(ImapCommand command) {
+            super(command);
+        }
+
+        protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
+            final String mailboxName = mailbox( request );
+            endLine( request );
+            final UnsubscribeCommandMessage result = new UnsubscribeCommandMessage(command, mailboxName, tag);
+            return result;
+        }
+        
     }
 }

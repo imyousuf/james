@@ -33,6 +33,8 @@ class LoginCommand extends NonAuthenticatedStateCommand
     public static final String NAME = "LOGIN";
     public static final String ARGS = "<userid> <password>";
 
+    private final LoginCommandParser parser = new LoginCommandParser(this);
+     
     /** @see ImapCommand#getName */
     public String getName()
     {
@@ -46,10 +48,24 @@ class LoginCommand extends NonAuthenticatedStateCommand
     }
 
     protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
-        final String userid = parser.astring( request );
-        final String password = parser.astring( request );
-        parser.endLine( request );
-        return new LoginCommandMessage(this, userid, password, tag);
+        final AbstractImapCommandMessage result = parser.decode(request, tag);
+        return result;
+    }
+    
+    private static class LoginCommandParser extends CommandParser {
+
+        public LoginCommandParser(ImapCommand command) {
+            super(command);
+        }
+
+        protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
+            final String userid = astring( request );
+            final String password = astring( request );
+            endLine( request );
+            final LoginCommandMessage result = new LoginCommandMessage(command, userid, password, tag);
+            return result;
+        }
+        
     }
 }
 

@@ -25,7 +25,7 @@ import org.apache.james.imapserver.ProtocolException;
 
 /**
  * Handles processeing for the LIST imap command.
- *
+ * TODO: inheritance tree seems wrong to me
  * @version $Revision: 109034 $
  */
 class ListCommand extends AuthenticatedStateCommand
@@ -33,7 +33,7 @@ class ListCommand extends AuthenticatedStateCommand
     public static final String NAME = "LIST";
     public static final String ARGS = "<reference-name> <mailbox-name-with-wildcards>";
 
-    private ListCommandParser parser = new ListCommandParser();
+    private final ListCommandParser parser = new ListCommandParser(this);
 
     /** @see ImapCommand#getName */
     public String getName()
@@ -47,8 +47,12 @@ class ListCommand extends AuthenticatedStateCommand
         return ARGS;
     }
 
-    private static class ListCommandParser extends CommandParser
+    protected static class ListCommandParser extends UidCommandParser
     {
+        public ListCommandParser(ImapCommand command) {
+            super(command);
+        }
+
         /**
          * Reads an argument of type "list_mailbox" from the request, which is
          * the second argument for a LIST or LSUB command. Valid values are a "string"
@@ -78,22 +82,29 @@ class ListCommand extends AuthenticatedStateCommand
                 return super.isValid( chr );
             }
         }
+
+        protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag, boolean useUids) throws ProtocolException {
+            String referenceName = mailbox( request );
+            String mailboxPattern = listMailbox( request );
+            endLine( request );
+            final ListCommandMessage result = createMessage(command, referenceName, mailboxPattern, tag);
+            return result;
+        }
+        
+        protected ListCommandMessage createMessage(ImapCommand command, final String referenceName, final String mailboxPattern, final String tag) 
+        {
+            final ListCommandMessage result = new ListCommandMessage(command, referenceName, mailboxPattern, tag);
+            return result;
+        }
     }
 
 
     protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
-        String referenceName = parser.mailbox( request );
-        String mailboxPattern = parser.listMailbox( request );
-        parser.endLine( request );
-        final ListCommandMessage result = createMessage(referenceName, mailboxPattern, tag);
+        final AbstractImapCommandMessage result = parser.decode(request, tag);
         return result;
     }
     
-    protected ListCommandMessage createMessage(final String referenceName, final String mailboxPattern, final String tag) 
-    {
-        final ListCommandMessage result = new ListCommandMessage(this, referenceName, mailboxPattern, tag);
-        return result;
-    }
+
 }
 
 /*

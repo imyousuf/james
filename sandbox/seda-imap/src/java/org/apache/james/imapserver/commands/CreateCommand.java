@@ -32,6 +32,8 @@ class CreateCommand extends AuthenticatedStateCommand
     public static final String NAME = "CREATE";
     public static final String ARGS = "<mailbox>";
 
+    private final CreateCommandParser parser = new CreateCommandParser(this);
+    
     /** @see ImapCommand#getName */
     public String getName()
     {
@@ -45,10 +47,23 @@ class CreateCommand extends AuthenticatedStateCommand
     }
 
     protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
-        String mailboxName = parser.mailbox( request );
-        parser.endLine( request );
-        final CreateCommandMessage result = new CreateCommandMessage(this, mailboxName, tag);
+        final AbstractImapCommandMessage result = parser.decode(request, tag);
         return result;
+    }
+    
+    private static class CreateCommandParser extends CommandParser {
+
+        public CreateCommandParser(ImapCommand command) {
+            super(command);
+        }
+
+        protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
+            String mailboxName = mailbox( request );
+            endLine( request );
+            final CreateCommandMessage result = new CreateCommandMessage(command, mailboxName, tag);
+            return result;
+        }
+        
     }
 }
 

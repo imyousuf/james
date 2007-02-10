@@ -25,7 +25,7 @@ import org.apache.james.imapserver.ProtocolException;
 
 /**
  * Handles processeing for the SELECT imap command.
- *
+ * TODO: the inheritance tree seems a little wrong.
  * @version $Revision: 109034 $
  */
 class SelectCommand extends AuthenticatedStateCommand
@@ -33,11 +33,10 @@ class SelectCommand extends AuthenticatedStateCommand
     public static final String NAME = "SELECT";
     public static final String ARGS = "mailbox";
     
-    // TODO: the inheritance tree seems a little wrong
-    private final boolean isExamine;
-    
+    private final SelectCommandParser parser;
+
     protected SelectCommand(boolean isExamine) {
-        this.isExamine = isExamine;
+        parser = new SelectCommandParser(this, isExamine);
     }
     
     public SelectCommand() {
@@ -57,10 +56,25 @@ class SelectCommand extends AuthenticatedStateCommand
     }
 
     protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
-        final String mailboxName = parser.mailbox( request );
-        parser.endLine( request );
-        final SelectCommandMessage result = new SelectCommandMessage(this, mailboxName, isExamine, tag);
+        final AbstractImapCommandMessage result = parser.decode(request, tag);
         return result;
+    }
+    
+    private static class SelectCommandParser extends CommandParser {
+        private final boolean isExamine;
+        
+        public SelectCommandParser(ImapCommand command, boolean isExamine) {
+            super(command);
+            this.isExamine = isExamine;
+        }
+
+        protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
+            final String mailboxName = mailbox( request );
+            endLine( request );
+            final SelectCommandMessage result = new SelectCommandMessage(command, mailboxName, isExamine, tag);
+            return result;
+        }
+        
     }
 }
 

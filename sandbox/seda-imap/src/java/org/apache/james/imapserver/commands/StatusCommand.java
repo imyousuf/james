@@ -38,7 +38,7 @@ class StatusCommand extends AuthenticatedStateCommand
     static final String UIDVALIDITY = "UIDVALIDITY";
     static final String UNSEEN = "UNSEEN";
 
-    private StatusCommandParser parser = new StatusCommandParser();
+    private StatusCommandParser parser = new StatusCommandParser(this);
 
     /** @see ImapCommand#getName */
     public String getName()
@@ -54,6 +54,10 @@ class StatusCommand extends AuthenticatedStateCommand
 
     private static class StatusCommandParser extends CommandParser
     {
+        public StatusCommandParser(ImapCommand command) {
+            super(command);
+        }
+
         StatusDataItems statusDataItems( ImapRequestLineReader request )
                 throws ProtocolException
         {
@@ -97,14 +101,19 @@ class StatusCommand extends AuthenticatedStateCommand
                 throw new ProtocolException( "Unknown status item: '" + nextWord + "'" );
             }
         }
+
+        protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
+            final String mailboxName = mailbox( request );
+            final StatusDataItems statusDataItems = statusDataItems( request );
+            endLine( request );
+            final StatusCommandMessage result = 
+                new StatusCommandMessage(command, mailboxName, statusDataItems, tag);
+            return result;
+        }
     }
 
     protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
-        final String mailboxName = parser.mailbox( request );
-        final StatusDataItems statusDataItems = parser.statusDataItems( request );
-        parser.endLine( request );
-        final StatusCommandMessage result = 
-            new StatusCommandMessage(this, mailboxName, statusDataItems, tag);
+        final AbstractImapCommandMessage result = parser.decode(request, tag);
         return result;
     }
 }

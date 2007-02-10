@@ -20,10 +20,7 @@
 package org.apache.james.imapserver.commands;
 
 import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ImapResponse;
-import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
-import org.apache.james.imapserver.store.MailboxException;
 
 /**
  * Handles processeing for the CHECK imap command.
@@ -34,25 +31,12 @@ class CloseCommand extends SelectedStateCommand
 {
     public static final String NAME = "CLOSE";
     public static final String ARGS = null;
-
-    static class CloseResponseMessage extends AbstractCommandResponseMessage {
-        public CloseResponseMessage(ImapCommand command, String tag) {
-            super(command, tag);
-        }
-
-        void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
-            //TODO: the following comment was present in the code before refactoring
-            //TODO: doesn't seem to match the implementation
-            //TODO: check that implementation is correct
-//          Don't send unsolicited responses on close.
-            session.unsolicitedResponses( response, false );
-            response.commandComplete( command , tag);
-        }
-    }
     
+    private final CloseCommandParser parser = new CloseCommandParser(this);
+
     protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
-        parser.endLine( request );
-        return new CloseCommandMessage(this, tag);
+        final AbstractImapCommandMessage result = parser.decode(request, tag);
+        return result;
     }
 
     /** @see ImapCommand#getName */
@@ -65,6 +49,20 @@ class CloseCommand extends SelectedStateCommand
     public String getArgSyntax()
     {
         return ARGS;
+    }
+    
+    private static class CloseCommandParser extends CommandParser {
+
+        public CloseCommandParser(ImapCommand command) {
+            super(command);
+        }
+
+        protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
+            endLine( request );
+            final CloseCommandMessage result = new CloseCommandMessage(command, tag);
+            return result;
+        }
+        
     }
 }
 /*

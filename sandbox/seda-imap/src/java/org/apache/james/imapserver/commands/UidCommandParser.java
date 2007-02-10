@@ -16,34 +16,33 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
+
 package org.apache.james.imapserver.commands;
 
-import org.apache.james.imapserver.AuthorizationException;
-import org.apache.james.imapserver.ImapSession;
+import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ProtocolException;
-import org.apache.james.imapserver.store.MailboxException;
-import org.apache.james.mailboxmanager.MailboxManagerException;
-import org.apache.james.mailboxmanager.MessageResult;
-import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
-import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 
-class CloseCommandMessage extends AbstractImapCommandMessage {
+abstract class UidCommandParser extends CommandParser {
+
+    private final ImapCommand command;
     
-    public CloseCommandMessage(final ImapCommand command, final String tag) {
-        super(tag, command);
+    public UidCommandParser(ImapCommand command) {
+        super(command);
+        this.command = command;
     }
-    
-    protected ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-        ImapMailboxSession mailbox = session.getSelected().getMailbox();
-        if ( session.getSelected().getMailbox().isWriteable() ) {
-            try {
-                mailbox.expunge(GeneralMessageSetImpl.all(),MessageResult.NOTHING);
-            } catch (MailboxManagerException e) {
-               throw new MailboxException(e);
-            }
-        }
-        session.deselect();
-        final CloseResponseMessage result = new CloseResponseMessage(command, tag);
+
+    protected AbstractImapCommandMessage decode(ImapCommand command,
+            ImapRequestLineReader request, String tag) throws ProtocolException {
+        final AbstractImapCommandMessage result = decode(command, request, tag, false);
         return result;
     }
+    
+    public AbstractImapCommandMessage decode(ImapRequestLineReader request, 
+            String tag, boolean useUids) throws ProtocolException {
+        final AbstractImapCommandMessage result = decode(command, request, tag, useUids);
+        return result;
+    }
+
+    protected abstract AbstractImapCommandMessage decode(ImapCommand command,
+            ImapRequestLineReader request, String tag, boolean useUids) throws ProtocolException;
 }

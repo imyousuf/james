@@ -40,8 +40,6 @@ abstract class CommandTemplate
         extends AbstractLogEnabled
         implements ImapCommand, ImapConstants, ImapCommandParser
 {
-    protected CommandParser parser = new CommandParser();
-
     /**
      * By default, valid in any state (unless overridden by subclass.
      * @see org.apache.james.imapserver.commands.ImapCommand#validForState
@@ -177,10 +175,4 @@ abstract class CommandTemplate
      *         commands without arguments.
      */
     public abstract String getArgSyntax();
-
-
-    public CommandParser getParser()
-    {
-        return parser;
-    }
 }

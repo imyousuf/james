@@ -35,7 +35,7 @@ class SearchCommand extends SelectedStateCommand implements UidEnabledCommand
     public static final String NAME = "SEARCH";
     public static final String ARGS = "<search term>";
 
-    private SearchCommandParser parser = new SearchCommandParser();
+    private SearchCommandParser parser = new SearchCommandParser(this);
 
     /** @see ImapCommand#getName */
     public String getName()
@@ -49,8 +49,12 @@ class SearchCommand extends SelectedStateCommand implements UidEnabledCommand
         return ARGS;
     }
 
-    private static class SearchCommandParser extends CommandParser
+    private static class SearchCommandParser extends UidCommandParser
     {
+        public SearchCommandParser(ImapCommand command) {
+            super(command);
+        }
+
         /**
          * Parses the request argument into a valid search term.
          * Not yet implemented - all searches will return everything for now.
@@ -79,6 +83,15 @@ class SearchCommand extends SelectedStateCommand implements UidEnabledCommand
             };
         }
 
+        protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag, boolean useUids) throws ProtocolException {
+            // Parse the search term from the request
+            final SearchTerm searchTerm = searchTerm( request );
+            endLine( request );
+            final SearchImapCommand result 
+                = new SearchImapCommand(command, searchTerm, useUids, tag);
+            return result;
+        }
+
     }
 
     protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
@@ -86,11 +99,7 @@ class SearchCommand extends SelectedStateCommand implements UidEnabledCommand
     }
 
     public AbstractImapCommandMessage decode(ImapRequestLineReader request, boolean useUids, String tag) throws ProtocolException {
-        // Parse the search term from the request
-        final SearchTerm searchTerm = parser.searchTerm( request );
-        parser.endLine( request );
-        final SearchImapCommand result = new SearchImapCommand(this, searchTerm, useUids, tag);
-        return result;
+        return parser.decode(request, tag, useUids);
     }
 }
 /*

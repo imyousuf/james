@@ -36,14 +36,46 @@ import org.apache.james.imapserver.store.MessageFlags;
  *
  * @version $Revision: 109034 $
  */
-public class CommandParser
+public abstract class CommandParser
 {
-    private static final char[] EMPTY_CHAR_ARRAY = new char[0];
+    private final ImapCommand command;
+    
+    
+    public CommandParser(final ImapCommand command) {
+        super();
+        this.command = command;
+    }
 
+    /**
+     * Parses a request into a command message
+     * for later processing.
+     * @param request <code>ImapRequestLineReader</code>, not null
+     * @param tag TODO
+     * @return <code>ImapCommandMessage</code>, not null
+     * @throws ProtocolException if the request cannot be parsed
+     */
+    public final AbstractImapCommandMessage decode( ImapRequestLineReader request, String tag ) 
+        throws ProtocolException {
+        final AbstractImapCommandMessage result = decode(command, request, tag);
+        return result;
+    }
+    
+    /**
+     * Parses a request into a command message
+     * for later processing.
+     * @param request <code>ImapRequestLineReader</code>, not null
+     * @param tag TODO
+     * @param command <code>ImapCommand</code> to be parsed, not null
+     * @return <code>ImapCommandMessage</code>, not null
+     * @throws ProtocolException if the request cannot be parsed
+     */
+    protected abstract AbstractImapCommandMessage decode( ImapCommand command, ImapRequestLineReader request, String tag ) 
+        throws ProtocolException;
+    
     /**
      * Reads an argument of type "atom" from the request.
      */
-    public String atom( ImapRequestLineReader request ) throws ProtocolException
+    public static String atom( ImapRequestLineReader request ) throws ProtocolException
     {
         return consumeWord( request, new ATOM_CHARValidator() );
     }
@@ -51,7 +83,7 @@ public class CommandParser
     /**
      * Reads a command "tag" from the request.
      */
-    public String tag(ImapRequestLineReader request) throws ProtocolException
+    public static String tag(ImapRequestLineReader request) throws ProtocolException
     {
         CharacterValidator validator = new TagCharValidator();
         return consumeWord( request, validator );
@@ -169,7 +201,7 @@ public class CommandParser
      * Characters are tested by the supplied CharacterValidator, and an exception is thrown
      * if invalid characters are encountered.
      */
-    protected String consumeWord( ImapRequestLineReader request,
+    protected static String consumeWord( ImapRequestLineReader request,
                                   CharacterValidator validator )
             throws ProtocolException
     {
@@ -190,7 +222,7 @@ public class CommandParser
         return atom.toString();
     }
 
-    private boolean isWhitespace( char next )
+    private static boolean isWhitespace( char next )
     {
         return ( next == ' ' || next == '\n' || next == '\r' || next == '\t' );
     }
@@ -304,6 +336,8 @@ public class CommandParser
      */
     public byte[] base64( ImapRequestLineReader request ) throws ProtocolException
     {
+        // TODO: throw unsupported exception?
+        // TODO: log
         return null;
     }
 
@@ -375,7 +409,7 @@ public class CommandParser
         return number;
     }
 
-    private boolean isCHAR( char chr )
+    private static boolean isCHAR( char chr )
     {
         return ( chr >= 0x01 && chr <= 0x7f );
     }
@@ -385,12 +419,12 @@ public class CommandParser
         return ( chr >= 0x01 && chr <= 0xff );
     }
 
-    protected boolean isListWildcard( char chr )
+    protected static boolean isListWildcard( char chr )
     {
         return ( chr == '*' || chr == '%' );
     }
 
-    private boolean isQuotedSpecial( char chr )
+    private static boolean isQuotedSpecial( char chr )
     {
         return ( chr == '"' || chr == '\\' );
     }
@@ -473,7 +507,7 @@ public class CommandParser
         boolean isValid( char chr );
     }
 
-    protected class NoopCharValidator implements CharacterValidator
+    protected static class NoopCharValidator implements CharacterValidator
     {
         public boolean isValid( char chr )
         {
@@ -481,7 +515,7 @@ public class CommandParser
         }
     }
 
-    protected class ATOM_CHARValidator implements CharacterValidator
+    protected static class ATOM_CHARValidator implements CharacterValidator
     {
         public boolean isValid( char chr )
         {
@@ -499,7 +533,7 @@ public class CommandParser
         }
     }
 
-    protected class DigitCharValidator implements CharacterValidator
+    protected static class DigitCharValidator implements CharacterValidator
     {
         public boolean isValid( char chr )
         {
@@ -508,7 +542,7 @@ public class CommandParser
         }
     }
 
-    private class TagCharValidator extends ATOM_CHARValidator
+    private static class TagCharValidator extends ATOM_CHARValidator
     {
         public boolean isValid( char chr )
         {
@@ -517,7 +551,7 @@ public class CommandParser
         }
     }
 
-    private class MessageSetCharValidator implements CharacterValidator
+    private static class MessageSetCharValidator implements CharacterValidator
     {
         public boolean isValid( char chr )
         {

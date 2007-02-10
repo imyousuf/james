@@ -35,7 +35,6 @@ import org.apache.james.imapserver.encode.OutputStreamImapResponseWriter;
 public final class ImapRequestHandler extends AbstractLogEnabled {
     
     private final ImapCommandFactory imapCommands = new ImapCommandFactory();
-    private CommandParser parser = new CommandParser();
     private static final String REQUEST_SYNTAX = "Protocol Error: Was expecting <tag SPACE command [arguments]>";
 
     /**
@@ -92,7 +91,7 @@ public final class ImapRequestHandler extends AbstractLogEnabled {
         String commandName = null;
 
         try {
-            tag = parser.tag( request );
+            tag = CommandParser.tag( request );
         }
         catch ( ProtocolException e ) {
             getLogger().debug("error parsing request", e);
@@ -106,7 +105,7 @@ public final class ImapRequestHandler extends AbstractLogEnabled {
         }
         
         try {
-            commandName = parser.atom( request );
+            commandName = CommandParser.atom( request );
         }
         catch ( ProtocolException e ) {
             getLogger().debug("error parsing request", e);            

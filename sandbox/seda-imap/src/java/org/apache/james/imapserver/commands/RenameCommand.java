@@ -32,6 +32,8 @@ class RenameCommand extends AuthenticatedStateCommand
     public static final String NAME = "RENAME";
     public static final String ARGS = "existing-mailbox-name SPACE new-mailbox-name";
 
+    private final RenameCommandParser parser = new RenameCommandParser(this);
+    
     /** @see ImapCommand#getName */
     public String getName()
     {
@@ -45,10 +47,24 @@ class RenameCommand extends AuthenticatedStateCommand
     }
 
     protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
-        final String existingName = parser.mailbox( request );
-        final String newName = parser.mailbox( request );
-        parser.endLine( request );
-        return new RenameCommandMessage(this, existingName, newName, tag);
+        final AbstractImapCommandMessage result = parser.decode(request, tag);
+        return result;
+    }
+    
+    private static class RenameCommandParser extends CommandParser {
+
+        public RenameCommandParser(ImapCommand command) {
+            super(command);
+        }
+
+        protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
+            final String existingName = mailbox( request );
+            final String newName = mailbox( request );
+            endLine( request );
+            final RenameCommandMessage result = new RenameCommandMessage(command, existingName, newName, tag);
+            return result;
+        }
+        
     }
 }
 

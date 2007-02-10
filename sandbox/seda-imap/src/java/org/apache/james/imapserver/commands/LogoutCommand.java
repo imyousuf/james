@@ -19,11 +19,8 @@
 
 package org.apache.james.imapserver.commands;
 
-import org.apache.james.imapserver.AuthorizationException;
 import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
-import org.apache.james.imapserver.store.MailboxException;
 
 /**
  * Handles processeing for the LOGOUT imap command.
@@ -36,6 +33,8 @@ class LogoutCommand extends CommandTemplate
     public static final String ARGS = null;
     public static final String BYE_MESSAGE = VERSION + SP + "Server logging out";
 
+    private final LoginCommandParser parser = new LoginCommandParser(this);
+    
     /** @see ImapCommand#getName */
     public String getName()
     {
@@ -49,18 +48,19 @@ class LogoutCommand extends CommandTemplate
     }
 
     protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
-        parser.endLine( request );
-        return new LogoutCommandMessage(this, tag);
+        final AbstractImapCommandMessage result = parser.decode(request, tag);
+        return result;
     }
     
-    private static class LogoutCommandMessage extends AbstractImapCommandMessage {
+    private static class LoginCommandParser extends CommandParser {
 
-        public LogoutCommandMessage(final ImapCommand command, final String tag) {
-            super(tag, command);
+        public LoginCommandParser(ImapCommand command) {
+            super(command);
         }
-        
-        protected ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-            final LogoutResponseMessage result = new LogoutResponseMessage(command, tag);
+
+        protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
+            endLine( request );
+            final LogoutCommandMessage result = new LogoutCommandMessage(command, tag);
             return result;
         }
         

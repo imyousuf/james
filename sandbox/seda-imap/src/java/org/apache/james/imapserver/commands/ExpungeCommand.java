@@ -32,6 +32,8 @@ class ExpungeCommand extends SelectedStateCommand
     public static final String NAME = "EXPUNGE";
     public static final String ARGS = null;
     
+    private final ExpungeCommandParser parser = new ExpungeCommandParser(this);
+    
     /** @see ImapCommand#getName */
     public String getName()
     {
@@ -45,9 +47,22 @@ class ExpungeCommand extends SelectedStateCommand
     }
 
     protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
-        parser.endLine( request );
-        final ExpungeCommandMessage result = new ExpungeCommandMessage(this, tag);
+        final AbstractImapCommandMessage result = parser.decode(request, tag);
         return result;
+    }
+    
+    private static class ExpungeCommandParser extends CommandParser {
+
+        public ExpungeCommandParser(ImapCommand command) {
+            super(command);
+        }
+
+        protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
+            endLine( request );
+            final ExpungeCommandMessage result = new ExpungeCommandMessage(command, tag);
+            return result;
+        }
+        
     }
 }
 /*

@@ -35,7 +35,7 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
     public static final String NAME = "FETCH";
     public static final String ARGS = "<message-set> <fetch-profile>";
 
-    private FetchCommandParser parser = new FetchCommandParser();
+    private FetchCommandParser parser = new FetchCommandParser(this);
 
     /** @see ImapCommand#getName */
     public String getName()
@@ -49,9 +49,11 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
         return ARGS;
     }
 
-    private static class FetchCommandParser extends CommandParser
+    private static class FetchCommandParser extends UidCommandParser
     {
-
+        public FetchCommandParser(ImapCommand command) {
+            super(command);
+        }
 
         public FetchRequest fetchRequest( ImapRequestLineReader request )
                 throws ProtocolException
@@ -182,6 +184,16 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
             return next;
         }
 
+        protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag, boolean useUids) throws ProtocolException {
+            IdRange[] idSet = parseIdRange( request );
+            FetchRequest fetch = fetchRequest( request );
+            endLine( request );
+            
+            final FetchCommandMessage result 
+                = new FetchCommandMessage(command, useUids, idSet, fetch, tag);
+            return result;
+        }
+
     }
 
     protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
@@ -190,11 +202,7 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
     }
 
     public AbstractImapCommandMessage decode(ImapRequestLineReader request, boolean useUids, String tag) throws ProtocolException {
-        IdRange[] idSet = parser.parseIdRange( request );
-        FetchRequest fetch = parser.fetchRequest( request );
-        parser.endLine( request );
-        
-        final FetchCommandMessage result = new FetchCommandMessage(this, useUids, idSet, fetch, tag);
+        final AbstractImapCommandMessage result = parser.decode(request, tag, useUids);
         return result;
     }
 }

@@ -32,9 +32,11 @@ class CheckCommand extends SelectedStateCommand
     public static final String NAME = "CHECK";
     public static final String ARGS = null;
 
+    private final CheckCommandParser parser = new CheckCommandParser(this);
+    
     protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
-        parser.endLine( request );
-        return new CompleteCommandMessage(this, false, tag);
+        final AbstractImapCommandMessage result = parser.decode(request, tag);
+        return result;
     }
 
     /** @see ImapCommand#getName */
@@ -47,6 +49,20 @@ class CheckCommand extends SelectedStateCommand
     public String getArgSyntax()
     {
         return ARGS;
+    }
+    
+    private static class CheckCommandParser extends CommandParser {
+
+        public CheckCommandParser(ImapCommand command) {
+            super(command);
+        }
+
+        protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
+            endLine( request );
+            final CompleteCommandMessage result = new CompleteCommandMessage(command, false, tag);
+            return result;
+        }
+        
     }
 }
 

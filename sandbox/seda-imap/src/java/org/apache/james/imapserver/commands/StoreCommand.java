@@ -34,7 +34,7 @@ class StoreCommand extends SelectedStateCommand implements UidEnabledCommand
     public static final String NAME = "STORE";
     public static final String ARGS = "<Message-set> ['+'|'-']FLAG[.SILENT] <flag-list>";
 
-    private StoreCommandParser parser = new StoreCommandParser();
+    private StoreCommandParser parser = new StoreCommandParser(this);
     
     /** @see ImapCommand#getName */
     public String getName()
@@ -48,8 +48,12 @@ class StoreCommand extends SelectedStateCommand implements UidEnabledCommand
         return ARGS;
     }
 
-    private static class StoreCommandParser extends CommandParser
+    private static class StoreCommandParser extends UidCommandParser
     {
+        public StoreCommandParser(ImapCommand command) {
+            super(command);
+        }
+
         StoreDirective storeDirective( ImapRequestLineReader request ) throws ProtocolException
         {
             int sign = 0;
@@ -80,6 +84,16 @@ class StoreCommand extends SelectedStateCommand implements UidEnabledCommand
             }
             return new StoreDirective( sign, silent );
         }
+
+        protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag, boolean useUids) throws ProtocolException {
+            final IdRange[] idSet = parseIdRange( request );
+            final StoreDirective directive = storeDirective( request );
+            final Flags flags = flagList( request );
+            endLine( request );
+            final StoreCommandMessage result = 
+                new StoreCommandMessage(command, idSet, directive, flags, useUids, tag);
+            return result;
+        }
     }
 
     protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
@@ -87,12 +101,8 @@ class StoreCommand extends SelectedStateCommand implements UidEnabledCommand
     }
 
     public AbstractImapCommandMessage decode(ImapRequestLineReader request, boolean useUids, String tag) throws ProtocolException {
-        
-        final IdRange[] idSet = parser.parseIdRange( request );
-        final StoreDirective directive = parser.storeDirective( request );
-        final Flags flags = parser.flagList( request );
-        parser.endLine( request );
-        return new StoreCommandMessage(this, idSet, directive, flags, useUids, tag);
+        final AbstractImapCommandMessage result = parser.decode(this, request, tag, useUids);
+        return result;
     }
 }
 /*

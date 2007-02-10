@@ -18,32 +18,21 @@
  ****************************************************************/
 package org.apache.james.imapserver.commands;
 
-import org.apache.james.imapserver.AuthorizationException;
+import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
-import org.apache.james.imapserver.ProtocolException;
 import org.apache.james.imapserver.store.MailboxException;
-import org.apache.james.mailboxmanager.MailboxManagerException;
-import org.apache.james.mailboxmanager.MessageResult;
-import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
-import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 
-class CloseCommandMessage extends AbstractImapCommandMessage {
-    
-    public CloseCommandMessage(final ImapCommand command, final String tag) {
-        super(tag, command);
-    }
-    
-    protected ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-        ImapMailboxSession mailbox = session.getSelected().getMailbox();
-        if ( session.getSelected().getMailbox().isWriteable() ) {
-            try {
-                mailbox.expunge(GeneralMessageSetImpl.all(),MessageResult.NOTHING);
-            } catch (MailboxManagerException e) {
-               throw new MailboxException(e);
-            }
+class CloseResponseMessage extends AbstractCommandResponseMessage {
+        public CloseResponseMessage(ImapCommand command, String tag) {
+            super(command, tag);
         }
-        session.deselect();
-        final CloseResponseMessage result = new CloseResponseMessage(command, tag);
-        return result;
+
+        void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
+            //TODO: the following comment was present in the code before refactoring
+            //TODO: doesn't seem to match the implementation
+            //TODO: check that implementation is correct
+//          Don't send unsolicited responses on close.
+            session.unsolicitedResponses( response, false );
+            response.commandComplete( command , tag);
+        }
     }
-}

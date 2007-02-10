@@ -32,6 +32,8 @@ class NoopCommand extends CommandTemplate
     public static final String NAME = "NOOP";
     public static final String ARGS = null;
     
+    private final NoopCommandParser parser = new NoopCommandParser(this);
+    
     /** @see ImapCommand#getName */
     public String getName()
     {
@@ -45,8 +47,22 @@ class NoopCommand extends CommandTemplate
     }
 
     protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
-        parser.endLine( request );
-        return new CompleteCommandMessage(this, false, tag);
+        final AbstractImapCommandMessage result = parser.decode(request, tag);
+        return result;
+    }
+    
+    private static class NoopCommandParser extends CommandParser {
+
+        public NoopCommandParser(ImapCommand command) {
+            super(command);
+        }
+
+        protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
+            endLine( request );
+            final CompleteCommandMessage result = new CompleteCommandMessage(command, false, tag);
+            return result;
+        }
+        
     }
 }
 

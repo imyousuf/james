@@ -34,9 +34,10 @@ class CapabilityCommand extends CommandTemplate
 
     public static final String CAPABILITY_RESPONSE = NAME + SP + VERSION + SP + CAPABILITIES;
 
+    private final CapabilityCommandParser parser = new CapabilityCommandParser(this);
+    
     protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
-        parser.endLine( request );
-        final CapabilityCommandMessage result = new CapabilityCommandMessage(this, tag);
+        final AbstractImapCommandMessage result = parser.decode(request, tag);
         return result;
     }
 
@@ -50,6 +51,20 @@ class CapabilityCommand extends CommandTemplate
     public String getArgSyntax()
     {
         return ARGS;
+    }
+    
+    private static class CapabilityCommandParser extends CommandParser {
+
+        public CapabilityCommandParser(ImapCommand command) {
+            super(command);
+        }
+
+        protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
+            endLine( request );
+            final CapabilityCommandMessage result = new CapabilityCommandMessage(command, tag);
+            return result;
+        }
+        
     }
 }
 

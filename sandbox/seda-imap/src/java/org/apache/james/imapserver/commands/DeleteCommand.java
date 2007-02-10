@@ -31,6 +31,8 @@ class DeleteCommand extends AuthenticatedStateCommand
 {
     public static final String NAME = "DELETE";
     public static final String ARGS = "<mailbox>";
+    
+    private final DeleteCommandParser parser = new DeleteCommandParser(this);
 
     /** @see ImapCommand#getName */
     public String getName()
@@ -45,11 +47,24 @@ class DeleteCommand extends AuthenticatedStateCommand
     }
 
     protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
-        String mailboxName = parser.mailbox( request );
-        parser.endLine( request );
-        final DeleteCommandMessage result = 
-            new DeleteCommandMessage( this, mailboxName, tag );
+        final AbstractImapCommandMessage result = parser.decode(request, tag);
         return result;
+    }
+    
+    private static class DeleteCommandParser extends CommandParser {
+
+        public DeleteCommandParser(ImapCommand command) {
+            super(command);
+        }
+
+        protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
+            String mailboxName = mailbox( request );
+            endLine( request );
+            final DeleteCommandMessage result = 
+                new DeleteCommandMessage( command, mailboxName, tag );
+            return result;
+        }
+        
     }
 }
 

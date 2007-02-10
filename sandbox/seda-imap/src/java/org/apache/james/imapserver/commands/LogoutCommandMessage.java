@@ -22,28 +22,16 @@ import org.apache.james.imapserver.AuthorizationException;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
 import org.apache.james.imapserver.store.MailboxException;
-import org.apache.james.mailboxmanager.MailboxManagerException;
-import org.apache.james.mailboxmanager.MessageResult;
-import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
-import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 
-class CloseCommandMessage extends AbstractImapCommandMessage {
-    
-    public CloseCommandMessage(final ImapCommand command, final String tag) {
+class LogoutCommandMessage extends AbstractImapCommandMessage {
+
+    public LogoutCommandMessage(final ImapCommand command, final String tag) {
         super(tag, command);
     }
     
     protected ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-        ImapMailboxSession mailbox = session.getSelected().getMailbox();
-        if ( session.getSelected().getMailbox().isWriteable() ) {
-            try {
-                mailbox.expunge(GeneralMessageSetImpl.all(),MessageResult.NOTHING);
-            } catch (MailboxManagerException e) {
-               throw new MailboxException(e);
-            }
-        }
-        session.deselect();
-        final CloseResponseMessage result = new CloseResponseMessage(command, tag);
+        final LogoutResponseMessage result = new LogoutResponseMessage(command, tag);
         return result;
     }
+    
 }
