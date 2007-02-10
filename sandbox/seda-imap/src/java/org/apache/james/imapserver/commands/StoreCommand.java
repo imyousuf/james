@@ -48,7 +48,7 @@ class StoreCommand extends SelectedStateCommand implements UidEnabledCommand
         return ARGS;
     }
 
-    private class StoreCommandParser extends CommandParser
+    private static class StoreCommandParser extends CommandParser
     {
         StoreDirective storeDirective( ImapRequestLineReader request ) throws ProtocolException
         {

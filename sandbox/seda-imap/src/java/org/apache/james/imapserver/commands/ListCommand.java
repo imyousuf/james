@@ -47,7 +47,7 @@ class ListCommand extends AuthenticatedStateCommand
         return ARGS;
     }
 
-    private class ListCommandParser extends CommandParser
+    private static class ListCommandParser extends CommandParser
     {
         /**
          * Reads an argument of type "list_mailbox" from the request, which is

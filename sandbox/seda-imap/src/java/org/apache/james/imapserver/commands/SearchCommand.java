@@ -49,7 +49,7 @@ class SearchCommand extends SelectedStateCommand implements UidEnabledCommand
         return ARGS;
     }
 
-    private class SearchCommandParser extends CommandParser
+    private static class SearchCommandParser extends CommandParser
     {
         /**
          * Parses the request argument into a valid search term.

@@ -73,7 +73,7 @@ class AppendCommand extends AuthenticatedStateCommand
         return ARGS;
     }
 
-    private class AppendCommandParser extends CommandParser
+    private static class AppendCommandParser extends CommandParser
     {        
         /**
          * If the next character in the request is a '(', tries to read
