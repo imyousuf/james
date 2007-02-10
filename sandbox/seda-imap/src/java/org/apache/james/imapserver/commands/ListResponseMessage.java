@@ -16,28 +16,36 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
 package org.apache.james.imapserver.commands;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
-/**
- * @version $Revision: 109034 $
- */
-class LsubCommand extends ListCommand
-{
-    public static final String NAME = "LSUB";
+import org.apache.james.imapserver.ImapResponse;
+import org.apache.james.imapserver.ImapSession;
+import org.apache.james.imapserver.store.MailboxException;
 
-
-
-    /** @see ImapCommand#getName */
-    public String getName()
-    {
-        return NAME;
+class ListResponseMessage extends AbstractCommandResponseMessage {
+    private List messages = new ArrayList();
+    
+    public ListResponseMessage(final ImapCommand command, final String tag) {
+        super(command, tag);
     }
     
-    
-    
-    protected ListCommandMessage createMessage(String referenceName, String mailboxPattern, String tag) {
-        return new LsubListCommandMessage(this, referenceName, mailboxPattern, tag);
+    public void addMessageData(String message) {
+        // TODO: this isn't efficient
+        // TODO: better to stream results
+        messages.add(message);
     }
+    
+    void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
+        for (final Iterator it=messages.iterator();it.hasNext();) {
+            String message = (String) it.next();
+            response.commandResponse(command, message);
+        }
+        session.unsolicitedResponses( response, false );
+        response.commandComplete( command, tag );
+    }
+    
 }

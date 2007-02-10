@@ -19,16 +19,11 @@
 
 package org.apache.james.imapserver.commands;
 
-import org.apache.james.imapserver.AuthorizationException;
 import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
 import org.apache.james.imapserver.store.MailboxException;
-import org.apache.james.mailboxmanager.MailboxManagerException;
-import org.apache.james.mailboxmanager.MessageResult;
-import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
-import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 
 /**
  * Handles processeing for the CHECK imap command.
@@ -40,7 +35,7 @@ class CloseCommand extends SelectedStateCommand
     public static final String NAME = "CLOSE";
     public static final String ARGS = null;
 
-    private static class CloseResponseMessage extends AbstractCommandResponseMessage {
+    static class CloseResponseMessage extends AbstractCommandResponseMessage {
         public CloseResponseMessage(ImapCommand command, String tag) {
             super(command, tag);
         }
@@ -52,27 +47,6 @@ class CloseCommand extends SelectedStateCommand
 //          Don't send unsolicited responses on close.
             session.unsolicitedResponses( response, false );
             response.commandComplete( command , tag);
-        }
-    }
-    
-    private static class CloseCommandMessage extends AbstractImapCommandMessage {
-        
-        public CloseCommandMessage(final ImapCommand command, final String tag) {
-            super(tag, command);
-        }
-        
-        protected ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-            ImapMailboxSession mailbox = session.getSelected().getMailbox();
-            if ( session.getSelected().getMailbox().isWriteable() ) {
-                try {
-                    mailbox.expunge(GeneralMessageSetImpl.all(),MessageResult.NOTHING);
-                } catch (MailboxManagerException e) {
-                   throw new MailboxException(e);
-                }
-            }
-            session.deselect();
-            final CloseResponseMessage result = new CloseResponseMessage(command, tag);
-            return result;
         }
     }
     

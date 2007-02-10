@@ -16,37 +16,35 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
 package org.apache.james.imapserver.commands;
 
-import org.apache.james.imapserver.ImapRequestLineReader;
+import org.apache.james.imapserver.AuthorizationException;
+import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
+import org.apache.james.imapserver.commands.CloseCommand.CloseResponseMessage;
+import org.apache.james.imapserver.store.MailboxException;
+import org.apache.james.mailboxmanager.MailboxManagerException;
+import org.apache.james.mailboxmanager.MessageResult;
+import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
+import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 
-/**
- * Handles processeing for the SUBSCRIBE imap command.
- *
- * @version $Revision: 109034 $
- */
-class SubscribeCommand extends AuthenticatedStateCommand {
-    public static final String NAME = "SUBSCRIBE";
-    public static final String ARGS = "<mailbox>";
-
-    /** @see ImapCommand#getName */
-    public String getName() {
-        return NAME;
+class CloseCommandMessage extends AbstractImapCommandMessage {
+    
+    public CloseCommandMessage(final ImapCommand command, final String tag) {
+        super(tag, command);
     }
-
-    /** @see CommandTemplate#getArgSyntax */
-    public String getArgSyntax() {
-        return ARGS;
-    }
-
-    protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
-        final String mailboxName = parser.mailbox( request );
-        parser.endLine( request );
-        
-        final SubscribeCommandMessage result = 
-            new SubscribeCommandMessage(this, mailboxName, tag);
+    
+    protected ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
+        ImapMailboxSession mailbox = session.getSelected().getMailbox();
+        if ( session.getSelected().getMailbox().isWriteable() ) {
+            try {
+                mailbox.expunge(GeneralMessageSetImpl.all(),MessageResult.NOTHING);
+            } catch (MailboxManagerException e) {
+               throw new MailboxException(e);
+            }
+        }
+        session.deselect();
+        final CloseResponseMessage result = new CloseResponseMessage(command, tag);
         return result;
     }
 }

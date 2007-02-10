@@ -19,12 +19,8 @@
 
 package org.apache.james.imapserver.commands;
 
-import org.apache.james.imapserver.AuthorizationException;
 import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
-import org.apache.james.imapserver.store.MailboxException;
-import org.apache.james.services.User;
 
 
 /**
@@ -54,31 +50,6 @@ class LoginCommand extends NonAuthenticatedStateCommand
         final String password = parser.astring( request );
         parser.endLine( request );
         return new LoginCommandMessage(this, userid, password, tag);
-    }
-    
-    private static class LoginCommandMessage extends AbstractImapCommandMessage {
-        private final String userid;
-        private final String password;
-        
-        public LoginCommandMessage(final ImapCommand command, final String userid, final String password, String tag) {
-            super(tag, command);
-            this.userid = userid;
-            this.password = password;
-        }
-
-        protected ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-            ImapResponseMessage result;
-            if ( session.getUsers().test( userid, password ) ) {
-                User user = session.getUsers().getUserByName( userid );
-                session.setAuthenticated( user );
-                result = CommandCompleteResponseMessage.createWithNoUnsolictedResponses(command, tag);
-            }
-            else {
-                result = new CommandFailedResponseMessage( command, "Invalid login/password", tag );
-            }
-            return result;
-        }
-        
     }
 }
 

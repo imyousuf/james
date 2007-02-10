@@ -19,12 +19,8 @@
 
 package org.apache.james.imapserver.commands;
 
-import org.apache.james.imapserver.AuthorizationException;
 import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
-import org.apache.james.imapserver.store.MailboxException;
-import org.apache.james.mailboxmanager.MailboxManagerException;
 
 /**
  * Handles processeing for the DELETE imap command.
@@ -54,35 +50,6 @@ class DeleteCommand extends AuthenticatedStateCommand
         final DeleteCommandMessage result = 
             new DeleteCommandMessage( this, mailboxName, tag );
         return result;
-    }
-    
-    private static class DeleteCommandMessage extends AbstractImapCommandMessage {
-        private final String mailboxName;
-        public DeleteCommandMessage(final ImapCommand command, final String mailboxName, final String tag) {
-            super(tag, command);
-            this.mailboxName = mailboxName;
-        }
-        
-        protected ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-            try {
-                final String fullMailboxName = session.buildFullName(this.mailboxName);
-                if (session.getSelected() != null) {
-                    if (session.getSelected().getMailbox().getName().equals(
-                            fullMailboxName)) {
-                        session.deselect();
-                    }
-                }
-                session.getMailboxManager().deleteMailbox(fullMailboxName);
-            } catch (MailboxManagerException e) {
-                throw new MailboxException(e);
-            }
-
-            final CommandCompleteResponseMessage result = 
-                new CommandCompleteResponseMessage(false, command, tag);
-            return result;
-        }
-
-
     }
 }
 

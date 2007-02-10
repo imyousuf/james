@@ -16,37 +16,39 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
 package org.apache.james.imapserver.commands;
 
-import org.apache.james.imapserver.ImapRequestLineReader;
+import org.apache.james.imapserver.AuthorizationException;
+import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
+import org.apache.james.imapserver.store.MailboxException;
+import org.apache.james.mailboxmanager.MailboxManagerException;
 
-/**
- * Handles processeing for the SUBSCRIBE imap command.
- *
- * @version $Revision: 109034 $
- */
-class SubscribeCommand extends AuthenticatedStateCommand {
-    public static final String NAME = "SUBSCRIBE";
-    public static final String ARGS = "<mailbox>";
-
-    /** @see ImapCommand#getName */
-    public String getName() {
-        return NAME;
+class DeleteCommandMessage extends AbstractImapCommandMessage {
+    private final String mailboxName;
+    public DeleteCommandMessage(final ImapCommand command, final String mailboxName, final String tag) {
+        super(tag, command);
+        this.mailboxName = mailboxName;
     }
+    
+    protected ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
+        try {
+            final String fullMailboxName = session.buildFullName(this.mailboxName);
+            if (session.getSelected() != null) {
+                if (session.getSelected().getMailbox().getName().equals(
+                        fullMailboxName)) {
+                    session.deselect();
+                }
+            }
+            session.getMailboxManager().deleteMailbox(fullMailboxName);
+        } catch (MailboxManagerException e) {
+            throw new MailboxException(e);
+        }
 
-    /** @see CommandTemplate#getArgSyntax */
-    public String getArgSyntax() {
-        return ARGS;
-    }
-
-    protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
-        final String mailboxName = parser.mailbox( request );
-        parser.endLine( request );
-        
-        final SubscribeCommandMessage result = 
-            new SubscribeCommandMessage(this, mailboxName, tag);
+        final CommandCompleteResponseMessage result = 
+            new CommandCompleteResponseMessage(false, command, tag);
         return result;
     }
+
+
 }

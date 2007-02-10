@@ -16,28 +16,25 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
 package org.apache.james.imapserver.commands;
 
-
-/**
- * @version $Revision: 109034 $
- */
-class LsubCommand extends ListCommand
+class BodyFetchElement
 {
-    public static final String NAME = "LSUB";
+    private String name;
+    private String sectionIdentifier;
 
-
-
-    /** @see ImapCommand#getName */
-    public String getName()
+    public BodyFetchElement( String name, String sectionIdentifier)
     {
-        return NAME;
+        this.name = name;
+        this.sectionIdentifier = sectionIdentifier;
     }
-    
-    
-    
-    protected ListCommandMessage createMessage(String referenceName, String mailboxPattern, String tag) {
-        return new LsubListCommandMessage(this, referenceName, mailboxPattern, tag);
+
+    public String getParameters()
+    {
+        return this.sectionIdentifier;
+    }
+
+    public String getResponseName() {
+        return this.name;
     }
 }

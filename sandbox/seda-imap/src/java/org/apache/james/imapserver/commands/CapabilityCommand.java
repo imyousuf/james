@@ -19,12 +19,8 @@
 
 package org.apache.james.imapserver.commands;
 
-import org.apache.james.imapserver.AuthorizationException;
 import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ImapResponse;
-import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
-import org.apache.james.imapserver.store.MailboxException;
 
 /**
  * Handles processeing for the CAPABILITY imap command.
@@ -54,32 +50,6 @@ class CapabilityCommand extends CommandTemplate
     public String getArgSyntax()
     {
         return ARGS;
-    }
-    
-    private static class CapabilityReponseMessage extends AbstractCommandResponseMessage {
-
-        public CapabilityReponseMessage(ImapCommand command, String tag) {
-            super(command, tag);
-        }
-
-        void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
-            response.untaggedResponse( CAPABILITY_RESPONSE );
-            session.unsolicitedResponses( response, false);
-            response.commandComplete( command , tag );            
-        }
-        
-    }
-    
-    private static class CapabilityCommandMessage extends AbstractImapCommandMessage {
-
-        public CapabilityCommandMessage(final ImapCommand command, final String tag) {
-            super(tag, command);
-        }
-        
-        protected ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-            final CapabilityReponseMessage result = new CapabilityReponseMessage(command, tag);
-            return result;
-        }
     }
 }
 

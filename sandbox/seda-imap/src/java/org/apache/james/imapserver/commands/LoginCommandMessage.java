@@ -16,28 +16,35 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
 package org.apache.james.imapserver.commands;
 
+import org.apache.james.imapserver.AuthorizationException;
+import org.apache.james.imapserver.ImapSession;
+import org.apache.james.imapserver.ProtocolException;
+import org.apache.james.imapserver.store.MailboxException;
+import org.apache.james.services.User;
 
-/**
- * @version $Revision: 109034 $
- */
-class LsubCommand extends ListCommand
-{
-    public static final String NAME = "LSUB";
+class LoginCommandMessage extends AbstractImapCommandMessage {
+    private final String userid;
+    private final String password;
+    
+    public LoginCommandMessage(final ImapCommand command, final String userid, final String password, String tag) {
+        super(tag, command);
+        this.userid = userid;
+        this.password = password;
+    }
 
-
-
-    /** @see ImapCommand#getName */
-    public String getName()
-    {
-        return NAME;
+    protected ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
+        ImapResponseMessage result;
+        if ( session.getUsers().test( userid, password ) ) {
+            User user = session.getUsers().getUserByName( userid );
+            session.setAuthenticated( user );
+            result = CommandCompleteResponseMessage.createWithNoUnsolictedResponses(command, tag);
+        }
+        else {
+            result = new CommandFailedResponseMessage( command, "Invalid login/password", tag );
+        }
+        return result;
     }
     
-    
-    
-    protected ListCommandMessage createMessage(String referenceName, String mailboxPattern, String tag) {
-        return new LsubListCommandMessage(this, referenceName, mailboxPattern, tag);
-    }
 }

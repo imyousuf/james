@@ -19,12 +19,8 @@
 
 package org.apache.james.imapserver.commands;
 
-import org.apache.james.imapserver.AuthorizationException;
 import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
-import org.apache.james.imapserver.store.MailboxException;
-import org.apache.james.mailboxmanager.MailboxManagerException;
 
 /**
  * Handles processeing for the CREATE imap command.
@@ -53,25 +49,6 @@ class CreateCommand extends AuthenticatedStateCommand
         parser.endLine( request );
         final CreateCommandMessage result = new CreateCommandMessage(this, mailboxName, tag);
         return result;
-    }
-
-    private static class CreateCommandMessage extends AbstractImapCommandMessage {
-        private final String mailboxName;
-        public CreateCommandMessage(final ImapCommand command, final String mailboxName, final String tag) {
-            super(tag, command);
-            this.mailboxName = mailboxName;
-        }
-        
-        protected ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-            try {
-
-                final String fullMailboxName=session.buildFullName(this.mailboxName);
-                session.getMailboxManager().createMailbox(fullMailboxName );
-            } catch (MailboxManagerException e) {
-               throw new MailboxException(e);
-            }
-            return new CommandCompleteResponseMessage(false, command, tag);
-        }
     }
 }
 

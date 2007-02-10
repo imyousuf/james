@@ -19,17 +19,9 @@
 
 package org.apache.james.imapserver.commands;
 
-import javax.mail.Flags;
 
-import org.apache.james.imapserver.AuthorizationException;
 import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ImapResponse;
-import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
-import org.apache.james.imapserver.store.MailboxException;
-import org.apache.james.mailboxmanager.MailboxManagerException;
-import org.apache.james.mailboxmanager.MessageResult;
-import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 
 /**
  * Handles processeing for the SELECT imap command.
@@ -69,93 +61,6 @@ class SelectCommand extends AuthenticatedStateCommand
         parser.endLine( request );
         final SelectCommandMessage result = new SelectCommandMessage(this, mailboxName, isExamine, tag);
         return result;
-    }
-    
-    private static class SelectCommandMessage extends AbstractImapCommandMessage {
-        private final String mailboxName;
-        private final boolean isExamine;
-        
-        public SelectCommandMessage(final ImapCommand command, final String mailboxName, final boolean isExamine,
-                final String tag) {
-            super(tag, command);
-            this.mailboxName = mailboxName;
-            this.isExamine = isExamine;
-        }
-
-        protected ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-            ImapResponseMessage result;
-            session.deselect();
-            try {
-                String fullMailboxName=session.buildFullName(this.mailboxName);
-                selectMailbox(fullMailboxName, session, isExamine);
-                ImapMailboxSession mailbox = session.getSelected().getMailbox();
-                final Flags permanentFlags = mailbox.getPermanentFlags();
-                final boolean writeable = mailbox.isWriteable();
-                final boolean resetRecent = !isExamine;
-                final int recentCount = mailbox.getRecentCount(resetRecent);
-                final long uidValidity = mailbox.getUidValidity();
-                final MessageResult firstUnseen = mailbox.getFirstUnseen(MessageResult.MSN);
-                final int messageCount = mailbox.getMessageCount();
-                result = new SelectResponseMessage(command, permanentFlags, 
-                        writeable, recentCount, uidValidity, firstUnseen, messageCount,
-                        tag);
-            } catch (MailboxManagerException e) {
-                throw new MailboxException(e);
-            }
-            return result;
-        }
-        
-        private boolean selectMailbox(String mailboxName, ImapSession session, boolean readOnly) throws MailboxException, MailboxManagerException {
-            ImapMailboxSession mailbox = session.getMailboxManager().getImapMailboxSession(mailboxName);
-
-            if ( !mailbox.isSelectable() ) {
-                throw new MailboxException( "Nonselectable mailbox." );
-            }
-
-            session.setSelected( mailbox, readOnly );
-            return readOnly;
-        }
-    }
-    
-    private static class SelectResponseMessage extends AbstractCommandResponseMessage {
-        private final Flags permanentFlags;
-        private final boolean writeable ;
-        private final int recentCount;
-        private final long uidValidity;
-        private final MessageResult firstUnseen;
-        private final int messageCount;
-
-        public SelectResponseMessage(ImapCommand command, final Flags permanentFlags,
-                final boolean writeable, final int recentCount, 
-                final long uidValidity, final MessageResult firstUnseen,
-                final int messageCount, final String tag) {
-            super(command, tag);
-            this.permanentFlags = permanentFlags;
-            this.writeable = writeable;
-            this.recentCount = recentCount;
-            this.uidValidity = uidValidity;
-            this.firstUnseen = firstUnseen;
-            this.messageCount = messageCount;
-        }        
-        
-        void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
-            response.flagsResponse(permanentFlags);
-            response.recentResponse(recentCount);
-            response.okResponse("UIDVALIDITY " + uidValidity, null);
-            response.existsResponse(messageCount);
-            if (firstUnseen != null) {
-                response.okResponse("UNSEEN " + firstUnseen.getMsn(), "Message "
-                        + firstUnseen.getMsn() + " is the first unseen");
-            } else {
-                response.okResponse(null, "No messages unseen");
-            }
-            response.permanentFlagsResponse(permanentFlags);
-            if (!writeable) {
-                response.commandComplete(command, "READ-ONLY", tag);
-            } else {
-                response.commandComplete(command, "READ-WRITE", tag);
-            }
-        }
     }
 }
 

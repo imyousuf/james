@@ -16,28 +16,26 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
 package org.apache.james.imapserver.commands;
 
+import org.apache.james.imapserver.AuthorizationException;
+import org.apache.james.imapserver.ImapSession;
+import org.apache.james.imapserver.ProtocolException;
+import org.apache.james.imapserver.store.MailboxException;
 
-/**
- * @version $Revision: 109034 $
- */
-class LsubCommand extends ListCommand
-{
-    public static final String NAME = "LSUB";
+class AuthenticateCommandMessage extends AbstractImapCommandMessage {
 
-
-
-    /** @see ImapCommand#getName */
-    public String getName()
-    {
-        return NAME;
+    private final String authType;
+    
+    public AuthenticateCommandMessage(final ImapCommand command, final String authType, final String tag) {
+        super(tag, command);
+        this.authType = authType;
     }
     
-    
-    
-    protected ListCommandMessage createMessage(String referenceName, String mailboxPattern, String tag) {
-        return new LsubListCommandMessage(this, referenceName, mailboxPattern, tag);
+    protected ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
+        final CommandFailedResponseMessage result = new CommandFailedResponseMessage(command, 
+                            "Unsupported authentication mechanism '" + authType + "'", tag);
+        return result;
     }
+    
 }

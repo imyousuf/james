@@ -16,28 +16,20 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
 package org.apache.james.imapserver.commands;
 
+import org.apache.james.imapserver.ImapSession;
+import org.apache.james.imapserver.store.MailboxException;
+import org.apache.james.mailboxmanager.ListResult;
 
-/**
- * @version $Revision: 109034 $
- */
-class LsubCommand extends ListCommand
+class LsubListCommandMessage extends ListCommandMessage 
 {
-    public static final String NAME = "LSUB";
-
-
-
-    /** @see ImapCommand#getName */
-    public String getName()
-    {
-        return NAME;
+    public LsubListCommandMessage(ImapCommand command, String referenceName, String mailboxPattern, String tag) {
+        super(command, referenceName, mailboxPattern, tag);
     }
-    
-    
-    
-    protected ListCommandMessage createMessage(String referenceName, String mailboxPattern, String tag) {
-        return new LsubListCommandMessage(this, referenceName, mailboxPattern, tag);
+
+    protected ListResult[] doList( ImapSession session, String base, String pattern )  throws MailboxException
+    {
+        return doList(session,base,pattern,true);
     }
 }

@@ -16,28 +16,26 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
 package org.apache.james.imapserver.commands;
 
-
-/**
- * @version $Revision: 109034 $
- */
-class LsubCommand extends ListCommand
+class StoreDirective
 {
-    public static final String NAME = "LSUB";
+    private int sign;
+    private boolean silent;
 
-
-
-    /** @see ImapCommand#getName */
-    public String getName()
+    public StoreDirective( int sign, boolean silent )
     {
-        return NAME;
+        this.sign = sign;
+        this.silent = silent;
     }
-    
-    
-    
-    protected ListCommandMessage createMessage(String referenceName, String mailboxPattern, String tag) {
-        return new LsubListCommandMessage(this, referenceName, mailboxPattern, tag);
+
+    public int getSign()
+    {
+        return sign;
+    }
+
+    public boolean isSilent()
+    {
+        return silent;
     }
 }

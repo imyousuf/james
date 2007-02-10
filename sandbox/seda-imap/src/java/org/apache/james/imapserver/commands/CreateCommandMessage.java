@@ -16,28 +16,29 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
 package org.apache.james.imapserver.commands;
 
+import org.apache.james.imapserver.AuthorizationException;
+import org.apache.james.imapserver.ImapSession;
+import org.apache.james.imapserver.ProtocolException;
+import org.apache.james.imapserver.store.MailboxException;
+import org.apache.james.mailboxmanager.MailboxManagerException;
 
-/**
- * @version $Revision: 109034 $
- */
-class LsubCommand extends ListCommand
-{
-    public static final String NAME = "LSUB";
-
-
-
-    /** @see ImapCommand#getName */
-    public String getName()
-    {
-        return NAME;
+class CreateCommandMessage extends AbstractImapCommandMessage {
+    private final String mailboxName;
+    public CreateCommandMessage(final ImapCommand command, final String mailboxName, final String tag) {
+        super(tag, command);
+        this.mailboxName = mailboxName;
     }
     
-    
-    
-    protected ListCommandMessage createMessage(String referenceName, String mailboxPattern, String tag) {
-        return new LsubListCommandMessage(this, referenceName, mailboxPattern, tag);
+    protected ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
+        try {
+
+            final String fullMailboxName=session.buildFullName(this.mailboxName);
+            session.getMailboxManager().createMailbox(fullMailboxName );
+        } catch (MailboxManagerException e) {
+           throw new MailboxException(e);
+        }
+        return new CommandCompleteResponseMessage(false, command, tag);
     }
 }

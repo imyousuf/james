@@ -19,15 +19,8 @@
 
 package org.apache.james.imapserver.commands;
 
-import org.apache.james.imapserver.AuthorizationException;
 import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
-import org.apache.james.imapserver.store.MailboxException;
-import org.apache.james.mailboxmanager.MailboxManagerException;
-import org.apache.james.mailboxmanager.MessageResult;
-import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
-import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 
 /**
  * Handles processeing for the EXPUNGE imap command.
@@ -55,30 +48,6 @@ class ExpungeCommand extends SelectedStateCommand
         parser.endLine( request );
         final ExpungeCommandMessage result = new ExpungeCommandMessage(this, tag);
         return result;
-    }
-    
-    private static class ExpungeCommandMessage extends AbstractImapCommandMessage {
-
-        public ExpungeCommandMessage(final ImapCommand command, final String tag) {
-            super(tag, command);
-        }
-        
-        protected ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-            ImapResponseMessage result;
-            ImapMailboxSession mailbox = session.getSelected().getMailbox();
-            if (!mailbox.isWriteable()) {
-                result = new CommandFailedResponseMessage(command, "Mailbox selected read only.", tag );
-            } else {
-                try {
-                    mailbox.expunge(GeneralMessageSetImpl.all(),MessageResult.NOTHING);
-                    result = new CommandCompleteResponseMessage(false, command, tag);
-                } catch (MailboxManagerException e) {
-                    throw new MailboxException(e);
-                }
-            }
-            return result;
-        }
-        
     }
 }
 /*

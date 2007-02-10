@@ -19,15 +19,8 @@
 
 package org.apache.james.imapserver.commands;
 
-import org.apache.avalon.framework.logger.Logger;
-import org.apache.james.imapserver.AuthorizationException;
 import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ImapResponse;
-import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
-import org.apache.james.imapserver.store.MailboxException;
-import org.apache.james.mailboxmanager.MailboxManagerException;
-import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 
 /**
  * Handles processeing for the STATUS imap command.
@@ -39,11 +32,11 @@ class StatusCommand extends AuthenticatedStateCommand
     public static final String NAME = "STATUS";
     public static final String ARGS = "<mailbox> ( <status-data-item>+ )";
 
-    private static final String MESSAGES = "MESSAGES";
-    private static final String RECENT = "RECENT";
-    private static final String UIDNEXT = "UIDNEXT";
-    private static final String UIDVALIDITY = "UIDVALIDITY";
-    private static final String UNSEEN = "UNSEEN";
+    static final String MESSAGES = "MESSAGES";
+    static final String RECENT = "RECENT";
+    static final String UIDNEXT = "UIDNEXT";
+    static final String UIDVALIDITY = "UIDVALIDITY";
+    static final String UNSEEN = "UNSEEN";
 
     private StatusCommandParser parser = new StatusCommandParser();
 
@@ -106,15 +99,6 @@ class StatusCommand extends AuthenticatedStateCommand
         }
     }
 
-    private class StatusDataItems
-    {
-        boolean messages;
-        boolean recent;
-        boolean uidNext;
-        boolean uidValidity;
-        boolean unseen;
-    }
-
     protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
         final String mailboxName = parser.mailbox( request );
         final StatusDataItems statusDataItems = parser.statusDataItems( request );
@@ -122,98 +106,6 @@ class StatusCommand extends AuthenticatedStateCommand
         final StatusCommandMessage result = 
             new StatusCommandMessage(this, mailboxName, statusDataItems, tag);
         return result;
-    }
-    
-    private static class StatusCommandMessage extends AbstractImapCommandMessage {
-        private final String mailboxName;
-        private final StatusDataItems statusDataItems;
-        
-        public StatusCommandMessage(final ImapCommand command, final String mailboxName, final StatusDataItems statusDataItems, final String tag) {
-            super(tag, command);
-            this.mailboxName = mailboxName;
-            this.statusDataItems = statusDataItems;
-        }
-        
-        protected ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-            final Logger logger = getLogger(); 
-
-            StringBuffer buffer = new StringBuffer( mailboxName );
-            buffer.append( SP );
-            buffer.append( "(" );
-            try {
-                String fullMailboxName= session.buildFullName(mailboxName);
-                
-                if (logger != null && logger.isDebugEnabled()) { 
-                    logger.debug("Status called on mailbox named " + mailboxName + " (" + fullMailboxName + ")"); 
-                }
-                
-                ImapMailboxSession mailbox = session.getMailboxManager().getImapMailboxSession(fullMailboxName);
-                
-                if (statusDataItems.messages) {
-                    buffer.append(MESSAGES);
-                    buffer.append(SP);
-
-                    buffer.append(mailbox.getMessageCount());
-
-                    buffer.append(SP);
-                }
-
-                if (statusDataItems.recent) {
-                    buffer.append(RECENT);
-                    buffer.append(SP);
-                    buffer.append(mailbox.getRecentCount(false));
-                    buffer.append(SP);
-                }
-
-                if (statusDataItems.uidNext) {
-                    buffer.append(UIDNEXT);
-                    buffer.append(SP);
-                    buffer.append(mailbox.getUidNext());
-                    buffer.append(SP);
-                }
-
-                if (statusDataItems.uidValidity) {
-                    buffer.append(UIDVALIDITY);
-                    buffer.append(SP);
-                    buffer.append(mailbox.getUidValidity());
-                    buffer.append(SP);
-                }
-
-                if (statusDataItems.unseen) {
-                    buffer.append(UNSEEN);
-                    buffer.append(SP);
-                    buffer.append(mailbox.getUnseenCount());
-                    buffer.append(SP);
-                }
-            } catch (MailboxManagerException e) {
-                if (logger != null && logger.isDebugEnabled()) { 
-                    logger.debug("STATUS command failed: ", e); 
-                }
-                throw new MailboxException(e);
-            }
-            if ( buffer.charAt( buffer.length() - 1 ) == ' ' ) {
-                buffer.setLength( buffer.length() - 1 );
-            }
-            buffer.append(')');
-            final StatusResponseMessage result = 
-                new StatusResponseMessage(command, buffer.toString(), tag);
-            return result;
-        }
-    }
-    
-    private static class StatusResponseMessage extends AbstractCommandResponseMessage {
-        private final String message;
-        
-        public StatusResponseMessage(ImapCommand command, final String message, final String tag) {
-            super(command, tag);
-            this.message = message;
-        }
-
-        void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
-            response.commandResponse( command, message);
-            session.unsolicitedResponses( response, false );
-            response.commandComplete( command, tag );
-        }
     }
 }
 /*

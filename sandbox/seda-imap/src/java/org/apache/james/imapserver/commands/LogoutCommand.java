@@ -21,7 +21,6 @@ package org.apache.james.imapserver.commands;
 
 import org.apache.james.imapserver.AuthorizationException;
 import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
 import org.apache.james.imapserver.store.MailboxException;
@@ -65,24 +64,6 @@ class LogoutCommand extends CommandTemplate
             return result;
         }
         
-    }
-    
-    private static class LogoutResponseMessage extends AbstractCommandResponseMessage implements ImapCommandMessage {
-
-        public LogoutResponseMessage(final ImapCommand command, final String tag) {
-            super(command, tag);
-        }
-
-        void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
-            response.byeResponse( BYE_MESSAGE );
-            response.commandComplete( command, tag );
-            // TODO: think about how this will work with SEDA
-            session.closeConnection();            
-        }
-
-        public ImapResponseMessage process(ImapSession session) {
-            return this;
-        }
     }
 }
 

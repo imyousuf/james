@@ -16,28 +16,39 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
 package org.apache.james.imapserver.commands;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
-/**
- * @version $Revision: 109034 $
- */
-class LsubCommand extends ListCommand
+class FetchRequest
 {
-    public static final String NAME = "LSUB";
-
-
-
-    /** @see ImapCommand#getName */
-    public String getName()
-    {
-        return NAME;
+    boolean flags;
+    boolean uid;
+    boolean internalDate;
+    boolean size;
+    boolean envelope;
+    boolean body;
+    boolean bodyStructure;
+    
+    private boolean setSeen = false;
+    
+    private Set bodyElements = new HashSet();
+    
+    public Collection getBodyElements() {
+        return bodyElements;
     }
-    
-    
-    
-    protected ListCommandMessage createMessage(String referenceName, String mailboxPattern, String tag) {
-        return new LsubListCommandMessage(this, referenceName, mailboxPattern, tag);
+
+    public boolean isSetSeen() {
+        return setSeen;
+    }
+
+    public void add( BodyFetchElement element, boolean peek )
+    {
+        if (!peek) {
+            setSeen = true;
+        }
+        bodyElements.add(element);
     }
 }

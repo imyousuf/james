@@ -16,28 +16,29 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
 package org.apache.james.imapserver.commands;
 
+import org.apache.james.imapserver.ImapResponse;
+import org.apache.james.imapserver.ImapSession;
+import org.apache.james.imapserver.store.MailboxException;
 
-/**
- * @version $Revision: 109034 $
- */
-class LsubCommand extends ListCommand
-{
-    public static final String NAME = "LSUB";
-
-
-
-    /** @see ImapCommand#getName */
-    public String getName()
-    {
-        return NAME;
+class SearchResponseMessage extends AbstractCommandResponseMessage {
+    private final String idList;
+    private final boolean useUids;
+    
+    public SearchResponseMessage(final ImapCommand command, final String idList, 
+            final boolean useUids, final String tag) {
+        super(command, tag);
+        this.idList = idList;
+        this.useUids = useUids;
     }
     
-    
-    
-    protected ListCommandMessage createMessage(String referenceName, String mailboxPattern, String tag) {
-        return new LsubListCommandMessage(this, referenceName, mailboxPattern, tag);
+    void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
+        
+        response.commandResponse( command, idList );
+        boolean omitExpunged = (!useUids);
+        session.unsolicitedResponses( response, omitExpunged, useUids );
+        response.commandComplete( command, tag );  
     }
+    
 }

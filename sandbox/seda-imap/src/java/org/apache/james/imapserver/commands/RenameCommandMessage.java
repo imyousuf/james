@@ -16,17 +16,34 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
 package org.apache.james.imapserver.commands;
 
-import org.apache.james.imapserver.ImapRequestLineReader;
+import org.apache.james.imapserver.AuthorizationException;
+import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
+import org.apache.james.imapserver.store.MailboxException;
+import org.apache.james.mailboxmanager.MailboxManagerException;
 
-/**
- * @version $Revision: 109034 $
- */
-interface UidEnabledCommand
-{
-    AbstractImapCommandMessage decode(final ImapRequestLineReader request, 
-            final boolean useUids, String tag) throws ProtocolException;
+class RenameCommandMessage extends AbstractImapCommandMessage {
+    private final String existingName;
+    private final String newName;
+    
+    public RenameCommandMessage(final ImapCommand command, final String existingName, final String newName, 
+            final String tag) {
+        super(tag, command);
+        this.existingName = existingName;
+        this.newName = newName;
+    }
+
+    protected ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
+        try {
+            final String fullExistingName=session.buildFullName(this.existingName);
+            final String fullNewName=session.buildFullName(this.newName);
+            session.getMailboxManager().renameMailbox( fullExistingName, fullNewName );
+        } catch (MailboxManagerException e) {
+           throw new MailboxException(e);
+        }
+
+        return new CommandCompleteResponseMessage(false, command, tag);
+    }
 }

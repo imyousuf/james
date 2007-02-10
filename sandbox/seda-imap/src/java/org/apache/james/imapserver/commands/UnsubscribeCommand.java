@@ -19,12 +19,8 @@
 
 package org.apache.james.imapserver.commands;
 
-import org.apache.james.imapserver.AuthorizationException;
 import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
-import org.apache.james.imapserver.store.MailboxException;
-import org.apache.james.mailboxmanager.MailboxManagerException;
 
 /**
  * Handles processeing for the UNSUBSCRIBE imap command.
@@ -50,25 +46,5 @@ class UnsubscribeCommand extends AuthenticatedStateCommand
         final String mailboxName = parser.mailbox( request );
         parser.endLine( request );
         return new UnsubscribeCommandMessage(this, mailboxName, tag);
-    }
-    
-    private static class UnsubscribeCommandMessage extends AbstractImapCommandMessage {
-        private final String mailboxName;
-
-        public UnsubscribeCommandMessage(final ImapCommand command, final String mailboxName, final String tag) {
-            super(tag, command);
-            this.mailboxName = mailboxName;
-        }
-
-        protected ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-            try {
-                final String fullMailboxName=session.buildFullName(this.mailboxName);
-                session.getMailboxManager().setSubscription(fullMailboxName,false);
-            } catch (MailboxManagerException e) {
-                throw new MailboxException(e);
-            }
-            return new CommandCompleteResponseMessage(false, command, tag);
-        }
-        
     }
 }

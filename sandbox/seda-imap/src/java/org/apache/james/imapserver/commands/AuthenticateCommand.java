@@ -19,11 +19,8 @@
 
 package org.apache.james.imapserver.commands;
 
-import org.apache.james.imapserver.AuthorizationException;
 import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
-import org.apache.james.imapserver.store.MailboxException;
 
 /**
  * Handles processeing for the AUTHENTICATE imap command.
@@ -42,23 +39,6 @@ class AuthenticateCommand extends NonAuthenticatedStateCommand
         return result;
     }
 
-    private static class AuthenticateCommandMessage extends AbstractImapCommandMessage {
-
-        private final String authType;
-        
-        public AuthenticateCommandMessage(final ImapCommand command, final String authType, final String tag) {
-            super(tag, command);
-            this.authType = authType;
-        }
-        
-        protected ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-            final CommandFailedResponseMessage result = new CommandFailedResponseMessage(command, 
-                                "Unsupported authentication mechanism '" + authType + "'", tag);
-            return result;
-        }
-        
-    }
-    
     /** @see ImapCommand#getName */
     public String getName()
     {

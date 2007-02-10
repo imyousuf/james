@@ -22,16 +22,8 @@ package org.apache.james.imapserver.commands;
 import javax.mail.Message;
 import javax.mail.search.SearchTerm;
 
-import org.apache.james.imapserver.AuthorizationException;
 import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ImapResponse;
-import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
-import org.apache.james.imapserver.store.MailboxException;
-import org.apache.james.mailboxmanager.MailboxManagerException;
-import org.apache.james.mailboxmanager.MessageResult;
-import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
-import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 
 /**
  * Handles processeing for the SEARCH imap command.
@@ -99,72 +91,6 @@ class SearchCommand extends SelectedStateCommand implements UidEnabledCommand
         parser.endLine( request );
         final SearchImapCommand result = new SearchImapCommand(this, searchTerm, useUids, tag);
         return result;
-    }
-    
-    private static class SearchImapCommand extends AbstractImapCommandMessage {
-        private final SearchTerm searchTerm;
-        private final boolean useUids;
-
-        public SearchImapCommand(final ImapCommand command, final SearchTerm searchTerm, final boolean useUids,
-                final String tag) {
-            super(tag, command);
-            this.searchTerm = searchTerm;
-            this.useUids = useUids;
-        }
-
-        protected ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-            ImapMailboxSession mailbox = session.getSelected().getMailbox();
-            final int resultCode;
-            if (useUids) {
-                resultCode= MessageResult.UID;
-            } else {
-                resultCode= MessageResult.MSN;
-            }
-            MessageResult[] messageResults;
-            try {
-                messageResults = mailbox.search(GeneralMessageSetImpl.all(),searchTerm, resultCode);
-            } catch (MailboxManagerException e) {
-              throw new MailboxException(e);
-            }
-            // TODO: probably more efficient to stream data
-            // TODO: directly to response
-            StringBuffer idList = new StringBuffer();
-            for (int i = 0; i < messageResults.length; i++) {
-                if ( i > 0 ) {
-                    idList.append( SP );
-                }
-                if ( useUids ) {
-                    idList.append( messageResults[i].getUid());
-                } else {
-                    idList.append( messageResults[i].getMsn());
-                }
-            }
-            final SearchResponseMessage result = 
-                new SearchResponseMessage(command, idList.toString(), 
-                        useUids, tag);
-            return result;
-        }
-    }
-    
-    private static class SearchResponseMessage extends AbstractCommandResponseMessage {
-        private final String idList;
-        private final boolean useUids;
-        
-        public SearchResponseMessage(final ImapCommand command, final String idList, 
-                final boolean useUids, final String tag) {
-            super(command, tag);
-            this.idList = idList;
-            this.useUids = useUids;
-        }
-        
-        void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
-            
-            response.commandResponse( command, idList );
-            boolean omitExpunged = (!useUids);
-            session.unsolicitedResponses( response, omitExpunged, useUids );
-            response.commandComplete( command, tag );  
-        }
-        
     }
 }
 /*

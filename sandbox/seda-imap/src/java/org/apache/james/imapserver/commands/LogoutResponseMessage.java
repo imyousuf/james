@@ -16,28 +16,26 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
 package org.apache.james.imapserver.commands;
 
+import org.apache.james.imapserver.ImapResponse;
+import org.apache.james.imapserver.ImapSession;
+import org.apache.james.imapserver.store.MailboxException;
 
-/**
- * @version $Revision: 109034 $
- */
-class LsubCommand extends ListCommand
-{
-    public static final String NAME = "LSUB";
+class LogoutResponseMessage extends AbstractCommandResponseMessage implements ImapCommandMessage {
 
-
-
-    /** @see ImapCommand#getName */
-    public String getName()
-    {
-        return NAME;
+    public LogoutResponseMessage(final ImapCommand command, final String tag) {
+        super(command, tag);
     }
-    
-    
-    
-    protected ListCommandMessage createMessage(String referenceName, String mailboxPattern, String tag) {
-        return new LsubListCommandMessage(this, referenceName, mailboxPattern, tag);
+
+    void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
+        response.byeResponse( LogoutCommand.BYE_MESSAGE );
+        response.commandComplete( command, tag );
+        // TODO: think about how this will work with SEDA
+        session.closeConnection();            
+    }
+
+    public ImapResponseMessage process(ImapSession session) {
+        return this;
     }
 }
