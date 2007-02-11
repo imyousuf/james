@@ -850,10 +850,10 @@
     </target>
 
     <target name="run-unit-tests" depends="compile-unit-tests">
-        <echo message="Running James Unit Tests"/>
+        <echo message="Running James Unit Tests in directory ${basedir}"/>
         <mkdir dir="${build.test}"/>
-        <mkdir dir="${build.test.reports}"/>
-        <junit printsummary="yes" haltonfailure="yes"  >
+        <mkdir dir="${build.test.reports}"/>   
+        <junit printsummary="yes" haltonfailure="yes"  dir='${basedir}'>
             <classpath refid="unittest.class.path"/>
             <classpath refid="project.class.path"/>
             <classpath>
