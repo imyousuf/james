@@ -19,9 +19,6 @@
 
 package org.apache.james.imapserver.commands;
 
-import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ImapResponse;
-import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ImapSessionState;
 
 /**
@@ -43,19 +40,6 @@ public interface ImapCommand
      * @return <code>true</code> if the command is valid in this state.
      */
     boolean validForState( ImapSessionState state );
-
-    /**
-     * Performs all processing of the current Imap request. Reads command
-     * arguments from the request, performs processing, and writes responses
-     * back to the request object, which are sent to the client.
-     * @param request The current client request
-     * @param response The current server response
-     * @param session The current session
-     * @param tag TODO
-     */
-    void process( ImapRequestLineReader request,
-                  ImapResponse response,
-                  ImapSession session, String tag );
 
     /**
      * Provides the syntax for the command arguments if any. This value is used

@@ -21,18 +21,16 @@ package org.apache.james.imapserver.commands;
 import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ProtocolException;
 
-class SelectCommandParser extends CommandParser {
-    private final boolean isExamine;
+class SelectCommandParser extends AbstractImapCommandParser {
     
-    public SelectCommandParser(ImapCommand command, boolean isExamine) {
-        super(command);
-        this.isExamine = isExamine;
+    public SelectCommandParser() {
+        super(new SelectCommand());
     }
 
     protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
         final String mailboxName = mailbox( request );
         endLine( request );
-        final SelectCommandMessage result = new SelectCommandMessage(command, mailboxName, isExamine, tag);
+        final SelectCommandMessage result = new SelectCommandMessage(command, mailboxName, false, tag);
         return result;
     }
     

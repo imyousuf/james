@@ -19,8 +19,6 @@
 
 package org.apache.james.imapserver.commands;
 
-import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ProtocolException;
 
 /**
  * Handles processeing for the RENAME imap command.
@@ -31,8 +29,6 @@ class RenameCommand extends AuthenticatedStateCommand
 {
     public static final String NAME = "RENAME";
     public static final String ARGS = "existing-mailbox-name SPACE new-mailbox-name";
-
-    private final RenameCommandParser parser = new RenameCommandParser(this);
     
     /** @see ImapCommand#getName */
     public String getName()
@@ -44,11 +40,6 @@ class RenameCommand extends AuthenticatedStateCommand
     public String getArgSyntax()
     {
         return ARGS;
-    }
-
-    protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
-        final AbstractImapCommandMessage result = parser.decode(request, tag);
-        return result;
     }
 }
 

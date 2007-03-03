@@ -19,8 +19,6 @@
 
 package org.apache.james.imapserver.commands;
 
-import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ProtocolException;
 
 /**
  * Handles processeing for the LOGOUT imap command.
@@ -32,8 +30,6 @@ class LogoutCommand extends CommandTemplate
     public static final String NAME = "LOGOUT";
     public static final String ARGS = null;
     public static final String BYE_MESSAGE = VERSION + SP + "Server logging out";
-
-    private final LogoutCommandParser parser = new LogoutCommandParser(this);
     
     /** @see ImapCommand#getName */
     public String getName()
@@ -45,11 +41,6 @@ class LogoutCommand extends CommandTemplate
     public String getArgSyntax()
     {
         return ARGS;
-    }
-
-    protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
-        final AbstractImapCommandMessage result = parser.decode(request, tag);
-        return result;
     }
 }
 

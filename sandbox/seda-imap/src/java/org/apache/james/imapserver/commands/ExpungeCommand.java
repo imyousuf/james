@@ -19,8 +19,6 @@
 
 package org.apache.james.imapserver.commands;
 
-import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ProtocolException;
 
 /**
  * Handles processeing for the EXPUNGE imap command.
@@ -31,9 +29,7 @@ class ExpungeCommand extends SelectedStateCommand
 {
     public static final String NAME = "EXPUNGE";
     public static final String ARGS = null;
-    
-    private final ExpungeCommandParser parser = new ExpungeCommandParser(this);
-    
+
     /** @see ImapCommand#getName */
     public String getName()
     {
@@ -44,11 +40,6 @@ class ExpungeCommand extends SelectedStateCommand
     public String getArgSyntax()
     {
         return ARGS;
-    }
-
-    protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
-        final AbstractImapCommandMessage result = parser.decode(request, tag);
-        return result;
     }
 }
 /*

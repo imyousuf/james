@@ -19,8 +19,6 @@
 
 package org.apache.james.imapserver.commands;
 
-import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ProtocolException;
 
 /**
  * Handles processeing for the SUBSCRIBE imap command.
@@ -30,8 +28,6 @@ import org.apache.james.imapserver.ProtocolException;
 class SubscribeCommand extends AuthenticatedStateCommand {
     public static final String NAME = "SUBSCRIBE";
     public static final String ARGS = "<mailbox>";
-
-    private final SubscribeCommandParser parser = new SubscribeCommandParser(this);
     
     /** @see ImapCommand#getName */
     public String getName() {
@@ -41,10 +37,5 @@ class SubscribeCommand extends AuthenticatedStateCommand {
     /** @see CommandTemplate#getArgSyntax */
     public String getArgSyntax() {
         return ARGS;
-    }
-
-    protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
-        final AbstractImapCommandMessage result = parser.decode(request, tag);
-        return result;
     }
 }

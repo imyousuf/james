@@ -20,20 +20,16 @@
 package org.apache.james.imapserver.commands;
 
 
-import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ProtocolException;
 
 /**
  * Handles processeing for the STORE imap command.
  *
  * @version $Revision: 109034 $
  */
-class StoreCommand extends SelectedStateCommand implements UidEnabledCommand
+class StoreCommand extends SelectedStateCommand 
 {
     public static final String NAME = "STORE";
     public static final String ARGS = "<Message-set> ['+'|'-']FLAG[.SILENT] <flag-list>";
-
-    private StoreCommandParser parser = new StoreCommandParser(this);
     
     /** @see ImapCommand#getName */
     public String getName()
@@ -45,15 +41,6 @@ class StoreCommand extends SelectedStateCommand implements UidEnabledCommand
     public String getArgSyntax()
     {
         return ARGS;
-    }
-
-    protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
-        return decode(request, false, tag);
-    }
-
-    public AbstractImapCommandMessage decode(ImapRequestLineReader request, boolean useUids, String tag) throws ProtocolException {
-        final AbstractImapCommandMessage result = parser.decode(this, request, tag, useUids);
-        return result;
     }
 }
 /*

@@ -15,24 +15,11 @@
  * KIND, either express or implied.  See the License for the    *
  * specific language governing permissions and limitations      *
  * under the License.                                           *
- ****************************************************************/
-package org.apache.james.imapserver.commands;
+ ****************************************************************/ 
+package org.apache.james.imapserver;
 
-import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ProtocolException;
+import org.apache.james.imapserver.commands.ImapCommandMessage;
 
-class DeleteCommandParser extends AbstractImapCommandParser {
-
-    public DeleteCommandParser() {
-        super(new DeleteCommand());
-    }
-
-    protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
-        String mailboxName = mailbox( request );
-        endLine( request );
-        final DeleteCommandMessage result = 
-            new DeleteCommandMessage( command, mailboxName, tag );
-        return result;
-    }
-    
+public interface ImapDecoder {
+    public ImapCommandMessage decode(final ImapRequestLineReader request);
 }

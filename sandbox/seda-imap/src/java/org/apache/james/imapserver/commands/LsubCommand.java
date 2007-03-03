@@ -19,8 +19,6 @@
 
 package org.apache.james.imapserver.commands;
 
-import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ProtocolException;
 
 
 /**
@@ -30,16 +28,9 @@ class LsubCommand extends ListCommand
 {
     public static final String NAME = "LSUB";
 
-    private final LsubCommandParser parser = new LsubCommandParser(this);
-
     /** @see ImapCommand#getName */
     public String getName()
     {
         return NAME;
-    }
-    
-    protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
-        final AbstractImapCommandMessage result = parser.decode(request, tag);
-        return result;
     }
 }

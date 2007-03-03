@@ -32,39 +32,39 @@ import org.apache.avalon.framework.logger.Logger;
  *
  * @version $Revision: 109034 $
  */
-public class ImapCommandFactory
+public class ImapCommandParserFactory
         extends AbstractLogEnabled
 {
     private Map _imapCommands;
 
-    public ImapCommandFactory()
+    public ImapCommandParserFactory()
     {
         _imapCommands = new HashMap();
 
         // Commands valid in any state
         // CAPABILITY, NOOP, and LOGOUT
-        _imapCommands.put( CapabilityCommand.NAME, CapabilityCommand.class );
-        _imapCommands.put( NoopCommand.NAME, NoopCommand.class );
-        _imapCommands.put( LogoutCommand.NAME, LogoutCommand.class );
+        _imapCommands.put( CapabilityCommand.NAME, CapabilityCommandParser.class );
+        _imapCommands.put( NoopCommand.NAME, NoopCommandParser.class );
+        _imapCommands.put( LogoutCommand.NAME, LogoutCommandParser.class );
 
         // Commands valid in NON_AUTHENTICATED state.
         // AUTHENTICATE and LOGIN
-        _imapCommands.put( AuthenticateCommand.NAME, AuthenticateCommand.class );
-        _imapCommands.put( LoginCommand.NAME, LoginCommand.class );
+        _imapCommands.put( AuthenticateCommand.NAME, AuthenticateCommandParser.class );
+        _imapCommands.put( LoginCommand.NAME, LoginCommandParser.class );
 
         // Commands valid in AUTHENTICATED or SELECTED state.
         // RFC2060: SELECT, EXAMINE, CREATE, DELETE, RENAME, SUBSCRIBE, UNSUBSCRIBE, LIST, LSUB, STATUS, and APPEND
-        _imapCommands.put( SelectCommand.NAME, SelectCommand.class );
-        _imapCommands.put( ExamineCommand.NAME, ExamineCommand.class );
-        _imapCommands.put( CreateCommand.NAME, CreateCommand.class );
-        _imapCommands.put( DeleteCommand.NAME, DeleteCommand.class );
-        _imapCommands.put( RenameCommand.NAME, RenameCommand.class );
-        _imapCommands.put( SubscribeCommand.NAME, SubscribeCommand.class );
-        _imapCommands.put( UnsubscribeCommand.NAME, UnsubscribeCommand.class );
-        _imapCommands.put( ListCommand.NAME, ListCommand.class );
-        _imapCommands.put( LsubCommand.NAME, LsubCommand.class );
-        _imapCommands.put( StatusCommand.NAME, StatusCommand.class );
-        _imapCommands.put( AppendCommand.NAME, AppendCommand.class );
+        _imapCommands.put( SelectCommand.NAME, SelectCommandParser.class );
+        _imapCommands.put( ExamineCommand.NAME, ExamineCommandParser.class );
+        _imapCommands.put( CreateCommand.NAME, CreateCommandParser.class );
+        _imapCommands.put( DeleteCommand.NAME, DeleteCommandParser.class );
+        _imapCommands.put( RenameCommand.NAME, RenameCommandParser.class );
+        _imapCommands.put( SubscribeCommand.NAME, SubscribeCommandParser.class );
+        _imapCommands.put( UnsubscribeCommand.NAME, UnsubscribeCommandParser.class );
+        _imapCommands.put( ListCommand.NAME, ListCommandParser.class );
+        _imapCommands.put( LsubCommand.NAME, LsubCommandParser.class );
+        _imapCommands.put( StatusCommand.NAME, StatusCommandParser.class );
+        _imapCommands.put( AppendCommand.NAME, AppendCommandParser.class );
 
 //        // RFC2342 NAMESPACE
 //        _imapCommands.put( "NAMESPACE", NamespaceCommand.class );
@@ -79,17 +79,17 @@ public class ImapCommandFactory
 
         // Commands only valid in SELECTED state.
         // CHECK, CLOSE, EXPUNGE, SEARCH, FETCH, STORE, COPY, and UID
-        _imapCommands.put( CheckCommand.NAME, CheckCommand.class );
-        _imapCommands.put( CloseCommand.NAME, CloseCommand.class );
-        _imapCommands.put( ExpungeCommand.NAME, ExpungeCommand.class );
-        _imapCommands.put( CopyCommand.NAME, CopyCommand.class );
-        _imapCommands.put( SearchCommand.NAME, SearchCommand.class );
-        _imapCommands.put( FetchCommand.NAME, FetchCommand.class );
-        _imapCommands.put( StoreCommand.NAME, StoreCommand.class );
-        _imapCommands.put( UidCommand.NAME, UidCommand.class );
+        _imapCommands.put( CheckCommand.NAME, CheckCommandParser.class );
+        _imapCommands.put( CloseCommand.NAME, CloseCommandParser.class );
+        _imapCommands.put( ExpungeCommand.NAME, ExpungeCommandParser.class );
+        _imapCommands.put( CopyCommand.NAME, CopyCommandParser.class );
+        _imapCommands.put( SearchCommand.NAME, SearchCommandParser.class );
+        _imapCommands.put( FetchCommand.NAME, FetchCommandParser.class );
+        _imapCommands.put( StoreCommand.NAME, StoreCommandParser.class );
+        _imapCommands.put( UidCommand.NAME, UidCommandParser.class );
     }
 
-    public ImapCommand getCommand( String commandName )
+    public ImapCommandParser getParser( String commandName )
     {
         Class cmdClass = ( Class ) _imapCommands.get( commandName.toUpperCase() );
 
@@ -101,17 +101,18 @@ public class ImapCommandFactory
         }
     }
 
-    private ImapCommand createCommand( Class commandClass )
+    private ImapCommandParser createCommand( Class commandClass )
     {
         final Logger logger = getLogger(); 
         try {
-            ImapCommand cmd = ( ImapCommand ) commandClass.newInstance();
+            ImapCommandParser cmd = ( ImapCommandParser ) commandClass.newInstance();
             setupLogger(cmd);
             if (logger.isDebugEnabled()) {
                 logger.debug("Created command " + commandClass); 
             }
-            if ( cmd instanceof UidCommand ) {
-                ( ( UidCommand) cmd ).setCommandFactory( this );
+            // TODO: introduce interface
+            if ( cmd instanceof UidCommandParser ) {
+                ( ( UidCommandParser) cmd ).setCommandFactory( this );
             }
             return cmd;
         }

@@ -19,8 +19,6 @@
 
 package org.apache.james.imapserver.commands;
 
-import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ProtocolException;
 
 /**
  * Handles processeing for the UID imap command.
@@ -32,8 +30,6 @@ class UidCommand extends SelectedStateCommand
     public static final String NAME = "UID";
     public static final String ARGS = "<fetch-command>|<store-command>|<copy-command>|<search-command>";
 
-    private ImapCommandFactory commandFactory;
-
     /** @see ImapCommand#getName */
     public String getName()
     {
@@ -44,16 +40,5 @@ class UidCommand extends SelectedStateCommand
     public String getArgSyntax()
     {
         return ARGS;
-    }
-
-    public void setCommandFactory( ImapCommandFactory imapCommandFactory )
-    {
-        this.commandFactory = imapCommandFactory;
-    }
-
-    protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
-        UidCommandParser parser = new UidCommandParser(this, commandFactory);
-        final AbstractImapCommandMessage result = parser.decode(request, tag);
-        return result;
     }
 }

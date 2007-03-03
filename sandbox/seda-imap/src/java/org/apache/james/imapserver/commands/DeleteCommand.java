@@ -19,8 +19,6 @@
 
 package org.apache.james.imapserver.commands;
 
-import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ProtocolException;
 
 /**
  * Handles processeing for the DELETE imap command.
@@ -31,8 +29,6 @@ class DeleteCommand extends AuthenticatedStateCommand
 {
     public static final String NAME = "DELETE";
     public static final String ARGS = "<mailbox>";
-    
-    private final DeleteCommandParser parser = new DeleteCommandParser(this);
 
     /** @see ImapCommand#getName */
     public String getName()
@@ -44,11 +40,6 @@ class DeleteCommand extends AuthenticatedStateCommand
     public String getArgSyntax()
     {
         return ARGS;
-    }
-
-    protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
-        final AbstractImapCommandMessage result = parser.decode(request, tag);
-        return result;
     }
 }
 

@@ -19,8 +19,6 @@
 
 package org.apache.james.imapserver.commands;
 
-import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ProtocolException;
 
 /**
  * Handles processeing for the STATUS imap command.
@@ -38,8 +36,6 @@ class StatusCommand extends AuthenticatedStateCommand
     static final String UIDVALIDITY = "UIDVALIDITY";
     static final String UNSEEN = "UNSEEN";
 
-    private StatusCommandParser parser = new StatusCommandParser(this);
-
     /** @see ImapCommand#getName */
     public String getName()
     {
@@ -50,11 +46,6 @@ class StatusCommand extends AuthenticatedStateCommand
     public String getArgSyntax()
     {
         return ARGS;
-    }
-
-    protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
-        final AbstractImapCommandMessage result = parser.decode(request, tag);
-        return result;
     }
 }
 /*

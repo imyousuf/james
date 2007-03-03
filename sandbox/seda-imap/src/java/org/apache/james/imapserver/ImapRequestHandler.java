@@ -24,25 +24,25 @@ import java.io.OutputStream;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
-import org.apache.james.imapserver.commands.CommandParser;
-import org.apache.james.imapserver.commands.ImapCommand;
-import org.apache.james.imapserver.commands.ImapCommandFactory;
+import org.apache.james.imapserver.commands.ImapCommandMessage;
+import org.apache.james.imapserver.commands.ImapResponseMessage;
+import org.apache.james.imapserver.commands.StandardImapDecoder;
 import org.apache.james.imapserver.encode.OutputStreamImapResponseWriter;
 
 /**
  * @version $Revision: 109034 $
  */
 public final class ImapRequestHandler extends AbstractLogEnabled {
-    
-    private final ImapCommandFactory imapCommands = new ImapCommandFactory();
-    private static final String REQUEST_SYNTAX = "Protocol Error: Was expecting <tag SPACE command [arguments]>";
 
+    // TODO: inject depedency
+    private final ImapDecoder decoder = new StandardImapDecoder();
+    
     /**
      * @see org.apache.avalon.framework.logger.AbstractLogEnabled#enableLogging(org.apache.avalon.framework.logger.Logger)
      */
     public void enableLogging(Logger logger) { 
         super.enableLogging(logger);
-        setupLogger(imapCommands);
+        setupLogger(decoder);
     }
     
     /**
@@ -67,7 +67,7 @@ public final class ImapRequestHandler extends AbstractLogEnabled {
             request.nextChar();
         }
         catch ( ProtocolException e ) {
-            getLogger().debug("Cannot handling request: ", e);
+            getLogger().debug("Unexpected end of line. Cannot handle request: ", e);
             return false;
         }
 
@@ -87,44 +87,9 @@ public final class ImapRequestHandler extends AbstractLogEnabled {
                                    ImapResponse response,
                                    ImapSession session)
     {
-        String tag = null;
-        String commandName = null;
-
-        try {
-            tag = CommandParser.tag( request );
-        }
-        catch ( ProtocolException e ) {
-            getLogger().debug("error parsing request", e);
-            response.badResponse( REQUEST_SYNTAX );
-            return;
-        }
-
-        final Logger logger = getLogger(); 
-        if (logger.isDebugEnabled()) { 
-            logger.debug( "Got <tag>: " + tag );
-        }
-        
-        try {
-            commandName = CommandParser.atom( request );
-        }
-        catch ( ProtocolException e ) {
-            getLogger().debug("error parsing request", e);            
-            response.commandError( REQUEST_SYNTAX , tag);
-            return;
-        }
-
-        if (logger.isDebugEnabled()) { 
-            logger.debug( "Got <command>: " + commandName); 
-        }
-        
-        ImapCommand command = imapCommands.getCommand( commandName );
-        if ( command == null )
-        {
-            response.commandError( "Invalid command.", tag);
-            return;
-        }
-
-        command.process( request, response, session, tag );
+        ImapCommandMessage message = decoder.decode(request);
+        ImapResponseMessage responseMessage = message.process(session);
+        responseMessage.encode(response, session);
     }
 
 

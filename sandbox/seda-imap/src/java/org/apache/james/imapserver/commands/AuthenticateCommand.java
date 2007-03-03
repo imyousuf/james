@@ -19,8 +19,6 @@
 
 package org.apache.james.imapserver.commands;
 
-import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ProtocolException;
 
 /**
  * Handles processeing for the AUTHENTICATE imap command.
@@ -32,13 +30,6 @@ class AuthenticateCommand extends NonAuthenticatedStateCommand
     public static final String NAME = "AUTHENTICATE";
     public static final String ARGS = "<auth_type> *(CRLF base64)";
     
-    private final AuthenticateCommandParser parser = new AuthenticateCommandParser(this);
-    
-    protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
-        final AbstractImapCommandMessage result = parser.decode(request, tag);
-        return result;
-    }
-
     /** @see ImapCommand#getName */
     public String getName()
     {

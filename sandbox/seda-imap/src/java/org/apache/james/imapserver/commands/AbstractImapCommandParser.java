@@ -27,25 +27,53 @@ import java.util.Date;
 
 import javax.mail.Flags;
 
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.imapserver.ImapConstants;
 import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ProtocolException;
 import org.apache.james.imapserver.store.MessageFlags;
 
 /**
- *
+ * TODO: find better name for class
  * @version $Revision: 109034 $
  */
-public abstract class CommandParser
+public abstract class AbstractImapCommandParser extends AbstractLogEnabled implements ImapCommandParser
 {
     private final ImapCommand command;
     
     
-    public CommandParser(final ImapCommand command) {
+    public AbstractImapCommandParser(final ImapCommand command) {
         super();
         this.command = command;
     }
-
+    
+    /**
+     * Parses a request into a command message
+     * for later processing.
+     * @param request <code>ImapRequestLineReader</code>, not null
+     * @return <code>ImapCommandMessage</code>, not null
+     */
+    public final ImapCommandMessage parse( ImapRequestLineReader request, String tag ) {
+        ImapCommandMessage result;
+        try {
+            
+            AbstractImapCommandMessage message = decode(request, tag);
+            final Logger logger = getLogger();
+            if (logger != null) {
+                message.enableLogging(logger);
+            }
+            result = message;
+            
+        } catch ( ProtocolException e ) {
+            getLogger().debug("error processing command ", e);
+            String msg = e.getMessage() + " Command should be '" +
+                    command.getExpectedMessage() + "'";
+            result = new ErrorResponseMessage( msg, tag );
+        }
+        return result;
+    }
+    
     /**
      * Parses a request into a command message
      * for later processing.

@@ -21,6 +21,7 @@ package org.apache.james.imapserver.commands;
 
 /**
  * TODO: sort out inheritance heirarchy.
+ * TODO: this should not inherit from select
  * @version $Revision: 109034 $
  */
 class ExamineCommand extends SelectCommand
@@ -28,7 +29,7 @@ class ExamineCommand extends SelectCommand
     public static final String NAME = "EXAMINE";
 
     public ExamineCommand() {
-        super(true);
+        super();
     }
     
     public String getName()

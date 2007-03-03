@@ -22,12 +22,11 @@ import javax.mail.Flags;
 
 import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ProtocolException;
-import org.apache.james.imapserver.commands.CommandParser.NoopCharValidator;
 
 class StoreCommandParser extends AbstractUidCommandParser
 {
-    public StoreCommandParser(ImapCommand command) {
-        super(command);
+    public StoreCommandParser() {
+        super(new StoreCommand());
     }
 
     StoreDirective storeDirective( ImapRequestLineReader request ) throws ProtocolException

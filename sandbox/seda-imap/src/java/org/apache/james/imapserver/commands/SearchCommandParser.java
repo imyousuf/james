@@ -26,8 +26,8 @@ import org.apache.james.imapserver.ProtocolException;
 
 class SearchCommandParser extends AbstractUidCommandParser
 {
-    public SearchCommandParser(ImapCommand command) {
-        super(command);
+    public SearchCommandParser() {
+        super(new SearchCommand());
     }
 
     /**

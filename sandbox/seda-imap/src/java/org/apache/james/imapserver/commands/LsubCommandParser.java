@@ -20,8 +20,8 @@ package org.apache.james.imapserver.commands;
 
 class LsubCommandParser extends ListCommandParser {
 
-    public LsubCommandParser(ImapCommand command) {
-        super(command);
+    public LsubCommandParser() {
+        super(new LsubCommand());
     }
 
     protected ListCommandMessage createMessage(ImapCommand command, String referenceName, String mailboxPattern, String tag) {

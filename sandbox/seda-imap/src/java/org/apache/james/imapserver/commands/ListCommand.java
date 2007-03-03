@@ -20,8 +20,6 @@
 package org.apache.james.imapserver.commands;
 
 
-import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ProtocolException;
 
 /**
  * Handles processeing for the LIST imap command.
@@ -32,8 +30,6 @@ class ListCommand extends AuthenticatedStateCommand
 {
     public static final String NAME = "LIST";
     public static final String ARGS = "<reference-name> <mailbox-name-with-wildcards>";
-
-    private final ListCommandParser parser = new ListCommandParser(this);
 
     /** @see ImapCommand#getName */
     public String getName()
@@ -46,13 +42,6 @@ class ListCommand extends AuthenticatedStateCommand
     {
         return ARGS;
     }
-
-    protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
-        final AbstractImapCommandMessage result = parser.decode(request, tag);
-        return result;
-    }
-    
-
 }
 
 /*

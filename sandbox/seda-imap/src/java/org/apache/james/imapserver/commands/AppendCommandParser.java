@@ -27,11 +27,11 @@ import javax.mail.internet.MimeMessage;
 import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ProtocolException;
 
-class AppendCommandParser extends CommandParser
+class AppendCommandParser extends AbstractImapCommandParser
 {        
 
-    public AppendCommandParser(ImapCommand command) {
-        super(command);
+    public AppendCommandParser() {
+        super(new AppendCommand());
     }
 
     /**

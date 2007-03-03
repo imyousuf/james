@@ -20,15 +20,8 @@
 package org.apache.james.imapserver.commands;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.logger.Logger;
-import org.apache.james.imapserver.AuthorizationException;
 import org.apache.james.imapserver.ImapConstants;
-import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ImapResponse;
-import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ImapSessionState;
-import org.apache.james.imapserver.ProtocolException;
-import org.apache.james.imapserver.store.MailboxException;
 
 /**
  * Base class for all command implementations. This class provides common
@@ -38,7 +31,7 @@ import org.apache.james.imapserver.store.MailboxException;
  */
 abstract class CommandTemplate
         extends AbstractLogEnabled
-        implements ImapCommand, ImapConstants, ImapCommandParser
+        implements ImapCommand, ImapConstants
 {
     /**
      * By default, valid in any state (unless overridden by subclass.
@@ -48,66 +41,6 @@ abstract class CommandTemplate
     {
         return true;
     }
-
-    /**
-     * Template methods for handling command processing. This method reads
-     * argument values (validating them), and checks the request for correctness.
-     * If correct, the command processing is delegated to the specific command
-     * implemenation.
-     *
-     * @see ImapCommand#process
-     */
-    public void process( ImapRequestLineReader request,
-                         ImapResponse response,
-                         ImapSession session, String tag )
-    {
-        try {
-            doProcess( request, response, session, tag );
-        }
-        catch ( MailboxException e ) {
-            getLogger().debug("error processing command ", e);
-            response.commandFailed( this, e.getResponseCode(), e.getMessage() );
-        }
-        catch ( AuthorizationException e ) {
-            getLogger().debug("error processing command ", e);
-            String msg = "Authorization error: Lacking permissions to perform requested operation.";
-            response.commandFailed( this, msg, tag );
-        }
-        catch ( ProtocolException e ) {
-            getLogger().debug("error processing command ", e);
-            String msg = e.getMessage() + " Command should be '" +
-                    getExpectedMessage() + "'";
-            response.commandError( msg, tag);
-        }
-    }
-
-    
-    /**
-     * Parses a request into a command message
-     * for later processing.
-     * @param request <code>ImapRequestLineReader</code>, not null
-     * @return <code>ImapCommandMessage</code>, not null
-     */
-    public final ImapCommandMessage parse( ImapRequestLineReader request, String tag ) {
-        ImapCommandMessage result;
-        try {
-            
-            AbstractImapCommandMessage message = decode(request, tag);
-            final Logger logger = getLogger();
-            if (logger != null) {
-                message.enableLogging(logger);
-            }
-            result = message;
-            
-        } catch ( ProtocolException e ) {
-            getLogger().debug("error processing command ", e);
-            String msg = e.getMessage() + " Command should be '" +
-                    getExpectedMessage() + "'";
-            result = new ErrorResponseMessage( msg, tag );
-        }
-        return result;
-    }
-
     
     /**
      * Provides a message which describes the expected format and arguments
@@ -129,40 +62,6 @@ abstract class CommandTemplate
 
         return syntax.toString();
     }
-    
-    /**
-     * Parses a request into a command message
-     * for later processing.
-     * @param request <code>ImapRequestLineReader</code>, not null
-     * @param tag TODO
-     * @return <code>ImapCommandMessage</code>, not null
-     * @throws ProtocolException if the request cannot be parsed
-     */
-    protected abstract AbstractImapCommandMessage decode( ImapRequestLineReader request, String tag ) 
-        throws ProtocolException;
-    
-    /**
-     * This is the method overridden by specific command implementations to
-     * perform commend-specific processing.
-     *
-     * @param request The client request
-     * @param response The server response
-     * @param session The current client session
-     * @param tag TODO
-     */
-    protected final void doProcess( ImapRequestLineReader request,
-                                       ImapResponse response,
-                                       ImapSession session, String tag )
-            throws ProtocolException, MailboxException, AuthorizationException {
-        AbstractImapCommandMessage message = decode( request, tag );
-        final Logger logger = getLogger();
-        if (logger != null) {
-            message.enableLogging(logger);
-        }
-        ImapResponseMessage responseMessage = message.doProcess( session );
-        responseMessage.encode(response, session);
-    }
-
 
     /**
      * Provides the syntax for the command arguments if any. This value is used

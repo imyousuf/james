@@ -19,8 +19,6 @@
 
 package org.apache.james.imapserver.commands;
 
-import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ProtocolException;
 
 /**
  * Handles processeing for the CAPABILITY imap command.
@@ -33,13 +31,6 @@ class CapabilityCommand extends CommandTemplate
     public static final String ARGS = null;
 
     public static final String CAPABILITY_RESPONSE = NAME + SP + VERSION + SP + CAPABILITIES;
-
-    private final CapabilityCommandParser parser = new CapabilityCommandParser(this);
-    
-    protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
-        final AbstractImapCommandMessage result = parser.decode(request, tag);
-        return result;
-    }
 
     /** @see ImapCommand#getName */
     public String getName()

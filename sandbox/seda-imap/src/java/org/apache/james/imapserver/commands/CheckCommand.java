@@ -19,8 +19,6 @@
 
 package org.apache.james.imapserver.commands;
 
-import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ProtocolException;
 
 /**
  * Handles processing for the CHECK imap command.
@@ -31,13 +29,6 @@ class CheckCommand extends SelectedStateCommand
 {
     public static final String NAME = "CHECK";
     public static final String ARGS = null;
-
-    private final CheckCommandParser parser = new CheckCommandParser(this);
-    
-    protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
-        final AbstractImapCommandMessage result = parser.decode(request, tag);
-        return result;
-    }
 
     /** @see ImapCommand#getName */
     public String getName()

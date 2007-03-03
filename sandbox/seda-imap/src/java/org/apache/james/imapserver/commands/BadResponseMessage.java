@@ -19,30 +19,29 @@
 
 package org.apache.james.imapserver.commands;
 
-import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ProtocolException;
+import org.apache.james.imapserver.ImapResponse;
+import org.apache.james.imapserver.ImapSession;
 
-abstract class AbstractUidCommandParser extends AbstractImapCommandParser {
+/**
+ * Carries the response to a request with bad syntax..
+ * 
+ */
+public class BadResponseMessage implements ImapCommandMessage,
+        ImapResponseMessage {
 
-    private final ImapCommand command;
+    private final String message;
     
-    public AbstractUidCommandParser(ImapCommand command) {
-        super(command);
-        this.command = command;
+    public BadResponseMessage(final String message) {
+        super();
+        this.message = message;
     }
 
-    protected AbstractImapCommandMessage decode(ImapCommand command,
-            ImapRequestLineReader request, String tag) throws ProtocolException {
-        final AbstractImapCommandMessage result = decode(command, request, tag, false);
-        return result;
-    }
-    
-    public AbstractImapCommandMessage decode(ImapRequestLineReader request, 
-            String tag, boolean useUids) throws ProtocolException {
-        final AbstractImapCommandMessage result = decode(command, request, tag, useUids);
-        return result;
+    public ImapResponseMessage process(ImapSession session) {
+        return this;
     }
 
-    protected abstract AbstractImapCommandMessage decode(ImapCommand command,
-            ImapRequestLineReader request, String tag, boolean useUids) throws ProtocolException;
+    public void encode(ImapResponse response, ImapSession session) {
+        response.badResponse(message);
+    }
+
 }

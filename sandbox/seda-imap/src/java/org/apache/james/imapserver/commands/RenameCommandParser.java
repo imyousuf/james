@@ -21,10 +21,10 @@ package org.apache.james.imapserver.commands;
 import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ProtocolException;
 
-class RenameCommandParser extends CommandParser {
+class RenameCommandParser extends AbstractImapCommandParser {
 
-    public RenameCommandParser(ImapCommand command) {
-        super(command);
+    public RenameCommandParser() {
+        super(new RenameCommand());
     }
 
     protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {

@@ -21,12 +21,16 @@ package org.apache.james.imapserver.commands;
 import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ProtocolException;
 
-class UidCommandParser extends CommandParser {
-    private final ImapCommandFactory commandFactory;
+class UidCommandParser extends AbstractImapCommandParser {
+    private ImapCommandParserFactory commandFactory;
 
-    public UidCommandParser(ImapCommand command, final ImapCommandFactory commandFactory) {
-        super(command);
-        this.commandFactory = commandFactory;
+    public UidCommandParser() {
+        super(new UidCommand());
+    }
+    
+    public void setCommandFactory( ImapCommandParserFactory imapCommandFactory )
+    {
+        this.commandFactory = imapCommandFactory;
     }
 
     protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
@@ -36,13 +40,14 @@ class UidCommandParser extends CommandParser {
         // TODO: this will be easier to fix a little later
         // TODO: also not sure whether the old implementation shares this flaw 
         String commandName = atom( request );
-        ImapCommand helperCommand = commandFactory.getCommand( commandName );
+        ImapCommandParser helperCommand = commandFactory.getParser( commandName );
+        // TODO: replace abstract class with interface
         if ( helperCommand == null ||
-             ! (helperCommand instanceof UidEnabledCommand ) ) {
+             ! (helperCommand instanceof AbstractUidCommandParser ) ) {
             throw new ProtocolException("Invalid UID command: '" + commandName + "'" );
         }
-        final UidEnabledCommand uidEnabled = (UidEnabledCommand) helperCommand;
-        final AbstractImapCommandMessage result = uidEnabled.decode( request, true, tag );
+        final AbstractUidCommandParser uidEnabled = (AbstractUidCommandParser) helperCommand;
+        final AbstractImapCommandMessage result = uidEnabled.decode( request, tag, true );
         return result;
     }
     

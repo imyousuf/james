@@ -19,21 +19,17 @@
 
 package org.apache.james.imapserver.commands;
 
-import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ProtocolException;
 
 /**
  * Handles processeing for the COPY imap command.
  *
  * @version $Revision: 109034 $
  */
-class CopyCommand extends SelectedStateCommand implements UidEnabledCommand
+class CopyCommand extends SelectedStateCommand
 {
     public static final String NAME = "COPY";
     public static final String ARGS = "<message-set> <mailbox>";
 
-    private final CopyCommandParser parser = new CopyCommandParser(this);
-    
     /** @see ImapCommand#getName */
     public String getName()
     {
@@ -44,14 +40,6 @@ class CopyCommand extends SelectedStateCommand implements UidEnabledCommand
     public String getArgSyntax()
     {
         return ARGS;
-    }
-
-    protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
-        return decode(request, false, tag);
-    }
-    
-    public AbstractImapCommandMessage decode(final ImapRequestLineReader request, final boolean useUids, String tag) throws ProtocolException {
-        return parser.decode(request, tag, useUids);
     }
 }
 /*

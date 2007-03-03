@@ -21,8 +21,6 @@ package org.apache.james.imapserver.commands;
 
 
 
-import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ProtocolException;
 
 /**
  * Handles processeing for the APPEND imap command.
@@ -33,13 +31,6 @@ class AppendCommand extends AuthenticatedStateCommand
 {
     public static final String NAME = "APPEND";
     public static final String ARGS = "<mailbox> [<flag_list>] [<date_time>] literal";
-
-    private AppendCommandParser parser = new AppendCommandParser(this);
-
-    protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
-        final AbstractImapCommandMessage result = parser.decode(request, tag);
-        return result;
-    }
 
     /** @see ImapCommand#getName */
     public String getName()

@@ -20,13 +20,11 @@ package org.apache.james.imapserver.commands;
 
 import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ProtocolException;
-import org.apache.james.imapserver.commands.CommandParser.CharacterValidator;
-import org.apache.james.imapserver.commands.CommandParser.NoopCharValidator;
 
-class StatusCommandParser extends CommandParser
+class StatusCommandParser extends AbstractImapCommandParser
 {
-    public StatusCommandParser(ImapCommand command) {
-        super(command);
+    public StatusCommandParser() {
+        super(new StatusCommand());
     }
 
     StatusDataItems statusDataItems( ImapRequestLineReader request )

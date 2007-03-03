@@ -16,17 +16,22 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
 package org.apache.james.imapserver.commands;
 
 import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ProtocolException;
 
-/**
- * @version $Revision: 109034 $
- */
-interface UidEnabledCommand
-{
-    AbstractImapCommandMessage decode(final ImapRequestLineReader request, 
-            final boolean useUids, String tag) throws ProtocolException;
+class ExamineCommandParser extends AbstractImapCommandParser {
+    
+    public ExamineCommandParser() {
+        super(new ExamineCommand());
+    }
+
+    protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
+        final String mailboxName = mailbox( request );
+        endLine( request );
+        final SelectCommandMessage result = new SelectCommandMessage(command, mailboxName, true, tag);
+        return result;
+    }
+    
 }

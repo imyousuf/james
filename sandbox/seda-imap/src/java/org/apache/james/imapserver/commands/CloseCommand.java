@@ -19,8 +19,6 @@
 
 package org.apache.james.imapserver.commands;
 
-import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ProtocolException;
 
 /**
  * Handles processeing for the CHECK imap command.
@@ -31,13 +29,6 @@ class CloseCommand extends SelectedStateCommand
 {
     public static final String NAME = "CLOSE";
     public static final String ARGS = null;
-    
-    private final CloseCommandParser parser = new CloseCommandParser(this);
-
-    protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
-        final AbstractImapCommandMessage result = parser.decode(request, tag);
-        return result;
-    }
 
     /** @see ImapCommand#getName */
     public String getName()

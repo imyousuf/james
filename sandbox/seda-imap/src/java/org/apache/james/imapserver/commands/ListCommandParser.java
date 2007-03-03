@@ -22,7 +22,11 @@ import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ProtocolException;
 class ListCommandParser extends AbstractUidCommandParser
 {
-    public ListCommandParser(ImapCommand command) {
+    public ListCommandParser() {
+        super(new ListCommand());
+    }
+
+    ListCommandParser(ImapCommand command) {
         super(command);
     }
 

@@ -21,10 +21,10 @@ package org.apache.james.imapserver.commands;
 import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ProtocolException;
 
-class AuthenticateCommandParser extends CommandParser {
+class AuthenticateCommandParser extends AbstractImapCommandParser {
 
-    public AuthenticateCommandParser(ImapCommand command) {
-        super(command);
+    public AuthenticateCommandParser() {
+        super(new AuthenticateCommand());
     }
 
     protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {

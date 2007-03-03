@@ -23,11 +23,12 @@ import org.apache.james.imapserver.ProtocolException;
 
 class CopyCommandParser extends AbstractUidCommandParser {
 
-    public CopyCommandParser(ImapCommand command) {
-        super(command);
+    public CopyCommandParser() {
+        super(new CopyCommand());
     }
 
-    protected AbstractImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag, boolean useUids) throws ProtocolException {
+    protected AbstractImapCommandMessage decode(ImapCommand command, 
+            ImapRequestLineReader request, String tag, boolean useUids) throws ProtocolException {
         IdRange[] idSet = parseIdRange( request );
         String mailboxName = mailbox( request );
         endLine( request );

@@ -19,8 +19,6 @@
 
 package org.apache.james.imapserver.commands;
 
-import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ProtocolException;
 
 
 /**
@@ -33,8 +31,6 @@ class LoginCommand extends NonAuthenticatedStateCommand
     public static final String NAME = "LOGIN";
     public static final String ARGS = "<userid> <password>";
 
-    private final LoginCommandParser parser = new LoginCommandParser(this);
-     
     /** @see ImapCommand#getName */
     public String getName()
     {
@@ -45,11 +41,6 @@ class LoginCommand extends NonAuthenticatedStateCommand
     public String getArgSyntax()
     {
         return ARGS;
-    }
-
-    protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
-        final AbstractImapCommandMessage result = parser.decode(request, tag);
-        return result;
     }
 }
 

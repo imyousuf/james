@@ -21,8 +21,6 @@ package org.apache.james.imapserver.commands;
 
 
 
-import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ProtocolException;
 
 
 /**
@@ -30,12 +28,10 @@ import org.apache.james.imapserver.ProtocolException;
  *
  * @version $Revision: 109034 $
  */
-class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
+class FetchCommand extends SelectedStateCommand 
 {
     public static final String NAME = "FETCH";
     public static final String ARGS = "<message-set> <fetch-profile>";
-
-    private FetchCommandParser parser = new FetchCommandParser(this);
 
     /** @see ImapCommand#getName */
     public String getName()
@@ -47,16 +43,6 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
     public String getArgSyntax()
     {
         return ARGS;
-    }
-
-    protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
-        final AbstractImapCommandMessage result = decode(request, false, tag);
-        return result;
-    }
-
-    public AbstractImapCommandMessage decode(ImapRequestLineReader request, boolean useUids, String tag) throws ProtocolException {
-        final AbstractImapCommandMessage result = parser.decode(request, tag, useUids);
-        return result;
     }
 }
 /*

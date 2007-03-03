@@ -23,8 +23,8 @@ import org.apache.james.imapserver.ProtocolException;
 
 class FetchCommandParser extends AbstractUidCommandParser
 {
-    public FetchCommandParser(ImapCommand command) {
-        super(command);
+    public FetchCommandParser() {
+        super(new FetchCommand());
     }
 
     public FetchRequest fetchRequest( ImapRequestLineReader request )
