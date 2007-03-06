@@ -19,6 +19,8 @@
 
 package org.apache.james.imapserver.commands;
 
+import org.apache.james.imapserver.ImapConstants;
+
 
 /**
  * Handles processeing for the UNSUBSCRIBE imap command.
@@ -27,12 +29,11 @@ package org.apache.james.imapserver.commands;
  */
 class UnsubscribeCommand extends AuthenticatedStateCommand
 {
-    public static final String NAME = "UNSUBSCRIBE";
     public static final String ARGS = "<mailbox>";
 
     /** @see ImapCommand#getName */
     public String getName() {
-        return NAME;
+        return ImapConstants.UNSUBSCRIBE_COMMAND_NAME;
     }
 
     /** @see CommandTemplate#getArgSyntax */

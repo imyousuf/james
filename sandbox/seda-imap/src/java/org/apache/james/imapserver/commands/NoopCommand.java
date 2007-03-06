@@ -19,6 +19,8 @@
 
 package org.apache.james.imapserver.commands;
 
+import org.apache.james.imapserver.ImapConstants;
+
 
 /**
  * Handles processeing for the NOOP imap command.
@@ -27,13 +29,12 @@ package org.apache.james.imapserver.commands;
  */
 class NoopCommand extends CommandTemplate
 {
-    public static final String NAME = "NOOP";
     public static final String ARGS = null;
     
     /** @see ImapCommand#getName */
     public String getName()
     {
-        return NAME;
+        return ImapConstants.NOOP_COMMAND_NAME;
     }
 
     /** @see CommandTemplate#getArgSyntax */

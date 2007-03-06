@@ -19,6 +19,8 @@
 
 package org.apache.james.imapserver.commands;
 
+import org.apache.james.imapserver.ImapConstants;
+
 
 /**
  * Handles processeing for the EXPUNGE imap command.
@@ -27,13 +29,12 @@ package org.apache.james.imapserver.commands;
  */
 class ExpungeCommand extends SelectedStateCommand
 {
-    public static final String NAME = "EXPUNGE";
     public static final String ARGS = null;
 
     /** @see ImapCommand#getName */
     public String getName()
     {
-        return NAME;
+        return ImapConstants.EXPUNGE_COMMAND_NAME;
     }
 
     /** @see CommandTemplate#getArgSyntax */

@@ -2,6 +2,7 @@ package org.apache.james.imapserver.commands;
 
 import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ProtocolException;
+import org.apache.james.imapserver.message.ImapCommandMessage;
 
 public class MockCommand extends CommandTemplate {
 
@@ -15,7 +16,7 @@ public class MockCommand extends CommandTemplate {
         return NAME;
     }
 
-    protected AbstractImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
+    protected ImapCommandMessage decode(ImapRequestLineReader request, String tag) throws ProtocolException {
         // TODO implementation
         return null;
     }

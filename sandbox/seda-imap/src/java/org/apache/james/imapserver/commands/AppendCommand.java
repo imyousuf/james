@@ -19,6 +19,8 @@
 
 package org.apache.james.imapserver.commands;
 
+import org.apache.james.imapserver.ImapConstants;
+
 
 
 
@@ -29,13 +31,12 @@ package org.apache.james.imapserver.commands;
  */
 class AppendCommand extends AuthenticatedStateCommand
 {
-    public static final String NAME = "APPEND";
     public static final String ARGS = "<mailbox> [<flag_list>] [<date_time>] literal";
 
     /** @see ImapCommand#getName */
     public String getName()
     {
-        return NAME;
+        return ImapConstants.APPEND_COMMAND_NAME;
     }
 
     /** @see CommandTemplate#getArgSyntax */

@@ -19,6 +19,8 @@
 
 package org.apache.james.imapserver.commands;
 
+import org.apache.james.imapserver.ImapConstants;
+
 
 /**
  * Handles processeing for the UID imap command.
@@ -27,13 +29,12 @@ package org.apache.james.imapserver.commands;
  */
 class UidCommand extends SelectedStateCommand
 {
-    public static final String NAME = "UID";
     public static final String ARGS = "<fetch-command>|<store-command>|<copy-command>|<search-command>";
 
     /** @see ImapCommand#getName */
     public String getName()
     {
-        return NAME;
+        return ImapConstants.UID_COMMAND_NAME;
     }
 
     /** @see CommandTemplate#getArgSyntax */

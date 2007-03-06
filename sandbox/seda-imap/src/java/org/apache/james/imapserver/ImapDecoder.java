@@ -18,7 +18,7 @@
  ****************************************************************/ 
 package org.apache.james.imapserver;
 
-import org.apache.james.imapserver.commands.ImapCommandMessage;
+import org.apache.james.imapserver.message.ImapCommandMessage;
 
 public interface ImapDecoder {
     public ImapCommandMessage decode(final ImapRequestLineReader request);

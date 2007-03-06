@@ -19,6 +19,8 @@
 
 package org.apache.james.imapserver.commands;
 
+import org.apache.james.imapserver.ImapConstants;
+
 /**
  * TODO: sort out inheritance heirarchy.
  * TODO: this should not inherit from select
@@ -26,14 +28,12 @@ package org.apache.james.imapserver.commands;
  */
 class ExamineCommand extends SelectCommand
 {
-    public static final String NAME = "EXAMINE";
-
     public ExamineCommand() {
         super();
     }
     
     public String getName()
     {
-        return NAME;
+        return ImapConstants.EXAMINE_COMMAND_NAME;
     }
 }

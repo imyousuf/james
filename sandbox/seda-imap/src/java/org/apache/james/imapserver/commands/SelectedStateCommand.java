@@ -20,6 +20,7 @@
 package org.apache.james.imapserver.commands;
 
 import org.apache.james.imapserver.ImapSessionState;
+import org.apache.james.imapserver.message.IdRange;
 
 /**
  * A base class for ImapCommands only valid in the SELECTED state.

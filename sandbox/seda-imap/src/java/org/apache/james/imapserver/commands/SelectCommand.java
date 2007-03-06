@@ -19,6 +19,8 @@
 
 package org.apache.james.imapserver.commands;
 
+import org.apache.james.imapserver.ImapConstants;
+
 
 
 /**
@@ -28,13 +30,12 @@ package org.apache.james.imapserver.commands;
  */
 class SelectCommand extends AuthenticatedStateCommand
 {
-    public static final String NAME = "SELECT";
     public static final String ARGS = "mailbox";
     
     /** @see ImapCommand#getName */
     public String getName()
     {
-        return NAME;
+        return ImapConstants.SELECT_COMMAND_NAME;
     }
 
     /** @see CommandTemplate#getArgSyntax */

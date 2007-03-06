@@ -19,6 +19,8 @@
 
 package org.apache.james.imapserver.commands;
 
+import org.apache.james.imapserver.ImapConstants;
+
 
 /**
  * Handles processing for the CHECK imap command.
@@ -27,13 +29,12 @@ package org.apache.james.imapserver.commands;
  */
 class CheckCommand extends SelectedStateCommand
 {
-    public static final String NAME = "CHECK";
     public static final String ARGS = null;
 
     /** @see ImapCommand#getName */
     public String getName()
     {
-        return NAME;
+        return ImapConstants.CHECK_COMMAND_NAME;
     }
 
     /** @see CommandTemplate#getArgSyntax */

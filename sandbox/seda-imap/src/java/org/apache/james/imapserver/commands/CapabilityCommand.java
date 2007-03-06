@@ -19,6 +19,8 @@
 
 package org.apache.james.imapserver.commands;
 
+import org.apache.james.imapserver.ImapConstants;
+
 
 /**
  * Handles processeing for the CAPABILITY imap command.
@@ -27,15 +29,12 @@ package org.apache.james.imapserver.commands;
  */
 class CapabilityCommand extends CommandTemplate
 {
-    public static final String NAME = "CAPABILITY";
     public static final String ARGS = null;
-
-    public static final String CAPABILITY_RESPONSE = NAME + SP + VERSION + SP + CAPABILITIES;
 
     /** @see ImapCommand#getName */
     public String getName()
     {
-        return NAME;
+        return ImapConstants.CAPABILITY_COMMAND_NAME;
     }
 
     /** @see CommandTemplate#getArgSyntax */

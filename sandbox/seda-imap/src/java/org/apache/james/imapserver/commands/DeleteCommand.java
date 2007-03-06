@@ -19,6 +19,8 @@
 
 package org.apache.james.imapserver.commands;
 
+import org.apache.james.imapserver.ImapConstants;
+
 
 /**
  * Handles processeing for the DELETE imap command.
@@ -27,13 +29,12 @@ package org.apache.james.imapserver.commands;
  */
 class DeleteCommand extends AuthenticatedStateCommand
 {
-    public static final String NAME = "DELETE";
     public static final String ARGS = "<mailbox>";
 
     /** @see ImapCommand#getName */
     public String getName()
     {
-        return NAME;
+        return ImapConstants.DELETE_COMMAND_NAME;
     }
 
     /** @see CommandTemplate#getArgSyntax */

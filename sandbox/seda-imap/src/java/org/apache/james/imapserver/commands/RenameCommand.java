@@ -19,6 +19,8 @@
 
 package org.apache.james.imapserver.commands;
 
+import org.apache.james.imapserver.ImapConstants;
+
 
 /**
  * Handles processeing for the RENAME imap command.
@@ -27,13 +29,12 @@ package org.apache.james.imapserver.commands;
  */
 class RenameCommand extends AuthenticatedStateCommand
 {
-    public static final String NAME = "RENAME";
     public static final String ARGS = "existing-mailbox-name SPACE new-mailbox-name";
     
     /** @see ImapCommand#getName */
     public String getName()
     {
-        return NAME;
+        return ImapConstants.RENAME_COMMAND_NAME;
     }
 
     /** @see CommandTemplate#getArgSyntax */

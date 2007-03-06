@@ -19,6 +19,8 @@
 
 package org.apache.james.imapserver.commands;
 
+import org.apache.james.imapserver.ImapConstants;
+
 
 /**
  * Handles processeing for the LOGOUT imap command.
@@ -27,14 +29,12 @@ package org.apache.james.imapserver.commands;
  */
 class LogoutCommand extends CommandTemplate
 {
-    public static final String NAME = "LOGOUT";
     public static final String ARGS = null;
-    public static final String BYE_MESSAGE = VERSION + SP + "Server logging out";
     
     /** @see ImapCommand#getName */
     public String getName()
     {
-        return NAME;
+        return ImapConstants.LOGOUT_COMMAND_NAME;
     }
 
     /** @see CommandTemplate#getArgSyntax */

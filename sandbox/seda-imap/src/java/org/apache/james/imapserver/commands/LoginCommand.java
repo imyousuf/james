@@ -19,6 +19,8 @@
 
 package org.apache.james.imapserver.commands;
 
+import org.apache.james.imapserver.ImapConstants;
+
 
 
 /**
@@ -28,13 +30,12 @@ package org.apache.james.imapserver.commands;
  */
 class LoginCommand extends NonAuthenticatedStateCommand
 {
-    public static final String NAME = "LOGIN";
     public static final String ARGS = "<userid> <password>";
 
     /** @see ImapCommand#getName */
     public String getName()
     {
-        return NAME;
+        return ImapConstants.LOGIN_COMMAND_NAME;
     }
 
     /** @see CommandTemplate#getArgSyntax */

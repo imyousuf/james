@@ -19,6 +19,8 @@
 
 package org.apache.james.imapserver.commands;
 
+import org.apache.james.imapserver.ImapConstants;
+
 
 
 /**
@@ -28,13 +30,12 @@ package org.apache.james.imapserver.commands;
  */
 class ListCommand extends AuthenticatedStateCommand
 {
-    public static final String NAME = "LIST";
     public static final String ARGS = "<reference-name> <mailbox-name-with-wildcards>";
 
     /** @see ImapCommand#getName */
     public String getName()
     {
-        return NAME;
+        return ImapConstants.LIST_COMMAND_NAME;
     }
 
     /** @see CommandTemplate#getArgSyntax */

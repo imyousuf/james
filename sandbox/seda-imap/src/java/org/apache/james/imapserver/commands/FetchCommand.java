@@ -19,6 +19,8 @@
 
 package org.apache.james.imapserver.commands;
 
+import org.apache.james.imapserver.ImapConstants;
+
 
 
 
@@ -30,13 +32,12 @@ package org.apache.james.imapserver.commands;
  */
 class FetchCommand extends SelectedStateCommand 
 {
-    public static final String NAME = "FETCH";
     public static final String ARGS = "<message-set> <fetch-profile>";
 
     /** @see ImapCommand#getName */
     public String getName()
     {
-        return NAME;
+        return ImapConstants.FETCH_COMMAND_NAME;
     }
 
     /** @see CommandTemplate#getArgSyntax */

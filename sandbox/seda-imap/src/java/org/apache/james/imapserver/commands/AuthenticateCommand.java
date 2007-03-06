@@ -19,6 +19,8 @@
 
 package org.apache.james.imapserver.commands;
 
+import org.apache.james.imapserver.ImapConstants;
+
 
 /**
  * Handles processeing for the AUTHENTICATE imap command.
@@ -27,13 +29,12 @@ package org.apache.james.imapserver.commands;
  */
 class AuthenticateCommand extends NonAuthenticatedStateCommand
 {
-    public static final String NAME = "AUTHENTICATE";
     public static final String ARGS = "<auth_type> *(CRLF base64)";
     
     /** @see ImapCommand#getName */
     public String getName()
     {
-        return NAME;
+        return ImapConstants.AUTHENTICATE_COMMAND_NAME;
     }
 
     /** @see CommandTemplate#getArgSyntax */

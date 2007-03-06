@@ -19,6 +19,8 @@
 
 package org.apache.james.imapserver.commands;
 
+import org.apache.james.imapserver.ImapConstants;
+
 
 /**
  * Handles processeing for the STATUS imap command.
@@ -27,19 +29,12 @@ package org.apache.james.imapserver.commands;
  */
 class StatusCommand extends AuthenticatedStateCommand
 {
-    public static final String NAME = "STATUS";
     public static final String ARGS = "<mailbox> ( <status-data-item>+ )";
-
-    static final String MESSAGES = "MESSAGES";
-    static final String RECENT = "RECENT";
-    static final String UIDNEXT = "UIDNEXT";
-    static final String UIDVALIDITY = "UIDVALIDITY";
-    static final String UNSEEN = "UNSEEN";
 
     /** @see ImapCommand#getName */
     public String getName()
     {
-        return NAME;
+        return ImapConstants.STATUS_COMMAND_NAME;
     }
 
     /** @see CommandTemplate#getArgSyntax */

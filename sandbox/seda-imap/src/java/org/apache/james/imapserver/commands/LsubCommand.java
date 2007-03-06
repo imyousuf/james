@@ -19,6 +19,8 @@
 
 package org.apache.james.imapserver.commands;
 
+import org.apache.james.imapserver.ImapConstants;
+
 
 
 /**
@@ -26,11 +28,9 @@ package org.apache.james.imapserver.commands;
  */
 class LsubCommand extends ListCommand
 {
-    public static final String NAME = "LSUB";
-
     /** @see ImapCommand#getName */
     public String getName()
     {
-        return NAME;
+        return ImapConstants.LSUB_COMMAND_NAME;
     }
 }

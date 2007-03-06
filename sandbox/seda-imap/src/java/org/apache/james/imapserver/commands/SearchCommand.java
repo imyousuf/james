@@ -19,6 +19,8 @@
 
 package org.apache.james.imapserver.commands;
 
+import org.apache.james.imapserver.ImapConstants;
+
 
 
 /**
@@ -28,13 +30,12 @@ package org.apache.james.imapserver.commands;
  */
 class SearchCommand extends SelectedStateCommand 
 {
-    public static final String NAME = "SEARCH";
     public static final String ARGS = "<search term>";
 
     /** @see ImapCommand#getName */
     public String getName()
     {
-        return NAME;
+        return ImapConstants.SEARCH_COMMAND_NAME;
     }
 
     /** @see CommandTemplate#getArgSyntax */

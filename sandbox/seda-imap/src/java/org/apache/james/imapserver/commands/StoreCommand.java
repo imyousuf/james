@@ -19,6 +19,8 @@
 
 package org.apache.james.imapserver.commands;
 
+import org.apache.james.imapserver.ImapConstants;
+
 
 
 /**
@@ -28,13 +30,12 @@ package org.apache.james.imapserver.commands;
  */
 class StoreCommand extends SelectedStateCommand 
 {
-    public static final String NAME = "STORE";
     public static final String ARGS = "<Message-set> ['+'|'-']FLAG[.SILENT] <flag-list>";
     
     /** @see ImapCommand#getName */
     public String getName()
     {
-        return NAME;
+        return ImapConstants.STORE_COMMAND_NAME;
     }
 
     /** @see CommandTemplate#getArgSyntax */

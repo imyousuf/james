@@ -19,6 +19,8 @@
 
 package org.apache.james.imapserver.commands;
 
+import org.apache.james.imapserver.ImapConstants;
+
 
 /**
  * Handles processeing for the COPY imap command.
@@ -27,13 +29,12 @@ package org.apache.james.imapserver.commands;
  */
 class CopyCommand extends SelectedStateCommand
 {
-    public static final String NAME = "COPY";
     public static final String ARGS = "<message-set> <mailbox>";
 
     /** @see ImapCommand#getName */
     public String getName()
     {
-        return NAME;
+        return ImapConstants.COPY_COMMAND_NAME;
     }
 
     /** @see CommandTemplate#getArgSyntax */

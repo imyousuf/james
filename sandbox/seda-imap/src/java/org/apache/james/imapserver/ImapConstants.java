@@ -40,4 +40,35 @@ public interface ImapConstants
     final String NAMESPACE_PREFIX = String.valueOf( NAMESPACE_PREFIX_CHAR );
 
     String INBOX_NAME = "INBOX";
+    public static final String STATUS_UNSEEN = "UNSEEN";
+    public static final String STATUS_UIDVALIDITY = "UIDVALIDITY";
+    public static final String STATUS_UIDNEXT = "UIDNEXT";
+    public static final String STATUS_RECENT = "RECENT";
+    public static final String STATUS_MESSAGES = "MESSAGES";
+    public static final String UNSUBSCRIBE_COMMAND_NAME = "UNSUBSCRIBE";
+    public static final String UID_COMMAND_NAME = "UID";
+    public static final String SUBSCRIBE_COMMAND_NAME = "SUBSCRIBE";
+    public static final String STORE_COMMAND_NAME = "STORE";
+    public static final String STATUS_COMMAND_NAME = "STATUS";
+    public static final String SELECT_COMMAND_NAME = "SELECT";
+    public static final String SEARCH_COMMAND_NAME = "SEARCH";
+    public static final String RENAME_COMMAND_NAME = "RENAME";
+    public static final String NOOP_COMMAND_NAME = "NOOP";
+    public static final String LSUB_COMMAND_NAME = "LSUB";
+    public static final String LOGOUT_COMMAND_NAME = "LOGOUT";
+    public static final String LOGIN_COMMAND_NAME = "LOGIN";
+    public static final String LIST_COMMAND_NAME = "LIST";
+    public static final String FETCH_COMMAND_NAME = "FETCH";
+    public static final String EXPUNGE_COMMAND_NAME = "EXPUNGE";
+    public static final String EXAMINE_COMMAND_NAME = "EXAMINE";
+    public static final String DELETE_COMMAND_NAME = "DELETE";
+    public static final String CREATE_COMMAND_NAME = "CREATE";
+    public static final String COPY_COMMAND_NAME = "COPY";
+    public static final String CLOSE_COMMAND_NAME = "CLOSE";
+    public static final String CHECK_COMMAND_NAME = "CHECK";
+    public static final String CAPABILITY_COMMAND_NAME = "CAPABILITY";
+    public static final String AUTHENTICATE_COMMAND_NAME = "AUTHENTICATE";
+    public static final String APPEND_COMMAND_NAME = "APPEND";
+    public static final String CAPABILITY_RESPONSE = CAPABILITY_COMMAND_NAME + SP + VERSION + SP + CAPABILITIES;
+    
 }

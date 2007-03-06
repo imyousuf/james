@@ -25,8 +25,8 @@ import java.util.List;
 import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapResponseWriter;
 import org.apache.james.imapserver.ImapSession;
-import org.apache.james.imapserver.commands.ImapCommandMessage;
-import org.apache.james.imapserver.commands.ImapResponseMessage;
+import org.apache.james.imapserver.message.ImapCommandMessage;
+import org.apache.james.imapserver.message.ImapResponseMessage;
 
 public class RecordingImapResponseWriter implements ImapResponseMessage,
         ImapCommandMessage, ImapResponseWriter {

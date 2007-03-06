@@ -19,6 +19,8 @@
 
 package org.apache.james.imapserver.commands;
 
+import org.apache.james.imapserver.ImapConstants;
+
 
 /**
  * Handles processeing for the SUBSCRIBE imap command.
@@ -26,12 +28,11 @@ package org.apache.james.imapserver.commands;
  * @version $Revision: 109034 $
  */
 class SubscribeCommand extends AuthenticatedStateCommand {
-    public static final String NAME = "SUBSCRIBE";
     public static final String ARGS = "<mailbox>";
     
     /** @see ImapCommand#getName */
     public String getName() {
-        return NAME;
+        return ImapConstants.SUBSCRIBE_COMMAND_NAME;
     }
 
     /** @see CommandTemplate#getArgSyntax */
