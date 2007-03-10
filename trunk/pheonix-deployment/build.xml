@@ -29,10 +29,11 @@
     (and without typing -D each time he compiles it)
     -->
     <property file=".ant.properties"/>
+    <property file="../.ant.properties"/>   
     <property file="${user.home}/.ant.properties"/>
     <property file="check-targets.properties"/>
-    <property file="include.properties"/>
-    <property file="default.properties"/>
+    <property file="../include.properties"/>
+    <property file="../default.properties"/>
 
     <!--
     ===================================================================
@@ -281,7 +282,7 @@
     -->
     <target name="compile" depends="compile-main, compile-proposal"/>
 
-    <target name="compile-main" depends="prepare">
+    <target name="compile-main" depends="prepare"> 
         <echo message="Compiling James Java sources"/>
         <mkdir dir="${build.classes}"/>
         <javac destdir="${build.classes}" debug="${debug}" optimize="${optimize}" deprecation="${deprecation}" target="${jdk.target}" source="${jdk.source}">
@@ -823,12 +824,22 @@
                                   unit tests
     ===================================================================
     -->
-    <target name="unit-tests-classpath" depends="compile">
+    <target name="unit-tests-classpath" depends="compile">      
         <path id="unittest.class.path">
-            <pathelement location="tools/lib/commons-net-1.4.1.jar"/>
-            <pathelement location="tools/lib/jmock-1.1.0.jar"/>
-            <fileset dir="${lib.dir}">
-                <include name="*.jar"/>
+            <fileset dir="${lib.dir}">    
+                <include name="${commons-net.jar}"/>
+                <include name="${jmock.jar}"/>
+            </fileset>   
+            <fileset dir="${lib.dir}">   
+                <include name="${avalon-logkit.jar}"/>
+                <include name='${excalibur-thread-impl.jar}'/>   
+                <include name='${cornerstone-scheduler-impl.jar}'/> 
+                <include name="${cornerstone-threads-impl.jar}"/>
+                <include name="${cornerstone-sockets-impl.jar}"/>
+                <include name="${cornerstone-datasources-impl.jar}"/> 
+                <include name="${concurrent.jar}"/>
+                <include name='${derby.jar}'/>
+                <include name='${commons-beanutils.jar}'/>   
             </fileset>
         </path>
     </target>
