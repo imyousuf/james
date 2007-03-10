@@ -1,5 +1,4 @@
 <?xml version="1.0"?>
-<!-- JAMES server master build file -->
 <!--
   Licensed to the Apache Software Foundation (ASF) under one
   or more contributor license agreements.  See the NOTICE file
@@ -20,6 +19,10 @@
 -->
 
 <project default="lite" basedir=".">
+
+<description>
+Master build file for JAMES server.
+</description>
 
  <!--
  =========================================================================
@@ -94,26 +97,39 @@
     
 <!--
  =========================================================================
+ INTERNAL 
+ =========================================================================
+-->  
+
+    <target name='clean-dist' description='Cleans master distribution directory'>
+        <delete dir='dist'/>
+        <mkdir dir='dist'/>
+    </target>
+
+<!--
+ =========================================================================
  USER TARGETS
  =========================================================================
 -->     
     <target 
         name='clean'
-        description='Cleans all modules'>
+        description='Cleans all modules'
+        depends='clean-dist'>
         <echo>Cleaning all modules</echo>   
         <foralldo do='clean'/>
     </target> 
     
     <target 
-       name='lite'
-       description='Builds modules and performs lightweight deployment'>
+        name='lite'
+        description='Builds modules and performs lightweight deployment'>
         <echo>Building modules and performing lightweight deployments</echo>   
         <fordeploymentsdo do='dist-lite'/>
     </target>   
     
     <target 
-       name='dist'
-       description='Builds modules, performs standard deployment and creates standard distributions'>
+        name='dist'
+        description='Builds modules, performs standard deployment and creates standard distributions'
+        depends='clean-dist'>
         <echo>Building modules, performing standard deployments and creating standard distributions</echo>    
         <foralldo do='dist'/>
     </target>   
@@ -121,7 +137,7 @@
     <target 
         name='full'
         description='Complete clean build, deployment and creates full distributions' 
-        depends='clean'>
+        depends='clean, clean-dist'>
         <echo>Building, deploying and creating full distributions for everything</echo> 
         <forapido do='dist'/>
         <forlibrariesdo do='dist'/>

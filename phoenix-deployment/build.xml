@@ -594,6 +594,10 @@
                  includes="org/apache/mailet/**"/ -->
             <!-- copy file="${build.lib}/mailet.jar" todir="${dist.dir}/lib"/ -->
     </target>
+ 
+    <target name='prepare-master-dist'>
+        <mkdir dir='${dir.master.dist}'/> 
+    </target>   
 
     <!--
     ===================================================================
@@ -601,13 +605,16 @@
     ===================================================================
     -->
 
-    <target name="dist-bin-phoenix-warn" depends="dist-bin-common" unless="phoenix.bin.present">
+    <target name="dist-bin-phoenix-warn" depends="dist-bin-common, prepare-master-dist" unless="phoenix.bin.present">
         <echo message ="The Phoenix distribution is not present - the James w/Phoenix binary distribution will not be built."/>
     </target>
 
     <target name="dist-bin-phoenix" depends="dist-bin-common" if="phoenix.bin.present">
         <echo message ="Building binary w/Phoenix distributions"/>
-        <zip zipfile="${dist.binary.dir}/${name}-binary-${version}.zip">
+        <property 
+            name='dist.binary.file.zip' 
+            value='${dist.binary.dir}/${name}-binary-${version}.zip'/>   
+        <zip zipfile="${dist.binary.file.zip}">
             <fileset dir="dist">
                 <include name="${name}-${version}/**"/>
                 <exclude name="${name}-${version}/downloads/**"/>
@@ -617,6 +624,10 @@
                 <include name="UPGRADE.txt"/>
             </fileset>
         </zip>
+        <copy todir='${dir.master.dist}' file='${dist.binary.file.zip}'/>   
+        <property 
+            name='dist.binary.file.tgz' 
+            value='${dist.binary.dir}/${name}-binary-${version}.tar.gz'/>      
         <tar longfile="gnu" tarfile="${dist.binary.dir}/${name}-binary-${version}.tar">
             <tarfileset dir="dist" username="${name}" group="${name}">
                 <include name="${name}-${version}/**"/>
@@ -627,8 +638,10 @@
                 <include name="UPGRADE.txt"/>
             </tarfileset>
         </tar>
-        <gzip zipfile="${dist.binary.dir}/${name}-binary-${version}.tar.gz" src="${dist.binary.dir}/${name}-binary-${version}.tar"/>
+        <gzip zipfile="${dist.binary.file.tgz}" 
+            src="${dist.binary.dir}/${name}-binary-${version}.tar"/>
         <delete file="${dist.binary.dir}/${name}-binary-${version}.tar"/>
+        <copy todir='${dir.master.dist}' file='${dist.binary.file.tgz}'/>   
     </target>
 
     <!-- target name="dist-bin-common" depends="dist-lite,xdocs,javadocs" -->
@@ -651,10 +664,13 @@
         <echo message ="The Phoenix distribution is not present - the James source distribution with Phoenix binaries will not be built."/>
     </target>
 
-    <target name="dist-src-phoenix" depends="dist-src-common" if="phoenix.bin.present">
+    <target name="dist-src-phoenix" depends="dist-src-common, prepare-master-dist" if="phoenix.bin.present">
         <!--Source With Phoenix -->
         <echo message ="Building source distributions with Phoenix binaries"/>
-        <zip zipfile="${dist.source.dir}/${name}-with-phoenix-${version}-src.zip">
+        <property 
+            name='dist.src.file.zip' 
+            value='${dist.source.dir}/${name}-with-phoenix-${version}-src.zip'/>      
+        <zip zipfile="${dist.src.file.zip}">
             <fileset dir=".">
                 <include name="*.txt"/>
                 <include name="build.*"/>
@@ -666,6 +682,10 @@
                 <include name="*.ent" />
             </fileset>
         </zip>
+        <copy todir='${dir.master.dist}' file='${dist.src.file.zip}'/>  
+        <property 
+            name='dist.src.file.tgz' 
+            value='${dist.source.dir}/${name}-with-phoenix-${version}-src.tar.gz'/>    
         <tar longfile="gnu" tarfile="${dist.source.dir}/${name}-with-phoenix-${version}-src.tar">
             <tarfileset dir="." username="${name}" group="${name}">
                 <include name="*.txt"/>
@@ -678,8 +698,9 @@
                 <include name="*.ent" />
             </tarfileset>
         </tar>
-        <gzip zipfile="${dist.source.dir}/${name}-with-phoenix-${version}-src.tar.gz"
+        <gzip zipfile="${dist.src.file.tgz}"
              src="${dist.source.dir}/${name}-with-phoenix-${version}-src.tar"/>
+        <copy todir='${dir.master.dist}' file='${dist.src.file.tgz}'/>   
         <delete file="${dist.source.dir}/${name}-with-phoenix-${version}-src.tar"/>
     </target>
 
@@ -721,7 +742,7 @@
                                   Mailet SDK distribution
     ===================================================================
     -->
-    <target name="dist-mailet-SDK" depends="dist-lite,xdocs,javadocs">
+    <target name="dist-mailet-SDK" depends="dist-lite,xdocs,javadocs, prepare-master-dist">
 
         <echo message ="building mailet SDK distributions"/>
 		
@@ -790,21 +811,30 @@
                 <include name='${javax-mail.jar}'/>
             </fileset>
         </copy>
-        <zip zipfile="${dist.downloads.bin}/${sdk.stem}.zip">
+        <property 
+            name='dist.mailetsdk.file.zip' 
+            value='${dist.downloads.bin}/${sdk.stem}.zip'/>    
+        <zip zipfile="${dist.mailetsdk.file.zip}">
             <fileset dir="dist">
                 <include name="${name}-${version}/**"/>
                 <exclude name="${name}-${version}/downloads/**"/>
             </fileset>
         </zip>
+        <copy todir='${dir.master.dist}' file='${dist.mailetsdk.file.zip}'/>   
+        <property 
+            name='dist.mailetsdk.file.tgz' 
+            value='${dist.downloads.bin}/${sdk.stem}.tar.gz'/>     
         <tar longfile="gnu" tarfile="${dist.downloads.bin}/${sdk.stem}.tar">
             <tarfileset dir="dist" username="${name}" group="${name}">
                 <include name="${name}-${version}/**"/>
                 <exclude name="${name}-${version}/downloads/**"/>
             </tarfileset>
         </tar>
-        <gzip zipfile="${dist.downloads.bin}/${sdk.stem}.tar.gz"
+        <gzip zipfile="${dist.mailetsdk.file.tgz}"
             src="${dist.downloads.bin}/${sdk.stem}.tar"/>
         <delete file="${dist.downloads.bin}/{sdk.stem}.tar"/>
+        <copy todir='${dir.master.dist}' file='${dist.mailetsdk.file.tgz}'/> 
+            
         <delete dir="${sdk.dir}"/>
     </target>
 
