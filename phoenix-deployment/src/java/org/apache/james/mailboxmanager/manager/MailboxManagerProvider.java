@@ -63,7 +63,6 @@ public interface MailboxManagerProvider {
     /**
      * The Namespaces a user has access to.
      * @param forUser TODO
-     * @param user
      * 
      * @return <code>Namespaces</code> TODO: allows nulls?
      */

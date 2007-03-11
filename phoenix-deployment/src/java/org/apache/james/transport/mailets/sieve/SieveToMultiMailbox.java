@@ -175,7 +175,7 @@ public class SieveToMultiMailbox extends GenericMailet {
      * 
      * @param sender
      * @param recipient
-     * @param message
+     * @param mail
      * @throws MessagingException
      */
     public void storeMail(MailAddress sender, MailAddress recipient,

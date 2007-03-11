@@ -212,9 +212,9 @@ public final class IOUtil
     }
 
     /**
-     * Unconditionally close an <code>InputStream</code>.
+     * Unconditionally close an <code>Socket</code>.
      * Equivalent to {@link Socket#close()}, except any exceptions will be ignored.
-     * @param input A (possibly null) InputStream
+     * @param socket A (possibly null) Socket
      */
     public static void shutdownSocket( final Socket socket ) {
         if( null == socket ) {

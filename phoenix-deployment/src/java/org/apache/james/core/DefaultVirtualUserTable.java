@@ -137,14 +137,14 @@ public class DefaultVirtualUserTable implements VirtualUserTableManagement, Serv
     }
 
     /**
-     * @see org.apache.james.services.VirtualUserTableManagement#addAliasDomain(java.lang.String, java.lang.String)
+     * @see org.apache.james.services.VirtualUserTableManagement#addAliasDomainMapping(String, String)
      */
     public boolean addAliasDomainMapping(String aliasDomain, String realDomain) throws InvalidMappingException {
         return vut.addAliasDomainMapping(aliasDomain, realDomain);
     }
 
     /**
-     * @see org.apache.james.services.VirtualUserTableManagement#removeAliasDomain(java.lang.String, java.lang.String)
+     * @see org.apache.james.services.VirtualUserTableManagement#removeAliasDomainMapping(String, String)
      */
     public boolean removeAliasDomainMapping(String aliasDomain, String realDomain) throws InvalidMappingException {
         return vut.removeAliasDomainMapping(aliasDomain, realDomain);
