@@ -597,6 +597,8 @@
  
     <target name='prepare-master-dist'>
         <mkdir dir='${dir.master.dist}'/> 
+        <mkdir dir='${dir.master.dist}/bin'/> 
+        <mkdir dir='${dir.master.dist}/src'/> 
     </target>   
 
     <!--
@@ -624,7 +626,7 @@
                 <include name="UPGRADE.txt"/>
             </fileset>
         </zip>
-        <copy todir='${dir.master.dist}' file='${dist.binary.file.zip}'/>   
+        <copy todir='${dir.master.dist}/bin' file='${dist.binary.file.zip}'/>   
         <property 
             name='dist.binary.file.tgz' 
             value='${dist.binary.dir}/${name}-binary-${version}.tar.gz'/>      
@@ -641,7 +643,7 @@
         <gzip zipfile="${dist.binary.file.tgz}" 
             src="${dist.binary.dir}/${name}-binary-${version}.tar"/>
         <delete file="${dist.binary.dir}/${name}-binary-${version}.tar"/>
-        <copy todir='${dir.master.dist}' file='${dist.binary.file.tgz}'/>   
+        <copy todir='${dir.master.dist}/bin' file='${dist.binary.file.tgz}'/>   
     </target>
 
     <!-- target name="dist-bin-common" depends="dist-lite,xdocs,javadocs" -->
@@ -682,7 +684,7 @@
                 <include name="*.ent" />
             </fileset>
         </zip>
-        <copy todir='${dir.master.dist}' file='${dist.src.file.zip}'/>  
+        <copy todir='${dir.master.dist}/src' file='${dist.src.file.zip}'/>  
         <property 
             name='dist.src.file.tgz' 
             value='${dist.source.dir}/${name}-with-phoenix-${version}-src.tar.gz'/>    
@@ -700,7 +702,7 @@
         </tar>
         <gzip zipfile="${dist.src.file.tgz}"
              src="${dist.source.dir}/${name}-with-phoenix-${version}-src.tar"/>
-        <copy todir='${dir.master.dist}' file='${dist.src.file.tgz}'/>   
+        <copy todir='${dir.master.dist}/src' file='${dist.src.file.tgz}'/>   
         <delete file="${dist.source.dir}/${name}-with-phoenix-${version}-src.tar"/>
     </target>
 
@@ -820,7 +822,7 @@
                 <exclude name="${name}-${version}/downloads/**"/>
             </fileset>
         </zip>
-        <copy todir='${dir.master.dist}' file='${dist.mailetsdk.file.zip}'/>   
+        <copy todir='${dir.master.dist}/bin' file='${dist.mailetsdk.file.zip}'/>   
         <property 
             name='dist.mailetsdk.file.tgz' 
             value='${dist.downloads.bin}/${sdk.stem}.tar.gz'/>     
@@ -833,7 +835,7 @@
         <gzip zipfile="${dist.mailetsdk.file.tgz}"
             src="${dist.downloads.bin}/${sdk.stem}.tar"/>
         <delete file="${dist.downloads.bin}/{sdk.stem}.tar"/>
-        <copy todir='${dir.master.dist}' file='${dist.mailetsdk.file.tgz}'/> 
+        <copy todir='${dir.master.dist}/bin' file='${dist.mailetsdk.file.tgz}'/> 
             
         <delete dir="${sdk.dir}"/>
     </target>
