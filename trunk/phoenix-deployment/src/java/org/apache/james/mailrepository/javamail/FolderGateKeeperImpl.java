@@ -27,7 +27,7 @@ import javax.mail.MessagingException;
  * offers access to an underlaying Folder and manages open/close operations.<br>
  * The FolderGateKeeper can be handed over to different threads.
  * 
- * @sse FolderGateKeeper
+ * @see FolderGateKeeper
  *
  */
 public class FolderGateKeeperImpl implements FolderGateKeeper {
