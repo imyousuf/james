@@ -9,7 +9,9 @@ export OLD_ANT_HOME=$ANT_HOME
 ANT_HOME=./tools
 export ANT_HOME
 
-export OLD_CLASSPATH=$CLASSPATH
+OLD_CLASSPATH=$CLASSPATH
+export OLD_CLASSPATH
+
 CLASSPATH=phoenix-bin/lib/xercesImpl-2.0.2.jar:phoenix-bin/lib/xml-apis.jar
 
 ## Setup the Anakia stuff
@@ -34,10 +36,14 @@ export CLASSPATH
 chmod u+x ${ANT_HOME}/bin/antRun
 chmod u+x ${ANT_HOME}/bin/ant
 
-export PROPOSAL=""
+PROPOSAL=""
+export PROPOSAL
 
 
 ${ANT_HOME}/bin/ant -emacs $@
 
-export CLASSPATH=$OLD_CLASSPATH
-export ANT_HOME=$OLD_ANT_HOME
+CLASSPATH=$OLD_CLASSPATH
+export CLASSPATH
+
+ANT_HOME=$OLD_ANT_HOME
+export ANT_HOME
