@@ -504,50 +504,45 @@
                 <include name="mailet-${mailet-version}.jar"/>
                 <include name="${name}-${version}.jar"/>
             </lib>
-            <lib dir="${lib.dir}">
-                <include name="${dns.jar}"/>
-                <include name="${jakarta-oro.jar}"/>
-                <include name="${derby.jar}"/>
-                <include name="${excalibur-datasource.jar}"/>
-                <include name="${javax-activation.jar}"/>
-                <include name="${javax-mail.jar}"/>
-                <include name="${commons-dbcp.jar}"/>
-                <include name="${commons-pool.jar}"/>
-                <include name="${bcmail.jar}"/>
-                <include name="${bcmail-workaround.jar}"/>
-                <include name="${excalibur-thread-api.jar}"/>
-                <include name="${excalibur-thread-impl.jar}"/>
-                <include name="${excalibur-pool-api.jar}"/>
-                <include name="${excalibur-pool-impl.jar}"/>
-                <include name="${commons-collections.jar}"/>
-                <include name="${cornerstone-threads-api.jar}"/>
-                <include name="${cornerstone-threads-impl.jar}"/>
-                <include name="${cornerstone-connection-api.jar}"/>
-                <include name="${cornerstone-connection-impl.jar}"/>
-                <include name="${cornerstone-store-api.jar}"/>
-                <include name="${cornerstone-scheduler-api.jar}"/>
-                <include name="${cornerstone-scheduler-impl.jar}"/>
-                <include name="${cornerstone-sockets-api.jar}"/>
-                <include name="${cornerstone-sockets-impl.jar}"/>
-                <include name="${cornerstone-datasources-api.jar}"/>
-                <include name="${cornerstone-datasources-impl.jar}"/>
-                <include name="${concurrent.jar}"/>
-                <include name="${jspf.jar}"/>
-                <include name="${mstor.jar}"/>
-                <include name="${commons-logging.jar}"/>
-                <include name="${jdom.jar}"/>
-                <include name="${xstream.jar}"/>
-
-                <include name="${torque.jar}"/>
-                <include name="${village.jar}"/>
-                <include name="${commons-lang.jar}"/>
-                <include name="${commons-configuration.jar}"/>
-                <include name="${commons-beanutils.jar}"/>
-
-                <include name="${jsieve.jar}"/>
-                <include name="${commons-digester.jar}"/>
-
-            </lib>
+            <lib dir="${lib.dir}/${path.lib.dns}" includes="${jarname.dns.jar}" />
+            <lib dir="${lib.dir}/${path.lib.oro}" includes="${jarname.jakarta-oro.jar}" />
+            <lib dir="${lib.dir}/${path.lib.derby}" includes="${jarname.derby.jar}" />
+            <lib dir="${lib.dir}/${path.lib.excaliburdatasource}" includes="${jarname.excalibur-datasource.jar}" />
+            <lib dir="${lib.dir}/${path.lib.activation}" includes="${jarname.javax-activation.jar}" />
+            <lib dir="${lib.dir}/${path.lib.javamail}" includes="${jarname.javax-mail.jar}" />
+            <lib dir="${lib.dir}/${path.lib.commonsdbcp}" includes="${jarname.commons-dbcp.jar}" />
+            <lib dir="${lib.dir}/${path.lib.commonspool}" includes="${jarname.commons-pool.jar}" />
+            <lib dir="${lib.dir}/${path.lib.bouncycastle}" includes="${jarname.bcmail.jar}" />
+            <lib dir="${lib.dir}/${path.lib.bouncycastle}" includes="${jarname.bcmail-workaround.jar}" />
+            <lib dir="${lib.dir}/${path.lib.excaliburthread}" includes="${jarname.excalibur-thread-api.jar}" />
+            <lib dir="${lib.dir}/${path.lib.excaliburthread}" includes="${jarname.excalibur-thread-impl.jar}" />
+            <lib dir="${lib.dir}/${path.lib.excaliburpool}" includes="${jarname.excalibur-pool-api.jar}" />
+            <lib dir="${lib.dir}/${path.lib.excaliburpool}" includes="${jarname.excalibur-pool-impl.jar}" />
+            <lib dir="${lib.dir}/${path.lib.commonscollections}" includes="${jarname.commons-collections.jar}" />
+            <lib dir="${lib.dir}/${path.lib.cornerstonethreads}" includes="${jarname.cornerstone-threads-api.jar}" />
+            <lib dir="${lib.dir}/${path.lib.cornerstonethreads}" includes="${jarname.cornerstone-threads-impl.jar}" />
+            <lib dir="${lib.dir}/${path.lib.cornerstoneconnection}" includes="${jarname.cornerstone-connection-api.jar}" />
+            <lib dir="${lib.dir}/${path.lib.cornerstoneconnection}" includes="${jarname.cornerstone-connection-impl.jar}" />
+            <lib dir="${lib.dir}/${path.lib.cornerstonestore}" includes="${jarname.cornerstone-store-api.jar}" />
+            <lib dir="${lib.dir}/${path.lib.cornerstonescheduler}" includes="${jarname.cornerstone-scheduler-api.jar}" />
+            <lib dir="${lib.dir}/${path.lib.cornerstonescheduler}" includes="${jarname.cornerstone-scheduler-impl.jar}" />
+            <lib dir="${lib.dir}/${path.lib.cornerstonesockets}" includes="${jarname.cornerstone-sockets-api.jar}" />
+            <lib dir="${lib.dir}/${path.lib.cornerstonesockets}" includes="${jarname.cornerstone-sockets-impl.jar}" />
+            <lib dir="${lib.dir}/${path.lib.cornerstonedatasources}" includes="${jarname.cornerstone-datasources-api.jar}" />
+            <lib dir="${lib.dir}/${path.lib.cornerstonedatasources}" includes="${jarname.cornerstone-datasources-impl.jar}" />
+            <lib dir="${lib.dir}/${path.lib.concurrent}" includes="${jarname.concurrent.jar}" />
+            <lib dir="${lib.dir}/${path.lib.james}" includes="${jarname.jspf.jar}" />
+            <lib dir="${lib.dir}/${path.lib.mstor}" includes="${jarname.mstor.jar}" />
+            <lib dir="${lib.dir}/${path.lib.commonslogging}" includes="${jarname.commons-logging.jar}" />
+            <lib dir="${lib.dir}/${path.lib.jdom}" includes="${jarname.jdom.jar}" />
+            <lib dir="${lib.dir}/${path.lib.xstream}" includes="${jarname.xstream.jar}" />
+            <lib dir="${lib.dir}/${path.lib.torque}" includes="${jarname.torque.jar}" />
+            <lib dir="${lib.dir}/${path.lib.village}" includes="${jarname.village.jar}" />
+            <lib dir="${lib.dir}/${path.lib.commonslang}" includes="${jarname.commons-lang.jar}" />
+            <lib dir="${lib.dir}/${path.lib.commonsconfiguration}" includes="${jarname.commons-configuration.jar}" />
+            <lib dir="${lib.dir}/${path.lib.commonsbeanutils}" includes="${jarname.commons-beanutils.jar}" />
+            <lib dir="${lib.dir}/${path.lib.james}" includes="${jarname.jsieve.jar}" />
+            <lib dir="${lib.dir}/${path.lib.commonsdigester}" includes="${jarname.commons-digester.jar}" />
             <zipfileset dir="${conf.dir}" fullpath="conf/sqlResources.xml">
                 <include name="sqlResources.xml"/>
             </zipfileset>
