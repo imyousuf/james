@@ -191,21 +191,30 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
             </path>   
     
             <path 
-               id='classpath.dependencies.api'
-               description="Convenient way to import all APIs">
-             <!-- TODO Add content when APIs are broken out -->   
+                id='classpath.dependencies.api'
+                description="Convenient way to import all APIs">
+                <!-- TODO Add content when APIs are broken out -->   
+                <fileset dir="${lib.dir}/${path.lib.james}">
+                    <include name="${jars-prefix}*-api-*.jar" />
+                </fileset>
             </path>
             <path 
                 id='classpath.dependencies.libraries'
                 description="Convenient way to import all libraries and APIs">
                 <!-- TODO Add content when libraries are broken out -->   
                 <path refid='classpath.dependencies.api'/>
+                <fileset dir="${lib.dir}/${path.lib.james}">
+                    <include name="${jars-prefix}*-library-*.jar" />
+                </fileset>
             </path> 
             <path 
                 id='classpath.dependencies.functions'
                 description="Convenient way to import all functions, libraries and APIs">
                 <!-- TODO Add content when functions are broken out -->   
                 <path refid='classpath.dependencies.libraries'/>   
+                <fileset dir="${lib.dir}/${path.lib.james}">
+                    <include name="${jars-prefix}*-function-*.jar" />
+                </fileset>
             </path>   
         </sequential>   
     </macrodef>   
@@ -276,6 +285,7 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
         <attribute name='name'/>
         <attribute name='bin'/>  
         <attribute name='lib'/>
+        <attribute name='prefix' default='${jars-prefix}'/>
         <attribute name='version' default='${version}'/>   
         <attribute name='vendor.impl' default='${vendor.impl}'/> 
         <attribute name='vendor.spec' default='${vendor.spec}'/>   
@@ -285,7 +295,7 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
             <mkdir dir='@{lib}'/>
             <mkdir dir='@{bin}'/>   
             <jar 
-                jarfile="@{lib}/james-server-@{name}-@{version}.jar" 
+                jarfile="@{lib}/@{prefix}@{name}-@{version}.jar" 
                 basedir="@{bin}">
                 <manifest>
                     <attribute name='Built-By' value='${user.name}'/>
