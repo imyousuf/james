@@ -18,7 +18,7 @@
   under the License.    
 -->
 
-<project default="lite" basedir=".">
+<project default="full" basedir=".">
 
 <description>
 Master build file for JAMES server.
