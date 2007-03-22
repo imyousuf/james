@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project default="main" name="mailet-library">
+  <description>Builds mailet-library module. This is an library module.</description>
+  <property name="name.module" value="mailet-library" />
+  <import file="../build-tools/library-build.xml" optional="no" />
+</project>
