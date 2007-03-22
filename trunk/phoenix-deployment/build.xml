@@ -99,7 +99,10 @@
 
             <include name="${jsieve.jar}"/>
             <include name="${commons-digester.jar}"/>
-
+            <!-- TODO: include libraries without wildcards -->
+            <include name="${path.lib.james}/${jars-prefix}*-api-${version}.jar"/>
+            <include name="${path.lib.james}/${jars-prefix}*-library-${version}.jar"/>
+            <include name="${path.lib.james}/${jars-prefix}*-function-${version}.jar"/>
         </fileset>
         <pathelement path="${java.class.path}" />
         <pathelement path="${build.classes}" />
@@ -357,6 +360,8 @@
                 <param name="-tag" value="phoenix\:mx\-isWriteable:X"/>
             </doclet>
         </javadoc>
+        <!-- TODO enable javadoc creation for mailets inside their module!? -->
+        <!--
         <echo message="Making Mailet Javadocs"/>
         <javadoc packagenames="org.apache.mailet.*" sourcepath="${java.dir}" destdir="${build.dir}/mailet">
             <classpath refid="project.class.path"/>
@@ -376,6 +381,7 @@
                 <param name="-bottom" value="&quot;Copyright &#169; ${year} Apache James Project. All Rights Reserved.&quot;"/>
             </doclet>
         </javadoc>
+        -->
     </target>
 
     <!--
@@ -543,6 +549,13 @@
             <lib dir="${lib.dir}/${path.lib.commonsbeanutils}" includes="${jarname.commons-beanutils.jar}" />
             <lib dir="${lib.dir}/${path.lib.james}" includes="${jarname.jsieve.jar}" />
             <lib dir="${lib.dir}/${path.lib.commonsdigester}" includes="${jarname.commons-digester.jar}" />
+            <!-- include every api, library and function -->
+            <!-- TODO this should list exactly the module defined, without wildcards -->
+            <lib dir="${lib.dir}/${path.lib.james}">
+              <include name="${jars-prefix}*-api-${version}.jar" />
+              <include name="${jars-prefix}*-library-${version}.jar" />
+              <include name="${jars-prefix}*-function-${version}.jar" />
+            </lib>
             <zipfileset dir="${conf.dir}" fullpath="conf/sqlResources.xml">
                 <include name="sqlResources.xml"/>
             </zipfileset>
@@ -773,6 +786,8 @@
         <echo file='${sdk.usr.src}/README.txt'>Mailet SDK is an environment aimed at Mailet developers.
         It contains a basic framework for developing mailets and deploying them as part of James.</echo>
 
+        <!-- TODO reenable copying of api source and docs -->
+        <!--
         <copy todir="${api.src}">
             <fileset dir="src">
                 <include name="**/mailet/**"/>
@@ -783,6 +798,7 @@
                 <include name="**/*"/>
             </fileset>
         </copy>
+         -->
         <copy todir='${sdk.samples.src}'>
             <fileset dir="${junitjava.dir}">
                 <include name="org/apache/james/samples/**/*"/>
