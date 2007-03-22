@@ -853,8 +853,8 @@
     -->
     <target name="unit-tests-classpath" depends="compile">
         <path id="unittest.class.path">
-            <pathelement location="../stage/junit/junit.jar"/>
             <fileset dir="${lib.dir}">
+                <include name="${junit.jar}"/>
                 <include name="${commons-net.jar}"/>
                 <include name="${jmock.jar}"/>
             </fileset>
