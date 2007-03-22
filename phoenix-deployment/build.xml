@@ -155,6 +155,7 @@
                 <include name="UPGRADE.txt"/>
             </fileset>
         </copy>
+        <!-- TODO fixcrlf should be done in each submodule -->
         <fixcrlf srcdir="${java.dir}" includes="**/*.java" eol="lf" tab="remove" tablength="4" />
         <fixcrlf srcdir="${java.dir}" includes="**/*.minfo" eol="lf" tab="remove" tablength="4" />
         <fixcrlf srcdir="${java.dir}" includes="**/*.xinfo" eol="lf" tab="remove" tablength="4" />
@@ -164,6 +165,8 @@
         <fixcrlf srcdir="${conf.dir}" includes="**/*.xml" eol="lf" tab="remove" tablength="4" />
         <fixcrlf srcdir="${metainf.dir}" includes="**/*" eol="lf" tab="remove" tablength="4" />
         <fixcrlf srcdir="." includes="build.xml" eol="lf"/>
+        <!-- moved to core-library/build.xml -->
+        <!--
         <mkdir dir="${build.src}"/>
         <copy todir="${build.src}">
             <fileset dir="${java.dir}">
@@ -173,6 +176,7 @@
         <replace file="${build.src}/${constants.file}" token="@@VERSION@@" value="${version}"/>
         <replace file="${build.src}/${constants.file}" token="@@NAME@@" value="${Name}"/>
         <replace file="${build.src}/${constants.file}" token="@@DATE@@" value="${TODAY}"/>
+        -->
 
     </target>
 
@@ -290,9 +294,13 @@
         <mkdir dir="${build.classes}"/>
         <javac destdir="${build.classes}" debug="${debug}" optimize="${optimize}" deprecation="${deprecation}" target="${jdk.target}" source="${jdk.source}">
             <classpath refid="project.class.path"/>
+            <!--
             <src path="${build.src}"/>
+             -->
             <src path="${java.dir}"/>
+            <!--
             <exclude name="${constants.file}"/>
+             -->
         </javac>
         <copy todir="${build.classes}">
             <fileset dir="${java.dir}">

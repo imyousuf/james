@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+<title>Apache James - Mail and News server - Migrating from Avalon database connections to DataSource</title>
+<LINK TITLE="Style" HREF="stylesheet.css" TYPE="text/css" REL="stylesheet"/>
+<meta value="Serge Knystautas" name="author"/>
+<meta value="serge@apache.org" name="email"/>
+</head>
+<body>
+<table cellspacing="0" width="100%" border="0" class="page-header">
+<!--PAGE HEADER-->
+<tr>
+<td colspan="2">
+<!--ASF LOGO-->
+<a href="http://www.apache.org/">
+<img border="0" alt="The ASF" align="left" src="http://www.apache.org/images/asf_logo_wide.gif"/>
+</a>
+<!--PROJECT LOGO-->
+<a href="http://james.apache.org/">
+<img border="0" alt="James - Java Apache Mail Enterprise Server" align="right" src="./images/james-logo.jpg"/>
+</a>
+</td>
+</tr>
+</table>
+<table cellspacing="4" width="100%" border="0">
+<tr>
+<!--LEFT SIDE NAVIGATION-->
+<td nowrap="true" valign="top" class="left-navbar">
+<table cellpadding="0" cellspacing="0" width="100%" border="0">
+<tr>
+<td>
+<a href="http://apachecon.com">
+<img border="0" alt="ApacheCon Promotion" align="left" src="http://www.apache.org/ads/ApacheCon/234x60-2006-us.gif"/>
+</a>
+</td>
+</tr>
+</table>
+<navbar name="lhs">
+
+    <p>
+<strong>Concepts</strong>
+</p>
+<ul>
+<li>
+<a href="./summary.html">Summary</a>
+</li>
+<li>
+<a href="./spoolmanager.html">SpoolManager</a>
+</li>
+<li>
+<a href="./repositories.html">Repositories</a>
+</li>
+<li>
+<a href="./mailet_api.html">The Mailet API</a>
+</li>
+</ul>
+    
+    <p>
+<strong>How to...</strong>
+</p>
+<ul>
+<li>
+<a href="./build_instructions.html">Build James</a>
+</li>
+<li>
+<a href="./installation_instructions.html">Install James</a>
+</li>
+</ul>
+    
+    <p>
+<strong>Configuration</strong>
+</p>
+<ul>
+<li>
+<a href="./dns_configuration.html">DNS Server</a>
+</li>
+<li>
+<a href="./pop3_configuration.html">POP3 Server</a>
+</li>
+<li>
+<a href="./smtp_configuration.html">SMTP Server</a>
+</li>
+<li>
+<a href="./nntp_configuration.html">NNTP Server</a>
+</li>
+<li>
+<a href="./fetchmail_configuration.html">FetchMail</a>
+</li>
+<li>
+<a href="./remotemanager_configuration.html">RemoteManager</a>
+</li>
+<li>
+<a href="./spoolmanager_configuration.html">SpoolManager</a>
+</li>
+<li>
+<a href="./serverwide_configuration.html">Server-wide</a>
+</li>
+<li>
+<a href="./adding_users.html">Adding Users</a>
+</li>
+<li>
+<a href="./provided_matchers.html">Provided Matchers</a>
+</li>
+<li>
+<a href="./provided_mailets.html">Provided Mailets</a>
+</li>
+</ul>
+    
+    <p>
+<strong>Common Configurations</strong>
+</p>
+<ul>
+<li>
+<a href="./smtp_auth.html">Using SMTP AUTH</a>
+</li>
+<li>
+<a href="./using_database.html">Using a Database with James</a>
+</li>
+<li>
+<a href="./usingTLS.html">Using TLS/SSL</a>
+</li>
+<li>
+<a href="./james_and_sendmail.html">James and Sendmail</a>
+</li>
+<li>
+<a href="./mailing_lists.html">Creating Mailing Lists</a>
+</li>
+</ul>
+    
+    <p>
+<strong>Customization</strong>
+</p>
+<ul>
+<li>
+<a href="./custom_matcher.html">How to write a custom Matcher</a>
+</li>
+<li>
+<a href="./custom_mailet.html">How to write a custom Mailet</a>
+</li>
+</ul>
+    
+    <p>
+<strong>Project</strong>
+</p>
+<ul>
+<li>
+<a href="./changelog.html">Changelog</a>
+</li>
+</ul>
+
+   </navbar>
+</td>
+<!--MAIN BODY-->
+<td align="left" valign="top" class="main-body">
+<div class="section">
+<div class="section-header">
+<a name="Migrating from Avalon database connections to DataSource">
+<strong>Migrating from Avalon database connections to DataSource</strong>
+</a>
+</div>
+<p>
+<div class="section-body">
+
+<p>
+  In James version 2.3, we expose database connections via the javax.sql.DataSource.  This document describes how to update code using James previous database connectivity (Avalon's DataSourceComponent).
+</p>
+<ol>
+<li>Remove references to DataSourceSelector.</li>
+<li>Change references of DataSourceComponent to DataSource</li>
+<li>Add imports:
+<div class="source">
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
+</div>
+</li>
+<li>Change how the datasource is looked up
+<br/>
+Replace:
+<div class="source">
+    ComponentManager componentManager = (ComponentManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
+    // Get the DataSourceSelector service
+    DataSourceSelector datasources = (DataSourceSelector)componentManager.lookup(DataSourceSelector.ROLE);
+    // Get the data-source required.
+    datasource = (DataSourceComponent)datasources.select(datasourceName);
+</div>
+with
+<div class="source">
+    InitialContext ctx = new InitialContext();
+    datasource = (DataSource) ctx.lookup("java:comp/env/jdbc/" + datasourceName);
+</div>
+Then update exception handling appropriately.
+</li>
+</ol>
+ <p>
+   That's all there is to it.  Enjoy!
+ </p>
+
+</div>
+</p>
+</div>
+</td>
+</tr>
+<!--FOOTER SEPARATOR-->
+<tr>
+<td colspan="2">
+<hr size="1" noshade=""/>
+</td>
+</tr>
+<tr>
+<td colspan="2">
+<div class="page-footer">
+<em>
+        Copyright © 1999-2006, The Apache Software Foundation
+        </em>
+</div>
+</td>
+</tr>
+</table>
+</body>
+</html>

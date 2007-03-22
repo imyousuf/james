@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<project default="main" name="core-library">
+  <description>Builds core-library module. This is an library module.</description>
+  <property name="name.module" value="core-library" />
+  <import file="../build-tools/library-build.xml" optional="no" />
+  
+  <target name='build' description='Builds without cleaning'
+      depends='check-environment, conditional-clean, set-classpath'>
+    <echo>Building ${name.module}</echo>   
+    
+    <mkdir dir="${dir.build.src}"/>
+    <copy todir="${dir.build.src}">
+        <fileset dir="${dir.src.java}">
+            <!-- ${constants.file} -->
+            <include name="**"/>
+        </fileset>
+    </copy>
+    <replace file="${dir.build.src}/${constants.file}" token="@@VERSION@@" value="${version}"/>
+    <replace file="${dir.build.src}/${constants.file}" token="@@NAME@@" value="${Name}"/>
+    <replace file="${dir.build.src}/${constants.file}" token="@@DATE@@" value="${TODAY}"/> 
+  
+    <CompileMainSource src="${dir.build.src}" />
+  </target>   
+    
+</project>
