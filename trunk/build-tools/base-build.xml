@@ -63,6 +63,7 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
         <sequential>
             <echo>Cleaning build directories...</echo>   
             <delete dir='${dir.build}'/>   
+            <delete dir='${dir.build.src}'/>   
             <delete dir='${dir.build.bin}'/>
             <delete dir='${dir.build.test}'/>   
         </sequential>   
@@ -98,7 +99,9 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
                 source='@{jdk-source}'>
                 <classpath refid='@{classpath-refid}'/>
                 <src path='@{src}'/>
+                <!-- Not needed anymore (handled by core-library/build.xml)
                 <exclude name='${constants.file}'/>
+                -->
             </javac>
             <copy todir='@{bin}'>
                 <fileset dir='@{src}'>
@@ -121,9 +124,10 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
         <attribute name='deprecation' default='${deprecation}'/>
         <attribute name='jdk-source' default='${jdk.source}'/>
         <attribute name='jdk-target' default='${jdk.target}'/>   
+        <attribute name='src' default='${dir.src.java}'/>
         <sequential>
             <Compile 
-                src='${dir.src.java}'   
+                src='@{src}'   
                 bin='${dir.build.bin}'
                 resources="${dir.src.resources}"   
                 classpath-refid="@{classpath-refid}"   
@@ -195,7 +199,8 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
                 description="Convenient way to import all APIs">
                 <!-- TODO Add content when APIs are broken out -->   
                 <fileset dir="${lib.dir}/${path.lib.james}">
-                    <include name="${jars-prefix}*-api-*.jar" />
+                    <include name="${jars-prefix}*-api-${version}.jar" />
+                    <include name="${jars-prefix}mailet-library-${version}.jar" />
                 </fileset>
             </path>
             <path 
@@ -204,7 +209,7 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
                 <!-- TODO Add content when libraries are broken out -->   
                 <path refid='classpath.dependencies.api'/>
                 <fileset dir="${lib.dir}/${path.lib.james}">
-                    <include name="${jars-prefix}*-library-*.jar" />
+                    <include name="${jars-prefix}*-library-${version}.jar" />
                 </fileset>
             </path> 
             <path 
@@ -213,7 +218,7 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
                 <!-- TODO Add content when functions are broken out -->   
                 <path refid='classpath.dependencies.libraries'/>   
                 <fileset dir="${lib.dir}/${path.lib.james}">
-                    <include name="${jars-prefix}*-function-*.jar" />
+                    <include name="${jars-prefix}*-function-${version}.jar" />
                 </fileset>
             </path>   
         </sequential>   
