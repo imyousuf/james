@@ -25,7 +25,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.Constants;
 import org.apache.james.core.MailHeaders;
 import org.apache.james.core.MailImpl;
-import org.apache.james.fetchmail.ReaderInputStream;
+import org.apache.james.smtpserver.ReaderInputStream;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.MessageSizeException;
 import org.apache.james.smtpserver.SMTPSession;
