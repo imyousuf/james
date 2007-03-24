@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.fetchmail;
+package org.apache.james.smtpserver;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
