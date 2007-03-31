@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="ISO-8859-15"?><project>
+  <parent>
+    <artifactId>james-server</artifactId>
+    <groupId>org.apache.james</groupId>
+    <version>3.0-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.apache.james</groupId>
+  <artifactId>james-server-smtpserver-function</artifactId>
+  <name>Apache JAMES Server SMTP function</name>
+  <dependencies>
+    <!--
+    <dependency>
+      <groupId>javax.mail</groupId>
+      <artifactId>mail</artifactId>
+      <version>1.4.1ea-SNAPSHOT</version>
+    </dependency>
+    -->
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-mailet-api</artifactId>
+      <version>3.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-mailet-library</artifactId>
+      <version>3.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-core-library</artifactId>
+      <version>3.0-SNAPSHOT</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+</project>
