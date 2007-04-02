@@ -427,6 +427,7 @@
                                 build   website
     ===================================================================
     -->
+    
     <target name="website" depends="xdocs,javadocs">
 
         <echo message="preparing website in ${www.dir}"/>
@@ -457,7 +458,9 @@
                 Build everything
     ===================================================================
     -->
-    <target name="everything" depends="clean,website,dist-bin,dist-src,dist-mailet-SDK"/>
+    <!-- removed website from depends list: it does not belong to the phoenix deployment -->
+    <target name="everything" depends="clean,dist-bin,dist-src,dist-mailet-SDK"/>
+    
 
     <!--
     ===================================================================
@@ -661,7 +664,8 @@
         <copy todir='${dir.master.dist}/bin' file='${dist.binary.file.tgz}'/>
     </target>
 
-    <!-- target name="dist-bin-common" depends="dist-lite,xdocs,javadocs" -->
+    <!-- removed xdocs from depends list -->
+    <!-- target name="dist-bin-common" depends="dist-lite,javadocs" -->
     <target name="dist-bin-common" depends="dist-lite">
         <echo message ="Building binary distributions"/>
         <property name="dist.binary.dir" value="${dist.dir}/downloads/bin"/>
@@ -721,7 +725,8 @@
         <delete file="${dist.source.dir}/${name}-with-phoenix-${version}-src.tar"/>
     </target>
 
-    <target name="dist-src-common" depends="dist-lite,xdocs,javadocs">
+    <!-- removed xdocs from depends list -->
+    <target name="dist-src-common" depends="dist-lite,javadocs">
         <echo message ="Building source distributions"/>
 
         <property name="dist.source.dir" value="${dist.dir}/downloads/src"/>
@@ -759,7 +764,8 @@
                                   Mailet SDK distribution
     ===================================================================
     -->
-    <target name="dist-mailet-SDK" depends="dist-lite,xdocs,javadocs, prepare-master-dist">
+    <!-- removed xdocs from depends list -->
+    <target name="dist-mailet-SDK" depends="dist-lite,javadocs, prepare-master-dist">
 
         <echo message ="building mailet SDK distributions"/>
 
@@ -973,11 +979,11 @@
         <echo message=" available targets are:"/>
         <echo message=""/>
         <echo message="   dist-lite --> generates unpacked distribution (default)"/>
-        <echo message="   website   --> makes all the docs and javadocs"/>
+        <!-- <echo message="   website   - - > makes all the docs and javadocs"/> -->
         <echo message="   compile   --> compiles the source code"/>
         <echo message="   dist      --> generates all the James distributions, packed"/>
         <echo message="   clean     --> cleans up the directory"/>
-        <echo message="   xdocs     --> creates the documentaion for James"/>
+        <!-- <echo message="   xdocs     - - > creates the documentaion for James"/> -->
         <echo message="   javadocs  --> creates the Javadoc"/>
         <echo message=""/>
         <echo message=" See the comments inside the build.xml file for more details."/>
