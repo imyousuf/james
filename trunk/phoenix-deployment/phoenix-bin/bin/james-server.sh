@@ -146,7 +146,6 @@ cd $PHOENIX_HOME/bin
 
 # Get the run cmd
 RUN_CMD="$JSVC -user $USER -pidfile $PIDFILE $JVM_OPTS -outfile $PHOENIX_HOME/logs/james.out -errfile $PHOENIX_HOME/logs/james.err \
-    $JVM_OPTS \
     $DEBUG \
     -Djava.security.policy=jar:file:$PHOENIX_HOME/bin/phoenix-loader.jar!/META-INF/java.policy \
     $PHOENIX_JVM_OPTS \
