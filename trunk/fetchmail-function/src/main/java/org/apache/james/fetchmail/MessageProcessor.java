@@ -1223,7 +1223,7 @@ public class MessageProcessor extends ProcessorAbstract
             getMessageIn().setFlag(Flags.Flag.DELETED, true);
     }    
     
-    /*    /**
+    /**
      * Set the SEEN flag.
      * @throws MessagingException
      */
