@@ -198,14 +198,16 @@ Legal:
         </fileset>
       </copy>
 
-        <fixcrlf srcdir="${james.dir}/${phoenix.dir}/bin" includes="james-server.sh" eol="lf"/>
+      <fixcrlf srcdir="${james.dir}/${phoenix.dir}/bin" includes="james-server.sh" eol="lf"/>
       <fixcrlf srcdir="${dist.bin}" includes="run.sh" eol="lf"/>
       <fixcrlf srcdir="${dist.bin}" includes="run.bat" eol="crlf"/>
+      <fixcrlf srcdir="${james.dir}/src/python" includes="sendmail.by" eol="lf"/>
       <chmod perm="+x">
         <fileset dir="${dist.bin}">
           <include name="run.sh"/>
           <include name="phoenix.sh"/>
-                <include name="james-server.sh"/>
+          <include name="james-server.sh"/>
+          <include name="sendmail.py"/>
         </fileset>
       </chmod>
     	
