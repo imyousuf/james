@@ -1,6 +1,22 @@
 <?xml version="1.0"?>
 
 <server>
+
+  <!-- Overrides the default behaviour of phoenix that use "." as dir --> 
+  <!-- and /SAR-INF/lib/*.jar as include resulting in a full scan -->
+  <!-- of the james folder and very slow startup when there are a lot of -->
+  <!-- messages in var -->
+  <!-- -->
+  <classloaders default="default" version="1.0">
+    <classloader name="default" parent="*system*">
+      <entry location="./SAR-INF/classes" />
+      <fileset dir="./SAR-INF/lib">
+        <include name="*.jar" />
+      </fileset>
+    </classloader>
+    <predefined name="*system*" />
+  </classloaders>
+
   <logs version="1.1">
     <!-- see http://jakarta.apache.org/avalon/excalibur/logger/index.html -->
     <factories>
