@@ -31,11 +31,11 @@ import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 
-class SearchImapCommandMessage extends AbstractImapCommandMessage {
+class SearchCommandMessage extends AbstractImapCommandMessage {
     private final SearchTerm searchTerm;
     private final boolean useUids;
 
-    public SearchImapCommandMessage(final ImapCommand command, final SearchTerm searchTerm, final boolean useUids,
+    public SearchCommandMessage(final ImapCommand command, final SearchTerm searchTerm, final boolean useUids,
             final String tag) {
         super(tag, command);
         this.searchTerm = searchTerm;

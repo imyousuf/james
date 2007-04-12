@@ -18,19 +18,11 @@
  ****************************************************************/
 package org.apache.james.imapserver.message;
 
-import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.commands.ImapCommand;
-import org.apache.james.imapserver.store.MailboxException;
-import org.apache.james.mailboxmanager.ListResult;
 
-class LsubListCommandMessage extends ListCommandMessage 
-{
-    public LsubListCommandMessage(ImapCommand command, String referenceName, String mailboxPattern, String tag) {
-        super(command, referenceName, mailboxPattern, tag);
-    }
-
-    protected ListResult[] doList( ImapSession session, String base, String pattern )  throws MailboxException
-    {
-        return doList(session,base,pattern,true);
+class ExamineCommandMessage extends SelectCommandMessage {
+    
+    public ExamineCommandMessage(final ImapCommand command, final String mailboxName, final String tag) {
+        super(command, mailboxName, true, tag);
     }
 }

@@ -48,8 +48,8 @@ public class BaseImapMessageFactory implements ImapMessageFactory {
         return new CapabilityCommandMessage(command, tag);
     }
 
-    public ImapCommandMessage createCompleteMessage(ImapCommand command, boolean useUids, String tag) {
-        return new CompleteCommandMessage(command, useUids, tag);
+    public ImapCommandMessage createNoopMessage(ImapCommand command, String tag) {
+        return new NoopCommandMessage(command, tag);
     }
 
     public ImapCommandMessage createCloseMessage(ImapCommand command, String tag) {
@@ -69,7 +69,7 @@ public class BaseImapMessageFactory implements ImapMessageFactory {
     }
 
     public ImapCommandMessage createExamineMessage(ImapCommand command, String mailboxName, String tag) {
-        return new SelectCommandMessage(command, mailboxName, true, tag);
+        return new ExamineCommandMessage(command, mailboxName, tag);
     }
 
     public ImapCommandMessage createExpungeMessage(ImapCommand command, String tag) {
@@ -93,7 +93,7 @@ public class BaseImapMessageFactory implements ImapMessageFactory {
     }
 
     public ImapCommandMessage createLsubMessage(ImapCommand command, String referenceName, String mailboxPattern, String tag) {
-        return new LsubListCommandMessage(command, referenceName, mailboxPattern, tag);
+        return new LsubCommandMessage(command, referenceName, mailboxPattern, tag);
     }
 
     public ImapCommandMessage createRenameMessage(ImapCommand command, String existingName, String newName, String tag) {
@@ -101,7 +101,7 @@ public class BaseImapMessageFactory implements ImapMessageFactory {
     }
 
     public ImapCommandMessage createSearchImapMessage(ImapCommand command, SearchTerm searchTerm, boolean useUids, String tag) {
-        return new SearchImapCommandMessage(command, searchTerm, useUids, tag);
+        return new SearchCommandMessage(command, searchTerm, useUids, tag);
     }
 
     public ImapCommandMessage createSelectMessage(ImapCommand command, String mailboxName, String tag) {
@@ -126,6 +126,10 @@ public class BaseImapMessageFactory implements ImapMessageFactory {
 
     public ImapCommandMessage createBadRequestMessage(String message) {
         return new BadResponseMessage(message);
+    }
+
+    public ImapCommandMessage createCheckMessage(ImapCommand command, String tag) {
+        return new CheckCommandMessage(command, tag);
     }  
     
     

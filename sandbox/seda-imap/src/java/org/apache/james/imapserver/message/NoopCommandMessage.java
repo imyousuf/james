@@ -24,17 +24,14 @@ import org.apache.james.imapserver.ProtocolException;
 import org.apache.james.imapserver.commands.ImapCommand;
 import org.apache.james.imapserver.store.MailboxException;
 
-class CompleteCommandMessage extends AbstractImapCommandMessage {
-
-    private final boolean useUids;
+class NoopCommandMessage extends AbstractImapCommandMessage {
     
-    public CompleteCommandMessage(final ImapCommand command, final boolean useUids, final String tag) {
+    public NoopCommandMessage(final ImapCommand command, final String tag) {
         super(tag, command);
-        this.useUids = useUids;
     }
     
     protected ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-        final CommandCompleteResponseMessage result = new CommandCompleteResponseMessage(useUids, command, tag);
+        final CommandCompleteResponseMessage result = new CommandCompleteResponseMessage(false, command, tag);
         return result;
     }
     

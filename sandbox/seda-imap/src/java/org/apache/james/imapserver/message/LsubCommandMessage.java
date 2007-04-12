@@ -16,32 +16,21 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.imapserver.decode;
+package org.apache.james.imapserver.message;
 
-import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ProtocolException;
+import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.commands.ImapCommand;
-import org.apache.james.imapserver.commands.ImapCommandFactory;
-import org.apache.james.imapserver.message.ImapCommandMessage;
+import org.apache.james.imapserver.store.MailboxException;
+import org.apache.james.mailboxmanager.ListResult;
 
-class CheckCommandParser extends AbstractImapCommandParser  implements InitialisableCommandFactory {
-
-    public CheckCommandParser() {
+class LsubCommandMessage extends ListCommandMessage 
+{
+    public LsubCommandMessage(ImapCommand command, String referenceName, String mailboxPattern, String tag) {
+        super(command, referenceName, mailboxPattern, tag);
     }
 
-    /**
-     * @see org.apache.james.imapserver.decode.InitialisableCommandFactory#init(org.apache.james.imapserver.commands.ImapCommandFactory)
-     */
-    public void init(ImapCommandFactory factory)
+    protected ListResult[] doList( ImapSession session, String base, String pattern )  throws MailboxException
     {
-        final ImapCommand command = factory.getCheck();
-        setCommand(command);
+        return doList(session,base,pattern,true);
     }
-    
-    protected ImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
-        endLine( request );
-        final ImapCommandMessage result = getMessageFactory().createCheckMessage(command, tag);
-        return result;
-    }
-    
 }

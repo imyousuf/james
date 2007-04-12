@@ -44,8 +44,10 @@ public interface ImapMessageFactory {
         
     public ImapCommandMessage createCapabilityMessage(final ImapCommand command, final String tag);
 
-    public ImapCommandMessage  createCompleteMessage(final ImapCommand command, final boolean useUids, final String tag);
+    public ImapCommandMessage createCheckMessage(final ImapCommand command, final String tag);
 
+    public ImapCommandMessage createNoopMessage(final ImapCommand command, final String tag);
+    
     public ImapCommandMessage createCloseMessage(final ImapCommand command, final String tag);
 
     public ImapCommandMessage createCopyMessage(final ImapCommand command, final IdRange[] idSet, final String mailboxName, 

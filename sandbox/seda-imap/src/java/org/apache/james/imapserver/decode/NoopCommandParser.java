@@ -40,7 +40,7 @@ class NoopCommandParser extends AbstractImapCommandParser  implements Initialisa
     
     protected ImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
         endLine( request );
-        final ImapCommandMessage result = getMessageFactory().createCompleteMessage(command, false, tag);
+        final ImapCommandMessage result = getMessageFactory().createNoopMessage(command, tag);
         return result;
     }
     
