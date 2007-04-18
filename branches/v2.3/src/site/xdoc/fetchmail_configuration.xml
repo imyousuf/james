@@ -957,6 +957,10 @@ therefore, the <strong>fetchall</strong> tag will be inoperative. In this
 situation, the only way to avoid repeatedly fetching the same mail is to delete
 it from the server using <code>leaveonserver=&quot;false&quot;/&gt;</code>.
 </li>
+
+<li>If using a Exchange 2000 or Exchange 2003 server get sure you fix the CLRF bug. 
+See <a href="http://support.microsoft.com/kb/816896/en-us"> Bug description and fix</a>
+</li>
 </ul>
 </p>
 </section>
