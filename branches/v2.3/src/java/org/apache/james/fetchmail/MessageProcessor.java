@@ -1500,6 +1500,9 @@ public class MessageProcessor extends ProcessorAbstract
     protected String getRemoteAddress()
         throws MessagingException, UnknownHostException
     {
+	// No need for parsing the header for the remoteipaddress. Just return 127.0.0.1	
+	if (getRemoteReceivedHeaderIndex() == -1)  return "127.0.0.1";
+	
         String remoteAddress;
         if (null == (remoteAddress = getRemoteAddressBasic()))
         {
