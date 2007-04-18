@@ -1409,8 +1409,6 @@ public class MessageProcessor extends ProcessorAbstract
      */
     protected String getRemoteDomain() throws MessagingException
     {
-	// use localhost if index -1 is used 
-	if (getRemoteReceivedHeaderIndex() == -1) return "localhost";
 	
         String remoteDomain;
         if (null == (remoteDomain = getRemoteDomainBasic()))
@@ -1503,9 +1501,6 @@ public class MessageProcessor extends ProcessorAbstract
     protected String getRemoteAddress()
         throws MessagingException, UnknownHostException
     {
-	// No need for parsing the header for the remoteipaddress. Just return 127.0.0.1	
-	if (getRemoteReceivedHeaderIndex() == -1)  return "127.0.0.1";
-	
         String remoteAddress;
         if (null == (remoteAddress = getRemoteAddressBasic()))
         {
