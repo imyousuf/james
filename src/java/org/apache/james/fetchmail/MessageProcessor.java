@@ -1409,6 +1409,9 @@ public class MessageProcessor extends ProcessorAbstract
      */
     protected String getRemoteDomain() throws MessagingException
     {
+	// use localhost if index -1 is used 
+	if (getRemoteReceivedHeaderIndex() == -1) return "localhost";
+	
         String remoteDomain;
         if (null == (remoteDomain = getRemoteDomainBasic()))
         {
