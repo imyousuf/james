@@ -1409,7 +1409,7 @@ public class MessageProcessor extends ProcessorAbstract
      */
     protected String getRemoteDomain() throws MessagingException
     {
-	
+    
         String remoteDomain;
         if (null == (remoteDomain = getRemoteDomainBasic()))
         {

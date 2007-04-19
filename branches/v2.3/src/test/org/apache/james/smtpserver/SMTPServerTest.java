@@ -921,7 +921,7 @@ public class SMTPServerTest extends TestCase {
             } catch (Exception _) {
                 assertTrue("Accepted connections " + i + " did not meet or exceed backlog of " + backlog + ".", i >= backlog);
                 connection[i] = null; // didn't open, so don't try to close later
-                break; // OK to fail, since we've at least reached the backlog        	
+                break; // OK to fail, since we've at least reached the backlog          
             }
             assertTrue("connection #" + (i+1) + " established", connection[i].isConnected());
         }
