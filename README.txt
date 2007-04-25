@@ -12,7 +12,7 @@
 
   JAMES Server was formerly known as the Java Apache Mail Enterprise Server.
 
-  Development Status for JAMES 2.3.0
+  Development Status for JAMES 2.3.x
   ----------------------------------
   
   SMTP Server: Stable 

@@ -5,7 +5,7 @@
   Upgrading ...
   -----------------
   
-  Please note that you need to start james 2.3.0 once before this steps can be performed. For installation guidelines 
+  Please note that you need to start james 2.3.x once before this steps can be performed. For installation guidelines 
   read the README.
   
 
