@@ -314,7 +314,11 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                 if (isDebug) log("Adding SMTP gateway: " + server) ;
                 gatewayServer.add(server);
             }
-            authUser = getInitParameter("gatewayusername");
+            authUser = getInitParameter("gatewayUsername");
+            // backward compatibility with 2.3.x
+            if (authUser == null) {
+                authUser = getInitParameter("gatewayusername");
+            }
             authPass = getInitParameter("gatewayPassword");
         }
 
