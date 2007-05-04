@@ -132,7 +132,7 @@ Master build file for JAMES server.
     <target 
         name='dist'
         description='Builds modules, performs standard deployment and creates standard distributions'
-        depends='clean-dist'>
+        depends='clean'>
         <echo>Building modules, performing standard deployments and creating standard distributions</echo>    
         <foralldo do='dist'/>
     </target>   
