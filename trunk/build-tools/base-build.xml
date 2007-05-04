@@ -182,6 +182,7 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
                     <include name="${commons-lang.jar}"/>
                     <include name="${commons-configuration.jar}"/>
                     <include name="${jsieve.jar}"/>
+					<include name="${mailet.jar}"/>
                     <include name="${commons-digester.jar}"/>           
                 </fileset>   
             </path>   
