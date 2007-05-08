@@ -9,7 +9,7 @@
       <item name="Summary" href="/summary.html" />
       <item name="SpoolManager" href="/spoolmanager.html" />
       <item name="Repositories" href="/repositories.html" />
-      <item name="The Mailet API" href="/mailet_api.html" />
+      <item name="The Mailet API" href="/mailet/index.html" />
     </menu>
     
     <menu name="How to...">
