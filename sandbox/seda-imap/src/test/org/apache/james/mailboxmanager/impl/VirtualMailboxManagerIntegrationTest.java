@@ -30,7 +30,7 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.core.AvalonMailStore;
-import org.apache.james.imapserver.util.MessageGenerator;
+import org.apache.james.experimental.imapserver.util.MessageGenerator;
 import org.apache.james.mailboxmanager.TestUtil;
 import org.apache.james.mailboxmanager.mailbox.MailboxSession;
 import org.apache.james.services.FileSystem;

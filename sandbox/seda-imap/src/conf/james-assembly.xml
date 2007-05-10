@@ -122,7 +122,7 @@
              role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
   </block>  
     
-  <block name="imapserver" class="org.apache.james.imapserver.ImapServer" >
+  <block name="imapserver" class="org.apache.james.experimental.imapserver.ImapServer" >
     <provide name="localusersrepository" role="org.apache.james.services.UsersRepository"/>
     <provide name="sockets"
              role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
