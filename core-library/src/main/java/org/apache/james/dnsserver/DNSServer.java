@@ -111,6 +111,13 @@ public class DNSServer
      * calls
      */
     private boolean setAsDNSJavaDefault;
+    
+    private String localHostName;
+    
+    private String localCanonicalHostName;
+    
+    private String localAddress;
+    
 
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
@@ -227,6 +234,15 @@ public class DNSServer
             Lookup.setDefaultSearchPath(searchPaths);
             getLogger().info("Registered cache, resolver and search paths as DNSJava defaults");
         }
+        
+        // Cache the local hostname and local address. This is needed because 
+        // the following issues:
+        // JAMES-787
+        // JAMES-302
+        InetAddress addr = getLocalHost();
+        localCanonicalHostName = addr.getCanonicalHostName();
+        localHostName = addr.getHostName();
+        localAddress = addr.getHostAddress();
         
         getLogger().debug("DNSServer ...init end");
     }
@@ -492,7 +508,13 @@ public class DNSServer
      */
     public InetAddress getByName(String host) throws UnknownHostException {
         String name = allowIPLiteral(host);
+         
         try {
+            // Check if its local
+            if (name.equalsIgnoreCase(localHostName) || name.equalsIgnoreCase(localCanonicalHostName) ||name.equals(localAddress)) {
+                return getLocalHost();
+            }
+            
             return org.xbill.DNS.Address.getByAddress(name);
         } catch (UnknownHostException e) {
             Record[] records = lookupNoException(name, Type.A, "A");
@@ -510,6 +532,11 @@ public class DNSServer
     public InetAddress[] getAllByName(String host) throws UnknownHostException {
         String name = allowIPLiteral(host);
         try {
+            // Check if its local
+            if (name.equalsIgnoreCase(localHostName) || name.equalsIgnoreCase(localCanonicalHostName) ||name.equals(localAddress)) {
+                return new InetAddress[] {getLocalHost()};
+            }
+            
             InetAddress addr = org.xbill.DNS.Address.getByAddress(name);
             return new InetAddress[] {addr};
         } catch (UnknownHostException e) {
