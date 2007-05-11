@@ -12,11 +12,11 @@ Releases:
     Next-Minor:     probably 2.4.0
         Based on v2.3 branch, will contain selected backports from trunk.
         config.xml and storage compatible with v2.3
-        ETA: branch on Nov/Dec 2006, release on Dec/Jan 2007
+        ETA: Undefined
     Next-Major:     name to be defined (2.4.0 / 2.5.0 / 3.0.0)
         Will contain new features and major enhancements not yet agreed.
         config.xml and storage compatible with v2.3
-        ETA: branch on Dec 2006/Jan 2007, release on Mar 2007
+        ETA: Undefined
     Next-Greater:
         Will be included as soon as Next-Major will be branched from trunk.
         Will include major non backward compatible changes.
@@ -101,5 +101,6 @@ Sandbox:
         
     handlerapi-expirement
         Goal: Indruduce async IO Handling and fastfail api
-        Status: IO Handling is complete, fastfail api still in procress
+        Status: Dead / Experiment completed. 
+                IO Handling POC was complete, fastfail api still incomplete.
         Owner: norman, bago
