@@ -59,9 +59,6 @@ Master build file for JAMES server.
         <attribute name='do'/>   
         <attribute name='dir' default='.'/>   
         <sequential>
-        	  <subant target='@{do}'>
-                <dirset dir='@{dir}' includes='mailet' />
-        	  </subant>
             <fordo do='@{do}' dir='@{dir}' type='library'/>
         </sequential>   
     </macrodef>    

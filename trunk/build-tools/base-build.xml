@@ -182,7 +182,7 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
                     <include name="${commons-lang.jar}"/>
                     <include name="${commons-configuration.jar}"/>
                     <include name="${jsieve.jar}"/>
-					<include name="${mailet.jar}"/>
+                    <include name="${mailet.jar}"/>
                     <include name="${commons-digester.jar}"/>           
                 </fileset>   
             </path>   
@@ -201,7 +201,6 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
                 <!-- TODO Add content when APIs are broken out -->   
                 <fileset dir="${lib.dir}/${path.lib.james}">
                     <include name="${jars-prefix}*-api-${version}.jar" />
-                    <include name="${jars-prefix}mailet-library-${version}.jar" />
                 </fileset>
             </path>
             <path 

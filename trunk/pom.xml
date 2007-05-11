@@ -14,8 +14,6 @@
   <inceptionYear>2002</inceptionYear>
   <packaging>pom</packaging>
   <modules>
-    <module>mailet-api</module>
-    <module>mailet</module>
     <module>core-library</module>
     <module>smtpserver-function</module>
     <module>pop3server-function</module>
@@ -51,6 +49,15 @@
               <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
             </manifest>
           </archive>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <configuration>
+          <descriptorRefs>
+            <descriptorRef>bin</descriptorRef>
+            <descriptorRef>src</descriptorRef>
+          </descriptorRefs>
         </configuration>
       </plugin>
     </plugins>
