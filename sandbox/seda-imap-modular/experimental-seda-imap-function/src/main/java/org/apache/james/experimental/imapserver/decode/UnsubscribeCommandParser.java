@@ -22,7 +22,7 @@ import org.apache.james.experimental.imapserver.ImapRequestLineReader;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.commands.ImapCommandFactory;
-import org.apache.james.experimental.imapserver.message.ImapCommandMessage;
+import org.apache.james.experimental.imapserver.message.ImapRequestMessage;
 
 class UnsubscribeCommandParser extends AbstractImapCommandParser implements InitialisableCommandFactory {
 
@@ -38,10 +38,10 @@ class UnsubscribeCommandParser extends AbstractImapCommandParser implements Init
         setCommand(command);
     }
     
-    protected ImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
+    protected ImapRequestMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
         final String mailboxName = mailbox( request );
         endLine( request );
-        final ImapCommandMessage result = getMessageFactory().createUnsubscribeMessage(command, mailboxName, tag);
+        final ImapRequestMessage result = getMessageFactory().createUnsubscribeMessage(command, mailboxName, tag);
         return result;
     }
     

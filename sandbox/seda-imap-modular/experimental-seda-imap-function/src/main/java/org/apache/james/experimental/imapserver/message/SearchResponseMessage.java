@@ -23,7 +23,7 @@ import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.store.MailboxException;
 
-class SearchResponseMessage extends AbstractCommandResponseMessage {
+public class SearchResponseMessage extends AbstractCommandResponseMessage {
     private final String idList;
     private final boolean useUids;
     

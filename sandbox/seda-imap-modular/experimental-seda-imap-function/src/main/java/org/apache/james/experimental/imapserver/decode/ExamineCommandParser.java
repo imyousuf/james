@@ -22,7 +22,7 @@ import org.apache.james.experimental.imapserver.ImapRequestLineReader;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.commands.ImapCommandFactory;
-import org.apache.james.experimental.imapserver.message.ImapCommandMessage;
+import org.apache.james.experimental.imapserver.message.ImapRequestMessage;
 
 class ExamineCommandParser extends AbstractImapCommandParser  implements InitialisableCommandFactory {
     
@@ -38,10 +38,10 @@ class ExamineCommandParser extends AbstractImapCommandParser  implements Initial
         setCommand(command);
     }
     
-    protected ImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
+    protected ImapRequestMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
         final String mailboxName = mailbox( request );
         endLine( request );
-        final ImapCommandMessage result = getMessageFactory().createExamineMessage(command, mailboxName, tag);
+        final ImapRequestMessage result = getMessageFactory().createExamineMessage(command, mailboxName, tag);
         return result;
     }
     

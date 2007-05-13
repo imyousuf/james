@@ -24,7 +24,7 @@ import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.store.MailboxException;
 
-class LogoutResponseMessage extends AbstractCommandResponseMessage implements ImapCommandMessage {
+public class LogoutResponseMessage extends AbstractCommandResponseMessage implements ImapRequestMessage {
 
 
     public static final String BYE_MESSAGE = ImapConstants.VERSION + ImapConstants.SP + "Server logging out";

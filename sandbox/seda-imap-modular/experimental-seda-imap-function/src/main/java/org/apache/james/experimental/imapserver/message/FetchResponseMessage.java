@@ -27,7 +27,7 @@ import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.store.MailboxException;
 
-class FetchResponseMessage extends AbstractCommandResponseMessage {
+public class FetchResponseMessage extends AbstractCommandResponseMessage {
 
     private final boolean useUids;
     

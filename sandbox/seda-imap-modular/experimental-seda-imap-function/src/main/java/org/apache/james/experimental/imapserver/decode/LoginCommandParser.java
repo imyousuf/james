@@ -22,7 +22,7 @@ import org.apache.james.experimental.imapserver.ImapRequestLineReader;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.commands.ImapCommandFactory;
-import org.apache.james.experimental.imapserver.message.ImapCommandMessage;
+import org.apache.james.experimental.imapserver.message.ImapRequestMessage;
 
 class LoginCommandParser extends AbstractImapCommandParser  implements InitialisableCommandFactory {
 
@@ -38,11 +38,11 @@ class LoginCommandParser extends AbstractImapCommandParser  implements Initialis
         setCommand(command);
     }
     
-    protected ImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
+    protected ImapRequestMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
         final String userid = astring( request );
         final String password = astring( request );
         endLine( request );
-        final ImapCommandMessage result = getMessageFactory().createLoginMessage(command, userid, password, tag);
+        final ImapRequestMessage result = getMessageFactory().createLoginMessage(command, userid, password, tag);
         return result;
     }
     

@@ -25,7 +25,7 @@ import org.apache.james.experimental.imapserver.ImapRequestLineReader;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.commands.ImapCommandFactory;
-import org.apache.james.experimental.imapserver.message.ImapCommandMessage;
+import org.apache.james.experimental.imapserver.message.ImapRequestMessage;
 
 class SearchCommandParser extends AbstractUidCommandParser implements InitialisableCommandFactory
 {
@@ -69,11 +69,11 @@ class SearchCommandParser extends AbstractUidCommandParser implements Initialisa
         };
     }
 
-    protected ImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag, boolean useUids) throws ProtocolException {
+    protected ImapRequestMessage decode(ImapCommand command, ImapRequestLineReader request, String tag, boolean useUids) throws ProtocolException {
         // Parse the search term from the request
         final SearchTerm searchTerm = searchTerm( request );
         endLine( request );
-        final ImapCommandMessage result = getMessageFactory().createSearchImapMessage(command, searchTerm, useUids, tag);
+        final ImapRequestMessage result = getMessageFactory().createSearchImapMessage(command, searchTerm, useUids, tag);
         return result;
     }
 

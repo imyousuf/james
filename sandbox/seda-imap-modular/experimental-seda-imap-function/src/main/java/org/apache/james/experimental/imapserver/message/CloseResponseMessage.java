@@ -23,7 +23,7 @@ import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.store.MailboxException;
 
-class CloseResponseMessage extends AbstractCommandResponseMessage {
+public class CloseResponseMessage extends AbstractCommandResponseMessage {
         public CloseResponseMessage(ImapCommand command, String tag) {
             super(command, tag);
         }

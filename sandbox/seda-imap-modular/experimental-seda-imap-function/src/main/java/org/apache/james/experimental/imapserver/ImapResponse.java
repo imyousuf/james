@@ -152,6 +152,21 @@ public class ImapResponse extends AbstractLogEnabled implements ImapConstants, I
             logger.info("BAD - " + message); 
         }
     }
+    
+    /**
+     * Writes a standard untagged BAD response, together with a descriptive message.
+     */
+    public void badResponse( String message , String tag )
+    {
+    	tag(tag);
+        message( BAD );
+        message( message );
+        end();
+        final Logger logger = getLogger(); 
+        if (logger != null && logger.isInfoEnabled()) { 
+            logger.info("BAD - " + message); 
+        }
+    }
 
     /**
      * Writes an untagged OK response, with the supplied response code,

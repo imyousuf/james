@@ -26,22 +26,33 @@ import org.apache.james.experimental.imapserver.ImapSession;
  * Carries the response to a request with bad syntax..
  * 
  */
-class BadResponseMessage implements ImapCommandMessage,
+public class BadResponseMessage implements ImapRequestMessage,
         ImapResponseMessage {
 
     private final String message;
+    private final String tag;
     
     public BadResponseMessage(final String message) {
+    	this(message, null);
+    }
+    
+    public BadResponseMessage(final String message, final String tag) {
         super();
         this.message = message;
+        this.tag = tag;
     }
+    
 
     public ImapResponseMessage process(ImapSession session) {
         return this;
     }
 
     public void encode(ImapResponse response, ImapSession session) {
-        response.badResponse(message);
+    	if (tag == null) {
+    		response.badResponse(message);
+    	} else {
+    		response.badResponse(message, tag);
+    	}
     }
 
 }

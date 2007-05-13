@@ -22,7 +22,7 @@ import org.apache.james.experimental.imapserver.ImapRequestLineReader;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.commands.ImapCommandFactory;
-import org.apache.james.experimental.imapserver.message.ImapCommandMessage;
+import org.apache.james.experimental.imapserver.message.ImapRequestMessage;
 import org.apache.james.experimental.imapserver.message.ImapMessageFactory;
 class ListCommandParser extends AbstractUidCommandParser  implements InitialisableCommandFactory
 {
@@ -68,18 +68,18 @@ class ListCommandParser extends AbstractUidCommandParser  implements Initialisab
         }
     }
 
-    protected ImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag, boolean useUids) throws ProtocolException {
+    protected ImapRequestMessage decode(ImapCommand command, ImapRequestLineReader request, String tag, boolean useUids) throws ProtocolException {
         String referenceName = mailbox( request );
         String mailboxPattern = listMailbox( request );
         endLine( request );
-        final ImapCommandMessage result = createMessage(command, referenceName, mailboxPattern, tag);
+        final ImapRequestMessage result = createMessage(command, referenceName, mailboxPattern, tag);
         return result;
     }
     
-    protected ImapCommandMessage createMessage(ImapCommand command, final String referenceName, final String mailboxPattern, final String tag) 
+    protected ImapRequestMessage createMessage(ImapCommand command, final String referenceName, final String mailboxPattern, final String tag) 
     {
         final ImapMessageFactory factory = getMessageFactory();
-        final ImapCommandMessage result = factory.createListMessage(command, referenceName, mailboxPattern, tag);
+        final ImapRequestMessage result = factory.createListMessage(command, referenceName, mailboxPattern, tag);
         return result;
     }
 }

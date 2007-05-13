@@ -23,9 +23,9 @@ import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.commands.ImapCommandFactory;
 import org.apache.james.experimental.imapserver.message.BodyFetchElement;
-import org.apache.james.experimental.imapserver.message.FetchRequest;
+import org.apache.james.experimental.imapserver.message.FetchData;
 import org.apache.james.experimental.imapserver.message.IdRange;
-import org.apache.james.experimental.imapserver.message.ImapCommandMessage;
+import org.apache.james.experimental.imapserver.message.ImapRequestMessage;
 import org.apache.james.experimental.imapserver.message.ImapMessageFactory;
 
 class FetchCommandParser extends AbstractUidCommandParser  implements InitialisableCommandFactory
@@ -42,10 +42,10 @@ class FetchCommandParser extends AbstractUidCommandParser  implements Initialisa
         setCommand(command);
     }
     
-    public FetchRequest fetchRequest( ImapRequestLineReader request )
+    public FetchData fetchRequest( ImapRequestLineReader request )
             throws ProtocolException
     {
-        FetchRequest fetch = new FetchRequest();
+        FetchData fetch = new FetchData();
 
         char next = nextNonSpaceChar( request );
         if (request.nextChar() == '(') {
@@ -65,7 +65,7 @@ class FetchCommandParser extends AbstractUidCommandParser  implements Initialisa
         return fetch;
     }
 
-    private void addNextElement( ImapRequestLineReader command, FetchRequest fetch)
+    private void addNextElement( ImapRequestLineReader command, FetchData fetch)
             throws ProtocolException
     {
         /*char next = nextCharInLine( command );
@@ -171,13 +171,13 @@ class FetchCommandParser extends AbstractUidCommandParser  implements Initialisa
         return next;
     }
 
-    protected ImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag, boolean useUids) throws ProtocolException {
+    protected ImapRequestMessage decode(ImapCommand command, ImapRequestLineReader request, String tag, boolean useUids) throws ProtocolException {
         IdRange[] idSet = parseIdRange( request );
-        FetchRequest fetch = fetchRequest( request );
+        FetchData fetch = fetchRequest( request );
         endLine( request );
         
         final ImapMessageFactory factory = getMessageFactory();
-        final ImapCommandMessage result  = factory.createFetchMessage(command, useUids, idSet, fetch, tag);
+        final ImapRequestMessage result  = factory.createFetchMessage(command, useUids, idSet, fetch, tag);
         return result;
     }
 

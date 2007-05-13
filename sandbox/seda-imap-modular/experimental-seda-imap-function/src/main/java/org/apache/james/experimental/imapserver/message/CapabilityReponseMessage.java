@@ -24,7 +24,7 @@ import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.store.MailboxException;
 
-class CapabilityReponseMessage extends AbstractCommandResponseMessage {
+public class CapabilityReponseMessage extends AbstractCommandResponseMessage {
 
     public CapabilityReponseMessage(ImapCommand command, String tag) {
         super(command, tag);

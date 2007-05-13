@@ -27,7 +27,7 @@ import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.store.MailboxException;
 
-class ListResponseMessage extends AbstractCommandResponseMessage {
+public class ListResponseMessage extends AbstractCommandResponseMessage {
     private List messages = new ArrayList();
     
     public ListResponseMessage(final ImapCommand command, final String tag) {

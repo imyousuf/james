@@ -23,7 +23,7 @@ import org.apache.james.experimental.imapserver.ImapResponse;
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 
-class CommandFailedResponseMessage implements ImapResponseMessage {
+public class CommandFailedResponseMessage implements ImapResponseMessage {
 
     private final ImapCommand command;
     private final String responseCode;

@@ -20,7 +20,7 @@ package org.apache.james.experimental.imapserver.decode;
 
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.commands.ImapCommandFactory;
-import org.apache.james.experimental.imapserver.message.ImapCommandMessage;
+import org.apache.james.experimental.imapserver.message.ImapRequestMessage;
 
 class LsubCommandParser extends ListCommandParser  implements InitialisableCommandFactory {
 
@@ -36,8 +36,8 @@ class LsubCommandParser extends ListCommandParser  implements InitialisableComma
         setCommand(command);
     }
     
-    protected ImapCommandMessage createMessage(ImapCommand command, String referenceName, String mailboxPattern, String tag) {
-        final ImapCommandMessage result = getMessageFactory().createLsubMessage(command, referenceName, mailboxPattern, tag);
+    protected ImapRequestMessage createMessage(ImapCommand command, String referenceName, String mailboxPattern, String tag) {
+        final ImapRequestMessage result = getMessageFactory().createLsubMessage(command, referenceName, mailboxPattern, tag);
         return result;
     }
 }

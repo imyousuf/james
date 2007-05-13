@@ -23,7 +23,7 @@ import org.apache.james.experimental.imapserver.ImapRequestLineReader;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.commands.ImapCommandFactory;
-import org.apache.james.experimental.imapserver.message.ImapCommandMessage;
+import org.apache.james.experimental.imapserver.message.ImapRequestMessage;
 import org.apache.james.experimental.imapserver.message.ImapMessageFactory;
 import org.apache.james.experimental.imapserver.message.StatusDataItems;
 
@@ -85,12 +85,12 @@ class StatusCommandParser extends AbstractImapCommandParser implements Initialis
         }
     }
 
-    protected ImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
+    protected ImapRequestMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
         final String mailboxName = mailbox( request );
         final StatusDataItems statusDataItems = statusDataItems( request );
         endLine( request );
         final ImapMessageFactory factory = getMessageFactory();
-        final ImapCommandMessage result = factory.createStatusMessage(command, mailboxName, statusDataItems, tag);
+        final ImapRequestMessage result = factory.createStatusMessage(command, mailboxName, statusDataItems, tag);
         return result;
     }
 }

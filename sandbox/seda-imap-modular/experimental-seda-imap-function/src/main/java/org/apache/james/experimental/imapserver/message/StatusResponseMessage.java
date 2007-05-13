@@ -23,7 +23,7 @@ import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.store.MailboxException;
 
-class StatusResponseMessage extends AbstractCommandResponseMessage {
+public class StatusResponseMessage extends AbstractCommandResponseMessage {
     private final String message;
     
     public StatusResponseMessage(ImapCommand command, final String message, final String tag) {

@@ -20,7 +20,7 @@
 package org.apache.james.experimental.imapserver.decode;
 
 import org.apache.james.experimental.imapserver.ImapRequestLineReader;
-import org.apache.james.experimental.imapserver.message.ImapCommandMessage;
+import org.apache.james.experimental.imapserver.message.ImapRequestMessage;
 
 /**
  * <p>
@@ -39,5 +39,5 @@ public interface ImapCommandParser {
      * @param tag TODO
      * @return <code>ImapCommandMessage</code>
      */
-    ImapCommandMessage parse(ImapRequestLineReader request, String tag);
+    ImapRequestMessage parse(ImapRequestLineReader request, String tag);
 }

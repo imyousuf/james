@@ -22,7 +22,7 @@ import org.apache.james.experimental.imapserver.ImapRequestLineReader;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.commands.ImapCommandFactory;
-import org.apache.james.experimental.imapserver.message.ImapCommandMessage;
+import org.apache.james.experimental.imapserver.message.ImapRequestMessage;
 
 class RenameCommandParser extends AbstractImapCommandParser implements InitialisableCommandFactory {
 
@@ -39,11 +39,11 @@ class RenameCommandParser extends AbstractImapCommandParser implements Initialis
     }
     
     
-    protected ImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
+    protected ImapRequestMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
         final String existingName = mailbox( request );
         final String newName = mailbox( request );
         endLine( request );
-        final ImapCommandMessage result = getMessageFactory().createRenameMessage(command, existingName, newName, tag);
+        final ImapRequestMessage result = getMessageFactory().createRenameMessage(command, existingName, newName, tag);
         return result;
     }
     

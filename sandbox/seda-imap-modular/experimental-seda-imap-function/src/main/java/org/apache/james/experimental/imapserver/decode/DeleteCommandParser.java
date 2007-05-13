@@ -22,7 +22,7 @@ import org.apache.james.experimental.imapserver.ImapRequestLineReader;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.commands.ImapCommandFactory;
-import org.apache.james.experimental.imapserver.message.ImapCommandMessage;
+import org.apache.james.experimental.imapserver.message.ImapRequestMessage;
 import org.apache.james.experimental.imapserver.message.ImapMessageFactory;
 
 class DeleteCommandParser extends AbstractImapCommandParser  implements InitialisableCommandFactory {
@@ -39,11 +39,11 @@ class DeleteCommandParser extends AbstractImapCommandParser  implements Initiali
         setCommand(command);
     }
     
-    protected ImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
+    protected ImapRequestMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
         String mailboxName = mailbox( request );
         endLine( request );
         final ImapMessageFactory factory = getMessageFactory();
-        final ImapCommandMessage result = factory.createDeleteMessage( command, mailboxName, tag );
+        final ImapRequestMessage result = factory.createDeleteMessage( command, mailboxName, tag );
         return result;
     }
     

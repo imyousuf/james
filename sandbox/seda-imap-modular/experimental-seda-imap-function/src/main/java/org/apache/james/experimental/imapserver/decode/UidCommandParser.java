@@ -22,7 +22,7 @@ import org.apache.james.experimental.imapserver.ImapRequestLineReader;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.commands.ImapCommandFactory;
-import org.apache.james.experimental.imapserver.message.ImapCommandMessage;
+import org.apache.james.experimental.imapserver.message.ImapRequestMessage;
 
 class UidCommandParser extends AbstractImapCommandParser implements DelegatingImapCommandParser,InitialisableCommandFactory {
     private ImapCommandParserFactory parserFactory;
@@ -54,7 +54,7 @@ class UidCommandParser extends AbstractImapCommandParser implements DelegatingIm
         this.parserFactory = imapCommandFactory;
     }
 
-    protected ImapCommandMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
+    protected ImapRequestMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
         // TODO: check the logic against the specification:
         // TODO: suspect that it is now bust
         // TODO: the command written may be wrong
@@ -68,7 +68,7 @@ class UidCommandParser extends AbstractImapCommandParser implements DelegatingIm
             throw new ProtocolException("Invalid UID command: '" + commandName + "'" );
         }
         final AbstractUidCommandParser uidEnabled = (AbstractUidCommandParser) helperCommand;
-        final ImapCommandMessage result = uidEnabled.decode( request, tag, true );
+        final ImapRequestMessage result = uidEnabled.decode( request, tag, true );
         return result;
     }
     

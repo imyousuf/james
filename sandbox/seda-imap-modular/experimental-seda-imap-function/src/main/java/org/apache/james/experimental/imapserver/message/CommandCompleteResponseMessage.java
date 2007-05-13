@@ -24,7 +24,7 @@ import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.store.MailboxException;
 
-class CommandCompleteResponseMessage extends AbstractCommandResponseMessage implements ImapResponseMessage {
+public class CommandCompleteResponseMessage extends AbstractCommandResponseMessage implements ImapResponseMessage {
 
     /**
      * Creates a command completed response message that

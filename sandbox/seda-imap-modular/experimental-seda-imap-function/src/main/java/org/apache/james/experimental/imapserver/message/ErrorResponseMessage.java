@@ -26,7 +26,7 @@ import org.apache.james.experimental.imapserver.ImapSession;
  * Carries an error response.
  * 
  */
-class ErrorResponseMessage implements ImapResponseMessage, ImapCommandMessage {
+public class ErrorResponseMessage implements ImapResponseMessage, ImapRequestMessage {
 
     private final String message;
     private final String tag;

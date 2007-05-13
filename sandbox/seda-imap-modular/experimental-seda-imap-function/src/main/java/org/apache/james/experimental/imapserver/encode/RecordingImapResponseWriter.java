@@ -25,11 +25,11 @@ import java.util.List;
 import org.apache.james.experimental.imapserver.ImapResponse;
 import org.apache.james.experimental.imapserver.ImapResponseWriter;
 import org.apache.james.experimental.imapserver.ImapSession;
-import org.apache.james.experimental.imapserver.message.ImapCommandMessage;
+import org.apache.james.experimental.imapserver.message.ImapRequestMessage;
 import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
 
 public class RecordingImapResponseWriter implements ImapResponseMessage,
-        ImapCommandMessage, ImapResponseWriter {
+        ImapRequestMessage, ImapResponseWriter {
 
     private static final EndResponse END_RESPONSE = new EndResponse();
     private static final UntaggedResponse UNTAGGED_RESPONSE = new UntaggedResponse();

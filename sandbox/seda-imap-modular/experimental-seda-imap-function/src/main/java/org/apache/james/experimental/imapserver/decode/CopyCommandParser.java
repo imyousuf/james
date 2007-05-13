@@ -23,7 +23,7 @@ import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.commands.ImapCommandFactory;
 import org.apache.james.experimental.imapserver.message.IdRange;
-import org.apache.james.experimental.imapserver.message.ImapCommandMessage;
+import org.apache.james.experimental.imapserver.message.ImapRequestMessage;
 
 class CopyCommandParser extends AbstractUidCommandParser  implements InitialisableCommandFactory {
 
@@ -39,12 +39,12 @@ class CopyCommandParser extends AbstractUidCommandParser  implements Initialisab
         setCommand(command);
     }
     
-    protected ImapCommandMessage decode(ImapCommand command, 
+    protected ImapRequestMessage decode(ImapCommand command, 
             ImapRequestLineReader request, String tag, boolean useUids) throws ProtocolException {
         IdRange[] idSet = parseIdRange( request );
         String mailboxName = mailbox( request );
         endLine( request );
-        final ImapCommandMessage result = getMessageFactory().createCopyMessage(command, idSet, mailboxName, useUids, tag);
+        final ImapRequestMessage result = getMessageFactory().createCopyMessage(command, idSet, mailboxName, useUids, tag);
         return result;
     }
     
