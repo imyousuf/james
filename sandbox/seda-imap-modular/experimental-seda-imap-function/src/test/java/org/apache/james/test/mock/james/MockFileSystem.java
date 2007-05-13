@@ -32,7 +32,7 @@ public class MockFileSystem implements FileSystem {
     public File getFile(String fileURL) throws FileNotFoundException {
         if (fileURL.startsWith("file://")) {
             if (fileURL.startsWith("file://conf/")) {
-                return new File("./src"+fileURL.substring(6));
+                return new File("../phoenix-deployment/src"+fileURL.substring(6));
             } else {
                 throw new UnsupportedOperationException("getFile: "+fileURL);
             }
