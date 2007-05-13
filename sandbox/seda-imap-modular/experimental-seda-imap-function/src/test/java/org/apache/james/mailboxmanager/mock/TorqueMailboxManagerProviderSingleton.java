@@ -17,26 +17,30 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.test.mock.avalon;
+package org.apache.james.mailboxmanager.mock;
 
-import org.apache.avalon.cornerstone.services.sockets.SocketManager;
-import org.apache.avalon.cornerstone.services.sockets.ServerSocketFactory;
-import org.apache.avalon.cornerstone.services.sockets.SocketFactory;
-import org.apache.avalon.cornerstone.blocks.sockets.DefaultServerSocketFactory;
-import org.apache.avalon.cornerstone.blocks.sockets.DefaultSocketFactory;
+import org.apache.james.mailboxmanager.impl.DefaultMailboxManagerProvider;
+import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
+import org.apache.james.mailboxmanager.torque.TorqueMailboxManagerFactory;
+import org.apache.james.test.mock.james.MockFileSystem;
 
-public class MockSocketManager implements SocketManager {
+public class TorqueMailboxManagerProviderSingleton {
+    
+    
+    private static DefaultMailboxManagerProvider defaultMailboxManagerProvider;
 
-    public MockSocketManager(int port)
-    {
-        // m_port = port;
+    public synchronized static MailboxManagerProvider getTorqueMailboxManagerProviderInstance() throws Exception {
+        if (defaultMailboxManagerProvider==null) {
+            TorqueMailboxManagerFactory torqueMailboxManagerFactory=new TorqueMailboxManagerFactory() {{
+                setFileSystem(new MockFileSystem());
+            }};
+            torqueMailboxManagerFactory.configureDefaults();
+            torqueMailboxManagerFactory.initialize();
+            defaultMailboxManagerProvider=new DefaultMailboxManagerProvider();
+            defaultMailboxManagerProvider.setMailboxManagerFactory(torqueMailboxManagerFactory);
+        }
+        return defaultMailboxManagerProvider;
+        
     }
 
-    public ServerSocketFactory getServerSocketFactory(String string) throws Exception {
-        return new DefaultServerSocketFactory();
-    }
-
-    public SocketFactory getSocketFactory(String string) throws Exception {
-        return new DefaultSocketFactory();
-    }
 }
