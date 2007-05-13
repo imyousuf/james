@@ -75,6 +75,19 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
         </sequential>   
     </macrodef>   
     
+    <macrodef name='PopulateMetaData'>
+        <attribute name='bin'/>
+        <attribute name='src'/>   
+        <sequential>
+            <copy todir='@{bin}/META-INF'>
+                <fileset dir="@{src}">
+                    <include name='LICENSE.txt'/>
+                    <include name='NOTICE.txt'/>
+                </fileset>    
+            </copy>    
+        </sequential>
+    </macrodef>   
+    
     <macrodef name="Compile">
         <attribute name='src'/>
         <attribute name='resources'/>   
@@ -114,6 +127,7 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
                     <include name='**/*'/>
                 </fileset>   
             </copy>
+            <PopulateMetaData bin='@{bin}' src='.' />
         </sequential>   
     </macrodef>   
     
@@ -188,10 +202,13 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
             </path>   
             <path id='classpath.base.test'>  
                 <path refid='classpath.base'/>
+                <pathelement location="${dir.build.bin}"/>
                 <fileset dir="${lib.dir}">    
                     <include name="${junit.jar}"/>
                     <include name="${commons-net.jar}"/>
                     <include name="${jmock.jar}"/>
+                    <include name="${commons-beanutils.jar}"/>   
+                    <include name="${derby.jar}"/>    
                 </fileset>   
             </path>   
     
@@ -311,10 +328,47 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
                     <attribute name='Implementation-Version' value='@{version}'/>
                     <attribute name='Implementation-Vendor' value='@{vendor.impl}'/>
                     <attribute name="Implementation-Vendor-Id" value="@{vendor.id}"/>   
-            </manifest>    
+                </manifest>  
             </jar>   
         </sequential>   
     </macrodef>
+ 
+    <macrodef name='CreateJavaDocs'>
+        <attribute name='bin' default='${build.javadocs}'/> 
+        <attribute name='src' default='${dir.src.java}'/> 
+        <attribute name='classpath-refid' default='classpath.main'/>   
+        <sequential>
+            <delete dir="@{bin}"/>
+            <mkdir dir="@{bin}"/>
+            <javadoc 
+                   packagenames="org.apache.*" 
+                   sourcepath="@{src}" 
+                   destdir="@{bin}">
+                <classpath refid="@{classpath-refid}"/>
+                <doclet name="com.sun.tools.doclets.standard.Standard">
+                    <param name="-author"/>
+                    <param name="-version"/>
+                    <param name="-use"/>
+                    <param name="-breakiterator"/>
+                    <param name="-link" value="http://java.sun.com/j2se/1.4/docs/api"/>
+                    <param name="-link" value="http://java.sun.com/j2ee/sdk_1.3/techdocs/api"/>
+                    <param name="-link" value="http://avalon.apache.org/api"/>
+                    <param name="-link" value="http://avalon.apache.org/phoenix/api"/>
+                    <param name="-link" value="http://avalon.apache.org/cornerstone/api"/>
+                    <param name="-link" value="http://avalon.apache.org/logkit/api"/>
+                    <param name="-doctitle" value="${Name} ${version}"/>
+                    <param name="-windowtitle" value="${Name} API"/>
+                    <param name="-bottom" value="Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements. The ASF licenses this file to you under the Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)."/>
+                    <param name="-tag" value="phoenix\:mx\-topic:X"/>
+                    <param name="-tag" value="phoenix\:mx\-operation:X"/>
+                    <param name="-tag" value="phoenix\:mx\-description:X"/>
+                    <param name="-tag" value="phoenix\:mx\-attribute:X"/>
+                    <param name="-tag" value="phoenix\:mx\-isWriteable:X"/>
+                </doclet>
+            </javadoc>     
+            <PopulateMetaData bin='@{bin}' src='.' />   
+        </sequential>   
+    </macrodef>   
     
  <!--
  Targets

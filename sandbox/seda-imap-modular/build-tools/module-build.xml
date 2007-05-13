@@ -86,6 +86,11 @@ Main User Targets
             name='${name.module}'   
             bin='${dir.build.bin}'
             lib='${dir.stage.james}'/>  
+        <CreateJavaDocs/>
+        <CreateJar 
+            name='${name.module}-javadoc'   
+            bin='${build.javadocs}'
+            lib='${dir.stage.james}'/>     
     </target>   
     
     <target 
