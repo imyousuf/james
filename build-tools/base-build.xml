@@ -202,10 +202,13 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
             </path>   
             <path id='classpath.base.test'>  
                 <path refid='classpath.base'/>
+                <pathelement location="${dir.build.bin}"/>
                 <fileset dir="${lib.dir}">    
                     <include name="${junit.jar}"/>
                     <include name="${commons-net.jar}"/>
                     <include name="${jmock.jar}"/>
+                    <include name="${commons-beanutils.jar}"/>   
+                    <include name="${derby.jar}"/>    
                 </fileset>   
             </path>   
     
