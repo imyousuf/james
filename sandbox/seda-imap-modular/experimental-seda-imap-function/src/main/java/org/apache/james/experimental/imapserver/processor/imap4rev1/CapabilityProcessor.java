@@ -24,11 +24,11 @@ import org.apache.james.experimental.imapserver.AuthorizationException;
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
-import org.apache.james.experimental.imapserver.message.BadResponseMessage;
-import org.apache.james.experimental.imapserver.message.CapabilityReponseMessage;
 import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.message.request.AbstractImapRequest;
 import org.apache.james.experimental.imapserver.message.request.imap4rev1.CapabilityRequest;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.BadResponse;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.CapabilityReponse;
 import org.apache.james.experimental.imapserver.processor.AbstractImapRequestProcessor;
 import org.apache.james.experimental.imapserver.store.MailboxException;
 
@@ -46,7 +46,7 @@ public class CapabilityProcessor extends AbstractImapRequestProcessor {
 			{
 				logger.debug("Expected CapabilityRequest, was " + message);
 			}
-			result = new BadResponseMessage("Command unknown by Capability processor.");
+			result = new BadResponse("Command unknown by Capability processor.");
 		}
 		return result;
 	}
@@ -58,7 +58,7 @@ public class CapabilityProcessor extends AbstractImapRequestProcessor {
 	
 	private ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
         // TODO: accurately report the capabilities of the server
-		final CapabilityReponseMessage result = new CapabilityReponseMessage(command, tag);
+		final CapabilityReponse result = new CapabilityReponse(command, tag);
         return result;
 	}
 }

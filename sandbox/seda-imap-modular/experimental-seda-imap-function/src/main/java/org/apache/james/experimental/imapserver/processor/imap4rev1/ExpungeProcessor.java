@@ -24,12 +24,12 @@ import org.apache.james.experimental.imapserver.AuthorizationException;
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
-import org.apache.james.experimental.imapserver.message.BadResponseMessage;
-import org.apache.james.experimental.imapserver.message.CommandCompleteResponseMessage;
-import org.apache.james.experimental.imapserver.message.CommandFailedResponseMessage;
 import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.message.request.AbstractImapRequest;
 import org.apache.james.experimental.imapserver.message.request.imap4rev1.ExpungeRequest;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.BadResponse;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.CommandCompleteResponse;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.CommandFailedResponse;
 import org.apache.james.experimental.imapserver.processor.AbstractImapRequestProcessor;
 import org.apache.james.experimental.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
@@ -51,7 +51,7 @@ public class ExpungeProcessor extends AbstractImapRequestProcessor {
 			{
 				logger.debug("Expected ExpungeRequest, was " + message);
 			}
-			result = new BadResponseMessage("Command unknown by Expunge processor.");
+			result = new BadResponse("Command unknown by Expunge processor.");
 		}
 		
 		return result;
@@ -66,11 +66,11 @@ public class ExpungeProcessor extends AbstractImapRequestProcessor {
         ImapResponseMessage result;
         ImapMailboxSession mailbox = session.getSelected().getMailbox();
         if (!mailbox.isWriteable()) {
-            result = new CommandFailedResponseMessage(command, "Mailbox selected read only.", tag );
+            result = new CommandFailedResponse(command, "Mailbox selected read only.", tag );
         } else {
             try {
                 mailbox.expunge(GeneralMessageSetImpl.all(),MessageResult.NOTHING);
-                result = new CommandCompleteResponseMessage(false, command, tag);
+                result = new CommandCompleteResponse(false, command, tag);
             } catch (MailboxManagerException e) {
                 throw new MailboxException(e);
             }

@@ -24,11 +24,11 @@ import org.apache.james.experimental.imapserver.AuthorizationException;
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
-import org.apache.james.experimental.imapserver.message.BadResponseMessage;
-import org.apache.james.experimental.imapserver.message.CommandCompleteResponseMessage;
 import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.message.request.AbstractImapRequest;
 import org.apache.james.experimental.imapserver.message.request.imap4rev1.UnsubscribeRequest;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.BadResponse;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.CommandCompleteResponse;
 import org.apache.james.experimental.imapserver.processor.AbstractImapRequestProcessor;
 import org.apache.james.experimental.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
@@ -47,7 +47,7 @@ public class UnsubscribeProcessor extends AbstractImapRequestProcessor {
 			{
 				logger.debug("Expected UnsubscribeRequest, was " + message);
 			}
-			result = new BadResponseMessage("Command unknown by Unsubscribe processor.");
+			result = new BadResponse("Command unknown by Unsubscribe processor.");
 		}
 		
 		return result;
@@ -67,6 +67,6 @@ public class UnsubscribeProcessor extends AbstractImapRequestProcessor {
         } catch (MailboxManagerException e) {
             throw new MailboxException(e);
         }
-        return new CommandCompleteResponseMessage(false, command, tag);
+        return new CommandCompleteResponse(false, command, tag);
 	}
 }

@@ -25,7 +25,7 @@ import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.MockImapResponseWriter;
 import org.apache.james.experimental.imapserver.MockImapSession;
 import org.apache.james.experimental.imapserver.commands.MockCommand;
-import org.apache.james.experimental.imapserver.message.CommandFailedResponseMessage;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.CommandFailedResponse;
 
 import junit.framework.TestCase;
 
@@ -53,8 +53,8 @@ public class CommandFailedResponseMessageTest extends TestCase {
     public void testWithResponseCode() throws Exception {
         String code = "A code";
         String message = "A message";
-        CommandFailedResponseMessage responseMessage 
-            = new CommandFailedResponseMessage(command, code, message, TAG);
+        CommandFailedResponse responseMessage 
+            = new CommandFailedResponse(command, code, message, TAG);
         responseMessage.encode(response, session);
         assertEquals(7, writer.operations.size());
         assertEquals(new MockImapResponseWriter.TagOperation(TAG), writer.operations.get(0));
@@ -74,8 +74,8 @@ public class CommandFailedResponseMessageTest extends TestCase {
     
     public void testWithoutResponseCode() throws Exception {
         String message = "A message";
-        CommandFailedResponseMessage responseMessage 
-            = new CommandFailedResponseMessage(command, message, TAG);
+        CommandFailedResponse responseMessage 
+            = new CommandFailedResponse(command, message, TAG);
         responseMessage.encode(response, session);
         assertEquals(6, writer.operations.size());
         assertEquals(new MockImapResponseWriter.TagOperation(TAG), writer.operations.get(0));

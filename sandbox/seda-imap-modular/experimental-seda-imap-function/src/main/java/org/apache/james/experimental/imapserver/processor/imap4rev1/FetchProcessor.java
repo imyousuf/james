@@ -38,14 +38,14 @@ import org.apache.james.experimental.imapserver.ImapConstants;
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
-import org.apache.james.experimental.imapserver.message.BadResponseMessage;
 import org.apache.james.experimental.imapserver.message.BodyFetchElement;
 import org.apache.james.experimental.imapserver.message.FetchData;
-import org.apache.james.experimental.imapserver.message.FetchResponseMessage;
 import org.apache.james.experimental.imapserver.message.IdRange;
 import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.message.request.AbstractImapRequest;
 import org.apache.james.experimental.imapserver.message.request.imap4rev1.FetchRequest;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.BadResponse;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.FetchResponse;
 import org.apache.james.experimental.imapserver.processor.AbstractImapRequestProcessor;
 import org.apache.james.experimental.imapserver.store.MailboxException;
 import org.apache.james.experimental.imapserver.store.MessageFlags;
@@ -73,7 +73,7 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
 			{
 				logger.debug("Expected FetchRequest, was " + message);
 			}
-			result = new BadResponseMessage("Command unknown by Fetch processor.");
+			result = new BadResponse("Command unknown by Fetch processor.");
 		}
 		
 		return result;
@@ -90,8 +90,8 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
 	private ImapResponseMessage doProcess(final boolean useUids, final IdRange[] idSet, final FetchData fetch,
 			ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
         
-        FetchResponseMessage result = 
-            new FetchResponseMessage(command, useUids, tag);
+        FetchResponse result = 
+            new FetchResponse(command, useUids, tag);
         // TODO only fetch needed results
         int resultToFetch = MessageResult.FLAGS | MessageResult.MIME_MESSAGE
                 | MessageResult.INTERNAL_DATE | MessageResult.MSN

@@ -24,11 +24,11 @@ import org.apache.james.experimental.imapserver.AuthorizationException;
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
-import org.apache.james.experimental.imapserver.message.BadResponseMessage;
 import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
-import org.apache.james.experimental.imapserver.message.LogoutResponseMessage;
 import org.apache.james.experimental.imapserver.message.request.AbstractImapRequest;
 import org.apache.james.experimental.imapserver.message.request.imap4rev1.LogoutRequest;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.BadResponse;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.LogoutResponse;
 import org.apache.james.experimental.imapserver.processor.AbstractImapRequestProcessor;
 import org.apache.james.experimental.imapserver.store.MailboxException;
 
@@ -46,7 +46,7 @@ public class LogoutProcessor extends AbstractImapRequestProcessor {
 			{
 				logger.debug("Expected LogoutRequest, was " + message);
 			}
-			result = new BadResponseMessage("Command unknown by Logout processor.");
+			result = new BadResponse("Command unknown by Logout processor.");
 		}
 		
 		return result;
@@ -58,7 +58,7 @@ public class LogoutProcessor extends AbstractImapRequestProcessor {
 	}
 	
 	private ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-        final LogoutResponseMessage result = new LogoutResponseMessage(command, tag);
+        final LogoutResponse result = new LogoutResponse(command, tag);
         return result;
 	}
 }

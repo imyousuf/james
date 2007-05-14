@@ -16,37 +16,25 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.experimental.imapserver.message;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+package org.apache.james.experimental.imapserver.message.response.imap4rev1;
 
 import org.apache.james.experimental.imapserver.ImapResponse;
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
+import org.apache.james.experimental.imapserver.message.response.AbstractImapResponse;
 import org.apache.james.experimental.imapserver.store.MailboxException;
 
-public class ListResponseMessage extends AbstractCommandResponseMessage {
-    private List messages = new ArrayList();
+public class StatusResponse extends AbstractImapResponse {
+    private final String message;
     
-    public ListResponseMessage(final ImapCommand command, final String tag) {
+    public StatusResponse(ImapCommand command, final String message, final String tag) {
         super(command, tag);
+        this.message = message;
     }
-    
-    public void addMessageData(String message) {
-        // TODO: this isn't efficient
-        // TODO: better to stream results
-        messages.add(message);
-    }
-    
-    void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
-        for (final Iterator it=messages.iterator();it.hasNext();) {
-            String message = (String) it.next();
-            response.commandResponse(command, message);
-        }
+
+    protected void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
+        response.commandResponse( command, message);
         session.unsolicitedResponses( response, false );
         response.commandComplete( command, tag );
     }
-    
 }

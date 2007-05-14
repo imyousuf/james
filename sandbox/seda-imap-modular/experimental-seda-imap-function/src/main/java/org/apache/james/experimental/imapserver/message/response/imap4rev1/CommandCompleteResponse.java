@@ -17,14 +17,20 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.experimental.imapserver.message;
+package org.apache.james.experimental.imapserver.message.response.imap4rev1;
 
 import org.apache.james.experimental.imapserver.ImapResponse;
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
+import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
+import org.apache.james.experimental.imapserver.message.response.AbstractImapResponse;
 import org.apache.james.experimental.imapserver.store.MailboxException;
 
-public class CommandCompleteResponseMessage extends AbstractCommandResponseMessage implements ImapResponseMessage {
+/**
+ * 
+ * TODO: replace this with ok response?
+ */
+public class CommandCompleteResponse extends AbstractImapResponse implements ImapResponseMessage {
 
     /**
      * Creates a command completed response message that
@@ -33,14 +39,14 @@ public class CommandCompleteResponseMessage extends AbstractCommandResponseMessa
      * @return <code>ImapResponseMessage</code>, not null
      */
     public static final ImapResponseMessage createWithNoUnsolictedResponses(final ImapCommand command, String tag) {
-        final CommandCompleteResponseMessage result = new CommandCompleteResponseMessage(command, tag);
+        final CommandCompleteResponse result = new CommandCompleteResponse(command, tag);
         return result;
     }
     
     private final boolean useUids;
     private final boolean writeUnsolicited;
     
-    private CommandCompleteResponseMessage(final ImapCommand command, String tag) {
+    private CommandCompleteResponse(final ImapCommand command, String tag) {
         super(command, tag);
         writeUnsolicited = false;
         this.useUids = false;
@@ -54,13 +60,13 @@ public class CommandCompleteResponseMessage extends AbstractCommandResponseMessa
      * @param useUids true if uids should be used, false otherwise
      * @param command <code>ImapCommand</code>, not null
      */
-    public CommandCompleteResponseMessage(final boolean useUids, final ImapCommand command, final String tag) {
+    public CommandCompleteResponse(final boolean useUids, final ImapCommand command, final String tag) {
         super(command, tag);
         writeUnsolicited = true;
         this.useUids = useUids;
     }
 
-    void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
+    protected void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
         if (writeUnsolicited) {
             session.unsolicitedResponses( response, useUids);
         }

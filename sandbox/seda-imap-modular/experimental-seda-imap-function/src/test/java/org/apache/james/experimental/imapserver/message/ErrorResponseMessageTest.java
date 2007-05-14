@@ -22,7 +22,7 @@ package org.apache.james.experimental.imapserver.message;
 import org.apache.james.experimental.imapserver.ImapConstants;
 import org.apache.james.experimental.imapserver.ImapResponse;
 import org.apache.james.experimental.imapserver.MockImapResponseWriter;
-import org.apache.james.experimental.imapserver.message.ErrorResponseMessage;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.ErrorResponse;
 
 import junit.framework.TestCase;
 
@@ -31,7 +31,7 @@ public class ErrorResponseMessageTest extends TestCase {
     private static final String ERROR = "An error message";
     private static final String TAG = "A Tag";
     
-    ErrorResponseMessage message;
+    ErrorResponse message;
     MockImapResponseWriter writer;
     ImapResponse response;
     
@@ -39,7 +39,7 @@ public class ErrorResponseMessageTest extends TestCase {
         super.setUp();
         writer = new MockImapResponseWriter();
         response = new ImapResponse(writer);
-        message = new ErrorResponseMessage(ERROR, TAG);
+        message = new ErrorResponse(ERROR, TAG);
     }
 
     protected void tearDown() throws Exception {

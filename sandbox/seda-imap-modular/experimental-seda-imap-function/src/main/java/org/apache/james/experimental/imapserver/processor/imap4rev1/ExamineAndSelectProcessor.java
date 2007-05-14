@@ -26,12 +26,12 @@ import org.apache.james.experimental.imapserver.AuthorizationException;
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
-import org.apache.james.experimental.imapserver.message.BadResponseMessage;
-import org.apache.james.experimental.imapserver.message.ExamineAndSelectResponseMessage;
 import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.message.request.AbstractImapRequest;
 import org.apache.james.experimental.imapserver.message.request.imap4rev1.ExamineRequest;
 import org.apache.james.experimental.imapserver.message.request.imap4rev1.SelectRequest;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.BadResponse;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.ExamineAndSelectResponse;
 import org.apache.james.experimental.imapserver.processor.AbstractImapRequestProcessor;
 import org.apache.james.experimental.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
@@ -57,7 +57,7 @@ public class ExamineAndSelectProcessor extends AbstractImapRequestProcessor {
 			{
 				logger.debug("Expected SelectRequest or ExamineRequest, was " + message);
 			}
-			result = new BadResponseMessage("Command unknown by Examine and Select processor.");
+			result = new BadResponse("Command unknown by Examine and Select processor.");
 		}
 		
 		return result;
@@ -90,7 +90,7 @@ public class ExamineAndSelectProcessor extends AbstractImapRequestProcessor {
             final long uidValidity = mailbox.getUidValidity();
             final MessageResult firstUnseen = mailbox.getFirstUnseen(MessageResult.MSN);
             final int messageCount = mailbox.getMessageCount();
-            result = new ExamineAndSelectResponseMessage(command, permanentFlags, 
+            result = new ExamineAndSelectResponse(command, permanentFlags, 
                     writeable, recentCount, uidValidity, firstUnseen, messageCount,
                     tag);
         } catch (MailboxManagerException e) {

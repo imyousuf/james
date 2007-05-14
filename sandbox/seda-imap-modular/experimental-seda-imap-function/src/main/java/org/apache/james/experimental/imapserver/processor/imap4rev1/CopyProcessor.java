@@ -24,12 +24,12 @@ import org.apache.james.experimental.imapserver.AuthorizationException;
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
-import org.apache.james.experimental.imapserver.message.BadResponseMessage;
-import org.apache.james.experimental.imapserver.message.CommandCompleteResponseMessage;
 import org.apache.james.experimental.imapserver.message.IdRange;
 import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.message.request.AbstractImapRequest;
 import org.apache.james.experimental.imapserver.message.request.imap4rev1.CopyRequest;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.BadResponse;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.CommandCompleteResponse;
 import org.apache.james.experimental.imapserver.processor.AbstractImapRequestProcessor;
 import org.apache.james.experimental.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.GeneralMessageSet;
@@ -51,7 +51,7 @@ public class CopyProcessor extends AbstractImapRequestProcessor {
 			{
 				logger.debug("Expected CopyRequest, was " + message);
 			}
-			result = new BadResponseMessage("Command unknown by Copy processor.");
+			result = new BadResponse("Command unknown by Copy processor.");
 		}
 		
 		return result;
@@ -82,8 +82,8 @@ public class CopyProcessor extends AbstractImapRequestProcessor {
         } catch (MailboxManagerException e) {
             throw new MailboxException(e);
         } 
-        final CommandCompleteResponseMessage result = 
-            new CommandCompleteResponseMessage(useUids, command, tag);
+        final CommandCompleteResponse result = 
+            new CommandCompleteResponse(useUids, command, tag);
         return result;
 	}
 }

@@ -16,31 +16,39 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.experimental.imapserver.message;
 
-import org.apache.james.experimental.imapserver.ImapConstants;
+package org.apache.james.experimental.imapserver.message.response.imap4rev1;
+
 import org.apache.james.experimental.imapserver.ImapResponse;
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
-import org.apache.james.experimental.imapserver.store.MailboxException;
+import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
 
-public class LogoutResponseMessage extends AbstractCommandResponseMessage implements ImapRequestMessage {
+public class CommandFailedResponse implements ImapResponseMessage {
 
-
-    public static final String BYE_MESSAGE = ImapConstants.VERSION + ImapConstants.SP + "Server logging out";
+    private final ImapCommand command;
+    private final String responseCode;
+    private final String reason;
+    private final String tag;
     
-    public LogoutResponseMessage(final ImapCommand command, final String tag) {
-        super(command, tag);
+    public CommandFailedResponse(final ImapCommand command, final String reason, String tag) {
+        this(command, null, reason, tag);
+    }
+        
+    public CommandFailedResponse(final ImapCommand command, final String responseCode, final String reason, String tag) {
+        super();
+        this.command = command;
+        this.responseCode = responseCode;
+        this.reason = reason;
+        this.tag = tag;
     }
 
-    void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
-        response.byeResponse( BYE_MESSAGE );
-        response.commandComplete( command, tag );
-        // TODO: think about how this will work with SEDA
-        session.closeConnection();            
+    public void encode(ImapResponse response, ImapSession session) {
+        if (responseCode == null) {
+            response.commandFailed(command, reason, tag);
+        } else {
+            response.commandFailed(command, responseCode, reason, tag);
+        }
     }
 
-    public ImapResponseMessage process(ImapSession session) {
-        return this;
-    }
 }

@@ -24,11 +24,11 @@ import org.apache.james.experimental.imapserver.AuthorizationException;
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
-import org.apache.james.experimental.imapserver.message.BadResponseMessage;
-import org.apache.james.experimental.imapserver.message.CommandFailedResponseMessage;
 import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.message.request.AbstractImapRequest;
 import org.apache.james.experimental.imapserver.message.request.imap4rev1.AuthenticateRequest;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.BadResponse;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.CommandFailedResponse;
 import org.apache.james.experimental.imapserver.processor.AbstractImapRequestProcessor;
 import org.apache.james.experimental.imapserver.store.MailboxException;
 
@@ -46,7 +46,7 @@ public class AuthenticateProcessor extends AbstractImapRequestProcessor {
 			{
 				logger.debug("Expected AuthenticateRequest, was " + message);
 			}
-			result = new BadResponseMessage("Command unknown by Authenticate processor.");
+			result = new BadResponse("Command unknown by Authenticate processor.");
 		}
 		
 		return result;
@@ -60,7 +60,7 @@ public class AuthenticateProcessor extends AbstractImapRequestProcessor {
 	
 	private ImapResponseMessage doProcess(String authType, 
 			ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-        final CommandFailedResponseMessage result = new CommandFailedResponseMessage(command, 
+        final CommandFailedResponse result = new CommandFailedResponse(command, 
                 "Unsupported authentication mechanism '" + authType + "'", tag);
         return result;
 	}

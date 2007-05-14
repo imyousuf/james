@@ -48,6 +48,8 @@ import org.apache.james.experimental.imapserver.message.request.imap4rev1.Status
 import org.apache.james.experimental.imapserver.message.request.imap4rev1.StoreRequest;
 import org.apache.james.experimental.imapserver.message.request.imap4rev1.SubscribeRequest;
 import org.apache.james.experimental.imapserver.message.request.imap4rev1.UnsubscribeRequest;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.BadResponse;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.ErrorResponse;
 
 /**
  * Naive, factory creates unpooled instances.
@@ -55,7 +57,7 @@ import org.apache.james.experimental.imapserver.message.request.imap4rev1.Unsubs
 public class BaseImapMessageFactory implements ImapMessageFactory {
 
     public ImapRequestMessage createErrorMessage(String message, String tag) {
-        return new ErrorResponseMessage( message, tag );
+        return new ErrorResponse( message, tag );
     }
 
     public ImapRequestMessage createAppendMessage(ImapCommand command, String mailboxName, Flags flags, Date datetime, MimeMessage message, String tag) {
@@ -148,7 +150,7 @@ public class BaseImapMessageFactory implements ImapMessageFactory {
     }
 
     public ImapRequestMessage createBadRequestMessage(String message) {
-        return new BadResponseMessage(message);
+        return new BadResponse(message);
     }
 
     public ImapRequestMessage createCheckMessage(ImapCommand command, String tag) {

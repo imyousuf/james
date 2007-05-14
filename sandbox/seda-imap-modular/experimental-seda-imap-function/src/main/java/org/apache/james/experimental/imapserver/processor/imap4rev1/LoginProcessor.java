@@ -24,12 +24,12 @@ import org.apache.james.experimental.imapserver.AuthorizationException;
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
-import org.apache.james.experimental.imapserver.message.BadResponseMessage;
-import org.apache.james.experimental.imapserver.message.CommandCompleteResponseMessage;
-import org.apache.james.experimental.imapserver.message.CommandFailedResponseMessage;
 import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.message.request.AbstractImapRequest;
 import org.apache.james.experimental.imapserver.message.request.imap4rev1.LoginRequest;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.BadResponse;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.CommandCompleteResponse;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.CommandFailedResponse;
 import org.apache.james.experimental.imapserver.processor.AbstractImapRequestProcessor;
 import org.apache.james.experimental.imapserver.store.MailboxException;
 import org.apache.james.services.User;
@@ -48,7 +48,7 @@ public class LoginProcessor extends AbstractImapRequestProcessor {
 			{
 				logger.debug("Expected LoginRequest, was " + message);
 			}
-			result = new BadResponseMessage("Command unknown by Login processor.");
+			result = new BadResponse("Command unknown by Login processor.");
 		}
 		
 		return result;
@@ -67,10 +67,10 @@ public class LoginProcessor extends AbstractImapRequestProcessor {
         if ( session.getUsers().test( userid, password ) ) {
             User user = session.getUsers().getUserByName( userid );
             session.setAuthenticated( user );
-            result = CommandCompleteResponseMessage.createWithNoUnsolictedResponses(command, tag);
+            result = CommandCompleteResponse.createWithNoUnsolictedResponses(command, tag);
         }
         else {
-            result = new CommandFailedResponseMessage( command, "Invalid login/password", tag );
+            result = new CommandFailedResponse( command, "Invalid login/password", tag );
         }
         return result;
 	}

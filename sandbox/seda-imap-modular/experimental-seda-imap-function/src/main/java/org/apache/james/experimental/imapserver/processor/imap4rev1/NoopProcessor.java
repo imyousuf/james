@@ -24,11 +24,11 @@ import org.apache.james.experimental.imapserver.AuthorizationException;
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
-import org.apache.james.experimental.imapserver.message.BadResponseMessage;
-import org.apache.james.experimental.imapserver.message.CommandCompleteResponseMessage;
 import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.message.request.AbstractImapRequest;
 import org.apache.james.experimental.imapserver.message.request.imap4rev1.NoopRequest;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.BadResponse;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.CommandCompleteResponse;
 import org.apache.james.experimental.imapserver.processor.AbstractImapRequestProcessor;
 import org.apache.james.experimental.imapserver.store.MailboxException;
 
@@ -46,7 +46,7 @@ public class NoopProcessor extends AbstractImapRequestProcessor {
 			{
 				logger.debug("Expected NoopRequest, was " + message);
 			}
-			result = new BadResponseMessage("Command unknown by Noop processor.");
+			result = new BadResponse("Command unknown by Noop processor.");
 		}
 		return result;
 	}
@@ -58,7 +58,7 @@ public class NoopProcessor extends AbstractImapRequestProcessor {
 	
 	private ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
         // TODO: untagged responses?
-        final CommandCompleteResponseMessage result = new CommandCompleteResponseMessage(false, command, tag);
+        final CommandCompleteResponse result = new CommandCompleteResponse(false, command, tag);
         return result;
 	}
 }

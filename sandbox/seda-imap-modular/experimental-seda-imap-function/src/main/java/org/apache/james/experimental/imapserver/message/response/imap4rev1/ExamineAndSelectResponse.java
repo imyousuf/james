@@ -16,17 +16,18 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.experimental.imapserver.message;
+package org.apache.james.experimental.imapserver.message.response.imap4rev1;
 
 import javax.mail.Flags;
 
 import org.apache.james.experimental.imapserver.ImapResponse;
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
+import org.apache.james.experimental.imapserver.message.response.AbstractImapResponse;
 import org.apache.james.experimental.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MessageResult;
 
-public class ExamineAndSelectResponseMessage extends AbstractCommandResponseMessage {
+public class ExamineAndSelectResponse extends AbstractImapResponse {
     private final Flags permanentFlags;
     private final boolean writeable ;
     private final int recentCount;
@@ -34,7 +35,7 @@ public class ExamineAndSelectResponseMessage extends AbstractCommandResponseMess
     private final MessageResult firstUnseen;
     private final int messageCount;
 
-    public ExamineAndSelectResponseMessage(ImapCommand command, final Flags permanentFlags,
+    public ExamineAndSelectResponse(ImapCommand command, final Flags permanentFlags,
             final boolean writeable, final int recentCount, 
             final long uidValidity, final MessageResult firstUnseen,
             final int messageCount, final String tag) {
@@ -47,7 +48,7 @@ public class ExamineAndSelectResponseMessage extends AbstractCommandResponseMess
         this.messageCount = messageCount;
     }        
     
-    void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
+    protected void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
         response.flagsResponse(permanentFlags);
         response.recentResponse(recentCount);
         response.okResponse("UIDVALIDITY " + uidValidity, null);

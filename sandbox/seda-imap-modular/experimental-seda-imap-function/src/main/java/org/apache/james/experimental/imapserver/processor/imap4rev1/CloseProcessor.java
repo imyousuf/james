@@ -24,11 +24,11 @@ import org.apache.james.experimental.imapserver.AuthorizationException;
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
-import org.apache.james.experimental.imapserver.message.BadResponseMessage;
-import org.apache.james.experimental.imapserver.message.CloseResponseMessage;
 import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.message.request.AbstractImapRequest;
 import org.apache.james.experimental.imapserver.message.request.imap4rev1.CloseRequest;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.BadResponse;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.CloseResponse;
 import org.apache.james.experimental.imapserver.processor.AbstractImapRequestProcessor;
 import org.apache.james.experimental.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
@@ -50,7 +50,7 @@ public class CloseProcessor extends AbstractImapRequestProcessor {
 			{
 				logger.debug("Expected CloseRequest, was " + message);
 			}
-			result = new BadResponseMessage("Command unknown by Close processor.");
+			result = new BadResponse("Command unknown by Close processor.");
 		}
 		return result;
 	}
@@ -70,7 +70,7 @@ public class CloseProcessor extends AbstractImapRequestProcessor {
             }
         }
         session.deselect();
-        final CloseResponseMessage result = new CloseResponseMessage(command, tag);
+        final CloseResponse result = new CloseResponse(command, tag);
         return result;
 	}
 }

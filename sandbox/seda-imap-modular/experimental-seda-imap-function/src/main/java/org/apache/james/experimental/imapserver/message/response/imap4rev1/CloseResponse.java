@@ -16,24 +16,26 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.experimental.imapserver.message;
+package org.apache.james.experimental.imapserver.message.response.imap4rev1;
 
 import org.apache.james.experimental.imapserver.ImapResponse;
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
+import org.apache.james.experimental.imapserver.message.response.AbstractImapResponse;
 import org.apache.james.experimental.imapserver.store.MailboxException;
 
-public class CloseResponseMessage extends AbstractCommandResponseMessage {
-        public CloseResponseMessage(ImapCommand command, String tag) {
+public class CloseResponse extends AbstractImapResponse {
+        public CloseResponse(ImapCommand command, String tag) {
             super(command, tag);
         }
 
-        void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
+        protected void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
             //TODO: the following comment was present in the code before refactoring
             //TODO: doesn't seem to match the implementation
             //TODO: check that implementation is correct
 //          Don't send unsolicited responses on close.
             session.unsolicitedResponses( response, false );
             response.commandComplete( command , tag);
+            //TODO: what about the bye?
         }
     }

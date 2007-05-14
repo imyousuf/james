@@ -16,45 +16,34 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
+package org.apache.james.experimental.imapserver.message.response.imap4rev1;
 
-package org.apache.james.experimental.imapserver.message;
-
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.logger.Logger;
+import org.apache.james.experimental.imapserver.ImapConstants;
 import org.apache.james.experimental.imapserver.ImapResponse;
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
+import org.apache.james.experimental.imapserver.message.ImapRequestMessage;
+import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
+import org.apache.james.experimental.imapserver.message.response.AbstractImapResponse;
 import org.apache.james.experimental.imapserver.store.MailboxException;
 
-abstract class AbstractCommandResponseMessage extends AbstractLogEnabled implements ImapResponseMessage {
+public class LogoutResponse extends AbstractImapResponse implements ImapRequestMessage {
 
-    private final ImapCommand command;
-    private final String tag;
 
-    public AbstractCommandResponseMessage(final ImapCommand command, final String tag) {
-        super();
-        this.command = command;
-        this.tag = tag;
-    }
+    public static final String BYE_MESSAGE = ImapConstants.VERSION + ImapConstants.SP + "Server logging out";
     
-    public ImapCommand getCommand() {
-        return command;
+    public LogoutResponse(final ImapCommand command, final String tag) {
+        super(command, tag);
     }
 
-    public void encode(ImapResponse response, ImapSession session) {
-        try {
-            doEncode(response, session, command, tag);
-        } catch (MailboxException e) {
-            // TODO: it seems wrong for session to throw a mailbox exception
-            // TODO: really, errors in unsolicited response should not
-            // TODO: impact the execution of this command
-            final Logger logger = getLogger();
-            if (logger != null) {
-                logger.debug("error processing command ", e);
-            }
-            response.commandFailed( command, e.getResponseCode(), e.getMessage(), tag );            
-        }
+    protected void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
+        response.byeResponse( BYE_MESSAGE );
+        response.commandComplete( command, tag );
+        // TODO: think about how this will work with SEDA
+        session.closeConnection();            
     }
-    abstract void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException;
 
+    public ImapResponseMessage process(ImapSession session) {
+        return this;
+    }
 }

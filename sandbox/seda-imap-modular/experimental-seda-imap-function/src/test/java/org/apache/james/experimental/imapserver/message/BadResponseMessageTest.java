@@ -23,8 +23,8 @@ import org.apache.james.experimental.imapserver.ImapResponse;
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.MockImapResponseWriter;
 import org.apache.james.experimental.imapserver.MockImapSession;
-import org.apache.james.experimental.imapserver.message.BadResponseMessage;
 import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.BadResponse;
 
 import junit.framework.TestCase;
 
@@ -34,14 +34,14 @@ public class BadResponseMessageTest extends TestCase {
     
     MockImapResponseWriter writer;
     ImapResponse response;
-    BadResponseMessage message;
+    BadResponse message;
     ImapSession session;
     
     protected void setUp() throws Exception {
         super.setUp();
         writer = new MockImapResponseWriter();
         response = new ImapResponse(writer);
-        message = new BadResponseMessage(MESSAGE);
+        message = new BadResponse(MESSAGE);
         session = new MockImapSession();
     }
 

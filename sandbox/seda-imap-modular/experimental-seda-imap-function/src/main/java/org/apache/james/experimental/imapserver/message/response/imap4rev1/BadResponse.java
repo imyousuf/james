@@ -17,30 +17,45 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.experimental.imapserver.message;
+package org.apache.james.experimental.imapserver.message.response.imap4rev1;
 
 import org.apache.james.experimental.imapserver.ImapResponse;
 import org.apache.james.experimental.imapserver.ImapSession;
+import org.apache.james.experimental.imapserver.message.ImapRequestMessage;
+import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
 
 /**
- * Carries an error response.
+ * Carries the response to a request with bad syntax..
  * 
  */
-public class ErrorResponseMessage implements ImapResponseMessage, ImapRequestMessage {
+public class BadResponse implements ImapRequestMessage,
+        ImapResponseMessage {
 
     private final String message;
     private final String tag;
     
-    public ErrorResponseMessage(final String message, String tag) {
+    public BadResponse(final String message) {
+    	// TODO: check calls that use this are specficiation compliant
+    	this(message, null);
+    }
+    
+    public BadResponse(final String message, final String tag) {
+        super();
         this.message = message;
         this.tag = tag;
     }
     
-    public void encode(ImapResponse response, ImapSession session) {
-        response.commandError(message, tag);
-    }
 
     public ImapResponseMessage process(ImapSession session) {
         return this;
     }
+
+    public void encode(ImapResponse response, ImapSession session) {
+    	if (tag == null) {
+    		response.badResponse(message);
+    	} else {
+    		response.badResponse(message, tag);
+    	}
+    }
+
 }

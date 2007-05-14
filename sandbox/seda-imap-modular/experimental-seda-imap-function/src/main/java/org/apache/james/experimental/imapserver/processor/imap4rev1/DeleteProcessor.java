@@ -24,11 +24,11 @@ import org.apache.james.experimental.imapserver.AuthorizationException;
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
-import org.apache.james.experimental.imapserver.message.BadResponseMessage;
-import org.apache.james.experimental.imapserver.message.CommandCompleteResponseMessage;
 import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.message.request.AbstractImapRequest;
 import org.apache.james.experimental.imapserver.message.request.imap4rev1.DeleteRequest;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.BadResponse;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.CommandCompleteResponse;
 import org.apache.james.experimental.imapserver.processor.AbstractImapRequestProcessor;
 import org.apache.james.experimental.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
@@ -47,7 +47,7 @@ public class DeleteProcessor extends AbstractImapRequestProcessor {
 			{
 				logger.debug("Expected DeleteRequest, was " + message);
 			}
-			result = new BadResponseMessage("Command unknown by Delete processor.");
+			result = new BadResponse("Command unknown by Delete processor.");
 		}
 		
 		return result;
@@ -74,8 +74,8 @@ public class DeleteProcessor extends AbstractImapRequestProcessor {
             throw new MailboxException(e);
         }
 
-        final CommandCompleteResponseMessage result = 
-            new CommandCompleteResponseMessage(false, command, tag);
+        final CommandCompleteResponse result = 
+            new CommandCompleteResponse(false, command, tag);
         return result;
 	}
 }

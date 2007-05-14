@@ -26,13 +26,13 @@ import org.apache.james.experimental.imapserver.AuthorizationException;
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
-import org.apache.james.experimental.imapserver.message.BadResponseMessage;
 import org.apache.james.experimental.imapserver.message.IdRange;
 import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.message.StoreDirective;
-import org.apache.james.experimental.imapserver.message.StoreResponseMessage;
 import org.apache.james.experimental.imapserver.message.request.AbstractImapRequest;
 import org.apache.james.experimental.imapserver.message.request.imap4rev1.StoreRequest;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.BadResponse;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.StoreResponse;
 import org.apache.james.experimental.imapserver.processor.AbstractImapRequestProcessor;
 import org.apache.james.experimental.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.GeneralMessageSet;
@@ -55,7 +55,7 @@ public class StoreProcessor extends AbstractImapRequestProcessor {
 			{
 				logger.debug("Expected StoreRequest, was " + message);
 			}
-			result = new BadResponseMessage("Command unknown by Store processor.");
+			result = new BadResponse("Command unknown by Store processor.");
 		}
 		
 		return result;
@@ -107,8 +107,8 @@ public class StoreProcessor extends AbstractImapRequestProcessor {
             throw new MailboxException(e);
         }
         
-        final StoreResponseMessage result = 
-            new StoreResponseMessage(command, useUids, tag);
+        final StoreResponse result = 
+            new StoreResponse(command, useUids, tag);
         return result;
 	}
 }

@@ -16,38 +16,39 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
+package org.apache.james.experimental.imapserver.message.response.imap4rev1;
 
-package org.apache.james.experimental.imapserver.message;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import org.apache.james.experimental.imapserver.ImapResponse;
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
+import org.apache.james.experimental.imapserver.message.response.AbstractImapResponse;
+import org.apache.james.experimental.imapserver.store.MailboxException;
 
-public class CommandFailedResponseMessage implements ImapResponseMessage {
-
-    private final ImapCommand command;
-    private final String responseCode;
-    private final String reason;
-    private final String tag;
+public class ListResponse extends AbstractImapResponse {
+    private List messages = new ArrayList();
     
-    public CommandFailedResponseMessage(final ImapCommand command, final String reason, String tag) {
-        this(command, null, reason, tag);
+    public ListResponse(final ImapCommand command, final String tag) {
+        super(command, tag);
     }
-        
-    public CommandFailedResponseMessage(final ImapCommand command, final String responseCode, final String reason, String tag) {
-        super();
-        this.command = command;
-        this.responseCode = responseCode;
-        this.reason = reason;
-        this.tag = tag;
+    
+    public void addMessageData(String message) {
+        // TODO: this isn't efficient
+        // TODO: better to stream results
+    	// TODO: pass data objects back and then encode
+        messages.add(message);
     }
-
-    public void encode(ImapResponse response, ImapSession session) {
-        if (responseCode == null) {
-            response.commandFailed(command, reason, tag);
-        } else {
-            response.commandFailed(command, responseCode, reason, tag);
+    
+    protected void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
+        for (final Iterator it=messages.iterator();it.hasNext();) {
+            String message = (String) it.next();
+            response.commandResponse(command, message);
         }
+        session.unsolicitedResponses( response, false );
+        response.commandComplete( command, tag );
     }
-
+    
 }

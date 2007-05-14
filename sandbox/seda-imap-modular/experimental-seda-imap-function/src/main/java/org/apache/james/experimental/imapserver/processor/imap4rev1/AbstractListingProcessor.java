@@ -25,7 +25,7 @@ import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
-import org.apache.james.experimental.imapserver.message.ListResponseMessage;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.ListResponse;
 import org.apache.james.experimental.imapserver.processor.AbstractImapRequestProcessor;
 import org.apache.james.experimental.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.ListResult;
@@ -38,7 +38,7 @@ abstract class AbstractListingProcessor extends AbstractImapRequestProcessor {
 	protected final ImapResponseMessage doProcess(final String baseReferenceName, final String mailboxPattern,
 			ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
 
-        final ListResponseMessage result = new ListResponseMessage(command, tag);
+        final ListResponse result = new ListResponse(command, tag);
         String referenceName = baseReferenceName;
         // Should the #user.userName section be removed from names returned?
         boolean removeUserPrefix;

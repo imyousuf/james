@@ -24,10 +24,10 @@ import org.apache.james.experimental.imapserver.AuthorizationException;
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
-import org.apache.james.experimental.imapserver.message.CommandFailedResponseMessage;
-import org.apache.james.experimental.imapserver.message.ErrorResponseMessage;
 import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.message.request.AbstractImapRequest;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.CommandFailedResponse;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.ErrorResponse;
 import org.apache.james.experimental.imapserver.store.MailboxException;
 
 abstract public class AbstractImapRequestProcessor extends AbstractLogEnabled implements ImapRequestProcessor {
@@ -44,7 +44,7 @@ abstract public class AbstractImapRequestProcessor extends AbstractLogEnabled im
             if (logger != null) {
                 logger.debug("error processing command ", e);
             }
-            result = new CommandFailedResponseMessage( command, e.getResponseCode(), 
+            result = new CommandFailedResponse( command, e.getResponseCode(), 
                     e.getMessage(), tag );
         }
         catch ( AuthorizationException e ) {
@@ -52,7 +52,7 @@ abstract public class AbstractImapRequestProcessor extends AbstractLogEnabled im
                 logger.debug("error processing command ", e);
             }
             String msg = "Authorization error: Lacking permissions to perform requested operation.";
-            result = new CommandFailedResponseMessage( command, null, 
+            result = new CommandFailedResponse( command, null, 
                     msg, tag );
         }
         catch ( ProtocolException e ) {
@@ -61,7 +61,7 @@ abstract public class AbstractImapRequestProcessor extends AbstractLogEnabled im
             }
             String msg = e.getMessage() + " Command should be '" +
                     command.getExpectedMessage() + "'";
-            result = new ErrorResponseMessage( msg, tag );
+            result = new ErrorResponse( msg, tag );
         }
         return result;
     }
@@ -71,7 +71,7 @@ abstract public class AbstractImapRequestProcessor extends AbstractLogEnabled im
         ImapResponseMessage result;
         if ( !command.validForState( session.getState() ) ) {
             result = 
-                new CommandFailedResponseMessage(command, 
+                new CommandFailedResponse(command, 
                         "Command not valid in this state", tag );
         } else {
             result = doProcess( message, session, tag, command );

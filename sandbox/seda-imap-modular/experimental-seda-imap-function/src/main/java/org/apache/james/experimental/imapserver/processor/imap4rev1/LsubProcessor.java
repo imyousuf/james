@@ -24,10 +24,10 @@ import org.apache.james.experimental.imapserver.AuthorizationException;
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
-import org.apache.james.experimental.imapserver.message.BadResponseMessage;
 import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.message.request.AbstractImapRequest;
 import org.apache.james.experimental.imapserver.message.request.imap4rev1.LsubRequest;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.BadResponse;
 import org.apache.james.experimental.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.ListResult;
 
@@ -45,7 +45,7 @@ public class LsubProcessor extends AbstractListingProcessor {
 			{
 				logger.debug("Expected LsubRequest, was " + message);
 			}
-			result = new BadResponseMessage("Command unknown by Lsub processor.");
+			result = new BadResponse("Command unknown by Lsub processor.");
 		}
 		
 		return result;

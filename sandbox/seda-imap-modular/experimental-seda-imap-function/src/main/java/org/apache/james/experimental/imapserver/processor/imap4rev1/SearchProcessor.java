@@ -27,11 +27,11 @@ import org.apache.james.experimental.imapserver.ImapConstants;
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
-import org.apache.james.experimental.imapserver.message.BadResponseMessage;
 import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
-import org.apache.james.experimental.imapserver.message.SearchResponseMessage;
 import org.apache.james.experimental.imapserver.message.request.AbstractImapRequest;
 import org.apache.james.experimental.imapserver.message.request.imap4rev1.SearchRequest;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.BadResponse;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.SearchResponse;
 import org.apache.james.experimental.imapserver.processor.AbstractImapRequestProcessor;
 import org.apache.james.experimental.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
@@ -53,7 +53,7 @@ public class SearchProcessor extends AbstractImapRequestProcessor {
 			{
 				logger.debug("Expected SearchRequest, was " + message);
 			}
-			result = new BadResponseMessage("Command unknown by Search processor.");
+			result = new BadResponse("Command unknown by Search processor.");
 		}
 		
 		return result;
@@ -94,8 +94,8 @@ public class SearchProcessor extends AbstractImapRequestProcessor {
                 idList.append( messageResults[i].getMsn());
             }
         }
-        final SearchResponseMessage result = 
-            new SearchResponseMessage(command, idList.toString(), 
+        final SearchResponse result = 
+            new SearchResponse(command, idList.toString(), 
                     useUids, tag);
         return result;
 	}
