@@ -21,7 +21,6 @@ package org.apache.james.imapserver.store;
 
 import javax.mail.MessagingException;
 
-import org.apache.james.mailboxmanager.MailboxManagerException;
 
 /**
  * Thrown on an inappropriate attempt to reference a mailbox.
@@ -86,10 +85,6 @@ public class MailboxException extends Exception
         super( message );
         this.status = aStatus;
         this.remoteServer = aServer;
-    }
-
-    public MailboxException(MailboxManagerException e) {
-        super(e);
     }
 
     public MailboxException(MessagingException e) {
