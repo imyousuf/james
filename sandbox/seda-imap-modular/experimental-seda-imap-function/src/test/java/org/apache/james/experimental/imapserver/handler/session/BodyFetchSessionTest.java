@@ -11,7 +11,7 @@ import org.apache.james.experimental.imapserver.client.LoginCommand;
 import org.apache.james.experimental.imapserver.client.SelectCommand;
 import org.apache.james.experimental.imapserver.client.fetch.FetchBody;
 import org.apache.james.experimental.imapserver.client.fetch.FetchHeader;
-import org.apache.james.experimental.imapserver.store.MailboxException;
+import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.experimental.imapserver.util.MessageGenerator;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 

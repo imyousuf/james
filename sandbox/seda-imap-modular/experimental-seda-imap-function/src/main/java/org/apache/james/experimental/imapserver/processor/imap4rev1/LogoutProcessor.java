@@ -30,7 +30,7 @@ import org.apache.james.experimental.imapserver.message.request.imap4rev1.Logout
 import org.apache.james.experimental.imapserver.message.response.imap4rev1.BadResponse;
 import org.apache.james.experimental.imapserver.message.response.imap4rev1.LogoutResponse;
 import org.apache.james.experimental.imapserver.processor.AbstractImapRequestProcessor;
-import org.apache.james.experimental.imapserver.store.MailboxException;
+import org.apache.james.imapserver.store.MailboxException;
 
 
 public class LogoutProcessor extends AbstractImapRequestProcessor {

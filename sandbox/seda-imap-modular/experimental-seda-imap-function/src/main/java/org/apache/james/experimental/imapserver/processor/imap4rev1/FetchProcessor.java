@@ -47,9 +47,9 @@ import org.apache.james.experimental.imapserver.message.request.imap4rev1.FetchR
 import org.apache.james.experimental.imapserver.message.response.imap4rev1.BadResponse;
 import org.apache.james.experimental.imapserver.message.response.imap4rev1.FetchResponse;
 import org.apache.james.experimental.imapserver.processor.AbstractImapRequestProcessor;
-import org.apache.james.experimental.imapserver.store.MailboxException;
-import org.apache.james.experimental.imapserver.store.MessageFlags;
-import org.apache.james.experimental.imapserver.store.SimpleMessageAttributes;
+import org.apache.james.imapserver.store.MailboxException;
+import org.apache.james.imapserver.store.MessageFlags;
+import org.apache.james.imapserver.store.SimpleMessageAttributes;
 import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;

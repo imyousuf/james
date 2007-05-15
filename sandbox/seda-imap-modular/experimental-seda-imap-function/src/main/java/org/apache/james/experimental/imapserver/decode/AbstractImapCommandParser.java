@@ -36,7 +36,7 @@ import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.message.IdRange;
 import org.apache.james.experimental.imapserver.message.ImapRequestMessage;
 import org.apache.james.experimental.imapserver.message.ImapMessageFactory;
-import org.apache.james.experimental.imapserver.store.MessageFlags;
+import org.apache.james.imapserver.store.MessageFlags;
 
 /**
  * <p>

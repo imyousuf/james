@@ -25,7 +25,7 @@ import org.apache.james.experimental.imapserver.ImapResponse;
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
-import org.apache.james.experimental.imapserver.store.MailboxException;
+import org.apache.james.imapserver.store.MailboxException;
 
 abstract public class AbstractImapResponse extends AbstractLogEnabled implements ImapResponseMessage {
 

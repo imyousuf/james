@@ -30,7 +30,7 @@ import org.apache.james.experimental.imapserver.message.request.imap4rev1.CloseR
 import org.apache.james.experimental.imapserver.message.response.imap4rev1.BadResponse;
 import org.apache.james.experimental.imapserver.message.response.imap4rev1.CloseResponse;
 import org.apache.james.experimental.imapserver.processor.AbstractImapRequestProcessor;
-import org.apache.james.experimental.imapserver.store.MailboxException;
+import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;

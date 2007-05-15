@@ -4,7 +4,7 @@ import org.apache.james.experimental.imapserver.ImapResponse;
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.ImapSessionState;
 import org.apache.james.experimental.imapserver.SelectedMailboxSession;
-import org.apache.james.experimental.imapserver.store.MailboxException;
+import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 import org.apache.james.mailboxmanager.manager.MailboxManager;

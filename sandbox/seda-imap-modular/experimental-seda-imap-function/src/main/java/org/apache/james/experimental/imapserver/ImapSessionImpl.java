@@ -23,8 +23,8 @@ package org.apache.james.experimental.imapserver;
 import javax.mail.Flags;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.experimental.imapserver.store.MailboxException;
-import org.apache.james.experimental.imapserver.store.MessageFlags;
+import org.apache.james.imapserver.store.MailboxException;
+import org.apache.james.imapserver.store.MessageFlags;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;

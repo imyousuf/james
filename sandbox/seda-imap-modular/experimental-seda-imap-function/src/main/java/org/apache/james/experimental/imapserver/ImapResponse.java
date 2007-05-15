@@ -24,7 +24,7 @@ import javax.mail.Flags;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
-import org.apache.james.experimental.imapserver.store.MessageFlags;
+import org.apache.james.imapserver.store.MessageFlags;
 
 /**
  * Class providing methods to send response messages from the server

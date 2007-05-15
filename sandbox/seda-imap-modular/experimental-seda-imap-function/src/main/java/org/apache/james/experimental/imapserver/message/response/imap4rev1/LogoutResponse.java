@@ -25,7 +25,7 @@ import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.message.ImapRequestMessage;
 import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.message.response.AbstractImapResponse;
-import org.apache.james.experimental.imapserver.store.MailboxException;
+import org.apache.james.imapserver.store.MailboxException;
 
 public class LogoutResponse extends AbstractImapResponse implements ImapRequestMessage {
 

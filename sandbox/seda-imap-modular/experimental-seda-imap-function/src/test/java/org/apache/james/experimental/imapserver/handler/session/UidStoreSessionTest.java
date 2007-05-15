@@ -13,7 +13,7 @@ import org.apache.james.experimental.imapserver.client.LogoutClientCommand;
 import org.apache.james.experimental.imapserver.client.MessageSet;
 import org.apache.james.experimental.imapserver.client.SelectCommand;
 import org.apache.james.experimental.imapserver.client.StoreClientCommand;
-import org.apache.james.experimental.imapserver.store.MailboxException;
+import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.experimental.imapserver.util.MessageGenerator;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 

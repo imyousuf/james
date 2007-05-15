@@ -9,7 +9,7 @@ import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.client.DeleteClientCommand;
 import org.apache.james.experimental.imapserver.client.LoginCommand;
 import org.apache.james.experimental.imapserver.client.LogoutClientCommand;
-import org.apache.james.experimental.imapserver.store.MailboxException;
+import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.experimental.imapserver.util.MessageGenerator;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 

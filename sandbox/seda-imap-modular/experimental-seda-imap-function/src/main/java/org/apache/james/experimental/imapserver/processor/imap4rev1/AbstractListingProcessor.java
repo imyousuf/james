@@ -27,7 +27,7 @@ import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.message.response.imap4rev1.ListResponse;
 import org.apache.james.experimental.imapserver.processor.AbstractImapRequestProcessor;
-import org.apache.james.experimental.imapserver.store.MailboxException;
+import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.ListResult;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.impl.ListResultImpl;

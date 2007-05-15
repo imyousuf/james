@@ -10,7 +10,7 @@ import org.apache.james.experimental.imapserver.client.CreateClientCommand;
 import org.apache.james.experimental.imapserver.client.LoginCommand;
 import org.apache.james.experimental.imapserver.client.LogoutClientCommand;
 import org.apache.james.experimental.imapserver.client.SelectCommand;
-import org.apache.james.experimental.imapserver.store.MailboxException;
+import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 
 public class CreateSessionTest extends AbstractSessionTest {

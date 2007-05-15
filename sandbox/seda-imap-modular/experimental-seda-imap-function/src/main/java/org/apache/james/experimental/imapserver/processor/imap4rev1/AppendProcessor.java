@@ -34,7 +34,7 @@ import org.apache.james.experimental.imapserver.message.request.imap4rev1.Append
 import org.apache.james.experimental.imapserver.message.response.imap4rev1.BadResponse;
 import org.apache.james.experimental.imapserver.message.response.imap4rev1.CommandCompleteResponse;
 import org.apache.james.experimental.imapserver.processor.AbstractImapRequestProcessor;
-import org.apache.james.experimental.imapserver.store.MailboxException;
+import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 

@@ -26,7 +26,7 @@ import junit.framework.TestCase;
 import org.apache.james.experimental.imapserver.ImapConstants;
 import org.apache.james.experimental.imapserver.ImapResponse;
 import org.apache.james.experimental.imapserver.commands.MockCommand;
-import org.apache.james.experimental.imapserver.store.MessageFlags;
+import org.apache.james.imapserver.store.MessageFlags;
 
 public class ImapResponseTest extends TestCase {
 

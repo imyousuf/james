@@ -48,7 +48,7 @@ import org.apache.james.experimental.imapserver.client.Command;
 import org.apache.james.experimental.imapserver.mock.MockImapHandler;
 import org.apache.james.experimental.imapserver.mock.MockImapHandlerConfigurationData;
 import org.apache.james.experimental.imapserver.mock.MockUser;
-import org.apache.james.experimental.imapserver.store.MailboxException;
+import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.ListResult;
 import org.apache.james.mailboxmanager.MailboxManagerException;
