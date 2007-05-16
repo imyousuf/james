@@ -52,6 +52,9 @@
       </src>
       <classpath refid="build.classpath"/>
     </javac>
+    <copy todir="${maven.build.output}">
+        <fileset dir="src/main/resources"/>
+    </copy>
   </target>
 
   <target name="jar" depends="compile,test" description="Clean the JAR">
