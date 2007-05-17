@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -84,6 +85,11 @@ public class JCRMailRepository implements MailRepository {
      * Set to <code>null</code> (the default) to use the default workspace.
      */
     private String workspace;
+
+    /**
+     * Path (relative to root) of the mail repository within the workspace.
+     */
+    private String path = "james:repository";
 
     /**
      * Retuns the JCR content repository used as the mail repository.
@@ -143,6 +149,24 @@ public class JCRMailRepository implements MailRepository {
         this.workspace = workspace;
     }
 
+    /**
+     * Returns the path of the mail repository within the workspace.
+     *
+     * @return repository path
+     */
+    public String getPath() {
+        return path;
+    }
+
+    /**
+     * Sets the path of the mail repository within the workspace.
+     *
+     * @param path repository path
+     */
+    public void setPath(String path) {
+        this.path = path;
+    }
+
     //------------------------------------------------------< MailRepository >
 
     public Iterator list() throws MessagingException {
@@ -153,7 +177,8 @@ public class JCRMailRepository implements MailRepository {
                 Collection keys = new ArrayList();
                 QueryManager manager = session.getWorkspace().getQueryManager();
                 Query query = manager.createQuery(
-                        "//element(*,james:mail)", Query.XPATH);
+                        "/jcr:root/" + path + "//element(*,james:mail)",
+                        Query.XPATH);
                 NodeIterator iterator = query.execute().getNodes();
                 while (iterator.hasNext()) {
                     String name = iterator.nextNode().getName();
@@ -178,7 +203,8 @@ public class JCRMailRepository implements MailRepository {
                 String name = ISO9075.encode(Text.escapeIllegalJcrChars(key));
                 QueryManager manager = session.getWorkspace().getQueryManager();
                 Query query = manager.createQuery(
-                        "//element(" + name + ",james:mail)", Query.XPATH);
+                        "/jcr:root/" + path + "//element(" + name + ",james:mail)",
+                        Query.XPATH);
                 NodeIterator iterator = query.execute().getNodes();
                 if (iterator.hasNext()) {
                     return getMail(iterator.nextNode());
@@ -207,17 +233,17 @@ public class JCRMailRepository implements MailRepository {
                 String name = Text.escapeIllegalJcrChars(mail.getName());
                 QueryManager manager = session.getWorkspace().getQueryManager();
                 Query query = manager.createQuery(
-                        "//element(" + name + ",james:mail)", Query.XPATH);
+                        "/jcr:root/" + path + "//element(" + name + ",james:mail)",
+                        Query.XPATH);
                 NodeIterator iterator = query.execute().getNodes();
                 if (iterator.hasNext()) {
                     while (iterator.hasNext()) {
                         setMail(iterator.nextNode(), mail);
                     }
                 } else {
-                    Node root = session.getRootNode();
-                    Node node = root.addNode(name, "james:mail");
+                    Node parent = session.getRootNode().getNode(path);
+                    Node node = parent.addNode(name, "james:mail");
                     Node resource = node.addNode("jcr:content", "nt:resource");
-                    resource.setProperty("jcr:lastModified", Calendar.getInstance());
                     resource.setProperty("jcr:mimeType", "message/rfc822");
                     setMail(node, mail);
                 }
@@ -245,13 +271,18 @@ public class JCRMailRepository implements MailRepository {
                 String name = ISO9075.encode(Text.escapeIllegalJcrChars(key));
                 QueryManager manager = session.getWorkspace().getQueryManager();
                 Query query = manager.createQuery(
-                        "//element(" + name + ",james:mail)", Query.XPATH);
+                        "/jcr:root/" + path + "//element(" + name + ",james:mail)",
+                        Query.XPATH);
                 NodeIterator nodes = query.execute().getNodes();
-                while (nodes.hasNext()) {
-                    nodes.nextNode().remove();
+                if (nodes.hasNext()) {
+                    while (nodes.hasNext()) {
+                        nodes.nextNode().remove();
+                    }
+                    session.save();
+                    logger.info("Mail " + key + " removed from repository");
+                } else {
+                    logger.warning("Mail " + key + " not found");
                 }
-                session.save();
-                logger.info("Mail " + key + " removed from repository");
             } finally {
                 session.logout();
             }
@@ -275,22 +306,22 @@ public class JCRMailRepository implements MailRepository {
                 Iterator iterator = mails.iterator();
                 while (iterator.hasNext()) {
                     Mail mail = (Mail) iterator.next();
-                    String name = ISO9075.encode(Text.escapeIllegalJcrChars(
-                            mail.getName()));
-                    Query query = manager.createQuery(
-                            "//element(" + name + ",james:mail)", Query.XPATH);
-                    NodeIterator nodes = query.execute().getNodes();
-                    while (nodes.hasNext()) {
-                        nodes.nextNode().remove();
+                    try {
+                        String name = ISO9075.encode(
+                                Text.escapeIllegalJcrChars(mail.getName()));
+                        Query query = manager.createQuery(
+                                "/jcr:root/" + path + "//element(" + name + ",james:mail)",
+                                Query.XPATH);
+                        NodeIterator nodes = query.execute().getNodes();
+                        while (nodes.hasNext()) {
+                            nodes.nextNode().remove();
+                        }
+                    } catch (PathNotFoundException e) {
+                        logger.warning("Mail " + mail.getName() + " not found");
                     }
                 }
                 session.save();
-                iterator = mails.iterator();
-                while (iterator.hasNext()) {
-                    Mail mail = (Mail) iterator.next();
-                    logger.info(
-                            "Mail " + mail.getName() + " removed from repository");
-                }
+                logger.info("Mail collection removed from repository");
             } finally {
                 session.logout();
             }
@@ -327,6 +358,7 @@ public class JCRMailRepository implements MailRepository {
                 name, getSender(node), getRecipients(node),
                 getMessage(node));
         mail.setState(getState(node));
+        mail.setLastUpdated(getLastUpdated(node));
         mail.setErrorMessage(getError(node));
         mail.setRemoteHost(getRemoteHost(node));
         mail.setRemoteAddr(getRemoteAddr(node));
@@ -346,6 +378,7 @@ public class JCRMailRepository implements MailRepository {
     private void setMail(Node node, Mail mail)
             throws MessagingException, RepositoryException, IOException {
         setState(node, mail.getState());
+        setLastUpdated(node, mail.getLastUpdated());
         setError(node, mail.getErrorMessage());
         setRemoteHost(node, mail.getRemoteHost());
         setRemoteAddr(node, mail.getRemoteAddr());
@@ -379,6 +412,43 @@ public class JCRMailRepository implements MailRepository {
      */
     private void setState(Node node, String state) throws RepositoryException {
         node.setProperty("james:state", state);
+    }
+
+    /**
+     * Reads the update timestamp from the jcr:content/jcr:lastModified property.
+     *
+     * @param node mail node
+     * @return update timestamp
+     * @throws RepositoryException if a repository error occurs
+     */
+    private Date getLastUpdated(Node node) throws RepositoryException {
+        try {
+            node = node.getNode("jcr:content");
+        } catch (PathNotFoundException e) {
+            node = node.getProperty("jcr:content").getNode();
+        }
+        return node.getProperty("jcr:lastModified").getDate().getTime();
+    }
+
+    /**
+     * Writes the update timestamp to the jcr:content/jcr:lastModified property.
+     *
+     * @param node mail node
+     * @param updated update timestamp, or <code>null</code> if not set
+     * @throws RepositoryException if a repository error occurs
+     */
+    private void setLastUpdated(Node node, Date updated)
+            throws RepositoryException {
+        try {
+            node = node.getNode("jcr:content");
+        } catch (PathNotFoundException e) {
+            node = node.getProperty("jcr:content").getNode();
+        }
+        Calendar calendar = Calendar.getInstance();
+        if (updated != null) {
+            calendar.setTime(updated);
+        }
+        node.setProperty("jcr:lastModified", calendar);
     }
 
     /**

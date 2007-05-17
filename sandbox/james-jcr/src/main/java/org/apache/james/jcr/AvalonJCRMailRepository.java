@@ -59,6 +59,19 @@ public class AvalonJCRMailRepository extends JCRMailRepository
         if (workspace != null) {
             setWorkspace(workspace);
         }
+
+        String path =
+            configuration.getAttribute("destinationURL", "james:repository");
+        if (path.startsWith("jcr://")) {
+            path = path.substring("jcr://".length());
+        }
+        while (path.startsWith("/")) {
+            path = path.substring(1);
+        }
+        while (path.endsWith("/")) {
+            path = path.substring(0, path.length() - 1);
+        }
+        setPath(path);
     }
 
     //-------------------------------------------------------< Initializable >
@@ -78,6 +91,11 @@ public class AvalonJCRMailRepository extends JCRMailRepository
                             clazz.getResourceAsStream("james.cnd"),
                             JackrabbitNodeTypeManager.TEXT_X_JCR_CND);
                 }
+            }
+
+            if (!session.getRootNode().hasNode(getPath())) {
+                session.getRootNode().addNode(getPath(), "nt:folder");
+                session.save();
             }
         } finally {
             session.logout();
