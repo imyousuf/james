@@ -31,6 +31,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 import javax.jcr.Credentials;
 import javax.jcr.Node;
@@ -59,6 +60,12 @@ import org.apache.mailet.MailAddress;
  * Mail repository that is backed by a JCR content repository.
  */
 public class JCRMailRepository implements MailRepository {
+
+    /**
+     * Logger instance.
+     */
+    private static final Logger logger =
+        Logger.getLogger(JCRMailRepository.class.getName());
 
     /**
      * JCR content repository used as the mail repository.
@@ -139,6 +146,7 @@ public class JCRMailRepository implements MailRepository {
     //------------------------------------------------------< MailRepository >
 
     public Iterator list() throws MessagingException {
+        logger.entering(getClass().getName(), "list()");
         try {
             Session session = repository.login(credentials, workspace);
             try {
@@ -157,10 +165,13 @@ public class JCRMailRepository implements MailRepository {
             }
         } catch (RepositoryException e) {
             throw new MessagingException("Unable to list messages", e);
+        } finally {
+            logger.exiting(getClass().getName(), "list()");
         }
     }
 
     public Mail retrieve(String key) throws MessagingException {
+        logger.entering(getClass().getName(), "retrieve(" + key + ")");
         try {
             Session session = repository.login(credentials, workspace);
             try {
@@ -183,10 +194,13 @@ public class JCRMailRepository implements MailRepository {
         } catch (RepositoryException e) {
             throw new MessagingException(
                     "Unable to retrieve message: " + key, e);
+        } finally {
+            logger.exiting(getClass().getName(), "retrieve(" + key + ")");
         }
     }
 
     public void store(Mail mail) throws MessagingException {
+        logger.entering(getClass().getName(), "store(" + mail.getName() + ")");
         try {
             Session session = repository.login(credentials, workspace);
             try {
@@ -208,6 +222,7 @@ public class JCRMailRepository implements MailRepository {
                     setMail(node, mail);
                 }
                 session.save();
+                logger.info("Mail " + mail.getName() + " stored in repository");
             } finally {
                 session.logout();
             }
@@ -217,10 +232,13 @@ public class JCRMailRepository implements MailRepository {
         } catch (RepositoryException e) {
             throw new MessagingException(
                     "Unable to store message: " + mail.getName(), e);
+        } finally {
+            logger.exiting(getClass().getName(), "store(" + mail.getName() + ")");
         }
     }
 
     public void remove(String key) throws MessagingException {
+        logger.entering(getClass().getName(), "remove(" + key + ")");
         try {
             Session session = repository.login(credentials, workspace);
             try {
@@ -233,11 +251,14 @@ public class JCRMailRepository implements MailRepository {
                     nodes.nextNode().remove();
                 }
                 session.save();
+                logger.info("Mail " + key + " removed from repository");
             } finally {
                 session.logout();
             }
         } catch (RepositoryException e) {
             throw new MessagingException("Unable to remove message: " + key, e);
+        } finally {
+            logger.exiting(getClass().getName(), "remove(" + key + ")");
         }
     }
 
@@ -246,6 +267,7 @@ public class JCRMailRepository implements MailRepository {
     }
 
     public void remove(Collection mails) throws MessagingException {
+        logger.entering(getClass().getName(), "remove(collection)");
         try {
             Session session = repository.login(credentials, workspace);
             try {
@@ -263,11 +285,19 @@ public class JCRMailRepository implements MailRepository {
                     }
                 }
                 session.save();
+                iterator = mails.iterator();
+                while (iterator.hasNext()) {
+                    Mail mail = (Mail) iterator.next();
+                    logger.info(
+                            "Mail " + mail.getName() + " removed from repository");
+                }
             } finally {
                 session.logout();
             }
         } catch (RepositoryException e) {
             throw new MessagingException("Unable to remove messages", e);
+        } finally {
+            logger.exiting(getClass().getName(), "remove(collection)");
         }
     }
 
