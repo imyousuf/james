@@ -8,4 +8,4 @@
 - james:recipients (STRING) multiple
 - james:remotehost (STRING)
 - james:remoteaddr (STRING)
-- jamesattr:* (UNDEFINED)
+- * (UNDEFINED)
