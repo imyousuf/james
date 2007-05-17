@@ -62,8 +62,9 @@ public class AvalonJCRMailRepository extends JCRMailRepository
 
         String path =
             configuration.getAttribute("destinationURL", "james:repository");
-        if (path.startsWith("jcr://")) {
-            path = path.substring("jcr://".length());
+        int i = path.indexOf("://");
+        if (i != -1) {
+            path = path.substring(i + "://".length());
         }
         while (path.startsWith("/")) {
             path = path.substring(1);
