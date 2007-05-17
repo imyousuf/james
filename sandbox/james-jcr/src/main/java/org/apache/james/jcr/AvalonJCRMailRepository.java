@@ -20,7 +20,7 @@ import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 import javax.jcr.nodetype.NodeTypeManager;
 
-import org.apache.avalon.framework.activity.Startable;
+import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -32,7 +32,7 @@ import org.apache.jackrabbit.rmi.jackrabbit.JackrabbitClientAdapterFactory;
  * Managed Avalon wrapper for the {@link JCRMailRepository} class.
  */
 public class AvalonJCRMailRepository extends JCRMailRepository
-        implements Configurable, Startable {
+        implements Configurable, Initializable {
 
     //--------------------------------------------------------< Configurable >
 
@@ -61,9 +61,9 @@ public class AvalonJCRMailRepository extends JCRMailRepository
         }
     }
 
-    //-----------------------------------------------------------< Startable >
+    //-------------------------------------------------------< Initializable >
 
-    public void start() throws Exception {
+    public void initialize() throws Exception {
         Session session =
             getRepository().login(getCredentials(), getWorkspace());
         try {
@@ -82,9 +82,6 @@ public class AvalonJCRMailRepository extends JCRMailRepository
         } finally {
             session.logout();
         }
-    }
-
-    public void stop() {
     }
 
 }
