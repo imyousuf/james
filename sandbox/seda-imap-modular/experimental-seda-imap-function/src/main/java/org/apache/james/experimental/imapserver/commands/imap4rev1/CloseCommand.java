@@ -17,24 +17,27 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.experimental.imapserver.commands;
+package org.apache.james.experimental.imapserver.commands.imap4rev1;
 
 import org.apache.james.experimental.imapserver.ImapConstants;
+import org.apache.james.experimental.imapserver.commands.CommandTemplate;
+import org.apache.james.experimental.imapserver.commands.ImapCommand;
+import org.apache.james.experimental.imapserver.commands.SelectedStateCommand;
 
 
 /**
- * Handles processeing for the LOGOUT imap command.
+ * Handles processeing for the CHECK imap command.
  *
  * @version $Revision: 109034 $
  */
-class LogoutCommand extends CommandTemplate
+class CloseCommand extends SelectedStateCommand
 {
     public static final String ARGS = null;
-    
+
     /** @see ImapCommand#getName */
     public String getName()
     {
-        return ImapConstants.LOGOUT_COMMAND_NAME;
+        return ImapConstants.CLOSE_COMMAND_NAME;
     }
 
     /** @see CommandTemplate#getArgSyntax */
@@ -43,24 +46,35 @@ class LogoutCommand extends CommandTemplate
         return ARGS;
     }
 }
-
 /*
-6.1.3.  LOGOUT Command
+6.4.2.  CLOSE Command
 
    Arguments:  none
 
-   Responses:  REQUIRED untagged response: BYE
+   Responses:  no specific responses for this command
 
-   Result:     OK - logout completed
+   Result:     OK - close completed, now in authenticated state
+               NO - close failure: no mailbox selected
                BAD - command unknown or arguments invalid
 
-      The LOGOUT command informs the server that the client is done with
-      the connection.  The server MUST send a BYE untagged response
-      before the (tagged) OK response, and then close the network
-      connection.
+      The CLOSE command permanently removes from the currently selected
+      mailbox all messages that have the \Deleted flag set, and returns
+      to authenticated state from selected state.  No untagged EXPUNGE
+      responses are sent.
 
-   Example:    C: A023 LOGOUT
-               S: * BYE IMAP4rev1 Server logging out
-               S: A023 OK LOGOUT completed
-               (Server and client then close the connection)
+      No messages are removed, and no error is given, if the mailbox is
+      selected by an EXAMINE command or is otherwise selected read-only.
+
+      Even if a mailbox is selected, a SELECT, EXAMINE, or LOGOUT
+      command MAY be issued without previously issuing a CLOSE command.
+      The SELECT, EXAMINE, and LOGOUT commands implicitly close the
+      currently selected mailbox without doing an expunge.  However,
+      when many messages are deleted, a CLOSE-LOGOUT or CLOSE-SELECT
+
+      sequence is considerably faster than an EXPUNGE-LOGOUT or
+      EXPUNGE-SELECT because no untagged EXPUNGE responses (which the
+      client would probably ignore) are sent.
+
+   Example:    C: A341 CLOSE
+               S: A341 OK CLOSE completed
 */

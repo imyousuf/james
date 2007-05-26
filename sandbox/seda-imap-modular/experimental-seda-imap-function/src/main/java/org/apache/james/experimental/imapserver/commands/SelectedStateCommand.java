@@ -27,7 +27,7 @@ import org.apache.james.experimental.imapserver.message.IdRange;
  *
  * @version $Revision: 109034 $
  */
-abstract class SelectedStateCommand extends CommandTemplate
+abstract public class SelectedStateCommand extends CommandTemplate
 {
     /**
      * Subclasses of this command are only valid in the

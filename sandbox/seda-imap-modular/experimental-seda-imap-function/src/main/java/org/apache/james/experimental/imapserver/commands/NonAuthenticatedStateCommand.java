@@ -26,7 +26,7 @@ import org.apache.james.experimental.imapserver.ImapSessionState;
  *
  * @version $Revision: 109034 $
  */
-abstract class NonAuthenticatedStateCommand extends CommandTemplate
+abstract public class NonAuthenticatedStateCommand extends CommandTemplate
 {
 
     /**

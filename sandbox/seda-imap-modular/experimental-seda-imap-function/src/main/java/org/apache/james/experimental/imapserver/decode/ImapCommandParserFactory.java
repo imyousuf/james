@@ -26,7 +26,7 @@ import org.apache.avalon.framework.CascadingRuntimeException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.experimental.imapserver.ImapConstants;
-import org.apache.james.experimental.imapserver.commands.ImapCommandFactory;
+import org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory;
 import org.apache.james.experimental.imapserver.message.ImapMessageFactory;
 
 /**
@@ -39,9 +39,9 @@ class ImapCommandParserFactory extends AbstractLogEnabled
 {
     private Map _imapCommands;
     private final ImapMessageFactory messageFactory;
-    private final ImapCommandFactory commandFactory;
+    private final Imap4Rev1CommandFactory commandFactory;
     
-    public ImapCommandParserFactory(final ImapMessageFactory messageFactory, final ImapCommandFactory commandFactory)
+    public ImapCommandParserFactory(final ImapMessageFactory messageFactory, final Imap4Rev1CommandFactory commandFactory)
     {
         this.messageFactory = messageFactory;
         this.commandFactory = commandFactory;

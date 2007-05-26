@@ -16,24 +16,25 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
-package org.apache.james.experimental.imapserver.commands;
+package org.apache.james.experimental.imapserver.message.response.imap4rev1;
 
 import org.apache.james.experimental.imapserver.ImapConstants;
+import org.apache.james.experimental.imapserver.ImapResponse;
+import org.apache.james.experimental.imapserver.ImapSession;
+import org.apache.james.experimental.imapserver.commands.ImapCommand;
+import org.apache.james.experimental.imapserver.message.response.AbstractImapResponse;
+import org.apache.james.imapserver.store.MailboxException;
 
-/**
- * TODO: sort out inheritance heirarchy.
- * TODO: this should not inherit from select
- * @version $Revision: 109034 $
- */
-class ExamineCommand extends SelectCommand
-{
-    public ExamineCommand() {
-        super();
+public class CapabilityResponse extends AbstractImapResponse {
+
+    public CapabilityResponse(ImapCommand command, String tag) {
+        super(command, tag);
+    }
+
+    protected void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
+        response.untaggedResponse( ImapConstants.CAPABILITY_RESPONSE );
+        session.unsolicitedResponses( response, false);
+        response.commandComplete( command , tag );            
     }
     
-    public String getName()
-    {
-        return ImapConstants.EXAMINE_COMMAND_NAME;
-    }
 }

@@ -26,7 +26,7 @@ import org.apache.james.experimental.imapserver.ImapSessionState;
  *
  * @version $Revision: 109034 $
  */
-abstract class AuthenticatedStateCommand extends CommandTemplate
+abstract public class AuthenticatedStateCommand extends CommandTemplate
 {
     /**
      * Check that the state is {@link ImapSessionState#AUTHENTICATED } or

@@ -28,7 +28,7 @@ import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.message.request.AbstractImapRequest;
 import org.apache.james.experimental.imapserver.message.request.imap4rev1.CapabilityRequest;
 import org.apache.james.experimental.imapserver.message.response.imap4rev1.BadResponse;
-import org.apache.james.experimental.imapserver.message.response.imap4rev1.CapabilityReponse;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.CapabilityResponse;
 import org.apache.james.experimental.imapserver.processor.AbstractImapRequestProcessor;
 import org.apache.james.imapserver.store.MailboxException;
 
@@ -58,7 +58,7 @@ public class CapabilityProcessor extends AbstractImapRequestProcessor {
 	
 	private ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
         // TODO: accurately report the capabilities of the server
-		final CapabilityReponse result = new CapabilityReponse(command, tag);
+		final CapabilityResponse result = new CapabilityResponse(command, tag);
         return result;
 	}
 }

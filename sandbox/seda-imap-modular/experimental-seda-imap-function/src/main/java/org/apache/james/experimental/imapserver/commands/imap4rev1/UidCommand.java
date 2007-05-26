@@ -17,27 +17,32 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.experimental.imapserver.commands;
+package org.apache.james.experimental.imapserver.commands.imap4rev1;
 
 import org.apache.james.experimental.imapserver.ImapConstants;
+import org.apache.james.experimental.imapserver.commands.CommandTemplate;
+import org.apache.james.experimental.imapserver.commands.ImapCommand;
+import org.apache.james.experimental.imapserver.commands.SelectedStateCommand;
 
 
 /**
- * Handles processeing for the UNSUBSCRIBE imap command.
+ * Handles processeing for the UID imap command.
  *
  * @version $Revision: 109034 $
  */
-class UnsubscribeCommand extends AuthenticatedStateCommand
+class UidCommand extends SelectedStateCommand
 {
-    public static final String ARGS = "<mailbox>";
+    public static final String ARGS = "<fetch-command>|<store-command>|<copy-command>|<search-command>";
 
     /** @see ImapCommand#getName */
-    public String getName() {
-        return ImapConstants.UNSUBSCRIBE_COMMAND_NAME;
+    public String getName()
+    {
+        return ImapConstants.UID_COMMAND_NAME;
     }
 
     /** @see CommandTemplate#getArgSyntax */
-    public String getArgSyntax() {
+    public String getArgSyntax()
+    {
         return ARGS;
     }
 }

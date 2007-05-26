@@ -29,7 +29,7 @@ import org.apache.james.experimental.imapserver.ImapSessionState;
  *
  * @version $Revision: 109034 $
  */
-abstract class CommandTemplate
+abstract public class CommandTemplate
         extends AbstractLogEnabled
         implements ImapCommand, ImapConstants
 {

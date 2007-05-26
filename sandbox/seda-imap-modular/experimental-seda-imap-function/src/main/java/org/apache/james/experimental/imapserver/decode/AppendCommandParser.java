@@ -27,7 +27,7 @@ import javax.mail.internet.MimeMessage;
 import org.apache.james.experimental.imapserver.ImapRequestLineReader;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
-import org.apache.james.experimental.imapserver.commands.ImapCommandFactory;
+import org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory;
 import org.apache.james.experimental.imapserver.message.ImapRequestMessage;
 import org.apache.james.experimental.imapserver.message.ImapMessageFactory;
 
@@ -37,9 +37,9 @@ class AppendCommandParser extends AbstractImapCommandParser implements Initialis
     }
     
     /**
-     * @see org.apache.james.experimental.imapserver.decode.InitialisableCommandFactory#init(org.apache.james.experimental.imapserver.commands.ImapCommandFactory)
+     * @see org.apache.james.experimental.imapserver.decode.InitialisableCommandFactory#init(org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory)
      */
-    public void init(ImapCommandFactory factory)
+    public void init(Imap4Rev1CommandFactory factory)
     {
         final ImapCommand command = factory.getAppend();
         setCommand(command);

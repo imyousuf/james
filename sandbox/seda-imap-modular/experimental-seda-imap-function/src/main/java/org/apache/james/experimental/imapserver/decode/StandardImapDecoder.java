@@ -23,8 +23,8 @@ import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.experimental.imapserver.ImapDecoder;
 import org.apache.james.experimental.imapserver.ImapRequestLineReader;
 import org.apache.james.experimental.imapserver.ProtocolException;
-import org.apache.james.experimental.imapserver.commands.ImapCommandFactory;
-import org.apache.james.experimental.imapserver.commands.StandardImapCommandFactory;
+import org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory;
+import org.apache.james.experimental.imapserver.commands.imap4rev1.StandardImap4Rev1CommandFactory;
 import org.apache.james.experimental.imapserver.message.BaseImapMessageFactory;
 import org.apache.james.experimental.imapserver.message.ImapRequestMessage;
 import org.apache.james.experimental.imapserver.message.ImapMessageFactory;
@@ -34,7 +34,7 @@ public class StandardImapDecoder extends AbstractLogEnabled implements ImapDecod
     private static final String INVALID_COMMAND = "Invalid command.";
     // TODO: inject dependency
     private final ImapMessageFactory messageFactory = new BaseImapMessageFactory();
-    private final ImapCommandFactory commandFactory = new StandardImapCommandFactory();
+    private final Imap4Rev1CommandFactory commandFactory = new StandardImap4Rev1CommandFactory();
     private final ImapCommandParserFactory imapCommands = new ImapCommandParserFactory(messageFactory, commandFactory);
     private static final String REQUEST_SYNTAX = "Protocol Error: Was expecting <tag SPACE command [arguments]>";
 

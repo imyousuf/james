@@ -17,24 +17,26 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.experimental.imapserver.commands;
+package org.apache.james.experimental.imapserver.commands.imap4rev1;
 
 import org.apache.james.experimental.imapserver.ImapConstants;
+import org.apache.james.experimental.imapserver.commands.CommandTemplate;
+import org.apache.james.experimental.imapserver.commands.ImapCommand;
 
 
 /**
- * Handles processing for the CHECK imap command.
+ * Handles processeing for the NOOP imap command.
  *
  * @version $Revision: 109034 $
  */
-class CheckCommand extends SelectedStateCommand
+class NoopCommand extends CommandTemplate
 {
     public static final String ARGS = null;
-
+    
     /** @see ImapCommand#getName */
     public String getName()
     {
-        return ImapConstants.CHECK_COMMAND_NAME;
+        return ImapConstants.NOOP_COMMAND_NAME;
     }
 
     /** @see CommandTemplate#getArgSyntax */
@@ -45,28 +47,30 @@ class CheckCommand extends SelectedStateCommand
 }
 
 /*
-   6.4.1.  CHECK Command
+6.1.2.  NOOP Command
 
    Arguments:  none
 
-   Responses:  no specific responses for this command
+   Responses:  no specific responses for this command (but see below)
 
-   Result:     OK - check completed
+   Result:     OK - noop completed
                BAD - command unknown or arguments invalid
 
-      The CHECK command requests a checkpoint of the currently selected
-      mailbox.  A checkpoint refers to any implementation-dependent
-      housekeeping associated with the mailbox (e.g. resolving the
-      server's in-memory state of the mailbox with the state on its
-      disk) that is not normally executed as part of each command.  A
-      checkpoint MAY take a non-instantaneous amount of real time to
-      complete.  If a server implementation has no such housekeeping
-      considerations, CHECK is equivalent to NOOP.
+      The NOOP command always succeeds.  It does nothing.
 
-      There is no guarantee that an EXISTS untagged response will happen
-      as a result of CHECK.  NOOP, not CHECK, SHOULD be used for new
-      mail polling.
+      Since any command can return a status update as untagged data, the
+      NOOP command can be used as a periodic poll for new messages or
+      message status updates during a period of inactivity.  The NOOP
+      command can also be used to reset any inactivity autologout timer
+      on the server.
 
-   Example:    C: FXXZ CHECK
-               S: FXXZ OK CHECK Completed
+   Example:    C: a002 NOOP
+               S: a002 OK NOOP completed
+                  . . .
+               C: a047 NOOP
+               S: * 22 EXPUNGE
+               S: * 23 EXISTS
+               S: * 3 RECENT
+               S: * 14 FETCH (FLAGS (\Seen \Deleted))
+               S: a047 OK NOOP completed
 */

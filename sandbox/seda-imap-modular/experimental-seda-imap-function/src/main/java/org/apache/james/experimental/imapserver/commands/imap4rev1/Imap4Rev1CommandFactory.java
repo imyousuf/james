@@ -16,9 +16,11 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/ 
-package org.apache.james.experimental.imapserver.commands;
+package org.apache.james.experimental.imapserver.commands.imap4rev1;
 
-public interface ImapCommandFactory {
+import org.apache.james.experimental.imapserver.commands.ImapCommand;
+
+public interface Imap4Rev1CommandFactory {
 
     public abstract ImapCommand getAppend();
 

@@ -16,9 +16,11 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.experimental.imapserver.commands;
+package org.apache.james.experimental.imapserver.commands.imap4rev1;
 
-public class StandardImapCommandFactory implements ImapCommandFactory {
+import org.apache.james.experimental.imapserver.commands.ImapCommand;
+
+public class StandardImap4Rev1CommandFactory implements Imap4Rev1CommandFactory {
 
     private final AppendCommand APPEND = new AppendCommand();   
     private final AuthenticateCommand AUTHENTICATE = new AuthenticateCommand();
@@ -46,168 +48,168 @@ public class StandardImapCommandFactory implements ImapCommandFactory {
     private final UnsubscribeCommand UNSUBSCRIBE  = new UnsubscribeCommand();
     
     /**
-     * @see org.apache.james.experimental.imapserver.commands.ImapCommandFactory#getAppend()
+     * @see org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory#getAppend()
      */
     public ImapCommand getAppend() {
         return APPEND;
     }
     
     /**
-     * @see org.apache.james.experimental.imapserver.commands.ImapCommandFactory#getAuthenticate()
+     * @see org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory#getAuthenticate()
      */
     public ImapCommand getAuthenticate() {
         return AUTHENTICATE;
     }
     
     /**
-     * @see org.apache.james.experimental.imapserver.commands.ImapCommandFactory#getCapability()
+     * @see org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory#getCapability()
      */
     public ImapCommand getCapability() {
         return CAPABILITY;
     }
     
     /**
-     * @see org.apache.james.experimental.imapserver.commands.ImapCommandFactory#getCheck()
+     * @see org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory#getCheck()
      */
     public ImapCommand getCheck() {
         return CHECK;
     }
     
     /**
-     * @see org.apache.james.experimental.imapserver.commands.ImapCommandFactory#getClose()
+     * @see org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory#getClose()
      */
     public ImapCommand getClose() {
         return CLOSE;
     }
     
     /**
-     * @see org.apache.james.experimental.imapserver.commands.ImapCommandFactory#getCopy()
+     * @see org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory#getCopy()
      */
     public ImapCommand getCopy() {
         return COPY;
     }
     
     /**
-     * @see org.apache.james.experimental.imapserver.commands.ImapCommandFactory#getCreate()
+     * @see org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory#getCreate()
      */
     public ImapCommand getCreate() {
         return CREATE;
     }
     
     /**
-     * @see org.apache.james.experimental.imapserver.commands.ImapCommandFactory#getDelete()
+     * @see org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory#getDelete()
      */
     public ImapCommand getDelete() {
         return DELETE;
     }
     
     /**
-     * @see org.apache.james.experimental.imapserver.commands.ImapCommandFactory#getExamine()
+     * @see org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory#getExamine()
      */
     public ImapCommand getExamine() {
         return EXAMINE;
     }
     
     /**
-     * @see org.apache.james.experimental.imapserver.commands.ImapCommandFactory#getExpunge()
+     * @see org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory#getExpunge()
      */
     public ImapCommand getExpunge() {
         return EXPUNGE;
     }
     
     /**
-     * @see org.apache.james.experimental.imapserver.commands.ImapCommandFactory#getFetch()
+     * @see org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory#getFetch()
      */
     public ImapCommand getFetch() {
         return FETCH;
     }
     
     /**
-     * @see org.apache.james.experimental.imapserver.commands.ImapCommandFactory#getList()
+     * @see org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory#getList()
      */
     public ImapCommand getList() {
         return LIST;
     }
     
     /**
-     * @see org.apache.james.experimental.imapserver.commands.ImapCommandFactory#getLogin()
+     * @see org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory#getLogin()
      */
     public ImapCommand getLogin() {
         return LOGIN;
     }
 
     /**
-     * @see org.apache.james.experimental.imapserver.commands.ImapCommandFactory#getLogout()
+     * @see org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory#getLogout()
      */
     public ImapCommand getLogout() {
         return LOGOUT;
     }
     
     /**
-     * @see org.apache.james.experimental.imapserver.commands.ImapCommandFactory#getLsub()
+     * @see org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory#getLsub()
      */
     public ImapCommand getLsub() {
         return LSUB;
     }
     
     /**
-     * @see org.apache.james.experimental.imapserver.commands.ImapCommandFactory#getNoop()
+     * @see org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory#getNoop()
      */
     public ImapCommand getNoop() {
         return NOOP;
     }
     
     /**
-     * @see org.apache.james.experimental.imapserver.commands.ImapCommandFactory#getRename()
+     * @see org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory#getRename()
      */
     public ImapCommand getRename() {
         return RENAME;
     }
     
     /**
-     * @see org.apache.james.experimental.imapserver.commands.ImapCommandFactory#getSearch()
+     * @see org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory#getSearch()
      */
     public ImapCommand getSearch() {
         return SEARCH;
     }
     
     /**
-     * @see org.apache.james.experimental.imapserver.commands.ImapCommandFactory#getSelect()
+     * @see org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory#getSelect()
      */
     public ImapCommand getSelect() {
         return SELECT;
     }
     
     /**
-     * @see org.apache.james.experimental.imapserver.commands.ImapCommandFactory#getStatus()
+     * @see org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory#getStatus()
      */
     public ImapCommand getStatus() {
         return STATUS;
     }
     
     /**
-     * @see org.apache.james.experimental.imapserver.commands.ImapCommandFactory#getStore()
+     * @see org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory#getStore()
      */
     public ImapCommand getStore() {
         return STORE;
     }
     
     /**
-     * @see org.apache.james.experimental.imapserver.commands.ImapCommandFactory#getSubscribe()
+     * @see org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory#getSubscribe()
      */
     public ImapCommand getSubscribe() {
         return SUBSCRIBE;
     }
     
     /**
-     * @see org.apache.james.experimental.imapserver.commands.ImapCommandFactory#getUid()
+     * @see org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory#getUid()
      */
     public ImapCommand getUid() {
         return UID;
     }
     
     /**
-     * @see org.apache.james.experimental.imapserver.commands.ImapCommandFactory#getUnsubscribe()
+     * @see org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory#getUnsubscribe()
      */
     public ImapCommand getUnsubscribe() {
         return UNSUBSCRIBE;

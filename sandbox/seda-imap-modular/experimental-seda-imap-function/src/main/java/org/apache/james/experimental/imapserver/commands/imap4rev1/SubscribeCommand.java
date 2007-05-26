@@ -16,25 +16,30 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.experimental.imapserver.message.response.imap4rev1;
+
+package org.apache.james.experimental.imapserver.commands.imap4rev1;
 
 import org.apache.james.experimental.imapserver.ImapConstants;
-import org.apache.james.experimental.imapserver.ImapResponse;
-import org.apache.james.experimental.imapserver.ImapSession;
+import org.apache.james.experimental.imapserver.commands.AuthenticatedStateCommand;
+import org.apache.james.experimental.imapserver.commands.CommandTemplate;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
-import org.apache.james.experimental.imapserver.message.response.AbstractImapResponse;
-import org.apache.james.imapserver.store.MailboxException;
 
-public class CapabilityReponse extends AbstractImapResponse {
 
-    public CapabilityReponse(ImapCommand command, String tag) {
-        super(command, tag);
-    }
-
-    protected void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
-        response.untaggedResponse( ImapConstants.CAPABILITY_RESPONSE );
-        session.unsolicitedResponses( response, false);
-        response.commandComplete( command , tag );            
-    }
+/**
+ * Handles processeing for the SUBSCRIBE imap command.
+ *
+ * @version $Revision: 109034 $
+ */
+class SubscribeCommand extends AuthenticatedStateCommand {
+    public static final String ARGS = "<mailbox>";
     
+    /** @see ImapCommand#getName */
+    public String getName() {
+        return ImapConstants.SUBSCRIBE_COMMAND_NAME;
+    }
+
+    /** @see CommandTemplate#getArgSyntax */
+    public String getArgSyntax() {
+        return ARGS;
+    }
 }
