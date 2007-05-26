@@ -25,7 +25,7 @@ import org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1Comm
 import org.apache.james.experimental.imapserver.message.BodyFetchElement;
 import org.apache.james.experimental.imapserver.message.FetchData;
 import org.apache.james.experimental.imapserver.message.IdRange;
-import org.apache.james.experimental.imapserver.message.ImapRequestMessage;
+import org.apache.james.experimental.imapserver.message.ImapMessage;
 import org.apache.james.experimental.imapserver.message.ImapMessageFactory;
 
 class FetchCommandParser extends AbstractUidCommandParser  implements InitialisableCommandFactory
@@ -171,13 +171,13 @@ class FetchCommandParser extends AbstractUidCommandParser  implements Initialisa
         return next;
     }
 
-    protected ImapRequestMessage decode(ImapCommand command, ImapRequestLineReader request, String tag, boolean useUids) throws ProtocolException {
+    protected ImapMessage decode(ImapCommand command, ImapRequestLineReader request, String tag, boolean useUids) throws ProtocolException {
         IdRange[] idSet = parseIdRange( request );
         FetchData fetch = fetchRequest( request );
         endLine( request );
         
         final ImapMessageFactory factory = getMessageFactory();
-        final ImapRequestMessage result  = factory.createFetchMessage(command, useUids, idSet, fetch, tag);
+        final ImapMessage result  = factory.createFetchMessage(command, useUids, idSet, fetch, tag);
         return result;
     }
 

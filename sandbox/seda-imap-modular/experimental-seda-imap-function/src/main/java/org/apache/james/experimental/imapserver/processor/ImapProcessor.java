@@ -17,25 +17,32 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.experimental.imapserver.message;
+package org.apache.james.experimental.imapserver.processor;
 
 import org.apache.james.experimental.imapserver.ImapSession;
+import org.apache.james.experimental.imapserver.message.ImapMessage;
+import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
 
 /**
  * <p>
  * Processable IMAP command.
  * </p>
  * <p>
- * <strong>Note:</strong> this is a transitional API
- * and is liable to change.
+ * <strong>Note:</strong> this is a transitional API and is liable to change.
  * </p>
  */
-public interface ImapRequestMessage {
-    
+public interface ImapProcessor {
+
     /**
-     * Performs processing of the command.
-     * @param session <code>ImapSession</code> 
-     * @return response, not  null
+     * Performs processing of the command. If this processor does not understand
+     * the given message then it must return an appropriate message as per the
+     * specification. RuntimeException should not be thrown in this
+     * circumstance.
+     * 
+     * @param <code>ImapMessage</code>, not null
+     * @param session
+     *            <code>ImapSession</code>
+     * @return response, not null
      */
-    ImapResponseMessage process( ImapSession session );
+    public ImapResponseMessage process(ImapMessage message, ImapSession session);
 }

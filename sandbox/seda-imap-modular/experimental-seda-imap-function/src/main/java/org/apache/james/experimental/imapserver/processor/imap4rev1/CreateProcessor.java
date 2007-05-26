@@ -19,37 +19,35 @@
 
 package org.apache.james.experimental.imapserver.processor.imap4rev1;
 
-import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.experimental.imapserver.AuthorizationException;
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
+import org.apache.james.experimental.imapserver.message.ImapMessage;
 import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
-import org.apache.james.experimental.imapserver.message.request.AbstractImapRequest;
+import org.apache.james.experimental.imapserver.message.request.ImapRequest;
 import org.apache.james.experimental.imapserver.message.request.imap4rev1.CreateRequest;
-import org.apache.james.experimental.imapserver.message.response.imap4rev1.BadResponse;
 import org.apache.james.experimental.imapserver.message.response.imap4rev1.CommandCompleteResponse;
-import org.apache.james.experimental.imapserver.processor.AbstractImapRequestProcessor;
+import org.apache.james.experimental.imapserver.processor.ImapProcessor;
+import org.apache.james.experimental.imapserver.processor.base.AbstractImapRequestProcessor;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 
 
 public class CreateProcessor extends AbstractImapRequestProcessor {
 	
-	protected ImapResponseMessage doProcess(AbstractImapRequest message, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-		final ImapResponseMessage result;
-		if (message instanceof CreateRequest) {
-			final CreateRequest request = (CreateRequest) message;
-			result = doProcess(request, session, tag, command);
-		} else {
-			final Logger logger = getLogger();
-			if (logger != null)
-			{
-				logger.debug("Expected CreateRequest, was " + message);
-			}
-			result = new BadResponse("Command unknown by Create processor.");
-		}
-		
+	public CreateProcessor(final ImapProcessor next) {
+        super(next);
+    }
+
+    protected boolean isAcceptable(ImapMessage message) {
+        return (message instanceof CreateRequest);
+    }
+
+    
+    protected ImapResponseMessage doProcess(ImapRequest message, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
+        final CreateRequest request = (CreateRequest) message;
+        final ImapResponseMessage result = doProcess(request, session, tag, command);
 		return result;
 	}
 

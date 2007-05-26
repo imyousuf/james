@@ -16,34 +16,23 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.experimental.imapserver.decode;
 
-import org.apache.james.experimental.imapserver.ImapRequestLineReader;
-import org.apache.james.experimental.imapserver.ProtocolException;
+package org.apache.james.experimental.imapserver.message.request;
+
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
-import org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory;
-import org.apache.james.experimental.imapserver.message.ImapMessage;
 
-class LoginCommandParser extends AbstractImapCommandParser  implements InitialisableCommandFactory {
+public interface ImapRequest {
 
-    public LoginCommandParser() {
-    }
+	/**
+	 * Gets the IMAP command whose execution is requested by the client.
+	 * @return <code>ImapCommand</code>, not null
+	 */
+	public abstract ImapCommand getCommand();
 
-    /**
-     * @see org.apache.james.experimental.imapserver.decode.InitialisableCommandFactory#init(org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory)
-     */
-    public void init(Imap4Rev1CommandFactory factory)
-    {
-        final ImapCommand command = factory.getLogin();
-        setCommand(command);
-    }
-    
-    protected ImapMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
-        final String userid = astring( request );
-        final String password = astring( request );
-        endLine( request );
-        final ImapMessage result = getMessageFactory().createLoginMessage(command, userid, password, tag);
-        return result;
-    }
-    
+	/**
+	 * Gets the prefix tag identifying this request.
+	 * @return the tag identifying the client request, not null
+	 */
+	public abstract String getTag();
+
 }

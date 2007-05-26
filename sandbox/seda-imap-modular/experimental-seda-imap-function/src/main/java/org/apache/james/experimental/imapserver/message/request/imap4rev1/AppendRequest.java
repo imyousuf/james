@@ -25,7 +25,6 @@ import javax.mail.internet.MimeMessage;
 
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.message.request.AbstractImapRequest;
-import org.apache.james.experimental.imapserver.processor.imap4rev1.AppendProcessor;
 
 public class AppendRequest extends AbstractImapRequest {
     private final String mailboxName;
@@ -35,7 +34,7 @@ public class AppendRequest extends AbstractImapRequest {
             
     public AppendRequest(ImapCommand command, String mailboxName, Flags flags, 
             Date datetime, MimeMessage message, String tag) {
-        super(tag, command, new AppendProcessor());
+        super(tag, command);
         this.mailboxName = mailboxName;
         this.flags = flags;
         this.datetime = datetime;

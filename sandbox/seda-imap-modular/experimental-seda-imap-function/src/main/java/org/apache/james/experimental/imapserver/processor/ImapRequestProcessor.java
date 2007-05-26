@@ -21,23 +21,24 @@ package org.apache.james.experimental.imapserver.processor;
 
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
-import org.apache.james.experimental.imapserver.message.request.AbstractImapRequest;
+import org.apache.james.experimental.imapserver.message.request.ImapRequest;
 
 /**
  * <p>
  * Processable IMAP command.
  * </p>
  * <p>
- * <strong>Note:</strong> this is a transitional API
- * and is liable to change.
+ * <strong>Note:</strong> this is a transitional API and is liable to change.
  * </p>
  */
 public interface ImapRequestProcessor {
-    
+
     /**
      * Performs processing of the command.
-     * @param session <code>ImapSession</code> 
-     * @return response, not  null
+     * 
+     * @param session
+     *            <code>ImapSession</code>
+     * @return response, not null
      */
-    ImapResponseMessage process(AbstractImapRequest message, ImapSession session );
+    ImapResponseMessage process(ImapRequest message, ImapSession session);
 }

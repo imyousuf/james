@@ -26,44 +26,31 @@ import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.message.ImapMessage;
 import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.message.request.ImapRequest;
-import org.apache.james.experimental.imapserver.message.request.imap4rev1.UnsubscribeRequest;
-import org.apache.james.experimental.imapserver.message.response.imap4rev1.CommandCompleteResponse;
+import org.apache.james.experimental.imapserver.message.request.imap4rev1.SelectRequest;
 import org.apache.james.experimental.imapserver.processor.ImapProcessor;
-import org.apache.james.experimental.imapserver.processor.base.AbstractImapRequestProcessor;
 import org.apache.james.imapserver.store.MailboxException;
-import org.apache.james.mailboxmanager.MailboxManagerException;
 
 
-public class UnsubscribeProcessor extends AbstractImapRequestProcessor {
+public class SelectProcessor extends AbstractMailboxSelectionProcessor {
 	
-	public UnsubscribeProcessor(final ImapProcessor next) {
+	public SelectProcessor(final ImapProcessor next) {
         super(next);
     }
 
     protected boolean isAcceptable(ImapMessage message) {
-        return (message instanceof UnsubscribeRequest);
+        return (message instanceof SelectRequest);
     }
+
     
     protected ImapResponseMessage doProcess(ImapRequest message, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-        final UnsubscribeRequest request = (UnsubscribeRequest) message;
+        final SelectRequest request = (SelectRequest) message;
         final ImapResponseMessage result = doProcess(request, session, tag, command);
 		return result;
 	}
-
-	private ImapResponseMessage doProcess(UnsubscribeRequest request, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-		final String authType = request.getMailboxName();
-		final ImapResponseMessage result = doProcess(authType, session, tag, command);
+    
+	private ImapResponseMessage doProcess(SelectRequest request, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
+		final String mailboxName = request.getMailboxName();
+		final ImapResponseMessage result = doProcess(mailboxName, false, session, tag, command);
 		return result;
-	}
-	
-	private ImapResponseMessage doProcess(final String mailboxName, 
-			ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-        try {
-            final String fullMailboxName=session.buildFullName(mailboxName);
-            session.getMailboxManager().setSubscription(fullMailboxName,false);
-        } catch (MailboxManagerException e) {
-            throw new MailboxException(e);
-        }
-        return new CommandCompleteResponse(false, command, tag);
 	}
 }

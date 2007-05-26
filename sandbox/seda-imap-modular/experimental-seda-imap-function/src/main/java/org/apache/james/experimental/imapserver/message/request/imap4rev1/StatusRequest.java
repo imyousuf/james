@@ -21,14 +21,13 @@ package org.apache.james.experimental.imapserver.message.request.imap4rev1;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.message.StatusDataItems;
 import org.apache.james.experimental.imapserver.message.request.AbstractImapRequest;
-import org.apache.james.experimental.imapserver.processor.imap4rev1.StatusProcessor;
 
 public class StatusRequest extends AbstractImapRequest {
     private final String mailboxName;
     private final StatusDataItems statusDataItems;
     
     public StatusRequest(final ImapCommand command, final String mailboxName, final StatusDataItems statusDataItems, final String tag) {
-        super(tag, command, new StatusProcessor());
+        super(tag, command);
         this.mailboxName = mailboxName;
         this.statusDataItems = statusDataItems;
     }

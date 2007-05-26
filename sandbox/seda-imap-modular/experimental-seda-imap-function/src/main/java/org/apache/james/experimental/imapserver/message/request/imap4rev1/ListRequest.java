@@ -20,7 +20,6 @@ package org.apache.james.experimental.imapserver.message.request.imap4rev1;
 
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.message.request.AbstractImapRequest;
-import org.apache.james.experimental.imapserver.processor.imap4rev1.ListProcessor;
 
 public class ListRequest extends AbstractImapRequest {
     private final String baseReferenceName;
@@ -28,7 +27,7 @@ public class ListRequest extends AbstractImapRequest {
 
     public ListRequest(final ImapCommand command, final String referenceName, final String mailboxPattern,
             final String tag) {
-        super(tag, command, new ListProcessor());
+        super(tag, command);
         this.baseReferenceName = referenceName;
         this.mailboxPattern = mailboxPattern;
     }

@@ -25,7 +25,7 @@ import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory;
 import org.apache.james.experimental.imapserver.message.IdRange;
-import org.apache.james.experimental.imapserver.message.ImapRequestMessage;
+import org.apache.james.experimental.imapserver.message.ImapMessage;
 import org.apache.james.experimental.imapserver.message.StoreDirective;
 
 class StoreCommandParser extends AbstractUidCommandParser implements InitialisableCommandFactory
@@ -73,12 +73,12 @@ class StoreCommandParser extends AbstractUidCommandParser implements Initialisab
         return new StoreDirective( sign, silent );
     }
 
-    protected ImapRequestMessage decode(ImapCommand command, ImapRequestLineReader request, String tag, boolean useUids) throws ProtocolException {
+    protected ImapMessage decode(ImapCommand command, ImapRequestLineReader request, String tag, boolean useUids) throws ProtocolException {
         final IdRange[] idSet = parseIdRange( request );
         final StoreDirective directive = storeDirective( request );
         final Flags flags = flagList( request );
         endLine( request );
-        final ImapRequestMessage result = getMessageFactory().createStoreMessage(command, idSet, directive, flags, useUids, tag);
+        final ImapMessage result = getMessageFactory().createStoreMessage(command, idSet, directive, flags, useUids, tag);
         return result;
     }
 }

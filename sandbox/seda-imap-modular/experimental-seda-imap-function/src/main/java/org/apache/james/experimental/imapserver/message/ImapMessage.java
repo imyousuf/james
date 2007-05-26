@@ -16,26 +16,18 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.experimental.imapserver.message.request.imap4rev1;
 
-import org.apache.james.experimental.imapserver.commands.ImapCommand;
-import org.apache.james.experimental.imapserver.message.request.AbstractImapRequest;
+package org.apache.james.experimental.imapserver.message;
 
-public class LoginRequest extends AbstractImapRequest {
-    private final String userid;
-    private final String password;
-    
-    public LoginRequest(final ImapCommand command, final String userid, final String password, String tag) {
-        super(tag, command);
-        this.userid = userid;
-        this.password = password;
-    }
-    
-    public final String getPassword() {
-		return password;
-	}
 
-	public final String getUserid() {
-		return userid;
-	}
+/**
+ * <p>
+ * Marker interface for IMAP messages.
+ * </p>
+ * <p>
+ * <strong>Note:</strong> this is a transitional API
+ * and is liable to change.
+ * </p>
+ */
+public interface ImapMessage {
 }

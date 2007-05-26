@@ -20,11 +20,10 @@ package org.apache.james.experimental.imapserver.message.request.imap4rev1;
 
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.message.request.AbstractImapRequest;
-import org.apache.james.experimental.imapserver.processor.imap4rev1.NoopProcessor;
 
 public class NoopRequest extends AbstractImapRequest {
     
     public NoopRequest(final ImapCommand command, final String tag) {
-        super(tag, command, new NoopProcessor());
+        super(tag, command);
     }
 }

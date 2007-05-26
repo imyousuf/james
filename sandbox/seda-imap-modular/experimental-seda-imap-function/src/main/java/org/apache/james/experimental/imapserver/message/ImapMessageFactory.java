@@ -32,61 +32,61 @@ import org.apache.james.experimental.imapserver.commands.ImapCommand;
  */
 public interface ImapMessageFactory {
 
-    public ImapRequestMessage createErrorMessage(String message, String tag);
+    public ImapMessage createErrorMessage(String message, String tag);
     
-    public ImapRequestMessage createBadRequestMessage(final String message);
+    public ImapMessage createBadRequestMessage(final String message);
     
-    public ImapRequestMessage createAppendMessage(ImapCommand command, String mailboxName, Flags flags, 
+    public ImapMessage createAppendMessage(ImapCommand command, String mailboxName, Flags flags, 
             Date datetime, MimeMessage message, String tag); 
     
-    public ImapRequestMessage  createAuthenticateMessage(final ImapCommand command, 
+    public ImapMessage  createAuthenticateMessage(final ImapCommand command, 
             final String authType, final String tag);
         
-    public ImapRequestMessage createCapabilityMessage(final ImapCommand command, final String tag);
+    public ImapMessage createCapabilityMessage(final ImapCommand command, final String tag);
 
-    public ImapRequestMessage createCheckMessage(final ImapCommand command, final String tag);
+    public ImapMessage createCheckMessage(final ImapCommand command, final String tag);
 
-    public ImapRequestMessage createNoopMessage(final ImapCommand command, final String tag);
+    public ImapMessage createNoopMessage(final ImapCommand command, final String tag);
     
-    public ImapRequestMessage createCloseMessage(final ImapCommand command, final String tag);
+    public ImapMessage createCloseMessage(final ImapCommand command, final String tag);
 
-    public ImapRequestMessage createCopyMessage(final ImapCommand command, final IdRange[] idSet, final String mailboxName, 
+    public ImapMessage createCopyMessage(final ImapCommand command, final IdRange[] idSet, final String mailboxName, 
             final boolean useUids, final String tag);
     
-    public ImapRequestMessage createCreateMessage(final ImapCommand command, final String mailboxName, final String tag);
+    public ImapMessage createCreateMessage(final ImapCommand command, final String mailboxName, final String tag);
 
-    public ImapRequestMessage createDeleteMessage(final ImapCommand command, final String mailboxName, final String tag);
+    public ImapMessage createDeleteMessage(final ImapCommand command, final String mailboxName, final String tag);
     
-    public ImapRequestMessage createExamineMessage(final ImapCommand command, final String mailboxName, final String tag);
+    public ImapMessage createExamineMessage(final ImapCommand command, final String mailboxName, final String tag);
 
-    public ImapRequestMessage createExpungeMessage(final ImapCommand command, final String tag);
+    public ImapMessage createExpungeMessage(final ImapCommand command, final String tag);
 
-    public ImapRequestMessage createFetchMessage(final ImapCommand command, final boolean useUids, final IdRange[] idSet, 
+    public ImapMessage createFetchMessage(final ImapCommand command, final boolean useUids, final IdRange[] idSet, 
             final FetchData fetch, String tag);
     
-    public ImapRequestMessage createListMessage(final ImapCommand command, final String referenceName, final String mailboxPattern,
+    public ImapMessage createListMessage(final ImapCommand command, final String referenceName, final String mailboxPattern,
             final String tag);
     
-    public ImapRequestMessage createLoginMessage(final ImapCommand command, final String userid, final String password, String tag);
+    public ImapMessage createLoginMessage(final ImapCommand command, final String userid, final String password, String tag);
 
-    public ImapRequestMessage createLogoutMessage(final ImapCommand command, final String tag);
+    public ImapMessage createLogoutMessage(final ImapCommand command, final String tag);
 
-    public ImapRequestMessage createLsubMessage(ImapCommand command, String referenceName, String mailboxPattern, String tag);
+    public ImapMessage createLsubMessage(ImapCommand command, String referenceName, String mailboxPattern, String tag);
 
-    public ImapRequestMessage createRenameMessage(final ImapCommand command, final String existingName, final String newName, 
+    public ImapMessage createRenameMessage(final ImapCommand command, final String existingName, final String newName, 
             final String tag);
     
-    public ImapRequestMessage createSearchImapMessage(final ImapCommand command, final SearchTerm searchTerm, final boolean useUids,
+    public ImapMessage createSearchImapMessage(final ImapCommand command, final SearchTerm searchTerm, final boolean useUids,
             final String tag);
     
-    public ImapRequestMessage createSelectMessage(final ImapCommand command, final String mailboxName, final String tag);
+    public ImapMessage createSelectMessage(final ImapCommand command, final String mailboxName, final String tag);
 
-    public ImapRequestMessage createStatusMessage(final ImapCommand command, final String mailboxName, final StatusDataItems statusDataItems, final String tag) ;
+    public ImapMessage createStatusMessage(final ImapCommand command, final String mailboxName, final StatusDataItems statusDataItems, final String tag) ;
 
-    public ImapRequestMessage createStoreMessage(final ImapCommand command, final IdRange[] idSet, final StoreDirective directive, final Flags flags, 
+    public ImapMessage createStoreMessage(final ImapCommand command, final IdRange[] idSet, final StoreDirective directive, final Flags flags, 
          final boolean useUids, final String tag); 
     
-    public ImapRequestMessage createSubscribeMessage(final ImapCommand command, final String mailboxName, final String tag); 
+    public ImapMessage createSubscribeMessage(final ImapCommand command, final String mailboxName, final String tag); 
 
-    public ImapRequestMessage createUnsubscribeMessage(final ImapCommand command, final String mailboxName, final String tag);
+    public ImapMessage createUnsubscribeMessage(final ImapCommand command, final String mailboxName, final String tag);
 }

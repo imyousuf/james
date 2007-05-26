@@ -22,7 +22,7 @@ import org.apache.james.experimental.imapserver.ImapRequestLineReader;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory;
-import org.apache.james.experimental.imapserver.message.ImapRequestMessage;
+import org.apache.james.experimental.imapserver.message.ImapMessage;
 
 class NoopCommandParser extends AbstractImapCommandParser  implements InitialisableCommandFactory {
 
@@ -38,9 +38,9 @@ class NoopCommandParser extends AbstractImapCommandParser  implements Initialisa
         setCommand(command);
     }
     
-    protected ImapRequestMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
+    protected ImapMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
         endLine( request );
-        final ImapRequestMessage result = getMessageFactory().createNoopMessage(command, tag);
+        final ImapMessage result = getMessageFactory().createNoopMessage(command, tag);
         return result;
     }
     

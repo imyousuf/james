@@ -21,7 +21,6 @@ package org.apache.james.experimental.imapserver.message.request.imap4rev1;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.message.IdRange;
 import org.apache.james.experimental.imapserver.message.request.AbstractImapRequest;
-import org.apache.james.experimental.imapserver.processor.imap4rev1.CopyProcessor;
 
 public class CopyRequest extends AbstractImapRequest {
 
@@ -31,7 +30,7 @@ public class CopyRequest extends AbstractImapRequest {
 
     public CopyRequest(final ImapCommand command, final IdRange[] idSet, final String mailboxName, 
             final boolean useUids, final String tag) {
-        super(tag, command, new CopyProcessor());
+        super(tag, command);
         this.idSet = idSet;
         this.mailboxName = mailboxName;
         this.useUids = useUids;

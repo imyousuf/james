@@ -20,14 +20,13 @@ package org.apache.james.experimental.imapserver.message.request.imap4rev1;
 
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.message.request.AbstractImapRequest;
-import org.apache.james.experimental.imapserver.processor.imap4rev1.AuthenticateProcessor;
 
 public class AuthenticateRequest extends AbstractImapRequest {
 
     private final String authType;
     
     public AuthenticateRequest(final ImapCommand command, final String authType, final String tag) {
-        super(tag, command, new AuthenticateProcessor());
+        super(tag, command);
         this.authType = authType;
     }
     

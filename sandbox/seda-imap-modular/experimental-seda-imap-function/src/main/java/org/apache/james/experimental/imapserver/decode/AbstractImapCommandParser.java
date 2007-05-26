@@ -34,7 +34,7 @@ import org.apache.james.experimental.imapserver.ImapRequestLineReader;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.message.IdRange;
-import org.apache.james.experimental.imapserver.message.ImapRequestMessage;
+import org.apache.james.experimental.imapserver.message.ImapMessage;
 import org.apache.james.experimental.imapserver.message.ImapMessageFactory;
 import org.apache.james.imapserver.store.MessageFlags;
 
@@ -81,11 +81,11 @@ public abstract class AbstractImapCommandParser extends AbstractLogEnabled imple
      * @param request <code>ImapRequestLineReader</code>, not null
      * @return <code>ImapCommandMessage</code>, not null
      */
-    public final ImapRequestMessage parse( ImapRequestLineReader request, String tag ) {
-        ImapRequestMessage result;
+    public final ImapMessage parse( ImapRequestLineReader request, String tag ) {
+        ImapMessage result;
         try {
             
-            ImapRequestMessage message = decode(command, request, tag);
+            ImapMessage message = decode(command, request, tag);
             final Logger logger = getLogger();
             setupLogger(message);
             result = message;
@@ -108,7 +108,7 @@ public abstract class AbstractImapCommandParser extends AbstractLogEnabled imple
      * @return <code>ImapCommandMessage</code>, not null
      * @throws ProtocolException if the request cannot be parsed
      */
-    protected abstract ImapRequestMessage decode( ImapCommand command, ImapRequestLineReader request, String tag ) 
+    protected abstract ImapMessage decode( ImapCommand command, ImapRequestLineReader request, String tag ) 
         throws ProtocolException;
     
     /**

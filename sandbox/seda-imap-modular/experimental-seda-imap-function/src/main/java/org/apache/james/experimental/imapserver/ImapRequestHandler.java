@@ -26,8 +26,10 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.experimental.imapserver.decode.StandardImapDecoder;
 import org.apache.james.experimental.imapserver.encode.OutputStreamImapResponseWriter;
-import org.apache.james.experimental.imapserver.message.ImapRequestMessage;
+import org.apache.james.experimental.imapserver.message.ImapMessage;
 import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
+import org.apache.james.experimental.imapserver.processor.ImapProcessor;
+import org.apache.james.experimental.imapserver.processor.main.DefaultImapProcessorFactory;
 
 /**
  * @version $Revision: 109034 $
@@ -36,6 +38,7 @@ public final class ImapRequestHandler extends AbstractLogEnabled {
 
     // TODO: inject depedency
     private final ImapDecoder decoder = new StandardImapDecoder();
+    private final ImapProcessor processor = DefaultImapProcessorFactory.createDefaultProcessor();
     
     /**
      * @see org.apache.avalon.framework.logger.AbstractLogEnabled#enableLogging(org.apache.avalon.framework.logger.Logger)
@@ -43,6 +46,7 @@ public final class ImapRequestHandler extends AbstractLogEnabled {
     public void enableLogging(Logger logger) { 
         super.enableLogging(logger);
         setupLogger(decoder);
+        setupLogger(processor);
     }
     
     /**
@@ -87,8 +91,8 @@ public final class ImapRequestHandler extends AbstractLogEnabled {
                                    ImapResponse response,
                                    ImapSession session)
     {
-        ImapRequestMessage message = decoder.decode(request);
-        ImapResponseMessage responseMessage = message.process(session);
+        ImapMessage message = decoder.decode(request);
+        ImapResponseMessage responseMessage = processor.process(message, session);
         responseMessage.encode(response, session);
     }
 

@@ -20,7 +20,6 @@ package org.apache.james.experimental.imapserver.message.request.imap4rev1;
 
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.message.request.AbstractImapRequest;
-import org.apache.james.experimental.imapserver.processor.imap4rev1.RenameProcessor;
 
 public class RenameRequest extends AbstractImapRequest {
     private final String existingName;
@@ -28,7 +27,7 @@ public class RenameRequest extends AbstractImapRequest {
     
     public RenameRequest(final ImapCommand command, final String existingName, final String newName, 
             final String tag) {
-        super(tag, command, new RenameProcessor());
+        super(tag, command);
         this.existingName = existingName;
         this.newName = newName;
     }

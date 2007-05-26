@@ -22,37 +22,33 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
-import org.apache.james.experimental.imapserver.message.ImapRequestMessage;
+import org.apache.james.experimental.imapserver.message.ImapMessage;
 import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.processor.ImapRequestProcessor;
 
-abstract public class AbstractImapRequest extends AbstractLogEnabled implements ImapRequestMessage {
+abstract public class AbstractImapRequest extends AbstractLogEnabled implements ImapMessage, ImapRequest {
     
 	private final String tag;
     private final ImapCommand command;
-    private final ImapRequestProcessor processor;
     
-    public AbstractImapRequest(final String tag, final ImapCommand command, final ImapRequestProcessor processor) {
+    public AbstractImapRequest(final String tag, final ImapCommand command) {
         this.tag = tag;
         this.command = command;
-        this.processor = processor;
     }
     
-	public void enableLogging(Logger logger) {
-		super.enableLogging(logger);
-		setupLogger(processor);
-	}
-
+	/**
+	 * Gets the IMAP command whose execution is requested by the client.
+	 * @see org.apache.james.experimental.imapserver.message.request.ImapRequest#getCommand()
+	 */
 	public final ImapCommand getCommand() {
 		return command;
 	}
 
+	/**
+	 * Gets the prefix tag identifying this request.
+	 * @see org.apache.james.experimental.imapserver.message.request.ImapRequest#getTag()
+	 */
 	public final String getTag() {
 		return tag;
 	}
-
-	public final ImapResponseMessage process(ImapSession session) {
-    	final ImapResponseMessage result = processor.process(this, session);
-    	return result;
-    }
 }

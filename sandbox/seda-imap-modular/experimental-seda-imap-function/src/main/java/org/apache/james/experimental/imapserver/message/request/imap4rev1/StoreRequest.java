@@ -24,7 +24,6 @@ import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.message.IdRange;
 import org.apache.james.experimental.imapserver.message.StoreDirective;
 import org.apache.james.experimental.imapserver.message.request.AbstractImapRequest;
-import org.apache.james.experimental.imapserver.processor.imap4rev1.StoreProcessor;
 
 public class StoreRequest extends AbstractImapRequest {
     private final IdRange[] idSet;
@@ -34,7 +33,7 @@ public class StoreRequest extends AbstractImapRequest {
     
     public StoreRequest(final ImapCommand command, final IdRange[] idSet, final StoreDirective directive, final Flags flags, 
             final boolean useUids, final String tag) {
-        super(tag, command, new StoreProcessor());
+        super(tag, command);
         this.idSet = idSet;
         this.directive = directive;
         this.flags = flags;

@@ -22,12 +22,12 @@ import org.apache.james.experimental.imapserver.ImapConstants;
 import org.apache.james.experimental.imapserver.ImapResponse;
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
-import org.apache.james.experimental.imapserver.message.ImapRequestMessage;
+import org.apache.james.experimental.imapserver.message.ImapMessage;
 import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.message.response.AbstractImapResponse;
 import org.apache.james.imapserver.store.MailboxException;
 
-public class LogoutResponse extends AbstractImapResponse implements ImapRequestMessage {
+public class LogoutResponse extends AbstractImapResponse implements ImapMessage {
 
 
     public static final String BYE_MESSAGE = ImapConstants.VERSION + ImapConstants.SP + "Server logging out";
@@ -41,9 +41,5 @@ public class LogoutResponse extends AbstractImapResponse implements ImapRequestM
         response.commandComplete( command, tag );
         // TODO: think about how this will work with SEDA
         session.closeConnection();            
-    }
-
-    public ImapResponseMessage process(ImapSession session) {
-        return this;
     }
 }

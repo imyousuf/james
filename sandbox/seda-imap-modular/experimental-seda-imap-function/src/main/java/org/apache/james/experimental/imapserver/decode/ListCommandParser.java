@@ -22,7 +22,7 @@ import org.apache.james.experimental.imapserver.ImapRequestLineReader;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory;
-import org.apache.james.experimental.imapserver.message.ImapRequestMessage;
+import org.apache.james.experimental.imapserver.message.ImapMessage;
 import org.apache.james.experimental.imapserver.message.ImapMessageFactory;
 class ListCommandParser extends AbstractUidCommandParser  implements InitialisableCommandFactory
 {
@@ -68,18 +68,18 @@ class ListCommandParser extends AbstractUidCommandParser  implements Initialisab
         }
     }
 
-    protected ImapRequestMessage decode(ImapCommand command, ImapRequestLineReader request, String tag, boolean useUids) throws ProtocolException {
+    protected ImapMessage decode(ImapCommand command, ImapRequestLineReader request, String tag, boolean useUids) throws ProtocolException {
         String referenceName = mailbox( request );
         String mailboxPattern = listMailbox( request );
         endLine( request );
-        final ImapRequestMessage result = createMessage(command, referenceName, mailboxPattern, tag);
+        final ImapMessage result = createMessage(command, referenceName, mailboxPattern, tag);
         return result;
     }
     
-    protected ImapRequestMessage createMessage(ImapCommand command, final String referenceName, final String mailboxPattern, final String tag) 
+    protected ImapMessage createMessage(ImapCommand command, final String referenceName, final String mailboxPattern, final String tag) 
     {
         final ImapMessageFactory factory = getMessageFactory();
-        final ImapRequestMessage result = factory.createListMessage(command, referenceName, mailboxPattern, tag);
+        final ImapMessage result = factory.createListMessage(command, referenceName, mailboxPattern, tag);
         return result;
     }
 }

@@ -21,14 +21,14 @@ package org.apache.james.experimental.imapserver.message.response.imap4rev1;
 
 import org.apache.james.experimental.imapserver.ImapResponse;
 import org.apache.james.experimental.imapserver.ImapSession;
-import org.apache.james.experimental.imapserver.message.ImapRequestMessage;
+import org.apache.james.experimental.imapserver.message.ImapMessage;
 import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
 
 /**
  * Carries the response to a request with bad syntax..
  * 
  */
-public class BadResponse implements ImapRequestMessage,
+public class BadResponse implements ImapMessage,
         ImapResponseMessage {
 
     private final String message;
@@ -43,11 +43,6 @@ public class BadResponse implements ImapRequestMessage,
         super();
         this.message = message;
         this.tag = tag;
-    }
-    
-
-    public ImapResponseMessage process(ImapSession session) {
-        return this;
     }
 
     public void encode(ImapResponse response, ImapSession session) {

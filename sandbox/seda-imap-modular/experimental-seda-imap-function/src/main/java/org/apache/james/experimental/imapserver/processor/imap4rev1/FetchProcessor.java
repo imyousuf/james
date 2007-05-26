@@ -31,7 +31,6 @@ import javax.mail.Flags;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
-import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.experimental.imapserver.AuthorizationException;
 import org.apache.james.experimental.imapserver.ImapConstants;
@@ -41,12 +40,13 @@ import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.message.BodyFetchElement;
 import org.apache.james.experimental.imapserver.message.FetchData;
 import org.apache.james.experimental.imapserver.message.IdRange;
+import org.apache.james.experimental.imapserver.message.ImapMessage;
 import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
-import org.apache.james.experimental.imapserver.message.request.AbstractImapRequest;
+import org.apache.james.experimental.imapserver.message.request.ImapRequest;
 import org.apache.james.experimental.imapserver.message.request.imap4rev1.FetchRequest;
-import org.apache.james.experimental.imapserver.message.response.imap4rev1.BadResponse;
 import org.apache.james.experimental.imapserver.message.response.imap4rev1.FetchResponse;
-import org.apache.james.experimental.imapserver.processor.AbstractImapRequestProcessor;
+import org.apache.james.experimental.imapserver.processor.ImapProcessor;
+import org.apache.james.experimental.imapserver.processor.base.AbstractImapRequestProcessor;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.imapserver.store.MessageFlags;
 import org.apache.james.imapserver.store.SimpleMessageAttributes;
@@ -62,20 +62,17 @@ import com.sun.mail.util.CRLFOutputStream;
 
 public class FetchProcessor extends AbstractImapRequestProcessor {
 	
-	protected ImapResponseMessage doProcess(AbstractImapRequest message, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-		final ImapResponseMessage result;
-		if (message instanceof FetchRequest) {
-			final FetchRequest request = (FetchRequest) message;
-			result = doProcess(request, session, tag, command);
-		} else {
-			final Logger logger = getLogger();
-			if (logger != null)
-			{
-				logger.debug("Expected FetchRequest, was " + message);
-			}
-			result = new BadResponse("Command unknown by Fetch processor.");
-		}
-		
+	public FetchProcessor(final ImapProcessor next) {
+        super(next);
+    }
+
+    protected boolean isAcceptable(ImapMessage message) {
+        return (message instanceof FetchRequest);
+    }
+
+    protected ImapResponseMessage doProcess(ImapRequest message, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
+        final FetchRequest request = (FetchRequest) message;
+        final ImapResponseMessage result = doProcess(request, session, tag, command);
 		return result;
 	}
 

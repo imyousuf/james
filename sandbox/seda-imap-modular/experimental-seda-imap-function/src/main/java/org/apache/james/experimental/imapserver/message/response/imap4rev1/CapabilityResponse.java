@@ -32,6 +32,7 @@ public class CapabilityResponse extends AbstractImapResponse {
     }
 
     protected void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
+        // TODO: inject capability text
         response.untaggedResponse( ImapConstants.CAPABILITY_RESPONSE );
         session.unsolicitedResponses( response, false);
         response.commandComplete( command , tag );            

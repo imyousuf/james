@@ -20,12 +20,11 @@ package org.apache.james.experimental.imapserver.message.request.imap4rev1;
 
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.message.request.AbstractImapRequest;
-import org.apache.james.experimental.imapserver.processor.imap4rev1.CreateProcessor;
 
 public class CreateRequest extends AbstractImapRequest {
     private final String mailboxName;
     public CreateRequest(final ImapCommand command, final String mailboxName, final String tag) {
-        super(tag, command, new CreateProcessor());
+        super(tag, command);
         this.mailboxName = mailboxName;
     }
     

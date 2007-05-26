@@ -26,7 +26,7 @@ import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory;
 import org.apache.james.experimental.imapserver.commands.imap4rev1.StandardImap4Rev1CommandFactory;
 import org.apache.james.experimental.imapserver.message.BaseImapMessageFactory;
-import org.apache.james.experimental.imapserver.message.ImapRequestMessage;
+import org.apache.james.experimental.imapserver.message.ImapMessage;
 import org.apache.james.experimental.imapserver.message.ImapMessageFactory;
 
 public class StandardImapDecoder extends AbstractLogEnabled implements ImapDecoder {
@@ -46,8 +46,8 @@ public class StandardImapDecoder extends AbstractLogEnabled implements ImapDecod
         setupLogger(imapCommands);
     }
     
-    public ImapRequestMessage decode(ImapRequestLineReader request) {
-        ImapRequestMessage message;
+    public ImapMessage decode(ImapRequestLineReader request) {
+        ImapMessage message;
         final Logger logger = getLogger(); 
         
         try {
@@ -61,8 +61,8 @@ public class StandardImapDecoder extends AbstractLogEnabled implements ImapDecod
         return message;
     }
 
-    private ImapRequestMessage decodeCommandTagged(final ImapRequestLineReader request, final Logger logger, final String tag) {
-        ImapRequestMessage message;
+    private ImapMessage decodeCommandTagged(final ImapRequestLineReader request, final Logger logger, final String tag) {
+        ImapMessage message;
         if (logger.isDebugEnabled()) { 
             logger.debug( "Got <tag>: " + tag );
         }
@@ -77,9 +77,9 @@ public class StandardImapDecoder extends AbstractLogEnabled implements ImapDecod
         return message;
     }
 
-    private ImapRequestMessage decodeCommandNamed(final ImapRequestLineReader request, 
+    private ImapMessage decodeCommandNamed(final ImapRequestLineReader request, 
             final String tag, String commandName, final Logger logger) {
-        ImapRequestMessage message;
+        ImapMessage message;
         if (logger.isDebugEnabled()) { 
             logger.debug( "Got <command>: " + commandName); 
         }

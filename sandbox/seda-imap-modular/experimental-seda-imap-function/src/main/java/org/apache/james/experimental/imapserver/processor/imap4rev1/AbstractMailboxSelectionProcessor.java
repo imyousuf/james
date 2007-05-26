@@ -21,61 +21,27 @@ package org.apache.james.experimental.imapserver.processor.imap4rev1;
 
 import javax.mail.Flags;
 
-import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.experimental.imapserver.AuthorizationException;
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
-import org.apache.james.experimental.imapserver.message.request.AbstractImapRequest;
-import org.apache.james.experimental.imapserver.message.request.imap4rev1.ExamineRequest;
-import org.apache.james.experimental.imapserver.message.request.imap4rev1.SelectRequest;
-import org.apache.james.experimental.imapserver.message.response.imap4rev1.BadResponse;
 import org.apache.james.experimental.imapserver.message.response.imap4rev1.ExamineAndSelectResponse;
-import org.apache.james.experimental.imapserver.processor.AbstractImapRequestProcessor;
+import org.apache.james.experimental.imapserver.processor.ImapProcessor;
+import org.apache.james.experimental.imapserver.processor.base.AbstractImapRequestProcessor;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 
 
-public class ExamineAndSelectProcessor extends AbstractImapRequestProcessor {
+abstract public class AbstractMailboxSelectionProcessor extends AbstractImapRequestProcessor {
 	
-	protected ImapResponseMessage doProcess(AbstractImapRequest message, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-		final ImapResponseMessage result;
-		if (message instanceof SelectRequest) {
-			final SelectRequest request = (SelectRequest) message;
-			result = doProcess(request, session, tag, command);
-			
-		} else if (message instanceof ExamineRequest) {
-			final ExamineRequest request = (ExamineRequest) message;
-			result = doProcess(request, session, tag, command);
-			
-		} else {
-			final Logger logger = getLogger();
-			if (logger != null)
-			{
-				logger.debug("Expected SelectRequest or ExamineRequest, was " + message);
-			}
-			result = new BadResponse("Command unknown by Examine and Select processor.");
-		}
-		
-		return result;
-	}
-	
-	private ImapResponseMessage doProcess(ExamineRequest request, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-		final String mailboxName = request.getMailboxName();
-		final ImapResponseMessage result = doProcess(mailboxName, false, session, tag, command);
-		return result;
-	}
+	public AbstractMailboxSelectionProcessor(final ImapProcessor next) {
+        super(next);
+    }
 
-	private ImapResponseMessage doProcess(SelectRequest request, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-		final String mailboxName = request.getMailboxName();
-		final ImapResponseMessage result = doProcess(mailboxName, false, session, tag, command);
-		return result;
-	}
-	
-	private ImapResponseMessage doProcess(String mailboxName, boolean isExamine,
+	protected final ImapResponseMessage doProcess(String mailboxName, boolean isExamine,
 			ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
         ImapResponseMessage result;
         session.deselect();

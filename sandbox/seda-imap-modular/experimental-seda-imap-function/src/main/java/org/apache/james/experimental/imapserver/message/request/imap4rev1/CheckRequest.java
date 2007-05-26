@@ -20,11 +20,10 @@ package org.apache.james.experimental.imapserver.message.request.imap4rev1;
 
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.message.request.AbstractImapRequest;
-import org.apache.james.experimental.imapserver.processor.imap4rev1.CheckProcessor;
 
 public class CheckRequest extends AbstractImapRequest {
     
     public CheckRequest(final ImapCommand command, final String tag) {
-        super(tag, command, new CheckProcessor());
+        super(tag, command);
     }
 }

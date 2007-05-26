@@ -16,26 +16,25 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.experimental.imapserver.message.request.imap4rev1;
 
-import org.apache.james.experimental.imapserver.commands.ImapCommand;
-import org.apache.james.experimental.imapserver.message.request.AbstractImapRequest;
+package org.apache.james.experimental.imapserver.processor.main;
 
-public class LoginRequest extends AbstractImapRequest {
-    private final String userid;
-    private final String password;
-    
-    public LoginRequest(final ImapCommand command, final String userid, final String password, String tag) {
-        super(tag, command);
-        this.userid = userid;
-        this.password = password;
+import org.apache.james.experimental.imapserver.processor.ImapProcessor;
+import org.apache.james.experimental.imapserver.processor.base.ImapResponseMessageProcessor;
+import org.apache.james.experimental.imapserver.processor.base.UnknownRequestImapProcessor;
+import org.apache.james.experimental.imapserver.processor.imap4rev1.Imap4Rev1ProcessorFactory;
+
+
+/**
+ * TODO: perhaps this should be a POJO
+ */
+public class DefaultImapProcessorFactory {
+
+    public static final ImapProcessor createDefaultProcessor() {
+        final UnknownRequestImapProcessor unknownRequestImapProcessor = new UnknownRequestImapProcessor();
+        final ImapProcessor imap4rev1Chain = Imap4Rev1ProcessorFactory.createDefaultChain(unknownRequestImapProcessor);
+        final ImapProcessor result = new ImapResponseMessageProcessor(imap4rev1Chain);
+        return result;
     }
     
-    public final String getPassword() {
-		return password;
-	}
-
-	public final String getUserid() {
-		return userid;
-	}
 }

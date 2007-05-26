@@ -49,10 +49,8 @@ public class BadResponseMessageTest extends TestCase {
         super.tearDown();
     }
 
-    public void testProcessAndEncode() throws Exception {
-            ImapResponseMessage response = message.process(session);
-            assertNotNull("Response is required", response);
-            response.encode(this.response, session);
+    public void testEncode() throws Exception {
+            message.encode(this.response, session);
             assertEquals(4, this.writer.operations.size());
             assertEquals(new MockImapResponseWriter.UntaggedOperation(), writer.operations.get(0));
             assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapConstants.BAD), 

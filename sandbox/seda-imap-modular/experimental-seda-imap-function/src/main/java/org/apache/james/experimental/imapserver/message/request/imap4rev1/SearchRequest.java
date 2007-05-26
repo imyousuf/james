@@ -22,7 +22,6 @@ import javax.mail.search.SearchTerm;
 
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.message.request.AbstractImapRequest;
-import org.apache.james.experimental.imapserver.processor.imap4rev1.SearchProcessor;
 
 public class SearchRequest extends AbstractImapRequest {
     private final SearchTerm searchTerm;
@@ -30,7 +29,7 @@ public class SearchRequest extends AbstractImapRequest {
 
     public SearchRequest(final ImapCommand command, final SearchTerm searchTerm, final boolean useUids,
             final String tag) {
-        super(tag, command, new SearchProcessor());
+        super(tag, command);
         this.searchTerm = searchTerm;
         this.useUids = useUids;
     }

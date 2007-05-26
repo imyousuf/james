@@ -19,36 +19,33 @@
 
 package org.apache.james.experimental.imapserver.processor.imap4rev1;
 
-import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.experimental.imapserver.AuthorizationException;
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
+import org.apache.james.experimental.imapserver.message.ImapMessage;
 import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
-import org.apache.james.experimental.imapserver.message.request.AbstractImapRequest;
+import org.apache.james.experimental.imapserver.message.request.ImapRequest;
 import org.apache.james.experimental.imapserver.message.request.imap4rev1.AuthenticateRequest;
-import org.apache.james.experimental.imapserver.message.response.imap4rev1.BadResponse;
 import org.apache.james.experimental.imapserver.message.response.imap4rev1.CommandFailedResponse;
-import org.apache.james.experimental.imapserver.processor.AbstractImapRequestProcessor;
+import org.apache.james.experimental.imapserver.processor.ImapProcessor;
+import org.apache.james.experimental.imapserver.processor.base.AbstractImapRequestProcessor;
 import org.apache.james.imapserver.store.MailboxException;
 
 
 public class AuthenticateProcessor extends AbstractImapRequestProcessor {
 	
-	protected ImapResponseMessage doProcess(AbstractImapRequest message, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-		final ImapResponseMessage result;
-		if (message instanceof AuthenticateRequest) {
-			final AuthenticateRequest request = (AuthenticateRequest) message;
-			result = doProcess(request, session, tag, command);
-		} else {
-			final Logger logger = getLogger();
-			if (logger != null)
-			{
-				logger.debug("Expected AuthenticateRequest, was " + message);
-			}
-			result = new BadResponse("Command unknown by Authenticate processor.");
-		}
-		
+	public AuthenticateProcessor(final ImapProcessor next) {
+        super(next);
+    }
+
+    protected boolean isAcceptable(ImapMessage message) {
+        return (message instanceof AuthenticateRequest);
+    }
+    
+    protected ImapResponseMessage doProcess(ImapRequest message, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
+        final AuthenticateRequest request = (AuthenticateRequest) message;
+        final ImapResponseMessage result = doProcess(request, session, tag, command);
 		return result;
 	}
 

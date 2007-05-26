@@ -20,12 +20,11 @@ package org.apache.james.experimental.imapserver.message.request.imap4rev1;
 
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.message.request.AbstractImapRequest;
-import org.apache.james.experimental.imapserver.processor.imap4rev1.LogoutProcessor;
 
 public class LogoutRequest extends AbstractImapRequest {
 
     public LogoutRequest(final ImapCommand command, final String tag) {
-        super(tag, command, new LogoutProcessor());
+        super(tag, command);
     }
     
 }

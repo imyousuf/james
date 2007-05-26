@@ -42,10 +42,6 @@ public class RecordingImapResponseWriterTest extends TestCase {
         super.tearDown();
     }
 
-    public void testProcess() {
-        assertEquals("Recorder is a response", writer, writer.process(new MockImapSession()));
-    }
-
     public void testCommandName() {
         String name = "A command name";
         writer.commandName(name);

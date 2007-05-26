@@ -18,8 +18,8 @@
  ****************************************************************/ 
 package org.apache.james.experimental.imapserver;
 
-import org.apache.james.experimental.imapserver.message.ImapRequestMessage;
+import org.apache.james.experimental.imapserver.message.ImapMessage;
 
 public interface ImapDecoder {
-    public ImapRequestMessage decode(final ImapRequestLineReader request);
+    public ImapMessage decode(final ImapRequestLineReader request);
 }

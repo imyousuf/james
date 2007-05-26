@@ -21,7 +21,7 @@ package org.apache.james.experimental.imapserver.message.response.imap4rev1;
 
 import org.apache.james.experimental.imapserver.ImapResponse;
 import org.apache.james.experimental.imapserver.ImapSession;
-import org.apache.james.experimental.imapserver.message.ImapRequestMessage;
+import org.apache.james.experimental.imapserver.message.ImapMessage;
 import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
 
 /**
@@ -29,7 +29,7 @@ import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
  * TODO: this response is not listed in the specification
  * TODO: and should be replaced
  */
-public class ErrorResponse implements ImapResponseMessage, ImapRequestMessage {
+public class ErrorResponse implements ImapResponseMessage, ImapMessage {
 
     private final String message;
     private final String tag;
@@ -41,9 +41,5 @@ public class ErrorResponse implements ImapResponseMessage, ImapRequestMessage {
     
     public void encode(ImapResponse response, ImapSession session) {
         response.commandError(message, tag);
-    }
-
-    public ImapResponseMessage process(ImapSession session) {
-        return this;
     }
 }

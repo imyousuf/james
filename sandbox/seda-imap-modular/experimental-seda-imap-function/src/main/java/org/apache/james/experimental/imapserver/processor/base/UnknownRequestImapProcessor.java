@@ -1,0 +1,29 @@
+package org.apache.james.experimental.imapserver.processor.base;
+
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.logger.Logger;
+import org.apache.james.experimental.imapserver.ImapSession;
+import org.apache.james.experimental.imapserver.message.ImapMessage;
+import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
+import org.apache.james.experimental.imapserver.message.request.ImapRequest;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.BadResponse;
+import org.apache.james.experimental.imapserver.processor.ImapProcessor;
+
+public class UnknownRequestImapProcessor extends AbstractLogEnabled implements ImapProcessor {
+
+    public ImapResponseMessage process(ImapMessage message, ImapSession session) {
+        Logger logger = getLogger();
+        if (logger != null && logger.isDebugEnabled()) {
+            logger.debug("Unknown message: " + message);
+        }
+        final ImapResponseMessage result;
+        if (message instanceof ImapRequest) {
+            ImapRequest request = (ImapRequest) message;
+            result = new BadResponse("Unknown command.", request.getTag());
+        } else {
+            result = new BadResponse("Unknown command.");
+        }
+        return result;
+    }
+
+}

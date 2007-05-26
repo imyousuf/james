@@ -22,7 +22,6 @@ import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.message.FetchData;
 import org.apache.james.experimental.imapserver.message.IdRange;
 import org.apache.james.experimental.imapserver.message.request.AbstractImapRequest;
-import org.apache.james.experimental.imapserver.processor.imap4rev1.FetchProcessor;
 
 public class FetchRequest extends AbstractImapRequest {
         private final boolean useUids;
@@ -31,7 +30,7 @@ public class FetchRequest extends AbstractImapRequest {
 
         public FetchRequest(final ImapCommand command, final boolean useUids, final IdRange[] idSet, 
                 final FetchData fetch, String tag) {
-            super(tag, command, new FetchProcessor());
+            super(tag, command);
             this.useUids = useUids;
             this.idSet = idSet;
             this.fetch = fetch;

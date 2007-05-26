@@ -26,7 +26,8 @@ import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.message.response.imap4rev1.ListResponse;
-import org.apache.james.experimental.imapserver.processor.AbstractImapRequestProcessor;
+import org.apache.james.experimental.imapserver.processor.ImapProcessor;
+import org.apache.james.experimental.imapserver.processor.base.AbstractImapRequestProcessor;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.ListResult;
 import org.apache.james.mailboxmanager.MailboxManagerException;
@@ -35,7 +36,11 @@ import org.apache.james.mailboxmanager.impl.ListResultImpl;
 
 abstract class AbstractListingProcessor extends AbstractImapRequestProcessor {
 	
-	protected final ImapResponseMessage doProcess(final String baseReferenceName, final String mailboxPattern,
+	public AbstractListingProcessor(final ImapProcessor next) {
+        super(next);
+    }
+
+    protected final ImapResponseMessage doProcess(final String baseReferenceName, final String mailboxPattern,
 			ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
 
         final ListResponse result = new ListResponse(command, tag);

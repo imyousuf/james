@@ -56,104 +56,104 @@ import org.apache.james.experimental.imapserver.message.response.imap4rev1.Error
  */
 public class BaseImapMessageFactory implements ImapMessageFactory {
 
-    public ImapRequestMessage createErrorMessage(String message, String tag) {
+    public ImapMessage createErrorMessage(String message, String tag) {
         return new ErrorResponse( message, tag );
     }
 
-    public ImapRequestMessage createAppendMessage(ImapCommand command, String mailboxName, Flags flags, Date datetime, MimeMessage message, String tag) {
+    public ImapMessage createAppendMessage(ImapCommand command, String mailboxName, Flags flags, Date datetime, MimeMessage message, String tag) {
         return new AppendRequest(command, mailboxName, 
                 flags, datetime, message, tag);
     }
 
-    public ImapRequestMessage createAuthenticateMessage(ImapCommand command, String authType, String tag) {
+    public ImapMessage createAuthenticateMessage(ImapCommand command, String authType, String tag) {
         return new AuthenticateRequest(command, authType, tag);
     }
 
-    public ImapRequestMessage createCapabilityMessage(ImapCommand command, String tag) {
+    public ImapMessage createCapabilityMessage(ImapCommand command, String tag) {
         return new CapabilityRequest(command, tag);
     }
 
-    public ImapRequestMessage createNoopMessage(ImapCommand command, String tag) {
+    public ImapMessage createNoopMessage(ImapCommand command, String tag) {
         return new NoopRequest(command, tag);
     }
 
-    public ImapRequestMessage createCloseMessage(ImapCommand command, String tag) {
+    public ImapMessage createCloseMessage(ImapCommand command, String tag) {
         return new CloseRequest(command, tag);
     }
 
-    public ImapRequestMessage createCopyMessage(ImapCommand command, IdRange[] idSet, String mailboxName, boolean useUids, String tag) {
+    public ImapMessage createCopyMessage(ImapCommand command, IdRange[] idSet, String mailboxName, boolean useUids, String tag) {
         return new CopyRequest(command, idSet, mailboxName, useUids, tag);
     }
 
-    public ImapRequestMessage createCreateMessage(ImapCommand command, String mailboxName, String tag) {
+    public ImapMessage createCreateMessage(ImapCommand command, String mailboxName, String tag) {
         return new CreateRequest(command, mailboxName, tag);
     }
 
-    public ImapRequestMessage createDeleteMessage(ImapCommand command, String mailboxName, String tag) {
+    public ImapMessage createDeleteMessage(ImapCommand command, String mailboxName, String tag) {
         return new DeleteRequest( command, mailboxName, tag );
     }
 
-    public ImapRequestMessage createExamineMessage(ImapCommand command, String mailboxName, String tag) {
+    public ImapMessage createExamineMessage(ImapCommand command, String mailboxName, String tag) {
         return new ExamineRequest(command, mailboxName, tag);
     }
 
-    public ImapRequestMessage createExpungeMessage(ImapCommand command, String tag) {
+    public ImapMessage createExpungeMessage(ImapCommand command, String tag) {
         return new ExpungeRequest(command, tag);
     }
 
-    public ImapRequestMessage createFetchMessage(ImapCommand command, boolean useUids, IdRange[] idSet, FetchData fetch, String tag) {
+    public ImapMessage createFetchMessage(ImapCommand command, boolean useUids, IdRange[] idSet, FetchData fetch, String tag) {
         return new FetchRequest(command, useUids, idSet, fetch, tag);
     }
 
-    public ImapRequestMessage createListMessage(ImapCommand command, String referenceName, String mailboxPattern, String tag) {
+    public ImapMessage createListMessage(ImapCommand command, String referenceName, String mailboxPattern, String tag) {
         return new ListRequest(command, referenceName, mailboxPattern, tag);
     }
 
-    public ImapRequestMessage createLoginMessage(ImapCommand command, String userid, String password, String tag) {
+    public ImapMessage createLoginMessage(ImapCommand command, String userid, String password, String tag) {
         return new LoginRequest(command, userid, password, tag);
     }
 
-    public ImapRequestMessage createLogoutMessage(ImapCommand command, String tag) {
+    public ImapMessage createLogoutMessage(ImapCommand command, String tag) {
         return new LogoutRequest(command, tag);
     }
 
-    public ImapRequestMessage createLsubMessage(ImapCommand command, String referenceName, String mailboxPattern, String tag) {
+    public ImapMessage createLsubMessage(ImapCommand command, String referenceName, String mailboxPattern, String tag) {
         return new LsubRequest(command, referenceName, mailboxPattern, tag);
     }
 
-    public ImapRequestMessage createRenameMessage(ImapCommand command, String existingName, String newName, String tag) {
+    public ImapMessage createRenameMessage(ImapCommand command, String existingName, String newName, String tag) {
         return new RenameRequest(command, existingName, newName, tag);
     }
 
-    public ImapRequestMessage createSearchImapMessage(ImapCommand command, SearchTerm searchTerm, boolean useUids, String tag) {
+    public ImapMessage createSearchImapMessage(ImapCommand command, SearchTerm searchTerm, boolean useUids, String tag) {
         return new SearchRequest(command, searchTerm, useUids, tag);
     }
 
-    public ImapRequestMessage createSelectMessage(ImapCommand command, String mailboxName, String tag) {
+    public ImapMessage createSelectMessage(ImapCommand command, String mailboxName, String tag) {
         return  new SelectRequest(command, mailboxName, tag);
     }
 
-    public ImapRequestMessage createStatusMessage(ImapCommand command, String mailboxName, StatusDataItems statusDataItems, String tag) {
+    public ImapMessage createStatusMessage(ImapCommand command, String mailboxName, StatusDataItems statusDataItems, String tag) {
         return new StatusRequest(command, mailboxName, statusDataItems, tag);
     }
 
-    public ImapRequestMessage createStoreMessage(ImapCommand command, IdRange[] idSet, StoreDirective directive, Flags flags, boolean useUids, String tag) {
+    public ImapMessage createStoreMessage(ImapCommand command, IdRange[] idSet, StoreDirective directive, Flags flags, boolean useUids, String tag) {
         return new StoreRequest(command, idSet, directive, flags, useUids, tag);
     }
 
-    public ImapRequestMessage createSubscribeMessage(ImapCommand command, String mailboxName, String tag) {
+    public ImapMessage createSubscribeMessage(ImapCommand command, String mailboxName, String tag) {
         return new SubscribeRequest(command, mailboxName, tag);
     }
 
-    public ImapRequestMessage createUnsubscribeMessage(ImapCommand command, String mailboxName, String tag) {
+    public ImapMessage createUnsubscribeMessage(ImapCommand command, String mailboxName, String tag) {
         return new UnsubscribeRequest(command, mailboxName, tag);
     }
 
-    public ImapRequestMessage createBadRequestMessage(String message) {
+    public ImapMessage createBadRequestMessage(String message) {
         return new BadResponse(message);
     }
 
-    public ImapRequestMessage createCheckMessage(ImapCommand command, String tag) {
+    public ImapMessage createCheckMessage(ImapCommand command, String tag) {
         return new CheckRequest(command, tag);
     }  
     

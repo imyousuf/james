@@ -22,26 +22,26 @@ package org.apache.james.experimental.imapserver.decode;
 import org.apache.james.experimental.imapserver.ImapRequestLineReader;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
-import org.apache.james.experimental.imapserver.message.ImapRequestMessage;
+import org.apache.james.experimental.imapserver.message.ImapMessage;
 
 abstract class AbstractUidCommandParser extends AbstractImapCommandParser {
     
     public AbstractUidCommandParser() {
     }
 
-    protected ImapRequestMessage decode(ImapCommand command,
+    protected ImapMessage decode(ImapCommand command,
             ImapRequestLineReader request, String tag) throws ProtocolException {
-        final ImapRequestMessage result = decode(command, request, tag, false);
+        final ImapMessage result = decode(command, request, tag, false);
         return result;
     }
     
-    public ImapRequestMessage decode(ImapRequestLineReader request, 
+    public ImapMessage decode(ImapRequestLineReader request, 
             String tag, boolean useUids) throws ProtocolException {
         final ImapCommand command = getCommand();
-        final ImapRequestMessage result = decode(command, request, tag, useUids);
+        final ImapMessage result = decode(command, request, tag, useUids);
         return result;
     }
 
-    protected abstract ImapRequestMessage decode(ImapCommand command,
+    protected abstract ImapMessage decode(ImapCommand command,
             ImapRequestLineReader request, String tag, boolean useUids) throws ProtocolException;
 }
