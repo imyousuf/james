@@ -16,17 +16,19 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.experimental.imapserver.decode;
+package org.apache.james.experimental.imapserver.decode.imap4rev1;
 
 import org.apache.james.experimental.imapserver.ImapRequestLineReader;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory;
+import org.apache.james.experimental.imapserver.decode.InitialisableCommandFactory;
+import org.apache.james.experimental.imapserver.decode.base.AbstractImapCommandParser;
 import org.apache.james.experimental.imapserver.message.ImapMessage;
 
-class LoginCommandParser extends AbstractImapCommandParser  implements InitialisableCommandFactory {
+class RenameCommandParser extends AbstractImapCommandParser implements InitialisableCommandFactory {
 
-    public LoginCommandParser() {
+    public RenameCommandParser() {
     }
 
     /**
@@ -34,15 +36,16 @@ class LoginCommandParser extends AbstractImapCommandParser  implements Initialis
      */
     public void init(Imap4Rev1CommandFactory factory)
     {
-        final ImapCommand command = factory.getLogin();
+        final ImapCommand command = factory.getRename();
         setCommand(command);
     }
     
+    
     protected ImapMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
-        final String userid = astring( request );
-        final String password = astring( request );
+        final String existingName = mailbox( request );
+        final String newName = mailbox( request );
         endLine( request );
-        final ImapMessage result = getMessageFactory().createLoginMessage(command, userid, password, tag);
+        final ImapMessage result = getMessageFactory().createRenameMessage(command, existingName, newName, tag);
         return result;
     }
     

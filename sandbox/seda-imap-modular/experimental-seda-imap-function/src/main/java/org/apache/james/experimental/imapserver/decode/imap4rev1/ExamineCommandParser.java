@@ -16,15 +16,19 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.experimental.imapserver.decode;
+package org.apache.james.experimental.imapserver.decode.imap4rev1;
 
+import org.apache.james.experimental.imapserver.ImapRequestLineReader;
+import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory;
+import org.apache.james.experimental.imapserver.decode.InitialisableCommandFactory;
+import org.apache.james.experimental.imapserver.decode.base.AbstractImapCommandParser;
 import org.apache.james.experimental.imapserver.message.ImapMessage;
 
-class LsubCommandParser extends ListCommandParser  implements InitialisableCommandFactory {
-
-    public LsubCommandParser() {
+class ExamineCommandParser extends AbstractImapCommandParser  implements InitialisableCommandFactory {
+    
+    public ExamineCommandParser() {
     }
 
     /**
@@ -32,12 +36,15 @@ class LsubCommandParser extends ListCommandParser  implements InitialisableComma
      */
     public void init(Imap4Rev1CommandFactory factory)
     {
-        final ImapCommand command = factory.getLsub();
+        final ImapCommand command = factory.getExamine();
         setCommand(command);
     }
     
-    protected ImapMessage createMessage(ImapCommand command, String referenceName, String mailboxPattern, String tag) {
-        final ImapMessage result = getMessageFactory().createLsubMessage(command, referenceName, mailboxPattern, tag);
+    protected ImapMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
+        final String mailboxName = mailbox( request );
+        endLine( request );
+        final ImapMessage result = getMessageFactory().createExamineMessage(command, mailboxName, tag);
         return result;
     }
+    
 }

@@ -23,7 +23,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.experimental.imapserver.ImapConstants;
+import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.experimental.imapserver.ImapResponseWriter;
 import org.apache.james.util.InternetPrintWriter;
 

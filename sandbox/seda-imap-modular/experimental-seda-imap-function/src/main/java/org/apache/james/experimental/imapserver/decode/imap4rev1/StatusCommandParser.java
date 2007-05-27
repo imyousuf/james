@@ -16,13 +16,17 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.experimental.imapserver.decode;
+package org.apache.james.experimental.imapserver.decode.imap4rev1;
 
-import org.apache.james.experimental.imapserver.ImapConstants;
+import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.experimental.imapserver.ImapRequestLineReader;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory;
+import org.apache.james.experimental.imapserver.decode.InitialisableCommandFactory;
+import org.apache.james.experimental.imapserver.decode.base.AbstractImapCommandParser;
+import org.apache.james.experimental.imapserver.decode.base.AbstractImapCommandParser.CharacterValidator;
+import org.apache.james.experimental.imapserver.decode.base.AbstractImapCommandParser.NoopCharValidator;
 import org.apache.james.experimental.imapserver.message.ImapMessage;
 import org.apache.james.experimental.imapserver.message.ImapMessageFactory;
 import org.apache.james.experimental.imapserver.message.StatusDataItems;

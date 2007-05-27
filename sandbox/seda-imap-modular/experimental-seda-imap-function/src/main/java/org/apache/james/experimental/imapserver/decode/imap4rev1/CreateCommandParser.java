@@ -16,20 +16,20 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.experimental.imapserver.decode;
-
-import javax.mail.Message;
-import javax.mail.search.SearchTerm;
+package org.apache.james.experimental.imapserver.decode.imap4rev1;
 
 import org.apache.james.experimental.imapserver.ImapRequestLineReader;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory;
+import org.apache.james.experimental.imapserver.decode.InitialisableCommandFactory;
+import org.apache.james.experimental.imapserver.decode.base.AbstractImapCommandParser;
 import org.apache.james.experimental.imapserver.message.ImapMessage;
+import org.apache.james.experimental.imapserver.message.ImapMessageFactory;
 
-class SearchCommandParser extends AbstractUidCommandParser implements InitialisableCommandFactory
-{
-    public SearchCommandParser() {
+class CreateCommandParser extends AbstractImapCommandParser  implements InitialisableCommandFactory {
+
+    public CreateCommandParser() {
     }
 
     /**
@@ -37,44 +37,17 @@ class SearchCommandParser extends AbstractUidCommandParser implements Initialisa
      */
     public void init(Imap4Rev1CommandFactory factory)
     {
-        final ImapCommand command = factory.getSearch();
+        final ImapCommand command = factory.getCreate();
         setCommand(command);
     }
     
-    /**
-     * Parses the request argument into a valid search term.
-     * Not yet implemented - all searches will return everything for now.
-     * TODO implement search
-     */
-    public SearchTerm searchTerm( ImapRequestLineReader request )
-            throws ProtocolException
-    {
-        // Dummy implementation
-        // Consume to the end of the line.
-        char next = request.nextChar();
-        while ( next != '\n' ) {
-            request.consume();
-            next = request.nextChar();
-        }
-
-        // Return a search term that matches everything.
-        return new SearchTerm()
-        {
-            private static final long serialVersionUID = 5290284637903768771L;
-
-            public boolean match( Message message )
-            {
-                return true;
-            }
-        };
-    }
-
-    protected ImapMessage decode(ImapCommand command, ImapRequestLineReader request, String tag, boolean useUids) throws ProtocolException {
-        // Parse the search term from the request
-        final SearchTerm searchTerm = searchTerm( request );
+    
+    protected ImapMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
+        String mailboxName = mailbox( request );
         endLine( request );
-        final ImapMessage result = getMessageFactory().createSearchImapMessage(command, searchTerm, useUids, tag);
+        final ImapMessageFactory factory = getMessageFactory();
+        final ImapMessage result = factory.createCreateMessage(command, mailboxName, tag);
         return result;
     }
-
+    
 }

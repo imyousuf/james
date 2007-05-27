@@ -16,18 +16,20 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.experimental.imapserver.decode;
+package org.apache.james.experimental.imapserver.decode.imap4rev1;
 
 import org.apache.james.experimental.imapserver.ImapRequestLineReader;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory;
+import org.apache.james.experimental.imapserver.decode.InitialisableCommandFactory;
+import org.apache.james.experimental.imapserver.decode.base.AbstractImapCommandParser;
 import org.apache.james.experimental.imapserver.message.ImapMessage;
 import org.apache.james.experimental.imapserver.message.ImapMessageFactory;
 
-class CloseCommandParser extends AbstractImapCommandParser  implements InitialisableCommandFactory {
+class DeleteCommandParser extends AbstractImapCommandParser  implements InitialisableCommandFactory {
 
-    public CloseCommandParser() {
+    public DeleteCommandParser() {
     }
 
     /**
@@ -35,14 +37,15 @@ class CloseCommandParser extends AbstractImapCommandParser  implements Initialis
      */
     public void init(Imap4Rev1CommandFactory factory)
     {
-        final ImapCommand command = factory.getClose();
+        final ImapCommand command = factory.getDelete();
         setCommand(command);
     }
     
     protected ImapMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
+        String mailboxName = mailbox( request );
         endLine( request );
         final ImapMessageFactory factory = getMessageFactory();
-        final ImapMessage result = factory.createCloseMessage(command, tag);
+        final ImapMessage result = factory.createDeleteMessage( command, mailboxName, tag );
         return result;
     }
     

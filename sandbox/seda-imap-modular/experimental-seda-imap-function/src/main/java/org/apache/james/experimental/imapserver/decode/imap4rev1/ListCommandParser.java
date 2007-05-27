@@ -16,21 +16,20 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.experimental.imapserver.decode;
-
-import javax.mail.Flags;
+package org.apache.james.experimental.imapserver.decode.imap4rev1;
 
 import org.apache.james.experimental.imapserver.ImapRequestLineReader;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory;
-import org.apache.james.experimental.imapserver.message.IdRange;
+import org.apache.james.experimental.imapserver.decode.InitialisableCommandFactory;
+import org.apache.james.experimental.imapserver.decode.base.AbstractImapCommandParser;
+import org.apache.james.experimental.imapserver.decode.base.AbstractImapCommandParser.ATOM_CHARValidator;
 import org.apache.james.experimental.imapserver.message.ImapMessage;
-import org.apache.james.experimental.imapserver.message.StoreDirective;
-
-class StoreCommandParser extends AbstractUidCommandParser implements InitialisableCommandFactory
+import org.apache.james.experimental.imapserver.message.ImapMessageFactory;
+class ListCommandParser extends AbstractUidCommandParser  implements InitialisableCommandFactory
 {
-    public StoreCommandParser() {
+    public ListCommandParser() {
     }
 
     /**
@@ -38,47 +37,52 @@ class StoreCommandParser extends AbstractUidCommandParser implements Initialisab
      */
     public void init(Imap4Rev1CommandFactory factory)
     {
-        final ImapCommand command = factory.getStore();
+        final ImapCommand command = factory.getList();
         setCommand(command);
     }
     
-    StoreDirective storeDirective( ImapRequestLineReader request ) throws ProtocolException
+    /**
+     * Reads an argument of type "list_mailbox" from the request, which is
+     * the second argument for a LIST or LSUB command. Valid values are a "string"
+     * argument, an "atom" with wildcard characters.
+     * @return An argument of type "list_mailbox"
+     */
+    public String listMailbox( ImapRequestLineReader request ) throws ProtocolException
     {
-        int sign = 0;
-        boolean silent = false;
-
         char next = request.nextWordChar();
-        if ( next == '+' ) {
-            sign = 1;
-            request.consume();
+        switch ( next ) {
+            case '"':
+                return consumeQuoted( request );
+            case '{':
+                return consumeLiteral( request );
+            default:
+                return consumeWord( request, new ListCharValidator() );
         }
-        else if ( next == '-' ) {
-            sign = -1;
-            request.consume();
-        }
-        else {
-            sign = 0;
-        }
+    }
 
-        String directive = consumeWord( request, new NoopCharValidator() );
-        if ( "FLAGS".equalsIgnoreCase( directive ) ) {
-            silent = false;
+    private class ListCharValidator extends ATOM_CHARValidator
+    {
+        public boolean isValid( char chr )
+        {
+            if ( isListWildcard( chr ) ) {
+                return true;
+            }
+            return super.isValid( chr );
         }
-        else if ( "FLAGS.SILENT".equalsIgnoreCase( directive ) ) {
-            silent = true;
-        }
-        else {
-            throw new ProtocolException( "Invalid Store Directive: '" + directive + "'" );
-        }
-        return new StoreDirective( sign, silent );
     }
 
     protected ImapMessage decode(ImapCommand command, ImapRequestLineReader request, String tag, boolean useUids) throws ProtocolException {
-        final IdRange[] idSet = parseIdRange( request );
-        final StoreDirective directive = storeDirective( request );
-        final Flags flags = flagList( request );
+        String referenceName = mailbox( request );
+        String mailboxPattern = listMailbox( request );
         endLine( request );
-        final ImapMessage result = getMessageFactory().createStoreMessage(command, idSet, directive, flags, useUids, tag);
+        final ImapMessage result = createMessage(command, referenceName, mailboxPattern, tag);
+        return result;
+    }
+    
+    protected ImapMessage createMessage(ImapCommand command, final String referenceName, final String mailboxPattern, final String tag) 
+    {
+        final ImapMessageFactory factory = getMessageFactory();
+        final ImapMessage result = factory.createListMessage(command, referenceName, mailboxPattern, tag);
         return result;
     }
 }

@@ -20,7 +20,7 @@
 package org.apache.james.experimental.imapserver.commands;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.experimental.imapserver.ImapConstants;
+import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.experimental.imapserver.ImapSessionState;
 
 /**

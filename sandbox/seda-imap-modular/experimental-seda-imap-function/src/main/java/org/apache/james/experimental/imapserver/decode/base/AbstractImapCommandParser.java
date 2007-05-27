@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.experimental.imapserver.decode;
+package org.apache.james.experimental.imapserver.decode.base;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -29,10 +29,12 @@ import javax.mail.Flags;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
-import org.apache.james.experimental.imapserver.ImapConstants;
+import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.experimental.imapserver.ImapRequestLineReader;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
+import org.apache.james.experimental.imapserver.decode.ImapCommandParser;
+import org.apache.james.experimental.imapserver.decode.MessagingImapCommandParser;
 import org.apache.james.experimental.imapserver.message.IdRange;
 import org.apache.james.experimental.imapserver.message.ImapMessage;
 import org.apache.james.experimental.imapserver.message.ImapMessageFactory;
@@ -536,7 +538,7 @@ public abstract class AbstractImapCommandParser extends AbstractLogEnabled imple
     /**
      * Provides the ability to ensure characters are part of a permitted set.
      */
-    protected interface CharacterValidator
+    public interface CharacterValidator
     {
         /**
          * Validates the supplied character.
@@ -546,7 +548,7 @@ public abstract class AbstractImapCommandParser extends AbstractLogEnabled imple
         boolean isValid( char chr );
     }
 
-    protected static class NoopCharValidator implements CharacterValidator
+    public static class NoopCharValidator implements CharacterValidator
     {
         public boolean isValid( char chr )
         {
@@ -554,7 +556,7 @@ public abstract class AbstractImapCommandParser extends AbstractLogEnabled imple
         }
     }
 
-    protected static class ATOM_CHARValidator implements CharacterValidator
+    public static class ATOM_CHARValidator implements CharacterValidator
     {
         public boolean isValid( char chr )
         {
@@ -572,7 +574,7 @@ public abstract class AbstractImapCommandParser extends AbstractLogEnabled imple
         }
     }
 
-    protected static class DigitCharValidator implements CharacterValidator
+    public static class DigitCharValidator implements CharacterValidator
     {
         public boolean isValid( char chr )
         {
@@ -581,7 +583,7 @@ public abstract class AbstractImapCommandParser extends AbstractLogEnabled imple
         }
     }
 
-    private static class TagCharValidator extends ATOM_CHARValidator
+    public static class TagCharValidator extends ATOM_CHARValidator
     {
         public boolean isValid( char chr )
         {
@@ -590,7 +592,7 @@ public abstract class AbstractImapCommandParser extends AbstractLogEnabled imple
         }
     }
 
-    private static class MessageSetCharValidator implements CharacterValidator
+    public static class MessageSetCharValidator implements CharacterValidator
     {
         public boolean isValid( char chr )
         {

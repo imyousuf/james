@@ -16,17 +16,19 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.experimental.imapserver.decode;
+package org.apache.james.experimental.imapserver.decode.imap4rev1;
 
 import org.apache.james.experimental.imapserver.ImapRequestLineReader;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory;
+import org.apache.james.experimental.imapserver.decode.InitialisableCommandFactory;
+import org.apache.james.experimental.imapserver.decode.base.AbstractImapCommandParser;
 import org.apache.james.experimental.imapserver.message.ImapMessage;
 
-class RenameCommandParser extends AbstractImapCommandParser implements InitialisableCommandFactory {
+class LogoutCommandParser extends AbstractImapCommandParser  implements InitialisableCommandFactory {
 
-    public RenameCommandParser() {
+    public LogoutCommandParser() {
     }
 
     /**
@@ -34,16 +36,13 @@ class RenameCommandParser extends AbstractImapCommandParser implements Initialis
      */
     public void init(Imap4Rev1CommandFactory factory)
     {
-        final ImapCommand command = factory.getRename();
+        final ImapCommand command = factory.getLogout();
         setCommand(command);
     }
     
-    
     protected ImapMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
-        final String existingName = mailbox( request );
-        final String newName = mailbox( request );
         endLine( request );
-        final ImapMessage result = getMessageFactory().createRenameMessage(command, existingName, newName, tag);
+        final ImapMessage result = getMessageFactory().createLogoutMessage(command, tag);
         return result;
     }
     

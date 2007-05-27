@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.experimental.imapserver.decode;
+package org.apache.james.experimental.imapserver.decode.imap4rev1;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,8 +25,12 @@ import java.util.Map;
 import org.apache.avalon.framework.CascadingRuntimeException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
-import org.apache.james.experimental.imapserver.ImapConstants;
+import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory;
+import org.apache.james.experimental.imapserver.decode.DelegatingImapCommandParser;
+import org.apache.james.experimental.imapserver.decode.ImapCommandParser;
+import org.apache.james.experimental.imapserver.decode.InitialisableCommandFactory;
+import org.apache.james.experimental.imapserver.decode.MessagingImapCommandParser;
 import org.apache.james.experimental.imapserver.message.ImapMessageFactory;
 
 /**
@@ -35,13 +39,13 @@ import org.apache.james.experimental.imapserver.message.ImapMessageFactory;
  *
  * @version $Revision: 109034 $
  */
-class ImapCommandParserFactory extends AbstractLogEnabled
+public class Imap4Rev1CommandParserFactory extends AbstractLogEnabled
 {
     private Map _imapCommands;
     private final ImapMessageFactory messageFactory;
     private final Imap4Rev1CommandFactory commandFactory;
     
-    public ImapCommandParserFactory(final ImapMessageFactory messageFactory, final Imap4Rev1CommandFactory commandFactory)
+    public Imap4Rev1CommandParserFactory(final ImapMessageFactory messageFactory, final Imap4Rev1CommandFactory commandFactory)
     {
         this.messageFactory = messageFactory;
         this.commandFactory = commandFactory;

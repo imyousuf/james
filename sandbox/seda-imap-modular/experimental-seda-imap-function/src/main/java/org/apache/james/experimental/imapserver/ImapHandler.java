@@ -26,6 +26,7 @@ import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.avalon.excalibur.pool.Poolable;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.Constants;
+import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.core.AbstractJamesHandler;
 import org.apache.james.experimental.imapserver.encode.OutputStreamImapResponseWriter;
 

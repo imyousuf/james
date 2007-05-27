@@ -19,8 +19,8 @@
 
 package org.apache.james.experimental.imapserver.processor.imap4rev1;
 
+import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.experimental.imapserver.AuthorizationException;
-import org.apache.james.experimental.imapserver.ImapConstants;
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;

@@ -1,6 +1,6 @@
 package org.apache.james.experimental.imapserver;
 
-import org.apache.james.experimental.imapserver.ImapConstants;
+import org.apache.james.api.imap.ImapConstants;
 
 public interface TestConstants
 {

@@ -20,7 +20,7 @@ package org.apache.james.experimental.imapserver.decode;
 
 import org.apache.james.experimental.imapserver.message.ImapMessageFactory;
 
-interface MessagingImapCommandParser {
+public interface MessagingImapCommandParser {
 
     public abstract ImapMessageFactory getMessageFactory();
 

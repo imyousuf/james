@@ -16,34 +16,33 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.experimental.imapserver.decode;
+
+package org.apache.james.experimental.imapserver.decode.imap4rev1;
 
 import org.apache.james.experimental.imapserver.ImapRequestLineReader;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
-import org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory;
+import org.apache.james.experimental.imapserver.decode.base.AbstractImapCommandParser;
 import org.apache.james.experimental.imapserver.message.ImapMessage;
-import org.apache.james.experimental.imapserver.message.ImapMessageFactory;
 
-class CapabilityCommandParser extends AbstractImapCommandParser  implements InitialisableCommandFactory {
-
-    public CapabilityCommandParser() {
-    }
-
-    /**
-     * @see org.apache.james.experimental.imapserver.decode.InitialisableCommandFactory#init(org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory)
-     */
-    public void init(Imap4Rev1CommandFactory factory)
-    {
-        final ImapCommand command = factory.getCapability();
-        setCommand(command);
-    }
+abstract class AbstractUidCommandParser extends AbstractImapCommandParser {
     
-    protected ImapMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
-        endLine( request );
-        final ImapMessageFactory factory = getMessageFactory();
-        final ImapMessage result = factory.createCapabilityMessage(command, tag);
+    public AbstractUidCommandParser() {
+    }
+
+    protected ImapMessage decode(ImapCommand command,
+            ImapRequestLineReader request, String tag) throws ProtocolException {
+        final ImapMessage result = decode(command, request, tag, false);
         return result;
     }
     
+    public ImapMessage decode(ImapRequestLineReader request, 
+            String tag, boolean useUids) throws ProtocolException {
+        final ImapCommand command = getCommand();
+        final ImapMessage result = decode(command, request, tag, useUids);
+        return result;
+    }
+
+    protected abstract ImapMessage decode(ImapCommand command,
+            ImapRequestLineReader request, String tag, boolean useUids) throws ProtocolException;
 }

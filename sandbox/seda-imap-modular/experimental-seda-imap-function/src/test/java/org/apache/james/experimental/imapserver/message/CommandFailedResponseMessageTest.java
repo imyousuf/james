@@ -19,7 +19,7 @@
 
 package org.apache.james.experimental.imapserver.message;
 
-import org.apache.james.experimental.imapserver.ImapConstants;
+import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.experimental.imapserver.ImapResponse;
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.MockImapResponseWriter;

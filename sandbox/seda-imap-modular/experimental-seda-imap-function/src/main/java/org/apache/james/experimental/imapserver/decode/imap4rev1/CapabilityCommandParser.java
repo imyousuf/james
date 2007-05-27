@@ -16,18 +16,20 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.experimental.imapserver.decode;
+package org.apache.james.experimental.imapserver.decode.imap4rev1;
 
 import org.apache.james.experimental.imapserver.ImapRequestLineReader;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory;
+import org.apache.james.experimental.imapserver.decode.InitialisableCommandFactory;
+import org.apache.james.experimental.imapserver.decode.base.AbstractImapCommandParser;
 import org.apache.james.experimental.imapserver.message.ImapMessage;
 import org.apache.james.experimental.imapserver.message.ImapMessageFactory;
 
-class CreateCommandParser extends AbstractImapCommandParser  implements InitialisableCommandFactory {
+class CapabilityCommandParser extends AbstractImapCommandParser  implements InitialisableCommandFactory {
 
-    public CreateCommandParser() {
+    public CapabilityCommandParser() {
     }
 
     /**
@@ -35,16 +37,14 @@ class CreateCommandParser extends AbstractImapCommandParser  implements Initiali
      */
     public void init(Imap4Rev1CommandFactory factory)
     {
-        final ImapCommand command = factory.getCreate();
+        final ImapCommand command = factory.getCapability();
         setCommand(command);
     }
     
-    
     protected ImapMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
-        String mailboxName = mailbox( request );
         endLine( request );
         final ImapMessageFactory factory = getMessageFactory();
-        final ImapMessage result = factory.createCreateMessage(command, mailboxName, tag);
+        final ImapMessage result = factory.createCapabilityMessage(command, tag);
         return result;
     }
     

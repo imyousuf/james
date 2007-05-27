@@ -16,17 +16,19 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.experimental.imapserver.decode;
+package org.apache.james.experimental.imapserver.decode.imap4rev1;
 
 import org.apache.james.experimental.imapserver.ImapRequestLineReader;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory;
+import org.apache.james.experimental.imapserver.decode.InitialisableCommandFactory;
+import org.apache.james.experimental.imapserver.decode.base.AbstractImapCommandParser;
 import org.apache.james.experimental.imapserver.message.ImapMessage;
 
-class CheckCommandParser extends AbstractImapCommandParser  implements InitialisableCommandFactory {
+class UnsubscribeCommandParser extends AbstractImapCommandParser implements InitialisableCommandFactory {
 
-    public CheckCommandParser() {
+    public UnsubscribeCommandParser() {
     }
 
     /**
@@ -34,13 +36,14 @@ class CheckCommandParser extends AbstractImapCommandParser  implements Initialis
      */
     public void init(Imap4Rev1CommandFactory factory)
     {
-        final ImapCommand command = factory.getCheck();
+        final ImapCommand command = factory.getUnsubscribe();
         setCommand(command);
     }
     
     protected ImapMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
+        final String mailboxName = mailbox( request );
         endLine( request );
-        final ImapMessage result = getMessageFactory().createCheckMessage(command, tag);
+        final ImapMessage result = getMessageFactory().createUnsubscribeMessage(command, mailboxName, tag);
         return result;
     }
     

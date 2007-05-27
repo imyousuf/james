@@ -24,7 +24,7 @@ import java.io.OutputStream;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
-import org.apache.james.experimental.imapserver.decode.StandardImapDecoder;
+import org.apache.james.experimental.imapserver.decode.main.DefaultImapDecoder;
 import org.apache.james.experimental.imapserver.encode.OutputStreamImapResponseWriter;
 import org.apache.james.experimental.imapserver.message.ImapMessage;
 import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
@@ -37,7 +37,7 @@ import org.apache.james.experimental.imapserver.processor.main.DefaultImapProces
 public final class ImapRequestHandler extends AbstractLogEnabled {
 
     // TODO: inject depedency
-    private final ImapDecoder decoder = new StandardImapDecoder();
+    private final ImapDecoder decoder = new DefaultImapDecoder();
     private final ImapProcessor processor = DefaultImapProcessorFactory.createDefaultProcessor();
     
     /**

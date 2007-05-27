@@ -16,17 +16,19 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.experimental.imapserver.decode;
+package org.apache.james.experimental.imapserver.decode.imap4rev1;
 
 import org.apache.james.experimental.imapserver.ImapRequestLineReader;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory;
+import org.apache.james.experimental.imapserver.decode.InitialisableCommandFactory;
+import org.apache.james.experimental.imapserver.decode.base.AbstractImapCommandParser;
 import org.apache.james.experimental.imapserver.message.ImapMessage;
 
-class LogoutCommandParser extends AbstractImapCommandParser  implements InitialisableCommandFactory {
+class NoopCommandParser extends AbstractImapCommandParser  implements InitialisableCommandFactory {
 
-    public LogoutCommandParser() {
+    public NoopCommandParser() {
     }
 
     /**
@@ -34,13 +36,13 @@ class LogoutCommandParser extends AbstractImapCommandParser  implements Initiali
      */
     public void init(Imap4Rev1CommandFactory factory)
     {
-        final ImapCommand command = factory.getLogout();
+        final ImapCommand command = factory.getNoop();
         setCommand(command);
     }
     
     protected ImapMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
         endLine( request );
-        final ImapMessage result = getMessageFactory().createLogoutMessage(command, tag);
+        final ImapMessage result = getMessageFactory().createNoopMessage(command, tag);
         return result;
     }
     

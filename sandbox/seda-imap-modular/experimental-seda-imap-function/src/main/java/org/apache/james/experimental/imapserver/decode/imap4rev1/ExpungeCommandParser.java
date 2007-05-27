@@ -16,32 +16,35 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.experimental.imapserver.decode;
+package org.apache.james.experimental.imapserver.decode.imap4rev1;
 
 import org.apache.james.experimental.imapserver.ImapRequestLineReader;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory;
+import org.apache.james.experimental.imapserver.decode.InitialisableCommandFactory;
+import org.apache.james.experimental.imapserver.decode.base.AbstractImapCommandParser;
 import org.apache.james.experimental.imapserver.message.ImapMessage;
+import org.apache.james.experimental.imapserver.message.ImapMessageFactory;
 
-class ExamineCommandParser extends AbstractImapCommandParser  implements InitialisableCommandFactory {
-    
-    public ExamineCommandParser() {
+class ExpungeCommandParser extends AbstractImapCommandParser  implements InitialisableCommandFactory {
+
+    public ExpungeCommandParser() {
     }
-
+    
     /**
      * @see org.apache.james.experimental.imapserver.decode.InitialisableCommandFactory#init(org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory)
      */
     public void init(Imap4Rev1CommandFactory factory)
     {
-        final ImapCommand command = factory.getExamine();
+        final ImapCommand command = factory.getExpunge();
         setCommand(command);
     }
-    
+
     protected ImapMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
-        final String mailboxName = mailbox( request );
         endLine( request );
-        final ImapMessage result = getMessageFactory().createExamineMessage(command, mailboxName, tag);
+        final ImapMessageFactory factory = getMessageFactory();
+        final ImapMessage result = factory.createExpungeMessage(command, tag);
         return result;
     }
     

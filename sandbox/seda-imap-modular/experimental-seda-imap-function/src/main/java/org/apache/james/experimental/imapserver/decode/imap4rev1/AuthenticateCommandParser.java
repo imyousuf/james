@@ -16,35 +16,37 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.experimental.imapserver.decode;
+package org.apache.james.experimental.imapserver.decode.imap4rev1;
 
 import org.apache.james.experimental.imapserver.ImapRequestLineReader;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory;
-import org.apache.james.experimental.imapserver.message.IdRange;
+import org.apache.james.experimental.imapserver.decode.InitialisableCommandFactory;
+import org.apache.james.experimental.imapserver.decode.base.AbstractImapCommandParser;
 import org.apache.james.experimental.imapserver.message.ImapMessage;
+import org.apache.james.experimental.imapserver.message.ImapMessageFactory;
 
-class CopyCommandParser extends AbstractUidCommandParser  implements InitialisableCommandFactory {
+class AuthenticateCommandParser extends AbstractImapCommandParser implements InitialisableCommandFactory {
 
-    public CopyCommandParser() {
+    public AuthenticateCommandParser() {
     }
-
+    
     /**
      * @see org.apache.james.experimental.imapserver.decode.InitialisableCommandFactory#init(org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory)
      */
     public void init(Imap4Rev1CommandFactory factory)
     {
-        final ImapCommand command = factory.getCopy();
+        final ImapCommand command = factory.getAuthenticate();
         setCommand(command);
     }
-    
-    protected ImapMessage decode(ImapCommand command, 
-            ImapRequestLineReader request, String tag, boolean useUids) throws ProtocolException {
-        IdRange[] idSet = parseIdRange( request );
-        String mailboxName = mailbox( request );
-        endLine( request );
-        final ImapMessage result = getMessageFactory().createCopyMessage(command, idSet, mailboxName, useUids, tag);
+
+
+    protected ImapMessage decode(ImapCommand command, ImapRequestLineReader request, String tag) throws ProtocolException {
+        String authType = astring( request );
+        endLine( request );        
+        final ImapMessageFactory factory = getMessageFactory();
+        final ImapMessage result = factory.createAuthenticateMessage(command, authType, tag);
         return result;
     }
     

@@ -19,7 +19,7 @@
 
 package org.apache.james.experimental.imapserver.commands.imap4rev1;
 
-import org.apache.james.experimental.imapserver.ImapConstants;
+import org.apache.james.api.imap.ImapConstants;
 
 /**
  * TODO: sort out inheritance heirarchy.
