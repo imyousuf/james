@@ -20,7 +20,7 @@ package org.apache.james.experimental.imapserver.message.request.imap4rev1;
 
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.message.StatusDataItems;
-import org.apache.james.experimental.imapserver.message.request.AbstractImapRequest;
+import org.apache.james.experimental.imapserver.message.request.base.AbstractImapRequest;
 
 public class StatusRequest extends AbstractImapRequest {
     private final String mailboxName;

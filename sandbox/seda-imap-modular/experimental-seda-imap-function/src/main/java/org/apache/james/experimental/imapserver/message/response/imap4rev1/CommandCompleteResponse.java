@@ -22,8 +22,8 @@ package org.apache.james.experimental.imapserver.message.response.imap4rev1;
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.experimental.imapserver.ImapResponse;
 import org.apache.james.experimental.imapserver.ImapSession;
-import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.message.response.AbstractImapResponse;
+import org.apache.james.experimental.imapserver.message.response.ImapResponseMessage;
 import org.apache.james.imapserver.store.MailboxException;
 
 /**

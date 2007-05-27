@@ -29,8 +29,8 @@ import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.api.imap.imap4rev1.Imap4Rev1CommandFactory;
 import org.apache.james.api.imap.imap4rev1.Imap4Rev1MessageFactory;
 import org.apache.james.experimental.imapserver.encode.OutputStreamImapResponseWriter;
-import org.apache.james.experimental.imapserver.message.BaseImapMessageFactory;
-import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
+import org.apache.james.experimental.imapserver.message.request.imap4rev1.BaseImap4Rev1MessageFactory;
+import org.apache.james.experimental.imapserver.message.response.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.processor.ImapProcessor;
 import org.apache.james.experimental.imapserver.processor.main.DefaultImapProcessorFactory;
 import org.apache.james.imap.command.imap4rev1.StandardImap4Rev1CommandFactory;
@@ -47,7 +47,7 @@ public final class ImapRequestHandler extends AbstractLogEnabled {
 
     // TODO: inject dependency
     private static final ImapDecoder createDecoder() {
-        final Imap4Rev1MessageFactory messageFactory = new BaseImapMessageFactory();
+        final Imap4Rev1MessageFactory messageFactory = new BaseImap4Rev1MessageFactory();
         final Imap4Rev1CommandFactory commandFactory = new StandardImap4Rev1CommandFactory();
         final ImapCommandParserFactory imapCommands = new Imap4Rev1CommandParserFactory(messageFactory, commandFactory);
         final ImapDecoder result = new DefaultImapDecoder(messageFactory, imapCommands);

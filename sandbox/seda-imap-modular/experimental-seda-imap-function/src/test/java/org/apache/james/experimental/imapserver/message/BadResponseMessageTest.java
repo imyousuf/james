@@ -23,7 +23,7 @@ import org.apache.james.experimental.imapserver.ImapResponse;
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.MockImapResponseWriter;
 import org.apache.james.experimental.imapserver.MockImapSession;
-import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
+import org.apache.james.experimental.imapserver.message.response.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.message.response.imap4rev1.BadResponse;
 
 import junit.framework.TestCase;

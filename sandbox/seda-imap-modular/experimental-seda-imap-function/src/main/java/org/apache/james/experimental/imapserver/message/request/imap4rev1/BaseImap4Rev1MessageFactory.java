@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/ 
-package org.apache.james.experimental.imapserver.message;
+package org.apache.james.experimental.imapserver.message.request.imap4rev1;
 
 import java.util.Date;
 
@@ -31,36 +31,13 @@ import org.apache.james.api.imap.message.FetchData;
 import org.apache.james.api.imap.message.IdRange;
 import org.apache.james.api.imap.message.StatusDataItems;
 import org.apache.james.api.imap.message.StoreDirective;
-import org.apache.james.experimental.imapserver.message.request.imap4rev1.AppendRequest;
-import org.apache.james.experimental.imapserver.message.request.imap4rev1.AuthenticateRequest;
-import org.apache.james.experimental.imapserver.message.request.imap4rev1.CapabilityRequest;
-import org.apache.james.experimental.imapserver.message.request.imap4rev1.CheckRequest;
-import org.apache.james.experimental.imapserver.message.request.imap4rev1.CloseRequest;
-import org.apache.james.experimental.imapserver.message.request.imap4rev1.CopyRequest;
-import org.apache.james.experimental.imapserver.message.request.imap4rev1.CreateRequest;
-import org.apache.james.experimental.imapserver.message.request.imap4rev1.DeleteRequest;
-import org.apache.james.experimental.imapserver.message.request.imap4rev1.ExamineRequest;
-import org.apache.james.experimental.imapserver.message.request.imap4rev1.ExpungeRequest;
-import org.apache.james.experimental.imapserver.message.request.imap4rev1.FetchRequest;
-import org.apache.james.experimental.imapserver.message.request.imap4rev1.ListRequest;
-import org.apache.james.experimental.imapserver.message.request.imap4rev1.LoginRequest;
-import org.apache.james.experimental.imapserver.message.request.imap4rev1.LogoutRequest;
-import org.apache.james.experimental.imapserver.message.request.imap4rev1.LsubRequest;
-import org.apache.james.experimental.imapserver.message.request.imap4rev1.NoopRequest;
-import org.apache.james.experimental.imapserver.message.request.imap4rev1.RenameRequest;
-import org.apache.james.experimental.imapserver.message.request.imap4rev1.SearchRequest;
-import org.apache.james.experimental.imapserver.message.request.imap4rev1.SelectRequest;
-import org.apache.james.experimental.imapserver.message.request.imap4rev1.StatusRequest;
-import org.apache.james.experimental.imapserver.message.request.imap4rev1.StoreRequest;
-import org.apache.james.experimental.imapserver.message.request.imap4rev1.SubscribeRequest;
-import org.apache.james.experimental.imapserver.message.request.imap4rev1.UnsubscribeRequest;
 import org.apache.james.experimental.imapserver.message.response.imap4rev1.BadResponse;
 import org.apache.james.experimental.imapserver.message.response.imap4rev1.ErrorResponse;
 
 /**
  * Naive, factory creates unpooled instances.
  */
-public class BaseImapMessageFactory implements Imap4Rev1MessageFactory {
+public class BaseImap4Rev1MessageFactory implements Imap4Rev1MessageFactory {
 
     public ImapMessage createErrorMessage(String message, String tag) {
         return new ErrorResponse( message, tag );

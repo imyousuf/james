@@ -21,7 +21,7 @@ package org.apache.james.experimental.imapserver.message.request.imap4rev1;
 import javax.mail.search.SearchTerm;
 
 import org.apache.james.api.imap.ImapCommand;
-import org.apache.james.experimental.imapserver.message.request.AbstractImapRequest;
+import org.apache.james.experimental.imapserver.message.request.base.AbstractImapRequest;
 
 public class SearchRequest extends AbstractImapRequest {
     private final SearchTerm searchTerm;

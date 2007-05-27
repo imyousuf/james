@@ -16,35 +16,25 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.experimental.imapserver.message.request;
 
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.api.imap.ImapCommand;
-import org.apache.james.api.imap.ImapMessage;
+package org.apache.james.experimental.imapserver.message.response;
 
-abstract public class AbstractImapRequest extends AbstractLogEnabled implements ImapMessage, ImapRequest {
-    
-	private final String tag;
-    private final ImapCommand command;
-    
-    public AbstractImapRequest(final String tag, final ImapCommand command) {
-        this.tag = tag;
-        this.command = command;
-    }
-    
-	/**
-	 * Gets the IMAP command whose execution is requested by the client.
-	 * @see org.apache.james.experimental.imapserver.message.request.ImapRequest#getCommand()
-	 */
-	public final ImapCommand getCommand() {
-		return command;
-	}
+import org.apache.james.experimental.imapserver.ImapResponse;
+import org.apache.james.experimental.imapserver.ImapSession;
 
-	/**
-	 * Gets the prefix tag identifying this request.
-	 * @see org.apache.james.experimental.imapserver.message.request.ImapRequest#getTag()
-	 */
-	public final String getTag() {
-		return tag;
-	}
+/**
+ * <p>Responds to an IMAP command.</p>
+ * <p>
+ * <strong>Note:</strong> this is a transitional API
+ * and is liable to change.
+ * </p>
+ */
+public interface ImapResponseMessage {
+    
+    /**
+     * Writes response.
+     * @param response <code>ImapResponse</code>, not null
+     * @param session <code>ImapSession</code>, not null
+     */
+    void encode( ImapResponse response, ImapSession session );
 }
