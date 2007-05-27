@@ -33,13 +33,13 @@ import javax.mail.Flags;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
+import org.apache.james.api.imap.message.MessageFlags;
 import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
 import org.apache.james.imapserver.store.MailboxException;
-import org.apache.james.imapserver.store.MessageFlags;
 import org.apache.james.imapserver.store.SimpleMessageAttributes;
 import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxManagerException;

@@ -26,8 +26,8 @@ import javax.mail.Flags;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.james.api.imap.message.MessageFlags;
 import org.apache.james.imapserver.commands.ImapCommand;
-import org.apache.james.imapserver.store.MessageFlags;
 import org.apache.james.util.InternetPrintWriter;
 
 /**
