@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.imapserver.store;
+package org.apache.james.api.imap.message;
 
 import javax.mail.Flags;
 

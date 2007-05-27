@@ -27,10 +27,10 @@ import java.util.Date;
 
 import javax.mail.Flags;
 
+import org.apache.james.api.imap.message.MessageFlags;
 import org.apache.james.imapserver.ImapConstants;
 import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ProtocolException;
-import org.apache.james.imapserver.store.MessageFlags;
 
 /**
  *
