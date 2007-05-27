@@ -26,7 +26,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.api.imap.ImapSessionState;
 import org.apache.james.imapserver.store.MailboxException;
-import org.apache.james.imapserver.store.MessageFlags;
+import org.apache.james.api.imap.message.MessageFlags;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
