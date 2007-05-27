@@ -24,9 +24,11 @@ import java.io.OutputStream;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.james.api.imap.ImapMessage;
+import org.apache.james.experimental.imapserver.decode.ImapDecoder;
+import org.apache.james.experimental.imapserver.decode.ImapRequestLineReader;
 import org.apache.james.experimental.imapserver.decode.main.DefaultImapDecoder;
 import org.apache.james.experimental.imapserver.encode.OutputStreamImapResponseWriter;
-import org.apache.james.experimental.imapserver.message.ImapMessage;
 import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.processor.ImapProcessor;
 import org.apache.james.experimental.imapserver.processor.main.DefaultImapProcessorFactory;

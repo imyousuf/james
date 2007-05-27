@@ -18,15 +18,15 @@
  ****************************************************************/
 package org.apache.james.experimental.imapserver.decode.imap4rev1;
 
-import org.apache.james.experimental.imapserver.ImapRequestLineReader;
+import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory;
+import org.apache.james.experimental.imapserver.decode.ImapRequestLineReader;
 import org.apache.james.experimental.imapserver.decode.InitialisableCommandFactory;
 import org.apache.james.experimental.imapserver.decode.base.AbstractImapCommandParser;
 import org.apache.james.experimental.imapserver.decode.base.AbstractImapCommandParser.ATOM_CHARValidator;
-import org.apache.james.experimental.imapserver.message.ImapMessage;
-import org.apache.james.experimental.imapserver.message.ImapMessageFactory;
+import org.apache.james.experimental.imapserver.message.Imap4Rev1MessageFactory;
 class ListCommandParser extends AbstractUidCommandParser  implements InitialisableCommandFactory
 {
     public ListCommandParser() {
@@ -81,7 +81,7 @@ class ListCommandParser extends AbstractUidCommandParser  implements Initialisab
     
     protected ImapMessage createMessage(ImapCommand command, final String referenceName, final String mailboxPattern, final String tag) 
     {
-        final ImapMessageFactory factory = getMessageFactory();
+        final Imap4Rev1MessageFactory factory = getMessageFactory();
         final ImapMessage result = factory.createListMessage(command, referenceName, mailboxPattern, tag);
         return result;
     }

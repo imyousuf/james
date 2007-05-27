@@ -15,11 +15,13 @@
  * KIND, either express or implied.  See the License for the    *
  * specific language governing permissions and limitations      *
  * under the License.                                           *
- ****************************************************************/ 
-package org.apache.james.experimental.imapserver;
+ ****************************************************************/
 
-import org.apache.james.experimental.imapserver.message.ImapMessage;
+package org.apache.james.experimental.imapserver.decode;
 
-public interface ImapDecoder {
-    public ImapMessage decode(final ImapRequestLineReader request);
+
+public interface ImapCommandParserFactory {
+
+    public abstract ImapCommandParser getParser(String commandName);
+
 }

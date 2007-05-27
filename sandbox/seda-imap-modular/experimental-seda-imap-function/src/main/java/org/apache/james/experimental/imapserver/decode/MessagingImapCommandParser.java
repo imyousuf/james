@@ -18,12 +18,12 @@
  ****************************************************************/
 package org.apache.james.experimental.imapserver.decode;
 
-import org.apache.james.experimental.imapserver.message.ImapMessageFactory;
+import org.apache.james.experimental.imapserver.message.Imap4Rev1MessageFactory;
 
 public interface MessagingImapCommandParser {
 
-    public abstract ImapMessageFactory getMessageFactory();
+    public abstract Imap4Rev1MessageFactory getMessageFactory();
 
-    public abstract void setMessageFactory(ImapMessageFactory messageFactory);
+    public abstract void setMessageFactory(Imap4Rev1MessageFactory messageFactory);
 
 }

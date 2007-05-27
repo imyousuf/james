@@ -30,14 +30,14 @@ import javax.mail.Flags;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.api.imap.ImapConstants;
-import org.apache.james.experimental.imapserver.ImapRequestLineReader;
+import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.decode.ImapCommandParser;
+import org.apache.james.experimental.imapserver.decode.ImapRequestLineReader;
 import org.apache.james.experimental.imapserver.decode.MessagingImapCommandParser;
 import org.apache.james.experimental.imapserver.message.IdRange;
-import org.apache.james.experimental.imapserver.message.ImapMessage;
-import org.apache.james.experimental.imapserver.message.ImapMessageFactory;
+import org.apache.james.experimental.imapserver.message.Imap4Rev1MessageFactory;
 import org.apache.james.imapserver.store.MessageFlags;
 
 /**
@@ -49,7 +49,7 @@ import org.apache.james.imapserver.store.MessageFlags;
 public abstract class AbstractImapCommandParser extends AbstractLogEnabled implements ImapCommandParser, MessagingImapCommandParser
 {
     private ImapCommand command;
-    private ImapMessageFactory messageFactory;
+    private Imap4Rev1MessageFactory messageFactory;
     
     public AbstractImapCommandParser() {
         super();
@@ -66,14 +66,14 @@ public abstract class AbstractImapCommandParser extends AbstractLogEnabled imple
     /**
      * @see org.apache.james.experimental.imapserver.decode.MessagingImapCommandParser#getMessageFactory()
      */
-    public ImapMessageFactory getMessageFactory() {
+    public Imap4Rev1MessageFactory getMessageFactory() {
         return messageFactory;
     }
 
     /**
-     * @see org.apache.james.experimental.imapserver.decode.MessagingImapCommandParser#setMessageFactory(org.apache.james.experimental.imapserver.message.ImapMessageFactory)
+     * @see org.apache.james.experimental.imapserver.decode.MessagingImapCommandParser#setMessageFactory(org.apache.james.experimental.imapserver.message.Imap4Rev1MessageFactory)
      */
-    public void setMessageFactory(ImapMessageFactory messageFactory) {
+    public void setMessageFactory(Imap4Rev1MessageFactory messageFactory) {
         this.messageFactory = messageFactory;
     }
 

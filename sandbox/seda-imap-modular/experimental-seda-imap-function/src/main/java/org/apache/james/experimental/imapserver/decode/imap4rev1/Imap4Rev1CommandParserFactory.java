@@ -29,9 +29,10 @@ import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory;
 import org.apache.james.experimental.imapserver.decode.DelegatingImapCommandParser;
 import org.apache.james.experimental.imapserver.decode.ImapCommandParser;
+import org.apache.james.experimental.imapserver.decode.ImapCommandParserFactory;
 import org.apache.james.experimental.imapserver.decode.InitialisableCommandFactory;
 import org.apache.james.experimental.imapserver.decode.MessagingImapCommandParser;
-import org.apache.james.experimental.imapserver.message.ImapMessageFactory;
+import org.apache.james.experimental.imapserver.message.Imap4Rev1MessageFactory;
 
 /**
  * A factory for ImapCommand instances, provided based on the command name.
@@ -39,13 +40,13 @@ import org.apache.james.experimental.imapserver.message.ImapMessageFactory;
  *
  * @version $Revision: 109034 $
  */
-public class Imap4Rev1CommandParserFactory extends AbstractLogEnabled
+public class Imap4Rev1CommandParserFactory extends AbstractLogEnabled implements ImapCommandParserFactory
 {
     private Map _imapCommands;
-    private final ImapMessageFactory messageFactory;
+    private final Imap4Rev1MessageFactory messageFactory;
     private final Imap4Rev1CommandFactory commandFactory;
     
-    public Imap4Rev1CommandParserFactory(final ImapMessageFactory messageFactory, final Imap4Rev1CommandFactory commandFactory)
+    public Imap4Rev1CommandParserFactory(final Imap4Rev1MessageFactory messageFactory, final Imap4Rev1CommandFactory commandFactory)
     {
         this.messageFactory = messageFactory;
         this.commandFactory = commandFactory;
@@ -99,6 +100,9 @@ public class Imap4Rev1CommandParserFactory extends AbstractLogEnabled
         _imapCommands.put( ImapConstants.UID_COMMAND_NAME, UidCommandParser.class );
     }
 
+    /* (non-Javadoc)
+     * @see org.apache.james.experimental.imapserver.decode.imap4rev1.ImapCommandParserFactory#getParser(java.lang.String)
+     */
     public ImapCommandParser getParser( String commandName )
     {
         Class cmdClass = ( Class ) _imapCommands.get( commandName.toUpperCase() );

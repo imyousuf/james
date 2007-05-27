@@ -24,13 +24,14 @@ import javax.mail.Flags;
 import javax.mail.internet.MimeMessage;
 import javax.mail.search.SearchTerm;
 
+import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 
 /**
  * Creates messages.
  * Implementations may support message pooling but this is not required.
  */
-public interface ImapMessageFactory {
+public interface Imap4Rev1MessageFactory {
 
     public ImapMessage createErrorMessage(String message, String tag);
     
@@ -39,8 +40,7 @@ public interface ImapMessageFactory {
     public ImapMessage createAppendMessage(ImapCommand command, String mailboxName, Flags flags, 
             Date datetime, MimeMessage message, String tag); 
     
-    public ImapMessage  createAuthenticateMessage(final ImapCommand command, 
-            final String authType, final String tag);
+    public ImapMessage  createAuthenticateMessage(final ImapCommand command, final String authType, final String tag);
         
     public ImapMessage createCapabilityMessage(final ImapCommand command, final String tag);
 

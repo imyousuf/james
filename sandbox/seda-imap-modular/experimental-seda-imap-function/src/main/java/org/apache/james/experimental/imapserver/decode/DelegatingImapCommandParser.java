@@ -18,13 +18,11 @@
  ****************************************************************/
 package org.apache.james.experimental.imapserver.decode;
 
-import org.apache.james.experimental.imapserver.decode.imap4rev1.Imap4Rev1CommandParserFactory;
 
 public interface DelegatingImapCommandParser {
 
-    public abstract Imap4Rev1CommandParserFactory getParserFactory();
+    public abstract ImapCommandParserFactory getParserFactory();
 
-    public abstract void setParserFactory(
-            Imap4Rev1CommandParserFactory imapCommandFactory);
+    public abstract void setParserFactory(ImapCommandParserFactory imapCommandFactory);
 
 }

@@ -19,8 +19,7 @@
 
 package org.apache.james.experimental.imapserver.decode;
 
-import org.apache.james.experimental.imapserver.ImapRequestLineReader;
-import org.apache.james.experimental.imapserver.message.ImapMessage;
+import org.apache.james.api.imap.ImapMessage;
 
 /**
  * <p>

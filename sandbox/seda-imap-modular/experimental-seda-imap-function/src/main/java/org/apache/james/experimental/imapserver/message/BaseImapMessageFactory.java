@@ -24,6 +24,7 @@ import javax.mail.Flags;
 import javax.mail.internet.MimeMessage;
 import javax.mail.search.SearchTerm;
 
+import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.message.request.imap4rev1.AppendRequest;
 import org.apache.james.experimental.imapserver.message.request.imap4rev1.AuthenticateRequest;
@@ -54,7 +55,7 @@ import org.apache.james.experimental.imapserver.message.response.imap4rev1.Error
 /**
  * Naive, factory creates unpooled instances.
  */
-public class BaseImapMessageFactory implements ImapMessageFactory {
+public class BaseImapMessageFactory implements Imap4Rev1MessageFactory {
 
     public ImapMessage createErrorMessage(String message, String tag) {
         return new ErrorResponse( message, tag );

@@ -1,7 +1,7 @@
 package org.apache.james.experimental.imapserver.processor.base;
 
+import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.experimental.imapserver.ImapSession;
-import org.apache.james.experimental.imapserver.message.ImapMessage;
 import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.processor.ImapProcessor;
 

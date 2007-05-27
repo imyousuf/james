@@ -17,13 +17,14 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.experimental.imapserver;
+package org.apache.james.experimental.imapserver.decode;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.james.experimental.imapserver.ProtocolException;
 
 /**
  * Wraps the client input reader with a bunch of convenience methods, allowing lookahead=1
@@ -40,7 +41,7 @@ public class ImapRequestLineReader extends AbstractLogEnabled
     private boolean nextSeen = false;
     private char nextChar; // unknown
 
-    ImapRequestLineReader( InputStream input, OutputStream output )
+    public ImapRequestLineReader( InputStream input, OutputStream output )
     {
         this.input = input;
         this.output = output;

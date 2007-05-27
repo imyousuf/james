@@ -15,19 +15,11 @@
  * KIND, either express or implied.  See the License for the    *
  * specific language governing permissions and limitations      *
  * under the License.                                           *
- ****************************************************************/
+ ****************************************************************/ 
+package org.apache.james.experimental.imapserver.decode;
 
-package org.apache.james.experimental.imapserver.message;
+import org.apache.james.api.imap.ImapMessage;
 
-
-/**
- * <p>
- * Marker interface for IMAP messages.
- * </p>
- * <p>
- * <strong>Note:</strong> this is a transitional API
- * and is liable to change.
- * </p>
- */
-public interface ImapMessage {
+public interface ImapDecoder {
+    public ImapMessage decode(final ImapRequestLineReader request);
 }

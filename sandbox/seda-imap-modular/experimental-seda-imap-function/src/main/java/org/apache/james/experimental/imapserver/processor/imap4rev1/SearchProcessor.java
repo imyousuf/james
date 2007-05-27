@@ -22,11 +22,11 @@ package org.apache.james.experimental.imapserver.processor.imap4rev1;
 import javax.mail.search.SearchTerm;
 
 import org.apache.james.api.imap.ImapConstants;
+import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.experimental.imapserver.AuthorizationException;
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
-import org.apache.james.experimental.imapserver.message.ImapMessage;
 import org.apache.james.experimental.imapserver.message.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.message.request.ImapRequest;
 import org.apache.james.experimental.imapserver.message.request.imap4rev1.SearchRequest;

@@ -18,18 +18,19 @@
  ****************************************************************/
 package org.apache.james.experimental.imapserver.decode.imap4rev1;
 
-import org.apache.james.experimental.imapserver.ImapRequestLineReader;
+import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.ImapCommand;
 import org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory;
 import org.apache.james.experimental.imapserver.decode.DelegatingImapCommandParser;
 import org.apache.james.experimental.imapserver.decode.ImapCommandParser;
+import org.apache.james.experimental.imapserver.decode.ImapCommandParserFactory;
+import org.apache.james.experimental.imapserver.decode.ImapRequestLineReader;
 import org.apache.james.experimental.imapserver.decode.InitialisableCommandFactory;
 import org.apache.james.experimental.imapserver.decode.base.AbstractImapCommandParser;
-import org.apache.james.experimental.imapserver.message.ImapMessage;
 
 class UidCommandParser extends AbstractImapCommandParser implements DelegatingImapCommandParser,InitialisableCommandFactory {
-    private Imap4Rev1CommandParserFactory parserFactory;
+    private ImapCommandParserFactory parserFactory;
 
     public UidCommandParser() {
     }
@@ -46,14 +47,14 @@ class UidCommandParser extends AbstractImapCommandParser implements DelegatingIm
     /**
      * @see org.apache.james.experimental.imapserver.decode.DelegatingImapCommandParser#getParserFactory()
      */
-    public Imap4Rev1CommandParserFactory getParserFactory() {
+    public ImapCommandParserFactory getParserFactory() {
         return parserFactory;
     }
 
     /**
      * @see org.apache.james.experimental.imapserver.decode.DelegatingImapCommandParser#setParserFactory(org.apache.james.experimental.imapserver.decode.imap4rev1.Imap4Rev1CommandParserFactory)
      */
-    public void setParserFactory( Imap4Rev1CommandParserFactory imapCommandFactory )
+    public void setParserFactory( ImapCommandParserFactory imapCommandFactory )
     {
         this.parserFactory = imapCommandFactory;
     }

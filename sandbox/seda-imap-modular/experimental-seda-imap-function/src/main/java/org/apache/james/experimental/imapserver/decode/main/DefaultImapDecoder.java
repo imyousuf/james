@@ -20,25 +20,26 @@ package org.apache.james.experimental.imapserver.decode.main;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
-import org.apache.james.experimental.imapserver.ImapDecoder;
-import org.apache.james.experimental.imapserver.ImapRequestLineReader;
+import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory;
 import org.apache.james.experimental.imapserver.commands.imap4rev1.StandardImap4Rev1CommandFactory;
 import org.apache.james.experimental.imapserver.decode.ImapCommandParser;
+import org.apache.james.experimental.imapserver.decode.ImapCommandParserFactory;
+import org.apache.james.experimental.imapserver.decode.ImapDecoder;
+import org.apache.james.experimental.imapserver.decode.ImapRequestLineReader;
 import org.apache.james.experimental.imapserver.decode.base.AbstractImapCommandParser;
 import org.apache.james.experimental.imapserver.decode.imap4rev1.Imap4Rev1CommandParserFactory;
 import org.apache.james.experimental.imapserver.message.BaseImapMessageFactory;
-import org.apache.james.experimental.imapserver.message.ImapMessage;
-import org.apache.james.experimental.imapserver.message.ImapMessageFactory;
+import org.apache.james.experimental.imapserver.message.Imap4Rev1MessageFactory;
 
 public class DefaultImapDecoder extends AbstractLogEnabled implements ImapDecoder {
 
     private static final String INVALID_COMMAND = "Invalid command.";
     // TODO: inject dependency
-    private final ImapMessageFactory messageFactory = new BaseImapMessageFactory();
+    private final Imap4Rev1MessageFactory messageFactory = new BaseImapMessageFactory();
     private final Imap4Rev1CommandFactory commandFactory = new StandardImap4Rev1CommandFactory();
-    private final Imap4Rev1CommandParserFactory imapCommands = new Imap4Rev1CommandParserFactory(messageFactory, commandFactory);
+    private final ImapCommandParserFactory imapCommands = new Imap4Rev1CommandParserFactory(messageFactory, commandFactory);
     private static final String REQUEST_SYNTAX = "Protocol Error: Was expecting <tag SPACE command [arguments]>";
 
     /**
