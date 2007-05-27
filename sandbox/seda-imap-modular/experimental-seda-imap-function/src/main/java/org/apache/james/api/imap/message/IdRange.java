@@ -16,26 +16,37 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.experimental.imapserver.message;
 
-public class StoreDirective
-{
-    private int sign;
-    private boolean silent;
+package org.apache.james.api.imap.message;
 
-    public StoreDirective( int sign, boolean silent )
-    {
-        this.sign = sign;
-        this.silent = silent;
+/**
+ * Represents a range of UID values.
+ */
+public class IdRange {
+
+    private long _lowVal;
+    private long _highVal;
+
+    public IdRange(long singleVal) {
+        _lowVal = singleVal;
+        _highVal = singleVal;
     }
 
-    public int getSign()
-    {
-        return sign;
+    public IdRange(long lowVal, long highVal) {
+        _lowVal = lowVal;
+        _highVal = highVal;
     }
 
-    public boolean isSilent()
-    {
-        return silent;
+    public long getLowVal() {
+        return _lowVal;
     }
+
+    public long getHighVal() {
+        return _highVal;
+    }
+
+    public boolean includes(long uid) {
+        return _lowVal <= uid && uid <= _highVal;
+    }
+
 }

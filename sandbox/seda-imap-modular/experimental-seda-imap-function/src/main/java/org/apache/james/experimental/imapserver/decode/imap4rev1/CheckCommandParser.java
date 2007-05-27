@@ -21,7 +21,7 @@ package org.apache.james.experimental.imapserver.decode.imap4rev1;
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.api.imap.ProtocolException;
-import org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory;
+import org.apache.james.api.imap.imap4rev1.Imap4Rev1CommandFactory;
 import org.apache.james.experimental.imapserver.decode.ImapRequestLineReader;
 import org.apache.james.experimental.imapserver.decode.InitialisableCommandFactory;
 import org.apache.james.experimental.imapserver.decode.base.AbstractImapCommandParser;
@@ -32,7 +32,7 @@ class CheckCommandParser extends AbstractImapCommandParser  implements Initialis
     }
 
     /**
-     * @see org.apache.james.experimental.imapserver.decode.InitialisableCommandFactory#init(org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory)
+     * @see org.apache.james.experimental.imapserver.decode.InitialisableCommandFactory#init(org.apache.james.api.imap.imap4rev1.Imap4Rev1CommandFactory)
      */
     public void init(Imap4Rev1CommandFactory factory)
     {

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/ 
-package org.apache.james.experimental.imapserver.commands.imap4rev1;
+package org.apache.james.api.imap.imap4rev1;
 
 import org.apache.james.api.imap.ImapCommand;
 

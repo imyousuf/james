@@ -28,16 +28,15 @@ import java.util.Date;
 import javax.mail.Flags;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.api.imap.ProtocolException;
+import org.apache.james.api.imap.imap4rev1.Imap4Rev1MessageFactory;
+import org.apache.james.api.imap.message.IdRange;
 import org.apache.james.experimental.imapserver.decode.ImapCommandParser;
 import org.apache.james.experimental.imapserver.decode.ImapRequestLineReader;
 import org.apache.james.experimental.imapserver.decode.MessagingImapCommandParser;
-import org.apache.james.experimental.imapserver.message.IdRange;
-import org.apache.james.experimental.imapserver.message.Imap4Rev1MessageFactory;
 import org.apache.james.imapserver.store.MessageFlags;
 
 /**
@@ -71,7 +70,7 @@ public abstract class AbstractImapCommandParser extends AbstractLogEnabled imple
     }
 
     /**
-     * @see org.apache.james.experimental.imapserver.decode.MessagingImapCommandParser#setMessageFactory(org.apache.james.experimental.imapserver.message.Imap4Rev1MessageFactory)
+     * @see org.apache.james.experimental.imapserver.decode.MessagingImapCommandParser#setMessageFactory(org.apache.james.api.imap.imap4rev1.Imap4Rev1MessageFactory)
      */
     public void setMessageFactory(Imap4Rev1MessageFactory messageFactory) {
         this.messageFactory = messageFactory;
@@ -88,7 +87,6 @@ public abstract class AbstractImapCommandParser extends AbstractLogEnabled imple
         try {
             
             ImapMessage message = decode(command, request, tag);
-            final Logger logger = getLogger();
             setupLogger(message);
             result = message;
             

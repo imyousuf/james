@@ -18,7 +18,7 @@
  ****************************************************************/
 package org.apache.james.experimental.imapserver.decode;
 
-import org.apache.james.experimental.imapserver.message.Imap4Rev1MessageFactory;
+import org.apache.james.api.imap.imap4rev1.Imap4Rev1MessageFactory;
 
 public interface MessagingImapCommandParser {
 

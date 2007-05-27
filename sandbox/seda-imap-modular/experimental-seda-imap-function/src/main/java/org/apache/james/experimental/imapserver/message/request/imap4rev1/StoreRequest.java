@@ -21,8 +21,8 @@ package org.apache.james.experimental.imapserver.message.request.imap4rev1;
 import javax.mail.Flags;
 
 import org.apache.james.api.imap.ImapCommand;
-import org.apache.james.experimental.imapserver.message.IdRange;
-import org.apache.james.experimental.imapserver.message.StoreDirective;
+import org.apache.james.api.imap.message.IdRange;
+import org.apache.james.api.imap.message.StoreDirective;
 import org.apache.james.experimental.imapserver.message.request.AbstractImapRequest;
 
 public class StoreRequest extends AbstractImapRequest {

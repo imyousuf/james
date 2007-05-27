@@ -26,13 +26,13 @@ import org.apache.avalon.framework.CascadingRuntimeException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.api.imap.ImapConstants;
-import org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory;
+import org.apache.james.api.imap.imap4rev1.Imap4Rev1CommandFactory;
+import org.apache.james.api.imap.imap4rev1.Imap4Rev1MessageFactory;
 import org.apache.james.experimental.imapserver.decode.DelegatingImapCommandParser;
 import org.apache.james.experimental.imapserver.decode.ImapCommandParser;
 import org.apache.james.experimental.imapserver.decode.ImapCommandParserFactory;
 import org.apache.james.experimental.imapserver.decode.InitialisableCommandFactory;
 import org.apache.james.experimental.imapserver.decode.MessagingImapCommandParser;
-import org.apache.james.experimental.imapserver.message.Imap4Rev1MessageFactory;
 
 /**
  * A factory for ImapCommand instances, provided based on the command name.

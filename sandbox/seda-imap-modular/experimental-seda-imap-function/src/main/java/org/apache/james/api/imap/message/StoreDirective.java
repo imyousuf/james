@@ -16,37 +16,26 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
+package org.apache.james.api.imap.message;
 
-package org.apache.james.experimental.imapserver.message;
+public class StoreDirective
+{
+    private int sign;
+    private boolean silent;
 
-/**
- * Represents a range of Message Sequence Numbers.
- */
-public class MsnRange {
-
-    private int _lowVal;
-    private int _highVal;
-
-    public MsnRange(int singleVal) {
-        _lowVal = singleVal;
-        _highVal = singleVal;
+    public StoreDirective( int sign, boolean silent )
+    {
+        this.sign = sign;
+        this.silent = silent;
     }
 
-    public MsnRange(int lowVal, int highVal) {
-        _lowVal = lowVal;
-        _highVal = highVal;
+    public int getSign()
+    {
+        return sign;
     }
 
-    public int getLowVal() {
-        return _lowVal;
+    public boolean isSilent()
+    {
+        return silent;
     }
-
-    public int getHighVal() {
-        return _highVal;
-    }
-
-    public boolean includes(int msn) {
-        return _lowVal <= msn && msn <= _highVal;
-    }
-
 }

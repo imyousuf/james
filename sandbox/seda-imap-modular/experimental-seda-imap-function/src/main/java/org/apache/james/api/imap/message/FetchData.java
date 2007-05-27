@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.experimental.imapserver.message;
+package org.apache.james.api.imap.message;
 
 import java.util.Collection;
 import java.util.HashSet;

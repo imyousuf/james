@@ -19,8 +19,8 @@
 package org.apache.james.experimental.imapserver.message.request.imap4rev1;
 
 import org.apache.james.api.imap.ImapCommand;
-import org.apache.james.experimental.imapserver.message.FetchData;
-import org.apache.james.experimental.imapserver.message.IdRange;
+import org.apache.james.api.imap.message.FetchData;
+import org.apache.james.api.imap.message.IdRange;
 import org.apache.james.experimental.imapserver.message.request.AbstractImapRequest;
 
 public class FetchRequest extends AbstractImapRequest {

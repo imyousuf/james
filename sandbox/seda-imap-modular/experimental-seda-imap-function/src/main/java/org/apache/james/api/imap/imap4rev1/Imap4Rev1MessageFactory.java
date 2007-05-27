@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/ 
-package org.apache.james.experimental.imapserver.message;
+package org.apache.james.api.imap.imap4rev1;
 
 import java.util.Date;
 
@@ -26,6 +26,10 @@ import javax.mail.search.SearchTerm;
 
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
+import org.apache.james.api.imap.message.FetchData;
+import org.apache.james.api.imap.message.IdRange;
+import org.apache.james.api.imap.message.StatusDataItems;
+import org.apache.james.api.imap.message.StoreDirective;
 
 /**
  * Creates messages.

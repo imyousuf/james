@@ -16,37 +16,25 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
+package org.apache.james.api.imap.message;
 
-package org.apache.james.experimental.imapserver.message;
+public class BodyFetchElement
+{
+    private String name;
+    private String sectionIdentifier;
 
-/**
- * Represents a range of UID values.
- */
-public class IdRange {
-
-    private long _lowVal;
-    private long _highVal;
-
-    public IdRange(long singleVal) {
-        _lowVal = singleVal;
-        _highVal = singleVal;
+    public BodyFetchElement( String name, String sectionIdentifier)
+    {
+        this.name = name;
+        this.sectionIdentifier = sectionIdentifier;
     }
 
-    public IdRange(long lowVal, long highVal) {
-        _lowVal = lowVal;
-        _highVal = highVal;
+    public String getParameters()
+    {
+        return this.sectionIdentifier;
     }
 
-    public long getLowVal() {
-        return _lowVal;
+    public String getResponseName() {
+        return this.name;
     }
-
-    public long getHighVal() {
-        return _highVal;
-    }
-
-    public boolean includes(long uid) {
-        return _lowVal <= uid && uid <= _highVal;
-    }
-
 }
