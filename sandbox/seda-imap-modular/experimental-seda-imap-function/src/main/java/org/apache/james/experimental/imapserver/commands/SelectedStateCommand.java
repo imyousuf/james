@@ -19,8 +19,7 @@
 
 package org.apache.james.experimental.imapserver.commands;
 
-import org.apache.james.experimental.imapserver.ImapSessionState;
-import org.apache.james.experimental.imapserver.message.IdRange;
+import org.apache.james.api.imap.ImapSessionState;
 
 /**
  * A base class for ImapCommands only valid in the SELECTED state.
@@ -36,15 +35,5 @@ abstract public class SelectedStateCommand extends CommandTemplate
     public boolean validForState( ImapSessionState state )
     {
         return ( state == ImapSessionState.SELECTED );
-    }
-
-    protected boolean includes(IdRange[] idSet, long id) {
-        for (int i = 0; i < idSet.length; i++) {
-            IdRange idRange = idSet[i];
-            if (idRange.includes(id)) {
-                return true;
-            }
-        }
-        return false;
     }
 }
