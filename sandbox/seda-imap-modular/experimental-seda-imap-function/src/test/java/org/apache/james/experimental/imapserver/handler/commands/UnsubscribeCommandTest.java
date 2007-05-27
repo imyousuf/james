@@ -19,8 +19,8 @@
 
 package org.apache.james.experimental.imapserver.handler.commands;
 
-import org.apache.james.experimental.imapserver.ImapSessionState;
-import org.apache.james.experimental.imapserver.ProtocolException;
+import org.apache.james.api.imap.ImapSessionState;
+import org.apache.james.api.imap.ProtocolException;
 import org.jmock.core.Constraint;
 
 public class UnsubscribeCommandTest extends AbstractCommandTest {

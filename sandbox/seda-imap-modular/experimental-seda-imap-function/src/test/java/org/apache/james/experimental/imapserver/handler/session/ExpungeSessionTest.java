@@ -28,7 +28,7 @@ import javax.mail.Flags;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
-import org.apache.james.experimental.imapserver.ProtocolException;
+import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.experimental.imapserver.client.ExpungeClientCommand;
 import org.apache.james.experimental.imapserver.client.LoginCommand;
 import org.apache.james.experimental.imapserver.client.SelectCommand;

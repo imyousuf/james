@@ -29,10 +29,10 @@ import javax.mail.Flags;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.api.imap.ImapMessage;
-import org.apache.james.experimental.imapserver.ProtocolException;
-import org.apache.james.experimental.imapserver.commands.ImapCommand;
+import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.experimental.imapserver.decode.ImapCommandParser;
 import org.apache.james.experimental.imapserver.decode.ImapRequestLineReader;
 import org.apache.james.experimental.imapserver.decode.MessagingImapCommandParser;

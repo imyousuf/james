@@ -21,7 +21,7 @@ package org.apache.james.experimental.imapserver.decode.main;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.api.imap.ImapMessage;
-import org.apache.james.experimental.imapserver.ProtocolException;
+import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.experimental.imapserver.commands.imap4rev1.Imap4Rev1CommandFactory;
 import org.apache.james.experimental.imapserver.commands.imap4rev1.StandardImap4Rev1CommandFactory;
 import org.apache.james.experimental.imapserver.decode.ImapCommandParser;

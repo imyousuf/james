@@ -19,8 +19,8 @@
 
 package org.apache.james.experimental.imapserver.commands.imap4rev1;
 
+import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapConstants;
-import org.apache.james.experimental.imapserver.commands.ImapCommand;
 
 
 

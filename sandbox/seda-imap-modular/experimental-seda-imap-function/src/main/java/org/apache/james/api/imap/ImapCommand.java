@@ -17,9 +17,8 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.experimental.imapserver.commands;
+package org.apache.james.api.imap;
 
-import org.apache.james.experimental.imapserver.ImapSessionState;
 
 /**
  * Represents a processor for a particular Imap command. Implementations of this
@@ -36,7 +35,7 @@ public interface ImapCommand
 
     /**
      * Specifies if this command is valid for the given session state.
-     * @param state The current {@link org.apache.james.experimental.imapserver.ImapSessionState state} of the {@link org.apache.james.experimental.imapserver.ImapSession}
+     * @param state The current {@link org.apache.james.api.imap.ImapSessionState state} of the {@link org.apache.james.experimental.imapserver.ImapSession}
      * @return <code>true</code> if the command is valid in this state.
      */
     boolean validForState( ImapSessionState state );

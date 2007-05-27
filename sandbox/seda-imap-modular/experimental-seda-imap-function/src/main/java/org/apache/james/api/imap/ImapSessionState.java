@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.experimental.imapserver;
+package org.apache.james.api.imap;
 
 /**
  * Enumerated type representing an IMAP session state.

@@ -1,8 +1,8 @@
 package org.apache.james.experimental.imapserver;
 
+import org.apache.james.api.imap.ImapSessionState;
 import org.apache.james.experimental.imapserver.ImapResponse;
 import org.apache.james.experimental.imapserver.ImapSession;
-import org.apache.james.experimental.imapserver.ImapSessionState;
 import org.apache.james.experimental.imapserver.SelectedMailboxSession;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;

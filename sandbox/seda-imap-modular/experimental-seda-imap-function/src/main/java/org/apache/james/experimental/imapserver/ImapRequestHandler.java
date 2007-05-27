@@ -25,6 +25,7 @@ import java.io.OutputStream;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.api.imap.ImapMessage;
+import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.experimental.imapserver.decode.ImapDecoder;
 import org.apache.james.experimental.imapserver.decode.ImapRequestLineReader;
 import org.apache.james.experimental.imapserver.decode.main.DefaultImapDecoder;

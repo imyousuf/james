@@ -19,7 +19,7 @@
 
 package org.apache.james.experimental.imapserver.commands;
 
-import org.apache.james.experimental.imapserver.ImapSessionState;
+import org.apache.james.api.imap.ImapSessionState;
 
 /**
  * A base class for ImapCommands only valid in the NON_AUTHENTICATED state.

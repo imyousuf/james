@@ -39,10 +39,10 @@ import javax.mail.Flags.Flag;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.avalon.framework.logger.LogEnabled;
+import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.experimental.imapserver.ImapRequestHandler;
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.ImapSessionImpl;
-import org.apache.james.experimental.imapserver.ProtocolException;
 import org.apache.james.experimental.imapserver.TestConstants;
 import org.apache.james.experimental.imapserver.client.Command;
 import org.apache.james.experimental.imapserver.mock.MockImapHandler;

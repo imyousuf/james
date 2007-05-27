@@ -24,8 +24,8 @@ import javax.mail.Flags;
 import javax.mail.internet.MimeMessage;
 import javax.mail.search.SearchTerm;
 
+import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
-import org.apache.james.experimental.imapserver.commands.ImapCommand;
 
 /**
  * Creates messages.

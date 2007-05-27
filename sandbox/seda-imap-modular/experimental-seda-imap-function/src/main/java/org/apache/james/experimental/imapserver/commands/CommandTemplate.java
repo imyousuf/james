@@ -20,12 +20,13 @@
 package org.apache.james.experimental.imapserver.commands;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapConstants;
-import org.apache.james.experimental.imapserver.ImapSessionState;
+import org.apache.james.api.imap.ImapSessionState;
 
 /**
  * Base class for all command implementations. This class provides common
- * core functionality useful for all {@link org.apache.james.experimental.imapserver.commands.ImapCommand} implementations.
+ * core functionality useful for all {@link org.apache.james.api.imap.ImapCommand} implementations.
  *
  * @version $Revision: 109034 $
  */
@@ -35,7 +36,7 @@ abstract public class CommandTemplate
 {
     /**
      * By default, valid in any state (unless overridden by subclass.
-     * @see org.apache.james.experimental.imapserver.commands.ImapCommand#validForState
+     * @see org.apache.james.api.imap.ImapCommand#validForState
      */
     public boolean validForState( ImapSessionState state )
     {

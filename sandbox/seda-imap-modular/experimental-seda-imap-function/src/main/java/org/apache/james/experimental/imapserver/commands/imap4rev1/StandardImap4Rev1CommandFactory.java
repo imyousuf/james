@@ -18,7 +18,7 @@
  ****************************************************************/
 package org.apache.james.experimental.imapserver.commands.imap4rev1;
 
-import org.apache.james.experimental.imapserver.commands.ImapCommand;
+import org.apache.james.api.imap.ImapCommand;
 
 public class StandardImap4Rev1CommandFactory implements Imap4Rev1CommandFactory {
 

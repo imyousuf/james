@@ -19,7 +19,7 @@
 
 package org.apache.james.experimental.imapserver.message.request;
 
-import org.apache.james.experimental.imapserver.commands.ImapCommand;
+import org.apache.james.api.imap.ImapCommand;
 
 public interface ImapRequest {
 

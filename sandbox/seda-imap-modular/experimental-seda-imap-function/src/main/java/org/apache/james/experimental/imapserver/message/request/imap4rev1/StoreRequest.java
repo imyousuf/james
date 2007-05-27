@@ -20,7 +20,7 @@ package org.apache.james.experimental.imapserver.message.request.imap4rev1;
 
 import javax.mail.Flags;
 
-import org.apache.james.experimental.imapserver.commands.ImapCommand;
+import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.experimental.imapserver.message.IdRange;
 import org.apache.james.experimental.imapserver.message.StoreDirective;
 import org.apache.james.experimental.imapserver.message.request.AbstractImapRequest;
