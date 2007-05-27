@@ -17,23 +17,23 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.experimental.imapserver.commands;
+package org.apache.james.imap.command.imap4rev1;
 
-import org.apache.james.api.imap.ImapSessionState;
+import org.apache.james.api.imap.ImapConstants;
 
 /**
- * A base class for ImapCommands only valid in the SELECTED state.
- *
+ * TODO: sort out inheritance heirarchy.
+ * TODO: this should not inherit from select
  * @version $Revision: 109034 $
  */
-abstract public class SelectedStateCommand extends CommandTemplate
+class ExamineCommand extends SelectCommand
 {
-    /**
-     * Subclasses of this command are only valid in the
-     * {@link ImapSessionState#SELECTED} state.
-     */
-    public boolean validForState( ImapSessionState state )
+    public ExamineCommand() {
+        super();
+    }
+    
+    public String getName()
     {
-        return ( state == ImapSessionState.SELECTED );
+        return ImapConstants.EXAMINE_COMMAND_NAME;
     }
 }

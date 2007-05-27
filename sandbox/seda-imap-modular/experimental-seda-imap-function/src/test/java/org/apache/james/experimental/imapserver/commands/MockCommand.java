@@ -1,5 +1,7 @@
 package org.apache.james.experimental.imapserver.commands;
 
+import org.apache.james.imap.command.CommandTemplate;
+
 
 public class MockCommand extends CommandTemplate {
 

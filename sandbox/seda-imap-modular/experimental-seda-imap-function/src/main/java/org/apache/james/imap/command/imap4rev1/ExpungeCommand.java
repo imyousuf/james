@@ -17,12 +17,12 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.experimental.imapserver.commands.imap4rev1;
+package org.apache.james.imap.command.imap4rev1;
 
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapConstants;
-import org.apache.james.experimental.imapserver.commands.CommandTemplate;
-import org.apache.james.experimental.imapserver.commands.SelectedStateCommand;
+import org.apache.james.imap.command.CommandTemplate;
+import org.apache.james.imap.command.SelectedStateCommand;
 
 
 /**

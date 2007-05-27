@@ -17,26 +17,27 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.experimental.imapserver.commands.imap4rev1;
+package org.apache.james.imap.command.imap4rev1;
 
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapConstants;
-import org.apache.james.experimental.imapserver.commands.CommandTemplate;
+import org.apache.james.imap.command.CommandTemplate;
+import org.apache.james.imap.command.SelectedStateCommand;
 
 
 /**
- * Handles processeing for the NOOP imap command.
+ * Handles processeing for the COPY imap command.
  *
  * @version $Revision: 109034 $
  */
-class NoopCommand extends CommandTemplate
+class CopyCommand extends SelectedStateCommand
 {
-    public static final String ARGS = null;
-    
+    public static final String ARGS = "<message-set> <mailbox>";
+
     /** @see ImapCommand#getName */
     public String getName()
     {
-        return ImapConstants.NOOP_COMMAND_NAME;
+        return ImapConstants.COPY_COMMAND_NAME;
     }
 
     /** @see CommandTemplate#getArgSyntax */
@@ -45,32 +46,35 @@ class NoopCommand extends CommandTemplate
         return ARGS;
     }
 }
-
 /*
-6.1.2.  NOOP Command
+6.4.7.  COPY Command
 
-   Arguments:  none
+   Arguments:  message set
+               mailbox name
 
-   Responses:  no specific responses for this command (but see below)
+   Responses:  no specific responses for this command
 
-   Result:     OK - noop completed
+   Result:     OK - copy completed
+               NO - copy error: can't copy those messages or to that
+                    name
                BAD - command unknown or arguments invalid
 
-      The NOOP command always succeeds.  It does nothing.
+      The COPY command copies the specified message(s) to the end of the
+      specified destination mailbox.  The flags and internal date of the
+      message(s) SHOULD be preserved in the copy.
 
-      Since any command can return a status update as untagged data, the
-      NOOP command can be used as a periodic poll for new messages or
-      message status updates during a period of inactivity.  The NOOP
-      command can also be used to reset any inactivity autologout timer
-      on the server.
+      If the destination mailbox does not exist, a server SHOULD return
+      an error.  It SHOULD NOT automatically create the mailbox.  Unless
+      it is certain that the destination mailbox can not be created, the
+      server MUST send the response code "[TRYCREATE]" as the prefix of
+      the text of the tagged NO response.  This gives a hint to the
+      client that it can attempt a CREATE command and retry the COPY if
+      the CREATE is successful.
 
-   Example:    C: a002 NOOP
-               S: a002 OK NOOP completed
-                  . . .
-               C: a047 NOOP
-               S: * 22 EXPUNGE
-               S: * 23 EXISTS
-               S: * 3 RECENT
-               S: * 14 FETCH (FLAGS (\Seen \Deleted))
-               S: a047 OK NOOP completed
+      If the COPY command is unsuccessful for any reason, server
+      implementations MUST restore the destination mailbox to its state
+      before the COPY attempt.
+
+   Example:    C: A003 COPY 2:4 MEETING
+               S: A003 OK COPY completed
 */

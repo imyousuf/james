@@ -17,26 +17,26 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.experimental.imapserver.commands.imap4rev1;
+package org.apache.james.imap.command.imap4rev1;
 
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapConstants;
-import org.apache.james.experimental.imapserver.commands.CommandTemplate;
+import org.apache.james.imap.command.CommandTemplate;
 
 
 /**
- * Handles processeing for the LOGOUT imap command.
+ * Handles processeing for the NOOP imap command.
  *
  * @version $Revision: 109034 $
  */
-class LogoutCommand extends CommandTemplate
+class NoopCommand extends CommandTemplate
 {
     public static final String ARGS = null;
     
     /** @see ImapCommand#getName */
     public String getName()
     {
-        return ImapConstants.LOGOUT_COMMAND_NAME;
+        return ImapConstants.NOOP_COMMAND_NAME;
     }
 
     /** @see CommandTemplate#getArgSyntax */
@@ -47,22 +47,30 @@ class LogoutCommand extends CommandTemplate
 }
 
 /*
-6.1.3.  LOGOUT Command
+6.1.2.  NOOP Command
 
    Arguments:  none
 
-   Responses:  REQUIRED untagged response: BYE
+   Responses:  no specific responses for this command (but see below)
 
-   Result:     OK - logout completed
+   Result:     OK - noop completed
                BAD - command unknown or arguments invalid
 
-      The LOGOUT command informs the server that the client is done with
-      the connection.  The server MUST send a BYE untagged response
-      before the (tagged) OK response, and then close the network
-      connection.
+      The NOOP command always succeeds.  It does nothing.
 
-   Example:    C: A023 LOGOUT
-               S: * BYE IMAP4rev1 Server logging out
-               S: A023 OK LOGOUT completed
-               (Server and client then close the connection)
+      Since any command can return a status update as untagged data, the
+      NOOP command can be used as a periodic poll for new messages or
+      message status updates during a period of inactivity.  The NOOP
+      command can also be used to reset any inactivity autologout timer
+      on the server.
+
+   Example:    C: a002 NOOP
+               S: a002 OK NOOP completed
+                  . . .
+               C: a047 NOOP
+               S: * 22 EXPUNGE
+               S: * 23 EXISTS
+               S: * 3 RECENT
+               S: * 14 FETCH (FLAGS (\Seen \Deleted))
+               S: a047 OK NOOP completed
 */

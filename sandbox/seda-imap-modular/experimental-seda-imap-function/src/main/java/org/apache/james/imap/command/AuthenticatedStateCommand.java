@@ -17,23 +17,24 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.experimental.imapserver.commands;
+package org.apache.james.imap.command;
 
 import org.apache.james.api.imap.ImapSessionState;
 
 /**
- * A base class for ImapCommands only valid in the NON_AUTHENTICATED state.
+ * A base class for ImapCommands only valid in AUTHENTICATED and SELECTED states.
  *
  * @version $Revision: 109034 $
  */
-abstract public class NonAuthenticatedStateCommand extends CommandTemplate
+abstract public class AuthenticatedStateCommand extends CommandTemplate
 {
-
     /**
-     * Ensure that state is {@link ImapSessionState#NON_AUTHENTICATED}.
+     * Check that the state is {@link ImapSessionState#AUTHENTICATED } or
+     * {@link ImapSessionState#SELECTED}
      */
     public boolean validForState( ImapSessionState state )
     {
-        return ( state == ImapSessionState.NON_AUTHENTICATED );
+        return ( state == ImapSessionState.AUTHENTICATED
+                || state == ImapSessionState.SELECTED );
     }
 }

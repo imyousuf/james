@@ -17,27 +17,27 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.experimental.imapserver.commands.imap4rev1;
+package org.apache.james.imap.command.imap4rev1;
 
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapConstants;
-import org.apache.james.experimental.imapserver.commands.CommandTemplate;
-import org.apache.james.experimental.imapserver.commands.SelectedStateCommand;
+import org.apache.james.imap.command.CommandTemplate;
+import org.apache.james.imap.command.SelectedStateCommand;
 
 
 /**
- * Handles processeing for the COPY imap command.
+ * Handles processeing for the CHECK imap command.
  *
  * @version $Revision: 109034 $
  */
-class CopyCommand extends SelectedStateCommand
+class CloseCommand extends SelectedStateCommand
 {
-    public static final String ARGS = "<message-set> <mailbox>";
+    public static final String ARGS = null;
 
     /** @see ImapCommand#getName */
     public String getName()
     {
-        return ImapConstants.COPY_COMMAND_NAME;
+        return ImapConstants.CLOSE_COMMAND_NAME;
     }
 
     /** @see CommandTemplate#getArgSyntax */
@@ -47,34 +47,34 @@ class CopyCommand extends SelectedStateCommand
     }
 }
 /*
-6.4.7.  COPY Command
+6.4.2.  CLOSE Command
 
-   Arguments:  message set
-               mailbox name
+   Arguments:  none
 
    Responses:  no specific responses for this command
 
-   Result:     OK - copy completed
-               NO - copy error: can't copy those messages or to that
-                    name
+   Result:     OK - close completed, now in authenticated state
+               NO - close failure: no mailbox selected
                BAD - command unknown or arguments invalid
 
-      The COPY command copies the specified message(s) to the end of the
-      specified destination mailbox.  The flags and internal date of the
-      message(s) SHOULD be preserved in the copy.
+      The CLOSE command permanently removes from the currently selected
+      mailbox all messages that have the \Deleted flag set, and returns
+      to authenticated state from selected state.  No untagged EXPUNGE
+      responses are sent.
 
-      If the destination mailbox does not exist, a server SHOULD return
-      an error.  It SHOULD NOT automatically create the mailbox.  Unless
-      it is certain that the destination mailbox can not be created, the
-      server MUST send the response code "[TRYCREATE]" as the prefix of
-      the text of the tagged NO response.  This gives a hint to the
-      client that it can attempt a CREATE command and retry the COPY if
-      the CREATE is successful.
+      No messages are removed, and no error is given, if the mailbox is
+      selected by an EXAMINE command or is otherwise selected read-only.
 
-      If the COPY command is unsuccessful for any reason, server
-      implementations MUST restore the destination mailbox to its state
-      before the COPY attempt.
+      Even if a mailbox is selected, a SELECT, EXAMINE, or LOGOUT
+      command MAY be issued without previously issuing a CLOSE command.
+      The SELECT, EXAMINE, and LOGOUT commands implicitly close the
+      currently selected mailbox without doing an expunge.  However,
+      when many messages are deleted, a CLOSE-LOGOUT or CLOSE-SELECT
 
-   Example:    C: A003 COPY 2:4 MEETING
-               S: A003 OK COPY completed
+      sequence is considerably faster than an EXPUNGE-LOGOUT or
+      EXPUNGE-SELECT because no untagged EXPUNGE responses (which the
+      client would probably ignore) are sent.
+
+   Example:    C: A341 CLOSE
+               S: A341 OK CLOSE completed
 */

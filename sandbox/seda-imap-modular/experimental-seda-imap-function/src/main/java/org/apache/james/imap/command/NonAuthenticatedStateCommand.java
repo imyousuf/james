@@ -17,29 +17,23 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.experimental.imapserver.commands.imap4rev1;
+package org.apache.james.imap.command;
 
-import org.apache.james.api.imap.ImapCommand;
-import org.apache.james.api.imap.ImapConstants;
-import org.apache.james.experimental.imapserver.commands.AuthenticatedStateCommand;
-import org.apache.james.experimental.imapserver.commands.CommandTemplate;
-
+import org.apache.james.api.imap.ImapSessionState;
 
 /**
- * Handles processeing for the SUBSCRIBE imap command.
+ * A base class for ImapCommands only valid in the NON_AUTHENTICATED state.
  *
  * @version $Revision: 109034 $
  */
-class SubscribeCommand extends AuthenticatedStateCommand {
-    public static final String ARGS = "<mailbox>";
-    
-    /** @see ImapCommand#getName */
-    public String getName() {
-        return ImapConstants.SUBSCRIBE_COMMAND_NAME;
-    }
+abstract public class NonAuthenticatedStateCommand extends CommandTemplate
+{
 
-    /** @see CommandTemplate#getArgSyntax */
-    public String getArgSyntax() {
-        return ARGS;
+    /**
+     * Ensure that state is {@link ImapSessionState#NON_AUTHENTICATED}.
+     */
+    public boolean validForState( ImapSessionState state )
+    {
+        return ( state == ImapSessionState.NON_AUTHENTICATED );
     }
 }

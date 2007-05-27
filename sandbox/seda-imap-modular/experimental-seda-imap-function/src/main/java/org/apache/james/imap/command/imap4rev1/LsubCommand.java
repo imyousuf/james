@@ -17,32 +17,21 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.experimental.imapserver.commands.imap4rev1;
+package org.apache.james.imap.command.imap4rev1;
 
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapConstants;
-import org.apache.james.experimental.imapserver.commands.CommandTemplate;
-import org.apache.james.experimental.imapserver.commands.SelectedStateCommand;
+
 
 
 /**
- * Handles processeing for the UID imap command.
- *
  * @version $Revision: 109034 $
  */
-class UidCommand extends SelectedStateCommand
+class LsubCommand extends ListCommand
 {
-    public static final String ARGS = "<fetch-command>|<store-command>|<copy-command>|<search-command>";
-
     /** @see ImapCommand#getName */
     public String getName()
     {
-        return ImapConstants.UID_COMMAND_NAME;
-    }
-
-    /** @see CommandTemplate#getArgSyntax */
-    public String getArgSyntax()
-    {
-        return ARGS;
+        return ImapConstants.LSUB_COMMAND_NAME;
     }
 }

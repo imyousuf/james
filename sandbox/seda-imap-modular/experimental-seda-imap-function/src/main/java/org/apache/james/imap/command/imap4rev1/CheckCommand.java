@@ -17,28 +17,27 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.experimental.imapserver.commands.imap4rev1;
+package org.apache.james.imap.command.imap4rev1;
 
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapConstants;
-import org.apache.james.experimental.imapserver.commands.CommandTemplate;
-import org.apache.james.experimental.imapserver.commands.NonAuthenticatedStateCommand;
-
+import org.apache.james.imap.command.CommandTemplate;
+import org.apache.james.imap.command.SelectedStateCommand;
 
 
 /**
- * Handles processeing for the LOGIN imap command.
+ * Handles processing for the CHECK imap command.
  *
  * @version $Revision: 109034 $
  */
-class LoginCommand extends NonAuthenticatedStateCommand
+class CheckCommand extends SelectedStateCommand
 {
-    public static final String ARGS = "<userid> <password>";
+    public static final String ARGS = null;
 
     /** @see ImapCommand#getName */
     public String getName()
     {
-        return ImapConstants.LOGIN_COMMAND_NAME;
+        return ImapConstants.CHECK_COMMAND_NAME;
     }
 
     /** @see CommandTemplate#getArgSyntax */
@@ -49,20 +48,28 @@ class LoginCommand extends NonAuthenticatedStateCommand
 }
 
 /*
-6.2.2.  LOGIN Command
+   6.4.1.  CHECK Command
 
-   Arguments:  user name
-               password
+   Arguments:  none
 
    Responses:  no specific responses for this command
 
-   Result:     OK - login completed, now in authenticated state
-               NO - login failure: user name or password rejected
+   Result:     OK - check completed
                BAD - command unknown or arguments invalid
 
-      The LOGIN command identifies the client to the server and carries
-      the plaintext password authenticating this user.
+      The CHECK command requests a checkpoint of the currently selected
+      mailbox.  A checkpoint refers to any implementation-dependent
+      housekeeping associated with the mailbox (e.g. resolving the
+      server's in-memory state of the mailbox with the state on its
+      disk) that is not normally executed as part of each command.  A
+      checkpoint MAY take a non-instantaneous amount of real time to
+      complete.  If a server implementation has no such housekeeping
+      considerations, CHECK is equivalent to NOOP.
 
-   Example:    C: a001 LOGIN SMITH SESAME
-               S: a001 OK LOGIN completed
+      There is no guarantee that an EXISTS untagged response will happen
+      as a result of CHECK.  NOOP, not CHECK, SHOULD be used for new
+      mail polling.
+
+   Example:    C: FXXZ CHECK
+               S: FXXZ OK CHECK Completed
 */

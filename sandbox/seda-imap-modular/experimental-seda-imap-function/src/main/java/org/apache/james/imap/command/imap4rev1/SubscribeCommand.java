@@ -17,23 +17,29 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.experimental.imapserver.commands.imap4rev1;
+package org.apache.james.imap.command.imap4rev1;
 
+import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapConstants;
+import org.apache.james.imap.command.AuthenticatedStateCommand;
+import org.apache.james.imap.command.CommandTemplate;
+
 
 /**
- * TODO: sort out inheritance heirarchy.
- * TODO: this should not inherit from select
+ * Handles processeing for the SUBSCRIBE imap command.
+ *
  * @version $Revision: 109034 $
  */
-class ExamineCommand extends SelectCommand
-{
-    public ExamineCommand() {
-        super();
-    }
+class SubscribeCommand extends AuthenticatedStateCommand {
+    public static final String ARGS = "<mailbox>";
     
-    public String getName()
-    {
-        return ImapConstants.EXAMINE_COMMAND_NAME;
+    /** @see ImapCommand#getName */
+    public String getName() {
+        return ImapConstants.SUBSCRIBE_COMMAND_NAME;
+    }
+
+    /** @see CommandTemplate#getArgSyntax */
+    public String getArgSyntax() {
+        return ARGS;
     }
 }

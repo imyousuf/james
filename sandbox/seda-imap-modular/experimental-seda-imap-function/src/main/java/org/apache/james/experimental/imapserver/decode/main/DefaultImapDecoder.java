@@ -24,7 +24,6 @@ import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.api.imap.imap4rev1.Imap4Rev1CommandFactory;
 import org.apache.james.api.imap.imap4rev1.Imap4Rev1MessageFactory;
-import org.apache.james.experimental.imapserver.commands.imap4rev1.StandardImap4Rev1CommandFactory;
 import org.apache.james.experimental.imapserver.decode.ImapCommandParser;
 import org.apache.james.experimental.imapserver.decode.ImapCommandParserFactory;
 import org.apache.james.experimental.imapserver.decode.ImapDecoder;
@@ -32,6 +31,7 @@ import org.apache.james.experimental.imapserver.decode.ImapRequestLineReader;
 import org.apache.james.experimental.imapserver.decode.base.AbstractImapCommandParser;
 import org.apache.james.experimental.imapserver.decode.imap4rev1.Imap4Rev1CommandParserFactory;
 import org.apache.james.experimental.imapserver.message.BaseImapMessageFactory;
+import org.apache.james.imap.command.imap4rev1.StandardImap4Rev1CommandFactory;
 
 public class DefaultImapDecoder extends AbstractLogEnabled implements ImapDecoder {
 
