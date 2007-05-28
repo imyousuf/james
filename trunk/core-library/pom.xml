@@ -345,25 +345,5 @@
       <artifactId>mx4j-jmx</artifactId>
       <version>1.1.1</version>
     </dependency>
-    <dependency>
-      <groupId>torque</groupId>
-      <artifactId>torque</artifactId>
-      <version>3.3-RC1</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>jndi</artifactId>
-          <groupId>jndi</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>avalon-framework</artifactId>
-          <groupId>avalon-framework</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>jdbc-stdext</artifactId>
-          <groupId>javax.sql</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
   </dependencies>
 </project>

@@ -6,8 +6,8 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.james</groupId>
-  <artifactId>james-server-imapserver-function</artifactId>
-  <name>Apache JAMES Server IMAP function</name>
+  <artifactId>james-server-torque-mailboxmanager-function</artifactId>
+  <name>Apache JAMES Server Torque Mailbox Manager</name>
   <dependencies>
     <!--
     <dependency>
@@ -32,9 +32,23 @@
       <version>3.0-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-imap-api</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <groupId>torque</groupId>
+      <artifactId>torque</artifactId>
+      <version>3.3-RC1</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>jndi</artifactId>
+          <groupId>jndi</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>avalon-framework</artifactId>
+          <groupId>avalon-framework</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>jdbc-stdext</artifactId>
+          <groupId>javax.sql</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     
     <dependency>
