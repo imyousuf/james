@@ -38,8 +38,8 @@ public class TestUtil {
             for (int i=0; i< size; i++) {
                 if (b1[i]!=b2[i]) {
                     System.out.println("I: "+i+" B1: "+b1[i]+" B2 "+b2[i]);
-                    System.out.println("B1:"+new String(b1,0,i+1)+"??");
-                    System.out.println("B2:"+new String(b2,0,i+1)+"??");
+                    System.out.println("B1:"+new String(b1,0,i+1)+"°");
+                    System.out.println("B2:"+new String(b2,0,i+1)+"°");
                     break;
                 }
             }
