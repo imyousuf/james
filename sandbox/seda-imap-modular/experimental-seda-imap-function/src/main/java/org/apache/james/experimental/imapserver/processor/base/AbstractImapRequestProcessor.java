@@ -20,6 +20,7 @@ package org.apache.james.experimental.imapserver.processor.base;
 
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.api.imap.ImapCommand;
+import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.experimental.imapserver.AuthorizationException;
@@ -32,8 +33,9 @@ import org.apache.james.experimental.imapserver.processor.ImapProcessor;
 import org.apache.james.imapserver.store.MailboxException;
 
 abstract public class AbstractImapRequestProcessor extends
-        AbstractChainedImapProcessor {
+        AbstractChainedImapProcessor implements ImapConstants {
 
+    
     public AbstractImapRequestProcessor(final ImapProcessor next) {
         super(next);
     }
@@ -92,4 +94,6 @@ abstract public class AbstractImapRequestProcessor extends
     protected abstract ImapResponseMessage doProcess(final ImapRequest message,
             ImapSession session, String tag, ImapCommand command)
             throws MailboxException, AuthorizationException, ProtocolException;
+    
+
 }

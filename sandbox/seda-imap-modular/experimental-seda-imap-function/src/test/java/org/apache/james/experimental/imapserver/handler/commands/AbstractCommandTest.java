@@ -28,7 +28,9 @@ import org.apache.james.experimental.imapserver.ImapRequestHandler;
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.StandardFactory;
 import org.apache.james.experimental.imapserver.processor.main.DefaultImapProcessorFactory;
+import org.apache.james.mailboxmanager.Namespace;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
+import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 import org.apache.james.services.User;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.test.mock.avalon.MockLogger;
@@ -43,14 +45,18 @@ public abstract class AbstractCommandTest extends MockObjectTestCase
     Mock mockUsersRepository;
     Mock mockUser;
     Mock mockMailboxManager;
+    Mock mockMailboxManagerProvider;
 
     public void setUp() {
+        mockMailboxManager = mock ( MailboxManager.class );
+        mockMailboxManagerProvider = mock ( MailboxManagerProvider.class );
         mockUsersRepository = mock ( UsersRepository.class );
-        handler=new ImapRequestHandler(StandardFactory.createDecoder(),  DefaultImapProcessorFactory.createDefaultProcessor((UsersRepository)mockUsersRepository.proxy()));
+        handler=new ImapRequestHandler(StandardFactory.createDecoder(), 
+                DefaultImapProcessorFactory.createDefaultProcessor((UsersRepository)mockUsersRepository.proxy(), 
+                        (MailboxManagerProvider) mockMailboxManagerProvider.proxy()));
         handler.enableLogging(new MockLogger());
         mockSession = mock ( ImapSession.class);
         mockUser = mock (User.class );
-        mockMailboxManager = mock (MailboxManager.class);
     }
     
     public String handleRequest(String s) throws ProtocolException {
@@ -71,5 +77,15 @@ public abstract class AbstractCommandTest extends MockObjectTestCase
         mockSession.expects(atLeastOnce()).method("getMailboxManager").withNoArguments().will(returnValue(mockMailboxManager.proxy()));
     }
     
+    protected void setUpNamespace(String userDefaultNamespace) {
+        Mock mockNamespace = mock(Namespace.class);
+        
+        final Object proxy = mockUser.proxy();
+        mockMailboxManagerProvider.expects(once()).method("getPersonalDefaultNamespace").with(eq(proxy))
+                .will(returnValue(mockNamespace.proxy()));
+        
+        mockNamespace.expects(once()).method("getName").will(returnValue(userDefaultNamespace));
+        mockSession.expects(once()).method("getUser").will(returnValue(proxy));
+    }
 
 }

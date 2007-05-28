@@ -16,34 +16,29 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
+package org.apache.james.experimental.imapserver.processor.base;
 
-package org.apache.james.experimental.imapserver.handler.commands;
+import org.apache.james.experimental.imapserver.ImapSession;
+import org.apache.james.experimental.imapserver.processor.ImapProcessor;
+import org.apache.james.mailboxmanager.MailboxManagerException;
+import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
+import org.apache.james.services.User;
 
-import org.apache.james.api.imap.ImapSessionState;
-import org.apache.james.api.imap.ProtocolException;
-import org.apache.james.mailboxmanager.Namespace;
-import org.jmock.Mock;
-import org.jmock.core.Constraint;
+abstract public class AbstractMailboxAwareProcessor extends AbstractImapRequestProcessor {
 
-public class SubscribeCommandTest extends AbstractCommandTest {
-
-    public void testSubscribeNonFq() throws ProtocolException {
-        final String userDefaultNamespace = "#mock.user";
-        final String fqMailboxName = userDefaultNamespace + ".Test";
-
-        setSessionState(ImapSessionState.AUTHENTICATED);
-        setUpMailboxManager();
-        setUpNamespace(userDefaultNamespace);
-                
-        mockSession.expects(once()).method("unsolicitedResponses")
-                .withAnyArguments();
-
-        mockMailboxManager.expects(once()).method("setSubscription").with(
-                new Constraint[] {eq(fqMailboxName),eq(true)});
-
-        String response = handleRequest("1 SUBSCRIBE Test\n");
-
-        assertEquals("1 OK SUBSCRIBE completed.\r\n", response);
+    private final MailboxManagerProvider mailboxManagerProvider;
+    
+    public AbstractMailboxAwareProcessor(final ImapProcessor next, 
+            final MailboxManagerProvider mailboxManagerProvider) {
+        super(next);
+        this.mailboxManagerProvider = mailboxManagerProvider;
     }
-
+    
+    public String buildFullName(final ImapSession session, String mailboxName) throws MailboxManagerException {
+        User user = session.getUser();
+        if (!mailboxName.startsWith(NAMESPACE_PREFIX)) {
+            mailboxName = mailboxManagerProvider.getPersonalDefaultNamespace(user).getName()+HIERARCHY_DELIMITER+mailboxName;
+        }
+        return mailboxName;
+    }
 }

@@ -28,17 +28,19 @@ import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.message.response.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.message.response.imap4rev1.ExamineAndSelectResponse;
 import org.apache.james.experimental.imapserver.processor.ImapProcessor;
-import org.apache.james.experimental.imapserver.processor.base.AbstractImapRequestProcessor;
+import org.apache.james.experimental.imapserver.processor.base.AbstractMailboxAwareProcessor;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
+import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 
 
-abstract public class AbstractMailboxSelectionProcessor extends AbstractImapRequestProcessor {
+abstract public class AbstractMailboxSelectionProcessor extends AbstractMailboxAwareProcessor {
 	
-	public AbstractMailboxSelectionProcessor(final ImapProcessor next) {
-        super(next);
+	public AbstractMailboxSelectionProcessor(final ImapProcessor next, 
+            final MailboxManagerProvider mailboxManagerProvider) {
+        super(next, mailboxManagerProvider);
     }
 
 	protected final ImapResponseMessage doProcess(String mailboxName, boolean isExamine,
@@ -46,7 +48,7 @@ abstract public class AbstractMailboxSelectionProcessor extends AbstractImapRequ
         ImapResponseMessage result;
         session.deselect();
         try {
-            String fullMailboxName=session.buildFullName(mailboxName);
+            String fullMailboxName=buildFullName(session, mailboxName);
             selectMailbox(fullMailboxName, session, isExamine);
             ImapMailboxSession mailbox = session.getSelected().getMailbox();
             final Flags permanentFlags = mailbox.getPermanentFlags();

@@ -31,6 +31,7 @@ import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.core.AbstractJamesHandler;
 import org.apache.james.experimental.imapserver.encode.OutputStreamImapResponseWriter;
 import org.apache.james.experimental.imapserver.processor.main.DefaultImapProcessorFactory;
+import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 import org.apache.james.services.UsersRepository;
 
 /**
@@ -70,8 +71,10 @@ public class ImapHandler
         if (theData instanceof ImapHandlerConfigurationData) {
             theConfigData = (ImapHandlerConfigurationData) theData;
             final UsersRepository usersRepository = theConfigData.getUsersRepository();
+            final MailboxManagerProvider mailboxManagerProvider = theConfigData.getMailboxManagerProvider();
 //          TODO: inject dependency
-            requestHandler = new ImapRequestHandler(StandardFactory.createDecoder(), DefaultImapProcessorFactory.createDefaultProcessor(usersRepository));
+            requestHandler = new ImapRequestHandler(StandardFactory.createDecoder(), 
+                    DefaultImapProcessorFactory.createDefaultProcessor(usersRepository, mailboxManagerProvider));
         } else {
             throw new IllegalArgumentException("Configuration object does not implement POP3HandlerConfigurationData");
         }

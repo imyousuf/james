@@ -113,6 +113,4 @@ public interface ImapSession
 
     MailboxManager getMailboxManager() throws MailboxManagerException;
 
-    String buildFullName(String mailboxName) throws MailboxManagerException;
-
 }

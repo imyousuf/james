@@ -29,12 +29,14 @@ import org.apache.james.experimental.imapserver.message.request.imap4rev1.Examin
 import org.apache.james.experimental.imapserver.message.response.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.processor.ImapProcessor;
 import org.apache.james.imapserver.store.MailboxException;
+import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 
 
 public class ExamineProcessor extends AbstractMailboxSelectionProcessor {
 	
-	public ExamineProcessor(final ImapProcessor next) {
-        super(next);
+	public ExamineProcessor(final ImapProcessor next, 
+            final MailboxManagerProvider mailboxManagerProvider) {
+        super(next, mailboxManagerProvider);
     }
 
     protected boolean isAcceptable(ImapMessage message) {

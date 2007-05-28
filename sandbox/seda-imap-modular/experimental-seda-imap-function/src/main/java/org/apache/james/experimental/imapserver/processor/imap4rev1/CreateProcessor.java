@@ -29,15 +29,17 @@ import org.apache.james.experimental.imapserver.message.request.imap4rev1.Create
 import org.apache.james.experimental.imapserver.message.response.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.message.response.imap4rev1.CommandCompleteResponse;
 import org.apache.james.experimental.imapserver.processor.ImapProcessor;
-import org.apache.james.experimental.imapserver.processor.base.AbstractImapRequestProcessor;
+import org.apache.james.experimental.imapserver.processor.base.AbstractMailboxAwareProcessor;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
+import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 
 
-public class CreateProcessor extends AbstractImapRequestProcessor {
+public class CreateProcessor extends AbstractMailboxAwareProcessor {
 	
-	public CreateProcessor(final ImapProcessor next) {
-        super(next);
+	public CreateProcessor(final ImapProcessor next, 
+            final MailboxManagerProvider mailboxManagerProvider) {
+        super(next, mailboxManagerProvider);
     }
 
     protected boolean isAcceptable(ImapMessage message) {
@@ -61,7 +63,7 @@ public class CreateProcessor extends AbstractImapRequestProcessor {
 			ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
         try {
 
-            final String fullMailboxName=session.buildFullName(mailboxName);
+            final String fullMailboxName=buildFullName(session, mailboxName);
             session.getMailboxManager().createMailbox(fullMailboxName );
         } catch (MailboxManagerException e) {
            throw new MailboxException(e);

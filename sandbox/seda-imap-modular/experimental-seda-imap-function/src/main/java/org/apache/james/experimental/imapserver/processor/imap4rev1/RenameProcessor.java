@@ -29,15 +29,17 @@ import org.apache.james.experimental.imapserver.message.request.imap4rev1.Rename
 import org.apache.james.experimental.imapserver.message.response.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.message.response.imap4rev1.CommandCompleteResponse;
 import org.apache.james.experimental.imapserver.processor.ImapProcessor;
-import org.apache.james.experimental.imapserver.processor.base.AbstractImapRequestProcessor;
+import org.apache.james.experimental.imapserver.processor.base.AbstractMailboxAwareProcessor;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
+import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 
 
-public class RenameProcessor extends AbstractImapRequestProcessor {
+public class RenameProcessor extends AbstractMailboxAwareProcessor {
 	
-	public RenameProcessor(final ImapProcessor next) {
-        super(next);
+	public RenameProcessor(final ImapProcessor next, 
+            final MailboxManagerProvider mailboxManagerProvider) {
+        super(next, mailboxManagerProvider);
     }
 
     protected boolean isAcceptable(ImapMessage message) {
@@ -60,8 +62,8 @@ public class RenameProcessor extends AbstractImapRequestProcessor {
 	private ImapResponseMessage doProcess(final String existingName, final String newName, 
 			ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
         try {
-            final String fullExistingName=session.buildFullName(existingName);
-            final String fullNewName=session.buildFullName(newName);
+            final String fullExistingName=buildFullName(session, existingName);
+            final String fullNewName=buildFullName(session, newName);
             session.getMailboxManager().renameMailbox( fullExistingName, fullNewName );
         } catch (MailboxManagerException e) {
            throw new MailboxException(e);

@@ -36,11 +36,13 @@ import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
+import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 
 
 public class ExpungeProcessor extends AbstractImapRequestProcessor {
 	
-	public ExpungeProcessor(final ImapProcessor next) {
+	public ExpungeProcessor(final ImapProcessor next, 
+            final MailboxManagerProvider mailboxManagerProvider) {
         super(next);
     }
 

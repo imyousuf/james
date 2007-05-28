@@ -83,7 +83,8 @@ public abstract class AbstractSessionTest extends MockObjectTestCase implements 
                 new MockImapHandler(),
                 HOST_NAME, HOST_ADDRESS);
         ((LogEnabled)session).enableLogging(new MockLogger());
-        handler = new ImapRequestHandler(StandardFactory.createDecoder(),  DefaultImapProcessorFactory.createDefaultProcessor(theConfigData.getUsersRepository()));
+        handler = new ImapRequestHandler(StandardFactory.createDecoder(),  
+                DefaultImapProcessorFactory.createDefaultProcessor(theConfigData.getUsersRepository(), theConfigData.getMailboxManagerProvider()));
         handler.enableLogging(new MockLogger());
         mailboxManager=theConfigData.getMailboxManagerProvider().getMailboxManagerInstance(new MockUser());
 

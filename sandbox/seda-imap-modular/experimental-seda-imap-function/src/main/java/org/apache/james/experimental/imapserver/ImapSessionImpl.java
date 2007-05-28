@@ -199,13 +199,4 @@ public final class ImapSessionImpl extends AbstractLogEnabled implements ImapSes
         }
         return mailboxManager;
     }
-
-
-
-    public String buildFullName(String mailboxName) throws MailboxManagerException {
-        if (!mailboxName.startsWith(NAMESPACE_PREFIX)) {
-            mailboxName = mailboxManagerProvider.getPersonalDefaultNamespace(user).getName()+HIERARCHY_DELIMITER+mailboxName;
-        }
-        return mailboxName;
-    }
 }

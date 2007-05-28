@@ -26,13 +26,13 @@ import org.jmock.core.Constraint;
 public class UnsubscribeCommandTest extends AbstractCommandTest {
 
     public void testSubscribeNonFq() throws ProtocolException {
-        final String fqMailboxName = "#mock.user.Test";
+        final String userDefaultNamespace = "#mock.user";
+        final String fqMailboxName = userDefaultNamespace + ".Test";
 
         setSessionState(ImapSessionState.AUTHENTICATED);
         setUpMailboxManager();
 
-        mockSession.expects(once()).method("buildFullName").with(eq("Test"))
-                .will(returnValue(fqMailboxName));
+        setUpNamespace(userDefaultNamespace);
         mockSession.expects(once()).method("unsolicitedResponses")
                 .withAnyArguments();
 

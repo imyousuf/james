@@ -29,15 +29,17 @@ import org.apache.james.experimental.imapserver.message.request.imap4rev1.Unsubs
 import org.apache.james.experimental.imapserver.message.response.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.message.response.imap4rev1.CommandCompleteResponse;
 import org.apache.james.experimental.imapserver.processor.ImapProcessor;
-import org.apache.james.experimental.imapserver.processor.base.AbstractImapRequestProcessor;
+import org.apache.james.experimental.imapserver.processor.base.AbstractMailboxAwareProcessor;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
+import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 
 
-public class UnsubscribeProcessor extends AbstractImapRequestProcessor {
+public class UnsubscribeProcessor extends AbstractMailboxAwareProcessor {
 	
-	public UnsubscribeProcessor(final ImapProcessor next) {
-        super(next);
+	public UnsubscribeProcessor(final ImapProcessor next, 
+            final MailboxManagerProvider mailboxManagerProvider) {
+        super(next, mailboxManagerProvider);
     }
 
     protected boolean isAcceptable(ImapMessage message) {
@@ -59,7 +61,7 @@ public class UnsubscribeProcessor extends AbstractImapRequestProcessor {
 	private ImapResponseMessage doProcess(final String mailboxName, 
 			ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
         try {
-            final String fullMailboxName=session.buildFullName(mailboxName);
+            final String fullMailboxName=buildFullName(session, mailboxName);
             session.getMailboxManager().setSubscription(fullMailboxName,false);
         } catch (MailboxManagerException e) {
             throw new MailboxException(e);

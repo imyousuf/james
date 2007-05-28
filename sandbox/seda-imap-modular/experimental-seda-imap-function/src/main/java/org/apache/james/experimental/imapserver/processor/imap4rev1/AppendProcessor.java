@@ -33,15 +33,17 @@ import org.apache.james.experimental.imapserver.message.request.imap4rev1.Append
 import org.apache.james.experimental.imapserver.message.response.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.message.response.imap4rev1.CommandCompleteResponse;
 import org.apache.james.experimental.imapserver.processor.ImapProcessor;
-import org.apache.james.experimental.imapserver.processor.base.AbstractImapRequestProcessor;
+import org.apache.james.experimental.imapserver.processor.base.AbstractMailboxAwareProcessor;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
+import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 
-public class AppendProcessor extends AbstractImapRequestProcessor {
+public class AppendProcessor extends AbstractMailboxAwareProcessor {
 
-    public AppendProcessor(final ImapProcessor next) {
-        super(next);
+    public AppendProcessor(final ImapProcessor next, 
+            final MailboxManagerProvider mailboxManagerProvider) {
+        super(next, mailboxManagerProvider);
     }
 
     protected boolean isAcceptable(ImapMessage message) {
@@ -76,7 +78,7 @@ public class AppendProcessor extends AbstractImapRequestProcessor {
         // they should be processed
         ImapMailboxSession mailbox = null;
         try {
-            mailboxName = session.buildFullName(mailboxName);
+            mailboxName = buildFullName(session, mailboxName);
             mailbox = session.getMailboxManager().getImapMailboxSession(
                     mailboxName);
         } catch (MailboxManagerException mme) {

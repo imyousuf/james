@@ -32,16 +32,18 @@ import org.apache.james.experimental.imapserver.message.request.imap4rev1.Status
 import org.apache.james.experimental.imapserver.message.response.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.message.response.imap4rev1.StatusResponse;
 import org.apache.james.experimental.imapserver.processor.ImapProcessor;
-import org.apache.james.experimental.imapserver.processor.base.AbstractImapRequestProcessor;
+import org.apache.james.experimental.imapserver.processor.base.AbstractMailboxAwareProcessor;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
+import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 
 
-public class StatusProcessor extends AbstractImapRequestProcessor {
+public class StatusProcessor extends AbstractMailboxAwareProcessor {
 	
-	public StatusProcessor(final ImapProcessor next) {
-        super(next);
+	public StatusProcessor(final ImapProcessor next, 
+            final MailboxManagerProvider mailboxManagerProvider) {
+        super(next, mailboxManagerProvider);
     }
 
     protected boolean isAcceptable(ImapMessage message) {
@@ -71,7 +73,7 @@ public class StatusProcessor extends AbstractImapRequestProcessor {
         buffer.append( ImapConstants.SP );
         buffer.append( "(" );
         try {
-            String fullMailboxName= session.buildFullName(mailboxName);
+            String fullMailboxName= buildFullName(session, mailboxName);
             
             if (logger != null && logger.isDebugEnabled()) { 
                 logger.debug("Status called on mailbox named " + mailboxName + " (" + fullMailboxName + ")"); 

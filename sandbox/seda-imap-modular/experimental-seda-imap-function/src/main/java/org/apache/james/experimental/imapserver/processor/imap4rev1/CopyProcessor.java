@@ -30,18 +30,20 @@ import org.apache.james.experimental.imapserver.message.request.imap4rev1.CopyRe
 import org.apache.james.experimental.imapserver.message.response.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.message.response.imap4rev1.CommandCompleteResponse;
 import org.apache.james.experimental.imapserver.processor.ImapProcessor;
-import org.apache.james.experimental.imapserver.processor.base.AbstractImapRequestProcessor;
+import org.apache.james.experimental.imapserver.processor.base.AbstractMailboxAwareProcessor;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
+import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 
 
-public class CopyProcessor extends AbstractImapRequestProcessor {
+public class CopyProcessor extends AbstractMailboxAwareProcessor {
 	
-	public CopyProcessor(final ImapProcessor next) {
-        super(next);
+	public CopyProcessor(final ImapProcessor next, 
+            final MailboxManagerProvider mailboxManagerProvider) {
+        super(next, mailboxManagerProvider);
     }
 
     protected boolean isAcceptable(ImapMessage message) {
@@ -66,7 +68,7 @@ public class CopyProcessor extends AbstractImapRequestProcessor {
 			ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
         ImapMailboxSession currentMailbox = session.getSelected().getMailbox();
         try {
-            String fullMailboxName = session.buildFullName(mailboxName);
+            String fullMailboxName = buildFullName(session, mailboxName);
             if (!session.getMailboxManager().existsMailbox(fullMailboxName)) {
                 MailboxException e=new MailboxException("Mailbox does not exists");
                 e.setResponseCode( "TRYCREATE" );

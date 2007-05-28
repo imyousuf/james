@@ -21,19 +21,21 @@ package org.apache.james.experimental.imapserver.handler.commands;
 
 import org.apache.james.api.imap.ImapSessionState;
 import org.apache.james.api.imap.ProtocolException;
+import org.apache.james.mailboxmanager.Namespace;
+import org.jmock.Mock;
 
 public class CreateCommandTest extends AbstractCommandTest {
 
     public void testCreateNonFq() throws ProtocolException {
-        final String fqMailboxName = "#mock.user.Test";
+        final String userDefault = "#mock.user";
+        final String fqMailboxName = userDefault + ".Test";
 
         setSessionState(ImapSessionState.AUTHENTICATED);
         setUpMailboxManager();
-
-        mockSession.expects(once()).method("buildFullName").with(eq("Test"))
-                .will(returnValue(fqMailboxName));
-        mockSession.expects(once()).method("unsolicitedResponses").withAnyArguments();
-
+        setUpNamespace(userDefault);
+        
+        mockSession.expects(once()).method("unsolicitedResponses");
+        
         mockMailboxManager.expects(once()).method("createMailbox").with(
                 eq(fqMailboxName));
 
