@@ -25,7 +25,6 @@ import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.services.User;
-import org.apache.james.services.UsersRepository;
 
 
 /**
@@ -51,15 +50,6 @@ public interface ImapSession
     void closeConnection();
 
     void closeConnection(String byeMessage);
-
-
-    /**
-     * Provides the UsersRepository for this session, to allow session
-     * to validate logins.
-     *
-     * @return The UsersRepository for this session.
-     */
-    UsersRepository getUsers();
 
     /**
      * @return The hostname of the connected client.

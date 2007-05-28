@@ -33,12 +33,16 @@ import org.apache.james.experimental.imapserver.processor.ImapProcessor;
 import org.apache.james.experimental.imapserver.processor.base.AbstractImapRequestProcessor;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.services.User;
+import org.apache.james.services.UsersRepository;
 
 
 public class LoginProcessor extends AbstractImapRequestProcessor {
 	
-	public LoginProcessor(final ImapProcessor next) {
+    private final UsersRepository users;
+    
+	public LoginProcessor(final ImapProcessor next, final UsersRepository users) {
         super(next);
+        this.users = users;
     }
 
     protected boolean isAcceptable(ImapMessage message) {
@@ -60,9 +64,9 @@ public class LoginProcessor extends AbstractImapRequestProcessor {
 	
 	private ImapResponseMessage doProcess(final String userid, final String password, 
 			ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-        ImapResponseMessage result;
-        if ( session.getUsers().test( userid, password ) ) {
-            User user = session.getUsers().getUserByName( userid );
+        final ImapResponseMessage result;
+        if ( users.test( userid, password ) ) {
+            User user = users.getUserByName( userid );
             session.setAuthenticated( user );
             result = CommandCompleteResponse.createWithNoUnsolictedResponses(command, tag);
         }

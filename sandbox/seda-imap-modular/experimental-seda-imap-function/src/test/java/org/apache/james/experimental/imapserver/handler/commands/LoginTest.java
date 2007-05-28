@@ -10,7 +10,6 @@ public class LoginTest extends AbstractCommandTest
 
     public void testValidUserStateNonAuth() throws ProtocolException {
         mockSession.expects(atLeastOnce()).method("getState").will(returnValue(ImapSessionState.NON_AUTHENTICATED));
-        mockSession.expects(atLeastOnce()).method("getUsers").will(returnValue(mockUsersRepository.proxy()));
         
         mockUsersRepository.expects(once()).method("test").with( eq("joachim2"),eq("abc")).will(returnValue(true));
         mockUsersRepository.expects(once()).method("getUserByName").with( eq("joachim2")).will(returnValue(mockUser.proxy()));
@@ -23,7 +22,6 @@ public class LoginTest extends AbstractCommandTest
     }
     public void testInvalidUserStateNonAuth() throws ProtocolException {
         mockSession.expects(atLeastOnce()).method("getState").will(returnValue(ImapSessionState.NON_AUTHENTICATED));
-        mockSession.expects(atLeastOnce()).method("getUsers").will(returnValue(mockUsersRepository.proxy()));
         
         mockUsersRepository.expects(once()).method("test").with( eq("joachim2"),eq("abc")).will(returnValue(false));
 

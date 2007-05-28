@@ -23,6 +23,7 @@ import org.apache.james.experimental.imapserver.processor.ImapProcessor;
 import org.apache.james.experimental.imapserver.processor.base.ImapResponseMessageProcessor;
 import org.apache.james.experimental.imapserver.processor.base.UnknownRequestImapProcessor;
 import org.apache.james.experimental.imapserver.processor.imap4rev1.Imap4Rev1ProcessorFactory;
+import org.apache.james.services.UsersRepository;
 
 
 /**
@@ -30,9 +31,9 @@ import org.apache.james.experimental.imapserver.processor.imap4rev1.Imap4Rev1Pro
  */
 public class DefaultImapProcessorFactory {
 
-    public static final ImapProcessor createDefaultProcessor() {
+    public static final ImapProcessor createDefaultProcessor(final UsersRepository usersRepository) {
         final UnknownRequestImapProcessor unknownRequestImapProcessor = new UnknownRequestImapProcessor();
-        final ImapProcessor imap4rev1Chain = Imap4Rev1ProcessorFactory.createDefaultChain(unknownRequestImapProcessor);
+        final ImapProcessor imap4rev1Chain = Imap4Rev1ProcessorFactory.createDefaultChain(unknownRequestImapProcessor, usersRepository);
         final ImapProcessor result = new ImapResponseMessageProcessor(imap4rev1Chain);
         return result;
     }

@@ -25,15 +25,14 @@ import javax.mail.Flags;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.api.imap.ImapSessionState;
-import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.api.imap.message.MessageFlags;
+import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 import org.apache.james.services.User;
-import org.apache.james.services.UsersRepository;
 
 /**
  * @version $Revision: 109034 $
@@ -44,35 +43,25 @@ public final class ImapSessionImpl extends AbstractLogEnabled implements ImapSes
     private User user = null;
     private SelectedMailboxSession selectedMailbox = null;
 
-    private String clientHostName;
-    private String clientAddress;
+    private final String clientHostName;
+    private final String clientAddress;
 
     // TODO these shouldn't be in here - they can be provided directly to command components.
     private ImapHandlerInterface handler;
     private MailboxManagerProvider mailboxManagerProvider;
-    private UsersRepository users;
     
     private MailboxManager mailboxManager = null;
     private User mailboxManagerUser = null;
     
     public ImapSessionImpl( MailboxManagerProvider mailboxManagerProvider,
-                            UsersRepository users,
                             ImapHandlerInterface handler,
                             String clientHostName,
                             String clientAddress )
     {
         this.mailboxManagerProvider = mailboxManagerProvider;
-        this.users = users;
         this.handler = handler;
         this.clientHostName = clientHostName;
         this.clientAddress = clientAddress;
-    }
-
-
-
-    private MailboxManagerProvider getMailboxManagerProvider()
-    {
-        return mailboxManagerProvider;
     }
 
     public void unsolicitedResponses( ImapResponse request, boolean useUid ) throws MailboxException {
@@ -132,11 +121,6 @@ public final class ImapSessionImpl extends AbstractLogEnabled implements ImapSes
     {
         closeMailbox();
         handler.resetHandler();
-    }
-
-    public UsersRepository getUsers()
-    {
-        return users;
     }
 
     public String getClientHostname()

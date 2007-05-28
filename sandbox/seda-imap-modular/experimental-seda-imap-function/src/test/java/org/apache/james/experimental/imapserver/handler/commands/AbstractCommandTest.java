@@ -26,6 +26,8 @@ import org.apache.james.api.imap.ImapSessionState;
 import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.experimental.imapserver.ImapRequestHandler;
 import org.apache.james.experimental.imapserver.ImapSession;
+import org.apache.james.experimental.imapserver.StandardFactory;
+import org.apache.james.experimental.imapserver.processor.main.DefaultImapProcessorFactory;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.services.User;
 import org.apache.james.services.UsersRepository;
@@ -35,7 +37,7 @@ import org.jmock.MockObjectTestCase;
 
 public abstract class AbstractCommandTest extends MockObjectTestCase
 {
-
+  
     ImapRequestHandler handler;
     Mock mockSession;
     Mock mockUsersRepository;
@@ -43,10 +45,10 @@ public abstract class AbstractCommandTest extends MockObjectTestCase
     Mock mockMailboxManager;
 
     public void setUp() {
-        handler=new ImapRequestHandler();
+        mockUsersRepository = mock ( UsersRepository.class );
+        handler=new ImapRequestHandler(StandardFactory.createDecoder(),  DefaultImapProcessorFactory.createDefaultProcessor((UsersRepository)mockUsersRepository.proxy()));
         handler.enableLogging(new MockLogger());
         mockSession = mock ( ImapSession.class);
-        mockUsersRepository = mock ( UsersRepository.class );
         mockUser = mock (User.class );
         mockMailboxManager = mock (MailboxManager.class);
     }

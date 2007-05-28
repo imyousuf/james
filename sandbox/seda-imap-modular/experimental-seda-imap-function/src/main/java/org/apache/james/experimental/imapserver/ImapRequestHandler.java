@@ -26,37 +26,24 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.api.imap.ProtocolException;
-import org.apache.james.api.imap.imap4rev1.Imap4Rev1CommandFactory;
-import org.apache.james.api.imap.imap4rev1.Imap4Rev1MessageFactory;
 import org.apache.james.experimental.imapserver.encode.OutputStreamImapResponseWriter;
-import org.apache.james.experimental.imapserver.message.request.imap4rev1.BaseImap4Rev1MessageFactory;
 import org.apache.james.experimental.imapserver.message.response.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.processor.ImapProcessor;
-import org.apache.james.experimental.imapserver.processor.main.DefaultImapProcessorFactory;
-import org.apache.james.imap.command.imap4rev1.StandardImap4Rev1CommandFactory;
-import org.apache.james.imapserver.codec.decode.ImapCommandParserFactory;
 import org.apache.james.imapserver.codec.decode.ImapDecoder;
 import org.apache.james.imapserver.codec.decode.ImapRequestLineReader;
-import org.apache.james.imapserver.codec.decode.imap4rev1.Imap4Rev1CommandParserFactory;
-import org.apache.james.imapserver.codec.decode.main.DefaultImapDecoder;
 
 /**
  * @version $Revision: 109034 $
  */
 public final class ImapRequestHandler extends AbstractLogEnabled {
 
-    // TODO: inject dependency
-    private static final ImapDecoder createDecoder() {
-        final Imap4Rev1MessageFactory messageFactory = new BaseImap4Rev1MessageFactory();
-        final Imap4Rev1CommandFactory commandFactory = new StandardImap4Rev1CommandFactory();
-        final ImapCommandParserFactory imapCommands = new Imap4Rev1CommandParserFactory(messageFactory, commandFactory);
-        final ImapDecoder result = new DefaultImapDecoder(messageFactory, imapCommands);
-        return result;
-    }
+    private final ImapDecoder decoder;
+    private final ImapProcessor processor;
     
-    // TODO: inject depedency
-    private final ImapDecoder decoder = createDecoder();
-    private final ImapProcessor processor = DefaultImapProcessorFactory.createDefaultProcessor();
+    public ImapRequestHandler(final ImapDecoder decoder, final ImapProcessor processor) {
+        this.decoder = decoder;
+        this.processor = processor;
+    }
     
     /**
      * @see org.apache.avalon.framework.logger.AbstractLogEnabled#enableLogging(org.apache.avalon.framework.logger.Logger)

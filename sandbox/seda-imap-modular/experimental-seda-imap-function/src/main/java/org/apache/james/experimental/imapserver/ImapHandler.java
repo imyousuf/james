@@ -30,6 +30,8 @@ import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.core.AbstractJamesHandler;
 import org.apache.james.experimental.imapserver.encode.OutputStreamImapResponseWriter;
+import org.apache.james.experimental.imapserver.processor.main.DefaultImapProcessorFactory;
+import org.apache.james.services.UsersRepository;
 
 /**
  * The handler class for IMAP connections.
@@ -41,8 +43,9 @@ public class ImapHandler
         implements ImapHandlerInterface, ConnectionHandler, Poolable, ImapConstants
 {
 
+    // TODO: inject dependency
     private String softwaretype = "JAMES "+VERSION+" Server " + Constants.SOFTWARE_VERSION;
-    private final ImapRequestHandler requestHandler = new ImapRequestHandler();
+    private ImapRequestHandler requestHandler;
     private ImapSession session;
 
     /**
@@ -66,6 +69,9 @@ public class ImapHandler
     {
         if (theData instanceof ImapHandlerConfigurationData) {
             theConfigData = (ImapHandlerConfigurationData) theData;
+            final UsersRepository usersRepository = theConfigData.getUsersRepository();
+//          TODO: inject dependency
+            requestHandler = new ImapRequestHandler(StandardFactory.createDecoder(), DefaultImapProcessorFactory.createDefaultProcessor(usersRepository));
         } else {
             throw new IllegalArgumentException("Configuration object does not implement POP3HandlerConfigurationData");
         }
@@ -140,7 +146,6 @@ public class ImapHandler
 
             sessionEnded = false;
             session = new ImapSessionImpl( theConfigData.getMailboxManagerProvider(),
-                                           theConfigData.getUsersRepository(),
                                            this,
                                            socket.getInetAddress().getHostName(),
                                            socket.getInetAddress().getHostAddress());
