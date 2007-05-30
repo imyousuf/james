@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="ISO-8859-15"?><project>
+  <parent>
+    <artifactId>james-server</artifactId>
+    <groupId>org.apache.james</groupId>
+    <version>3.0-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.apache.james</groupId>
+  <artifactId>james-server-mordred-library</artifactId>
+  <name>Apache JAMES Server Mordred Data Source Library</name>
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.avalon.cornerstone.datasources</groupId>
+      <artifactId>cornerstone-datasources-api</artifactId>
+      <version>2.2.1</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+</project>
