@@ -36,6 +36,7 @@ import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
+import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 
 
@@ -69,14 +70,15 @@ public class CopyProcessor extends AbstractMailboxAwareProcessor {
         ImapMailboxSession currentMailbox = session.getSelected().getMailbox();
         try {
             String fullMailboxName = buildFullName(session, mailboxName);
-            if (!session.getMailboxManager().existsMailbox(fullMailboxName)) {
+            final MailboxManager mailboxManager = getMailboxManager(session);
+            if (!mailboxManager.existsMailbox(fullMailboxName)) {
                 MailboxException e=new MailboxException("Mailbox does not exists");
                 e.setResponseCode( "TRYCREATE" );
                 throw e;
             }
             for (int i = 0; i < idSet.length; i++) {
                 GeneralMessageSet messageSet=GeneralMessageSetImpl.range(idSet[i].getLowVal(),idSet[i].getHighVal(),useUids);
-                session.getMailboxManager().copyMessages(currentMailbox,messageSet,fullMailboxName);
+                mailboxManager.copyMessages(currentMailbox,messageSet,fullMailboxName);
             }
         } catch (MailboxManagerException e) {
             throw new MailboxException(e);

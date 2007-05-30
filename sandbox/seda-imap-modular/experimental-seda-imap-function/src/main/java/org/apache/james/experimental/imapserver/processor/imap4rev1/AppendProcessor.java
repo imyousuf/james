@@ -37,6 +37,7 @@ import org.apache.james.experimental.imapserver.processor.base.AbstractMailboxAw
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
+import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 
 public class AppendProcessor extends AbstractMailboxAwareProcessor {
@@ -79,8 +80,8 @@ public class AppendProcessor extends AbstractMailboxAwareProcessor {
         ImapMailboxSession mailbox = null;
         try {
             mailboxName = buildFullName(session, mailboxName);
-            mailbox = session.getMailboxManager().getImapMailboxSession(
-                    mailboxName);
+            final MailboxManager mailboxManager = getMailboxManager(session);
+            mailbox = mailboxManager.getImapMailboxSession(mailboxName);
         } catch (MailboxManagerException mme) {
             MailboxException me = new MailboxException(mme);
             me.setResponseCode("TRYCREATE");

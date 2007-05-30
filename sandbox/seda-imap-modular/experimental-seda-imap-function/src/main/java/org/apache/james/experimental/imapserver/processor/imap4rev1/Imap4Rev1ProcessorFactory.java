@@ -29,8 +29,8 @@ public class Imap4Rev1ProcessorFactory {
         final StoreProcessor storeProcessor = new StoreProcessor(appendProcessor);
         final NoopProcessor noopProcessor = new NoopProcessor(storeProcessor);
         final StatusProcessor statusProcessor = new StatusProcessor(noopProcessor, mailboxManagerProvider);
-        final LsubProcessor lsubProcessor = new LsubProcessor(statusProcessor);
-        final ListProcessor listProcessor = new ListProcessor(lsubProcessor);
+        final LsubProcessor lsubProcessor = new LsubProcessor(statusProcessor, mailboxManagerProvider);
+        final ListProcessor listProcessor = new ListProcessor(lsubProcessor, mailboxManagerProvider);
         final SearchProcessor searchProcessor = new SearchProcessor(listProcessor);
         final SelectProcessor selectProcessor = new SelectProcessor(searchProcessor, mailboxManagerProvider);
         final ImapProcessor result = new FetchProcessor(selectProcessor);

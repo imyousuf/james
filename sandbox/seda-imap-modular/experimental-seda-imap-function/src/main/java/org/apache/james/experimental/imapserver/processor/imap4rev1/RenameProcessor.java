@@ -32,6 +32,7 @@ import org.apache.james.experimental.imapserver.processor.ImapProcessor;
 import org.apache.james.experimental.imapserver.processor.base.AbstractMailboxAwareProcessor;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
+import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 
 
@@ -64,7 +65,8 @@ public class RenameProcessor extends AbstractMailboxAwareProcessor {
         try {
             final String fullExistingName=buildFullName(session, existingName);
             final String fullNewName=buildFullName(session, newName);
-            session.getMailboxManager().renameMailbox( fullExistingName, fullNewName );
+            final MailboxManager mailboxManager = getMailboxManager(session);
+            mailboxManager.renameMailbox( fullExistingName, fullNewName );
         } catch (MailboxManagerException e) {
            throw new MailboxException(e);
         }

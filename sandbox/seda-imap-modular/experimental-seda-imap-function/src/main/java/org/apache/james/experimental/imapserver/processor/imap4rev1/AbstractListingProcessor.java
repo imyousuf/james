@@ -27,17 +27,20 @@ import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.message.response.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.message.response.imap4rev1.ListResponse;
 import org.apache.james.experimental.imapserver.processor.ImapProcessor;
-import org.apache.james.experimental.imapserver.processor.base.AbstractImapRequestProcessor;
+import org.apache.james.experimental.imapserver.processor.base.AbstractMailboxAwareProcessor;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.ListResult;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.impl.ListResultImpl;
+import org.apache.james.mailboxmanager.manager.MailboxManager;
+import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 
 
-abstract class AbstractListingProcessor extends AbstractImapRequestProcessor {
+abstract class AbstractListingProcessor extends AbstractMailboxAwareProcessor {
 	
-	public AbstractListingProcessor(final ImapProcessor next) {
-        super(next);
+	public AbstractListingProcessor(final ImapProcessor next, 
+            final MailboxManagerProvider mailboxManagerProvider) {
+        super(next, mailboxManagerProvider);
     }
 
     protected final ImapResponseMessage doProcess(final String baseReferenceName, final String mailboxPattern,
@@ -144,7 +147,9 @@ abstract class AbstractListingProcessor extends AbstractImapRequestProcessor {
     protected final ListResult[] doList( ImapSession session, String base, String pattern, boolean subscribed ) throws MailboxException
     {
         try {
-            return session.getMailboxManager().list(base,pattern,false);
+            final MailboxManager mailboxManager = getMailboxManager(session);
+            final ListResult[] result = mailboxManager.list(base,pattern,false);
+            return result;
         } catch (MailboxManagerException e) {
             throw new MailboxException(e);  
         }

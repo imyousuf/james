@@ -79,7 +79,7 @@ public abstract class AbstractSessionTest extends MockObjectTestCase implements 
         
         MockImapHandlerConfigurationData theConfigData = new MockImapHandlerConfigurationData();
         theConfigData.getMailboxManagerProvider().deleteEverything();
-        session = new ImapSessionImpl(theConfigData.getMailboxManagerProvider(),
+        session = new ImapSessionImpl(
                 new MockImapHandler(),
                 HOST_NAME, HOST_ADDRESS);
         ((LogEnabled)session).enableLogging(new MockLogger());

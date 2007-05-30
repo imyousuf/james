@@ -30,12 +30,14 @@ import org.apache.james.experimental.imapserver.message.response.ImapResponseMes
 import org.apache.james.experimental.imapserver.processor.ImapProcessor;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.ListResult;
+import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 
 
 public class ListProcessor extends AbstractListingProcessor {
 	
-	public ListProcessor(final ImapProcessor next) {
-        super(next);
+	public ListProcessor(final ImapProcessor next, 
+            final MailboxManagerProvider mailboxManagerProvider) {
+        super(next, mailboxManagerProvider);
     }
 
     protected boolean isAcceptable(ImapMessage message) {

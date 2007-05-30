@@ -27,7 +27,9 @@ import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.experimental.imapserver.ImapRequestHandler;
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.StandardFactory;
+import org.apache.james.experimental.imapserver.processor.base.AbstractMailboxAwareProcessor;
 import org.apache.james.experimental.imapserver.processor.main.DefaultImapProcessorFactory;
+import org.apache.james.imapserver.codec.decode.base.AbstractImapCommandParser;
 import org.apache.james.mailboxmanager.Namespace;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
@@ -74,7 +76,8 @@ public abstract class AbstractCommandTest extends MockObjectTestCase
     }
     
     protected void setUpMailboxManager() {
-        mockSession.expects(atLeastOnce()).method("getMailboxManager").withNoArguments().will(returnValue(mockMailboxManager.proxy()));
+        mockSession.expects(atLeastOnce()).method("getAttribute")
+        .with(eq(AbstractMailboxAwareProcessor.MAILBOX_ATTRIBUTE_SESSION_KEY)).will(returnValue(mockMailboxManager.proxy()));
     }
     
     protected void setUpNamespace(String userDefaultNamespace) {

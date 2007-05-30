@@ -20,6 +20,8 @@
 package org.apache.james.experimental.imapserver;
 
 
+import java.util.Map;
+
 import javax.mail.Flags;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
@@ -30,9 +32,9 @@ import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
-import org.apache.james.mailboxmanager.manager.MailboxManager;
-import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 import org.apache.james.services.User;
+
+import EDU.oswego.cs.dl.util.concurrent.ConcurrentHashMap;
 
 /**
  * @version $Revision: 109034 $
@@ -46,22 +48,18 @@ public final class ImapSessionImpl extends AbstractLogEnabled implements ImapSes
     private final String clientHostName;
     private final String clientAddress;
 
-    // TODO these shouldn't be in here - they can be provided directly to command components.
     private ImapHandlerInterface handler;
-    private MailboxManagerProvider mailboxManagerProvider;
     
-    private MailboxManager mailboxManager = null;
-    private User mailboxManagerUser = null;
+    private final Map attributesByKey;
     
-    public ImapSessionImpl( MailboxManagerProvider mailboxManagerProvider,
-                            ImapHandlerInterface handler,
+    public ImapSessionImpl( ImapHandlerInterface handler,
                             String clientHostName,
                             String clientAddress )
     {
-        this.mailboxManagerProvider = mailboxManagerProvider;
         this.handler = handler;
         this.clientHostName = clientHostName;
         this.clientAddress = clientAddress;
+        this.attributesByKey = new ConcurrentHashMap();
     }
 
     public void unsolicitedResponses( ImapResponse request, boolean useUid ) throws MailboxException {
@@ -182,21 +180,16 @@ public final class ImapSessionImpl extends AbstractLogEnabled implements ImapSes
     }
 
 
+    public Object getAttribute(String key) {
+        final Object result = attributesByKey.get(key);
+        return result;
+    }
 
-    public MailboxManager getMailboxManager() throws MailboxManagerException {
-        final boolean usersEqual;
-        if (mailboxManagerUser!=null) {
-            usersEqual=mailboxManagerUser.equals(user);
+    public void setAttribute(String key, Object value) {
+        if (value == null) {
+            attributesByKey.remove(key);
         } else {
-            usersEqual=(user==null);
+            attributesByKey.put(key, value);
         }
-        if (mailboxManager==null || !usersEqual) {
-            if (mailboxManager!=null) {
-                mailboxManager.close();
-            }
-            mailboxManager=mailboxManagerProvider.getMailboxManagerInstance(user);
-            mailboxManager.createInbox(user);
-        }
-        return mailboxManager;
     }
 }

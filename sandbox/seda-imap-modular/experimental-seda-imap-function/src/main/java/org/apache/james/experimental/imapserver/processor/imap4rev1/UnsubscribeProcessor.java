@@ -32,6 +32,7 @@ import org.apache.james.experimental.imapserver.processor.ImapProcessor;
 import org.apache.james.experimental.imapserver.processor.base.AbstractMailboxAwareProcessor;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
+import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 
 
@@ -62,7 +63,8 @@ public class UnsubscribeProcessor extends AbstractMailboxAwareProcessor {
 			ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
         try {
             final String fullMailboxName=buildFullName(session, mailboxName);
-            session.getMailboxManager().setSubscription(fullMailboxName,false);
+            final MailboxManager mailboxManager = getMailboxManager(session);
+            mailboxManager.setSubscription(fullMailboxName,false);
         } catch (MailboxManagerException e) {
             throw new MailboxException(e);
         }

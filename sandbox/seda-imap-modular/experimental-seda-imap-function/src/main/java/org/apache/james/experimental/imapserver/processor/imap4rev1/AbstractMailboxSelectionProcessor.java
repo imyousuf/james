@@ -33,6 +33,7 @@ import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
+import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 
 
@@ -68,7 +69,8 @@ abstract public class AbstractMailboxSelectionProcessor extends AbstractMailboxA
 	}
     
     private boolean selectMailbox(String mailboxName, ImapSession session, boolean readOnly) throws MailboxException, MailboxManagerException {
-        ImapMailboxSession mailbox = session.getMailboxManager().getImapMailboxSession(mailboxName);
+        final MailboxManager mailboxManager = getMailboxManager(session);
+        final ImapMailboxSession mailbox = mailboxManager.getImapMailboxSession(mailboxName);
 
         if ( !mailbox.isSelectable() ) {
             throw new MailboxException( "Nonselectable mailbox." );

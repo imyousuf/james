@@ -1,5 +1,8 @@
 package org.apache.james.experimental.imapserver;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.james.api.imap.ImapSessionState;
 import org.apache.james.experimental.imapserver.ImapResponse;
 import org.apache.james.experimental.imapserver.ImapSession;
@@ -15,6 +18,8 @@ public class MockImapSession implements ImapSession {
 
     public String clientHostName = "localhost";
     public String clientIP = "127.0.0.1";
+    
+    public Map attributes = new HashMap();
     
     public String buildFullName(String mailboxName)
             throws MailboxManagerException {
@@ -61,11 +66,6 @@ public class MockImapSession implements ImapSession {
         return null;
     }
 
-    public UsersRepository getUsers() {
-        // TODO: mock 
-        return null;
-    }
-
     public void setAuthenticated(User user) {
 
     }
@@ -80,5 +80,13 @@ public class MockImapSession implements ImapSession {
 
     public void unsolicitedResponses(ImapResponse request,
             boolean omitExpunged, boolean useUid) throws MailboxException {
+    }
+
+    public Object getAttribute(String key) {
+        return attributes.get(key);
+    }
+
+    public void setAttribute(String key, Object value) {
+        attributes.put(key, value);
     }
 }

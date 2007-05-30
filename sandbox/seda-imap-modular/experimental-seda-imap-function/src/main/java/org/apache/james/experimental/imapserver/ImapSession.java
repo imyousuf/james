@@ -23,7 +23,6 @@ import org.apache.james.api.imap.ImapSessionState;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
-import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.services.User;
 
 
@@ -111,6 +110,23 @@ public interface ImapSession
      */
     void closeMailbox() throws MailboxManagerException;
 
-    MailboxManager getMailboxManager() throws MailboxManagerException;
-
+    /**
+     * Gets an attribute of this session by name.
+     * Implementations should ensure that access
+     * is thread safe. 
+     * @param key name of the key, not null
+     * @return <code>Object</code> value
+     * or null if this attribute has unvalued
+     */
+    public Object getAttribute(String key);
+    
+    /**
+     * Sets an attribute of this session by name.
+     * Implementations should ensure that access
+     * is thread safe. 
+     * @param key name of the key, not null
+     * @param value <code>Object</code> value 
+     * or null to set this attribute as unvalued
+     */
+    public void setAttribute(String key, Object value);
 }

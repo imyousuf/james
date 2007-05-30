@@ -32,6 +32,7 @@ import org.apache.james.experimental.imapserver.processor.ImapProcessor;
 import org.apache.james.experimental.imapserver.processor.base.AbstractMailboxAwareProcessor;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
+import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 
 
@@ -68,7 +69,8 @@ public class DeleteProcessor extends AbstractMailboxAwareProcessor {
                     session.deselect();
                 }
             }
-            session.getMailboxManager().deleteMailbox(fullMailboxName);
+            final MailboxManager mailboxManager = getMailboxManager(session);
+            mailboxManager.deleteMailbox(fullMailboxName);
         } catch (MailboxManagerException e) {
             throw new MailboxException(e);
         }

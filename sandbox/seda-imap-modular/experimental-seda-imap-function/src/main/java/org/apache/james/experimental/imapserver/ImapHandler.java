@@ -148,8 +148,7 @@ public class ImapHandler
                     + theConfigData.getHelloName() + " ready");
 
             sessionEnded = false;
-            session = new ImapSessionImpl( theConfigData.getMailboxManagerProvider(),
-                                           this,
+            session = new ImapSessionImpl( this,
                                            socket.getInetAddress().getHostName(),
                                            socket.getInetAddress().getHostAddress());
             setupLogger(session);
