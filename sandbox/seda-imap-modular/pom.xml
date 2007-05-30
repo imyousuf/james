@@ -17,12 +17,15 @@
     <module>core-library</module>
     <module>smtpserver-function</module>
     <module>pop3server-function</module>
-    <module>imapserver-function</module>
     <module>nntpserver-function</module>
     <module>spoolmanager-function</module>
     <module>remotemanager-function</module>
     <module>fetchmail-function</module>
     <module>phoenix-deployment</module>
+    <module>imap-api</module>
+    <module>imapmailbox-library</module>
+    <module>torque-mailboxmanager-function</module>
+    <module>imapserver-function</module>
   </modules>
   <scm>
     <connection>scm:svn:http://svn.apache.org/repos/asf/james/server/trunk</connection>
