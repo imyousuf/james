@@ -59,8 +59,14 @@ abstract public class AbstractMailboxSelectionProcessor extends AbstractMailboxA
             final long uidValidity = mailbox.getUidValidity();
             final MessageResult firstUnseen = mailbox.getFirstUnseen(MessageResult.MSN);
             final int messageCount = mailbox.getMessageCount();
+            final int msn;
+            if (firstUnseen == null) {
+                msn = -1;
+            } else {
+                msn = firstUnseen.getMsn();
+            }
             result = new ExamineAndSelectResponse(command, permanentFlags, 
-                    writeable, recentCount, uidValidity, firstUnseen, messageCount,
+                    writeable, recentCount, uidValidity, msn, messageCount,
                     tag);
         } catch (MailboxManagerException e) {
             throw new MailboxException(e);

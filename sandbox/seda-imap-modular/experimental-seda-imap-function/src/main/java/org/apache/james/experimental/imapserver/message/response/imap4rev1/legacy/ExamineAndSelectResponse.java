@@ -22,7 +22,6 @@ import javax.mail.Flags;
 
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.experimental.imapserver.message.response.AbstractImapResponse;
-import org.apache.james.mailboxmanager.MessageResult;
 
 /**
  * @deprecated responses should correspond directly to the specification
@@ -32,24 +31,24 @@ public class ExamineAndSelectResponse extends AbstractImapResponse {
     private final boolean writeable ;
     private final int recentCount;
     private final long uidValidity;
-    private final MessageResult firstUnseen;
+    private final int firstUnseenMessageNumber;
     private final int messageCount;
 
     public ExamineAndSelectResponse(ImapCommand command, final Flags permanentFlags,
             final boolean writeable, final int recentCount, 
-            final long uidValidity, final MessageResult firstUnseen,
+            final long uidValidity, final int firstUnseenMessageNumber,
             final int messageCount, final String tag) {
         super(command, tag);
         this.permanentFlags = permanentFlags;
         this.writeable = writeable;
         this.recentCount = recentCount;
         this.uidValidity = uidValidity;
-        this.firstUnseen = firstUnseen;
+        this.firstUnseenMessageNumber = firstUnseenMessageNumber;
         this.messageCount = messageCount;
     }
 
-    public final MessageResult getFirstUnseen() {
-        return firstUnseen;
+    public final int getFirstUnseenMessageNumber() {
+        return firstUnseenMessageNumber;
     }
 
     public final int getMessageCount() {

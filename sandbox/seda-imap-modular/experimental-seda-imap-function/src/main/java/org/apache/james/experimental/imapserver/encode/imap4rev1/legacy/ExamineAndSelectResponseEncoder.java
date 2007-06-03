@@ -49,10 +49,10 @@ public class ExamineAndSelectResponseEncoder extends AbstractChainedImapEncoder 
         composer.okResponse("UIDVALIDITY " + uidValidity, null);
         final int messageCount = response.getMessageCount();
         composer.existsResponse(messageCount);
-        final MessageResult firstUnseen = response.getFirstUnseen();
-        if (firstUnseen != null) {
-            composer.okResponse("UNSEEN " + firstUnseen.getMsn(), "Message "
-                    + firstUnseen.getMsn() + " is the first unseen");
+        final int msn = response.getFirstUnseenMessageNumber();
+        if (msn > 0) {
+            composer.okResponse("UNSEEN " + msn, "Message "
+                    + msn + " is the first unseen");
         } else {
             composer.okResponse(null, "No messages unseen");
         }
