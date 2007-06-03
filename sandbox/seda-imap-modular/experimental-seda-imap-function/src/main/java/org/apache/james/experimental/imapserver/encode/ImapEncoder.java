@@ -29,7 +29,6 @@ public interface ImapEncoder {
     
     /**
      * Writes response.
-     * TODO: remove coupling on session
      * TODO: pass in writer rather than composer
      * @param message <code>ImapMessage</code>, not null
      * @param composer <code>ImapResponseComposer</code>, not null
