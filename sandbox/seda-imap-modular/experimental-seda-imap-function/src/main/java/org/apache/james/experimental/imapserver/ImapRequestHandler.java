@@ -25,6 +25,7 @@ import java.io.OutputStream;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.api.imap.ImapMessage;
+import org.apache.james.api.imap.ImapSessionState;
 import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.experimental.imapserver.encode.ImapEncoder;
 import org.apache.james.experimental.imapserver.encode.ImapResponseComposer;
@@ -93,7 +94,7 @@ public final class ImapRequestHandler extends AbstractLogEnabled {
         // to clean up after a protocol error.
         request.consumeLine();
 
-        return true;
+        return !(ImapSessionState.LOGOUT == session.getState());
     }
 
     private void doProcessRequest( ImapRequestLineReader request,
@@ -102,7 +103,7 @@ public final class ImapRequestHandler extends AbstractLogEnabled {
     {
         ImapMessage message = decoder.decode(request);
         ImapResponseMessage responseMessage = processor.process(message, session);
-        encoder.encode(responseMessage, response, session);
+        encoder.encode(responseMessage, response);
     }
 
 

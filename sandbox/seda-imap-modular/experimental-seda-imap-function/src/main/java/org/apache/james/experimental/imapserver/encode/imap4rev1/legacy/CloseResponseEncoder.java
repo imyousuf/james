@@ -18,9 +18,10 @@
  ****************************************************************/
 package org.apache.james.experimental.imapserver.encode.imap4rev1.legacy;
 
+import java.util.List;
+
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
-import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.encode.ImapEncoder;
 import org.apache.james.experimental.imapserver.encode.ImapResponseComposer;
 import org.apache.james.experimental.imapserver.encode.base.AbstractChainedImapEncoder;
@@ -36,13 +37,10 @@ public class CloseResponseEncoder extends AbstractChainedImapEncoder {
     }
 
     protected void doEncode(ImapMessage acceptableMessage,
-            ImapResponseComposer composer, ImapSession session) {
+            ImapResponseComposer composer) {
         CloseResponse response = (CloseResponse) acceptableMessage;
-        //TODO: the following comment was present in the code before refactoring
-        //TODO: doesn't seem to match the implementation
-        //TODO: check that implementation is correct
-        //          Don't send unsolicited responses on close.
-        session.unsolicitedResponses(composer, false);
+        List unsolicitedResponses = response.getUnsolicatedResponses();
+        chainEncodeAll(unsolicitedResponses, composer);
         final String tag = response.getTag();
         final ImapCommand command = response.getCommand();
         composer.commandComplete(command, tag);

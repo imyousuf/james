@@ -29,11 +29,11 @@ import org.apache.james.experimental.imapserver.message.request.imap4rev1.CheckR
 import org.apache.james.experimental.imapserver.message.response.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.message.response.imap4rev1.legacy.CommandCompleteResponse;
 import org.apache.james.experimental.imapserver.processor.ImapProcessor;
-import org.apache.james.experimental.imapserver.processor.base.AbstractImapRequestProcessor;
+import org.apache.james.experimental.imapserver.processor.base.AbstractUnsolicitedResponsesAwareProcessor;
 import org.apache.james.imapserver.store.MailboxException;
 
 
-public class CheckProcessor extends AbstractImapRequestProcessor {
+public class CheckProcessor extends AbstractUnsolicitedResponsesAwareProcessor {
 	
 	public CheckProcessor(final ImapProcessor next) {
         super(next);
@@ -55,7 +55,8 @@ public class CheckProcessor extends AbstractImapRequestProcessor {
 	}
 	
 	private ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-        final CommandCompleteResponse result = new CommandCompleteResponse(false, command, tag);
+        final CommandCompleteResponse result = new CommandCompleteResponse(command, tag);
+        addUnsolicitedResponses(result, session, false);
         return result;
 	}
 }

@@ -19,10 +19,12 @@
 
 package org.apache.james.experimental.imapserver.encode.base;
 
+import java.util.Collection;
+import java.util.Iterator;
+
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.api.imap.ImapMessage;
-import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.encode.ImapEncoder;
 import org.apache.james.experimental.imapserver.encode.ImapResponseComposer;
 
@@ -40,14 +42,24 @@ abstract public class AbstractChainedImapEncoder extends AbstractLogEnabled impl
         setupLogger(next);
     }
     
-    public void encode(ImapMessage message, ImapResponseComposer composer,
-            ImapSession session) {
+    public void encode(ImapMessage message, ImapResponseComposer composer) {
         final boolean isAcceptable = isAcceptable(message);
         if (isAcceptable) {
-            doEncode(message, composer, session);
+            doEncode(message, composer);
         } else {
-            next.encode(message, composer, session);
+            chainEncode(message, composer);
         }
+    }
+
+    protected void chainEncodeAll(final Collection messages, final ImapResponseComposer composer) {
+        for (Iterator iter = messages.iterator(); iter.hasNext();) {
+            ImapMessage message = (ImapMessage) iter.next();
+            chainEncode(message, composer);
+        }
+    }
+    
+    protected void chainEncode(ImapMessage message, ImapResponseComposer composer) {
+        next.encode(message, composer);
     }
 
     /**
@@ -66,9 +78,6 @@ abstract public class AbstractChainedImapEncoder extends AbstractLogEnabled impl
      * @param acceptableMessage
      *            <code>ImapMessage</code>, not null
      * @param composer <code>ImapResponseComposer</code>, not null
-     * @param session
-     *            <code>ImapSession</code>, not null
      */
-    abstract protected void doEncode(ImapMessage acceptableMessage, ImapResponseComposer composer,
-            ImapSession session);
+    abstract protected void doEncode(ImapMessage acceptableMessage, ImapResponseComposer composer);
 }

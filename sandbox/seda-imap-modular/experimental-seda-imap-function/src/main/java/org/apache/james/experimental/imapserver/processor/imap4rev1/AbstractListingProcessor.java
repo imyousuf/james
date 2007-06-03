@@ -139,6 +139,7 @@ abstract class AbstractListingProcessor extends AbstractMailboxAwareProcessor {
 
             result.addMessageData( message.toString() );
         }
+        addUnsolicitedResponses( result, session, false );
         return result;
     }
     

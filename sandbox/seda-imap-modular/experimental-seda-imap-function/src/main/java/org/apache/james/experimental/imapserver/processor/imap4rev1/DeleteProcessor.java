@@ -76,7 +76,8 @@ public class DeleteProcessor extends AbstractMailboxAwareProcessor {
         }
 
         final CommandCompleteResponse result = 
-            new CommandCompleteResponse(false, command, tag);
+            new CommandCompleteResponse(command, tag);
+        addUnsolicitedResponses(result, session, false);
         return result;
 	}
 }

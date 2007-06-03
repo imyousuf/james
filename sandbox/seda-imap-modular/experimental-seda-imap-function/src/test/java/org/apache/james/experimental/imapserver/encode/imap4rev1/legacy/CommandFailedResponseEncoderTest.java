@@ -61,7 +61,7 @@ public class CommandFailedResponseEncoderTest extends TestCase {
         String message = "A message";
         CommandFailedResponse responseMessage 
             = new CommandFailedResponse(command, code, message, TAG);
-        encoder.encode(responseMessage, response, session);
+        encoder.encode(responseMessage, response);
         assertEquals(7, writer.operations.size());
         assertEquals(new MockImapResponseWriter.TagOperation(TAG), writer.operations.get(0));
         assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapConstants.NO), 
@@ -82,7 +82,7 @@ public class CommandFailedResponseEncoderTest extends TestCase {
         String message = "A message";
         CommandFailedResponse responseMessage 
             = new CommandFailedResponse(command, message, TAG);
-        encoder.encode(responseMessage, response, session);
+        encoder.encode(responseMessage, response);
         assertEquals(6, writer.operations.size());
         assertEquals(new MockImapResponseWriter.TagOperation(TAG), writer.operations.get(0));
         assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapConstants.NO), 

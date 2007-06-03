@@ -21,7 +21,6 @@ package org.apache.james.experimental.imapserver.encode.imap4rev1.legacy;
 
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
-import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.encode.ImapEncoder;
 import org.apache.james.experimental.imapserver.encode.ImapResponseComposer;
 import org.apache.james.experimental.imapserver.encode.base.AbstractChainedImapEncoder;
@@ -37,7 +36,7 @@ public class CommandFailedResponseEncoder extends AbstractChainedImapEncoder {
     }
 
 
-    protected void doEncode(ImapMessage acceptableMessage, ImapResponseComposer composer, ImapSession session) {
+    protected void doEncode(ImapMessage acceptableMessage, ImapResponseComposer composer) {
         CommandFailedResponse response = (CommandFailedResponse) acceptableMessage;
         final String responseCode = response.getResponseCode();
         final ImapCommand command = response.getCommand();

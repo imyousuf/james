@@ -30,7 +30,7 @@ import org.apache.james.experimental.imapserver.message.response.ImapResponseMes
 import org.apache.james.experimental.imapserver.message.response.imap4rev1.legacy.CommandCompleteResponse;
 import org.apache.james.experimental.imapserver.message.response.imap4rev1.legacy.CommandFailedResponse;
 import org.apache.james.experimental.imapserver.processor.ImapProcessor;
-import org.apache.james.experimental.imapserver.processor.base.AbstractImapRequestProcessor;
+import org.apache.james.experimental.imapserver.processor.base.AbstractUnsolicitedResponsesAwareProcessor;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
@@ -39,7 +39,7 @@ import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 
 
-public class ExpungeProcessor extends AbstractImapRequestProcessor {
+public class ExpungeProcessor extends AbstractUnsolicitedResponsesAwareProcessor {
 	
 	public ExpungeProcessor(final ImapProcessor next, 
             final MailboxManagerProvider mailboxManagerProvider) {
@@ -69,7 +69,9 @@ public class ExpungeProcessor extends AbstractImapRequestProcessor {
         } else {
             try {
                 mailbox.expunge(GeneralMessageSetImpl.all(),MessageResult.NOTHING);
-                result = new CommandCompleteResponse(false, command, tag);
+                CommandCompleteResponse commandCompleteResponse = new CommandCompleteResponse(command, tag);
+                addUnsolicitedResponses(commandCompleteResponse, session, false);
+                result = commandCompleteResponse;
             } catch (MailboxManagerException e) {
                 throw new MailboxException(e);
             }

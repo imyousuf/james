@@ -19,9 +19,10 @@
 
 package org.apache.james.experimental.imapserver.encode.imap4rev1.legacy;
 
+import java.util.List;
+
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
-import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.encode.ImapEncoder;
 import org.apache.james.experimental.imapserver.encode.ImapResponseComposer;
 import org.apache.james.experimental.imapserver.encode.base.AbstractChainedImapEncoder;
@@ -36,14 +37,12 @@ public class CommandCompleteResponseEncoder extends AbstractChainedImapEncoder {
         super(next);
     }
 
-    protected void doEncode(ImapMessage acceptableMessage, ImapResponseComposer composer, ImapSession session) {
+    protected void doEncode(ImapMessage acceptableMessage, ImapResponseComposer composer) {
         CommandCompleteResponse response = (CommandCompleteResponse) acceptableMessage;
         
-        final boolean writeUnsolicited = response.isWriteUnsolicited();
-        if (writeUnsolicited) {
-            final boolean useUids = response.isUseUids();
-            session.unsolicitedResponses( composer, useUids);
-        }
+        List unsolicitedResponses = response.getUnsolicatedResponses();
+        chainEncodeAll(unsolicitedResponses, composer);
+        
         final ImapCommand command = response.getCommand();
         final String tag = response.getTag();
         composer.commandComplete( command , tag);

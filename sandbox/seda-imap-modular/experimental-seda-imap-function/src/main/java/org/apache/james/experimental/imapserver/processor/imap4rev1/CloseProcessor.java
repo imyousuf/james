@@ -29,7 +29,7 @@ import org.apache.james.experimental.imapserver.message.request.imap4rev1.CloseR
 import org.apache.james.experimental.imapserver.message.response.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.message.response.imap4rev1.legacy.CloseResponse;
 import org.apache.james.experimental.imapserver.processor.ImapProcessor;
-import org.apache.james.experimental.imapserver.processor.base.AbstractImapRequestProcessor;
+import org.apache.james.experimental.imapserver.processor.base.AbstractUnsolicitedResponsesAwareProcessor;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
@@ -37,7 +37,7 @@ import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 
 
-public class CloseProcessor extends AbstractImapRequestProcessor {
+public class CloseProcessor extends AbstractUnsolicitedResponsesAwareProcessor {
 	
 	public CloseProcessor(final ImapProcessor next) {
         super(next);
@@ -69,6 +69,11 @@ public class CloseProcessor extends AbstractImapRequestProcessor {
         }
         session.deselect();
         final CloseResponse result = new CloseResponse(command, tag);
+        //TODO: the following comment was present in the code before refactoring
+        //TODO: doesn't seem to match the implementation
+        //TODO: check that implementation is correct
+        //          Don't send unsolicited responses on close.
+        addUnsolicitedResponses(result, session, false);
         return result;
 	}
 }

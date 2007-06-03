@@ -29,46 +29,8 @@ import org.apache.james.experimental.imapserver.message.response.ImapResponseMes
  * @deprecated responses should correspond directly to the specification
  */
 public class CommandCompleteResponse extends AbstractImapResponse implements ImapResponseMessage {
-
-    /**
-     * Creates a command completed response message that
-     * does not write unsolicited responses.
-     * @param command <code>ImapCommand</code>, not null
-     * @return <code>ImapResponseMessage</code>, not null
-     */
-    public static final ImapResponseMessage createWithNoUnsolictedResponses(final ImapCommand command, String tag) {
-        final CommandCompleteResponse result = new CommandCompleteResponse(command, tag);
-        return result;
-    }
     
-    private final boolean useUids;
-    private final boolean writeUnsolicited;
-    
-    private CommandCompleteResponse(final ImapCommand command, String tag) {
+    public CommandCompleteResponse(final ImapCommand command, String tag) {
         super(command, tag);
-        writeUnsolicited = false;
-        this.useUids = false;
-    }
-    
-    /**
-     * Constructs a command completed response message
-     * that writes unsolicited responses.
-     * 
-     * @see #createWithNoUnsolictedResponses(ImapCommand)
-     * @param useUids true if uids should be used, false otherwise
-     * @param command <code>ImapCommand</code>, not null
-     */
-    public CommandCompleteResponse(final boolean useUids, final ImapCommand command, final String tag) {
-        super(command, tag);
-        writeUnsolicited = true;
-        this.useUids = useUids;
-    }
-
-    public final boolean isUseUids() {
-        return useUids;
-    }
-
-    public final boolean isWriteUnsolicited() {
-        return writeUnsolicited;
     }
 }

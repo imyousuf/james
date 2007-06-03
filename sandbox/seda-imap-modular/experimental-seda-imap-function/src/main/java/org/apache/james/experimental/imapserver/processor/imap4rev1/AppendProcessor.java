@@ -94,6 +94,8 @@ public class AppendProcessor extends AbstractMailboxAwareProcessor {
             // TODO why not TRYCREATE?
             throw new MailboxException(e);
         }
-        return new CommandCompleteResponse(false, command, tag);
+        final CommandCompleteResponse result = new CommandCompleteResponse(command, tag);
+        addUnsolicitedResponses(result, session, false);
+        return result;
     }
 }

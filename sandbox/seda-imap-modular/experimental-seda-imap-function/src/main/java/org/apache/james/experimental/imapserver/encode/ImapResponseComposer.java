@@ -168,7 +168,7 @@ public class ImapResponseComposer extends AbstractLogEnabled implements ImapCons
             logger.info("BAD - " + message); 
         }
     }
-
+    
     /**
      * Writes an untagged OK response, with the supplied response code,
      * and an optional message.

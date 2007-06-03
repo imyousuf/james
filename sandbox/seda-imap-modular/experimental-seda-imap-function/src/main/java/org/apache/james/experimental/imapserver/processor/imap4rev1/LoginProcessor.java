@@ -68,7 +68,7 @@ public class LoginProcessor extends AbstractImapRequestProcessor {
         if ( users.test( userid, password ) ) {
             User user = users.getUserByName( userid );
             session.setAuthenticated( user );
-            result = CommandCompleteResponse.createWithNoUnsolictedResponses(command, tag);
+            result = new CommandCompleteResponse(command, tag);
         }
         else {
             result = new CommandFailedResponse( command, "Invalid login/password", tag );

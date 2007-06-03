@@ -29,13 +29,9 @@ import org.apache.james.experimental.imapserver.message.response.AbstractImapRes
  * @deprecated responses should correspond directly to the specification
  */
 public class FetchResponse extends AbstractImapResponse {
-
-    private final boolean useUids;
     
-    public FetchResponse(final ImapCommand command, final boolean useUids, 
-            final String tag) {
+    public FetchResponse(final ImapCommand command, final String tag) {
         super(command, tag);
-        this.useUids = useUids;
     }
 
     private List messages = new ArrayList();
@@ -68,9 +64,5 @@ public class FetchResponse extends AbstractImapResponse {
             return number;
         }
         
-    }
-
-    public final boolean isUseUids() {
-        return useUids;
     }
 }

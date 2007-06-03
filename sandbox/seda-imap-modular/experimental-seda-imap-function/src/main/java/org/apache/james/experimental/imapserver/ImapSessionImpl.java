@@ -20,15 +20,22 @@
 package org.apache.james.experimental.imapserver;
 
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.mail.Flags;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.commons.collections.ListUtils;
 import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.api.imap.ImapSessionState;
 import org.apache.james.api.imap.message.MessageFlags;
-import org.apache.james.experimental.imapserver.encode.ImapResponseComposer;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.ExistsResponse;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.ExpungeResponse;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.FetchResponse;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.RecentResponse;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.status.UntaggedNoResponse;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
@@ -62,49 +69,57 @@ public final class ImapSessionImpl extends AbstractLogEnabled implements ImapSes
         this.attributesByKey = new ConcurrentHashMap();
     }
 
-    public void unsolicitedResponses( ImapResponseComposer request, boolean useUid ) {
-        unsolicitedResponses(request, false, useUid);
+    public List unsolicitedResponses( boolean useUid ) {
+        return unsolicitedResponses(false, useUid);
     }
 
-    public void unsolicitedResponses(ImapResponseComposer response, boolean omitExpunged, boolean useUid) {
-        SelectedMailboxSession selected = getSelected();
-            if (selected != null) {
-                final ImapMailboxSession mailbox = selected.getMailbox();
-                // New message response
-                if (selected.isSizeChanged()) {
-                    selected.setSizeChanged(false);
-                    existsResponse(response, mailbox);
-                    recentResponse(response, mailbox);
-                }
-
-                // Message updates
-                // TODO: slow to check flags every time
-//              TODO: add conditional to selected mailbox
-                flagsResponse(response, useUid, mailbox);
-
-                // Expunged messages
-                if (!omitExpunged) {
-                    // TODO: slow to check flags every time
-                    // TODO: add conditional to selected mailbox
-                    expungedResponse(response, mailbox);
-                }
+    public List unsolicitedResponses(boolean omitExpunged, boolean useUid) {
+        final List results;
+        final SelectedMailboxSession selected = getSelected();
+            if (selected == null) {
+            results = ListUtils.EMPTY_LIST;
+        } else {
+            results = new ArrayList();
+            final ImapMailboxSession mailbox = selected.getMailbox();
+            // New message response
+            if (selected.isSizeChanged()) {
+                selected.setSizeChanged(false);
+                addExistsResponses(results, mailbox);
+                addRecentResponses(results, mailbox);
             }
+
+            // Message updates
+            // TODO: slow to check flags every time
+            // TODO: add conditional to selected mailbox
+            addFlagsResponses(results, useUid, mailbox);
+
+            // Expunged messages
+            if (!omitExpunged) {
+                // TODO: slow to check flags every time
+                // TODO: add conditional to selected mailbox
+                addExpungedResponses(results, mailbox);
+            }
+        }
+        return results;
     }
 
-    private void expungedResponse(ImapResponseComposer response, final ImapMailboxSession mailbox) {
+    private void addExpungedResponses(List responses, final ImapMailboxSession mailbox) {
         try {
             MessageResult[] expunged = mailbox.getExpungedEvents(true);
             for (int i = 0; i < expunged.length; i++) {
                 MessageResult mr = expunged[i];
-                response.expungeResponse(mr.getMsn());
+                final int msn = mr.getMsn();
+                // TODO: use factory
+                ExpungeResponse response = new ExpungeResponse(msn);
+                responses.add(response);
             }
         } catch (MailboxManagerException e) {
             final String message = "Failed to retrieve expunged count data";
-            handleResponseException(response, e, message);
+            handleResponseException(responses, e, message);
         }
     }
 
-    private void flagsResponse(ImapResponseComposer response, boolean useUid, final ImapMailboxSession mailbox) {
+    private void addFlagsResponses(final List responses, boolean useUid, final ImapMailboxSession mailbox) {
         try {
             MessageResult[] flagUpdates = mailbox.getFlagEvents(true);
                 for (int i = 0; i < flagUpdates.length; i++) {
@@ -118,38 +133,44 @@ public final class ImapSessionImpl extends AbstractLogEnabled implements ImapSes
                     out.append(mr.getUid());
                 }
                 // TODO: use CharSequence instead (avoid unnecessary string creation)
-                response.fetchResponse(msn, out.toString());
+                FetchResponse response = new FetchResponse(msn, out.toString());
+                responses.add(response);
             }
         } catch (MailboxManagerException e) {
             final String message = "Failed to retrieve flags data";
-            handleResponseException(response, e, message);
+            handleResponseException(responses, e, message);
         }
     }
 
-    private void recentResponse(ImapResponseComposer response, final ImapMailboxSession mailbox) {
+    private void addRecentResponses(final List responses, final ImapMailboxSession mailbox) {
         try {
             final int recentCount = mailbox.getRecentCount(true);
-            response.recentResponse(recentCount);
+            // TODO: use factory
+            RecentResponse response = new RecentResponse(recentCount);
+            responses.add(response);
         } catch (MailboxManagerException e) {
             final String message = "Failed to retrieve recent count data";
-            handleResponseException(response, e, message);
+            handleResponseException(responses, e, message);
         }
     }
 
-    private void handleResponseException(ImapResponseComposer response, MailboxManagerException e, final String message) {
+    private void handleResponseException(final List responses, MailboxManagerException e, final String message) {
         getLogger().info(message);
         getLogger().debug(message, e);
         // TODO: consider whether error message should be passed to the user
-        response.untaggedNoResponse(message, null);
+        UntaggedNoResponse response = new UntaggedNoResponse(message, null);
+        responses.add(response);
     }
 
-    private void existsResponse(ImapResponseComposer response, final ImapMailboxSession mailbox) {
+    private void addExistsResponses(final List responses, final ImapMailboxSession mailbox) {
             try {
                 final int messageCount = mailbox.getMessageCount();
-                response.existsResponse(messageCount);
+                // TODO: use factory
+                ExistsResponse response = new ExistsResponse(messageCount);
+                responses.add(response);
             } catch (MailboxManagerException e) {
                 final String message = "Failed to retrieve exists count data";
-                handleResponseException(response, e, message);
+                handleResponseException(responses, e, message);
             }
     }
     
@@ -158,10 +179,10 @@ public final class ImapSessionImpl extends AbstractLogEnabled implements ImapSes
         handler.forceConnectionClose(byeMessage);
     }
 
-    public void closeConnection()
+    public void logout()
     {
         closeMailbox();
-        handler.resetHandler();
+        state = ImapSessionState.LOGOUT;
     }
 
     public String getClientHostname()

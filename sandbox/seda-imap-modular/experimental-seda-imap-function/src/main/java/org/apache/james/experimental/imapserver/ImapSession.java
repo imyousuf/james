@@ -19,8 +19,9 @@
 
 package org.apache.james.experimental.imapserver;
 
+import java.util.List;
+
 import org.apache.james.api.imap.ImapSessionState;
-import org.apache.james.experimental.imapserver.encode.ImapResponseComposer;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 import org.apache.james.services.User;
@@ -38,15 +39,17 @@ public interface ImapSession
     /**
      * Sends any unsolicited responses to the client, such as EXISTS and FLAGS
      * responses when the selected mailbox is modified by another user.
-     * TODO: this probably should not throw a MailboxException
-     * @param response The response to write to
+     * @return <code>List</code> of {@link ImapResponseMessage}'s
      */
-    void unsolicitedResponses( ImapResponseComposer response, boolean useUid );
+    List unsolicitedResponses( boolean useUid );
 
+    List unsolicitedResponses( boolean omitExpunged, boolean useUid);
+    
     /**
-     * Closes the connection for this session.
+     * Logs out the session.
+     * Marks the connection for closure;
      */
-    void closeConnection();
+    void logout();
 
     void closeConnection(String byeMessage);
 
@@ -101,8 +104,6 @@ public interface ImapSession
      * @return the currently selected mailbox.
      */
     SelectedMailboxSession getSelected();
-
-    void unsolicitedResponses( ImapResponseComposer request, boolean omitExpunged, boolean useUid);
 
     /**
      * closes the Mailbox if needed

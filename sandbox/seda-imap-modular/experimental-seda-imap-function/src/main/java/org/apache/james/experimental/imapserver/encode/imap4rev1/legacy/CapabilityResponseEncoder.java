@@ -18,15 +18,15 @@
  ****************************************************************/
 package org.apache.james.experimental.imapserver.encode.imap4rev1.legacy;
 
+import java.util.List;
+
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.api.imap.ImapMessage;
-import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.encode.ImapEncoder;
 import org.apache.james.experimental.imapserver.encode.ImapResponseComposer;
 import org.apache.james.experimental.imapserver.encode.base.AbstractChainedImapEncoder;
 import org.apache.james.experimental.imapserver.message.response.imap4rev1.legacy.CapabilityResponse;
-import org.apache.james.imapserver.store.MailboxException;
 
 /**
  * @deprecated use specification model
@@ -37,15 +37,12 @@ public class CapabilityResponseEncoder extends AbstractChainedImapEncoder {
         super(next);
     }
 
-    protected void doEncode(ImapResponseComposer response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
-            
-    }
-
-    protected void doEncode(ImapMessage acceptableMessage, ImapResponseComposer composer, ImapSession session) {
+    protected void doEncode(ImapMessage acceptableMessage, ImapResponseComposer composer) {
         CapabilityResponse response = (CapabilityResponse) acceptableMessage;
         // TODO: inject capability text
         composer.untaggedResponse( ImapConstants.CAPABILITY_RESPONSE );
-        session.unsolicitedResponses( composer, false);
+        List unsolicitedResponses = response.getUnsolicatedResponses();
+        chainEncodeAll(unsolicitedResponses, composer);
         String tag = response.getTag();
         ImapCommand command = response.getCommand();
         composer.commandComplete( command , tag ); 

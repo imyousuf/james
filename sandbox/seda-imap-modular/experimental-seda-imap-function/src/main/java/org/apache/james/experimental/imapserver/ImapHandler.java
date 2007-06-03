@@ -114,6 +114,8 @@ public class ImapHandler
         }
         handlerIsUp = false;
         
+        endSession();
+        
         // Clear user data
         try {
             if (session != null) {
@@ -157,7 +159,7 @@ public class ImapHandler
             setupLogger(session);
 
             theWatchdog.start();
-            while ( handlerIsUp && !sessionEnded && requestHandler.handleRequest( in, outs, session ) ) {
+            while ( handlerIsUp && !sessionEnded && handleRequest() ) {
                 theWatchdog.reset();
             }
             theWatchdog.stop();
@@ -171,8 +173,17 @@ public class ImapHandler
 
         }
         catch (ProtocolException e) {
+            // TODO: throwing a runtime seems wrong
             throw new RuntimeException(e.getMessage(),e);
         }
+    }
+
+    private boolean handleRequest() throws ProtocolException {
+        final boolean continuing = requestHandler.handleRequest( in, outs, session );
+        if (!continuing) {
+            resetHandler();
+        }
+        return continuing;
     }
     
     /**
@@ -202,8 +213,5 @@ public class ImapHandler
         super.enableLogging(logger);
         setupLogger(requestHandler);
     }
-
-    
-    
 }
 

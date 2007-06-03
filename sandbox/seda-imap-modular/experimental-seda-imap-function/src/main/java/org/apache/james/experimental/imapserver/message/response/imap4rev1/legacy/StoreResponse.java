@@ -26,14 +26,8 @@ import org.apache.james.experimental.imapserver.message.response.AbstractImapRes
  * @deprecated responses should correspond directly to the specification
  */
 public class StoreResponse extends AbstractImapResponse {
-    private final boolean useUids;
     
-    public StoreResponse(ImapCommand command, final boolean useUids, final String tag) {
+    public StoreResponse(ImapCommand command, final String tag) {
         super(command, tag);
-        this.useUids = useUids;
     }
-
-    public final boolean isUseUids() {
-        return useUids;
-    }    
 }

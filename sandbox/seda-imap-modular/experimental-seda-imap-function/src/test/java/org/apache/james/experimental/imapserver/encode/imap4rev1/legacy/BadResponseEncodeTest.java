@@ -56,7 +56,7 @@ public class BadResponseEncodeTest extends TestCase {
     }
 
     public void testEncode() throws Exception {
-        encoder.encode(message, this.response, session);
+        encoder.encode(message, this.response);
         assertEquals(4, this.writer.operations.size());
         assertEquals(new MockImapResponseWriter.UntaggedOperation(), writer.operations.get(0));
         assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapConstants.BAD), 

@@ -84,7 +84,8 @@ public class CopyProcessor extends AbstractMailboxAwareProcessor {
             throw new MailboxException(e);
         } 
         final CommandCompleteResponse result = 
-            new CommandCompleteResponse(useUids, command, tag);
+            new CommandCompleteResponse(command, tag);
+        addUnsolicitedResponses(result, session, useUids);
         return result;
 	}
 }

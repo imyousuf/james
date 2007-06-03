@@ -26,20 +26,13 @@ import org.apache.james.experimental.imapserver.message.response.AbstractImapRes
  */
 public class SearchResponse extends AbstractImapResponse {
     private final String idList;
-    private final boolean useUids;
     
-    public SearchResponse(final ImapCommand command, final String idList, 
-            final boolean useUids, final String tag) {
+    public SearchResponse(final ImapCommand command, final String idList, final String tag) {
         super(command, tag);
         this.idList = idList;
-        this.useUids = useUids;
     }
 
     public final String getIdList() {
         return idList;
-    }
-
-    public final boolean isUseUids() {
-        return useUids;
     }
 }

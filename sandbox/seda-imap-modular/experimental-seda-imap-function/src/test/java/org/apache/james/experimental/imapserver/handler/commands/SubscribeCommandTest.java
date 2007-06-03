@@ -19,6 +19,7 @@
 
 package org.apache.james.experimental.imapserver.handler.commands;
 
+import org.apache.commons.collections.ListUtils;
 import org.apache.james.api.imap.ImapSessionState;
 import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.mailboxmanager.Namespace;
@@ -36,7 +37,7 @@ public class SubscribeCommandTest extends AbstractCommandTest {
         setUpNamespace(userDefaultNamespace);
                 
         mockSession.expects(once()).method("unsolicitedResponses")
-                .withAnyArguments();
+                .withAnyArguments().will(returnValue(ListUtils.EMPTY_LIST));
 
         mockMailboxManager.expects(once()).method("setSubscription").with(
                 new Constraint[] {eq(fqMailboxName),eq(true)});

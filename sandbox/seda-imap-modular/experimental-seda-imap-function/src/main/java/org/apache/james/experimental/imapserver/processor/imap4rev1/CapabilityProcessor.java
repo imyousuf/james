@@ -29,11 +29,11 @@ import org.apache.james.experimental.imapserver.message.request.imap4rev1.Capabi
 import org.apache.james.experimental.imapserver.message.response.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.message.response.imap4rev1.legacy.CapabilityResponse;
 import org.apache.james.experimental.imapserver.processor.ImapProcessor;
-import org.apache.james.experimental.imapserver.processor.base.AbstractImapRequestProcessor;
+import org.apache.james.experimental.imapserver.processor.base.AbstractUnsolicitedResponsesAwareProcessor;
 import org.apache.james.imapserver.store.MailboxException;
 
 
-public class CapabilityProcessor extends AbstractImapRequestProcessor {
+public class CapabilityProcessor extends AbstractUnsolicitedResponsesAwareProcessor {
 	
     //TODO: capability text should be injected
     
@@ -59,6 +59,7 @@ public class CapabilityProcessor extends AbstractImapRequestProcessor {
 	private ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
         // TODO: accurately report the capabilities of the server
 		final CapabilityResponse result = new CapabilityResponse(command, tag);
+        addUnsolicitedResponses(result, session, false);;
         return result;
 	}
 }

@@ -20,7 +20,6 @@
 package org.apache.james.experimental.imapserver.encode.imap4rev1.legacy;
 
 import org.apache.james.api.imap.ImapMessage;
-import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.encode.ImapEncoder;
 import org.apache.james.experimental.imapserver.encode.ImapResponseComposer;
 import org.apache.james.experimental.imapserver.encode.base.AbstractChainedImapEncoder;
@@ -38,7 +37,7 @@ public class ErrorResponseEncoder extends AbstractChainedImapEncoder {
         super(next);
     }
     
-    protected void doEncode(ImapMessage acceptableMessage, ImapResponseComposer composer, ImapSession session) {
+    protected void doEncode(ImapMessage acceptableMessage, ImapResponseComposer composer) {
         ErrorResponse response = (ErrorResponse) acceptableMessage;
         final String message = response.getMessage();
         final String tag = response.getTag();

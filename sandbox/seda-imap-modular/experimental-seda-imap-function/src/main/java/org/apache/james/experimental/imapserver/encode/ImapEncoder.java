@@ -20,7 +20,6 @@
 package org.apache.james.experimental.imapserver.encode;
 
 import org.apache.james.api.imap.ImapMessage;
-import org.apache.james.experimental.imapserver.ImapSession;
 
 /**
  * TODO: correct this API
@@ -34,7 +33,6 @@ public interface ImapEncoder {
      * TODO: pass in writer rather than composer
      * @param message <code>ImapMessage</code>, not null
      * @param composer <code>ImapResponseComposer</code>, not null
-     * @param session <code>ImapSession</code>, not null
      */
-    void encode( ImapMessage message, ImapResponseComposer composer, ImapSession session );
+    void encode( ImapMessage message, ImapResponseComposer composer );
 }

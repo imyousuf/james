@@ -22,13 +22,12 @@ package org.apache.james.experimental.imapserver.encode.base;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.api.imap.ImapMessage;
-import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.encode.ImapEncoder;
 import org.apache.james.experimental.imapserver.encode.ImapResponseComposer;
 
 public class EndImapEncoder extends AbstractLogEnabled implements ImapEncoder {
 
-    public void encode(ImapMessage message, ImapResponseComposer composer, ImapSession session) {
+    public void encode(ImapMessage message, ImapResponseComposer composer) {
         final Logger logger = getLogger();
         logger.warn("Unknown message");
         if (logger.isDebugEnabled()) {

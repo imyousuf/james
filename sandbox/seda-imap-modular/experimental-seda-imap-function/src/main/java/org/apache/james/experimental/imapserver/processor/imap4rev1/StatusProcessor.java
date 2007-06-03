@@ -131,6 +131,7 @@ public class StatusProcessor extends AbstractMailboxAwareProcessor {
         buffer.append(')');
         final StatusResponse result = 
             new StatusResponse(command, buffer.toString(), tag);
+        addUnsolicitedResponses( result, session, false );
         return result;
 	}
 }

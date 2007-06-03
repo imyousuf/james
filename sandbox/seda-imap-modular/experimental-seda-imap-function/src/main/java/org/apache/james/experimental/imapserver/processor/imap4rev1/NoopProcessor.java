@@ -29,11 +29,11 @@ import org.apache.james.experimental.imapserver.message.request.imap4rev1.NoopRe
 import org.apache.james.experimental.imapserver.message.response.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.message.response.imap4rev1.legacy.CommandCompleteResponse;
 import org.apache.james.experimental.imapserver.processor.ImapProcessor;
-import org.apache.james.experimental.imapserver.processor.base.AbstractImapRequestProcessor;
+import org.apache.james.experimental.imapserver.processor.base.AbstractUnsolicitedResponsesAwareProcessor;
 import org.apache.james.imapserver.store.MailboxException;
 
 
-public class NoopProcessor extends AbstractImapRequestProcessor {
+public class NoopProcessor extends AbstractUnsolicitedResponsesAwareProcessor {
 	
 	public NoopProcessor(final ImapProcessor next) {
         super(next);
@@ -58,7 +58,8 @@ public class NoopProcessor extends AbstractImapRequestProcessor {
 	private ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
         // TODO: untagged responses?
         // TODO: NOOP is used to check for new mail: need to return untagged responses
-        final CommandCompleteResponse result = new CommandCompleteResponse(false, command, tag);
+        final CommandCompleteResponse result = new CommandCompleteResponse(command, tag);
+        addUnsolicitedResponses(result, session, false);
         return result;
 	}
 }

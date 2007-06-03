@@ -23,7 +23,6 @@ import java.util.List;
 
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
-import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.encode.ImapEncoder;
 import org.apache.james.experimental.imapserver.encode.ImapResponseComposer;
 import org.apache.james.experimental.imapserver.encode.base.AbstractChainedImapEncoder;
@@ -38,7 +37,7 @@ public class ListResponseEncoder extends AbstractChainedImapEncoder {
     public ListResponseEncoder(ImapEncoder next) {
         super(next);
     }
-    protected void doEncode(ImapMessage acceptableMessage, ImapResponseComposer composer, ImapSession session) {
+    protected void doEncode(ImapMessage acceptableMessage, ImapResponseComposer composer) {
         ListResponse response = (ListResponse) acceptableMessage;
         final List messages = response.getMessages();
         final ImapCommand command = response.getCommand();
@@ -47,7 +46,8 @@ public class ListResponseEncoder extends AbstractChainedImapEncoder {
             
             composer.commandResponse(command, message);
         }
-        session.unsolicitedResponses( composer, false );
+        List unsolicitedResponses = response.getUnsolicatedResponses();
+        chainEncodeAll(unsolicitedResponses, composer);
         final String tag = response.getTag();
         composer.commandComplete( command, tag );        
     }

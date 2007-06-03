@@ -53,7 +53,7 @@ public class ErrorResponseMessageTest extends TestCase {
     }
 
     public void testWrite() {
-        encoder.encode(message, response, null);
+        encoder.encode(message, response);
         assertEquals(4, writer.operations.size());
         assertEquals(new MockImapResponseWriter.TagOperation(TAG), writer.operations.get(0));
         assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapConstants.BAD), 

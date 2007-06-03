@@ -1,18 +1,15 @@
 package org.apache.james.experimental.imapserver;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.james.api.imap.ImapSessionState;
-import org.apache.james.experimental.imapserver.ImapSession;
-import org.apache.james.experimental.imapserver.SelectedMailboxSession;
-import org.apache.james.experimental.imapserver.encode.ImapResponseComposer;
-import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.services.User;
-import org.apache.james.services.UsersRepository;
 
 public class MockImapSession implements ImapSession {
 
@@ -26,7 +23,7 @@ public class MockImapSession implements ImapSession {
         return mailboxName;
     }
 
-    public void closeConnection() {
+    public void logout() {
     }
 
     public void closeConnection(String byeMessage) {
@@ -74,11 +71,13 @@ public class MockImapSession implements ImapSession {
             throws MailboxManagerException {
     }
 
-    public void unsolicitedResponses(ImapResponseComposer response, boolean useUid) {
+    public List unsolicitedResponses(boolean useUid) {
+        return new ArrayList();
     }
 
-    public void unsolicitedResponses(ImapResponseComposer request,
-            boolean omitExpunged, boolean useUid) {
+    public List unsolicitedResponses(boolean omitExpunged,
+           boolean useUid) {
+        return new ArrayList();
     }
 
     public Object getAttribute(String key) {

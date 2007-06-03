@@ -87,8 +87,9 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
 	private ImapResponseMessage doProcess(final boolean useUids, final IdRange[] idSet, final FetchData fetch,
 			ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
         
-        FetchResponse result = 
-            new FetchResponse(command, useUids, tag);
+        FetchResponse result = new FetchResponse(command, tag);
+        boolean omitExpunged = (!useUids);
+        
         // TODO only fetch needed results
         int resultToFetch = MessageResult.FLAGS | MessageResult.MIME_MESSAGE
                 | MessageResult.INTERNAL_DATE | MessageResult.MSN
@@ -109,6 +110,8 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
                 result.addMessageData(fetchResults[j].getMsn(), msgData );
             }
         }
+        List unsolicitedResponses = session.unsolicitedResponses(useUids);
+        result.addUnsolicitedResponses(unsolicitedResponses);
         return result;
     }
     

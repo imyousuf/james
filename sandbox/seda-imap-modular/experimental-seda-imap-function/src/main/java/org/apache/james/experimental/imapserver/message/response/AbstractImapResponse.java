@@ -19,6 +19,10 @@
 
 package org.apache.james.experimental.imapserver.message.response;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.api.imap.ImapCommand;
@@ -30,11 +34,13 @@ abstract public class AbstractImapResponse extends AbstractLogEnabled implements
 
     private final ImapCommand command;
     private final String tag;
-
+    private final List unsolicatedResponses;
+    
     public AbstractImapResponse(final ImapCommand command, final String tag) {
         super();
         this.command = command;
         this.tag = tag;
+        unsolicatedResponses = new ArrayList();
     }
     
     public final String getTag() {
@@ -43,5 +49,17 @@ abstract public class AbstractImapResponse extends AbstractLogEnabled implements
 
     public ImapCommand getCommand() {
         return command;
+    }
+    
+    public void addUnsolicitedResponses(List responses) {
+        unsolicatedResponses.addAll(responses);
+    }
+    
+    public void addUnsolicitedResponses(ImapResponseMessage response) {
+        unsolicatedResponses.add(response);
+    }
+    
+    public List getUnsolicatedResponses() {
+        return Collections.unmodifiableList(unsolicatedResponses);
     }
 }

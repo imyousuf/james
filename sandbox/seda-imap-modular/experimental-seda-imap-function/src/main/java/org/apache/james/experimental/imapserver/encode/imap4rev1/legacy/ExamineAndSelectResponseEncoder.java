@@ -22,12 +22,10 @@ import javax.mail.Flags;
 
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
-import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.encode.ImapEncoder;
 import org.apache.james.experimental.imapserver.encode.ImapResponseComposer;
 import org.apache.james.experimental.imapserver.encode.base.AbstractChainedImapEncoder;
 import org.apache.james.experimental.imapserver.message.response.imap4rev1.legacy.ExamineAndSelectResponse;
-import org.apache.james.mailboxmanager.MessageResult;
 
 /**
  * @deprecated responses should correspond directly to the specification
@@ -39,7 +37,7 @@ public class ExamineAndSelectResponseEncoder extends AbstractChainedImapEncoder 
         super(next);
     }
 
-    protected void doEncode(ImapMessage acceptableMessage, ImapResponseComposer composer, ImapSession session) {
+    protected void doEncode(ImapMessage acceptableMessage, ImapResponseComposer composer) {
         ExamineAndSelectResponse response = (ExamineAndSelectResponse) acceptableMessage;
         final Flags permanentFlags = response.getPermanentFlags();
         composer.flagsResponse(permanentFlags);

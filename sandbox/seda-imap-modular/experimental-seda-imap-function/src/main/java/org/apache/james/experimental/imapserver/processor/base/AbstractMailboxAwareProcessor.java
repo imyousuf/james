@@ -18,14 +18,17 @@
  ****************************************************************/
 package org.apache.james.experimental.imapserver.processor.base;
 
+import java.util.List;
+
 import org.apache.james.experimental.imapserver.ImapSession;
+import org.apache.james.experimental.imapserver.message.response.AbstractImapResponse;
 import org.apache.james.experimental.imapserver.processor.ImapProcessor;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 import org.apache.james.services.User;
 
-abstract public class AbstractMailboxAwareProcessor extends AbstractImapRequestProcessor {
+abstract public class AbstractMailboxAwareProcessor extends AbstractUnsolicitedResponsesAwareProcessor {
 
     // TODO: move into ImapConstants
     public static final String MAILBOX_ATTRIBUTE_SESSION_KEY 
@@ -65,4 +68,5 @@ abstract public class AbstractMailboxAwareProcessor extends AbstractImapRequestP
         }
         return result;
     }
+    
 }

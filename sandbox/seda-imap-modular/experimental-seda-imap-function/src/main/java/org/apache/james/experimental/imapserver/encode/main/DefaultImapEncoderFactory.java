@@ -21,6 +21,8 @@ package org.apache.james.experimental.imapserver.encode.main;
 
 import org.apache.james.experimental.imapserver.encode.ImapEncoder;
 import org.apache.james.experimental.imapserver.encode.base.EndImapEncoder;
+import org.apache.james.experimental.imapserver.encode.imap4rev1.*;
+import org.apache.james.experimental.imapserver.encode.imap4rev1.status.*;
 import org.apache.james.experimental.imapserver.encode.imap4rev1.legacy.*;
 
 /**
@@ -29,15 +31,19 @@ import org.apache.james.experimental.imapserver.encode.imap4rev1.legacy.*;
 public class DefaultImapEncoderFactory {
     
     public static final ImapEncoder createDefaultEncoder() {
-     
         final EndImapEncoder endImapEncoder = new EndImapEncoder();
-        final StoreResponseEncoder storeResponseEncoder = new StoreResponseEncoder(endImapEncoder);
+        final UntaggedNoResponseEncoder untaggedNoResponseEncoder = new UntaggedNoResponseEncoder(endImapEncoder);
+        final RecentResponseEncoder recentResponseEncoder = new RecentResponseEncoder(untaggedNoResponseEncoder);
+        final FetchResponseEncoder fetchResponseEncoder = new FetchResponseEncoder(recentResponseEncoder);
+        final ExpungeResponseEncoder expungeResponseEncoder = new ExpungeResponseEncoder(fetchResponseEncoder);
+        final ExistsResponseEncoder existsResponseEncoder = new ExistsResponseEncoder(expungeResponseEncoder);
+        final StoreResponseEncoder storeResponseEncoder = new StoreResponseEncoder(existsResponseEncoder);
         final StatusResponseEncoder statusResponseEncoder = new StatusResponseEncoder(storeResponseEncoder);
         final SearchResponseEncoder searchResponseEncoder = new SearchResponseEncoder(statusResponseEncoder);
         final LogoutResponseEncoder logoutResponseEncoder = new LogoutResponseEncoder(searchResponseEncoder);
         final ListResponseEncoder listResponseEncoder = new ListResponseEncoder(logoutResponseEncoder);
-        final FetchResponseEncoder fetchResponseEncoder = new FetchResponseEncoder(listResponseEncoder);
-        final ExamineAndSelectResponseEncoder examineAndSelectResponseEncoder = new ExamineAndSelectResponseEncoder(fetchResponseEncoder);
+        final LegacyFetchResponseEncoder legacyFetchResponseEncoder = new LegacyFetchResponseEncoder(listResponseEncoder);
+        final ExamineAndSelectResponseEncoder examineAndSelectResponseEncoder = new ExamineAndSelectResponseEncoder(legacyFetchResponseEncoder);
         final ErrorResponseEncoder errorResponseEncoder = new ErrorResponseEncoder(examineAndSelectResponseEncoder);
         final CommandFailedResponseEncoder commandFailedResponseEncoder = new CommandFailedResponseEncoder(errorResponseEncoder);
         final CommandCompleteResponseEncoder commandCompleteResponseEncoder = new CommandCompleteResponseEncoder(commandFailedResponseEncoder);

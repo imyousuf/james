@@ -19,6 +19,8 @@
 
 package org.apache.james.experimental.imapserver.processor.imap4rev1;
 
+import java.util.List;
+
 import javax.mail.Flags;
 
 import org.apache.james.api.imap.ImapCommand;
@@ -105,7 +107,10 @@ public class StoreProcessor extends AbstractImapRequestProcessor {
         }
         
         final StoreResponse result = 
-            new StoreResponse(command, useUids, tag);
+            new StoreResponse(command, tag);
+        boolean omitExpunged = (!useUids);
+        List unsolicitedResponses = session.unsolicitedResponses( omitExpunged, useUids);
+        result.addUnsolicitedResponses(unsolicitedResponses);
         return result;
 	}
 }

@@ -56,6 +56,7 @@ public class LogoutProcessor extends AbstractImapRequestProcessor {
 	}
 	
 	private ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
+        session.logout();
         final LogoutResponse result = new LogoutResponse(command, tag);
         return result;
 	}

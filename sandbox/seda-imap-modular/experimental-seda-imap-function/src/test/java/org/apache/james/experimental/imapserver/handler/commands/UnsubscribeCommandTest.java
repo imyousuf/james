@@ -19,6 +19,7 @@
 
 package org.apache.james.experimental.imapserver.handler.commands;
 
+import org.apache.commons.collections.ListUtils;
 import org.apache.james.api.imap.ImapSessionState;
 import org.apache.james.api.imap.ProtocolException;
 import org.jmock.core.Constraint;
@@ -34,7 +35,7 @@ public class UnsubscribeCommandTest extends AbstractCommandTest {
 
         setUpNamespace(userDefaultNamespace);
         mockSession.expects(once()).method("unsolicitedResponses")
-                .withAnyArguments();
+                .withAnyArguments().will(returnValue(ListUtils.EMPTY_LIST));
 
         mockMailboxManager.expects(once()).method("setSubscription").with(
                 new Constraint[] {eq(fqMailboxName),eq(false)});
