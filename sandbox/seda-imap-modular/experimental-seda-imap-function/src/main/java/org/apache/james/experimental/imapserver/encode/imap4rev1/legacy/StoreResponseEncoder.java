@@ -16,33 +16,38 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
+package org.apache.james.experimental.imapserver.encode.imap4rev1.legacy;
 
-package org.apache.james.experimental.imapserver.message.response.imap4rev1.legacy;
-
+import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
-import org.apache.james.experimental.imapserver.message.response.ImapResponseMessage;
+import org.apache.james.experimental.imapserver.ImapSession;
+import org.apache.james.experimental.imapserver.encode.ImapEncoder;
+import org.apache.james.experimental.imapserver.encode.ImapResponseComposer;
+import org.apache.james.experimental.imapserver.encode.base.AbstractChainedImapEncoder;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.legacy.StoreResponse;
 
 /**
- * Carries an error response.
- * TODO: this response is not listed in the specification
- * TODO: and should be replaced
+ * TODO: this is probably redundent 
  * @deprecated responses should correspond directly to the specification
  */
-public class ErrorResponse implements ImapResponseMessage, ImapMessage {
+public class StoreResponseEncoder extends AbstractChainedImapEncoder {
 
-    private final String message;
-    private final String tag;
+    public StoreResponseEncoder(ImapEncoder next) {
+        super(next);
+    }
+
+    protected void doEncode(ImapMessage acceptableMessage, ImapResponseComposer composer, ImapSession session) {
+        StoreResponse response = (StoreResponse) acceptableMessage;
+        final boolean useUids = response.isUseUids();
+        boolean omitExpunged = (!useUids);
+        session.unsolicitedResponses( composer, omitExpunged , useUids);
+        final ImapCommand command = response.getCommand();
+        final String tag = response.getTag();
+        composer.commandComplete( command, tag );            
+    }
+
+    protected boolean isAcceptable(ImapMessage message) {
+        return (message instanceof StoreResponse);
+    }
     
-    public ErrorResponse(final String message, String tag) {
-        this.message = message;
-        this.tag = tag;
-    }
-
-    public final String getMessage() {
-        return message;
-    }
-
-    public final String getTag() {
-        return tag;
-    }
 }

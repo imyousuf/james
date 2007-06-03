@@ -16,33 +16,39 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
+package org.apache.james.experimental.imapserver.encode.imap4rev1.legacy;
 
-package org.apache.james.experimental.imapserver.message.response.imap4rev1.legacy;
-
+import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
-import org.apache.james.experimental.imapserver.message.response.ImapResponseMessage;
+import org.apache.james.experimental.imapserver.ImapSession;
+import org.apache.james.experimental.imapserver.encode.ImapEncoder;
+import org.apache.james.experimental.imapserver.encode.ImapResponseComposer;
+import org.apache.james.experimental.imapserver.encode.base.AbstractChainedImapEncoder;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.legacy.LogoutResponse;
 
 /**
- * Carries an error response.
- * TODO: this response is not listed in the specification
- * TODO: and should be replaced
  * @deprecated responses should correspond directly to the specification
  */
-public class ErrorResponse implements ImapResponseMessage, ImapMessage {
+public class LogoutResponseEncoder extends AbstractChainedImapEncoder {
 
-    private final String message;
-    private final String tag;
+    public LogoutResponseEncoder(ImapEncoder next) {
+        super(next);
+    }
     
-    public ErrorResponse(final String message, String tag) {
-        this.message = message;
-        this.tag = tag;
+    protected void doEncode(ImapMessage acceptableMessage, ImapResponseComposer composer, ImapSession session) {
+        LogoutResponse response = (LogoutResponse) acceptableMessage;
+        
+        final String message = response.getMessage();
+        composer.byeResponse( message );
+        final ImapCommand command = response.getCommand();
+        final String tag = response.getTag();
+        composer.commandComplete( command, tag );
+        // TODO: think about how this will work with SEDA
+        session.closeConnection();            
+        
     }
 
-    public final String getMessage() {
-        return message;
-    }
-
-    public final String getTag() {
-        return tag;
+    protected boolean isAcceptable(ImapMessage message) {
+        return (message instanceof LogoutResponse);
     }
 }

@@ -20,8 +20,6 @@
 package org.apache.james.experimental.imapserver.message.response.imap4rev1.legacy;
 
 import org.apache.james.api.imap.ImapCommand;
-import org.apache.james.experimental.imapserver.ImapSession;
-import org.apache.james.experimental.imapserver.encode.ImapResponse;
 import org.apache.james.experimental.imapserver.message.response.ImapResponseMessage;
 
 /**
@@ -46,12 +44,21 @@ public class CommandFailedResponse implements ImapResponseMessage {
         this.tag = tag;
     }
 
-    public void encode(ImapResponse response, ImapSession session) {
-        if (responseCode == null) {
-            response.commandFailed(command, reason, tag);
-        } else {
-            response.commandFailed(command, responseCode, reason, tag);
-        }
+    public final ImapCommand getCommand() {
+        return command;
     }
 
+    public final String getReason() {
+        return reason;
+    }
+
+    public final String getResponseCode() {
+        return responseCode;
+    }
+
+    public final String getTag() {
+        return tag;
+    }
+    
+    
 }

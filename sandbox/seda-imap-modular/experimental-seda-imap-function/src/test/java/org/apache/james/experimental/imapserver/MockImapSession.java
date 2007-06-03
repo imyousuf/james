@@ -6,7 +6,7 @@ import java.util.Map;
 import org.apache.james.api.imap.ImapSessionState;
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.SelectedMailboxSession;
-import org.apache.james.experimental.imapserver.encode.ImapResponse;
+import org.apache.james.experimental.imapserver.encode.ImapResponseComposer;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
@@ -74,12 +74,11 @@ public class MockImapSession implements ImapSession {
             throws MailboxManagerException {
     }
 
-    public void unsolicitedResponses(ImapResponse response, boolean useUid)
-            throws MailboxException {
+    public void unsolicitedResponses(ImapResponseComposer response, boolean useUid) {
     }
 
-    public void unsolicitedResponses(ImapResponse request,
-            boolean omitExpunged, boolean useUid) throws MailboxException {
+    public void unsolicitedResponses(ImapResponseComposer request,
+            boolean omitExpunged, boolean useUid) {
     }
 
     public Object getAttribute(String key) {

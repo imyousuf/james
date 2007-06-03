@@ -27,6 +27,7 @@ import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.experimental.imapserver.ImapRequestHandler;
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.StandardFactory;
+import org.apache.james.experimental.imapserver.encode.main.DefaultImapEncoderFactory;
 import org.apache.james.experimental.imapserver.processor.base.AbstractMailboxAwareProcessor;
 import org.apache.james.experimental.imapserver.processor.main.DefaultImapProcessorFactory;
 import org.apache.james.imapserver.codec.decode.base.AbstractImapCommandParser;
@@ -55,7 +56,8 @@ public abstract class AbstractCommandTest extends MockObjectTestCase
         mockUsersRepository = mock ( UsersRepository.class );
         handler=new ImapRequestHandler(StandardFactory.createDecoder(), 
                 DefaultImapProcessorFactory.createDefaultProcessor((UsersRepository)mockUsersRepository.proxy(), 
-                        (MailboxManagerProvider) mockMailboxManagerProvider.proxy()));
+                        (MailboxManagerProvider) mockMailboxManagerProvider.proxy()),
+                        DefaultImapEncoderFactory.createDefaultEncoder());
         handler.enableLogging(new MockLogger());
         mockSession = mock ( ImapSession.class);
         mockUser = mock (User.class );

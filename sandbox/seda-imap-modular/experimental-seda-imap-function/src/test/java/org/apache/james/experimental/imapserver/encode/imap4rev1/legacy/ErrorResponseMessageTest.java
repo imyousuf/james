@@ -16,49 +16,52 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.experimental.imapserver.message;
+
+package org.apache.james.experimental.imapserver.encode.imap4rev1.legacy;
 
 import org.apache.james.api.imap.ImapConstants;
-import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.MockImapResponseWriter;
-import org.apache.james.experimental.imapserver.MockImapSession;
-import org.apache.james.experimental.imapserver.encode.ImapResponse;
-import org.apache.james.experimental.imapserver.message.response.ImapResponseMessage;
-import org.apache.james.experimental.imapserver.message.response.imap4rev1.legacy.BadResponse;
+import org.apache.james.experimental.imapserver.encode.ImapEncoder;
+import org.apache.james.experimental.imapserver.encode.ImapResponseComposer;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.legacy.ErrorResponse;
+import org.jmock.Mock;
 
 import junit.framework.TestCase;
 
-public class BadResponseMessageTest extends TestCase {
+public class ErrorResponseMessageTest extends TestCase {
 
-    private static final String MESSAGE = "A Message";
+    private static final String ERROR = "An error message";
+    private static final String TAG = "A Tag";
     
+    ErrorResponse message;
     MockImapResponseWriter writer;
-    ImapResponse response;
-    BadResponse message;
-    ImapSession session;
+    ImapResponseComposer response;
+    Mock mockNextEncoder;
+    ErrorResponseEncoder encoder;
     
     protected void setUp() throws Exception {
         super.setUp();
         writer = new MockImapResponseWriter();
-        response = new ImapResponse(writer);
-        message = new BadResponse(MESSAGE);
-        session = new MockImapSession();
+        mockNextEncoder = new Mock(ImapEncoder.class);
+        encoder = new ErrorResponseEncoder((ImapEncoder) mockNextEncoder.proxy());
+        response = new ImapResponseComposer(writer);
+        message = new ErrorResponse(ERROR, TAG);
     }
 
     protected void tearDown() throws Exception {
         super.tearDown();
     }
 
-    public void testEncode() throws Exception {
-            message.encode(this.response, session);
-            assertEquals(4, this.writer.operations.size());
-            assertEquals(new MockImapResponseWriter.UntaggedOperation(), writer.operations.get(0));
-            assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapConstants.BAD), 
-                    writer.operations.get(1));
-            assertEquals(new MockImapResponseWriter.TextMessageOperation(MESSAGE),
-                    writer.operations.get(2));
-            assertEquals(new MockImapResponseWriter.EndOperation(), 
-                    writer.operations.get(3));
+    public void testWrite() {
+        encoder.encode(message, response, null);
+        assertEquals(4, writer.operations.size());
+        assertEquals(new MockImapResponseWriter.TagOperation(TAG), writer.operations.get(0));
+        assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapConstants.BAD), 
+                writer.operations.get(1));
+        assertEquals(new MockImapResponseWriter.TextMessageOperation(ERROR),
+                writer.operations.get(2));
+        assertEquals(new MockImapResponseWriter.EndOperation(), 
+                writer.operations.get(3));
     }
 
 }

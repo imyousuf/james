@@ -20,11 +20,8 @@
 package org.apache.james.experimental.imapserver.message.response.imap4rev1.legacy;
 
 import org.apache.james.api.imap.ImapCommand;
-import org.apache.james.experimental.imapserver.ImapSession;
-import org.apache.james.experimental.imapserver.encode.ImapResponse;
 import org.apache.james.experimental.imapserver.message.response.AbstractImapResponse;
 import org.apache.james.experimental.imapserver.message.response.ImapResponseMessage;
-import org.apache.james.imapserver.store.MailboxException;
 
 /**
  * 
@@ -67,10 +64,11 @@ public class CommandCompleteResponse extends AbstractImapResponse implements Ima
         this.useUids = useUids;
     }
 
-    protected void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
-        if (writeUnsolicited) {
-            session.unsolicitedResponses( response, useUids);
-        }
-        response.commandComplete( command , tag );
+    public final boolean isUseUids() {
+        return useUids;
+    }
+
+    public final boolean isWriteUnsolicited() {
+        return writeUnsolicited;
     }
 }

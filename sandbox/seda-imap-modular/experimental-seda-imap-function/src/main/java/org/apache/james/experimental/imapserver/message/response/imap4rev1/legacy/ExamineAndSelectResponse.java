@@ -21,10 +21,7 @@ package org.apache.james.experimental.imapserver.message.response.imap4rev1.lega
 import javax.mail.Flags;
 
 import org.apache.james.api.imap.ImapCommand;
-import org.apache.james.experimental.imapserver.ImapSession;
-import org.apache.james.experimental.imapserver.encode.ImapResponse;
 import org.apache.james.experimental.imapserver.message.response.AbstractImapResponse;
-import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MessageResult;
 
 /**
@@ -49,24 +46,30 @@ public class ExamineAndSelectResponse extends AbstractImapResponse {
         this.uidValidity = uidValidity;
         this.firstUnseen = firstUnseen;
         this.messageCount = messageCount;
+    }
+
+    public final MessageResult getFirstUnseen() {
+        return firstUnseen;
+    }
+
+    public final int getMessageCount() {
+        return messageCount;
+    }
+
+    public final Flags getPermanentFlags() {
+        return permanentFlags;
+    }
+
+    public final int getRecentCount() {
+        return recentCount;
+    }
+
+    public final long getUidValidity() {
+        return uidValidity;
+    }
+
+    public final boolean isWriteable() {
+        return writeable;
     }        
     
-    protected void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
-        response.flagsResponse(permanentFlags);
-        response.recentResponse(recentCount);
-        response.okResponse("UIDVALIDITY " + uidValidity, null);
-        response.existsResponse(messageCount);
-        if (firstUnseen != null) {
-            response.okResponse("UNSEEN " + firstUnseen.getMsn(), "Message "
-                    + firstUnseen.getMsn() + " is the first unseen");
-        } else {
-            response.okResponse(null, "No messages unseen");
-        }
-        response.permanentFlagsResponse(permanentFlags);
-        if (!writeable) {
-            response.commandComplete(command, "READ-ONLY", tag);
-        } else {
-            response.commandComplete(command, "READ-WRITE", tag);
-        }
-    }
 }

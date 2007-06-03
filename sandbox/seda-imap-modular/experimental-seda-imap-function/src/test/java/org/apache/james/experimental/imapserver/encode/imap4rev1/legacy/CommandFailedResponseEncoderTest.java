@@ -17,31 +17,37 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.experimental.imapserver.message;
+package org.apache.james.experimental.imapserver.encode.imap4rev1.legacy;
 
 import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.MockImapResponseWriter;
 import org.apache.james.experimental.imapserver.MockImapSession;
 import org.apache.james.experimental.imapserver.commands.MockCommand;
-import org.apache.james.experimental.imapserver.encode.ImapResponse;
+import org.apache.james.experimental.imapserver.encode.ImapEncoder;
+import org.apache.james.experimental.imapserver.encode.ImapResponseComposer;
 import org.apache.james.experimental.imapserver.message.response.imap4rev1.legacy.CommandFailedResponse;
+import org.jmock.Mock;
 
 import junit.framework.TestCase;
 
-public class CommandFailedResponseMessageTest extends TestCase {
+public class CommandFailedResponseEncoderTest extends TestCase {
 
     private static final String TAG = "A Tag";
     
     MockImapResponseWriter writer;
-    ImapResponse response;
+    ImapResponseComposer response;
     MockCommand command;
     ImapSession session;
+    Mock mockNextEncoder;
+    CommandFailedResponseEncoder encoder;
     
     protected void setUp() throws Exception {
         super.setUp();
         writer = new MockImapResponseWriter();
-        response = new ImapResponse(writer);
+        mockNextEncoder = new Mock(ImapEncoder.class);
+        encoder = new CommandFailedResponseEncoder((ImapEncoder) mockNextEncoder.proxy());
+        response = new ImapResponseComposer(writer);
         command = new MockCommand();
         session = new MockImapSession();
     }
@@ -55,7 +61,7 @@ public class CommandFailedResponseMessageTest extends TestCase {
         String message = "A message";
         CommandFailedResponse responseMessage 
             = new CommandFailedResponse(command, code, message, TAG);
-        responseMessage.encode(response, session);
+        encoder.encode(responseMessage, response, session);
         assertEquals(7, writer.operations.size());
         assertEquals(new MockImapResponseWriter.TagOperation(TAG), writer.operations.get(0));
         assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapConstants.NO), 
@@ -64,7 +70,7 @@ public class CommandFailedResponseMessageTest extends TestCase {
                 writer.operations.get(2));
         assertEquals(new MockImapResponseWriter.CommandNameOperation(MockCommand.NAME),
                 writer.operations.get(3));
-        assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapResponse.FAILED),
+        assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapResponseComposer.FAILED),
                 writer.operations.get(4));
         assertEquals(new MockImapResponseWriter.TextMessageOperation(message), 
                 writer.operations.get(5));
@@ -76,14 +82,14 @@ public class CommandFailedResponseMessageTest extends TestCase {
         String message = "A message";
         CommandFailedResponse responseMessage 
             = new CommandFailedResponse(command, message, TAG);
-        responseMessage.encode(response, session);
+        encoder.encode(responseMessage, response, session);
         assertEquals(6, writer.operations.size());
         assertEquals(new MockImapResponseWriter.TagOperation(TAG), writer.operations.get(0));
         assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapConstants.NO), 
                 writer.operations.get(1));
         assertEquals(new MockImapResponseWriter.CommandNameOperation(MockCommand.NAME),
                 writer.operations.get(2));
-        assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapResponse.FAILED),
+        assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapResponseComposer.FAILED),
                 writer.operations.get(3));
         assertEquals(new MockImapResponseWriter.TextMessageOperation(message), 
                 writer.operations.get(4));

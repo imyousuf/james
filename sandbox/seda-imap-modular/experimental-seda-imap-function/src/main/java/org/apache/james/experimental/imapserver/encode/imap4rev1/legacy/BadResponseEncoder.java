@@ -17,18 +17,38 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.experimental.imapserver.message.response;
+package org.apache.james.experimental.imapserver.encode.imap4rev1.legacy;
 
 import org.apache.james.api.imap.ImapMessage;
-
+import org.apache.james.experimental.imapserver.ImapSession;
+import org.apache.james.experimental.imapserver.encode.ImapEncoder;
+import org.apache.james.experimental.imapserver.encode.ImapResponseComposer;
+import org.apache.james.experimental.imapserver.encode.base.AbstractChainedImapEncoder;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.legacy.BadResponse;
 
 /**
- * <p>Responds to an IMAP command.</p>
- * <p>
- * <strong>Note:</strong> this is a transitional API
- * and is liable to change.
- * </p>
+ * Carries the response to a request with bad syntax..
+ * @deprecated use specification model
  */
-public interface ImapResponseMessage extends ImapMessage{
-    
+public class BadResponseEncoder extends AbstractChainedImapEncoder {
+
+    public BadResponseEncoder(ImapEncoder next) {
+        super(next);
+    }
+
+    protected void doEncode(ImapMessage acceptableMessage, ImapResponseComposer composer, ImapSession session) {
+        BadResponse response = (BadResponse) acceptableMessage;
+        String tag = response.getTag();
+        String message = response.getMessage();
+        if (tag == null) {
+            composer.badResponse(message);
+        } else {
+            composer.badResponse(message, tag);
+        }
+    }
+
+    protected boolean isAcceptable(ImapMessage message) {
+        return (message instanceof BadResponse);
+    }
+
 }

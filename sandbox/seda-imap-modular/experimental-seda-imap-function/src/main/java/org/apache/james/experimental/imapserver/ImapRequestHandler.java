@@ -26,7 +26,8 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.api.imap.ProtocolException;
-import org.apache.james.experimental.imapserver.encode.ImapResponse;
+import org.apache.james.experimental.imapserver.encode.ImapEncoder;
+import org.apache.james.experimental.imapserver.encode.ImapResponseComposer;
 import org.apache.james.experimental.imapserver.encode.writer.OutputStreamImapResponseWriter;
 import org.apache.james.experimental.imapserver.message.response.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.processor.ImapProcessor;
@@ -40,10 +41,12 @@ public final class ImapRequestHandler extends AbstractLogEnabled {
 
     private final ImapDecoder decoder;
     private final ImapProcessor processor;
+    private final ImapEncoder encoder;
     
-    public ImapRequestHandler(final ImapDecoder decoder, final ImapProcessor processor) {
+    public ImapRequestHandler(final ImapDecoder decoder, final ImapProcessor processor, final ImapEncoder encoder) {
         this.decoder = decoder;
         this.processor = processor;
+        this.encoder = encoder;
     }
     
     /**
@@ -81,7 +84,7 @@ public final class ImapRequestHandler extends AbstractLogEnabled {
             return false;
         }
 
-        ImapResponse response = new ImapResponse( new OutputStreamImapResponseWriter( output ));
+        ImapResponseComposer response = new ImapResponseComposer( new OutputStreamImapResponseWriter( output ));
         response.enableLogging(getLogger()); 
 
         doProcessRequest( request, response, session );
@@ -94,12 +97,12 @@ public final class ImapRequestHandler extends AbstractLogEnabled {
     }
 
     private void doProcessRequest( ImapRequestLineReader request,
-                                   ImapResponse response,
+                                   ImapResponseComposer response,
                                    ImapSession session)
     {
         ImapMessage message = decoder.decode(request);
         ImapResponseMessage responseMessage = processor.process(message, session);
-        responseMessage.encode(response, session);
+        encoder.encode(responseMessage, response, session);
     }
 
 

@@ -19,10 +19,7 @@
 package org.apache.james.experimental.imapserver.message.response.imap4rev1.legacy;
 
 import org.apache.james.api.imap.ImapCommand;
-import org.apache.james.experimental.imapserver.ImapSession;
-import org.apache.james.experimental.imapserver.encode.ImapResponse;
 import org.apache.james.experimental.imapserver.message.response.AbstractImapResponse;
-import org.apache.james.imapserver.store.MailboxException;
 
 /**
  * @deprecated responses should correspond directly to the specification
@@ -37,13 +34,12 @@ public class SearchResponse extends AbstractImapResponse {
         this.idList = idList;
         this.useUids = useUids;
     }
-    
-    protected void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
-        
-        response.commandResponse( command, idList );
-        boolean omitExpunged = (!useUids);
-        session.unsolicitedResponses( response, omitExpunged, useUids );
-        response.commandComplete( command, tag );  
+
+    public final String getIdList() {
+        return idList;
     }
-    
+
+    public final boolean isUseUids() {
+        return useUids;
+    }
 }

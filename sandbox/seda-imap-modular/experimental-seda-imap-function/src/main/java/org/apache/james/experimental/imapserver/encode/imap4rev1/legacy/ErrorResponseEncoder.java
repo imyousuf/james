@@ -16,17 +16,38 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.experimental.imapserver.message.response.imap4rev1.legacy;
 
-import org.apache.james.api.imap.ImapCommand;
-import org.apache.james.experimental.imapserver.message.response.AbstractImapResponse;
+package org.apache.james.experimental.imapserver.encode.imap4rev1.legacy;
+
+import org.apache.james.api.imap.ImapMessage;
+import org.apache.james.experimental.imapserver.ImapSession;
+import org.apache.james.experimental.imapserver.encode.ImapEncoder;
+import org.apache.james.experimental.imapserver.encode.ImapResponseComposer;
+import org.apache.james.experimental.imapserver.encode.base.AbstractChainedImapEncoder;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.legacy.ErrorResponse;
 
 /**
+ * Carries an error response.
+ * TODO: this response is not listed in the specification
+ * TODO: and should be replaced
  * @deprecated responses should correspond directly to the specification
  */
-public class CloseResponse extends AbstractImapResponse {
-    public CloseResponse(ImapCommand command, String tag) {
-        super(command, tag);
+public class ErrorResponseEncoder extends AbstractChainedImapEncoder {
+
+    public ErrorResponseEncoder(ImapEncoder next) {
+        super(next);
+    }
+    
+    protected void doEncode(ImapMessage acceptableMessage, ImapResponseComposer composer, ImapSession session) {
+        ErrorResponse response = (ErrorResponse) acceptableMessage;
+        final String message = response.getMessage();
+        final String tag = response.getTag();
+        composer.commandError(message, tag);
     }
 
+    protected boolean isAcceptable(ImapMessage message) {
+        return (message instanceof ErrorResponse);
+    }
+    
+    
 }

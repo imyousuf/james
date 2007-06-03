@@ -16,32 +16,43 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
+package org.apache.james.experimental.imapserver.encode.imap4rev1.legacy;
 
-package org.apache.james.experimental.imapserver.message.response;
-
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.api.imap.ImapCommand;
+import org.apache.james.api.imap.ImapConstants;
+import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.experimental.imapserver.ImapSession;
+import org.apache.james.experimental.imapserver.encode.ImapEncoder;
 import org.apache.james.experimental.imapserver.encode.ImapResponseComposer;
+import org.apache.james.experimental.imapserver.encode.base.AbstractChainedImapEncoder;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.legacy.CapabilityResponse;
 import org.apache.james.imapserver.store.MailboxException;
 
-abstract public class AbstractImapResponse extends AbstractLogEnabled implements ImapResponseMessage {
+/**
+ * @deprecated use specification model
+ */
+public class CapabilityResponseEncoder extends AbstractChainedImapEncoder {
 
-    private final ImapCommand command;
-    private final String tag;
+    public CapabilityResponseEncoder(ImapEncoder next) {
+        super(next);
+    }
 
-    public AbstractImapResponse(final ImapCommand command, final String tag) {
-        super();
-        this.command = command;
-        this.tag = tag;
+    protected void doEncode(ImapResponseComposer response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
+            
+    }
+
+    protected void doEncode(ImapMessage acceptableMessage, ImapResponseComposer composer, ImapSession session) {
+        CapabilityResponse response = (CapabilityResponse) acceptableMessage;
+        // TODO: inject capability text
+        composer.untaggedResponse( ImapConstants.CAPABILITY_RESPONSE );
+        session.unsolicitedResponses( composer, false);
+        String tag = response.getTag();
+        ImapCommand command = response.getCommand();
+        composer.commandComplete( command , tag ); 
+    }
+
+    protected boolean isAcceptable(ImapMessage message) {
+        return (message instanceof CapabilityResponse);
     }
     
-    public final String getTag() {
-        return tag;
-    }
-
-    public ImapCommand getCommand() {
-        return command;
-    }
 }

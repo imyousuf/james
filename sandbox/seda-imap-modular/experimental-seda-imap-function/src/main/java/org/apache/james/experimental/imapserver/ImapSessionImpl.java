@@ -28,8 +28,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.api.imap.ImapSessionState;
 import org.apache.james.api.imap.message.MessageFlags;
-import org.apache.james.experimental.imapserver.encode.ImapResponse;
-import org.apache.james.imapserver.store.MailboxException;
+import org.apache.james.experimental.imapserver.encode.ImapResponseComposer;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
@@ -63,52 +62,95 @@ public final class ImapSessionImpl extends AbstractLogEnabled implements ImapSes
         this.attributesByKey = new ConcurrentHashMap();
     }
 
-    public void unsolicitedResponses( ImapResponse request, boolean useUid ) throws MailboxException {
+    public void unsolicitedResponses( ImapResponseComposer request, boolean useUid ) {
         unsolicitedResponses(request, false, useUid);
     }
 
-    public void unsolicitedResponses(ImapResponse response, boolean omitExpunged, boolean useUid)
-            throws MailboxException {
+    public void unsolicitedResponses(ImapResponseComposer response, boolean omitExpunged, boolean useUid) {
         SelectedMailboxSession selected = getSelected();
-        try {
             if (selected != null) {
+                final ImapMailboxSession mailbox = selected.getMailbox();
                 // New message response
                 if (selected.isSizeChanged()) {
-                    response.existsResponse(selected.getMailbox()
-                            .getMessageCount());
-                    response.recentResponse(selected.getMailbox()
-                            .getRecentCount(true));
                     selected.setSizeChanged(false);
+                    existsResponse(response, mailbox);
+                    recentResponse(response, mailbox);
                 }
 
                 // Message updates
-                MessageResult[] flagUpdates = selected.getMailbox().getFlagEvents(true);
-               for (int i = 0; i < flagUpdates.length; i++) {
-                    MessageResult mr = flagUpdates[i];
-                    int msn = mr.getMsn();
-                    Flags updatedFlags = mr.getFlags();
-                    StringBuffer out = new StringBuffer("FLAGS ");
-                    out.append(MessageFlags.format(updatedFlags));
-                    if (useUid) {
-                        out.append(" UID ");
-                        out.append(mr.getUid());
-                    }
-                    response.fetchResponse(msn, out.toString());
-                }
+                // TODO: slow to check flags every time
+//              TODO: add conditional to selected mailbox
+                flagsResponse(response, useUid, mailbox);
 
                 // Expunged messages
                 if (!omitExpunged) {
-                    MessageResult[] expunged = selected.getMailbox().getExpungedEvents(
-                            true);
-                    for (int i = 0; i < expunged.length; i++) {
-                        MessageResult mr = expunged[i];
-                        response.expungeResponse(mr.getMsn());
-                    }
+                    // TODO: slow to check flags every time
+                    // TODO: add conditional to selected mailbox
+                    expungedResponse(response, mailbox);
                 }
             }
+    }
+
+    private void expungedResponse(ImapResponseComposer response, final ImapMailboxSession mailbox) {
+        try {
+            MessageResult[] expunged = mailbox.getExpungedEvents(true);
+            for (int i = 0; i < expunged.length; i++) {
+                MessageResult mr = expunged[i];
+                response.expungeResponse(mr.getMsn());
+            }
         } catch (MailboxManagerException e) {
-            throw new MailboxException(e);
+            final String message = "Failed to retrieve expunged count data";
+            handleResponseException(response, e, message);
         }
+    }
+
+    private void flagsResponse(ImapResponseComposer response, boolean useUid, final ImapMailboxSession mailbox) {
+        try {
+            MessageResult[] flagUpdates = mailbox.getFlagEvents(true);
+                for (int i = 0; i < flagUpdates.length; i++) {
+                MessageResult mr = flagUpdates[i];
+                int msn = mr.getMsn();
+                Flags updatedFlags = mr.getFlags();
+                StringBuffer out = new StringBuffer("FLAGS ");
+                out.append(MessageFlags.format(updatedFlags));
+                if (useUid) {
+                    out.append(" UID ");
+                    out.append(mr.getUid());
+                }
+                // TODO: use CharSequence instead (avoid unnecessary string creation)
+                response.fetchResponse(msn, out.toString());
+            }
+        } catch (MailboxManagerException e) {
+            final String message = "Failed to retrieve flags data";
+            handleResponseException(response, e, message);
+        }
+    }
+
+    private void recentResponse(ImapResponseComposer response, final ImapMailboxSession mailbox) {
+        try {
+            final int recentCount = mailbox.getRecentCount(true);
+            response.recentResponse(recentCount);
+        } catch (MailboxManagerException e) {
+            final String message = "Failed to retrieve recent count data";
+            handleResponseException(response, e, message);
+        }
+    }
+
+    private void handleResponseException(ImapResponseComposer response, MailboxManagerException e, final String message) {
+        getLogger().info(message);
+        getLogger().debug(message, e);
+        // TODO: consider whether error message should be passed to the user
+        response.untaggedNoResponse(message, null);
+    }
+
+    private void existsResponse(ImapResponseComposer response, final ImapMailboxSession mailbox) {
+            try {
+                final int messageCount = mailbox.getMessageCount();
+                response.existsResponse(messageCount);
+            } catch (MailboxManagerException e) {
+                final String message = "Failed to retrieve exists count data";
+                handleResponseException(response, e, message);
+            }
     }
     
     public void closeConnection(String byeMessage) {

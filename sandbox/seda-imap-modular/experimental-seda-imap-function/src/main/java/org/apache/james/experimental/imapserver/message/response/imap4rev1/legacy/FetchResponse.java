@@ -19,14 +19,11 @@
 package org.apache.james.experimental.imapserver.message.response.imap4rev1.legacy;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.james.api.imap.ImapCommand;
-import org.apache.james.experimental.imapserver.ImapSession;
-import org.apache.james.experimental.imapserver.encode.ImapResponse;
 import org.apache.james.experimental.imapserver.message.response.AbstractImapResponse;
-import org.apache.james.imapserver.store.MailboxException;
 
 /**
  * @deprecated responses should correspond directly to the specification
@@ -48,31 +45,32 @@ public class FetchResponse extends AbstractImapResponse {
         messages.add(data);
     }
     
-    protected void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
-        for (final Iterator it=messages.iterator();it.hasNext();) {
-            MessageData data = (MessageData) it.next();
-            data.encode(response);
-        }
-        boolean omitExpunged = (!useUids);
-        session.unsolicitedResponses( response, omitExpunged , useUids);
-        response.commandComplete( command, tag );
-        
+    public List getMessageData() {
+        return Collections.unmodifiableList(messages);
     }
     
-    private class MessageData {
+    public class MessageData {
         // TODO: this is not an efficient solution
         // TODO: would be better to lazy load and stream on output
         // TODO: this is just a transitional solution
         private final int number;
+        // TODO remove unnecessary string conversion
         private final String data;
         public MessageData(final int number, final String data) {
             super();
             this.number = number;
             this.data = data;
         }
-        
-        public void encode(ImapResponse response) {
-            response.fetchResponse(number, data);
+        public final String getData() {
+            return data;
         }
+        public final int getNumber() {
+            return number;
+        }
+        
+    }
+
+    public final boolean isUseUids() {
+        return useUids;
     }
 }

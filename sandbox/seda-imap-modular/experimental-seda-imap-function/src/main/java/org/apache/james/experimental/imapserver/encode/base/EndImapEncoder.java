@@ -17,18 +17,23 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.experimental.imapserver.message.response;
+package org.apache.james.experimental.imapserver.encode.base;
 
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.api.imap.ImapMessage;
+import org.apache.james.experimental.imapserver.ImapSession;
+import org.apache.james.experimental.imapserver.encode.ImapEncoder;
+import org.apache.james.experimental.imapserver.encode.ImapResponseComposer;
 
+public class EndImapEncoder extends AbstractLogEnabled implements ImapEncoder {
 
-/**
- * <p>Responds to an IMAP command.</p>
- * <p>
- * <strong>Note:</strong> this is a transitional API
- * and is liable to change.
- * </p>
- */
-public interface ImapResponseMessage extends ImapMessage{
-    
+    public void encode(ImapMessage message, ImapResponseComposer composer, ImapSession session) {
+        final Logger logger = getLogger();
+        logger.warn("Unknown message");
+        if (logger.isDebugEnabled()) {
+            logger.debug("Chain end reached for " + message);
+        }
+        composer.untaggedNoResponse("Unknown message in pipeline", null);
+    }
 }

@@ -19,14 +19,11 @@
 package org.apache.james.experimental.imapserver.message.response.imap4rev1.legacy;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.james.api.imap.ImapCommand;
-import org.apache.james.experimental.imapserver.ImapSession;
-import org.apache.james.experimental.imapserver.encode.ImapResponse;
 import org.apache.james.experimental.imapserver.message.response.AbstractImapResponse;
-import org.apache.james.imapserver.store.MailboxException;
 
 /**
  * @deprecated responses should correspond directly to the specification
@@ -45,13 +42,7 @@ public class ListResponse extends AbstractImapResponse {
         messages.add(message);
     }
     
-    protected void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
-        for (final Iterator it=messages.iterator();it.hasNext();) {
-            String message = (String) it.next();
-            response.commandResponse(command, message);
-        }
-        session.unsolicitedResponses( response, false );
-        response.commandComplete( command, tag );
+    public List getMessages() {
+        return Collections.unmodifiableList(messages);
     }
-    
 }

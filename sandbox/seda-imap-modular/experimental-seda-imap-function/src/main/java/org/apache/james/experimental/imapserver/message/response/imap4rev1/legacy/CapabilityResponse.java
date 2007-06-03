@@ -19,11 +19,7 @@
 package org.apache.james.experimental.imapserver.message.response.imap4rev1.legacy;
 
 import org.apache.james.api.imap.ImapCommand;
-import org.apache.james.api.imap.ImapConstants;
-import org.apache.james.experimental.imapserver.ImapSession;
-import org.apache.james.experimental.imapserver.encode.ImapResponse;
 import org.apache.james.experimental.imapserver.message.response.AbstractImapResponse;
-import org.apache.james.imapserver.store.MailboxException;
 
 /**
  * @deprecated responses should correspond directly to the specification
@@ -32,13 +28,5 @@ public class CapabilityResponse extends AbstractImapResponse {
 
     public CapabilityResponse(ImapCommand command, String tag) {
         super(command, tag);
-    }
-
-    protected void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
-        // TODO: inject capability text
-        response.untaggedResponse( ImapConstants.CAPABILITY_RESPONSE );
-        session.unsolicitedResponses( response, false);
-        response.commandComplete( command , tag );            
-    }
-    
+    }    
 }

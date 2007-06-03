@@ -31,7 +31,7 @@ import org.apache.james.api.imap.message.MessageFlags;
  * Class providing methods to send response messages from the server
  * to the client.
  */
-public class ImapResponse extends AbstractLogEnabled implements ImapConstants, ImapResponseWriter {
+public class ImapResponseComposer extends AbstractLogEnabled implements ImapConstants, ImapResponseWriter {
     
     public static final String FETCH = "FETCH";
     public static final String EXPUNGE = "EXPUNGE";
@@ -41,7 +41,7 @@ public class ImapResponse extends AbstractLogEnabled implements ImapConstants, I
     public static final String FAILED = "failed.";
     private final ImapResponseWriter writer;
 
-    public ImapResponse( final ImapResponseWriter writer )
+    public ImapResponseComposer( final ImapResponseWriter writer )
     {
         this.writer = writer;
     }
@@ -184,6 +184,23 @@ public class ImapResponse extends AbstractLogEnabled implements ImapConstants, I
         end();
     }
 
+    /**
+     * Writes an untagged NO response.
+     * Indicates that a warning.
+     * The command may still complete sucessfully.
+     * @param displayMessage message for display, not null
+     * @param responseCode response code 
+     * or null when there is no response code
+     */
+    public void untaggedNoResponse(String displayMessage, String responseCode)
+    {
+        untagged();
+        message( NO );
+        responseCode( responseCode );
+        message( displayMessage );
+        end();
+    }
+    
     public void flagsResponse( Flags flags )
     {
         untagged();
@@ -281,6 +298,9 @@ public class ImapResponse extends AbstractLogEnabled implements ImapConstants, I
     public void message( final String message )
     {
         if ( message != null ) {
+            // TODO: consider message normalisation
+            // TODO: CR/NFs in message must be replaced
+            // TODO: probably best done in the writer
             writer.message(message);
         }
     }

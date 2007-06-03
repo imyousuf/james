@@ -17,18 +17,24 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.experimental.imapserver.message.response;
+package org.apache.james.experimental.imapserver.encode;
 
 import org.apache.james.api.imap.ImapMessage;
-
+import org.apache.james.experimental.imapserver.ImapSession;
 
 /**
- * <p>Responds to an IMAP command.</p>
- * <p>
- * <strong>Note:</strong> this is a transitional API
- * and is liable to change.
- * </p>
+ * TODO: correct this API
  */
-public interface ImapResponseMessage extends ImapMessage{
+public interface ImapEncoder {
+
     
+    /**
+     * Writes response.
+     * TODO: remove coupling on session
+     * TODO: pass in writer rather than composer
+     * @param message <code>ImapMessage</code>, not null
+     * @param composer <code>ImapResponseComposer</code>, not null
+     * @param session <code>ImapSession</code>, not null
+     */
+    void encode( ImapMessage message, ImapResponseComposer composer, ImapSession session );
 }

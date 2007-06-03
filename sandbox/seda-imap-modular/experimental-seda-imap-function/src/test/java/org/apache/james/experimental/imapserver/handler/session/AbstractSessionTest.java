@@ -46,6 +46,7 @@ import org.apache.james.experimental.imapserver.ImapSessionImpl;
 import org.apache.james.experimental.imapserver.StandardFactory;
 import org.apache.james.experimental.imapserver.TestConstants;
 import org.apache.james.experimental.imapserver.client.Command;
+import org.apache.james.experimental.imapserver.encode.main.DefaultImapEncoderFactory;
 import org.apache.james.experimental.imapserver.mock.MockImapHandler;
 import org.apache.james.experimental.imapserver.mock.MockImapHandlerConfigurationData;
 import org.apache.james.experimental.imapserver.mock.MockUser;
@@ -84,7 +85,8 @@ public abstract class AbstractSessionTest extends MockObjectTestCase implements 
                 HOST_NAME, HOST_ADDRESS);
         ((LogEnabled)session).enableLogging(new MockLogger());
         handler = new ImapRequestHandler(StandardFactory.createDecoder(),  
-                DefaultImapProcessorFactory.createDefaultProcessor(theConfigData.getUsersRepository(), theConfigData.getMailboxManagerProvider()));
+                DefaultImapProcessorFactory.createDefaultProcessor(theConfigData.getUsersRepository(), theConfigData.getMailboxManagerProvider()),
+                        DefaultImapEncoderFactory.createDefaultEncoder());
         handler.enableLogging(new MockLogger());
         mailboxManager=theConfigData.getMailboxManagerProvider().getMailboxManagerInstance(new MockUser());
 

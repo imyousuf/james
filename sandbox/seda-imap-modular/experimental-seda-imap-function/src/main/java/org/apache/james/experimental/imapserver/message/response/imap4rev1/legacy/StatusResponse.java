@@ -19,10 +19,7 @@
 package org.apache.james.experimental.imapserver.message.response.imap4rev1.legacy;
 
 import org.apache.james.api.imap.ImapCommand;
-import org.apache.james.experimental.imapserver.ImapSession;
-import org.apache.james.experimental.imapserver.encode.ImapResponse;
 import org.apache.james.experimental.imapserver.message.response.AbstractImapResponse;
-import org.apache.james.imapserver.store.MailboxException;
 
 /**
  * @deprecated responses should correspond directly to the specification
@@ -35,9 +32,7 @@ public class StatusResponse extends AbstractImapResponse {
         this.message = message;
     }
 
-    protected void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
-        response.commandResponse( command, message);
-        session.unsolicitedResponses( response, false );
-        response.commandComplete( command, tag );
+    public final String getMessage() {
+        return message;
     }
 }

@@ -16,26 +16,42 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.experimental.imapserver.message.response.imap4rev1.legacy;
+
+package org.apache.james.experimental.imapserver.encode.imap4rev1.legacy;
 
 import org.apache.james.api.imap.ImapCommand;
-import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.api.imap.ImapMessage;
-import org.apache.james.experimental.imapserver.message.response.AbstractImapResponse;
+import org.apache.james.experimental.imapserver.ImapSession;
+import org.apache.james.experimental.imapserver.encode.ImapEncoder;
+import org.apache.james.experimental.imapserver.encode.ImapResponseComposer;
+import org.apache.james.experimental.imapserver.encode.base.AbstractChainedImapEncoder;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.legacy.CommandFailedResponse;
 
 /**
  * @deprecated responses should correspond directly to the specification
  */
-public class LogoutResponse extends AbstractImapResponse implements ImapMessage {
+public class CommandFailedResponseEncoder extends AbstractChainedImapEncoder {
 
-    // TODO: inject message
-    public static final String BYE_MESSAGE = ImapConstants.VERSION + ImapConstants.SP + "Server logging out";
-    
-    public LogoutResponse(final ImapCommand command, final String tag) {
-        super(command, tag);
+    public CommandFailedResponseEncoder(ImapEncoder next) {
+        super(next);
     }
-    
-    public String getMessage() {
-        return BYE_MESSAGE;
+
+
+    protected void doEncode(ImapMessage acceptableMessage, ImapResponseComposer composer, ImapSession session) {
+        CommandFailedResponse response = (CommandFailedResponse) acceptableMessage;
+        final String responseCode = response.getResponseCode();
+        final ImapCommand command = response.getCommand();
+        final String reason = response.getReason();
+        final String tag = response.getTag();
+        if (responseCode == null) {
+            composer.commandFailed(command, reason, tag);
+        } else {
+            composer.commandFailed(command, responseCode, reason, tag);
+        }
     }
+
+    protected boolean isAcceptable(ImapMessage message) {
+        return (message instanceof CommandFailedResponse);
+    }
+
 }

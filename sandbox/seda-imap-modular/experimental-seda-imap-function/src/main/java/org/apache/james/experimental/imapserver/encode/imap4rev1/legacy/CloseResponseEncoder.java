@@ -16,32 +16,40 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
+package org.apache.james.experimental.imapserver.encode.imap4rev1.legacy;
 
-package org.apache.james.experimental.imapserver.message.response;
-
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.api.imap.ImapCommand;
+import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.experimental.imapserver.ImapSession;
+import org.apache.james.experimental.imapserver.encode.ImapEncoder;
 import org.apache.james.experimental.imapserver.encode.ImapResponseComposer;
-import org.apache.james.imapserver.store.MailboxException;
+import org.apache.james.experimental.imapserver.encode.base.AbstractChainedImapEncoder;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.legacy.CloseResponse;
 
-abstract public class AbstractImapResponse extends AbstractLogEnabled implements ImapResponseMessage {
+/**
+ * @deprecated use specification model
+ */
+public class CloseResponseEncoder extends AbstractChainedImapEncoder {
 
-    private final ImapCommand command;
-    private final String tag;
-
-    public AbstractImapResponse(final ImapCommand command, final String tag) {
-        super();
-        this.command = command;
-        this.tag = tag;
-    }
-    
-    public final String getTag() {
-        return tag;
+    public CloseResponseEncoder(ImapEncoder next) {
+        super(next);
     }
 
-    public ImapCommand getCommand() {
-        return command;
+    protected void doEncode(ImapMessage acceptableMessage,
+            ImapResponseComposer composer, ImapSession session) {
+        CloseResponse response = (CloseResponse) acceptableMessage;
+        //TODO: the following comment was present in the code before refactoring
+        //TODO: doesn't seem to match the implementation
+        //TODO: check that implementation is correct
+        //          Don't send unsolicited responses on close.
+        session.unsolicitedResponses(composer, false);
+        final String tag = response.getTag();
+        final ImapCommand command = response.getCommand();
+        composer.commandComplete(command, tag);
+        //TODO: what about the bye?            
+    }
+
+    protected boolean isAcceptable(ImapMessage message) {
+        return (message instanceof CloseResponse);
     }
 }

@@ -20,8 +20,6 @@
 package org.apache.james.experimental.imapserver.message.response.imap4rev1.legacy;
 
 import org.apache.james.api.imap.ImapMessage;
-import org.apache.james.experimental.imapserver.ImapSession;
-import org.apache.james.experimental.imapserver.encode.ImapResponse;
 import org.apache.james.experimental.imapserver.message.response.ImapResponseMessage;
 
 /**
@@ -45,12 +43,11 @@ public class BadResponse implements ImapMessage,
         this.tag = tag;
     }
 
-    public void encode(ImapResponse response, ImapSession session) {
-    	if (tag == null) {
-    		response.badResponse(message);
-    	} else {
-    		response.badResponse(message, tag);
-    	}
+    public final String getMessage() {
+        return message;
     }
 
+    public final String getTag() {
+        return tag;
+    }
 }

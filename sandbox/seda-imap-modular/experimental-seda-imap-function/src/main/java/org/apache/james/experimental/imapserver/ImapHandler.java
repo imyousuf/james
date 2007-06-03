@@ -29,7 +29,8 @@ import org.apache.james.Constants;
 import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.core.AbstractJamesHandler;
-import org.apache.james.experimental.imapserver.encode.ImapResponse;
+import org.apache.james.experimental.imapserver.encode.ImapResponseComposer;
+import org.apache.james.experimental.imapserver.encode.main.DefaultImapEncoderFactory;
 import org.apache.james.experimental.imapserver.encode.writer.OutputStreamImapResponseWriter;
 import org.apache.james.experimental.imapserver.processor.main.DefaultImapProcessorFactory;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
@@ -75,7 +76,8 @@ public class ImapHandler
             final MailboxManagerProvider mailboxManagerProvider = theConfigData.getMailboxManagerProvider();
 //          TODO: inject dependency
             requestHandler = new ImapRequestHandler(StandardFactory.createDecoder(), 
-                    DefaultImapProcessorFactory.createDefaultProcessor(usersRepository, mailboxManagerProvider));
+                    DefaultImapProcessorFactory.createDefaultProcessor(usersRepository, mailboxManagerProvider),
+                    DefaultImapEncoderFactory.createDefaultEncoder());
         } else {
             throw new IllegalArgumentException("Configuration object does not implement POP3HandlerConfigurationData");
         }
@@ -84,7 +86,7 @@ public class ImapHandler
     public void forceConnectionClose(final String message) {
         getLogger().debug("forceConnectionClose: "+message);
         final OutputStreamImapResponseWriter writer = new OutputStreamImapResponseWriter(outs);
-        ImapResponse response = new ImapResponse(writer);
+        ImapResponseComposer response = new ImapResponseComposer(writer);
         response.byeResponse(message);
         endSession();
     }
@@ -141,7 +143,7 @@ public class ImapHandler
     protected void handleProtocol() throws IOException {
         try {
             final OutputStreamImapResponseWriter writer = new OutputStreamImapResponseWriter( outs );
-            ImapResponse response = new ImapResponse( writer);
+            ImapResponseComposer response = new ImapResponseComposer( writer);
 
             // Write welcome message
                  
