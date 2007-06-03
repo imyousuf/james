@@ -22,8 +22,8 @@ package org.apache.james.experimental.imapserver.message.response;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.api.imap.ImapCommand;
-import org.apache.james.experimental.imapserver.ImapResponse;
 import org.apache.james.experimental.imapserver.ImapSession;
+import org.apache.james.experimental.imapserver.encode.ImapResponse;
 import org.apache.james.imapserver.store.MailboxException;
 
 abstract public class AbstractImapResponse extends AbstractLogEnabled implements ImapResponseMessage {

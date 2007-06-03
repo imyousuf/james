@@ -30,7 +30,7 @@ import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.message.request.ImapRequest;
 import org.apache.james.experimental.imapserver.message.request.imap4rev1.StatusRequest;
 import org.apache.james.experimental.imapserver.message.response.ImapResponseMessage;
-import org.apache.james.experimental.imapserver.message.response.imap4rev1.StatusResponse;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.legacy.StatusResponse;
 import org.apache.james.experimental.imapserver.processor.ImapProcessor;
 import org.apache.james.experimental.imapserver.processor.base.AbstractMailboxAwareProcessor;
 import org.apache.james.imapserver.store.MailboxException;

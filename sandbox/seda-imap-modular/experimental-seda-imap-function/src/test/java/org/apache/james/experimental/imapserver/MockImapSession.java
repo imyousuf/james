@@ -4,9 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.james.api.imap.ImapSessionState;
-import org.apache.james.experimental.imapserver.ImapResponse;
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.SelectedMailboxSession;
+import org.apache.james.experimental.imapserver.encode.ImapResponse;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;

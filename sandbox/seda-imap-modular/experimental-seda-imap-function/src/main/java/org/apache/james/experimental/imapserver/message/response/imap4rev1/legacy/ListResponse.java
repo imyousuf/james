@@ -16,25 +16,42 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
+package org.apache.james.experimental.imapserver.message.response.imap4rev1.legacy;
 
-package org.apache.james.experimental.imapserver.message.response;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
+import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.encode.ImapResponse;
+import org.apache.james.experimental.imapserver.message.response.AbstractImapResponse;
+import org.apache.james.imapserver.store.MailboxException;
 
 /**
- * <p>Responds to an IMAP command.</p>
- * <p>
- * <strong>Note:</strong> this is a transitional API
- * and is liable to change.
- * </p>
+ * @deprecated responses should correspond directly to the specification
  */
-public interface ImapResponseMessage {
+public class ListResponse extends AbstractImapResponse {
+    private List messages = new ArrayList();
     
-    /**
-     * Writes response.
-     * @param response <code>ImapResponse</code>, not null
-     * @param session <code>ImapSession</code>, not null
-     */
-    void encode( ImapResponse response, ImapSession session );
+    public ListResponse(final ImapCommand command, final String tag) {
+        super(command, tag);
+    }
+    
+    public void addMessageData(String message) {
+        // TODO: this isn't efficient
+        // TODO: better to stream results
+    	// TODO: pass data objects back and then encode
+        messages.add(message);
+    }
+    
+    protected void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
+        for (final Iterator it=messages.iterator();it.hasNext();) {
+            String message = (String) it.next();
+            response.commandResponse(command, message);
+        }
+        session.unsolicitedResponses( response, false );
+        response.commandComplete( command, tag );
+    }
+    
 }

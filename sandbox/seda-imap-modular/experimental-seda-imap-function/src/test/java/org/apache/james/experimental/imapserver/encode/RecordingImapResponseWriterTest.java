@@ -18,10 +18,9 @@
  ****************************************************************/
 package org.apache.james.experimental.imapserver.encode;
 
-import org.apache.james.experimental.imapserver.ImapResponse;
 import org.apache.james.experimental.imapserver.MockImapResponseWriter;
 import org.apache.james.experimental.imapserver.MockImapSession;
-import org.apache.james.experimental.imapserver.encode.RecordingImapResponseWriter;
+import org.apache.james.experimental.imapserver.encode.writer.RecordingImapResponseWriter;
 
 import junit.framework.TestCase;
 

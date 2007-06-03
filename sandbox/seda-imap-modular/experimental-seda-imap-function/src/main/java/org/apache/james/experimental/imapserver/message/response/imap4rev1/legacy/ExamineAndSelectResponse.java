@@ -16,17 +16,20 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.experimental.imapserver.message.response.imap4rev1;
+package org.apache.james.experimental.imapserver.message.response.imap4rev1.legacy;
 
 import javax.mail.Flags;
 
 import org.apache.james.api.imap.ImapCommand;
-import org.apache.james.experimental.imapserver.ImapResponse;
 import org.apache.james.experimental.imapserver.ImapSession;
+import org.apache.james.experimental.imapserver.encode.ImapResponse;
 import org.apache.james.experimental.imapserver.message.response.AbstractImapResponse;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MessageResult;
 
+/**
+ * @deprecated responses should correspond directly to the specification
+ */
 public class ExamineAndSelectResponse extends AbstractImapResponse {
     private final Flags permanentFlags;
     private final boolean writeable ;

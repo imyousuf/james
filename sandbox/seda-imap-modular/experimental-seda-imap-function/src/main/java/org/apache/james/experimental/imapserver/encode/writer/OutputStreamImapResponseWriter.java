@@ -17,14 +17,14 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.experimental.imapserver.encode;
+package org.apache.james.experimental.imapserver.encode.writer;
 
 import java.io.OutputStream;
 import java.io.PrintWriter;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.api.imap.ImapConstants;
-import org.apache.james.experimental.imapserver.ImapResponseWriter;
+import org.apache.james.experimental.imapserver.encode.ImapResponseWriter;
 import org.apache.james.util.InternetPrintWriter;
 
 /**

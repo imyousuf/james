@@ -16,26 +16,41 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.experimental.imapserver.message.response.imap4rev1;
 
-import org.apache.james.api.imap.ImapCommand;
-import org.apache.james.experimental.imapserver.ImapResponse;
+package org.apache.james.experimental.imapserver.message.response.imap4rev1.legacy;
+
+import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.experimental.imapserver.ImapSession;
-import org.apache.james.experimental.imapserver.message.response.AbstractImapResponse;
-import org.apache.james.imapserver.store.MailboxException;
+import org.apache.james.experimental.imapserver.encode.ImapResponse;
+import org.apache.james.experimental.imapserver.message.response.ImapResponseMessage;
 
-public class CloseResponse extends AbstractImapResponse {
-        public CloseResponse(ImapCommand command, String tag) {
-            super(command, tag);
-        }
+/**
+ * Carries the response to a request with bad syntax..
+ * @deprecated responses should correspond directly to the specification
+ */
+public class BadResponse implements ImapMessage,
+        ImapResponseMessage {
 
-        protected void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
-            //TODO: the following comment was present in the code before refactoring
-            //TODO: doesn't seem to match the implementation
-            //TODO: check that implementation is correct
-//          Don't send unsolicited responses on close.
-            session.unsolicitedResponses( response, false );
-            response.commandComplete( command , tag);
-            //TODO: what about the bye?
-        }
+    private final String message;
+    private final String tag;
+    
+    public BadResponse(final String message) {
+    	// TODO: check calls that use this are specficiation compliant
+    	this(message, null);
     }
+    
+    public BadResponse(final String message, final String tag) {
+        super();
+        this.message = message;
+        this.tag = tag;
+    }
+
+    public void encode(ImapResponse response, ImapSession session) {
+    	if (tag == null) {
+    		response.badResponse(message);
+    	} else {
+    		response.badResponse(message, tag);
+    	}
+    }
+
+}

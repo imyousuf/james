@@ -16,31 +16,31 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.experimental.imapserver.message.response.imap4rev1;
 
-import org.apache.james.api.imap.ImapCommand;
-import org.apache.james.experimental.imapserver.ImapResponse;
+package org.apache.james.experimental.imapserver.message.response.imap4rev1.legacy;
+
+import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.experimental.imapserver.ImapSession;
-import org.apache.james.experimental.imapserver.message.response.AbstractImapResponse;
-import org.apache.james.imapserver.store.MailboxException;
+import org.apache.james.experimental.imapserver.encode.ImapResponse;
+import org.apache.james.experimental.imapserver.message.response.ImapResponseMessage;
 
-public class SearchResponse extends AbstractImapResponse {
-    private final String idList;
-    private final boolean useUids;
+/**
+ * Carries an error response.
+ * TODO: this response is not listed in the specification
+ * TODO: and should be replaced
+ * @deprecated responses should correspond directly to the specification
+ */
+public class ErrorResponse implements ImapResponseMessage, ImapMessage {
+
+    private final String message;
+    private final String tag;
     
-    public SearchResponse(final ImapCommand command, final String idList, 
-            final boolean useUids, final String tag) {
-        super(command, tag);
-        this.idList = idList;
-        this.useUids = useUids;
+    public ErrorResponse(final String message, String tag) {
+        this.message = message;
+        this.tag = tag;
     }
     
-    protected void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
-        
-        response.commandResponse( command, idList );
-        boolean omitExpunged = (!useUids);
-        session.unsolicitedResponses( response, omitExpunged, useUids );
-        response.commandComplete( command, tag );  
+    public void encode(ImapResponse response, ImapSession session) {
+        response.commandError(message, tag);
     }
-    
 }

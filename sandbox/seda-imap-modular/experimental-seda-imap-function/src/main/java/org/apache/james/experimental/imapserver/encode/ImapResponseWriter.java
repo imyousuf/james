@@ -17,29 +17,50 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.experimental.imapserver.message.response.imap4rev1;
-
-import org.apache.james.api.imap.ImapMessage;
-import org.apache.james.experimental.imapserver.ImapResponse;
-import org.apache.james.experimental.imapserver.ImapSession;
-import org.apache.james.experimental.imapserver.message.response.ImapResponseMessage;
+package org.apache.james.experimental.imapserver.encode;
 
 /**
- * Carries an error response.
- * TODO: this response is not listed in the specification
- * TODO: and should be replaced
+ * <p>Writes IMAP response.</p>
+ * <p>Factors out basic IMAP reponse writing operations 
+ * from higher level ones.</p>
  */
-public class ErrorResponse implements ImapResponseMessage, ImapMessage {
+public interface ImapResponseWriter {
 
-    private final String message;
-    private final String tag;
-    
-    public ErrorResponse(final String message, String tag) {
-        this.message = message;
-        this.tag = tag;
-    }
-    
-    public void encode(ImapResponse response, ImapSession session) {
-        response.commandError(message, tag);
-    }
+    /**
+     * Starts an untagged response.
+     *
+     */
+    void untagged();
+
+    /**
+     * Starts a tagged response.
+     * @param tag the tag, not null
+     */
+    void tag(String tag);
+
+    /**
+     * Writes a command name.
+     * @param commandName the command name, not null
+     */
+    void commandName( String commandName );
+
+    /**
+     * Writes a message.
+     * @param message the message, not null
+     */
+    void message( String message );
+
+    void message( int number );
+
+    /**
+     * Writes a response code.
+     * @param responseCode the response code, not null
+     */
+    void responseCode( String responseCode );
+
+    /**
+     * Ends a response.
+     *
+     */
+    void end();
 }

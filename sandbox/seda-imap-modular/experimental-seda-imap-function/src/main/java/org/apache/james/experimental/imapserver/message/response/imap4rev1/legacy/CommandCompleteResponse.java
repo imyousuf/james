@@ -17,11 +17,11 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.experimental.imapserver.message.response.imap4rev1;
+package org.apache.james.experimental.imapserver.message.response.imap4rev1.legacy;
 
 import org.apache.james.api.imap.ImapCommand;
-import org.apache.james.experimental.imapserver.ImapResponse;
 import org.apache.james.experimental.imapserver.ImapSession;
+import org.apache.james.experimental.imapserver.encode.ImapResponse;
 import org.apache.james.experimental.imapserver.message.response.AbstractImapResponse;
 import org.apache.james.experimental.imapserver.message.response.ImapResponseMessage;
 import org.apache.james.imapserver.store.MailboxException;
@@ -29,6 +29,7 @@ import org.apache.james.imapserver.store.MailboxException;
 /**
  * 
  * TODO: replace this with ok response?
+ * @deprecated responses should correspond directly to the specification
  */
 public class CommandCompleteResponse extends AbstractImapResponse implements ImapResponseMessage {
 

@@ -16,26 +16,28 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.experimental.imapserver.message.response.imap4rev1;
+package org.apache.james.experimental.imapserver.message.response.imap4rev1.legacy;
 
 import org.apache.james.api.imap.ImapCommand;
-import org.apache.james.api.imap.ImapConstants;
-import org.apache.james.experimental.imapserver.ImapResponse;
 import org.apache.james.experimental.imapserver.ImapSession;
+import org.apache.james.experimental.imapserver.encode.ImapResponse;
 import org.apache.james.experimental.imapserver.message.response.AbstractImapResponse;
 import org.apache.james.imapserver.store.MailboxException;
 
-public class CapabilityResponse extends AbstractImapResponse {
-
-    public CapabilityResponse(ImapCommand command, String tag) {
+/**
+ * @deprecated responses should correspond directly to the specification
+ */
+public class StatusResponse extends AbstractImapResponse {
+    private final String message;
+    
+    public StatusResponse(ImapCommand command, final String message, final String tag) {
         super(command, tag);
+        this.message = message;
     }
 
     protected void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
-        // TODO: inject capability text
-        response.untaggedResponse( ImapConstants.CAPABILITY_RESPONSE );
-        session.unsolicitedResponses( response, false);
-        response.commandComplete( command , tag );            
+        response.commandResponse( command, message);
+        session.unsolicitedResponses( response, false );
+        response.commandComplete( command, tag );
     }
-    
 }

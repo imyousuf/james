@@ -25,7 +25,7 @@ import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.experimental.imapserver.AuthorizationException;
 import org.apache.james.experimental.imapserver.ImapSession;
 import org.apache.james.experimental.imapserver.message.response.ImapResponseMessage;
-import org.apache.james.experimental.imapserver.message.response.imap4rev1.ListResponse;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.legacy.ListResponse;
 import org.apache.james.experimental.imapserver.processor.ImapProcessor;
 import org.apache.james.experimental.imapserver.processor.base.AbstractMailboxAwareProcessor;
 import org.apache.james.imapserver.store.MailboxException;

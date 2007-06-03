@@ -24,8 +24,8 @@ import javax.mail.Flags;
 import junit.framework.TestCase;
 
 import org.apache.james.api.imap.ImapConstants;
-import org.apache.james.experimental.imapserver.ImapResponse;
 import org.apache.james.experimental.imapserver.commands.MockCommand;
+import org.apache.james.experimental.imapserver.encode.ImapResponse;
 import org.apache.james.api.imap.message.MessageFlags;
 
 public class ImapResponseTest extends TestCase {

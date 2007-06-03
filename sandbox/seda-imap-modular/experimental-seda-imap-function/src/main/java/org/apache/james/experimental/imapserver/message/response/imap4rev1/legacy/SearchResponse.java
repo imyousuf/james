@@ -16,25 +16,34 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.experimental.imapserver.message.response.imap4rev1;
+package org.apache.james.experimental.imapserver.message.response.imap4rev1.legacy;
 
 import org.apache.james.api.imap.ImapCommand;
-import org.apache.james.experimental.imapserver.ImapResponse;
 import org.apache.james.experimental.imapserver.ImapSession;
+import org.apache.james.experimental.imapserver.encode.ImapResponse;
 import org.apache.james.experimental.imapserver.message.response.AbstractImapResponse;
 import org.apache.james.imapserver.store.MailboxException;
 
-public class StatusResponse extends AbstractImapResponse {
-    private final String message;
+/**
+ * @deprecated responses should correspond directly to the specification
+ */
+public class SearchResponse extends AbstractImapResponse {
+    private final String idList;
+    private final boolean useUids;
     
-    public StatusResponse(ImapCommand command, final String message, final String tag) {
+    public SearchResponse(final ImapCommand command, final String idList, 
+            final boolean useUids, final String tag) {
         super(command, tag);
-        this.message = message;
+        this.idList = idList;
+        this.useUids = useUids;
     }
-
+    
     protected void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
-        response.commandResponse( command, message);
-        session.unsolicitedResponses( response, false );
-        response.commandComplete( command, tag );
+        
+        response.commandResponse( command, idList );
+        boolean omitExpunged = (!useUids);
+        session.unsolicitedResponses( response, omitExpunged, useUids );
+        response.commandComplete( command, tag );  
     }
+    
 }

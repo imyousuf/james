@@ -16,51 +16,30 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
+package org.apache.james.experimental.imapserver.message.response.imap4rev1.legacy;
 
-package org.apache.james.experimental.imapserver;
+import org.apache.james.api.imap.ImapCommand;
+import org.apache.james.experimental.imapserver.ImapSession;
+import org.apache.james.experimental.imapserver.encode.ImapResponse;
+import org.apache.james.experimental.imapserver.message.response.AbstractImapResponse;
+import org.apache.james.imapserver.store.MailboxException;
 
 /**
- * <p>Writes IMAP response.</p>
- * <p>Factors out basic IMAP reponse writing operations 
- * from higher level ones.</p>
+ * TODO: this is probably redundent 
+ * @deprecated responses should correspond directly to the specification
  */
-public interface ImapResponseWriter {
+public class StoreResponse extends AbstractImapResponse {
+    private final boolean useUids;
+    
+    public StoreResponse(ImapCommand command, final boolean useUids, final String tag) {
+        super(command, tag);
+        this.useUids = useUids;
+    }
 
-    /**
-     * Starts an untagged response.
-     *
-     */
-    void untagged();
-
-    /**
-     * Starts a tagged response.
-     * @param tag the tag, not null
-     */
-    void tag(String tag);
-
-    /**
-     * Writes a command name.
-     * @param commandName the command name, not null
-     */
-    void commandName( String commandName );
-
-    /**
-     * Writes a message.
-     * @param message the message, not null
-     */
-    void message( String message );
-
-    void message( int number );
-
-    /**
-     * Writes a response code.
-     * @param responseCode the response code, not null
-     */
-    void responseCode( String responseCode );
-
-    /**
-     * Ends a response.
-     *
-     */
-    void end();
+    protected void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
+        boolean omitExpunged = (!useUids);
+        session.unsolicitedResponses( response, omitExpunged , useUids);
+        response.commandComplete( command, tag );            
+    }
+    
 }

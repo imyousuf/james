@@ -20,6 +20,7 @@
 package org.apache.james.experimental.imapserver;
 
 import org.apache.james.api.imap.ImapSessionState;
+import org.apache.james.experimental.imapserver.encode.ImapResponse;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;

@@ -16,39 +16,32 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.experimental.imapserver.message.response.imap4rev1;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+package org.apache.james.experimental.imapserver.message.response.imap4rev1.legacy;
 
 import org.apache.james.api.imap.ImapCommand;
-import org.apache.james.experimental.imapserver.ImapResponse;
+import org.apache.james.api.imap.ImapConstants;
+import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.experimental.imapserver.ImapSession;
+import org.apache.james.experimental.imapserver.encode.ImapResponse;
 import org.apache.james.experimental.imapserver.message.response.AbstractImapResponse;
 import org.apache.james.imapserver.store.MailboxException;
 
-public class ListResponse extends AbstractImapResponse {
-    private List messages = new ArrayList();
+/**
+ * @deprecated responses should correspond directly to the specification
+ */
+public class LogoutResponse extends AbstractImapResponse implements ImapMessage {
+
+
+    public static final String BYE_MESSAGE = ImapConstants.VERSION + ImapConstants.SP + "Server logging out";
     
-    public ListResponse(final ImapCommand command, final String tag) {
+    public LogoutResponse(final ImapCommand command, final String tag) {
         super(command, tag);
     }
-    
-    public void addMessageData(String message) {
-        // TODO: this isn't efficient
-        // TODO: better to stream results
-    	// TODO: pass data objects back and then encode
-        messages.add(message);
-    }
-    
+
     protected void doEncode(ImapResponse response, ImapSession session, ImapCommand command, String tag) throws MailboxException {
-        for (final Iterator it=messages.iterator();it.hasNext();) {
-            String message = (String) it.next();
-            response.commandResponse(command, message);
-        }
-        session.unsolicitedResponses( response, false );
+        response.byeResponse( BYE_MESSAGE );
         response.commandComplete( command, tag );
+        // TODO: think about how this will work with SEDA
+        session.closeConnection();            
     }
-    
 }

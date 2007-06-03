@@ -16,16 +16,16 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.experimental.imapserver.encode;
+package org.apache.james.experimental.imapserver.encode.writer;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import org.apache.james.api.imap.ImapMessage;
-import org.apache.james.experimental.imapserver.ImapResponse;
-import org.apache.james.experimental.imapserver.ImapResponseWriter;
 import org.apache.james.experimental.imapserver.ImapSession;
+import org.apache.james.experimental.imapserver.encode.ImapResponse;
+import org.apache.james.experimental.imapserver.encode.ImapResponseWriter;
 import org.apache.james.experimental.imapserver.message.response.ImapResponseMessage;
 
 public class RecordingImapResponseWriter implements ImapResponseMessage,

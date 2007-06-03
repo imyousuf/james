@@ -31,8 +31,8 @@ import org.apache.james.api.imap.message.FetchData;
 import org.apache.james.api.imap.message.IdRange;
 import org.apache.james.api.imap.message.StatusDataItems;
 import org.apache.james.api.imap.message.StoreDirective;
-import org.apache.james.experimental.imapserver.message.response.imap4rev1.BadResponse;
-import org.apache.james.experimental.imapserver.message.response.imap4rev1.ErrorResponse;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.legacy.BadResponse;
+import org.apache.james.experimental.imapserver.message.response.imap4rev1.legacy.ErrorResponse;
 
 /**
  * Naive, factory creates unpooled instances.
