@@ -27,13 +27,13 @@ import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.api.imap.ImapSessionState;
 import org.apache.james.api.imap.ProtocolException;
-import org.apache.james.experimental.imapserver.encode.ImapEncoder;
-import org.apache.james.experimental.imapserver.encode.ImapResponseComposer;
+import org.apache.james.api.imap.message.response.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.encode.writer.OutputStreamImapResponseWriter;
-import org.apache.james.experimental.imapserver.message.response.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.processor.ImapProcessor;
 import org.apache.james.imapserver.codec.decode.ImapDecoder;
 import org.apache.james.imapserver.codec.decode.ImapRequestLineReader;
+import org.apache.james.imapserver.codec.encode.ImapEncoder;
+import org.apache.james.imapserver.codec.encode.ImapResponseComposer;
 
 /**
  * @version $Revision: 109034 $

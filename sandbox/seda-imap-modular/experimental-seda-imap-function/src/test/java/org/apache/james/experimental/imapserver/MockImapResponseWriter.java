@@ -22,7 +22,7 @@ package org.apache.james.experimental.imapserver;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.james.experimental.imapserver.encode.ImapResponseWriter;
+import org.apache.james.imapserver.codec.encode.ImapResponseWriter;
 
 public class MockImapResponseWriter implements ImapResponseWriter {
 

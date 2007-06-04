@@ -24,7 +24,7 @@ import java.io.PrintWriter;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.api.imap.ImapConstants;
-import org.apache.james.experimental.imapserver.encode.ImapResponseWriter;
+import org.apache.james.imapserver.codec.encode.ImapResponseWriter;
 import org.apache.james.util.InternetPrintWriter;
 
 /**

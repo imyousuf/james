@@ -29,10 +29,10 @@ import org.apache.james.Constants;
 import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.core.AbstractJamesHandler;
-import org.apache.james.experimental.imapserver.encode.ImapResponseComposer;
-import org.apache.james.experimental.imapserver.encode.main.DefaultImapEncoderFactory;
 import org.apache.james.experimental.imapserver.encode.writer.OutputStreamImapResponseWriter;
 import org.apache.james.experimental.imapserver.processor.main.DefaultImapProcessorFactory;
+import org.apache.james.imapserver.codec.encode.ImapResponseComposer;
+import org.apache.james.imapserver.codec.encode.main.DefaultImapEncoderFactory;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 import org.apache.james.services.UsersRepository;
 

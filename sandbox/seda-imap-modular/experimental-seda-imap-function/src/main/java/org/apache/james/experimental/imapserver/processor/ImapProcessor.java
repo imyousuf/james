@@ -20,8 +20,8 @@
 package org.apache.james.experimental.imapserver.processor;
 
 import org.apache.james.api.imap.ImapMessage;
+import org.apache.james.api.imap.message.response.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.ImapSession;
-import org.apache.james.experimental.imapserver.message.response.ImapResponseMessage;
 
 /**
  * <p>

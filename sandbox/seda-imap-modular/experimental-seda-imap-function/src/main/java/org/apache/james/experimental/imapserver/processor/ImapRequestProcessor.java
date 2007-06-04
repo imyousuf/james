@@ -19,9 +19,9 @@
 
 package org.apache.james.experimental.imapserver.processor;
 
+import org.apache.james.api.imap.message.request.ImapRequest;
+import org.apache.james.api.imap.message.response.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.ImapSession;
-import org.apache.james.experimental.imapserver.message.request.ImapRequest;
-import org.apache.james.experimental.imapserver.message.response.ImapResponseMessage;
 
 /**
  * <p>

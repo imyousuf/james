@@ -23,13 +23,13 @@ import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.api.imap.ProtocolException;
+import org.apache.james.api.imap.message.request.ImapRequest;
+import org.apache.james.api.imap.message.response.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.AuthorizationException;
 import org.apache.james.experimental.imapserver.ImapSession;
-import org.apache.james.experimental.imapserver.message.request.ImapRequest;
-import org.apache.james.experimental.imapserver.message.response.ImapResponseMessage;
-import org.apache.james.experimental.imapserver.message.response.imap4rev1.legacy.CommandFailedResponse;
-import org.apache.james.experimental.imapserver.message.response.imap4rev1.legacy.ErrorResponse;
 import org.apache.james.experimental.imapserver.processor.ImapProcessor;
+import org.apache.james.imap.message.response.imap4rev1.legacy.CommandFailedResponse;
+import org.apache.james.imap.message.response.imap4rev1.legacy.ErrorResponse;
 import org.apache.james.imapserver.store.MailboxException;
 
 abstract public class AbstractImapRequestProcessor extends
