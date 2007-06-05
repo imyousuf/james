@@ -6,8 +6,8 @@ The current version of this file can be found at:
   * http://svn.apache.org/repos/asf/james/server/trunk/STATUS
 
 Releases:
-    Stable:         2.3.0
-    Maintenance:    2.3.1   
+    Stable:         2.3.1
+    Maintenance:    2.3.1?   
         Will contain defect fixes tracked in JIRA
     Next-Minor:     probably 2.4.0
         Based on v2.3 branch, will contain selected backports from trunk.
@@ -75,8 +75,8 @@ Sandbox:
                             Refactor service location function to JNDI is 10% complete
     
     spring-integration
-        Goal: run James Server using Spring Framework instead of Phoenix/Avalon
-        Status: completed prototype
+        Goal: create a spring-deployment module, run James Server using Spring Framework
+        Status: completed prototype, currently in iteration
         Owner: berndf
     
     mailbox-namespaces
