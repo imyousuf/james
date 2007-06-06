@@ -67,7 +67,7 @@ public class LoginProcessor extends AbstractImapRequestProcessor {
         final ImapResponseMessage result;
         if ( users.test( userid, password ) ) {
             User user = users.getUserByName( userid );
-            session.setAuthenticated( user );
+            session.authenticated( user );
             result = new CommandCompleteResponse(command, tag);
         }
         else {

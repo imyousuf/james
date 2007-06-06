@@ -14,7 +14,7 @@ public class LoginTest extends AbstractCommandTest
         mockUsersRepository.expects(once()).method("test").with( eq("joachim2"),eq("abc")).will(returnValue(true));
         mockUsersRepository.expects(once()).method("getUserByName").with( eq("joachim2")).will(returnValue(mockUser.proxy()));
         
-        mockSession.expects(once()).method("setAuthenticated").with( same(mockUser.proxy()));
+        mockSession.expects(once()).method("authenticated").with( same(mockUser.proxy()));
 
         String response = handleRequest("1 LOGIN joachim2 abc\n");
 

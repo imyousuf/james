@@ -22,7 +22,15 @@ package org.apache.james.experimental.imapserver;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.mail.Flags;
+
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.james.api.imap.message.MessageFlags;
+import org.apache.james.imap.message.response.imap4rev1.ExistsResponse;
+import org.apache.james.imap.message.response.imap4rev1.ExpungeResponse;
+import org.apache.james.imap.message.response.imap4rev1.FetchResponse;
+import org.apache.james.imap.message.response.imap4rev1.RecentResponse;
+import org.apache.james.imap.message.response.imap4rev1.status.UntaggedNoResponse;
 import org.apache.james.mailboxmanager.MailboxListener;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
@@ -31,15 +39,13 @@ import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 public class SelectedMailboxSession extends AbstractLogEnabled implements MailboxListener {
 
     private ImapSession _session;
-    private boolean _readonly;
     private boolean _sizeChanged;
     private List expungedMsn = new ArrayList();
     private ImapMailboxSession mailbox;
 
-    public SelectedMailboxSession(ImapMailboxSession mailbox, ImapSession session, boolean readonly) throws MailboxManagerException {
+    public SelectedMailboxSession(ImapMailboxSession mailbox, ImapSession session) throws MailboxManagerException {
         this.mailbox = mailbox;
         _session = session;
-        _readonly = readonly;
         // TODO make this a weak reference (or make sure deselect() is *always* called).
         mailbox.addListener(this,MessageResult.MSN | MessageResult.UID);
     }
@@ -101,6 +107,103 @@ public class SelectedMailboxSession extends AbstractLogEnabled implements Mailbo
     public void mailboxRenamed(String newName) {
         // TODO Auto-generated method stub
         
+    }
+    
+
+    public List unsolicitedResponses(boolean omitExpunged, boolean useUid) {
+        final List results = new ArrayList();
+        final ImapMailboxSession mailbox = getMailbox();
+        // New message response
+        if (isSizeChanged()) {
+            setSizeChanged(false);
+            addExistsResponses(results, mailbox);
+            addRecentResponses(results, mailbox);
+        }
+
+        // Message updates
+        // TODO: slow to check flags every time
+        // TODO: add conditional to selected mailbox
+        addFlagsResponses(results, useUid, mailbox);
+
+        // Expunged messages
+        if (!omitExpunged) {
+            // TODO: slow to check flags every time
+            // TODO: add conditional to selected mailbox
+            addExpungedResponses(results, mailbox);
+        }
+        
+        return results;
+    }
+
+    private void addExpungedResponses(List responses, final ImapMailboxSession mailbox) {
+        try {
+            MessageResult[] expunged = mailbox.getExpungedEvents(true);
+            for (int i = 0; i < expunged.length; i++) {
+                MessageResult mr = expunged[i];
+                final int msn = mr.getMsn();
+                // TODO: use factory
+                ExpungeResponse response = new ExpungeResponse(msn);
+                responses.add(response);
+            }
+        } catch (MailboxManagerException e) {
+            final String message = "Failed to retrieve expunged count data";
+            handleResponseException(responses, e, message);
+        }
+    }
+
+    private void addFlagsResponses(final List responses, boolean useUid, final ImapMailboxSession mailbox) {
+        try {
+            MessageResult[] flagUpdates = mailbox.getFlagEvents(true);
+                for (int i = 0; i < flagUpdates.length; i++) {
+                MessageResult mr = flagUpdates[i];
+                int msn = mr.getMsn();
+                Flags updatedFlags = mr.getFlags();
+                StringBuffer out = new StringBuffer("FLAGS ");
+                out.append(MessageFlags.format(updatedFlags));
+                if (useUid) {
+                    out.append(" UID ");
+                    out.append(mr.getUid());
+                }
+                // TODO: use CharSequence instead (avoid unnecessary string creation)
+                FetchResponse response = new FetchResponse(msn, out.toString());
+                responses.add(response);
+            }
+        } catch (MailboxManagerException e) {
+            final String message = "Failed to retrieve flags data";
+            handleResponseException(responses, e, message);
+        }
+    }
+
+    private void addRecentResponses(final List responses, final ImapMailboxSession mailbox) {
+        try {
+            final int recentCount = mailbox.getRecentCount(true);
+            // TODO: use factory
+            RecentResponse response = new RecentResponse(recentCount);
+            responses.add(response);
+        } catch (MailboxManagerException e) {
+            final String message = "Failed to retrieve recent count data";
+            handleResponseException(responses, e, message);
+        }
+    }
+
+    private void handleResponseException(final List responses, MailboxManagerException e, final String message) {
+        getLogger().info(message);
+        getLogger().debug(message, e);
+        // TODO: consider whether error message should be passed to the user
+        UntaggedNoResponse response = new UntaggedNoResponse(message, null);
+        responses.add(response);
+    }
+
+    private void addExistsResponses(final List responses, final ImapMailboxSession mailbox) {
+            try {
+                final int messageCount = mailbox.getMessageCount();
+                // TODO: use factory
+                ExistsResponse response = new ExistsResponse(messageCount);
+                responses.add(response);
+            } catch (MailboxManagerException e) {
+                final String message = "Failed to retrieve exists count data";
+                handleResponseException(responses, e, message);
+            }
     }
 
 }

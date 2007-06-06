@@ -73,7 +73,7 @@ public interface ImapSession
      * the supplied user.
      * @param user The user who is authenticated for this session.
      */
-    void setAuthenticated( User user );
+    void authenticated( User user );
 
     /**
      * Provides the authenticated user for this session, or <code>null</code> if this
@@ -90,7 +90,7 @@ public interface ImapSession
      * @param readOnly If <code>true</code>, the selection is set to be read only.
      * @throws MailboxManagerException 
      */
-    void setSelected( ImapMailboxSession mailbox, boolean readOnly ) throws MailboxManagerException;
+    void selected( ImapMailboxSession mailbox, boolean readOnly ) throws MailboxManagerException;
 
     /**
      * Moves the session out of {@link ImapSessionState#SELECTED} state and back into

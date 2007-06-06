@@ -63,11 +63,11 @@ public class MockImapSession implements ImapSession {
         return null;
     }
 
-    public void setAuthenticated(User user) {
+    public void authenticated(User user) {
 
     }
 
-    public void setSelected(ImapMailboxSession mailbox, boolean readOnly)
+    public void selected(ImapMailboxSession mailbox, boolean readOnly)
             throws MailboxManagerException {
     }
 

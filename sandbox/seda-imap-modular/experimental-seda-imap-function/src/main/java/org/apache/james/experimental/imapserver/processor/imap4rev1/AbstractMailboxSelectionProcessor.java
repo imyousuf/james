@@ -82,7 +82,7 @@ abstract public class AbstractMailboxSelectionProcessor extends AbstractMailboxA
             throw new MailboxException( "Nonselectable mailbox." );
         }
 
-        session.setSelected( mailbox, readOnly );
+        session.selected( mailbox, readOnly );
         return readOnly;
     }
 }
