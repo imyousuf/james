@@ -1,9 +1,9 @@
 package org.apache.james.experimental.imapserver.processor.base;
 
 import org.apache.james.api.imap.ImapMessage;
-import org.apache.james.api.imap.ImapProcessor;
-import org.apache.james.api.imap.ImapSession;
 import org.apache.james.api.imap.message.response.ImapResponseMessage;
+import org.apache.james.api.imap.process.ImapProcessor;
+import org.apache.james.api.imap.process.ImapSession;
 
 public class ImapResponseMessageProcessor extends AbstractChainedImapProcessor {
 

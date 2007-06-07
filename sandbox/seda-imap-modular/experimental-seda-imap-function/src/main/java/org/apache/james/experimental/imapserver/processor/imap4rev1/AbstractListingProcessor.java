@@ -21,10 +21,10 @@ package org.apache.james.experimental.imapserver.processor.imap4rev1;
 
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapConstants;
-import org.apache.james.api.imap.ImapProcessor;
-import org.apache.james.api.imap.ImapSession;
 import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.api.imap.message.response.ImapResponseMessage;
+import org.apache.james.api.imap.process.ImapProcessor;
+import org.apache.james.api.imap.process.ImapSession;
 import org.apache.james.experimental.imapserver.AuthorizationException;
 import org.apache.james.experimental.imapserver.processor.base.AbstractMailboxAwareProcessor;
 import org.apache.james.experimental.imapserver.processor.base.ImapSessionUtils;

@@ -26,9 +26,9 @@ import java.util.Map;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.commons.collections.ListUtils;
 import org.apache.james.api.imap.ImapConstants;
-import org.apache.james.api.imap.ImapSession;
 import org.apache.james.api.imap.ImapSessionState;
-import org.apache.james.api.imap.SelectedImapMailbox;
+import org.apache.james.api.imap.process.ImapSession;
+import org.apache.james.api.imap.process.SelectedImapMailbox;
 import org.apache.james.services.User;
 
 import EDU.oswego.cs.dl.util.concurrent.ConcurrentHashMap;

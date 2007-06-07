@@ -21,7 +21,7 @@ package org.apache.james.experimental.imapserver.processor.base;
 
 import java.util.List;
 
-import org.apache.james.api.imap.ImapSession;
+import org.apache.james.api.imap.process.ImapSession;
 import org.apache.james.imap.message.response.base.AbstractImapResponse;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 

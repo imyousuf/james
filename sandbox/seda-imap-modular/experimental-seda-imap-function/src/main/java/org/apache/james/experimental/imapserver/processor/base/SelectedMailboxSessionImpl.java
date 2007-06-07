@@ -26,9 +26,9 @@ import javax.mail.Flags;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
-import org.apache.james.api.imap.ImapSession;
-import org.apache.james.api.imap.SelectedImapMailbox;
 import org.apache.james.api.imap.message.MessageFlags;
+import org.apache.james.api.imap.process.ImapSession;
+import org.apache.james.api.imap.process.SelectedImapMailbox;
 import org.apache.james.imap.message.response.imap4rev1.ExistsResponse;
 import org.apache.james.imap.message.response.imap4rev1.ExpungeResponse;
 import org.apache.james.imap.message.response.imap4rev1.FetchResponse;
@@ -54,7 +54,7 @@ public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements Ma
     }
 
     /**
-     * @see org.apache.james.api.imap.SelectedImapMailbox#deselect()
+     * @see org.apache.james.api.imap.process.SelectedImapMailbox#deselect()
      */
     public void deselect() {
         mailbox.removeListener(this);
@@ -118,7 +118,7 @@ public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements Ma
     
 
     /**
-     * @see org.apache.james.api.imap.SelectedImapMailbox#unsolicitedResponses(boolean, boolean)
+     * @see org.apache.james.api.imap.process.SelectedImapMailbox#unsolicitedResponses(boolean, boolean)
      */
     public List unsolicitedResponses(boolean omitExpunged, boolean useUid) {
         final List results = new ArrayList();

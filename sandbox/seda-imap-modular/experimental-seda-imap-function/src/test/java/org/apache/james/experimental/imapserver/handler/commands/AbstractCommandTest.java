@@ -22,9 +22,9 @@ package org.apache.james.experimental.imapserver.handler.commands;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
-import org.apache.james.api.imap.ImapSession;
 import org.apache.james.api.imap.ImapSessionState;
 import org.apache.james.api.imap.ProtocolException;
+import org.apache.james.api.imap.process.ImapSession;
 import org.apache.james.experimental.imapserver.ImapRequestHandler;
 import org.apache.james.experimental.imapserver.StandardFactory;
 import org.apache.james.experimental.imapserver.processor.base.AbstractMailboxAwareProcessor;

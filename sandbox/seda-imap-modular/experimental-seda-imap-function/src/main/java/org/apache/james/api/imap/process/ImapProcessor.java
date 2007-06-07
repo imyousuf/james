@@ -17,15 +17,31 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.api.imap;
+package org.apache.james.api.imap.process;
 
-import java.util.List;
+import org.apache.james.api.imap.ImapMessage;
+import org.apache.james.api.imap.message.response.ImapResponseMessage;
 
-public interface SelectedImapMailbox {
+/**
+ * <p>
+ * Processable IMAP command.
+ * </p>
+ * <p>
+ * <strong>Note:</strong> this is a transitional API and is liable to change.
+ * </p>
+ */
+public interface ImapProcessor {
 
-    public abstract void deselect();
-
-    public abstract List unsolicitedResponses(boolean omitExpunged,
-            boolean useUid);
-
+    /**
+     * Performs processing of the command. If this processor does not understand
+     * the given message then it must return an appropriate message as per the
+     * specification. RuntimeException should not be thrown in this
+     * circumstance.
+     * 
+     * @param <code>ImapMessage</code>, not null
+     * @param session
+     *            <code>ImapSession</code>
+     * @return response, not null
+     */
+    public ImapResponseMessage process(ImapMessage message, ImapSession session);
 }

@@ -1,6 +1,6 @@
 package org.apache.james.experimental.imapserver.processor.imap4rev1;
 
-import org.apache.james.api.imap.ImapProcessor;
+import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 import org.apache.james.services.UsersRepository;
 

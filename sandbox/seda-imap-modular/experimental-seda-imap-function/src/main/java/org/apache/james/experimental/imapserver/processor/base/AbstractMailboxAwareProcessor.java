@@ -18,8 +18,8 @@
  ****************************************************************/
 package org.apache.james.experimental.imapserver.processor.base;
 
-import org.apache.james.api.imap.ImapProcessor;
-import org.apache.james.api.imap.ImapSession;
+import org.apache.james.api.imap.process.ImapProcessor;
+import org.apache.james.api.imap.process.ImapSession;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;

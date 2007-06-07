@@ -19,7 +19,7 @@
 
 package org.apache.james.experimental.imapserver.processor.main;
 
-import org.apache.james.api.imap.ImapProcessor;
+import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.experimental.imapserver.processor.base.ImapResponseMessageProcessor;
 import org.apache.james.experimental.imapserver.processor.base.UnknownRequestImapProcessor;
 import org.apache.james.experimental.imapserver.processor.imap4rev1.Imap4Rev1ProcessorFactory;
