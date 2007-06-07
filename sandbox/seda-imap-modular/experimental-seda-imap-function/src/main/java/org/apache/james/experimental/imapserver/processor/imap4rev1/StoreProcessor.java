@@ -25,15 +25,16 @@ import javax.mail.Flags;
 
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
+import org.apache.james.api.imap.ImapProcessor;
+import org.apache.james.api.imap.ImapSession;
 import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.api.imap.message.IdRange;
 import org.apache.james.api.imap.message.StoreDirective;
 import org.apache.james.api.imap.message.request.ImapRequest;
 import org.apache.james.api.imap.message.response.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.AuthorizationException;
-import org.apache.james.experimental.imapserver.ImapSession;
-import org.apache.james.experimental.imapserver.processor.ImapProcessor;
 import org.apache.james.experimental.imapserver.processor.base.AbstractImapRequestProcessor;
+import org.apache.james.experimental.imapserver.processor.base.ImapSessionUtils;
 import org.apache.james.imap.message.request.imap4rev1.StoreRequest;
 import org.apache.james.imap.message.response.imap4rev1.legacy.StoreResponse;
 import org.apache.james.imapserver.store.MailboxException;
@@ -73,7 +74,7 @@ public class StoreProcessor extends AbstractImapRequestProcessor {
 			final Flags flags, final boolean useUids, 
 			ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
 
-        ImapMailboxSession mailbox = session.getSelected().getMailbox();
+        ImapMailboxSession mailbox = ImapSessionUtils.getMailbox(session);
         MailboxListener silentListener = null;
 
         final boolean replace;
@@ -92,7 +93,7 @@ public class StoreProcessor extends AbstractImapRequestProcessor {
         }
         try {
             if (directive.isSilent()) {
-                silentListener = session.getSelected().getMailbox();
+                silentListener = ImapSessionUtils.getMailbox(session);
             }
             for (int i = 0; i < idSet.length; i++) {
                 final GeneralMessageSet messageSet = GeneralMessageSetImpl

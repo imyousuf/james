@@ -26,13 +26,14 @@ import javax.mail.search.SearchTerm;
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.api.imap.ImapMessage;
+import org.apache.james.api.imap.ImapProcessor;
+import org.apache.james.api.imap.ImapSession;
 import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.api.imap.message.request.ImapRequest;
 import org.apache.james.api.imap.message.response.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.AuthorizationException;
-import org.apache.james.experimental.imapserver.ImapSession;
-import org.apache.james.experimental.imapserver.processor.ImapProcessor;
 import org.apache.james.experimental.imapserver.processor.base.AbstractImapRequestProcessor;
+import org.apache.james.experimental.imapserver.processor.base.ImapSessionUtils;
 import org.apache.james.imap.message.request.imap4rev1.SearchRequest;
 import org.apache.james.imap.message.response.imap4rev1.legacy.SearchResponse;
 import org.apache.james.imapserver.store.MailboxException;
@@ -67,7 +68,7 @@ public class SearchProcessor extends AbstractImapRequestProcessor {
 	
 	private ImapResponseMessage doProcess(final SearchTerm searchTerm, final boolean useUids, 
 			ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-        ImapMailboxSession mailbox = session.getSelected().getMailbox();
+        ImapMailboxSession mailbox = ImapSessionUtils.getMailbox(session);
         final int resultCode;
         if (useUids) {
             resultCode= MessageResult.UID;

@@ -22,12 +22,15 @@ package org.apache.james.experimental.imapserver.processor.imap4rev1;
 import javax.mail.Flags;
 
 import org.apache.james.api.imap.ImapCommand;
+import org.apache.james.api.imap.ImapProcessor;
+import org.apache.james.api.imap.ImapSession;
 import org.apache.james.api.imap.ProtocolException;
+import org.apache.james.api.imap.SelectedImapMailbox;
 import org.apache.james.api.imap.message.response.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.AuthorizationException;
-import org.apache.james.experimental.imapserver.ImapSession;
-import org.apache.james.experimental.imapserver.processor.ImapProcessor;
 import org.apache.james.experimental.imapserver.processor.base.AbstractMailboxAwareProcessor;
+import org.apache.james.experimental.imapserver.processor.base.ImapSessionUtils;
+import org.apache.james.experimental.imapserver.processor.base.SelectedMailboxSessionImpl;
 import org.apache.james.imap.message.response.imap4rev1.legacy.ExamineAndSelectResponse;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
@@ -51,7 +54,7 @@ abstract public class AbstractMailboxSelectionProcessor extends AbstractMailboxA
         try {
             String fullMailboxName=buildFullName(session, mailboxName);
             selectMailbox(fullMailboxName, session, isExamine);
-            ImapMailboxSession mailbox = session.getSelected().getMailbox();
+            ImapMailboxSession mailbox = ImapSessionUtils.getMailbox(session);
             final Flags permanentFlags = mailbox.getPermanentFlags();
             final boolean writeable = mailbox.isWriteable();
             final boolean resetRecent = !isExamine;
@@ -81,8 +84,10 @@ abstract public class AbstractMailboxSelectionProcessor extends AbstractMailboxA
         if ( !mailbox.isSelectable() ) {
             throw new MailboxException( "Nonselectable mailbox." );
         }
-
-        session.selected( mailbox, readOnly );
+        
+        SelectedImapMailbox sessionMailbox = new SelectedMailboxSessionImpl(mailbox, session);
+        session.selected( sessionMailbox);
+        session.setAttribute( ImapSessionUtils.SELECTED_MAILBOX_ATTRIBUTE_SESSION_KEY, mailbox );
         return readOnly;
     }
 }

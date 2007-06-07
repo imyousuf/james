@@ -21,19 +21,20 @@ package org.apache.james.experimental.imapserver.processor.imap4rev1;
 
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
+import org.apache.james.api.imap.ImapProcessor;
+import org.apache.james.api.imap.ImapSession;
 import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.api.imap.message.request.ImapRequest;
 import org.apache.james.api.imap.message.response.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.AuthorizationException;
-import org.apache.james.experimental.imapserver.ImapSession;
-import org.apache.james.experimental.imapserver.processor.ImapProcessor;
-import org.apache.james.experimental.imapserver.processor.base.AbstractUnsolicitedResponsesAwareProcessor;
+import org.apache.james.experimental.imapserver.processor.base.AbstractImapRequestProcessor;
+import org.apache.james.experimental.imapserver.processor.base.ImapSessionUtils;
 import org.apache.james.imap.message.request.imap4rev1.NoopRequest;
 import org.apache.james.imap.message.response.imap4rev1.legacy.CommandCompleteResponse;
 import org.apache.james.imapserver.store.MailboxException;
 
 
-public class NoopProcessor extends AbstractUnsolicitedResponsesAwareProcessor {
+public class NoopProcessor extends AbstractImapRequestProcessor {
 	
 	public NoopProcessor(final ImapProcessor next) {
         super(next);
@@ -59,7 +60,7 @@ public class NoopProcessor extends AbstractUnsolicitedResponsesAwareProcessor {
         // TODO: untagged responses?
         // TODO: NOOP is used to check for new mail: need to return untagged responses
         final CommandCompleteResponse result = new CommandCompleteResponse(command, tag);
-        addUnsolicitedResponses(result, session, false);
+        ImapSessionUtils.addUnsolicitedResponses(result, session, false);
         return result;
 	}
 }

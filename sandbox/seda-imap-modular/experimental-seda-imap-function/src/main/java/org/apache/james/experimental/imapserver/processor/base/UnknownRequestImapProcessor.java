@@ -3,10 +3,10 @@ package org.apache.james.experimental.imapserver.processor.base;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.api.imap.ImapMessage;
+import org.apache.james.api.imap.ImapProcessor;
+import org.apache.james.api.imap.ImapSession;
 import org.apache.james.api.imap.message.request.ImapRequest;
 import org.apache.james.api.imap.message.response.ImapResponseMessage;
-import org.apache.james.experimental.imapserver.ImapSession;
-import org.apache.james.experimental.imapserver.processor.ImapProcessor;
 import org.apache.james.imap.message.response.imap4rev1.legacy.BadResponse;
 
 public class UnknownRequestImapProcessor extends AbstractLogEnabled implements ImapProcessor {

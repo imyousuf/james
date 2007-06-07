@@ -17,13 +17,12 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.experimental.imapserver;
+package org.apache.james.api.imap;
 
 import java.util.List;
 
 import org.apache.james.api.imap.ImapSessionState;
-import org.apache.james.mailboxmanager.MailboxManagerException;
-import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
+import org.apache.james.api.imap.message.response.ImapResponseMessage;
 import org.apache.james.services.User;
 
 
@@ -32,6 +31,9 @@ import org.apache.james.services.User;
  * which commences when a client first establishes a connection to the Imap
  * server, and continues until that connection is closed.
  *
+ * TODO: {@link #logout()}, {@link #closeConnection(String)}, 
+ * {@link #closeMailbox()} and {@link #deselect()} are too closely related
+ * in function to justify separate API methods
  * @version $Revision: 109034 $
  */
 public interface ImapSession
@@ -51,6 +53,10 @@ public interface ImapSession
      */
     void logout();
 
+    /**
+     * TODO: this method is not clearly 
+     * @param byeMessage
+     */
     void closeConnection(String byeMessage);
 
     /**
@@ -90,7 +96,7 @@ public interface ImapSession
      * @param readOnly If <code>true</code>, the selection is set to be read only.
      * @throws MailboxManagerException 
      */
-    void selected( ImapMailboxSession mailbox, boolean readOnly ) throws MailboxManagerException;
+    void selected( SelectedImapMailbox mailbox );
 
     /**
      * Moves the session out of {@link ImapSessionState#SELECTED} state and back into
@@ -103,13 +109,12 @@ public interface ImapSession
      * session is not in {@link ImapSessionState#SELECTED} state.
      * @return the currently selected mailbox.
      */
-    SelectedMailboxSession getSelected();
+    SelectedImapMailbox getSelected();
 
     /**
-     * closes the Mailbox if needed
-     * @throws MailboxManagerException 
+     * Closes the Mailbox
      */
-    void closeMailbox() throws MailboxManagerException;
+    void closeMailbox();
 
     /**
      * Gets an attribute of this session by name.

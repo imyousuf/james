@@ -23,14 +23,15 @@ import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.api.imap.ImapMessage;
+import org.apache.james.api.imap.ImapProcessor;
+import org.apache.james.api.imap.ImapSession;
 import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.api.imap.message.StatusDataItems;
 import org.apache.james.api.imap.message.request.ImapRequest;
 import org.apache.james.api.imap.message.response.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.AuthorizationException;
-import org.apache.james.experimental.imapserver.ImapSession;
-import org.apache.james.experimental.imapserver.processor.ImapProcessor;
 import org.apache.james.experimental.imapserver.processor.base.AbstractMailboxAwareProcessor;
+import org.apache.james.experimental.imapserver.processor.base.ImapSessionUtils;
 import org.apache.james.imap.message.request.imap4rev1.StatusRequest;
 import org.apache.james.imap.message.response.imap4rev1.legacy.StatusResponse;
 import org.apache.james.imapserver.store.MailboxException;
@@ -131,7 +132,7 @@ public class StatusProcessor extends AbstractMailboxAwareProcessor {
         buffer.append(')');
         final StatusResponse result = 
             new StatusResponse(command, buffer.toString(), tag);
-        addUnsolicitedResponses( result, session, false );
+        ImapSessionUtils.addUnsolicitedResponses( result, session, false );
         return result;
 	}
 }

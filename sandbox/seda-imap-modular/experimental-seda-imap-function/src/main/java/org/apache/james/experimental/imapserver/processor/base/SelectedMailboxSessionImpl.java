@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.experimental.imapserver;
+package org.apache.james.experimental.imapserver.processor.base;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +25,9 @@ import java.util.List;
 import javax.mail.Flags;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.logger.Logger;
+import org.apache.james.api.imap.ImapSession;
+import org.apache.james.api.imap.SelectedImapMailbox;
 import org.apache.james.api.imap.message.MessageFlags;
 import org.apache.james.imap.message.response.imap4rev1.ExistsResponse;
 import org.apache.james.imap.message.response.imap4rev1.ExpungeResponse;
@@ -36,22 +39,32 @@ import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 
-public class SelectedMailboxSession extends AbstractLogEnabled implements MailboxListener {
+public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements MailboxListener, SelectedImapMailbox {
 
     private ImapSession _session;
     private boolean _sizeChanged;
     private List expungedMsn = new ArrayList();
     private ImapMailboxSession mailbox;
 
-    public SelectedMailboxSession(ImapMailboxSession mailbox, ImapSession session) throws MailboxManagerException {
+    public SelectedMailboxSessionImpl(ImapMailboxSession mailbox, ImapSession session) throws MailboxManagerException {
         this.mailbox = mailbox;
         _session = session;
         // TODO make this a weak reference (or make sure deselect() is *always* called).
         mailbox.addListener(this,MessageResult.MSN | MessageResult.UID);
     }
 
+    /**
+     * @see org.apache.james.api.imap.SelectedImapMailbox#deselect()
+     */
     public void deselect() {
         mailbox.removeListener(this);
+        try {
+            mailbox.close();
+        } catch (MailboxManagerException e) {
+            final Logger logger = getLogger();
+            logger.warn("Cannot close selected mailbox" + e.getMessage());
+            logger.debug("Failed to close selected mailbox. Deselection will continue.", e);
+        }
         mailbox = null;
     }
 
@@ -71,12 +84,6 @@ public class SelectedMailboxSession extends AbstractLogEnabled implements Mailbo
 
     public void setSizeChanged(boolean sizeChanged) {
         _sizeChanged = sizeChanged;
-    }
-    
-
-    public void close() throws MailboxManagerException  {
-        mailbox.close();
-        mailbox=null;
     }
 
     public void create() {
@@ -110,6 +117,9 @@ public class SelectedMailboxSession extends AbstractLogEnabled implements Mailbo
     }
     
 
+    /**
+     * @see org.apache.james.api.imap.SelectedImapMailbox#unsolicitedResponses(boolean, boolean)
+     */
     public List unsolicitedResponses(boolean omitExpunged, boolean useUid) {
         final List results = new ArrayList();
         final ImapMailboxSession mailbox = getMailbox();

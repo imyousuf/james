@@ -21,13 +21,14 @@ package org.apache.james.experimental.imapserver.processor.imap4rev1;
 
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
+import org.apache.james.api.imap.ImapProcessor;
+import org.apache.james.api.imap.ImapSession;
 import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.api.imap.message.request.ImapRequest;
 import org.apache.james.api.imap.message.response.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.AuthorizationException;
-import org.apache.james.experimental.imapserver.ImapSession;
-import org.apache.james.experimental.imapserver.processor.ImapProcessor;
-import org.apache.james.experimental.imapserver.processor.base.AbstractUnsolicitedResponsesAwareProcessor;
+import org.apache.james.experimental.imapserver.processor.base.AbstractImapRequestProcessor;
+import org.apache.james.experimental.imapserver.processor.base.ImapSessionUtils;
 import org.apache.james.imap.message.request.imap4rev1.CloseRequest;
 import org.apache.james.imap.message.response.imap4rev1.legacy.CloseResponse;
 import org.apache.james.imapserver.store.MailboxException;
@@ -37,7 +38,7 @@ import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 
 
-public class CloseProcessor extends AbstractUnsolicitedResponsesAwareProcessor {
+public class CloseProcessor extends AbstractImapRequestProcessor {
 	
 	public CloseProcessor(final ImapProcessor next) {
         super(next);
@@ -59,8 +60,8 @@ public class CloseProcessor extends AbstractUnsolicitedResponsesAwareProcessor {
 	}
 	
 	private ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-        ImapMailboxSession mailbox = session.getSelected().getMailbox();
-        if ( session.getSelected().getMailbox().isWriteable() ) {
+        ImapMailboxSession mailbox = ImapSessionUtils.getMailbox(session);
+        if ( mailbox.isWriteable() ) {
             try {
                 mailbox.expunge(GeneralMessageSetImpl.all(),MessageResult.NOTHING);
             } catch (MailboxManagerException e) {
@@ -73,7 +74,7 @@ public class CloseProcessor extends AbstractUnsolicitedResponsesAwareProcessor {
         //TODO: doesn't seem to match the implementation
         //TODO: check that implementation is correct
         //          Don't send unsolicited responses on close.
-        addUnsolicitedResponses(result, session, false);
+        ImapSessionUtils.addUnsolicitedResponses(result, session, false);
         return result;
 	}
 }

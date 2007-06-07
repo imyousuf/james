@@ -26,9 +26,9 @@ import java.util.Map;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.commons.collections.ListUtils;
 import org.apache.james.api.imap.ImapConstants;
+import org.apache.james.api.imap.ImapSession;
 import org.apache.james.api.imap.ImapSessionState;
-import org.apache.james.mailboxmanager.MailboxManagerException;
-import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
+import org.apache.james.api.imap.SelectedImapMailbox;
 import org.apache.james.services.User;
 
 import EDU.oswego.cs.dl.util.concurrent.ConcurrentHashMap;
@@ -40,7 +40,7 @@ public final class ImapSessionImpl extends AbstractLogEnabled implements ImapSes
 {
     private ImapSessionState state = ImapSessionState.NON_AUTHENTICATED;
     private User user = null;
-    private SelectedMailboxSession selectedMailbox = null;
+    private SelectedImapMailbox selectedMailbox = null;
 
     private final String clientHostName;
     private final String clientAddress;
@@ -65,7 +65,7 @@ public final class ImapSessionImpl extends AbstractLogEnabled implements ImapSes
 
     public List unsolicitedResponses(boolean omitExpunged, boolean useUid) {
         final List results;
-        final SelectedMailboxSession selected = getSelected();
+        final SelectedImapMailbox selected = getSelected();
         if (selected == null) {
             results = ListUtils.EMPTY_LIST;
         } else {
@@ -112,16 +112,15 @@ public final class ImapSessionImpl extends AbstractLogEnabled implements ImapSes
         closeMailbox();
     }
 
-    public void selected( ImapMailboxSession mailbox, boolean readOnly ) throws MailboxManagerException
+    public void selected( SelectedImapMailbox mailbox )
     {
-        SelectedMailboxSession sessionMailbox = new SelectedMailboxSession(mailbox, this);
-        setupLogger(sessionMailbox);
+        setupLogger(mailbox);
         this.state = ImapSessionState.SELECTED;
         closeMailbox();
-        this.selectedMailbox = sessionMailbox;
+        this.selectedMailbox = mailbox;
     }
 
-    public SelectedMailboxSession getSelected()
+    public SelectedImapMailbox getSelected()
     {
         return this.selectedMailbox;
     }
@@ -133,11 +132,7 @@ public final class ImapSessionImpl extends AbstractLogEnabled implements ImapSes
 
     public void closeMailbox() {
         if (selectedMailbox != null) {
-            try {
-                selectedMailbox.close();
-            } catch (MailboxManagerException e) {
-                getLogger().error("error closing Mailbox", e);
-            }
+            selectedMailbox.deselect();
             selectedMailbox=null;
         }
         

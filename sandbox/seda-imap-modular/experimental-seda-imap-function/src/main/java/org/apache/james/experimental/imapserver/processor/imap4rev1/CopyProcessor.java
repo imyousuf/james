@@ -21,14 +21,15 @@ package org.apache.james.experimental.imapserver.processor.imap4rev1;
 
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
+import org.apache.james.api.imap.ImapProcessor;
+import org.apache.james.api.imap.ImapSession;
 import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.api.imap.message.IdRange;
 import org.apache.james.api.imap.message.request.ImapRequest;
 import org.apache.james.api.imap.message.response.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.AuthorizationException;
-import org.apache.james.experimental.imapserver.ImapSession;
-import org.apache.james.experimental.imapserver.processor.ImapProcessor;
 import org.apache.james.experimental.imapserver.processor.base.AbstractMailboxAwareProcessor;
+import org.apache.james.experimental.imapserver.processor.base.ImapSessionUtils;
 import org.apache.james.imap.message.request.imap4rev1.CopyRequest;
 import org.apache.james.imap.message.response.imap4rev1.legacy.CommandCompleteResponse;
 import org.apache.james.imapserver.store.MailboxException;
@@ -67,7 +68,7 @@ public class CopyProcessor extends AbstractMailboxAwareProcessor {
 	
 	private ImapResponseMessage doProcess(String mailboxName, IdRange[] idSet, boolean useUids,
 			ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-        ImapMailboxSession currentMailbox = session.getSelected().getMailbox();
+        ImapMailboxSession currentMailbox = ImapSessionUtils.getMailbox(session);
         try {
             String fullMailboxName = buildFullName(session, mailboxName);
             final MailboxManager mailboxManager = getMailboxManager(session);
@@ -85,7 +86,7 @@ public class CopyProcessor extends AbstractMailboxAwareProcessor {
         } 
         final CommandCompleteResponse result = 
             new CommandCompleteResponse(command, tag);
-        addUnsolicitedResponses(result, session, useUids);
+        ImapSessionUtils.addUnsolicitedResponses(result, session, useUids);
         return result;
 	}
 }

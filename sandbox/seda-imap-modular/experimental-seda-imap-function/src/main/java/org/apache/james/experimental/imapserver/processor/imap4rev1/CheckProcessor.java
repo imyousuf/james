@@ -21,19 +21,20 @@ package org.apache.james.experimental.imapserver.processor.imap4rev1;
 
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
+import org.apache.james.api.imap.ImapProcessor;
+import org.apache.james.api.imap.ImapSession;
 import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.api.imap.message.request.ImapRequest;
 import org.apache.james.api.imap.message.response.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.AuthorizationException;
-import org.apache.james.experimental.imapserver.ImapSession;
-import org.apache.james.experimental.imapserver.processor.ImapProcessor;
-import org.apache.james.experimental.imapserver.processor.base.AbstractUnsolicitedResponsesAwareProcessor;
+import org.apache.james.experimental.imapserver.processor.base.AbstractImapRequestProcessor;
+import org.apache.james.experimental.imapserver.processor.base.ImapSessionUtils;
 import org.apache.james.imap.message.request.imap4rev1.CheckRequest;
 import org.apache.james.imap.message.response.imap4rev1.legacy.CommandCompleteResponse;
 import org.apache.james.imapserver.store.MailboxException;
 
 
-public class CheckProcessor extends AbstractUnsolicitedResponsesAwareProcessor {
+public class CheckProcessor extends AbstractImapRequestProcessor {
 	
 	public CheckProcessor(final ImapProcessor next) {
         super(next);
@@ -56,7 +57,7 @@ public class CheckProcessor extends AbstractUnsolicitedResponsesAwareProcessor {
 	
 	private ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
         final CommandCompleteResponse result = new CommandCompleteResponse(command, tag);
-        addUnsolicitedResponses(result, session, false);
+        ImapSessionUtils.addUnsolicitedResponses(result, session, false);
         return result;
 	}
 }

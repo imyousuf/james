@@ -21,13 +21,14 @@ package org.apache.james.experimental.imapserver.processor.imap4rev1;
 
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
+import org.apache.james.api.imap.ImapProcessor;
+import org.apache.james.api.imap.ImapSession;
 import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.api.imap.message.request.ImapRequest;
 import org.apache.james.api.imap.message.response.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.AuthorizationException;
-import org.apache.james.experimental.imapserver.ImapSession;
-import org.apache.james.experimental.imapserver.processor.ImapProcessor;
 import org.apache.james.experimental.imapserver.processor.base.AbstractMailboxAwareProcessor;
+import org.apache.james.experimental.imapserver.processor.base.ImapSessionUtils;
 import org.apache.james.imap.message.request.imap4rev1.DeleteRequest;
 import org.apache.james.imap.message.response.imap4rev1.legacy.CommandCompleteResponse;
 import org.apache.james.imapserver.store.MailboxException;
@@ -64,7 +65,7 @@ public class DeleteProcessor extends AbstractMailboxAwareProcessor {
         try {
             final String fullMailboxName = buildFullName(session, mailboxName);
             if (session.getSelected() != null) {
-                if (session.getSelected().getMailbox().getName().equals(
+                if (ImapSessionUtils.getMailbox(session).getName().equals(
                         fullMailboxName)) {
                     session.deselect();
                 }
@@ -77,7 +78,7 @@ public class DeleteProcessor extends AbstractMailboxAwareProcessor {
 
         final CommandCompleteResponse result = 
             new CommandCompleteResponse(command, tag);
-        addUnsolicitedResponses(result, session, false);
+        ImapSessionUtils.addUnsolicitedResponses(result, session, false);
         return result;
 	}
 }

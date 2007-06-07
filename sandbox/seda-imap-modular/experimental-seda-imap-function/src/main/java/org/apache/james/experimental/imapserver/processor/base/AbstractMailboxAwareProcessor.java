@@ -18,21 +18,17 @@
  ****************************************************************/
 package org.apache.james.experimental.imapserver.processor.base;
 
-import java.util.List;
-
-import org.apache.james.experimental.imapserver.ImapSession;
-import org.apache.james.experimental.imapserver.processor.ImapProcessor;
-import org.apache.james.imap.message.response.base.AbstractImapResponse;
+import org.apache.james.api.imap.ImapProcessor;
+import org.apache.james.api.imap.ImapSession;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 import org.apache.james.services.User;
 
-abstract public class AbstractMailboxAwareProcessor extends AbstractUnsolicitedResponsesAwareProcessor {
+abstract public class AbstractMailboxAwareProcessor extends AbstractImapRequestProcessor{
 
     // TODO: move into ImapConstants
-    public static final String MAILBOX_ATTRIBUTE_SESSION_KEY 
-        = "org.apache.james.api.imap.MAILBOX_ATTRIBUTE_SESSION_KEY";
+
     
     private final MailboxManagerProvider mailboxManagerProvider;
     
@@ -53,7 +49,7 @@ abstract public class AbstractMailboxAwareProcessor extends AbstractUnsolicitedR
     public MailboxManager getMailboxManager( final ImapSession session ) throws MailboxManagerException {
         // TODO: removed badly implemented and ineffective check that mailbox user matches current user
         // TODO: add check into user login methods
-        MailboxManager result = (MailboxManager) session.getAttribute( MAILBOX_ATTRIBUTE_SESSION_KEY );
+        MailboxManager result = (MailboxManager) session.getAttribute( ImapSessionUtils.MAILBOX_MANAGER_ATTRIBUTE_SESSION_KEY );
         if (result == null) {
             // TODO: handle null user
             final User user = session.getUser();
@@ -64,9 +60,10 @@ abstract public class AbstractMailboxAwareProcessor extends AbstractUnsolicitedR
             // TODO: so caching is required
             // TODO: caching in the session seems like the wrong design decision, though
             // TODO: the mailbox provider should perform any caching that is required
-            session.setAttribute( MAILBOX_ATTRIBUTE_SESSION_KEY, result );
+            session.setAttribute( ImapSessionUtils.MAILBOX_MANAGER_ATTRIBUTE_SESSION_KEY, result );
         }
         return result;
     }
     
+
 }

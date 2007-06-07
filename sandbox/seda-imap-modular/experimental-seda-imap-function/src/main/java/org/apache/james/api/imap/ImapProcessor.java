@@ -17,11 +17,10 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.experimental.imapserver.processor;
+package org.apache.james.api.imap;
 
 import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.api.imap.message.response.ImapResponseMessage;
-import org.apache.james.experimental.imapserver.ImapSession;
 
 /**
  * <p>

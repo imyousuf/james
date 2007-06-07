@@ -34,6 +34,8 @@ import javax.mail.internet.MimeMessage;
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.api.imap.ImapMessage;
+import org.apache.james.api.imap.ImapProcessor;
+import org.apache.james.api.imap.ImapSession;
 import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.api.imap.message.BodyFetchElement;
 import org.apache.james.api.imap.message.FetchData;
@@ -43,9 +45,8 @@ import org.apache.james.api.imap.message.request.ImapRequest;
 import org.apache.james.api.imap.message.response.ImapResponseMessage;
 import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.experimental.imapserver.AuthorizationException;
-import org.apache.james.experimental.imapserver.ImapSession;
-import org.apache.james.experimental.imapserver.processor.ImapProcessor;
 import org.apache.james.experimental.imapserver.processor.base.AbstractImapRequestProcessor;
+import org.apache.james.experimental.imapserver.processor.base.ImapSessionUtils;
 import org.apache.james.imap.message.request.imap4rev1.FetchRequest;
 import org.apache.james.imap.message.response.imap4rev1.legacy.FetchResponse;
 import org.apache.james.imapserver.store.MailboxException;
@@ -94,7 +95,7 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
         int resultToFetch = MessageResult.FLAGS | MessageResult.MIME_MESSAGE
                 | MessageResult.INTERNAL_DATE | MessageResult.MSN
                 | MessageResult.SIZE;
-        ImapMailboxSession mailbox = session.getSelected().getMailbox();
+        ImapMailboxSession mailbox = ImapSessionUtils.getMailbox(session);
         for (int i = 0; i < idSet.length; i++) {
             GeneralMessageSet messageSet=GeneralMessageSetImpl.range(idSet[i].getLowVal(),idSet[i].getHighVal(),useUids);
             MessageResult[] fetchResults;

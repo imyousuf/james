@@ -17,27 +17,30 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.experimental.imapserver.processor.main;
+package org.apache.james.experimental.imapserver.processor.base;
 
-import org.apache.james.api.imap.ImapProcessor;
-import org.apache.james.experimental.imapserver.processor.base.ImapResponseMessageProcessor;
-import org.apache.james.experimental.imapserver.processor.base.UnknownRequestImapProcessor;
-import org.apache.james.experimental.imapserver.processor.imap4rev1.Imap4Rev1ProcessorFactory;
-import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
-import org.apache.james.services.UsersRepository;
+import java.util.List;
 
+import org.apache.james.api.imap.ImapSession;
+import org.apache.james.imap.message.response.base.AbstractImapResponse;
+import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 
-/**
- * TODO: perhaps this should be a POJO
- */
-public class DefaultImapProcessorFactory {
-
-    public static final ImapProcessor createDefaultProcessor(final UsersRepository usersRepository,
-            final MailboxManagerProvider mailboxManagerProvider) {
-        final UnknownRequestImapProcessor unknownRequestImapProcessor = new UnknownRequestImapProcessor();
-        final ImapProcessor imap4rev1Chain = Imap4Rev1ProcessorFactory.createDefaultChain(unknownRequestImapProcessor, usersRepository, mailboxManagerProvider);
-        final ImapProcessor result = new ImapResponseMessageProcessor(imap4rev1Chain);
-        return result;
+public class ImapSessionUtils {
+    
+    public static final String MAILBOX_MANAGER_ATTRIBUTE_SESSION_KEY 
+        = "org.apache.james.api.imap.MAILBOX_MANAGER_ATTRIBUTE_SESSION_KEY";
+    public static final String SELECTED_MAILBOX_ATTRIBUTE_SESSION_KEY 
+        = "org.apache.james.api.imap.SELECTED_MAILBOX_ATTRIBUTE_SESSION_KEY";
+    
+    public static void addUnsolicitedResponses(AbstractImapResponse response, ImapSession session, boolean useUids) {
+        List unsolicitedResponses = session.unsolicitedResponses(useUids);
+        response.addUnsolicitedResponses(unsolicitedResponses);
     }
     
+    public static ImapMailboxSession getMailbox( final ImapSession session ) {
+        ImapMailboxSession result 
+            = (ImapMailboxSession) session.getAttribute(SELECTED_MAILBOX_ATTRIBUTE_SESSION_KEY);
+        return result;
+    }
+
 }

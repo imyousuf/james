@@ -21,13 +21,14 @@ package org.apache.james.experimental.imapserver.processor.imap4rev1;
 
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
+import org.apache.james.api.imap.ImapProcessor;
+import org.apache.james.api.imap.ImapSession;
 import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.api.imap.message.request.ImapRequest;
 import org.apache.james.api.imap.message.response.ImapResponseMessage;
 import org.apache.james.experimental.imapserver.AuthorizationException;
-import org.apache.james.experimental.imapserver.ImapSession;
-import org.apache.james.experimental.imapserver.processor.ImapProcessor;
-import org.apache.james.experimental.imapserver.processor.base.AbstractUnsolicitedResponsesAwareProcessor;
+import org.apache.james.experimental.imapserver.processor.base.AbstractImapRequestProcessor;
+import org.apache.james.experimental.imapserver.processor.base.ImapSessionUtils;
 import org.apache.james.imap.message.request.imap4rev1.ExpungeRequest;
 import org.apache.james.imap.message.response.imap4rev1.legacy.CommandCompleteResponse;
 import org.apache.james.imap.message.response.imap4rev1.legacy.CommandFailedResponse;
@@ -39,7 +40,7 @@ import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 
 
-public class ExpungeProcessor extends AbstractUnsolicitedResponsesAwareProcessor {
+public class ExpungeProcessor extends AbstractImapRequestProcessor {
 	
 	public ExpungeProcessor(final ImapProcessor next, 
             final MailboxManagerProvider mailboxManagerProvider) {
@@ -63,14 +64,14 @@ public class ExpungeProcessor extends AbstractUnsolicitedResponsesAwareProcessor
 	
 	private ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
         ImapResponseMessage result;
-        ImapMailboxSession mailbox = session.getSelected().getMailbox();
+        ImapMailboxSession mailbox = ImapSessionUtils.getMailbox(session);
         if (!mailbox.isWriteable()) {
             result = new CommandFailedResponse(command, "Mailbox selected read only.", tag );
         } else {
             try {
                 mailbox.expunge(GeneralMessageSetImpl.all(),MessageResult.NOTHING);
                 CommandCompleteResponse commandCompleteResponse = new CommandCompleteResponse(command, tag);
-                addUnsolicitedResponses(commandCompleteResponse, session, false);
+                ImapSessionUtils.addUnsolicitedResponses(commandCompleteResponse, session, false);
                 result = commandCompleteResponse;
             } catch (MailboxManagerException e) {
                 throw new MailboxException(e);

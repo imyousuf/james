@@ -17,24 +17,15 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.experimental.imapserver.processor.base;
+package org.apache.james.api.imap;
 
 import java.util.List;
 
-import org.apache.james.experimental.imapserver.ImapSession;
-import org.apache.james.experimental.imapserver.processor.ImapProcessor;
-import org.apache.james.imap.message.response.base.AbstractImapResponse;
+public interface SelectedImapMailbox {
 
-public abstract class AbstractUnsolicitedResponsesAwareProcessor extends
-        AbstractImapRequestProcessor {
+    public abstract void deselect();
 
-    public AbstractUnsolicitedResponsesAwareProcessor(ImapProcessor next) {
-        super(next);
-    }
-
-    protected void addUnsolicitedResponses(AbstractImapResponse response, ImapSession session, boolean useUids) {
-        List unsolicitedResponses = session.unsolicitedResponses(useUids);
-        response.addUnsolicitedResponses(unsolicitedResponses);
-    }
+    public abstract List unsolicitedResponses(boolean omitExpunged,
+            boolean useUid);
 
 }
