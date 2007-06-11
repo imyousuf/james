@@ -15,6 +15,7 @@
   <packaging>pom</packaging>
   <modules>
     <module>core-library</module>
+    <module>mordred-library</module>
     <module>smtpserver-function</module>
     <module>pop3server-function</module>
     <module>nntpserver-function</module>
