@@ -17,37 +17,23 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.experimental.imapserver;
-
-import org.apache.james.api.imap.process.ImapProcessor;
-import org.apache.james.imapserver.codec.decode.ImapDecoder;
-import org.apache.james.imapserver.codec.encode.ImapEncoder;
-
+package org.apache.james.imapserver.processor.base;
 
 /**
- * Provides a number of server-wide constant values to the
- * POP3Handlers
+ * Thrown when a user attempts to do something (e.g. alter mailbox) for which
+ * they do not have appropriate rights.
  */
-public interface ImapHandlerConfigurationData
+public class AuthorizationException
+        extends Exception
 {
 
     /**
-     * Returns the service wide hello name
+     * Construct a new <code>AuthorizationException</code> instance.
      *
-     * @return the hello name
+     * @param message The detail message for this exception (mandatory).
      */
-    String getHelloName();
-
-    /**
-     * Returns the service wide reset length in bytes.
-     *
-     * @return the reset length
-     */
-    int getResetLength();
-
-    ImapDecoder getImapDecoder();
-    
-    ImapEncoder getImapEncoder();
-    
-    ImapProcessor getImapProcessor();
+    public AuthorizationException( final String message )
+    {
+        super( message );
+    }
 }

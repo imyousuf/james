@@ -24,15 +24,15 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.core.AbstractJamesService;
-import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
+import org.apache.james.imapserver.codec.decode.ImapDecoder;
+import org.apache.james.imapserver.codec.encode.ImapEncoder;
 import org.apache.james.services.MailServer;
-import org.apache.james.services.UsersRepository;
 
 /**
  * TODO: this is a quick cut-and-paste hack from POP3Server. Should probably be
  * rewritten from scratch, together with ImapHandler.
- * TODO: Using a custom, not AbstractJamesHandler, handler together with AbstractJamesServices is not a good idea
  *
  * <p>Accepts IMAP connections on a server socket and dispatches them to IMAPHandlers.</p>
  *
@@ -40,13 +40,6 @@ import org.apache.james.services.UsersRepository;
  */
 public class ImapServer extends AbstractJamesService
 {
-
-    /**
-     * The user repository for this server - used to authenticate users.
-     */
-    private UsersRepository users;
-
-
     /**
      * The number of bytes to read before resetting
      * the connection timeout timer.  Defaults to
@@ -57,35 +50,21 @@ public class ImapServer extends AbstractJamesService
     /**
      * The configuration data to be passed to the handler
      */
-    private IMAPHandlerConfigurationDataImpl theConfigData
-            = new IMAPHandlerConfigurationDataImpl();
-
-    public MailboxManagerProvider mailboxManagerProvider;
+    private ImapHandlerConfigurationDataImpl theConfigData = new ImapHandlerConfigurationDataImpl();
 
     private MailServer mailServer;
+    private ImapDecoder imapDecoder;
+    private ImapEncoder imapEncoder;
+    private ImapProcessor imapProcessor;
 
     public void service( ServiceManager serviceManager ) throws ServiceException
     {
         super.service( serviceManager );
-        UsersRepository usersRepository = ( UsersRepository ) serviceManager.
-                lookup( "org.apache.james.services.UsersRepository" );
-        setUserRepository(usersRepository);
-        MailboxManagerProvider mailboxManagerProvider =(MailboxManagerProvider) serviceManager.lookup("org.apache.james.mailboxmanager.manager.MailboxManagerProvider");
-        getLogger().debug("MailboxManagerMailRepository uses service "+mailboxManagerProvider);
-        setMailboxManagerProvider(mailboxManagerProvider);
         setMailServer((MailServer) serviceManager.lookup(MailServer.ROLE));
     }
 
-    void setUserRepository(UsersRepository repository) {
-        this.users=repository;
-    }
-    
     void setMailServer(MailServer mailServer) {
         this.mailServer = mailServer;
-    }
-
-    void setMailboxManagerProvider(MailboxManagerProvider mailboxManagerProvider) {
-        this.mailboxManagerProvider=mailboxManagerProvider;
     }
 
     /**
@@ -118,33 +97,30 @@ public class ImapServer extends AbstractJamesService
     }
 
     /**
-     * The factory for producing handlers.
+     * Producing handlers.
+     * @see org.apache.avalon.excalibur.pool.ObjectFactory#newInstance()
      */
-        /**
-         * @see org.apache.avalon.excalibur.pool.ObjectFactory#newInstance()
-         */
-        public Object newInstance() throws Exception
-        {
-            final ImapHandler imapHandler = new ImapHandler(); 
-            final Logger logger = getLogger(); 
-            logger.debug("Create handler instance"); 
-            setupLogger(imapHandler); 
-            return imapHandler; 
-        }
-
-        /**
-         * @see org.apache.avalon.excalibur.pool.ObjectFactory#getCreatedClass()
-         */
-        public Class getCreatedClass()
-        {
-            return ImapHandler.class;
-        }
+    public Object newInstance() throws Exception
+    {
+        final ImapHandler imapHandler = new ImapHandler(); 
+        final Logger logger = getLogger(); 
+        logger.debug("Create handler instance"); 
+        setupLogger(imapHandler); 
+        return imapHandler; 
+    }
 
     /**
-     * A class to provide POP3 handler configuration to the handlers
+     * @see org.apache.avalon.excalibur.pool.ObjectFactory#getCreatedClass()
      */
-    private class IMAPHandlerConfigurationDataImpl
-            implements ImapHandlerConfigurationData
+    public Class getCreatedClass()
+    {
+        return ImapHandler.class;
+    }
+
+    /**
+     * Provides configuration to the handlers.
+     */
+    private class ImapHandlerConfigurationDataImpl implements ImapHandlerConfigurationData
     {
 
         /**
@@ -167,18 +143,17 @@ public class ImapServer extends AbstractJamesService
             return ImapServer.this.lengthReset;
         }
 
-       /**
-         * @see ImapHandlerConfigurationData#getUsersRepository()
-         */
-        public UsersRepository getUsersRepository()
-        {
-            return ImapServer.this.users;
+        public ImapDecoder getImapDecoder() {
+            return imapDecoder;
         }
 
-        public MailboxManagerProvider getMailboxManagerProvider() {
-          return ImapServer.this.mailboxManagerProvider;
+        public ImapEncoder getImapEncoder() {
+            return imapEncoder;
         }
 
+        public ImapProcessor getImapProcessor() {
+            return imapProcessor;
+        }
     }
 
     protected Object getConfigurationData() {

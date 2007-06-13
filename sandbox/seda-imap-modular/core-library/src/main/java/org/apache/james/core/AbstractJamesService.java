@@ -119,7 +119,7 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
      */
     protected InetAddress bindTo = null;
 
-    /*
+    /**
      * The server socket associated with this service
      */
     protected ServerSocket serverSocket;

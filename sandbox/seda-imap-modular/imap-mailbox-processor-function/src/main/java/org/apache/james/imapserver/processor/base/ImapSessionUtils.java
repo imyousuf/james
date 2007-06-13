@@ -17,37 +17,30 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.experimental.imapserver;
+package org.apache.james.imapserver.processor.base;
 
-import org.apache.james.api.imap.process.ImapProcessor;
-import org.apache.james.imapserver.codec.decode.ImapDecoder;
-import org.apache.james.imapserver.codec.encode.ImapEncoder;
+import java.util.List;
 
+import org.apache.james.api.imap.process.ImapSession;
+import org.apache.james.imap.message.response.base.AbstractImapResponse;
+import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 
-/**
- * Provides a number of server-wide constant values to the
- * POP3Handlers
- */
-public interface ImapHandlerConfigurationData
-{
-
-    /**
-     * Returns the service wide hello name
-     *
-     * @return the hello name
-     */
-    String getHelloName();
-
-    /**
-     * Returns the service wide reset length in bytes.
-     *
-     * @return the reset length
-     */
-    int getResetLength();
-
-    ImapDecoder getImapDecoder();
+public class ImapSessionUtils {
     
-    ImapEncoder getImapEncoder();
+    public static final String MAILBOX_MANAGER_ATTRIBUTE_SESSION_KEY 
+        = "org.apache.james.api.imap.MAILBOX_MANAGER_ATTRIBUTE_SESSION_KEY";
+    public static final String SELECTED_MAILBOX_ATTRIBUTE_SESSION_KEY 
+        = "org.apache.james.api.imap.SELECTED_MAILBOX_ATTRIBUTE_SESSION_KEY";
     
-    ImapProcessor getImapProcessor();
+    public static void addUnsolicitedResponses(AbstractImapResponse response, ImapSession session, boolean useUids) {
+        List unsolicitedResponses = session.unsolicitedResponses(useUids);
+        response.addUnsolicitedResponses(unsolicitedResponses);
+    }
+    
+    public static ImapMailboxSession getMailbox( final ImapSession session ) {
+        ImapMailboxSession result 
+            = (ImapMailboxSession) session.getAttribute(SELECTED_MAILBOX_ATTRIBUTE_SESSION_KEY);
+        return result;
+    }
+
 }

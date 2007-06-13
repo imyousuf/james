@@ -28,14 +28,13 @@ import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.Constants;
 import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.api.imap.ProtocolException;
+import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
 import org.apache.james.core.AbstractJamesHandler;
 import org.apache.james.experimental.imapserver.encode.writer.OutputStreamImapResponseWriter;
-import org.apache.james.experimental.imapserver.processor.main.DefaultImapProcessorFactory;
+import org.apache.james.imapserver.codec.decode.ImapDecoder;
+import org.apache.james.imapserver.codec.encode.ImapEncoder;
 import org.apache.james.imapserver.codec.encode.ImapResponseComposer;
-import org.apache.james.imapserver.codec.encode.main.DefaultImapEncoderFactory;
-import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
-import org.apache.james.services.UsersRepository;
 
 /**
  * The handler class for IMAP connections.
@@ -73,12 +72,10 @@ public class ImapHandler
     {
         if (theData instanceof ImapHandlerConfigurationData) {
             theConfigData = (ImapHandlerConfigurationData) theData;
-            final UsersRepository usersRepository = theConfigData.getUsersRepository();
-            final MailboxManagerProvider mailboxManagerProvider = theConfigData.getMailboxManagerProvider();
-//          TODO: inject dependency
-            requestHandler = new ImapRequestHandler(StandardFactory.createDecoder(), 
-                    DefaultImapProcessorFactory.createDefaultProcessor(usersRepository, mailboxManagerProvider),
-                    DefaultImapEncoderFactory.createDefaultEncoder());
+            final ImapEncoder imapEncoder = theConfigData.getImapEncoder();
+            final ImapProcessor imapProcessor = theConfigData.getImapProcessor();
+            final ImapDecoder imapDecoder = theConfigData.getImapDecoder();
+            requestHandler = new ImapRequestHandler(imapDecoder, imapProcessor, imapEncoder);
         } else {
             throw new IllegalArgumentException("Configuration object does not implement POP3HandlerConfigurationData");
         }
