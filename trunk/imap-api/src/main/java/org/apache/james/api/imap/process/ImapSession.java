@@ -22,7 +22,6 @@ package org.apache.james.api.imap.process;
 import java.util.List;
 
 import org.apache.james.api.imap.ImapSessionState;
-import org.apache.james.api.imap.message.response.ImapResponseMessage;
 import org.apache.james.services.User;
 
 
