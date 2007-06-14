@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project default="main" name="imap-command-library">
+  <description>Builds imap-command-library module. This is an library module.</description>
+  <property name="name.module" value="imap-command-library" />
+  <import file="../build-tools/library-build.xml" optional="no" />
+</project>
