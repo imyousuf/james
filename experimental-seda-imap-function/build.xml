@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project default="main" name="experimental-seda-imap-function">
+  <description>Builds experimental-seda-imap-function module. This is an function module.</description>
+  <property name="name.module" value="experimental-seda-imap-function" />
+  <import file="../build-tools/function-build.xml" optional="no" />
+</project>
