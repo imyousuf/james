@@ -39,13 +39,15 @@ Master template for module builds.
     <target 
         name='conditional-clean' 
         depends='check-environment'
-        if='do.build.clean'>
+        if='do.build.clean'
+        unless='dont.build.module'>
         <Clean/>   
     </target>
  
     <target 
         name='set-classpath'
-        depends='check-environment'>
+        depends='check-environment'
+        unless='dont.build.module'>
         <SetBaseClasspaths/>   
     </target>   
        
@@ -56,7 +58,8 @@ Main User Targets
     <target 
         name='clean'
         description='Cleans build residues.'
-        depends='check-environment'>
+        depends='check-environment'
+        unless='dont.build.module'>
         <property name='do.build.clean' value='true'/>
         <antcall target='conditional-clean'/>
     </target>
@@ -64,7 +67,8 @@ Main User Targets
     <target 
         name='build'
         description='Builds without cleaning'
-        depends='check-environment, conditional-clean, set-classpath'>
+        depends='check-environment, conditional-clean, set-classpath'
+        unless='dont.build.module'>
         <echo>Building ${name.module}</echo>   
         <CompileMainSource/>   
     </target>   
@@ -72,7 +76,8 @@ Main User Targets
     <target 
         name='test'
         description='Builds and tests without cleaning'
-        depends='build, check-environment, conditional-clean, set-classpath'>
+        depends='build, check-environment, conditional-clean, set-classpath'
+        unless='dont.build.module'>
         <echo>Testing ${name.module}</echo>    
         <CompileTests/>   
         <RunTests/>   
@@ -81,7 +86,8 @@ Main User Targets
     <target 
         name='dist'
         description='Builds and creates distribution without cleaning'
-        depends='build, check-environment, conditional-clean'>
+        depends='build, check-environment, conditional-clean'
+        unless='dont.build.module'>
         <CreateJar 
             name='${name.module}'   
             bin='${dir.build.bin}'
@@ -96,11 +102,13 @@ Main User Targets
     <target 
         name='main'
         description='Builds, tests and distributes without cleaning'
-        depends='build, test, dist, check-environment, conditional-clean'/>
+        depends='build, test, dist, check-environment, conditional-clean'
+        unless='dont.build.module'/>
  
     <target 
         name='full'
-        description='Cleans, builds, tests and distributes'>
+        description='Cleans, builds, tests and distributes'
+        unless='dont.build.module'>
         <property name='do.build.clean' value='true'/>
         <antcall target="main"/>   
     </target>

@@ -1,6 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project default="main" name="mordred-library">
-  <description>Builds mordred-library module. This is an library module.</description>
-  <property name="name.module" value="mordred-library" />
-  <import file="../build-tools/library-build.xml" optional="no" />
+    <description>Builds mordred-library module. This is an library module.</description>
+    <property name="name.module" value="mordred-library" />
+    <import file="../build-tools/library-build.xml" optional="no" />
+ 
+    <!-- Mordred cannot be built with Java 6 or higher --> 
+    <condition property='dont.build.module' value='true'>
+        <not>
+            <or>   
+                <equals arg1='${ant.java.version}' arg2='1.5'/>   
+                <equals arg1='${ant.java.version}' arg2='1.4'/>
+                <equals arg1='${ant.java.version}' arg2='1.3'/>
+                <equals arg1='${ant.java.version}' arg2='1.2'/>
+            </or>
+        </not>
+    </condition>   
+ 
+    <target name='java-version-warning' if='dont.build.module'>
+        <echo>Mordred is incompatible with Java 6</echo>   
+    </target>   
+    
+    <target name='check-environment' depends='java-version-warning, master-module-template.check-environment'>
+    </target>   
 </project>
