@@ -29,7 +29,6 @@ import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.api.imap.ImapSessionState;
 import org.apache.james.api.imap.process.ImapSession;
 import org.apache.james.api.imap.process.SelectedImapMailbox;
-import org.apache.james.services.User;
 
 import EDU.oswego.cs.dl.util.concurrent.ConcurrentHashMap;
 
@@ -39,7 +38,6 @@ import EDU.oswego.cs.dl.util.concurrent.ConcurrentHashMap;
 public final class ImapSessionImpl extends AbstractLogEnabled implements ImapSession, ImapConstants
 {
     private ImapSessionState state = ImapSessionState.NON_AUTHENTICATED;
-    private User user = null;
     private SelectedImapMailbox selectedMailbox = null;
 
     private final String clientHostName;
@@ -95,15 +93,9 @@ public final class ImapSessionImpl extends AbstractLogEnabled implements ImapSes
         return clientAddress;
     }
 
-    public void authenticated( User user )
+    public void authenticated( )
     {
         this.state = ImapSessionState.AUTHENTICATED;
-        this.user = user;
-    }
-
-    public User getUser()
-    {
-        return this.user;
     }
 
     public void deselect()

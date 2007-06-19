@@ -31,6 +31,7 @@ import org.apache.james.imap.message.response.imap4rev1.legacy.CommandCompleteRe
 import org.apache.james.imap.message.response.imap4rev1.legacy.CommandFailedResponse;
 import org.apache.james.imapserver.processor.base.AbstractImapRequestProcessor;
 import org.apache.james.imapserver.processor.base.AuthorizationException;
+import org.apache.james.imapserver.processor.base.ImapSessionUtils;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.services.User;
 import org.apache.james.services.UsersRepository;
@@ -67,7 +68,8 @@ public class LoginProcessor extends AbstractImapRequestProcessor {
         final ImapResponseMessage result;
         if ( users.test( userid, password ) ) {
             User user = users.getUserByName( userid );
-            session.authenticated( user );
+            session.authenticated();
+            ImapSessionUtils.setUser( session, user ); 
             result = new CommandCompleteResponse(command, tag);
         }
         else {

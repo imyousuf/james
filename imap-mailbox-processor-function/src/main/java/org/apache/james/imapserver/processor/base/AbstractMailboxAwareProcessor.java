@@ -39,7 +39,7 @@ abstract public class AbstractMailboxAwareProcessor extends AbstractImapRequestP
     }
     
     public String buildFullName(final ImapSession session, String mailboxName) throws MailboxManagerException {
-        User user = session.getUser();
+        User user = ImapSessionUtils.getUser(session);
         if (!mailboxName.startsWith(NAMESPACE_PREFIX)) {
             mailboxName = mailboxManagerProvider.getPersonalDefaultNamespace(user).getName()+HIERARCHY_DELIMITER+mailboxName;
         }
@@ -52,7 +52,7 @@ abstract public class AbstractMailboxAwareProcessor extends AbstractImapRequestP
         MailboxManager result = (MailboxManager) session.getAttribute( ImapSessionUtils.MAILBOX_MANAGER_ATTRIBUTE_SESSION_KEY );
         if (result == null) {
             // TODO: handle null user
-            final User user = session.getUser();
+            final User user = ImapSessionUtils.getUser(session);
             result = mailboxManagerProvider.getMailboxManagerInstance(user);
             result.createInbox(user);
             // TODO: reconsider decision not to sunchronise
