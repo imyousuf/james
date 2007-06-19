@@ -22,7 +22,6 @@ package org.apache.james.api.imap.process;
 import java.util.List;
 
 import org.apache.james.api.imap.ImapSessionState;
-import org.apache.james.services.User;
 
 
 /**
@@ -74,19 +73,9 @@ public interface ImapSession
     ImapSessionState getState();
 
     /**
-     * Moves the session into {@link ImapSessionState#AUTHENTICATED} state with
-     * the supplied user.
-     * @param user The user who is authenticated for this session.
+     * Moves the session into {@link ImapSessionState#AUTHENTICATED} state.
      */
-    void authenticated( User user );
-
-    /**
-     * Provides the authenticated user for this session, or <code>null</code> if this
-     * session is not in {@link ImapSessionState#AUTHENTICATED} or
-     * {@link ImapSessionState#SELECTED} state.
-     * @return The user authenticated for this session
-     */
-    User getUser();
+    void authenticated();
 
     /**
      * Moves this session into {@link ImapSessionState#SELECTED} state and sets the

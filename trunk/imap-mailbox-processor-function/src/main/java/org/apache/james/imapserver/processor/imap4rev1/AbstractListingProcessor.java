@@ -35,6 +35,7 @@ import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.impl.ListResultImpl;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
+import org.apache.james.services.User;
 
 
 abstract class AbstractListingProcessor extends AbstractMailboxAwareProcessor {
@@ -54,8 +55,9 @@ abstract class AbstractListingProcessor extends AbstractMailboxAwareProcessor {
 
         ListResult[] listResults;
 
-        String personalNamespace = ImapConstants.USER_NAMESPACE + ImapConstants.HIERARCHY_DELIMITER_CHAR +
-        session.getUser().getUserName();
+        final User user = ImapSessionUtils.getUser(session);
+        String personalNamespace = ImapConstants.USER_NAMESPACE + ImapConstants.HIERARCHY_DELIMITER_CHAR 
+                + user.getUserName();
 
         if ( mailboxPattern.length() == 0 ) {
             // An empty mailboxPattern signifies a request for the hierarchy delimiter
