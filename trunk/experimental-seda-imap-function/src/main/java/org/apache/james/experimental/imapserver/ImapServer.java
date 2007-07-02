@@ -70,24 +70,13 @@ public class ImapServer extends AbstractJamesService
     {
         super.service( serviceManager );
         setMailServer((MailServer) serviceManager.lookup(MailServer.ROLE));
-        setUp(decoderFactory, serviceManager);
-        setUp(encoderFactory, serviceManager);
-        setUp(processorFactory, serviceManager);
-        
-        imapProcessor = processorFactory.buildImapProcessor();
-        imapDecoder = decoderFactory.buildImapDecoder();
-        imapEncoder = encoderFactory.buildImapEncoder();
+        processorFactory = (ImapProcessorFactory) serviceManager.lookup(ImapProcessorFactory.class.getName());
+        decoderFactory = (ImapDecoderFactory) serviceManager.lookup(ImapDecoderFactory.class.getName());
+        encoderFactory = (ImapEncoderFactory) serviceManager.lookup(ImapEncoderFactory.class.getName());
     }
 
     void setMailServer(MailServer mailServer) {
         this.mailServer = mailServer;
-    }
-
-    private void setUp(Object service, ServiceManager serviceManager) throws ServiceException{
-        if (service instanceof Serviceable) {
-            Serviceable serviceable = (Serviceable) service;
-            serviceable.service(serviceManager);
-        }
     }
     
     /**
@@ -99,39 +88,14 @@ public class ImapServer extends AbstractJamesService
         if ( isEnabled() ) {
             Configuration handlerConfiguration = configuration.getChild( "handler" );
             lengthReset = handlerConfiguration.getChild( "lengthReset" ).getValueAsInteger( lengthReset );
-            getLogger().info( "The idle timeout will be reset every " + lengthReset + " bytes." );  
+            getLogger().info( "The idle timeout will be reset every " + lengthReset + " bytes." );
             
-            Configuration encoderConfiguration = configuration.getChild( "encoder-factory" );
-            encoderFactory = (ImapEncoderFactory) createFactory(encoderConfiguration);
-            
-            Configuration decoderConfiguration = configuration.getChild ( "decoder-factory" );
-            decoderFactory = (ImapDecoderFactory) createFactory(decoderConfiguration);
-            
-            Configuration processorConfiguration = configuration.getChild( "processor-factory" );
-            processorFactory = (ImapProcessorFactory) createFactory(processorConfiguration);
+            imapProcessor = processorFactory.buildImapProcessor();
+            imapDecoder = decoderFactory.buildImapDecoder();
+            imapEncoder = encoderFactory.buildImapEncoder();
         }
     }
     
-    private Object createFactory(Configuration configuration) throws ConfigurationException
-    {
-        try {
-            final String className = configuration.getAttribute("class");
-            final Object result = Class.forName(className).newInstance();
-            if (result instanceof Configurable)
-            {
-                Configurable configurable = (Configurable) result;
-                configurable.configure(configuration);
-            }
-            return result;
-        } catch (ClassNotFoundException e) {
-            throw new ConfigurationException("Cannot load factory class", configuration, e);
-        } catch (InstantiationException e) {
-            throw new ConfigurationException("Cannot load factory class", configuration, e);
-        } catch (IllegalAccessException e) {
-            throw new ConfigurationException("Cannot load factory class", configuration, e);
-        }
-    }
-
     /**
      * @see AbstractJamesService#getDefaultPort()
      */
