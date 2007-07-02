@@ -20,6 +20,7 @@
 package org.apache.james.imapserver.processor.main;
 
 import org.apache.james.api.imap.process.ImapProcessor;
+import org.apache.james.api.imap.process.ImapProcessorFactory;
 import org.apache.james.imapserver.processor.base.ImapResponseMessageProcessor;
 import org.apache.james.imapserver.processor.base.UnknownRequestImapProcessor;
 import org.apache.james.imapserver.processor.imap4rev1.Imap4Rev1ProcessorFactory;
@@ -29,7 +30,7 @@ import org.apache.james.services.UsersRepository;
 /**
  * 
  */
-public class DefaultImapProcessorFactory {
+public class DefaultImapProcessorFactory implements ImapProcessorFactory {
 
     public static final ImapProcessor createDefaultProcessor(final UsersRepository usersRepository,
             final MailboxManagerProvider mailboxManagerProvider) {
@@ -62,5 +63,9 @@ public class DefaultImapProcessorFactory {
     
     public final void setUsersRepository(UsersRepository usersRepository) {
         this.usersRepository = usersRepository;
+    }
+
+    public ImapProcessor buildImapProcessor() {
+        return createDefaultProcessor(usersRepository, mailboxManagerProvider);
     }
 }

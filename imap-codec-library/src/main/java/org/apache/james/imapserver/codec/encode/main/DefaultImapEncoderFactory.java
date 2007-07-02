@@ -20,6 +20,7 @@
 package org.apache.james.imapserver.codec.encode.main;
 
 import org.apache.james.imapserver.codec.encode.ImapEncoder;
+import org.apache.james.imapserver.codec.encode.ImapEncoderFactory;
 import org.apache.james.imapserver.codec.encode.base.EndImapEncoder;
 import org.apache.james.imapserver.codec.encode.imap4rev1.ExistsResponseEncoder;
 import org.apache.james.imapserver.codec.encode.imap4rev1.ExpungeResponseEncoder;
@@ -43,7 +44,7 @@ import org.apache.james.imapserver.codec.encode.imap4rev1.status.UntaggedNoRespo
 /**
  * TODO: perhaps a POJO would be better
  */
-public class DefaultImapEncoderFactory {
+public class DefaultImapEncoderFactory implements ImapEncoderFactory {
     
     public static final ImapEncoder createDefaultEncoder() {
         final EndImapEncoder endImapEncoder = new EndImapEncoder();
@@ -66,6 +67,10 @@ public class DefaultImapEncoderFactory {
         final CapabilityResponseEncoder capabilityResponseEncoder = new CapabilityResponseEncoder(closeResponseEncoder);
         final BadResponseEncoder result = new BadResponseEncoder(capabilityResponseEncoder);
         return result;
+    }
+
+    public ImapEncoder buildImapEncoder() {
+        return createDefaultEncoder();
     }
    
 }

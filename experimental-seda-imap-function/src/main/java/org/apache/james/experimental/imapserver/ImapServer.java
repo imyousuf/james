@@ -19,15 +19,20 @@
 
 package org.apache.james.experimental.imapserver;
 
+import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.api.imap.process.ImapProcessor;
+import org.apache.james.api.imap.process.ImapProcessorFactory;
 import org.apache.james.core.AbstractJamesService;
 import org.apache.james.imapserver.codec.decode.ImapDecoder;
+import org.apache.james.imapserver.codec.decode.ImapDecoderFactory;
 import org.apache.james.imapserver.codec.encode.ImapEncoder;
+import org.apache.james.imapserver.codec.encode.ImapEncoderFactory;
 import org.apache.james.services.MailServer;
 
 /**
@@ -53,20 +58,38 @@ public class ImapServer extends AbstractJamesService
     private ImapHandlerConfigurationDataImpl theConfigData = new ImapHandlerConfigurationDataImpl();
 
     private MailServer mailServer;
+    private ImapDecoderFactory decoderFactory;
+    private ImapEncoderFactory encoderFactory;
+    private ImapProcessorFactory processorFactory;
+    
+    private ImapProcessor imapProcessor;
     private ImapDecoder imapDecoder;
     private ImapEncoder imapEncoder;
-    private ImapProcessor imapProcessor;
-
+    
     public void service( ServiceManager serviceManager ) throws ServiceException
     {
         super.service( serviceManager );
         setMailServer((MailServer) serviceManager.lookup(MailServer.ROLE));
+        setUp(decoderFactory, serviceManager);
+        setUp(encoderFactory, serviceManager);
+        setUp(processorFactory, serviceManager);
+        
+        imapProcessor = processorFactory.buildImapProcessor();
+        imapDecoder = decoderFactory.buildImapDecoder();
+        imapEncoder = encoderFactory.buildImapEncoder();
     }
 
     void setMailServer(MailServer mailServer) {
         this.mailServer = mailServer;
     }
 
+    private void setUp(Object service, ServiceManager serviceManager) throws ServiceException{
+        if (service instanceof Serviceable) {
+            Serviceable serviceable = (Serviceable) service;
+            serviceable.service(serviceManager);
+        }
+    }
+    
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
@@ -77,6 +100,35 @@ public class ImapServer extends AbstractJamesService
             Configuration handlerConfiguration = configuration.getChild( "handler" );
             lengthReset = handlerConfiguration.getChild( "lengthReset" ).getValueAsInteger( lengthReset );
             getLogger().info( "The idle timeout will be reset every " + lengthReset + " bytes." );  
+            
+            Configuration encoderConfiguration = configuration.getChild( "encoder-factory" );
+            encoderFactory = (ImapEncoderFactory) createFactory(encoderConfiguration);
+            
+            Configuration decoderConfiguration = configuration.getChild ( "decoder-factory" );
+            decoderFactory = (ImapDecoderFactory) createFactory(decoderConfiguration);
+            
+            Configuration processorConfiguration = configuration.getChild( "processor-factory" );
+            processorFactory = (ImapProcessorFactory) createFactory(processorConfiguration);
+        }
+    }
+    
+    private Object createFactory(Configuration configuration) throws ConfigurationException
+    {
+        try {
+            final String className = configuration.getAttribute("class");
+            final Object result = Class.forName(className).newInstance();
+            if (result instanceof Configurable)
+            {
+                Configurable configurable = (Configurable) result;
+                configurable.configure(configuration);
+            }
+            return result;
+        } catch (ClassNotFoundException e) {
+            throw new ConfigurationException("Cannot load factory class", configuration, e);
+        } catch (InstantiationException e) {
+            throw new ConfigurationException("Cannot load factory class", configuration, e);
+        } catch (IllegalAccessException e) {
+            throw new ConfigurationException("Cannot load factory class", configuration, e);
         }
     }
 

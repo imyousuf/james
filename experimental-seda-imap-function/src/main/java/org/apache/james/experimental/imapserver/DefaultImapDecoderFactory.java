@@ -25,13 +25,14 @@ import org.apache.james.imap.command.imap4rev1.StandardImap4Rev1CommandFactory;
 import org.apache.james.imap.message.request.base.BaseImap4Rev1MessageFactory;
 import org.apache.james.imapserver.codec.decode.ImapCommandParserFactory;
 import org.apache.james.imapserver.codec.decode.ImapDecoder;
+import org.apache.james.imapserver.codec.decode.ImapDecoderFactory;
 import org.apache.james.imapserver.codec.decode.imap4rev1.Imap4Rev1CommandParserFactory;
 import org.apache.james.imapserver.codec.decode.main.DefaultImapDecoder;
 
 /**
  * TODO: this is temporary: should let the container do the coupling.
  */
-public class StandardFactory {
+public class DefaultImapDecoderFactory implements ImapDecoderFactory{
     
     public static final ImapDecoder createDecoder() {
         final Imap4Rev1MessageFactory messageFactory = new BaseImap4Rev1MessageFactory();
@@ -42,4 +43,10 @@ public class StandardFactory {
                 imapCommands);
         return result;
     }
+
+    public ImapDecoder buildImapDecoder() {
+        return createDecoder();
+    }
+    
+    
 }
