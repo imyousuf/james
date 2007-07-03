@@ -25,33 +25,11 @@
     <version>1.0</version>
   </block>
 
-  <dependencies>
-    <dependency>
-      <service name="org.apache.james.services.JamesConnectionManager" version="1.0"/>
-    </dependency>
-    <dependency>
-      <service name="org.apache.avalon.cornerstone.services.sockets.SocketManager" version="1.0"/>
-    </dependency>
-    <dependency>
-      <service name="org.apache.james.services.MailServer" version="1.0"/>
-    </dependency>
-    <dependency>
-      <service name="org.apache.avalon.cornerstone.services.threads.ThreadManager" version="1.0"/>
-    </dependency>
-    <dependency>
-      <service name="org.apache.james.services.DNSServer" version="1.0"/>
-    </dependency>   
-    <dependency>
-      <service name="org.apache.james.services.MailServer" version="1.0"/>
-    </dependency>
-    <dependency>
+  <!-- services that are offered by this block -->
+  <services> 
       <service name="org.apache.james.imapserver.codec.decode.ImapDecoderFactory" version="1.0"/>
-    </dependency>
-    <dependency>
-      <service name="org.apache.james.imapserver.codec.encode.ImapEncoderFactory" version="1.0"/>
-    </dependency>
-    <dependency>
-      <service name="org.apache.james.api.imap.process.ImapProcessorFactory" version="1.0"/>
-    </dependency>
+  </services>
+
+  <dependencies>
   </dependencies>
 </blockinfo>
