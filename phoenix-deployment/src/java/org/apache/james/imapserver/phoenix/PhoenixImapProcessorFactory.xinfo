@@ -17,41 +17,22 @@
   specific language governing permissions and limitations      
   under the License.                                           
  -->
- 
 <blockinfo>
 
   <!-- section to describe block -->
   <block>
     <version>1.0</version>
   </block>
-
+     <!-- services that are offered by this block -->
+  <services>
+      <service name="org.apache.james.api.imap.process.ImapProcessorFactory" version="1.0"/>
+  </services>
   <dependencies>
     <dependency>
-      <service name="org.apache.james.services.JamesConnectionManager" version="1.0"/>
+      <service name="org.apache.james.mailboxmanager.manager.MailboxManagerProvider" version="1.0"/>
     </dependency>
     <dependency>
-      <service name="org.apache.avalon.cornerstone.services.sockets.SocketManager" version="1.0"/>
-    </dependency>
-    <dependency>
-      <service name="org.apache.james.services.MailServer" version="1.0"/>
-    </dependency>
-    <dependency>
-      <service name="org.apache.avalon.cornerstone.services.threads.ThreadManager" version="1.0"/>
-    </dependency>
-    <dependency>
-      <service name="org.apache.james.services.DNSServer" version="1.0"/>
-    </dependency>   
-    <dependency>
-      <service name="org.apache.james.services.MailServer" version="1.0"/>
-    </dependency>
-    <dependency>
-      <service name="org.apache.james.imapserver.codec.decode.ImapDecoderFactory" version="1.0"/>
-    </dependency>
-    <dependency>
-      <service name="org.apache.james.imapserver.codec.encode.ImapEncoderFactory" version="1.0"/>
-    </dependency>
-    <dependency>
-      <service name="org.apache.james.api.imap.process.ImapProcessorFactory" version="1.0"/>
-    </dependency>
+      <service name="org.apache.james.services.UsersRepository" version="1.0"/>
+    </dependency> 
   </dependencies>
 </blockinfo>
