@@ -57,10 +57,10 @@
       <artifactId>avalon-framework-api</artifactId>
       <version>4.3</version>
       <exclusions>
-      	<exclusion>
-      		<artifactId>avalon-logkit</artifactId>
-      		<groupId>avalon-logkit</groupId>
-      	</exclusion>
+        <exclusion>
+          <artifactId>avalon-logkit</artifactId>
+          <groupId>avalon-logkit</groupId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
@@ -68,19 +68,19 @@
       <artifactId>commons-logging</artifactId>
       <version>1.1</version>
       <exclusions>
-      	<exclusion>
+        <exclusion>
           <artifactId>logkit</artifactId>
           <groupId>logkit</groupId>
         </exclusion>
-      	<exclusion>
+        <exclusion>
           <artifactId>avalon-framework</artifactId>
           <groupId>avalon-framework</groupId>
         </exclusion>
-      	<exclusion>
+        <exclusion>
           <artifactId>log4j</artifactId>
           <groupId>log4j</groupId>
         </exclusion>
-      	<exclusion>
+        <exclusion>
           <groupId>javax.servlet</groupId>
           <artifactId>servlet-api</artifactId>
         </exclusion>
@@ -96,7 +96,7 @@
       <artifactId>commons-pool</artifactId>
       <version>1.2</version>
       <exclusions>
-      	<exclusion>
+        <exclusion>
           <groupId>xerces</groupId>
           <artifactId>xercesImpl</artifactId>
         </exclusion>

@@ -115,7 +115,7 @@ public class ValidSenderDomainHandler
             }
         
             if (records == null || records.size() == 0) {
-        	session.getState().remove(SMTPSession.SENDER);
+                session.getState().remove(SMTPSession.SENDER);
                 return true;
             }
         }
