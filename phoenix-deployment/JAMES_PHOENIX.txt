@@ -41,8 +41,8 @@ Here are the differences between the svn version and this one:
         File newBase = new File(base, newBaseDirectory);
         final ArrayList urls = new ArrayList();
         if (newBase.exists() && newBase.isDirectory()) {
-        	final PathMatcher matcher = new PathMatcher( includes, excludes );
-        	scanDir( newBase, matcher, "", urls );
+          final PathMatcher matcher = new PathMatcher( includes, excludes );
+          scanDir( newBase, matcher, "", urls );
         }
         return (URL[]) urls.toArray( new URL[urls.size()] );
     }
