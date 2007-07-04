@@ -36,10 +36,9 @@ import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 
-
 public class SubscribeProcessor extends AbstractMailboxAwareProcessor {
-	
-	public SubscribeProcessor(final ImapProcessor next, 
+
+    public SubscribeProcessor(final ImapProcessor next,
             final MailboxManagerProvider mailboxManagerProvider) {
         super(next, mailboxManagerProvider);
     }
@@ -47,30 +46,38 @@ public class SubscribeProcessor extends AbstractMailboxAwareProcessor {
     protected boolean isAcceptable(ImapMessage message) {
         return (message instanceof SubscribeRequest);
     }
-    
-    protected ImapResponseMessage doProcess(ImapRequest message, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-        final SubscribeRequest request = (SubscribeRequest) message;
-        final ImapResponseMessage result = doProcess(request, session, tag, command);
-		return result;
-	}
 
-	private ImapResponseMessage doProcess(SubscribeRequest request, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-		final String mailboxName = request.getMailboxName();
-		final ImapResponseMessage result = doProcess(mailboxName, session, tag, command);
-		return result;
-	}
-	
-	private ImapResponseMessage doProcess(final String mailboxName, 
-			ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
+    protected ImapResponseMessage doProcess(ImapRequest message,
+            ImapSession session, String tag, ImapCommand command)
+            throws MailboxException, AuthorizationException, ProtocolException {
+        final SubscribeRequest request = (SubscribeRequest) message;
+        final ImapResponseMessage result = doProcess(request, session, tag,
+                command);
+        return result;
+    }
+
+    private ImapResponseMessage doProcess(SubscribeRequest request,
+            ImapSession session, String tag, ImapCommand command)
+            throws MailboxException, AuthorizationException, ProtocolException {
+        final String mailboxName = request.getMailboxName();
+        final ImapResponseMessage result = doProcess(mailboxName, session, tag,
+                command);
+        return result;
+    }
+
+    private ImapResponseMessage doProcess(final String mailboxName,
+            ImapSession session, String tag, ImapCommand command)
+            throws MailboxException, AuthorizationException, ProtocolException {
         try {
             final String fullMailboxName = buildFullName(session, mailboxName);
             final MailboxManager mailboxManager = getMailboxManager(session);
-            mailboxManager.setSubscription(fullMailboxName,true);
+            mailboxManager.setSubscription(fullMailboxName, true);
         } catch (MailboxManagerException e) {
-           throw new MailboxException(e);
+            throw new MailboxException(e);
         }
-        final CommandCompleteResponse result = new CommandCompleteResponse(command, tag);
+        final CommandCompleteResponse result = new CommandCompleteResponse(
+                command, tag);
         ImapSessionUtils.addUnsolicitedResponses(result, session, false);
         return result;
-	}
+    }
 }

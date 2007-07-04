@@ -36,10 +36,9 @@ import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 
-
 public class CreateProcessor extends AbstractMailboxAwareProcessor {
-	
-	public CreateProcessor(final ImapProcessor next, 
+
+    public CreateProcessor(final ImapProcessor next,
             final MailboxManagerProvider mailboxManagerProvider) {
         super(next, mailboxManagerProvider);
     }
@@ -48,31 +47,38 @@ public class CreateProcessor extends AbstractMailboxAwareProcessor {
         return (message instanceof CreateRequest);
     }
 
-    
-    protected ImapResponseMessage doProcess(ImapRequest message, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
+    protected ImapResponseMessage doProcess(ImapRequest message,
+            ImapSession session, String tag, ImapCommand command)
+            throws MailboxException, AuthorizationException, ProtocolException {
         final CreateRequest request = (CreateRequest) message;
-        final ImapResponseMessage result = doProcess(request, session, tag, command);
-		return result;
-	}
+        final ImapResponseMessage result = doProcess(request, session, tag,
+                command);
+        return result;
+    }
 
-	private ImapResponseMessage doProcess(CreateRequest request, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-		final String mailboxName = request.getMailboxName();
-		final ImapResponseMessage result = doProcess(mailboxName, session, tag, command);
-		return result;
-	}
-	
-	private ImapResponseMessage doProcess(String mailboxName, 
-			ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
+    private ImapResponseMessage doProcess(CreateRequest request,
+            ImapSession session, String tag, ImapCommand command)
+            throws MailboxException, AuthorizationException, ProtocolException {
+        final String mailboxName = request.getMailboxName();
+        final ImapResponseMessage result = doProcess(mailboxName, session, tag,
+                command);
+        return result;
+    }
+
+    private ImapResponseMessage doProcess(String mailboxName,
+            ImapSession session, String tag, ImapCommand command)
+            throws MailboxException, AuthorizationException, ProtocolException {
         try {
 
-            final String fullMailboxName=buildFullName(session, mailboxName);
+            final String fullMailboxName = buildFullName(session, mailboxName);
             final MailboxManager mailboxManager = getMailboxManager(session);
-            mailboxManager.createMailbox( fullMailboxName );
+            mailboxManager.createMailbox(fullMailboxName);
         } catch (MailboxManagerException e) {
-           throw new MailboxException(e);
+            throw new MailboxException(e);
         }
-        final CommandCompleteResponse result = new CommandCompleteResponse(command, tag);
+        final CommandCompleteResponse result = new CommandCompleteResponse(
+                command, tag);
         ImapSessionUtils.addUnsolicitedResponses(result, session, false);
         return result;
-	}
+    }
 }

@@ -43,7 +43,7 @@ import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 
 public class AppendProcessor extends AbstractMailboxAwareProcessor {
 
-    public AppendProcessor(final ImapProcessor next, 
+    public AppendProcessor(final ImapProcessor next,
             final MailboxManagerProvider mailboxManagerProvider) {
         super(next, mailboxManagerProvider);
     }
@@ -95,7 +95,8 @@ public class AppendProcessor extends AbstractMailboxAwareProcessor {
             // TODO why not TRYCREATE?
             throw new MailboxException(e);
         }
-        final CommandCompleteResponse result = new CommandCompleteResponse(command, tag);
+        final CommandCompleteResponse result = new CommandCompleteResponse(
+                command, tag);
         ImapSessionUtils.addUnsolicitedResponses(result, session, false);
         return result;
     }

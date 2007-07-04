@@ -42,63 +42,72 @@ import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 
-
 public class SearchProcessor extends AbstractImapRequestProcessor {
-	
-	public SearchProcessor(final ImapProcessor next) {
+
+    public SearchProcessor(final ImapProcessor next) {
         super(next);
     }
 
     protected boolean isAcceptable(ImapMessage message) {
         return (message instanceof SearchRequest);
     }
-    
-    protected ImapResponseMessage doProcess(ImapRequest message, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-        final SearchRequest request = (SearchRequest) message;
-        final ImapResponseMessage result = doProcess(request, session, tag, command);
-		return result;
-	}
 
-	private ImapResponseMessage doProcess(SearchRequest request, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-		final SearchTerm searchTerm = request.getSearchTerm();
-		final boolean useUids = request.isUseUids();
-		final ImapResponseMessage result = doProcess(searchTerm, useUids, session, tag, command);
-		return result;
-	}
-	
-	private ImapResponseMessage doProcess(final SearchTerm searchTerm, final boolean useUids, 
-			ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
+    protected ImapResponseMessage doProcess(ImapRequest message,
+            ImapSession session, String tag, ImapCommand command)
+            throws MailboxException, AuthorizationException, ProtocolException {
+        final SearchRequest request = (SearchRequest) message;
+        final ImapResponseMessage result = doProcess(request, session, tag,
+                command);
+        return result;
+    }
+
+    private ImapResponseMessage doProcess(SearchRequest request,
+            ImapSession session, String tag, ImapCommand command)
+            throws MailboxException, AuthorizationException, ProtocolException {
+        final SearchTerm searchTerm = request.getSearchTerm();
+        final boolean useUids = request.isUseUids();
+        final ImapResponseMessage result = doProcess(searchTerm, useUids,
+                session, tag, command);
+        return result;
+    }
+
+    private ImapResponseMessage doProcess(final SearchTerm searchTerm,
+            final boolean useUids, ImapSession session, String tag,
+            ImapCommand command) throws MailboxException,
+            AuthorizationException, ProtocolException {
         ImapMailboxSession mailbox = ImapSessionUtils.getMailbox(session);
         final int resultCode;
         if (useUids) {
-            resultCode= MessageResult.UID;
+            resultCode = MessageResult.UID;
         } else {
-            resultCode= MessageResult.MSN;
+            resultCode = MessageResult.MSN;
         }
         MessageResult[] messageResults;
         try {
-            messageResults = mailbox.search(GeneralMessageSetImpl.all(),searchTerm, resultCode);
+            messageResults = mailbox.search(GeneralMessageSetImpl.all(),
+                    searchTerm, resultCode);
         } catch (MailboxManagerException e) {
-          throw new MailboxException(e);
+            throw new MailboxException(e);
         }
         // TODO: probably more efficient to stream data
         // TODO: directly to response
         StringBuffer idList = new StringBuffer();
         for (int i = 0; i < messageResults.length; i++) {
-            if ( i > 0 ) {
-                idList.append( ImapConstants.SP );
+            if (i > 0) {
+                idList.append(ImapConstants.SP);
             }
-            if ( useUids ) {
-                idList.append( messageResults[i].getUid());
+            if (useUids) {
+                idList.append(messageResults[i].getUid());
             } else {
-                idList.append( messageResults[i].getMsn());
+                idList.append(messageResults[i].getMsn());
             }
         }
-        final SearchResponse result = 
-            new SearchResponse(command, idList.toString(), tag);
+        final SearchResponse result = new SearchResponse(command, idList
+                .toString(), tag);
         boolean omitExpunged = (!useUids);
-        List unsolicitedResponses = session.unsolicitedResponses( omitExpunged, useUids );
+        List unsolicitedResponses = session.unsolicitedResponses(omitExpunged,
+                useUids);
         result.addUnsolicitedResponses(unsolicitedResponses);
         return result;
-	}
+    }
 }

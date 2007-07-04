@@ -33,34 +33,41 @@ import org.apache.james.imapserver.processor.base.AuthorizationException;
 import org.apache.james.imapserver.processor.base.ImapSessionUtils;
 import org.apache.james.imapserver.store.MailboxException;
 
-
 public class CapabilityProcessor extends AbstractImapRequestProcessor {
-	
-    //TODO: capability text should be injected
-    
-	public CapabilityProcessor(final ImapProcessor next) {
+
+    // TODO: capability text should be injected
+
+    public CapabilityProcessor(final ImapProcessor next) {
         super(next);
     }
 
     protected boolean isAcceptable(ImapMessage message) {
         return (message instanceof CapabilityRequest);
     }
-    
-    protected ImapResponseMessage doProcess(ImapRequest message, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-        final CapabilityRequest request = (CapabilityRequest) message;
-        final ImapResponseMessage result = doProcess(request, session, tag, command);
-		return result;
-	}
 
-	private ImapResponseMessage doProcess(CapabilityRequest request, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-		final ImapResponseMessage result = doProcess(session, tag, command);
-		return result;
-	}
-	
-	private ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-        // TODO: accurately report the capabilities of the server
-		final CapabilityResponse result = new CapabilityResponse(command, tag);
-        ImapSessionUtils.addUnsolicitedResponses(result, session, false);;
+    protected ImapResponseMessage doProcess(ImapRequest message,
+            ImapSession session, String tag, ImapCommand command)
+            throws MailboxException, AuthorizationException, ProtocolException {
+        final CapabilityRequest request = (CapabilityRequest) message;
+        final ImapResponseMessage result = doProcess(request, session, tag,
+                command);
         return result;
-	}
+    }
+
+    private ImapResponseMessage doProcess(CapabilityRequest request,
+            ImapSession session, String tag, ImapCommand command)
+            throws MailboxException, AuthorizationException, ProtocolException {
+        final ImapResponseMessage result = doProcess(session, tag, command);
+        return result;
+    }
+
+    private ImapResponseMessage doProcess(ImapSession session, String tag,
+            ImapCommand command) throws MailboxException,
+            AuthorizationException, ProtocolException {
+        // TODO: accurately report the capabilities of the server
+        final CapabilityResponse result = new CapabilityResponse(command, tag);
+        ImapSessionUtils.addUnsolicitedResponses(result, session, false);
+        ;
+        return result;
+    }
 }

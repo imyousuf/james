@@ -28,265 +28,280 @@ import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.api.imap.message.MessageFlags;
 
 /**
- * Class providing methods to send response messages from the server
- * to the client.
+ * Class providing methods to send response messages from the server to the
+ * client.
  */
-public class ImapResponseComposer extends AbstractLogEnabled implements ImapConstants, ImapResponseWriter {
-    
+public class ImapResponseComposer extends AbstractLogEnabled implements
+        ImapConstants, ImapResponseWriter {
+
     public static final String FETCH = "FETCH";
+
     public static final String EXPUNGE = "EXPUNGE";
+
     public static final String RECENT = "RECENT";
+
     public static final String EXISTS = "EXISTS";
+
     public static final String FLAGS = "FLAGS";
+
     public static final String FAILED = "failed.";
+
     private final ImapResponseWriter writer;
 
-    public ImapResponseComposer( final ImapResponseWriter writer )
-    {
+    public ImapResponseComposer(final ImapResponseWriter writer) {
         this.writer = writer;
     }
 
     /**
-     * Writes a standard tagged OK response on completion of a command.
-     * Response is writen as:
-     * <pre>     a01 OK COMMAND_NAME completed.</pre>
-     *
-     * @param command The ImapCommand which was completed.
+     * Writes a standard tagged OK response on completion of a command. Response
+     * is writen as:
+     * 
+     * <pre>
+     *      a01 OK COMMAND_NAME completed.
+     * </pre>
+     * 
+     * @param command
+     *                The ImapCommand which was completed.
      */
-    public void commandComplete( final ImapCommand command, final String tag )
-    {
-        commandComplete( command, null , tag);
+    public void commandComplete(final ImapCommand command, final String tag) {
+        commandComplete(command, null, tag);
     }
 
     /**
-     * Writes a standard tagged OK response on completion of a command,
-     * with a response code (eg READ-WRITE)
-     * Response is writen as:
-     * <pre>     a01 OK [responseCode] COMMAND_NAME completed.</pre>
-     *
-     * @param command The ImapCommand which was completed.
-     * @param responseCode A string response code to send to the client.
+     * Writes a standard tagged OK response on completion of a command, with a
+     * response code (eg READ-WRITE) Response is writen as:
+     * 
+     * <pre>
+     *      a01 OK [responseCode] COMMAND_NAME completed.
+     * </pre>
+     * 
+     * @param command
+     *                The ImapCommand which was completed.
+     * @param responseCode
+     *                A string response code to send to the client.
      */
-    public void commandComplete( final ImapCommand command, final String responseCode, final String tag)
-    {
+    public void commandComplete(final ImapCommand command,
+            final String responseCode, final String tag) {
         tag(tag);
-        message( OK );
-        responseCode( responseCode );
-        commandName( command );
-        message( "completed." );
+        message(OK);
+        responseCode(responseCode);
+        commandName(command);
+        message("completed.");
         end();
     }
 
     /**
      * Writes a standard NO response on command failure, together with a
-     * descriptive message.
-     * Response is writen as:
-     * <pre>     a01 NO COMMAND_NAME failed. <reason></pre>
-     *
-     * @param command The ImapCommand which failed.
-     * @param reason A message describing why the command failed.
+     * descriptive message. Response is writen as:
+     * 
+     * <pre>
+     *      a01 NO COMMAND_NAME failed. &lt;reason&gt;
+     * </pre>
+     * 
+     * @param command
+     *                The ImapCommand which failed.
+     * @param reason
+     *                A message describing why the command failed.
      */
-    public void commandFailed( final ImapCommand command, final String reason , final String tag)
-    {
-        commandFailed( command, null, reason , tag);
+    public void commandFailed(final ImapCommand command, final String reason,
+            final String tag) {
+        commandFailed(command, null, reason, tag);
     }
 
     /**
      * Writes a standard NO response on command failure, together with a
-     * descriptive message.
-     * Response is writen as:
-     * <pre>     a01 NO [responseCode] COMMAND_NAME failed. <reason></pre>
-     *
-     * @param command The ImapCommand which failed.
-     * @param responseCode The Imap response code to send.
-     * @param reason A message describing why the command failed.
+     * descriptive message. Response is writen as:
+     * 
+     * <pre>
+     *      a01 NO [responseCode] COMMAND_NAME failed. &lt;reason&gt;
+     * </pre>
+     * 
+     * @param command
+     *                The ImapCommand which failed.
+     * @param responseCode
+     *                The Imap response code to send.
+     * @param reason
+     *                A message describing why the command failed.
      */
-    public void commandFailed( ImapCommand command,
-                               String responseCode,
-                               String reason, 
-                               final String tag)
-    {
+    public void commandFailed(ImapCommand command, String responseCode,
+            String reason, final String tag) {
         tag(tag);
-        message( NO );
-        responseCode( responseCode );
-        commandName( command );
-        message( FAILED );
-        message( reason );
+        message(NO);
+        responseCode(responseCode);
+        commandName(command);
+        message(FAILED);
+        message(reason);
         end();
         final Logger logger = getLogger();
-        if (logger!= null && logger.isInfoEnabled()) {
+        if (logger != null && logger.isInfoEnabled()) {
             logger.info("COMMAND FAILED [" + responseCode + "] - " + reason);
         }
     }
 
     /**
      * Writes a standard BAD response on command error, together with a
-     * descriptive message.
-     * Response is writen as:
-     * <pre>     a01 BAD <message></pre>
-     *
-     * @param message The descriptive error message.
+     * descriptive message. Response is writen as:
+     * 
+     * <pre>
+     *      a01 BAD &lt;message&gt;
+     * </pre>
+     * 
+     * @param message
+     *                The descriptive error message.
      */
-    public void commandError( final String message, final String tag )
-    {
+    public void commandError(final String message, final String tag) {
         tag(tag);
-        message( BAD );
-        message( message );
+        message(BAD);
+        message(message);
         end();
         final Logger logger = getLogger();
         if (logger != null && logger.isInfoEnabled()) {
-            logger.info("ERROR - " + message); 
+            logger.info("ERROR - " + message);
         }
     }
 
     /**
-     * Writes a standard untagged BAD response, together with a descriptive message.
+     * Writes a standard untagged BAD response, together with a descriptive
+     * message.
      */
-    public void badResponse( String message )
-    {
+    public void badResponse(String message) {
         untagged();
-        message( BAD );
-        message( message );
+        message(BAD);
+        message(message);
         end();
-        final Logger logger = getLogger(); 
-        if (logger != null && logger.isInfoEnabled()) { 
-            logger.info("BAD - " + message); 
+        final Logger logger = getLogger();
+        if (logger != null && logger.isInfoEnabled()) {
+            logger.info("BAD - " + message);
         }
     }
-    
-    /**
-     * Writes a standard untagged BAD response, together with a descriptive message.
-     */
-    public void badResponse( String message , String tag )
-    {
-    	tag(tag);
-        message( BAD );
-        message( message );
-        end();
-        final Logger logger = getLogger(); 
-        if (logger != null && logger.isInfoEnabled()) { 
-            logger.info("BAD - " + message); 
-        }
-    }
-    
-    /**
-     * Writes an untagged OK response, with the supplied response code,
-     * and an optional message.
-     * @param responseCode The response code, included in [].
-     * @param message The message to follow the []
-     */
-    public void okResponse( String responseCode, String message )
-    {
-        untagged();
-        message( OK );
-        responseCode( responseCode );
-        message( message );
-        end();
-    }
 
     /**
-     * Writes an untagged NO response.
-     * Indicates that a warning.
-     * The command may still complete sucessfully.
-     * @param displayMessage message for display, not null
-     * @param responseCode response code 
-     * or null when there is no response code
+     * Writes a standard untagged BAD response, together with a descriptive
+     * message.
      */
-    public void untaggedNoResponse(String displayMessage, String responseCode)
-    {
-        untagged();
-        message( NO );
-        responseCode( responseCode );
-        message( displayMessage );
-        end();
-    }
-    
-    public void flagsResponse( Flags flags )
-    {
-        untagged();
-        message( FLAGS );
-        message( MessageFlags.format(flags) );
-        end();
-    }
-
-    public void existsResponse( int count )
-    {
-        untagged();
-        message( count );
-        message( EXISTS );
-        end();
-    }
-
-    public void recentResponse( int count )
-    {
-        untagged();
-        message( count );
-        message( RECENT );
-        end();
-    }
-
-    public void expungeResponse( int msn )
-    {
-        untagged();
-        message( msn );
-        message( EXPUNGE );
-        end();
-    }
-
-    public void fetchResponse( int msn, String msgData )
-    {
-        untagged();
-        message( msn );
-        message( FETCH );
-        message( "(" + msgData + ")" );
-        end();
-    }
-
-    public void commandResponse( ImapCommand command, String message )
-    {
-        untagged();
-        commandName( command );
-        message( message );
-        end();
-    }
-
-    /**
-     * Writes the message provided to the client, prepended with the
-     * request tag.
-     *
-     * @param message The message to write to the client.
-     */
-    public void taggedResponse( String message, String tag )
-    {
+    public void badResponse(String message, String tag) {
         tag(tag);
-        message( message );
+        message(BAD);
+        message(message);
+        end();
+        final Logger logger = getLogger();
+        if (logger != null && logger.isInfoEnabled()) {
+            logger.info("BAD - " + message);
+        }
+    }
+
+    /**
+     * Writes an untagged OK response, with the supplied response code, and an
+     * optional message.
+     * 
+     * @param responseCode
+     *                The response code, included in [].
+     * @param message
+     *                The message to follow the []
+     */
+    public void okResponse(String responseCode, String message) {
+        untagged();
+        message(OK);
+        responseCode(responseCode);
+        message(message);
         end();
     }
 
     /**
-     * Writes the message provided to the client, prepended with the
-     * untagged marker "*".
-     *
-     * @param message The message to write to the client.
+     * Writes an untagged NO response. Indicates that a warning. The command may
+     * still complete sucessfully.
+     * 
+     * @param displayMessage
+     *                message for display, not null
+     * @param responseCode
+     *                response code or null when there is no response code
      */
-    public void untaggedResponse( String message )
-    {
+    public void untaggedNoResponse(String displayMessage, String responseCode) {
         untagged();
-        message( message );
+        message(NO);
+        responseCode(responseCode);
+        message(displayMessage);
         end();
     }
-    
-    public void byeResponse( String message ) {
+
+    public void flagsResponse(Flags flags) {
+        untagged();
+        message(FLAGS);
+        message(MessageFlags.format(flags));
+        end();
+    }
+
+    public void existsResponse(int count) {
+        untagged();
+        message(count);
+        message(EXISTS);
+        end();
+    }
+
+    public void recentResponse(int count) {
+        untagged();
+        message(count);
+        message(RECENT);
+        end();
+    }
+
+    public void expungeResponse(int msn) {
+        untagged();
+        message(msn);
+        message(EXPUNGE);
+        end();
+    }
+
+    public void fetchResponse(int msn, String msgData) {
+        untagged();
+        message(msn);
+        message(FETCH);
+        message("(" + msgData + ")");
+        end();
+    }
+
+    public void commandResponse(ImapCommand command, String message) {
+        untagged();
+        commandName(command);
+        message(message);
+        end();
+    }
+
+    /**
+     * Writes the message provided to the client, prepended with the request
+     * tag.
+     * 
+     * @param message
+     *                The message to write to the client.
+     */
+    public void taggedResponse(String message, String tag) {
+        tag(tag);
+        message(message);
+        end();
+    }
+
+    /**
+     * Writes the message provided to the client, prepended with the untagged
+     * marker "*".
+     * 
+     * @param message
+     *                The message to write to the client.
+     */
+    public void untaggedResponse(String message) {
+        untagged();
+        message(message);
+        end();
+    }
+
+    public void byeResponse(String message) {
         untaggedResponse(BYE + SP + message);
     }
 
-    public void untagged()
-    {
+    public void untagged() {
         writer.untagged();
     }
 
-    private void commandName( final ImapCommand command )
-    {
+    private void commandName(final ImapCommand command) {
         final String name = command.getName();
         commandName(name);
     }
@@ -295,9 +310,8 @@ public class ImapResponseComposer extends AbstractLogEnabled implements ImapCons
         writer.commandName(name);
     }
 
-    public void message( final String message )
-    {
-        if ( message != null ) {
+    public void message(final String message) {
+        if (message != null) {
             // TODO: consider message normalisation
             // TODO: CR/NFs in message must be replaced
             // TODO: probably best done in the writer
@@ -305,20 +319,17 @@ public class ImapResponseComposer extends AbstractLogEnabled implements ImapCons
         }
     }
 
-    public void message( final int number )
-    {
+    public void message(final int number) {
         writer.message(number);
     }
 
-    public void responseCode( final String responseCode )
-    {
-        if ( responseCode != null ) {
+    public void responseCode(final String responseCode) {
+        if (responseCode != null) {
             writer.responseCode(responseCode);
         }
     }
 
-    public void end()
-    {
+    public void end() {
         writer.end();
     }
 

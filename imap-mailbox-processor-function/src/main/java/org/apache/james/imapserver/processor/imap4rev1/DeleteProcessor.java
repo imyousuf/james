@@ -36,10 +36,9 @@ import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 
-
 public class DeleteProcessor extends AbstractMailboxAwareProcessor {
-	
-	public DeleteProcessor(final ImapProcessor next, 
+
+    public DeleteProcessor(final ImapProcessor next,
             final MailboxManagerProvider mailboxManagerProvider) {
         super(next, mailboxManagerProvider);
     }
@@ -47,21 +46,28 @@ public class DeleteProcessor extends AbstractMailboxAwareProcessor {
     protected boolean isAcceptable(ImapMessage message) {
         return (message instanceof DeleteRequest);
     }
-    
-    protected ImapResponseMessage doProcess(ImapRequest message, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-        final DeleteRequest request = (DeleteRequest) message;
-        final ImapResponseMessage result = doProcess(request, session, tag, command);
-		return result;
-	}
 
-	private ImapResponseMessage doProcess(DeleteRequest request, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-		final String authType = request.getMailboxName();
-		final ImapResponseMessage result = doProcess(authType, session, tag, command);
-		return result;
-	}
-	
-	private ImapResponseMessage doProcess(String mailboxName, 
-			ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
+    protected ImapResponseMessage doProcess(ImapRequest message,
+            ImapSession session, String tag, ImapCommand command)
+            throws MailboxException, AuthorizationException, ProtocolException {
+        final DeleteRequest request = (DeleteRequest) message;
+        final ImapResponseMessage result = doProcess(request, session, tag,
+                command);
+        return result;
+    }
+
+    private ImapResponseMessage doProcess(DeleteRequest request,
+            ImapSession session, String tag, ImapCommand command)
+            throws MailboxException, AuthorizationException, ProtocolException {
+        final String authType = request.getMailboxName();
+        final ImapResponseMessage result = doProcess(authType, session, tag,
+                command);
+        return result;
+    }
+
+    private ImapResponseMessage doProcess(String mailboxName,
+            ImapSession session, String tag, ImapCommand command)
+            throws MailboxException, AuthorizationException, ProtocolException {
         try {
             final String fullMailboxName = buildFullName(session, mailboxName);
             if (session.getSelected() != null) {
@@ -76,9 +82,9 @@ public class DeleteProcessor extends AbstractMailboxAwareProcessor {
             throw new MailboxException(e);
         }
 
-        final CommandCompleteResponse result = 
-            new CommandCompleteResponse(command, tag);
+        final CommandCompleteResponse result = new CommandCompleteResponse(
+                command, tag);
         ImapSessionUtils.addUnsolicitedResponses(result, session, false);
         return result;
-	}
+    }
 }

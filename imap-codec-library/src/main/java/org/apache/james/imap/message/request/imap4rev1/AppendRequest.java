@@ -28,11 +28,14 @@ import org.apache.james.imap.message.request.base.AbstractImapRequest;
 
 public class AppendRequest extends AbstractImapRequest {
     private final String mailboxName;
+
     private final Flags flags;
+
     private final Date datetime;
+
     private final MimeMessage message;
-            
-    public AppendRequest(ImapCommand command, String mailboxName, Flags flags, 
+
+    public AppendRequest(ImapCommand command, String mailboxName, Flags flags,
             Date datetime, MimeMessage message, String tag) {
         super(tag, command);
         this.mailboxName = mailboxName;

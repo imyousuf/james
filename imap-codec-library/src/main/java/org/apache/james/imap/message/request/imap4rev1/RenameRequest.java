@@ -23,20 +23,21 @@ import org.apache.james.imap.message.request.base.AbstractImapRequest;
 
 public class RenameRequest extends AbstractImapRequest {
     private final String existingName;
+
     private final String newName;
-    
-    public RenameRequest(final ImapCommand command, final String existingName, final String newName, 
-            final String tag) {
+
+    public RenameRequest(final ImapCommand command, final String existingName,
+            final String newName, final String tag) {
         super(tag, command);
         this.existingName = existingName;
         this.newName = newName;
     }
 
     public final String getExistingName() {
-		return existingName;
-	}
+        return existingName;
+    }
 
-	public final String getNewName() {
-		return newName;
-	}
+    public final String getNewName() {
+        return newName;
+    }
 }

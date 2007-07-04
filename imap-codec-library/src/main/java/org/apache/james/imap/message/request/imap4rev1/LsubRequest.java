@@ -23,20 +23,21 @@ import org.apache.james.imap.message.request.base.AbstractImapRequest;
 
 public class LsubRequest extends AbstractImapRequest {
     private final String baseReferenceName;
+
     private final String mailboxPattern;
 
-    public LsubRequest(final ImapCommand command, final String referenceName, final String mailboxPattern,
-            final String tag) {
+    public LsubRequest(final ImapCommand command, final String referenceName,
+            final String mailboxPattern, final String tag) {
         super(tag, command);
         this.baseReferenceName = referenceName;
         this.mailboxPattern = mailboxPattern;
     }
-    
-    public final String getBaseReferenceName() {
-		return baseReferenceName;
-	}
 
-	public final String getMailboxPattern() {
-		return mailboxPattern;
-	}
+    public final String getBaseReferenceName() {
+        return baseReferenceName;
+    }
+
+    public final String getMailboxPattern() {
+        return mailboxPattern;
+    }
 }

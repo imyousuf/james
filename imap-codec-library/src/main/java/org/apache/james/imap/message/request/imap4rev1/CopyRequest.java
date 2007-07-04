@@ -25,26 +25,28 @@ import org.apache.james.imap.message.request.base.AbstractImapRequest;
 public class CopyRequest extends AbstractImapRequest {
 
     private final IdRange[] idSet;
+
     private final String mailboxName;
+
     private final boolean useUids;
 
-    public CopyRequest(final ImapCommand command, final IdRange[] idSet, final String mailboxName, 
-            final boolean useUids, final String tag) {
+    public CopyRequest(final ImapCommand command, final IdRange[] idSet,
+            final String mailboxName, final boolean useUids, final String tag) {
         super(tag, command);
         this.idSet = idSet;
         this.mailboxName = mailboxName;
         this.useUids = useUids;
     }
-    
+
     public final IdRange[] getIdSet() {
-		return idSet;
-	}
+        return idSet;
+    }
 
-	public final String getMailboxName() {
-		return mailboxName;
-	}
+    public final String getMailboxName() {
+        return mailboxName;
+    }
 
-	public final boolean isUseUids() {
-		return useUids;
-	}
+    public final boolean isUseUids() {
+        return useUids;
+    }
 }

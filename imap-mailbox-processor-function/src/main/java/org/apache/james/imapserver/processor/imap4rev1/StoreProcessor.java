@@ -44,35 +44,42 @@ import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 
-
 public class StoreProcessor extends AbstractImapRequestProcessor {
-	
-	public StoreProcessor(final ImapProcessor next) {
+
+    public StoreProcessor(final ImapProcessor next) {
         super(next);
     }
 
     protected boolean isAcceptable(ImapMessage message) {
         return (message instanceof StoreRequest);
     }
-    
-    protected ImapResponseMessage doProcess(ImapRequest message, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-		final StoreRequest request = (StoreRequest) message;
-        final ImapResponseMessage result = doProcess(request, session, tag, command);
-		return result;
-	}
 
-	private ImapResponseMessage doProcess(StoreRequest request, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-		final IdRange[] idSet = request.getIdSet();
-	    final StoreDirective directive = request.getDirective();
-	    final Flags flags = request.getFlags();
-	    final boolean useUids = request.isUseUids();
-		final ImapResponseMessage result = doProcess(idSet, directive, flags, useUids, session, tag, command);
-		return result;
-	}
-	
-	private ImapResponseMessage doProcess(final IdRange[] idSet, final StoreDirective directive,
-			final Flags flags, final boolean useUids, 
-			ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
+    protected ImapResponseMessage doProcess(ImapRequest message,
+            ImapSession session, String tag, ImapCommand command)
+            throws MailboxException, AuthorizationException, ProtocolException {
+        final StoreRequest request = (StoreRequest) message;
+        final ImapResponseMessage result = doProcess(request, session, tag,
+                command);
+        return result;
+    }
+
+    private ImapResponseMessage doProcess(StoreRequest request,
+            ImapSession session, String tag, ImapCommand command)
+            throws MailboxException, AuthorizationException, ProtocolException {
+        final IdRange[] idSet = request.getIdSet();
+        final StoreDirective directive = request.getDirective();
+        final Flags flags = request.getFlags();
+        final boolean useUids = request.isUseUids();
+        final ImapResponseMessage result = doProcess(idSet, directive, flags,
+                useUids, session, tag, command);
+        return result;
+    }
+
+    private ImapResponseMessage doProcess(final IdRange[] idSet,
+            final StoreDirective directive, final Flags flags,
+            final boolean useUids, ImapSession session, String tag,
+            ImapCommand command) throws MailboxException,
+            AuthorizationException, ProtocolException {
 
         ImapMailboxSession mailbox = ImapSessionUtils.getMailbox(session);
         MailboxListener silentListener = null;
@@ -80,16 +87,14 @@ public class StoreProcessor extends AbstractImapRequestProcessor {
         final boolean replace;
         final boolean value;
         if (directive.getSign() < 0) {
-            value=false;
-            replace=false;
-        }
-        else if (directive.getSign() > 0) {
-            value=true;
-            replace=false;
-        }
-        else {
-            replace=true;
-            value=true;
+            value = false;
+            replace = false;
+        } else if (directive.getSign() > 0) {
+            value = true;
+            replace = false;
+        } else {
+            replace = true;
+            value = true;
         }
         try {
             if (directive.isSilent()) {
@@ -106,12 +111,12 @@ public class StoreProcessor extends AbstractImapRequestProcessor {
         } catch (MailboxManagerException e) {
             throw new MailboxException(e);
         }
-        
-        final StoreResponse result = 
-            new StoreResponse(command, tag);
+
+        final StoreResponse result = new StoreResponse(command, tag);
         boolean omitExpunged = (!useUids);
-        List unsolicitedResponses = session.unsolicitedResponses( omitExpunged, useUids);
+        List unsolicitedResponses = session.unsolicitedResponses(omitExpunged,
+                useUids);
         result.addUnsolicitedResponses(unsolicitedResponses);
         return result;
-	}
+    }
 }

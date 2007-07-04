@@ -25,20 +25,21 @@ import org.apache.james.imap.message.request.base.AbstractImapRequest;
 
 public class SearchRequest extends AbstractImapRequest {
     private final SearchTerm searchTerm;
+
     private final boolean useUids;
 
-    public SearchRequest(final ImapCommand command, final SearchTerm searchTerm, final boolean useUids,
-            final String tag) {
+    public SearchRequest(final ImapCommand command,
+            final SearchTerm searchTerm, final boolean useUids, final String tag) {
         super(tag, command);
         this.searchTerm = searchTerm;
         this.useUids = useUids;
     }
 
     public final SearchTerm getSearchTerm() {
-		return searchTerm;
-	}
+        return searchTerm;
+    }
 
-	public final boolean isUseUids() {
-		return useUids;
-	}
+    public final boolean isUseUids() {
+        return useUids;
+    }
 }

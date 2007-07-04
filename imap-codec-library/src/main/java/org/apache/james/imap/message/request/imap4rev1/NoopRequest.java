@@ -22,7 +22,7 @@ import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.imap.message.request.base.AbstractImapRequest;
 
 public class NoopRequest extends AbstractImapRequest {
-    
+
     public NoopRequest(final ImapCommand command, final String tag) {
         super(tag, command);
     }

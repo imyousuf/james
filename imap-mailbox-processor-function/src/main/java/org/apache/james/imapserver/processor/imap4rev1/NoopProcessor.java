@@ -33,10 +33,9 @@ import org.apache.james.imapserver.processor.base.AuthorizationException;
 import org.apache.james.imapserver.processor.base.ImapSessionUtils;
 import org.apache.james.imapserver.store.MailboxException;
 
-
 public class NoopProcessor extends AbstractImapRequestProcessor {
-	
-	public NoopProcessor(final ImapProcessor next) {
+
+    public NoopProcessor(final ImapProcessor next) {
         super(next);
     }
 
@@ -44,23 +43,31 @@ public class NoopProcessor extends AbstractImapRequestProcessor {
         return (message instanceof NoopRequest);
     }
 
-    
-    protected ImapResponseMessage doProcess(ImapRequest message, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
+    protected ImapResponseMessage doProcess(ImapRequest message,
+            ImapSession session, String tag, ImapCommand command)
+            throws MailboxException, AuthorizationException, ProtocolException {
         final NoopRequest request = (NoopRequest) message;
-        final ImapResponseMessage result = doProcess(request, session, tag, command);
-		return result;
-	}
+        final ImapResponseMessage result = doProcess(request, session, tag,
+                command);
+        return result;
+    }
 
-	private ImapResponseMessage doProcess(NoopRequest request, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-		final ImapResponseMessage result = doProcess(session, tag, command);
-		return result;
-	}
-	
-	private ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
+    private ImapResponseMessage doProcess(NoopRequest request,
+            ImapSession session, String tag, ImapCommand command)
+            throws MailboxException, AuthorizationException, ProtocolException {
+        final ImapResponseMessage result = doProcess(session, tag, command);
+        return result;
+    }
+
+    private ImapResponseMessage doProcess(ImapSession session, String tag,
+            ImapCommand command) throws MailboxException,
+            AuthorizationException, ProtocolException {
         // TODO: untagged responses?
-        // TODO: NOOP is used to check for new mail: need to return untagged responses
-        final CommandCompleteResponse result = new CommandCompleteResponse(command, tag);
+        // TODO: NOOP is used to check for new mail: need to return untagged
+        // responses
+        final CommandCompleteResponse result = new CommandCompleteResponse(
+                command, tag);
         ImapSessionUtils.addUnsolicitedResponses(result, session, false);
         return result;
-	}
+    }
 }

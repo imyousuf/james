@@ -24,19 +24,21 @@ import org.apache.james.imap.message.request.base.AbstractImapRequest;
 
 public class StatusRequest extends AbstractImapRequest {
     private final String mailboxName;
+
     private final StatusDataItems statusDataItems;
-    
-    public StatusRequest(final ImapCommand command, final String mailboxName, final StatusDataItems statusDataItems, final String tag) {
+
+    public StatusRequest(final ImapCommand command, final String mailboxName,
+            final StatusDataItems statusDataItems, final String tag) {
         super(tag, command);
         this.mailboxName = mailboxName;
         this.statusDataItems = statusDataItems;
     }
-    
-    public final String getMailboxName() {
-		return mailboxName;
-	}
 
-	public final StatusDataItems getStatusDataItems() {
-		return statusDataItems;
-	}
+    public final String getMailboxName() {
+        return mailboxName;
+    }
+
+    public final StatusDataItems getStatusDataItems() {
+        return statusDataItems;
+    }
 }

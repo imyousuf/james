@@ -40,10 +40,9 @@ import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 
-
 public class StatusProcessor extends AbstractMailboxAwareProcessor {
-	
-	public StatusProcessor(final ImapProcessor next, 
+
+    public StatusProcessor(final ImapProcessor next,
             final MailboxManagerProvider mailboxManagerProvider) {
         super(next, mailboxManagerProvider);
     }
@@ -51,39 +50,49 @@ public class StatusProcessor extends AbstractMailboxAwareProcessor {
     protected boolean isAcceptable(ImapMessage message) {
         return (message instanceof StatusRequest);
     }
-    
-    protected ImapResponseMessage doProcess(ImapRequest message, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-        final StatusRequest request = (StatusRequest) message;
-        final ImapResponseMessage result = doProcess(request, session, tag, command);
-		return result;
-	}
 
-	private ImapResponseMessage doProcess(StatusRequest request, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-	    final String mailboxName = request.getMailboxName();
-	    final StatusDataItems statusDataItems = request.getStatusDataItems();
-		final ImapResponseMessage result = doProcess(mailboxName, statusDataItems, session, tag, command);
-		return result;
-	}
-	
-	private ImapResponseMessage doProcess(final String mailboxName, final StatusDataItems statusDataItems,
-			ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-        final Logger logger = getLogger(); 
+    protected ImapResponseMessage doProcess(ImapRequest message,
+            ImapSession session, String tag, ImapCommand command)
+            throws MailboxException, AuthorizationException, ProtocolException {
+        final StatusRequest request = (StatusRequest) message;
+        final ImapResponseMessage result = doProcess(request, session, tag,
+                command);
+        return result;
+    }
+
+    private ImapResponseMessage doProcess(StatusRequest request,
+            ImapSession session, String tag, ImapCommand command)
+            throws MailboxException, AuthorizationException, ProtocolException {
+        final String mailboxName = request.getMailboxName();
+        final StatusDataItems statusDataItems = request.getStatusDataItems();
+        final ImapResponseMessage result = doProcess(mailboxName,
+                statusDataItems, session, tag, command);
+        return result;
+    }
+
+    private ImapResponseMessage doProcess(final String mailboxName,
+            final StatusDataItems statusDataItems, ImapSession session,
+            String tag, ImapCommand command) throws MailboxException,
+            AuthorizationException, ProtocolException {
+        final Logger logger = getLogger();
 
         // TODO: response should not be prepared in process
         // TODO: return a transfer object
-        StringBuffer buffer = new StringBuffer( mailboxName );
-        buffer.append( ImapConstants.SP );
-        buffer.append( "(" );
+        StringBuffer buffer = new StringBuffer(mailboxName);
+        buffer.append(ImapConstants.SP);
+        buffer.append("(");
         try {
-            String fullMailboxName= buildFullName(session, mailboxName);
-            
-            if (logger != null && logger.isDebugEnabled()) { 
-                logger.debug("Status called on mailbox named " + mailboxName + " (" + fullMailboxName + ")"); 
+            String fullMailboxName = buildFullName(session, mailboxName);
+
+            if (logger != null && logger.isDebugEnabled()) {
+                logger.debug("Status called on mailbox named " + mailboxName
+                        + " (" + fullMailboxName + ")");
             }
-            
+
             final MailboxManager mailboxManager = getMailboxManager(session);
-            final ImapMailboxSession mailbox = mailboxManager.getImapMailboxSession(fullMailboxName);
-            
+            final ImapMailboxSession mailbox = mailboxManager
+                    .getImapMailboxSession(fullMailboxName);
+
             if (statusDataItems.isMessages()) {
                 buffer.append(ImapConstants.STATUS_MESSAGES);
                 buffer.append(ImapConstants.SP);
@@ -121,18 +130,18 @@ public class StatusProcessor extends AbstractMailboxAwareProcessor {
                 buffer.append(ImapConstants.SP);
             }
         } catch (MailboxManagerException e) {
-            if (logger != null && logger.isDebugEnabled()) { 
-                logger.debug("STATUS command failed: ", e); 
+            if (logger != null && logger.isDebugEnabled()) {
+                logger.debug("STATUS command failed: ", e);
             }
             throw new MailboxException(e);
         }
-        if ( buffer.charAt( buffer.length() - 1 ) == ' ' ) {
-            buffer.setLength( buffer.length() - 1 );
+        if (buffer.charAt(buffer.length() - 1) == ' ') {
+            buffer.setLength(buffer.length() - 1);
         }
         buffer.append(')');
-        final StatusResponse result = 
-            new StatusResponse(command, buffer.toString(), tag);
-        ImapSessionUtils.addUnsolicitedResponses( result, session, false );
+        final StatusResponse result = new StatusResponse(command, buffer
+                .toString(), tag);
+        ImapSessionUtils.addUnsolicitedResponses(result, session, false);
         return result;
-	}
+    }
 }
