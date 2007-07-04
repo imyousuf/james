@@ -71,11 +71,15 @@ Getting Started
 3) Configuration instructions
 
    To configure this component you need to add the following entries to
-   the apps/james/SAR-INF/config.xml file in your James Server installation:
+   the apps/james/SAR-INF/config.xml file in your James Server installation.
+
+   In /config/James:
 
        <inboxRepository>
          <repository destinationURL="jcr://james:inbox/" type="MAIL"/>
        </inboxRepository>
+
+   In /config/mailstore/repositories:
 
        <repository class="org.apache.james.jcr.AvalonJCRMailRepository">
          <protocols>
