@@ -37,10 +37,9 @@ import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 
-
 public class CloseProcessor extends AbstractImapRequestProcessor {
-	
-	public CloseProcessor(final ImapProcessor next) {
+
+    public CloseProcessor(final ImapProcessor next) {
         super(next);
     }
 
@@ -48,33 +47,42 @@ public class CloseProcessor extends AbstractImapRequestProcessor {
         return (message instanceof CloseRequest);
     }
 
-    protected ImapResponseMessage doProcess(ImapRequest message, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
+    protected ImapResponseMessage doProcess(ImapRequest message,
+            ImapSession session, String tag, ImapCommand command)
+            throws MailboxException, AuthorizationException, ProtocolException {
         final CloseRequest request = (CloseRequest) message;
-        final ImapResponseMessage result = doProcess(request, session, tag, command);
-		return result;
-	}
+        final ImapResponseMessage result = doProcess(request, session, tag,
+                command);
+        return result;
+    }
 
-	private ImapResponseMessage doProcess(CloseRequest request, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-		final ImapResponseMessage result = doProcess(session, tag, command);
-		return result;
-	}
-	
-	private ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
+    private ImapResponseMessage doProcess(CloseRequest request,
+            ImapSession session, String tag, ImapCommand command)
+            throws MailboxException, AuthorizationException, ProtocolException {
+        final ImapResponseMessage result = doProcess(session, tag, command);
+        return result;
+    }
+
+    private ImapResponseMessage doProcess(ImapSession session, String tag,
+            ImapCommand command) throws MailboxException,
+            AuthorizationException, ProtocolException {
         ImapMailboxSession mailbox = ImapSessionUtils.getMailbox(session);
-        if ( mailbox.isWriteable() ) {
+        if (mailbox.isWriteable()) {
             try {
-                mailbox.expunge(GeneralMessageSetImpl.all(),MessageResult.NOTHING);
+                mailbox.expunge(GeneralMessageSetImpl.all(),
+                        MessageResult.NOTHING);
             } catch (MailboxManagerException e) {
-               throw new MailboxException(e);
+                throw new MailboxException(e);
             }
         }
         session.deselect();
         final CloseResponse result = new CloseResponse(command, tag);
-        //TODO: the following comment was present in the code before refactoring
-        //TODO: doesn't seem to match the implementation
-        //TODO: check that implementation is correct
-        //          Don't send unsolicited responses on close.
+        // TODO: the following comment was present in the code before
+        // refactoring
+        // TODO: doesn't seem to match the implementation
+        // TODO: check that implementation is correct
+        // Don't send unsolicited responses on close.
         ImapSessionUtils.addUnsolicitedResponses(result, session, false);
         return result;
-	}
+    }
 }

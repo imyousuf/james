@@ -32,10 +32,9 @@ import org.apache.james.imapserver.processor.base.AbstractImapRequestProcessor;
 import org.apache.james.imapserver.processor.base.AuthorizationException;
 import org.apache.james.imapserver.store.MailboxException;
 
-
 public class LogoutProcessor extends AbstractImapRequestProcessor {
-	
-	public LogoutProcessor(final ImapProcessor next) {
+
+    public LogoutProcessor(final ImapProcessor next) {
         super(next);
     }
 
@@ -43,21 +42,27 @@ public class LogoutProcessor extends AbstractImapRequestProcessor {
         return (message instanceof LogoutRequest);
     }
 
-    
-    protected ImapResponseMessage doProcess(ImapRequest message, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
+    protected ImapResponseMessage doProcess(ImapRequest message,
+            ImapSession session, String tag, ImapCommand command)
+            throws MailboxException, AuthorizationException, ProtocolException {
         final LogoutRequest request = (LogoutRequest) message;
-        final ImapResponseMessage result = doProcess(request, session, tag, command);
-		return result;
-	}
+        final ImapResponseMessage result = doProcess(request, session, tag,
+                command);
+        return result;
+    }
 
-	private ImapResponseMessage doProcess(LogoutRequest request, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-		final ImapResponseMessage result = doProcess(session, tag, command);
-		return result;
-	}
-	
-	private ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
+    private ImapResponseMessage doProcess(LogoutRequest request,
+            ImapSession session, String tag, ImapCommand command)
+            throws MailboxException, AuthorizationException, ProtocolException {
+        final ImapResponseMessage result = doProcess(session, tag, command);
+        return result;
+    }
+
+    private ImapResponseMessage doProcess(ImapSession session, String tag,
+            ImapCommand command) throws MailboxException,
+            AuthorizationException, ProtocolException {
         session.logout();
         final LogoutResponse result = new LogoutResponse(command, tag);
         return result;
-	}
+    }
 }

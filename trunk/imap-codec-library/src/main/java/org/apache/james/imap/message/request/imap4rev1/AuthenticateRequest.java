@@ -24,13 +24,14 @@ import org.apache.james.imap.message.request.base.AbstractImapRequest;
 public class AuthenticateRequest extends AbstractImapRequest {
 
     private final String authType;
-    
-    public AuthenticateRequest(final ImapCommand command, final String authType, final String tag) {
+
+    public AuthenticateRequest(final ImapCommand command,
+            final String authType, final String tag) {
         super(tag, command);
         this.authType = authType;
     }
-    
+
     public final String getAuthType() {
-		return authType;
-	}    
+        return authType;
+    }
 }

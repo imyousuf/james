@@ -24,12 +24,13 @@ import org.apache.james.imap.message.request.base.AbstractImapRequest;
 public class UnsubscribeRequest extends AbstractImapRequest {
     private final String mailboxName;
 
-    public UnsubscribeRequest(final ImapCommand command, final String mailboxName, final String tag) {
+    public UnsubscribeRequest(final ImapCommand command,
+            final String mailboxName, final String tag) {
         super(tag, command);
         this.mailboxName = mailboxName;
     }
 
-	public final String getMailboxName() {
-		return mailboxName;
-	}
+    public final String getMailboxName() {
+        return mailboxName;
+    }
 }

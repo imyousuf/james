@@ -26,5 +26,5 @@ public class LogoutRequest extends AbstractImapRequest {
     public LogoutRequest(final ImapCommand command, final String tag) {
         super(tag, command);
     }
-    
+
 }

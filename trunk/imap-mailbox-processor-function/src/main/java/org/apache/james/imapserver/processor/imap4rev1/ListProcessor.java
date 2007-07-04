@@ -32,10 +32,9 @@ import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.ListResult;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 
-
 public class ListProcessor extends AbstractListingProcessor {
-	
-	public ListProcessor(final ImapProcessor next, 
+
+    public ListProcessor(final ImapProcessor next,
             final MailboxManagerProvider mailboxManagerProvider) {
         super(next, mailboxManagerProvider);
     }
@@ -43,21 +42,28 @@ public class ListProcessor extends AbstractListingProcessor {
     protected boolean isAcceptable(ImapMessage message) {
         return (message instanceof ListRequest);
     }
-    
-    protected ImapResponseMessage doProcess(ImapRequest message, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-        final ListRequest request = (ListRequest) message;
-        final ImapResponseMessage result = doProcess(request, session, tag, command);
-		return result;
-	}
 
-	private ImapResponseMessage doProcess(ListRequest request, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-		final String baseReferenceName = request.getBaseReferenceName();
-		final String mailboxPatternString = request.getMailboxPattern();
-		final ImapResponseMessage result = doProcess(baseReferenceName, mailboxPatternString, session, tag, command);
-		return result;
-	}
-    
-    protected ListResult[] doList( ImapSession session, String base, String pattern ) throws MailboxException {
-        return doList(  session,  base,  pattern, false);
+    protected ImapResponseMessage doProcess(ImapRequest message,
+            ImapSession session, String tag, ImapCommand command)
+            throws MailboxException, AuthorizationException, ProtocolException {
+        final ListRequest request = (ListRequest) message;
+        final ImapResponseMessage result = doProcess(request, session, tag,
+                command);
+        return result;
+    }
+
+    private ImapResponseMessage doProcess(ListRequest request,
+            ImapSession session, String tag, ImapCommand command)
+            throws MailboxException, AuthorizationException, ProtocolException {
+        final String baseReferenceName = request.getBaseReferenceName();
+        final String mailboxPatternString = request.getMailboxPattern();
+        final ImapResponseMessage result = doProcess(baseReferenceName,
+                mailboxPatternString, session, tag, command);
+        return result;
+    }
+
+    protected ListResult[] doList(ImapSession session, String base,
+            String pattern) throws MailboxException {
+        return doList(session, base, pattern, false);
     }
 }

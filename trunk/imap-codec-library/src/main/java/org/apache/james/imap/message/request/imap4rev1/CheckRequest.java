@@ -22,7 +22,7 @@ import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.imap.message.request.base.AbstractImapRequest;
 
 public class CheckRequest extends AbstractImapRequest {
-    
+
     public CheckRequest(final ImapCommand command, final String tag) {
         super(tag, command);
     }

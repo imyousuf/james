@@ -30,18 +30,18 @@ import org.apache.james.imap.message.response.base.AbstractImapResponse;
  */
 public class ListResponse extends AbstractImapResponse {
     private List messages = new ArrayList();
-    
+
     public ListResponse(final ImapCommand command, final String tag) {
         super(command, tag);
     }
-    
+
     public void addMessageData(String message) {
         // TODO: this isn't efficient
         // TODO: better to stream results
-    	// TODO: pass data objects back and then encode
+        // TODO: pass data objects back and then encode
         messages.add(message);
     }
-    
+
     public List getMessages() {
         return Collections.unmodifiableList(messages);
     }

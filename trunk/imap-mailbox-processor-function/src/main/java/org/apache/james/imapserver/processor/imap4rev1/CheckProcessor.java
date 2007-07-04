@@ -33,31 +33,38 @@ import org.apache.james.imapserver.processor.base.AuthorizationException;
 import org.apache.james.imapserver.processor.base.ImapSessionUtils;
 import org.apache.james.imapserver.store.MailboxException;
 
-
 public class CheckProcessor extends AbstractImapRequestProcessor {
-	
-	public CheckProcessor(final ImapProcessor next) {
+
+    public CheckProcessor(final ImapProcessor next) {
         super(next);
     }
 
     protected boolean isAcceptable(ImapMessage message) {
         return (message instanceof CheckRequest);
     }
-    
-    protected ImapResponseMessage doProcess(ImapRequest message, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-        final CheckRequest request = (CheckRequest) message;
-        final ImapResponseMessage result = doProcess(request, session, tag, command);
-		return result;
-	}
 
-	private ImapResponseMessage doProcess(CheckRequest request, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-		final ImapResponseMessage result = doProcess(session, tag, command);
-		return result;
-	}
-	
-	private ImapResponseMessage doProcess(ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-        final CommandCompleteResponse result = new CommandCompleteResponse(command, tag);
+    protected ImapResponseMessage doProcess(ImapRequest message,
+            ImapSession session, String tag, ImapCommand command)
+            throws MailboxException, AuthorizationException, ProtocolException {
+        final CheckRequest request = (CheckRequest) message;
+        final ImapResponseMessage result = doProcess(request, session, tag,
+                command);
+        return result;
+    }
+
+    private ImapResponseMessage doProcess(CheckRequest request,
+            ImapSession session, String tag, ImapCommand command)
+            throws MailboxException, AuthorizationException, ProtocolException {
+        final ImapResponseMessage result = doProcess(session, tag, command);
+        return result;
+    }
+
+    private ImapResponseMessage doProcess(ImapSession session, String tag,
+            ImapCommand command) throws MailboxException,
+            AuthorizationException, ProtocolException {
+        final CommandCompleteResponse result = new CommandCompleteResponse(
+                command, tag);
         ImapSessionUtils.addUnsolicitedResponses(result, session, false);
         return result;
-	}
+    }
 }

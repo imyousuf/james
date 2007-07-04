@@ -23,19 +23,21 @@ import org.apache.james.imap.message.request.base.AbstractImapRequest;
 
 public class LoginRequest extends AbstractImapRequest {
     private final String userid;
+
     private final String password;
-    
-    public LoginRequest(final ImapCommand command, final String userid, final String password, String tag) {
+
+    public LoginRequest(final ImapCommand command, final String userid,
+            final String password, String tag) {
         super(tag, command);
         this.userid = userid;
         this.password = password;
     }
-    
-    public final String getPassword() {
-		return password;
-	}
 
-	public final String getUserid() {
-		return userid;
-	}
+    public final String getPassword() {
+        return password;
+    }
+
+    public final String getUserid() {
+        return userid;
+    }
 }

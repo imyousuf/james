@@ -31,10 +31,9 @@ import org.apache.james.imapserver.processor.base.AuthorizationException;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 
-
 public class ExamineProcessor extends AbstractMailboxSelectionProcessor {
-	
-	public ExamineProcessor(final ImapProcessor next, 
+
+    public ExamineProcessor(final ImapProcessor next,
             final MailboxManagerProvider mailboxManagerProvider) {
         super(next, mailboxManagerProvider);
     }
@@ -43,16 +42,21 @@ public class ExamineProcessor extends AbstractMailboxSelectionProcessor {
         return (message instanceof ExamineRequest);
     }
 
-    
-    protected ImapResponseMessage doProcess(ImapRequest message, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-		final ExamineRequest request = (ExamineRequest) message;
-        final ImapResponseMessage result= doProcess(request, session, tag, command);
-		return result;
-	}
-	
-	private ImapResponseMessage doProcess(ExamineRequest request, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-		final String mailboxName = request.getMailboxName();
-		final ImapResponseMessage result = doProcess(mailboxName, true, session, tag, command);
-		return result;
-	}
+    protected ImapResponseMessage doProcess(ImapRequest message,
+            ImapSession session, String tag, ImapCommand command)
+            throws MailboxException, AuthorizationException, ProtocolException {
+        final ExamineRequest request = (ExamineRequest) message;
+        final ImapResponseMessage result = doProcess(request, session, tag,
+                command);
+        return result;
+    }
+
+    private ImapResponseMessage doProcess(ExamineRequest request,
+            ImapSession session, String tag, ImapCommand command)
+            throws MailboxException, AuthorizationException, ProtocolException {
+        final String mailboxName = request.getMailboxName();
+        final ImapResponseMessage result = doProcess(mailboxName, true,
+                session, tag, command);
+        return result;
+    }
 }

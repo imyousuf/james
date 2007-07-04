@@ -23,16 +23,18 @@ import org.apache.james.api.imap.ImapCommand;
 
 public interface ImapRequest {
 
-	/**
-	 * Gets the IMAP command whose execution is requested by the client.
-	 * @return <code>ImapCommand</code>, not null
-	 */
-	public abstract ImapCommand getCommand();
+    /**
+     * Gets the IMAP command whose execution is requested by the client.
+     * 
+     * @return <code>ImapCommand</code>, not null
+     */
+    public abstract ImapCommand getCommand();
 
-	/**
-	 * Gets the prefix tag identifying this request.
-	 * @return the tag identifying the client request, not null
-	 */
-	public abstract String getTag();
+    /**
+     * Gets the prefix tag identifying this request.
+     * 
+     * @return the tag identifying the client request, not null
+     */
+    public abstract String getTag();
 
 }

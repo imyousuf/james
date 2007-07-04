@@ -36,12 +36,11 @@ import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.services.User;
 import org.apache.james.services.UsersRepository;
 
-
 public class LoginProcessor extends AbstractImapRequestProcessor {
-	
+
     private final UsersRepository users;
-    
-	public LoginProcessor(final ImapProcessor next, final UsersRepository users) {
+
+    public LoginProcessor(final ImapProcessor next, final UsersRepository users) {
         super(next);
         this.users = users;
     }
@@ -50,31 +49,39 @@ public class LoginProcessor extends AbstractImapRequestProcessor {
         return (message instanceof LoginRequest);
     }
 
-    protected ImapResponseMessage doProcess(ImapRequest message, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
+    protected ImapResponseMessage doProcess(ImapRequest message,
+            ImapSession session, String tag, ImapCommand command)
+            throws MailboxException, AuthorizationException, ProtocolException {
         final LoginRequest request = (LoginRequest) message;
-        final ImapResponseMessage result = doProcess(request, session, tag, command);
-		return result;
-	}
+        final ImapResponseMessage result = doProcess(request, session, tag,
+                command);
+        return result;
+    }
 
-	private ImapResponseMessage doProcess(LoginRequest request, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-		final String userid = request.getUserid();
-		final String passwd = request.getPassword();
-		final ImapResponseMessage result = doProcess(userid, passwd, session, tag, command);
-		return result;
-	}
-	
-	private ImapResponseMessage doProcess(final String userid, final String password, 
-			ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
+    private ImapResponseMessage doProcess(LoginRequest request,
+            ImapSession session, String tag, ImapCommand command)
+            throws MailboxException, AuthorizationException, ProtocolException {
+        final String userid = request.getUserid();
+        final String passwd = request.getPassword();
+        final ImapResponseMessage result = doProcess(userid, passwd, session,
+                tag, command);
+        return result;
+    }
+
+    private ImapResponseMessage doProcess(final String userid,
+            final String password, ImapSession session, String tag,
+            ImapCommand command) throws MailboxException,
+            AuthorizationException, ProtocolException {
         final ImapResponseMessage result;
-        if ( users.test( userid, password ) ) {
-            User user = users.getUserByName( userid );
+        if (users.test(userid, password)) {
+            User user = users.getUserByName(userid);
             session.authenticated();
-            ImapSessionUtils.setUser( session, user ); 
+            ImapSessionUtils.setUser(session, user);
             result = new CommandCompleteResponse(command, tag);
-        }
-        else {
-            result = new CommandFailedResponse( command, "Invalid login/password", tag );
+        } else {
+            result = new CommandFailedResponse(command,
+                    "Invalid login/password", tag);
         }
         return result;
-	}
+    }
 }

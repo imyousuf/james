@@ -36,10 +36,9 @@ import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 
-
 public class RenameProcessor extends AbstractMailboxAwareProcessor {
-	
-	public RenameProcessor(final ImapProcessor next, 
+
+    public RenameProcessor(final ImapProcessor next,
             final MailboxManagerProvider mailboxManagerProvider) {
         super(next, mailboxManagerProvider);
     }
@@ -47,33 +46,42 @@ public class RenameProcessor extends AbstractMailboxAwareProcessor {
     protected boolean isAcceptable(ImapMessage message) {
         return (message instanceof RenameRequest);
     }
-    
-    protected ImapResponseMessage doProcess(ImapRequest message, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-        final RenameRequest request = (RenameRequest) message;
-        final ImapResponseMessage result = doProcess(request, session, tag, command);
-		return result;
-	}
 
-	private ImapResponseMessage doProcess(RenameRequest request, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-		final String existingName = request.getExistingName();
-		final String newName = request.getNewName();
-		final ImapResponseMessage result = doProcess(existingName, newName, session, tag, command);
-		return result;
-	}
-	
-	private ImapResponseMessage doProcess(final String existingName, final String newName, 
-			ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
+    protected ImapResponseMessage doProcess(ImapRequest message,
+            ImapSession session, String tag, ImapCommand command)
+            throws MailboxException, AuthorizationException, ProtocolException {
+        final RenameRequest request = (RenameRequest) message;
+        final ImapResponseMessage result = doProcess(request, session, tag,
+                command);
+        return result;
+    }
+
+    private ImapResponseMessage doProcess(RenameRequest request,
+            ImapSession session, String tag, ImapCommand command)
+            throws MailboxException, AuthorizationException, ProtocolException {
+        final String existingName = request.getExistingName();
+        final String newName = request.getNewName();
+        final ImapResponseMessage result = doProcess(existingName, newName,
+                session, tag, command);
+        return result;
+    }
+
+    private ImapResponseMessage doProcess(final String existingName,
+            final String newName, ImapSession session, String tag,
+            ImapCommand command) throws MailboxException,
+            AuthorizationException, ProtocolException {
         try {
-            final String fullExistingName=buildFullName(session, existingName);
-            final String fullNewName=buildFullName(session, newName);
+            final String fullExistingName = buildFullName(session, existingName);
+            final String fullNewName = buildFullName(session, newName);
             final MailboxManager mailboxManager = getMailboxManager(session);
-            mailboxManager.renameMailbox( fullExistingName, fullNewName );
+            mailboxManager.renameMailbox(fullExistingName, fullNewName);
         } catch (MailboxManagerException e) {
-           throw new MailboxException(e);
+            throw new MailboxException(e);
         }
 
-        final CommandCompleteResponse result = new CommandCompleteResponse(command, tag);
+        final CommandCompleteResponse result = new CommandCompleteResponse(
+                command, tag);
         ImapSessionUtils.addUnsolicitedResponses(result, session, false);
         return result;
-	}
+    }
 }

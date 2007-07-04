@@ -24,19 +24,20 @@ import org.apache.james.api.imap.message.response.ImapResponseMessage;
 
 /**
  * Carries the response to a request with bad syntax..
+ * 
  * @deprecated responses should correspond directly to the specification
  */
-public class BadResponse implements ImapMessage,
-        ImapResponseMessage {
+public class BadResponse implements ImapMessage, ImapResponseMessage {
 
     private final String message;
+
     private final String tag;
-    
+
     public BadResponse(final String message) {
-    	// TODO: check calls that use this are specficiation compliant
-    	this(message, null);
+        // TODO: check calls that use this are specficiation compliant
+        this(message, null);
     }
-    
+
     public BadResponse(final String message, final String tag) {
         super();
         this.message = message;

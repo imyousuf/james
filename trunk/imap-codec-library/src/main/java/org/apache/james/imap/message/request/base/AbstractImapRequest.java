@@ -23,29 +23,33 @@ import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.api.imap.message.request.ImapRequest;
 
-abstract public class AbstractImapRequest extends AbstractLogEnabled implements ImapMessage, ImapRequest {
-    
-	private final String tag;
+abstract public class AbstractImapRequest extends AbstractLogEnabled implements
+        ImapMessage, ImapRequest {
+
+    private final String tag;
+
     private final ImapCommand command;
-    
+
     public AbstractImapRequest(final String tag, final ImapCommand command) {
         this.tag = tag;
         this.command = command;
     }
-    
-	/**
-	 * Gets the IMAP command whose execution is requested by the client.
-	 * @see org.apache.james.api.imap.message.request.ImapRequest#getCommand()
-	 */
-	public final ImapCommand getCommand() {
-		return command;
-	}
 
-	/**
-	 * Gets the prefix tag identifying this request.
-	 * @see org.apache.james.api.imap.message.request.ImapRequest#getTag()
-	 */
-	public final String getTag() {
-		return tag;
-	}
+    /**
+     * Gets the IMAP command whose execution is requested by the client.
+     * 
+     * @see org.apache.james.api.imap.message.request.ImapRequest#getCommand()
+     */
+    public final ImapCommand getCommand() {
+        return command;
+    }
+
+    /**
+     * Gets the prefix tag identifying this request.
+     * 
+     * @see org.apache.james.api.imap.message.request.ImapRequest#getTag()
+     */
+    public final String getTag() {
+        return tag;
+    }
 }

@@ -24,32 +24,33 @@ import org.apache.james.api.imap.message.IdRange;
 import org.apache.james.imap.message.request.base.AbstractImapRequest;
 
 public class FetchRequest extends AbstractImapRequest {
-        private final boolean useUids;
-        private final IdRange[] idSet;
-        private final FetchData fetch;
+    private final boolean useUids;
 
-        public FetchRequest(final ImapCommand command, final boolean useUids, final IdRange[] idSet, 
-                final FetchData fetch, String tag) {
-            super(tag, command);
-            this.useUids = useUids;
-            this.idSet = idSet;
-            this.fetch = fetch;
-            if (useUids) {
-                fetch.setUid(true);
-            }
+    private final IdRange[] idSet;
+
+    private final FetchData fetch;
+
+    public FetchRequest(final ImapCommand command, final boolean useUids,
+            final IdRange[] idSet, final FetchData fetch, String tag) {
+        super(tag, command);
+        this.useUids = useUids;
+        this.idSet = idSet;
+        this.fetch = fetch;
+        if (useUids) {
+            fetch.setUid(true);
         }
-
-		public final FetchData getFetch() {
-			return fetch;
-		}
-
-		public final IdRange[] getIdSet() {
-			return idSet;
-		}
-
-		public final boolean isUseUids() {
-			return useUids;
-		}
-        
-        
     }
+
+    public final FetchData getFetch() {
+        return fetch;
+    }
+
+    public final IdRange[] getIdSet() {
+        return idSet;
+    }
+
+    public final boolean isUseUids() {
+        return useUids;
+    }
+
+}

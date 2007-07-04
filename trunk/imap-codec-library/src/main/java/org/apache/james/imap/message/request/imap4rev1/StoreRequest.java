@@ -27,11 +27,15 @@ import org.apache.james.imap.message.request.base.AbstractImapRequest;
 
 public class StoreRequest extends AbstractImapRequest {
     private final IdRange[] idSet;
+
     private final StoreDirective directive;
+
     private final Flags flags;
+
     private final boolean useUids;
-    
-    public StoreRequest(final ImapCommand command, final IdRange[] idSet, final StoreDirective directive, final Flags flags, 
+
+    public StoreRequest(final ImapCommand command, final IdRange[] idSet,
+            final StoreDirective directive, final Flags flags,
             final boolean useUids, final String tag) {
         super(tag, command);
         this.idSet = idSet;
@@ -39,20 +43,20 @@ public class StoreRequest extends AbstractImapRequest {
         this.flags = flags;
         this.useUids = useUids;
     }
-    
+
     public final StoreDirective getDirective() {
-		return directive;
-	}
+        return directive;
+    }
 
-	public final Flags getFlags() {
-		return flags;
-	}
+    public final Flags getFlags() {
+        return flags;
+    }
 
-	public final IdRange[] getIdSet() {
-		return idSet;
-	}
+    public final IdRange[] getIdSet() {
+        return idSet;
+    }
 
-	public final boolean isUseUids() {
-		return useUids;
-	}
+    public final boolean isUseUids() {
+        return useUids;
+    }
 }

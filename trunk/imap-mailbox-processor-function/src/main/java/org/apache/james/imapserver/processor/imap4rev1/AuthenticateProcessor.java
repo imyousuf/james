@@ -32,33 +32,39 @@ import org.apache.james.imapserver.processor.base.AbstractImapRequestProcessor;
 import org.apache.james.imapserver.processor.base.AuthorizationException;
 import org.apache.james.imapserver.store.MailboxException;
 
-
 public class AuthenticateProcessor extends AbstractImapRequestProcessor {
-	
-	public AuthenticateProcessor(final ImapProcessor next) {
+
+    public AuthenticateProcessor(final ImapProcessor next) {
         super(next);
     }
 
     protected boolean isAcceptable(ImapMessage message) {
         return (message instanceof AuthenticateRequest);
     }
-    
-    protected ImapResponseMessage doProcess(ImapRequest message, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-        final AuthenticateRequest request = (AuthenticateRequest) message;
-        final ImapResponseMessage result = doProcess(request, session, tag, command);
-		return result;
-	}
 
-	private ImapResponseMessage doProcess(AuthenticateRequest request, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-		final String authType = request.getAuthType();
-		final ImapResponseMessage result = doProcess(authType, session, tag, command);
-		return result;
-	}
-	
-	private ImapResponseMessage doProcess(String authType, 
-			ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-        final CommandFailedResponse result = new CommandFailedResponse(command, 
+    protected ImapResponseMessage doProcess(ImapRequest message,
+            ImapSession session, String tag, ImapCommand command)
+            throws MailboxException, AuthorizationException, ProtocolException {
+        final AuthenticateRequest request = (AuthenticateRequest) message;
+        final ImapResponseMessage result = doProcess(request, session, tag,
+                command);
+        return result;
+    }
+
+    private ImapResponseMessage doProcess(AuthenticateRequest request,
+            ImapSession session, String tag, ImapCommand command)
+            throws MailboxException, AuthorizationException, ProtocolException {
+        final String authType = request.getAuthType();
+        final ImapResponseMessage result = doProcess(authType, session, tag,
+                command);
+        return result;
+    }
+
+    private ImapResponseMessage doProcess(String authType, ImapSession session,
+            String tag, ImapCommand command) throws MailboxException,
+            AuthorizationException, ProtocolException {
+        final CommandFailedResponse result = new CommandFailedResponse(command,
                 "Unsupported authentication mechanism '" + authType + "'", tag);
         return result;
-	}
+    }
 }

@@ -31,10 +31,9 @@ import org.apache.james.imapserver.processor.base.AuthorizationException;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 
-
 public class SelectProcessor extends AbstractMailboxSelectionProcessor {
-	
-	public SelectProcessor(final ImapProcessor next, 
+
+    public SelectProcessor(final ImapProcessor next,
             final MailboxManagerProvider mailboxManagerProvider) {
         super(next, mailboxManagerProvider);
     }
@@ -43,16 +42,21 @@ public class SelectProcessor extends AbstractMailboxSelectionProcessor {
         return (message instanceof SelectRequest);
     }
 
-    
-    protected ImapResponseMessage doProcess(ImapRequest message, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
+    protected ImapResponseMessage doProcess(ImapRequest message,
+            ImapSession session, String tag, ImapCommand command)
+            throws MailboxException, AuthorizationException, ProtocolException {
         final SelectRequest request = (SelectRequest) message;
-        final ImapResponseMessage result = doProcess(request, session, tag, command);
-		return result;
-	}
-    
-	private ImapResponseMessage doProcess(SelectRequest request, ImapSession session, String tag, ImapCommand command) throws MailboxException, AuthorizationException, ProtocolException {
-		final String mailboxName = request.getMailboxName();
-		final ImapResponseMessage result = doProcess(mailboxName, false, session, tag, command);
-		return result;
-	}
+        final ImapResponseMessage result = doProcess(request, session, tag,
+                command);
+        return result;
+    }
+
+    private ImapResponseMessage doProcess(SelectRequest request,
+            ImapSession session, String tag, ImapCommand command)
+            throws MailboxException, AuthorizationException, ProtocolException {
+        final String mailboxName = request.getMailboxName();
+        final ImapResponseMessage result = doProcess(mailboxName, false,
+                session, tag, command);
+        return result;
+    }
 }
