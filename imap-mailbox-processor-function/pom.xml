@@ -6,24 +6,33 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.james</groupId>
-  <artifactId>james-server-torque-mailboxmanager-function</artifactId>
-  <name>Apache JAMES Server Torque Mailbox Manager</name>
+  <artifactId>james-server-imap-mailbox-processor-function</artifactId>
+  <name>Apache JAMES Server IMAP Mailbox Processor function</name>
   <dependencies>
-    <!--
     <dependency>
       <groupId>javax.mail</groupId>
       <artifactId>mail</artifactId>
       <version>1.4.1ea-SNAPSHOT</version>
     </dependency>
-    -->
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>mailet</artifactId>
       <version>3.0-SNAPSHOT</version>
     </dependency>
     <dependency>
+      <groupId>avalon-framework</groupId>
+      <artifactId>avalon-framework-api</artifactId>
+      <version>4.3</version>
+      <exclusions>
+      	<exclusion>
+      		<artifactId>avalon-logkit</artifactId>
+      		<groupId>avalon-logkit</groupId>
+      	</exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-core-library</artifactId>
+      <artifactId>james-server-imap-api</artifactId>
       <version>3.0-SNAPSHOT</version>
     </dependency>
     <dependency>
@@ -32,29 +41,9 @@
       <version>3.0-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>commons-configuration</groupId>
-      <artifactId>commons-configuration</artifactId>
-      <version>1.1</version>
-    </dependency>
-    
-    <dependency>
-      <groupId>torque</groupId>
-      <artifactId>torque</artifactId>
-      <version>3.3-RC1</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>jndi</artifactId>
-          <groupId>jndi</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>avalon-framework</artifactId>
-          <groupId>avalon-framework</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>jdbc-stdext</artifactId>
-          <groupId>javax.sql</groupId>
-        </exclusion>
-      </exclusions>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-imap-codec-library</artifactId>
+      <version>3.0-SNAPSHOT</version>
     </dependency>
     
     <dependency>

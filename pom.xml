@@ -2,7 +2,8 @@
   <parent>
     <artifactId>james-server-root</artifactId>
     <groupId>org.apache.james</groupId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
+    <relativePath>../james-project/project/server/pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.james</groupId>
@@ -14,6 +15,10 @@
   <inceptionYear>2002</inceptionYear>
   <packaging>pom</packaging>
   <modules>
+    <module>imap-api</module>
+    <module>imapmailbox-library</module>
+    <module>imap-codec-library</module>
+    <module>imap-command-library</module>
     <module>core-library</module>
     <module>mordred-library</module>
     <module>smtpserver-function</module>
@@ -22,11 +27,11 @@
     <module>spoolmanager-function</module>
     <module>remotemanager-function</module>
     <module>fetchmail-function</module>
-    <module>phoenix-deployment</module>
-    <module>imap-api</module>
-    <module>imapmailbox-library</module>
+    <module>imap-mailbox-processor-function</module>
     <module>torque-mailboxmanager-function</module>
     <module>imapserver-function</module>
+    <module>experimental-seda-imap-function</module>
+    <module>phoenix-deployment</module>
   </modules>
   <scm>
     <connection>scm:svn:http://svn.apache.org/repos/asf/james/server/trunk</connection>
@@ -98,6 +103,7 @@
     </repository>
     
     <!-- Override parent POM to remove repositories -->
+    <!-- 
     <repository>
       <id>central</id>
       <name>Apache Main M2 Repository</name>
@@ -120,6 +126,7 @@
         <enabled>false</enabled>
       </snapshots>
     </repository>
+     -->
   </repositories>
   <reporting>
     <plugins>
