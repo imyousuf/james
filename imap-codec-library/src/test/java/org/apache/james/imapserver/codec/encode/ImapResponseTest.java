@@ -21,28 +21,20 @@ package org.apache.james.imapserver.codec.encode;
 
 import javax.mail.Flags;
 
-import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.api.imap.message.MessageFlags;
 import org.apache.james.imapserver.codec.encode.imap4rev1.legacy.MockImapResponseWriter;
-import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 
 public class ImapResponseTest extends MockObjectTestCase {
 
     private static final String TAG = "TAG"; 
-    private static final String NAME = "NAME";
     
     ImapResponseComposer response;
     MockImapResponseWriter writer;
-    Mock mockCommand;
-    ImapCommand command;
     
     protected void setUp() throws Exception {
         super.setUp();
-        mockCommand = mock(ImapCommand.class);
-        mockCommand.expects(atLeastOnce()).method("getName").will(returnValue(NAME));
-        command = (ImapCommand) mockCommand.proxy();
         writer = new MockImapResponseWriter();
         response = new ImapResponseComposer(writer);;
     }
@@ -51,73 +43,6 @@ public class ImapResponseTest extends MockObjectTestCase {
         super.tearDown();
     }
 
-    public void testCommandCompleteImapCommand() {
-        response.commandComplete(command, TAG);
-        assertEquals(5, writer.operations.size());
-        assertEquals(new MockImapResponseWriter.TagOperation(TAG), writer.operations.get(0));
-        assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapConstants.OK), 
-                writer.operations.get(1));
-        assertEquals(new MockImapResponseWriter.CommandNameOperation(NAME),
-                writer.operations.get(2));
-        assertEquals(new MockImapResponseWriter.TextMessageOperation("completed."),
-                writer.operations.get(3));
-        assertEquals(new MockImapResponseWriter.EndOperation(), 
-                writer.operations.get(4));
-    }
-
-    public void testCommandCompleteImapCommandString() {
-        final String code = "responseCode";
-        response.commandComplete(command, code, TAG);
-        assertEquals(6, writer.operations.size());
-        assertEquals(new MockImapResponseWriter.TagOperation(TAG), writer.operations.get(0));
-        assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapConstants.OK), 
-                writer.operations.get(1));
-        assertEquals(new MockImapResponseWriter.ResponseCodeOperation(code),
-                writer.operations.get(2));
-        assertEquals(new MockImapResponseWriter.CommandNameOperation(NAME),
-                writer.operations.get(3));
-        assertEquals(new MockImapResponseWriter.TextMessageOperation("completed."),
-                writer.operations.get(4));
-        assertEquals(new MockImapResponseWriter.EndOperation(), 
-                writer.operations.get(5));
-    }
-
-    public void testCommandFailedImapCommandString() {
-        final String reason = "A reason";
-        response.commandFailed(command, reason, TAG);
-        assertEquals(6, writer.operations.size());
-        assertEquals(new MockImapResponseWriter.TagOperation(TAG), writer.operations.get(0));
-        assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapConstants.NO), 
-                writer.operations.get(1));
-        assertEquals(new MockImapResponseWriter.CommandNameOperation(NAME),
-                writer.operations.get(2));
-        assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapResponseComposer.FAILED),
-                writer.operations.get(3));
-        assertEquals(new MockImapResponseWriter.TextMessageOperation(reason), 
-                writer.operations.get(4));
-        assertEquals(new MockImapResponseWriter.EndOperation(), 
-                writer.operations.get(5));
-    }
-
-    public void testCommandFailedImapCommandStringString() {
-        final String reason = "A reason";
-        final String code = "A code";
-        response.commandFailed(command, code, reason, TAG);
-        assertEquals(7, writer.operations.size());
-        assertEquals(new MockImapResponseWriter.TagOperation(TAG), writer.operations.get(0));
-        assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapConstants.NO), 
-                writer.operations.get(1));
-        assertEquals(new MockImapResponseWriter.ResponseCodeOperation(code),
-                writer.operations.get(2));
-        assertEquals(new MockImapResponseWriter.CommandNameOperation(NAME),
-                writer.operations.get(3));
-        assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapResponseComposer.FAILED),
-                writer.operations.get(4));
-        assertEquals(new MockImapResponseWriter.TextMessageOperation(reason), 
-                writer.operations.get(5));
-        assertEquals(new MockImapResponseWriter.EndOperation(), 
-                writer.operations.get(6));
-    }
 
     public void testCommandError() {
         String message = "A message";
@@ -229,19 +154,6 @@ public class ImapResponseTest extends MockObjectTestCase {
                 writer.operations.get(4));
     }
 
-    public void testCommandResponse() {
-        String message = "A message";
-        response.commandResponse(command, message);
-        assertEquals(4, writer.operations.size());
-        assertEquals(new MockImapResponseWriter.UntaggedOperation(), writer.operations.get(0));
-        assertEquals(new MockImapResponseWriter.CommandNameOperation(command.getName()),
-                writer.operations.get(1));
-        assertEquals(new MockImapResponseWriter.TextMessageOperation(message),
-                writer.operations.get(2));
-        assertEquals(new MockImapResponseWriter.EndOperation(), 
-                writer.operations.get(3));
-        
-    }
 
     public void testTaggedResponse() {
         String message = "A message";
