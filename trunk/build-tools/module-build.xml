@@ -86,7 +86,7 @@ Main User Targets
     <target 
         name='dist'
         description='Builds and creates distribution without cleaning'
-        depends='build, check-environment, conditional-clean'
+        depends='build, check-environment, conditional-clean, test'
         unless='dont.build.module'>
         <CreateJar 
             name='${name.module}'   
