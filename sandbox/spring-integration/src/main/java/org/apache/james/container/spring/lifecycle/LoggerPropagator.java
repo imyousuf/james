@@ -23,6 +23,7 @@ import org.apache.james.container.spring.logging.LoggerToComponentMapper;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.core.Ordered;
 
 /**
@@ -42,7 +43,7 @@ public class LoggerPropagator extends AbstractPropagator implements BeanFactoryP
         return LogEnabled.class;
     }
 
-    protected void invokeLifecycleWorker(String beanName, Object bean) {
+    protected void invokeLifecycleWorker(String beanName, Object bean, BeanDefinition beanDefinition) {
         LogEnabled logEnabled = (LogEnabled) bean;
         logEnabled.enableLogging(loggerToComponentMapper.getComponentLogger(beanName));
     }

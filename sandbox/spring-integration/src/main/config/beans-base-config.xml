@@ -27,7 +27,7 @@
          beans which replace Avalon specific container logic
     -->
 
-    <bean id="serviceManager" class="org.apache.james.container.spring.adaptor.ServiceManagerBridge" />
+    <bean id="serviceManager" class="org.apache.james.container.spring.adaptor.DefaultServiceManagerFactory" />
 
     <bean name="logWorker" class="org.apache.james.container.spring.logging.SystemConsoleLogWorker" />
 
@@ -47,7 +47,7 @@
          JMX part
      -->
 
-    <bean id="exporter" class="org.springframework.jmx.export.MBeanExporter" >
+    <!-- <bean id="exporter" class="org.springframework.jmx.export.MBeanExporter" >
         <property name="autodetect" value="true" />
         <property name="namingStrategy" ref="namingStrategy" />
     </bean>
@@ -63,11 +63,12 @@
             <prop key="nntpserver" >bean:name=nntpserver</prop>
         </props></property>
     </bean>
+    -->
 
     <bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean" />
 
     <!--
-         beans which manage bootstrapping and component lifecycle
+         beans managing bootstrapping and component lifecycle
     -->
     <bean id="loggerPropagator" class="org.apache.james.container.spring.lifecycle.LoggerPropagator" />
 
@@ -78,69 +79,6 @@
     <bean id="configurationManager" class="org.apache.james.container.spring.lifecycle.ConfigurationPropagator" />
 
     <bean id="initializationManager" class="org.apache.james.container.spring.lifecycle.InitializationPropagator" />
-
-    <!--
-         JAMES components starting from here
-    -->
-
-    <!--
-         James components which are not dependent from other components
-    -->
-
-    <bean name="mailStore, org.apache.avalon.cornerstone.services.store.Store" class="org.apache.james.core.AvalonMailStore" />
-
-    <!--
-         cornerstone components
-    -->
-
-    <bean name="thread-manager, org.apache.avalon.cornerstone.services.threads.ThreadManager"
-           class="org.apache.avalon.cornerstone.blocks.threads.DefaultThreadManager" />
-
-    <bean name="connections, org.apache.james.services.JamesConnectionManager"
-           class="org.apache.james.util.connection.SimpleConnectionManager" >
-    </bean>
-
-    <bean name="sockets"
-           class="org.apache.avalon.cornerstone.blocks.sockets.DefaultSocketManager"/>
-
-    <bean name="scheduler"
-           class="org.apache.avalon.cornerstone.blocks.scheduler.DefaultTimeScheduler" >
-    </bean>
-
-    <bean name="database-connections"
-           class="org.apache.avalon.cornerstone.blocks.datasources.DefaultDataSourceSelector" />
-
-    <!--
-         James components with dependencies to other components
-    -->
-
-    <bean name="James" class="org.apache.james.James" />
-
-    <bean name="dnsserver, org.apache.james.services.DNSServer" class="org.apache.james.dnsserver.DNSServer" />
-
-    <bean name="matcherpackages" class="org.apache.james.transport.JamesMatcherLoader" />
-
-    <bean name="mailetpackages" class="org.apache.james.transport.JamesMailetLoader" />
-
-    <bean name="remotemanager" class="org.apache.james.remotemanager.RemoteManager" />
-
-    <bean name="pop3server" class="org.apache.james.pop3server.POP3Server" />
-
-    <bean name="smtpserver" class="org.apache.james.smtpserver.SMTPServer" />
-
-    <bean name="nntpserver" class="org.apache.james.nntpserver.NNTPServer" />
-
-    <bean name="nntp-repository" class="org.apache.james.nntpserver.repository.NNTPRepositoryImpl" />
-
-    <bean name="fetchmail" class="org.apache.james.fetchmail.FetchScheduler" />
-
-    <bean name="spoolrepository" class="org.apache.james.mailrepository.MailStoreSpoolRepository" />
-
-    <bean name="users-store" class="org.apache.james.core.AvalonUsersStore" />
-
-    <bean name="localusersrepository" class="org.apache.james.core.LocalUsersRepository" />
-
-    <bean name="spoolmanager" class="org.apache.james.transport.JamesSpoolManager" />
 
 </beans>
 

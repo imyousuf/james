@@ -21,11 +21,12 @@ package org.apache.james.container.spring.lifecycle;
 import java.util.Collection;
 
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.BeansException;
 
 /**
- * basis for iterating over all spring beans having some specific implementation 
+ * visitor. iterating over all spring beans having some specific implementation 
  */
 public abstract class AbstractPropagator {
 
@@ -38,8 +39,9 @@ public abstract class AbstractPropagator {
         for (int i = 0; i < beanNames.length; i++) {
             String beanName = beanNames[i];
             if (excludeBeans == null || !excludeBeans.contains(beanName)) {
-	            Object bean = configurableListableBeanFactory.getBean(beanName);
-	            invokeLifecycleWorker(beanName, bean);
+                BeanDefinition beanDefinition = configurableListableBeanFactory.getBeanDefinition(beanName);
+                Object bean = configurableListableBeanFactory.getBean(beanName);
+	            invokeLifecycleWorker(beanName, bean, beanDefinition);
             }
         }
     }
@@ -50,6 +52,6 @@ public abstract class AbstractPropagator {
 
     protected abstract Class getLifecycleInterface();
 
-    protected abstract void invokeLifecycleWorker(String beanName, Object bean);
+    protected abstract void invokeLifecycleWorker(String beanName, Object bean, BeanDefinition beanDefinition);
 
 }

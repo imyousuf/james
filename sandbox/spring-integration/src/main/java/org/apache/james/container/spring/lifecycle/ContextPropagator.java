@@ -24,6 +24,7 @@ import org.apache.avalon.framework.context.Contextualizable;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.core.Ordered;
 
 /**
@@ -43,7 +44,7 @@ public class ContextPropagator extends AbstractPropagator implements BeanFactory
         return Contextualizable.class;
     }
 
-    protected void invokeLifecycleWorker(String beanName, Object bean) {
+    protected void invokeLifecycleWorker(String beanName, Object bean, BeanDefinition beanDefinition) {
         Contextualizable contextualizable = (Contextualizable) bean;
         try {
             contextualizable.contextualize(context);

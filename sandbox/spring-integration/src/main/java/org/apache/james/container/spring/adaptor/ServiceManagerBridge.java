@@ -23,19 +23,20 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationContext;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.BeanDefinition;
 
 import java.util.Map;
 
 /**
  * provides a Avalon-style service manager to all James components
  */
-public class ServiceManagerBridge implements ApplicationContextAware {
+public class ServiceManagerBridge implements ApplicationContextAware, ServiceManagerFactory {
 
 	private ApplicationContext applicationContext;
 
 	private Map beanBlockInfos;
 
-	private class ServiceManagerInstance implements ServiceManager {
+    private class ServiceManagerInstance implements ServiceManager {
 
 		private Map beanBlockInfo;
 		
@@ -74,13 +75,9 @@ public class ServiceManagerBridge implements ApplicationContextAware {
 			
 			Map beansOfType = applicationContext.getBeansOfType(lookupClass);
 			if (beansOfType.size() > 1) {
-				System.err.println("not yet supported");
-				Thread.dumpStack();
-				System.exit(1);
-				throw new RuntimeException("not yet supported");
+				throw new RuntimeException("cannot resolve ambiguous beans for type \"" + lookupClass + "\". instead of at most 1, found: " + beansOfType.size());
 			}
-			if (beansOfType.size() == 0)
-				return null; // try other method
+			if (beansOfType.size() == 0) return null; // try other method
 			Object bean = beansOfType.values().iterator().next();
 			return bean;
 		}
@@ -117,7 +114,7 @@ public class ServiceManagerBridge implements ApplicationContextAware {
 		this.applicationContext = applicationContext;
 	}
 
-	public ServiceManager getInstance(String beanName) {
+    public ServiceManager getInstanceFor(String beanName, BeanDefinition beanDefinition) {
 		return new ServiceManagerInstance(getBeanBlockInfo(beanName));
 	}
 	

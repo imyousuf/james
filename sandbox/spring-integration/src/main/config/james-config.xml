@@ -801,7 +801,7 @@ Regards, Postmaster XXX.YYY
    <pop3server enabled="true">
       <!-- port 995 is the well-known/IANA registered port for POP3S  ie over SSL/TLS -->
       <!-- port 110 is the well-known/IANA registered port for Standard POP3 -->
-      <port>110</port>
+      <port>10110</port>
 
       <!-- Uncomment this if you want to bind to a specific inetaddress -->
       <!--
@@ -828,7 +828,7 @@ Regards, Postmaster XXX.YYY
     <!-- but does not free as many resources as removing them would -->
    <smtpserver enabled="true">
       <!-- port 25 is the well-known/IANA registered port for SMTP -->
-      <port>25</port>
+      <port>10025</port>
 
       <!-- Uncomment this if you want to bind to a specific inetaddress -->
       <!-- Please NOTE: you should add this IP also to your RemoteAddrNotInNetwork -->
@@ -922,7 +922,7 @@ Regards, Postmaster XXX.YYY
         service.  -->
       <!-- port 563 is the well-known/IANA registered port for NNTP over SSL/TLS -->
       <!-- port 119 is the well-known/IANA registered port for Standard NNTP -->
-      <port>119</port>
+      <port>10119</port>
 
       <!-- Uncomment this if you want to bind to a specific inetaddress -->
       <!--

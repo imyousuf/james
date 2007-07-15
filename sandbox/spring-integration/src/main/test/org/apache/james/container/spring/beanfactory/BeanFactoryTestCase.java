@@ -16,38 +16,27 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.container.spring.adaptor;
+package org.apache.james.container.spring.beanfactory;
 
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.phoenix.tools.configuration.ConfigurationBuilder;
-import org.xml.sax.InputSource;
+import junit.framework.TestCase;
+import org.springframework.context.support.GenericApplicationContext;
+import org.springframework.core.io.ClassPathResource;
+import org.apache.james.James;
 
 /**
- * loads the well-known classic James configuration file
- *
-  * TODO make this thing be based on Resource class and inject resource.getInputStream() into InputSource 
  */
-public class AvalonConfigurationFileProvider implements ConfigurationProvider {
+public class BeanFactoryTestCase extends TestCase {
 
-    private String absoluteFilePath;
+    public void testAvalonBeanDefinitionXMLReader() {
+        GenericApplicationContext ctx = new GenericApplicationContext();
+        
+        AvalonBeanDefinitionReader xmlReader = new AvalonBeanDefinitionReader(ctx);
+        int count = xmlReader.loadBeanDefinitions(new ClassPathResource("org/apache/james/container/spring/beanfactory/james-assembly.xml"));
+//        assertTrue("all blocks loaded", count == 34);
 
-    public void setConfigurationPath(String absoluteFilePath) {
-        this.absoluteFilePath = absoluteFilePath;
+        ctx.refresh();
+        James james = (James)ctx.getBean("James");
+        assertNotNull("James bean definition", james);
     }
 
-
-    public Configuration getConfiguration() {
-        InputSource inputSource = new InputSource(absoluteFilePath);
-        try
-        {
-            Configuration configuration = ConfigurationBuilder.build(inputSource, null, null);
-            return configuration;
-        }
-        catch( final Exception e )
-        {
-//            getLogger().error( message, e );
-            throw new RuntimeException("failed loading configuration ", e);
-        }
-
-    }
 }

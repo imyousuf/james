@@ -1,9 +1,11 @@
 package org.apache.james.container.spring.lifecycle;
 
 import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
-import org.apache.james.container.spring.adaptor.ServiceManagerBridge;
+import org.apache.james.container.spring.adaptor.ServiceManagerFactory;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.core.Ordered;
@@ -13,11 +15,11 @@ import org.springframework.core.Ordered;
  */
 public class ServicePropagator extends AbstractPropagator implements BeanFactoryPostProcessor, Ordered {
 
-    private ServiceManagerBridge serviceManager;
+    private ServiceManagerFactory serviceManagerFactory;
 
     public void postProcessBeanFactory(ConfigurableListableBeanFactory configurableListableBeanFactory) throws BeansException {
 
-        serviceManager = (ServiceManagerBridge) configurableListableBeanFactory.getBean("serviceManager");
+        serviceManagerFactory = (ServiceManagerFactory) configurableListableBeanFactory.getBean("serviceManager");
 
         super.postProcessBeanFactory(configurableListableBeanFactory);
     }
@@ -26,11 +28,18 @@ public class ServicePropagator extends AbstractPropagator implements BeanFactory
         return Serviceable.class;
     }
 
-    protected void invokeLifecycleWorker(String beanName, Object bean) {
+    protected void invokeLifecycleWorker(String beanName, Object bean, BeanDefinition beanDefinition) {
+        
         Serviceable serviceable = (Serviceable) bean;
         try {
-            serviceable.service(serviceManager.getInstance(beanName));
+            ServiceManager serviceManager = serviceManagerFactory.getInstanceFor(beanName, beanDefinition);
+            if (serviceManager == null) {
+                throw new RuntimeException("failed to create service manager for " + beanName);
+            }
+            serviceable.service(serviceManager);
         } catch (ServiceException e) {
+            throw new RuntimeException("could not successfully run service method on component of type " + serviceable.getClass(), e);
+        } catch (Exception e) {
             throw new RuntimeException("could not successfully run service method on component of type " + serviceable.getClass(), e);
         }
     }

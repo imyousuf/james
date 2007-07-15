@@ -16,38 +16,29 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.container.spring.adaptor;
-
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.phoenix.tools.configuration.ConfigurationBuilder;
-import org.xml.sax.InputSource;
+package org.apache.james.container.spring.beanfactory;
 
 /**
- * loads the well-known classic James configuration file
+ * content of a "provide" XML element from an james-assembly file.
+ * occurs within a block element like this:
+ *     <provide name="domainlist" role="org.apache.james.services.DomainList"/>
  *
-  * TODO make this thing be based on Resource class and inject resource.getInputStream() into InputSource 
  */
-public class AvalonConfigurationFileProvider implements ConfigurationProvider {
+public class AvalonServiceReference {
+    
+    private String name;
+    private String rolename; // in James, this is the service interface name (per convention)
 
-    private String absoluteFilePath;
-
-    public void setConfigurationPath(String absoluteFilePath) {
-        this.absoluteFilePath = absoluteFilePath;
+    public AvalonServiceReference(String name, String rolename) {
+        this.name = name;
+        this.rolename = rolename;
     }
 
+    public String getName() {
+        return name;
+    }
 
-    public Configuration getConfiguration() {
-        InputSource inputSource = new InputSource(absoluteFilePath);
-        try
-        {
-            Configuration configuration = ConfigurationBuilder.build(inputSource, null, null);
-            return configuration;
-        }
-        catch( final Exception e )
-        {
-//            getLogger().error( message, e );
-            throw new RuntimeException("failed loading configuration ", e);
-        }
-
+    public String getRolename() {
+        return rolename;
     }
 }

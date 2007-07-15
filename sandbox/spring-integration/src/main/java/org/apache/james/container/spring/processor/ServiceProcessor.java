@@ -22,7 +22,7 @@ public class ServiceProcessor extends AbstractProcessor implements BeanPostProce
 		if (bean instanceof Serviceable && isIncluded(beanName)) {
 	        Serviceable serviceable = (Serviceable) bean;
 	        try {
-	            serviceable.service(serviceManagerBridge.getInstance(beanName));
+	            serviceable.service(serviceManagerBridge.getInstanceFor(beanName, null));
 	        } catch (ServiceException e) {
 	            throw new RuntimeException("could not successfully run service method on component of type " + serviceable.getClass(), e);
 	        }			

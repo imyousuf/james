@@ -36,7 +36,7 @@ public class LoggerProcessor extends AbstractProcessor implements BeanPostProces
     }
     
     public void setLoggerToComponentMapper(LoggerToComponentMapper loggerToComponentMapper) {
-    	this.loggerToComponentMapper=loggerToComponentMapper;
+    	this.loggerToComponentMapper = loggerToComponentMapper;
     }
 
 	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {

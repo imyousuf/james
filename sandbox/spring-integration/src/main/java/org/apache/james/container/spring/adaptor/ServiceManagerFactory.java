@@ -18,36 +18,12 @@
  ****************************************************************/
 package org.apache.james.container.spring.adaptor;
 
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.phoenix.tools.configuration.ConfigurationBuilder;
-import org.xml.sax.InputSource;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.springframework.beans.factory.config.BeanDefinition;
 
 /**
- * loads the well-known classic James configuration file
- *
-  * TODO make this thing be based on Resource class and inject resource.getInputStream() into InputSource 
  */
-public class AvalonConfigurationFileProvider implements ConfigurationProvider {
+public interface ServiceManagerFactory {
 
-    private String absoluteFilePath;
-
-    public void setConfigurationPath(String absoluteFilePath) {
-        this.absoluteFilePath = absoluteFilePath;
-    }
-
-
-    public Configuration getConfiguration() {
-        InputSource inputSource = new InputSource(absoluteFilePath);
-        try
-        {
-            Configuration configuration = ConfigurationBuilder.build(inputSource, null, null);
-            return configuration;
-        }
-        catch( final Exception e )
-        {
-//            getLogger().error( message, e );
-            throw new RuntimeException("failed loading configuration ", e);
-        }
-
-    }
+    ServiceManager getInstanceFor(String beanName, BeanDefinition beanDefinition);
 }

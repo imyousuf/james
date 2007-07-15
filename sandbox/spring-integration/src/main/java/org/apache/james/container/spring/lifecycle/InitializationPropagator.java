@@ -20,6 +20,7 @@ package org.apache.james.container.spring.lifecycle;
 
 import org.apache.avalon.framework.activity.Initializable;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.core.Ordered;
 
 /**
@@ -31,7 +32,7 @@ public class InitializationPropagator extends AbstractPropagator implements Bean
         return Initializable.class;
     }
 
-    protected void invokeLifecycleWorker(String beanName, Object bean) {
+    protected void invokeLifecycleWorker(String beanName, Object bean, BeanDefinition beanDefinition) {
         Initializable initializable = (Initializable) bean;
         try {
             initializable.initialize();

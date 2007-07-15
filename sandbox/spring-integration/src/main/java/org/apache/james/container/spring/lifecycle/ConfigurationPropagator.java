@@ -25,6 +25,7 @@ import org.apache.james.container.spring.adaptor.ConfigurationProvider;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.core.Ordered;
 
 /**
@@ -55,7 +56,7 @@ public class ConfigurationPropagator extends AbstractPropagator implements BeanF
         super.postProcessBeanFactory(configurableListableBeanFactory);
     }
 
-    protected void invokeLifecycleWorker(String beanName, Object bean) {
+    protected void invokeLifecycleWorker(String beanName, Object bean, BeanDefinition beanDefinition) {
         Configurable configurable = (Configurable)bean;
          try {
              Configuration componentConfiguration = configuration.getChild(beanName);

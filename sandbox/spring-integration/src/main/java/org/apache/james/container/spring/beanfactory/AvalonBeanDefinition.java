@@ -16,38 +16,31 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.container.spring.adaptor;
+package org.apache.james.container.spring.beanfactory;
 
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.phoenix.tools.configuration.ConfigurationBuilder;
-import org.xml.sax.InputSource;
+import org.springframework.beans.factory.support.RootBeanDefinition;
+
+import java.util.List;
+import java.util.ArrayList;
 
 /**
- * loads the well-known classic James configuration file
- *
-  * TODO make this thing be based on Resource class and inject resource.getInputStream() into InputSource 
  */
-public class AvalonConfigurationFileProvider implements ConfigurationProvider {
+public class AvalonBeanDefinition extends RootBeanDefinition {
 
-    private String absoluteFilePath;
-
-    public void setConfigurationPath(String absoluteFilePath) {
-        this.absoluteFilePath = absoluteFilePath;
+    protected final List serviceReferences = new ArrayList();
+    
+    public AvalonBeanDefinition() {
+        super();
     }
 
+    public void addAllServiceReferences(List serviceReferences) {
+        this.serviceReferences.addAll(serviceReferences);
+    }
+    public void addServiceReference(AvalonServiceReference serviceReference) {
+        serviceReferences.add(serviceReference);
+    }
 
-    public Configuration getConfiguration() {
-        InputSource inputSource = new InputSource(absoluteFilePath);
-        try
-        {
-            Configuration configuration = ConfigurationBuilder.build(inputSource, null, null);
-            return configuration;
-        }
-        catch( final Exception e )
-        {
-//            getLogger().error( message, e );
-            throw new RuntimeException("failed loading configuration ", e);
-        }
-
+    public List getServiceReferences() {
+        return serviceReferences;
     }
 }
