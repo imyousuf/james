@@ -28,8 +28,8 @@ import junit.framework.TestCase;
 public class AvalonApplicationContextTestCase extends TestCase {
 
     public void testJointLoadingContainerAndApplicationConfig() {
-        Resource containerResource = new ClassPathResource("beans-base-config.xml");
-        Resource applicationResource = new ClassPathResource("org/apache/james/container/spring/beanfactory/james-assembly.xml");
+        Resource containerResource = new ClassPathResource("org/apache/james/container/spring/beanfactory/testing-service-beans-base-config.xml");
+        Resource applicationResource = new ClassPathResource("org/apache/james/container/spring/beanfactory/testing-james-assembly.xml");
         AvalonApplicationContext context = new AvalonApplicationContext(containerResource, applicationResource);
         James james = (James)context.getBean("James");
     }

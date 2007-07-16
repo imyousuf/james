@@ -31,7 +31,7 @@ public class BeanFactoryTestCase extends TestCase {
         GenericApplicationContext ctx = new GenericApplicationContext();
         
         AvalonBeanDefinitionReader xmlReader = new AvalonBeanDefinitionReader(ctx);
-        int count = xmlReader.loadBeanDefinitions(new ClassPathResource("org/apache/james/container/spring/beanfactory/james-assembly.xml"));
+        int count = xmlReader.loadBeanDefinitions(new ClassPathResource("org/apache/james/container/spring/beanfactory/testing-james-assembly.xml"));
 //        assertTrue("all blocks loaded", count == 34);
 
         ctx.refresh();
