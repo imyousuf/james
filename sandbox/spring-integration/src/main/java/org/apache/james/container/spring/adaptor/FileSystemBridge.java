@@ -16,22 +16,29 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.container.spring.beanfactory;
+package org.apache.james.container.spring.adaptor;
 
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-import org.apache.james.James;
-import junit.framework.TestCase;
+import java.io.File;
+import java.io.FileNotFoundException;
 
-/**
- */
-public class AvalonApplicationContextTestCase extends TestCase {
+import org.apache.james.services.FileSystem;
 
-    public void testJointLoadingContainerAndApplicationConfig() {
-        Resource containerResource = new ClassPathResource("org/apache/james/container/spring/beanfactory/testing-service-beans-base-config.xml");
-        Resource applicationResource = new ClassPathResource("org/apache/james/container/spring/beanfactory/testing-james-assembly.xml");
-        AvalonApplicationContext context = new AvalonApplicationContext(containerResource, applicationResource);
-        James james = (James)context.getBean("James");
-        assertNotNull("properly initialized", james);
+public class FileSystemBridge implements FileSystem {
+
+	public File getBasedir() throws FileNotFoundException {
+		return new File(".");
+	}
+
+    public File getFile(String fileURL) throws FileNotFoundException {
+        if (fileURL.startsWith("file://")) {
+            if (fileURL.startsWith("file://conf/")) {
+                return new File("./src/trunk/config/"+fileURL.substring(12));
+            } else {
+            	return new File("./"+fileURL.substring(7));
+            }
+        } else {
+            throw new UnsupportedOperationException("getFile: "+fileURL);
+        }
     }
+
 }
