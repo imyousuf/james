@@ -15,7 +15,7 @@
 <!-- For production use you will probably need to make more extensive changes, see -->
 <!-- http://jakarta.apache.org/james/configuration_v2_1.html -->
 
-<!-- $Revision: 1.2 $ Committed on $Date: 2003/01/27 13:03:10 $ by: $Author: darrell $ -->
+<!-- $Revision$ Committed on $Date$ by: $Author$ -->
 
 <config>
    <James>
