@@ -68,6 +68,7 @@
         <pathelement location="${basedir}/lib/commons-beanutils.jar"/>
         <pathelement location="${basedir}/lib/commons-codec.jar"/>
         <pathelement location="${basedir}/lib/commons-collections.jar"/>
+        <pathelement location="${basedir}/lib/commons-configuration-1.1.jar"/>
         <pathelement location="${basedir}/lib/commons-dbcp-1.2.1.jar"/>
         <pathelement location="${basedir}/lib/commons-digester.jar"/>
         <pathelement location="${basedir}/lib/commons-discovery.jar"/>
@@ -93,7 +94,7 @@
         <pathelement location="${basedir}/lib/cornerstone-threads-api-2.1.jar"/>
         <pathelement location="${basedir}/lib/cornerstone-threads-impl-2.1.jar"/>
         <pathelement location="${basedir}/lib/derby.jar"/>
-        <pathelement location="${basedir}/lib/dnsjava-2.0.1.jar"/>
+        <pathelement location="${basedir}/lib/dnsjava-2.0.3.jar"/>
         <pathelement location="${basedir}/lib/excalibur-cli-1.0.jar"/>
         <pathelement location="${basedir}/lib/excalibur-datasource-2.1.jar"/>
         <pathelement location="${basedir}/lib/excalibur-extension-1.0a.jar"/>
@@ -135,6 +136,7 @@
         <pathelement location="${basedir}/lib/spice-salt-0.8.jar"/>
         <pathelement location="${basedir}/lib/spice-xmlpolicy-1.0.jar"/>
         <pathelement location="${basedir}/lib/spring.jar"/>
+        <pathelement location="${basedir}/lib/torque-3.3-RC1.jar"/>
         <pathelement location="${basedir}/lib/xstream-1.2.jar"/>
     </path>
 

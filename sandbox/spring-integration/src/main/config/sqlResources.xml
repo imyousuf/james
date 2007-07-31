@@ -984,7 +984,177 @@
             PRIMARY KEY (ipaddress,sender,recip)
         )
     </sql>
+</sqlDefs>
 
+<!-- SQL statements for the JdbcVirtualUserTable  -->
+<sqlDefs name="org.apache.james.vut.JDBCVirtualUserTable">
+
+    <!-- Statements used to check whether a particular message exists in this repository. -->
+    <sql name="selectMappings" db="derby">select VirtualUserTable.target_address,(VirtualUserTable."user" || '@' ||VirtualUserTable.domain) from VirtualUserTable, VirtualUserTable as VUTDomains where ((VirtualUserTable."user") like ? or (VirtualUserTable."user") like '%') and (VirtualUserTable.domain like ? or (VirtualUserTable.domain like '%' and VUTDomains.domain like ?)) order by 2 desc</sql>
+    <sql name="selectMappings">select VirtualUserTable.target_address from VirtualUserTable, VirtualUserTable as VUTDomains where (VirtualUserTable.user like ? or VirtualUserTable.user like '%') and (VirtualUserTable.domain like ? or (VirtualUserTable.domain like '%' and VUTDomains.domain like ?)) order by concat(VirtualUserTable.user,'@',VirtualUserTable.domain) desc limit 1" </sql>
+    
+    <sql name="selectUserDomainMapping" db="derby">select VirtualUserTable.target_address from VirtualUserTable where VirtualUserTable."user" = ? and VirtualUserTable.domain = ? </sql>
+    <sql name="selectUserDomainMapping">select VirtualUserTable.target_address from VirtualUserTable where VirtualUserTable.user = ? and VirtualUserTable.domain = ? </sql>
+   
+    <sql name="deleteMapping">delete from VirtualUserTable where VirtualUserTable."user" = ? and VirtualUserTable.domain = ? and VirtualUserTable.target_address = ?</sql>
+   
+    <sql name="updateMapping">update VirtualUserTable set VirtualUserTable.target_address = ? where VirtualUserTable."user" = ? and VirtualUserTable.domain = ? </sql>
+   
+    <sql name="addMapping">insert into VirtualUserTable values(?,?,?) </sql>
+    
+    <sql name="selectAllMappings">select * from VirtualUserTable </sql>
+    
+    <sql name="selectDomains">select distinct domain from VirtualUserTable</sql>
+    
+    <sql name="selectDomain">select distinct domain from VirtualUserTable where domain = ? </sql>
+    
+    <!-- Statements used to create the table associated with this class. -->
+    <sql name="createTable" db="mysql">
+        CREATE TABLE VirtualUserTable (
+            user varchar(64) NOT NULL default '',
+            domain varchar(255) NOT NULL default '',
+            target_address varchar(255) NOT NULL default '',
+            PRIMARY KEY (user,domain)
+        )
+    </sql>
+    <!-- TEMPORARY DISABLED -->
+    <!--
+    <sql name="createTable" db="hypersonic">
+        CREATE CACHED TABLE VirtualUserTable (
+            user varchar(64) NOT NULL default '',
+            domain varchar(255) NOT NULL default '',
+            target_address varchar(255) NOT NULL default '',
+            PRIMARY KEY (user,domain)
+        )
+    </sql>
+    <sql name="createTable" db="hsqldb">
+        CREATE CACHED TABLE VirtualUserTable (
+            user varchar(64) NOT NULL default '',
+            domain varchar(255) NOT NULL default '',
+            target_address varchar(255) NOT NULL default '',
+            PRIMARY KEY (user,domain)
+        )
+    </sql>
+    <sql name="createTable" db="mssql">
+        CREATE TABLE [VirtualUserTable] (
+            [user] [varchar] (64) NOT NULL default '',
+            [domain] [varchar] (255) NOT NULL default '',
+            [target_address] [varchar] (255) NOT NULL default '',
+            PRIMARY KEY (user,domain)
+        )
+    </sql>
+    <sql name="createTable" db="oracle">
+        CREATE TABLE VirtualUserTable (
+            user varchar2(64) NOT NULL default '',
+            domain varchar2(255) NOT NULL default '',
+            target_address varchar2(255) NOT NULL default '',
+            PRIMARY KEY (user,domain)
+        )
+    </sql>
+    <sql name="createTable" db="postgresql">
+        CREATE TABLE VirtualUserTable (
+            user varchar(64) NOT NULL default '',
+            domain varchar(255) NOT NULL default '',
+            target_address varchar(255) NOT NULL default '',
+            PRIMARY KEY (user,domain)
+        )
+    </sql>
+    <sql name="createTable" db="sapdb">
+        CREATE TABLE VirtualUserTable (
+            user varchar(64) NOT NULL default '',
+            domain varchar(255) NOT NULL default '',
+            target_address varchar(255) NOT NULL default '',
+            PRIMARY KEY (user,domain)
+        )
+    </sql>
+    <sql name="createTable" db="db2">
+        CREATE TABLE VirtualUserTable (
+            user varchar(64) NOT NULL default '',
+            domain varchar(255) NOT NULL default '',
+            target_address varchar(255) NOT NULL default '',
+            PRIMARY KEY (user,domain)
+        )
+    </sql>
+    <sql name="createTable" db="ingres">
+        CREATE TABLE VirtualUserTable (
+            user varchar(64) NOT NULL default '',
+            domain varchar(255) NOT NULL default '',
+            target_address varchar(255) NOT NULL default '',
+            PRIMARY KEY (user,domain)
+        )
+    </sql>
+    -->
+    <sql name="createTable" db="derby">
+        CREATE TABLE VirtualUserTable (
+            "user" varchar (64) NOT NULL default '',
+            domain varchar (255) NOT NULL default '',
+            target_address varchar (255) NOT NULL default '',
+            PRIMARY KEY ("user",domain)
+        )
+    </sql>
+</sqlDefs>
+
+<!-- SQL statements for the JDBCDomainList  -->
+<sqlDefs name="org.apache.james.domain.JDBCDomainList">
+    <sql name="selectDomains">select distinct domain from ${table} </sql>
+    
+    <sql name="selectDomain">select distinct domain from ${table} where domain = ? </sql>
+    
+    <sql name="addDomain">insert into ${table} values (?) </sql>
+    
+    <sql name="removeDomain">delete from ${table} where domain = ? </sql>
+    
+        <!-- Statements used to create the table associated with this class. -->
+    <sql name="createTable" db="mysql">
+        CREATE TABLE ${table} (
+            domain varchar(100) NOT NULL default ''
+        )
+    </sql>
+    <sql name="createTable" db="hypersonic">
+        CREATE CACHED TABLE ${table} (
+            user varchar(100) NOT NULL default ''
+        )
+    </sql>
+    <sql name="createTable" db="hsqldb">
+        CREATE CACHED TABLE  ${table} (
+            domain varchar(100) NOT NULL default ''
+        )
+    </sql>
+    <sql name="createTable" db="mssql">
+        CREATE TABLE [${table}] (
+            [user] [domain] (100) NOT NULL default ''
+        )
+    </sql>
+    <sql name="createTable" db="oracle">
+        CREATE TABLE ${table} (
+            domain varchar2(100) NOT NULL default ''
+        )
+    </sql>
+    <sql name="createTable" db="postgresql">
+        CREATE TABLE ${table} (
+            domain varchar(64) NOT NULL default ''
+        )
+    </sql>
+    <sql name="createTable" db="sapdb">
+        CREATE TABLE ${table} (
+            domain varchar(100) NOT NULL default '',
+        )
+    </sql>
+    <sql name="createTable" db="db2">
+        CREATE TABLE ${table} (
+            domain varchar(100) NOT NULL default ''
+        )
+    </sql>
+    <sql name="createTable" db="ingres">
+        CREATE TABLE ${table} (
+            domain varchar(100) NOT NULL default ''
+        )
+    </sql>
+    <sql name="createTable" db="derby">
+        CREATE TABLE ${table} (
+            domain varchar (100) NOT NULL default ''
+        )
+    </sql>
 </sqlDefs>
 </sqlResources>
 
