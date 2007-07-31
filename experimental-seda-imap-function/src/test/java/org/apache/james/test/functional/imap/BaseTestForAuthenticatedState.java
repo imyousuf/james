@@ -52,7 +52,7 @@ package org.apache.james.test.functional.imap;
  * </p>
  */
 public class BaseTestForAuthenticatedState
-        extends SimpleFileProtocolTest implements ImapTestConstants
+        extends SimpleScriptedTestProtocol implements ImapTestConstants
 {
     public BaseTestForAuthenticatedState( String name, HostSystem hostSystem)
     {

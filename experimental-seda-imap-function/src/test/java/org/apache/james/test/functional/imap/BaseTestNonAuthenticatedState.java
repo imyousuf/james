@@ -37,7 +37,7 @@ package org.apache.james.test.functional.imap;
  * </ul>
  */
 public class BaseTestNonAuthenticatedState
-        extends SimpleFileProtocolTest
+        extends SimpleScriptedTestProtocol
 {
     public BaseTestNonAuthenticatedState( String name, HostSystem system )
     {
