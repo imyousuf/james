@@ -18,36 +18,59 @@
  ****************************************************************/
 
 
-package org.apache.james.imapserver;
+package org.apache.james.test.functional.imap;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+
 
 /**
+ * <p>Tests commands which are valid in AUTHENTICATED and NONAUTHENTICATED by running
+ * them in the SELECTED state. Many commands function identically, while others
+ * are invalid in this state.
+ * </p><p>
+ * Recommended scripts:
+ * </p><ul>
+ * <li>ValidNonAuthenticated</li>
+ * <li>Capability</li>
+ * <li>Noop</li>
+ * <li>Logout</li>
+ * <li>Create</li>
+ * <li>ExamineEmpty</li>
+ * <li>SelectEmpty</li>
+ * <li>ListNamespace</li>
+ * <li>ListMailboxes</li>
+ * <li>Status</li>
+ * <li>StringArgs</li>
+ * <li>Subscribe</li>
+ * <li>Append</li>
+ * <li>Delete</li>
+ * </ul>
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision$
+ * @version $Revision: 560719 $
  */
-public class TestCompound extends TestCommandsInAuthenticatedState
+public class BaseTestSelectedInbox
+        extends BaseTestForAuthenticatedState
 {
-    public TestCompound( String name )
+    public BaseTestSelectedInbox( String name, HostSystem system )
     {
-        super( name );
+        super( name, system );
     }
 
     /**
-     * Provides all tests which should be run in the authenicated state. Each test name
-     * corresponds to a protocol session file.
+     * Superclass sets up welcome message and login session in {@link #preElements}.
+     * A "SELECT INBOX" session is then added to these elements.
+     * @throws Exception
      */
-    public static Test suite() throws Exception
+    public void setUp() throws Exception
     {
-        TestSuite suite = new TestSuite();
-        suite.addTest( new TestCommandsInAuthenticatedState( "AppendExpunge" ) );
-        suite.addTest( new TestCommandsInAuthenticatedState( "SelectAppend" ) );
-        suite.addTest( new TestCommandsInAuthenticatedState( "StringArgs" ) );
-        // TODO various mailbox names (eg with spaces...)
-        return suite;
+        super.setUp();
+        addTestFile( "SelectInbox.test", preElements );
     }
 
+    protected void addCloseInbox()
+    {
+        postElements.CL( "a CLOSE");
+        postElements.SL( ".*", "BaseTestSelectedInbox.java:76");
+    }
 }

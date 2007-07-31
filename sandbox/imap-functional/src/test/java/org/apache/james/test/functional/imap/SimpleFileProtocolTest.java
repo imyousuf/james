@@ -18,7 +18,7 @@
  ****************************************************************/
 
 
-package org.apache.james.test;
+package org.apache.james.test.functional.imap;
 
 import java.io.InputStream;
 

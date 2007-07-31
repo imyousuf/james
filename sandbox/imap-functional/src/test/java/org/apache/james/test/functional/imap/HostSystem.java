@@ -18,20 +18,43 @@
  ****************************************************************/
 
 
-package org.apache.james.imapserver;
+package org.apache.james.test.functional.imap;
+
+import java.io.Reader;
+import java.io.Writer;
 
 /**
- * Some constants to use when running Imap tests.
+ * Host system under test.
+ *
  */
-public interface ImapTest
-{
-    int PORT = 143;
-    String HOST = "localhost";
+public interface HostSystem {
 
-    String USER = "imapuser";
-    String PASSWORD = "password";
-    String FROM_ADDRESS = "sender@localhost";
-    String TO_ADDRESS = USER + "@" + HOST;
-
-    int TIMEOUT = 10000;
+    /**
+     * Resets host system to initial state.
+     * @throws Exception
+     */
+    public void reset() throws Exception;
+    
+    /**
+     * Add a user for testing.
+     * @param user user name
+     * @param password user password
+     * @throws Exception
+     */
+    public void addUser(String user, String password) throws Exception;
+    
+    /**
+     * Creates a new session for functional testing.
+     * @return <code>Session</code>, not null
+     * @throws Exception
+     */
+    public Session newSession() throws Exception;
+    
+    public interface Session
+    {
+        public Reader getReader() throws Exception;
+        public Writer getWriter() throws Exception;
+        public void start() throws Exception;
+        public void stop() throws Exception;
+    }
 }

@@ -17,14 +17,13 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.test;
+package org.apache.james.test.functional.imap;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
 
 import junit.framework.TestCase;
 
-import org.apache.james.imapserver.ImapTest;
 
 /**
  * Abstract Protocol Test is the root of all of the James Imap Server test
@@ -37,7 +36,7 @@ import org.apache.james.imapserver.ImapTest;
  * @author Andrew C. Oliver
  */
 public abstract class AbstractProtocolTest
-        extends TestCase implements ImapTest
+        extends TestCase implements ImapTestConstants
 {
     /** The Protocol session which is run before the testElements */
     protected ProtocolSession preElements = new ProtocolSession();

@@ -17,54 +17,62 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.imapserver;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import org.apache.james.test.SimpleFileProtocolTest;
+package org.apache.james.test.functional.imap;
+
 
 /**
- * Runs tests for commands valid in the NON_AUTHENTICATED state.
- * A welcome message precedes the execution of the test elements.
+ * <p>Runs tests for commands valid in the AUTHENTICATED state. A login session precedes
+ * the execution of the test elements.
+ * </p><p>
+ * Suggested tests:
+ * </p><ul>
+ * <li>ValidSelected</li>
+ * <li>ValidNonAuthenticated</li>
+ * <li>Capability</li>
+ * <li>Noop</li>
+ * <li>Logout</li>
+ * <li>AppendExamineInbox</li>
+ * <li>AppendSelectInbox</li>
+ * <li>Create</li>
+ * <li>ExamineEmpty</li>
+ * <li>SelectEmpty</li>
+ * <li>ListNamespace</li>
+ * <li>ListMailboxes</li>
+ * <li>Status</li>
+ * <li>Subscribe</li>
+ * <li>Delete</li>
+ * <li>Append</li>
+ * <li>Compound:<ul>
+ * <li>AppendExpunge</li>
+ * <li>SelectAppend</li>
+ * <li>StringArgs</li>;
+ * </ul></li>
+ * </ul>
+ * </p>
  */
-public class TestCommandsInNonAuthenticatedState
-        extends SimpleFileProtocolTest
+public class BaseTestForAuthenticatedState
+        extends SimpleFileProtocolTest implements ImapTestConstants
 {
-    public TestCommandsInNonAuthenticatedState( String name )
+    public BaseTestForAuthenticatedState( String name, HostSystem hostSystem)
     {
-        super( name );
+        super( name, hostSystem );
     }
 
     /**
-     * Adds a welcome message to the {@link #preElements}.
+     * Sets up {@link #preElements} with a welcome message and login request/response.
      * @throws Exception
      */
     public void setUp() throws Exception
     {
         super.setUp();
         addTestFile( "Welcome.test", preElements );
+        addLogin( USER, PASSWORD );
     }
 
-    /**
-     * Sets up tests valid in the non-authenticated state.
-     */ 
-    public static Test suite() throws Exception
+    protected void addLogin( String username, String password )
     {
-        TestSuite suite = new TestSuite();
-        // Not valid in this state
-        suite.addTest( new TestCommandsInNonAuthenticatedState( "ValidAuthenticated" ) );
-        suite.addTest( new TestCommandsInNonAuthenticatedState( "ValidSelected" ) );
-
-        // Valid in all states
-        suite.addTest( new TestCommandsInNonAuthenticatedState( "Capability" ) );
-        suite.addTest( new TestCommandsInNonAuthenticatedState( "Noop" ) );
-        suite.addTest( new TestCommandsInNonAuthenticatedState( "Logout" ) );
-
-        // Valid only in non-authenticated state.
-        suite.addTest( new TestCommandsInNonAuthenticatedState( "Authenticate" ) );
-        suite.addTest( new TestCommandsInNonAuthenticatedState( "Login" ) );
-
-        return suite;
+        preElements.CL( "a001 LOGIN " + username + " " + password );
+        preElements.SL( "a001 OK LOGIN completed", "AbstractTestForAuthenticatedState.java:53" );
     }
-
 }

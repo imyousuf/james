@@ -17,44 +17,40 @@
  * under the License.                                           *
  ****************************************************************/
 
+package org.apache.james.test.functional.imap;
 
-package org.apache.james.test;
 
-import java.io.Reader;
-import java.io.Writer;
 
 /**
- * Host system under test.
- *
+ * <p>Runs tests for commands valid in the NON_AUTHENTICATED state.
+ * A welcome message precedes the execution of the test elements.
+ * </p><p>
+ * Recommended test scripts:
+ * </p><ul>
+ * <li>ValidAuthenticated</li>
+ * <li>ValidSelected</li>
+ * <li>Capability</li>
+ * <li>Noop</li>
+ * <li>Logout</li>
+ * <li>Authenticate</li>
+ * <li>Login</li>
+ * </ul>
  */
-public interface HostSystem {
+public class BaseTestNonAuthenticatedState
+        extends SimpleFileProtocolTest
+{
+    public BaseTestNonAuthenticatedState( String name, HostSystem system )
+    {
+        super( name, system );
+    }
 
     /**
-     * Resets host system to initial state.
+     * Adds a welcome message to the {@link #preElements}.
      * @throws Exception
      */
-    public void reset() throws Exception;
-    
-    /**
-     * Add a user for testing.
-     * @param user user name
-     * @param password user password
-     * @throws Exception
-     */
-    public void addUser(String user, String password) throws Exception;
-    
-    /**
-     * Creates a new session for functional testing.
-     * @return <code>Session</code>, not null
-     * @throws Exception
-     */
-    public Session newSession() throws Exception;
-    
-    public interface Session
+    public void setUp() throws Exception
     {
-        public Reader getReader() throws Exception;
-        public Writer getWriter() throws Exception;
-        public void start() throws Exception;
-        public void stop() throws Exception;
+        super.setUp();
+        addTestFile( "Welcome.test", preElements );
     }
 }
