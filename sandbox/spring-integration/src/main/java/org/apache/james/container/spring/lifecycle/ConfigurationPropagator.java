@@ -22,17 +22,20 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.james.container.spring.adaptor.ConfigurationProvider;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.core.Ordered;
 
 /**
  * calls configure() for all avalon components
  */
-public class ConfigurationPropagator extends AbstractPropagator implements BeanFactoryPostProcessor, Ordered {
+public class ConfigurationPropagator extends AbstractPropagator implements BeanPostProcessor, Ordered {
+
     private Configuration configuration;
+
+    public void setConfigurationProvider(ConfigurationProvider configurationProvider) {
+        this.configuration = configurationProvider.getConfiguration();
+    }
 
     private boolean isConfigurationEmpty(Configuration componentConfiguration) {
         return     (componentConfiguration.getChildren() == null || componentConfiguration.getChildren().length == 0)
@@ -47,16 +50,8 @@ public class ConfigurationPropagator extends AbstractPropagator implements BeanF
         return Configurable.class;
     }
 
-    public void postProcessBeanFactory(ConfigurableListableBeanFactory configurableListableBeanFactory) throws BeansException {
-
-        // prepare load data
-        ConfigurationProvider configurationProvider = (ConfigurationProvider) configurableListableBeanFactory.getBean("configurationProvider");
-        configuration = configurationProvider.getConfiguration();
-
-        super.postProcessBeanFactory(configurableListableBeanFactory);
-    }
-
     protected void invokeLifecycleWorker(String beanName, Object bean, BeanDefinition beanDefinition) {
+        if (!(bean instanceof Configurable)) return;
         Configurable configurable = (Configurable)bean;
          try {
              Configuration componentConfiguration = configuration.getChild(beanName);

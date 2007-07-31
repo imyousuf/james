@@ -21,30 +21,27 @@ package org.apache.james.container.spring.lifecycle;
 import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.core.Ordered;
 
 /**
  * calls contextualize() for all avalon components
  */
-public class ContextPropagator extends AbstractPropagator implements BeanFactoryPostProcessor, Ordered {
+public class ContextPropagator extends AbstractPropagator implements BeanPostProcessor, Ordered {
+
     private Context context;
 
-    public void postProcessBeanFactory(ConfigurableListableBeanFactory configurableListableBeanFactory) throws BeansException {
-
-        context = (Context) configurableListableBeanFactory.getBean("avalonContext");
-
-        super.postProcessBeanFactory(configurableListableBeanFactory);
+    public void setContext(Context context) {
+        this.context = context;
     }
-
+    
     protected Class getLifecycleInterface() {
         return Contextualizable.class;
     }
 
     protected void invokeLifecycleWorker(String beanName, Object bean, BeanDefinition beanDefinition) {
+        if (!(bean instanceof Contextualizable)) return;
         Contextualizable contextualizable = (Contextualizable) bean;
         try {
             contextualizable.contextualize(context);

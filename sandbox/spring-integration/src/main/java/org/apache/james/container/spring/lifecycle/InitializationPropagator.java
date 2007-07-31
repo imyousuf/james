@@ -19,20 +19,21 @@
 package org.apache.james.container.spring.lifecycle;
 
 import org.apache.avalon.framework.activity.Initializable;
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.core.Ordered;
 
 /**
  * calls initialize() for all avalon components
  */
-public class InitializationPropagator extends AbstractPropagator implements BeanFactoryPostProcessor, Ordered {
+public class InitializationPropagator extends AbstractPropagator implements BeanPostProcessor, Ordered {
 
     protected Class getLifecycleInterface() {
         return Initializable.class;
     }
 
     protected void invokeLifecycleWorker(String beanName, Object bean, BeanDefinition beanDefinition) {
+        if (!(bean instanceof Initializable)) return;
         Initializable initializable = (Initializable) bean;
         try {
             initializable.initialize();

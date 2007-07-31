@@ -19,37 +19,33 @@
 package org.apache.james.container.spring.lifecycle;
 
 import org.apache.avalon.framework.logger.LogEnabled;
-import org.apache.james.container.spring.logging.LoggerToComponentMapper;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.apache.james.container.spring.adaptor.LoggingBridge;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.core.Ordered;
 
 /**
  * propagates Loggers for all avalon components
  */
-public class LoggerPropagator extends AbstractPropagator implements BeanFactoryPostProcessor, Ordered {
-    private LoggerToComponentMapper loggerToComponentMapper;
+public class LoggerPropagator extends AbstractPropagator implements BeanPostProcessor, Ordered {
 
-    public void postProcessBeanFactory(ConfigurableListableBeanFactory configurableListableBeanFactory) throws BeansException {
-
-        loggerToComponentMapper = (LoggerToComponentMapper) configurableListableBeanFactory.getBean("loggerMap");
-
-        super.postProcessBeanFactory(configurableListableBeanFactory);
-    }
+    private LoggingBridge loggingBridge;
 
     protected Class getLifecycleInterface() {
         return LogEnabled.class;
     }
 
     protected void invokeLifecycleWorker(String beanName, Object bean, BeanDefinition beanDefinition) {
+        if (!(bean instanceof LogEnabled)) return;
         LogEnabled logEnabled = (LogEnabled) bean;
-        logEnabled.enableLogging(loggerToComponentMapper.getComponentLogger(beanName));
+        logEnabled.enableLogging(loggingBridge);
     }
 
     public int getOrder() {
         return 0;
     }
 
+    public void setLoggingBridge(LoggingBridge loggingBridge) {
+        this.loggingBridge = loggingBridge;
+    }
 }

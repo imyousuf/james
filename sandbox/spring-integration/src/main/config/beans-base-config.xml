@@ -70,13 +70,21 @@
     <!--
          beans managing bootstrapping and component lifecycle
     -->
-    <bean id="loggerPropagator" class="org.apache.james.container.spring.lifecycle.LoggerPropagator" />
+    <bean id="loggerPropagator" class="org.apache.james.container.spring.lifecycle.LoggerPropagator" >
+        <property name="loggingBridge" ref="logger"/>
+    </bean>
 
-    <bean id="contextPropagator" class="org.apache.james.container.spring.lifecycle.ContextPropagator" />
+    <bean id="contextPropagator" class="org.apache.james.container.spring.lifecycle.ContextPropagator" >
+        <property name="context" ref="avalonContext"/>
+    </bean>
 
-    <bean id="servicePropagator" class="org.apache.james.container.spring.lifecycle.ServicePropagator" />
+    <bean id="servicePropagator" class="org.apache.james.container.spring.lifecycle.ServicePropagator" >
+        <property name="serviceManagerFactory" ref="serviceManager"/>
+    </bean>
 
-    <bean id="configurationManager" class="org.apache.james.container.spring.lifecycle.ConfigurationPropagator" />
+    <bean id="configurationManager" class="org.apache.james.container.spring.lifecycle.ConfigurationPropagator" >
+        <property name="configurationProvider" ref="configurationProvider"/>
+    </bean>
 
     <bean id="initializationManager" class="org.apache.james.container.spring.lifecycle.InitializationPropagator" />
 

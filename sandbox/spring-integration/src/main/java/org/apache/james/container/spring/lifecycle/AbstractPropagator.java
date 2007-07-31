@@ -18,34 +18,46 @@
  ****************************************************************/
 package org.apache.james.container.spring.lifecycle;
 
-import java.util.Collection;
-
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+
+import java.util.Collection;
 
 /**
  * visitor. iterating over all spring beans having some specific implementation 
  */
-public abstract class AbstractPropagator {
+public abstract class AbstractPropagator implements BeanFactoryAware {
 
     private Collection excludeBeans;
+    private BeanFactory beanFactory;
 
-	public void postProcessBeanFactory(ConfigurableListableBeanFactory configurableListableBeanFactory) throws BeansException {
-
-        Class lifecycleInterface = getLifecycleInterface();
-        String[] beanNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(configurableListableBeanFactory, lifecycleInterface);
-        for (int i = 0; i < beanNames.length; i++) {
-            String beanName = beanNames[i];
-            if (excludeBeans == null || !excludeBeans.contains(beanName)) {
-                BeanDefinition beanDefinition = configurableListableBeanFactory.getBeanDefinition(beanName);
-                Object bean = configurableListableBeanFactory.getBean(beanName);
-	            invokeLifecycleWorker(beanName, bean, beanDefinition);
-            }
-        }
+    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+        this.beanFactory = beanFactory;
     }
     
+    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+        return bean;
+    }
+
+    protected BeanDefinition getBeanDefinition(String beanName) {
+        if (beanFactory instanceof ConfigurableListableBeanFactory) {
+            ConfigurableListableBeanFactory configurableListableBeanFactory = (ConfigurableListableBeanFactory) beanFactory;
+            return configurableListableBeanFactory.getBeanDefinition(beanName); 
+        }
+        return null; // cannot lookup bean definition
+    }
+
+    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+        if (excludeBeans == null || !excludeBeans.contains(beanName)) {
+            BeanDefinition beanDefinition = getBeanDefinition(beanName);
+            invokeLifecycleWorker(beanName, bean, beanDefinition);
+        }
+        return bean;
+    }
+
     public void setExcludeBeans(Collection excludeBeans) {
     	this.excludeBeans=excludeBeans;
     }
