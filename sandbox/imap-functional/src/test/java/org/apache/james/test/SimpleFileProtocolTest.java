@@ -41,9 +41,9 @@ public class SimpleFileProtocolTest
      * in the same location as this test class.
      * @param fileName The name of the file to read protocol elements from.
      */
-    public SimpleFileProtocolTest( String fileName )
+    public SimpleFileProtocolTest( String fileName, HostSystem hostSystem  )
     {
-        super( fileName );
+        super( fileName, hostSystem );
     }
 
     /**

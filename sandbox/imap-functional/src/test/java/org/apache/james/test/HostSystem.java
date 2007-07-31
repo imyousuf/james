@@ -18,45 +18,43 @@
  ****************************************************************/
 
 
-package org.apache.james.util;
+package org.apache.james.test;
 
+import java.io.Reader;
+import java.io.Writer;
 
 /**
- * A set of debugging utilities.
+ * Host system under test.
+ *
  */
-public final class Assert
-{
-    public static final boolean ON = true;
-
-    // Can't instantiate.
-    private Assert()
-    {
-    };
+public interface HostSystem {
 
     /**
-     * Checks the supplied boolean expression, throwing an AssertionException if false;
+     * Resets host system to initial state.
+     * @throws Exception
      */
-    public static void isTrue( boolean expression )
-    {
-        if ( !expression ) {
-            throw new RuntimeException( "Assertion Failed." );
-        }
-    }
-
+    public void reset() throws Exception;
+    
     /**
-     * Fails with an assertion exception.
+     * Add a user for testing.
+     * @param user user name
+     * @param password user password
+     * @throws Exception
      */
-    public static void fail()
-    {
-        throw new RuntimeException( "Assertion error - should not reach here." );
-    }
-
+    public void addUser(String user, String password) throws Exception;
+    
     /**
-     * Fails, indicating not-yet-implemented features.
+     * Creates a new session for functional testing.
+     * @return <code>Session</code>, not null
+     * @throws Exception
      */
-    public static void notImplemented()
+    public Session newSession() throws Exception;
+    
+    public interface Session
     {
-        throw new RuntimeException( "Not implemented" );
+        public Reader getReader() throws Exception;
+        public Writer getWriter() throws Exception;
+        public void start() throws Exception;
+        public void stop() throws Exception;
     }
-
 }

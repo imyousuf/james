@@ -20,14 +20,13 @@
 
 package org.apache.james.test;
 
-import org.apache.oro.text.perl.Perl5Util;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * A protocol session which can be run against a reader and writer, which checks
@@ -42,7 +41,6 @@ public class ProtocolSession
 {
     private int maxSessionNumber;
     protected List testElements = new ArrayList();
-    private static final Perl5Util perl = new Perl5Util();
 
     /**
      * Returns the number of sessions required to run this ProtocolSession.
@@ -254,9 +252,9 @@ public class ProtocolSession
          * @return <code>true</code> if the actual matches the expected.
          */
         protected boolean match( String expected, String actual )
-        {
-            String pattern = "m/" + expected + "/";
-            return perl.match( pattern, actual );
+        {            
+            final boolean result = Pattern.matches( expected, actual );
+            return result;
         }
 
         /**
