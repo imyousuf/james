@@ -29,7 +29,7 @@ import java.io.InputStream;
  * Subclasses of this test can set up {@link #preElements} and {@link #postElements}
  * for extra elements not defined in the protocol session file.
  */
-public class SimpleFileProtocolTest
+public class SimpleScriptedTestProtocol
         extends AbstractProtocolTest
 {
     private FileProtocolSessionBuilder builder =
@@ -41,7 +41,7 @@ public class SimpleFileProtocolTest
      * in the same location as this test class.
      * @param fileName The name of the file to read protocol elements from.
      */
-    public SimpleFileProtocolTest( String fileName, HostSystem hostSystem  )
+    public SimpleScriptedTestProtocol( String fileName, HostSystem hostSystem  )
     {
         super( fileName, hostSystem );
     }

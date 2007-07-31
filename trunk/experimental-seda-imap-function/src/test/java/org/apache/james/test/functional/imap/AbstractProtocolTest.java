@@ -30,7 +30,7 @@ import junit.framework.TestCase;
  * cases.  It provides basic functionality for running a protocol session
  * as a JUnit test, and failing if exceptions are thrown.
  * To create a test which reads the entire protocol session from a single
- * protocol definition file, use the {@link SimpleFileProtocolTest}.
+ * protocol definition file, use the {@link SimpleScriptedTestProtocol}.
  *
  * @author Darrell DeBoer
  * @author Andrew C. Oliver
