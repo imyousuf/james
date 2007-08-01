@@ -858,6 +858,11 @@
                 <include name='${derby.jar}'/>
                 <include name='${commons-beanutils.jar}'/>
             </fileset>
+            <fileset dir="${lib.dir}/${path.lib.james}">
+                  <include name="${jars-prefix}*-api-test-${version}.jar" />
+                  <include name="${jars-prefix}*-library-test-${version}.jar" />
+                  <include name="${jars-prefix}*-function-test-${version}.jar" />
+            </fileset>   
         </path>
     </target>
 
