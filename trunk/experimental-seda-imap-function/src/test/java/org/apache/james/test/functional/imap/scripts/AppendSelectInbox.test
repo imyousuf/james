@@ -28,7 +28,7 @@ C: Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
 C:
 C: Test 01
 C:
-S: A003 OK APPEND completed
+S: A003 OK APPEND completed.
 
 C: A003 APPEND inbox {254+}
 C: Date: Mon, 7 Feb 1994 21:52:25 -0800 (PST)
@@ -41,7 +41,7 @@ C: Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
 C:
 C: Test 02
 C:
-S: A003 OK APPEND completed
+S: A003 OK APPEND completed.
 
 C: abcd SELECT inbox
 S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
@@ -50,7 +50,7 @@ S: \* 2 RECENT
 S: \* OK \[UIDVALIDITY \d+\]
 S: (\* OK \[UNSEEN 1\] Message 1 is the first unseen)|(\* OK No messages unseen)
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
-S: abcd OK \[READ-WRITE\] SELECT completed
+S: abcd OK \[READ-WRITE\] SELECT completed.
 
 # Try again to ensure that no changes to flags were made.
 C: abcd SELECT "INBOX"
@@ -60,8 +60,8 @@ S: \* 0 RECENT
 S: \* OK \[UIDVALIDITY \d+\]
 S: (\* OK \[UNSEEN 1\] Message 1 is the first unseen)|(\* OK No messages unseen)
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
-S: abcd OK \[READ-WRITE\] SELECT completed
+S: abcd OK \[READ-WRITE\] SELECT completed.
 
 # Closing the inbox will cause the messages to be silently expunged
 C: abcd CLOSE
-S: abcd OK CLOSE completed
+S: abcd OK CLOSE completed.

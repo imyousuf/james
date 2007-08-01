@@ -19,48 +19,42 @@
 
 package org.apache.james.test.functional.imap;
 
+public abstract class AbstractTestSelectedInbox extends BaseTestSelectedInbox {
 
-abstract public class AbstractAuthenticatedStateTestSuite extends BaseTestForAuthenticatedState {
-
-    public AbstractAuthenticatedStateTestSuite(HostSystem system) throws Exception
-    {
+    public AbstractTestSelectedInbox(HostSystem system) {
         super(system);
     }
 
-    public void testNoop() throws Exception {
-        scriptTest("Noop"); 
-    }
-    
-    public void testLogout() throws Exception {
-        scriptTest("Logout"); 
+    public void testValidNonAuthenticated() throws Exception {
+        scriptTest("ValidNonAuthenticated");
     }
     
     public void testCapability() throws Exception {
-        scriptTest("Capability"); 
+        scriptTest("Capability");
     }
     
-    public void testAppendExamineInbox() throws Exception {
-        scriptTest("AppendExamineInbox");
+    public void testNoop() throws Exception {
+        scriptTest("Noop");
     }
-
-    public void testAppendSelectInbox() throws Exception {
-        scriptTest("AppendSelectInbox");
+    
+    public void testLogout() throws Exception {
+        scriptTest("Logout");
     }
     
     public void testCreate() throws Exception {
-        scriptTest("Create"); 
+        scriptTest("Create");
     }
     
     public void testExamineEmpty() throws Exception {
-        scriptTest("ExamineEmpty"); 
+        scriptTest("ExamineEmpty");
     }
     
     public void testSelectEmpty() throws Exception {
         scriptTest("SelectEmpty");
     }
-        
+    
     public void testListNamespace() throws Exception {
-        scriptTest("ListNamespace"); 
+        scriptTest("ListNamespace");
     }
     
     public void testListMailboxes() throws Exception {
@@ -68,34 +62,23 @@ abstract public class AbstractAuthenticatedStateTestSuite extends BaseTestForAut
     }
     
     public void testStatus() throws Exception {
-        scriptTest("Status"); 
-    }
-    
-    public void testSubscribe() throws Exception {
-        scriptTest("Subscribe");
-    }
-    
-    public void testDelete() throws Exception {
-        scriptTest("Delete"); 
-    }
-    
-    public void testAppend() throws Exception {
-        scriptTest("Append");
-    }
-    
-    public void testAppendExpunge() throws Exception {
-        scriptTest("AppendExpunge");
-    }
-    
-    public void testSelectAppend() throws Exception {
-        scriptTest("SelectAppend");
+        scriptTest("Status");
     }
     
     public void testStringArgs() throws Exception {
         scriptTest("StringArgs");
     }
     
-    public void testValidNonAuthenticated() throws Exception {
-        scriptTest("ValidNonAuthenticated");
+    public void testSubscribe() throws Exception {
+        scriptTest("Subscribe");
     }
+    
+    public void testAppend() throws Exception {
+        scriptTest("Append");
+    }
+    
+    public void testDelete() throws Exception {
+        scriptTest("Delete");
+    }
+    
 }

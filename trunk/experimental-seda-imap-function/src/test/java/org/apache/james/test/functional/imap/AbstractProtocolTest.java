@@ -75,15 +75,31 @@ public abstract class AbstractProtocolTest
      */
     protected void runSessions() throws Exception
     {
+        class SessionContinuation implements HostSystem.Continuation {
+
+            public ProtocolSession session;
+            
+            public void doContinue() {
+                if (session != null) {
+                    session.doContinue();
+                }
+            }
+            
+        }
+        SessionContinuation continuation = new SessionContinuation();
+        
         HostSystem.Session[] sessions = new HostSystem.Session[testElements.getSessionCount()];
 
         for (int i = 0; i < sessions.length; i++) {
-            sessions[i] = hostSystem.newSession();
+            sessions[i] = hostSystem.newSession(continuation);
             sessions[i].start();
         }
         try {
+            continuation.session = preElements;
             preElements.runSessions( sessions );
+            continuation.session = testElements;
             testElements.runSessions( sessions );
+            continuation.session = postElements;
             postElements.runSessions(sessions);
         } finally {
             for (int i = 0; i < sessions.length; i++) {

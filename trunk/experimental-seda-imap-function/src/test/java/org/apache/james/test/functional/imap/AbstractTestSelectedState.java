@@ -17,48 +17,47 @@
  * under the License.                                           *
  ****************************************************************/
 
-
 package org.apache.james.test.functional.imap;
 
-import java.io.Reader;
-import java.io.Writer;
+public abstract class AbstractTestSelectedState extends BaseTestSelectedState {
 
-/**
- * Host system under test.
- *
- */
-public interface HostSystem {
+    public AbstractTestSelectedState(HostSystem system) {
+        super(system);
+    }
 
-    /**
-     * Resets host system to initial state.
-     * @throws Exception
-     */
-    public void reset() throws Exception;
-    
-    /**
-     * Add a user for testing.
-     * @param user user name
-     * @param password user password
-     * @throws Exception
-     */
-    public boolean addUser(String user, String password) throws Exception;
-    
-    /**
-     * Creates a new session for functional testing.
-     * @return <code>Session</code>, not null
-     * @throws Exception
-     */
-    public Session newSession(Continuation continuation) throws Exception;
-    
-    public interface Session
-    {
-        public String readLine() throws Exception;
-        public void writeLine(String line) throws Exception;
-        public void start() throws Exception;
-        public void stop() throws Exception;
+    public void testCheck() throws Exception {
+        scriptTest("Check");
     }
     
-    public interface Continuation {
-        public void doContinue();
+    public void testExpunge() throws Exception {
+        scriptTest("Expunge");
+    }
+    
+    public void testSearch() throws Exception {
+        scriptTest("Search");
+    }
+    
+    public void testFetchSingleMessage() throws Exception {
+        scriptTest("FetchSingleMessage");
+    }
+    
+    public void testFetchMultipleMessages() throws Exception {
+        scriptTest("FetchMultipleMessages");
+    }
+    
+    public void testFetchPeek() throws Exception {
+        scriptTest("FetchPeek");
+    }
+    
+    public void testStore() throws Exception {
+        scriptTest("Store");
+    }
+    
+    public void testCopy() throws Exception {
+        scriptTest("Copy");
+    }
+    
+    public void testUid() throws Exception {
+        scriptTest("Uid");
     }
 }

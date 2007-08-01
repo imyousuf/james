@@ -64,7 +64,7 @@ public class ImapRequestLineReader extends AbstractLogEnabled
         }
 
         if ( next == '\r' || next == '\n' ) {
-            throw new ProtocolException( "Missing argument. (read \\n or \\r)" );
+            throw new ProtocolException( "Missing argument." );
         }
 
         return next;
@@ -122,7 +122,7 @@ public class ImapRequestLineReader extends AbstractLogEnabled
 
         // Check if we found extra characters.
         if ( next != '\n' ) {
-            throw new ProtocolException( "Expected end-of-line, found more characters. ("+((int)next)+")");
+            throw new ProtocolException( "Expected end-of-line, found '" + (char) next + "'.");
         }
     }
 

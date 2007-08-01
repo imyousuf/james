@@ -17,7 +17,7 @@
 # under the License.                                           #
 ################################################################
 C: a1 CREATE appendBox
-S: a1 OK CREATE completed
+S: a1 OK CREATE completed.
 
 C: A003 APPEND appendBox {310}
 # Use command continuation request
@@ -32,9 +32,9 @@ C: Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
 C:
 C: Hello Joe, could we change that to 4:00pm tomorrow?
 C:
-S: A003 OK APPEND completed
+S: A003 OK APPEND completed.
 
-C: A003 APPEND appendBox (\Seen) "17-Jul-1996 02:44:25 -0700" {310+}
+C: A004 APPEND appendBox (\Seen) "17-Jul-1996 02:44:25 -0700" {310+}
 # use synchronising literal
 C: Date: Mon, 7 Feb 1994 21:52:25 -0800 (PST)
 C: From: Fred Foobar <foobar@Blurdybloop.COM>
@@ -46,11 +46,11 @@ C: Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
 C:
 C: Hello Joe, could we change that to 4:00pm tomorrow?
 C:
-S: A003 OK APPEND completed
+S: A004 OK APPEND completed.
 
 C: a1 APPEND nosuchmailbox {13+}
 C: 13 characters
 S: a1 NO \[TRYCREATE\] APPEND failed\. No such mailbox\.
 
 C: a1 DELETE appendBox
-S: a1 OK DELETE completed
+S: a1 OK DELETE completed.
