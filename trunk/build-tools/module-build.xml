@@ -92,6 +92,10 @@ Main User Targets
             name='${name.module}'   
             bin='${dir.build.bin}'
             lib='${dir.stage.james}'/>  
+        <CreateJar 
+            name='${name.module}-test'   
+            bin='${dir.build.test}'
+            lib='${dir.stage.james}'/>      
         <CreateJavaDocs/>
         <CreateJar 
             name='${name.module}-javadoc'   
