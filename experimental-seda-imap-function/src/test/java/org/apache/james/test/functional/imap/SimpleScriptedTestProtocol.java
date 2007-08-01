@@ -41,20 +41,18 @@ public class SimpleScriptedTestProtocol
      * in the same location as this test class.
      * @param fileName The name of the file to read protocol elements from.
      */
-    public SimpleScriptedTestProtocol( String fileName, HostSystem hostSystem  )
+    public SimpleScriptedTestProtocol( HostSystem hostSystem  )
     {
-        super( fileName, hostSystem );
+        super( hostSystem );
     }
 
     /**
      * Reads test elements from the protocol session file and adds them to the
      * {@link #testElements} ProtocolSession. Then calls {@link #runSessions}.
      */
-    protected void runTest() throws Throwable
+    protected void scriptTest(String fileName) throws Exception
     {
-        String fileName = getName() + ".test";
-        addTestFile( fileName, testElements );
-
+        addTestFile( fileName + ".test", testElements );
         runSessions();
     }
 
@@ -67,6 +65,7 @@ public class SimpleScriptedTestProtocol
      */ 
     protected void addTestFile( String fileName, ProtocolSession session) throws Exception
     {
+        fileName = "/org/apache/james/test/functional/imap/scripts/" + fileName;
         // Need to find local resource.
         InputStream is = this.getClass().getResourceAsStream( fileName );
         if ( is == null ) {

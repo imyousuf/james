@@ -46,7 +46,7 @@ package org.apache.james.test.functional.imap;
  * <li>Compound:<ul>
  * <li>AppendExpunge</li>
  * <li>SelectAppend</li>
- * <li>StringArgs</li>;
+ * <li>StringArgs</li>
  * </ul></li>
  * </ul>
  * </p>
@@ -54,9 +54,9 @@ package org.apache.james.test.functional.imap;
 public class BaseTestForAuthenticatedState
         extends SimpleScriptedTestProtocol implements ImapTestConstants
 {
-    public BaseTestForAuthenticatedState( String name, HostSystem hostSystem)
+    public BaseTestForAuthenticatedState( HostSystem hostSystem)
     {
-        super( name, hostSystem );
+        super( hostSystem );
     }
 
     /**
@@ -73,6 +73,6 @@ public class BaseTestForAuthenticatedState
     protected void addLogin( String username, String password )
     {
         preElements.CL( "a001 LOGIN " + username + " " + password );
-        preElements.SL( "a001 OK LOGIN completed", "AbstractTestForAuthenticatedState.java:53" );
+        preElements.SL( "a001 OK LOGIN completed.", "AbstractTestForAuthenticatedState.java:53" );
     }
 }
