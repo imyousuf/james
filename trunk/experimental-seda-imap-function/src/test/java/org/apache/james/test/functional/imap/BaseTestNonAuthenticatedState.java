@@ -39,9 +39,9 @@ package org.apache.james.test.functional.imap;
 public class BaseTestNonAuthenticatedState
         extends SimpleScriptedTestProtocol
 {
-    public BaseTestNonAuthenticatedState( String name, HostSystem system )
+    public BaseTestNonAuthenticatedState( HostSystem system )
     {
-        super( name, system );
+        super( system );
     }
 
     /**

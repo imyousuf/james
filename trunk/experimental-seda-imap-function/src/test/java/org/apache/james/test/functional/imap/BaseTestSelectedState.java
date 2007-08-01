@@ -42,9 +42,9 @@ package org.apache.james.test.functional.imap;
 public class BaseTestSelectedState
         extends BaseTestForAuthenticatedState
 {
-    public BaseTestSelectedState( String name, HostSystem system )
+    public BaseTestSelectedState( HostSystem system )
     {
-        super( name, system );
+        super( system );
     }
 
     /**

@@ -52,9 +52,9 @@ package org.apache.james.test.functional.imap;
 public class BaseTestSelectedInbox
         extends BaseTestForAuthenticatedState
 {
-    public BaseTestSelectedInbox( String name, HostSystem system )
+    public BaseTestSelectedInbox( HostSystem system )
     {
-        super( name, system );
+        super( system );
     }
 
     /**

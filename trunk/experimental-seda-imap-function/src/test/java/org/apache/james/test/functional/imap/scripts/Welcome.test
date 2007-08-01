@@ -16,4 +16,4 @@
 # specific language governing permissions and limitations      #
 # under the License.                                           #
 ################################################################
-S: \* OK IMAP4rev1 Server .* ready
+S: \* OK IMAP4rev1 Server ready

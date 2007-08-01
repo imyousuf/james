@@ -20,9 +20,7 @@
 
 package org.apache.james.test.functional.imap;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -60,12 +58,12 @@ public class ProtocolSession
      * @param out The client requests are written to here.
      * @param in The server responses are read from here.
      */
-    public void runLiveSession(PrintWriter[] out, BufferedReader[] in) throws InvalidServerResponseException {
+    public void runSessions(HostSystem.Session[] sessions) throws Exception {
         for ( Iterator iter = testElements.iterator(); iter.hasNext(); ) {
             Object obj = iter.next();
             if ( obj instanceof ProtocolElement ) {
                 ProtocolElement test = ( ProtocolElement ) obj;
-                test.testProtocol( out, in );
+                test.testProtocol( sessions );
             }
         }
     }
@@ -151,26 +149,24 @@ public class ProtocolSession
          * Writes the request message to the PrintWriters. If the sessionNumber == -1,
          * the request is written to *all* supplied writers, otherwise, only the
          * writer for this session is writted to.
+         * @throws Exception 
          */
-        public void testProtocol( PrintWriter[] out, BufferedReader[] in )
+        public void testProtocol( HostSystem.Session[] sessions ) throws Exception
         {
             if (sessionNumber < 0) {
-                for (int i = 0; i < out.length; i++) {
-                    PrintWriter printWriter = out[i];
-                    writeMessage(printWriter);
+                for (int i = 0; i < sessions.length; i++) {
+                    HostSystem.Session session = sessions[i];
+                    writeMessage(session);
                 }
             }
             else {
-                PrintWriter writer = out[sessionNumber];
-                writeMessage(writer);
+                HostSystem.Session session = sessions[sessionNumber];
+                writeMessage(session);
             }
         }
 
-        private void writeMessage(PrintWriter writer) {
-            writer.write(message);
-            writer.write('\r');
-            writer.write('\n');
-            writer.flush();
+        private void writeMessage(HostSystem.Session session) throws Exception {
+            session.writeLine(message);
         }
     }
 
@@ -219,23 +215,23 @@ public class ProtocolSession
          * @throws InvalidServerResponseException If the actual server response didn't
          *          match the regular expression expected.
          */
-        public void testProtocol( PrintWriter[] out, BufferedReader[] in )
-                throws InvalidServerResponseException
+        public void testProtocol( HostSystem.Session[] sessions)
+                throws Exception
         {
             if (sessionNumber < 0) {
-                for (int i = 0; i < in.length; i++) {
-                    BufferedReader reader = in[i];
-                    checkResponse(reader);
+                for (int i = 0; i < sessions.length; i++) {
+                    HostSystem.Session session = sessions[i];
+                    checkResponse(session);
                 }
             }
             else {
-                BufferedReader reader = in[sessionNumber];
-                checkResponse(reader);
+                HostSystem.Session session = sessions[sessionNumber];
+                checkResponse(session);
             }
         }
 
-        protected void checkResponse(BufferedReader reader) throws InvalidServerResponseException {
-            String testLine = readLine(reader);
+        protected void checkResponse(HostSystem.Session session) throws Exception {
+            String testLine = readLine(session);
             if ( ! match( expectedLine, testLine ) ) {
                 String errMsg = "\nLocation: " + location +
                         "\nExcpected: " + expectedLine +
@@ -260,14 +256,13 @@ public class ProtocolSession
         /**
          * Grabs a line from the server and throws an error message if it
          * doesn't work out
-         * @param in BufferedReader for getting the server response
          * @return String of the line from the server
          */
-        protected String readLine( BufferedReader in )
-                throws InvalidServerResponseException
+        protected String readLine( HostSystem.Session session )
+                throws Exception
         {
             try {
-                return in.readLine();
+                return session.readLine();
             } catch (IOException e) {
                 String errMsg = "\nLocation: " + location +
                                 "\nExpected: " + expectedLine +
@@ -319,10 +314,10 @@ public class ProtocolSession
          * @throws InvalidServerResponseException If a line is encountered which doesn't
          *              match one of the expected lines.
          */
-        protected void checkResponse(BufferedReader reader) throws InvalidServerResponseException {
+        protected void checkResponse(HostSystem.Session session) throws Exception {
             List testLines = new ArrayList(expectedLines);
             while (testLines.size() > 0) {
-                String actualLine = readLine(reader);
+                String actualLine = readLine(session);
 
                 boolean foundMatch = false;
                 for (int i = 0; i < testLines.size(); i++) {
@@ -361,14 +356,10 @@ public class ProtocolSession
     private interface ProtocolElement
     {
         /**
-         * Executes the ProtocolElement against the supplied read and writer.
-         * @param out Client requests are written to here.
-         * @param in Server responses are read from here.
-         * @throws InvalidServerResponseException If the actual server response
-         *              doesn't match the one expected.
+         * Executes the ProtocolElement against the supplied session.
+         * @throws Exception 
          */
-        void testProtocol( PrintWriter[] out, BufferedReader[] in )
-                throws InvalidServerResponseException;
+        void testProtocol( HostSystem.Session[] sessions) throws Exception;
     }
 
     /**

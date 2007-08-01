@@ -19,9 +19,6 @@
 
 package org.apache.james.test.functional.imap;
 
-import java.io.BufferedReader;
-import java.io.PrintWriter;
-
 import junit.framework.TestCase;
 
 
@@ -54,9 +51,8 @@ public abstract class AbstractProtocolTest
 
     private final HostSystem hostSystem;
     
-    public AbstractProtocolTest( String name, HostSystem hostSystem )
+    public AbstractProtocolTest( HostSystem hostSystem )
     {
-        super(name);
         this.hostSystem = hostSystem;
     }
 
@@ -79,53 +75,19 @@ public abstract class AbstractProtocolTest
      */
     protected void runSessions() throws Exception
     {
-        HostSystem.Session[] socket = new HostSystem.Session[testElements.getSessionCount()];
-        PrintWriter[] out = new PrintWriter[socket.length];
-        BufferedReader[] in = new BufferedReader[socket.length];
+        HostSystem.Session[] sessions = new HostSystem.Session[testElements.getSessionCount()];
 
-        for (int i = 0; i < socket.length; i++) {
-            socket[i] = hostSystem.newSession();
-            out[i] = new PrintWriter(socket[i].getWriter());
-            in[i] = new BufferedReader(socket[i].getReader());
-            socket[i].start();
+        for (int i = 0; i < sessions.length; i++) {
+            sessions[i] = hostSystem.newSession();
+            sessions[i].start();
         }
-        try
-        {
-            Exception failure = null;
-            try {
-                preElements.runLiveSession( out, in );
-                testElements.runLiveSession( out, in );
-            } catch (ProtocolSession.InvalidServerResponseException e) {
-                failure = e;
-                // Try our best to do cleanup.
-                for (int i = 0; i < in.length; i++) {
-                    BufferedReader reader = in[i];
-                    while (reader.ready()) {
-                        reader.read();
-                    }
-                }
-            } finally {
-                try {
-                    postElements.runLiveSession(out, in);
-                } catch (ProtocolSession.InvalidServerResponseException e) {
-                    // Don't overwrite real error with error on cleanup.
-                    if (failure == null) {
-                        failure = e;
-                    }
-                }
-            }
-
-            if (failure != null) {
-                fail(failure.getMessage());
-            }
-
-        }
-        finally
-        {
-            for (int i = 0; i < socket.length; i++) {
-                out[i].close();
-                in[i].close();
-                socket[i].stop();
+        try {
+            preElements.runSessions( sessions );
+            testElements.runSessions( sessions );
+            postElements.runSessions(sessions);
+        } finally {
+            for (int i = 0; i < sessions.length; i++) {
+                sessions[i].stop();
             }
         }
     }
