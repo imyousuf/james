@@ -260,6 +260,11 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
                 deprecation='@{deprecation}'   
                 jdk-source='@{jdk-source}' 
                 jdk-target='@{jdk-target}'/>   
+            <copy todir='${dir.build.test}'>
+                <fileset dir='${dir.src.test}'>
+                    <exclude name='**/*.java'/>   
+                </fileset>   
+            </copy>   
         </sequential>   
     </macrodef>     
     
