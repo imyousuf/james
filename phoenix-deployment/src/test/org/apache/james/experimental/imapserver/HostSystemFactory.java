@@ -33,7 +33,13 @@ public class HostSystemFactory {
         defaultImapProcessorFactory.configure(result, MailboxManagerProviderSingleton.getMailboxManagerProviderInstance());
         result.configure(new DefaultImapDecoderFactory().buildImapDecoder(), 
                 new DefaultImapEncoderFactory().buildImapEncoder(), 
-                defaultImapProcessorFactory.buildImapProcessor());
+                defaultImapProcessorFactory.buildImapProcessor(), new ExperimentalHostSystem.Resetable() {
+
+                    public void reset() throws Exception {
+                        MailboxManagerProviderSingleton.getMailboxManagerProviderInstance().deleteEverything();
+                    }
+            
+        });
         return result;
     }
 }

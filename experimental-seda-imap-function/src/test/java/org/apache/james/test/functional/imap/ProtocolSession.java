@@ -26,6 +26,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.apache.james.test.functional.imap.HostSystem.Session;
+
 /**
  * A protocol session which can be run against a reader and writer, which checks
  * the server response against the expected values.
@@ -37,8 +39,13 @@ import java.util.regex.Pattern;
  */
 public class ProtocolSession
 {
+    private boolean continued = false;
+    private boolean continuationExpected = false;
     private int maxSessionNumber;
     protected List testElements = new ArrayList();
+    private Iterator elementsIterator;
+    private HostSystem.Session[] sessions;
+    private ProtocolElement nextTest;
 
     /**
      * Returns the number of sessions required to run this ProtocolSession.
@@ -59,8 +66,10 @@ public class ProtocolSession
      * @param in The server responses are read from here.
      */
     public void runSessions(HostSystem.Session[] sessions) throws Exception {
-        for ( Iterator iter = testElements.iterator(); iter.hasNext(); ) {
-            Object obj = iter.next();
+        this.sessions = sessions;
+        elementsIterator = testElements.iterator();
+        while( elementsIterator.hasNext() ) {
+            Object obj = elementsIterator.next();
             if ( obj instanceof ProtocolElement ) {
                 ProtocolElement test = ( ProtocolElement ) obj;
                 test.testProtocol( sessions );
@@ -68,6 +77,32 @@ public class ProtocolSession
         }
     }
 
+    public void doContinue() {
+        try {
+            if (continuationExpected) {
+                continued = true;
+                while( elementsIterator.hasNext() ) {
+                    Object obj = elementsIterator.next();
+                    if ( obj instanceof ProtocolElement ) {
+                        nextTest = ( ProtocolElement ) obj;
+                       
+                        if (!nextTest.isClient()) {
+                            break;
+                        }
+                        nextTest.testProtocol( sessions );
+                    }
+                }
+                if (!elementsIterator.hasNext()) {
+                    nextTest = null;
+                }
+            } else {
+                throw new RuntimeException("Unexpected continuation");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
     /**
      * adds a new Client request line to the test elements
      */
@@ -101,6 +136,15 @@ public class ProtocolSession
         testElements.add( new ClientRequest( sessionNumber, clientLine ) );
     }
 
+    /**
+     * Adds a continuation.
+     * To allow one thread to be used for testing.
+     */
+    public void CONT(int sessionNumber) throws Exception {
+        this.maxSessionNumber = Math.max(this.maxSessionNumber, sessionNumber);
+        testElements.add( new ContinuationElement(sessionNumber));
+    }
+    
     /**
      * adds a new Server Response line to the test elements, with the specified location.
      */
@@ -168,6 +212,10 @@ public class ProtocolSession
         private void writeMessage(HostSystem.Session session) throws Exception {
             session.writeLine(message);
         }
+
+        public boolean isClient() {
+            return true;
+        }
     }
 
     /**
@@ -234,7 +282,7 @@ public class ProtocolSession
             String testLine = readLine(session);
             if ( ! match( expectedLine, testLine ) ) {
                 String errMsg = "\nLocation: " + location +
-                        "\nExcpected: " + expectedLine +
+                        "\nExpected: " + expectedLine +
                         "\nActual   : " + testLine;
                 throw new InvalidServerResponseException( errMsg );
             }
@@ -269,6 +317,10 @@ public class ProtocolSession
                                 "\nReason: Server Timeout.";
                 throw new InvalidServerResponseException(errMsg);
             }
+        }
+
+        public boolean isClient() {
+            return false;
         }
     }
 
@@ -347,6 +399,35 @@ public class ProtocolSession
             }
         }
     }
+    
+    private class ContinuationElement implements ProtocolElement {
+
+        private final int sessionNumber;
+        
+        public ContinuationElement(final int sessionNumber) throws Exception {
+            this.sessionNumber = sessionNumber < 0 ? 0 : sessionNumber ;
+        }
+        
+        public void testProtocol(Session[] sessions) throws Exception {
+            HostSystem.Session session = sessions[sessionNumber];
+            continuationExpected = true;
+            continued = false;
+            String testLine = session.readLine();
+            if ( ! "+".equals(testLine) || ! continued) {
+                throw new InvalidServerResponseException( "Expected continuation" );
+            }
+            continuationExpected = false;
+            continued = false;
+            
+            if (nextTest != null) {
+                nextTest.testProtocol(sessions);
+            }
+        }
+
+        public boolean isClient() {
+            return false;
+        }
+    }
 
     /**
      * Represents a generic protocol element, which may write requests to the server,
@@ -360,6 +441,8 @@ public class ProtocolSession
          * @throws Exception 
          */
         void testProtocol( HostSystem.Session[] sessions) throws Exception;
+        
+        boolean isClient();
     }
 
     /**
@@ -373,5 +456,4 @@ public class ProtocolSession
             super( message );
         }
     }
-
 }

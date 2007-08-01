@@ -17,7 +17,7 @@
 # under the License.                                           #
 ################################################################
 C: 10 CREATE selectappend
-S: 10 OK CREATE completed
+S: 10 OK CREATE completed.
 
 C: 10 SELECT selectappend
 S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
@@ -26,7 +26,7 @@ S: \* 0 RECENT
 S: \* OK \[UIDVALIDITY \d+\]
 S: \* OK No messages unseen
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
-S: 10 OK \[READ-WRITE\] SELECT completed
+S: 10 OK \[READ-WRITE\] SELECT completed.
 
 C: A003 APPEND selectappend {310}
 # Use command continuation request
@@ -43,7 +43,7 @@ C: Hello Joe, could we change that to 4:00pm tomorrow?
 C:
 S: \* 1 EXISTS
 S: \* 1 RECENT
-S: A003 OK APPEND completed
+S: A003 OK APPEND completed.
 
 C: A003 APPEND selectappend {310}
 # Use command continuation request
@@ -60,9 +60,9 @@ C: Hello Joe, could we change that to 4:00pm tomorrow?
 C:
 S: \* 2 EXISTS
 S: \* 1 RECENT
-S: A003 OK APPEND completed
+S: A003 OK APPEND completed.
 
 C: a1 DELETE selectappend
-S: a1 OK DELETE completed
+S: a1 OK DELETE completed.
 
 

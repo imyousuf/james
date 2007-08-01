@@ -35,6 +35,7 @@ import java.util.List;
  */
 public class FileProtocolSessionBuilder
 {
+    private static final String SERVER_CONTINUATION_TAG = "S: \\+";
     private static final String CLIENT_TAG = "C:";
     private static final String SERVER_TAG = "S:";
     private static final String OPEN_UNORDERED_BLOCK_TAG = "SUB {";
@@ -91,7 +92,9 @@ public class FileProtocolSessionBuilder
         int lineNumber = -1;
         while ( ( next = reader.readLine() ) != null ) {
             String location = fileName + ":" + lineNumber;
-            if ( next.startsWith( CLIENT_TAG ) ) {
+            if (SERVER_CONTINUATION_TAG.equals(next)) {
+                session.CONT( sessionNumber );
+            } else if ( next.startsWith( CLIENT_TAG ) ) {
                 String clientMsg = "";
                 if ( next.length() > 3 ) {
                     clientMsg = next.substring( 3 );

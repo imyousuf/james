@@ -17,48 +17,40 @@
  * under the License.                                           *
  ****************************************************************/
 
-
 package org.apache.james.test.functional.imap;
 
-import java.io.Reader;
-import java.io.Writer;
+public abstract class AbstractTestForNonAuthenticatedState extends
+        BaseTestNonAuthenticatedState {
 
-/**
- * Host system under test.
- *
- */
-public interface HostSystem {
+    public AbstractTestForNonAuthenticatedState(HostSystem system) {
+        super(system);
+    }
 
-    /**
-     * Resets host system to initial state.
-     * @throws Exception
-     */
-    public void reset() throws Exception;
-    
-    /**
-     * Add a user for testing.
-     * @param user user name
-     * @param password user password
-     * @throws Exception
-     */
-    public boolean addUser(String user, String password) throws Exception;
-    
-    /**
-     * Creates a new session for functional testing.
-     * @return <code>Session</code>, not null
-     * @throws Exception
-     */
-    public Session newSession(Continuation continuation) throws Exception;
-    
-    public interface Session
-    {
-        public String readLine() throws Exception;
-        public void writeLine(String line) throws Exception;
-        public void start() throws Exception;
-        public void stop() throws Exception;
+    public void testNoop() throws Exception {
+        scriptTest("Noop");
     }
     
-    public interface Continuation {
-        public void doContinue();
+    public void testLogout() throws Exception {
+        scriptTest("Logout");
+    }
+    
+    public void testCapability() throws Exception {
+        scriptTest("Capability");
+    }
+    
+    public void testLogin() throws Exception {
+        scriptTest("Login");
+    }
+    
+    public void testValidAuthenticated() throws Exception {
+        scriptTest("ValidAuthenticated");
+    }
+    
+    public void testValidSelected() throws Exception {
+        scriptTest("ValidSelected");
+    }
+    
+    public void testAuthenticate() throws Exception {
+        scriptTest("Authenticate");
     }
 }

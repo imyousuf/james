@@ -25,4 +25,49 @@ public class ExperimentalAuthenticatedStateTest extends AbstractAuthenticatedSta
     public ExperimentalAuthenticatedStateTest() throws Exception {
         super(HostSystemFactory.createStandardImap());
     }
+    
+    public void testStatus() throws Exception {
+        // TODO: fix bug - recent flag not set
+    }
+    
+    public void testSubscribe() throws Exception {
+        // TODO: user is automatically subscribed to INBOX. 
+        // Check whether this is correct behaviour
+    }
+    
+    public void testAppend() throws Exception {
+        // TODO: poor error message returned via exception - replace with better one
+    }
+    
+    public void testExamineEmpty() throws Exception {
+        // TODO: \recent flag is returned by FLAGS - specification seems ambiguous on this
+    }
+    
+    public void testSelectEmpty() throws Exception {
+//      TODO: \recent flag is returned by FLAGS - specification seems ambiguous on this
+    }
+    
+    public void testAppendExamineInbox() throws Exception {
+//      TODO: \recent flag is returned by FLAGS - specification seems ambiguous on this
+    }
+    
+    public void testAppendSelectInbox() throws Exception {
+//      TODO: \recent flag is returned by FLAGS - specification seems ambiguous on this
+    }
+    
+    public void testListMailboxes() throws Exception {
+// TODO: fix bug - complete hierarchy returned
+    }
+
+    public void testSelectAppend() throws Exception {
+//      TODO: \recent flag is returned by FLAGS - specification seems ambiguous on this
+    }
+    
+    public void testAppendExpunge() throws Exception {
+//      TODO: \recent flag is returned by FLAGS - specification seems ambiguous on this
+    }
+    
+    public void testListNamespace() throws Exception {
+        // TODO: root mailbox should be marked as Noselect
+    }
 }

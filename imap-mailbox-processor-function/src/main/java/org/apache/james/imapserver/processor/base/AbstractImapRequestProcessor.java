@@ -83,7 +83,7 @@ abstract public class AbstractImapRequestProcessor extends
         ImapResponseMessage result;
         if (!command.validForState(session.getState())) {
             result = new CommandFailedResponse(command,
-                    "Command not valid in this state", tag);
+                    "Command not valid in this state.", tag);
         } else {
             result = doProcess(message, session, tag, command);
         }

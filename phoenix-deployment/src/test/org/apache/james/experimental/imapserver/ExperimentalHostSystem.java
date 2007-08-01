@@ -38,6 +38,7 @@ import org.apache.james.imapserver.codec.encode.ImapEncoder;
 import org.apache.james.services.User;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.test.functional.imap.HostSystem;
+import org.apache.james.test.functional.imap.HostSystem.Continuation;
 import org.apache.james.test.mock.avalon.MockLogger;
 
 public class ExperimentalHostSystem implements HostSystem, UsersRepository {
@@ -45,6 +46,8 @@ public class ExperimentalHostSystem implements HostSystem, UsersRepository {
     private ImapDecoder decoder;
     private ImapEncoder encoder;
     private ImapProcessor processor;
+    private Resetable dataReset;
+    private boolean isReadLast = true;
     private final Set users;
     
     public ExperimentalHostSystem() {
@@ -52,10 +55,12 @@ public class ExperimentalHostSystem implements HostSystem, UsersRepository {
         users = new HashSet();
     }
     
-    public void configure(final ImapDecoder decoder, final ImapEncoder encoder, final ImapProcessor processor) {    
+    public void configure(final ImapDecoder decoder, final ImapEncoder encoder, 
+            final ImapProcessor processor, final Resetable dataReset) {    
         this.decoder = decoder;
         this.encoder = encoder;
         this.processor = processor;
+        this.dataReset = dataReset;
     }
     
     public boolean addUser(String username, String password) {
@@ -65,13 +70,13 @@ public class ExperimentalHostSystem implements HostSystem, UsersRepository {
 
     }
 
-    public HostSystem.Session newSession() throws Exception {
-        return new Session();
+    public HostSystem.Session newSession(Continuation continuation) throws Exception {
+        return new Session(continuation);
     }
 
     public void reset() throws Exception {
         users.clear();
-
+        dataReset.reset();
     }
 
     public String getHelloName() {
@@ -229,8 +234,9 @@ public class ExperimentalHostSystem implements HostSystem, UsersRepository {
         ImapRequestHandler handler;
         ImapSessionImpl session;
         
-        public Session() {
-            out = new ByteBufferOutputStream();
+        
+        public Session(Continuation continuation) {
+            out = new ByteBufferOutputStream(continuation);
             in = new ByteBufferInputStream();
             handler = new ImapRequestHandler(decoder, processor, encoder);
             handler.enableLogging(new MockLogger());
@@ -238,7 +244,12 @@ public class ExperimentalHostSystem implements HostSystem, UsersRepository {
         }
         
         public String readLine() throws Exception {
-            return out.nextLine();
+            if (!isReadLast) {
+                handler.handleRequest(in, out, session);
+                isReadLast = true;
+            }
+            final String result = out.nextLine();
+            return result;
         }
 
         public void start() throws Exception {
@@ -251,8 +262,8 @@ public class ExperimentalHostSystem implements HostSystem, UsersRepository {
         }
 
         public void writeLine(String line) throws Exception {
+            isReadLast = false;
             in.nextLine(line);
-            handler.handleRequest(in, out, session);
         }
 
         public void forceConnectionClose(String byeMessage) {
@@ -261,17 +272,20 @@ public class ExperimentalHostSystem implements HostSystem, UsersRepository {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-            
         }
-        
     }
     
     static class ByteBufferInputStream extends InputStream {
         
-        ByteBuffer buffer = ByteBuffer.allocate(4096);
+        ByteBuffer buffer = ByteBuffer.allocate(8192);
         CharsetEncoder encoder = Charset.forName("ASCII").newEncoder();
+        boolean readLast = true;
         
         public int read() throws IOException {
+            if (!readLast) {
+                readLast = true;
+                buffer.flip();
+            }
             int result = -1;
             if (buffer.hasRemaining()) {
                 result = buffer.get();
@@ -280,26 +294,53 @@ public class ExperimentalHostSystem implements HostSystem, UsersRepository {
         }
         
         public void nextLine(String line) {
-            if (buffer.position() > 0) {
+            if (buffer.position() > 0 && readLast) {
                 buffer.compact();
             }
             encoder.encode(CharBuffer.wrap(line), buffer, true);
             buffer.put((byte)'\r');
             buffer.put((byte)'\n');
-            buffer.flip();
+            readLast = false;
         }
     }
     
     static class ByteBufferOutputStream extends OutputStream {
-        ByteBuffer buffer = ByteBuffer.allocate(4096);
+        ByteBuffer buffer = ByteBuffer.allocate(8192);
         Charset ascii = Charset.forName("ASCII");
-
+        Continuation continuation;
+        boolean matchPlus = false;
+        boolean matchCR = false;
+        boolean matchLF = false;
+        
+        public ByteBufferOutputStream(Continuation continuation) {
+            this.continuation = continuation;
+        }
+        
         public void write(String message) throws IOException {
             ascii.newEncoder().encode(CharBuffer.wrap(message), buffer, true);
         }
         
         public void write(int b) throws IOException {
             buffer.put((byte) b);
+            if (b == '\n' && matchPlus && matchCR && matchLF) {
+                matchPlus = false;
+                matchCR = false;
+                matchLF = false;
+                continuation.doContinue();
+            } else if (b == '\n') {
+                matchLF = true;
+                matchPlus = false;
+                matchCR = false;
+            } else if (b == '+' && matchLF) {
+                matchPlus = true;
+                matchCR = false;
+            } else if (b == '\r' && matchPlus && matchLF) {
+                matchCR = true;
+            } else {
+                matchPlus = false;
+                matchCR = false;
+                matchLF = false;
+            }
         }        
         
         public String nextLine() throws Exception {
@@ -307,7 +348,7 @@ public class ExperimentalHostSystem implements HostSystem, UsersRepository {
             byte last = 0;
             while (buffer.hasRemaining()) {
                 byte next = buffer.get();
-                if (last == '\r' && next == 'n') {
+                if (last == '\r' && next == '\n') {
                     break;
                 }
                 last = next;
@@ -373,5 +414,9 @@ public class ExperimentalHostSystem implements HostSystem, UsersRepository {
                 return false;
             return true;
         }
+    }
+    
+    public interface Resetable {
+        public void reset() throws Exception;
     }
 }

@@ -24,7 +24,7 @@ C: a002 LOGIN invaliduser
 S: a002 BAD Missing argument. Command should be '<tag> LOGIN <userid> <password>'
 
 C: a002a LOGIN imapuser password extra
-S: a002a BAD Expected end-of-line, found more characters. Command should be '<tag> LOGIN <userid> <password>'
+S: a002a BAD Expected end-of-line, found 'e'. Command should be '<tag> LOGIN <userid> <password>'
 
 C: a003 LOGIN invaliduser password
 S: a003 NO LOGIN failed
