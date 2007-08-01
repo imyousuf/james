@@ -21,6 +21,7 @@ package org.apache.james.container.spring.lifecycle;
 import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
+import org.apache.avalon.framework.container.ContainerUtil;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.core.Ordered;
@@ -41,12 +42,10 @@ public class ContextPropagator extends AbstractPropagator implements BeanPostPro
     }
 
     protected void invokeLifecycleWorker(String beanName, Object bean, BeanDefinition beanDefinition) {
-        if (!(bean instanceof Contextualizable)) return;
-        Contextualizable contextualizable = (Contextualizable) bean;
         try {
-            contextualizable.contextualize(context);
+            ContainerUtil.contextualize(bean, context);
         } catch (ContextException e) {
-            throw new RuntimeException("could not successfully run contextualize method on component of type " + contextualizable.getClass(), e);
+            throw new RuntimeException("could not successfully run contextualize method on component of type " + bean.getClass(), e);
         }
     }
 

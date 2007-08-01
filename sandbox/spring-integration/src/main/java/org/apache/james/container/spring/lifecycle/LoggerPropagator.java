@@ -19,6 +19,7 @@
 package org.apache.james.container.spring.lifecycle;
 
 import org.apache.avalon.framework.logger.LogEnabled;
+import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.container.spring.adaptor.LoggingBridge;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -36,9 +37,7 @@ public class LoggerPropagator extends AbstractPropagator implements BeanPostProc
     }
 
     protected void invokeLifecycleWorker(String beanName, Object bean, BeanDefinition beanDefinition) {
-        if (!(bean instanceof LogEnabled)) return;
-        LogEnabled logEnabled = (LogEnabled) bean;
-        logEnabled.enableLogging(loggingBridge);
+        ContainerUtil.enableLogging(bean, loggingBridge);
     }
 
     public int getOrder() {

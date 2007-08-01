@@ -19,6 +19,7 @@
 package org.apache.james.container.spring.lifecycle;
 
 import org.apache.avalon.framework.activity.Initializable;
+import org.apache.avalon.framework.container.ContainerUtil;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.core.Ordered;
@@ -33,12 +34,10 @@ public class InitializationPropagator extends AbstractPropagator implements Bean
     }
 
     protected void invokeLifecycleWorker(String beanName, Object bean, BeanDefinition beanDefinition) {
-        if (!(bean instanceof Initializable)) return;
-        Initializable initializable = (Initializable) bean;
         try {
-            initializable.initialize();
+            ContainerUtil.initialize(bean);
         } catch (Exception e) {
-            throw new RuntimeException("could not initialize component of type " + initializable.getClass(), e);
+            throw new RuntimeException("could not initialize component of type " + bean.getClass(), e);
         }
     }
 
