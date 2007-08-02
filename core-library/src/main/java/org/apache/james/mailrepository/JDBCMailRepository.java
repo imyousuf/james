@@ -667,6 +667,7 @@ public class JDBCMailRepository
             conn.commit();
             conn.setAutoCommit(true);
         } catch (SQLException e) {
+            getLogger().debug("Failed to store internal mail", e);
             throw new IOException(e.getMessage());
         } finally {
             theJDBCUtil.closeJDBCConnection(conn);
@@ -811,9 +812,10 @@ public class JDBCMailRepository
                                         .append(sqle.getSQLState())
                                         .append(sqle.getNextException());
             getLogger().error(errorBuffer.toString());
-            throw new MessagingException("Exception while retrieving mail: " + sqle.getMessage());
+            getLogger().debug("Failed to retrieve mail", sqle);
+            throw new MessagingException("Exception while retrieving mail: " + sqle.getMessage(), sqle);
         } catch (Exception me) {
-            throw new MessagingException("Exception while retrieving mail: " + me.getMessage());
+            throw new MessagingException("Exception while retrieving mail: " + me.getMessage(), me);
         } finally {
             theJDBCUtil.closeJDBCResultSet(rsMessage);
             theJDBCUtil.closeJDBCStatement(retrieveMessage);
@@ -839,7 +841,7 @@ public class JDBCMailRepository
                 sr.remove(key);
             }
         } catch (Exception me) {
-            throw new MessagingException("Exception while removing mail: " + me.getMessage());
+            throw new MessagingException("Exception while removing mail: " + me.getMessage(), me);
         } finally {
             theJDBCUtil.closeJDBCStatement(removeMessage);
             theJDBCUtil.closeJDBCConnection(conn);
@@ -867,7 +869,7 @@ public class JDBCMailRepository
             }
             return messageList.iterator();
         } catch (Exception me) {
-            throw new MessagingException("Exception while listing mail: " + me.getMessage());
+            throw new MessagingException("Exception while listing mail: " + me.getMessage(), me);
         } finally {
             theJDBCUtil.closeJDBCResultSet(rsListMessages);
             theJDBCUtil.closeJDBCStatement(listMessages);

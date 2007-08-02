@@ -235,7 +235,9 @@ public class AvalonMailRepository
                             .append(", so we're deleting it.");
                     remove(key);
                 }
-                getLogger().warn(exceptionBuffer.toString());
+                final String errorMessage = exceptionBuffer.toString();
+                getLogger().warn(errorMessage);
+                getLogger().debug(errorMessage, re);
                 return null;
             }
             MimeMessageAvalonSource source = new MimeMessageAvalonSource(streamRepository, destination, key);
@@ -244,7 +246,7 @@ public class AvalonMailRepository
             return mc;
         } catch (Exception me) {
             getLogger().error("Exception retrieving mail: " + me);
-            throw new MessagingException("Exception while retrieving mail: " + me.getMessage());
+            throw new MessagingException("Exception while retrieving mail: " + me.getMessage(), me);
         }
     }
 
