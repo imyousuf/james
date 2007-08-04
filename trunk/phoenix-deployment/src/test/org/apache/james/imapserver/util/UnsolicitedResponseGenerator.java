@@ -64,7 +64,7 @@ public class UnsolicitedResponseGenerator
     public void addFlags()
     {
         responseSet
-                .add("* FLAGS (\\Answered \\Deleted \\Draft \\Flagged \\Recent \\Seen)");
+                .add("* FLAGS (\\Answered \\Deleted \\Draft \\Flagged \\Seen)");
     }
 
     public void addUidValidity(long uidv)
@@ -84,7 +84,7 @@ public class UnsolicitedResponseGenerator
     public void addPermanentFlags()
     {
         responseSet
-                .add("* OK [PERMANENTFLAGS (\\Answered \\Deleted \\Draft \\Flagged \\Recent \\Seen)]");
+                .add("* OK [PERMANENTFLAGS (\\Answered \\Deleted \\Draft \\Flagged \\Seen)]");
     }
 
     public Set getResponseSet()
