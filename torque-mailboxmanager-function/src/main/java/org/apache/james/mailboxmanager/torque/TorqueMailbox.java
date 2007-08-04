@@ -68,8 +68,6 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
 
     private MailboxRow mailboxRow;
 
-    private Flags permanentFlags;
-
     private UidChangeTracker tracker;
 
     private MailboxEventDispatcher eventDispatcher = new MailboxEventDispatcher();
@@ -329,15 +327,12 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
 
 
     public synchronized Flags getPermanentFlags() {
-        if (permanentFlags == null) {
-            permanentFlags = new Flags();
-            permanentFlags.add(Flags.Flag.ANSWERED);
-            permanentFlags.add(Flags.Flag.DELETED);
-            permanentFlags.add(Flags.Flag.DRAFT);
-            permanentFlags.add(Flags.Flag.FLAGGED);
-            permanentFlags.add(Flags.Flag.RECENT);
-            permanentFlags.add(Flags.Flag.SEEN);
-        }
+        Flags permanentFlags = new Flags();
+        permanentFlags.add(Flags.Flag.ANSWERED);
+        permanentFlags.add(Flags.Flag.DELETED);
+        permanentFlags.add(Flags.Flag.DRAFT);
+        permanentFlags.add(Flags.Flag.FLAGGED);
+        permanentFlags.add(Flags.Flag.SEEN);
         return permanentFlags;
     }
 

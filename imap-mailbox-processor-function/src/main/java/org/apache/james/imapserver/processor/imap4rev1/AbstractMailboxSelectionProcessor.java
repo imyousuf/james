@@ -57,6 +57,7 @@ abstract public class AbstractMailboxSelectionProcessor extends
             String fullMailboxName = buildFullName(session, mailboxName);
             selectMailbox(fullMailboxName, session, isExamine);
             ImapMailboxSession mailbox = ImapSessionUtils.getMailbox(session);
+            // TODO: compact this into a single API call for meta-data about the repository
             final Flags permanentFlags = mailbox.getPermanentFlags();
             final boolean writeable = mailbox.isWriteable();
             final boolean resetRecent = !isExamine;
