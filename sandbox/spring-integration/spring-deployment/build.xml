@@ -20,6 +20,9 @@
 -->
 <project name="spring_integration" default="all">
 
+    <property file="../include.properties"/>
+    <property file="../default.properties"/>
+    
     <!-- Compiler options -->
 
     <property name="compiler.debug" value="on"/>
@@ -56,13 +59,91 @@
         <!-- Paths to be included in compilation bootclasspath -->
     </path>
 
-    <path id="classpath">
-        <pathelement location="${basedir}/lib/activation-1.1.jar"/>
-        <pathelement location="${basedir}/lib/avalon-framework-api-4.3.jar"/>
-        <pathelement location="${basedir}/lib/avalon-framework-impl-4.3.jar"/>
+    <!-- from phoenix-deployment build.xml -->
+    <path id="project.class.path.reused.from.phoenix.build.xml">
+        <fileset dir="${lib.dir}">
+            <include name="${avalon-framework.jar}"/>
+            <include name="${avalon-framework-impl.jar}"/>
+            <include name="${dns.jar}"/>
+            <include name="${commons-collections.jar}"/>
+            <include name="${commons-dbcp.jar}"/>
+            <include name="${commons-pool.jar}"/>
+            <include name="${jakarta-oro.jar}"/>
+            <include name="${excalibur-pool-api.jar}"/>
+            <include name="${excalibur-pool-impl.jar}"/>
+            <include name="${excalibur-thread-api.jar}"/>
+            <include name="${excalibur-datasource.jar}"/>
+            <include name="${cornerstone-threads-api.jar}"/>
+            <include name="${cornerstone-connection-api.jar}"/>
+            <include name="${cornerstone-connection-impl.jar}"/>
+            <include name="${cornerstone-store-api.jar}"/>
+            <include name="${cornerstone-scheduler-api.jar}"/>
+            <include name="${cornerstone-sockets-api.jar}"/>
+            <include name="${cornerstone-datasources-api.jar}"/>
+            <include name="${javax-mail.jar}"/>
+            <include name="${javax-activation.jar}"/>
+            <include name="${bcmail.jar}"/>
+            <include name="${bcmail-workaround.jar}"/>
+            <include name="${javax.management}"/>
+            <include name="${jspf.jar}"/>
+            <include name="${mstor.jar}"/>
+            <include name="${commons-logging.jar}"/>
+            <include name="${jdom.jar}"/>
+            <include name="${xstream.jar}"/>
+
+            <include name="${torque.jar}"/>
+            <include name="${village.jar}"/>
+            <include name="${commons-lang.jar}"/>
+            <include name="${commons-configuration.jar}"/>
+
+            <include name="${jsieve.jar}"/>
+			<include name="${mailet.jar}"/>
+            <include name="${commons-digester.jar}"/>
+            <!-- TODO: include libraries without wildcards -->
+            <include name="${path.lib.james}/${jars-prefix}*-api-${version}.jar"/>
+            <include name="${path.lib.james}/${jars-prefix}*-library-${version}.jar"/>
+            <include name="${path.lib.james}/${jars-prefix}*-function-${version}.jar"/>
+        </fileset>
+        <!--<pathelement path="${java.class.path}" />-->
+        <!--<pathelement path="${build.classes}" />-->
+    </path>
+
+    <path id="classpath.phoenix.implementations">
+        <fileset dir="${lib.dir}">
+            <include name="${cornerstone-threads-impl.jar}"/>
+            <include name="${cornerstone-connection-impl.jar}"/>
+            <!-- TODO MISSING FROM STAGE <include name="${cornerstone-store-impl.jar}"/>-->
+            <include name="${cornerstone-scheduler-impl.jar}"/>
+            <include name="${cornerstone-sockets-impl.jar}"/>
+            <include name="${cornerstone-datasources-impl.jar}"/>
+            <include name="${excalibur-thread-impl.jar}"/>
+        </fileset>
+    </path>
+    
+    <path id="classpath.phoenix.runtime">
         <pathelement location="${basedir}/lib/avalon-logkit-2.1.jar"/>
-        <pathelement location="${basedir}/lib/bcmail-jdk14-129-workaround.jar"/>
-        <pathelement location="${basedir}/lib/bcmail-jdk14-129.jar"/>
+        <pathelement location="${basedir}/lib/concurrent-1.3.4.jar"/>
+        <!-- TODO shouldn't cornerstone-store-impl.jar be available from stage dir? -->
+        <pathelement location="${basedir}/lib/cornerstone-store-impl-2.1.jar"/>
+        <pathelement location="${basedir}/lib/derby.jar"/>
+        <pathelement location="${basedir}/lib/excalibur-cli-1.0.jar"/>
+        <pathelement location="${basedir}/lib/excalibur-extension-1.0a.jar"/>
+        <pathelement location="${basedir}/lib/excalibur-instrument-api-2.1.jar"/>
+        <pathelement location="${basedir}/lib/excalibur-instrument-manager-1.0.jar"/>
+        <pathelement location="${basedir}/lib/excalibur-io-1.1.jar"/>
+        <pathelement location="${basedir}/lib/excalibur-logger-2.1.jar"/>
+        <pathelement location="${basedir}/lib/excalibur-monitor-2.1.jar"/>
+        <pathelement location="${basedir}/lib/phoenix-client.jar"/>
+        <pathelement location="${basedir}/lib/phoenix-engine.jar"/>
+        <pathelement location="${basedir}/lib/spice-classman-1.0.jar"/>
+        <pathelement location="${basedir}/lib/spice-configkit-1.1.2.jar"/>
+        <pathelement location="${basedir}/lib/spice-loggerstore-0.5.jar"/>
+        <pathelement location="${basedir}/lib/spice-salt-0.8.jar"/>
+        <pathelement location="${basedir}/lib/spice-xmlpolicy-1.0.jar"/>
+    </path>
+
+    <path id="classpath.spring">
+        <!-- TODO: remove from commons lists non-spring required libs --> 
         <pathelement location="${basedir}/lib/commons-attributes-api.jar"/>
         <pathelement location="${basedir}/lib/commons-attributes-compiler.jar"/>
         <pathelement location="${basedir}/lib/commons-beanutils.jar"/>
@@ -80,68 +161,18 @@
         <pathelement location="${basedir}/lib/commons-logging.jar"/>
         <pathelement location="${basedir}/lib/commons-pool-1.2.jar"/>
         <pathelement location="${basedir}/lib/commons-validator.jar"/>
-        <pathelement location="${basedir}/lib/concurrent-1.3.4.jar"/>
-        <pathelement location="${basedir}/lib/cornerstone-connection-api-2.1.jar"/>
-        <pathelement location="${basedir}/lib/cornerstone-connection-impl-2.1.jar"/>
-        <pathelement location="${basedir}/lib/cornerstone-datasources-api-2.1.jar"/>
-        <pathelement location="${basedir}/lib/cornerstone-datasources-impl-2.1-patched.jar"/>
-        <pathelement location="${basedir}/lib/cornerstone-scheduler-api-2.1.jar"/>
-        <pathelement location="${basedir}/lib/cornerstone-scheduler-impl-2.1.jar"/>
-        <pathelement location="${basedir}/lib/cornerstone-sockets-api-2.1.jar"/>
-        <pathelement location="${basedir}/lib/cornerstone-sockets-impl-2.1-patched.jar"/>
-        <pathelement location="${basedir}/lib/cornerstone-store-api-2.1.jar"/>
-        <pathelement location="${basedir}/lib/cornerstone-store-impl-2.1.jar"/>
-        <pathelement location="${basedir}/lib/cornerstone-threads-api-2.1.jar"/>
-        <pathelement location="${basedir}/lib/cornerstone-threads-impl-2.1.jar"/>
-        <pathelement location="${basedir}/lib/derby.jar"/>
-        <pathelement location="${basedir}/lib/dnsjava-2.0.3.jar"/>
-        <pathelement location="${basedir}/lib/excalibur-cli-1.0.jar"/>
-        <pathelement location="${basedir}/lib/excalibur-datasource-2.1.jar"/>
-        <pathelement location="${basedir}/lib/excalibur-extension-1.0a.jar"/>
-        <pathelement location="${basedir}/lib/excalibur-instrument-api-2.1.jar"/>
-        <pathelement location="${basedir}/lib/excalibur-instrument-manager-1.0.jar"/>
-        <pathelement location="${basedir}/lib/excalibur-io-1.1.jar"/>
-        <pathelement location="${basedir}/lib/excalibur-logger-2.1.jar"/>
-        <pathelement location="${basedir}/lib/excalibur-monitor-2.1.jar"/>
-        <pathelement location="${basedir}/lib/excalibur-pool-api-2.1.jar"/>
-        <pathelement location="${basedir}/lib/excalibur-pool-impl-2.1.jar"/>
-        <pathelement location="${basedir}/lib/excalibur-thread-api-2.1.jar"/>
-        <pathelement location="${basedir}/lib/excalibur-thread-impl-2.1.jar"/>
-        <pathelement location="${basedir}/lib/jakarta-oro-2.0.8.jar"/>
-        <pathelement location="${basedir}/lib/james-server-core-library-next-major.jar"/>
-        <pathelement location="${basedir}/lib/james-server-fetchmail-function-next-major.jar"/>
-        <pathelement location="${basedir}/lib/james-server-imap-api-next-major.jar"/>
-        <pathelement location="${basedir}/lib/james-server-imapmailbox-library-next-major.jar"/>
-        <pathelement location="${basedir}/lib/james-server-imapserver-function-next-major.jar"/>
-        <pathelement location="${basedir}/lib/james-server-mailet-api-next-major.jar"/>
-        <pathelement location="${basedir}/lib/james-server-mailet-library-next-major.jar"/>
-        <pathelement location="${basedir}/lib/james-server-mordred-library-next-major.jar"/>
-        <pathelement location="${basedir}/lib/james-server-next-major.jar"/>
-        <pathelement location="${basedir}/lib/james-server-nntpserver-function-next-major.jar"/>
-        <pathelement location="${basedir}/lib/james-server-pop3server-function-next-major.jar"/>
-        <pathelement location="${basedir}/lib/james-server-remotemanager-function-next-major.jar"/>
-        <pathelement location="${basedir}/lib/james-server-smtpserver-function-next-major.jar"/>
-        <pathelement location="${basedir}/lib/james-server-spoolmanager-function-next-major.jar"/>
-        <pathelement location="${basedir}/lib/james-server-torque-mailboxmanager-function-next-major.jar"/>
-        <pathelement location="${basedir}/lib/mail-1.4.jar"/>
-        <pathelement location="${basedir}/lib/mailet-2.3.jar"/>
-        <pathelement location="${basedir}/lib/mailet-api-2.3.jar"/>
-        <pathelement location="${basedir}/lib/mx4j-jmx.jar"/>
-        <pathelement location="${basedir}/lib/mx4j-tools.jar"/>
-        <pathelement location="${basedir}/lib/phoenix-client.jar"/>
-        <pathelement location="${basedir}/lib/phoenix-engine.jar"/>
-        <pathelement location="${basedir}/lib/spice-classman-1.0.jar"/>
-        <pathelement location="${basedir}/lib/spice-configkit-1.1.2.jar"/>
-        <pathelement location="${basedir}/lib/spice-loggerstore-0.5.jar"/>
-        <pathelement location="${basedir}/lib/spice-salt-0.8.jar"/>
-        <pathelement location="${basedir}/lib/spice-xmlpolicy-1.0.jar"/>
         <pathelement location="${basedir}/lib/spring.jar"/>
-        <pathelement location="${basedir}/lib/torque-3.3-RC1.jar"/>
-        <pathelement location="${basedir}/lib/xstream-1.2.jar"/>
+    </path>
+
+    <path id="classpath.unified.libs">
+        <path refid="classpath.phoenix.runtime" />
+        <path refid="classpath.phoenix.implementations" />
+        <path refid="project.class.path.reused.from.phoenix.build.xml" />
+        <path refid="classpath.spring" />
     </path>
 
     <path id="runclasspath">
-        <path refid="classpath" />
+        <path refid="classpath.unified.libs" />
         <pathelement location="${basedir}/src/main/config/"/>
     </path>
 
@@ -176,7 +207,7 @@
                memoryMaximumSize="${compiler.max.memory}" fork="true">
             <compilerarg line="${compiler.args}"/>
             <bootclasspath refid="bootclasspath"/>
-            <classpath refid="classpath"/>
+            <classpath refid="classpath.unified.libs"/>
             <src refid="sourcepath"/>
         </javac>
 
