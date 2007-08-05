@@ -35,8 +35,19 @@
         <property name="logWorker" ref="logWorker" />
     </bean>
 
+    <!-- 
+         maps the default standard ports for SMTP, POP3, IMAP, NNTP to non-privileged ports in the
+         9000's range
+    -->
+    <bean id="exampleConfigurationInterceptor" class="org.apache.james.container.spring.examples.configuration.UnprivilegedPortConfigurationInterceptor" />
+    
     <bean id="configurationProvider" class="org.apache.james.container.spring.adaptor.AvalonConfigurationFileProvider" >
         <property name="configurationPath" value="src/main/config/james-config.xml" />
+        <property name="configurationInterceptors">
+            <list>
+                <!--<ref bean="exampleConfigurationInterceptor" />-->
+            </list>
+        </property>
     </bean>
 
     <bean id="avalonContext" class="org.apache.james.container.spring.adaptor.AvalonContext" >

@@ -20,7 +20,11 @@ package org.apache.james.container.spring.adaptor;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.phoenix.tools.configuration.ConfigurationBuilder;
+import org.apache.james.container.spring.configuration.ConfigurationInterceptor;
 import org.xml.sax.InputSource;
+
+import java.util.List;
+import java.util.Iterator;
 
 /**
  * loads the well-known classic James configuration file
@@ -30,6 +34,8 @@ import org.xml.sax.InputSource;
 public class AvalonConfigurationFileProvider implements ConfigurationProvider {
 
     private String absoluteFilePath;
+    private List configurationInterceptors;
+    private Iterator interceptorsIterator;
 
     public void setConfigurationPath(String absoluteFilePath) {
         this.absoluteFilePath = absoluteFilePath;
@@ -38,10 +44,10 @@ public class AvalonConfigurationFileProvider implements ConfigurationProvider {
 
     public Configuration getConfiguration() {
         InputSource inputSource = new InputSource(absoluteFilePath);
+        Configuration configuration;
         try
         {
-            Configuration configuration = ConfigurationBuilder.build(inputSource, null, null);
-            return configuration;
+            configuration = ConfigurationBuilder.build(inputSource, null, null);
         }
         catch( final Exception e )
         {
@@ -49,5 +55,19 @@ public class AvalonConfigurationFileProvider implements ConfigurationProvider {
             throw new RuntimeException("failed loading configuration ", e);
         }
 
+        // apply all interceptors
+        if (configuration != null && configurationInterceptors != null) {
+            interceptorsIterator = configurationInterceptors.iterator();
+            while (interceptorsIterator.hasNext()) {
+                ConfigurationInterceptor configurationInterceptor = (ConfigurationInterceptor) interceptorsIterator.next();
+                configuration = configurationInterceptor.intercept(configuration);
+            }
+        }
+        
+        return configuration;
+    }
+
+    public void setConfigurationInterceptors(List configurationInterceptors) {
+        this.configurationInterceptors = configurationInterceptors;
     }
 }

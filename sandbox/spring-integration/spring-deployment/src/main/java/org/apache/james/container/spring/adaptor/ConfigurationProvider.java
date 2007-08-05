@@ -20,6 +20,8 @@ package org.apache.james.container.spring.adaptor;
 
 import org.apache.avalon.framework.configuration.Configuration;
 
+import java.util.List;
+
 /**
  * interface for providing a Avalon configuration to replace the default (legacy) mechanism implemented by
  * AvalonConfigurationFileProvider
@@ -27,5 +29,7 @@ import org.apache.avalon.framework.configuration.Configuration;
 public interface ConfigurationProvider {
 
     Configuration getConfiguration();
+
+    void setConfigurationInterceptors(List configurationInterceptors);
 
 }
