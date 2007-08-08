@@ -41,12 +41,12 @@ public class ExamineAndSelectResponseEncoder extends AbstractChainedImapEncoder 
         ExamineAndSelectResponse response = (ExamineAndSelectResponse) acceptableMessage;
         final Flags permanentFlags = response.getPermanentFlags();
         composer.flagsResponse(permanentFlags);
+        final int messageCount = response.getMessageCount();
+        composer.existsResponse(messageCount);
         final int recentCount = response.getRecentCount();
         composer.recentResponse(recentCount);
         final long uidValidity = response.getUidValidity();
         composer.okResponse("UIDVALIDITY " + uidValidity, null);
-        final int messageCount = response.getMessageCount();
-        composer.existsResponse(messageCount);
         final int msn = response.getFirstUnseenMessageNumber();
         if (msn > 0) {
             composer.okResponse("UNSEEN " + msn, "Message "
