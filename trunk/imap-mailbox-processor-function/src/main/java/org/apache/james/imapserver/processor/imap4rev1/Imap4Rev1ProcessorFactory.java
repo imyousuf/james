@@ -19,6 +19,7 @@
 
 package org.apache.james.imapserver.processor.imap4rev1;
 
+import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 import org.apache.james.services.UsersRepository;
@@ -30,7 +31,9 @@ public class Imap4Rev1ProcessorFactory {
 
     public static final ImapProcessor createDefaultChain(
             final ImapProcessor chainEndProcessor, final UsersRepository users,
-            final MailboxManagerProvider mailboxManagerProvider) {
+            final MailboxManagerProvider mailboxManagerProvider, 
+            final StatusResponseFactory statusResponseFactory) {
+        
         final LogoutProcessor logoutProcessor = new LogoutProcessor(
                 chainEndProcessor);
         final CapabilityProcessor capabilityProcessor = new CapabilityProcessor(
@@ -60,7 +63,7 @@ public class Imap4Rev1ProcessorFactory {
         final ExamineProcessor examineProcessor = new ExamineProcessor(
                 expungeProcessor, mailboxManagerProvider);
         final AppendProcessor appendProcessor = new AppendProcessor(
-                examineProcessor, mailboxManagerProvider);
+                examineProcessor, mailboxManagerProvider, statusResponseFactory);
         final StoreProcessor storeProcessor = new StoreProcessor(
                 appendProcessor);
         final NoopProcessor noopProcessor = new NoopProcessor(storeProcessor);

@@ -23,11 +23,15 @@ import java.util.Date;
 
 import javax.mail.internet.MimeMessage;
 
+import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.api.imap.ProtocolException;
+import org.apache.james.api.imap.display.HumanReadableTextKey;
 import org.apache.james.api.imap.message.request.ImapRequest;
 import org.apache.james.api.imap.message.response.ImapResponseMessage;
+import org.apache.james.api.imap.message.response.imap4rev1.StatusResponse;
+import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
 import org.apache.james.imap.message.request.imap4rev1.AppendRequest;
@@ -43,9 +47,12 @@ import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 
 public class AppendProcessor extends AbstractMailboxAwareProcessor {
 
+    final StatusResponseFactory statusResponseFactory;
+    
     public AppendProcessor(final ImapProcessor next,
-            final MailboxManagerProvider mailboxManagerProvider) {
+            final MailboxManagerProvider mailboxManagerProvider, final StatusResponseFactory statusResponseFactory) {
         super(next, mailboxManagerProvider);
+        this.statusResponseFactory = statusResponseFactory;
     }
 
     protected boolean isAcceptable(ImapMessage message) {
@@ -76,19 +83,38 @@ public class AppendProcessor extends AbstractMailboxAwareProcessor {
             MimeMessage message, Date datetime, ImapSession session,
             String tag, ImapCommand command) throws MailboxException,
             AuthorizationException, ProtocolException {
+        
+        ImapResponseMessage result;
         // TODO: Flags are ignore: check whether the specification says that
         // they should be processed
         ImapMailboxSession mailbox = null;
         try {
+            
             mailboxName = buildFullName(session, mailboxName);
             final MailboxManager mailboxManager = getMailboxManager(session);
             mailbox = mailboxManager.getImapMailboxSession(mailboxName);
+            result = appendToMailbox(message, datetime, session, tag, command, mailbox);
+            
         } catch (MailboxManagerException mme) {
-            MailboxException me = new MailboxException(mme);
-            me.setResponseCode("TRYCREATE");
-            throw me;
+            // Mailbox API does not provide facilities for diagnosing the problem
+            // assume that 
+            // TODO: improved API should communicate when this operation
+            // TODO: fails whether the mailbox exists
+            Logger logger = getLogger();
+            if (logger.isInfoEnabled()) {
+                logger.info(mme.getMessage());
+            }
+            if (logger.isDebugEnabled()) {
+                logger.debug("Cannot open mailbox: ", mme);
+            }
+            result = statusResponseFactory.taggedNo(tag, command, HumanReadableTextKey.FAILURE_NO_SUCH_MAILBOX, 
+                    StatusResponse.ResponseCode.TRYCREATE);
         }
 
+        return result;
+    }
+
+    private ImapResponseMessage appendToMailbox(MimeMessage message, Date datetime, ImapSession session, String tag, ImapCommand command, ImapMailboxSession mailbox) throws MailboxException {
         try {
             mailbox.appendMessage(message, datetime, 0);
         } catch (MailboxManagerException e) {
