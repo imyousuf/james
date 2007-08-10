@@ -345,7 +345,7 @@
 
         <delete dir="${build.javadocs}"/>
         <mkdir dir="${build.javadocs}"/>
-        <javadoc packagenames="org.apache.*" sourcepath="${java.dir}" destdir="${build.javadocs}">
+        <javadoc packagenames="org.apache.*" sourcepath="" destdir="${build.javadocs}">
             <classpath refid="project.class.path"/>
             <doclet name="com.sun.tools.doclets.standard.Standard">
                 <param name="-author"/>
@@ -367,6 +367,14 @@
                 <param name="-tag" value="phoenix\:mx\-attribute:X"/>
                 <param name="-tag" value="phoenix\:mx\-isWriteable:X"/>
             </doclet>
+            <sourcefiles>
+              <fileset dir='${java.dir}'>
+                <include name='**/*.java'/> 
+              </fileset>
+              <fileset dir='..'>
+                <include name='*/${dir.src.java}/**/*.java'/> 
+              </fileset>
+            </sourcefiles>
         </javadoc>
         
     </target>
