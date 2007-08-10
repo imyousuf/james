@@ -35,10 +35,6 @@ public class ExperimentalAuthenticatedStateTest extends AbstractAuthenticatedSta
         // Check whether this is correct behaviour
     }
     
-    public void testAppend() throws Exception {
-        // TODO: poor error message returned via exception - replace with better one
-    }
-    
     public void testExamineEmpty() throws Exception {
         // TODO: \recent flag is returned by FLAGS - specification seems ambiguous on this
     }
@@ -70,4 +66,6 @@ public class ExperimentalAuthenticatedStateTest extends AbstractAuthenticatedSta
     public void testListNamespace() throws Exception {
         // TODO: root mailbox should be marked as Noselect
     }
+    
+    
 }
