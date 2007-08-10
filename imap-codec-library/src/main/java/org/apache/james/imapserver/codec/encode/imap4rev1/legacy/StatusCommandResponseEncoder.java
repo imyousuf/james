@@ -30,9 +30,9 @@ import org.apache.james.imapserver.codec.encode.base.AbstractChainedImapEncoder;
 /**
  * @deprecated responses should correspond directly to the specification
  */
-public class StatusResponseEncoder extends AbstractChainedImapEncoder {
+public class StatusCommandResponseEncoder extends AbstractChainedImapEncoder {
     
-    public StatusResponseEncoder(ImapEncoder next) {
+    public StatusCommandResponseEncoder(ImapEncoder next) {
         super(next);
     }
 
