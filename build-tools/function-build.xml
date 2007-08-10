@@ -34,7 +34,8 @@ Template build for function modules
            </path>
            <path id='classpath.test'>
                <path refid='classpath.main'/>   
-               <path refid='classpath.base.test'/>   
+               <path refid='classpath.base.test'/> 
+               <path refid='classpath.test.dependencies.libraries'/> 
            </path>   
            <path id='classpath.test.runtime'>
                <path refid='classpath.test'/>   
