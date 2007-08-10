@@ -238,6 +238,33 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
                 <fileset dir="${lib.dir}/${path.lib.james}">
                     <include name="${jars-prefix}*-function-${version}.jar" />
                 </fileset>
+            </path> 
+            
+            <path 
+                id='classpath.test.dependencies.api'
+                description="Convenient way to import all API tests">
+                <!-- TODO Add content when APIs are broken out -->   
+                <fileset dir="${lib.dir}/${path.lib.james}">
+                    <include name="${jars-prefix}*-api-test-${version}.jar" />
+                </fileset>
+            </path>
+            <path 
+                id='classpath.test.dependencies.libraries'
+                description="Convenient way to import all library and API tests">
+                <!-- TODO Add content when libraries are broken out -->   
+                <path refid='classpath.test.dependencies.api'/>
+                <fileset dir="${lib.dir}/${path.lib.james}">
+                    <include name="${jars-prefix}*-library-test-${version}.jar" />
+                </fileset>
+            </path> 
+            <path 
+                id='classpath.test.dependencies.functions'
+                description="Convenient way to import all function, librarie and API tests">
+                <!-- TODO Add content when functions are broken out -->   
+                <path refid='classpath.test.dependencies.libraries'/>   
+                <fileset dir="${lib.dir}/${path.lib.james}">
+                    <include name="${jars-prefix}*-function-test-${version}.jar" />
+                </fileset>
             </path>   
         </sequential>   
     </macrodef>   
