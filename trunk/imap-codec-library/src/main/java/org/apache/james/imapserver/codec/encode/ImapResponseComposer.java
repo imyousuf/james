@@ -343,4 +343,23 @@ public class ImapResponseComposer extends AbstractLogEnabled implements
     public void tag(String tag) {
         writer.tag(tag);
     }
+    
+    public void statusResponse(String tag, ImapCommand command, String type, String responseCode, String text) {
+        if (tag == null) {
+            untagged();
+        } else {
+            tag(tag);
+        }
+        message(type);
+        if (responseCode != null) {
+            message(responseCode);
+        }
+        if (command != null) {
+            commandName(command);
+        }
+        if (text != null) {
+            message(text);
+        }
+        end();
+    }
 }

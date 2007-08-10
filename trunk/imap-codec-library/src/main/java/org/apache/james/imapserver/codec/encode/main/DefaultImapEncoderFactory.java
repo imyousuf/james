@@ -26,6 +26,7 @@ import org.apache.james.imapserver.codec.encode.imap4rev1.ExistsResponseEncoder;
 import org.apache.james.imapserver.codec.encode.imap4rev1.ExpungeResponseEncoder;
 import org.apache.james.imapserver.codec.encode.imap4rev1.FetchResponseEncoder;
 import org.apache.james.imapserver.codec.encode.imap4rev1.RecentResponseEncoder;
+import org.apache.james.imapserver.codec.encode.imap4rev1.StatusResponseEncoder;
 import org.apache.james.imapserver.codec.encode.imap4rev1.legacy.BadResponseEncoder;
 import org.apache.james.imapserver.codec.encode.imap4rev1.legacy.CapabilityResponseEncoder;
 import org.apache.james.imapserver.codec.encode.imap4rev1.legacy.CloseResponseEncoder;
@@ -37,7 +38,7 @@ import org.apache.james.imapserver.codec.encode.imap4rev1.legacy.LegacyFetchResp
 import org.apache.james.imapserver.codec.encode.imap4rev1.legacy.ListResponseEncoder;
 import org.apache.james.imapserver.codec.encode.imap4rev1.legacy.LogoutResponseEncoder;
 import org.apache.james.imapserver.codec.encode.imap4rev1.legacy.SearchResponseEncoder;
-import org.apache.james.imapserver.codec.encode.imap4rev1.legacy.StatusResponseEncoder;
+import org.apache.james.imapserver.codec.encode.imap4rev1.legacy.StatusCommandResponseEncoder;
 import org.apache.james.imapserver.codec.encode.imap4rev1.legacy.StoreResponseEncoder;
 import org.apache.james.imapserver.codec.encode.imap4rev1.status.UntaggedNoResponseEncoder;
 
@@ -48,14 +49,15 @@ public class DefaultImapEncoderFactory implements ImapEncoderFactory {
     
     public static final ImapEncoder createDefaultEncoder() {
         final EndImapEncoder endImapEncoder = new EndImapEncoder();
-        final UntaggedNoResponseEncoder untaggedNoResponseEncoder = new UntaggedNoResponseEncoder(endImapEncoder);
+        final StatusResponseEncoder statusResponseEncoder = new StatusResponseEncoder(endImapEncoder);
+        final UntaggedNoResponseEncoder untaggedNoResponseEncoder = new UntaggedNoResponseEncoder(statusResponseEncoder);
         final RecentResponseEncoder recentResponseEncoder = new RecentResponseEncoder(untaggedNoResponseEncoder);
         final FetchResponseEncoder fetchResponseEncoder = new FetchResponseEncoder(recentResponseEncoder);
         final ExpungeResponseEncoder expungeResponseEncoder = new ExpungeResponseEncoder(fetchResponseEncoder);
         final ExistsResponseEncoder existsResponseEncoder = new ExistsResponseEncoder(expungeResponseEncoder);
         final StoreResponseEncoder storeResponseEncoder = new StoreResponseEncoder(existsResponseEncoder);
-        final StatusResponseEncoder statusResponseEncoder = new StatusResponseEncoder(storeResponseEncoder);
-        final SearchResponseEncoder searchResponseEncoder = new SearchResponseEncoder(statusResponseEncoder);
+        final StatusCommandResponseEncoder statusCommandResponseEncoder = new StatusCommandResponseEncoder(storeResponseEncoder);
+        final SearchResponseEncoder searchResponseEncoder = new SearchResponseEncoder(statusCommandResponseEncoder);
         final LogoutResponseEncoder logoutResponseEncoder = new LogoutResponseEncoder(searchResponseEncoder);
         final ListResponseEncoder listResponseEncoder = new ListResponseEncoder(logoutResponseEncoder);
         final LegacyFetchResponseEncoder legacyFetchResponseEncoder = new LegacyFetchResponseEncoder(listResponseEncoder);
