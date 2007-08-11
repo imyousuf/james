@@ -104,6 +104,11 @@ public class MailboxRow extends
         int numberOfRecords = record.getValue(1).asInt();
         return numberOfRecords;
     }
-
-
+    
+    public void resetRecent() throws TorqueException {
+        String sql = "UPDATE " + MessageFlagsPeer.TABLE_NAME + " set "
+        + MessageFlagsPeer.RECENT + " = 0 WHERE " + 
+            MessageFlagsPeer.MAILBOX_ID + " = " + getMailboxId();
+        MessageFlagsPeer.executeStatement(sql);
+    }
 }

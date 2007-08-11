@@ -97,6 +97,11 @@ public class UidFlagSizeFetchSessionTest extends AbstractSessionTest {
         assertEquals(sc.getRecentCount(),5);
         verifyCommand(sc);
         
+        // Recent flag is reset by select
+        for (int i=0;i<msgs.length;i++) {
+            msgs[i].setFlag(Flag.RECENT, false);
+        }
+        
         FetchCommand fc=new FetchCommand(msgs,1,-1);
         fc.setUids(uids);
         fc.setFetchFlags(true);
