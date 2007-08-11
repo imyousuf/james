@@ -21,6 +21,8 @@ package org.apache.james.imapserver.processor.imap4rev1;
 
 import java.util.Date;
 
+import javax.mail.MessagingException;
+import javax.mail.Flags.Flag;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.avalon.framework.logger.Logger;
@@ -116,9 +118,12 @@ public class AppendProcessor extends AbstractMailboxAwareProcessor {
 
     private ImapResponseMessage appendToMailbox(MimeMessage message, Date datetime, ImapSession session, String tag, ImapCommand command, ImapMailboxSession mailbox) throws MailboxException {
         try {
+            message.setFlag(Flag.RECENT, true);
             mailbox.appendMessage(message, datetime, 0);
         } catch (MailboxManagerException e) {
             // TODO why not TRYCREATE?
+            throw new MailboxException(e);
+        } catch (MessagingException e) {
             throw new MailboxException(e);
         }
         final CommandCompleteResponse result = new CommandCompleteResponse(

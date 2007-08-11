@@ -26,10 +26,6 @@ public class ExperimentalAuthenticatedStateTest extends AbstractAuthenticatedSta
         super(HostSystemFactory.createStandardImap());
     }
     
-    public void testStatus() throws Exception {
-        // TODO: fix bug - recent flag not set
-    }
-    
     public void testSubscribe() throws Exception {
         // TODO: user is automatically subscribed to INBOX. 
         // Check whether this is correct behaviour

@@ -342,6 +342,9 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
         flags.add(Flags.Flag.RECENT);
         try {
             int count = getMailboxRow().countMessages(flags, true);
+            if (reset) {
+                getMailboxRow().resetRecent();
+            }
             return count;
         } catch (TorqueException e) {
             throw new MailboxManagerException(e);
