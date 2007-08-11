@@ -61,7 +61,7 @@ public class Imap4Rev1ProcessorFactory {
         final ExpungeProcessor expungeProcessor = new ExpungeProcessor(
                 authenticateProcessor, mailboxManagerProvider);
         final ExamineProcessor examineProcessor = new ExamineProcessor(
-                expungeProcessor, mailboxManagerProvider);
+                expungeProcessor, mailboxManagerProvider, statusResponseFactory);
         final AppendProcessor appendProcessor = new AppendProcessor(
                 examineProcessor, mailboxManagerProvider, statusResponseFactory);
         final StoreProcessor storeProcessor = new StoreProcessor(
@@ -76,7 +76,7 @@ public class Imap4Rev1ProcessorFactory {
         final SearchProcessor searchProcessor = new SearchProcessor(
                 listProcessor);
         final SelectProcessor selectProcessor = new SelectProcessor(
-                searchProcessor, mailboxManagerProvider);
+                searchProcessor, mailboxManagerProvider, statusResponseFactory);
         final ImapProcessor result = new FetchProcessor(selectProcessor);
         return result;
     }

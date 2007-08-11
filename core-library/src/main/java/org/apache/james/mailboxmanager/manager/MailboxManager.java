@@ -86,6 +86,13 @@ public interface MailboxManager {
     
     GeneralMailboxSession getGeneralMailboxSession(String mailboxName) throws MailboxManagerException;
     
+    /**
+     * Gets an session suitable for IMAP.
+     * @param mailboxName the name of the mailbox, not null
+     * @return <code>ImapMailboxSession</code>, not null
+     * @throws MailboxManagerException when the mailbox cannot be opened
+     * @throws MailboxNotFoundException when the given mailbox does not exist
+     */
     ImapMailboxSession getImapMailboxSession(String mailboxName) throws MailboxManagerException;
 
     void createMailbox(String mailboxName) throws MailboxManagerException;
