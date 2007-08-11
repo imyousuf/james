@@ -31,10 +31,6 @@ public class ExperimentalAuthenticatedStateTest extends AbstractAuthenticatedSta
         // Check whether this is correct behaviour
     }
     
-    public void testExamineEmpty() throws Exception {
-        // TODO: \recent flag is returned by FLAGS - specification seems ambiguous on this
-    }
-    
     public void testSelectEmpty() throws Exception {
 //      TODO: \recent flag is returned by FLAGS - specification seems ambiguous on this
     }

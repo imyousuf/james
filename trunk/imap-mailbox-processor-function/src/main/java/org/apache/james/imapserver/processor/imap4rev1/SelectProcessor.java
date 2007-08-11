@@ -24,6 +24,7 @@ import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.api.imap.message.request.ImapRequest;
 import org.apache.james.api.imap.message.response.ImapResponseMessage;
+import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
 import org.apache.james.imap.message.request.imap4rev1.SelectRequest;
@@ -34,8 +35,9 @@ import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 public class SelectProcessor extends AbstractMailboxSelectionProcessor {
 
     public SelectProcessor(final ImapProcessor next,
-            final MailboxManagerProvider mailboxManagerProvider) {
-        super(next, mailboxManagerProvider);
+            final MailboxManagerProvider mailboxManagerProvider,
+            final StatusResponseFactory statusResponseFactory) {
+        super(next, mailboxManagerProvider, statusResponseFactory);
     }
 
     protected boolean isAcceptable(ImapMessage message) {

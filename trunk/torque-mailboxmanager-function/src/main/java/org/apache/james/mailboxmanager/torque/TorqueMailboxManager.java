@@ -28,6 +28,7 @@ import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.ListResult;
 import org.apache.james.mailboxmanager.MailboxManagerException;
+import org.apache.james.mailboxmanager.MailboxNotFoundException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.ListResultImpl;
 import org.apache.james.mailboxmanager.mailbox.GeneralMailbox;
@@ -114,8 +115,7 @@ public class TorqueMailboxManager implements MailboxManager {
                 } else {
                     getLog().info("Mailbox '" + mailboxName + "' not found.");
                     getMailboxCache().notFound(mailboxName);
-                    throw new MailboxManagerException("Mailbox '" + mailboxName
-                            + "' not found.");
+                    throw new MailboxNotFoundException(mailboxName);
                 }
             }
         } catch (TorqueException e) {

@@ -23,7 +23,9 @@ import javax.mail.Flags;
 
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ProtocolException;
+import org.apache.james.api.imap.display.HumanReadableTextKey;
 import org.apache.james.api.imap.message.response.ImapResponseMessage;
+import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
 import org.apache.james.api.imap.process.SelectedImapMailbox;
@@ -34,6 +36,7 @@ import org.apache.james.imapserver.processor.base.ImapSessionUtils;
 import org.apache.james.imapserver.processor.base.SelectedMailboxSessionImpl;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
+import org.apache.james.mailboxmanager.MailboxNotFoundException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
@@ -42,9 +45,13 @@ import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 abstract public class AbstractMailboxSelectionProcessor extends
         AbstractMailboxAwareProcessor {
 
+    final StatusResponseFactory statusResponseFactory;
+    
     public AbstractMailboxSelectionProcessor(final ImapProcessor next,
-            final MailboxManagerProvider mailboxManagerProvider) {
+            final MailboxManagerProvider mailboxManagerProvider, 
+            final StatusResponseFactory statusResponseFactory) {
         super(next, mailboxManagerProvider);
+        this.statusResponseFactory = statusResponseFactory;
     }
 
     protected final ImapResponseMessage doProcess(String mailboxName,
@@ -57,26 +64,36 @@ abstract public class AbstractMailboxSelectionProcessor extends
             String fullMailboxName = buildFullName(session, mailboxName);
             selectMailbox(fullMailboxName, session, isExamine);
             ImapMailboxSession mailbox = ImapSessionUtils.getMailbox(session);
-            // TODO: compact this into a single API call for meta-data about the repository
-            final Flags permanentFlags = mailbox.getPermanentFlags();
-            final boolean writeable = mailbox.isWriteable();
-            final boolean resetRecent = !isExamine;
-            final int recentCount = mailbox.getRecentCount(resetRecent);
-            final long uidValidity = mailbox.getUidValidity();
-            final MessageResult firstUnseen = mailbox
-                    .getFirstUnseen(MessageResult.MSN);
-            final int messageCount = mailbox.getMessageCount();
-            final int msn;
-            if (firstUnseen == null) {
-                msn = -1;
-            } else {
-                msn = firstUnseen.getMsn();
-            }
-            result = new ExamineAndSelectResponse(command, permanentFlags,
-                    writeable, recentCount, uidValidity, msn, messageCount, tag);
+            result = process(isExamine, tag, command, mailbox);
+        } catch (MailboxNotFoundException e) {
+            result = statusResponseFactory.taggedNo(tag, command, 
+                    HumanReadableTextKey.FAILURE_NO_SUCH_MAILBOX);
         } catch (MailboxManagerException e) {
             throw new MailboxException(e);
         }
+        return result;
+    }
+
+    private ImapResponseMessage process(boolean isExamine, String tag, ImapCommand command, ImapMailboxSession mailbox) 
+                throws MailboxException, MailboxManagerException {
+        ImapResponseMessage result;
+        // TODO: compact this into a single API call for meta-data about the repository
+        final Flags permanentFlags = mailbox.getPermanentFlags();
+        final boolean writeable = mailbox.isWriteable() && !isExamine;
+        final boolean resetRecent = !isExamine;
+        final int recentCount = mailbox.getRecentCount(resetRecent);
+        final long uidValidity = mailbox.getUidValidity();
+        final MessageResult firstUnseen = mailbox
+        .getFirstUnseen(MessageResult.MSN);
+        final int messageCount = mailbox.getMessageCount();
+        final int msn;
+        if (firstUnseen == null) {
+            msn = -1;
+        } else {
+            msn = firstUnseen.getMsn();
+        }
+        result = new ExamineAndSelectResponse(command, permanentFlags,
+                writeable, recentCount, uidValidity, msn, messageCount, tag);
         return result;
     }
 
