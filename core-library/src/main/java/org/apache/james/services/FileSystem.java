@@ -21,6 +21,8 @@ package org.apache.james.services;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.IOException;
 
 /**
  * This service is used by components that wants to lookup a File resource
@@ -31,6 +33,17 @@ import java.io.FileNotFoundException;
 public interface FileSystem {
 
     String ROLE = "org.apache.james.services.FileSystem";
+
+    /**
+     * to retrieve a resource. this is typically a file resource,
+     * but depending on the implementation, this could also be from classpath or
+     * from another source. 
+     * 
+     * @param url the url of the resource
+     * @return the resource as an input stream
+     * @throws IOException if the resource could not be accessed
+     */
+    public InputStream getResource(String url) throws IOException;
 
     /**
      * Used to retrieve a specific file in the application context 

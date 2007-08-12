@@ -23,10 +23,17 @@ import org.apache.james.services.FileSystem;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.IOException;
+import java.io.FileInputStream;
 
 public class MockFileSystem implements FileSystem {
     public File getBasedir() throws FileNotFoundException {
         return new File(".");
+    }
+
+    public InputStream getResource(String url) throws IOException {
+        return new FileInputStream(getFile(url));
     }
 
     public File getFile(String fileURL) throws FileNotFoundException {
