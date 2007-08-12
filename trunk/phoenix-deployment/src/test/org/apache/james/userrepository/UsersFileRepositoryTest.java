@@ -34,6 +34,9 @@ import org.apache.mailet.MailAddress;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.IOException;
+import java.io.FileInputStream;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -55,6 +58,10 @@ public class UsersFileRepositoryTest extends MockUsersRepositoryTest {
 
             public File getBasedir() throws FileNotFoundException {
                 return new File(".");
+            }
+
+            public InputStream getResource(String url) throws IOException {
+                return new FileInputStream(getFile(url)); 
             }
 
             public File getFile(String fileURL) throws FileNotFoundException {

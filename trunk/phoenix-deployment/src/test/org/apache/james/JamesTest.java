@@ -41,6 +41,9 @@ import org.apache.james.userrepository.MockUsersRepository;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.IOException;
+import java.io.FileInputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -92,6 +95,10 @@ public class JamesTest extends MailServerTestAllImplementations {
 
             public File getBasedir() throws FileNotFoundException {
                 return new File(".");
+            }
+
+            public InputStream getResource(String url) throws IOException {
+                return new FileInputStream(getFile(url)); 
             }
 
             public File getFile(String fileURL) throws FileNotFoundException {

@@ -26,6 +26,9 @@ import org.apache.james.services.FileSystem;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.IOException;
+import java.io.FileInputStream;
 
 /**
  * Avalon implementation of the FileSystem service
@@ -38,6 +41,14 @@ public class AvalonFileSystem implements FileSystem, Contextualizable {
      * Avalon context used by this implementation
      */
     private Context context;
+
+    /**
+     * delegates to method getFile() and returns file as InputStream.
+     * @see org.apache.james.context.AvalonFileSystem#getFile(java.lang.String) 
+     */
+    public InputStream getResource(String url) throws IOException {
+        return new FileInputStream(getFile(url)); 
+    }
 
     /**
      * @see org.apache.james.services.FileSystem#getFile(java.lang.String)
