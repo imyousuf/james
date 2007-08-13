@@ -20,24 +20,47 @@ package org.apache.james.container.spring.adaptor;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.IOException;
+import java.io.FileInputStream;
 
 import org.apache.james.services.FileSystem;
 
 public class FileSystemBridge implements FileSystem {
+    private static final String FILE_PROTOCOL = "file://";
+    private static final String FILE_PROTOCOL_AND_CONF = "file://conf/";
 
-	public File getBasedir() throws FileNotFoundException {
+    public File getBasedir() throws FileNotFoundException {
 		return new File(".");
 	}
 
+    /**
+     * loads resources from classpath or file system 
+     */
+    public InputStream getResource(String url) throws IOException {
+    	if (url.startsWith("classpath:")) {
+    		String resourceName = url.substring("classpath:".length());
+			InputStream resourceAsStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(resourceName);
+    		if (resourceAsStream==null) {
+    			throw new IOException("Resource '" + resourceName + "' not found in the classpath!");
+    		}
+    		return resourceAsStream;
+    	}
+    	return new FileInputStream(getFile(url));
+    }
+
+    /**
+     * @see org.apache.james.services.FileSystem#getFile(String filURL) 
+     */
     public File getFile(String fileURL) throws FileNotFoundException {
-        if (fileURL.startsWith("file://")) {
-            if (fileURL.startsWith("file://conf/")) {
-                return new File("./src/trunk/config/"+fileURL.substring(12));
+        if (fileURL.startsWith(FILE_PROTOCOL)) {
+            if (fileURL.startsWith(FILE_PROTOCOL_AND_CONF)) {
+                return new File("./src/main/config/" + FILE_PROTOCOL_AND_CONF.substring(12));
             } else {
-            	return new File("./"+fileURL.substring(7));
+            	return new File("./" + FILE_PROTOCOL.substring(7));
             }
         } else {
-            throw new UnsupportedOperationException("getFile: "+fileURL);
+            throw new UnsupportedOperationException("getFile: " + fileURL);
         }
     }
 
