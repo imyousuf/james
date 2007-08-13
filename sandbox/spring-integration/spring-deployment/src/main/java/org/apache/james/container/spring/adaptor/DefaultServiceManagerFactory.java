@@ -38,6 +38,7 @@ import java.util.Iterator;
 public class DefaultServiceManagerFactory implements ApplicationContextAware, ServiceManagerFactory {
 
 	private ApplicationContext applicationContext;
+    private final Map replacements = new HashMap();
 
     private class ServiceManagerBridge implements ServiceManager {
 
@@ -59,11 +60,20 @@ public class DefaultServiceManagerFactory implements ApplicationContextAware, Se
                 try {
                     roleClass = Class.forName(rolename);
                 } catch (ClassNotFoundException e) {
-                    throw new RuntimeException("cannot load class for role " + roleClass, e);
+                    throw new RuntimeException("cannot load class for role " + rolename, e);
                 }
+
+                // if the service should be replaced by a bean, update the name here.
+                if (replacements.containsKey(name)) {
+                    name = (String)replacements.get(name);
+                }
+                
                 // the object to be injected (reduced to roleClass)
                 Object injectionCandidate = applicationContext.getBean(name);
-                if (!roleClass.isInstance(injectionCandidate)) throw new RuntimeException("cannot assign object as role as specified");
+                if (!roleClass.isInstance(injectionCandidate)) {
+                    
+                    throw new RuntimeException("cannot assign bean '" + name + "' as role '" + rolename + "'");
+                }
 
                 if (avalonServices.containsKey(rolename)) {
                     throw new IllegalStateException("avalon service references role name not unique: " + rolename);
@@ -103,5 +113,14 @@ public class DefaultServiceManagerFactory implements ApplicationContextAware, Se
         
         return new DefaultServiceManagerFactory.ServiceManagerBridge(avalonBeanDefinition.getServiceReferences());
 	}
-	
+
+    /**
+     * 
+     * @param replacements - Map<String, String>, the key indicating the service reference to be replaced, the value
+     * indicating the replacement bean
+     */
+    public void setReplacements(Map replacements) {
+        this.replacements.putAll(replacements);
+    }
+
 }

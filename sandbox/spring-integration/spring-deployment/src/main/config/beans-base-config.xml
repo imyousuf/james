@@ -27,7 +27,19 @@
          beans which replace Avalon specific container logic
     -->
 
-    <bean id="serviceManager" class="org.apache.james.container.spring.adaptor.DefaultServiceManagerFactory" />
+    <bean id="fileSystemOverride" class="org.apache.james.container.spring.adaptor.FileSystemBridge"/>
+         
+    <bean id="serviceManager" class="org.apache.james.container.spring.adaptor.DefaultServiceManagerFactory" >
+        <property name="replacements">
+            <!-- replacement map. 
+                 key must point to an avalon service from james-assembly.xml
+                 value must point to a bean
+            -->
+            <map>
+                <entry key="filesystem" value="fileSystemOverride" />
+            </map>
+        </property>
+    </bean>
 
     <bean name="logWorker" class="org.apache.james.container.spring.logging.SystemConsoleLogWorker" />
 

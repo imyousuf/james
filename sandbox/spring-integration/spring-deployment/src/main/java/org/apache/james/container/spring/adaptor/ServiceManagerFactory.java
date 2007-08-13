@@ -21,9 +21,15 @@ package org.apache.james.container.spring.adaptor;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.springframework.beans.factory.config.BeanDefinition;
 
+import java.util.Map;
+
 /**
  */
 public interface ServiceManagerFactory {
 
     ServiceManager getInstanceFor(String beanName, BeanDefinition beanDefinition);
+    
+    void setReplacements(Map replacements);
+    
+    
 }
