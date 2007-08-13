@@ -31,22 +31,22 @@ public class FileSystemBridge implements FileSystem {
     private static final String FILE_PROTOCOL_AND_CONF = "file://conf/";
 
     public File getBasedir() throws FileNotFoundException {
-		return new File(".");
-	}
+        return new File(".");
+    }
 
     /**
      * loads resources from classpath or file system 
      */
     public InputStream getResource(String url) throws IOException {
-    	if (url.startsWith("classpath:")) {
-    		String resourceName = url.substring("classpath:".length());
-			InputStream resourceAsStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(resourceName);
-    		if (resourceAsStream==null) {
-    			throw new IOException("Resource '" + resourceName + "' not found in the classpath!");
-    		}
-    		return resourceAsStream;
-    	}
-    	return new FileInputStream(getFile(url));
+        if (url.startsWith("classpath:")) {
+            String resourceName = url.substring("classpath:".length());
+            InputStream resourceAsStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(resourceName);
+            if (resourceAsStream==null) {
+                throw new IOException("Resource '" + resourceName + "' not found in the classpath!");
+            }
+            return resourceAsStream;
+        }
+        return new FileInputStream(getFile(url));
     }
 
     /**
@@ -54,11 +54,16 @@ public class FileSystemBridge implements FileSystem {
      */
     public File getFile(String fileURL) throws FileNotFoundException {
         if (fileURL.startsWith(FILE_PROTOCOL)) {
+            File file = null;
             if (fileURL.startsWith(FILE_PROTOCOL_AND_CONF)) {
-                return new File("./src/main/config/" + FILE_PROTOCOL_AND_CONF.substring(12));
+                file = new File("./src/main/config/" + fileURL.substring(FILE_PROTOCOL_AND_CONF.length()));
             } else {
-            	return new File("./" + FILE_PROTOCOL.substring(7));
+                file = new File("./" + fileURL.substring(FILE_PROTOCOL.length()));
             }
+            if (!file.exists()) {
+                throw new FileNotFoundException("cannot access file " + file.toString());
+            }
+            return file;
         } else {
             throw new UnsupportedOperationException("getFile: " + fileURL);
         }

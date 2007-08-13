@@ -115,7 +115,7 @@ public class DefaultServiceManagerFactory implements ApplicationContextAware, Se
 	}
 
     /**
-     * 
+     * for replacing services without changing vanilla Avalon james-assembly.xml
      * @param replacements - Map<String, String>, the key indicating the service reference to be replaced, the value
      * indicating the replacement bean
      */
