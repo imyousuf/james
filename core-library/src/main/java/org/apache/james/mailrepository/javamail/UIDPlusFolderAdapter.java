@@ -98,28 +98,28 @@ public class UIDPlusFolderAdapter extends FolderAdapter implements UIDPlusFolder
     /**
      * @see javax.mail.UIDFolder#getMessageByUID(long)
      */
-    public Message getMessageByUID(long arg0) throws MessagingException {
-        return ((UIDFolder)folder).getMessageByUID(arg0);
+    public Message getMessageByUID(long uid) throws MessagingException {
+        return ((UIDFolder)folder).getMessageByUID(uid);
     }
 
     /**
      * @see javax.mail.UIDFolder#getMessagesByUID(long, long)
      */
-    public Message[] getMessagesByUID(long arg0, long arg1) throws MessagingException {
-        return ((UIDFolder)folder).getMessagesByUID(arg0, arg1);
+    public Message[] getMessagesByUID(long start, long end) throws MessagingException {
+        return ((UIDFolder)folder).getMessagesByUID(start, end);
     }
 
     /**
      * @see javax.mail.UIDFolder#getMessagesByUID(long[])
      */
-    public Message[] getMessagesByUID(long[] arg0) throws MessagingException {
-        return ((UIDFolder)folder).getMessagesByUID(arg0);
+    public Message[] getMessagesByUID(long[] uids) throws MessagingException {
+        return ((UIDFolder)folder).getMessagesByUID(uids);
     }
 
     /**
      * @see javax.mail.UIDFolder#getUID(javax.mail.Message)
      */
-    public long getUID(Message arg0) throws MessagingException {
-        return ((UIDFolder)folder).getUID(arg0);
+    public long getUID(Message message) throws MessagingException {
+        return ((UIDFolder)folder).getUID(message);
     }
 }

@@ -53,71 +53,71 @@ public class FolderAdapter implements FolderInterface {
     /**
      * @see javax.mail.Folder#addConnectionListener(ConnectionListener)
      */
-    public void addConnectionListener(ConnectionListener arg0) {
-        folder.addConnectionListener(arg0);
+    public void addConnectionListener(ConnectionListener l) {
+        folder.addConnectionListener(l);
     }
 
     /**
      * @see javax.mail.Folder#addFolderListener(FolderListener)
      */
-    public void addFolderListener(FolderListener arg0) {
-        folder.addFolderListener(arg0);
+    public void addFolderListener(FolderListener l) {
+        folder.addFolderListener(l);
     }
 
     /**
      * @see javax.mail.Folder#addMessageChangedListener(MessageChangedListener)
      */
-    public void addMessageChangedListener(MessageChangedListener arg0) {
-        folder.addMessageChangedListener(arg0);
+    public void addMessageChangedListener(MessageChangedListener l) {
+        folder.addMessageChangedListener(l);
     }
 
     /**
      * @see javax.mail.Folder#addMessageCountListener(MessageCountListener)
      */
-    public void addMessageCountListener(MessageCountListener arg0) {
-        folder.addMessageCountListener(arg0);
+    public void addMessageCountListener(MessageCountListener l) {
+        folder.addMessageCountListener(l);
     }
 
     /**
      * @see org.apache.james.mailrepository.javamail.FolderInterface#appendMessages(javax.mail.Message[])
      */
-    public void appendMessages(Message[] arg0) throws MessagingException {
-        folder.appendMessages(arg0);
+    public void appendMessages(Message[] msgs) throws MessagingException {
+        folder.appendMessages(msgs);
     }
 
     /**
      * @see org.apache.james.mailrepository.javamail.FolderInterface#close(boolean)
      */
-    public void close(boolean arg0) throws MessagingException {
-        folder.close(arg0);
+    public void close(boolean expunge) throws MessagingException {
+        folder.close(expunge);
     }
 
     /**
      * @see javax.mail.Folder#copyMessages(Message[], Folder)
      */
-    public void copyMessages(Message[] arg0, Folder arg1) throws MessagingException {
-        folder.copyMessages(arg0, arg1);
+    public void copyMessages(Message[] msgs, Folder folder) throws MessagingException {
+        this.folder.copyMessages(msgs, folder);
     }
 
     /**
      * @see org.apache.james.mailrepository.javamail.FolderInterface#create(int)
      */
-    public boolean create(int arg0) throws MessagingException {
-        return folder.create(arg0);
+    public boolean create(int type) throws MessagingException {
+        return folder.create(type);
     }
 
     /**
      * @see org.apache.james.mailrepository.javamail.FolderInterface#delete(boolean)
      */
-    public boolean delete(boolean arg0) throws MessagingException {
-        return folder.delete(arg0);
+    public boolean delete(boolean recurse) throws MessagingException {
+        return folder.delete(recurse);
     }
 
     /**
      * @see javax.mail.Folder#equals(Object)
      */
-    public boolean equals(Object arg0) {
-        return folder.equals(arg0);
+    public boolean equals(Object obj) {
+        return folder.equals(obj);
     }
 
     /**
@@ -137,8 +137,8 @@ public class FolderAdapter implements FolderInterface {
     /**
      * @see javax.mail.Folder#fetch(Message[], FetchProfile)
      */
-    public void fetch(Message[] arg0, FetchProfile arg1) throws MessagingException {
-        folder.fetch(arg0, arg1);
+    public void fetch(Message[] msgs, FetchProfile fp) throws MessagingException {
+        folder.fetch(msgs, fp);
     }
 
     /**
@@ -151,15 +151,15 @@ public class FolderAdapter implements FolderInterface {
     /**
      * @see javax.mail.Folder#getFolder(String)
      */
-    public Folder getFolder(String arg0) throws MessagingException {
-        return folder.getFolder(arg0);
+    public Folder getFolder(String name) throws MessagingException {
+        return folder.getFolder(name);
     }
 
     /**
      * @see org.apache.james.mailrepository.javamail.FolderInterface#getFullName()
      */
     public String getFullName() {
-        // FIXME ugly workaroung for buggy getFullName in javamaildir
+        // FIXME ugly workaround for buggy getFullName in javamaildir
         String fn=folder.getFullName();
         if (fn.length()>1) {
             if (fn.charAt(0)=='.') {
@@ -172,8 +172,8 @@ public class FolderAdapter implements FolderInterface {
     /**
      * @see org.apache.james.mailrepository.javamail.FolderInterface#getMessage(int)
      */
-    public Message getMessage(int arg0) throws MessagingException {
-        return folder.getMessage(arg0);
+    public Message getMessage(int msgnum) throws MessagingException {
+        return folder.getMessage(msgnum);
     }
 
     /**
@@ -193,15 +193,15 @@ public class FolderAdapter implements FolderInterface {
     /**
      * @see javax.mail.Folder#getMessages(int, int)
      */
-    public Message[] getMessages(int arg0, int arg1) throws MessagingException {
-        return folder.getMessages(arg0, arg1);
+    public Message[] getMessages(int start, int end) throws MessagingException {
+        return folder.getMessages(start, end);
     }
 
     /**
      * @see javax.mail.Folder#getMessages(int[])
      */
-    public Message[] getMessages(int[] arg0) throws MessagingException {
-        return folder.getMessages(arg0);
+    public Message[] getMessages(int[] msgnums) throws MessagingException {
+        return folder.getMessages(msgnums);
     }
 
     /**
@@ -313,8 +313,8 @@ public class FolderAdapter implements FolderInterface {
     /**
      * @see org.apache.james.mailrepository.javamail.FolderInterface#list(java.lang.String)
      */
-    public FolderInterface[] list(String arg0) throws MessagingException {
-        return wrapFolders(folder.list(arg0));
+    public FolderInterface[] list(String pattern) throws MessagingException {
+        return wrapFolders(folder.list(pattern));
     }
 
     /**
@@ -327,92 +327,92 @@ public class FolderAdapter implements FolderInterface {
     /**
      * @see javax.mail.Folder#listSubscribed(String)
      */
-    public Folder[] listSubscribed(String arg0) throws MessagingException {
-        return folder.listSubscribed(arg0);
+    public Folder[] listSubscribed(String pattern) throws MessagingException {
+        return folder.listSubscribed(pattern);
     }
 
     /**
      * @see org.apache.james.mailrepository.javamail.FolderInterface#open(int)
      */
-    public void open(int arg0) throws MessagingException {
-        folder.open(arg0);
+    public void open(int mode) throws MessagingException {
+        folder.open(mode);
     }
 
     /**
      * @see javax.mail.Folder#removeConnectionListener(ConnectionListener)
      */
-    public void removeConnectionListener(ConnectionListener arg0) {
-        folder.removeConnectionListener(arg0);
+    public void removeConnectionListener(ConnectionListener l) {
+        folder.removeConnectionListener(l);
     }
     
     /**
      * @see javax.mail.Folder#removeFolderListener(FolderListener)
      */
-    public void removeFolderListener(FolderListener arg0) {
-        folder.removeFolderListener(arg0);
+    public void removeFolderListener(FolderListener l) {
+        folder.removeFolderListener(l);
     }
 
     /**
      * @see javax.mail.Folder#removeMessageChangedListener(MessageChangedListener)
      */
-    public void removeMessageChangedListener(MessageChangedListener arg0) {
-        folder.removeMessageChangedListener(arg0);
+    public void removeMessageChangedListener(MessageChangedListener l) {
+        folder.removeMessageChangedListener(l);
     }
 
     /**
      * @see javax.mail.Folder#removeMessageCountListener(MessageCountListener)
      */
-    public void removeMessageCountListener(MessageCountListener arg0) {
-        folder.removeMessageCountListener(arg0);
+    public void removeMessageCountListener(MessageCountListener l) {
+        folder.removeMessageCountListener(l);
     }
 
     /**
      * @see org.apache.james.mailrepository.javamail.FolderInterface#renameTo(javax.mail.Folder)
      */
-    public boolean renameTo(Folder arg0) throws MessagingException {
-        return folder.renameTo(arg0);
+    public boolean renameTo(Folder f) throws MessagingException {
+        return folder.renameTo(f);
     }
 
     /**
      * @see javax.mail.Folder#search(SearchTerm, Message[])
      */
-    public Message[] search(SearchTerm arg0, Message[] arg1) throws MessagingException {
-        return folder.search(arg0, arg1);
+    public Message[] search(SearchTerm term, Message[] msgs) throws MessagingException {
+        return folder.search(term, msgs);
     }
 
     /**
      * @see javax.mail.Folder#search(SearchTerm)
      */
-    public Message[] search(SearchTerm arg0) throws MessagingException {
-        return folder.search(arg0);
+    public Message[] search(SearchTerm term) throws MessagingException {
+        return folder.search(term);
     }
 
     /**
      * @see javax.mail.Folder#setFlags(int, int, Flags, boolean)
      */
-    public void setFlags(int arg0, int arg1, Flags arg2, boolean arg3) throws MessagingException {
-        folder.setFlags(arg0, arg1, arg2, arg3);
+    public void setFlags(int start, int end, Flags flag, boolean value) throws MessagingException {
+        folder.setFlags(start, end, flag, value);
     }
 
     /**
      * @see javax.mail.Folder#setFlags(int[], Flags, boolean)
      */
-    public void setFlags(int[] arg0, Flags arg1, boolean arg2) throws MessagingException {
-        folder.setFlags(arg0, arg1, arg2);
+    public void setFlags(int[] msgnums, Flags flag, boolean value) throws MessagingException {
+        folder.setFlags(msgnums, flag, value);
     }
 
     /**
      * @see javax.mail.Folder#setFlags(Message[], Flags, boolean)
      */
-    public void setFlags(Message[] arg0, Flags arg1, boolean arg2) throws MessagingException {
-        folder.setFlags(arg0, arg1, arg2);
+    public void setFlags(Message[] msgs, Flags flag, boolean value) throws MessagingException {
+        folder.setFlags(msgs, flag, value);
     }
 
     /**
      * @see javax.mail.Folder#setSubscribed(boolean)
      */
-    public void setSubscribed(boolean arg0) throws MessagingException {
-        folder.setSubscribed(arg0);
+    public void setSubscribed(boolean subscribe) throws MessagingException {
+        folder.setSubscribed(subscribe);
     }
 
     /**
