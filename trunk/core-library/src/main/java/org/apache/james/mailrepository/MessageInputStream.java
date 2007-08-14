@@ -224,8 +224,8 @@ final class MessageInputStream extends InputStream {
     /**
      * @see java.io.InputStream#mark(int)
      */
-    public synchronized void mark(int arg0) {
-        wrapped.mark(arg0);
+    public synchronized void mark(int readLimit) {
+        wrapped.mark(readLimit);
     }
 
     /**
@@ -238,21 +238,21 @@ final class MessageInputStream extends InputStream {
     /**
      * @see java.io.InputStream#read(byte[], int, int)
      */
-    public int read(byte[] arg0, int arg1, int arg2) throws IOException {
+    public int read(byte[] b, int off, int len) throws IOException {
         if (caughtException != null || wrapped == null) {
             throwException();
         }
-        return wrapped.read(arg0, arg1, arg2);
+        return wrapped.read(b, off, len);
     }
 
     /**
      * @see java.io.InputStream#read(byte[])
      */
-    public int read(byte[] arg0) throws IOException {
+    public int read(byte[] b) throws IOException {
         if (caughtException != null || wrapped == null) {
             throwException();
         }
-        return wrapped.read(arg0);
+        return wrapped.read(b);
     }
 
     /**
@@ -268,11 +268,11 @@ final class MessageInputStream extends InputStream {
     /**
      * @see java.io.InputStream#skip(long)
      */
-    public long skip(long arg0) throws IOException {
+    public long skip(long n) throws IOException {
         if (caughtException != null || wrapped == null) {
             throwException();
         }
-        return wrapped.skip(arg0);
+        return wrapped.skip(n);
     }
 
     /**
