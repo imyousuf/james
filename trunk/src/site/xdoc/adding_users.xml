@@ -42,7 +42,7 @@ the running system.  You are now ready to create user accounts.</p>
 </subsection>
 <p>Once James is up and listening, adding a user is simple:</p>
 1.  Telnet to the host and port on which the RemoteManager is listening.  For command-line telnet clients 
-this is generally done by typing "telnet &lt;host&gt; &lt;pass&gt;" where &lt;host&gt; is the James 
+this is generally done by typing "telnet &lt;host&gt; &lt;port&gt;" where &lt;host&gt; is the James 
 hostname and &lt;port&gt; is the RemoteManager port specified in the James config.xml.<br/><br/>
 2.  You will be prompted for your administrator userid and password.  Enter the values you specified 
 in the James config.xml.<br/><br/>
