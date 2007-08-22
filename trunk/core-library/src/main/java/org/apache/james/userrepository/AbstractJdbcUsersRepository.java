@@ -34,6 +34,7 @@ import org.apache.james.util.JDBCUtil;
 import org.apache.james.util.SqlResources;
 
 import java.io.File;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
@@ -387,10 +388,10 @@ public abstract class AbstractJdbcUsersRepository extends
         try {
             DatabaseMetaData dbMetaData = conn.getMetaData();
 
-            File sqlFile = null;
+            InputStream sqlFile = null;
 
             try {
-                sqlFile = fileSystem.getFile(m_sqlFileName);
+                sqlFile = fileSystem.getResource(m_sqlFileName);
             } catch (Exception e) {
                 getLogger().fatalError(e.getMessage(), e);
                 throw e;
@@ -398,8 +399,8 @@ public abstract class AbstractJdbcUsersRepository extends
 
             if (getLogger().isDebugEnabled()) {
                 logBuffer = new StringBuffer(256).append(
-                        "Reading SQL resources from file: ").append(
-                        sqlFile.getAbsolutePath()).append(", section ").append(
+                        "Reading SQL resources from: ").append(
+                        m_sqlFileName).append(", section ").append(
                         this.getClass().getName()).append(".");
                 getLogger().debug(logBuffer.toString());
             }

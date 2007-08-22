@@ -20,6 +20,7 @@
 package org.apache.james.smtpserver.core.filter.fastfail;
 
 import java.io.File;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
@@ -596,17 +597,17 @@ public class GreylistHandler extends AbstractLogEnabled implements
         throws Exception {
         try {
 
-            File sqlFile = null;
+            InputStream sqlFile = null;
     
             try {
-                sqlFile = fileSystem.getFile(sqlFileUrl);
+                sqlFile = fileSystem.getResource(sqlFileUrl);
                 sqlFileUrl = null;
             } catch (Exception e) {
                 getLogger().fatalError(e.getMessage(), e);
                 throw e;
             }
 
-            sqlQueries.init(sqlFile.getCanonicalFile(), "GreyList", conn, sqlParameters);
+            sqlQueries.init(sqlFile, "GreyList", conn, sqlParameters);
 
             selectQuery = sqlQueries.getSqlString("selectQuery", true);
             insertQuery = sqlQueries.getSqlString("insertQuery", true);

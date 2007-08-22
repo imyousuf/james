@@ -45,6 +45,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
 import java.sql.Blob;
@@ -305,10 +306,9 @@ public class JDBCMailRepository
         try {
             // Initialise the sql strings.
 
-            File sqlFile = null;
+            InputStream sqlFile = null;
             try {
-                sqlFile = fileSystem.getFile(sqlFileName);
-                sqlFileName = null;
+                sqlFile = fileSystem.getResource(sqlFileName);
             } catch (Exception e) {
                 getLogger().fatalError(e.getMessage(), e);
                 throw e;
@@ -318,7 +318,7 @@ public class JDBCMailRepository
                 logBuffer =
                     new StringBuffer(128)
                             .append("Reading SQL resources from file: ")
-                            .append(sqlFile.getAbsolutePath())
+                            .append(sqlFileName)
                             .append(", section ")
                             .append(this.getClass().getName())
                             .append(".");

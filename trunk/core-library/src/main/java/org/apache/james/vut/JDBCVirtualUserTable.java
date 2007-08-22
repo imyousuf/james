@@ -23,6 +23,7 @@
 package org.apache.james.vut;
 
 import java.io.File;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
@@ -175,10 +176,9 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
         try {
             // Initialise the sql strings.
 
-            File sqlFile = null;
+            InputStream sqlFile = null;
             try {
-                sqlFile = fileSystem.getFile(sqlFileName);
-                sqlFileName = null;
+                sqlFile = fileSystem.getResource(sqlFileName);
             } catch (Exception e) {
                 getLogger().fatalError(e.getMessage(), e);
                 throw e;
@@ -188,7 +188,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
                 logBuffer =
                     new StringBuffer(128)
                             .append("Reading SQL resources from file: ")
-                            .append(sqlFile.getAbsolutePath())
+                            .append(sqlFileName)
                             .append(", section ")
                             .append(this.getClass().getName())
                             .append(".");
