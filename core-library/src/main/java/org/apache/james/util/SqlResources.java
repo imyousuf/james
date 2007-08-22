@@ -31,6 +31,7 @@ import org.w3c.dom.NodeList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -94,7 +95,51 @@ public class SqlResources
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document sqlDoc = builder.parse(sqlFile);
 
-        // First process the database matcher, to determine the
+        init(sqlDoc, sqlDefsSection, conn, configParameters);
+    }
+    
+    /**
+     * Configures a DbResources object to provide SQL statements from an InputStream.
+     * 
+     * SQL statements returned may be specific to the particular type
+     * and version of the connected database, as well as the database driver.
+     * 
+     * Parameters encoded as $(parameter} in the input file are
+     * replace by values from the parameters Map, if the named parameter exists.
+     * Parameter values may also be specified in the resourceSection element.
+     * 
+     * @param sqlFile    the input stream containing the xml
+     * @param sqlDefsSection
+     *                   the xml element containing the strings to be used
+     * @param conn the Jdbc DatabaseMetaData, taken from a database connection
+     * @param configParameters a map of parameters (name-value string pairs) which are
+     *                   replaced where found in the input strings
+     */
+    public void init(InputStream input, String sqlDefsSection,
+                     Connection conn, Map configParameters)
+        throws Exception
+    {
+        // Parse the InputStream as an XML document.
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document sqlDoc = builder.parse(input);
+
+        init(sqlDoc, sqlDefsSection, conn, configParameters);
+    }
+    
+
+    /**
+     * Configures a SqlResources object from an xml document.
+     * 
+     * @param sqlDoc
+     * @param sqlDefsSection
+     * @param conn
+     * @param configParameters
+     * @throws SQLException
+     */
+	protected void init(Document sqlDoc, String sqlDefsSection,
+			Connection conn, Map configParameters) throws SQLException {
+		// First process the database matcher, to determine the
         //  sql statements to use.
         Element dbMatcherElement = 
             (Element)(sqlDoc.getElementsByTagName("dbMatchers").item(0));
@@ -223,7 +268,7 @@ public class SqlResources
         // Copy in default strings, then overwrite product-specific ones.
         m_sql.putAll(defaultSqlStatements);
         m_sql.putAll(dbProductSqlStatements);
-    }
+	}
 
     /**
      * Compares the DatabaseProductName value for a jdbc Connection

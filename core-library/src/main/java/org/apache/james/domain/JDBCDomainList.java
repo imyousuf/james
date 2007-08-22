@@ -22,6 +22,7 @@
 package org.apache.james.domain;
 
 import java.io.File;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
@@ -164,9 +165,9 @@ public class JDBCDomainList extends AbstractDomainList implements Serviceable,Co
         try {
             // Initialise the sql strings.
 
-            File sqlFile = null;
+            InputStream sqlFile = null;
             try {
-                sqlFile = fileSystem.getFile(sqlFileName);
+                sqlFile = fileSystem.getResource(sqlFileName);
                 sqlFileName = null;
             } catch (Exception e) {
                 getLogger().fatalError(e.getMessage(), e);
@@ -177,7 +178,7 @@ public class JDBCDomainList extends AbstractDomainList implements Serviceable,Co
                 logBuffer =
                     new StringBuffer(128)
                             .append("Reading SQL resources from file: ")
-                            .append(sqlFile.getAbsolutePath())
+                            .append(sqlFileName)
                             .append(", section ")
                             .append(this.getClass().getName())
                             .append(".");

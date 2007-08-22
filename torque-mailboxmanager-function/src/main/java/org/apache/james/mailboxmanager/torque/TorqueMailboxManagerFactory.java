@@ -98,7 +98,7 @@ public class TorqueMailboxManagerFactory implements MailboxManagerFactory,
                 conn = Transaction.begin(MailboxRowPeer.DATABASE_NAME);
                 SqlResources sqlResources = new SqlResources();
                 sqlResources.init(fileSystem
-                        .getFile("file://conf/mailboxManagerSqlResources.xml"),
+                        .getResource("file://conf/mailboxManagerSqlResources.xml"),
                         TorqueMailboxManagerFactory.class.getName(), conn,
                         new HashMap());
 
