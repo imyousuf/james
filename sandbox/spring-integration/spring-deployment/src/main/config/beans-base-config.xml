@@ -49,15 +49,29 @@
 
     <!-- 
          maps the default standard ports for SMTP, POP3, IMAP, NNTP to non-privileged ports in the
-         9000's range
+         9000's range (must be activated in "configurationProvider"-bean)
     -->
-    <bean id="exampleConfigurationInterceptor" class="org.apache.james.container.spring.examples.configuration.UnprivilegedPortConfigurationInterceptor" />
+    <bean id="privilegedPortsConfigurationInterceptor" class="org.apache.james.container.spring.examples.configuration.UnprivilegedPortConfigurationInterceptor" />
     
+    <!--
+         replaces strings in configuration values
+    -->
+    <bean id="stringRemapperConfigurationInterceptor" class="org.apache.james.container.spring.examples.configuration.StringRemapperConfigurationInterceptor">
+        <property name="mappings">
+            <map>
+                <!-- avoid having folders be generated outside the working directory -->
+                <entry key="../apps/" value="./var/"/>
+            </map>
+        </property>
+    </bean>
+
+
     <bean id="configurationProvider" class="org.apache.james.container.spring.adaptor.AvalonConfigurationFileProvider" >
         <property name="configurationPath" value="src/main/config/james-config.xml" />
         <property name="configurationInterceptors">
             <list>
-                <!--<ref bean="exampleConfigurationInterceptor" />-->
+                <ref bean="stringRemapperConfigurationInterceptor" />
+                <!--<ref bean="privilegedPortsConfigurationInterceptor" />-->
             </list>
         </property>
     </bean>
