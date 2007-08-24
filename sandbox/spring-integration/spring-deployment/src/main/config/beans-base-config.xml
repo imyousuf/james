@@ -81,10 +81,16 @@
     </bean>
 
     <!--
-         JMX part
+        **  JMX part **
+        
+        to enable exposure of JMX, activate the following beans
+        
+        NOTE: if you are running JDK < 1.5, you'd have to make a MBeanServer implementation available on the
+        classpath, for example mx4j
      -->
 
-    <!-- <bean id="exporter" class="org.springframework.jmx.export.MBeanExporter" >
+    <!--
+    <bean id="exporter" class="org.springframework.jmx.export.MBeanExporter" lazy-init="false" >
         <property name="autodetect" value="true" />
         <property name="namingStrategy" ref="namingStrategy" />
     </bean>
@@ -98,12 +104,30 @@
             <prop key="remotemanager" >bean:name=remotemanager</prop>
             <prop key="pop3server" >bean:name=pop3server</prop>
             <prop key="nntpserver" >bean:name=nntpserver</prop>
+            <prop key="virtualusertablemanagement" >bean:name=virtualusertablemanagement</prop>
+            <prop key="spoolmanagement" >bean:name=spoolmanagement</prop>
+            <prop key="domainlistmanagement" >bean:name=domainlistmanagement</prop>
+            <prop key="processormanagement" >bean:name=processormanagement</prop>
+            <prop key="bayesiananalyzermanagement" >bean:name=bayesiananalyzermanagement</prop>
+            <prop key="usermanagement" >bean:name=usermanagement</prop>
+            
+            <prop key="serverConnector" >bean:name=serverConnector</prop>
         </props></property>
     </bean>
-    -->
+    
 
     <bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean" />
 
+    <bean id="registry" class="org.springframework.remoting.rmi.RmiRegistryFactoryBean">
+        <property name="port" value="1099" />
+    </bean>
+    
+    <bean id="serverConnector" class="org.springframework.jmx.support.ConnectorServerFactoryBean" depends-on="registry">
+        <property name="objectName" value="connector:name=rmi" />
+        <property name="serviceUrl" value="service:jmx:rmi://localhost/jndi/rmi://localhost:1099/jamesmailserver" />    
+    </bean>
+    -->
+    
     <!--
          beans managing bootstrapping and component lifecycle
     -->
