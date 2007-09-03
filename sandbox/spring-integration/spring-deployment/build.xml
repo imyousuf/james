@@ -22,6 +22,11 @@
 
     <property file="../include.properties"/>
     <property file="../default.properties"/>
+
+    <property name="spring-deployment.target.dir" value="${basedir}/target" />
+    <property name="spring-deployment.target.bin.dir" value="${spring-deployment.target.dir}/bin" />
+    <property name="spring-deployment.target.lib.dir" value="${spring-deployment.target.dir}/lib" />
+    <property name="spring-deployment.target.jar" value="${spring-deployment.target.lib.dir}/${name}-spring-deployment-${version}.jar" />
     
     <!-- Compiler options -->
 
@@ -174,6 +179,7 @@
     <path id="runclasspath">
         <path refid="classpath.all.libs" />
         <pathelement location="${basedir}/src/main/config/"/>
+        <pathelement location="${spring-deployment.target.jar}"/>
     </path>
 
     <patternset id="excluded.from">
@@ -199,7 +205,7 @@
         <!-- Perform any build initialization in this target -->
     </target>
 
-    <target name="all" depends="init, clean, compile" description="build all"/>
+    <target name="all" depends="init, clean, compile, package-jar" description="build all"/>
 
     <target name="compile" description="compile .java">
         <mkdir dir="${output.dir}"/>
@@ -228,11 +234,49 @@
         </copy>
     </target>
 
-    <target name="run" depends="compile, copy-configuration">
+    <target name="package" depends="package-prepare, package-aquire-libs, package-jar, generate-run-executable" />
+        
+    <target name="package-prepare">
+        <mkdir dir="${spring-deployment.target.dir}"/>
+        <mkdir dir="${spring-deployment.target.lib.dir}"/>
+        <mkdir dir="${spring-deployment.target.bin.dir}"/>
+    </target>
+    
+    <target name="package-jar">
+        <jar jarfile="${spring-deployment.target.jar}" basedir="${output.dir}" >
+            <include name="org/apache/james/**/*.class"/>
+        </jar>
+    </target>
+    
+    <target name="package-aquire-libs" >
+        <copy todir="${spring-deployment.target.lib.dir}" flatten="true">
+            <fileset dir="${lib.dir}">
+                <include name="**/*.jar" />
+            </fileset>
+        </copy>
+    </target>
+    
+    <target name="run" depends="compile, copy-configuration, package">
         <java classname="org.apache.james.container.spring.Main"
-              classpath="${output.dir}"
               classpathref="runclasspath"
               fork="true" />
     </target>
 
+    <target name="generate-run-executable" >
+        <!-- 
+             WARNING: this target is currently producing specific output for
+             the system the build is run on.
+        -->
+        <property name="exe-classpath" refid="runclasspath" />
+        <property name="exe-stagedir" value="${lib.dir}" />
+        <echo>${exe-stagedir}</echo>
+        <mkdir dir="${spring-deployment.target.bin.dir}" />
+        <echo file="${spring-deployment.target.bin.dir}/run.sh" append="false">#! /bin/sh
+java -cp ${exe-classpath} org.apache.james.container.spring.Main             
+        </echo>
+        <replace file="${spring-deployment.target.bin.dir}/run.sh" token="${basedir}" value=".." />
+        <!-- TODO change the classpath elements coming from stage folder, from absolute into relative -->
+        <chmod file="${spring-deployment.target.bin.dir}/run.sh" perm="a+rx" />
+    </target>
+    
 </project>
