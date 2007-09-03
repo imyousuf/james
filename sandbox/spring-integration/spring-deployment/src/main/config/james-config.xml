@@ -1,4 +1,22 @@
 <?xml version="1.0"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one   
+  or more contributor license agreements.  See the NOTICE file 
+  distributed with this work for additional information        
+  regarding copyright ownership.  The ASF licenses this file   
+  to you under the Apache License, Version 2.0 (the            
+  "License"); you may not use this file except in compliance   
+  with the License.  You may obtain a copy of the License at   
+                                                               
+    http://www.apache.org/licenses/LICENSE-2.0                 
+                                                               
+  Unless required by applicable law or agreed to in writing,   
+  software distributed under the License is distributed on an  
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY       
+  KIND, either express or implied.  See the License for the    
+  specific language governing permissions and limitations      
+  under the License.                                           
+ -->
 <!DOCTYPE config [
 <!ENTITY listserverConfig SYSTEM "./james-listmanager.xml">
 <!ENTITY listserverStores SYSTEM "./james-liststores.xml">
@@ -22,7 +40,7 @@
 <!-- For production use you will probably need to make more extensive changes, see -->
 <!-- http://james.apache.org/server/2.3.0/ -->
 
-<!-- $Revision: 481870 $ Committed on $Date: 2006-12-03 19:59:18 +0000 (So, 03 Dez 2006) $ by: $Author: joachim $ -->
+<!-- $Revision: 559572 $ Committed on $Date: 2007-07-25 21:40:47 +0200 (Wed, 25 Jul 2007) $ by: $Author: rdonkin $ -->
 
 <config>
    <James>
@@ -102,6 +120,13 @@
       <!-- If not defaultdomain is set the first domain of the DomainList get used -->
       <defaultDomain> localhost </defaultDomain>
       
+      <!-- This is the name used by the server to identify itself in the RemoteManager -->
+      <!-- protocol.  If autodetect is TRUE, the server will discover its -->
+      <!-- own host name and use that in the protocol.  If discovery fails, -->
+      <!-- the value of 'localhost' is used.  If autodetect is FALSE, James -->
+      <!-- will use the specified value. -->
+      <!-- Set the default helloName which is used in all services if not overridden in the specific service-->
+      <helloName autodetect="true">myMailServer</helloName>
    </James>
 
     <!--
@@ -187,7 +212,7 @@
    <imapserver enabled="true">
       <!-- port 993 is the well-known/IANA registered port for IMAPs ie over SSL/TLS -->
       <!-- port 143 is the well-known/IANA registered port for Standard IMAP4 -->
-      <port>143</port>
+      <port>10143</port>
       <handler>
        <!-- RFC 3501 requires a minimum timeout of 30 minutes -->
        <connectiontimeout>1800000</connectiontimeout>         
@@ -474,13 +499,7 @@ Regards, Postmaster XXX.YYY
            <processor> spam </processor>
            <notice>550 Requested action not taken: rejected - see http://njabl.org/ </notice>
          </mailet>
-
-         <mailet match="InSpammerBlacklist=relays.ordb.org."
-                 class="ToProcessor">
-           <processor> spam </processor>
-           <notice>550 Requested action not taken: rejected - see http://www.ordb.org/ </notice>
-         </mailet>
-
+         
          <!-- Sample matching to kill a message (send to Null) -->
          <!--
          <mailet match="RecipientIs=badboy@badhost" class="Null"/>
@@ -580,8 +599,11 @@ Regards, Postmaster XXX.YYY
          </mailet>
          -->
 
+         <!-- Experimental quota Matcher -->
+         <!-- This matcher need to calculate the mailbox size everytime it is called. This can slow down things if there are many mails in -->
+         <!-- the mailbox. Some users also report big problems with the matcher if a JDBC based mailrepository is used. -->
          <!-- Check if over quota -->
-         <!--
+         <!-- 
          <mailet match="RecipientIsOverFixedQuota=20M" class="Resend">
             <sender>postmaster</sender>
             <replyTo>postmaster</replyTo>
@@ -689,6 +711,17 @@ Regards, Postmaster XXX.YYY
             <!--
             <gateway> otherserver.mydomain.com </gateway>
             <gatewayPort>25</gatewayPort>
+            -->
+            <!-- If the gateway requires smtp authentication the following directives -->
+            <!-- (gatewayUsername/gatewayPassword) can be used. -->
+            <!--
+            <gatewayUsername>login</gatewayUsername>
+            <gatewayPassword>pass</gatewayPassword>
+            -->
+            
+            <!-- Set the HELO/EHLO name to use when connectiong to remote SMTP-Server -->
+            <!--
+            <mail.smtp.localhost>myMailServer</mail.smtp.localhost>
             -->
          </mailet>
 
@@ -851,15 +884,17 @@ Regards, Postmaster XXX.YYY
       <servers>
          <!--Enter ip address of your DNS server, one IP address per server -->
          <!-- element. -->
-          <server>169.254.11.1</server>
+         <!--
+          <server>127.0.0.1</server>
+         -->
       </servers>
       <!-- Change autodiscover to false if you would like to turn off autodiscovery -->
       <!-- and set the DNS servers manually in the <servers> section -->
-      <autodiscover>false</autodiscover>
+      <autodiscover>true</autodiscover>
       <authoritative>false</authoritative>
 
       <!-- Maximum number of entries to maintain in the DNS cache -->
-      <maxcachesize>0</maxcachesize>
+      <maxcachesize>50000</maxcachesize>
       
       <!-- Uncomment this if you want James to try a single server for each -->
       <!-- multihomed mx host. -->
@@ -887,7 +922,7 @@ Regards, Postmaster XXX.YYY
       <!-- Warning: If you are using fetchmail it is important to include the -->
       <!-- fetched domains in the server name list to prevent looping.       -->
       <domainnames>
-         <domainname>127.0.0.1</domainname>
+         <domainname>localhost</domainname>
       </domainnames>
       <autodetect>true</autodetect>
       <autodetectIP>true</autodetectIP>
@@ -920,7 +955,9 @@ Regards, Postmaster XXX.YYY
          <!-- own host name and use that in the protocol.  If discovery fails, -->
          <!-- the value of 'localhost' is used.  If autodetect is FALSE, James -->
          <!-- will use the specified value. -->
-         <helloName autodetect="false">myMailServer</helloName>
+         <!--
+         <helloName autodetect="true">myMailServer</helloName>
+         -->
          <administrator_accounts>
 <!-- CHECKME! -->
             <!-- Change the default login/password. -->
@@ -957,7 +994,9 @@ Regards, Postmaster XXX.YYY
          <!-- own host name and use that in the protocol.  If discovery fails, -->
          <!-- the value of 'localhost' is used.  If autodetect is FALSE, James -->
          <!-- will use the specified value. -->
-         <helloName autodetect="false">myMailServer</helloName>
+         <!--
+         <helloName autodetect="true">myMailServer</helloName>
+         -->
          <connectiontimeout>120000</connectiontimeout>
       </handler>
    </pop3server>
@@ -986,7 +1025,9 @@ Regards, Postmaster XXX.YYY
          <!-- own host name and use that in the protocol.  If discovery fails, -->
          <!-- the value of 'localhost' is used.  If autodetect is FALSE, James -->
          <!-- will use the specified value. -->
-         <helloName autodetect="false">myMailServer</helloName>
+         <!--
+         <helloName autodetect="true">myMailServer</helloName>
+         -->
          <connectiontimeout>360000</connectiontimeout>
 
          <!--  Uncomment this if you want to require SMTP authentication.
@@ -1084,7 +1125,9 @@ Regards, Postmaster XXX.YYY
          <!-- own host name and use that in the protocol.  If discovery fails, -->
          <!-- the value of 'localhost' is used.  If autodetect is FALSE, James -->
          <!-- will use the specified value. -->
-         <helloName autodetect="false">myMailServer</helloName>
+         <!--
+         <helloName autodetect="true">myMailServer</helloName>
+         -->
          <connectiontimeout>120000</connectiontimeout>
           <!-- Set the authRequired value to true to enable authenticated NNTP -->
          <authRequired>false</authRequired>
@@ -1482,10 +1525,19 @@ Regards, Postmaster XXX.YYY
    
    <!-- The VirtualUserTable Store block -->
    <virtualusertable-store>
-   
+      <!-- Configure VirtualUserTable stores here. -->
+      <!-- -->
+      <!-- If set recursiveMapping false only the first mapping will get processed. -->
+      <!-- Default true. -->
+      <!-- By setting the mappingLimit you can specify how much mapping will get processed -->
+      <!-- before a bounce will send. This avoid infinity loops. Default 10.  -->
+      
       <!-- The DefaultVirtualUserTable  for storing James' VirtualUserTable mappings. -->
       <!--
       <table name="DefaultVirtualUserTable" class="org.apache.james.vut.XMLVirtualUserTable">
+         <recursiveMapping> true </recursiveMapping>
+         <mappingLimit> 10 </mappingLimit>
+         
          <mapping> some@domain=someuser </mapping>
       </table>
       -->
@@ -1499,6 +1551,8 @@ Regards, Postmaster XXX.YYY
       <!-- The DefaultVirtualUserTable  for storing James' VirtualUserTable mappings. -->
       <!-- TEMPORARY DEFAULT: db using Derby  -->
       <table name="DefaultVirtualUserTable" class="org.apache.james.vut.JDBCVirtualUserTable" destinationURL="db://maildb/VirtualUserTable">
+         <recursiveMapping> true </recursiveMapping>
+         <mappingLimit> 10 </mappingLimit>
          <sqlFile>file://conf/sqlResources.xml</sqlFile>
       </table>
    </virtualusertable-store>
@@ -1528,7 +1582,7 @@ Regards, Postmaster XXX.YYY
       <!-- -->
       <data-source name="maildb" class="org.apache.james.util.dbcp.JdbcDataSource">
          <driver>org.apache.derby.jdbc.EmbeddedDriver</driver>
-         <dburl>jdbc:derby:derbydb;create=true</dburl>
+         <dburl>jdbc:derby:../apps/james/var/derbydb;create=true</dburl>
          <user></user>
          <password></password>
          <poolPreparedStatements>true</poolPreparedStatements>

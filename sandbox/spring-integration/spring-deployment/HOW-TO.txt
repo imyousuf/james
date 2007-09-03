@@ -32,3 +32,25 @@ this will start all services at non-privileged ports.
 
 cd spring-integration/spring-deployment
 ant run
+
+A. Updating configuration files
+
+The configuration files are taken nearly unchanged from James module 'phoenix-depoyment'.
+To update spring-deployment to latest from phoenix-deployment, copy files
+  james-assembly.xml
+  james-config.xml
+  james-fetchmail.xml
+  james-listmanager.xml
+  james-liststores.xml
+  james-xmtphandlerchain.xml
+  mailboxManagerSqlResources.xml
+  miResources.xml
+  sqlResources.xml
+from 
+  trunk/phoenix-deployment/src/conf
+to 
+  spring-deployment/src/main/config/
+and change all four entity definitions at the top of file
+  james-config.xml
+from "../conf/" to "./"
+  
