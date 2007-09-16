@@ -226,4 +226,7 @@
    
    XSDLib, BSD License
      (see phoenix-deployment/phoenix-bin/tools/lib/xsdlib.LICENSE)
-   
+     
+   XStream, BSD License
+     (see stage/com.thoughtworks.xstream/jars/xstream.LICENSE)
+     
