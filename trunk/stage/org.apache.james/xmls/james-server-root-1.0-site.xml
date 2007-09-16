@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="ISO-8859-1"?><project name="James Server">
+  <bannerLeft>
+    <name>James Server</name>
+    <src>images/james-server-logo.gif</src>
+    <href>http://james.apache.org/server/</href>
+  </bannerLeft>
+  <bannerRight>
+    <name>The Apache Software Foundation</name>
+    <src>images/asf-logo-reduced.gif</src>
+    <href>http://www.apache.org/</href>
+  </bannerRight>
+  <body>
+    <menu name="James Server" inherit="top">
+      <item name="Overview" href="/index.html" />
+      <item name="Objectives" href="/design_objectives.html" />
+      <item name="James FAQ" href="/FAQ.html">
+        <item name="James and Sendmail" href="/james_and_sendmail.html" />
+      </item>
+      <item name="Wiki" href="http://wiki.apache.org/james" />
+      <item name="Useful RFCs" href="/rfclist.html" />
+    </menu>
+    <menu name="Documentation">
+      <item name="Server 2.3.1" href="/2.3.1/index.html" />
+      <item name="Server 2.3.0" href="/2.3.0/index.html" />
+      <item name="Server 2.2.0" href="/2.2.0/index.html" />
+      <item name="Archive" href="/archive/document_archive.html" />
+    </menu>
+    <menu name="Project" inherit="bottom">
+      <item name="Bug Database" href="http://issues.apache.org/jira/browse/JAMES" />
+      <item name="Source Code" href="http://svn.apache.org/viewvc/james/server/" />
+      <item name="TODO" href="/todo.html" />
+    </menu>
+  </body>
+</project>

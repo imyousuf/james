@@ -1,4 +1,23 @@
-<?xml version="1.0" encoding="ISO-8859-15"?><project>
+<?xml version="1.0" encoding="ISO-8859-15"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.    
+-->
+<project>
   <parent>
     <artifactId>james-server</artifactId>
     <groupId>org.apache.james</groupId>
@@ -35,82 +54,161 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>mailet</artifactId>
-      <version>3.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-library</artifactId>
-      <version>3.0-SNAPSHOT</version>
     </dependency>
 
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-smtpserver-function</artifactId>
-      <version>3.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-pop3server-function</artifactId>
-      <version>3.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-imapserver-function</artifactId>
-      <version>3.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-nntpserver-function</artifactId>
-      <version>3.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-fetchmail-function</artifactId>
-      <version>3.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-spoolmanager-function</artifactId>
-      <version>3.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-remotemanager-function</artifactId>
-      <version>3.0-SNAPSHOT</version>
     </dependency>
 
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-torque-mailboxmanager-function</artifactId>
-      <version>3.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-imap-mailbox-processor-function</artifactId>
-      <version>3.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-experimental-seda-imap-function</artifactId>
-      <version>3.0-SNAPSHOT</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>jspf</artifactId>
+    </dependency>
+
+    <dependency>
+    	<groupId>xml-apis</groupId>
+    	<artifactId>xml-apis</artifactId>
+    	<scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.avalon.framework</groupId>
+      <artifactId>avalon-framework-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.avalon.framework</groupId>
+      <artifactId>avalon-framework-impl</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>oro</groupId>
+      <artifactId>oro</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.avalon.cornerstone.threads</groupId>
+      <artifactId>cornerstone-threads-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.excalibur.components</groupId>
+      <artifactId>excalibur-thread-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.avalon.cornerstone.datasources</groupId>
+      <artifactId>cornerstone-datasources-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.avalon.cornerstone.sockets</groupId>
+      <artifactId>cornerstone-sockets-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.db.torque</groupId>
+      <artifactId>runtime</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.avalon.cornerstone.sockets</groupId>
+      <artifactId>cornerstone-sockets-impl</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.excalibur.components</groupId>
+      <artifactId>excalibur-thread-impl</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>javax.activation</groupId>
+      <artifactId>activation</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.avalon.cornerstone.datasources</groupId>
+      <artifactId>cornerstone-datasources-impl</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.excalibur.components</groupId>
+      <artifactId>excalibur-datasource</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-imapmailbox-library</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>dnsjava</groupId>
+      <artifactId>dnsjava</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>javax.mail</groupId>
+      <artifactId>mail</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.avalon.cornerstone.store</groupId>
+      <artifactId>cornerstone-store-api</artifactId>
     </dependency>
     
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>3.8.1</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>commons-net</groupId>
       <artifactId>commons-net</artifactId>
-      <version>1.4.1</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>jmock</groupId>
       <artifactId>jmock</artifactId>
-      <version>1.1.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-experimental-seda-imap-function</artifactId>
+      <type>test-jar</type>
       <scope>test</scope>
     </dependency>
   </dependencies>

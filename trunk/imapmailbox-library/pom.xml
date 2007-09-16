@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="ISO-8859-15"?><project>
+<?xml version="1.0" encoding="ISO-8859-15"?>
 <!--
   Licensed to the Apache Software Foundation (ASF) under one
   or more contributor license agreements.  See the NOTICE file
@@ -17,6 +17,7 @@
   specific language governing permissions and limitations
   under the License.    
 -->
+<project>
   <parent>
     <artifactId>james-server</artifactId>
     <groupId>org.apache.james</groupId>
@@ -27,28 +28,26 @@
   <artifactId>james-server-imapmailbox-library</artifactId>
   <name>Apache JAMES Server Imap Mailbox Library</name>
   <dependencies>
-    <!--
     <dependency>
       <groupId>javax.mail</groupId>
       <artifactId>mail</artifactId>
-      <version>1.4.1ea-SNAPSHOT</version>
     </dependency>
-    -->
+    <dependency>
+      <groupId>org.apache.avalon.framework</groupId>
+      <artifactId>avalon-framework-api</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>mailet</artifactId>
-      <version>3.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-library</artifactId>
-      <version>3.0-SNAPSHOT</version>
     </dependency>
     
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>3.8.1</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
