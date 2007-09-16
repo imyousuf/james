@@ -342,7 +342,7 @@
     <target name="javadocs">
 
         <echo message="Making James Javadocs"/>
-
+<!--
         <delete dir="${build.javadocs}"/>
         <mkdir dir="${build.javadocs}"/>
         <javadoc packagenames="org.apache.*" sourcepath="" destdir="${build.javadocs}">
@@ -376,7 +376,7 @@
               </fileset>
             </sourcefiles>
         </javadoc>
-        
+    -->    
     </target>
 
     <!--

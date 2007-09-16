@@ -183,12 +183,15 @@
    
    
    
-   Concurrent, Public Domain (see lib/concurrent.LICENSE)
+   Concurrent, Public Domain 
+     (see stage/concurrent/jars/concurrent.LICENSE)
    
-   BouncyCastle, MIT License (see lib/BouncyCastle.LICENSE)
+   BouncyCastle, MIT License 
+     (see stage/org.bouncycastle/jars/BouncyCastle.LICENSE)
      http://www.bouncycastle.org/licence.html
      
-   DnsJava, BSD License (see lib/dnsjava.LICENSE)
+   DnsJava, BSD License 
+     (see stage/dnsjava/jars/dnsjava.LICENSE)
      http://www.dnsjava.org/README 
      
    JavaBeans Activation Framework, CDDL License
@@ -197,22 +200,30 @@
    JavaMail, CDDL License
      http://glassfish.dev.java.net/public/CDDLv1.0.html
    
-   QDox, ASL 1.1 License (see tools/lib/qdox.LICENSE)
+   QDox, ASL 1.1 License
+     (see phoenix-deployment/tools/lib/qdox.LICENSE)
      http://qdox.codehaus.org/license.html
      
-   MX4J, ASL 1.1 License (see phoenix-bin/bin/lib/mx4j.LICENSE)
+   MX4J, ASL 1.1 License
+     (see phoenix-deployment/phoenix-bin/bin/lib/mx4j.LICENSE)
    
-   Spice, ASL 1.1 License (see phoenix-bin/bin/lib/spice.LICENSE)
+   Spice, ASL 1.1 License
+     (see phoenix-deployment/phoenix-bin/bin/lib/spice.LICENSE)
      http://spice.codehaus.org/license.html
      
-   Wrapper, MIT License (see phoenix-bin/bin/Wrapper.LICENSE)
+   Wrapper, MIT License
+     (see phoenix-deployment/phoenix-bin/bin/Wrapper.LICENSE)
      http://wrapper.tanukisoftware.org/doc/english/license.html
      
-   ISO-Relax, MIT License (see phoenix-bin/tools/lib/isorelax.LICENSE)
+   ISO-Relax, MIT License
+     (see phoenix-deployment/phoenix-bin/tools/lib/isorelax.LICENSE)
 
-   MSV, BSD License (see phoenix-bin/tools/lib/msv.LICENSE)
+   MSV, BSD License
+     (see phoenix-deployment/phoenix-bin/tools/lib/msv.LICENSE)
 
-   RelaxNG-Datatype, BSD License (see phoenix-bin/tools/lib/relaxngDatatype.LICENSE)
+   RelaxNG-Datatype, BSD License
+     (see phoenix-deployment/phoenix-bin/tools/lib/relaxngDatatype.LICENSE)
    
-   XSDLib, BSD License (see phoenix-bin/tools/lib/xsdlib.LICENSE)
+   XSDLib, BSD License
+     (see phoenix-deployment/phoenix-bin/tools/lib/xsdlib.LICENSE)
    

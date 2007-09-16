@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="ISO-8859-15"?><project>
+<?xml version="1.0" encoding="ISO-8859-15"?>
 <!--
   Licensed to the Apache Software Foundation (ASF) under one
   or more contributor license agreements.  See the NOTICE file
@@ -17,6 +17,7 @@
   specific language governing permissions and limitations
   under the License.    
 -->
+<project>
   <parent>
     <artifactId>james-server</artifactId>
     <groupId>org.apache.james</groupId>
@@ -28,70 +29,31 @@
   <name>Apache JAMES Server Mordred Data Source Library</name>
   <dependencies>
     <dependency>
+      <groupId>org.apache.avalon.framework</groupId>
+      <artifactId>avalon-framework-api</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.apache.avalon.cornerstone.datasources</groupId>
       <artifactId>cornerstone-datasources-api</artifactId>
-      <version>2.2.1</version>
+      <scope>runtime</scope>
     </dependency>
     <dependency>
-      <groupId>cornerstone-datasources</groupId>
+      <groupId>org.apache.avalon.cornerstone.datasources</groupId>
       <artifactId>cornerstone-datasources-api</artifactId>
-      <version>2.1</version>
+      <scope>runtime</scope>
     </dependency>
     <dependency>
-      <groupId>excalibur-datasource</groupId>
+      <groupId>org.apache.excalibur.components</groupId>
       <artifactId>excalibur-datasource</artifactId>
-      <version>2.1</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>excalibur-pool-instrumented</artifactId>
-          <groupId>excalibur-pool</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>excalibur-component</artifactId>
-          <groupId>excalibur-component</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>excalibur-testcase</artifactId>
-          <groupId>excalibur-component</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>excalibur-fortress</artifactId>
-          <groupId>excalibur-fortress</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>excalibur-fortress-container-api</artifactId>
-          <groupId>excalibur-fortress</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>excalibur-logger</artifactId>
-          <groupId>excalibur-logger</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>hsqldb</artifactId>
-          <groupId>hsqldb</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>excalibur-fortress-meta</artifactId>
-          <groupId>excalibur-fortress</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
-      <groupId>cornerstone-datasources</groupId>
+      <groupId>org.apache.avalon.cornerstone.datasources</groupId>
       <artifactId>cornerstone-datasources-impl</artifactId>
-      <version>2.1-patched</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>d-haven-managed-pool</artifactId>
-          <groupId>d-haven-managed-pool</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
     
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>3.8.1</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
