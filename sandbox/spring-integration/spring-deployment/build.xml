@@ -169,11 +169,18 @@
         </fileset>
     </path>
 
+    <path id="classpath.misc">
+        <fileset dir="${basedir}/lib/log4j">
+            <include name="log4j-1.2.15.jar"/>
+        </fileset>
+    </path>
+
     <path id="classpath.all.libs">
         <path refid="classpath.phoenix.runtime" />
         <path refid="classpath.phoenix.implementations" />
         <path refid="classpath.james.target" />
         <path refid="classpath.spring" />
+        <path refid="classpath.misc" />
     </path>
 
     <path id="runclasspath">

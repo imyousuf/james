@@ -18,9 +18,9 @@
  ****************************************************************/
 package org.apache.james.container.spring.lifecycle;
 
-import org.apache.avalon.framework.logger.LogEnabled;
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.james.container.spring.adaptor.LoggingBridge;
+import org.apache.avalon.framework.logger.LogEnabled;
+import org.apache.james.container.spring.logging.LoggerToComponentMapper;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.core.Ordered;
@@ -30,21 +30,21 @@ import org.springframework.core.Ordered;
  */
 public class LoggerPropagator extends AbstractPropagator implements BeanPostProcessor, Ordered {
 
-    private LoggingBridge loggingBridge;
+    private LoggerToComponentMapper loggerFactory;
 
     protected Class getLifecycleInterface() {
         return LogEnabled.class;
     }
 
     protected void invokeLifecycleWorker(String beanName, Object bean, BeanDefinition beanDefinition) {
-        ContainerUtil.enableLogging(bean, loggingBridge);
+        ContainerUtil.enableLogging(bean, loggerFactory.getComponentLogger("james." + beanName));
     }
 
     public int getOrder() {
         return 0;
     }
 
-    public void setLoggingBridge(LoggingBridge loggingBridge) {
-        this.loggingBridge = loggingBridge;
+    public void setLoggerFactory(LoggerToComponentMapper loggerFactory) {
+        this.loggerFactory = loggerFactory;
     }
 }

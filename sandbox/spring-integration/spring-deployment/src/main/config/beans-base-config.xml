@@ -41,11 +41,23 @@
         </property>
     </bean>
 
+    <!--
+        Logging to log4j
+    -->
+    <bean id="logger" class="org.apache.james.container.spring.logging.log4j.LoggerToComponentMapper" init-method="init">
+        <property name="configurationResource" value="log4j.properties"/>
+    </bean>
+    
+    <!--
+        Logging to System.out
+    -->
+    <!--
     <bean name="logWorker" class="org.apache.james.container.spring.logging.SystemConsoleLogWorker" />
 
     <bean name="logger, loggerMap" class="org.apache.james.container.spring.adaptor.LoggingBridge" >
         <property name="logWorker" ref="logWorker" />
     </bean>
+    -->
 
     <!-- 
          maps the default standard ports for SMTP, POP3, IMAP, NNTP to non-privileged ports in the
@@ -132,7 +144,7 @@
          beans managing bootstrapping and component lifecycle
     -->
     <bean id="loggerPropagator" class="org.apache.james.container.spring.lifecycle.LoggerPropagator" >
-        <property name="loggingBridge" ref="logger"/>
+        <property name="loggerFactory" ref="logger"/>
     </bean>
 
     <bean id="contextPropagator" class="org.apache.james.container.spring.lifecycle.ContextPropagator" >
