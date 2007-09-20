@@ -26,7 +26,8 @@ line
                 <!--<ref bean="exampleConfigurationInterceptor" />-->
 into 
                 <ref bean="exampleConfigurationInterceptor" />
-this will start all services at non-privileged ports.
+this will start all services at non-privileged ports. This is for testing only, as it makes your server instance
+more or less incompatible with the rest of the emailing universe.
 
 3. Building and Running
 
