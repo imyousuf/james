@@ -69,7 +69,7 @@ public class AvalonContextUtilities {
         }
         String internalFileURL = fileURL.trim();
         if (!(internalFileURL.startsWith(filePrefix))) {
-            throw new IllegalArgumentException("The fileURL argument to getFile doesn't start with the required file prefix - "  + filePrefix);
+            throw new IllegalArgumentException("file URL '" + fileURL + "' is missing required prefix '" + filePrefix + "'");
         }
 
         String fileName = fileURL.substring(filePrefixLength);

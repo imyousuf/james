@@ -130,10 +130,6 @@ public class JDBCDomainList extends AbstractDomainList implements Serviceable,Co
         }
     
         sqlFileName = arg0.getChild("sqlFile").getValue();
-        if (!sqlFileName.startsWith("file://")) {
-            throw new ConfigurationException
-                ("Malformed sqlFile - Must be of the format 'file://<filename>'.");
-        }
         
         Configuration autoConf = arg0.getChild("autodetect");
         if (autoConf != null) {
