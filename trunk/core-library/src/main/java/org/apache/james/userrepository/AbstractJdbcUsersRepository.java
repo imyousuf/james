@@ -336,10 +336,6 @@ public abstract class AbstractJdbcUsersRepository extends
 
         // Get the SQL file location
         m_sqlFileName = configuration.getChild("sqlFile", true).getValue();
-        if (!m_sqlFileName.startsWith("file://")) {
-            throw new ConfigurationException(
-                    "Malformed sqlFile - Must be of the format \"file://<filename>\".");
-        }
 
         // Get other sql parameters from the configuration object,
         // if any.

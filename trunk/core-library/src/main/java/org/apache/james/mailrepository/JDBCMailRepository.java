@@ -237,10 +237,6 @@ public class JDBCMailRepository
 
         String filestore = conf.getChild("filestore").getValue(null);
         sqlFileName = conf.getChild("sqlFile").getValue();
-        if (!sqlFileName.startsWith("file://")) {
-            throw new ConfigurationException
-                ("Malformed sqlFile - Must be of the format 'file://<filename>'.");
-        }
         try {
             if (filestore != null) {
                 //prepare Configurations for stream repositories
