@@ -18,10 +18,10 @@
   under the License.                                           
  -->
 <!DOCTYPE config [
-<!ENTITY listserverConfig SYSTEM "./james-listmanager.xml">
-<!ENTITY listserverStores SYSTEM "./james-liststores.xml">
-<!ENTITY fetchmailConfig SYSTEM "./james-fetchmail.xml">
-<!ENTITY smtphandlerchainConfig SYSTEM "./james-smtphandlerchain.xml">
+<!ENTITY listserverConfig SYSTEM "../conf/james-listmanager.xml">
+<!ENTITY listserverStores SYSTEM "../conf/james-liststores.xml">
+<!ENTITY fetchmailConfig SYSTEM "../conf/james-fetchmail.xml">
+<!ENTITY smtphandlerchainConfig SYSTEM "../conf/james-smtphandlerchain.xml">
 ]>
 
 <!--  Configuration file for the ASF James server -->

@@ -51,7 +51,3 @@ from
   trunk/phoenix-deployment/src/conf
 to 
   spring-deployment/src/main/config/
-and change all four entity definitions at the top of file
-  james-config.xml
-from "../conf/" to "./"
-  

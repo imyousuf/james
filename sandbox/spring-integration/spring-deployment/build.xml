@@ -26,7 +26,9 @@
     <property name="spring-deployment.target.dir" value="${basedir}/target" />
     <property name="spring-deployment.target.bin.dir" value="${spring-deployment.target.dir}/bin" />
     <property name="spring-deployment.target.lib.dir" value="${spring-deployment.target.dir}/lib" />
+    <property name="spring-deployment.target.config.dir" value="${spring-deployment.target.dir}/conf" />
     <property name="spring-deployment.target.jar" value="${spring-deployment.target.lib.dir}/${name}-spring-deployment-${version}.jar" />
+    <property name="spring-deployment.target.var.dir" value="${spring-deployment.target.dir}/bin/var"/>
     
     <!-- Compiler options -->
 
@@ -156,9 +158,9 @@
             <include name="commons-attributes-compiler.jar"/>
             <include name="commons-beanutils.jar"/>
             <include name="commons-codec.jar"/>
-            <include name="${basedir}/lib/commons-digester.jar"/>
+<!--            <include name="${basedir}/lib/commons-digester.jar"/>
             <include name="${basedir}/lib/commons-lang.jar"/>
-            <include name="${basedir}/lib/commons-logging.jar"/>
+            <include name="${basedir}/lib/commons-logging.jar"/>-->
             <include name="commons-discovery.jar"/>
             <include name="commons-fileupload.jar"/>
             <include name="commons-httpclient.jar"/>
@@ -206,6 +208,7 @@
 
     <target name="clean">
         <delete dir="${output.dir}"/>
+        <delete dir="${spring-deployment.target.dir}"/>
     </target>
 
     <target name="init" description="Build initialization">
@@ -241,12 +244,20 @@
         </copy>
     </target>
 
-    <target name="package" depends="package-prepare, package-aquire-libs, package-jar, generate-run-executable" />
-        
+    <target name="package" depends="package-prepare, package-aquire-libs, package-aquire-config-files, package-jar, generate-run-executable" />
+
     <target name="package-prepare">
         <mkdir dir="${spring-deployment.target.dir}"/>
         <mkdir dir="${spring-deployment.target.lib.dir}"/>
         <mkdir dir="${spring-deployment.target.bin.dir}"/>
+        <mkdir dir="${spring-deployment.target.config.dir}"/>
+        
+        <mkdir dir="${spring-deployment.target.var.dir}"/>
+        <mkdir dir="${spring-deployment.target.var.dir}/nntp"/>
+        <mkdir dir="${spring-deployment.target.var.dir}/nntp/groups"/>
+        <mkdir dir="${spring-deployment.target.var.dir}/nntp/articleid"/>
+        <mkdir dir="${spring-deployment.target.var.dir}/nntp/temp"/>
+        <mkdir dir="${spring-deployment.target.var.dir}/nntp/spool"/>
     </target>
     
     <target name="package-jar">
@@ -260,28 +271,42 @@
             <fileset dir="${lib.dir}">
                 <include name="**/*.jar" />
             </fileset>
+            <fileset dir="${basedir}/lib">
+                <include name="**/*.jar" />
+            </fileset>
+        </copy>
+    </target>
+    
+    <target name="package-aquire-config-files" >
+        <copy todir="${spring-deployment.target.config.dir}" flatten="true">
+            <fileset dir="${basedir}/src/main/config">
+                <include name="*.xml" />
+                <include name="*.properties" />
+            </fileset>
         </copy>
     </target>
     
     <target name="run" depends="compile, copy-configuration, package">
         <java classname="org.apache.james.container.spring.Main"
               classpathref="runclasspath"
+              dir="${spring-deployment.target.bin.dir}"
               fork="true" />
     </target>
 
     <target name="generate-run-executable" >
-        <!-- 
-             WARNING: this target is currently producing specific output for
-             the system the build is run on.
-        -->
-        <property name="exe-classpath" refid="runclasspath" />
-        <property name="exe-stagedir" value="${lib.dir}" />
-        <echo>${exe-stagedir}</echo>
+        <path id="targetlibs">
+            <fileset dir="${spring-deployment.target.lib.dir}">
+                <include name="*.jar" />
+            </fileset>
+        </path>
+        <property name="exe-classpath" refid="targetlibs" />
+
         <mkdir dir="${spring-deployment.target.bin.dir}" />
         <echo file="${spring-deployment.target.bin.dir}/run.sh" append="false">#! /bin/sh
-java -cp ${exe-classpath} org.apache.james.container.spring.Main             
+java -cp ${exe-classpath}:../conf org.apache.james.container.spring.Main             
         </echo>
-        <replace file="${spring-deployment.target.bin.dir}/run.sh" token="${basedir}" value=".." />
+
+        <replace file="${spring-deployment.target.bin.dir}/run.sh" token="${spring-deployment.target.lib.dir}" value="../lib" />
         <!-- TODO change the classpath elements coming from stage folder, from absolute into relative -->
         <chmod file="${spring-deployment.target.bin.dir}/run.sh" perm="a+rx" />
     </target>

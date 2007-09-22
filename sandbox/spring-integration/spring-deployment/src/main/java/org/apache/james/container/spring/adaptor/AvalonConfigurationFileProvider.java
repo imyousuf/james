@@ -21,29 +21,43 @@ package org.apache.james.container.spring.adaptor;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.phoenix.tools.configuration.ConfigurationBuilder;
 import org.apache.james.container.spring.configuration.ConfigurationInterceptor;
+import org.springframework.core.io.Resource;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ApplicationContext;
+import org.springframework.beans.BeansException;
 import org.xml.sax.InputSource;
 
-import java.util.List;
 import java.util.Iterator;
+import java.util.List;
+import java.io.InputStream;
+import java.io.IOException;
 
 /**
  * loads the well-known classic James configuration file
  *
   * TODO make this thing be based on Resource class and inject resource.getInputStream() into InputSource 
  */
-public class AvalonConfigurationFileProvider implements ConfigurationProvider {
+public class AvalonConfigurationFileProvider implements ConfigurationProvider, ApplicationContextAware {
 
     private String absoluteFilePath;
     private List configurationInterceptors;
-    private Iterator interceptorsIterator;
+    private ApplicationContext applicationContext;
+    private String configuration;
 
-    public void setConfigurationPath(String absoluteFilePath) {
-        this.absoluteFilePath = absoluteFilePath;
+    public void setConfigurationResource(String configuration) {
+        this.configuration = configuration;
     }
 
 
     public Configuration getConfiguration() {
-        InputSource inputSource = new InputSource(absoluteFilePath);
+        Resource resource = applicationContext.getResource(configuration);
+        InputStream inputStream;
+        try {
+            inputStream = applicationContext.getResource(configuration).getInputStream();
+        } catch (IOException e) {
+            throw new RuntimeException("could not locate configuration file " + configuration, e);
+        }
+        InputSource inputSource = new InputSource(inputStream);
         Configuration configuration;
         try
         {
@@ -57,7 +71,7 @@ public class AvalonConfigurationFileProvider implements ConfigurationProvider {
 
         // apply all interceptors
         if (configuration != null && configurationInterceptors != null) {
-            interceptorsIterator = configurationInterceptors.iterator();
+            Iterator interceptorsIterator = configurationInterceptors.iterator();
             while (interceptorsIterator.hasNext()) {
                 ConfigurationInterceptor configurationInterceptor = (ConfigurationInterceptor) interceptorsIterator.next();
                 configuration = configurationInterceptor.intercept(configuration);
@@ -69,5 +83,9 @@ public class AvalonConfigurationFileProvider implements ConfigurationProvider {
 
     public void setConfigurationInterceptors(List configurationInterceptors) {
         this.configurationInterceptors = configurationInterceptors;
+    }
+
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
     }
 }

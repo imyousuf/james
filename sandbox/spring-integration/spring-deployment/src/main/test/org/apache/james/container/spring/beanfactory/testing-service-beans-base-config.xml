@@ -36,7 +36,7 @@
     </bean>
 
     <bean id="configurationProvider" class="org.apache.james.container.spring.adaptor.AvalonConfigurationFileProvider" >
-        <property name="configurationPath" value="src/main/config/james-config.xml" />
+        <property name="configurationResource" value="src/main/config/james-config.xml" />
     </bean>
 
     <bean id="avalonContext" class="org.apache.james.container.spring.adaptor.AvalonContext" >

@@ -79,7 +79,7 @@
 
 
     <bean id="configurationProvider" class="org.apache.james.container.spring.adaptor.AvalonConfigurationFileProvider" >
-        <property name="configurationPath" value="src/main/config/james-config.xml" />
+        <property name="configurationResource" value="classpath:james-config.xml" />
         <property name="configurationInterceptors">
             <list>
                 <ref bean="stringRemapperConfigurationInterceptor" />

@@ -56,7 +56,7 @@ public class FileSystemBridge implements FileSystem {
         if (fileURL.startsWith(FILE_PROTOCOL)) {
             File file = null;
             if (fileURL.startsWith(FILE_PROTOCOL_AND_CONF)) {
-                file = new File("./src/main/config/" + fileURL.substring(FILE_PROTOCOL_AND_CONF.length()));
+                file = new File("../conf/" + fileURL.substring(FILE_PROTOCOL_AND_CONF.length()));
             } else {
                 file = new File("./" + fileURL.substring(FILE_PROTOCOL.length()));
             }
