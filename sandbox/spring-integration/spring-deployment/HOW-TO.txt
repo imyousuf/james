@@ -34,6 +34,15 @@ more or less incompatible with the rest of the emailing universe.
 cd spring-integration/spring-deployment
 ant run
 
+4. JMX
+
+Enabling: Uncomment the JMX section in beans-base-config.xml
+Connecting: The default connection URL defined in this file is 
+  service:jmx:rmi://localhost/jndi/rmi://localhost:1099/jamesmailserver
+You can use this URL on the command line under Java 1.5 (or newer) like this:
+  jconsole service:jmx:rmi://localhost/jndi/rmi://localhost:1099/jamesmailserver
+You will find the Processor/Mailet/Matcher tree under "Phoenix" and the other management beans under "beans". 
+
 A. Updating configuration files
 
 The configuration files are taken nearly unchanged from James module 'phoenix-depoyment'.
