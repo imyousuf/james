@@ -72,7 +72,7 @@
         <property name="mappings">
             <map>
                 <!-- avoid having folders be generated outside the working directory -->
-                <entry key="../apps/" value="./var/"/>
+                <entry key="../apps/" value="../var/"/>
             </map>
         </property>
     </bean>

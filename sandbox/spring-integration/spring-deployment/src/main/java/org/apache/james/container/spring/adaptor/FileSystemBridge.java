@@ -29,6 +29,7 @@ import org.apache.james.services.FileSystem;
 public class FileSystemBridge implements FileSystem {
     private static final String FILE_PROTOCOL = "file://";
     private static final String FILE_PROTOCOL_AND_CONF = "file://conf/";
+    private static final String FILE_PROTOCOL_AND_VAR = "file://var/";
 
     public File getBasedir() throws FileNotFoundException {
         return new File(".");
@@ -57,6 +58,8 @@ public class FileSystemBridge implements FileSystem {
             File file = null;
             if (fileURL.startsWith(FILE_PROTOCOL_AND_CONF)) {
                 file = new File("../conf/" + fileURL.substring(FILE_PROTOCOL_AND_CONF.length()));
+            } else if (fileURL.startsWith(FILE_PROTOCOL_AND_VAR)) {
+                file = new File("../var/" + fileURL.substring(FILE_PROTOCOL_AND_VAR.length()));
             } else {
                 file = new File("./" + fileURL.substring(FILE_PROTOCOL.length()));
             }

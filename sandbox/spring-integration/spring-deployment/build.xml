@@ -22,13 +22,21 @@
 
     <property file="../include.properties"/>
     <property file="../default.properties"/>
+    
+    <property name="spring-deployment.artefact.name" value="${name}-spring-deployment-${version}" />
 
-    <property name="spring-deployment.target.dir" value="${basedir}/target" />
+    <property name="spring-deployment.target.basedir" value="${basedir}/target/" />
+    <property name="spring-deployment.target.dir" value="${spring-deployment.target.basedir}/${spring-deployment.artefact.name}" />
     <property name="spring-deployment.target.bin.dir" value="${spring-deployment.target.dir}/bin" />
     <property name="spring-deployment.target.lib.dir" value="${spring-deployment.target.dir}/lib" />
     <property name="spring-deployment.target.config.dir" value="${spring-deployment.target.dir}/conf" />
     <property name="spring-deployment.target.jar" value="${spring-deployment.target.lib.dir}/${name}-spring-deployment-${version}.jar" />
-    <property name="spring-deployment.target.var.dir" value="${spring-deployment.target.dir}/bin/var"/>
+    <property name="spring-deployment.target.var.dir" value="${spring-deployment.target.dir}/var"/>
+
+    <property name="spring-deployment.dist.dir" value="${basedir}/dist/" />
+    <property name="spring-deployment.dist.bin.zip" value="${spring-deployment.dist.dir}/${spring-deployment.artefact.name}.zip" />
+    <property name="spring-deployment.dist.bin.tar" value="${spring-deployment.dist.dir}/${spring-deployment.artefact.name}.tar" />
+    <property name="spring-deployment.dist.bin.tgz" value="${spring-deployment.dist.dir}/${spring-deployment.artefact.name}.tgz" />
     
     <!-- Compiler options -->
 
@@ -208,14 +216,15 @@
 
     <target name="clean">
         <delete dir="${output.dir}"/>
-        <delete dir="${spring-deployment.target.dir}"/>
+        <delete dir="${spring-deployment.target.basedir}"/>
+        <delete dir="${spring-deployment.dist.dir}"/>
     </target>
 
     <target name="init" description="Build initialization">
         <!-- Perform any build initialization in this target -->
     </target>
 
-    <target name="all" depends="init, clean, compile, package-jar" description="build all"/>
+    <target name="all" depends="init, clean, compile, package, dist-binary" description="build all"/>
 
     <target name="compile" description="compile .java">
         <mkdir dir="${output.dir}"/>
@@ -235,18 +244,10 @@
         </copy>
     </target>
 
-    <target name="copy-configuration">
-        <mkdir dir="${output.dir}"/>
-        <copy todir="${output.dir}">
-            <fileset dir="${basedir}/src/main/config">
-                <include name="*.xml"/>
-            </fileset>
-        </copy>
-    </target>
-
-    <target name="package" depends="package-prepare, package-aquire-libs, package-aquire-config-files, package-jar, generate-run-executable" />
+    <target name="package" depends="package-prepare, package-aquire-notes, package-aquire-libs, package-aquire-config-files, package-james-spring-jar, generate-run-executable" />
 
     <target name="package-prepare">
+        <mkdir dir="${spring-deployment.target.basedir}"/>
         <mkdir dir="${spring-deployment.target.dir}"/>
         <mkdir dir="${spring-deployment.target.lib.dir}"/>
         <mkdir dir="${spring-deployment.target.bin.dir}"/>
@@ -260,19 +261,35 @@
         <mkdir dir="${spring-deployment.target.var.dir}/nntp/spool"/>
     </target>
     
-    <target name="package-jar">
+    <target name="package-james-spring-jar">
         <jar jarfile="${spring-deployment.target.jar}" basedir="${output.dir}" >
             <include name="org/apache/james/**/*.class"/>
         </jar>
+    </target>
+    
+    <target name="package-aquire-notes" >
+        <copy todir="${spring-deployment.target.dir}" flatten="true">
+            <fileset dir="${basedir}">
+                <include name="HOW-TO.txt" />
+            </fileset>
+            <fileset dir="${basedir}/..">
+                <include name="LICENSE.txt" />
+                <include name="NOTICE.txt" />
+            </fileset>
+        </copy>
     </target>
     
     <target name="package-aquire-libs" >
         <copy todir="${spring-deployment.target.lib.dir}" flatten="true">
             <fileset dir="${lib.dir}">
                 <include name="**/*.jar" />
+                <include name="**/*.LICENSE" />
+                <include name="**/LICENSE*" />
             </fileset>
             <fileset dir="${basedir}/lib">
                 <include name="**/*.jar" />
+                <include name="**/*.LICENSE" />
+                <include name="**/LICENSE*" />
             </fileset>
         </copy>
     </target>
@@ -286,7 +303,7 @@
         </copy>
     </target>
     
-    <target name="run" depends="compile, copy-configuration, package">
+    <target name="run" depends="compile, package">
         <java classname="org.apache.james.container.spring.Main"
               classpathref="runclasspath"
               dir="${spring-deployment.target.bin.dir}"
@@ -309,6 +326,22 @@ java -cp ${exe-classpath}:../conf org.apache.james.container.spring.Main
         <replace file="${spring-deployment.target.bin.dir}/run.sh" token="${spring-deployment.target.lib.dir}" value="../lib" />
         <!-- TODO change the classpath elements coming from stage folder, from absolute into relative -->
         <chmod file="${spring-deployment.target.bin.dir}/run.sh" perm="a+rx" />
+    </target>
+    
+    <target name="dist-binary" >
+        <mkdir dir="${spring-deployment.dist.dir}" />
+        <zip compress="true" destfile="${spring-deployment.dist.bin.zip}" >
+            <fileset dir="${spring-deployment.target.dir}">
+                <include name="**" /> 
+            </fileset>
+        </zip>     
+        <tar longfile="gnu" destfile="${spring-deployment.dist.bin.tar}" >
+            <fileset dir="${spring-deployment.target.dir}">
+                <include name="**" /> 
+            </fileset>
+        </tar>
+        <gzip destfile="${spring-deployment.dist.bin.tgz}/" 
+             src="${spring-deployment.dist.bin.tar}"/>
     </target>
     
 </project>
