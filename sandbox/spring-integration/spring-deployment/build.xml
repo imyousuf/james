@@ -331,14 +331,14 @@ java -cp ${exe-classpath}:../conf org.apache.james.container.spring.Main
     <target name="dist-binary" >
         <mkdir dir="${spring-deployment.dist.dir}" />
         <zip compress="true" destfile="${spring-deployment.dist.bin.zip}" >
-            <fileset dir="${spring-deployment.target.dir}">
+            <zipfileset dir="${spring-deployment.target.dir}" prefix="${name}-spring-deployment-${version}">
                 <include name="**" /> 
-            </fileset>
+            </zipfileset>
         </zip>     
         <tar longfile="gnu" destfile="${spring-deployment.dist.bin.tar}" >
-            <fileset dir="${spring-deployment.target.dir}">
+            <tarfileset dir="${spring-deployment.target.dir}" prefix="${name}-spring-deployment-${version}">
                 <include name="**" /> 
-            </fileset>
+            </tarfileset>
         </tar>
         <gzip destfile="${spring-deployment.dist.bin.tgz}/" 
              src="${spring-deployment.dist.bin.tar}"/>
