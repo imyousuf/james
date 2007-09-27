@@ -25,7 +25,7 @@
     
     <property name="spring-deployment.artefact.name" value="${name}-spring-deployment-${version}" />
 
-    <property name="spring-deployment.target.basedir" value="${basedir}/target/" />
+    <property name="spring-deployment.target.basedir" value="${basedir}/target" />
     <property name="spring-deployment.target.dir" value="${spring-deployment.target.basedir}/${spring-deployment.artefact.name}" />
     <property name="spring-deployment.target.bin.dir" value="${spring-deployment.target.dir}/bin" />
     <property name="spring-deployment.target.lib.dir" value="${spring-deployment.target.dir}/lib" />
@@ -319,13 +319,24 @@
         <property name="exe-classpath" refid="targetlibs" />
 
         <mkdir dir="${spring-deployment.target.bin.dir}" />
+
+        <!-- create unix startup script-->
         <echo file="${spring-deployment.target.bin.dir}/run.sh" append="false">#! /bin/sh
 java -cp ${exe-classpath}:../conf org.apache.james.container.spring.Main             
         </echo>
-
+        <echo>${spring-deployment.target.lib.dir}</echo>
         <replace file="${spring-deployment.target.bin.dir}/run.sh" token="${spring-deployment.target.lib.dir}" value="../lib" />
-        <!-- TODO change the classpath elements coming from stage folder, from absolute into relative -->
+        <replace file="${spring-deployment.target.bin.dir}/run.sh" token=";" value=":" />
         <chmod file="${spring-deployment.target.bin.dir}/run.sh" perm="a+rx" />
+
+        <!-- create windows startup script-->
+        <echo file="${spring-deployment.target.bin.dir}/run.bat" append="false">
+echo This is batch file is untested. Please report to server-dev@james.apache.org if it works or not. Thank you!
+pause
+java -cp ${exe-classpath};../conf org.apache.james.container.spring.Main             
+        </echo>
+        <replace file="${spring-deployment.target.bin.dir}/run.bat" token="${spring-deployment.target.lib.dir}" value="../lib" />
+        <replace file="${spring-deployment.target.bin.dir}/run.bat" token=":" value=";" />
     </target>
     
     <target name="dist-binary" >
