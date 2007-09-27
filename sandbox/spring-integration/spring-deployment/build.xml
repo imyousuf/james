@@ -324,14 +324,13 @@
         <echo file="${spring-deployment.target.bin.dir}/run.sh" append="false">#! /bin/sh
 java -cp ${exe-classpath}:../conf org.apache.james.container.spring.Main             
         </echo>
-        <echo>${spring-deployment.target.lib.dir}</echo>
         <replace file="${spring-deployment.target.bin.dir}/run.sh" token="${spring-deployment.target.lib.dir}" value="../lib" />
         <replace file="${spring-deployment.target.bin.dir}/run.sh" token=";" value=":" />
         <chmod file="${spring-deployment.target.bin.dir}/run.sh" perm="a+rx" />
 
         <!-- create windows startup script-->
         <echo file="${spring-deployment.target.bin.dir}/run.bat" append="false">
-echo This is batch file is untested. Please report to server-dev@james.apache.org if it works or not. Thank you!
+echo This batch file is untested. Please report to server-dev@james.apache.org if it works or not. Thank you!
 pause
 java -cp ${exe-classpath};../conf org.apache.james.container.spring.Main             
         </echo>
