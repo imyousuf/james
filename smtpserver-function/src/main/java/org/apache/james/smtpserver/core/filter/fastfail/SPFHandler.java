@@ -27,10 +27,11 @@ import java.util.Collection;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.james.jspf.SPF;
-import org.apache.james.jspf.SPF1Utils;
-import org.apache.james.jspf.SPFResult;
+import org.apache.james.jspf.impl.DefaultSPF;
+import org.apache.james.jspf.impl.SPF;
 import org.apache.james.jspf.core.DNSService;
+import org.apache.james.jspf.core.exceptions.SPFErrorConstants;
+import org.apache.james.jspf.executor.SPFResult;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.MessageHandler;
 import org.apache.james.smtpserver.SMTPSession;
@@ -110,9 +111,9 @@ public class SPFHandler extends AbstractJunkHandler implements CommandHandler,
      */
     public void initialize() throws Exception {
         if (dnsService == null) {
-            spf = new SPF(new SPFLogger(getLogger()));
+            spf = new DefaultSPF(new SPFLoggerAdapter(getLogger()));
         } else {
-            spf = new SPF(dnsService, new SPFLogger(getLogger()));
+            spf = new SPF(dnsService, new SPFLoggerAdapter(getLogger()));
         }
     }
 
@@ -210,17 +211,17 @@ public class SPFHandler extends AbstractJunkHandler implements CommandHandler,
                                 + " = " + spfResult);
 
                 // Check if we should block!
-                if ((spfResult.equals(SPF1Utils.FAIL_CONV))
-                        || (spfResult.equals(SPF1Utils.SOFTFAIL_CONV) && blockSoftFail)
-                        || (spfResult.equals(SPF1Utils.PERM_ERROR_CONV) && blockPermError)) {
+                if ((spfResult.equals(SPFErrorConstants.FAIL_CONV))
+                        || (spfResult.equals(SPFErrorConstants.SOFTFAIL_CONV) && blockSoftFail)
+                        || (spfResult.equals(SPFErrorConstants.PERM_ERROR_CONV) && blockPermError)) {
 
-                    if (spfResult.equals(SPF1Utils.PERM_ERROR_CONV)) {
+                    if (spfResult.equals(SPFErrorConstants.PERM_ERROR_CONV)) {
                         explanation = "Block caused by an invalid SPF record";
                     }
                     session.getState().put(SPF_DETAIL, explanation);
                     session.getState().put(SPF_BLOCKLISTED, "true");
 
-                } else if (spfResult.equals(SPF1Utils.TEMP_ERROR_CONV)) {
+                } else if (spfResult.equals(SPFErrorConstants.TEMP_ERROR_CONV)) {
                     session.getState().put(SPF_TEMPBLOCKLISTED, "true");
                 }
             }
@@ -300,22 +301,20 @@ public class SPFHandler extends AbstractJunkHandler implements CommandHandler,
         return data;
     }
     
-    
     /**
      * Inner class to provide a wrapper for loggin to avalon
      */
-    class SPFLogger implements org.apache.james.jspf.core.Logger {
+    private class SPFLoggerAdapter implements org.apache.james.jspf.core.Logger {
 
         /**
          * Avalon Logger
          */
-        org.apache.avalon.framework.logger.Logger logger;
+        private org.apache.avalon.framework.logger.Logger logger;
 
-        SPFLogger(org.apache.avalon.framework.logger.Logger logger) {
+        public SPFLoggerAdapter(org.apache.avalon.framework.logger.Logger logger) {
             this.logger = logger;
         }
-        
-        
+
         /**
          * @see org.apache.james.jspf.core.Logger#debug(String)
          */
@@ -425,8 +424,9 @@ public class SPFHandler extends AbstractJunkHandler implements CommandHandler,
          * @see org.apache.james.jspf.core.Logger#getChildLogger(String)
          */
         public org.apache.james.jspf.core.Logger getChildLogger(String arg0) {
-            return new SPFLogger(logger.getChildLogger(arg0));
+            return new SPFLoggerAdapter(logger.getChildLogger(arg0));
         }
 
     }
+
 }
