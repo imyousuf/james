@@ -324,8 +324,23 @@
      -->
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>jspf</artifactId>
-      <version>0.9-SNAPSHOT</version>
+      <artifactId>apache-jspf</artifactId>
+      <version>0.9.5</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>log4j</artifactId>
+          <groupId>log4j</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>commons-cli</artifactId>
+          <groupId>commons-cli</groupId>
+        </exclusion>
+        <!--  only used for the asynchronous executors -->
+        <exclusion>
+          <artifactId>dnsjnio</artifactId>
+          <groupId>uk.nominet</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
