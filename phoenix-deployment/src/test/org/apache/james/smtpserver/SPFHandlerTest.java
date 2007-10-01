@@ -26,7 +26,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.james.jspf.core.DNSRequest;
 import org.apache.james.jspf.core.DNSService;
+import org.apache.james.jspf.core.exceptions.TimeoutException;
 import org.apache.james.smtpserver.core.filter.fastfail.SPFHandler;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.mailet.MockMail;
@@ -88,30 +90,30 @@ public class SPFHandlerTest extends TestCase {
                 "Unimplemented mock service");
             }
 
-            public List getRecords(String host, int type) throws TimeoutException {
-                switch (type) {
-                    case DNSService.TXT:
-                    case DNSService.SPF:
+            public List getRecords(DNSRequest req) throws TimeoutException {
+                switch (req.getRecordType()) {
+                    case DNSRequest.TXT:
+                    case DNSRequest.SPF:
                         List l = new ArrayList();
-                        if (host.equals("spf1.james.apache.org")) {
+                        if (req.getHostname().equals("spf1.james.apache.org")) {
                             // pass
                             l.add("v=spf1 +all");
                             return l;
-                        } else if (host.equals("spf2.james.apache.org")) {
+                        } else if (req.getHostname().equals("spf2.james.apache.org")) {
                             // fail
                             l.add("v=spf1 -all");
                             return l;
-                        } else if (host.equals("spf3.james.apache.org")) {
+                        } else if (req.getHostname().equals("spf3.james.apache.org")) {
                             // softfail
                             l.add("v=spf1 ~all");
                             return l;
-                        } else if (host.equals("spf4.james.apache.org")) {
+                        } else if (req.getHostname().equals("spf4.james.apache.org")) {
                             // permerror
                             l.add("v=spf1 badcontent!");
                             return l;
-                        } else if (host.equals("spf5.james.apache.org")) {
+                        } else if (req.getHostname().equals("spf5.james.apache.org")) {
                             // temperror
-                            throw new TimeoutException();
+                            throw new TimeoutException("TIMEOUT");
                         } else {
                             return null;
                         }
