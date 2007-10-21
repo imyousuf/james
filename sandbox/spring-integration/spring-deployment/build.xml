@@ -18,7 +18,7 @@
   specific language governing permissions and limitations
   under the License.
 -->
-<project name="spring_integration" default="all">
+<project name="spring_integration" default="everything">
 
     <property file="../include.properties"/>
     <property file="../default.properties"/>
@@ -224,7 +224,10 @@
         <!-- Perform any build initialization in this target -->
     </target>
 
-    <target name="all" depends="init, clean, compile, package, dist-binary" description="build all"/>
+    <target name="dist-lite" depends="everything" description="forwards to everything - exists for compatibility with parent build.xml"/>
+    <target name="dist" depends="everything" description="forwards to everything - exists for compatibility with parent build.xml"/>
+    
+    <target name="everything" depends="init, clean, compile, package, dist-binary" description="build all"/>
 
     <target name="compile" description="compile .java">
         <mkdir dir="${output.dir}"/>
