@@ -346,6 +346,9 @@ public class CommandParser
         else if ( flagString.equalsIgnoreCase( MessageFlags.SEEN ) ) {
             flags.add(Flags.Flag.SEEN);
         }
+        else if ( flagString.equalsIgnoreCase( MessageFlags.RECENT) ) {
+            flags.add(Flags.Flag.RECENT);
+        } 
         else {
             throw new ProtocolException( "Invalid flag string." );
         }
