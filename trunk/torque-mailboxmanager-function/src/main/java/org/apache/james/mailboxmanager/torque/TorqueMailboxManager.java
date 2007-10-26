@@ -45,6 +45,7 @@ import org.apache.james.services.User;
 import org.apache.torque.TorqueException;
 import org.apache.torque.util.CountHelper;
 import org.apache.torque.util.Criteria;
+import EDU.oswego.cs.dl.util.concurrent.ReadWriteLock;
 
 public class TorqueMailboxManager implements MailboxManager {
 
@@ -55,10 +56,13 @@ public class TorqueMailboxManager implements MailboxManager {
     
     protected Log log;
 
-    public TorqueMailboxManager(User authUser, MailboxCache mailboxCache, Log log) {
+    private final ReadWriteLock lock;
+    
+    public TorqueMailboxManager(final User authUser, final MailboxCache mailboxCache, final ReadWriteLock lock, final Log log) {
         this.mailboxCache=mailboxCache;
         this.authUser=authUser;
         this.log=log;
+        this.lock = lock;
     }
     
     public MailboxSession getMailboxSession(String mailboxName,
@@ -110,8 +114,10 @@ public class TorqueMailboxManager implements MailboxManager {
                         getMailboxCache().add(mailboxName, tracker);
                     }
                     getLog().info("created ImapMailboxSession "+mailboxName);
-                    return new ImapMailboxSessionWrapper(new TorqueMailbox(
-                            mailboxRow, tracker,getLog()));
+                    final TorqueMailbox torqueMailbox = new TorqueMailbox(
+                                                mailboxRow, tracker, lock, getLog());
+                    final ImapMailboxSessionWrapper wrapper = new ImapMailboxSessionWrapper(torqueMailbox);
+                    return wrapper;
                 } else {
                     getLog().info("Mailbox '" + mailboxName + "' not found.");
                     getMailboxCache().notFound(mailboxName);

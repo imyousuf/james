@@ -36,6 +36,7 @@ import org.apache.james.mailboxmanager.torque.om.MessageRowPeer;
 import org.apache.james.mailboxmanager.tracking.UidChangeTracker;
 import org.apache.torque.TorqueException;
 import org.apache.torque.util.Criteria;
+import EDU.oswego.cs.dl.util.concurrent.WriterPreferenceReadWriteLock;
 
 public class TorqueMailboxTestCase extends AbstractTorqueTestCase {
 
@@ -48,7 +49,8 @@ public class TorqueMailboxTestCase extends AbstractTorqueTestCase {
         MailboxRow mr = new MailboxRow("#users.tuser.INBOX", 100);
         mr.save();
         mr=MailboxRowPeer.retrieveByName("#users.tuser.INBOX");
-        TorqueMailbox torqueMailbox = new TorqueMailbox(mr, new UidChangeTracker(null,"#users.tuser.INBOX",100),null);
+        TorqueMailbox torqueMailbox = new TorqueMailbox(mr, new UidChangeTracker(null,"#users.tuser.INBOX",100),
+                new WriterPreferenceReadWriteLock(),null);
         torqueMailbox.addListener(new MailboxListenerCollector(), MessageResult.NOTHING);
         assertEquals(0,torqueMailbox.getMessageCount());
         

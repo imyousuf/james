@@ -58,6 +58,9 @@ import org.apache.torque.TorqueException;
 import org.apache.torque.util.BasePeer;
 import org.apache.torque.util.Transaction;
 
+import EDU.oswego.cs.dl.util.concurrent.ReadWriteLock;
+import EDU.oswego.cs.dl.util.concurrent.WriterPreferenceReadWriteLock;
+
 public class TorqueMailboxManagerFactory implements MailboxManagerFactory,
         Configurable, Initializable, Serviceable, LogEnabled {
 
@@ -70,18 +73,24 @@ public class TorqueMailboxManagerFactory implements MailboxManagerFactory,
     private Log log;
 
     private FileSystem fileSystem;
+    
+    private final ReadWriteLock lock;
 
     private static final String[] tableNames = new String[] {
             MailboxRowPeer.TABLE_NAME, MessageRowPeer.TABLE_NAME,
             MessageHeaderPeer.TABLE_NAME, MessageBodyPeer.TABLE_NAME,
             MessageFlagsPeer.TABLE_NAME };
 
+    public TorqueMailboxManagerFactory() {
+        lock = new WriterPreferenceReadWriteLock();
+    }
+    
     public MailboxManager getMailboxManagerInstance(User user)
             throws MailboxManagerException {
         if (!initialized) {
             throw new MailboxManagerException("must be initialized first!");
         }
-        return new TorqueMailboxManager(user, getMailboxCache(), getLog());
+        return new TorqueMailboxManager(user, getMailboxCache(), lock, getLog());
     }
 
     public void initialize() throws Exception {
