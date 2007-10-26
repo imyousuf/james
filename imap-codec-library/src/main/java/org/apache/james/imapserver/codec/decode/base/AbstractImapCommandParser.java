@@ -34,10 +34,10 @@ import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.api.imap.imap4rev1.Imap4Rev1MessageFactory;
 import org.apache.james.api.imap.message.IdRange;
+import org.apache.james.imapserver.codec.decode.DecoderUtils;
 import org.apache.james.imapserver.codec.decode.ImapCommandParser;
 import org.apache.james.imapserver.codec.decode.ImapRequestLineReader;
 import org.apache.james.imapserver.codec.decode.MessagingImapCommandParser;
-import org.apache.james.api.imap.message.MessageFlags;
 
 /**
  * <p>
@@ -391,40 +391,18 @@ public abstract class AbstractImapCommandParser extends AbstractLogEnabled imple
         CharacterValidator validator = new NoopCharValidator();
         String nextWord = consumeWord( request, validator );
         while ( ! nextWord.endsWith(")" ) ) {
-            setFlag( nextWord, flags );
+            DecoderUtils.setFlag( nextWord, flags );
             nextWord = consumeWord( request, validator );
         }
         // Got the closing ")", may be attached to a word.
         if ( nextWord.length() > 1 ) {
-            setFlag( nextWord.substring(0, nextWord.length() - 1 ), flags );
+            DecoderUtils.setFlag( nextWord.substring(0, nextWord.length() - 1 ), flags );
         }
 
         return flags;
         }
 
-    public void setFlag( String flagString, Flags flags ) throws ProtocolException
-    {
-        if ( flagString.equalsIgnoreCase( MessageFlags.ANSWERED ) ) {
-            flags.add(Flags.Flag.ANSWERED);
-        }
-        else if ( flagString.equalsIgnoreCase( MessageFlags.DELETED ) ) {
-            flags.add(Flags.Flag.DELETED);
-        }
-        else if ( flagString.equalsIgnoreCase( MessageFlags.DRAFT ) ) {
-            flags.add(Flags.Flag.DRAFT);
-        }
-        else if ( flagString.equalsIgnoreCase( MessageFlags.FLAGGED ) ) {
-            flags.add(Flags.Flag.FLAGGED);
-        }
-        else if ( flagString.equalsIgnoreCase( MessageFlags.SEEN ) ) {
-            flags.add(Flags.Flag.SEEN);
-        }
-        else {
-            throw new ProtocolException( "Invalid flag string." );
-        }
-    }
-
-     /**
+    /**
      * Reads an argument of type "number" from the request.
      */
     public long number( ImapRequestLineReader request ) throws ProtocolException
