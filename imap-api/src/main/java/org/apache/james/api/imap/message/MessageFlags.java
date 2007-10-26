@@ -45,6 +45,7 @@ public class MessageFlags
     public static final String DRAFT = "\\DRAFT";
     public static final String FLAGGED = "\\FLAGGED";
     public static final String SEEN = "\\SEEN";
+    public static final String RECENT = "\\RECENT";
 
     /**
      * Returns IMAP formatted String of MessageFlags for named user
