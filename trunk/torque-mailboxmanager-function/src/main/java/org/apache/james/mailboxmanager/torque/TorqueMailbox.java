@@ -30,13 +30,13 @@ import java.util.List;
 import javax.mail.Flags;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-import javax.mail.search.SearchTerm;
 
 import org.apache.commons.logging.Log;
 import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxListener;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
+import org.apache.james.mailboxmanager.SearchParameters;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.impl.MailboxEventDispatcher;
 import org.apache.james.mailboxmanager.impl.MessageResultImpl;
@@ -60,6 +60,7 @@ import org.apache.torque.TorqueException;
 import org.apache.torque.util.Criteria;
 
 import EDU.oswego.cs.dl.util.concurrent.ReadWriteLock;
+
 import com.sun.mail.util.CRLFOutputStream;
 import com.workingdogs.village.DataSetException;
 
@@ -653,7 +654,7 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
         this.mailboxRow = mailboxRow;
     }
 
-    public MessageResult[] search(GeneralMessageSet set, SearchTerm searchTerm,
+    public MessageResult[] search(GeneralMessageSet set, SearchParameters parameters,
             int result) throws MailboxManagerException {
         try {
             lock.readLock().acquire();

@@ -25,6 +25,7 @@ import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.Quota;
+import org.apache.james.mailboxmanager.SearchParameters;
 import org.apache.james.mailboxmanager.acl.MailboxRights;
 import org.apache.james.mailboxmanager.impl.MailboxEventDispatcher;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
@@ -65,7 +66,7 @@ public class ImapMailboxSessionWrapper extends FlaggedSessionMailboxWrapper
         return ((ImapMailbox) mailbox).getUidNext();
     }
 
-    public MessageResult[] search(GeneralMessageSet set, SearchTerm searchTerm, int result) throws MailboxManagerException {
+    public MessageResult[] search(GeneralMessageSet set, SearchParameters searchTerm, int result) throws MailboxManagerException {
         return addMsnToResults(((SearchableMailbox)mailbox).search(set, searchTerm, noMsnResult(result)),result);
     }
 

@@ -19,7 +19,10 @@
 
 package org.apache.james.imapserver.commands;
 
-import javax.mail.Message;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.mail.search.SearchTerm;
 
 import org.apache.james.imapserver.ImapRequestLineReader;
@@ -29,6 +32,10 @@ import org.apache.james.imapserver.ProtocolException;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
+import org.apache.james.mailboxmanager.SearchParameters;
+import org.apache.james.mailboxmanager.SearchParameters.NamedSearchCriteria;
+import org.apache.james.mailboxmanager.SearchParameters.NumericRange;
+import org.apache.james.mailboxmanager.SearchParameters.SearchCriteria;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 
@@ -60,7 +67,7 @@ class SearchCommand extends SelectedStateCommand implements UidEnabledCommand
             throws ProtocolException, MailboxException
     {
         // Parse the search term from the request
-        SearchTerm searchTerm = parser.searchTerm( request );
+        SearchParameters searchTerm = parser.searchTerm( request );
         parser.endLine( request );
 
         ImapMailboxSession mailbox = session.getSelected().getMailbox();
@@ -106,37 +113,85 @@ class SearchCommand extends SelectedStateCommand implements UidEnabledCommand
         return ARGS;
     }
 
+    
+    
     private class SearchCommandParser extends CommandParser
     {
         /**
          * Parses the request argument into a valid search term.
-         * Not yet implemented - all searches will return everything for now.
-         * TODO implement search
          */
-        public SearchTerm searchTerm( ImapRequestLineReader request )
+        public SearchParameters searchTerm( ImapRequestLineReader request )
                 throws ProtocolException
         {
-            // Dummy implementation
-            // Consume to the end of the line.
-            char next = request.nextChar();
-            while ( next != '\n' ) {
-                request.consume();
+        	SearchParameters search = new SearchParameters();
+
+        	char next = request.nextChar();
+            while ( next != '\n' && next != '\r') {
+                
+            	SearchParameters.SearchCriteria crit = parseCriteria(request);
+            	search.addCriteria(crit);
                 next = request.nextChar();
+                while ( next == ' ' ) {
+                	request.consume();
+                    next = request.nextChar();
+                }
             }
 
-            // Return a search term that matches everything.
-            return new SearchTerm()
-            {
-                private static final long serialVersionUID = 5290284637903768771L;
+            return search;
+        }
 
-                public boolean match( Message message )
-                {
-                    return true;
+		private SearchCriteria parseCriteria(ImapRequestLineReader request) throws ProtocolException {
+            String term = atom(request).toUpperCase();
+
+			if (SearchParameters.BASE_SEARCH_TERMS.contains(term)) {
+				return new SearchParameters.NamedSearchCriteria(term);
+			} else if (SearchParameters.STRING_SEARCH_TERMS.contains(term)) {
+				return new SearchParameters.StringSearchCriteria(term, astring(request));
+			} else if (SearchParameters.NUMBER_SEARCH_TERMS.contains(term)) {
+				return new SearchParameters.NumberSearchCriteria(term, number(request));
+			} else if (SearchParameters.DATE_SEARCH_TERMS.contains(term)) {
+				return new SearchParameters.DateSearchCriteria(term, date(request));
+			} else if ("HEADER".equals(term)) {
+				return new SearchParameters.HeaderSearchCriteria(astring(request), astring(request));
+			} else if ("UID".equals(term)) {
+				return new SearchParameters.UIDSearchCriteria(toNumericRange(parseIdRange(request)));
+			} else if ("OR".equals(term)) {
+				return new SearchParameters.OrSearchCriteria(parseCriteria(request), parseCriteria(request));
+			} else if ("NOT".equals(term)) {
+				return new SearchParameters.NotSearchCriteria(parseCriteria(request));
+			} else {
+				throw new ProtocolException("Term '"+term+"' not supported in the current search implementation!");
+			}
+		}
+
+        private NumericRange[] toNumericRange(final IdRange[] ranges) {
+            final NumericRange[] result;
+            if (ranges == null) {
+                result = null;
+            } else {
+                final int length = ranges.length;
+                result = new NumericRange[length];
+                for (int i=0;i<length; i++) {
+                    result[i] = toNumericRange(ranges[i]);
                 }
-            };
+            }
+            
+            return result;
+        }
+
+        private NumericRange toNumericRange(IdRange range) {
+            final NumericRange result;
+            if (range == null) {
+                result = null;
+            } else {
+                result = new NumericRange(range.getLowVal(), range.getHighVal());
+            }
+            return result;
         }
 
     }
+    
+    
 }
 /*
 6.4.4.  SEARCH Command
