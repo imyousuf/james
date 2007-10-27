@@ -19,11 +19,10 @@
 
 package org.apache.james.mailboxmanager.mailbox;
 
-import javax.mail.search.SearchTerm;
-
 import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
+import org.apache.james.mailboxmanager.SearchParameters;
 
 public interface SearchableMailbox {
     /**
@@ -37,5 +36,5 @@ public interface SearchableMailbox {
      * @throws MailboxManagerException
      *             if anything went wrong
      */
-    MessageResult[] search(GeneralMessageSet set,SearchTerm searchTerm, int result) throws MailboxManagerException;
+    MessageResult[] search(GeneralMessageSet set,SearchParameters searchTerm, int result) throws MailboxManagerException;
 }

@@ -39,6 +39,7 @@ import org.apache.james.imapserver.processor.base.ImapSessionUtils;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
+import org.apache.james.mailboxmanager.SearchParameters;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 
@@ -84,8 +85,9 @@ public class SearchProcessor extends AbstractImapRequestProcessor {
         }
         MessageResult[] messageResults;
         try {
+            // TODO: implementation
             messageResults = mailbox.search(GeneralMessageSetImpl.all(),
-                    searchTerm, resultCode);
+                    new SearchParameters(), resultCode);
         } catch (MailboxManagerException e) {
             throw new MailboxException(e);
         }
