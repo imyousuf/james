@@ -355,6 +355,8 @@ java -cp ${exe-classpath};../conf org.apache.james.container.spring.Main
         </tar>
         <gzip destfile="${spring-deployment.dist.bin.tgz}/" 
              src="${spring-deployment.dist.bin.tar}"/>
+        <copy todir='${dir.master.dist}/bin' file='${spring-deployment.dist.bin.zip}'/>
+        <copy todir='${dir.master.dist}/bin' file='${spring-deployment.dist.bin.tgz}'/>
     </target>
     
 </project>
