@@ -210,6 +210,18 @@ public class SimpleMessageAttributes
             // default value.
             if ( contentEncoding == null ) {
                 contentEncoding = "7BIT";
+            } else if (contentEncoding.equalsIgnoreCase("binary")) {
+                // IMAP specifies upper case
+                contentEncoding = "BINARY";
+            } else if (contentEncoding.equalsIgnoreCase("base64")) {
+                // IMAP specifies upper case
+                contentEncoding = "BASE64";
+            } else if (contentEncoding.equalsIgnoreCase("quoted-printable")) {
+                // IMAP specifies upper case
+                contentEncoding = "QUOTED-PRINTABLE";
+            } else if (contentEncoding.equalsIgnoreCase("7bit")) {
+                // IMAP specifies upper case
+                contentEncoding = "7BIT";
             }
         } catch (MessagingException me) {
             getLogger().debug("Messaging Exception for getEncoding(): " + me, me);
@@ -225,6 +237,9 @@ public class SimpleMessageAttributes
         try {
             // TODO this doesn't work
             lineCount = part.getLineCount();
+            if (lineCount < 1) {
+                lineCount = 1;
+            }
         } catch (MessagingException me) {
             getLogger().debug("Messaging Exception for getLineCount(): " + me, me);
         } catch (Exception e) {
@@ -522,7 +537,16 @@ public class SimpleMessageAttributes
             buf.append(Q + contentEncoding + Q);
         }
         buf.append(SP);
-        buf.append(size);
+        if (size < 1)
+        {
+            buf.append(1); 
+        }
+        else
+        {
+            // TODO This uses the total size of the message. 
+            // This should be the octet count of the mime part
+            buf.append(size);
+        }
         return buf.toString();
     }
 
@@ -559,7 +583,17 @@ public class SimpleMessageAttributes
                     setupLogger(parts[i]); // reset transient getLogger()
                     buf.append(parts[i].getBodyStructure( false ));
                 }
-                buf.append(SP + secondaryType);
+                buf.append(SP);
+                buf.append('"');
+                buf.append(secondaryType.toUpperCase());
+                buf.append('"');
+            } else {
+                // TODO: the specification requires that we handle other types
+                // TODO: including APPLICATION AUDIO IMAGE 
+                // TODO: should also include messages not in RFC288 meethinks
+                getLogger().info("Ignoring unknown type");
+                getLogger().debug(primaryType);
+                getLogger().debug(secondaryType);
             }
             buf.append(RB);
             return buf.toString();
