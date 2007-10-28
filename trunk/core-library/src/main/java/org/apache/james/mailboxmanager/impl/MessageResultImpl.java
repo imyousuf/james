@@ -37,6 +37,7 @@ public class MessageResultImpl implements MessageResult {
     private int size;
     private Date internalDate;
     private String key;
+    private Headers headers;
     
 
     public MessageResultImpl(long uid) {
@@ -184,4 +185,11 @@ public class MessageResultImpl implements MessageResult {
         this.key=key;
     }
 
+    public Headers getHeaders() {
+        return headers;
+    }
+
+    public void setHeaders(Headers headers) {
+        this.headers = headers;
+    }
 }

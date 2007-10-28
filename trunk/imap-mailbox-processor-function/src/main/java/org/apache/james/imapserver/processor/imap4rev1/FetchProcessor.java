@@ -23,7 +23,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 
@@ -99,9 +98,15 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
         boolean omitExpunged = (!useUids);
 
         // TODO only fetch needed results
-        int resultToFetch = MessageResult.FLAGS | MessageResult.MIME_MESSAGE
+        int resultToFetch = MessageResult.FLAGS
                 | MessageResult.INTERNAL_DATE | MessageResult.MSN
                 | MessageResult.SIZE;
+        if (fetchMessage(fetch)) {
+            resultToFetch = resultToFetch | MessageResult.MIME_MESSAGE;
+        }
+        if (bodyElementRequiresHeaders(fetch.getBodyElements())) {
+            resultToFetch = resultToFetch | MessageResult.HEADERS;
+        }
         ImapMailboxSession mailbox = ImapSessionUtils.getMailbox(session);
         for (int i = 0; i < idSet.length; i++) {
             GeneralMessageSet messageSet = GeneralMessageSetImpl.range(idSet[i]
@@ -122,6 +127,55 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
         }
         List unsolicitedResponses = session.unsolicitedResponses(useUids);
         result.addUnsolicitedResponses(unsolicitedResponses);
+        return result;
+    }
+    
+
+    private boolean fetchMessage(FetchData fetch) {
+        final boolean result;
+        if (fetch.isEnvelope() || fetch.isBody() || fetch.isBodyStructure()) {
+            result = true;
+        } else {
+            final Collection bodyElements = fetch.getBodyElements();
+            result = bodyElementRequiresMessage(bodyElements);
+        }
+        return result;
+    }
+
+    private boolean bodyElementRequiresMessage(final Collection bodyElements) {
+        boolean result = false;
+        if (bodyElements != null) {
+            for (final Iterator it=bodyElements.iterator();it.hasNext();) {
+                final BodyFetchElement element = (BodyFetchElement) it.next();
+                final String section = element.getParameters();
+                if ("TEXT".equalsIgnoreCase(section) || section.length() == 0) {
+                    result = true;
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+
+    private boolean bodyElementRequiresHeaders(final Collection bodyElements) {
+        boolean result = false;
+        if (bodyElements != null) {
+            for (final Iterator it=bodyElements.iterator();it.hasNext();) {
+                final BodyFetchElement element = (BodyFetchElement) it.next();
+                final String section = element.getParameters();
+                if ("HEADER".equalsIgnoreCase(section)) {
+                    result = true;
+                    break;
+                } else if ( section.startsWith( "HEADER.FIELDS.NOT " ) ) {
+                    result = true;
+                    break;
+                }
+                else if ( section.startsWith( "HEADER.FIELDS " ) ) {
+                    result = true;
+                    break;
+                }
+            }
+        }
         return result;
     }
 
@@ -160,33 +214,38 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
 
             }
 
+            // TODO: RFC822.HEADER
+            
             // RFC822.SIZE response
             if (fetch.isSize()) {
                 response.append(" RFC822.SIZE ");
                 response.append(result.getSize());
             }
 
-            SimpleMessageAttributes attrs = new SimpleMessageAttributes(result
-                    .getMimeMessage(), getLogger());
-
-            // ENVELOPE response
-            if (fetch.isEnvelope()) {
-                response.append(" ENVELOPE ");
-                response.append(attrs.getEnvelope());
+            // Only create when needed
+            if (fetch.isEnvelope() || fetch.isBody() || fetch.isBodyStructure()) {
+                // TODO: replace SimpleMessageAttributes
+                final SimpleMessageAttributes attrs = new SimpleMessageAttributes(result
+                        .getMimeMessage(), getLogger());
+    
+                // ENVELOPE response
+                if (fetch.isEnvelope()) {
+                    response.append(" ENVELOPE ");
+                    response.append(attrs.getEnvelope());
+                }
+    
+                // BODY response
+                if (fetch.isBody()) {
+                    response.append(" BODY ");
+                    response.append(attrs.getBodyStructure(false));
+                }
+    
+                // BODYSTRUCTURE response
+                if (fetch.isBodyStructure()) {
+                    response.append(" BODYSTRUCTURE ");
+                    response.append(attrs.getBodyStructure(true));
+                }
             }
-
-            // BODY response
-            if (fetch.isBody()) {
-                response.append(" BODY ");
-                response.append(attrs.getBodyStructure(false));
-            }
-
-            // BODYSTRUCTURE response
-            if (fetch.isBodyStructure()) {
-                response.append(" BODYSTRUCTURE ");
-                response.append(attrs.getBodyStructure(true));
-            }
-
             // UID response
             if (fetch.isUid()) {
                 response.append(" UID ");
@@ -205,9 +264,8 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
                 // Various mechanisms for returning message body.
                 String sectionSpecifier = fetchElement.getParameters();
 
-                MimeMessage mimeMessage = result.getMimeMessage();
                 try {
-                    handleBodyFetch(mimeMessage, sectionSpecifier, response);
+                    handleBodyFetch(result, sectionSpecifier, response);
                 } catch (MessagingException e) {
                     throw new MailboxException(e.getMessage(), e);
                 }
@@ -226,10 +284,12 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
         }
     }
 
-    private void handleBodyFetch(MimeMessage mimeMessage,
+    private void handleBodyFetch(final MessageResult result,
             String sectionSpecifier, StringBuffer response)
             throws ProtocolException, MessagingException {
+        // TODO: section specifier should be fully parsed during parsing phase
         if (sectionSpecifier.length() == 0) {
+            final MimeMessage mimeMessage = result.getMimeMessage();
             // TODO - need to use an InputStream from the response here.
             ByteArrayOutputStream bout = new ByteArrayOutputStream();
             try {
@@ -240,24 +300,28 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
             byte[] bytes = bout.toByteArray();
             addLiteral(bytes, response);
             // TODO JD maybe we've to add CRLF here
-
-        } else if (sectionSpecifier.equalsIgnoreCase("HEADER")) {
-            Enumeration e = mimeMessage.getAllHeaderLines();
-            addHeaders(e, response);
-        } else if (sectionSpecifier.startsWith("HEADER.FIELDS.NOT ")) {
-            String[] excludeNames = extractHeaderList(sectionSpecifier,
-                    "HEADER.FIELDS.NOT ".length());
-            Enumeration e = mimeMessage.getNonMatchingHeaderLines(excludeNames);
-            addHeaders(e, response);
-        } else if (sectionSpecifier.startsWith("HEADER.FIELDS ")) {
-            String[] includeNames = extractHeaderList(sectionSpecifier,
-                    "HEADER.FIELDS ".length());
-            Enumeration e = mimeMessage.getMatchingHeaderLines(includeNames);
-            addHeaders(e, response);
+        }
+        else if ( sectionSpecifier.equalsIgnoreCase( "HEADER" ) ) {
+            final MessageResult.Headers headers = result.getHeaders();
+            List lines = headers.getAllLines();
+            addHeaders( lines, response );
+        }
+        else if ( sectionSpecifier.startsWith( "HEADER.FIELDS.NOT " ) ) {
+            String[] excludeNames = extractHeaderList( sectionSpecifier, "HEADER.FIELDS.NOT ".length() );
+            final MessageResult.Headers headers = result.getHeaders();
+            List lines = headers.getOtherLines(excludeNames);
+            addHeaders( lines, response );
+        }
+        else if ( sectionSpecifier.startsWith( "HEADER.FIELDS " ) ) {
+            String[] includeNames = extractHeaderList( sectionSpecifier, "HEADER.FIELDS ".length() );
+            final MessageResult.Headers headers = result.getHeaders();
+            List lines = headers.getMatchingLines(includeNames);
+            addHeaders( lines, response );
         } else if (sectionSpecifier.equalsIgnoreCase("MIME")) {
             // TODO implement
             throw new ProtocolException("MIME not yet implemented.");
         } else if (sectionSpecifier.equalsIgnoreCase("TEXT")) {
+            final MimeMessage mimeMessage = result.getMimeMessage();
             // TODO - need to use an InputStream from the response here.
             // TODO - this is a hack. To get just the body content, I'm using a
             // null
@@ -338,22 +402,20 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
         return (String[]) strings.toArray(new String[0]);
     }
 
-    private void addHeaders(Enumeration e, StringBuffer response) {
-        List lines = new ArrayList();
+    private void addHeaders( List headerLines, StringBuffer response )
+    {
         int count = 0;
-        while (e.hasMoreElements()) {
-            String line = (String) e.nextElement();
+        for (final Iterator it=headerLines.iterator();it.hasNext();) {
+            String line = (String) it.next();
             count += line.length() + 2;
-            lines.add(line);
         }
-        response.append('{');
-        response.append(count + 2);
-        response.append('}');
+        response.append( '{' );
+        response.append( count + 2 );
+        response.append( '}' );
         response.append("\r\n");
 
-        Iterator lit = lines.iterator();
-        while (lit.hasNext()) {
-            String line = (String) lit.next();
+        for (final Iterator it=headerLines.iterator();it.hasNext();) {
+            String line = (String) it.next();
             response.append(line);
             response.append("\r\n");
         }
