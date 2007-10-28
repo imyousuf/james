@@ -20,8 +20,10 @@
 package org.apache.james.mailboxmanager;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.mail.Flags;
+import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.mailet.Mail;
@@ -89,6 +91,8 @@ public interface MessageResult extends Comparable {
 
     public static final int FLAGS = 0x80;
 
+    public static final int HEADERS = 0x100;
+    
     int getIncludedResults();
 
     boolean contains(int result);
@@ -130,5 +134,44 @@ public interface MessageResult extends Comparable {
     String getKey();
     
     int getSize();
-
+    
+    /**
+     * Gets headers for the message.
+     * @return <code>Headers</code>, 
+     * or null if {@link #HEADERS} was not fetched
+     */
+    Headers getHeaders();
+    
+    /**
+     * Details of the mail headers for this result.
+     */
+    public interface Headers {
+        /**
+         * Gets all header lines.
+         * @return <code>List</code> of <code>String</code> header lines,
+         * in their natural order
+         * @throws MessagingException
+         */
+        List getAllLines() throws MessagingException;
+        
+        /**
+         * Gets header lines whose header names matches (ignoring case)
+         * any of those given.
+         * @param names header names to be matched, not null
+         * @return <code>List</code> of <code>String</code> header lines,
+         * in their natural order
+         * @throws MessagingException
+         */
+        List getMatchingLines(String[] names) throws MessagingException;
+        
+        /**
+         * Gets header lines whose header name fails to match (ignoring case)
+         * all of the given names.
+         * @param names header names, not null
+         * @return <code>List</code> of <code>String</code> header lines,
+         * in their natural order
+         * @throws MessagingException
+         */
+        List getOtherLines(String[] names) throws MessagingException;
+    }
 }

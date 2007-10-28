@@ -22,6 +22,9 @@ package org.apache.james.mailboxmanager.torque;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -345,17 +348,81 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
             messageResult.setKey(getUidToKeyConverter().toKey(messageRow.getUid()));
             result -= MessageResult.KEY;
         }
-        
+        if ((result & MessageResult.HEADERS) > 0) {
+            messageResult.setHeaders(createHeaders(messageRow));
+            result -= MessageResult.HEADERS;
+        }
         
         if (result != 0) {
-            throw new RuntimeException("Unsupportet result: " + result);
+            throw new RuntimeException("Unsupported result: " + result);
         }
         
         return messageResult;
     }
 
+    private MessageResult.Headers createHeaders(MessageRow messageRow) throws TorqueException {
+        final List headers=messageRow.getMessageHeaders();
+        Collections.sort(headers, new Comparator() {
 
+            public int compare(Object one, Object two) {
+                return ((MessageHeader) one).getLineNumber() - ((MessageHeader)two).getLineNumber();
+            }
+            
+        });
+        final MessageResult.Headers results = new HeaderRows(headers);
+        return results;
+    }
 
+    private static final class HeaderRows implements MessageResult.Headers {
+        private static final String[] EMPTY_STRING_ARRAY={};
+        private final List messageHeaders;
+        public HeaderRows(final List messageHeaders) {
+            this.messageHeaders = messageHeaders;
+        }
+        
+        public List getAllLines() throws MessagingException {
+            final ArrayList results = new ArrayList(messageHeaders.size());
+            int i = 0;
+            for (final Iterator it = messageHeaders.iterator();it.hasNext();i++) {
+                MessageHeader header = (MessageHeader) it.next();
+                final String line = toHeaderLine(header);
+                results.add(line);
+            }
+            return results;
+        }
+        
+        private String toHeaderLine(MessageHeader header) {
+            return header.getField() + ": " + header.getValue();
+        }
+        
+        public List getMatchingLines(String[] names) throws MessagingException {
+            final ArrayList results = new ArrayList(messageHeaders.size());
+            for (final Iterator it = messageHeaders.iterator();it.hasNext();) {
+                MessageHeader header = (MessageHeader) it.next();
+                for (int i=0;i<names.length;i++) {
+                    if (names[i].equalsIgnoreCase(header.getField())) {
+                        results.add(toHeaderLine(header));
+                    }
+                }
+            }
+            return results;
+        }
+        
+        public List getOtherLines(String[] names) throws MessagingException {
+            final ArrayList results = new ArrayList(messageHeaders.size());
+            for (final Iterator it = messageHeaders.iterator();it.hasNext();) {
+                MessageHeader header = (MessageHeader) it.next();
+                for (int i=0;i<names.length;i++) {
+                    if (!names[i].equalsIgnoreCase(header.getField())) {
+                        results.add(toHeaderLine(header));
+                    }
+                }
+            }
+            return results;
+        }
+        
+    }
+    
     public synchronized Flags getPermanentFlags() {
         Flags permanentFlags = new Flags();
         permanentFlags.add(Flags.Flag.ANSWERED);
