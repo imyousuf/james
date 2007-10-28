@@ -74,12 +74,7 @@ Sandbox:
         Update: 03-11-1006 API refactorings of interfaces from james to mailet are 90% complete
                             Refactor service location function to JNDI is 10% complete
     
-    spring-integration
-        Goal: create a spring-deployment module, run James Server using Spring Framework
-        Status: completed prototype, currently in iteration
-        Owner: berndf
-    
-    mailbox-namespaces
+   mailbox-namespaces
         Goal:
         Status: empty
         Owner: joachim
