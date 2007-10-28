@@ -17,7 +17,7 @@
 # under the License.                                           #
 ################################################################
 C: a1 CREATE selected
-S: a1 OK CREATE completed
+S: a1 OK CREATE completed.
 
 C: A003 APPEND selected {254+}
 C: Date: Mon, 7 Feb 1994 21:52:25 -0800 (PST)
@@ -30,7 +30,7 @@ C: Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
 C:
 C: Test 01
 C:
-S: A003 OK APPEND completed
+S: A003 OK APPEND completed.
 
 C: A003 APPEND selected {254+}
 C: Date: Mon, 7 Feb 1994 21:52:25 -0800 (PST)
@@ -43,7 +43,7 @@ C: Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
 C:
 C: Test 02
 C:
-S: A003 OK APPEND completed
+S: A003 OK APPEND completed.
 
 C: A003 APPEND selected {254+}
 C: Date: Mon, 7 Feb 1994 21:52:25 -0800 (PST)
@@ -56,7 +56,7 @@ C: Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
 C:
 C: Test 03
 C:
-S: A003 OK APPEND completed
+S: A003 OK APPEND completed.
 
 C: A003 APPEND selected {254+}
 C: Date: Mon, 7 Feb 1994 21:52:25 -0800 (PST)
@@ -69,7 +69,7 @@ C: Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
 C:
 C: Test 04
 C:
-S: A003 OK APPEND completed
+S: A003 OK APPEND completed.
 
 C: a1 SELECT selected
 S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
@@ -78,5 +78,5 @@ S: \* 4 RECENT
 S: \* OK \[UIDVALIDITY \d+\]
 S: \* OK \[UNSEEN 1\] Message 1 is the first unseen
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
-S: a1 OK \[READ-WRITE\] SELECT completed
+S: a1 OK \[READ-WRITE\] SELECT completed.
 
