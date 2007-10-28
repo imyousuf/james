@@ -18,12 +18,12 @@
 ################################################################
 # Tests for PEEK fetches, ensuring that the SEEN flag is not set.
 C: f1 STORE 2 +FLAGS.SILENT (\Flagged)
-S: f1 OK STORE completed
+S: f1 OK STORE completed.
 
 # Check that the initial flags are correct
 C: f1 FETCH 2 (FLAGS)
 S: \* 2 FETCH \(FLAGS \(\\Flagged\)\)
-S: f1 OK FETCH completed
+S: f1 OK FETCH completed.
 
 # BODY.PEEK[]
 C: f1 FETCH 2 (BODY.PEEK[])
@@ -38,7 +38,7 @@ S: Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
 S:
 S: Test 02
 S: \)
-S: f1 OK FETCH completed
+S: f1 OK FETCH completed.
 
 # BODY.PEEK[HEADER]
 C: f1 FETCH 2 (BODY.PEEK[HEADER])
@@ -52,7 +52,7 @@ S: MIME-Version: 1\.0
 S: Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
 S:
 S: \)
-S: f1 OK FETCH completed
+S: f1 OK FETCH completed.
 
 # BODY.PEEK[HEADER.FIELDS]
 C: f1 FETCH 2 (BODY.PEEK[HEADER.FIELDS (From To)])
@@ -73,7 +73,7 @@ S: MIME-Version: 1\.0
 S: Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
 S:
 S: \)
-S: f1 OK FETCH completed
+S: f1 OK FETCH completed.
 
 # BODY.PEEK[MIME]
 # TODO - not yet implemented
@@ -83,10 +83,10 @@ C: f1 FETCH 2 (BODY.PEEK[TEXT])
 S: \* 2 FETCH \(BODY\[TEXT\] \{10\}
 S: Test 02
 S: \)
-S: f1 OK FETCH completed
+S: f1 OK FETCH completed.
 
 # Check that the flags are still correct
 C: f1 FETCH 2 (FLAGS)
 S: \* 2 FETCH \(FLAGS \(\\Flagged\)\)
-S: f1 OK FETCH completed
+S: f1 OK FETCH completed.
 

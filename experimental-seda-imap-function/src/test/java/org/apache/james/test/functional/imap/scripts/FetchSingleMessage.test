@@ -19,7 +19,7 @@
 # BODY
 C: f1 FETCH 1 (BODY)
 # TODO this is wrong - line number incorrect.
-S: \* 1 FETCH \(BODY \(\"TEXT\" \"PLAIN\" \(\"CHARSET\" \"US-ASCII\"\) NIL NIL \"7BIT\" 9 -1\)\)
+S: \* 1 FETCH \(BODY \(\"TEXT\" \"PLAIN\" \(\"CHARSET\" \"US-ASCII\"\) NIL NIL \"7BIT\" 9 1\)\)
 S: f1 OK FETCH completed
 
 # BODY[]
