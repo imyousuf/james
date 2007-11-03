@@ -38,6 +38,8 @@ public class MessageResultImpl implements MessageResult {
     private Date internalDate;
     private String key;
     private Headers headers;
+    private Content messageBody;
+    private Content fullMessage;
     
 
     public MessageResultImpl(long uid) {
@@ -191,5 +193,21 @@ public class MessageResultImpl implements MessageResult {
 
     public void setHeaders(Headers headers) {
         this.headers = headers;
+    }
+
+    public final Content getFullMessage() {
+        return fullMessage;
+    }
+
+    public final void setFullMessage(Content fullMessage) {
+        this.fullMessage = fullMessage;
+    }
+
+    public final Content getMessageBody() {
+        return messageBody;
+    }
+
+    public final void setMessageBody(Content messageBody) {
+        this.messageBody = messageBody;
     }
 }

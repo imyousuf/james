@@ -98,15 +98,7 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
         boolean omitExpunged = (!useUids);
 
         // TODO only fetch needed results
-        int resultToFetch = MessageResult.FLAGS
-                | MessageResult.INTERNAL_DATE | MessageResult.MSN
-                | MessageResult.SIZE;
-        if (fetchMessage(fetch)) {
-            resultToFetch = resultToFetch | MessageResult.MIME_MESSAGE;
-        }
-        if (bodyElementRequiresHeaders(fetch.getBodyElements())) {
-            resultToFetch = resultToFetch | MessageResult.HEADERS;
-        }
+        int resultToFetch = getNeededMessageResult(fetch);
         ImapMailboxSession mailbox = ImapSessionUtils.getMailbox(session);
         for (int i = 0; i < idSet.length; i++) {
             GeneralMessageSet messageSet = GeneralMessageSetImpl.range(idSet[i]
@@ -129,50 +121,48 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
         result.addUnsolicitedResponses(unsolicitedResponses);
         return result;
     }
-    
 
-    private boolean fetchMessage(FetchData fetch) {
-        final boolean result;
+    private int getNeededMessageResult(FetchData fetch) {
+        int result = MessageResult.MSN;
+        if (fetch.isFlags() || fetch.isSetSeen()) {
+            result |= MessageResult.FLAGS;
+        }
+        if (fetch.isInternalDate()) {
+            result |= MessageResult.INTERNAL_DATE;
+        }
+        if (fetch.isSize()) {
+            result |= MessageResult.SIZE;
+        }
+        if (fetch.isUid()) {
+            result |= MessageResult.UID;
+        }
         if (fetch.isEnvelope() || fetch.isBody() || fetch.isBodyStructure()) {
-            result = true;
-        } else {
-            final Collection bodyElements = fetch.getBodyElements();
-            result = bodyElementRequiresMessage(bodyElements);
+            // TODO: structure
+            //result |= MessageResult.ENVELOPE;
+            result |= MessageResult.MIME_MESSAGE;
         }
+
+        result |= fetchForBodyElements(fetch.getBodyElements());
+
         return result;
     }
 
-    private boolean bodyElementRequiresMessage(final Collection bodyElements) {
-        boolean result = false;
-        if (bodyElements != null) {
-            for (final Iterator it=bodyElements.iterator();it.hasNext();) {
-                final BodyFetchElement element = (BodyFetchElement) it.next();
-                final String section = element.getParameters();
-                if ("TEXT".equalsIgnoreCase(section) || section.length() == 0) {
-                    result = true;
-                    break;
-                }
-            }
-        }
-        return result;
-    }
-
-    private boolean bodyElementRequiresHeaders(final Collection bodyElements) {
-        boolean result = false;
+    private int fetchForBodyElements(final Collection bodyElements) {
+        int result = 0;
         if (bodyElements != null) {
             for (final Iterator it=bodyElements.iterator();it.hasNext();) {
                 final BodyFetchElement element = (BodyFetchElement) it.next();
                 final String section = element.getParameters();
                 if ("HEADER".equalsIgnoreCase(section)) {
-                    result = true;
-                    break;
+                    result |=  MessageResult.HEADERS;
                 } else if ( section.startsWith( "HEADER.FIELDS.NOT " ) ) {
-                    result = true;
-                    break;
-                }
-                else if ( section.startsWith( "HEADER.FIELDS " ) ) {
-                    result = true;
-                    break;
+                    result |=  MessageResult.HEADERS;
+                } else if ( section.startsWith( "HEADER.FIELDS " ) ) {
+                    result |=  MessageResult.HEADERS;
+                } else if (section.equalsIgnoreCase("TEXT")) {;
+                    result |=  MessageResult.BODY_CONTENT;
+                } else if (section.length() == 0) {
+                    result |=  MessageResult.FULL_CONTENT;
                 }
             }
         }
@@ -289,17 +279,8 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
             throws ProtocolException, MessagingException {
         // TODO: section specifier should be fully parsed during parsing phase
         if (sectionSpecifier.length() == 0) {
-            final MimeMessage mimeMessage = result.getMimeMessage();
-            // TODO - need to use an InputStream from the response here.
-            ByteArrayOutputStream bout = new ByteArrayOutputStream();
-            try {
-                mimeMessage.writeTo(new CRLFOutputStream(bout));
-            } catch (IOException e) {
-                throw new ProtocolException("Error reading message source", e);
-            }
-            byte[] bytes = bout.toByteArray();
-            addLiteral(bytes, response);
-            // TODO JD maybe we've to add CRLF here
+            final MessageResult.Content fullMessage = result.getFullMessage();
+            addLiteralContent(fullMessage, response);
         }
         else if ( sectionSpecifier.equalsIgnoreCase( "HEADER" ) ) {
             final MessageResult.Headers headers = result.getHeaders();
@@ -320,27 +301,11 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
         } else if (sectionSpecifier.equalsIgnoreCase("MIME")) {
             // TODO implement
             throw new ProtocolException("MIME not yet implemented.");
+            
         } else if (sectionSpecifier.equalsIgnoreCase("TEXT")) {
-            final MimeMessage mimeMessage = result.getMimeMessage();
-            // TODO - need to use an InputStream from the response here.
-            // TODO - this is a hack. To get just the body content, I'm using a
-            // null
-            // input stream to take the headers. Need to have a way of ignoring
-            // headers.
-            ByteArrayOutputStream headerOut = new ByteArrayOutputStream();
-            ByteArrayOutputStream bodyOut = new ByteArrayOutputStream();
-            try {
-                // TODO James Trunk : Is this okay?
-                MimeMessageWrapper mmw = new MimeMessageWrapper(mimeMessage);
-
-                mmw.writeTo(headerOut, bodyOut);
-                byte[] bytes = bodyOut.toByteArray();
-
-                addLiteral(bytes, response);
-
-            } catch (IOException e) {
-                throw new ProtocolException("Error reading message source", e);
-            }
+            final MessageResult.Content messageBody = result.getMessageBody();
+            addLiteralContent(messageBody, response);
+            
         } else {
             // Should be a part specifier followed by a section specifier.
             // See if there's a leading part specifier.
@@ -378,6 +343,16 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
         }
     }
 
+    private void addLiteralContent(final MessageResult.Content content, final StringBuffer response) throws MessagingException {
+        response.append('{' );
+        final long length = content.size();
+        response.append( length ); // TODO JD addLiteral: why was it  bytes.length +1 here?
+        response.append( '}' );
+        response.append( "\r\n" );
+        content.writeTo(response);
+    }
+
+    
     // TODO should do this at parse time.
     private String[] extractHeaderList(String headerList, int prefixLen) {
         // Remove the trailing and leading ')('

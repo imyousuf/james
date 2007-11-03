@@ -40,6 +40,7 @@ import org.apache.james.mailboxmanager.MailboxListener;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.SearchParameters;
+import org.apache.james.mailboxmanager.MessageResult.Content;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.impl.MailboxEventDispatcher;
 import org.apache.james.mailboxmanager.impl.MessageResultImpl;
@@ -352,14 +353,107 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
             messageResult.setHeaders(createHeaders(messageRow));
             result -= MessageResult.HEADERS;
         }
-        
+        if ((result & MessageResult.BODY_CONTENT) > 0) {
+            messageResult.setMessageBody(createBodyContent(messageRow));
+            result -= MessageResult.BODY_CONTENT;
+        }
+        if ((result & MessageResult.FULL_CONTENT) > 0) {
+            messageResult.setFullMessage(createFullContent(messageRow, messageResult.getHeaders()));
+            result -= MessageResult.FULL_CONTENT;
+        }
         if (result != 0) {
             throw new RuntimeException("Unsupported result: " + result);
         }
         
         return messageResult;
     }
+    
+    private final static class FullContent implements MessageResult.Content {
+        private final byte[] contents;
+        private final List headers;
+        private final long size;
+        
+        public FullContent(final byte[] contents, final List headers) {
+            this.contents =  contents;
+            this.headers = headers;
+            this.size = caculateSize();
+        }
 
+        private long caculateSize(){
+            long result = contents.length + MessageUtils.countUnnormalLines(contents);
+            result += 2;
+            for (final Iterator it=headers.iterator(); it.hasNext();) {
+                final String line = (String) it.next();
+                if (line != null) {
+                    // we don't know the appropriate encoding for the headers
+                    // TODO: sort out on entry (if possible)
+                    result += line.getBytes().length;
+                    result += 2;
+                }
+            }
+            return result;
+        }
+
+        public void writeTo(StringBuffer buffer) throws MessagingException {
+            for (final Iterator it=headers.iterator(); it.hasNext();) {
+                final String line = (String) it.next();
+                if (line != null) {
+                    // we don't know the appropriate encoding for the headers
+                    // TODO: sort out on entry (if possible)
+                    byte[] bytes = line.getBytes();
+                    for (int i=0;i<bytes.length;i++) {
+                        buffer.append((char) bytes[i]);
+                    }
+                }
+                buffer.append('\r');
+                buffer.append('\n');
+            }
+            buffer.append('\r');
+            buffer.append('\n');
+            MessageUtils.normalisedWriteTo(contents, buffer);
+        }
+
+        public long size() throws MessagingException {
+            return size;
+        }
+    }
+
+    private Content createFullContent(final MessageRow messageRow, MessageResult.Headers headers) throws TorqueException, MessagingException {
+        if (headers == null) {
+            headers = createHeaders(messageRow);
+        }
+        final MessageBody body = (MessageBody) messageRow.getMessageBodys().get(0);
+        final byte[] bytes = body.getBody();
+        final List lines = headers.getAllLines();
+        final FullContent results = new FullContent(bytes, lines);
+        return results;
+    }
+    
+    private Content createBodyContent(MessageRow messageRow) throws TorqueException {
+        final MessageBody body = (MessageBody) messageRow.getMessageBodys().get(0);
+        final byte[] bytes = body.getBody();
+        final ByteContent result = new ByteContent(bytes);
+        return result;
+    }
+    
+    private final static class ByteContent implements MessageResult.Content {
+       
+        private final byte[] contents;
+        private final long size;
+        public ByteContent(final byte[] contents) {
+            this.contents = contents;
+            size = contents.length + MessageUtils.countUnnormalLines(contents);
+        }
+        
+        public long size() throws MessagingException {
+            return size;
+        }
+        
+        public void writeTo(StringBuffer buffer) throws MessagingException {
+            MessageUtils.normalisedWriteTo(contents, buffer);
+        }
+    } 
+    
     private MessageResult.Headers createHeaders(MessageRow messageRow) throws TorqueException {
         final List headers=messageRow.getMessageHeaders();
         Collections.sort(headers, new Comparator() {

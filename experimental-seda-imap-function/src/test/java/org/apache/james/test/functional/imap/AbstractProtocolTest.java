@@ -42,13 +42,6 @@ public abstract class AbstractProtocolTest
     /** The Protocol session which is run after the testElements. */
     protected ProtocolSession postElements = new ProtocolSession();
 
-    /** The host name to connect to for socket-based testing. */
-    protected String host = HOST;
-    /** The host port to connect to for socket-based testing. */
-    protected int port = PORT;
-    /** The timeout to set on the socket for socket-based testing. */
-    protected int timeout = TIMEOUT;
-
     private final HostSystem hostSystem;
     
     public AbstractProtocolTest( HostSystem hostSystem )
@@ -60,6 +53,12 @@ public abstract class AbstractProtocolTest
     {
         super.setUp();
         setUpEnvironment();
+    }
+    
+    protected void continueAfterFailure() {
+        preElements.setContinueAfterFailure(true);
+        testElements.setContinueAfterFailure(true);
+        postElements.setContinueAfterFailure(true);
     }
 
 

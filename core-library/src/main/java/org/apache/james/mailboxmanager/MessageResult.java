@@ -93,6 +93,10 @@ public interface MessageResult extends Comparable {
 
     public static final int HEADERS = 0x100;
     
+    public static final int FULL_CONTENT = 0x200;
+    
+    public static final int BODY_CONTENT = 0x400;
+    
     int getIncludedResults();
 
     boolean contains(int result);
@@ -173,5 +177,43 @@ public interface MessageResult extends Comparable {
          * @throws MessagingException
          */
         List getOtherLines(String[] names) throws MessagingException;
+    }
+    
+    /**
+     * Gets the full message including headers and body.
+     * The message data should have normalised line endings (CRLF).
+     * @return <code>Content</code>, 
+     * or or null if {@link #FULL_CONTENT} has not been included in the 
+     * results
+     */
+    Content getFullMessage();
+
+    /**
+     * Gets the body of the message excluding headers.
+     * The message data should have normalised line endings (CRLF).
+     * @return <code>Content</code>,
+     * or or null if {@link #FULL_CONTENT} has not been included in the 
+     * results 
+     */
+    Content getMessageBody();
+
+    /**
+     * IMAP needs to know the size of the content before it starts to write it out.
+     * This interface allows direct writing whilst exposing total size.
+     */
+    public interface Content {
+        /**
+         * Writes content into the given buffer.
+         * @param buffer <code>StringBuffer</code>, not null
+         * @throws MessagingException
+         */
+        public void writeTo(StringBuffer buffer) throws MessagingException;
+        
+        /**
+         * Size (in octets) of the content.
+         * @return number of octets to be written
+         * @throws MessagingException
+         */
+        public long size() throws MessagingException;
     }
 }

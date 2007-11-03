@@ -19,48 +19,12 @@
 
 package org.apache.james.experimental.imapserver;
 
-import org.apache.james.test.functional.imap.AbstractTestSelectedState;
+import org.apache.james.test.functional.imap.AbstractTestFetch;
 
-public class ExperimentalSelectedStateTest extends AbstractTestSelectedState {
+public class ExperimentalFetchTest extends AbstractTestFetch {
 
-    public ExperimentalSelectedStateTest() throws Exception {
+    public ExperimentalFetchTest() throws Exception {
         super(HostSystemFactory.createStandardImap());
     }
 
-    public void testSearch() throws Exception {
-        //TODO Implement search
-    }
-
-    public void testFetchMultipleMessages() throws Exception {
-        // TODO Auto-generated method stub
-        //super.testFetchMultipleMessages();
-    }
-
-    public void testFetchPeek() throws Exception {
-        // STORE FLAGS.SILENT does not work
-        //super.testFetchPeek();
-    }
-
-    public void testFetchSingleMessage() throws Exception {
-        // BODY octet count is buggy.
-        // The total size of the message is used rather than the size of the part
-        //super.testFetchSingleMessage();
-    }
-
-    public void testStore() throws Exception {
-//      STORE FLAGS.SILENT does not work
-//        super.testStore();
-    }
-
-    public void testUid() throws Exception {
-        // UID fetch not working very well
-        // super.testUid();
-    }
-
-    public void testCopy() throws Exception {
-        // extra fetch messages
-    //    super.testCopy();
-    }    
-    
-    
 }
