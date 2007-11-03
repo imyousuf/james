@@ -44,6 +44,7 @@ import org.apache.james.imapserver.store.SimpleMessageAttributes;
 import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
+import org.apache.james.mailboxmanager.MessageResult.Content;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 import org.apache.mailet.dates.RFC822DateFormat;
@@ -85,10 +86,7 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
             fetch.uid = true;
         }
 
-        // TODO only fetch needed results
-        int resultToFetch = MessageResult.FLAGS | MessageResult.MIME_MESSAGE
-                | MessageResult.INTERNAL_DATE | MessageResult.MSN
-                | MessageResult.SIZE;
+        int resultToFetch = fetch.getNeededMessageResult();
         ImapMailboxSession mailbox = session.getSelected().getMailbox();
         for (int i = 0; i < idSet.length; i++) {
             GeneralMessageSet messageSet=GeneralMessageSetImpl.range(idSet[i].getLowVal(),idSet[i].getHighVal(),useUids);
@@ -151,27 +149,29 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
                 response.append(result.getSize());
             }
 
-            SimpleMessageAttributes attrs = new SimpleMessageAttributes(result
-                    .getMimeMessage(), getLogger());
-
-            // ENVELOPE response
-            if (fetch.envelope) {
-                response.append(" ENVELOPE ");
-                response.append(attrs.getEnvelope());
+            if (fetch.envelope || fetch.body || fetch.bodyStructure) {
+                SimpleMessageAttributes attrs = new SimpleMessageAttributes(result
+                        .getMimeMessage(), getLogger());
+    
+                // ENVELOPE response
+                if (fetch.envelope) {
+                    response.append(" ENVELOPE ");
+                    response.append(attrs.getEnvelope());
+                }
+    
+                // BODY response
+                if (fetch.body) {
+                    response.append(" BODY ");
+                    response.append(attrs.getBodyStructure(false));
+                }
+    
+                // BODYSTRUCTURE response
+                if (fetch.bodyStructure) {
+                    response.append(" BODYSTRUCTURE ");
+                    response.append(attrs.getBodyStructure(true));
+                }
             }
-
-            // BODY response
-            if (fetch.body) {
-                response.append(" BODY ");
-                response.append(attrs.getBodyStructure(false));
-            }
-
-            // BODYSTRUCTURE response
-            if (fetch.bodyStructure) {
-                response.append(" BODYSTRUCTURE ");
-                response.append(attrs.getBodyStructure(true));
-            }
-
+            
             // UID response
             if (fetch.uid) {
                 response.append(" UID ");
@@ -190,9 +190,8 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
                 // Various mechanisms for returning message body.
                 String sectionSpecifier = fetchElement.getParameters();
 
-                MimeMessage mimeMessage = result.getMimeMessage();
                 try {
-                    handleBodyFetch(mimeMessage, sectionSpecifier, response);
+                    handleBodyFetch(result, sectionSpecifier, response);
                 } catch (MessagingException e) {
                     throw new MailboxException(e.getMessage(), e);
                 }
@@ -212,62 +211,36 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
     }
 
 
-    private void handleBodyFetch( MimeMessage mimeMessage,
-                                  String sectionSpecifier,
-                                  StringBuffer response )
+    private void handleBodyFetch( final MessageResult result,
+                                  final String sectionSpecifier,
+                                  final StringBuffer response )
             throws ProtocolException, MessagingException
     {
         if ( sectionSpecifier.length() == 0 ) {
-            // TODO - need to use an InputStream from the response here.
-            ByteArrayOutputStream bout = new ByteArrayOutputStream();
-            try {
-                mimeMessage.writeTo(new CRLFOutputStream(bout));
-            }
-            catch ( IOException e ) {
-                throw new ProtocolException( "Error reading message source", e);
-            }
-            byte[] bytes = bout.toByteArray();
-            addLiteral( bytes, response );
-            // TODO JD maybe we've to add CRLF here
-            
+            final Content fullMessage = result.getFullMessage();
+            addLiteralContent(fullMessage, response);
         }
         else if ( sectionSpecifier.equalsIgnoreCase( "HEADER" ) ) {
-            Enumeration e = mimeMessage.getAllHeaderLines();
-            addHeaders( e, response );
+            final List lines = result.getHeaders().getAllLines();
+            addHeaders( lines, response );
         }
         else if ( sectionSpecifier.startsWith( "HEADER.FIELDS.NOT " ) ) {
             String[] excludeNames = extractHeaderList( sectionSpecifier, "HEADER.FIELDS.NOT ".length() );
-            Enumeration e = mimeMessage.getNonMatchingHeaderLines( excludeNames );
-            addHeaders( e, response );
+            final List lines = result.getHeaders().getOtherLines( excludeNames );
+            addHeaders( lines, response );
         }
         else if ( sectionSpecifier.startsWith( "HEADER.FIELDS " ) ) {
             String[] includeNames = extractHeaderList( sectionSpecifier, "HEADER.FIELDS ".length() );
-            Enumeration e = mimeMessage.getMatchingHeaderLines( includeNames );
-            addHeaders( e, response );
+            final List lines = result.getHeaders().getMatchingLines( includeNames );
+            addHeaders( lines, response );
         }
         else if ( sectionSpecifier.equalsIgnoreCase( "MIME" ) ) {
             // TODO implement
             throw new ProtocolException( "MIME not yet implemented." );
         }
         else if ( sectionSpecifier.equalsIgnoreCase( "TEXT" ) ) {
-            // TODO - need to use an InputStream from the response here.
-            // TODO - this is a hack. To get just the body content, I'm using a null
-            // input stream to take the headers. Need to have a way of ignoring headers.
-            ByteArrayOutputStream headerOut = new ByteArrayOutputStream();
-            ByteArrayOutputStream bodyOut = new ByteArrayOutputStream();
-            try {
-                // TODO James Trunk : Is this okay?
-                MimeMessageWrapper mmw=new MimeMessageWrapper(mimeMessage);
-                
-                mmw.writeTo(headerOut, bodyOut );
-                byte[] bytes = bodyOut.toByteArray();
-
-                addLiteral( bytes, response );
-
-            }
-            catch ( IOException e ) {
-                throw new ProtocolException( "Error reading message source", e);
-            }
+            final Content messageBody = result.getMessageBody();
+            addLiteralContent(messageBody, response);
         }
         else {
             // Should be a part specifier followed by a section specifier.
@@ -289,17 +262,13 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
 
     }
 
-    private void addLiteral( byte[] bytes, StringBuffer response )
-    {
+    private void addLiteralContent(final MessageResult.Content content, final StringBuffer response) throws MessagingException {
         response.append('{' );
-        response.append( bytes.length ); // TODO JD addLiteral: why was it  bytes.length +1 here?
+        final long length = content.size();
+        response.append( length ); // TODO JD addLiteral: why was it  bytes.length +1 here?
         response.append( '}' );
         response.append( "\r\n" );
-
-        for ( int i = 0; i < bytes.length; i++ ) {
-            byte b = bytes[i];
-            response.append((char)b);
-        }
+        content.writeTo(response);
     }
 
     // TODO should do this at parse time.
@@ -326,23 +295,21 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
         return (String[]) strings.toArray(new String[0]);
     }
 
-    private void addHeaders( Enumeration e, StringBuffer response )
+    private void addHeaders( final List headers, final StringBuffer response )
     {
-        List lines = new ArrayList();
         int count = 0;
-        while (e.hasMoreElements()) {
-            String line = (String)e.nextElement();
+        for (final Iterator it=headers.iterator();it.hasNext();) {
+            final String line = (String) it.next();
             count += line.length() + 2;
-            lines.add(line);
         }
+
         response.append( '{' );
         response.append( count + 2 );
         response.append( '}' );
         response.append("\r\n");
 
-        Iterator lit = lines.iterator();
-        while (lit.hasNext()) {
-            String line = (String)lit.next();
+        for (final Iterator it=headers.iterator();it.hasNext();) {
+            final String line = (String) it.next();
             response.append( line );
             response.append( "\r\n" );
         }
@@ -448,7 +415,6 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
                 else {
                     consumeChar( command, '[' );
 
-                    
                     String parameter = readWord(command, "]");
 
                     consumeChar( command, ']');
@@ -508,7 +474,11 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
         
         private boolean setSeen = false;
         
-        private Set bodyElements = new HashSet();
+        private final Set bodyElements = new HashSet();
+        boolean headerFetchElement = false;
+        boolean mailFetchElement = false;
+        boolean bodyFetch = false;
+        boolean fullContentFetch = false;
         
         public Collection getBodyElements() {
             return bodyElements;
@@ -523,7 +493,55 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
             if (!peek) {
                 setSeen = true;
             }
+
+            // we only need the headers, if the following element added:
+            String sectionIdentifier = element.sectionIdentifier.toUpperCase();
+            if ("HEADERS".equals(sectionIdentifier) || sectionIdentifier.startsWith("HEADER.FIELDS.NOT ") 
+                    || sectionIdentifier.startsWith("HEADER.FIELDS ")) {
+                headerFetchElement = true;
+            } else if (sectionIdentifier.length() == 0) {
+                fullContentFetch= true;
+            } else if ("TEXT".equals(sectionIdentifier)) {
+                bodyFetch = true;
+            } else {
+                // unfortunately we need to fetch the whole mail
+                mailFetchElement = true;
+            }
             bodyElements.add(element);
+        }
+                
+        public int getNeededMessageResult() {
+            int result = MessageResult.MSN;
+            if (flags || setSeen) {
+                result |= MessageResult.FLAGS;
+            }
+            if (internalDate) {
+                result |= MessageResult.INTERNAL_DATE;
+            }
+            if (size) {
+                result |= MessageResult.SIZE;
+            }
+            if (uid) {
+                result |= MessageResult.UID;
+            }
+            if (mailFetchElement) {
+                result |= MessageResult.MIME_MESSAGE;
+            }
+            if (body || bodyStructure || envelope) {
+                // TODO: structure
+                //result |= MessageResult.ENVELOPE;
+                result |= MessageResult.MIME_MESSAGE;
+            }
+            if (headerFetchElement || mailFetchElement) {
+                result |= MessageResult.HEADERS;
+            }
+            if (bodyFetch) {
+                result |= MessageResult.BODY_CONTENT;
+            }
+            if (fullContentFetch) {
+                result |= MessageResult.FULL_CONTENT;
+            }
+            return result;
         }
     }
 

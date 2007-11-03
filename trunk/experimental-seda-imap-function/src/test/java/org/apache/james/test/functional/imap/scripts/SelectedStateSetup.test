@@ -32,7 +32,7 @@ C: Test 01
 C:
 S: A003 OK APPEND completed.
 
-C: A003 APPEND selected {254+}
+C: A004 APPEND selected {254+}
 C: Date: Mon, 7 Feb 1994 21:52:25 -0800 (PST)
 C: From: Fred Foobar <foobar@Blurdybloop.COM>
 C: Subject: Test 02
@@ -43,9 +43,9 @@ C: Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
 C:
 C: Test 02
 C:
-S: A003 OK APPEND completed.
+S: A004 OK APPEND completed.
 
-C: A003 APPEND selected {254+}
+C: A005 APPEND selected {254+}
 C: Date: Mon, 7 Feb 1994 21:52:25 -0800 (PST)
 C: From: Fred Foobar <foobar@Blurdybloop.COM>
 C: Subject: Test 03
@@ -56,9 +56,9 @@ C: Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
 C:
 C: Test 03
 C:
-S: A003 OK APPEND completed.
+S: A005 OK APPEND completed.
 
-C: A003 APPEND selected {254+}
+C: A006 APPEND selected {254+}
 C: Date: Mon, 7 Feb 1994 21:52:25 -0800 (PST)
 C: From: Fred Foobar <foobar@Blurdybloop.COM>
 C: Subject: Test 04
@@ -69,7 +69,7 @@ C: Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
 C:
 C: Test 04
 C:
-S: A003 OK APPEND completed.
+S: A006 OK APPEND completed.
 
 C: a1 SELECT selected
 S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)

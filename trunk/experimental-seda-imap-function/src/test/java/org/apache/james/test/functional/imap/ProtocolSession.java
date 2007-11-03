@@ -46,6 +46,17 @@ public class ProtocolSession
     private Iterator elementsIterator;
     private HostSystem.Session[] sessions;
     private ProtocolElement nextTest;
+    private boolean continueAfterFailure = false;
+    
+    
+    
+    public final boolean isContinueAfterFailure() {
+        return continueAfterFailure;
+    }
+
+    public final void setContinueAfterFailure(boolean continueAfterFailure) {
+        this.continueAfterFailure = continueAfterFailure;
+    }
 
     /**
      * Returns the number of sessions required to run this ProtocolSession.
@@ -72,7 +83,7 @@ public class ProtocolSession
             Object obj = elementsIterator.next();
             if ( obj instanceof ProtocolElement ) {
                 ProtocolElement test = ( ProtocolElement ) obj;
-                test.testProtocol( sessions );
+                test.testProtocol( sessions, continueAfterFailure );
             }
         }
     }
@@ -89,7 +100,7 @@ public class ProtocolSession
                         if (!nextTest.isClient()) {
                             break;
                         }
-                        nextTest.testProtocol( sessions );
+                        nextTest.testProtocol( sessions, continueAfterFailure );
                     }
                 }
                 if (!elementsIterator.hasNext()) {
@@ -195,7 +206,7 @@ public class ProtocolSession
          * writer for this session is writted to.
          * @throws Exception 
          */
-        public void testProtocol( HostSystem.Session[] sessions ) throws Exception
+        public void testProtocol( HostSystem.Session[] sessions, boolean continueAfterFailure ) throws Exception
         {
             if (sessionNumber < 0) {
                 for (int i = 0; i < sessions.length; i++) {
@@ -263,28 +274,32 @@ public class ProtocolSession
          * @throws InvalidServerResponseException If the actual server response didn't
          *          match the regular expression expected.
          */
-        public void testProtocol( HostSystem.Session[] sessions)
+        public void testProtocol( HostSystem.Session[] sessions, boolean continueAfterFailure)
                 throws Exception
         {
             if (sessionNumber < 0) {
                 for (int i = 0; i < sessions.length; i++) {
                     HostSystem.Session session = sessions[i];
-                    checkResponse(session);
+                    checkResponse(session, continueAfterFailure);
                 }
             }
             else {
                 HostSystem.Session session = sessions[sessionNumber];
-                checkResponse(session);
+                checkResponse(session, continueAfterFailure);
             }
         }
 
-        protected void checkResponse(HostSystem.Session session) throws Exception {
+        protected void checkResponse(HostSystem.Session session, boolean continueAfterFailure) throws Exception {
             String testLine = readLine(session);
             if ( ! match( expectedLine, testLine ) ) {
                 String errMsg = "\nLocation: " + location +
                         "\nExpected: " + expectedLine +
                         "\nActual   : " + testLine;
-                throw new InvalidServerResponseException( errMsg );
+                if (continueAfterFailure) {
+                    System.out.println(errMsg);
+                } else {
+                    throw new InvalidServerResponseException( errMsg );
+                }
             }
         }
 
@@ -366,7 +381,7 @@ public class ProtocolSession
          * @throws InvalidServerResponseException If a line is encountered which doesn't
          *              match one of the expected lines.
          */
-        protected void checkResponse(HostSystem.Session session) throws Exception {
+        protected void checkResponse(HostSystem.Session session, boolean continueAfterFailure) throws Exception {
             List testLines = new ArrayList(expectedLines);
             while (testLines.size() > 0) {
                 String actualLine = readLine(session);
@@ -393,8 +408,11 @@ public class ProtocolSession
                     }
                     errMsg.append("\nActual: ")
                             .append(actualLine);
-
-                    throw new InvalidServerResponseException(errMsg.toString());
+                    if (continueAfterFailure) {
+                        System.out.println(errMsg.toString());
+                    } else {
+                        throw new InvalidServerResponseException(errMsg.toString());
+                    }
                 }
             }
         }
@@ -408,19 +426,24 @@ public class ProtocolSession
             this.sessionNumber = sessionNumber < 0 ? 0 : sessionNumber ;
         }
         
-        public void testProtocol(Session[] sessions) throws Exception {
+        public void testProtocol(Session[] sessions, boolean continueAfterFailure) throws Exception {
             HostSystem.Session session = sessions[sessionNumber];
             continuationExpected = true;
             continued = false;
             String testLine = session.readLine();
             if ( ! "+".equals(testLine) || ! continued) {
-                throw new InvalidServerResponseException( "Expected continuation" );
+                final String message = "Expected continuation";
+                if (continueAfterFailure) {
+                    System.out.print(message);
+                } else {
+                    throw new InvalidServerResponseException( message );
+                }
             }
             continuationExpected = false;
             continued = false;
             
             if (nextTest != null) {
-                nextTest.testProtocol(sessions);
+                nextTest.testProtocol(sessions, continueAfterFailure);
             }
         }
 
@@ -438,9 +461,10 @@ public class ProtocolSession
     {
         /**
          * Executes the ProtocolElement against the supplied session.
+         * @param continueAfterFailure TODO
          * @throws Exception 
          */
-        void testProtocol( HostSystem.Session[] sessions) throws Exception;
+        void testProtocol( HostSystem.Session[] sessions, boolean continueAfterFailure) throws Exception;
         
         boolean isClient();
     }
