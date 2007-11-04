@@ -21,6 +21,7 @@
 package org.apache.james.test.functional.imap;
 
 import java.io.InputStream;
+import java.util.Locale;
 
 /**
  * A Protocol test which reads the test protocol session from a file. The
@@ -31,10 +32,12 @@ import java.io.InputStream;
  */
 public class SimpleScriptedTestProtocol
         extends AbstractProtocolTest
-{
+{    
     private FileProtocolSessionBuilder builder =
             new FileProtocolSessionBuilder();
 
+    private static final Locale BASE_DEFAULT_LOCALE = Locale.getDefault();
+    
     /**
      * Sets up a SimpleFileProtocolTest which reads the protocol session from
      * a file of name "<fileName>.test". This file should be available in the classloader
@@ -46,12 +49,21 @@ public class SimpleScriptedTestProtocol
         super( hostSystem );
     }
 
+    protected void tearDown() throws Exception {
+        Locale.setDefault(BASE_DEFAULT_LOCALE);
+        super.tearDown();
+    }
+
+
+
     /**
      * Reads test elements from the protocol session file and adds them to the
      * {@link #testElements} ProtocolSession. Then calls {@link #runSessions}.
+     * @param locale TODO
      */
-    protected void scriptTest(String fileName) throws Exception
+    protected void scriptTest(String fileName, Locale locale) throws Exception
     {
+        Locale.setDefault(locale);
         addTestFile( fileName + ".test", testElements );
         runSessions();
     }

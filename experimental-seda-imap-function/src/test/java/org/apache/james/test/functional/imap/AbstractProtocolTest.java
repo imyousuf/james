@@ -19,6 +19,8 @@
 
 package org.apache.james.test.functional.imap;
 
+import java.util.Locale;
+
 import junit.framework.TestCase;
 
 
@@ -41,14 +43,14 @@ public abstract class AbstractProtocolTest
     protected ProtocolSession testElements = new ProtocolSession();
     /** The Protocol session which is run after the testElements. */
     protected ProtocolSession postElements = new ProtocolSession();
-
+    
     private final HostSystem hostSystem;
     
     public AbstractProtocolTest( HostSystem hostSystem )
     {
         this.hostSystem = hostSystem;
     }
-
+    
     protected void setUp() throws Exception
     {
         super.setUp();

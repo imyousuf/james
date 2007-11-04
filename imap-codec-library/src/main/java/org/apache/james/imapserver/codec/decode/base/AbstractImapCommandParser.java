@@ -19,9 +19,6 @@
 
 package org.apache.james.imapserver.codec.decode.base;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -202,37 +199,7 @@ public abstract class AbstractImapCommandParser extends AbstractLogEnabled imple
             throw new ProtocolException( "DateTime values must be quoted." );
         }
 
-        DateFormat dateFormat = new SimpleDateFormat( "dd-MMM-yyyy hh:mm:ss zzzz" );
-        try {
-            return dateFormat.parse( dateString );
-        }
-        catch ( ParseException e ) {
-            throw new ProtocolException( "Invalid date format.", e);
-        }
-    }
-
-    /**
-     * Reads a "date" argument from the request.
-     * TODO handle timezones properly
-     */
-    public Date date( ImapRequestLineReader request ) throws ProtocolException
-    {
-        char next = request.nextWordChar();
-        String dateString;
-        if ( next == '"' ) {
-            dateString = consumeQuoted( request );
-        }
-        else {
-            dateString = atom( request );
-        }
-
-        DateFormat dateFormat = new SimpleDateFormat( "dd-MMM-yyyy" );
-        try {
-            return dateFormat.parse( dateString );
-        }
-        catch ( ParseException e ) {
-            throw new ProtocolException( "Invalid date format.", e);
-        }
+        return DecoderUtils.decodeDateTime(dateString);
     }
 
     /**
