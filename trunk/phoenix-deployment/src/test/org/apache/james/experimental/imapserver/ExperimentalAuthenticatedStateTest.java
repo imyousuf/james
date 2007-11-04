@@ -19,6 +19,8 @@
 
 package org.apache.james.experimental.imapserver;
 
+import java.util.Locale;
+
 import org.apache.james.test.functional.imap.AbstractAuthenticatedStateTestSuite;
 
 public class ExperimentalAuthenticatedStateTest extends AbstractAuthenticatedStateTestSuite {
@@ -26,38 +28,101 @@ public class ExperimentalAuthenticatedStateTest extends AbstractAuthenticatedSta
         super(HostSystemFactory.createStandardImap());
     }
     
-    public void testSubscribe() throws Exception {
+    public void testSubscribeUS() throws Exception {
         // TODO: user is automatically subscribed to INBOX. 
         // Check whether this is correct behaviour
     }
     
-    public void testSelectEmpty() throws Exception {
+    public void testSelectEmptyUS() throws Exception {
 //      TODO: \recent flag is returned by FLAGS - specification seems ambiguous on this
     }
     
-    public void testAppendExamineInbox() throws Exception {
+    public void testAppendExamineInboxUS() throws Exception {
 //      TODO: \recent flag is returned by FLAGS - specification seems ambiguous on this
     }
     
-    public void testAppendSelectInbox() throws Exception {
+    public void testAppendSelectInboxUS() throws Exception {
 //      TODO: \recent flag is returned by FLAGS - specification seems ambiguous on this
     }
     
-    public void testListMailboxes() throws Exception {
+    public void testListMailboxesUS() throws Exception {
 // TODO: fix bug - complete hierarchy returned
     }
 
-    public void testSelectAppend() throws Exception {
+    public void testSelectAppendUS() throws Exception {
 //      TODO: \recent flag is returned by FLAGS - specification seems ambiguous on this
     }
     
-    public void testAppendExpunge() throws Exception {
+    public void testAppendExpungeUS() throws Exception {
 //      TODO: \recent flag is returned by FLAGS - specification seems ambiguous on this
     }
     
-    public void testListNamespace() throws Exception {
+    public void testListNamespaceUS() throws Exception {
+        // TODO: root mailbox should be marked as Noselect
+    }
+    
+    public void testSubscribeITALY() throws Exception {
+//      TODO: \recent flag is returned by FLAGS - specification seems ambiguoITALY on this
+    }
+    
+    public void testSelectEmptyITALY() throws Exception {
+//      TODO: \recent flag is returned by FLAGS - specification seems ambiguoITALY on this
+    }
+    
+    public void testAppendExamineInboxITALY() throws Exception {
+//      TODO: \recent flag is returned by FLAGS - specification seems ambiguoITALY on this
+    }
+    
+    public void testAppendSelectInboxITALY() throws Exception {
+//      TODO: \recent flag is returned by FLAGS - specification seems ambiguoITALY on this
+    }
+    
+    public void testListMailboxesITALY() throws Exception {
+// TODO: fix bug - complete hierarchy returned
+    }
+
+    public void testSelectAppendITALY() throws Exception {
+//      TODO: \recent flag is returned by FLAGS - specification seems ambiguoITALY on this
+    }
+    
+    public void testAppendExpungeITALY() throws Exception {
+//      TODO: \recent flag is returned by FLAGS - specification seems ambiguoITALY on this
+    }
+    
+    public void testListNamespaceITALY() throws Exception {
         // TODO: root mailbox should be marked as Noselect
     }
     
     
+    public void testSubscribeKOREA() throws Exception {
+//      TODO: \recent flag is returned by FLAGS - specification seems ambiguoKOREA on this
+    }
+    
+    public void testSelectEmptyKOREA() throws Exception {
+//      TODO: \recent flag is returned by FLAGS - specification seems ambiguoKOREA on this
+    }
+    
+    public void testAppendExamineInboxKOREA() throws Exception {
+//      TODO: \recent flag is returned by FLAGS - specification seems ambiguoKOREA on this
+    }
+    
+    public void testAppendSelectInboxKOREA() throws Exception {
+//      TODO: \recent flag is returned by FLAGS - specification seems ambiguoKOREA on this
+    }
+    
+    public void testListMailboxesKOREA() throws Exception {
+// TODO: fix bug - complete hierarchy returned
+    }
+
+    public void testSelectAppendKOREA() throws Exception {
+//      TODO: \recent flag is returned by FLAGS - specification seems ambiguoKOREA on this
+    }
+    
+    public void testAppendExpungeKOREA() throws Exception {
+//      TODO: \recent flag is returned by FLAGS - specification seems ambiguoKOREA on this
+    }
+    
+    public void testListNamespaceKOREA() throws Exception {
+        // TODO: root mailbox should be marked as Noselect
+    }
 }

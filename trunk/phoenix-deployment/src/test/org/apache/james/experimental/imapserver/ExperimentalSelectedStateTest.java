@@ -27,40 +27,110 @@ public class ExperimentalSelectedStateTest extends AbstractTestSelectedState {
         super(HostSystemFactory.createStandardImap());
     }
 
-    public void testSearch() throws Exception {
+    public void testSearchUS() throws Exception {
         //TODO Implement search
     }
 
-    public void testFetchMultipleMessages() throws Exception {
+    public void testFetchMultipleMessagesUS() throws Exception {
         // TODO Auto-generated method stub
         //super.testFetchMultipleMessages();
     }
 
-    public void testFetchPeek() throws Exception {
+    public void testFetchPeekUS() throws Exception {
         // STORE FLAGS.SILENT does not work
         //super.testFetchPeek();
     }
 
-    public void testFetchSingleMessage() throws Exception {
+    public void testFetchSingleMessageUS() throws Exception {
         // BODY octet count is buggy.
         // The total size of the message is used rather than the size of the part
         //super.testFetchSingleMessage();
     }
 
-    public void testStore() throws Exception {
+    public void testStoreUS() throws Exception {
 //      STORE FLAGS.SILENT does not work
 //        super.testStore();
     }
 
-    public void testUid() throws Exception {
+    public void testUidUS() throws Exception {
         // UID fetch not working very well
         // super.testUid();
     }
 
-    public void testCopy() throws Exception {
+    public void testCopyUS() throws Exception {
         // extra fetch messages
     //    super.testCopy();
     }    
     
+
+    public void testSearchKOREA() throws Exception {
+        //TODO Implement search
+    }
+
+    public void testFetchMultipleMessagesKOREA() throws Exception {
+        // TODO Auto-generated method stub
+        //super.testFetchMultipleMessages();
+    }
+
+    public void testFetchPeekKOREA() throws Exception {
+        // STORE FLAGS.SILENT does not work
+        //super.testFetchPeek();
+    }
+
+    public void testFetchSingleMessageKOREA() throws Exception {
+        // BODY octet count is buggy.
+        // The total size of the message is KOREAed rather than the size of the part
+        //super.testFetchSingleMessage();
+    }
+
+    public void testStoreKOREA() throws Exception {
+//      STORE FLAGS.SILENT does not work
+//        super.testStore();
+    }
+
+    public void testUidKOREA() throws Exception {
+        // UID fetch not working very well
+        // super.testUid();
+    }
+
+    public void testCopyKOREA() throws Exception {
+        // extra fetch messages
+    //    super.testCopy();
+    }    
+
+    public void testSearchITALY() throws Exception {
+        //TODO Implement search
+    }
+
+    public void testFetchMultipleMessagesITALY() throws Exception {
+        // TODO Auto-generated method stub
+        //super.testFetchMultipleMessages();
+    }
+
+    public void testFetchPeekITALY() throws Exception {
+        // STORE FLAGS.SILENT does not work
+        //super.testFetchPeek();
+    }
+
+    public void testFetchSingleMessageITALY() throws Exception {
+        // BODY octet count is buggy.
+        // The total size of the message is ITALYed rather than the size of the part
+        //super.testFetchSingleMessage();
+    }
+
+    public void testStoreITALY() throws Exception {
+//      STORE FLAGS.SILENT does not work
+//        super.testStore();
+    }
+
+    public void testUidITALY() throws Exception {
+        // UID fetch not working very well
+        // super.testUid();
+    }
+
+    public void testCopyITALY() throws Exception {
+        // extra fetch messages
+    //    super.testCopy();
+    }    
     
 }

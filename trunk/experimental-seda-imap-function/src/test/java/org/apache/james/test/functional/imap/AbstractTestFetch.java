@@ -19,17 +19,35 @@
 
 package org.apache.james.test.functional.imap;
 
+import java.util.Locale;
+
 public abstract class AbstractTestFetch extends BaseTestSelectedState {
 
     public AbstractTestFetch(HostSystem system) {
         super(system);
     }
 
-    public void testFetchText() throws Exception {
-        scriptTest("FetchText");
+    public void testFetchTextUS() throws Exception {
+        scriptTest("FetchText", Locale.US);
     }
 
-    public void testFetchBodyNoSection() throws Exception {
-        scriptTest("FetchBodyNoSection");
+    public void testFetchBodyNoSectionUS() throws Exception {
+        scriptTest("FetchBodyNoSection", Locale.US);
+    }
+    
+    public void testFetchTextIT() throws Exception {
+        scriptTest("FetchText", Locale.ITALY);
+    }
+
+    public void testFetchBodyNoSectionIT() throws Exception {
+        scriptTest("FetchBodyNoSection", Locale.ITALY);
+    }
+    
+    public void testFetchTextKOREA() throws Exception {
+        scriptTest("FetchText", Locale.KOREA);
+    }
+
+    public void testFetchBodyNoSectionKOREA() throws Exception {
+        scriptTest("FetchBodyNoSection", Locale.KOREA);
     }
 }

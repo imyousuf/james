@@ -19,6 +19,8 @@
 
 package org.apache.james.test.functional.imap;
 
+import java.util.Locale;
+
 public abstract class AbstractTestForNonAuthenticatedState extends
         BaseTestNonAuthenticatedState {
 
@@ -26,31 +28,88 @@ public abstract class AbstractTestForNonAuthenticatedState extends
         super(system);
     }
 
-    public void testNoop() throws Exception {
-        scriptTest("Noop");
+    public void testNoopUS() throws Exception {
+        scriptTest("Noop", Locale.US);
     }
     
-    public void testLogout() throws Exception {
-        scriptTest("Logout");
+    public void testLogoutUS() throws Exception {
+        scriptTest("Logout", Locale.US);
     }
     
-    public void testCapability() throws Exception {
-        scriptTest("Capability");
+    public void testCapabilityUS() throws Exception {
+        scriptTest("Capability", Locale.US);
     }
     
-    public void testLogin() throws Exception {
-        scriptTest("Login");
+    public void testLoginUS() throws Exception {
+        scriptTest("Login", Locale.US);
     }
     
-    public void testValidAuthenticated() throws Exception {
-        scriptTest("ValidAuthenticated");
+    public void testValidAuthenticatedUS() throws Exception {
+        scriptTest("ValidAuthenticated", Locale.US);
     }
     
-    public void testValidSelected() throws Exception {
-        scriptTest("ValidSelected");
+    public void testValidSelectedUS() throws Exception {
+        scriptTest("ValidSelected", Locale.US);
     }
     
-    public void testAuthenticate() throws Exception {
-        scriptTest("Authenticate");
+    public void testAuthenticateUS() throws Exception {
+        scriptTest("Authenticate", Locale.US);
+    }
+    
+
+    public void testNoopITALY() throws Exception {
+        scriptTest("Noop", Locale.ITALY);
+    }
+    
+    public void testLogoutITALY() throws Exception {
+        scriptTest("Logout", Locale.ITALY);
+    }
+    
+    public void testCapabilityITALY() throws Exception {
+        scriptTest("Capability", Locale.ITALY);
+    }
+    
+    public void testLoginITALY() throws Exception {
+        scriptTest("Login", Locale.ITALY);
+    }
+    
+    public void testValidAuthenticatedITALY() throws Exception {
+        scriptTest("ValidAuthenticated", Locale.ITALY);
+    }
+    
+    public void testValidSelectedITALY() throws Exception {
+        scriptTest("ValidSelected", Locale.ITALY);
+    }
+    
+    public void testAuthenticateITALY() throws Exception {
+        scriptTest("Authenticate", Locale.ITALY);
+    }
+    
+    public void testNoopKOREA() throws Exception {
+        scriptTest("Noop", Locale.KOREA);
+    }
+    
+    public void testLogoutKOREA() throws Exception {
+        scriptTest("Logout", Locale.KOREA);
+    }
+    
+    public void testCapabilityKOREA() throws Exception {
+        scriptTest("Capability", Locale.KOREA);
+    }
+    
+    public void testLoginKOREA() throws Exception {
+        scriptTest("Login", Locale.KOREA);
+    }
+    
+    public void testValidAuthenticatedKOREA() throws Exception {
+        scriptTest("ValidAuthenticated", Locale.KOREA);
+    }
+    
+    public void testValidSelectedKOREA() throws Exception {
+        scriptTest("ValidSelected", Locale.KOREA);
+    }
+    
+    public void testAuthenticateKOREA() throws Exception {
+        scriptTest("Authenticate", Locale.KOREA);
     }
 }
