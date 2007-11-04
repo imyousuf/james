@@ -85,47 +85,72 @@ public final class DecoderUtils {
      * @throws ProtocolException when this conversion fails
      */
     public static final Date decodeDateTime(CharSequence chars) throws ProtocolException {
-        final char dayHigh = chars.charAt(0);
-        final char dayLow = chars.charAt(1);
-        final int day = decodeFixedDay(dayHigh, dayLow);
-        
-        final char monthFirstChar = chars.charAt(3);
-        final char monthSecondChar = chars.charAt(4);
-        final char monthThirdChar = chars.charAt(5);
-        final int month = decodeMonth(monthFirstChar, monthSecondChar, monthThirdChar);
-        
-        final char milleniumChar = chars.charAt(7);
-        final char centuryChar = chars.charAt(8);
-        final char decadeChar = chars.charAt(9);
-        final char yearChar = chars.charAt(10);
-        final int year = decodeYear(milleniumChar, centuryChar, decadeChar, yearChar);
-        
-        final char zoneDeterminent = chars.charAt(21);
-        final char zoneDigitOne = chars.charAt(22);
-        final char zoneDigitTwo = chars.charAt(23);
-        final char zoneDigitThree = chars.charAt(24);
-        final char zoneDigitFour = chars.charAt(25);
-        final int offset = decodeZone(zoneDeterminent, zoneDigitOne, zoneDigitTwo, zoneDigitThree, zoneDigitFour);
-        
-        final char hourHigh = chars.charAt(12);
-        final char hourLow = chars.charAt(13);
-        final int hour = applyHourOffset(offset, decodeNumber(hourHigh, hourLow));
-        
-        final char minuteHigh = chars.charAt(15);
-        final char minuteLow = chars.charAt(16);
-        final int minute = applyMinuteOffset(offset, decodeNumber(minuteHigh, minuteLow));
-        
-        final char secondHigh = chars.charAt(18);
-        final char secondLow = chars.charAt(19);
-        final int second = decodeNumber(secondHigh, secondLow);
+        if (isDateTime(chars)) {
+            final char dayHigh = chars.charAt(0);
+            final char dayLow = chars.charAt(1);
+            final int day = decodeFixedDay(dayHigh, dayLow);
+            
+            final char monthFirstChar = chars.charAt(3);
+            final char monthSecondChar = chars.charAt(4);
+            final char monthThirdChar = chars.charAt(5);
+            final int month = decodeMonth(monthFirstChar, monthSecondChar, monthThirdChar);
+            
+            final char milleniumChar = chars.charAt(7);
+            final char centuryChar = chars.charAt(8);
+            final char decadeChar = chars.charAt(9);
+            final char yearChar = chars.charAt(10);
+            final int year = decodeYear(milleniumChar, centuryChar, decadeChar, yearChar);
+            
+            final char zoneDeterminent = chars.charAt(21);
+            final char zoneDigitOne = chars.charAt(22);
+            final char zoneDigitTwo = chars.charAt(23);
+            final char zoneDigitThree = chars.charAt(24);
+            final char zoneDigitFour = chars.charAt(25);
+            final int offset = decodeZone(zoneDeterminent, zoneDigitOne, zoneDigitTwo, zoneDigitThree, zoneDigitFour);
+            
+            final char hourHigh = chars.charAt(12);
+            final char hourLow = chars.charAt(13);
+            final int hour = applyHourOffset(offset, decodeNumber(hourHigh, hourLow));
+            
+            final char minuteHigh = chars.charAt(15);
+            final char minuteLow = chars.charAt(16);
+            final int minute = applyMinuteOffset(offset, decodeNumber(minuteHigh, minuteLow));
+            
+            final char secondHigh = chars.charAt(18);
+            final char secondLow = chars.charAt(19);
+            final int second = decodeNumber(secondHigh, secondLow);
+                    
+            final GregorianCalendar calendar = new GregorianCalendar(TimeZone.getTimeZone("GMT"), Locale.US);
+            calendar.clear();
+            calendar.set(year, month, day, hour, minute, second);
+            final Date result = calendar.getTime();
+            return result;
+        } else {
+            final String message;
+            if (chars == null) {
+                message = "Expected a date-time but was nothing.";
+            } else {
+                message =  new StringBuffer("Expected a date-time but was "). append(chars).toString();
+            }
                 
-        final GregorianCalendar calendar = new GregorianCalendar(TimeZone.getTimeZone("GMT"), Locale.US);
-        calendar.clear();
-        calendar.set(year, month, day, hour, minute, second);
-        final Date result = calendar.getTime();
-        return result;
+            throw new ProtocolException(message);
+        }
+        
     }
     
+    private static boolean isDateTime(CharSequence chars) {
+        final boolean result;
+        if (chars == null) {
+            result = false;
+        } else if (chars.length() < 20) {
+            // Be liberal in what you accept
+            result = false;
+        } else {
+            result =true;
+        }
+        return result;
+    }
+
     private static int applyMinuteOffset(final int offset, final int minutes) {
         final int result =  minutes - ((Math.abs(offset) % 100) * (int) Math.signum(offset));
         return result;
