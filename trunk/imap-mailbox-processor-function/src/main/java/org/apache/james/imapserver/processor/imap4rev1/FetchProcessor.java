@@ -45,6 +45,7 @@ import org.apache.james.api.imap.process.ImapSession;
 import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.imap.message.request.imap4rev1.FetchRequest;
 import org.apache.james.imap.message.response.imap4rev1.legacy.FetchResponse;
+import org.apache.james.imapserver.codec.encode.EncoderUtils;
 import org.apache.james.imapserver.processor.base.AbstractImapRequestProcessor;
 import org.apache.james.imapserver.processor.base.AuthorizationException;
 import org.apache.james.imapserver.processor.base.ImapSessionUtils;
@@ -198,7 +199,7 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
             if (fetch.isInternalDate()) {
                 response.append(" INTERNALDATE \"");
                 // TODO format properly
-                response.append(RFC822DateFormat.toString(result
+                response.append(EncoderUtils.encodeDateTime(result
                         .getInternalDate())); // not right format
                 response.append("\"");
 
@@ -329,20 +330,7 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
         }
 
     }
-
-    private void addLiteral(byte[] bytes, StringBuffer response) {
-        response.append('{');
-        response.append(bytes.length); // TODO JD addLiteral: why was it
-                                        // bytes.length +1 here?
-        response.append('}');
-        response.append("\r\n");
-
-        for (int i = 0; i < bytes.length; i++) {
-            byte b = bytes[i];
-            response.append((char) b);
-        }
-    }
-
+    
     private void addLiteralContent(final MessageResult.Content content, final StringBuffer response) throws MessagingException {
         response.append('{' );
         final long length = content.size();

@@ -34,7 +34,7 @@ public abstract class AbstractTestFetch extends BaseTestSelectedState {
     public void testFetchBodyNoSectionUS() throws Exception {
         scriptTest("FetchBodyNoSection", Locale.US);
     }
-    
+
     public void testFetchTextIT() throws Exception {
         scriptTest("FetchText", Locale.ITALY);
     }
@@ -42,7 +42,7 @@ public abstract class AbstractTestFetch extends BaseTestSelectedState {
     public void testFetchBodyNoSectionIT() throws Exception {
         scriptTest("FetchBodyNoSection", Locale.ITALY);
     }
-    
+
     public void testFetchTextKOREA() throws Exception {
         scriptTest("FetchText", Locale.KOREA);
     }
@@ -50,4 +50,52 @@ public abstract class AbstractTestFetch extends BaseTestSelectedState {
     public void testFetchBodyNoSectionKOREA() throws Exception {
         scriptTest("FetchBodyNoSection", Locale.KOREA);
     }
+
+    public void testFetchRFC822US() throws Exception {
+        scriptTest("FetchRFC822", Locale.US);
+    }
+
+    public void testFetchRFC822TextUS() throws Exception {
+        scriptTest("FetchRFC822Text", Locale.US);
+    }
+
+    public void testFetchRFC822HeaderUS() throws Exception {
+        scriptTest("FetchRFC822Header", Locale.US);
+    }
+
+    public void testFetchRFC822KOREA() throws Exception {
+        scriptTest("FetchRFC822", Locale.KOREA);
+    }
+
+    public void testFetchRFC822TextKOREA() throws Exception {
+        scriptTest("FetchRFC822Text", Locale.KOREA);
+    }
+
+    public void testFetchRFC822HeaderKOREA() throws Exception {
+        scriptTest("FetchRFC822Header", Locale.KOREA);
+    }
+
+    public void testFetchRFC822ITALY() throws Exception {
+        scriptTest("FetchRFC822", Locale.ITALY);
+    }
+
+    public void testFetchRFC822TextITALY() throws Exception {
+        scriptTest("FetchRFC822Text", Locale.ITALY);
+    }
+
+    public void testFetchRFC822HeaderITALY() throws Exception {
+        scriptTest("FetchRFC822Header", Locale.ITALY);
+    }
+    
+  public void testFetchInternalDateUS() throws Exception {
+      scriptTest("FetchInternalDate", Locale.US);
+  }  
+  
+  public void testFetchInternalDateITALY() throws Exception {
+      scriptTest("FetchInternalDate", Locale.ITALY);
+  } 
+  
+  public void testFetchInternalDateKOREA() throws Exception {
+      scriptTest("FetchInternalDate", Locale.KOREA);
+  } 
 }
