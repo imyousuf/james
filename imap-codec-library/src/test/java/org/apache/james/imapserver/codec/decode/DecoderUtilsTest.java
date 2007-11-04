@@ -64,6 +64,48 @@ public class DecoderUtilsTest extends TestCase {
         assertTrue("Extension flags should be added", flags.contains(EXTENSION_FLAG));
     }
     
+    public void testBadDateTime() throws Exception {
+        checkDateTime(null);
+        checkDateTime("");
+        checkDateTime("This is a string long enough to be too big");
+        checkDateTime("1");
+        checkDateTime("12");
+        checkDateTime("123");
+        checkDateTime("1234");
+        checkDateTime("12345");
+        checkDateTime("123456");
+        checkDateTime("1234567");
+        checkDateTime("12345678");
+        checkDateTime("123456789");
+        checkDateTime("1234567890");
+        checkDateTime("12345678901");
+        checkDateTime("123456789012");
+        checkDateTime("1234567890123");
+        checkDateTime("12345678901234");
+        checkDateTime("123456789012345");
+        checkDateTime("1234567890123456");
+        checkDateTime("12345678901234567");
+        checkDateTime("123456789012345678");
+        checkDateTime("1234567890123456789");
+        checkDateTime("12345678901234567890");
+        checkDateTime("123456789012345678901");
+        checkDateTime("1234567890123456789012");
+        checkDateTime("12345678901234567890123");
+        checkDateTime("123456789012345678901234");
+        checkDateTime("1234567890123456789012345");
+        checkDateTime("12345678901234567890123456");
+        checkDateTime("123456789012345678901234567");
+    }
+    
+    private void checkDateTime(String datetime) throws Exception {
+        try {
+            DecoderUtils.decodeDateTime(datetime);
+            fail("Bad date-time" + datetime);
+        } catch (ProtocolException e) {
+            // expected
+        }
+    }
+    
     public void testSimpleDecodeDateTime() throws Exception {
         assertEquals("21 Oct 1972 20:00:00 GMT", DecoderUtils.decodeDateTime("21-Oct-1972 20:00:00 +0000").toGMTString());
         assertEquals("21 Oct 1972 19:00:00 GMT", DecoderUtils.decodeDateTime("21-Oct-1972 20:00:00 +0100").toGMTString());
@@ -162,7 +204,6 @@ public class DecoderUtilsTest extends TestCase {
     private void dateDecode(String in, TimeZone zone) throws Exception {
         Date date = DecoderUtils.decodeDateTime(in);
         String out = formatAsImap(date, zone);
-        System.out.println(out);
         assertEquals("Round trip", in, out);
     }
 
