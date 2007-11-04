@@ -28,6 +28,9 @@ S: 12 OK CREATE completed.
 # Create a fully qualified sub folder
 C: 13 CREATE test1.subfolder1
 S: 13 OK CREATE completed.
+# Create quoted
+C: 14 CREATE "Pepe juan"
+S: 14 OK CREATE completed.
 
 # Cleanup
 C: a1 DELETE test1.subfolder1
@@ -38,3 +41,5 @@ C: a1 DELETE test.subfolder
 S: a1 OK DELETE completed.
 C: a1 DELETE test
 S: a1 OK DELETE completed.
+C: a10 DELETE "Pepe juan"
+S: a10 OK DELETE completed.

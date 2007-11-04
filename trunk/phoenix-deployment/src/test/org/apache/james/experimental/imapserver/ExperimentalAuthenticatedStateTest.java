@@ -19,8 +19,6 @@
 
 package org.apache.james.experimental.imapserver;
 
-import java.util.Locale;
-
 import org.apache.james.test.functional.imap.AbstractAuthenticatedStateTestSuite;
 
 public class ExperimentalAuthenticatedStateTest extends AbstractAuthenticatedStateTestSuite {
