@@ -25,6 +25,7 @@ import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.imap.message.response.imap4rev1.legacy.ErrorResponse;
 import org.apache.james.imapserver.codec.encode.ImapEncoder;
 import org.apache.james.imapserver.codec.encode.ImapResponseComposer;
+import org.apache.james.imapserver.codec.encode.ImapResponseComposerImpl;
 import org.jmock.Mock;
 
 public class ErrorResponseMessageTest extends TestCase {
@@ -43,7 +44,7 @@ public class ErrorResponseMessageTest extends TestCase {
         writer = new MockImapResponseWriter();
         mockNextEncoder = new Mock(ImapEncoder.class);
         encoder = new ErrorResponseEncoder((ImapEncoder) mockNextEncoder.proxy());
-        response = new ImapResponseComposer(writer);
+        response = new ImapResponseComposerImpl(writer);
         message = new ErrorResponse(ERROR, TAG);
     }
 

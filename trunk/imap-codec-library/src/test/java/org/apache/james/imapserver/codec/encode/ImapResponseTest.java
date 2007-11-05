@@ -36,7 +36,7 @@ public class ImapResponseTest extends MockObjectTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         writer = new MockImapResponseWriter();
-        response = new ImapResponseComposer(writer);;
+        response = new ImapResponseComposerImpl(writer);;
     }
 
     protected void tearDown() throws Exception {
@@ -91,7 +91,7 @@ public class ImapResponseTest extends MockObjectTestCase {
         response.flagsResponse(flags);
         assertEquals(4, writer.operations.size());
         assertEquals(new MockImapResponseWriter.UntaggedOperation(), writer.operations.get(0));
-        assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapResponseComposer.FLAGS), 
+        assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapResponseComposerImpl.FLAGS), 
                 writer.operations.get(1));
         assertEquals(new MockImapResponseWriter.TextMessageOperation(MessageFlags.format(flags)),
                 writer.operations.get(2));
@@ -106,7 +106,7 @@ public class ImapResponseTest extends MockObjectTestCase {
         assertEquals(new MockImapResponseWriter.UntaggedOperation(), writer.operations.get(0));
         assertEquals(new MockImapResponseWriter.NumericMessageOperation(count), 
                 writer.operations.get(1));
-        assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapResponseComposer.EXISTS),
+        assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapResponseComposerImpl.EXISTS),
                 writer.operations.get(2));
         assertEquals(new MockImapResponseWriter.EndOperation(), 
                 writer.operations.get(3));
@@ -119,7 +119,7 @@ public class ImapResponseTest extends MockObjectTestCase {
         assertEquals(new MockImapResponseWriter.UntaggedOperation(), writer.operations.get(0));
         assertEquals(new MockImapResponseWriter.NumericMessageOperation(count), 
                 writer.operations.get(1));
-        assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapResponseComposer.RECENT),
+        assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapResponseComposerImpl.RECENT),
                 writer.operations.get(2));
         assertEquals(new MockImapResponseWriter.EndOperation(), 
                 writer.operations.get(3));
@@ -132,7 +132,7 @@ public class ImapResponseTest extends MockObjectTestCase {
         assertEquals(new MockImapResponseWriter.UntaggedOperation(), writer.operations.get(0));
         assertEquals(new MockImapResponseWriter.NumericMessageOperation(count), 
                 writer.operations.get(1));
-        assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapResponseComposer.EXPUNGE),
+        assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapResponseComposerImpl.EXPUNGE),
                 writer.operations.get(2));
         assertEquals(new MockImapResponseWriter.EndOperation(), 
                 writer.operations.get(3));
@@ -146,7 +146,7 @@ public class ImapResponseTest extends MockObjectTestCase {
         assertEquals(new MockImapResponseWriter.UntaggedOperation(), writer.operations.get(0));
         assertEquals(new MockImapResponseWriter.NumericMessageOperation(count), 
                 writer.operations.get(1));
-        assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapResponseComposer.FETCH),
+        assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapResponseComposerImpl.FETCH),
                 writer.operations.get(2));
         assertEquals(new MockImapResponseWriter.TextMessageOperation("(" + data + ")"),
                 writer.operations.get(3));
@@ -182,7 +182,7 @@ public class ImapResponseTest extends MockObjectTestCase {
         response.byeResponse(message);
         assertEquals(3, writer.operations.size());
         assertEquals(new MockImapResponseWriter.UntaggedOperation(), writer.operations.get(0));
-        assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapResponseComposer.BYE + ImapResponseComposer.SP + message),
+        assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapResponseComposerImpl.BYE + ImapResponseComposerImpl.SP + message),
                 writer.operations.get(1));
         assertEquals(new MockImapResponseWriter.EndOperation(), 
                 writer.operations.get(2));
@@ -193,7 +193,7 @@ public class ImapResponseTest extends MockObjectTestCase {
         response.permanentFlagsResponse(flags);
         assertEquals(4, writer.operations.size());
         assertEquals(new MockImapResponseWriter.UntaggedOperation(), writer.operations.get(0));
-        assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapResponseComposer.OK),
+        assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapResponseComposerImpl.OK),
                 writer.operations.get(1));
         assertEquals(new MockImapResponseWriter.ResponseCodeOperation("PERMANENTFLAGS " + MessageFlags.format(flags)),
                 writer.operations.get(2));

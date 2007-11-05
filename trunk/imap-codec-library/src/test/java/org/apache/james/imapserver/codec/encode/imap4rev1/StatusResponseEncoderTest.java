@@ -26,6 +26,7 @@ import org.apache.james.api.imap.display.HumanReadableTextKey;
 import org.apache.james.api.imap.message.response.imap4rev1.StatusResponse;
 import org.apache.james.imapserver.codec.encode.ImapEncoder;
 import org.apache.james.imapserver.codec.encode.ImapResponseComposer;
+import org.apache.james.imapserver.codec.encode.ImapResponseComposerImpl;
 import org.apache.james.imapserver.codec.encode.imap4rev1.legacy.MockImapResponseWriter;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
@@ -46,7 +47,7 @@ public class StatusResponseEncoderTest extends MockObjectTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         writer = new MockImapResponseWriter();
-        response = new ImapResponseComposer(writer);
+        response = new ImapResponseComposerImpl(writer);
         mockNextEncoder = mock(ImapEncoder.class);
         mockStatusResponse = mock(StatusResponse.class);
         encoder = new StatusResponseEncoder((ImapEncoder) mockNextEncoder.proxy());
