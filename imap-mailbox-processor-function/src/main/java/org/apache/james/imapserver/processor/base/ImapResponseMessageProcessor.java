@@ -30,13 +30,13 @@ public class ImapResponseMessageProcessor extends AbstractChainedImapProcessor {
         super(next);
     }
 
-    protected ImapResponseMessage doProcess(ImapMessage acceptableMessage, ImapSession session) {
-        final ImapResponseMessage result = (ImapResponseMessage) acceptableMessage;
-        return result;
-    }
-
     protected boolean isAcceptable(ImapMessage message) {
         final boolean result = (message instanceof ImapResponseMessage);
         return result;
+    }
+
+    protected void doProcess(ImapMessage acceptableMessage, Responder responder, ImapSession session) {
+        final ImapResponseMessage result = (ImapResponseMessage) acceptableMessage;
+        responder.respond(result);
     }
 }

@@ -45,4 +45,9 @@ public class UnknownRequestImapProcessor extends AbstractLogEnabled implements I
         return result;
     }
 
+    public void process(ImapMessage message, Responder responder, ImapSession session) {
+        final ImapResponseMessage response = process(message, session);
+        responder.respond(response);
+    }
+
 }

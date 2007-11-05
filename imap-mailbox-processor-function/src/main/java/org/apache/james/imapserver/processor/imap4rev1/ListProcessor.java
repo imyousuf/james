@@ -26,6 +26,7 @@ import org.apache.james.api.imap.message.request.ImapRequest;
 import org.apache.james.api.imap.message.response.ImapResponseMessage;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
+import org.apache.james.api.imap.process.ImapProcessor.Responder;
 import org.apache.james.imap.message.request.imap4rev1.ListRequest;
 import org.apache.james.imapserver.processor.base.AuthorizationException;
 import org.apache.james.imapserver.store.MailboxException;
@@ -43,13 +44,13 @@ public class ListProcessor extends AbstractListingProcessor {
         return (message instanceof ListRequest);
     }
 
-    protected ImapResponseMessage doProcess(ImapRequest message,
-            ImapSession session, String tag, ImapCommand command)
+    protected void doProcess(ImapRequest message,
+            ImapSession session, String tag, ImapCommand command, Responder responder)
             throws MailboxException, AuthorizationException, ProtocolException {
         final ListRequest request = (ListRequest) message;
         final ImapResponseMessage result = doProcess(request, session, tag,
                 command);
-        return result;
+        responder.respond(result);
     }
 
     private ImapResponseMessage doProcess(ListRequest request,

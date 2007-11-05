@@ -30,6 +30,7 @@ import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.api.imap.message.response.ImapResponseMessage;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
+import org.apache.james.api.imap.process.ImapProcessor.Responder;
 import org.apache.james.experimental.imapserver.encode.writer.OutputStreamImapResponseWriter;
 import org.apache.james.imapserver.codec.decode.ImapDecoder;
 import org.apache.james.imapserver.codec.decode.ImapRequestLineReader;
@@ -103,9 +104,21 @@ public final class ImapRequestHandler extends AbstractLogEnabled {
                                    ImapSession session)
     {
         ImapMessage message = decoder.decode(request);
-        ImapResponseMessage responseMessage = processor.process(message, session);
-        encoder.encode(responseMessage, response);
+        processor.process(message, new ResponseEncoder(encoder, response), session);
     }
 
-
+    private static final class ResponseEncoder implements Responder {
+        private final ImapEncoder encoder;
+        private final ImapResponseComposer composer;
+        
+        public ResponseEncoder(final ImapEncoder encoder, final ImapResponseComposer composer) {
+            super();
+            this.encoder = encoder;
+            this.composer = composer;
+        }
+        
+        public void respond(final ImapResponseMessage message) {
+            encoder.encode(message, composer);
+        }
+    }
 }

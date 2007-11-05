@@ -26,6 +26,7 @@ import org.apache.james.api.imap.message.request.ImapRequest;
 import org.apache.james.api.imap.message.response.ImapResponseMessage;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
+import org.apache.james.api.imap.process.ImapProcessor.Responder;
 import org.apache.james.imap.message.request.imap4rev1.DeleteRequest;
 import org.apache.james.imap.message.response.imap4rev1.legacy.CommandCompleteResponse;
 import org.apache.james.imapserver.processor.base.AbstractMailboxAwareProcessor;
@@ -47,13 +48,13 @@ public class DeleteProcessor extends AbstractMailboxAwareProcessor {
         return (message instanceof DeleteRequest);
     }
 
-    protected ImapResponseMessage doProcess(ImapRequest message,
-            ImapSession session, String tag, ImapCommand command)
+    protected void doProcess(ImapRequest message,
+            ImapSession session, String tag, ImapCommand command, Responder responder)
             throws MailboxException, AuthorizationException, ProtocolException {
         final DeleteRequest request = (DeleteRequest) message;
         final ImapResponseMessage result = doProcess(request, session, tag,
                 command);
-        return result;
+        responder.respond(result);
     }
 
     private ImapResponseMessage doProcess(DeleteRequest request,
