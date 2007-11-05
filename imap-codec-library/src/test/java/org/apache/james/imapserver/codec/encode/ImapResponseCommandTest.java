@@ -41,7 +41,7 @@ public class ImapResponseCommandTest extends MockObjectTestCase {
         mockCommand.expects(atLeastOnce()).method("getName").will(returnValue(NAME));
         command = (ImapCommand) mockCommand.proxy();
         writer = new MockImapResponseWriter();
-        response = new ImapResponseComposer(writer);;
+        response = new ImapResponseComposerImpl(writer);;
     }
 
     protected void tearDown() throws Exception {
@@ -88,7 +88,7 @@ public class ImapResponseCommandTest extends MockObjectTestCase {
                 writer.operations.get(1));
         assertEquals(new MockImapResponseWriter.CommandNameOperation(NAME),
                 writer.operations.get(2));
-        assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapResponseComposer.FAILED),
+        assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapResponseComposerImpl.FAILED),
                 writer.operations.get(3));
         assertEquals(new MockImapResponseWriter.TextMessageOperation(reason), 
                 writer.operations.get(4));
@@ -108,7 +108,7 @@ public class ImapResponseCommandTest extends MockObjectTestCase {
                 writer.operations.get(2));
         assertEquals(new MockImapResponseWriter.CommandNameOperation(NAME),
                 writer.operations.get(3));
-        assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapResponseComposer.FAILED),
+        assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapResponseComposerImpl.FAILED),
                 writer.operations.get(4));
         assertEquals(new MockImapResponseWriter.TextMessageOperation(reason), 
                 writer.operations.get(5));

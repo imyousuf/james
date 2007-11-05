@@ -36,6 +36,7 @@ import org.apache.james.imapserver.codec.decode.ImapDecoder;
 import org.apache.james.imapserver.codec.decode.ImapRequestLineReader;
 import org.apache.james.imapserver.codec.encode.ImapEncoder;
 import org.apache.james.imapserver.codec.encode.ImapResponseComposer;
+import org.apache.james.imapserver.codec.encode.ImapResponseComposerImpl;
 
 /**
  * @version $Revision: 109034 $
@@ -87,7 +88,7 @@ public final class ImapRequestHandler extends AbstractLogEnabled {
             return false;
         }
 
-        ImapResponseComposer response = new ImapResponseComposer( new OutputStreamImapResponseWriter( output ));
+        ImapResponseComposerImpl response = new ImapResponseComposerImpl( new OutputStreamImapResponseWriter( output ));
         response.enableLogging(getLogger()); 
 
         doProcessRequest( request, response, session );

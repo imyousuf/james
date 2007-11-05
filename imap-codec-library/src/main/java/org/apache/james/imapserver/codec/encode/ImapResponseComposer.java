@@ -21,36 +21,9 @@ package org.apache.james.imapserver.codec.encode;
 
 import javax.mail.Flags;
 
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.api.imap.ImapCommand;
-import org.apache.james.api.imap.ImapConstants;
-import org.apache.james.api.imap.message.MessageFlags;
 
-/**
- * Class providing methods to send response messages from the server to the
- * client.
- */
-public class ImapResponseComposer extends AbstractLogEnabled implements
-        ImapConstants, ImapResponseWriter {
-
-    public static final String FETCH = "FETCH";
-
-    public static final String EXPUNGE = "EXPUNGE";
-
-    public static final String RECENT = "RECENT";
-
-    public static final String EXISTS = "EXISTS";
-
-    public static final String FLAGS = "FLAGS";
-
-    public static final String FAILED = "failed.";
-
-    private final ImapResponseWriter writer;
-
-    public ImapResponseComposer(final ImapResponseWriter writer) {
-        this.writer = writer;
-    }
+public interface ImapResponseComposer {
 
     /**
      * Writes a standard tagged OK response on completion of a command. Response
@@ -63,9 +36,8 @@ public class ImapResponseComposer extends AbstractLogEnabled implements
      * @param command
      *                The ImapCommand which was completed.
      */
-    public void commandComplete(final ImapCommand command, final String tag) {
-        commandComplete(command, null, tag);
-    }
+    public abstract void commandComplete(final ImapCommand command,
+            final String tag);
 
     /**
      * Writes a standard tagged OK response on completion of a command, with a
@@ -80,15 +52,8 @@ public class ImapResponseComposer extends AbstractLogEnabled implements
      * @param responseCode
      *                A string response code to send to the client.
      */
-    public void commandComplete(final ImapCommand command,
-            final String responseCode, final String tag) {
-        tag(tag);
-        message(OK);
-        responseCode(responseCode);
-        commandName(command);
-        message("completed.");
-        end();
-    }
+    public abstract void commandComplete(final ImapCommand command,
+            final String responseCode, final String tag);
 
     /**
      * Writes a standard NO response on command failure, together with a
@@ -103,10 +68,8 @@ public class ImapResponseComposer extends AbstractLogEnabled implements
      * @param reason
      *                A message describing why the command failed.
      */
-    public void commandFailed(final ImapCommand command, final String reason,
-            final String tag) {
-        commandFailed(command, null, reason, tag);
-    }
+    public abstract void commandFailed(final ImapCommand command,
+            final String reason, final String tag);
 
     /**
      * Writes a standard NO response on command failure, together with a
@@ -123,20 +86,8 @@ public class ImapResponseComposer extends AbstractLogEnabled implements
      * @param reason
      *                A message describing why the command failed.
      */
-    public void commandFailed(ImapCommand command, String responseCode,
-            String reason, final String tag) {
-        tag(tag);
-        message(NO);
-        responseCode(responseCode);
-        commandName(command);
-        message(FAILED);
-        message(reason);
-        end();
-        final Logger logger = getLogger();
-        if (logger != null && logger.isInfoEnabled()) {
-            logger.info("COMMAND FAILED [" + responseCode + "] - " + reason);
-        }
-    }
+    public abstract void commandFailed(ImapCommand command,
+            String responseCode, String reason, final String tag);
 
     /**
      * Writes a standard BAD response on command error, together with a
@@ -149,46 +100,19 @@ public class ImapResponseComposer extends AbstractLogEnabled implements
      * @param message
      *                The descriptive error message.
      */
-    public void commandError(final String message, final String tag) {
-        tag(tag);
-        message(BAD);
-        message(message);
-        end();
-        final Logger logger = getLogger();
-        if (logger != null && logger.isInfoEnabled()) {
-            logger.info("ERROR - " + message);
-        }
-    }
+    public abstract void commandError(final String message, final String tag);
 
     /**
      * Writes a standard untagged BAD response, together with a descriptive
      * message.
      */
-    public void badResponse(String message) {
-        untagged();
-        message(BAD);
-        message(message);
-        end();
-        final Logger logger = getLogger();
-        if (logger != null && logger.isInfoEnabled()) {
-            logger.info("BAD - " + message);
-        }
-    }
+    public abstract void badResponse(String message);
 
     /**
      * Writes a standard untagged BAD response, together with a descriptive
      * message.
      */
-    public void badResponse(String message, String tag) {
-        tag(tag);
-        message(BAD);
-        message(message);
-        end();
-        final Logger logger = getLogger();
-        if (logger != null && logger.isInfoEnabled()) {
-            logger.info("BAD - " + message);
-        }
-    }
+    public abstract void badResponse(String message, String tag);
 
     /**
      * Writes an untagged OK response, with the supplied response code, and an
@@ -199,13 +123,7 @@ public class ImapResponseComposer extends AbstractLogEnabled implements
      * @param message
      *                The message to follow the []
      */
-    public void okResponse(String responseCode, String message) {
-        untagged();
-        message(OK);
-        responseCode(responseCode);
-        message(message);
-        end();
-    }
+    public abstract void okResponse(String responseCode, String message);
 
     /**
      * Writes an untagged NO response. Indicates that a warning. The command may
@@ -216,56 +134,20 @@ public class ImapResponseComposer extends AbstractLogEnabled implements
      * @param responseCode
      *                response code or null when there is no response code
      */
-    public void untaggedNoResponse(String displayMessage, String responseCode) {
-        untagged();
-        message(NO);
-        responseCode(responseCode);
-        message(displayMessage);
-        end();
-    }
+    public abstract void untaggedNoResponse(String displayMessage,
+            String responseCode);
 
-    public void flagsResponse(Flags flags) {
-        untagged();
-        message(FLAGS);
-        message(MessageFlags.format(flags));
-        end();
-    }
+    public abstract void flagsResponse(Flags flags);
 
-    public void existsResponse(int count) {
-        untagged();
-        message(count);
-        message(EXISTS);
-        end();
-    }
+    public abstract void existsResponse(int count);
 
-    public void recentResponse(int count) {
-        untagged();
-        message(count);
-        message(RECENT);
-        end();
-    }
+    public abstract void recentResponse(int count);
 
-    public void expungeResponse(int msn) {
-        untagged();
-        message(msn);
-        message(EXPUNGE);
-        end();
-    }
+    public abstract void expungeResponse(int msn);
 
-    public void fetchResponse(int msn, String msgData) {
-        untagged();
-        message(msn);
-        message(FETCH);
-        message("(" + msgData + ")");
-        end();
-    }
+    public abstract void fetchResponse(int msn, String msgData);
 
-    public void commandResponse(ImapCommand command, String message) {
-        untagged();
-        commandName(command);
-        message(message);
-        end();
-    }
+    public abstract void commandResponse(ImapCommand command, String message);
 
     /**
      * Writes the message provided to the client, prepended with the request
@@ -274,11 +156,7 @@ public class ImapResponseComposer extends AbstractLogEnabled implements
      * @param message
      *                The message to write to the client.
      */
-    public void taggedResponse(String message, String tag) {
-        tag(tag);
-        message(message);
-        end();
-    }
+    public abstract void taggedResponse(String message, String tag);
 
     /**
      * Writes the message provided to the client, prepended with the untagged
@@ -287,79 +165,27 @@ public class ImapResponseComposer extends AbstractLogEnabled implements
      * @param message
      *                The message to write to the client.
      */
-    public void untaggedResponse(String message) {
-        untagged();
-        message(message);
-        end();
-    }
+    public abstract void untaggedResponse(String message);
 
-    public void byeResponse(String message) {
-        untaggedResponse(BYE + SP + message);
-    }
+    public abstract void byeResponse(String message);
 
-    public void untagged() {
-        writer.untagged();
-    }
+    public abstract void untagged();
 
-    private void commandName(final ImapCommand command) {
-        final String name = command.getName();
-        commandName(name);
-    }
+    public abstract void commandName(final String name);
 
-    public void commandName(final String name) {
-        writer.commandName(name);
-    }
+    public abstract void message(final String message);
 
-    public void message(final String message) {
-        if (message != null) {
-            // TODO: consider message normalisation
-            // TODO: CR/NFs in message must be replaced
-            // TODO: probably best done in the writer
-            writer.message(message);
-        }
-    }
+    public abstract void message(final int number);
 
-    public void message(final int number) {
-        writer.message(number);
-    }
+    public abstract void responseCode(final String responseCode);
 
-    public void responseCode(final String responseCode) {
-        if (responseCode != null) {
-            writer.responseCode(responseCode);
-        }
-    }
+    public abstract void end();
 
-    public void end() {
-        writer.end();
-    }
+    public abstract void permanentFlagsResponse(Flags flags);
 
-    public void permanentFlagsResponse(Flags flags) {
-        untagged();
-        message(OK);
-        responseCode("PERMANENTFLAGS " + MessageFlags.format(flags));
-        end();
-    }
+    public abstract void tag(String tag);
 
-    public void tag(String tag) {
-        writer.tag(tag);
-    }
-    
-    public void statusResponse(String tag, ImapCommand command, String type, String responseCode, String text) {
-        if (tag == null) {
-            untagged();
-        } else {
-            tag(tag);
-        }
-        message(type);
-        if (responseCode != null) {
-            message(responseCode);
-        }
-        if (command != null) {
-            commandName(command);
-        }
-        if (text != null) {
-            message(text);
-        }
-        end();
-    }
+    public abstract void statusResponse(String tag, ImapCommand command,
+            String type, String responseCode, String text);
+
 }

@@ -35,6 +35,7 @@ import org.apache.james.experimental.imapserver.encode.writer.OutputStreamImapRe
 import org.apache.james.imapserver.codec.decode.ImapDecoder;
 import org.apache.james.imapserver.codec.encode.ImapEncoder;
 import org.apache.james.imapserver.codec.encode.ImapResponseComposer;
+import org.apache.james.imapserver.codec.encode.ImapResponseComposerImpl;
 
 /**
  * The handler class for IMAP connections.
@@ -84,7 +85,7 @@ public class ImapHandler
     public void forceConnectionClose(final String message) {
         getLogger().debug("forceConnectionClose: "+message);
         final OutputStreamImapResponseWriter writer = new OutputStreamImapResponseWriter(outs);
-        ImapResponseComposer response = new ImapResponseComposer(writer);
+        ImapResponseComposer response = new ImapResponseComposerImpl(writer);
         response.byeResponse(message);
         endSession();
     }
@@ -143,7 +144,7 @@ public class ImapHandler
     protected void handleProtocol() throws IOException {
         try {
             final OutputStreamImapResponseWriter writer = new OutputStreamImapResponseWriter( outs );
-            ImapResponseComposer response = new ImapResponseComposer( writer);
+            ImapResponseComposer response = new ImapResponseComposerImpl( writer);
 
             // Write welcome message
                  
