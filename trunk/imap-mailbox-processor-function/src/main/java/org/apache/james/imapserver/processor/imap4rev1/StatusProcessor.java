@@ -29,6 +29,7 @@ import org.apache.james.api.imap.message.request.ImapRequest;
 import org.apache.james.api.imap.message.response.ImapResponseMessage;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
+import org.apache.james.api.imap.process.ImapProcessor.Responder;
 import org.apache.james.imap.message.request.imap4rev1.StatusRequest;
 import org.apache.james.imap.message.response.imap4rev1.legacy.StatusResponse;
 import org.apache.james.imapserver.processor.base.AbstractMailboxAwareProcessor;
@@ -51,13 +52,13 @@ public class StatusProcessor extends AbstractMailboxAwareProcessor {
         return (message instanceof StatusRequest);
     }
 
-    protected ImapResponseMessage doProcess(ImapRequest message,
-            ImapSession session, String tag, ImapCommand command)
+    protected void doProcess(ImapRequest message,
+            ImapSession session, String tag, ImapCommand command, Responder responder)
             throws MailboxException, AuthorizationException, ProtocolException {
         final StatusRequest request = (StatusRequest) message;
         final ImapResponseMessage result = doProcess(request, session, tag,
                 command);
-        return result;
+        responder.respond(result);
     }
 
     private ImapResponseMessage doProcess(StatusRequest request,

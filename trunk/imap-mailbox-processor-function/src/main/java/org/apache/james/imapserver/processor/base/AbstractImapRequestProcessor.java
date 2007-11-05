@@ -39,59 +39,62 @@ abstract public class AbstractImapRequestProcessor extends
         super(next);
     }
 
-    protected final ImapResponseMessage doProcess(
-            ImapMessage acceptableMessage, ImapSession session) {
+    protected final void doProcess(
+            final ImapMessage acceptableMessage, final Responder responder, 
+            final ImapSession session) {
         final ImapRequest request = (ImapRequest) acceptableMessage;
-        final ImapResponseMessage result = process(request, session);
-        return result;
+        process(request, responder, session);
     }
 
-    protected final ImapResponseMessage process(ImapRequest message,
-            ImapSession session) {
-        ImapResponseMessage result;
+    protected final void process(final ImapRequest message, final Responder responder,
+            final ImapSession session) {
         final Logger logger = getLogger();
         final ImapCommand command = message.getCommand();
         final String tag = message.getTag();
         try {
-            result = doProcess(message, command, tag, session);
+            doProcess(message, command, tag, responder, session);
         } catch (MailboxException e) {
             if (logger != null) {
                 logger.debug("error processing command ", e);
             }
-            result = new CommandFailedResponse(command, e.getResponseCode(), e
+             final ImapResponseMessage response = new CommandFailedResponse(command, e.getResponseCode(), e
                     .getMessage(), tag);
+             responder.respond(response);
         } catch (AuthorizationException e) {
             if (logger != null) {
                 logger.debug("error processing command ", e);
             }
-            String msg = "Authorization error: Lacking permissions to perform requested operation.";
-            result = new CommandFailedResponse(command, null, msg, tag);
+            final String msg = "Authorization error: Lacking permissions to perform requested operation.";
+            final ImapResponseMessage response = new CommandFailedResponse(command, null, msg, tag);
+            responder.respond(response);
+            
         } catch (ProtocolException e) {
             if (logger != null) {
                 logger.debug("error processing command ", e);
             }
-            String msg = e.getMessage() + " Command should be '"
+            final String msg = e.getMessage() + " Command should be '"
                     + command.getExpectedMessage() + "'";
-            result = new ErrorResponse(msg, tag);
+            final ImapResponseMessage response = new ErrorResponse(msg, tag);
+            responder.respond(response);
+            
         }
-        return result;
     }
 
-    final ImapResponseMessage doProcess(final ImapRequest message,
-            final ImapCommand command, final String tag, ImapSession session)
+    final void doProcess(final ImapRequest message,
+            final ImapCommand command, final String tag, Responder responder, ImapSession session)
             throws MailboxException, AuthorizationException, ProtocolException {
-        ImapResponseMessage result;
         if (!command.validForState(session.getState())) {
-            result = new CommandFailedResponse(command,
+            ImapResponseMessage response = new CommandFailedResponse(command,
                     "Command not valid in this state.", tag);
+            responder.respond(response);
+            
         } else {
-            result = doProcess(message, session, tag, command);
+            doProcess(message, session, tag, command, responder);
         }
-        return result;
     }
 
-    protected abstract ImapResponseMessage doProcess(final ImapRequest message,
-            ImapSession session, String tag, ImapCommand command)
+    protected abstract void doProcess(final ImapRequest message,
+            ImapSession session, String tag, ImapCommand command, Responder responder)
             throws MailboxException, AuthorizationException, ProtocolException;
     
 
