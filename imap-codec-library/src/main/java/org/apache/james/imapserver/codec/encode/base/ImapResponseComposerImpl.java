@@ -17,7 +17,10 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.imapserver.codec.encode;
+package org.apache.james.imapserver.codec.encode.base;
+
+import java.util.Iterator;
+import java.util.List;
 
 import javax.mail.Flags;
 
@@ -26,6 +29,8 @@ import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.api.imap.message.MessageFlags;
+import org.apache.james.imapserver.codec.encode.ImapResponseComposer;
+import org.apache.james.imapserver.codec.encode.ImapResponseWriter;
 
 /**
  * Class providing methods to send response messages from the server to the
@@ -339,5 +344,41 @@ public class ImapResponseComposerImpl extends AbstractLogEnabled implements
             message(text);
         }
         end();
+    }
+
+    public void listResponse(String typeName, List attributes, String hierarchyDelimiter, String name) {
+        untagged();
+        message(typeName);
+        openParen();
+        if (attributes != null) {
+            for (Iterator it=attributes.iterator();it.hasNext();) {
+                final String attribute = (String) it.next();
+                message(attribute);
+            }
+        }
+        closeParen();
+        
+        if (hierarchyDelimiter == null) {
+            message(NIL);
+        } else {
+            quote(hierarchyDelimiter);
+        }
+        
+        quote(name);
+        
+        end();
+    }
+
+    public void quote(String message) {
+        writer.quote(message);
+    }
+
+    public void closeParen() {
+        writer.closeParen();
+        
+    }
+
+    public void openParen() {
+        writer.openParen();
     }
 }

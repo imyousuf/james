@@ -26,7 +26,7 @@ import org.apache.james.api.imap.display.HumanReadableTextKey;
 import org.apache.james.api.imap.message.response.imap4rev1.StatusResponse;
 import org.apache.james.imapserver.codec.encode.ImapEncoder;
 import org.apache.james.imapserver.codec.encode.ImapResponseComposer;
-import org.apache.james.imapserver.codec.encode.ImapResponseComposerImpl;
+import org.apache.james.imapserver.codec.encode.base.ImapResponseComposerImpl;
 import org.apache.james.imapserver.codec.encode.imap4rev1.legacy.MockImapResponseWriter;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;

@@ -16,20 +16,18 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.imapserver.codec.encode.imap4rev1.legacy;
+package org.apache.james.imapserver.codec.encode.imap4rev1.server;
 
-import java.util.Iterator;
-import java.util.List;
-
-import org.apache.james.api.imap.ImapCommand;
+import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.api.imap.ImapMessage;
-import org.apache.james.imap.message.response.imap4rev1.legacy.ListResponse;
+import org.apache.james.imap.message.response.imap4rev1.server.AbstractListingResponse;
+import org.apache.james.imap.message.response.imap4rev1.server.ListResponse;
 import org.apache.james.imapserver.codec.encode.ImapEncoder;
 import org.apache.james.imapserver.codec.encode.ImapResponseComposer;
 import org.apache.james.imapserver.codec.encode.base.AbstractChainedImapEncoder;
 
 /**
- * @deprecated responses should correspond directly to the specification
+ * Encoders IMAP4rev1 <code>List</code> responses.
  */
 public class ListResponseEncoder extends AbstractChainedImapEncoder {
 
@@ -37,19 +35,11 @@ public class ListResponseEncoder extends AbstractChainedImapEncoder {
     public ListResponseEncoder(ImapEncoder next) {
         super(next);
     }
-    protected void doEncode(ImapMessage acceptableMessage, ImapResponseComposer composer) {
-        ListResponse response = (ListResponse) acceptableMessage;
-        final List messages = response.getMessages();
-        final ImapCommand command = response.getCommand();
-        for (final Iterator it=messages.iterator();it.hasNext();) {
-            String message = (String) it.next();
-            
-            composer.commandResponse(command, message);
-        }
-        List unsolicitedResponses = response.getUnsolicatedResponses();
-        chainEncodeAll(unsolicitedResponses, composer);
-        final String tag = response.getTag();
-        composer.commandComplete( command, tag );        
+    protected void doEncode(final ImapMessage acceptableMessage, 
+                                final ImapResponseComposer composer) {
+        final AbstractListingResponse response = (AbstractListingResponse) acceptableMessage;
+        ListingEncodingUtils.encodeListingResponse(ImapConstants.LIST_RESPONSE_NAME, 
+                composer, response);
     }
 
     protected boolean isAcceptable(ImapMessage message) {

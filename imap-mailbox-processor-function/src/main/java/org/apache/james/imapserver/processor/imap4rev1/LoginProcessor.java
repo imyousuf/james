@@ -24,6 +24,7 @@ import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.api.imap.message.request.ImapRequest;
 import org.apache.james.api.imap.message.response.ImapResponseMessage;
+import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
 import org.apache.james.api.imap.process.ImapProcessor.Responder;
@@ -41,8 +42,9 @@ public class LoginProcessor extends AbstractImapRequestProcessor {
 
     private final UsersRepository users;
 
-    public LoginProcessor(final ImapProcessor next, final UsersRepository users) {
-        super(next);
+    public LoginProcessor(final ImapProcessor next, final UsersRepository users, 
+            final StatusResponseFactory factory) {
+        super(next, factory);
         this.users = users;
     }
 

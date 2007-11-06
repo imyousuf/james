@@ -36,34 +36,34 @@ S: 17 OK CREATE completed.
 
 # Empty 1st arg searches default context (#mail)
 C: 10 LIST "" listtest
-S: \* LIST \(\) \"\.\" listtest
+S: \* LIST \(\) \"\.\" "listtest"
 S: 10 OK LIST completed.
 
 # % returns all mailboxes matching
 C: a1 LIST "" %
 SUB {
-S: \* LIST \(\) \"\.\" listtest
-S: \* LIST \(\) \"\.\" listtest1
-S: \* LIST \(\) \"\.\" INBOX
-S: \* LIST \(\) \"\.\" funny
+S: \* LIST \(\) \"\.\" \"listtest\"
+S: \* LIST \(\) \"\.\" \"listtest1\"
+S: \* LIST \(\) \"\.\" \"INBOX\"
+S: \* LIST \(\) \"\.\" \"funny\"
 }
 S: a1 OK List completed.
 
 C: a2 list "" funny.%
 SUB {
-S: \* LIST \(\) \"\.\" "\funny.name with gaps\"
+S: \* LIST \(\) \"\.\" \"funny.name with gaps\"
 S: \* LIST \(\) \"\.\" \"funny.name\"
 }
 S: a2 OK List completed.
 
 C: a3 LIST "" *
 SUB {
-S: \* LIST \(\) \"\.\" listtest
-S: \* LIST \(\) \"\.\" listtest1
-S: \* LIST \(\) \"\.\" INBOX
-S: \* LIST \(\) \"\.\" funny
-S: \* LIST \(\) \"\.\" "\funny.name with gaps\"
-S: \* LIST \(\) \"\.\" "\funny.name with gaps\.more\"
+S: \* LIST \(\) \"\.\" \"listtest\"
+S: \* LIST \(\) \"\.\" \"listtest1\"
+S: \* LIST \(\) \"\.\" \"INBOX\"
+S: \* LIST \(\) \"\.\" \"funny\"
+S: \* LIST \(\) \"\.\" \"funny.name with gaps\"
+S: \* LIST \(\) \"\.\" \"funny.name with gaps\.more\"
 S: \* LIST \(\) \"\.\" \"funny.name\"
 }
 S: a3 OK List completed.

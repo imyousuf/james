@@ -24,20 +24,20 @@ import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.api.imap.message.request.ImapRequest;
 import org.apache.james.api.imap.message.response.ImapResponseMessage;
+import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
-import org.apache.james.api.imap.process.ImapProcessor.Responder;
 import org.apache.james.imap.message.request.imap4rev1.LsubRequest;
+import org.apache.james.imap.message.response.imap4rev1.server.LSubResponse;
 import org.apache.james.imapserver.processor.base.AuthorizationException;
 import org.apache.james.imapserver.store.MailboxException;
-import org.apache.james.mailboxmanager.ListResult;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 
-public class LsubProcessor extends AbstractListingProcessor {
+public class LSubProcessor extends AbstractListingProcessor {
 
-    public LsubProcessor(final ImapProcessor next,
-            final MailboxManagerProvider mailboxManagerProvider) {
-        super(next, mailboxManagerProvider);
+    public LSubProcessor(final ImapProcessor next,
+            final MailboxManagerProvider mailboxManagerProvider, final StatusResponseFactory factory) {
+        super(next, mailboxManagerProvider, factory, true);
     }
 
     protected boolean isAcceptable(ImapMessage message) {
@@ -48,23 +48,13 @@ public class LsubProcessor extends AbstractListingProcessor {
             ImapSession session, String tag, ImapCommand command, Responder responder)
             throws MailboxException, AuthorizationException, ProtocolException {
         final LsubRequest request = (LsubRequest) message;
-        final ImapResponseMessage result = doProcess(request, session, tag,
-                command);
-        responder.respond(result);
-    }
-
-    private ImapResponseMessage doProcess(LsubRequest request,
-            ImapSession session, String tag, ImapCommand command)
-            throws MailboxException, AuthorizationException, ProtocolException {
         final String baseReferenceName = request.getBaseReferenceName();
         final String mailboxPatternString = request.getMailboxPattern();
-        final ImapResponseMessage result = doProcess(baseReferenceName,
-                mailboxPatternString, session, tag, command);
-        return result;
+        doProcess(baseReferenceName,
+                mailboxPatternString, session, tag, command, responder);
     }
 
-    protected ListResult[] doList(ImapSession session, String base,
-            String pattern) throws MailboxException {
-        return doList(session, base, pattern, true);
+    protected ImapResponseMessage createResponse(boolean noInferior, boolean noSelect, boolean marked, boolean unmarked, String hierarchyDelimiter, String mailboxName) {
+        return new LSubResponse(noInferior, noSelect, marked, unmarked, hierarchyDelimiter, mailboxName);
     }
 }

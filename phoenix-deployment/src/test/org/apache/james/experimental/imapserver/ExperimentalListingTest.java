@@ -26,9 +26,8 @@ public class ExperimentalListingTest extends AbstractTestListing {
     public ExperimentalListingTest() throws Exception {
         super(HostSystemFactory.createStandardImap());
     }
-
     public void testListPlusUS() throws Exception {
-        // LIST is buggy
+        // TODO: fix bug in Mailbox list API
     }
 
     

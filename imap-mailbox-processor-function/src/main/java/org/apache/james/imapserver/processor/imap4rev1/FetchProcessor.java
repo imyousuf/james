@@ -40,6 +40,7 @@ import org.apache.james.api.imap.message.IdRange;
 import org.apache.james.api.imap.message.MessageFlags;
 import org.apache.james.api.imap.message.request.ImapRequest;
 import org.apache.james.api.imap.message.response.ImapResponseMessage;
+import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
 import org.apache.james.api.imap.process.ImapProcessor.Responder;
@@ -63,8 +64,8 @@ import com.sun.mail.util.CRLFOutputStream;
 
 public class FetchProcessor extends AbstractImapRequestProcessor {
 
-    public FetchProcessor(final ImapProcessor next) {
-        super(next);
+    public FetchProcessor(final ImapProcessor next, final StatusResponseFactory factory) {
+        super(next, factory);
     }
 
     protected boolean isAcceptable(ImapMessage message) {

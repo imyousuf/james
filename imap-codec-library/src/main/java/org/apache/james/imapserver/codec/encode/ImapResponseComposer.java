@@ -19,6 +19,8 @@
 
 package org.apache.james.imapserver.codec.encode;
 
+import java.util.List;
+
 import javax.mail.Flags;
 
 import org.apache.james.api.imap.ImapCommand;
@@ -149,6 +151,17 @@ public interface ImapResponseComposer {
 
     public abstract void commandResponse(ImapCommand command, String message);
 
+    /**
+     * Writes a list response
+     * @param typeName <code>LIST</code> or <code>LSUB</code>.
+     * @param attributes name attributes, 
+     * or null if there are no attributes
+     * @param hierarchyDelimiter hierarchy delimiter, 
+     * or null if delimiter is <code>NIL</code>
+     * @param name mailbox name
+     */
+    public abstract void listResponse(String typeName, List attributes, String hierarchyDelimiter, String name);
+    
     /**
      * Writes the message provided to the client, prepended with the request
      * tag.

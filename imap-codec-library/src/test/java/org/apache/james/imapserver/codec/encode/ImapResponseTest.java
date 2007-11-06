@@ -23,6 +23,7 @@ import javax.mail.Flags;
 
 import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.api.imap.message.MessageFlags;
+import org.apache.james.imapserver.codec.encode.base.ImapResponseComposerImpl;
 import org.apache.james.imapserver.codec.encode.imap4rev1.legacy.MockImapResponseWriter;
 import org.jmock.MockObjectTestCase;
 

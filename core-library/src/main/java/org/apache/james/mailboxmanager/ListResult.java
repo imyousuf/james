@@ -26,7 +26,8 @@ package org.apache.james.mailboxmanager;
 public interface ListResult {
     
     /**
-     * \Noinferiors, \Noselect, \Marked, \Unmarked TODO this should be done in a different way..
+     * \Noinferiors, \Noselect, \Marked, \Unmarked 
+     * TODO this should be done in a different way..
      */
     String[] getAttributes();
     
@@ -35,7 +36,5 @@ public interface ListResult {
     /**
      * @return full namespace-name
      */
-    
     String getName();
-
 }

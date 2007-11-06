@@ -16,33 +16,17 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.imap.message.response.imap4rev1.legacy;
+package org.apache.james.imap.message.response.imap4rev1.server;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import org.apache.james.api.imap.ImapCommand;
-import org.apache.james.imap.message.response.base.AbstractImapResponse;
+import org.apache.james.api.imap.message.response.ImapResponseMessage;
 
 /**
- * @deprecated responses should correspond directly to the specification
+ * Values an IMAP4rev1 <code>LIST</code> response.
  */
-public class ListResponse extends AbstractImapResponse {
-    private List messages = new ArrayList();
-
-    public ListResponse(final ImapCommand command, final String tag) {
-        super(command, tag);
-    }
-
-    public void addMessageData(String message) {
-        // TODO: this isn't efficient
-        // TODO: better to stream results
-        // TODO: pass data objects back and then encode
-        messages.add(message);
-    }
-
-    public List getMessages() {
-        return Collections.unmodifiableList(messages);
-    }
+public final class ListResponse extends AbstractListingResponse implements ImapResponseMessage {
+    public ListResponse(final boolean noInferiors, final boolean noSelect, 
+                        final boolean marked, final boolean unmarked, 
+                        final String hierarchyDelimiter, final String name) {
+        super(noInferiors, noSelect, marked, unmarked, hierarchyDelimiter, name);
+    }    
 }

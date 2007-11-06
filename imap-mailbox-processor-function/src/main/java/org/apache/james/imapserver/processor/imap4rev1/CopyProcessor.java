@@ -25,6 +25,7 @@ import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.api.imap.message.IdRange;
 import org.apache.james.api.imap.message.request.ImapRequest;
 import org.apache.james.api.imap.message.response.ImapResponseMessage;
+import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
 import org.apache.james.api.imap.process.ImapProcessor.Responder;
@@ -44,8 +45,8 @@ import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 public class CopyProcessor extends AbstractMailboxAwareProcessor {
 
     public CopyProcessor(final ImapProcessor next,
-            final MailboxManagerProvider mailboxManagerProvider) {
-        super(next, mailboxManagerProvider);
+            final MailboxManagerProvider mailboxManagerProvider, final StatusResponseFactory factory) {
+        super(next, mailboxManagerProvider, factory);
     }
 
     protected boolean isAcceptable(ImapMessage message) {

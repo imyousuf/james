@@ -24,9 +24,9 @@ import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.api.imap.message.request.ImapRequest;
 import org.apache.james.api.imap.message.response.ImapResponseMessage;
+import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
-import org.apache.james.api.imap.process.ImapProcessor.Responder;
 import org.apache.james.imap.message.request.imap4rev1.AuthenticateRequest;
 import org.apache.james.imap.message.response.imap4rev1.legacy.CommandFailedResponse;
 import org.apache.james.imapserver.processor.base.AbstractImapRequestProcessor;
@@ -35,8 +35,8 @@ import org.apache.james.imapserver.store.MailboxException;
 
 public class AuthenticateProcessor extends AbstractImapRequestProcessor {
 
-    public AuthenticateProcessor(final ImapProcessor next) {
-        super(next);
+    public AuthenticateProcessor(final ImapProcessor next, final StatusResponseFactory factory) {
+        super(next, factory);
     }
 
     protected boolean isAcceptable(ImapMessage message) {

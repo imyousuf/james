@@ -68,6 +68,40 @@ public class MockImapResponseWriter implements ImapResponseWriter {
         
     }
     
+    public void quote(String message) {
+        operations.add(new QuoteMessageOperation(message));
+    }
+    
+    public static class QuoteMessageOperation {
+        public final String message;
+        public QuoteMessageOperation(final String message) {
+            this.message = message;
+        }
+
+        public int hashCode() {
+            final int PRIME = 31;
+            int result = 1;
+            result = PRIME * result + ((message == null) ? 0 : message.hashCode());
+            return result;
+        }
+
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            final QuoteMessageOperation other = (QuoteMessageOperation) obj;
+            if (message == null) {
+                if (other.message != null)
+                    return false;
+            } else if (!message.equals(other.message))
+                return false;
+            return true;
+        }
+    }
+    
     public static class TextMessageOperation {
         public final String text;
         public TextMessageOperation(String text) {
@@ -228,6 +262,57 @@ public class MockImapResponseWriter implements ImapResponseWriter {
                 return false;
             return true;
         }
+        
+    }
+
+    public void closeParen() {
+        operations.add(new ParenOperation(false));
+    }
+
+    public void openParen() {
+        operations.add(new ParenOperation(true));
+    }
+
+    public static class ParenOperation {
+        private final boolean open;
+        public ParenOperation(final boolean open) {
+            this.open = open;
+        }
+        
+        /**
+         * Is this an open paren?
+         * @return the open
+         */
+        public final boolean isOpen() {
+            return open;
+        }
+
+        /**
+         * @see java.lang.Object#hashCode()
+         */
+        public int hashCode() {
+            final int PRIME = 31;
+            int result = 1;
+            result = PRIME * result + (open ? 1231 : 1237);
+            return result;
+        }
+
+        /**
+         * @see java.lang.Object#equals(java.lang.Object)
+         */
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            final ParenOperation other = (ParenOperation) obj;
+            if (open != other.open)
+                return false;
+            return true;
+        }
+        
         
     }
     
