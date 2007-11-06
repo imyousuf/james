@@ -18,25 +18,26 @@
 ################################################################
 # Commands not valid in NONAUTHENTICATED state
 # Valid in authenticated or selected only
-C: a001 SELECT
-S: a001 NO SELECT failed. Command not valid in this state
-C: a001 EXAMINE
-S: a001 NO EXAMINE failed. Command not valid in this state
-C: a001 CREATE
-S: a001 NO CREATE failed. Command not valid in this state
-C: a001 DELETE
-S: a001 NO DELETE failed. Command not valid in this state
-C: a001 RENAME
-S: a001 NO RENAME failed. Command not valid in this state
-C: a001 SUBSCRIBE
-S: a001 NO SUBSCRIBE failed. Command not valid in this state
-C: a001 UNSUBSCRIBE
-S: a001 NO UNSUBSCRIBE failed. Command not valid in this state
-C: a001 LIST
-S: a001 NO LIST failed. Command not valid in this state
-C: a001 LSUB
-S: a001 NO LSUB failed. Command not valid in this state
-C: a001 STATUS
-S: a001 NO STATUS failed. Command not valid in this state
-C: a001 APPEND
-S: a001 NO APPEND failed. Command not valid in this state
+C: a001 SELECT mailbox
+S: a001 NO SELECT failed. Command not valid in this state.
+C: a001 EXAMINE mailbox
+S: a001 NO EXAMINE failed. Command not valid in this state.
+C: a001 CREATE mailbox
+S: a001 NO CREATE failed. Command not valid in this state.
+C: a001 DELETE mailbox
+S: a001 NO DELETE failed. Command not valid in this state.
+C: a001 RENAME oldname newname
+S: a001 NO RENAME failed. Command not valid in this state.
+C: a001 SUBSCRIBE mailbox
+S: a001 NO SUBSCRIBE failed. Command not valid in this state.
+C: a001 UNSUBSCRIBE mailbox
+S: a001 NO UNSUBSCRIBE failed. Command not valid in this state.
+C: a001 LIST "" ""
+S: a001 NO LIST failed. Command not valid in this state.
+C: a001 LSUB "" ""
+S: a001 NO LSUB failed. Command not valid in this state.
+C: a001 STATUS mailbox (UIDNEXT)
+S: a001 NO STATUS failed. Command not valid in this state.
+C: a001 APPEND mailbox {13+}
+C: 13 characters
+S: a001 NO APPEND failed. Command not valid in this state.

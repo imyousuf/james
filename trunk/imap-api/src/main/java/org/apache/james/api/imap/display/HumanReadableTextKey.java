@@ -32,6 +32,10 @@ public class HumanReadableTextKey {
         = new HumanReadableTextKey("org.apache.james.imap.COMPLETED", 
                 "completed.");
     
+    public static final HumanReadableTextKey INVALID_LOGIN 
+        = new HumanReadableTextKey("org.apache.james.imap.INVALID_LOGIN",
+                "failed. Invalid login/password.");
+    
     private final String defaultValue;
     private final String key;
     public HumanReadableTextKey(final String key, final String defaultValue) {

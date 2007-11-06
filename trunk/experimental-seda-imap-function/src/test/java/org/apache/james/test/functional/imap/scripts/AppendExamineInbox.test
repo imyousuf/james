@@ -67,4 +67,4 @@ C: a RENAME INBOX tobedeleted
 S: a OK RENAME completed.
 
 C: a DELETE tobedeleted
-S: OK DELETE completed.
+S: a OK DELETE completed.

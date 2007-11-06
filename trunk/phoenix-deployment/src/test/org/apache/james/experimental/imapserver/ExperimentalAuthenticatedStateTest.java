@@ -31,28 +31,12 @@ public class ExperimentalAuthenticatedStateTest extends AbstractAuthenticatedSta
         // Check whether this is correct behaviour
     }
     
-    public void testSelectEmptyUS() throws Exception {
-//      TODO: \recent flag is returned by FLAGS - specification seems ambiguous on this
-    }
-    
-    public void testAppendExamineInboxUS() throws Exception {
-//      TODO: \recent flag is returned by FLAGS - specification seems ambiguous on this
-    }
-    
-    public void testAppendSelectInboxUS() throws Exception {
-//      TODO: \recent flag is returned by FLAGS - specification seems ambiguous on this
-    }
-    
     public void testListMailboxesUS() throws Exception {
 // TODO: fix bug - complete hierarchy returned
     }
-
-    public void testSelectAppendUS() throws Exception {
-//      TODO: \recent flag is returned by FLAGS - specification seems ambiguous on this
-    }
     
     public void testAppendExpungeUS() throws Exception {
-//      TODO: \recent flag is returned by FLAGS - specification seems ambiguous on this
+//      TODO: EXPUNGE does not return correct flags
     }
     
     public void testListNamespaceUS() throws Exception {
@@ -63,24 +47,8 @@ public class ExperimentalAuthenticatedStateTest extends AbstractAuthenticatedSta
 //      TODO: \recent flag is returned by FLAGS - specification seems ambiguoITALY on this
     }
     
-    public void testSelectEmptyITALY() throws Exception {
-//      TODO: \recent flag is returned by FLAGS - specification seems ambiguoITALY on this
-    }
-    
-    public void testAppendExamineInboxITALY() throws Exception {
-//      TODO: \recent flag is returned by FLAGS - specification seems ambiguoITALY on this
-    }
-    
-    public void testAppendSelectInboxITALY() throws Exception {
-//      TODO: \recent flag is returned by FLAGS - specification seems ambiguoITALY on this
-    }
-    
     public void testListMailboxesITALY() throws Exception {
 // TODO: fix bug - complete hierarchy returned
-    }
-
-    public void testSelectAppendITALY() throws Exception {
-//      TODO: \recent flag is returned by FLAGS - specification seems ambiguoITALY on this
     }
     
     public void testAppendExpungeITALY() throws Exception {
@@ -95,25 +63,9 @@ public class ExperimentalAuthenticatedStateTest extends AbstractAuthenticatedSta
     public void testSubscribeKOREA() throws Exception {
 //      TODO: \recent flag is returned by FLAGS - specification seems ambiguoKOREA on this
     }
-    
-    public void testSelectEmptyKOREA() throws Exception {
-//      TODO: \recent flag is returned by FLAGS - specification seems ambiguoKOREA on this
-    }
-    
-    public void testAppendExamineInboxKOREA() throws Exception {
-//      TODO: \recent flag is returned by FLAGS - specification seems ambiguoKOREA on this
-    }
-    
-    public void testAppendSelectInboxKOREA() throws Exception {
-//      TODO: \recent flag is returned by FLAGS - specification seems ambiguoKOREA on this
-    }
-    
+        
     public void testListMailboxesKOREA() throws Exception {
 // TODO: fix bug - complete hierarchy returned
-    }
-
-    public void testSelectAppendKOREA() throws Exception {
-//      TODO: \recent flag is returned by FLAGS - specification seems ambiguoKOREA on this
     }
     
     public void testAppendExpungeKOREA() throws Exception {
