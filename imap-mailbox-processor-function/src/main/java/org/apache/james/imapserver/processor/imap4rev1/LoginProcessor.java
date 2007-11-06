@@ -21,23 +21,20 @@ package org.apache.james.imapserver.processor.imap4rev1;
 
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
-import org.apache.james.api.imap.ProtocolException;
+import org.apache.james.api.imap.display.HumanReadableTextKey;
 import org.apache.james.api.imap.message.request.ImapRequest;
-import org.apache.james.api.imap.message.response.ImapResponseMessage;
 import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
-import org.apache.james.api.imap.process.ImapProcessor.Responder;
 import org.apache.james.imap.message.request.imap4rev1.LoginRequest;
-import org.apache.james.imap.message.response.imap4rev1.legacy.CommandCompleteResponse;
-import org.apache.james.imap.message.response.imap4rev1.legacy.CommandFailedResponse;
 import org.apache.james.imapserver.processor.base.AbstractImapRequestProcessor;
-import org.apache.james.imapserver.processor.base.AuthorizationException;
 import org.apache.james.imapserver.processor.base.ImapSessionUtils;
-import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.services.User;
 import org.apache.james.services.UsersRepository;
 
+/**
+ * Processes a <code>LOGIN</code> command.
+ */
 public class LoginProcessor extends AbstractImapRequestProcessor {
 
     private final UsersRepository users;
@@ -53,38 +50,17 @@ public class LoginProcessor extends AbstractImapRequestProcessor {
     }
 
     protected void doProcess(ImapRequest message,
-            ImapSession session, String tag, ImapCommand command, Responder responder)
-            throws MailboxException, AuthorizationException, ProtocolException {
+            ImapSession session, String tag, ImapCommand command, Responder responder) {
         final LoginRequest request = (LoginRequest) message;
-        final ImapResponseMessage result = doProcess(request, session, tag,
-                command);
-        responder.respond(result);
-    }
-
-    private ImapResponseMessage doProcess(LoginRequest request,
-            ImapSession session, String tag, ImapCommand command)
-            throws MailboxException, AuthorizationException, ProtocolException {
         final String userid = request.getUserid();
         final String passwd = request.getPassword();
-        final ImapResponseMessage result = doProcess(userid, passwd, session,
-                tag, command);
-        return result;
-    }
-
-    private ImapResponseMessage doProcess(final String userid,
-            final String password, ImapSession session, String tag,
-            ImapCommand command) throws MailboxException,
-            AuthorizationException, ProtocolException {
-        final ImapResponseMessage result;
-        if (users.test(userid, password)) {
+        if (users.test(userid, passwd)) {
             User user = users.getUserByName(userid);
             session.authenticated();
             ImapSessionUtils.setUser(session, user);
-            result = new CommandCompleteResponse(command, tag);
+            okComplete(command, tag, responder);
         } else {
-            result = new CommandFailedResponse(command,
-                    "Invalid login/password", tag);
+            no(command,tag, responder, HumanReadableTextKey.INVALID_LOGIN);
         }
-        return result;
     }
 }

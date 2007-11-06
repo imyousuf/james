@@ -18,18 +18,18 @@
 ################################################################
 # Valid in selected only
 C: a001 CHECK
-S: a001 NO CHECK failed. Command not valid in this state
+S: a001 NO CHECK failed. Command not valid in this state.
 C: a001 CLOSE
-S: a001 NO CLOSE failed. Command not valid in this state
-C: a001 COPY
-S: a001 NO COPY failed. Command not valid in this state
+S: a001 NO CLOSE failed. Command not valid in this state.
+C: a001 COPY 1 mailbox
+S: a001 NO COPY failed. Command not valid in this state.
 C: a001 EXPUNGE
-S: a001 NO EXPUNGE failed. Command not valid in this state
+S: a001 NO EXPUNGE failed. Command not valid in this state.
 C: a001 SEARCH
-S: a001 NO SEARCH failed. Command not valid in this state
-C: a001 FETCH
-S: a001 NO FETCH failed. Command not valid in this state
-C: a001 STORE
-S: a001 NO STORE failed. Command not valid in this state
-C: a001 UID
-S: a001 NO UID failed. Command not valid in this state
+S: a001 NO SEARCH failed. Command not valid in this state.
+C: a001 FETCH 1 ALL
+S: a001 NO FETCH failed. Command not valid in this state.
+C: a001 STORE 1 +FLAGS (\Seen)
+S: a001 NO STORE failed. Command not valid in this state.
+C: a001 UID FETCH 1 ALL
+S: a001 NO FETCH failed. Command not valid in this state.

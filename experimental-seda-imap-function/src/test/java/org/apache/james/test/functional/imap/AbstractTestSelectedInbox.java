@@ -120,8 +120,8 @@ public abstract class AbstractTestSelectedInbox extends BaseTestSelectedInbox {
         scriptTest("ListMailboxes", Locale.ITALY);
     }
     
-    public void testStatITALYITALY() throws Exception {
-        scriptTest("StatITALY", Locale.ITALY);
+    public void testStatusITALY() throws Exception {
+        scriptTest("Status", Locale.ITALY);
     }
     
     public void testStringArgsITALY() throws Exception {
@@ -177,8 +177,8 @@ public abstract class AbstractTestSelectedInbox extends BaseTestSelectedInbox {
         scriptTest("ListMailboxes", Locale.KOREA);
     }
     
-    public void testStatKOREAKOREA() throws Exception {
-        scriptTest("StatKOREA", Locale.KOREA);
+    public void testStatusKOREA() throws Exception {
+        scriptTest("Status", Locale.KOREA);
     }
     
     public void testStringArgsKOREA() throws Exception {
