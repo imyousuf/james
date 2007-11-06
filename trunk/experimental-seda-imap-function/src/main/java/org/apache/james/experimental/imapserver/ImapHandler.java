@@ -35,7 +35,7 @@ import org.apache.james.experimental.imapserver.encode.writer.OutputStreamImapRe
 import org.apache.james.imapserver.codec.decode.ImapDecoder;
 import org.apache.james.imapserver.codec.encode.ImapEncoder;
 import org.apache.james.imapserver.codec.encode.ImapResponseComposer;
-import org.apache.james.imapserver.codec.encode.ImapResponseComposerImpl;
+import org.apache.james.imapserver.codec.encode.base.ImapResponseComposerImpl;
 
 /**
  * The handler class for IMAP connections.

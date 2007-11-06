@@ -19,9 +19,12 @@
 
 package org.apache.james.imapserver.processor.base;
 
+import java.util.Iterator;
 import java.util.List;
 
+import org.apache.james.api.imap.message.response.ImapResponseMessage;
 import org.apache.james.api.imap.process.ImapSession;
+import org.apache.james.api.imap.process.ImapProcessor.Responder;
 import org.apache.james.imap.message.response.base.AbstractImapResponse;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 import org.apache.james.services.User;
@@ -38,6 +41,14 @@ public class ImapSessionUtils {
     public static void addUnsolicitedResponses(AbstractImapResponse response, ImapSession session, boolean useUids) {
         List unsolicitedResponses = session.unsolicitedResponses(useUids);
         response.addUnsolicitedResponses(unsolicitedResponses);
+    }
+    
+    public static void addUnsolicitedResponses(ImapSession session, boolean useUids, final Responder responder) {
+        final List unsolicitedResponses = session.unsolicitedResponses(useUids);
+        for (Iterator it = unsolicitedResponses.iterator();it.hasNext();) {
+            ImapResponseMessage message = (ImapResponseMessage) it.next();
+            responder.respond(message);
+        }
     }
     
     public static ImapMailboxSession getMailbox( final ImapSession session ) {

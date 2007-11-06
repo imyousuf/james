@@ -24,7 +24,7 @@ import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.imap.message.response.imap4rev1.legacy.CommandFailedResponse;
 import org.apache.james.imapserver.codec.encode.ImapEncoder;
 import org.apache.james.imapserver.codec.encode.ImapResponseComposer;
-import org.apache.james.imapserver.codec.encode.ImapResponseComposerImpl;
+import org.apache.james.imapserver.codec.encode.base.ImapResponseComposerImpl;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 

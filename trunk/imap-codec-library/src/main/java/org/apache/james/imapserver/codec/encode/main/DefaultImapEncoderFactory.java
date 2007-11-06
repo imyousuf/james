@@ -35,11 +35,12 @@ import org.apache.james.imapserver.codec.encode.imap4rev1.legacy.CommandFailedRe
 import org.apache.james.imapserver.codec.encode.imap4rev1.legacy.ErrorResponseEncoder;
 import org.apache.james.imapserver.codec.encode.imap4rev1.legacy.ExamineAndSelectResponseEncoder;
 import org.apache.james.imapserver.codec.encode.imap4rev1.legacy.LegacyFetchResponseEncoder;
-import org.apache.james.imapserver.codec.encode.imap4rev1.legacy.ListResponseEncoder;
 import org.apache.james.imapserver.codec.encode.imap4rev1.legacy.LogoutResponseEncoder;
 import org.apache.james.imapserver.codec.encode.imap4rev1.legacy.SearchResponseEncoder;
 import org.apache.james.imapserver.codec.encode.imap4rev1.legacy.StatusCommandResponseEncoder;
 import org.apache.james.imapserver.codec.encode.imap4rev1.legacy.StoreResponseEncoder;
+import org.apache.james.imapserver.codec.encode.imap4rev1.server.LSubResponseEncoder;
+import org.apache.james.imapserver.codec.encode.imap4rev1.server.ListResponseEncoder;
 import org.apache.james.imapserver.codec.encode.imap4rev1.status.UntaggedNoResponseEncoder;
 
 /**
@@ -59,7 +60,8 @@ public class DefaultImapEncoderFactory implements ImapEncoderFactory {
         final StatusCommandResponseEncoder statusCommandResponseEncoder = new StatusCommandResponseEncoder(storeResponseEncoder);
         final SearchResponseEncoder searchResponseEncoder = new SearchResponseEncoder(statusCommandResponseEncoder);
         final LogoutResponseEncoder logoutResponseEncoder = new LogoutResponseEncoder(searchResponseEncoder);
-        final ListResponseEncoder listResponseEncoder = new ListResponseEncoder(logoutResponseEncoder);
+        final LSubResponseEncoder lsubResponseEncoder = new LSubResponseEncoder(logoutResponseEncoder);
+        final ListResponseEncoder listResponseEncoder = new ListResponseEncoder(lsubResponseEncoder);
         final LegacyFetchResponseEncoder legacyFetchResponseEncoder = new LegacyFetchResponseEncoder(listResponseEncoder);
         final ExamineAndSelectResponseEncoder examineAndSelectResponseEncoder = new ExamineAndSelectResponseEncoder(legacyFetchResponseEncoder);
         final ErrorResponseEncoder errorResponseEncoder = new ErrorResponseEncoder(examineAndSelectResponseEncoder);

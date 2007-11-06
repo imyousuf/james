@@ -18,6 +18,7 @@
  ****************************************************************/
 package org.apache.james.imapserver.processor.base;
 
+import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
 import org.apache.james.mailboxmanager.MailboxManagerException;
@@ -33,8 +34,8 @@ abstract public class AbstractMailboxAwareProcessor extends AbstractImapRequestP
     private final MailboxManagerProvider mailboxManagerProvider;
     
     public AbstractMailboxAwareProcessor(final ImapProcessor next, 
-            final MailboxManagerProvider mailboxManagerProvider) {
-        super(next);
+            final MailboxManagerProvider mailboxManagerProvider, final StatusResponseFactory factory) {
+        super(next, factory);
         this.mailboxManagerProvider = mailboxManagerProvider;
     }
     

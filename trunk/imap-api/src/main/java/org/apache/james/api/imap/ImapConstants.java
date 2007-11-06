@@ -29,6 +29,13 @@ public interface ImapConstants
     String UNTAGGED = "*";
 
     String SP = " ";
+    
+    public static final String NIL = "NIL";
+    public static final char OPENING_PARENTHESIS = '(';
+    public static final char CLOSING_PARENTHESIS = ')';
+    public static final char SP_CHAR = ' ';
+    public static final char DQUOTE ='\"';
+    
     String VERSION = "IMAP4rev1";
     String CAPABILITIES = "LITERAL+";
 
@@ -40,6 +47,7 @@ public interface ImapConstants
     final String NAMESPACE_PREFIX = String.valueOf( NAMESPACE_PREFIX_CHAR );
 
     String INBOX_NAME = "INBOX";
+    public static final char FORWARD_SLASH = '\\';
     public static final String STATUS_UNSEEN = "UNSEEN";
     public static final String STATUS_UIDVALIDITY = "UIDVALIDITY";
     public static final String STATUS_UIDNEXT = "UIDNEXT";
@@ -71,4 +79,11 @@ public interface ImapConstants
     public static final String APPEND_COMMAND_NAME = "APPEND";
     public static final String CAPABILITY_RESPONSE = CAPABILITY_COMMAND_NAME + SP + VERSION + SP + CAPABILITIES;
     
+    public static final String LIST_RESPONSE_NAME = "LIST";
+    public static final String LSUB_RESPONSE_NAME = "LSUB";
+    
+    public static final String NAME_ATTRIBUTE_NOINFERIORS = "\\Noinferiors";
+    public static final String NAME_ATTRIBUTE_NOSELECT = "\\Noselect";
+    public static final String NAME_ATTRIBUTE_MARKED = "\\Marked";
+    public static final String NAME_ATTRIBUTE_UNMARKED = "\\Unmarked";
 }

@@ -54,7 +54,7 @@ public class AppendProcessor extends AbstractMailboxAwareProcessor {
     
     public AppendProcessor(final ImapProcessor next,
             final MailboxManagerProvider mailboxManagerProvider, final StatusResponseFactory statusResponseFactory) {
-        super(next, mailboxManagerProvider);
+        super(next, mailboxManagerProvider, statusResponseFactory);
         this.statusResponseFactory = statusResponseFactory;
     }
 

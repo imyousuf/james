@@ -19,13 +19,15 @@
 
 package org.apache.james.imapserver.processor.imap4rev1;
 
+import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.api.imap.message.response.ImapResponseMessage;
+import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
-import org.apache.james.imap.message.response.imap4rev1.legacy.ListResponse;
+import org.apache.james.imap.message.response.imap4rev1.status.TaggedOkResponse;
 import org.apache.james.imapserver.processor.base.AbstractMailboxAwareProcessor;
 import org.apache.james.imapserver.processor.base.AuthorizationException;
 import org.apache.james.imapserver.processor.base.ImapSessionUtils;
@@ -39,25 +41,32 @@ import org.apache.james.services.User;
 
 abstract class AbstractListingProcessor extends AbstractMailboxAwareProcessor {
 
+    private final boolean subscribedOnly;
+    
+    
     public AbstractListingProcessor(final ImapProcessor next,
-            final MailboxManagerProvider mailboxManagerProvider) {
-        super(next, mailboxManagerProvider);
+            final MailboxManagerProvider mailboxManagerProvider, 
+            final StatusResponseFactory factory, final boolean subscribedOnly) {
+        super(next, mailboxManagerProvider, factory);
+        this.subscribedOnly = subscribedOnly;
     }
 
-    protected final ImapResponseMessage doProcess(
-            final String baseReferenceName, final String mailboxPattern,
-            ImapSession session, String tag, ImapCommand command)
+    protected final void doProcess(
+            final String baseReferenceName, 
+            final String mailboxPattern,
+            final ImapSession session, 
+            final String tag, ImapCommand command,
+            final Responder responder)
             throws MailboxException, AuthorizationException, ProtocolException {
 
-        final ListResponse result = new ListResponse(command, tag);
         String referenceName = baseReferenceName;
         // Should the #user.userName section be removed from names returned?
-        boolean removeUserPrefix;
+        final boolean removeUserPrefix;
 
-        ListResult[] listResults;
+        final ListResult[] listResults;
 
         final User user = ImapSessionUtils.getUser(session);
-        String personalNamespace = ImapConstants.USER_NAMESPACE
+        final String personalNamespace = ImapConstants.USER_NAMESPACE
                 + ImapConstants.HIERARCHY_DELIMITER_CHAR + user.getUserName();
 
         if (mailboxPattern.length() == 0) {
@@ -111,49 +120,115 @@ abstract class AbstractListingProcessor extends AbstractMailboxAwareProcessor {
         int prefixLength = personalNamespace.length();
 
         for (int i = 0; i < listResults.length; i++) {
-            StringBuffer message = new StringBuffer("(");
-            String[] attrs = listResults[i].getAttributes();
-            for (int j = 0; j < attrs.length; j++) {
-                if (j > 0) {
-                    message.append(' ');
-                }
-                message.append(attrs[j]);
-            }
-            message.append(") \"");
-            message.append(listResults[i].getHierarchyDelimiter());
-            message.append("\" ");
-
-            String mailboxName = listResults[i].getName();
-            if (removeUserPrefix) {
-                if (mailboxName.length() <= prefixLength) {
-                    mailboxName = "";
-                } else {
-                    mailboxName = mailboxName.substring(prefixLength + 1);
-                }
-            }
-
-            // TODO: need to check if the mailbox name needs quoting.
-            if (mailboxName.length() == 0) {
-                message.append("\"\"");
-            } else {
-                message.append(mailboxName);
-            }
-
-            result.addMessageData(message.toString());
-        }
-        ImapSessionUtils.addUnsolicitedResponses(result, session, false);
-        return result;
+            final ListResult listResult = listResults[i];
+            processResult(responder, removeUserPrefix, prefixLength, listResult);
+        }   
+        
+        okComplete(command, tag, responder);
     }
 
-    protected abstract ListResult[] doList(ImapSession session, String base,
-            String pattern) throws MailboxException;
+    void processResult(final Responder responder, final boolean removeUserPrefix, 
+            int prefixLength, final ListResult listResult) {
+        final String delimiter = listResult.getHierarchyDelimiter();
+        final String mailboxName = mailboxName(removeUserPrefix, prefixLength, listResult);
 
+        final String[] attrs = listResult.getAttributes();
+        boolean noInferior = false;
+        boolean noSelect = false;
+        boolean marked = false;
+        boolean unmarked = false;
+        if (attrs != null) {
+            final int length = attrs.length;
+            for (int i=0;i<length;i++) {
+                final String attribute = attrs[i];
+                if (ImapConstants.NAME_ATTRIBUTE_NOINFERIORS.equals(attribute)) {
+                    noInferior = true;
+                } else if (ImapConstants.NAME_ATTRIBUTE_NOSELECT.equals(attribute)) {
+                    noSelect = true;
+                    // RFC 3501 does not allow Marked or Unmarked on a NoSelect mailbox
+                    if (marked || unmarked) {
+                        logMarkedUnmarkedNoSelectMailbox(mailboxName);
+                        marked = false;
+                        unmarked = false;
+                    }
+                } else if (ImapConstants.NAME_ATTRIBUTE_MARKED.equals(attribute)) {
+                    if (noSelect) {
+                        // RFC 3501 does not allow NoSelect mailboxes to be Marked
+                        marked = false;
+                        logMarkedUnmarkedNoSelectMailbox(mailboxName);
+                    } else {
+                        marked = true;
+                        if (unmarked) {
+                            // RFC3501 does not allow marked and unmarked to be returned
+                            // When the mailbox has both marked and unmarked set,
+                            // the implementation is free to choose which to return.
+                            // Choose to return marked.
+                            logMarkedUnmarkedMailbox(mailboxName);
+                            unmarked = false;
+                        }
+                    }
+                } else if (ImapConstants.NAME_ATTRIBUTE_UNMARKED.equals(attribute)) {
+                    if (noSelect) {
+                        // RFC 3501 does not allow NoSelect mailboxes to be UnMarked
+                        marked = false;
+                        logMarkedUnmarkedNoSelectMailbox(mailboxName);
+                    } else {
+                        if (marked) {
+                            // RFC3501 does not allow marked and unmarked to be returned
+                            // When the mailbox has both marked and unmarked set,
+                            // the implementation is free to choose which to return.
+                            // Choose to return marked.
+                            logMarkedUnmarkedMailbox(mailboxName);
+                        } else {
+                            unmarked = true;
+                        }
+                    }
+                }
+            }
+        }
+        
+        responder.respond(createResponse(noInferior, noSelect, marked, unmarked, 
+                delimiter, mailboxName));
+    }
+
+    private void logMarkedUnmarkedNoSelectMailbox(final String mailboxName) {
+        final Logger logger = getLogger();
+        if (logger != null && logger.isDebugEnabled()) {
+            logger.debug("Marked or unmarked flags set on NoSelect mailbox: " + mailboxName);
+        }
+    }
+    
+    private void logMarkedUnmarkedMailbox(final String mailboxName) {
+        final Logger logger = getLogger();
+        if (logger != null && logger.isDebugEnabled()) {
+            logger.debug("Marked and unmarked flags set on mailbox: " + mailboxName);
+        }
+    }
+
+    private String mailboxName(final boolean removeUserPrefix, int prefixLength, final ListResult listResult) {
+        final String mailboxName;
+        final String name = listResult.getName();
+        if (removeUserPrefix) {
+            if (name.length() <= prefixLength) {
+                mailboxName = "";
+            } else {
+                mailboxName = name.substring(prefixLength + 1);
+            }
+        } else {
+            mailboxName = name;
+        }
+        return mailboxName;
+    }
+
+    protected abstract ImapResponseMessage createResponse(final boolean noinferior, 
+            final boolean noselect, final boolean marked, final boolean unmarked, 
+            final String hierarchyDelimiter, final String mailboxName);
+   
     protected final ListResult[] doList(ImapSession session, String base,
-            String pattern, boolean subscribed) throws MailboxException {
+            String pattern) throws MailboxException {
         try {
             final MailboxManager mailboxManager = getMailboxManager(session);
-            final ListResult[] result = mailboxManager.list(base, pattern,
-                    false);
+            final ListResult[] result = mailboxManager.list(base, pattern, subscribedOnly);
             return result;
         } catch (MailboxManagerException e) {
             throw new MailboxException(e);

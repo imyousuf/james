@@ -23,8 +23,11 @@ import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.api.imap.ProtocolException;
+import org.apache.james.api.imap.display.HumanReadableTextKey;
 import org.apache.james.api.imap.message.request.ImapRequest;
 import org.apache.james.api.imap.message.response.ImapResponseMessage;
+import org.apache.james.api.imap.message.response.imap4rev1.StatusResponse;
+import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
 import org.apache.james.imap.message.response.imap4rev1.legacy.CommandFailedResponse;
@@ -34,9 +37,10 @@ import org.apache.james.imapserver.store.MailboxException;
 abstract public class AbstractImapRequestProcessor extends
         AbstractChainedImapProcessor implements ImapConstants {
 
-    
-    public AbstractImapRequestProcessor(final ImapProcessor next) {
+    private final StatusResponseFactory factory;    
+    public AbstractImapRequestProcessor(final ImapProcessor next, final StatusResponseFactory factory) {
         super(next);
+        this.factory = factory;
     }
 
     protected final void doProcess(
@@ -93,6 +97,12 @@ abstract public class AbstractImapRequestProcessor extends
         }
     }
 
+    protected void okComplete(final ImapCommand command, final String tag, 
+            final ImapProcessor.Responder responder) {
+        final StatusResponse response = factory.taggedOk(tag, command, HumanReadableTextKey.COMPLETED);
+        responder.respond(response);
+    }
+    
     protected abstract void doProcess(final ImapRequest message,
             ImapSession session, String tag, ImapCommand command, Responder responder)
             throws MailboxException, AuthorizationException, ProtocolException;

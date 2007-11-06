@@ -34,10 +34,12 @@ import org.apache.james.util.InternetPrintWriter;
 public class OutputStreamImapResponseWriter extends AbstractLogEnabled implements ImapConstants, ImapResponseWriter {
     
     private PrintWriter writer;
+    private boolean skipNextSpace;
 
     public OutputStreamImapResponseWriter( OutputStream output )
     {
         this.writer = new InternetPrintWriter( output, true );
+        skipNextSpace = false;
     }
 
     /**
@@ -70,14 +72,14 @@ public class OutputStreamImapResponseWriter extends AbstractLogEnabled implement
     public void message( String message )
     {
         if ( message != null ) {
-            writer.print( SP );
+            space();
             writer.print( message );
         }
     }
 
     public void message( int number )
     {
-        writer.print( SP );
+        space();
         writer.print( number );
     }
 
@@ -86,7 +88,7 @@ public class OutputStreamImapResponseWriter extends AbstractLogEnabled implement
         if ( responseCode != null ) {
             writer.print( " [" );
             writer.print( responseCode );
-            writer.print( "]" );
+            writer.print( ']' );
         }
     }
 
@@ -97,7 +99,52 @@ public class OutputStreamImapResponseWriter extends AbstractLogEnabled implement
     }
 
     public void commandName(String commandName) {
-        writer.print( SP );
+        space();
         writer.print( commandName );
+    }
+
+    public void quote(String message) {
+        space();
+        writer.print( DQUOTE );
+        final int length = message.length();
+        for (int i=0;i<length;i++) {
+            char character = message.charAt(i);
+            if (character == ImapConstants.FORWARD_SLASH || character == DQUOTE) {
+                writer.print(ImapConstants.FORWARD_SLASH);
+            }
+            writer.print(character);
+        }
+        writer.print(DQUOTE);
+    }
+    
+    public void flush() {
+        writer.flush();
+    }
+
+    public void closeParen() {
+        writer.print(CLOSING_PARENTHESIS);
+        clearSkipNextSpace();
+    }
+
+    public void openParen() {
+        space();
+        writer.print(OPENING_PARENTHESIS);
+        skipNextSpace();
+    }
+    
+    private void clearSkipNextSpace() {
+        skipNextSpace = false;
+    }
+    
+    private void skipNextSpace() {
+        skipNextSpace = true;
+    }
+    
+    private void space() {
+        if (skipNextSpace) {
+            skipNextSpace = false;
+        } else {
+            writer.print(SP_CHAR);
+        }
     }
 }

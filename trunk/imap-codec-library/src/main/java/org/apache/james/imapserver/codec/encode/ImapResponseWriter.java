@@ -51,12 +51,28 @@ public interface ImapResponseWriter {
     void message( String message );
 
     void message( int number );
-
+ 
     /**
      * Writes a response code.
      * @param responseCode the response code, not null
      */
     void responseCode( String responseCode );
+
+    /**
+     * Writes a quoted message.
+     * @param message message, not null
+     */
+    void quote(String message);
+    
+    /**
+     * Opens a parenthesis - writes a <code>(</code>.
+     */
+    void openParen();
+    
+    /**
+     * Closes a parenthesis - writes a <code>)</code>.
+     */
+    void closeParen();
 
     /**
      * Ends a response.
