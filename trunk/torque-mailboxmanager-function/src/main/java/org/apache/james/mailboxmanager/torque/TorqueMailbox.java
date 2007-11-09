@@ -373,21 +373,19 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
         private final List headers;
         private final long size;
         
-        public FullContent(final byte[] contents, final List headers) {
+        public FullContent(final byte[] contents, final List headers) throws MessagingException {
             this.contents =  contents;
             this.headers = headers;
             this.size = caculateSize();
         }
 
-        private long caculateSize(){
+        private long caculateSize() throws MessagingException{
             long result = contents.length + MessageUtils.countUnnormalLines(contents);
             result += 2;
             for (final Iterator it=headers.iterator(); it.hasNext();) {
-                final String line = (String) it.next();
-                if (line != null) {
-                    // we don't know the appropriate encoding for the headers
-                    // TODO: sort out on entry (if possible)
-                    result += line.getBytes().length;
+                final MessageResult.Header header = (MessageResult.Header) it.next();
+                if (header != null) {
+                    result += header.size();
                     result += 2;
                 }
             }
@@ -396,14 +394,9 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
 
         public void writeTo(StringBuffer buffer) throws MessagingException {
             for (final Iterator it=headers.iterator(); it.hasNext();) {
-                final String line = (String) it.next();
-                if (line != null) {
-                    // we don't know the appropriate encoding for the headers
-                    // TODO: sort out on entry (if possible)
-                    byte[] bytes = line.getBytes();
-                    for (int i=0;i<bytes.length;i++) {
-                        buffer.append((char) bytes[i]);
-                    }
+                final MessageResult.Header header = (MessageResult.Header) it.next();
+                if (header != null) {
+                    header.writeTo(buffer);
                 }
                 buffer.append('\r');
                 buffer.append('\n');
@@ -418,14 +411,13 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
         }
     }
 
-    private Content createFullContent(final MessageRow messageRow, MessageResult.Headers headers) throws TorqueException, MessagingException {
+    private Content createFullContent(final MessageRow messageRow, List headers) throws TorqueException, MessagingException {
         if (headers == null) {
             headers = createHeaders(messageRow);
         }
         final MessageBody body = (MessageBody) messageRow.getMessageBodys().get(0);
         final byte[] bytes = body.getBody();
-        final List lines = headers.getAllLines();
-        final FullContent results = new FullContent(bytes, lines);
+        final FullContent results = new FullContent(bytes, headers);
         return results;
     }
     
@@ -454,7 +446,7 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
         }
     } 
     
-    private MessageResult.Headers createHeaders(MessageRow messageRow) throws TorqueException {
+    private List createHeaders(MessageRow messageRow) throws TorqueException {
         final List headers=messageRow.getMessageHeaders();
         Collections.sort(headers, new Comparator() {
 
@@ -463,56 +455,53 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
             }
             
         });
-        final MessageResult.Headers results = new HeaderRows(headers);
+        
+        final List results = new ArrayList(headers.size());
+        for (Iterator it=headers.iterator();it.hasNext();) {
+            final MessageHeader messageHeader = (MessageHeader) it.next();
+            final Header header = new Header(messageHeader);
+            results.add(header);
+        }
         return results;
     }
+    
+    private static final class Header implements MessageResult.Header, MessageResult.Content {
+        private final String name;
+        private final String value;
+        private final long size;
+        
+        public Header(final MessageHeader header) {
+            this.name = header.getField();
+            this.value = header.getValue();
+            size = name.length() + value.length() + 2;
+        }
+        
+        public Content getContent() throws MessagingException {
+            return this;
+        }
 
-    private static final class HeaderRows implements MessageResult.Headers {
-        private static final String[] EMPTY_STRING_ARRAY={};
-        private final List messageHeaders;
-        public HeaderRows(final List messageHeaders) {
-            this.messageHeaders = messageHeaders;
+        public String getName() throws MessagingException {
+            return name;
         }
-        
-        public List getAllLines() throws MessagingException {
-            final ArrayList results = new ArrayList(messageHeaders.size());
-            int i = 0;
-            for (final Iterator it = messageHeaders.iterator();it.hasNext();i++) {
-                MessageHeader header = (MessageHeader) it.next();
-                final String line = toHeaderLine(header);
-                results.add(line);
+
+        public String getValue() throws MessagingException {
+            return value;
+        }
+
+        public long size() throws MessagingException {
+            return size;
+        }
+
+        public void writeTo(StringBuffer buffer) throws MessagingException {
+// TODO: sort out encoding
+            for (int i=0; i<name.length();i++) {
+                buffer.append((char)(byte) name.charAt(i));
             }
-            return results;
-        }
-        
-        private String toHeaderLine(MessageHeader header) {
-            return header.getField() + ": " + header.getValue();
-        }
-        
-        public List getMatchingLines(String[] names) throws MessagingException {
-            final ArrayList results = new ArrayList(messageHeaders.size());
-            for (final Iterator it = messageHeaders.iterator();it.hasNext();) {
-                MessageHeader header = (MessageHeader) it.next();
-                for (int i=0;i<names.length;i++) {
-                    if (names[i].equalsIgnoreCase(header.getField())) {
-                        results.add(toHeaderLine(header));
-                    }
-                }
+            buffer.append(':');
+            buffer.append(' ');
+            for (int i=0; i<value.length();i++) {
+                buffer.append((char)(byte) value.charAt(i));
             }
-            return results;
-        }
-        
-        public List getOtherLines(String[] names) throws MessagingException {
-            final ArrayList results = new ArrayList(messageHeaders.size());
-            for (final Iterator it = messageHeaders.iterator();it.hasNext();) {
-                MessageHeader header = (MessageHeader) it.next();
-                for (int i=0;i<names.length;i++) {
-                    if (!names[i].equalsIgnoreCase(header.getField())) {
-                        results.add(toHeaderLine(header));
-                    }
-                }
-            }
-            return results;
         }
         
     }
