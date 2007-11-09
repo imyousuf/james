@@ -101,8 +101,18 @@ abstract public class AbstractImapRequestProcessor extends
     }
     
     protected void unsolicitedResponses(final ImapSession session, 
+            final ImapProcessor.Responder responder, boolean omitExpunged, boolean useUids) {
+        final List responses = session.unsolicitedResponses(omitExpunged, useUids);
+        respond(responder, responses);
+    }
+    
+    protected void unsolicitedResponses(final ImapSession session, 
             final ImapProcessor.Responder responder, boolean useUids) {
         final List responses = session.unsolicitedResponses(useUids);
+        respond(responder, responses);
+    }
+
+    private void respond(final ImapProcessor.Responder responder, final List responses) {
         for (final Iterator it=responses.iterator(); it.hasNext();) {
             ImapResponseMessage message = (ImapResponseMessage) it.next();
             responder.respond(message);

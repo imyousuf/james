@@ -19,8 +19,6 @@
 
 package org.apache.james.imapserver.processor.imap4rev1;
 
-import java.util.List;
-
 import javax.mail.Flags;
 
 import org.apache.james.api.imap.ImapCommand;
@@ -29,13 +27,10 @@ import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.api.imap.message.IdRange;
 import org.apache.james.api.imap.message.StoreDirective;
 import org.apache.james.api.imap.message.request.ImapRequest;
-import org.apache.james.api.imap.message.response.ImapResponseMessage;
 import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
-import org.apache.james.api.imap.process.ImapProcessor.Responder;
 import org.apache.james.imap.message.request.imap4rev1.StoreRequest;
-import org.apache.james.imap.message.response.imap4rev1.legacy.StoreResponse;
 import org.apache.james.imapserver.processor.base.AbstractImapRequestProcessor;
 import org.apache.james.imapserver.processor.base.AuthorizationException;
 import org.apache.james.imapserver.processor.base.ImapSessionUtils;
@@ -60,27 +55,17 @@ public class StoreProcessor extends AbstractImapRequestProcessor {
             ImapSession session, String tag, ImapCommand command, Responder responder)
             throws MailboxException, AuthorizationException, ProtocolException {
         final StoreRequest request = (StoreRequest) message;
-        final ImapResponseMessage result = doProcess(request, session, tag,
-                command);
-        responder.respond(result);
-    }
-
-    private ImapResponseMessage doProcess(StoreRequest request,
-            ImapSession session, String tag, ImapCommand command)
-            throws MailboxException, AuthorizationException, ProtocolException {
         final IdRange[] idSet = request.getIdSet();
         final StoreDirective directive = request.getDirective();
         final Flags flags = request.getFlags();
         final boolean useUids = request.isUseUids();
-        final ImapResponseMessage result = doProcess(idSet, directive, flags,
-                useUids, session, tag, command);
-        return result;
+        doProcess(idSet, directive, flags, useUids, session, tag, command, responder);
     }
 
-    private ImapResponseMessage doProcess(final IdRange[] idSet,
+    private void doProcess(final IdRange[] idSet,
             final StoreDirective directive, final Flags flags,
             final boolean useUids, ImapSession session, String tag,
-            ImapCommand command) throws MailboxException,
+            ImapCommand command, Responder responder) throws MailboxException,
             AuthorizationException, ProtocolException {
 
         ImapMailboxSession mailbox = ImapSessionUtils.getMailbox(session);
@@ -114,11 +99,8 @@ public class StoreProcessor extends AbstractImapRequestProcessor {
             throw new MailboxException(e);
         }
 
-        final StoreResponse result = new StoreResponse(command, tag);
-        boolean omitExpunged = (!useUids);
-        List unsolicitedResponses = session.unsolicitedResponses(omitExpunged,
-                useUids);
-        result.addUnsolicitedResponses(unsolicitedResponses);
-        return result;
+        final boolean omitExpunged = (!useUids);
+        unsolicitedResponses(session, responder, omitExpunged, useUids);
+        okComplete(command, tag, responder);
     }
 }
