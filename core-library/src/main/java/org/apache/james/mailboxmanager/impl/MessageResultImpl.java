@@ -20,6 +20,8 @@
 package org.apache.james.mailboxmanager.impl;
 
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.mail.Flags;
 import javax.mail.Flags.Flag;
@@ -37,7 +39,7 @@ public class MessageResultImpl implements MessageResult {
     private int size;
     private Date internalDate;
     private String key;
-    private Headers headers;
+    private List headers;
     private Content messageBody;
     private Content fullMessage;
     
@@ -187,11 +189,15 @@ public class MessageResultImpl implements MessageResult {
         this.key=key;
     }
 
-    public Headers getHeaders() {
+    public Iterator iterateHeaders() {
+        return headers.iterator();
+    }
+    
+    public List getHeaders() {
         return headers;
     }
 
-    public void setHeaders(Headers headers) {
+    public void setHeaders(List headers) {
         this.headers = headers;
     }
 

@@ -19,8 +19,6 @@
 
 package org.apache.james.imapserver.processor.imap4rev1;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -28,7 +26,6 @@ import java.util.List;
 
 import javax.mail.Flags;
 import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
 
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapConstants;
@@ -43,8 +40,6 @@ import org.apache.james.api.imap.message.response.ImapResponseMessage;
 import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
-import org.apache.james.api.imap.process.ImapProcessor.Responder;
-import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.imap.message.request.imap4rev1.FetchRequest;
 import org.apache.james.imap.message.response.imap4rev1.legacy.FetchResponse;
 import org.apache.james.imapserver.codec.encode.EncoderUtils;
@@ -56,11 +51,9 @@ import org.apache.james.imapserver.store.SimpleMessageAttributes;
 import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
+import org.apache.james.mailboxmanager.MessageResultUtils;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
-import org.apache.mailet.dates.RFC822DateFormat;
-
-import com.sun.mail.util.CRLFOutputStream;
 
 public class FetchProcessor extends AbstractImapRequestProcessor {
 
@@ -286,20 +279,20 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
             addLiteralContent(fullMessage, response);
         }
         else if ( sectionSpecifier.equalsIgnoreCase( "HEADER" ) ) {
-            final MessageResult.Headers headers = result.getHeaders();
-            List lines = headers.getAllLines();
+            final Iterator headers = result.iterateHeaders();
+            List lines = MessageResultUtils.getAll(headers);
             addHeaders( lines, response );
         }
         else if ( sectionSpecifier.startsWith( "HEADER.FIELDS.NOT " ) ) {
             String[] excludeNames = extractHeaderList( sectionSpecifier, "HEADER.FIELDS.NOT ".length() );
-            final MessageResult.Headers headers = result.getHeaders();
-            List lines = headers.getOtherLines(excludeNames);
+            final Iterator headers = result.iterateHeaders();
+            List lines = MessageResultUtils.getMatching(excludeNames, headers);
             addHeaders( lines, response );
         }
         else if ( sectionSpecifier.startsWith( "HEADER.FIELDS " ) ) {
             String[] includeNames = extractHeaderList( sectionSpecifier, "HEADER.FIELDS ".length() );
-            final MessageResult.Headers headers = result.getHeaders();
-            List lines = headers.getMatchingLines(includeNames);
+            final Iterator headers = result.iterateHeaders();
+            List lines = MessageResultUtils.getMatching(includeNames, headers);
             addHeaders( lines, response );
         } else if (sectionSpecifier.equalsIgnoreCase("MIME")) {
             // TODO implement
@@ -367,12 +360,12 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
         return (String[]) strings.toArray(new String[0]);
     }
 
-    private void addHeaders( List headerLines, StringBuffer response )
+    private void addHeaders( List headerLines, StringBuffer response ) throws MessagingException
     {
         int count = 0;
         for (final Iterator it=headerLines.iterator();it.hasNext();) {
-            String line = (String) it.next();
-            count += line.length() + 2;
+            MessageResult.Header header = (MessageResult.Header) it.next();
+            count += header.size() + 2;
         }
         response.append( '{' );
         response.append( count + 2 );
@@ -380,8 +373,8 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
         response.append("\r\n");
 
         for (final Iterator it=headerLines.iterator();it.hasNext();) {
-            String line = (String) it.next();
-            response.append(line);
+            MessageResult.Header header = (MessageResult.Header) it.next();
+            header.writeTo(response);
             response.append("\r\n");
         }
         response.append("\r\n");

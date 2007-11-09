@@ -19,11 +19,8 @@
 
 package org.apache.james.imapserver.commands;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -31,10 +28,8 @@ import java.util.Set;
 
 import javax.mail.Flags;
 import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
 
 import org.apache.james.api.imap.message.MessageFlags;
-import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
@@ -44,12 +39,11 @@ import org.apache.james.imapserver.store.SimpleMessageAttributes;
 import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
+import org.apache.james.mailboxmanager.MessageResultUtils;
 import org.apache.james.mailboxmanager.MessageResult.Content;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 import org.apache.mailet.dates.RFC822DateFormat;
-
-import com.sun.mail.util.CRLFOutputStream;
 
 /**
  * Handles processeing for the FETCH imap command.
@@ -221,17 +215,20 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
             addLiteralContent(fullMessage, response);
         }
         else if ( sectionSpecifier.equalsIgnoreCase( "HEADER" ) ) {
-            final List lines = result.getHeaders().getAllLines();
+            final Iterator headers = result.iterateHeaders();
+            List lines = MessageResultUtils.getAll(headers);
             addHeaders( lines, response );
         }
         else if ( sectionSpecifier.startsWith( "HEADER.FIELDS.NOT " ) ) {
             String[] excludeNames = extractHeaderList( sectionSpecifier, "HEADER.FIELDS.NOT ".length() );
-            final List lines = result.getHeaders().getOtherLines( excludeNames );
+            final Iterator headers = result.iterateHeaders();
+            List lines = MessageResultUtils.getMatching(excludeNames, headers);
             addHeaders( lines, response );
         }
         else if ( sectionSpecifier.startsWith( "HEADER.FIELDS " ) ) {
             String[] includeNames = extractHeaderList( sectionSpecifier, "HEADER.FIELDS ".length() );
-            final List lines = result.getHeaders().getMatchingLines( includeNames );
+            final Iterator headers = result.iterateHeaders();
+            List lines = MessageResultUtils.getMatching(includeNames, headers);
             addHeaders( lines, response );
         }
         else if ( sectionSpecifier.equalsIgnoreCase( "MIME" ) ) {
@@ -295,12 +292,12 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
         return (String[]) strings.toArray(new String[0]);
     }
 
-    private void addHeaders( final List headers, final StringBuffer response )
+    private void addHeaders( final List headers, final StringBuffer response ) throws MessagingException
     {
         int count = 0;
         for (final Iterator it=headers.iterator();it.hasNext();) {
-            final String line = (String) it.next();
-            count += line.length() + 2;
+            final MessageResult.Header header = (MessageResult.Header) it.next();
+            count += header.size() + 2;
         }
 
         response.append( '{' );
@@ -309,8 +306,8 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
         response.append("\r\n");
 
         for (final Iterator it=headers.iterator();it.hasNext();) {
-            final String line = (String) it.next();
-            response.append( line );
+            final MessageResult.Header line = (MessageResult.Header) it.next();
+            line.writeTo(response);
             response.append( "\r\n" );
         }
         response.append("\r\n");

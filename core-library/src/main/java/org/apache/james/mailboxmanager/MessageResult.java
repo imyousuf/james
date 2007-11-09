@@ -20,6 +20,7 @@
 package org.apache.james.mailboxmanager;
 
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.mail.Flags;
@@ -141,42 +142,29 @@ public interface MessageResult extends Comparable {
     
     /**
      * Gets headers for the message.
-     * @return <code>Headers</code>, 
+     * @return <code>Header</code> <code>Iterator</code>, 
      * or null if {@link #HEADERS} was not fetched
      */
-    Headers getHeaders();
+    Iterator iterateHeaders();
     
     /**
-     * Details of the mail headers for this result.
+     * A header.
      */
-    public interface Headers {
-        /**
-         * Gets all header lines.
-         * @return <code>List</code> of <code>String</code> header lines,
-         * in their natural order
-         * @throws MessagingException
-         */
-        List getAllLines() throws MessagingException;
+    public interface Header extends Content{
         
         /**
-         * Gets header lines whose header names matches (ignoring case)
-         * any of those given.
-         * @param names header names to be matched, not null
-         * @return <code>List</code> of <code>String</code> header lines,
-         * in their natural order
-         * @throws MessagingException
+         * Gets the name of this header.
+         * @return name of this header
+         * @throws MessagingException 
          */
-        List getMatchingLines(String[] names) throws MessagingException;
+        public String getName() throws MessagingException;
         
         /**
-         * Gets header lines whose header name fails to match (ignoring case)
-         * all of the given names.
-         * @param names header names, not null
-         * @return <code>List</code> of <code>String</code> header lines,
-         * in their natural order
+         * Gets the (unparsed) value of this header.
+         * @return value of this header
          * @throws MessagingException
          */
-        List getOtherLines(String[] names) throws MessagingException;
+        public String getValue() throws MessagingException;
     }
     
     /**
