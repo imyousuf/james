@@ -18,6 +18,9 @@
  ****************************************************************/
 package org.apache.james.imapserver.processor.base;
 
+import java.util.Iterator;
+import java.util.List;
+
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapConstants;
@@ -94,6 +97,15 @@ abstract public class AbstractImapRequestProcessor extends
             
         } else {
             doProcess(message, session, tag, command, responder);
+        }
+    }
+    
+    protected void unsolicitedResponses(final ImapSession session, 
+            final ImapProcessor.Responder responder, boolean useUids) {
+        final List responses = session.unsolicitedResponses(useUids);
+        for (final Iterator it=responses.iterator(); it.hasNext();) {
+            ImapResponseMessage message = (ImapResponseMessage) it.next();
+            responder.respond(message);
         }
     }
 
