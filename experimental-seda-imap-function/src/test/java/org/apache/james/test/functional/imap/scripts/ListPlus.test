@@ -47,34 +47,36 @@ S: \* LIST \(\) \"\.\" \"listtest1\"
 S: \* LIST \(\) \"\.\" \"INBOX\"
 S: \* LIST \(\) \"\.\" \"funny\"
 }
-S: a1 OK List completed.
+S: a1 OK LIST completed.
 
 C: a2 list "" funny.%
 SUB {
 S: \* LIST \(\) \"\.\" \"funny.name with gaps\"
 S: \* LIST \(\) \"\.\" \"funny.name\"
 }
-S: a2 OK List completed.
+S: a2 OK LIST completed.
 
 C: a3 LIST "" *
 SUB {
 S: \* LIST \(\) \"\.\" \"listtest\"
+S: \* LIST \(\) \"\.\" \"listtest.subfolder\"
 S: \* LIST \(\) \"\.\" \"listtest1\"
+S: \* LIST \(\) \"\.\" \"listtest1.subfolder1\"
 S: \* LIST \(\) \"\.\" \"INBOX\"
 S: \* LIST \(\) \"\.\" \"funny\"
 S: \* LIST \(\) \"\.\" \"funny.name with gaps\"
 S: \* LIST \(\) \"\.\" \"funny.name with gaps\.more\"
 S: \* LIST \(\) \"\.\" \"funny.name\"
 }
-S: a3 OK List completed.
+S: a3 OK LIST completed.
 
 C: a4 LIST "" funny.*
 SUB {
-S: \* LIST \(\) \"\.\" "\funny.name with gaps\"
-S: \* LIST \(\) \"\.\" "\funny.name with gaps\.more\"
+S: \* LIST \(\) \"\.\" \"funny.name with gaps\"
+S: \* LIST \(\) \"\.\" \"funny.name with gaps\.more\"
 S: \* LIST \(\) \"\.\" \"funny.name\"
 }
-S: a4 OK List completed.
+S: a4 OK LIST completed.
 
 # Cleanup
 C: 15 DELETE "funny.name with gaps.more"

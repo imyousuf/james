@@ -19,6 +19,7 @@
 
 package org.apache.james.mailboxmanager.torque;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
@@ -229,20 +230,20 @@ public class TorqueMailboxManager implements MailboxManager {
                 }
             }
         }
-        
-        // TODO handling of expressions is limited
-        
-        expression.replaceAll("\\*","%");
-        c.add(MailboxRowPeer.NAME,(Object)(expression),Criteria.LIKE);
+       
+        MailboxExpression mailboxExpression = new MailboxExpression(base, expression, '*', '%');
+        c.add(MailboxRowPeer.NAME,(Object)(expression.replaceAll("\\*","%")),Criteria.LIKE);
         try {
             List mailboxRows=MailboxRowPeer.doSelect(c);
-            ListResult[] listResults=new ListResult[mailboxRows.size()];
-            int i=0;
+            List listResults=new ArrayList(mailboxRows.size());
             for (Iterator iter = mailboxRows.iterator(); iter.hasNext();) {
-                MailboxRow mailboxRow = (MailboxRow) iter.next();
-                listResults[i++]=new ListResultImpl(mailboxRow.getName(),".");
+                final MailboxRow mailboxRow = (MailboxRow) iter.next();
+                final String name = mailboxRow.getName();
+                if (mailboxExpression.isExpressionMatch(name, HIERARCHY_DELIMITER)) { 
+                    listResults.add(new ListResultImpl(name,"."));
+                }
             }
-            return listResults;    
+            return (ListResult[]) listResults.toArray(ListResult.EMPTY_ARRAY);    
         } catch (TorqueException e) {
             throw new MailboxManagerException(e);
         }

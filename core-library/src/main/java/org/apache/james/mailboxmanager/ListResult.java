@@ -25,6 +25,8 @@ package org.apache.james.mailboxmanager;
 
 public interface ListResult {
     
+    public static final ListResult[] EMPTY_ARRAY = {};
+    
     /**
      * \Noinferiors, \Noselect, \Marked, \Unmarked 
      * TODO this should be done in a different way..

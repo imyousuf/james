@@ -31,23 +31,13 @@ public class ExperimentalSelectedInboxTest extends AbstractTestSelectedInbox {
         //// scriptTest("ListNamespace", Locale.US);
     }
     
-    public void testListMailboxesUS() throws Exception {
-        //// scriptTest("ListMailboxes", Locale.US);
-    }
- 
     public void testSubscribeUS() throws Exception {
         //// scriptTest("Subscribe", Locale.US);
     }
-    
-    
+     
     public void testListNamespaceITALY() throws Exception {
         // scriptTest("ListNamespace", Locale.ITALY);
-    }
-    
-    public void testListMailboxesITALY() throws Exception {
-        // scriptTest("ListMailboxes", Locale.ITALY);
-    }
-   
+    }  
     
     public void testSubscribeITALY() throws Exception {
         // scriptTest("Subscribe", Locale.ITALY);
@@ -55,10 +45,6 @@ public class ExperimentalSelectedInboxTest extends AbstractTestSelectedInbox {
    
     public void testListNamespaceKOREA() throws Exception {
         // scriptTest("ListNamespace", Locale.KOREA);
-    }
-    
-    public void testListMailboxesKOREA() throws Exception {
-        // scriptTest("ListMailboxes", Locale.KOREA);
     }
     
     public void testSubscribeKOREA() throws Exception {
