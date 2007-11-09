@@ -31,10 +31,6 @@ public class ExperimentalAuthenticatedStateTest extends AbstractAuthenticatedSta
         // Check whether this is correct behaviour
     }
     
-    public void testListMailboxesUS() throws Exception {
-// TODO: fix bug - complete hierarchy returned
-    }
-    
     public void testAppendExpungeUS() throws Exception {
 //      TODO: EXPUNGE does not return correct flags
     }
@@ -45,10 +41,6 @@ public class ExperimentalAuthenticatedStateTest extends AbstractAuthenticatedSta
     
     public void testSubscribeITALY() throws Exception {
 //      TODO: \recent flag is returned by FLAGS - specification seems ambiguoITALY on this
-    }
-    
-    public void testListMailboxesITALY() throws Exception {
-// TODO: fix bug - complete hierarchy returned
     }
     
     public void testAppendExpungeITALY() throws Exception {
@@ -62,10 +54,6 @@ public class ExperimentalAuthenticatedStateTest extends AbstractAuthenticatedSta
     
     public void testSubscribeKOREA() throws Exception {
 //      TODO: \recent flag is returned by FLAGS - specification seems ambiguoKOREA on this
-    }
-        
-    public void testListMailboxesKOREA() throws Exception {
-// TODO: fix bug - complete hierarchy returned
     }
     
     public void testAppendExpungeKOREA() throws Exception {

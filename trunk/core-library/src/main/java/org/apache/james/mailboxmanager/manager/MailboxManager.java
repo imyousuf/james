@@ -114,7 +114,8 @@ public interface MailboxManager {
     void copyMessages(GeneralMailbox from, GeneralMessageSet set, String to) throws MailboxManagerException;
 
     /**
-     * 
+     * TODO: Expression requires parsing. Probably easier for the caller to 
+     * parse the expression into an object representation and use that instead.
      * @param base
      *            hierarchy starting point like #mail.user1 to list mailboxes of
      *            user1

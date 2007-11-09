@@ -28,27 +28,27 @@ S: 13 OK CREATE completed.
 
 # Empty 1st arg searches default context (#mail)
 C: 10 LIST "" listtest
-S: \* LIST \(\) \"\.\" listtest
+S: \* LIST \(\) \"\.\" "listtest"
 S: 10 OK LIST completed.
 
 # % returns all mailboxes matching
 C: a1 LIST "" %
 SUB {
-S: \* LIST \(\) \"\.\" listtest
-S: \* LIST \(\) \"\.\" listtest1
-S: \* LIST \(\) \"\.\" INBOX
+S: \* LIST \(\) \"\.\" "listtest"
+S: \* LIST \(\) \"\.\" "listtest1"
+S: \* LIST \(\) \"\.\" "INBOX"
 }
-S: a1 OK LIST completed
+S: a1 OK LIST completed.
 C: a2 LIST "" INBOX%
-S: \* LIST \(\) \"\.\" INBOX
-S: a2 OK LIST completed
+S: \* LIST \(\) \"\.\" "INBOX"
+S: a2 OK LIST completed.
 C: a3 LIST "" I%
-S: \* LIST \(\) \"\.\" INBOX
-S: a3 OK LIST completed
+S: \* LIST \(\) \"\.\" "INBOX"
+S: a3 OK LIST completed.
 C: a4 LIST "" l%
 SUB {
-S: \* LIST \(\) \"\.\" listtest
-S: \* LIST \(\) \"\.\" listtest1
+S: \* LIST \(\) \"\.\" "listtest"
+S: \* LIST \(\) \"\.\" "listtest1"
 }
 S: a4 OK LIST completed.
 
@@ -56,25 +56,25 @@ S: a4 OK LIST completed.
 # * returns all folders and subfolders
 C: b1 LIST "" *
 SUB {
-S: \* LIST \(\) \"\.\" listtest
-S: \* LIST \(\) \"\.\" listtest1
-S: \* LIST \(\) \"\.\" listtest.subfolder
-S: \* LIST \(\) \"\.\" listtest1.subfolder1
-S: \* LIST \(\) \"\.\" INBOX
+S: \* LIST \(\) \"\.\" "listtest"
+S: \* LIST \(\) \"\.\" "listtest1"
+S: \* LIST \(\) \"\.\" "listtest.subfolder"
+S: \* LIST \(\) \"\.\" "listtest1.subfolder1"
+S: \* LIST \(\) \"\.\" "INBOX"
 }
 S: b1 OK LIST completed.
 C: b2 LIST "" INBOX*
-S: \* LIST \(\) \"\.\" INBOX
+S: \* LIST \(\) \"\.\" "INBOX"
 S: b2 OK LIST completed.
 C: b3 LIST "" I*
-S: \* LIST \(\) \"\.\" INBOX
+S: \* LIST \(\) \"\.\" "INBOX"
 S: b3 OK LIST completed.
 C: b4 LIST "" l*
 SUB {
-S: \* LIST \(\) \"\.\" listtest
-S: \* LIST \(\) \"\.\" listtest1
-S: \* LIST \(\) \"\.\" listtest.subfolder
-S: \* LIST \(\) \"\.\" listtest1.subfolder1
+S: \* LIST \(\) \"\.\" "listtest"
+S: \* LIST \(\) \"\.\" "listtest1"
+S: \* LIST \(\) \"\.\" "listtest.subfolder"
+S: \* LIST \(\) \"\.\" "listtest1.subfolder1"
 }
 S: b4 OK LIST completed.
 
