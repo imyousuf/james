@@ -146,6 +146,8 @@ public interface ImapResponseComposer {
     public abstract void recentResponse(int count);
 
     public abstract void expungeResponse(int msn);
+    
+    public abstract void searchResponse(long[] ids);
 
     public abstract void fetchResponse(int msn, String msgData);
 
@@ -188,7 +190,7 @@ public interface ImapResponseComposer {
 
     public abstract void message(final String message);
 
-    public abstract void message(final int number);
+    public abstract void message(final long number);
 
     public abstract void responseCode(final String responseCode);
 

@@ -16,19 +16,19 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.imapserver.codec.encode.imap4rev1.legacy;
+package org.apache.james.imapserver.codec.encode.imap4rev1.server;
 
 import java.util.List;
 
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
-import org.apache.james.imap.message.response.imap4rev1.legacy.SearchResponse;
+import org.apache.james.imap.message.response.imap4rev1.server.SearchResponse;
 import org.apache.james.imapserver.codec.encode.ImapEncoder;
 import org.apache.james.imapserver.codec.encode.ImapResponseComposer;
 import org.apache.james.imapserver.codec.encode.base.AbstractChainedImapEncoder;
 
 /**
- * @deprecated responses should correspond directly to the specification
+ * Encoders IMAP4rev1 <code>SEARCH</code> responses.
  */
 public class SearchResponseEncoder extends AbstractChainedImapEncoder {
     
@@ -38,20 +38,11 @@ public class SearchResponseEncoder extends AbstractChainedImapEncoder {
 
     protected void doEncode(ImapMessage acceptableMessage, ImapResponseComposer composer) {
         SearchResponse response = (SearchResponse) acceptableMessage;
-        final ImapCommand command = response.getCommand();
-        final String idList = response.getIdList();
-        composer.commandResponse( command, idList );
-
-        List unsolicitedResponses = response.getUnsolicatedResponses();
-        chainEncodeAll(unsolicitedResponses, composer);
-        
-        final String tag = response.getTag();
-        composer.commandComplete( command, tag );  
-        
+        final long[] ids = response.getIds();
+        composer.searchResponse(ids);
     }
 
     protected boolean isAcceptable(ImapMessage message) {
         return (message instanceof SearchResponse);
-    }
-    
+    } 
 }

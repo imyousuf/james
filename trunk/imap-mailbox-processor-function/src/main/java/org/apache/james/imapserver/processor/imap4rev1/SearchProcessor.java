@@ -34,7 +34,7 @@ import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
 import org.apache.james.api.imap.process.ImapProcessor.Responder;
 import org.apache.james.imap.message.request.imap4rev1.SearchRequest;
-import org.apache.james.imap.message.response.imap4rev1.legacy.SearchResponse;
+import org.apache.james.imap.message.response.imap4rev1.server.SearchResponse;
 import org.apache.james.imapserver.processor.base.AbstractImapRequestProcessor;
 import org.apache.james.imapserver.processor.base.AuthorizationException;
 import org.apache.james.imapserver.processor.base.ImapSessionUtils;
@@ -59,24 +59,14 @@ public class SearchProcessor extends AbstractImapRequestProcessor {
             ImapSession session, String tag, ImapCommand command, Responder responder)
             throws MailboxException, AuthorizationException, ProtocolException {
         final SearchRequest request = (SearchRequest) message;
-        final ImapResponseMessage result = doProcess(request, session, tag,
-                command);
-        responder.respond(result);
-    }
-
-    private ImapResponseMessage doProcess(SearchRequest request,
-            ImapSession session, String tag, ImapCommand command)
-            throws MailboxException, AuthorizationException, ProtocolException {
         final SearchTerm searchTerm = request.getSearchTerm();
         final boolean useUids = request.isUseUids();
-        final ImapResponseMessage result = doProcess(searchTerm, useUids,
-                session, tag, command);
-        return result;
+        doProcess(searchTerm, useUids, session, tag, command, responder);
     }
 
-    private ImapResponseMessage doProcess(final SearchTerm searchTerm,
-            final boolean useUids, ImapSession session, String tag,
-            ImapCommand command) throws MailboxException,
+    private void doProcess(final SearchTerm searchTerm,
+            final boolean useUids, final ImapSession session, final String tag,
+            final ImapCommand command, final Responder responder) throws MailboxException,
             AuthorizationException, ProtocolException {
         ImapMailboxSession mailbox = ImapSessionUtils.getMailbox(session);
         final int resultCode;
@@ -85,6 +75,7 @@ public class SearchProcessor extends AbstractImapRequestProcessor {
         } else {
             resultCode = MessageResult.MSN;
         }
+        
         MessageResult[] messageResults;
         try {
             // TODO: implementation
@@ -93,25 +84,20 @@ public class SearchProcessor extends AbstractImapRequestProcessor {
         } catch (MailboxManagerException e) {
             throw new MailboxException(e);
         }
-        // TODO: probably more efficient to stream data
-        // TODO: directly to response
-        StringBuffer idList = new StringBuffer();
-        for (int i = 0; i < messageResults.length; i++) {
-            if (i > 0) {
-                idList.append(ImapConstants.SP);
-            }
+
+        final int length = messageResults.length;
+        long[] ids = new long[length];
+        for (int i = 0; i < length; i++) {
             if (useUids) {
-                idList.append(messageResults[i].getUid());
+                ids[i] = messageResults[i].getUid();
             } else {
-                idList.append(messageResults[i].getMsn());
+                ids[i] = messageResults[i].getMsn();
             }
         }
-        final SearchResponse result = new SearchResponse(command, idList
-                .toString(), tag);
+        final SearchResponse response = new SearchResponse(ids);
+        responder.respond(response);
         boolean omitExpunged = (!useUids);
-        List unsolicitedResponses = session.unsolicitedResponses(omitExpunged,
-                useUids);
-        result.addUnsolicitedResponses(unsolicitedResponses);
-        return result;
+        unsolicitedResponses(session, responder, omitExpunged, useUids);
+        okComplete(command, tag, responder);
     }
 }

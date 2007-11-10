@@ -81,6 +81,7 @@ public interface ImapConstants
     
     public static final String LIST_RESPONSE_NAME = "LIST";
     public static final String LSUB_RESPONSE_NAME = "LSUB";
+    public static final String SEARCH_RESPONSE_NAME = "SEARCH";
     
     public static final String NAME_ATTRIBUTE_NOINFERIORS = "\\Noinferiors";
     public static final String NAME_ATTRIBUTE_NOSELECT = "\\Noselect";

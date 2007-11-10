@@ -285,9 +285,9 @@ public class ImapResponseComposerImpl extends AbstractLogEnabled implements
     }
 
     /**
-     * @see org.apache.james.imapserver.codec.encode.ImapResponseComposer#message(int)
+     * @see org.apache.james.imapserver.codec.encode.ImapResponseComposer#message(long)
      */
-    public void message(final int number) {
+    public void message(final long number) {
         writer.message(number);
     }
 
@@ -380,5 +380,22 @@ public class ImapResponseComposerImpl extends AbstractLogEnabled implements
 
     public void openParen() {
         writer.openParen();
+    }
+
+    public void searchResponse(long[] ids) {
+        untagged();
+        message(ImapConstants.SEARCH_RESPONSE_NAME);
+        message(ids);
+        end();
+    }
+
+    private void message(long[] ids) {
+        if (ids != null) {
+            final int length = ids.length;
+            for (int i=0;i<length; i++) {
+                final long id = ids[i];
+                message(id);
+            }
+        }
     }
 }

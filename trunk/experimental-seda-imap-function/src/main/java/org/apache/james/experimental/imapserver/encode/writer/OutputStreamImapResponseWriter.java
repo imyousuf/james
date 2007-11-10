@@ -77,7 +77,7 @@ public class OutputStreamImapResponseWriter extends AbstractLogEnabled implement
         }
     }
 
-    public void message( int number )
+    public void message( long number )
     {
         space();
         writer.print( number );

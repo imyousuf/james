@@ -80,7 +80,7 @@ public class ByteImapResponseWriter extends AbstractLogEnabled implements ImapCo
         }
     }
 
-    public void message( int number )
+    public void message( long number )
     {
         space();
         writer.print( number );

@@ -26,6 +26,10 @@ import junit.framework.TestCase;
 
 public abstract class AbstractTestImapResponseComposer extends TestCase {
 
+    private static final long[] ONE_TWO_THREE = {1, 2, 3};
+    private static final long[] FIBS = {1, 1, 2, 3, 5, 8, 13, 21, 34, 65, 99};
+    private static final long[] EMPTY = {};
+    
     protected void setUp() throws Exception {
         super.setUp();
     }
@@ -34,6 +38,12 @@ public abstract class AbstractTestImapResponseComposer extends TestCase {
         super.tearDown();
     }
 
+    public void testSearch() throws Exception {
+        checkSearchResponseEncode("* SEARCH 1 2 3\r\n", ONE_TWO_THREE);
+        checkSearchResponseEncode("* SEARCH 1 1 2 3 5 8 13 21 34 65 99\r\n", FIBS);
+        checkSearchResponseEncode("* SEARCH\r\n", EMPTY);     
+    }
+    
     public void testQuotedDelimiter() throws Exception {
         checkListResponseEncode("* LSUB () \"\\\"\" \"#news\"\r\n", "LSUB", null, "\"", "#news");
         checkListResponseEncode("* LIST () \"\\\"\" \"#INBOX\"\r\n", "LIST", null, "\"", "#INBOX");
@@ -71,6 +81,19 @@ public abstract class AbstractTestImapResponseComposer extends TestCase {
         checkListResponseEncode("* LSUB (\\one \\two \\three \\four) \".\" \"#news\"\r\n", "LSUB", attributes, ".", "#news");
         checkListResponseEncode("* LIST (\\one \\two \\three \\four) \".\" \"#INBOX\"\r\n", "LIST", attributes, ".", "#INBOX");
     }
+    
+    private void checkSearchResponseEncode(String expected, long[] ids) throws Exception {
+        StringBuffer buffer = new StringBuffer();
+        byte[] output = encodeSearchResponse(ids);
+        for (int i=0;i<output.length;i++) {
+            buffer.append((char) output[i]);
+        }
+        assertEquals(expected, buffer.toString());
+        clear();
+    }
+    
+    protected abstract byte[] encodeSearchResponse(long[] ids) throws Exception;
+    
     
     private void checkListResponseEncode(String expected, String typeName, List attributes, 
             String hierarchyDelimiter, String name) throws Exception {
