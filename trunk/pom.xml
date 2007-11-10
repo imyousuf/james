@@ -765,6 +765,17 @@
       <artifactId>cornerstone-datasources-api</artifactId>
       <version>2.2.2</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>apache-mime4j</artifactId>
+      <version>0.4-SNAPSHOT</version>
+    </dependency>
+    <!-- Used by Mime4J -->
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>1.2</version>
+    </dependency>
     </dependencies>
   </dependencyManagement>
 </project>
