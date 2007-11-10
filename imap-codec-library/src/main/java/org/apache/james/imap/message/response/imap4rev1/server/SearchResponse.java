@@ -17,40 +17,31 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.imapserver.codec.encode.base;
+package org.apache.james.imap.message.response.imap4rev1.server;
 
-import java.util.List;
+import org.apache.james.api.imap.message.response.ImapResponseMessage;
 
-import org.apache.james.imapserver.codec.encode.AbstractTestImapResponseComposer;
+/**
+ * A <code>SEARCH</code> response.
+ */
+public class SearchResponse implements ImapResponseMessage {
+    private final long ids[];
 
-public class ImapResponseComposerImplTest extends
-        AbstractTestImapResponseComposer {
+    /**
+     * Constructs a <code>SEARCH</code> response.
+     * @param ids ids, not null
+     */
+    public SearchResponse(final long[] ids) {
+        super();
+        this.ids = ids;
+    }
 
-    ImapResponseComposerImpl composer;
-    ByteImapResponseWriter writer;
+    /**
+     * Gets the ids returned by this search.
+     * @return the ids, not null
+     */
+    public final long[] getIds() {
+        return ids;
+    }
     
-    protected void setUp() throws Exception {
-        super.setUp();
-        writer = new ByteImapResponseWriter();
-        composer = new ImapResponseComposerImpl(writer);
-    }
-
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
-
-    protected byte[] encodeListResponse(String typeName, List attributes, String hierarchyDelimiter, String name) throws Exception {
-        composer.listResponse(typeName, attributes, hierarchyDelimiter, name);
-        return writer.getBytes();
-    }
-
-    protected void clear() throws Exception {
-        writer.clear();
-    }
-
-    protected byte[] encodeSearchResponse(long[] ids) throws Exception {
-        composer.searchResponse(ids);
-        return writer.getBytes();
-    }
-
 }

@@ -41,7 +41,7 @@ public class MockImapResponseWriter implements ImapResponseWriter {
         operations.add(new TextMessageOperation(message));
     }
 
-    public void message(int number) {
+    public void message(long number) {
         operations.add(new NumericMessageOperation(number));
     }
 
@@ -132,14 +132,14 @@ public class MockImapResponseWriter implements ImapResponseWriter {
     }
     
     public static class NumericMessageOperation {
-        public final int number;
-        public NumericMessageOperation(int number) {
+        public final long number;
+        public NumericMessageOperation(long number) {
             this.number = number;
         }
         public int hashCode() {
             final int PRIME = 31;
             int result = 1;
-            result = PRIME * result + number;
+            result = (int) (PRIME * result + number);
             return result;
         }
         public boolean equals(Object obj) {

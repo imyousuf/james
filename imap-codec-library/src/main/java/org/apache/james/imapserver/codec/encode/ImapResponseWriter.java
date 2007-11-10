@@ -50,7 +50,7 @@ public interface ImapResponseWriter {
      */
     void message( String message );
 
-    void message( int number );
+    void message( long number );
  
     /**
      * Writes a response code.
