@@ -198,7 +198,9 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
                     <include name="${jsieve.jar}"/>
                     <include name="${mailet.jar}"/>
                     <include name="${commons-digester.jar}"/>    
-                    <include name="${concurrent.jar}"/>       
+                    <include name="${concurrent.jar}"/>  
+                    <include name="${mime4j.jar}"/>     
+                    <include name="${commons-io.jar}"/>     
                 </fileset>   
             </path>   
             <path id='classpath.base.test'>  

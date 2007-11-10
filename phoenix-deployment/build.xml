@@ -100,6 +100,8 @@
             <include name="${jsieve.jar}"/>
 			<include name="${mailet.jar}"/>
             <include name="${commons-digester.jar}"/>
+            <include name="${mime4j.jar}"/>
+            <include name="${commons-io.jar}"/>   
             <!-- TODO: include libraries without wildcards -->
             <include name="${path.lib.james}/${jars-prefix}*-api-${version}.jar"/>
             <include name="${path.lib.james}/${jars-prefix}*-library-${version}.jar"/>
@@ -534,6 +536,8 @@
             <lib dir="${lib.dir}/${path.lib.james}" includes="${jarname.jsieve.jar}" />
             <lib dir="${lib.dir}/${path.lib.james}" includes="${jarname.mailet.jar}" />
             <lib dir="${lib.dir}/${path.lib.commonsdigester}" includes="${jarname.commons-digester.jar}" />
+            <lib dir="${lib.dir}/${path.lib.commonsio}" includes="${jarname.commons-io.jar}" />
+            <lib dir="${lib.dir}/${path.lib.james}" includes="${jarname.mime4j.jar}" />
             <!-- include every api, library and function -->
             <!-- TODO this should list exactly the module defined, without wildcards -->
             <lib dir="${lib.dir}/${path.lib.james}">
