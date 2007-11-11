@@ -17,26 +17,17 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.mailboxmanager.mailbox;
+package org.apache.james.mailboxmanager;
 
-import org.apache.james.mailboxmanager.GeneralMessageSet;
-import org.apache.james.mailboxmanager.MailboxManagerException;
-import org.apache.james.mailboxmanager.MessageResult;
-import org.apache.james.mailboxmanager.SearchParameters;
+/**
+ * Indicates that a search criteria is not supported.
+ */
+public class UnsupportedCriteriaException extends MailboxManagerException {
 
-public interface SearchableMailbox {
-    /**
-     * @param result
-     *            which fields to be returned in MessageResult
-     * @return MessageResult with the fields defined by <b>result</b>
-     *         <ul>
-     *         <li> IMAP: msn or (msn and uid)</li>
-     *         <li> Javamail Folder: Message[]</li>
-     *         </ul>
-     * @throws MailboxManagerException
-     *             if anything went wrong
-     * @throws UnsupportedCriteriaException when any of the search parameters are 
-     * not supported by this mailbox
-     */
-    MessageResult[] search(GeneralMessageSet set,SearchParameters searchTerm, int result) throws MailboxManagerException;
+    private static final long serialVersionUID = 3791907285083231285L;
+    
+    public UnsupportedCriteriaException(String string) {
+        super(string);
+    }
+
 }

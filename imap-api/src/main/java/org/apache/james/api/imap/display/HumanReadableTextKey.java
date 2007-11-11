@@ -36,6 +36,10 @@ public class HumanReadableTextKey {
         = new HumanReadableTextKey("org.apache.james.imap.INVALID_LOGIN",
                 "failed. Invalid login/password.");
     
+    public static final HumanReadableTextKey UNSUPPORTED_SEARCH_CRITERIA 
+        = new HumanReadableTextKey("org.apache.james.imap.UNSUPPORTED_CRITERIA",
+                "failed. One or more search criteria is unsupported.");
+    
     private final String defaultValue;
     private final String key;
     public HumanReadableTextKey(final String key, final String defaultValue) {

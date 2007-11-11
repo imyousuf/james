@@ -31,6 +31,7 @@ import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.api.imap.ProtocolException;
+import org.apache.james.api.imap.display.HumanReadableTextKey;
 import org.apache.james.api.imap.message.BodyFetchElement;
 import org.apache.james.api.imap.message.FetchData;
 import org.apache.james.api.imap.message.IdRange;
@@ -51,6 +52,7 @@ import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.MessageResultUtils;
+import org.apache.james.mailboxmanager.UnsupportedCriteriaException;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 
@@ -79,30 +81,33 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
             final IdRange[] idSet, final FetchData fetch, ImapSession session,
             String tag, ImapCommand command, Responder responder) throws MailboxException,
             AuthorizationException, ProtocolException {
-        
-        int resultToFetch = getNeededMessageResult(fetch);
-        ImapMailboxSession mailbox = ImapSessionUtils.getMailbox(session);
-        for (int i = 0; i < idSet.length; i++) {
-            GeneralMessageSet messageSet = GeneralMessageSetImpl.range(idSet[i]
-                    .getLowVal(), idSet[i].getHighVal(), useUids);
-            MessageResult[] fetchResults;
-            try {
-                fetchResults = mailbox.getMessages(messageSet, resultToFetch);
-            } catch (MailboxManagerException e) {
-                throw new MailboxException(e);
+        try
+        {
+            int resultToFetch = getNeededMessageResult(fetch);
+            ImapMailboxSession mailbox = ImapSessionUtils.getMailbox(session);
+            for (int i = 0; i < idSet.length; i++) {
+                GeneralMessageSet messageSet = GeneralMessageSetImpl.range(idSet[i]
+                        .getLowVal(), idSet[i].getHighVal(), useUids);
+                MessageResult[] fetchResults;
+                    fetchResults = mailbox.getMessages(messageSet, resultToFetch);
+                for (int j = 0; j < fetchResults.length; j++) {
+                    String msgData = outputMessage(fetch, fetchResults[j], mailbox,
+                            useUids);
+                    // TODO: this is inefficient
+                    // TODO: stream output upon response
+                    FetchResponse response = new FetchResponse(fetchResults[j].getMsn(), msgData);
+                    responder.respond(response);
+                }
             }
-            for (int j = 0; j < fetchResults.length; j++) {
-                String msgData = outputMessage(fetch, fetchResults[j], mailbox,
-                        useUids);
-                // TODO: this is inefficient
-                // TODO: stream output upon response
-                FetchResponse response = new FetchResponse(fetchResults[j].getMsn(), msgData);
-                responder.respond(response);
-            }
+            
+            unsolicitedResponses(session, responder, useUids);
+            okComplete(command, tag, responder);
+        } catch (UnsupportedCriteriaException e) {
+            no(command, tag, responder, HumanReadableTextKey.UNSUPPORTED_SEARCH_CRITERIA);
+        } catch (MailboxManagerException e) {
+            throw new MailboxException(e);
         }
-        
-        unsolicitedResponses(session, responder, useUids);
-        okComplete(command, tag, responder);
+
     }
 
     private int getNeededMessageResult(FetchData fetch) {
