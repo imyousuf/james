@@ -664,15 +664,23 @@
             name='dist.src.file.zip'
             value='${dist.source.dir}/${name}-with-phoenix-${version}-src.zip'/>
         <zip zipfile="${dist.src.file.zip}">
-            <fileset dir=".">
+            <fileset dir="..">
+                <include name='build-tools/*.xml'/>   
                 <include name="*.txt"/>
+                <include name="*/*.txt"/>   
                 <include name="build.*"/>
+                <include name="*/build.*"/>   
                 <include name="lib/**"/>
-                <include name="${phoenix.dir}/**"/>
+                <include name="*/lib/**"/>   
+                <include name="phoenix-deployment/${phoenix.dir}/**"/>
                 <include name="src/**"/>
+                <include name="*/src/**"/>   
                 <include name="tools/**"/>
+                <include name="*/tools/**"/>   
+                <include name="*/*.properties" />   
                 <include name="*.properties" />
-                <include name="*.ent" />
+                <include name="*/*.ent" />
+                <include name="*.ent" />  
             </fileset>
         </zip>
         <copy todir='${dir.master.dist}/src' file='${dist.src.file.zip}'/>
@@ -680,15 +688,23 @@
             name='dist.src.file.tgz'
             value='${dist.source.dir}/${name}-with-phoenix-${version}-src.tar.gz'/>
         <tar longfile="gnu" tarfile="${dist.source.dir}/${name}-with-phoenix-${version}-src.tar">
-            <tarfileset dir="." username="${name}" group="${name}">
+            <tarfileset dir=".." username="${name}" group="${name}">
+                <include name='build-tools/*.xml'/>   
                 <include name="*.txt"/>
+                <include name="*/*.txt"/>   
                 <include name="build.*"/>
+                <include name="*/build.*"/>   
                 <include name="lib/**"/>
-                <include name="${phoenix.dir}/**"/>
+                <include name="*/lib/**"/>   
+                <include name="phoenix-deployment/${phoenix.dir}/**"/>
                 <include name="src/**"/>
+                <include name="*/src/**"/>   
                 <include name="tools/**"/>
+                <include name="*/tools/**"/>   
+                <include name="*/*.properties" />   
                 <include name="*.properties" />
-                <include name="*.ent" />
+                <include name="*/*.ent" />
+                <include name="*.ent" />   
             </tarfileset>
         </tar>
         <gzip zipfile="${dist.src.file.tgz}"
@@ -704,25 +720,35 @@
         <property name="dist.source.dir" value="${dist.dir}/downloads/src"/>
         <mkdir dir="${dist.source.dir}"/>
         <zip zipfile="${dist.source.dir}/${dist.name}-src.zip">
-            <fileset dir=".">
-                <include name="src/**"/>
-                <include name="lib/**"/>
-                <include name="tools/**"/>
+            <fileset dir="..">
+                <include name='build-tools/*.xml'/>   
+                <include name="*/src/**"/>
+                <include name="*/lib/**"/>
+                <include name="*/tools/**"/>
                 <include name="*.txt"/>
+                <include name="*/*.txt"/>   
                 <include name="build.*"/>
+                <include name="*/build.*"/>   
                 <include name="*.properties" />
-                <include name="*.ent" />
+                <include name="*/*.properties" />
+                <include name="*.ent" />   
+                <include name="*/*.ent" />
             </fileset>
         </zip>
         <tar longfile="gnu" tarfile="${dist.source.dir}/${dist.name}-src.tar">
-            <tarfileset dir="." username="${name}" group="${name}">
-                <include name="src/**"/>
-                <include name="lib/**"/>
-                <include name="tools/**"/>
+            <tarfileset dir=".." username="${name}" group="${name}">
+                <include name='build-tools/*.xml'/>   
+                <include name="*/src/**"/>
+                <include name="*/lib/**"/>
+                <include name="*/tools/**"/>
                 <include name="*.txt"/>
+                <include name="*/*.txt"/>   
                 <include name="build.*"/>
+                <include name="*/build.*"/>   
                 <include name="*.properties" />
-                <include name="*.ent" />
+                <include name="*/*.properties" />
+                <include name="*.ent" />   
+                <include name="*/*.ent" />
             </tarfileset>
         </tar>
         <gzip zipfile="${dist.source.dir}/${dist.name}-src.tar.gz" src="${dist.source.dir}/${dist.name}-src.tar"/>
