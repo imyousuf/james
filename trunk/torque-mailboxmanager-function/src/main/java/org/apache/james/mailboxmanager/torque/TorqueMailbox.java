@@ -40,6 +40,7 @@ import org.apache.james.mailboxmanager.MailboxListener;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.SearchParameters;
+import org.apache.james.mailboxmanager.UnsupportedCriteriaException;
 import org.apache.james.mailboxmanager.MessageResult.Content;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.impl.MailboxEventDispatcher;
@@ -52,12 +53,14 @@ import org.apache.james.mailboxmanager.torque.om.MessageBody;
 import org.apache.james.mailboxmanager.torque.om.MessageFlags;
 import org.apache.james.mailboxmanager.torque.om.MessageFlagsPeer;
 import org.apache.james.mailboxmanager.torque.om.MessageHeader;
+import org.apache.james.mailboxmanager.torque.om.MessageHeaderPeer;
 import org.apache.james.mailboxmanager.torque.om.MessageRow;
 import org.apache.james.mailboxmanager.torque.om.MessageRowPeer;
 import org.apache.james.mailboxmanager.tracking.UidChangeTracker;
 import org.apache.james.mailboxmanager.tracking.UidRange;
 import org.apache.james.mailboxmanager.util.UidToKeyConverter;
 import org.apache.james.mailboxmanager.util.UidToKeyConverterImpl;
+import org.apache.mailet.RFC2822Headers;
 import org.apache.torque.NoRowsException;
 import org.apache.torque.TooManyRowsException;
 import org.apache.torque.TorqueException;
@@ -276,12 +279,7 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
                 try {
                     Criteria c = criteriaForMessageSet(set);
                     c.add(MessageFlagsPeer.MAILBOX_ID,getMailboxRow().getMailboxId());
-                    List l = MessageRowPeer.doSelectJoinMessageFlags(c);
-                    MessageResult[] messageResults = fillMessageResult(l, result
-                            | MessageResult.UID | MessageResult.FLAGS);
-                    checkForScanGap(range.getFromUid());
-                    getUidChangeTracker().found(range, messageResults, null);
-                    return messageResults;
+                    return getMessages(result, range, c);
                 } catch (TorqueException e) {
                     throw new MailboxManagerException(e);
                 } catch (MessagingException e) {
@@ -293,6 +291,15 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
         } catch (InterruptedException e) {
             throw new MailboxManagerException(e);
         }
+    }
+
+    private MessageResult[] getMessages(int result, UidRange range, Criteria c) throws TorqueException, MessagingException, MailboxManagerException {
+        List l = MessageRowPeer.doSelectJoinMessageFlags(c);
+        MessageResult[] messageResults = fillMessageResult(l, result
+                | MessageResult.UID | MessageResult.FLAGS);
+        checkForScanGap(range.getFromUid());
+        getUidChangeTracker().found(range, messageResults, null);
+        return messageResults;
     }
 
     private static UidRange uidRangeForMessageSet(GeneralMessageSet set)
@@ -814,13 +821,105 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
                 if (!set.isValid() || set.getType()==GeneralMessageSet.TYPE_NOTHING) {
                     return new MessageResult[0];
                 }
-                final Log log = getLog();
-                // TODO implementation
-                if (log.isWarnEnabled()) {
-                    log.warn("Search is not yet implemented. Sorry.");
+                
+                TorqueCriteriaBuilder builder = new TorqueCriteriaBuilder();
+                
+                final List searchCriteria = parameters.getCriterias();
+                for (Iterator it=searchCriteria.iterator();it.hasNext();) {
+                    SearchParameters.SearchCriteria criterion = (SearchParameters.SearchCriteria) it.next();
+                    final String name = criterion.getName();
+                    if (SearchParameters.ALL.equals(name)) {
+                        throw new UnsupportedCriteriaException("Search criterion '" + name + "' is not supported");
+                    } else if (SearchParameters.ANSWERED.equals(name)) {
+                        builder.andFlag(javax.mail.Flags.Flag.ANSWERED, true);
+                    } else if (SearchParameters.BCC.equals(name)) {
+                        SearchParameters.StringSearchCriteria stringSearchCriteria = (SearchParameters.StringSearchCriteria) criterion;
+                        final String value = stringSearchCriteria.getValue();
+                        builder.andHeaderContains(RFC2822Headers.BCC, value);
+                    } else if (SearchParameters.BEFORE.equals(name)) {
+                        throw new UnsupportedCriteriaException("Search criterion '" + name + "' is not supported");
+                    } else if (SearchParameters.BODY.equals(name)) {
+                        throw new UnsupportedCriteriaException("Search criterion '" + name + "' is not supported");
+                    } else if (SearchParameters.CC.equals(name)) {
+                        SearchParameters.StringSearchCriteria stringSearchCriteria = (SearchParameters.StringSearchCriteria) criterion;
+                        final String value = stringSearchCriteria.getValue();
+                        builder.andHeaderContains(RFC2822Headers.CC, value);
+                    } else if (SearchParameters.DELETED.equals(name)) {
+                        builder.andFlag(javax.mail.Flags.Flag.DELETED, true);
+                    } else if (SearchParameters.DRAFT.equals(name)) {
+                        builder.andFlag(javax.mail.Flags.Flag.DRAFT, true);
+                    } else if (SearchParameters.FLAGGED.equals(name)) {
+                        builder.andFlag(javax.mail.Flags.Flag.FLAGGED, true);
+                    } else if (SearchParameters.FROM.equals(name)) {
+                        SearchParameters.StringSearchCriteria stringSearchCriteria = (SearchParameters.StringSearchCriteria) criterion;
+                        final String value = stringSearchCriteria.getValue();
+                        builder.andHeaderContains(RFC2822Headers.FROM, value);
+                    } else if (SearchParameters.HEADER.equals(name)) {
+                        SearchParameters.HeaderSearchCriteria headerSearchCriteria = (SearchParameters.HeaderSearchCriteria) criterion;
+                        final String value = headerSearchCriteria.getValue();
+                        final String fieldName = headerSearchCriteria.getFieldName();
+                        builder.andHeaderContains(fieldName, value);
+                    } else if (SearchParameters.KEYWORD.equals(name)) {
+                        throw new UnsupportedCriteriaException("Search criterion '" + name + "' is not supported");
+                    } else if (SearchParameters.LARGER.equals(name)) {
+                        throw new UnsupportedCriteriaException("Search criterion '" + name + "' is not supported");
+                    } else if (SearchParameters.NEW.equals(name)) {
+                        throw new UnsupportedCriteriaException("Search criterion '" + name + "' is not supported");
+                    } else if (SearchParameters.NOT.equals(name)) {
+                        throw new UnsupportedCriteriaException("Search criterion '" + name + "' is not supported");
+                    } else if (SearchParameters.OLD.equals(name)) {
+                        throw new UnsupportedCriteriaException("Search criterion '" + name + "' is not supported");
+                    } else if (SearchParameters.ON.equals(name)) {
+                        throw new UnsupportedCriteriaException("Search criterion '" + name + "' is not supported");
+                    } else if (SearchParameters.OR.equals(name)) {
+                        throw new UnsupportedCriteriaException("Search criterion '" + name + "' is not supported");
+                    } else if (SearchParameters.RECENT.equals(name)) {
+                        builder.andFlag(javax.mail.Flags.Flag.RECENT, true);
+                    } else if (SearchParameters.SEEN.equals(name)) {
+                        builder.andFlag(javax.mail.Flags.Flag.SEEN, true);
+                    } else if (SearchParameters.SENTBEFORE.equals(name)) {
+                        throw new UnsupportedCriteriaException("Search criterion '" + name + "' is not supported");
+                    } else if (SearchParameters.SENTON.equals(name)) {
+                        throw new UnsupportedCriteriaException("Search criterion '" + name + "' is not supported");
+                    } else if (SearchParameters.SENTSINCE.equals(name)) {
+                        throw new UnsupportedCriteriaException("Search criterion '" + name + "' is not supported");
+                    } else if (SearchParameters.SINCE.equals(name)) {
+                        throw new UnsupportedCriteriaException("Search criterion '" + name + "' is not supported");
+                    } else if (SearchParameters.SMALLER.equals(name)) {
+                        throw new UnsupportedCriteriaException("Search criterion '" + name + "' is not supported");
+                    } else if (SearchParameters.SUBJECT.equals(name)) {
+                        throw new UnsupportedCriteriaException("Search criterion '" + name + "' is not supported");
+                    } else if (SearchParameters.TEXT.equals(name)) {
+                        throw new UnsupportedCriteriaException("Search criterion '" + name + "' is not supported");
+                    } else if (SearchParameters.TO.equals(name)) {
+                        SearchParameters.StringSearchCriteria stringSearchCriteria = (SearchParameters.StringSearchCriteria) criterion;
+                        final String value = stringSearchCriteria.getValue();
+                        builder.andHeaderContains(RFC2822Headers.TO, value);
+                    } else if (SearchParameters.UID.equals(name)) {
+                        throw new UnsupportedCriteriaException("Search criterion '" + name + "' is not supported");
+                    } else if (SearchParameters.UNANSWERED.equals(name)) {
+                        builder.andFlag(javax.mail.Flags.Flag.ANSWERED, false);
+                    } else if (SearchParameters.UNDELETED.equals(name)) {
+                        builder.andFlag(javax.mail.Flags.Flag.DELETED, false);
+                    } else if (SearchParameters.UNDRAFT.equals(name)) {
+                        builder.andFlag(javax.mail.Flags.Flag.DRAFT, false);
+                    } else if (SearchParameters.UNFLAGGED.equals(name)) {
+                        builder.andFlag(javax.mail.Flags.Flag.FLAGGED, false);
+                    } else if (SearchParameters.UNKEYWORD.equals(name)) {
+                        throw new UnsupportedCriteriaException("Search criterion '" + name + "' is not supported");
+                    } else if (SearchParameters.UNSEEN.equals(name)) {
+                        builder.andFlag(javax.mail.Flags.Flag.SEEN, false);
+                    } else {
+                        throw new UnsupportedCriteriaException("Search criterion '" + name + "' is not supported");
+                    }
                 }
-                MessageResult[] results = {};
+                
+                final MessageResult[] results = getMessages(result, new UidRange(1, -1), builder.getCriteria());
                 return results;
+            } catch (TorqueException e) {
+                throw new MailboxManagerException(e);
+            } catch (MessagingException e) {
+                throw new MailboxManagerException(e);
             } finally {
                 lock.readLock().release();
             }

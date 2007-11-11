@@ -223,47 +223,62 @@ public class SearchParameters {
 	}
 	
 	public static class NotSearchCriteria extends SearchCriteria {
-		SearchCriteria inverse;
+		final List criteria;
 		
 		public NotSearchCriteria(SearchCriteria inverse) {
-			this.inverse = inverse;
+			this();
+            add(inverse);
 		}
+        
+        public NotSearchCriteria() {
+            this.criteria = new ArrayList();
+        }
+        
+        public void add(SearchCriteria criterion) {
+            criteria.add(criterion);
+        }
 		
 		public String getName() {
 			return NOT;
 		}
 
-		public SearchCriteria getInverse() {
-			return inverse;
+		public List getCriteria() {
+			return criteria;
 		}
 		
 		public String toString() {
-			return "[NOT "+inverse+"]";
+			return "[NOT "+ criteria +"]";
 		}
 		
 	}
 	public static class OrSearchCriteria extends SearchCriteria {
-		SearchCriteria a,b;
+		final List criteria;
 		
 		public OrSearchCriteria (SearchCriteria a, SearchCriteria b) {
-			this.a = a;
-			this.b = b;
+			this();
+			add(a);
+            add(b);
 		}
+        
+        public OrSearchCriteria() {
+            criteria = new ArrayList();
+        }
+        
+        public void add(SearchCriteria criterion) {
+            criteria.add(criterion);
+        }
 		
 		public String getName() {
 			return OR;
 		}
 
 
-		public SearchCriteria getFirst() {
-			return a;
+		public List getCriteria() {
+			return criteria;
 		}
-		
-		public SearchCriteria getSecond() {
-			return b;
-		}
+
 		public String toString() {
-			return "[OR "+a+' '+b+"]";
+			return "[OR "+ criteria +"]";
 		}
 		
 	}
