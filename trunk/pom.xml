@@ -391,12 +391,12 @@
         </exclusion>
       </exclusions>
     </dependency>
-    <!-- used by torque -->
     <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
       <version>2.1</version>
     </dependency>
+    <!-- used by torque -->
     <dependency>
       <groupId>commons-pool</groupId>
       <artifactId>commons-pool</artifactId>
