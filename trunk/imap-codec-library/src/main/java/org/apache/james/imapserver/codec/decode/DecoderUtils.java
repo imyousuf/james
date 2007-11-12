@@ -152,7 +152,7 @@ public final class DecoderUtils {
     }
 
     private static int applyMinuteOffset(final int offset, final int minutes) {
-        final int result =  minutes - ((Math.abs(offset) % 100) * (int) Math.signum(offset));
+        final int result =  minutes - ((Math.abs(offset) % 100) * (offset == 0 ? 0 : offset > 0 ? 1 : -1));
         return result;
     }
     
