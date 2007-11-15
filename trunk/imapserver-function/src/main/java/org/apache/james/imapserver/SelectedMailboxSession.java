@@ -40,15 +40,12 @@ import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 public class SelectedMailboxSession extends AbstractLogEnabled implements MailboxListener {
 
     private ImapSession _session;
-    private boolean _readonly;
     private boolean _sizeChanged;
-    private List expungedMsn = new ArrayList();
     private ImapMailboxSession mailbox;
 
-    public SelectedMailboxSession(ImapMailboxSession mailbox, ImapSession session, boolean readonly) throws MailboxManagerException {
+    public SelectedMailboxSession(ImapMailboxSession mailbox, ImapSession session) throws MailboxManagerException {
         this.mailbox = mailbox;
         _session = session;
-        _readonly = readonly;
         // TODO make this a weak reference (or make sure deselect() is *always* called).
         mailbox.addListener(this,MessageResult.MSN | MessageResult.UID);
     }
@@ -82,13 +79,7 @@ public class SelectedMailboxSession extends AbstractLogEnabled implements Mailbo
         mailbox=null;
     }
 
-    public void create() {
-        throw new RuntimeException("should not create a selected mailbox");
-        
-    }
-
     public void expunged(MessageResult mr) {
-        expungedMsn.add(new Integer(mr.getSize()));
     }
 
     public void added(MessageResult mr) {
@@ -103,13 +94,7 @@ public class SelectedMailboxSession extends AbstractLogEnabled implements Mailbo
     }
 
     public void mailboxRenamed(String origName, String newName) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    public void mailboxRenamed(String newName) {
-        // TODO Auto-generated method stub
-        
+        // TODO Implementation
     }
 
 }

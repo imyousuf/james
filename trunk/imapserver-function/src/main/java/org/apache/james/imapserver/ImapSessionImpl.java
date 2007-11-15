@@ -166,7 +166,7 @@ public final class ImapSessionImpl extends AbstractLogEnabled implements ImapSes
 
     public void setSelected( ImapMailboxSession mailbox, boolean readOnly ) throws MailboxManagerException
     {
-        SelectedMailboxSession sessionMailbox = new SelectedMailboxSession(mailbox, this, readOnly);
+        SelectedMailboxSession sessionMailbox = new SelectedMailboxSession(mailbox, this);
         setupLogger(sessionMailbox);
         this.state = ImapSessionState.SELECTED;
         closeMailbox();
