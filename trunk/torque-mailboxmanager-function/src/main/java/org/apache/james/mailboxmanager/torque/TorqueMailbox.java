@@ -53,7 +53,6 @@ import org.apache.james.mailboxmanager.torque.om.MessageBody;
 import org.apache.james.mailboxmanager.torque.om.MessageFlags;
 import org.apache.james.mailboxmanager.torque.om.MessageFlagsPeer;
 import org.apache.james.mailboxmanager.torque.om.MessageHeader;
-import org.apache.james.mailboxmanager.torque.om.MessageHeaderPeer;
 import org.apache.james.mailboxmanager.torque.om.MessageRow;
 import org.apache.james.mailboxmanager.torque.om.MessageRowPeer;
 import org.apache.james.mailboxmanager.tracking.UidChangeTracker;
@@ -864,7 +863,8 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
                     } else if (SearchParameters.LARGER.equals(name)) {
                         throw new UnsupportedCriteriaException("Search criterion '" + name + "' is not supported");
                     } else if (SearchParameters.NEW.equals(name)) {
-                        throw new UnsupportedCriteriaException("Search criterion '" + name + "' is not supported");
+                        builder.andFlag(javax.mail.Flags.Flag.RECENT, true);
+                        builder.andFlag(javax.mail.Flags.Flag.RECENT, false);
                     } else if (SearchParameters.NOT.equals(name)) {
                         throw new UnsupportedCriteriaException("Search criterion '" + name + "' is not supported");
                     } else if (SearchParameters.OLD.equals(name)) {
