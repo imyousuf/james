@@ -43,7 +43,6 @@ public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements Ma
 
     private ImapSession _session;
     private boolean _sizeChanged;
-    private List expungedMsn = new ArrayList();
     private ImapMailboxSession mailbox;
 
     public SelectedMailboxSessionImpl(ImapMailboxSession mailbox, ImapSession session) throws MailboxManagerException {
@@ -92,7 +91,6 @@ public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements Ma
     }
 
     public void expunged(MessageResult mr) {
-        expungedMsn.add(new Integer(mr.getSize()));
     }
 
     public void added(MessageResult mr) {
