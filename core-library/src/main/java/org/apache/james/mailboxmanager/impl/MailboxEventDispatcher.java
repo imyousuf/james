@@ -19,16 +19,17 @@
 
 package org.apache.james.mailboxmanager.impl;
 
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.james.mailboxmanager.MailboxListener;
 import org.apache.james.mailboxmanager.MessageResult;
 
+import EDU.oswego.cs.dl.util.concurrent.CopyOnWriteArraySet;
+
 public class MailboxEventDispatcher implements MailboxListener {
 
-    private Set listeners = new HashSet();
+    private final Set listeners = new CopyOnWriteArraySet();
 
     public void addMailboxListener(MailboxListener mailboxListener) {
         listeners.add(mailboxListener);
