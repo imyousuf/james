@@ -31,17 +31,13 @@ import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.api.imap.display.HumanReadableTextKey;
 import org.apache.james.api.imap.message.request.ImapRequest;
-import org.apache.james.api.imap.message.response.ImapResponseMessage;
 import org.apache.james.api.imap.message.response.imap4rev1.StatusResponse;
 import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
-import org.apache.james.api.imap.process.ImapProcessor.Responder;
 import org.apache.james.imap.message.request.imap4rev1.AppendRequest;
-import org.apache.james.imap.message.response.imap4rev1.legacy.CommandCompleteResponse;
 import org.apache.james.imapserver.processor.base.AbstractMailboxAwareProcessor;
 import org.apache.james.imapserver.processor.base.AuthorizationException;
-import org.apache.james.imapserver.processor.base.ImapSessionUtils;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
@@ -66,37 +62,28 @@ public class AppendProcessor extends AbstractMailboxAwareProcessor {
             ImapSession session, String tag, ImapCommand command, Responder responder)
             throws MailboxException, AuthorizationException, ProtocolException {
         final AppendRequest request = (AppendRequest) message;
-        final ImapResponseMessage result = doProcess(request, session, tag,
-                command);
-        responder.respond(result);
-    }
-
-    private ImapResponseMessage doProcess(AppendRequest request,
-            ImapSession session, String tag, ImapCommand command)
-            throws MailboxException, AuthorizationException, ProtocolException {
         final String mailboxName = request.getMailboxName();
-        final MimeMessage message = request.getMessage();
+        final MimeMessage mimeMessage = request.getMessage();
         final Date datetime = request.getDatetime();
-        final ImapResponseMessage result = doProcess(mailboxName, message,
-                datetime, session, tag, command);
-        return result;
+        doProcess(mailboxName, mimeMessage,
+                datetime, session, tag, command, responder);
     }
 
-    private ImapResponseMessage doProcess(String mailboxName,
+
+
+    private void doProcess(String mailboxName,
             MimeMessage message, Date datetime, ImapSession session,
-            String tag, ImapCommand command) throws MailboxException,
+            String tag, ImapCommand command, Responder responder) throws MailboxException,
             AuthorizationException, ProtocolException {
         
-        ImapResponseMessage result;
         // TODO: Flags are ignore: check whether the specification says that
         // they should be processed
-        ImapMailboxSession mailbox = null;
         try {
             
             mailboxName = buildFullName(session, mailboxName);
             final MailboxManager mailboxManager = getMailboxManager(session);
-            mailbox = mailboxManager.getImapMailboxSession(mailboxName);
-            result = appendToMailbox(message, datetime, session, tag, command, mailbox);
+            final ImapMailboxSession mailbox = mailboxManager.getImapMailboxSession(mailboxName);
+            appendToMailbox(message, datetime, session, tag, command, mailbox, responder);
             
         } catch (MailboxManagerException mme) {
             // Mailbox API does not provide facilities for diagnosing the problem
@@ -110,14 +97,15 @@ public class AppendProcessor extends AbstractMailboxAwareProcessor {
             if (logger.isDebugEnabled()) {
                 logger.debug("Cannot open mailbox: ", mme);
             }
-            result = statusResponseFactory.taggedNo(tag, command, HumanReadableTextKey.FAILURE_NO_SUCH_MAILBOX, 
+            no(command, tag, responder, HumanReadableTextKey.FAILURE_NO_SUCH_MAILBOX, 
                     StatusResponse.ResponseCode.TRYCREATE);
         }
 
-        return result;
     }
 
-    private ImapResponseMessage appendToMailbox(MimeMessage message, Date datetime, ImapSession session, String tag, ImapCommand command, ImapMailboxSession mailbox) throws MailboxException {
+    private void appendToMailbox(MimeMessage message, Date datetime, 
+            ImapSession session, String tag, ImapCommand command, ImapMailboxSession mailbox,
+            Responder responder) throws MailboxException {
         try {
             message.setFlag(Flag.RECENT, true);
             mailbox.appendMessage(message, datetime, 0);
@@ -127,9 +115,9 @@ public class AppendProcessor extends AbstractMailboxAwareProcessor {
         } catch (MessagingException e) {
             throw new MailboxException(e);
         }
-        final CommandCompleteResponse result = new CommandCompleteResponse(
-                command, tag);
-        ImapSessionUtils.addUnsolicitedResponses(result, session, false);
-        return result;
+        
+        unsolicitedResponses(session, responder, false);
+        okComplete(command, tag, responder);
+        
     }
 }
