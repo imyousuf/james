@@ -105,4 +105,146 @@ public class MessageResultUtils {
         }
         return results;
     }
+    
+    /**
+     * Is the given datum included in these results?
+     * @param result <code>MessageResult</code>, possibly null
+     * @param datum {@link MessageResult} datum constant
+     * @return true if <code>MessageResult</code> includes 
+     * the given datum, false if <code>MessageResult</code> is null
+     * or does not contain this datum
+     */
+    public static boolean isIncluded(final MessageResult message, final int datum) {
+        final boolean result;
+        if (message == null) {
+            result = false;
+        } else if (datum == MessageResult.NOTHING) {
+            result = true;
+        } else {
+            final int includes = message.getIncludedResults();
+            result = (includes & datum) == datum;
+        }
+        return result;
+    }
+    
+    /**
+     * Is {@link MessageResult#BODY_CONTENT} included in these results?
+     * @param result <code>MessageResult</code>, possibly null
+     * @return true if <code>MessageResult</code> includes 
+     * BODY_CONTENT, false if <code>MessageResult</code> is null
+     * or does not contain BODY_CONTENT
+     * @see {@link #isIncluded(MessageResult, int)}
+     */
+    public static boolean isBodyContentIncluded(final MessageResult message) {
+        return isIncluded(message, MessageResult.BODY_CONTENT);
+    }
+    
+    /**
+     * Is {@link MessageResult#FLAGS} included in these results?
+     * @param result <code>MessageResult</code>, possibly null
+     * @return true if <code>MessageResult</code> includes 
+     * FLAGS, false if <code>MessageResult</code> is null
+     * or does not contain FLAGS
+     * @see {@link #isIncluded(MessageResult, int)}
+     */
+    public static boolean isFlagsIncluded(final MessageResult message) {
+        return isIncluded(message, MessageResult.FLAGS);
+    }
+    
+    /**
+     * Is {@link MessageResult#FULL_CONTENT} included in these results?
+     * @param result <code>MessageResult</code>, possibly null
+     * @return true if <code>MessageResult</code> includes 
+     * FULL_CONTENT, false if <code>MessageResult</code> is null
+     * or does not contain FULL_CONTENT
+     * @see {@link #isIncluded(MessageResult, int)}
+     */
+    public static boolean isFullContentIncluded(final MessageResult message) {
+        return isIncluded(message, MessageResult.FULL_CONTENT);
+    }
+    
+    /**
+     * Is {@link MessageResult#HEADERS} included in these results?
+     * @param result <code>MessageResult</code>, possibly null
+     * @return true if <code>MessageResult</code> includes 
+     * HEADERS, false if <code>MessageResult</code> is null
+     * or does not contain HEADERS
+     * @see {@link #isIncluded(MessageResult, int)}
+     */
+    public static boolean isHeadersIncluded(final MessageResult message) {
+        return isIncluded(message, MessageResult.HEADERS);
+    }
+    
+    /**
+     * Is {@link MessageResult#KEY} included in these results?
+     * @param result <code>MessageResult</code>, possibly null
+     * @return true if <code>MessageResult</code> includes 
+     * KEY, false if <code>MessageResult</code> is null
+     * or does not contain KEY
+     * @see {@link #isIncluded(MessageResult, int)}
+     */
+    public static boolean isKeyIncluded(final MessageResult message) {
+        return isIncluded(message, MessageResult.KEY);
+    }
+    
+    /**
+     * Is {@link MessageResult#INTERNAL_DATE} included in these results?
+     * @param result <code>MessageResult</code>, possibly null
+     * @return true if <code>MessageResult</code> includes 
+     * INTERNAL_DATE, false if <code>MessageResult</code> is null
+     * or does not contain INTERNAL_DATE
+     * @see {@link #isIncluded(MessageResult, int)}
+     */
+    public static boolean isInternalDateIncluded(final MessageResult message) {
+        return isIncluded(message, MessageResult.INTERNAL_DATE);
+    }
+    
+    /**
+     * Is {@link MessageResult#MIME_MESSAGE} included in these results?
+     * @param result <code>MessageResult</code>, possibly null
+     * @return true if <code>MessageResult</code> includes 
+     * MIME_MESSAGE, false if <code>MessageResult</code> is null
+     * or does not contain MIME_MESSAGE
+     * @see {@link #isIncluded(MessageResult, int)}
+     */
+    public static boolean isMimeMessageIncluded(final MessageResult message) {
+        return isIncluded(message, MessageResult.MIME_MESSAGE);
+    }   
+    
+    /**
+     * Is {@link MessageResult#SIZE} included in these results?
+     * @param result <code>MessageResult</code>, possibly null
+     * @return true if <code>MessageResult</code> includes 
+     * SIZE, false if <code>MessageResult</code> is null
+     * or does not contain SIZE
+     * @see {@link #isIncluded(MessageResult, int)}
+     */
+    public static boolean isSizeIncluded(final MessageResult message) {
+        return isIncluded(message, MessageResult.SIZE);
+    }
+    
+    
+    /**
+     * Is {@link MessageResult#UID} included in these results?
+     * @param result <code>MessageResult</code>, possibly null
+     * @return true if <code>MessageResult</code> includes 
+     * UID, false if <code>MessageResult</code> is null
+     * or does not contain UID
+     * @see {@link #isIncluded(MessageResult, int)}
+     */
+    public static boolean isUidIncluded(final MessageResult message) {
+        return isIncluded(message, MessageResult.UID);
+    }
+    
+    /**
+     * Is {@link MessageResult#MSN} included in these results?
+     * @param result <code>MessageResult</code>, possibly null
+     * @return true if <code>MessageResult</code> includes 
+     * MSN, false if <code>MessageResult</code> is null
+     * or does not contain MSN
+     * @see {@link #isIncluded(MessageResult, int)}
+     */
+    public static boolean isMsnIncluded(final MessageResult message) {
+        return isIncluded(message, MessageResult.MSN);
+    }
 }
