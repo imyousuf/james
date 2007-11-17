@@ -98,9 +98,12 @@ public interface MessageResult extends Comparable {
     
     public static final int BODY_CONTENT = 0x400;
     
+    /**
+     * Gets the results set.
+     * @return bitwise indication of result set
+     * @see {@link MessageResultUtils#isIncluded(MessageResult, int)}
+     */
     int getIncludedResults();
-
-    boolean contains(int result);
 
     MimeMessage getMimeMessage();
 

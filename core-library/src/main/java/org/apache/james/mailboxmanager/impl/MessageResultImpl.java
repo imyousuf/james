@@ -27,9 +27,15 @@ import javax.mail.Flags;
 import javax.mail.Flags.Flag;
 import javax.mail.internet.MimeMessage;
 
+import org.apache.commons.collections.IteratorUtils;
 import org.apache.james.mailboxmanager.MessageResult;
+import org.apache.james.mailboxmanager.MessageResultUtils;
 import org.apache.mailet.Mail;
 
+/**
+ * Bean based implementation.
+ * {@link #getIncludedResults()} is updated when setters are called.
+ */
 public class MessageResultImpl implements MessageResult {
     
     private MimeMessage mimeMessage;
@@ -42,34 +48,55 @@ public class MessageResultImpl implements MessageResult {
     private List headers;
     private Content messageBody;
     private Content fullMessage;
-    
+    private int includedResults = NOTHING;
 
     public MessageResultImpl(long uid) {
-        this.uid=uid;
+        setUid(uid);
     }
 
     public MessageResultImpl() {
     }
 
     public MessageResultImpl(long uid, Flags flags) {
-        this.uid=uid;
-        this.flags=flags;
+        setUid(uid);
+        setFlags(flags);
     }
 
-    public MessageResultImpl(MessageResult origMr) {
-        this.uid=origMr.getUid();
-        this.flags=origMr.getFlags();
-        this.mimeMessage=origMr.getMimeMessage();
+    public MessageResultImpl(MessageResult result) {
+        if (MessageResultUtils.isUidIncluded(result)) {
+            setUid(result.getUid()); 
+        }
+        if (MessageResultUtils.isFlagsIncluded(result)) {
+            setFlags(result.getFlags());
+        }
+        if (MessageResultUtils.isMimeMessageIncluded(result)) {
+            setMimeMessage(result.getMimeMessage());
+        }
+        if (MessageResultUtils.isMsnIncluded(result)) {
+            setMsn(result.getMsn());
+        }
+        if (MessageResultUtils.isSizeIncluded(result)) {
+            setSize(result.getSize());
+        }
+        if (MessageResultUtils.isInternalDateIncluded(result)) {
+            setInternalDate(result.getInternalDate());
+        }
+        if (MessageResultUtils.isKeyIncluded(result)) {
+            setKey(result.getKey());
+        }
+        if (MessageResultUtils.isHeadersIncluded(result)) {
+            setHeaders(IteratorUtils.toList(result.iterateHeaders()));
+        }
+        if (MessageResultUtils.isFullContentIncluded(result)) {
+            setFullMessage(result.getFullMessage());
+        }
+        if (MessageResultUtils.isBodyContentIncluded(result)) {
+            setMessageBody(result.getMessageBody());
+        }
     }
 
     public int getIncludedResults() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    public boolean contains(int result) {
-        // TODO Auto-generated method stub
-        return false;
+        return includedResults;
     }
 
     public MimeMessage getMimeMessage() {
@@ -78,15 +105,17 @@ public class MessageResultImpl implements MessageResult {
 
     public void setMimeMessage(MimeMessage mimeMessage) {
         this.mimeMessage=mimeMessage;
+        if (mimeMessage != null) {
+            includedResults |= MIME_MESSAGE;
+        }
     }
-
     
     public long getUid() {
         return uid;
     }
 
     public long getUidValidity() {
-        // TODO Auto-generated method stub
+        // TODO implement or remove
         return 0;
     }
 
@@ -103,7 +132,7 @@ public class MessageResultImpl implements MessageResult {
     }
 
     public Mail getMail() {
-        // TODO Auto-generated method stub
+        // TODO implement or remove
         return null;
     }
 
@@ -113,9 +142,12 @@ public class MessageResultImpl implements MessageResult {
 
     public void setUid(long uid) {
         this.uid=uid;
+        includedResults |= UID;
+        
     }
     public void setMsn(int msn) {
         this.msn=msn;
+        includedResults |= MSN;
     }
     public int getSize() {
         return size;
@@ -123,13 +155,21 @@ public class MessageResultImpl implements MessageResult {
 
     public void setFlags(Flags flags) {
         this.flags=flags;
+        if (flags != null) {
+            includedResults |= FLAGS;
+        }
     }
 
     public int compareTo(Object o) {
         MessageResult that=(MessageResult)o;
         if (this.uid>0 && that.getUid()>0) {
+            // TODO: this seems inefficient
             return new Long(uid).compareTo(new Long(that.getUid()));    
         } else {
+            // TODO: throwing an undocumented untyped runtime seems wrong
+            // TODO: if uids must be greater than zero then this should be enforced
+            // TODO: on the way in
+            // TODO: probably an IllegalArgumentException would be better
             throw new RuntimeException("can't compare");
         }
         
@@ -137,10 +177,14 @@ public class MessageResultImpl implements MessageResult {
 
     public void setSize(int size) {
         this.size=size;
+        includedResults = SIZE;
     }
 
     public void setInternalDate(Date internalDate) {
         this.internalDate = internalDate;
+        if (internalDate != null) {
+            includedResults |= INTERNAL_DATE;
+        }
     }
     
     public String toString() {
@@ -187,6 +231,9 @@ public class MessageResultImpl implements MessageResult {
 
     public void setKey(String key) {
         this.key=key;
+        if (key != null) {
+            includedResults |= KEY;
+        }
     }
 
     public Iterator iterateHeaders() {
@@ -199,6 +246,9 @@ public class MessageResultImpl implements MessageResult {
 
     public void setHeaders(List headers) {
         this.headers = headers;
+        if (headers != null) {
+            includedResults |= HEADERS;
+        }
     }
 
     public final Content getFullMessage() {
@@ -207,6 +257,9 @@ public class MessageResultImpl implements MessageResult {
 
     public final void setFullMessage(Content fullMessage) {
         this.fullMessage = fullMessage;
+        if (fullMessage != null) {
+            includedResults |= FULL_CONTENT;
+        }
     }
 
     public final Content getMessageBody() {
@@ -215,5 +268,8 @@ public class MessageResultImpl implements MessageResult {
 
     public final void setMessageBody(Content messageBody) {
         this.messageBody = messageBody;
+        if (messageBody != null) {
+            includedResults |= BODY_CONTENT;
+        }
     }
 }
