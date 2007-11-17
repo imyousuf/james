@@ -130,7 +130,7 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
     public MessageResult appendMessage(MimeMessage message, Date internalDate,
             int result) throws MailboxManagerException {
         try {
-            lock.readLock().acquire();
+            lock.writeLock().acquire();
             try {
                 checkAccess();
                 final MailboxRow myMailboxRow;
@@ -212,7 +212,7 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
                     throw new MailboxManagerException("Mailbox has been deleted");
                 }
             } finally {
-                lock.readLock().release();
+                lock.writeLock().release();
             }
         } catch (InterruptedException e) {
             throw new MailboxManagerException(e);
@@ -734,13 +734,13 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
 
     public synchronized long getUidValidity() throws MailboxManagerException {
         try {
-            lock.writeLock().acquire();
+            lock.readLock().acquire();
             try {
                 checkAccess();
                 final long result = getMailboxRow().getUidValidity();
                 return result;
             } finally {
-                lock.writeLock().release();
+                lock.readLock().release();
             }
 
         } catch (InterruptedException e) {
