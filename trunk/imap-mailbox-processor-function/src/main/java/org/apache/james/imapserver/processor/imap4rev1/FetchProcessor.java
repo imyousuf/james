@@ -41,7 +41,7 @@ import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactor
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
 import org.apache.james.imap.message.request.imap4rev1.FetchRequest;
-import org.apache.james.imap.message.response.imap4rev1.FetchResponse;
+import org.apache.james.imap.message.response.imap4rev1.LegacyFetchResponse;
 import org.apache.james.imapserver.codec.encode.EncoderUtils;
 import org.apache.james.imapserver.processor.base.AbstractImapRequestProcessor;
 import org.apache.james.imapserver.processor.base.AuthorizationException;
@@ -95,7 +95,7 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
                             useUids);
                     // TODO: this is inefficient
                     // TODO: stream output upon response
-                    FetchResponse response = new FetchResponse(fetchResults[j].getMsn(), msgData);
+                    LegacyFetchResponse response = new LegacyFetchResponse(fetchResults[j].getMsn(), msgData);
                     responder.respond(response);
                 }
             }

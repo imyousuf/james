@@ -18,47 +18,29 @@
  ****************************************************************/
 package org.apache.james.imap.message.response.imap4rev1;
 
-import javax.mail.Flags;
-
 import org.apache.james.api.imap.message.response.ImapResponseMessage;
 
-public final class FetchResponse implements ImapResponseMessage {
+/**
+ * @deprecated data should be not be encoded in the processor
+ */
+public class LegacyFetchResponse implements ImapResponseMessage {
 
-        private final int messageNumber;
-        private final Flags flags;
-        private final Long uid;
-        
-        public FetchResponse(final int messageNumber, final Flags flags, final Long uid) {
+        // TODO: this is not an efficient solution
+        // TODO: would be better to lazy load and stream on output
+        // TODO: this is just a transitional solution
+        private final int number;
+        private final String data;
+        public LegacyFetchResponse(final int number, final String data) {
             super();
-            this.messageNumber = messageNumber;
-            this.flags = flags;
-            this.uid = uid;
+            this.number = number;
+            this.data = data;
         }
         
-        /**
-         * Gets the number of the message whose details 
-         * have been fetched.
-         * @return message number
-         */
-        public final int getMessageNumber() {
-            return messageNumber;
+        public final String getData() {
+            return data;
         }
         
-        /**
-         * Gets the fetched flags.
-         * @return {@link Flags} fetched,
-         * or null if the <code>FETCH</code> did not include <code>FLAGS</code>
-         */
-        public Flags getFlags() {
-            return flags;
-        }
-        
-        /**
-         * Gets the unique id for the fetched message.
-         * @return message uid, 
-         * or null if the <code>FETCH</code> did not include <code>UID</code>
-         */
-        public Long getUid() {
-            return uid;
-        }
+        public final int getNumber() {
+            return number;
+        }        
 }

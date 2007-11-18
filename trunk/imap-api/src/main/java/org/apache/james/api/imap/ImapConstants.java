@@ -31,6 +31,7 @@ public interface ImapConstants
     String SP = " ";
     
     public static final String NIL = "NIL";
+    public static final String UID = "UID";
     public static final char OPENING_PARENTHESIS = '(';
     public static final char CLOSING_PARENTHESIS = ')';
     public static final char SP_CHAR = ' ';
