@@ -26,6 +26,8 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import javax.mail.Flags;
+
 import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxListener;
 import org.apache.james.mailboxmanager.MailboxManagerException;
@@ -138,16 +140,20 @@ public abstract class NumberStableSessionWrapper extends AbstractGeneralMailbox 
         return msnExpungedEvents;
     }
 
-    protected MessageResult[]  buildMsnEvents(Collection collection,boolean expunge)
+    protected MessageResult[]  buildMsnEvents(final Collection messageResults, 
+            final boolean expunge)
             throws MailboxManagerException {
-        final MessageResult[]  msnEvents = new MessageResult[collection.size()];
+        final MessageResult[]  msnEvents = new MessageResult[messageResults.size()];
         int i=0;
-        for (Iterator iter = collection.iterator(); iter.hasNext();) {
-            MessageResult origMr = (MessageResult) iter.next();
-            MessageResultImpl newMr = new MessageResultImpl(origMr);
-            newMr.setMsn(getNumberCache().getMsn(origMr.getUid()));
+        for (final Iterator iter = messageResults.iterator(); iter.hasNext();) {
+            final MessageResult original = (MessageResult) iter.next();
+            final MessageResultImpl newMr = new MessageResultImpl(original);
+            final long uid = original.getUid();
+            final UidToMsnBidiMap numberCache = getNumberCache();
+            final int msn = numberCache.getMsn(uid);
+            newMr.setMsn(msn);
             if (expunge) {
-                getNumberCache().expunge(origMr.getUid());
+                numberCache.expunge(uid);
             }
             msnEvents[i++]=newMr;
         }
@@ -169,11 +175,18 @@ public abstract class NumberStableSessionWrapper extends AbstractGeneralMailbox 
 
     public synchronized void flagsUpdated(MessageResult mr,
             MailboxListener silentListener) {
+        final long uid = mr.getUid();
+        final Long uidObject = new Long(uid);
         if (silentListener != this
-                || flagEventMap.containsKey(new Long(mr.getUid()))) {
+                || flagEventMap.containsKey(uidObject)) {
             // if there has been an external update in the past we should inform
             // about the newest value, even if in silent mode
-            flagEventMap.put(new Long(mr.getUid()), mr);
+            
+            // only store flags
+            final MessageResultImpl lightweightResult = new MessageResultImpl(uid);
+            final Flags flags = mr.getFlags();
+            lightweightResult.setFlags(flags);
+            flagEventMap.put(uidObject, lightweightResult);
         }
     }
 
