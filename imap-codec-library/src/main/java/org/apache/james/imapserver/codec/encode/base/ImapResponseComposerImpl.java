@@ -172,8 +172,7 @@ public class ImapResponseComposerImpl extends AbstractLogEnabled implements
      */
     public void flagsResponse(Flags flags) {
         untagged();
-        message(FLAGS);
-        message(MessageFlags.format(flags));
+        flags(flags);
         end();
     }
 
@@ -208,9 +207,9 @@ public class ImapResponseComposerImpl extends AbstractLogEnabled implements
     }
 
     /**
-     * @see org.apache.james.imapserver.codec.encode.ImapResponseComposer#fetchResponse(int, java.lang.String)
+     * @see org.apache.james.imapserver.codec.encode.ImapResponseComposer#legacyFetchResponse(int, java.lang.String)
      */
-    public void fetchResponse(int msn, String msgData) {
+    public void legacyFetchResponse(int msn, String msgData) {
         untagged();
         message(msn);
         message(FETCH);
@@ -397,5 +396,41 @@ public class ImapResponseComposerImpl extends AbstractLogEnabled implements
                 message(id);
             }
         }
+    }
+
+    public void flags(Flags flags) {
+        message(FLAGS);
+        openParen();
+        if ( flags.contains(Flags.Flag.ANSWERED) ) {
+            message( "\\Answered" );
+        }
+        if ( flags.contains(Flags.Flag.DELETED) ) {
+            message( "\\Deleted" );
+        }
+        if ( flags.contains(Flags.Flag.DRAFT) ) {
+            message( "\\Draft" );
+        }
+        if ( flags.contains(Flags.Flag.FLAGGED) ) {
+            message( "\\Flagged" );
+        }
+        if ( flags.contains(Flags.Flag.RECENT) ) {
+            message( "\\Recent" );
+        }
+        if ( flags.contains(Flags.Flag.SEEN) ) {
+            message( "\\Seen" );
+        }
+        closeParen();
+    }
+
+    public void closeFetchResponse() {
+        closeParen();
+        end();
+    }
+
+    public void openFetchResponse(long msn) {
+        untagged();
+        message(msn);
+        message(FETCH);
+        openParen();
     }
 }

@@ -19,8 +19,12 @@
 
 package org.apache.james.imapserver.codec.encode.imap4rev1;
 
+import javax.mail.Flags;
+
+import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.imap.message.response.imap4rev1.FetchResponse;
+import org.apache.james.imap.message.response.imap4rev1.LegacyFetchResponse;
 import org.apache.james.imapserver.codec.encode.ImapEncoder;
 import org.apache.james.imapserver.codec.encode.ImapResponseComposer;
 import org.apache.james.imapserver.codec.encode.base.AbstractChainedImapEncoder;
@@ -32,15 +36,36 @@ public class FetchResponseEncoder extends AbstractChainedImapEncoder {
     }
 
     public boolean isAcceptable(final ImapMessage message) {
-        return (message instanceof FetchResponse);
+        return (message instanceof LegacyFetchResponse) 
+            || (message instanceof FetchResponse);
     }
 
     protected void doEncode(ImapMessage acceptableMessage, ImapResponseComposer composer) {
-        final FetchResponse fetchResponse = (FetchResponse) acceptableMessage;
+        if (acceptableMessage instanceof FetchResponse) {
+            final FetchResponse fetchResponse = (FetchResponse) acceptableMessage;
+            final long messageNumber = fetchResponse.getMessageNumber();
+            composer.openFetchResponse(messageNumber);
+            final Flags flags = fetchResponse.getFlags();
+            if (flags != null) {
+                composer.flags(flags);
+            }
+            final Long uid = fetchResponse.getUid();
+            if (uid != null) {
+                composer.message(ImapConstants.UID);
+                composer.message(uid.longValue());
+            }
+            composer.closeFetchResponse();
+        } else {
+            final LegacyFetchResponse fetchResponse = (LegacyFetchResponse) acceptableMessage;
+            encodeLegacy(composer, fetchResponse);
+        }
+    }
+
+    private void encodeLegacy(ImapResponseComposer composer, final LegacyFetchResponse fetchResponse) {
         // TODO: this is inefficient
         final String data = fetchResponse.getData();
         final int number = fetchResponse.getNumber();
-        composer.fetchResponse(number, data);
+        composer.legacyFetchResponse(number, data);
     }
 
 }

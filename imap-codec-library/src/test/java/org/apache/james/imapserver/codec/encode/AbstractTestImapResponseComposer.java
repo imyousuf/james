@@ -22,6 +22,8 @@ package org.apache.james.imapserver.codec.encode;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.mail.Flags;
+
 import junit.framework.TestCase;
 
 public abstract class AbstractTestImapResponseComposer extends TestCase {
@@ -81,6 +83,35 @@ public abstract class AbstractTestImapResponseComposer extends TestCase {
         checkListResponseEncode("* LSUB (\\one \\two \\three \\four) \".\" \"#news\"\r\n", "LSUB", attributes, ".", "#news");
         checkListResponseEncode("* LIST (\\one \\two \\three \\four) \".\" \"#INBOX\"\r\n", "LIST", attributes, ".", "#INBOX");
     }
+    
+    public void testShouldEncodeFlagsCorrectly() throws Exception {
+        checkFlagsEncode(" FLAGS (\\Seen)", new Flags(Flags.Flag.SEEN));
+        checkFlagsEncode(" FLAGS (\\Recent)", new Flags(Flags.Flag.RECENT));
+        checkFlagsEncode(" FLAGS (\\Draft)", new Flags(Flags.Flag.DRAFT));
+        checkFlagsEncode(" FLAGS (\\Answered)", new Flags(Flags.Flag.ANSWERED));
+        checkFlagsEncode(" FLAGS (\\Flagged)", new Flags(Flags.Flag.FLAGGED));
+        checkFlagsEncode(" FLAGS (\\Deleted)", new Flags(Flags.Flag.DELETED));
+        Flags flags = new Flags();
+        flags.add(Flags.Flag.SEEN);
+        flags.add(Flags.Flag.ANSWERED);
+        flags.add(Flags.Flag.FLAGGED);
+        flags.add(Flags.Flag.DELETED);
+        flags.add(Flags.Flag.SEEN);
+        flags.add(Flags.Flag.DRAFT);
+        checkFlagsEncode(" FLAGS (\\Answered \\Deleted \\Draft \\Flagged \\Seen)", flags);
+    }
+    
+    private void checkFlagsEncode(String expected, Flags flags) throws Exception {
+        StringBuffer buffer = new StringBuffer();
+        byte[] output = encodeFlagsResponse(flags);
+        for (int i=0;i<output.length;i++) {
+            buffer.append((char) output[i]);
+        }
+        assertEquals(expected, buffer.toString());
+        clear(); 
+    }
+    
+    protected abstract byte[] encodeFlagsResponse(Flags flags) throws Exception;
     
     private void checkSearchResponseEncode(String expected, long[] ids) throws Exception {
         StringBuffer buffer = new StringBuffer();

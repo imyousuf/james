@@ -37,7 +37,7 @@ public class ImapResponseTest extends MockObjectTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         writer = new MockImapResponseWriter();
-        response = new ImapResponseComposerImpl(writer);;
+        response = new ImapResponseComposerImpl(writer);
     }
 
     protected void tearDown() throws Exception {
@@ -90,14 +90,16 @@ public class ImapResponseTest extends MockObjectTestCase {
     public void testFlagsResponse() {
         Flags flags = new Flags();
         response.flagsResponse(flags);
-        assertEquals(4, writer.operations.size());
+        assertEquals(5, writer.operations.size());
         assertEquals(new MockImapResponseWriter.UntaggedOperation(), writer.operations.get(0));
         assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapResponseComposerImpl.FLAGS), 
                 writer.operations.get(1));
-        assertEquals(new MockImapResponseWriter.TextMessageOperation(MessageFlags.format(flags)),
+        assertEquals(new MockImapResponseWriter.ParenOperation(true),
                 writer.operations.get(2));
-        assertEquals(new MockImapResponseWriter.EndOperation(), 
+        assertEquals(new MockImapResponseWriter.ParenOperation(false),
                 writer.operations.get(3));
+        assertEquals(new MockImapResponseWriter.EndOperation(), 
+                writer.operations.get(4));
     }
 
     public void testExistsResponse() {
@@ -142,7 +144,7 @@ public class ImapResponseTest extends MockObjectTestCase {
     public void testFetchResponse() {
         int count = 7;
         String data = "Some data";
-        response.fetchResponse(count, data);
+        response.legacyFetchResponse(count, data);
         assertEquals(5, writer.operations.size());
         assertEquals(new MockImapResponseWriter.UntaggedOperation(), writer.operations.get(0));
         assertEquals(new MockImapResponseWriter.NumericMessageOperation(count), 

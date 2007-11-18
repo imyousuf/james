@@ -41,7 +41,9 @@ public class ByteImapResponseWriter extends AbstractLogEnabled implements ImapCo
         clear();
     }
     
-    public byte[] getBytes() {
+    public byte[] getBytes() throws Exception {
+        writer.flush();
+        out.flush();
         return out.toByteArray();
     }
 

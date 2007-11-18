@@ -32,6 +32,7 @@ import org.apache.james.api.imap.process.SelectedImapMailbox;
 import org.apache.james.imap.message.response.imap4rev1.ExistsResponse;
 import org.apache.james.imap.message.response.imap4rev1.ExpungeResponse;
 import org.apache.james.imap.message.response.imap4rev1.FetchResponse;
+import org.apache.james.imap.message.response.imap4rev1.LegacyFetchResponse;
 import org.apache.james.imap.message.response.imap4rev1.RecentResponse;
 import org.apache.james.imap.message.response.imap4rev1.status.UntaggedNoResponse;
 import org.apache.james.mailboxmanager.MailboxListener;
@@ -165,15 +166,14 @@ public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements Ma
                 for (int i = 0; i < flagUpdates.length; i++) {
                 MessageResult mr = flagUpdates[i];
                 int msn = mr.getMsn();
-                Flags updatedFlags = mr.getFlags();
-                StringBuffer out = new StringBuffer("FLAGS ");
-                out.append(MessageFlags.format(updatedFlags));
+                final Flags flags = mr.getFlags();
+                final Long uid;
                 if (useUid) {
-                    out.append(" UID ");
-                    out.append(mr.getUid());
+                    uid = new Long(mr.getUid());
+                } else {
+                    uid = null;
                 }
-                // TODO: use CharSequence instead (avoid unnecessary string creation)
-                FetchResponse response = new FetchResponse(msn, out.toString());
+                FetchResponse response = new FetchResponse(msn, flags, uid);
                 responses.add(response);
             }
         } catch (MailboxManagerException e) {

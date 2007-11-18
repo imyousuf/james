@@ -21,6 +21,8 @@ package org.apache.james.imapserver.codec.encode.base;
 
 import java.util.List;
 
+import javax.mail.Flags;
+
 import org.apache.james.imapserver.codec.encode.AbstractTestImapResponseComposer;
 
 public class ImapResponseComposerImplTest extends
@@ -50,6 +52,11 @@ public class ImapResponseComposerImplTest extends
 
     protected byte[] encodeSearchResponse(long[] ids) throws Exception {
         composer.searchResponse(ids);
+        return writer.getBytes();
+    }
+
+    protected byte[] encodeFlagsResponse(Flags flags) throws Exception {
+        composer.flags(flags);
         return writer.getBytes();
     }
 

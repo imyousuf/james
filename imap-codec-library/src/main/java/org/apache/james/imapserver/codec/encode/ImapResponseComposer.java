@@ -139,8 +139,18 @@ public interface ImapResponseComposer {
     public abstract void untaggedNoResponse(String displayMessage,
             String responseCode);
 
+    /**
+     * Writes flags to output using standard format.
+     * @param flags <code>Flags</code>, not null
+     */
+    public abstract void flags(Flags flags);
+    
+    /**
+     * Writes a complete FLAGS response.
+     * @param flags <code>Flags</code>, not null
+     */
     public abstract void flagsResponse(Flags flags);
-
+    
     public abstract void existsResponse(int count);
 
     public abstract void recentResponse(int count);
@@ -149,7 +159,25 @@ public interface ImapResponseComposer {
     
     public abstract void searchResponse(long[] ids);
 
-    public abstract void fetchResponse(int msn, String msgData);
+    /**
+     * Starts a FETCH response by writing the opening
+     * star-FETCH-number-paren sequence.
+     * @param msn message number
+     * @see #closeFetchResponse()
+     */
+    public abstract void openFetchResponse(long msn);
+    
+    /**
+     * Ends a FETCH response by writing the closing
+     * paren-crlf sequence.
+     */
+    public abstract void closeFetchResponse();
+    
+    /**
+     * @deprecated
+     * @see #openFetchResponse(long)
+     */
+    public abstract void legacyFetchResponse(int msn, String msgData);
 
     public abstract void commandResponse(ImapCommand command, String message);
 
