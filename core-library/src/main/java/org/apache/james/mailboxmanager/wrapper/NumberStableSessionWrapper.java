@@ -52,6 +52,8 @@ public abstract class NumberStableSessionWrapper extends AbstractGeneralMailbox 
 
     private MailboxEventDispatcher eventDispatcher = new MailboxEventDispatcher();
     
+    private boolean startingNumberCache = false;
+    
     
     public NumberStableSessionWrapper() {
     }
@@ -67,17 +69,21 @@ public abstract class NumberStableSessionWrapper extends AbstractGeneralMailbox 
 
     public void init() throws MailboxManagerException {
         mailbox.addListener(eventDispatcher);
-        getNumberCache();
         eventDispatcher.addMailboxListener(this);        
     }
 
     protected UidToMsnBidiMap getNumberCache() throws MailboxManagerException {
-        if (numberCache == null) {
+        if (numberCache == null && mailbox != null) {
+            startingNumberCache = true;
+            try {
             MessageResult[] mr = mailbox.getMessages(GeneralMessageSetImpl
                     .all(), MessageResult.UID);
             numberCache = new UidToMsnBidiMap();
             for (int i = 0; i < mr.length; i++) {
                 numberCache.add(mr[i].getUid());
+            }
+            } finally {
+                startingNumberCache = false;
             }
         }
         return numberCache;
@@ -112,6 +118,8 @@ public abstract class NumberStableSessionWrapper extends AbstractGeneralMailbox 
 
     protected MessageResult addMsnResult(MessageResult mr, int result)
             throws MailboxManagerException {
+        // added events dispatched before the cache has been started
+        // should be ignored
         if (mr != null) {
             if ((result & MessageResult.MSN) > 0) {
                 // TODO copy the MessageResult because it could be another class
@@ -162,7 +170,12 @@ public abstract class NumberStableSessionWrapper extends AbstractGeneralMailbox 
 
     public void added(MessageResult result) {
         try {
-            getNumberCache().add(result.getUid());
+            // added events dispatched before the cache has been started
+            // should be ignored
+            if (!startingNumberCache && numberCache != null) 
+            {
+                getNumberCache().add(result.getUid());
+            }
         } catch (MailboxManagerException e) {
             getLog().error("This should not happen",e);
         }

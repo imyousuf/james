@@ -19,16 +19,11 @@
 
 package org.apache.james.mailboxmanager.wrapper;
 
-import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxListener;
 import org.apache.james.mailboxmanager.MailboxManagerException;
-import org.apache.james.mailboxmanager.MessageResult;
-import org.apache.james.mailboxmanager.impl.MessageResultImpl;
 import org.apache.james.mailboxmanager.mailbox.GeneralMailbox;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
-import org.jmock.core.Constraint;
-import org.jmock.core.constraint.IsInstanceOf;
 
 public class SessionMailboxWrapperTest extends MockObjectTestCase {
 
@@ -40,13 +35,7 @@ public class SessionMailboxWrapperTest extends MockObjectTestCase {
 
         final MailboxListener listenerObject = sessionMailboxWrapper.getListenerObject();
         generalMailboxMock.expects(once()).method("addListener").with(same(listenerObject));
-        
-        Constraint[] getMessagesArgs={new IsInstanceOf(GeneralMessageSet.class),new IsInstanceOf(Integer.class)};
-        
-        MessageResult[] result={new MessageResultImpl()};
-        
-        generalMailboxMock.expects(once()).method("getMessages").with(getMessagesArgs).after("addListener").will(returnValue(result));
-        generalMailboxMock.expects(once()).method("removeListener").with(same(listenerObject)).after("getMessages");
+        generalMailboxMock.expects(once()).method("removeListener").with(same(listenerObject));
         
         sessionMailboxWrapper.setMailbox((GeneralMailbox) generalMailboxMock
                 .proxy());
