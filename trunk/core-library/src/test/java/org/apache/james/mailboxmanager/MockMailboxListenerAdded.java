@@ -17,14 +17,25 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.mailboxmanager.mailbox;
+package org.apache.james.mailboxmanager;
 
+public class MockMailboxListenerAdded extends MailboxListener.Added {
 
+    public MessageResult subject;
+    public long sessionId;
+    
+    public MockMailboxListenerAdded(MessageResult subject, long sessionId) {
+        super();
+        this.subject = subject;
+        this.sessionId = sessionId;
+    }
 
-/**
- * Provides access to a single Folder.<br />
- */
+    public MessageResult getSubject() {
+        return subject;
+    }
 
-public interface ImapMailbox extends GeneralMailbox, FlaggedMailbox, EventTriggerMailbox, UidMailbox, SearchableMailbox {
+    public long getSessionId() {
+        return sessionId;
+    }
 
 }

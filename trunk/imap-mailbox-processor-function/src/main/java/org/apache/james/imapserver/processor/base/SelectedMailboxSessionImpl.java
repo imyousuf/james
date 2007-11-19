@@ -20,44 +20,47 @@
 package org.apache.james.imapserver.processor.base;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.mail.Flags;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
-import org.apache.james.api.imap.message.MessageFlags;
-import org.apache.james.api.imap.process.ImapSession;
 import org.apache.james.api.imap.process.SelectedImapMailbox;
 import org.apache.james.imap.message.response.imap4rev1.ExistsResponse;
 import org.apache.james.imap.message.response.imap4rev1.ExpungeResponse;
 import org.apache.james.imap.message.response.imap4rev1.FetchResponse;
-import org.apache.james.imap.message.response.imap4rev1.LegacyFetchResponse;
 import org.apache.james.imap.message.response.imap4rev1.RecentResponse;
 import org.apache.james.imap.message.response.imap4rev1.status.UntaggedNoResponse;
-import org.apache.james.mailboxmanager.MailboxListener;
+import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
+import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
+import org.apache.james.mailboxmanager.util.MailboxEventAnalyser;
 
-public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements MailboxListener, SelectedImapMailbox {
+//TODO: deal with deleted or renamed mailboxes
+public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements SelectedImapMailbox {
 
-    private ImapSession _session;
-    private boolean _sizeChanged;
     private ImapMailboxSession mailbox;
-
-    public SelectedMailboxSessionImpl(ImapMailboxSession mailbox, ImapSession session) throws MailboxManagerException {
+    
+    private final MailboxEventAnalyser events;
+    
+    public SelectedMailboxSessionImpl(ImapMailboxSession mailbox) throws MailboxManagerException {
         this.mailbox = mailbox;
-        _session = session;
-        // TODO make this a weak reference (or make sure deselect() is *always* called).
-        mailbox.addListener(this,MessageResult.MSN | MessageResult.UID);
+        final long sessionId = mailbox.getSessionId();
+        events = new MailboxEventAnalyser(sessionId);
+        // Ignore events from our session
+        events.setSilentFlagChanges(true);
+        mailbox.addListener(events);
     }
 
     /**
      * @see org.apache.james.api.imap.process.SelectedImapMailbox#deselect()
      */
     public void deselect() {
-        mailbox.removeListener(this);
+        mailbox.removeListener(events);
         try {
             mailbox.close();
         } catch (MailboxManagerException e) {
@@ -68,53 +71,13 @@ public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements Ma
         mailbox = null;
     }
 
-
-    public void mailboxDeleted() {
-        try {
-            _session.closeConnection("Mailbox " + mailbox.getName() + " has been deleted");
-        } catch (MailboxManagerException e) {
-            getLogger().error("error closing connection", e);
-        }
-    }
-
-
     public boolean isSizeChanged() {
-        return _sizeChanged;
+        return events.isSizeChanged();
     }
-
-    public void setSizeChanged(boolean sizeChanged) {
-        _sizeChanged = sizeChanged;
-    }
-
-    public void create() {
-        throw new RuntimeException("should not create a selected mailbox");
-        
-    }
-
-    public void expunged(MessageResult mr) {
-    }
-
-    public void added(MessageResult mr) {
-       _sizeChanged = true;
-    }
-
-    public void flagsUpdated(MessageResult mr,MailboxListener silentListener) {
-    }
-
+    
     public ImapMailboxSession getMailbox() {
         return mailbox;
     }
-
-    public void mailboxRenamed(String origName, String newName) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    public void mailboxRenamed(String newName) {
-        // TODO Auto-generated method stub
-        
-    }
-    
 
     /**
      * @see org.apache.james.api.imap.process.SelectedImapMailbox#unsolicitedResponses(boolean, boolean)
@@ -124,7 +87,6 @@ public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements Ma
         final ImapMailboxSession mailbox = getMailbox();
         // New message response
         if (isSizeChanged()) {
-            setSizeChanged(false);
             addExistsResponses(results, mailbox);
             addRecentResponses(results, mailbox);
         }
@@ -141,6 +103,7 @@ public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements Ma
             addExpungedResponses(results, mailbox);
         }
         
+        events.reset();
         return results;
     }
 
@@ -162,19 +125,24 @@ public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements Ma
 
     private void addFlagsResponses(final List responses, boolean useUid, final ImapMailboxSession mailbox) {
         try {
-            MessageResult[] flagUpdates = mailbox.getFlagEvents(true);
-                for (int i = 0; i < flagUpdates.length; i++) {
-                MessageResult mr = flagUpdates[i];
-                int msn = mr.getMsn();
-                final Flags flags = mr.getFlags();
-                final Long uid;
-                if (useUid) {
-                    uid = new Long(mr.getUid());
-                } else {
-                    uid = null;
+            
+            for (final Iterator it = events.flagUpdateUids(); it.hasNext();) {
+                Long uid = (Long) it.next();
+                GeneralMessageSet messageSet = GeneralMessageSetImpl.oneUid(uid.longValue());
+                final MessageResult[] messages = mailbox.getMessages(messageSet, MessageResult.FLAGS | MessageResult.MSN);
+                for (int i = 0; i < messages.length; i++) {
+                    MessageResult mr = messages[i];
+                    int msn = mr.getMsn();
+                    final Flags flags = mr.getFlags();
+                    final Long uidOut;
+                    if (useUid) {
+                        uidOut = new Long(mr.getUid());
+                    } else {
+                        uidOut = null;
+                    }
+                    FetchResponse response = new FetchResponse(msn, flags, uidOut);
+                    responses.add(response);
                 }
-                FetchResponse response = new FetchResponse(msn, flags, uid);
-                responses.add(response);
             }
         } catch (MailboxManagerException e) {
             final String message = "Failed to retrieve flags data";
@@ -213,5 +181,4 @@ public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements Ma
                 handleResponseException(responses, e, message);
             }
     }
-
 }

@@ -17,14 +17,37 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.mailboxmanager.mailbox;
+package org.apache.james.mailboxmanager;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
+import org.apache.james.mailboxmanager.MailboxListener.FlagsUpdated;
 
-/**
- * Provides access to a single Folder.<br />
- */
+public class MockMailboxListenerFlagsUpdate extends  FlagsUpdated {
 
-public interface ImapMailbox extends GeneralMailbox, FlaggedMailbox, EventTriggerMailbox, UidMailbox, SearchableMailbox {
+    public List flags = new ArrayList();    
+
+    public MessageResult subject;
+    public long sessionId;
+    
+    public MockMailboxListenerFlagsUpdate(MessageResult subject, long sessionId) {
+        super();
+        this.subject = subject;
+        this.sessionId = sessionId;
+    }
+
+    public MessageResult getSubject() {
+        return subject;
+    }
+
+    public long getSessionId() {
+        return sessionId;
+    }
+    
+    public Iterator flagsIterator() {
+        return flags.iterator();
+    }
 
 }

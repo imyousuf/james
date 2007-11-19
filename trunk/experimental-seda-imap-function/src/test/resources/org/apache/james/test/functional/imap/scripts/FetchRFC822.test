@@ -30,6 +30,4 @@ S: Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
 S:
 S: Test 01
 S: \)
-# TODO: this is wrong - need to fix event model
-S: \* 1 FETCH \(FLAGS \(\\Seen\)\)
 S: f1 OK FETCH completed.

@@ -29,8 +29,4 @@ S: MIME-Version: 1\.0
 S: Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
 S:
 S: \)
-#
-# TODO: this is not correct
-# This event should not be dispatched!
-S: \* 1 FETCH \(FLAGS \(\)\)
 S: f1 OK FETCH completed.

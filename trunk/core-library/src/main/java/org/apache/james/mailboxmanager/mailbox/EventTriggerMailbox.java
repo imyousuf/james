@@ -40,11 +40,9 @@ public interface EventTriggerMailbox {
      * everyone has removed itself.
      * 
      * @param listener
-     * @param result
-     *            which fields to be returned in MessageResult
      * @throws MailboxManagerException 
      */
-    void addListener(MailboxListener listener, int result) throws MailboxManagerException;
+    void addListener(MailboxListener listener) throws MailboxManagerException;
 
     void removeListener(MailboxListener listener);
 

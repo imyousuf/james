@@ -99,7 +99,6 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
                     responder.respond(response);
                 }
             }
-            
             unsolicitedResponses(session, responder, useUids);
             okComplete(command, tag, responder);
         } catch (UnsupportedCriteriaException e) {
@@ -107,7 +106,6 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
         } catch (MailboxManagerException e) {
             throw new MailboxException(e);
         }
-
     }
 
     private int getNeededMessageResult(FetchData fetch) {
@@ -170,7 +168,7 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
             if (fetch.isSetSeen()
                     && !result.getFlags().contains(Flags.Flag.SEEN)) {
                 mailbox.setFlags(new Flags(Flags.Flag.SEEN), true, false,
-                        GeneralMessageSetImpl.oneUid(result.getUid()), null);
+                        GeneralMessageSetImpl.oneUid(result.getUid()));
                 result.getFlags().add(Flags.Flag.SEEN);
                 ensureFlagsResponse = true;
             }

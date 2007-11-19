@@ -19,21 +19,55 @@
 
 package org.apache.james.mailboxmanager;
 
+import java.util.Iterator;
+
+
 /**
- * Receives Events from a ImapMailbox <br />
- * TODO Maybe use only one receiving method with an MailboxEvent object
+ * Listens to <code>Mailbox</code> events.
  */
 
 public interface MailboxListener {
     
-    void expunged(MessageResult mr);
-    
-    void added(MessageResult result);
-
-    void flagsUpdated(MessageResult result, MailboxListener silentListener);
-    
+    //TODO: replace with event
     void mailboxDeleted();
-    
+    //TODO: replace with event
     void mailboxRenamed(String origName, String newName);
     
+    void event(final Event event);
+    
+    /**
+     * A mailbox event.
+     */
+    public interface Event {
+        /**
+         * Gets the id of the session which  the event.
+         * @return session id
+         */
+        public long getSessionId();
+    }
+    
+    /**
+     * A mailbox event related to a message.
+     */
+    public interface MessageEvent extends Event {
+        /**
+         * Gets the subject of this event.
+         * @return <code>MessageResult</code>, not null
+         */
+        public MessageResult getSubject();
+    }
+    
+    public abstract class Expunged implements MessageEvent {}
+    
+    public abstract class FlagsUpdated implements MessageEvent {
+        
+        /**
+         * Gets an iterator for the system flags changed.
+         * @return <code>Flags.Flag</code> <code>Iterator</code>,
+         * not null
+         */
+        public abstract Iterator flagsIterator();
+    }
+    
+    public abstract class Added implements MessageEvent {}
 }

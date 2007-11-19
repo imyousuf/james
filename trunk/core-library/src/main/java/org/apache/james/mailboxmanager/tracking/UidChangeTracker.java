@@ -28,9 +28,10 @@ import java.util.TreeSet;
 import javax.mail.Flags;
 
 import org.apache.james.mailboxmanager.Constants;
-import org.apache.james.mailboxmanager.MailboxListener;
 import org.apache.james.mailboxmanager.MessageResult;
+import org.apache.james.mailboxmanager.MessageResultUtils;
 import org.apache.james.mailboxmanager.impl.MessageResultImpl;
+import org.apache.james.mailboxmanager.mailbox.GeneralMailbox;
 
 public class UidChangeTracker extends MailboxTracker implements Constants {
 
@@ -53,36 +54,60 @@ public class UidChangeTracker extends MailboxTracker implements Constants {
         for (int i = 0; i < expunged.length; i++) {
             if (expunged[i] != null) {
                 cache.remove(new Long(expunged[i].getUid()));
-                eventDispatcher.expunged(expunged[i]);
+                eventDispatcher.expunged(expunged[i], 0);
             }
         }
     }
-
+    
+    /**
+     * Indicates that the flags on the given messages may have been updated.
+     * @param messageResults results 
+     * @param sessionId id of the session upating the flags
+     * @see #flagsUpdated(MessageResult, long)
+     */
+    public synchronized void flagsUpdated(MessageResult[] messageResults, long sessionId) {
+        if (messageResults != null) {
+            final int length = messageResults.length;
+            for (int i=0;i<length;i++) {
+                flagsUpdated(messageResults[i], sessionId);
+            }
+        }
+    }
+    
+    /**
+     * Indicates that the flags on the given message may have been updated.
+     * @param messageResult result of update
+     * @param sessionId id of the session updating the flags
+     */
+    public synchronized void flagsUpdated(MessageResult messageResult, long sessionId) {
+        if (messageResult != null && MessageResultUtils.isUidIncluded(messageResult)) {
+            final Flags flags = messageResult.getFlags();
+            final long uid = messageResult.getUid();
+            final Long uidLong = new Long(uid);
+            updatedFlags(messageResult, flags, uidLong, sessionId);
+        }
+    }
+    
     public synchronized void found(UidRange range,
-            MessageResult[] messageResults, MailboxListener silentListener) {
+            MessageResult[] messageResults) {
         Set expectedSet = getSubSet(range);
         for (int i = 0; i < messageResults.length; i++) {
-            if (messageResults[i] != null) {
-                long uid = messageResults[i].getUid();
+            final MessageResult messageResult = messageResults[i];
+            if (messageResult != null) {
+                long uid = messageResult.getUid();
                 if (uid>lastScannedUid) {
                     lastScannedUid=uid;
                 }
-                if (expectedSet.contains(new Long(uid))) {
-                    expectedSet.remove(new Long(uid));
-                    if (messageResults[i].getFlags() != null) {
-                        Flags cachedFlags = (Flags) cache.get(new Long(uid));
-                        if (cachedFlags == null
-                                || !messageResults[i].getFlags().equals(
-                                        cachedFlags)) {
-                            eventDispatcher.flagsUpdated(messageResults[i],
-                                    silentListener);
-                            cache.put(new Long(uid), messageResults[i].getFlags());
-                        }
-                    }
+                final Flags flags = messageResult.getFlags();
+                final Long uidLong = new Long(uid);
+                if (expectedSet.contains(uidLong)) {
+                    expectedSet.remove(uidLong);
+                    updatedFlags(messageResult, flags, uidLong, 
+                            GeneralMailbox.ANONYMOUS_SESSION);
                 } else {
-                    cache.put(new Long(uid), messageResults[i].getFlags());
+                    cache.put(uidLong, flags);
                     if (uid > lastUidAtStart) {
-                        eventDispatcher.added(messageResults[i]);
+                        eventDispatcher.added(messageResult, 0);
                     }
                 }
             }
@@ -105,7 +130,22 @@ public class UidChangeTracker extends MailboxTracker implements Constants {
 
             MessageResultImpl mr = new MessageResultImpl();
             mr.setUid(uid);
-            eventDispatcher.expunged(mr);
+            eventDispatcher.expunged(mr, 0);
+        }
+    }
+
+    private void updatedFlags(final MessageResult messageResult, final Flags flags, 
+            final Long uidLong, final long sessionId) {
+        if (flags != null) {
+            Flags cachedFlags = (Flags) cache.get(uidLong);
+            if (cachedFlags == null
+                    || !flags.equals(cachedFlags)) {
+                if (cachedFlags != null) {
+                    eventDispatcher.flagsUpdated(messageResult, sessionId,
+                             cachedFlags, flags);
+                }
+                cache.put(uidLong, flags);
+            }
         }
     }
 
@@ -120,12 +160,11 @@ public class UidChangeTracker extends MailboxTracker implements Constants {
 
     }
 
-    public synchronized void found(MessageResult messageResult,
-            MailboxListener silentListener) {
+    public synchronized void found(MessageResult messageResult) {
         if (messageResult != null) {
             long uid = messageResult.getUid();
             found(new UidRange(uid, uid),
-                    new MessageResult[] { messageResult }, silentListener);
+                    new MessageResult[] { messageResult });
         }
     }
 

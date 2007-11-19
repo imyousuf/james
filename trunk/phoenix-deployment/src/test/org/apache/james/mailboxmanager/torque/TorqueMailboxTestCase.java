@@ -29,6 +29,7 @@ import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.TestUtil;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.impl.MailboxListenerCollector;
+import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 import org.apache.james.mailboxmanager.torque.om.MailboxRow;
 import org.apache.james.mailboxmanager.torque.om.MailboxRowPeer;
 import org.apache.james.mailboxmanager.torque.om.MessageRow;
@@ -49,9 +50,9 @@ public class TorqueMailboxTestCase extends AbstractTorqueTestCase {
         MailboxRow mr = new MailboxRow("#users.tuser.INBOX", 100);
         mr.save();
         mr=MailboxRowPeer.retrieveByName("#users.tuser.INBOX");
-        TorqueMailbox torqueMailbox = new TorqueMailbox(mr, new UidChangeTracker(null,"#users.tuser.INBOX",100),
-                new WriterPreferenceReadWriteLock(),null);
-        torqueMailbox.addListener(new MailboxListenerCollector(), MessageResult.NOTHING);
+        ImapMailbox torqueMailbox = new TorqueMailbox(mr, new UidChangeTracker(null,"#users.tuser.INBOX",100),
+                new WriterPreferenceReadWriteLock(),null, 1);
+        torqueMailbox.addListener(new MailboxListenerCollector());
         assertEquals(0,torqueMailbox.getMessageCount());
         
         long time = System.currentTimeMillis();
@@ -85,7 +86,7 @@ public class TorqueMailboxTestCase extends AbstractTorqueTestCase {
         
         Flags f=new Flags();
         f.add(Flags.Flag.DELETED);
-        torqueMailbox.setFlags(f,true,false, GeneralMessageSetImpl.oneUid(1l), null);
+        torqueMailbox.setFlags(f,true,false, GeneralMessageSetImpl.oneUid(1l));
         MessageResult[] messageResults=torqueMailbox.expunge(GeneralMessageSetImpl.all(),MessageResult.UID);
         assertEquals(1,messageResults.length);
         assertEquals(1l,messageResults[0].getUid());

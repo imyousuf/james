@@ -21,80 +21,66 @@ package org.apache.james.imapserver;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-
-import javax.mail.Flags;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.imapserver.store.MailboxException;
-import org.apache.james.mailboxmanager.MailboxListener;
+import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
+import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
+import org.apache.james.mailboxmanager.util.MailboxEventAnalyser;
 
-public class SelectedMailboxSession extends AbstractLogEnabled implements MailboxListener {
-
-    private ImapSession _session;
-    private boolean _sizeChanged;
+//TODO: manage mailbox deletion
+public class SelectedMailboxSession extends AbstractLogEnabled {
+    
     private ImapMailboxSession mailbox;
+    
+    private final MailboxEventAnalyser events;
 
-    public SelectedMailboxSession(ImapMailboxSession mailbox, ImapSession session) throws MailboxManagerException {
+    public SelectedMailboxSession(ImapMailboxSession mailbox) throws MailboxManagerException {
         this.mailbox = mailbox;
-        _session = session;
-        // TODO make this a weak reference (or make sure deselect() is *always* called).
-        mailbox.addListener(this,MessageResult.MSN | MessageResult.UID);
+        final long sessionId = mailbox.getSessionId();
+        events = new MailboxEventAnalyser(sessionId);
+        mailbox.addListener(events);
     }
 
     public void deselect() {
-        mailbox.removeListener(this);
+        mailbox.removeListener(events);
         mailbox = null;
     }
 
-
-    public void mailboxDeleted() {
-        try {
-            _session.closeConnection("Mailbox " + mailbox.getName() + " has been deleted");
-        } catch (MailboxManagerException e) {
-            getLogger().error("error closing connection", e);
-        }
-    }
-
-
     public boolean isSizeChanged() {
-        return _sizeChanged;
+        return events.isSizeChanged();
     }
 
-    public void setSizeChanged(boolean sizeChanged) {
-        _sizeChanged = sizeChanged;
+    public void reset() {
+        events.reset();
     }
     
-
+    public Iterator getFlagUpdates() throws MailboxManagerException {
+        List results = new ArrayList();
+        for (final Iterator it = events.flagUpdateUids(); it.hasNext();) {
+            Long uid = (Long) it.next();
+            GeneralMessageSet messageSet = GeneralMessageSetImpl.oneUid(uid.longValue());
+            final MessageResult[] messages = mailbox.getMessages(messageSet, MessageResult.FLAGS | MessageResult.MSN);
+            results.addAll(Arrays.asList(messages));
+        }
+        return results.iterator();
+    }
+    
     public void close() throws MailboxManagerException  {
+        mailbox.removeListener(events);
         mailbox.close();
         mailbox=null;
-    }
-
-    public void expunged(MessageResult mr) {
-    }
-
-    public void added(MessageResult mr) {
-       _sizeChanged = true;
-    }
-
-    public void flagsUpdated(MessageResult mr,MailboxListener silentListener) {
     }
 
     public ImapMailboxSession getMailbox() {
         return mailbox;
     }
 
-    public void mailboxRenamed(String origName, String newName) {
-        // TODO Implementation
+    public void setSilent(boolean silent) {
+        events.setSilentFlagChanges(silent);
     }
-
 }

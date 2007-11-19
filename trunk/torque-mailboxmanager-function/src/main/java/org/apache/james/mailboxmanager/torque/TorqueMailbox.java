@@ -84,13 +84,21 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
     
     private final ReadWriteLock lock;
     
-    TorqueMailbox(final MailboxRow mailboxRow, final UidChangeTracker tracker, final ReadWriteLock lock, final Log log) {
+    private final long sessionId;
+    
+    TorqueMailbox(final MailboxRow mailboxRow, final UidChangeTracker tracker, final ReadWriteLock lock, 
+            final Log log, final long sessionId) {
         setLog(log);
+        this.sessionId = sessionId;
         this.mailboxRow = mailboxRow;
         this.tracker = tracker;
         this.lock = lock;
         tracker.addMailboxListener(getEventDispatcher());
         getUidToKeyConverter().setUidValidity(mailboxRow.getUidValidity());
+    }
+    
+    public long getSessionId() {
+        return sessionId;
     }
 
     public int getMessageResultTypes() {
@@ -201,7 +209,7 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
                         MessageResult messageResult = fillMessageResult(messageRow,
                                 result | MessageResult.UID);
                         checkForScanGap(uid);
-                        getUidChangeTracker().found(messageResult, null);
+                        getUidChangeTracker().found(messageResult);
                         return messageResult;
                     } catch (Exception e) {
                         throw new MailboxManagerException(e);
@@ -227,7 +235,7 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
                 Criteria criteria=criteriaForMessageSet(set);
                 List messageRows=mailboxRow.getMessageRows(criteria);
                 MessageResult[] messageResults=fillMessageResult(messageRows, MessageResult.UID);
-                getUidChangeTracker().found(uidRangeForMessageSet(set), messageResults, null);
+                getUidChangeTracker().found(uidRangeForMessageSet(set), messageResults);
             }
         }
         
@@ -297,7 +305,7 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
         MessageResult[] messageResults = fillMessageResult(l, result
                 | MessageResult.UID | MessageResult.FLAGS);
         checkForScanGap(range.getFromUid());
-        getUidChangeTracker().found(range, messageResults, null);
+        getUidChangeTracker().found(range, messageResults);
         return messageResults;
     }
 
@@ -571,7 +579,7 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
                         MessageResult messageResult=fillMessageResult((MessageRow) messageRows.get(0), result | MessageResult.UID);
                         if (messageResult!=null) {
                             checkForScanGap(messageResult.getUid());
-                            getUidChangeTracker().found(messageResult,null);
+                            getUidChangeTracker().found(messageResult);
                         }
 
                         return messageResult;
@@ -660,12 +668,12 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
     }
 
     public void setFlags(Flags flags, boolean value, boolean replace,
-            GeneralMessageSet set, MailboxListener silentListener)
+            GeneralMessageSet set)
             throws MailboxManagerException {
         try {
             lock.writeLock().acquire();
             try {
-                doSetFlags(flags, value, replace, set, silentListener);
+                doSetFlags(flags, value, replace, set);
             } finally {
                 lock.writeLock().release();
             }
@@ -675,7 +683,7 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
         }
     }
 
-    private void doSetFlags(Flags flags, boolean value, boolean replace, GeneralMessageSet set, MailboxListener silentListener) throws MailboxManagerException {
+    private void doSetFlags(Flags flags, boolean value, boolean replace, GeneralMessageSet set) throws MailboxManagerException {
         checkAccess();
         set=toUidSet(set);  
         if (!set.isValid() || set.getType()==GeneralMessageSet.TYPE_NOTHING) {
@@ -689,7 +697,7 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
                     MessageResult.UID | MessageResult.FLAGS);
             UidRange uidRange=uidRangeForMessageSet(set);
             checkForScanGap(uidRange.getFromUid());
-            getUidChangeTracker().found(uidRange, beforeResults, null);
+            getUidChangeTracker().found(uidRange, beforeResults);
             for (Iterator iter = messageRows.iterator(); iter.hasNext();) {
                 final MessageRow messageRow = (MessageRow) iter.next();
                 final MessageFlags messageFlags = messageRow.getMessageFlags();
@@ -710,13 +718,14 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
             }
             final MessageResult[] afterResults = fillMessageResult(messageRows,
                     MessageResult.UID | MessageResult.FLAGS);
-            tracker.found(uidRange, afterResults, silentListener);
+            tracker.flagsUpdated(afterResults, sessionId);
+            tracker.found(uidRange, afterResults);
         } catch (Exception e) {
             throw new MailboxManagerException(e);
         }
     }
 
-    public void addListener(MailboxListener listener, int result) throws MailboxManagerException {
+    public void addListener(MailboxListener listener) throws MailboxManagerException {
         getEventDispatcher().addMailboxListener(listener);
         checkAccess();
     }
@@ -940,7 +949,7 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
             lock.writeLock().acquire();
             try {
                 final Flags flags = new Flags(Flags.Flag.DELETED);
-                doSetFlags(flags, true, false, set, null);
+                doSetFlags(flags, true, false, set);
                 doExpunge(set, MessageResult.NOTHING);
             } finally {
                 lock.writeLock().release();

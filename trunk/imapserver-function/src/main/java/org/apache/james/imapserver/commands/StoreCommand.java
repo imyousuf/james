@@ -25,9 +25,9 @@ import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
+import org.apache.james.imapserver.SelectedMailboxSession;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.GeneralMessageSet;
-import org.apache.james.mailboxmanager.MailboxListener;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
@@ -64,41 +64,46 @@ class StoreCommand extends SelectedStateCommand implements UidEnabledCommand
         Flags flags = parser.flagList( request );
         parser.endLine( request );
 
-        ImapMailboxSession mailbox = session.getSelected().getMailbox();
-        MailboxListener silentListener = null;
-
-        final boolean replace;
-        final boolean value;
-        if (directive.getSign() < 0) {
-            value=false;
-            replace=false;
-        }
-        else if (directive.getSign() > 0) {
-            value=true;
-            replace=false;
-        }
-        else {
-            replace=true;
-            value=true;
-        }
+        final SelectedMailboxSession selected = session.getSelected();
         try {
             if (directive.isSilent()) {
-                silentListener = session.getSelected().getMailbox();
+                selected.setSilent(true);
             }
-            for (int i = 0; i < idSet.length; i++) {
-                final GeneralMessageSet messageSet = GeneralMessageSetImpl
-                        .range(idSet[i].getLowVal(), idSet[i].getHighVal(),
-                                useUids);
+            ImapMailboxSession mailbox = selected.getMailbox();
 
-                mailbox.setFlags(flags, value, replace, messageSet,
-                        silentListener);
+            final boolean replace;
+            final boolean value;
+            if (directive.getSign() < 0) {
+                value=false;
+                replace=false;
             }
-        } catch (MailboxManagerException e) {
-            throw new MailboxException(e);
+            else if (directive.getSign() > 0) {
+                value=true;
+                replace=false;
+            }
+            else {
+                replace=true;
+                value=true;
+            }
+            try {
+                for (int i = 0; i < idSet.length; i++) {
+                    final GeneralMessageSet messageSet = GeneralMessageSetImpl
+                    .range(idSet[i].getLowVal(), idSet[i].getHighVal(),
+                            useUids);
+
+                    mailbox.setFlags(flags, value, replace, messageSet);
+                }
+            } catch (MailboxManagerException e) {
+                throw new MailboxException(e);
+            }
+
+        } finally {
+            selected.setSilent(false);
         }
         boolean omitExpunged = (!useUids);
         session.unsolicitedResponses( response, omitExpunged , useUids);
         response.commandComplete( this );
+        
     }
 
 

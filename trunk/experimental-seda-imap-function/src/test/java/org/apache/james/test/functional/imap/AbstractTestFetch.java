@@ -86,16 +86,16 @@ public abstract class AbstractTestFetch extends BaseTestSelectedState {
     public void testFetchRFC822HeaderITALY() throws Exception {
         scriptTest("FetchRFC822Header", Locale.ITALY);
     }
-    
-  public void testFetchInternalDateUS() throws Exception {
-      scriptTest("FetchInternalDate", Locale.US);
-  }  
-  
-  public void testFetchInternalDateITALY() throws Exception {
-      scriptTest("FetchInternalDate", Locale.ITALY);
-  } 
-  
-  public void testFetchInternalDateKOREA() throws Exception {
-      scriptTest("FetchInternalDate", Locale.KOREA);
-  } 
+
+    public void testFetchInternalDateUS() throws Exception {
+        scriptTest("FetchInternalDate", Locale.US);
+    }  
+
+    public void testFetchInternalDateITALY() throws Exception {
+        scriptTest("FetchInternalDate", Locale.ITALY);
+    } 
+
+    public void testFetchInternalDateKOREA() throws Exception {
+        scriptTest("FetchInternalDate", Locale.KOREA);
+    } 
 }

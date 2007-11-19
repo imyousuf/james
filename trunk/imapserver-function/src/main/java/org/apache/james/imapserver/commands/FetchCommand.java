@@ -114,7 +114,7 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
             if (fetch.isSetSeen()
                     && !result.getFlags().contains(Flags.Flag.SEEN)) {
                 mailbox.setFlags(new Flags(Flags.Flag.SEEN), true, false,
-                        GeneralMessageSetImpl.oneUid(result.getUid()), null);
+                        GeneralMessageSetImpl.oneUid(result.getUid()));
                 result.getFlags().add(Flags.Flag.SEEN);
                 ensureFlagsResponse = true;
             }

@@ -22,7 +22,6 @@ package org.apache.james.mailboxmanager.wrapper;
 import javax.mail.Flags;
 
 import org.apache.james.mailboxmanager.GeneralMessageSet;
-import org.apache.james.mailboxmanager.MailboxListener;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.mailbox.FlaggedMailbox;
@@ -54,8 +53,8 @@ public class FlaggedSessionMailboxWrapper extends SessionMailboxWrapper {
         return ((FlaggedMailbox) mailbox).getUnseenCount();
     }
 
-    public void setFlags(Flags flags, boolean value, boolean replace, GeneralMessageSet set, MailboxListener silentListener) throws MailboxManagerException {
-        ((FlaggedMailbox) mailbox).setFlags(flags, value, replace,toUidSet(set), silentListener);
+    public void setFlags(Flags flags, boolean value, boolean replace, GeneralMessageSet set) throws MailboxManagerException {
+        ((FlaggedMailbox) mailbox).setFlags(flags, value, replace,toUidSet(set));
     }
     
 
