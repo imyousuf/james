@@ -34,6 +34,7 @@ import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.ListResultImpl;
 import org.apache.james.mailboxmanager.mailbox.GeneralMailbox;
 import org.apache.james.mailboxmanager.mailbox.GeneralMailboxSession;
+import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 import org.apache.james.mailboxmanager.mailbox.MailboxSession;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
@@ -115,9 +116,10 @@ public class TorqueMailboxManager implements MailboxManager {
                         getMailboxCache().add(mailboxName, tracker);
                     }
                     getLog().info("created ImapMailboxSession "+mailboxName);
-                    final TorqueMailbox torqueMailbox = new TorqueMailbox(
-                                                mailboxRow, tracker, lock, getLog());
-                    final ImapMailboxSessionWrapper wrapper = new ImapMailboxSessionWrapper(torqueMailbox);
+                    final ImapMailbox torqueMailbox = new TorqueMailbox(
+                                                mailboxRow, tracker, lock, getLog(), random.nextLong());
+                    final ImapMailboxSessionWrapper wrapper 
+                        = new ImapMailboxSessionWrapper(torqueMailbox);
                     return wrapper;
                 } else {
                     getLog().info("Mailbox '" + mailboxName + "' not found.");

@@ -70,6 +70,10 @@ public class ImapMailboxSessionWrapper extends FlaggedSessionMailboxWrapper
         return addMsnToResults(((SearchableMailbox)mailbox).search(set, searchTerm, noMsnResult(result)),result);
     }
 
+    public long getSessionId() {
+        return ((ImapMailbox) mailbox).getSessionId();
+    }
+
 
 
 

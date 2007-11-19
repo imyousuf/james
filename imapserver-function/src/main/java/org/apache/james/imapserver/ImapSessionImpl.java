@@ -20,6 +20,8 @@
 package org.apache.james.imapserver;
 
 
+import java.util.Iterator;
+
 import javax.mail.Flags;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
@@ -65,14 +67,7 @@ public final class ImapSessionImpl extends AbstractLogEnabled implements ImapSes
         this.clientHostName = clientHostName;
         this.clientAddress = clientAddress;
     }
-
-
-
-    private MailboxManagerProvider getMailboxManagerProvider()
-    {
-        return mailboxManagerProvider;
-    }
-
+    
     public void unsolicitedResponses( ImapResponse request, boolean useUid ) throws MailboxException {
         unsolicitedResponses(request, false, useUid);
     }
@@ -88,13 +83,11 @@ public final class ImapSessionImpl extends AbstractLogEnabled implements ImapSes
                             .getMessageCount());
                     response.recentResponse(selected.getMailbox()
                             .getRecentCount(true));
-                    selected.setSizeChanged(false);
                 }
 
-                // Message updates
-                MessageResult[] flagUpdates = selected.getMailbox().getFlagEvents(true);
-               for (int i = 0; i < flagUpdates.length; i++) {
-                    MessageResult mr = flagUpdates[i];
+               // Message updates
+               for (final Iterator it = selected.getFlagUpdates(); it.hasNext(); ) {
+                    MessageResult mr = (MessageResult) it.next();
                     int msn = mr.getMsn();
                     Flags updatedFlags = mr.getFlags();
                     StringBuffer out = new StringBuffer("FLAGS ");
@@ -115,6 +108,7 @@ public final class ImapSessionImpl extends AbstractLogEnabled implements ImapSes
                         response.expungeResponse(mr.getMsn());
                     }
                 }
+                selected.reset();
             }
         } catch (MailboxManagerException e) {
             throw new MailboxException(e);
@@ -166,7 +160,7 @@ public final class ImapSessionImpl extends AbstractLogEnabled implements ImapSes
 
     public void setSelected( ImapMailboxSession mailbox, boolean readOnly ) throws MailboxManagerException
     {
-        SelectedMailboxSession sessionMailbox = new SelectedMailboxSession(mailbox, this);
+        SelectedMailboxSession sessionMailbox = new SelectedMailboxSession(mailbox);
         setupLogger(sessionMailbox);
         this.state = ImapSessionState.SELECTED;
         closeMailbox();

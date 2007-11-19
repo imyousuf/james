@@ -22,7 +22,6 @@ package org.apache.james.mailboxmanager.mailbox;
 import javax.mail.Flags;
 
 import org.apache.james.mailboxmanager.GeneralMessageSet;
-import org.apache.james.mailboxmanager.MailboxListener;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 
@@ -76,13 +75,9 @@ public interface FlaggedMailbox extends GeneralMailbox {
      *            replace all Flags with this flags, value has to be true
      * @param set
      *            the range of messages
-     * @param silentListener
-     *            IMAP requires the ability of setting Flags without getting an
-     *            acknowledge TODO this may be handled only inside of a session
      * @throws MailboxManagerException
      */
 
-    void setFlags(Flags flags, boolean value, boolean replace, GeneralMessageSet set,
-            MailboxListener silentListener) throws MailboxManagerException;
+    void setFlags(Flags flags, boolean value, boolean replace, GeneralMessageSet set) throws MailboxManagerException;
 
 }

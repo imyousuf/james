@@ -77,4 +77,8 @@ public class SessionMailboxWrapper extends NumberStableSessionWrapper implements
         mailbox.remove(toUidSet(set));
     }
 
+    public long getSessionId() {
+        return mailbox.getSessionId();
+    }
+
 }

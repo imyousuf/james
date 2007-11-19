@@ -29,6 +29,10 @@ import org.apache.james.mailboxmanager.MessageResult;
 
 public interface GeneralMailbox extends Mailbox, EventTriggerMailbox {
     
+    public static final long ANONYMOUS_SESSION = 0;
+    
+    public long getSessionId();
+    
     /**
      * 
      * What the Mailbox is able to put out as an result. e.g.: message number, uid, key, MimeMessage, Size, internal Date, flags

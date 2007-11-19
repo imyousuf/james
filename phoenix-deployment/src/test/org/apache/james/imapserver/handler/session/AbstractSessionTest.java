@@ -188,7 +188,7 @@ public abstract class AbstractSessionTest extends MockObjectTestCase implements 
     
     public void deleteAll(String folder) throws MailboxManagerException {
         ImapMailboxSession mailbox=getImapMailboxSession(folder);
-        mailbox.setFlags(new Flags(Flag.DELETED),true,false,GeneralMessageSetImpl.all(),null);
+        mailbox.setFlags(new Flags(Flag.DELETED),true,false,GeneralMessageSetImpl.all());
         mailbox.expunge(GeneralMessageSetImpl.all(),MessageResult.NOTHING);
         mailbox.close();
     }
@@ -238,12 +238,12 @@ public abstract class AbstractSessionTest extends MockObjectTestCase implements 
         Set responseSet=new HashSet(rec);
         responseSet.removeAll(requiredResponseSet);
         requiredResponseSet.removeAll(new HashSet(rec));
-        if (responseSet.size()>0) {
-            System.out.println("Not awaitet responses: "+responseSet);
-        }
-        if (requiredResponseSet.size()>0) {
-            System.out.println("Missed responses: "+requiredResponseSet);
-        }
+//        if (responseSet.size()>0) {
+//            System.out.println("Not awaitet responses: "+responseSet);
+//        }
+//        if (requiredResponseSet.size()>0) {
+//            System.out.println("Missed responses: "+requiredResponseSet);
+//        }
         assertEquals("Missed responses: "+requiredResponseSet,0,requiredResponseSet.size());
         assertEquals("Not awaitet responses: "+responseSet,0,responseSet.size());
         assertEquals("Status respons differs",counter+" "+command.getExpectedStatusResponse(),statusResponse);
@@ -274,7 +274,7 @@ public abstract class AbstractSessionTest extends MockObjectTestCase implements 
     
     public void setFlags(String mailboxName,long fromUid,long toUid,Flags flags, boolean value, boolean replace) throws MailboxManagerException {
         ImapMailboxSession mailbox=getImapMailboxSession(mailboxName);
-        mailbox.setFlags(flags, value, replace, GeneralMessageSetImpl.uidRange(fromUid, toUid), null);
+        mailbox.setFlags(flags, value, replace, GeneralMessageSetImpl.uidRange(fromUid, toUid));
         mailbox.close();
     }
     private ImapMailboxSession getImapMailboxSession(String mailboxName) throws MailboxManagerException {

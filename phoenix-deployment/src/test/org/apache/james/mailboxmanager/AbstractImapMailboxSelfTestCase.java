@@ -47,7 +47,7 @@ public abstract class AbstractImapMailboxSelfTestCase extends TestCase {
         mailboxManager.createMailbox(INBOX);
         mailbox=mailboxManager.getImapMailboxSession(INBOX);
         collector=new MailboxListenerCollector();
-        mailbox.addListener(collector, 0);
+        mailbox.addListener(collector);
         assertNotNull(mailbox);
     }
     
@@ -74,7 +74,7 @@ public abstract class AbstractImapMailboxSelfTestCase extends TestCase {
         assertNotNull(mr);
         assertEquals(6, mr.getUid());
         assertEquals(6, mr.getMsn());
-        mailbox.setFlags(new Flags(Flags.Flag.DELETED), true, false, GeneralMessageSetImpl.uidRange(1,3), null);
+        mailbox.setFlags(new Flags(Flags.Flag.DELETED), true, false, GeneralMessageSetImpl.uidRange(1,3));
         mailbox.expunge(GeneralMessageSetImpl.all(), 0);
         mailbox.getExpungedEvents(true);
         mr=mailbox.getFirstUnseen(MessageResult.UID | MessageResult.MSN);
@@ -89,7 +89,7 @@ public abstract class AbstractImapMailboxSelfTestCase extends TestCase {
             assertEquals(i+1, mr.getUid());
             assertEquals(i+1, mr.getMsn());
         }
-        mailbox.setFlags(new Flags(Flags.Flag.DELETED), true, false, GeneralMessageSetImpl.uidRange(2, 4), null);
+        mailbox.setFlags(new Flags(Flags.Flag.DELETED), true, false, GeneralMessageSetImpl.uidRange(2, 4));
         final MessageResult[] expungeResult1=mailbox.expunge(GeneralMessageSetImpl.all(), MessageResult.UID | MessageResult.MSN);
         checkMessageResults(new long[] {2,3,4},new int[] {2,3,4},expungeResult1);
         
@@ -115,8 +115,8 @@ public abstract class AbstractImapMailboxSelfTestCase extends TestCase {
         final MessageResult[] getResult3 = mailbox.getMessages(GeneralMessageSetImpl.all(), MessageResult.UID | MessageResult.MSN);
         checkMessageResults(new long[] {1,5,6,7,8,9,10},new int[] {1,2,3,4,5,6,7},getResult3);
         
-        mailbox.setFlags(new Flags(Flags.Flag.DELETED), true, false, GeneralMessageSetImpl.msnRange(2,4), null);
-        mailbox.setFlags(new Flags(Flags.Flag.DELETED), true, false, GeneralMessageSetImpl.oneMsn(6), null);
+        mailbox.setFlags(new Flags(Flags.Flag.DELETED), true, false, GeneralMessageSetImpl.msnRange(2,4));
+        mailbox.setFlags(new Flags(Flags.Flag.DELETED), true, false, GeneralMessageSetImpl.oneMsn(6));
         
         final MessageResult[] expungeResult2=mailbox.expunge(GeneralMessageSetImpl.all(), MessageResult.UID | MessageResult.MSN);
         checkMessageResults(new long[] {5,6,7,9},new int[] {2,3,4,6},expungeResult2);

@@ -17,14 +17,23 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.mailboxmanager.mailbox;
+package org.apache.james.mailboxmanager.impl;
 
+import java.util.ArrayList;
+import java.util.List;
 
+import org.apache.james.mailboxmanager.MailboxListener;
 
-/**
- * Provides access to a single Folder.<br />
- */
+public class EventCollector implements MailboxListener {
 
-public interface ImapMailbox extends GeneralMailbox, FlaggedMailbox, EventTriggerMailbox, UidMailbox, SearchableMailbox {
+    public final List events = new ArrayList();
+    
+    public void event(Event event) {
+        events.add(event);
+    }
+
+    public void mailboxDeleted() {}
+
+    public void mailboxRenamed(String origName, String newName) {}
 
 }

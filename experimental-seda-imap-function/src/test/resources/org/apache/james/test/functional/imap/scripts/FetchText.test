@@ -21,6 +21,4 @@ C: f1 FETCH 1 (BODY[TEXT])
 S: \* 1 FETCH \(FLAGS \(\\Seen\) BODY\[TEXT\] \{9\}
 S: Test 01
 S: \)
-# TODO: this is wrong - need to fix event model
-S: \* 1 FETCH \(FLAGS \(\\Seen\)\)
 S: f1 OK FETCH completed.

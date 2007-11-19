@@ -39,7 +39,7 @@ public class MailboxListenerCollector implements MailboxListener {
         expungedList.add(mr);
     }
 
-    public void flagsUpdated(MessageResult mr, MailboxListener silentListener) {
+    public void flagsUpdated(MessageResult mr) {
         flaggedList.add(mr);
     }
     
@@ -74,6 +74,20 @@ public class MailboxListenerCollector implements MailboxListener {
     }
 
     public void mailboxRenamed(String newName) {
+    }
+
+    public void event(Event event) {
+        if (event instanceof MessageEvent) {
+            final MessageEvent messageEvent = (MessageEvent) event;
+            final MessageResult subject = messageEvent.getSubject();
+            if (event instanceof Added) {
+                added(subject);
+            } else if (event instanceof Expunged) {
+                expunged(subject);
+            } else if (event instanceof FlagsUpdated) {
+                flagsUpdated(subject);
+            }
+        }
     }
 
 }

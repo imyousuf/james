@@ -66,7 +66,7 @@ public abstract class NumberStableSessionWrapper extends AbstractGeneralMailbox 
     }
 
     public void init() throws MailboxManagerException {
-        mailbox.addListener(eventDispatcher, MessageResult.UID);
+        mailbox.addListener(eventDispatcher);
         getNumberCache();
         eventDispatcher.addMailboxListener(this);        
     }
@@ -170,15 +170,13 @@ public abstract class NumberStableSessionWrapper extends AbstractGeneralMailbox 
 
     public void expunged(MessageResult mr) {
         getLog().debug("Expunged: "+mr);
-       expungedEventList.add(mr);
+        expungedEventList.add(mr);
     }
 
-    public synchronized void flagsUpdated(MessageResult mr,
-            MailboxListener silentListener) {
+    public synchronized void flagsUpdated(MessageResult mr, long sessionId) {
         final long uid = mr.getUid();
         final Long uidObject = new Long(uid);
-        if (silentListener != this
-                || flagEventMap.containsKey(uidObject)) {
+        if (sessionId != getSessionId() && !flagEventMap.containsKey(uidObject)) {
             // if there has been an external update in the past we should inform
             // about the newest value, even if in silent mode
             
@@ -190,6 +188,24 @@ public abstract class NumberStableSessionWrapper extends AbstractGeneralMailbox 
         }
     }
 
+    /**
+     * @see org.apache.james.mailboxmanager.MailboxListener#event(org.apache.james.mailboxmanager.MailboxListener.Event)
+     */
+    public void event(Event event) {
+        if (event instanceof MessageEvent) {
+            final long sessionId = event.getSessionId();
+            final MessageEvent messageEvent = (MessageEvent) event;
+            final MessageResult result = messageEvent.getSubject();
+            if (event instanceof Added) {
+                added(result);
+            } else if (event instanceof Expunged) {
+                expunged(result);
+            } else if (event instanceof FlagsUpdated) {
+                flagsUpdated(result, sessionId);
+            }
+        }
+    }
+    
     public void mailboxDeleted() {
         // TODO Auto-generated method stub
 
@@ -200,7 +216,7 @@ public abstract class NumberStableSessionWrapper extends AbstractGeneralMailbox 
 
     }
     
-    public void addListener(MailboxListener listener, int result) {
+    public void addListener(MailboxListener listener) {
         eventDispatcher.addMailboxListener(listener);
     }
 

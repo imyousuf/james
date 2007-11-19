@@ -36,7 +36,6 @@ import org.apache.james.imapserver.processor.base.AuthorizationException;
 import org.apache.james.imapserver.processor.base.ImapSessionUtils;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.GeneralMessageSet;
-import org.apache.james.mailboxmanager.MailboxListener;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
@@ -69,7 +68,6 @@ public class StoreProcessor extends AbstractImapRequestProcessor {
             AuthorizationException, ProtocolException {
 
         ImapMailboxSession mailbox = ImapSessionUtils.getMailbox(session);
-        MailboxListener silentListener = null;
 
         final boolean replace;
         final boolean value;
@@ -84,16 +82,12 @@ public class StoreProcessor extends AbstractImapRequestProcessor {
             value = true;
         }
         try {
-            if (directive.isSilent()) {
-                silentListener = ImapSessionUtils.getMailbox(session);
-            }
             for (int i = 0; i < idSet.length; i++) {
                 final GeneralMessageSet messageSet = GeneralMessageSetImpl
                         .range(idSet[i].getLowVal(), idSet[i].getHighVal(),
                                 useUids);
 
-                mailbox.setFlags(flags, value, replace, messageSet,
-                        silentListener);
+                mailbox.setFlags(flags, value, replace, messageSet);
             }
         } catch (MailboxManagerException e) {
             throw new MailboxException(e);

@@ -49,5 +49,6 @@ public interface ImapMailboxSession extends ImapMailbox, MailboxListener, Genera
     Quota[] getQuota();
 
     boolean isSelectable();
+
     
 }

@@ -31,15 +31,8 @@ C: Hello Joe, could we change that to 4:00pm tomorrow?
 C:
 S: \* 5 EXISTS
 S: \* 1 RECENT
-# TODO: this looks wrong to me
-S: \* 1 FETCH \(FLAGS \(\)\)
-S: \* 2 FETCH \(FLAGS \(\)\)
-S: \* 3 FETCH \(FLAGS \(\)\)
-S: \* 4 FETCH \(FLAGS \(\)\)
 S: A004 OK APPEND completed.
 
 C: F11 FETCH 5 INTERNALDATE
 S: \* 5 FETCH \(INTERNALDATE \"17-Jul-1996 09:44:25 \+0000\"\)
-# TODO: this looks wrong to me
-S: \* 5 FETCH \(FLAGS \(\)\)
 S: F11 OK FETCH completed.
