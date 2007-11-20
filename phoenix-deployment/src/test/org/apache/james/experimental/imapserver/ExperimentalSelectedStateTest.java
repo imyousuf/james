@@ -47,11 +47,6 @@ public class ExperimentalSelectedStateTest extends AbstractTestSelectedState {
         //super.testFetchSingleMessage();
     }
 
-    public void testStoreUS() throws Exception {
-//      STORE FLAGS.SILENT does not work
-//        super.testStore();
-    }
-
     public void testUidUS() throws Exception {
         // UID fetch not working very well
         // super.testUid();
@@ -83,11 +78,6 @@ public class ExperimentalSelectedStateTest extends AbstractTestSelectedState {
         //super.testFetchSingleMessage();
     }
 
-    public void testStoreKOREA() throws Exception {
-//      STORE FLAGS.SILENT does not work
-//        super.testStore();
-    }
-
     public void testUidKOREA() throws Exception {
         // UID fetch not working very well
         // super.testUid();
@@ -116,11 +106,6 @@ public class ExperimentalSelectedStateTest extends AbstractTestSelectedState {
         // BODY octet count is buggy.
         // The total size of the message is ITALYed rather than the size of the part
         //super.testFetchSingleMessage();
-    }
-
-    public void testStoreITALY() throws Exception {
-//      STORE FLAGS.SILENT does not work
-//        super.testStore();
     }
 
     public void testUidITALY() throws Exception {

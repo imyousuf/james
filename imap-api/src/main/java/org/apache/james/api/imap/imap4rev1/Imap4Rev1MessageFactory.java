@@ -29,7 +29,6 @@ import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.api.imap.message.FetchData;
 import org.apache.james.api.imap.message.IdRange;
 import org.apache.james.api.imap.message.StatusDataItems;
-import org.apache.james.api.imap.message.StoreDirective;
 
 /**
  * Creates messages.
@@ -87,8 +86,8 @@ public interface Imap4Rev1MessageFactory {
 
     public ImapMessage createStatusMessage(final ImapCommand command, final String mailboxName, final StatusDataItems statusDataItems, final String tag) ;
 
-    public ImapMessage createStoreMessage(final ImapCommand command, final IdRange[] idSet, final StoreDirective directive, final Flags flags, 
-         final boolean useUids, final String tag); 
+    public ImapMessage createStoreMessage(final ImapCommand command, final IdRange[] idSet, boolean silent, Boolean sign, 
+         final Flags flags, final boolean useUids, final String tag); 
     
     public ImapMessage createSubscribeMessage(final ImapCommand command, final String mailboxName, final String tag); 
 

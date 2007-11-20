@@ -19,6 +19,8 @@
 
 package org.apache.james.mailboxmanager.mailbox;
 
+import java.util.Iterator;
+
 import javax.mail.Flags;
 
 import org.apache.james.mailboxmanager.GeneralMessageSet;
@@ -75,9 +77,12 @@ public interface FlaggedMailbox extends GeneralMailbox {
      *            replace all Flags with this flags, value has to be true
      * @param set
      *            the range of messages
+     * @param result fetch group for results 
+     * @return {@link MessageResult} <code>Iterator</code> containing messages
+     * whose flags have been updated, not null
      * @throws MailboxManagerException
      */
-
-    void setFlags(Flags flags, boolean value, boolean replace, GeneralMessageSet set) throws MailboxManagerException;
+    Iterator setFlags(Flags flags, boolean value, boolean replace, 
+            GeneralMessageSet set, int result) throws MailboxManagerException;
 
 }

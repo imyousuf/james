@@ -29,6 +29,7 @@ import org.apache.james.imapserver.SelectedMailboxSession;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxManagerException;
+import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 
@@ -91,7 +92,7 @@ class StoreCommand extends SelectedStateCommand implements UidEnabledCommand
                     .range(idSet[i].getLowVal(), idSet[i].getHighVal(),
                             useUids);
 
-                    mailbox.setFlags(flags, value, replace, messageSet);
+                    mailbox.setFlags(flags, value, replace, messageSet, MessageResult.NOTHING);
                 }
             } catch (MailboxManagerException e) {
                 throw new MailboxException(e);

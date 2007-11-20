@@ -19,11 +19,14 @@
 
 package org.apache.james.mailboxmanager.wrapper;
 
+import java.util.Iterator;
+
 import javax.mail.Flags;
 
 import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
+import org.apache.james.mailboxmanager.impl.MessageResultImpl;
 import org.apache.james.mailboxmanager.mailbox.FlaggedMailbox;
 
 public class FlaggedSessionMailboxWrapper extends SessionMailboxWrapper {
@@ -53,9 +56,34 @@ public class FlaggedSessionMailboxWrapper extends SessionMailboxWrapper {
         return ((FlaggedMailbox) mailbox).getUnseenCount();
     }
 
-    public void setFlags(Flags flags, boolean value, boolean replace, GeneralMessageSet set) throws MailboxManagerException {
-        ((FlaggedMailbox) mailbox).setFlags(flags, value, replace,toUidSet(set));
+    public Iterator setFlags(Flags flags, boolean value, boolean replace, GeneralMessageSet set, int result) throws MailboxManagerException {
+        final Iterator results = ((FlaggedMailbox) mailbox).setFlags(flags, value, replace,toUidSet(set), result);
+        return new MsnIterator(results, getNumberCache());
     }
     
+    private static final class MsnIterator implements Iterator {
+        private final Iterator it;
+        private final UidToMsnBidiMap map;
+        
+        public MsnIterator(final Iterator it, final UidToMsnBidiMap map) {
+            this.it = it;
+            this.map = map;
+        }
+        
+        public boolean hasNext() {
+            return it.hasNext();
+        }
 
+        public Object next() {
+            final MessageResult next = (MessageResult) it.next();
+            final MessageResultImpl result = new MessageResultImpl(next);
+            result.setMsn(map.getMsn(result.getUid()));
+            return result;
+        }
+
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
+        
+    }
 }

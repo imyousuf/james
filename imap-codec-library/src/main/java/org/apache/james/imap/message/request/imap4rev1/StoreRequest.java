@@ -22,30 +22,67 @@ import javax.mail.Flags;
 
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.message.IdRange;
-import org.apache.james.api.imap.message.StoreDirective;
 import org.apache.james.imap.message.request.base.AbstractImapRequest;
 
 public class StoreRequest extends AbstractImapRequest {
+    
     private final IdRange[] idSet;
-
-    private final StoreDirective directive;
 
     private final Flags flags;
 
     private final boolean useUids;
+    
+    private final boolean silent;
+    private final boolean signedMinus;
+    private final boolean signedPlus;
 
     public StoreRequest(final ImapCommand command, final IdRange[] idSet,
-            final StoreDirective directive, final Flags flags,
-            final boolean useUids, final String tag) {
+            final boolean silent, final Flags flags,
+            final boolean useUids, final String tag, final Boolean sign) {
         super(tag, command);
         this.idSet = idSet;
-        this.directive = directive;
+        this.silent = silent;
         this.flags = flags;
         this.useUids = useUids;
+        if (sign == null) {
+            signedMinus = false;
+            signedPlus = false;
+        } else if (sign.booleanValue()) {
+            signedMinus = false;
+            signedPlus = true;
+        } else {
+            signedMinus = true;
+            signedPlus = false;
+        }
     }
 
-    public final StoreDirective getDirective() {
-        return directive;
+    /**
+     * Is this store silent?
+     * @return true if store silent, 
+     * false otherwise
+     */
+    public final boolean isSilent() {
+        return silent;
+    }
+    
+    /**
+     * Is the store signed MINUS?
+     * Note that {@link #isSignedPlus()} must be false
+     * when this property is true.
+     * @return true if the store is subtractive
+     */
+    public final boolean isSignedMinus() {
+        return signedMinus;
+    }
+
+    /**
+     * Is the store signed PLUS?
+     * Note that {@link #isSignedMinus()} must be false
+     * when this property is true.
+     * @return true if the store is additive
+     */
+    public final boolean isSignedPlus() {
+        return signedPlus;
     }
 
     public final Flags getFlags() {

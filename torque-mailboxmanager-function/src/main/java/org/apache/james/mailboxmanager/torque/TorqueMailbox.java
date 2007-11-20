@@ -23,6 +23,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -375,6 +376,10 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
             messageResult.setFullMessage(createFullContent(messageRow, messageResult.getHeaders()));
             result -= MessageResult.FULL_CONTENT;
         }
+        if ((result & MessageResult.MSN) > 0) {
+            // ATM implemented by wrappers
+            result -= MessageResult.MSN;
+        }
         if (result != 0) {
             throw new RuntimeException("Unsupported result: " + result);
         }
@@ -667,13 +672,13 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
         }
     }
 
-    public void setFlags(Flags flags, boolean value, boolean replace,
-            GeneralMessageSet set)
+    public Iterator setFlags(Flags flags, boolean value, boolean replace,
+            GeneralMessageSet set, int result)
             throws MailboxManagerException {
         try {
             lock.writeLock().acquire();
             try {
-                doSetFlags(flags, value, replace, set);
+                return doSetFlags(flags, value, replace, set, result);
             } finally {
                 lock.writeLock().release();
             }
@@ -683,11 +688,12 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
         }
     }
 
-    private void doSetFlags(Flags flags, boolean value, boolean replace, GeneralMessageSet set) throws MailboxManagerException {
+    private Iterator doSetFlags(Flags flags, boolean value, boolean replace, 
+            GeneralMessageSet set, int results) throws MailboxManagerException {
         checkAccess();
         set=toUidSet(set);  
         if (!set.isValid() || set.getType()==GeneralMessageSet.TYPE_NOTHING) {
-            return;
+            return Collections.EMPTY_LIST.iterator();
         }        
         try {
             // TODO put this into a serializeable transaction
@@ -717,9 +723,10 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
                 }
             }
             final MessageResult[] afterResults = fillMessageResult(messageRows,
-                    MessageResult.UID | MessageResult.FLAGS);
+                    results | MessageResult.UID | MessageResult.FLAGS);
             tracker.flagsUpdated(afterResults, sessionId);
             tracker.found(uidRange, afterResults);
+            return Arrays.asList(afterResults).iterator();
         } catch (Exception e) {
             throw new MailboxManagerException(e);
         }
@@ -949,7 +956,7 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
             lock.writeLock().acquire();
             try {
                 final Flags flags = new Flags(Flags.Flag.DELETED);
-                doSetFlags(flags, true, false, set);
+                doSetFlags(flags, true, false, set, MessageResult.NOTHING);
                 doExpunge(set, MessageResult.NOTHING);
             } finally {
                 lock.writeLock().release();

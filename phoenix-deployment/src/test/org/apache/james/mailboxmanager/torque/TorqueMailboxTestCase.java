@@ -86,7 +86,7 @@ public class TorqueMailboxTestCase extends AbstractTorqueTestCase {
         
         Flags f=new Flags();
         f.add(Flags.Flag.DELETED);
-        torqueMailbox.setFlags(f,true,false, GeneralMessageSetImpl.oneUid(1l));
+        torqueMailbox.setFlags(f,true,false, GeneralMessageSetImpl.oneUid(1l), MessageResult.NOTHING);
         MessageResult[] messageResults=torqueMailbox.expunge(GeneralMessageSetImpl.all(),MessageResult.UID);
         assertEquals(1,messageResults.length);
         assertEquals(1l,messageResults[0].getUid());

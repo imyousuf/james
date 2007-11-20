@@ -363,11 +363,15 @@ public abstract class AbstractImapCommandParser extends AbstractLogEnabled imple
         }
         // Got the closing ")", may be attached to a word.
         if ( nextWord.length() > 1 ) {
-            DecoderUtils.setFlag( nextWord.substring(0, nextWord.length() - 1 ), flags );
+            int parenIndex = nextWord.indexOf(')');
+            if (parenIndex > 0) {
+                final String nextFlag = nextWord.substring(0, parenIndex );
+                DecoderUtils.setFlag( nextFlag, flags );
+            }
         }
 
         return flags;
-        }
+    }
 
     /**
      * Reads an argument of type "number" from the request.

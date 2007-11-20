@@ -188,7 +188,7 @@ public abstract class AbstractSessionTest extends MockObjectTestCase implements 
     
     public void deleteAll(String folder) throws MailboxManagerException {
         ImapMailboxSession mailbox=getImapMailboxSession(folder);
-        mailbox.setFlags(new Flags(Flag.DELETED),true,false,GeneralMessageSetImpl.all());
+        mailbox.setFlags(new Flags(Flag.DELETED),true,false,GeneralMessageSetImpl.all(), MessageResult.NOTHING);
         mailbox.expunge(GeneralMessageSetImpl.all(),MessageResult.NOTHING);
         mailbox.close();
     }
@@ -274,7 +274,7 @@ public abstract class AbstractSessionTest extends MockObjectTestCase implements 
     
     public void setFlags(String mailboxName,long fromUid,long toUid,Flags flags, boolean value, boolean replace) throws MailboxManagerException {
         ImapMailboxSession mailbox=getImapMailboxSession(mailboxName);
-        mailbox.setFlags(flags, value, replace, GeneralMessageSetImpl.uidRange(fromUid, toUid));
+        mailbox.setFlags(flags, value, replace, GeneralMessageSetImpl.uidRange(fromUid, toUid), MessageResult.NOTHING);
         mailbox.close();
     }
     private ImapMailboxSession getImapMailboxSession(String mailboxName) throws MailboxManagerException {
