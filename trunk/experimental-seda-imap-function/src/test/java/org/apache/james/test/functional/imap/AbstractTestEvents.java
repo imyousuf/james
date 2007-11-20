@@ -16,26 +16,26 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.api.imap.message;
 
-public class StoreDirective
-{
-    private int sign;
-    private boolean silent;
+package org.apache.james.test.functional.imap;
 
-    public StoreDirective( int sign, boolean silent )
-    {
-        this.sign = sign;
-        this.silent = silent;
+import java.util.Locale;
+
+public abstract class AbstractTestEvents extends BaseTestSelectedState {
+
+    public AbstractTestEvents(HostSystem system) {
+        super(system);
     }
 
-    public int getSign()
-    {
-        return sign;
+    public void testAppendToSelectedUS() throws Exception {
+        scriptTest("AppendToSelected", Locale.US);
     }
-
-    public boolean isSilent()
-    {
-        return silent;
+    
+    public void testAppendToSelectedKOREA() throws Exception {
+        scriptTest("AppendToSelected", Locale.KOREA);
+    }
+    
+    public void testAppendToSelectedITALY() throws Exception {
+        scriptTest("AppendToSelected", Locale.ITALY);
     }
 }

@@ -19,8 +19,6 @@
 
 package org.apache.james.mailboxmanager.wrapper;
 
-import javax.mail.search.SearchTerm;
-
 import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;

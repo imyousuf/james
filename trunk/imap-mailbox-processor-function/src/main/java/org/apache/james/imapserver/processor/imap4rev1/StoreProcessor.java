@@ -19,28 +19,31 @@
 
 package org.apache.james.imapserver.processor.imap4rev1;
 
+import java.util.Iterator;
+
 import javax.mail.Flags;
 
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
-import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.api.imap.message.IdRange;
-import org.apache.james.api.imap.message.StoreDirective;
 import org.apache.james.api.imap.message.request.ImapRequest;
 import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
 import org.apache.james.imap.message.request.imap4rev1.StoreRequest;
+import org.apache.james.imap.message.response.imap4rev1.FetchResponse;
 import org.apache.james.imapserver.processor.base.AbstractImapRequestProcessor;
-import org.apache.james.imapserver.processor.base.AuthorizationException;
 import org.apache.james.imapserver.processor.base.ImapSessionUtils;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxManagerException;
+import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 
 public class StoreProcessor extends AbstractImapRequestProcessor {
+
+    private static final int STORE_FETCH_GROUP = MessageResult.FLAGS | MessageResult.MSN | MessageResult.UID;
 
     public StoreProcessor(final ImapProcessor next, final StatusResponseFactory factory) {
         super(next, factory);
@@ -52,29 +55,23 @@ public class StoreProcessor extends AbstractImapRequestProcessor {
 
     protected void doProcess(ImapRequest message,
             ImapSession session, String tag, ImapCommand command, Responder responder)
-            throws MailboxException, AuthorizationException, ProtocolException {
+            throws MailboxException {
         final StoreRequest request = (StoreRequest) message;
         final IdRange[] idSet = request.getIdSet();
-        final StoreDirective directive = request.getDirective();
         final Flags flags = request.getFlags();
         final boolean useUids = request.isUseUids();
-        doProcess(idSet, directive, flags, useUids, session, tag, command, responder);
-    }
-
-    private void doProcess(final IdRange[] idSet,
-            final StoreDirective directive, final Flags flags,
-            final boolean useUids, ImapSession session, String tag,
-            ImapCommand command, Responder responder) throws MailboxException,
-            AuthorizationException, ProtocolException {
-
+        final boolean silent = request.isSilent();
+        final boolean isSignedPlus = request.isSignedPlus();
+        final boolean isSignedMinus = request.isSignedMinus();
+        
         ImapMailboxSession mailbox = ImapSessionUtils.getMailbox(session);
 
         final boolean replace;
         final boolean value;
-        if (directive.getSign() < 0) {
+        if (isSignedMinus) {
             value = false;
             replace = false;
-        } else if (directive.getSign() > 0) {
+        } else if (isSignedPlus) {
             value = true;
             replace = false;
         } else {
@@ -86,8 +83,23 @@ public class StoreProcessor extends AbstractImapRequestProcessor {
                 final GeneralMessageSet messageSet = GeneralMessageSetImpl
                         .range(idSet[i].getLowVal(), idSet[i].getHighVal(),
                                 useUids);
-
-                mailbox.setFlags(flags, value, replace, messageSet);
+                final Iterator it = mailbox.setFlags(flags, value, 
+                        replace, messageSet, STORE_FETCH_GROUP);
+                if (!silent) {
+                    while(it.hasNext()) {
+                        final MessageResult result = (MessageResult) it.next();
+                        final int msn = result.getMsn();
+                        final Flags resultFlags = result.getFlags();
+                        final Long resultUid;
+                        if (useUids) {
+                            resultUid = new Long(result.getUid());
+                        } else {
+                            resultUid = null;
+                        }
+                        final FetchResponse response = new FetchResponse(msn, resultFlags, resultUid);
+                        responder.respond(response);
+                    }
+                }
             }
         } catch (MailboxManagerException e) {
             throw new MailboxException(e);

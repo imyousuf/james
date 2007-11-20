@@ -76,12 +76,12 @@ public abstract class NumberStableSessionWrapper extends AbstractGeneralMailbox 
         if (numberCache == null && mailbox != null) {
             startingNumberCache = true;
             try {
-            MessageResult[] mr = mailbox.getMessages(GeneralMessageSetImpl
-                    .all(), MessageResult.UID);
-            numberCache = new UidToMsnBidiMap();
-            for (int i = 0; i < mr.length; i++) {
-                numberCache.add(mr[i].getUid());
-            }
+                MessageResult[] mr = mailbox.getMessages(GeneralMessageSetImpl
+                        .all(), MessageResult.UID);
+                numberCache = new UidToMsnBidiMap();
+                for (int i = 0; i < mr.length; i++) {
+                    numberCache.add(mr[i].getUid());
+                }
             } finally {
                 startingNumberCache = false;
             }
@@ -201,6 +201,8 @@ public abstract class NumberStableSessionWrapper extends AbstractGeneralMailbox 
         }
     }
 
+    
+    
     /**
      * @see org.apache.james.mailboxmanager.MailboxListener#event(org.apache.james.mailboxmanager.MailboxListener.Event)
      */

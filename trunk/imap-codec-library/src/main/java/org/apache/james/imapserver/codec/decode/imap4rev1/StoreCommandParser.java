@@ -25,7 +25,6 @@ import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.api.imap.imap4rev1.Imap4Rev1CommandFactory;
 import org.apache.james.api.imap.message.IdRange;
-import org.apache.james.api.imap.message.StoreDirective;
 import org.apache.james.imapserver.codec.decode.ImapRequestLineReader;
 import org.apache.james.imapserver.codec.decode.InitialisableCommandFactory;
 
@@ -42,23 +41,23 @@ class StoreCommandParser extends AbstractUidCommandParser implements Initialisab
         final ImapCommand command = factory.getStore();
         setCommand(command);
     }
-    
-    StoreDirective storeDirective( ImapRequestLineReader request ) throws ProtocolException
-    {
-        int sign = 0;
+
+    protected ImapMessage decode(ImapCommand command, ImapRequestLineReader request, String tag, boolean useUids) throws ProtocolException {
+        final IdRange[] idSet = parseIdRange( request );
+        final Boolean sign;
         boolean silent = false;
 
         char next = request.nextWordChar();
         if ( next == '+' ) {
-            sign = 1;
+            sign = Boolean.TRUE;
             request.consume();
         }
         else if ( next == '-' ) {
-            sign = -1;
+            sign = Boolean.FALSE;
             request.consume();
         }
         else {
-            sign = 0;
+            sign = null;
         }
 
         String directive = consumeWord( request, new NoopCharValidator() );
@@ -71,15 +70,11 @@ class StoreCommandParser extends AbstractUidCommandParser implements Initialisab
         else {
             throw new ProtocolException( "Invalid Store Directive: '" + directive + "'" );
         }
-        return new StoreDirective( sign, silent );
-    }
-
-    protected ImapMessage decode(ImapCommand command, ImapRequestLineReader request, String tag, boolean useUids) throws ProtocolException {
-        final IdRange[] idSet = parseIdRange( request );
-        final StoreDirective directive = storeDirective( request );
+        
         final Flags flags = flagList( request );
         endLine( request );
-        final ImapMessage result = getMessageFactory().createStoreMessage(command, idSet, directive, flags, useUids, tag);
+        final ImapMessage result = getMessageFactory().createStoreMessage(
+                command, idSet, silent, sign, flags, useUids, tag);
         return result;
     }
 }

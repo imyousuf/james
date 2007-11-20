@@ -49,4 +49,49 @@ public class IdRange {
         return _lowVal <= uid && uid <= _highVal;
     }
 
+    /**
+     * @see java.lang.Object#hashCode()
+     */
+    public int hashCode() {
+        final int PRIME = 31;
+        int result = 1;
+        result = PRIME * result + (int) (_highVal ^ (_highVal >>> 32));
+        result = PRIME * result + (int) (_lowVal ^ (_lowVal >>> 32));
+        return result;
+    }
+
+    /**
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        final IdRange other = (IdRange) obj;
+        if (_highVal != other._highVal)
+            return false;
+        if (_lowVal != other._lowVal)
+            return false;
+        return true;
+    }
+
+    /**
+     * Renders text suitable for logging.
+     *
+     * @return a <code>String</code> representation 
+     * of this object.
+     */
+    public String toString()
+    {
+        final String retValue = "IdRange ( "
+            + this._lowVal + "->" + this._highVal 
+            + " )";
+    
+        return retValue;
+    }
+
+    
 }

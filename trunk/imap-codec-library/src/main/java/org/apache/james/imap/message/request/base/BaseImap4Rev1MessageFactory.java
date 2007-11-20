@@ -30,7 +30,6 @@ import org.apache.james.api.imap.imap4rev1.Imap4Rev1MessageFactory;
 import org.apache.james.api.imap.message.FetchData;
 import org.apache.james.api.imap.message.IdRange;
 import org.apache.james.api.imap.message.StatusDataItems;
-import org.apache.james.api.imap.message.StoreDirective;
 import org.apache.james.imap.message.request.imap4rev1.AppendRequest;
 import org.apache.james.imap.message.request.imap4rev1.AuthenticateRequest;
 import org.apache.james.imap.message.request.imap4rev1.CapabilityRequest;
@@ -143,8 +142,8 @@ public class BaseImap4Rev1MessageFactory implements Imap4Rev1MessageFactory {
         return new StatusRequest(command, mailboxName, statusDataItems, tag);
     }
 
-    public ImapMessage createStoreMessage(ImapCommand command, IdRange[] idSet, StoreDirective directive, Flags flags, boolean useUids, String tag) {
-        return new StoreRequest(command, idSet, directive, flags, useUids, tag);
+    public ImapMessage createStoreMessage(ImapCommand command, IdRange[] idSet, boolean silent, Boolean sign, Flags flags, boolean useUids, String tag) {
+        return new StoreRequest(command, idSet, silent, flags, useUids, tag, sign);
     }
 
     public ImapMessage createSubscribeMessage(ImapCommand command, String mailboxName, String tag) {

@@ -79,6 +79,9 @@ public interface MessageResult extends Comparable {
 
     public static final int UID = 0x04;
 
+    /**
+     * TODO: should message number be managed by protocol client?
+     */
     public static final int MSN = 0x08;
 
     /**
