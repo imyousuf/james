@@ -24,6 +24,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
+import javax.mail.internet.MimeMessage;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.mailboxmanager.GeneralMessageSet;
@@ -210,9 +212,11 @@ public class TorqueMailboxManager implements MailboxManager {
     public void copyMessages(GeneralMailbox from, GeneralMessageSet set, String to) throws MailboxManagerException {
         GeneralMailboxSession toMailbox=(GeneralMailboxSession)getGeneralMailboxSession(to);
         
-        MessageResult[] mr=from.getMessages(set, MessageResult.MIME_MESSAGE | MessageResult.INTERNAL_DATE);
-        for (int i = 0; i < mr.length; i++) {
-            toMailbox.appendMessage(mr[i].getMimeMessage(), mr[i].getInternalDate(), MessageResult.NOTHING);
+        Iterator it = from.getMessages(set, MessageResult.MIME_MESSAGE | MessageResult.INTERNAL_DATE);
+        while (it.hasNext()) {
+            final MessageResult result = (MessageResult) it.next();
+            final MimeMessage mimeMessage = result.getMimeMessage();
+            toMailbox.appendMessage(mimeMessage, result.getInternalDate(), MessageResult.NOTHING);
         }
        
         toMailbox.close();

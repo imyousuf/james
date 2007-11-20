@@ -19,7 +19,10 @@
 
 package org.apache.james.mailboxmanager.tracking;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -50,11 +53,12 @@ public class UidChangeTracker extends MailboxTracker implements Constants {
         this.lastUid = lastUid;
     }
 
-    public synchronized void expunged(MessageResult[] expunged) {
-        for (int i = 0; i < expunged.length; i++) {
-            if (expunged[i] != null) {
-                cache.remove(new Long(expunged[i].getUid()));
-                eventDispatcher.expunged(expunged[i], 0);
+    public synchronized void expunged(final List expunged) {
+        for (Iterator it = expunged.iterator();it.hasNext();) {
+            final MessageResult result = (MessageResult) it.next();
+            if (result != null) {
+                cache.remove(new Long(result.getUid()));
+                eventDispatcher.expunged(result, 0);
             }
         }
     }
@@ -65,11 +69,11 @@ public class UidChangeTracker extends MailboxTracker implements Constants {
      * @param sessionId id of the session upating the flags
      * @see #flagsUpdated(MessageResult, long)
      */
-    public synchronized void flagsUpdated(MessageResult[] messageResults, long sessionId) {
+    public synchronized void flagsUpdated(Collection messageResults, long sessionId) {
         if (messageResults != null) {
-            final int length = messageResults.length;
-            for (int i=0;i<length;i++) {
-                flagsUpdated(messageResults[i], sessionId);
+            for (final Iterator it = messageResults.iterator();it.hasNext();) {
+                final MessageResult result = (MessageResult) it.next();
+                flagsUpdated(result, sessionId);
             }
         }
     }
@@ -88,11 +92,10 @@ public class UidChangeTracker extends MailboxTracker implements Constants {
         }
     }
     
-    public synchronized void found(UidRange range,
-            MessageResult[] messageResults) {
+    public synchronized void found(UidRange range, final Collection messageResults) {
         Set expectedSet = getSubSet(range);
-        for (int i = 0; i < messageResults.length; i++) {
-            final MessageResult messageResult = messageResults[i];
+        for (final Iterator it=messageResults.iterator();it.hasNext();) {
+            final MessageResult messageResult = (MessageResult) it.next();
             if (messageResult != null) {
                 long uid = messageResult.getUid();
                 if (uid>lastScannedUid) {
@@ -163,8 +166,9 @@ public class UidChangeTracker extends MailboxTracker implements Constants {
     public synchronized void found(MessageResult messageResult) {
         if (messageResult != null) {
             long uid = messageResult.getUid();
-            found(new UidRange(uid, uid),
-                    new MessageResult[] { messageResult });
+            Collection results = new ArrayList();
+            results.add(messageResult);
+            found(new UidRange(uid, uid), results);
         }
     }
 

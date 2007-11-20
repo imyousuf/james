@@ -19,9 +19,10 @@
 
 package org.apache.james.mailboxmanager.mailbox;
 
+import java.util.Iterator;
+
 import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxManagerException;
-import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.SearchParameters;
 
 public interface SearchableMailbox {
@@ -38,5 +39,5 @@ public interface SearchableMailbox {
      * @throws UnsupportedCriteriaException when any of the search parameters are 
      * not supported by this mailbox
      */
-    MessageResult[] search(GeneralMessageSet set,SearchParameters searchTerm, int result) throws MailboxManagerException;
+    Iterator search(GeneralMessageSet set,SearchParameters searchTerm, int result) throws MailboxManagerException;
 }

@@ -34,10 +34,12 @@ import org.apache.james.mailboxmanager.util.AbstractLogFactoryAware;
 public abstract class AbstractGeneralMailbox extends AbstractLogFactoryAware implements GeneralMailbox {
     
     public Collection list() throws MailboxManagerException {
-        MessageResult[] messageResult=getMessages(GeneralMessageSetImpl.all(), MessageResult.KEY);
-        Collection result=new ArrayList(messageResult.length);
-        for (int i = 0; i < messageResult.length; i++) {
-            result.add(messageResult[i].getKey());
+        final Iterator it = getMessages(GeneralMessageSetImpl.all(), MessageResult.KEY);
+        final Collection result = new ArrayList(100);
+        while (it.hasNext()) {
+            final MessageResult next = (MessageResult) it.next();
+            final String key = (next).getKey();
+            result.add(key);
         }
         return result;
     }
@@ -46,14 +48,17 @@ public abstract class AbstractGeneralMailbox extends AbstractLogFactoryAware imp
         remove(GeneralMessageSetImpl.oneKey(key));
     }
 
-    public MimeMessage retrieve(String key) throws MailboxManagerException {
-        MessageResult[] result = getMessages(GeneralMessageSetImpl.oneKey(key),
+    public MimeMessage retrieve(final String key) throws MailboxManagerException {
+        final Iterator it = getMessages(GeneralMessageSetImpl.oneKey(key),
                 MessageResult.MIME_MESSAGE);
-        if (result != null && result.length == 1) {
-            return result[0].getMimeMessage();
+        final MimeMessage result;
+        if (it.hasNext()) {
+            final MessageResult message = (MessageResult) it.next();
+            result = message.getMimeMessage();
         } else {
-            return null;
+            result = null;
         }
+        return result;
     }
 
     public String store(MimeMessage message) throws MailboxManagerException {

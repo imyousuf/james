@@ -39,6 +39,7 @@ import javax.mail.Flags.Flag;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.avalon.framework.logger.LogEnabled;
+import org.apache.commons.collections.IteratorUtils;
 import org.apache.james.imapserver.ImapRequestHandler;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ImapSessionImpl;
@@ -130,10 +131,11 @@ public abstract class AbstractSessionTest extends MockObjectTestCase implements 
     
     public MimeMessage[] getMessages(String folder) throws MailboxManagerException {
         GeneralMailboxSession mailbox=getImapMailboxSession(folder);
-        MessageResult[] messageResults=mailbox.getMessages(GeneralMessageSetImpl.all(),MessageResult.MIME_MESSAGE);
-        MimeMessage[] mms=new MimeMessage[messageResults.length];
-        for (int i = 0; i < messageResults.length; i++) {
-            mms[i]=messageResults[i].getMimeMessage();
+        Iterator iterator =mailbox.getMessages(GeneralMessageSetImpl.all(),MessageResult.MIME_MESSAGE);
+        List messages = IteratorUtils.toList(iterator);
+        MimeMessage[] mms=new MimeMessage[messages.size()];
+        for (int i = 0; i < messages.size(); i++) {
+            mms[i]=((MessageResult) messages.get(i)).getMimeMessage();
         }
         mailbox.close();
         return mms;
@@ -141,11 +143,11 @@ public abstract class AbstractSessionTest extends MockObjectTestCase implements 
     
     public long[] getUids(String folder) throws MailboxManagerException {
         GeneralMailboxSession mailbox=getImapMailboxSession(folder);
-        MessageResult[] messageResults=mailbox.getMessages(GeneralMessageSetImpl.all(),MessageResult.UID);
-
-        long[] uids=new long[messageResults.length];
-        for (int i = 0; i < messageResults.length; i++) {
-            uids[i]=messageResults[i].getUid();
+        Iterator iterator = mailbox.getMessages(GeneralMessageSetImpl.all(),MessageResult.UID);
+        List messages = IteratorUtils.toList(iterator);
+        long[] uids=new long[messages.size()];
+        for (int i = 0; i < messages.size(); i++) {
+            uids[i]=((MessageResult)messages.get(i)).getUid();
         }
         mailbox.close();
         return uids;

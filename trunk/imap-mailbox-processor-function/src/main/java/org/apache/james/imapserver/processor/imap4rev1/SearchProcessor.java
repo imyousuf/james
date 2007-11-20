@@ -19,20 +19,19 @@
 
 package org.apache.james.imapserver.processor.imap4rev1;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.mail.search.SearchTerm;
 
 import org.apache.james.api.imap.ImapCommand;
-import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.api.imap.message.request.ImapRequest;
-import org.apache.james.api.imap.message.response.ImapResponseMessage;
 import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
-import org.apache.james.api.imap.process.ImapProcessor.Responder;
 import org.apache.james.imap.message.request.imap4rev1.SearchRequest;
 import org.apache.james.imap.message.response.imap4rev1.server.SearchResponse;
 import org.apache.james.imapserver.processor.base.AbstractImapRequestProcessor;
@@ -76,24 +75,33 @@ public class SearchProcessor extends AbstractImapRequestProcessor {
             resultCode = MessageResult.MSN;
         }
         
-        MessageResult[] messageResults;
+        final Iterator it;
         try {
             // TODO: implementation
-            messageResults = mailbox.search(GeneralMessageSetImpl.all(),
+            it = mailbox.search(GeneralMessageSetImpl.all(),
                     new SearchParameters(), resultCode);
         } catch (MailboxManagerException e) {
             throw new MailboxException(e);
         }
 
-        final int length = messageResults.length;
+        final List results = new ArrayList();
+        while (it.hasNext()) {
+            final MessageResult result = (MessageResult) it.next();
+            final Long number;
+            if (useUids) {
+                number = new Long(result.getUid());
+            } else {
+                number = new Long(result.getMsn());
+            }
+            results.add(number);
+        }
+        
+        final int length = results.size();
         long[] ids = new long[length];
         for (int i = 0; i < length; i++) {
-            if (useUids) {
-                ids[i] = messageResults[i].getUid();
-            } else {
-                ids[i] = messageResults[i].getMsn();
-            }
+            ids[i] = ((Long) results.get(i)).longValue();
         }
+        
         final SearchResponse response = new SearchResponse(ids);
         responder.respond(response);
         boolean omitExpunged = (!useUids);

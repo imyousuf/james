@@ -19,6 +19,7 @@
 
 package org.apache.james.mailboxmanager.wrapper;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -41,6 +42,32 @@ import org.apache.james.mailboxmanager.mailbox.GeneralMailbox;
 
 public abstract class NumberStableSessionWrapper extends AbstractGeneralMailbox implements EventQueueingSessionMailbox,
         MailboxListener {
+
+    private static final class MsnIterator implements Iterator {
+            private final Iterator it;
+            private final UidToMsnBidiMap map;
+            
+            public MsnIterator(final Iterator it, final UidToMsnBidiMap map) {
+                this.it = it;
+                this.map = map;
+            }
+            
+            public boolean hasNext() {
+                return it.hasNext();
+            }
+    
+            public Object next() {
+                final MessageResult next = (MessageResult) it.next();
+                final MessageResultImpl result = new MessageResultImpl(next);
+                result.setMsn(map.getMsn(result.getUid()));
+                return result;
+            }
+    
+            public void remove() {
+                throw new UnsupportedOperationException();
+            }
+            
+        }
 
     protected GeneralMailbox mailbox;
 
@@ -76,11 +103,13 @@ public abstract class NumberStableSessionWrapper extends AbstractGeneralMailbox 
         if (numberCache == null && mailbox != null) {
             startingNumberCache = true;
             try {
-                MessageResult[] mr = mailbox.getMessages(GeneralMessageSetImpl
+                final Iterator it = mailbox.getMessages(GeneralMessageSetImpl
                         .all(), MessageResult.UID);
                 numberCache = new UidToMsnBidiMap();
-                for (int i = 0; i < mr.length; i++) {
-                    numberCache.add(mr[i].getUid());
+                while (it.hasNext()) {
+                    final MessageResult result = (MessageResult) it.next();
+                    final long uid = result.getUid();
+                    numberCache.add(uid);
                 }
             } finally {
                 startingNumberCache = false;
@@ -139,13 +168,13 @@ public abstract class NumberStableSessionWrapper extends AbstractGeneralMailbox 
         return msnFlagEvents;
     }
 
-    public synchronized MessageResult[] getExpungedEvents(boolean reset)
+    public synchronized Iterator getExpungedEvents(boolean reset)
             throws MailboxManagerException {
         final MessageResult[] msnExpungedEvents  = buildMsnEvents(expungedEventList,reset);
         if (reset) {
             expungedEventList = new TreeSet();
         } 
-        return msnExpungedEvents;
+        return Arrays.asList(msnExpungedEvents).iterator();
     }
 
     protected MessageResult[]  buildMsnEvents(final Collection messageResults, 
@@ -244,6 +273,10 @@ public abstract class NumberStableSessionWrapper extends AbstractGeneralMailbox 
         mailbox=null;
     }
     
+    protected final Iterator addMsn(Iterator iterator) throws MailboxManagerException {
+        return new MsnIterator(iterator, getNumberCache());
+    }
+
     /**
      * for testing
      * @return the listener this class uses to subscribe to Mailbox events

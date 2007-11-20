@@ -20,6 +20,8 @@
 package org.apache.james.mailboxmanager;
 
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.mail.Flags;
 import javax.mail.MessagingException;
@@ -27,6 +29,7 @@ import javax.mail.internet.MimeMessage;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.collections.IteratorUtils;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.impl.MailboxListenerCollector;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
@@ -90,20 +93,20 @@ public abstract class AbstractImapMailboxSelfTestCase extends TestCase {
             assertEquals(i+1, mr.getMsn());
         }
         mailbox.setFlags(new Flags(Flags.Flag.DELETED), true, false, GeneralMessageSetImpl.uidRange(2, 4), MessageResult.NOTHING);
-        final MessageResult[] expungeResult1=mailbox.expunge(GeneralMessageSetImpl.all(), MessageResult.UID | MessageResult.MSN);
+        final Iterator expungeResult1=mailbox.expunge(GeneralMessageSetImpl.all(), MessageResult.UID | MessageResult.MSN);
         checkMessageResults(new long[] {2,3,4},new int[] {2,3,4},expungeResult1);
         
-        final MessageResult[] getResult1 = mailbox.getMessages(GeneralMessageSetImpl.all(), MessageResult.UID | MessageResult.MSN);
+        final Iterator getResult1 = mailbox.getMessages(GeneralMessageSetImpl.all(), MessageResult.UID | MessageResult.MSN);
         checkMessageResults(new long[] {1,5},new int[] {1,5},getResult1);
         
         
-        final MessageResult[] expungeEventResult1 = mailbox.getExpungedEvents(false);
+        final Iterator expungeEventResult1 = mailbox.getExpungedEvents(false);
         checkMessageResults(new long[] {2,3,4},new int[] {2,3,4},expungeEventResult1);
-        final MessageResult[] expungeEventResult2 = mailbox.getExpungedEvents(true);
+        final Iterator expungeEventResult2 = mailbox.getExpungedEvents(true);
         checkMessageResults(new long[] {2,3,4},new int[] {2,2,2},expungeEventResult2);
         
         
-        final MessageResult[] getResult2 = mailbox.getMessages(GeneralMessageSetImpl.all(), MessageResult.UID | MessageResult.MSN);
+        final Iterator getResult2 = mailbox.getMessages(GeneralMessageSetImpl.all(), MessageResult.UID | MessageResult.MSN);
         checkMessageResults(new long[] {1,5},new int[] {1,2},getResult2);
         
         for (int i = 0; i < 5; i++) {
@@ -112,24 +115,24 @@ public abstract class AbstractImapMailboxSelfTestCase extends TestCase {
             assertEquals(3+i, mr.getMsn());
         }
 
-        final MessageResult[] getResult3 = mailbox.getMessages(GeneralMessageSetImpl.all(), MessageResult.UID | MessageResult.MSN);
+        final Iterator getResult3 = mailbox.getMessages(GeneralMessageSetImpl.all(), MessageResult.UID | MessageResult.MSN);
         checkMessageResults(new long[] {1,5,6,7,8,9,10},new int[] {1,2,3,4,5,6,7},getResult3);
         
         mailbox.setFlags(new Flags(Flags.Flag.DELETED), true, false, GeneralMessageSetImpl.msnRange(2,4), MessageResult.NOTHING);
         mailbox.setFlags(new Flags(Flags.Flag.DELETED), true, false, GeneralMessageSetImpl.oneMsn(6), MessageResult.NOTHING);
         
-        final MessageResult[] expungeResult2=mailbox.expunge(GeneralMessageSetImpl.all(), MessageResult.UID | MessageResult.MSN);
+        final Iterator expungeResult2=mailbox.expunge(GeneralMessageSetImpl.all(), MessageResult.UID | MessageResult.MSN);
         checkMessageResults(new long[] {5,6,7,9},new int[] {2,3,4,6},expungeResult2);
         
-        final MessageResult[] getResult4 = mailbox.getMessages(GeneralMessageSetImpl.all(), MessageResult.UID | MessageResult.MSN);
+        final Iterator getResult4 = mailbox.getMessages(GeneralMessageSetImpl.all(), MessageResult.UID | MessageResult.MSN);
         checkMessageResults(new long[] {1,8,10},new int[] {1,5,7},getResult4);
         
-        final MessageResult[] expungeEventResult3 = mailbox.getExpungedEvents(false);
+        final Iterator expungeEventResult3 = mailbox.getExpungedEvents(false);
         checkMessageResults(new long[] {5,6,7,9},new int[] {2,3,4,6},expungeEventResult3);
-        final MessageResult[] expungeEventResult4 = mailbox.getExpungedEvents(true);
+        final Iterator expungeEventResult4 = mailbox.getExpungedEvents(true);
         checkMessageResults(new long[] {5,6,7,9},new int[] {2,2,2,3},expungeEventResult4);
         
-        final MessageResult[] getResult5 = mailbox.getMessages(GeneralMessageSetImpl.all(), MessageResult.UID | MessageResult.MSN);
+        final Iterator getResult5 = mailbox.getMessages(GeneralMessageSetImpl.all(), MessageResult.UID | MessageResult.MSN);
         checkMessageResults(new long[] {1,8,10},new int[] {1,2,3},getResult5);
     }
     
@@ -140,13 +143,6 @@ public abstract class AbstractImapMailboxSelfTestCase extends TestCase {
         assertEquals(2, mailbox.getUidNext());
     }
     
-    public void testAddedEvents() throws MailboxManagerException, MessagingException {
-        assertEquals(0,mailbox.getFlagEvents(false).length);
-        MessageResult mr=mailbox.appendMessage(TestUtil.createMessage(), new Date(), MessageResult.UID | MessageResult.MSN);
-        assertEquals(0,mailbox.getFlagEvents(false).length);
-        assertEquals(0,mailbox.getFlagEvents(true).length);
-    }
-    
     protected void assertEventCount(MailboxListenerCollector collector,long[] added, long[] flags, long[] expunged) {
         assertEquals("added size", added.length, collector.getAddedList(true).size());
         assertEquals("flags size", added.length, collector.getFlaggedList(true).size());
@@ -154,12 +150,14 @@ public abstract class AbstractImapMailboxSelfTestCase extends TestCase {
         
     }
     
-    protected void checkMessageResults(long[] uids,int[] msns,MessageResult[] messageResults) {
+    protected void checkMessageResults(long[] uids,int[] msns, Iterator messages) {
+        List messageResults = IteratorUtils.toList(messages);
         assertEquals(uids.length, msns.length);
-        assertEquals(uids.length, messageResults.length);
-        for (int i = 0; i < messageResults.length; i++) {
-            assertEquals("Uid at pos "+i,uids[i], messageResults[i].getUid());
-            assertEquals("Msn at pos "+i,msns[i], messageResults[i].getMsn());
+        assertEquals(uids.length, messageResults.size());
+        int i=0;
+        for (Iterator it=messageResults.iterator(); it.hasNext();i++) {
+            assertEquals("Uid at pos "+i,uids[i], ((MessageResult)it.next()).getUid());
+            assertEquals("Msn at pos "+i,msns[i], ((MessageResult)it.next()).getMsn());
         }
     }
 

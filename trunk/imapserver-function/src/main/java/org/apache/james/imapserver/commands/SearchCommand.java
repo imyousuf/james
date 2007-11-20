@@ -19,11 +19,7 @@
 
 package org.apache.james.imapserver.commands;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.mail.search.SearchTerm;
+import java.util.Iterator;
 
 import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ImapResponse;
@@ -33,7 +29,6 @@ import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.SearchParameters;
-import org.apache.james.mailboxmanager.SearchParameters.NamedSearchCriteria;
 import org.apache.james.mailboxmanager.SearchParameters.NumericRange;
 import org.apache.james.mailboxmanager.SearchParameters.SearchCriteria;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
@@ -77,21 +72,27 @@ class SearchCommand extends SelectedStateCommand implements UidEnabledCommand
         } else {
             result= MessageResult.MSN;
         }
-        MessageResult[] messageResults;
+        final Iterator it;
         try {
-            messageResults = mailbox.search(GeneralMessageSetImpl.all(),searchTerm, result);
+            it = mailbox.search(GeneralMessageSetImpl.all(),searchTerm, result);
         } catch (MailboxManagerException e) {
           throw new MailboxException(e);
         }
         StringBuffer idList = new StringBuffer();
-        for (int i = 0; i < messageResults.length; i++) {
-            if ( i > 0 ) {
+        boolean first = true;
+        while (it.hasNext()) {
+            if ( first ) {
+                first = false;
+            } else {
                 idList.append( SP );
             }
+            final MessageResult message = (MessageResult) it.next();
             if ( useUids ) {
-                idList.append( messageResults[i].getUid());
+                final long uid = message.getUid();
+                idList.append( uid );
             } else {
-                idList.append( messageResults[i].getMsn());
+                final int msn = message.getMsn();
+                idList.append( msn );
             }
         }
         

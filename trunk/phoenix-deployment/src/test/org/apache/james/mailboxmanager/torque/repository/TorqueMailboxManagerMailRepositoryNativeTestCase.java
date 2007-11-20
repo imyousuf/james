@@ -21,7 +21,6 @@ package org.apache.james.mailboxmanager.torque.repository;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -33,6 +32,7 @@ import javax.mail.internet.MimeMessage;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
+import org.apache.commons.collections.IteratorUtils;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
@@ -109,18 +109,15 @@ public class TorqueMailboxManagerMailRepositoryNativeTestCase extends
 
     
     protected Collection getNativeMessages() {
-        final MessageResult[] mr;
+        final Iterator it;
         try {
-            mr = getShadowMailbox().getMessages(GeneralMessageSetImpl.all(),
+            it = getShadowMailbox().getMessages(GeneralMessageSetImpl.all(),
                     MessageResult.MIME_MESSAGE);
 
         } catch (MailboxManagerException e) {
             throw new RuntimeException(e);
         }
-        Collection existing = new ArrayList();
-        for (int i = 0; i < mr.length; i++) {
-            existing.add(mr[i].getMimeMessage());
-        }
+        Collection existing = IteratorUtils.toList(it);
         return existing;
     }
 

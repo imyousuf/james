@@ -52,7 +52,8 @@ public interface FlaggedMailbox extends GeneralMailbox {
      * 
      * @param result
      *            which fields to be returned in MessageResult
-     * @return MessageResult with the fields defined by <b>result</b><br />
+     * @return {@link MessageResult} <code>Iterator</code> with 
+     * the fields defined by <b>result</b><br />
      *         <ul>
      *         <li> IMAP, UIDPLUS: nothing required </li>
      *         <li> Javamail Folder: requires the expunged Message[]</li>
@@ -60,7 +61,7 @@ public interface FlaggedMailbox extends GeneralMailbox {
      * @throws MailboxManagerException
      *             if anything went wrong
      */
-    MessageResult[] expunge(GeneralMessageSet set, int result)
+    Iterator expunge(GeneralMessageSet set, int result)
             throws MailboxManagerException;
     
 
