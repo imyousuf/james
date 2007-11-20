@@ -109,9 +109,9 @@ public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements Se
 
     private void addExpungedResponses(List responses, final ImapMailboxSession mailbox) {
         try {
-            MessageResult[] expunged = mailbox.getExpungedEvents(true);
-            for (int i = 0; i < expunged.length; i++) {
-                MessageResult mr = expunged[i];
+            final Iterator expunged = mailbox.getExpungedEvents(true);
+            while (expunged.hasNext()) {
+                MessageResult mr = (MessageResult) expunged.next();
                 final int msn = mr.getMsn();
                 // TODO: use factory
                 ExpungeResponse response = new ExpungeResponse(msn);
@@ -129,9 +129,9 @@ public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements Se
             for (final Iterator it = events.flagUpdateUids(); it.hasNext();) {
                 Long uid = (Long) it.next();
                 GeneralMessageSet messageSet = GeneralMessageSetImpl.oneUid(uid.longValue());
-                final MessageResult[] messages = mailbox.getMessages(messageSet, MessageResult.FLAGS | MessageResult.MSN);
-                for (int i = 0; i < messages.length; i++) {
-                    MessageResult mr = messages[i];
+                final Iterator messages = mailbox.getMessages(messageSet, MessageResult.FLAGS | MessageResult.MSN);
+                while (messages.hasNext()) {
+                    MessageResult mr = (MessageResult) it.next();
                     int msn = mr.getMsn();
                     final Flags flags = mr.getFlags();
                     final Long uidOut;

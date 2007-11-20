@@ -25,6 +25,7 @@ import java.util.List;
 import javax.mail.Flags;
 import javax.mail.internet.MimeMessage;
 
+import org.apache.commons.collections.IteratorUtils;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.TestUtil;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
@@ -78,18 +79,18 @@ public class TorqueMailboxTestCase extends AbstractTorqueTestCase {
         mr = MailboxRowPeer.retrieveByPK(mr.getMailboxId());
         assertEquals(1, mr.getLastUid());
         
-        MessageResult[] messageResult=torqueMailbox.getMessages(GeneralMessageSetImpl.oneUid(1l),MessageResult.MIME_MESSAGE);
+        List messageResult=IteratorUtils.toList(torqueMailbox.getMessages(GeneralMessageSetImpl.oneUid(1l),MessageResult.MIME_MESSAGE));
         assertNotNull(messageResult);
-        assertEquals(1,messageResult.length);
-        messageResult[0].getMimeMessage().writeTo(System.out);
-        assertTrue(TorqueTestUtil.contentEquals(mm,messageResult[0].getMimeMessage(),true));
+        assertEquals(1,messageResult.size());
+        //((MessageResult)messageResult.get(0)).getMimeMessage().writeTo(System.out);
+        assertTrue(TorqueTestUtil.contentEquals(mm,((MessageResult)messageResult.get(0)).getMimeMessage(),true));
         
         Flags f=new Flags();
         f.add(Flags.Flag.DELETED);
         torqueMailbox.setFlags(f,true,false, GeneralMessageSetImpl.oneUid(1l), MessageResult.NOTHING);
-        MessageResult[] messageResults=torqueMailbox.expunge(GeneralMessageSetImpl.all(),MessageResult.UID);
-        assertEquals(1,messageResults.length);
-        assertEquals(1l,messageResults[0].getUid());
+        List messageResults=IteratorUtils.toList(torqueMailbox.expunge(GeneralMessageSetImpl.all(),MessageResult.UID));
+        assertEquals(1,messageResults.size());
+        assertEquals(1l,((MessageResult)messageResults.get(0)).getUid());
     }
 
 }

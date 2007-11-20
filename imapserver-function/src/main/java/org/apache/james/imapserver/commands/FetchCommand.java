@@ -80,19 +80,20 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
             fetch.uid = true;
         }
 
-        int resultToFetch = fetch.getNeededMessageResult();
-        ImapMailboxSession mailbox = session.getSelected().getMailbox();
+        final int resultToFetch = fetch.getNeededMessageResult();
+        final ImapMailboxSession mailbox = session.getSelected().getMailbox();
         for (int i = 0; i < idSet.length; i++) {
-            GeneralMessageSet messageSet=GeneralMessageSetImpl.range(idSet[i].getLowVal(),idSet[i].getHighVal(),useUids);
-            MessageResult[] result;
+            final GeneralMessageSet messageSet=GeneralMessageSetImpl.range(idSet[i].getLowVal(),idSet[i].getHighVal(),useUids);
+            final Iterator it;
             try {
-                result = mailbox.getMessages(messageSet,resultToFetch);
+                it = mailbox.getMessages(messageSet,resultToFetch);
             } catch (MailboxManagerException e) {
                 throw new MailboxException(e);
             }
-            for (int j = 0; j < result.length; j++) {
-                String msgData = outputMessage( fetch, result[j], mailbox, useUids );
-                response.fetchResponse( result[j].getMsn(), msgData );
+            while (it.hasNext()) {
+                final MessageResult result = (MessageResult) it.next();
+                String msgData = outputMessage( fetch, result, mailbox, useUids );
+                response.fetchResponse( result.getMsn(), msgData );
 
             }
         }

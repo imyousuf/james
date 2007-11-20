@@ -20,11 +20,11 @@
 package org.apache.james.imapserver;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.commons.collections.IteratorUtils;
 import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
@@ -64,8 +64,8 @@ public class SelectedMailboxSession extends AbstractLogEnabled {
         for (final Iterator it = events.flagUpdateUids(); it.hasNext();) {
             Long uid = (Long) it.next();
             GeneralMessageSet messageSet = GeneralMessageSetImpl.oneUid(uid.longValue());
-            final MessageResult[] messages = mailbox.getMessages(messageSet, MessageResult.FLAGS | MessageResult.MSN);
-            results.addAll(Arrays.asList(messages));
+            final Iterator messages = mailbox.getMessages(messageSet, MessageResult.FLAGS | MessageResult.MSN);
+            results.addAll(IteratorUtils.toList(messages));
         }
         return results.iterator();
     }

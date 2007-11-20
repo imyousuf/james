@@ -106,6 +106,12 @@ public class MessageResultUtilsIsIncludedTest extends MockObjectTestCase {
         assertTrue(MessageResultUtils.isIncluded(mock(MessageResult.FLAGS | MessageResult.MIME_MESSAGE), MessageResult.MIME_MESSAGE | MessageResult.FLAGS));
     }
     
+    public void testFlagsAndUidIncluded() throws Exception {
+        assertTrue(MessageResultUtils.isIncluded(mock(MessageResult.FLAGS | MessageResult.UID), MessageResult.FLAGS));
+        assertTrue(MessageResultUtils.isIncluded(mock(MessageResult.FLAGS | MessageResult.UID), MessageResult.UID));
+    }
+    
+    
     private MessageResult mock(int included) {
         return mock(included, true);
     }

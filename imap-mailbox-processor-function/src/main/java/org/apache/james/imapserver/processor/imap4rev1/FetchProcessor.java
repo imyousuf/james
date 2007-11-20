@@ -88,14 +88,15 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
             for (int i = 0; i < idSet.length; i++) {
                 GeneralMessageSet messageSet = GeneralMessageSetImpl.range(idSet[i]
                         .getLowVal(), idSet[i].getHighVal(), useUids);
-                MessageResult[] fetchResults;
-                    fetchResults = mailbox.getMessages(messageSet, resultToFetch);
-                for (int j = 0; j < fetchResults.length; j++) {
-                    String msgData = outputMessage(fetch, fetchResults[j], mailbox,
+                final Iterator it = mailbox.getMessages(messageSet, resultToFetch);
+                while (it.hasNext()) {
+                    final MessageResult result = (MessageResult) it.next();
+                    String msgData = outputMessage(fetch, result, mailbox,
                             useUids);
+                    final int msn = result.getMsn();
                     // TODO: this is inefficient
                     // TODO: stream output upon response
-                    LegacyFetchResponse response = new LegacyFetchResponse(fetchResults[j].getMsn(), msgData);
+                    LegacyFetchResponse response = new LegacyFetchResponse(msn, msgData);
                     responder.respond(response);
                 }
             }

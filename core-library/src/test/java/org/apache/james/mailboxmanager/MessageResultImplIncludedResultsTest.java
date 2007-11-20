@@ -27,11 +27,8 @@ import javax.mail.Flags;
 import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
 
-import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.MessageResultImpl;
 import org.jmock.MockObjectTestCase;
-
-import junit.framework.TestCase;
 
 public class MessageResultImplIncludedResultsTest extends MockObjectTestCase {
 
@@ -139,5 +136,85 @@ public class MessageResultImplIncludedResultsTest extends MockObjectTestCase {
         assertEquals(MessageResult.BODY_CONTENT, result.getIncludedResults());
         result = new MessageResultImpl(this.result);
         assertEquals(MessageResult.BODY_CONTENT, result.getIncludedResults());
+    }
+    
+    public void testShouldIncludedResultsWhenFlagsAndUidSet() {
+        Flags flags = new Flags();
+        result.setFlags(flags);
+        result.setUid(99);
+        assertEquals(MessageResult.UID | MessageResult.FLAGS, result.getIncludedResults());
+        assertTrue(MessageResultUtils.isFlagsIncluded(result));
+        assertTrue(MessageResultUtils.isUidIncluded(result));
+        MessageResult result = new MessageResultImpl(this.result);
+        assertEquals(MessageResult.UID | MessageResult.FLAGS, result.getIncludedResults());
+        assertTrue(MessageResultUtils.isFlagsIncluded(result));
+        assertTrue(MessageResultUtils.isUidIncluded(result));
+    }
+    
+    public void testShouldIncludedResultsWhenAllSet() {
+        Flags flags = new Flags();
+        result.setFlags(flags);
+        assertEquals(MessageResult.FLAGS, result.getIncludedResults());
+        assertTrue(MessageResultUtils.isFlagsIncluded(result));
+        result.setUid(99);
+        assertEquals(MessageResult.UID | MessageResult.FLAGS, result.getIncludedResults());
+        assertTrue(MessageResultUtils.isFlagsIncluded(result));
+        assertTrue(MessageResultUtils.isUidIncluded(result));
+        result.setMessageBody(content);
+        assertEquals(MessageResult.UID | MessageResult.FLAGS | MessageResult.BODY_CONTENT, result.getIncludedResults());
+        assertTrue(MessageResultUtils.isFlagsIncluded(result));
+        assertTrue(MessageResultUtils.isUidIncluded(result));
+        assertTrue(MessageResultUtils.isBodyContentIncluded(result));
+        result.setFullMessage(content);
+        assertEquals(MessageResult.UID | MessageResult.FLAGS | 
+                MessageResult.BODY_CONTENT | MessageResult.FULL_CONTENT, result.getIncludedResults());
+        assertTrue(MessageResultUtils.isFlagsIncluded(result));
+        assertTrue(MessageResultUtils.isUidIncluded(result));
+        assertTrue(MessageResultUtils.isBodyContentIncluded(result));
+        assertTrue(MessageResultUtils.isFullContentIncluded(result));
+        result.setHeaders(new ArrayList());
+        assertEquals(MessageResult.UID | MessageResult.FLAGS | 
+                MessageResult.BODY_CONTENT | MessageResult.FULL_CONTENT 
+                | MessageResult.HEADERS, result.getIncludedResults());
+        assertTrue(MessageResultUtils.isFlagsIncluded(result));
+        assertTrue(MessageResultUtils.isUidIncluded(result));
+        assertTrue(MessageResultUtils.isBodyContentIncluded(result));
+        assertTrue(MessageResultUtils.isFullContentIncluded(result));
+        assertTrue(MessageResultUtils.isHeadersIncluded(result));
+        result.setInternalDate(new Date());
+        assertEquals(MessageResult.UID | MessageResult.FLAGS | 
+                MessageResult.BODY_CONTENT | MessageResult.FULL_CONTENT 
+                | MessageResult.HEADERS | MessageResult.INTERNAL_DATE, result.getIncludedResults());
+        assertTrue(MessageResultUtils.isFlagsIncluded(result));
+        assertTrue(MessageResultUtils.isUidIncluded(result));
+        assertTrue(MessageResultUtils.isBodyContentIncluded(result));
+        assertTrue(MessageResultUtils.isFullContentIncluded(result));
+        assertTrue(MessageResultUtils.isHeadersIncluded(result));
+        assertTrue(MessageResultUtils.isInternalDateIncluded(result));
+        result.setSize(100);
+        assertEquals(MessageResult.UID | MessageResult.FLAGS | 
+                MessageResult.BODY_CONTENT | MessageResult.FULL_CONTENT 
+                | MessageResult.HEADERS | MessageResult.INTERNAL_DATE
+                | MessageResult.SIZE, result.getIncludedResults());
+        assertTrue(MessageResultUtils.isFlagsIncluded(result));
+        assertTrue(MessageResultUtils.isUidIncluded(result));
+        assertTrue(MessageResultUtils.isBodyContentIncluded(result));
+        assertTrue(MessageResultUtils.isFullContentIncluded(result));
+        assertTrue(MessageResultUtils.isHeadersIncluded(result));
+        assertTrue(MessageResultUtils.isInternalDateIncluded(result));
+        assertTrue(MessageResultUtils.isSizeIncluded(result));
+        result.setMsn(100);
+        assertEquals(MessageResult.UID | MessageResult.FLAGS | 
+                MessageResult.BODY_CONTENT | MessageResult.FULL_CONTENT 
+                | MessageResult.HEADERS | MessageResult.INTERNAL_DATE
+                | MessageResult.SIZE | MessageResult.MSN, result.getIncludedResults());
+        assertTrue(MessageResultUtils.isFlagsIncluded(result));
+        assertTrue(MessageResultUtils.isUidIncluded(result));
+        assertTrue(MessageResultUtils.isBodyContentIncluded(result));
+        assertTrue(MessageResultUtils.isFullContentIncluded(result));
+        assertTrue(MessageResultUtils.isHeadersIncluded(result));
+        assertTrue(MessageResultUtils.isInternalDateIncluded(result));
+        assertTrue(MessageResultUtils.isSizeIncluded(result));
+        assertTrue(MessageResultUtils.isMsnIncluded(result));
     }
 }

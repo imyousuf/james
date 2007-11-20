@@ -20,6 +20,7 @@
 package org.apache.james.mailboxmanager.wrapper;
 
 import java.util.Date;
+import java.util.Iterator;
 
 import javax.mail.internet.MimeMessage;
 
@@ -51,10 +52,10 @@ public class SessionMailboxWrapper extends NumberStableSessionWrapper implements
         return mailbox.getMessageResultTypes() | MessageResult.MSN;
     }
 
-    public MessageResult[] getMessages(GeneralMessageSet set, int result)
+    public Iterator getMessages(GeneralMessageSet set, int result)
             throws MailboxManagerException {
-        return addMsnToResults(mailbox.getMessages(toUidSet(set),
-                noMsnResult(result)), result);
+        return addMsn(mailbox.getMessages(toUidSet(set),
+                noMsnResult(result)));
     }
 
     public int getMessageSetTypes() {

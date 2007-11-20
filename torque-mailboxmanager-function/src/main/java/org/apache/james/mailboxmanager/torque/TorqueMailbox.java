@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -35,6 +36,7 @@ import javax.mail.Flags;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
+import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.logging.Log;
 import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxListener;
@@ -235,7 +237,7 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
                 GeneralMessageSet set=GeneralMessageSetImpl.uidRange(lastScannedUid+1, uid);
                 Criteria criteria=criteriaForMessageSet(set);
                 List messageRows=mailboxRow.getMessageRows(criteria);
-                MessageResult[] messageResults=fillMessageResult(messageRows, MessageResult.UID);
+                List messageResults=fillMessageResult(messageRows, MessageResult.UID);
                 getUidChangeTracker().found(uidRangeForMessageSet(set), messageResults);
             }
         }
@@ -273,7 +275,7 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
         return criteria;
     }
 
-    public MessageResult[] getMessages(GeneralMessageSet set, int result)
+    public Iterator getMessages(GeneralMessageSet set, int result)
             throws MailboxManagerException {
         try {
             lock.readLock().acquire();
@@ -281,7 +283,7 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
                 checkAccess();
                 set=toUidSet(set);
                 if (!set.isValid() || set.getType()==GeneralMessageSet.TYPE_NOTHING) {
-                    return new MessageResult[0];
+                    return IteratorUtils.EMPTY_ITERATOR;
                 }
                 UidRange range = uidRangeForMessageSet(set);
                 try {
@@ -301,13 +303,13 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
         }
     }
 
-    private MessageResult[] getMessages(int result, UidRange range, Criteria c) throws TorqueException, MessagingException, MailboxManagerException {
+    private Iterator getMessages(int result, UidRange range, Criteria c) throws TorqueException, MessagingException, MailboxManagerException {
         List l = MessageRowPeer.doSelectJoinMessageFlags(c);
-        MessageResult[] messageResults = fillMessageResult(l, result
+        final Collection messageResults = fillMessageResult(l, result
                 | MessageResult.UID | MessageResult.FLAGS);
         checkForScanGap(range.getFromUid());
         getUidChangeTracker().found(range, messageResults);
-        return messageResults;
+        return messageResults.iterator();
     }
 
     private static UidRange uidRangeForMessageSet(GeneralMessageSet set)
@@ -322,14 +324,14 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
         }
     }
 
-    private MessageResult[] fillMessageResult(List messageRows, int result)
+    private List fillMessageResult(List messageRows, int result)
             throws TorqueException, MessagingException, MailboxManagerException {
-        MessageResult[] messageResults = new MessageResult[messageRows.size()];
-        int i = 0;
+        
+        final List messageResults = new ArrayList(messageRows.size());
         for (Iterator iter = messageRows.iterator(); iter.hasNext();) {
             MessageRow messageRow=(MessageRow)iter.next();
-            messageResults[i] = fillMessageResult(messageRow, result);
-            i++;
+            MessageResult messageResult = fillMessageResult(messageRow, result);
+            messageResults.add(messageResult);
         }
         return messageResults;
     }
@@ -625,7 +627,7 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
         }
     }
 
-    public MessageResult[] expunge(GeneralMessageSet set, int result)
+    public Iterator expunge(GeneralMessageSet set, int result)
             throws MailboxManagerException {
         try {
             lock.writeLock().acquire();
@@ -640,11 +642,11 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
         }
     }
 
-    private MessageResult[] doExpunge(GeneralMessageSet set, int result) throws MailboxManagerException {
+    private Iterator doExpunge(GeneralMessageSet set, int result) throws MailboxManagerException {
         checkAccess();
         set=toUidSet(set);  
         if (!set.isValid() || set.getType()==GeneralMessageSet.TYPE_NOTHING) {
-            return new MessageResult[0];
+            return IteratorUtils.EMPTY_ITERATOR;
         }
         try {
             // TODO put this into a serializable transaction
@@ -655,7 +657,7 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
             c.add(MessageFlagsPeer.DELETED, true);
 
             final List messageRows = getMailboxRow().getMessageRows(c);
-            final MessageResult[] messageResults = fillMessageResult(messageRows, result
+            final List messageResults = fillMessageResult(messageRows, result
                     | MessageResult.UID | MessageResult.FLAGS);
 
             for (Iterator iter = messageRows.iterator(); iter.hasNext();) {
@@ -666,7 +668,7 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
                 MessageRowPeer.doDelete(todelc);
             }
             getUidChangeTracker().expunged(messageResults);
-            return messageResults;
+            return messageResults.iterator();
         } catch (Exception e) {
             throw new MailboxManagerException(e);
         }
@@ -699,7 +701,7 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
             // TODO put this into a serializeable transaction
             final List messageRows = getMailboxRow()
                     .getMessageRows(criteriaForMessageSet(set));
-            final MessageResult[] beforeResults = fillMessageResult(messageRows,
+            final Collection beforeResults = fillMessageResult(messageRows,
                     MessageResult.UID | MessageResult.FLAGS);
             UidRange uidRange=uidRangeForMessageSet(set);
             checkForScanGap(uidRange.getFromUid());
@@ -722,11 +724,11 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
                     messageFlags.save();
                 }
             }
-            final MessageResult[] afterResults = fillMessageResult(messageRows,
+            final Collection afterResults = fillMessageResult(messageRows,
                     results | MessageResult.UID | MessageResult.FLAGS);
             tracker.flagsUpdated(afterResults, sessionId);
             tracker.found(uidRange, afterResults);
-            return Arrays.asList(afterResults).iterator();
+            return afterResults.iterator();
         } catch (Exception e) {
             throw new MailboxManagerException(e);
         }
@@ -826,7 +828,7 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
         this.mailboxRow = mailboxRow;
     }
 
-    public MessageResult[] search(GeneralMessageSet set, SearchParameters parameters,
+    public Iterator search(GeneralMessageSet set, SearchParameters parameters,
             int result) throws MailboxManagerException {
         try {
             lock.readLock().acquire();
@@ -834,7 +836,7 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
                 checkAccess();
                 set=toUidSet(set);
                 if (!set.isValid() || set.getType()==GeneralMessageSet.TYPE_NOTHING) {
-                    return new MessageResult[0];
+                    return IteratorUtils.EMPTY_ITERATOR;
                 }
                 
                 TorqueCriteriaBuilder builder = new TorqueCriteriaBuilder();
@@ -930,7 +932,7 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
                     }
                 }
                 
-                final MessageResult[] results = getMessages(result, new UidRange(1, -1), builder.getCriteria());
+                final Iterator results = getMessages(result, new UidRange(1, -1), builder.getCriteria());
                 return results;
             } catch (TorqueException e) {
                 throw new MailboxManagerException(e);

@@ -177,7 +177,7 @@ public class MessageResultImpl implements MessageResult {
 
     public void setSize(int size) {
         this.size=size;
-        includedResults = SIZE;
+        includedResults |= SIZE;
     }
 
     public void setInternalDate(Date internalDate) {

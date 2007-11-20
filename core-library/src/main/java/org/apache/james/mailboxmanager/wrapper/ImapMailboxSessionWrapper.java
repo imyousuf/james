@@ -19,9 +19,10 @@
 
 package org.apache.james.mailboxmanager.wrapper;
 
+import java.util.Iterator;
+
 import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxManagerException;
-import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.Quota;
 import org.apache.james.mailboxmanager.SearchParameters;
 import org.apache.james.mailboxmanager.acl.MailboxRights;
@@ -64,8 +65,9 @@ public class ImapMailboxSessionWrapper extends FlaggedSessionMailboxWrapper
         return ((ImapMailbox) mailbox).getUidNext();
     }
 
-    public MessageResult[] search(GeneralMessageSet set, SearchParameters searchTerm, int result) throws MailboxManagerException {
-        return addMsnToResults(((SearchableMailbox)mailbox).search(set, searchTerm, noMsnResult(result)),result);
+    public Iterator search(GeneralMessageSet set, SearchParameters searchTerm, int result) throws MailboxManagerException {
+        final Iterator results = ((SearchableMailbox)mailbox).search(set, searchTerm, noMsnResult(result));
+        return addMsn(results);
     }
 
     public long getSessionId() {

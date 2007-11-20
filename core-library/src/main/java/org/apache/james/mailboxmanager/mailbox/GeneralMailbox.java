@@ -20,6 +20,7 @@
 package org.apache.james.mailboxmanager.mailbox;
 
 import java.util.Date;
+import java.util.Iterator;
 
 import javax.mail.internet.MimeMessage;
 
@@ -91,7 +92,7 @@ public interface GeneralMailbox extends Mailbox, EventTriggerMailbox {
      * @throws MailboxManagerException 
      */
 
-    MessageResult[] getMessages(GeneralMessageSet set, int result) throws MailboxManagerException;
+    Iterator getMessages(GeneralMessageSet set, int result) throws MailboxManagerException;
     
     void remove(GeneralMessageSet set)
             throws MailboxManagerException;
