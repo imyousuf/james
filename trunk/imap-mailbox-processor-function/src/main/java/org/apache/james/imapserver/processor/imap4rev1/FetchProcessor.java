@@ -276,7 +276,7 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
             String[] excludeNames = extractHeaderList(sectionSpecifier,
                     "HEADER.FIELDS.NOT ".length());
             final Iterator headers = result.iterateHeaders();
-            List lines = MessageResultUtils.getMatching(excludeNames, headers);
+            List lines = MessageResultUtils.getNotMatching(excludeNames, headers);
             addHeaders(lines, response);
         } else if (sectionSpecifier.startsWith("HEADER.FIELDS ")) {
             String[] includeNames = extractHeaderList(sectionSpecifier,

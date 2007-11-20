@@ -27,7 +27,7 @@ S: f1 OK FETCH completed.
 
 # BODY.PEEK[]
 C: f1 FETCH 2 (BODY.PEEK[])
-S: \* 2 FETCH \(BODY\[\] \{255\}
+S: \* 2 FETCH \(BODY\[\] \{254\}
 S: Date: Mon, 7 Feb 1994 21:52:25 -0800 \(PST\)
 S: From: Fred Foobar <foobar@Blurdybloop\.COM>
 S: Subject: Test 02
@@ -61,7 +61,7 @@ S: From: Fred Foobar <foobar@Blurdybloop\.COM>
 S: To: mooch@owatagu\.siam\.edu
 S:
 S: \)
-S: f1 OK FETCH completed
+S: f1 OK FETCH completed.
 
 # BODY.PEEK[HEADER.FIELDS.NOT]
 C: f1 FETCH 2 (BODY.PEEK[HEADER.FIELDS.NOT (From To)])
@@ -80,7 +80,7 @@ S: f1 OK FETCH completed.
 
 # BODY.PEEK[TEXT]
 C: f1 FETCH 2 (BODY.PEEK[TEXT])
-S: \* 2 FETCH \(BODY\[TEXT\] \{10\}
+S: \* 2 FETCH \(BODY\[TEXT\] \{9\}
 S: Test 02
 S: \)
 S: f1 OK FETCH completed.

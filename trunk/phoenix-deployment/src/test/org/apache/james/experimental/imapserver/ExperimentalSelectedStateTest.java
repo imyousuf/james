@@ -36,15 +36,10 @@ public class ExperimentalSelectedStateTest extends AbstractTestSelectedState {
         //super.testFetchMultipleMessages();
     }
 
-    public void testFetchPeekUS() throws Exception {
-        // STORE FLAGS.SILENT does not work
-        //super.testFetchPeek();
-    }
-
     public void testFetchSingleMessageUS() throws Exception {
         // BODY octet count is buggy.
         // The total size of the message is used rather than the size of the part
-        //super.testFetchSingleMessage();
+        //super.testFetchSingleMessageUS();
     }
 
     public void testUidUS() throws Exception {
@@ -65,11 +60,6 @@ public class ExperimentalSelectedStateTest extends AbstractTestSelectedState {
     public void testFetchMultipleMessagesKOREA() throws Exception {
         // TODO Auto-generated method stub
         //super.testFetchMultipleMessages();
-    }
-
-    public void testFetchPeekKOREA() throws Exception {
-        // STORE FLAGS.SILENT does not work
-        //super.testFetchPeek();
     }
 
     public void testFetchSingleMessageKOREA() throws Exception {
@@ -95,11 +85,6 @@ public class ExperimentalSelectedStateTest extends AbstractTestSelectedState {
     public void testFetchMultipleMessagesITALY() throws Exception {
         // TODO Auto-generated method stub
         //super.testFetchMultipleMessages();
-    }
-
-    public void testFetchPeekITALY() throws Exception {
-        // STORE FLAGS.SILENT does not work
-        //super.testFetchPeek();
     }
 
     public void testFetchSingleMessageITALY() throws Exception {
