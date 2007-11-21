@@ -22,8 +22,9 @@ package org.apache.james.mailboxmanager.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.mail.Flags;
+
 import org.apache.james.mailboxmanager.MailboxListener;
-import org.apache.james.mailboxmanager.MessageResult;
 
 public class MailboxListenerCollector implements MailboxListener {
     
@@ -31,16 +32,16 @@ public class MailboxListenerCollector implements MailboxListener {
     protected List expungedList =new ArrayList();
     protected List flaggedList =new ArrayList();
 
-    public void added(MessageResult mr) {
-        addedList.add(mr);
+    public void added(final long uid) {
+        addedList.add(new Long(uid));
     }
 
-    public void expunged(MessageResult mr) {
-        expungedList.add(mr);
+    public void expunged(final long uid) {
+        expungedList.add(new Long(uid));
     }
 
-    public void flagsUpdated(MessageResult mr) {
-        flaggedList.add(mr);
+    public void flagsUpdated(final long uid, final Flags flags) {
+        flaggedList.add(new MessageFlags(uid, flags));
     }
     
     public synchronized List getAddedList(boolean reset) {
@@ -79,13 +80,15 @@ public class MailboxListenerCollector implements MailboxListener {
     public void event(Event event) {
         if (event instanceof MessageEvent) {
             final MessageEvent messageEvent = (MessageEvent) event;
-            final MessageResult subject = messageEvent.getSubject();
+            final long uid = messageEvent.getSubjectUid();
             if (event instanceof Added) {
-                added(subject);
+                added(uid);
             } else if (event instanceof Expunged) {
-                expunged(subject);
+                expunged(uid);
             } else if (event instanceof FlagsUpdated) {
-                flagsUpdated(subject);
+                FlagsUpdated flagsUpdated = (FlagsUpdated) messageEvent;
+                final Flags newFlags = flagsUpdated.getNewFlags();
+                flagsUpdated(uid, newFlags);
             }
         }
     }

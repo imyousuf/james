@@ -21,6 +21,8 @@ package org.apache.james.mailboxmanager;
 
 import java.util.Iterator;
 
+import javax.mail.Flags;
+
 
 /**
  * Listens to <code>Mailbox</code> events.
@@ -50,16 +52,24 @@ public interface MailboxListener {
      * A mailbox event related to a message.
      */
     public interface MessageEvent extends Event {
+        
         /**
-         * Gets the subject of this event.
-         * @return <code>MessageResult</code>, not null
+         * Gets the message UID for the subject
+         * of this event.
+         * 
+         * @return message uid
          */
-        public MessageResult getSubject();
+        public long getSubjectUid();
     }
     
     public abstract class Expunged implements MessageEvent {}
     
     public abstract class FlagsUpdated implements MessageEvent {
+        
+        /**
+         * Gets new flags for this message.
+         */
+        public abstract Flags getNewFlags();
         
         /**
          * Gets an iterator for the system flags changed.

@@ -25,6 +25,7 @@ import javax.mail.Flags;
 
 import org.apache.james.mailboxmanager.MailboxListener;
 import org.apache.james.mailboxmanager.MessageResult;
+import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 
 public class MailboxEventDispatcherFlagsTest extends MockObjectTestCase {
@@ -33,13 +34,17 @@ public class MailboxEventDispatcherFlagsTest extends MockObjectTestCase {
     EventCollector collector;
     MessageResult result;
     int sessionId = 10;
+    Mock mockMessageResult;
     
     protected void setUp() throws Exception {
         super.setUp();
         dispatcher = new MailboxEventDispatcher();
         collector = new EventCollector();
         dispatcher.addMailboxListener(collector);
-        result = (MessageResult) mock(MessageResult.class).proxy();
+        mockMessageResult = mock(MessageResult.class);
+        mockMessageResult.expects(once()).method("getIncludedResults").will(returnValue(MessageResult.FLAGS | MessageResult.UID));
+        mockMessageResult.expects(once()).method("getUid").will(returnValue(23L));
+        result = (MessageResult) mockMessageResult.proxy();
     }
 
     protected void tearDown() throws Exception {
