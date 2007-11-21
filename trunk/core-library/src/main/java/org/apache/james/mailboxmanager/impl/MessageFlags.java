@@ -19,14 +19,41 @@
 
 package org.apache.james.mailboxmanager.impl;
 
+import java.util.Collection;
+import java.util.Iterator;
+
 import javax.mail.Flags;
+
+import org.apache.james.mailboxmanager.MessageResult;
 
 /**
  * Represents the flags for a message.
  */
 public class MessageFlags {
+    
+    
+    /**
+     * Converts given message results into {@link MessageFlags}.
+     * @param messageResults <code>Collection</code> of {@link MessageResult}, not null
+     * @return <code>MessageFlags</code> array, not null
+     */
+    public static final MessageFlags[] toMessageFlags(Collection messageResults) {
+        final int size = messageResults.size();
+        final MessageFlags[] results = new MessageFlags[size];
+        int i=0;
+        for (final Iterator it=messageResults.iterator();it.hasNext();) {
+            final MessageResult result = (MessageResult) it.next();
+            results[i++] = new MessageFlags(result);
+        }
+        return results;
+    }
+    
     private final long uid;
     private Flags flags;
+    
+    public MessageFlags(final MessageResult result) {
+        this(result.getUid(),result.getFlags());
+    }
     
     public MessageFlags(final long uid, Flags flags) {
         this.uid = uid;

@@ -22,7 +22,6 @@ package org.apache.james.mailboxmanager.tracking;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -33,11 +32,13 @@ import javax.mail.Flags;
 import org.apache.james.mailboxmanager.Constants;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.MessageResultUtils;
-import org.apache.james.mailboxmanager.impl.MessageResultImpl;
+import org.apache.james.mailboxmanager.impl.MessageFlags;
 import org.apache.james.mailboxmanager.mailbox.GeneralMailbox;
 
 public class UidChangeTracker extends MailboxTracker implements Constants {
+    
 
+    
     private TreeMap cache = new TreeMap();
 
     private long lastUidAtStart;
@@ -53,13 +54,12 @@ public class UidChangeTracker extends MailboxTracker implements Constants {
         this.lastUid = lastUid;
     }
 
-    public synchronized void expunged(final List expunged) {
-        for (Iterator it = expunged.iterator();it.hasNext();) {
-            final MessageResult result = (MessageResult) it.next();
-            if (result != null) {
-                cache.remove(new Long(result.getUid()));
-                eventDispatcher.expunged(result, 0);
-            }
+    public synchronized void expunged(final long[] uidsExpunged) {
+        final int length = uidsExpunged.length;
+        for (int i=0;i< length;i++) {
+            final long uid = uidsExpunged[i];
+            cache.remove(new Long(uid));
+            eventDispatcher.expunged(uid, 0);
         }
     }
     
@@ -88,29 +88,34 @@ public class UidChangeTracker extends MailboxTracker implements Constants {
             final Flags flags = messageResult.getFlags();
             final long uid = messageResult.getUid();
             final Long uidLong = new Long(uid);
-            updatedFlags(messageResult, flags, uidLong, sessionId);
+            updatedFlags(uid, flags, uidLong, sessionId);
         }
     }
     
     public synchronized void found(UidRange range, final Collection messageResults) {
+        found(range, MessageFlags.toMessageFlags(messageResults));
+    }
+    
+    public synchronized void found(UidRange range, final MessageFlags[] messageFlags) {
         Set expectedSet = getSubSet(range);
-        for (final Iterator it=messageResults.iterator();it.hasNext();) {
-            final MessageResult messageResult = (MessageResult) it.next();
-            if (messageResult != null) {
-                long uid = messageResult.getUid();
+        final int length = messageFlags.length;
+        for (int i=0;i<length;i++) {
+            final MessageFlags message = messageFlags[i];
+            if (message != null) {
+                long uid = message.getUid();
                 if (uid>lastScannedUid) {
                     lastScannedUid=uid;
                 }
-                final Flags flags = messageResult.getFlags();
+                final Flags flags = message.getFlags();
                 final Long uidLong = new Long(uid);
                 if (expectedSet.contains(uidLong)) {
                     expectedSet.remove(uidLong);
-                    updatedFlags(messageResult, flags, uidLong, 
+                    updatedFlags(uid, flags, uidLong, 
                             GeneralMailbox.ANONYMOUS_SESSION);
                 } else {
                     cache.put(uidLong, flags);
                     if (uid > lastUidAtStart) {
-                        eventDispatcher.added(messageResult, 0);
+                        eventDispatcher.added(uid, 0);
                     }
                 }
             }
@@ -126,25 +131,20 @@ public class UidChangeTracker extends MailboxTracker implements Constants {
             lastScannedUid=range.getToUid();
         }
         
-
-        
         for (Iterator iter = expectedSet.iterator(); iter.hasNext();) {
             long uid = ((Long) iter.next()).longValue();
-
-            MessageResultImpl mr = new MessageResultImpl();
-            mr.setUid(uid);
-            eventDispatcher.expunged(mr, 0);
+            eventDispatcher.expunged(uid, 0);
         }
     }
 
-    private void updatedFlags(final MessageResult messageResult, final Flags flags, 
+    private void updatedFlags(final long uid, final Flags flags, 
             final Long uidLong, final long sessionId) {
         if (flags != null) {
             Flags cachedFlags = (Flags) cache.get(uidLong);
             if (cachedFlags == null
                     || !flags.equals(cachedFlags)) {
                 if (cachedFlags != null) {
-                    eventDispatcher.flagsUpdated(messageResult, sessionId,
+                    eventDispatcher.flagsUpdated(uid, sessionId,
                              cachedFlags, flags);
                 }
                 cache.put(uidLong, flags);

@@ -23,7 +23,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -657,6 +656,7 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
             c.add(MessageFlagsPeer.DELETED, true);
 
             final List messageRows = getMailboxRow().getMessageRows(c);
+            final long[] uids = uids(messageRows);
             final List messageResults = fillMessageResult(messageRows, result
                     | MessageResult.UID | MessageResult.FLAGS);
 
@@ -667,11 +667,21 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
                 todelc.add(MessageRowPeer.UID,messageRow.getUid());
                 MessageRowPeer.doDelete(todelc);
             }
-            getUidChangeTracker().expunged(messageResults);
+            getUidChangeTracker().expunged(uids);
             return messageResults.iterator();
         } catch (Exception e) {
             throw new MailboxManagerException(e);
         }
+    }
+
+    private long[] uids(List messageRows) {
+        final int size = messageRows.size();
+        long[] results = new long[size];
+        for (int i=0;i<size;i++) {
+            final MessageRow messageRow = (MessageRow) messageRows.get(i);
+            results[i] = (messageRow).getUid();
+        }
+        return results;
     }
 
     public Iterator setFlags(Flags flags, boolean value, boolean replace,
