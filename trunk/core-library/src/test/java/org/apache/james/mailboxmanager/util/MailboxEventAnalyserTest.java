@@ -51,28 +51,27 @@ public class MailboxEventAnalyserTest extends MockObjectTestCase {
     }
     
     public void testShouldBeNoSizeChangeOnAdded() throws Exception {
-        analyser.event(new MockMailboxListenerAdded((MessageResult) mock(MessageResult.class).proxy(), 11));
+        analyser.event(new MockMailboxListenerAdded(78, 11));
         assertTrue(analyser.isSizeChanged());
     }
     
     public void testShouldNoSizeChangeAfterReset() throws Exception {
-        analyser.event(new MockMailboxListenerAdded((MessageResult) mock(MessageResult.class).proxy(), 11));
+        analyser.event(new MockMailboxListenerAdded(99, 11));
         analyser.reset();
         assertFalse(analyser.isSizeChanged());
     }
     
     public void testShouldNotSetUidWhenNoSystemFlagChange() throws Exception {
-        final MockMailboxListenerFlagsUpdate update = new MockMailboxListenerFlagsUpdate((MessageResult) mock(MessageResult.class).proxy(), 11);
+        final MockMailboxListenerFlagsUpdate update 
+            = new MockMailboxListenerFlagsUpdate(90, new Flags(), 11);
         analyser.event(update);
         assertNotNull(analyser.flagUpdateUids());
         assertFalse(analyser.flagUpdateUids().hasNext());
     }
     
     public void testShouldSetUidWhenSystemFlagChange() throws Exception {
-        final Mock mockMessageResult = mock(MessageResult.class);
         final long uid = 900L;
-        mockMessageResult.expects(once()).method("getUid").will(returnValue(uid));
-        final MockMailboxListenerFlagsUpdate update = new MockMailboxListenerFlagsUpdate((MessageResult) mockMessageResult.proxy(), 11);
+        final MockMailboxListenerFlagsUpdate update = new MockMailboxListenerFlagsUpdate(uid, new Flags(), 11);
         update.flags.add(Flags.Flag.ANSWERED);
         analyser.event(update);
         final Iterator iterator = analyser.flagUpdateUids();
@@ -83,10 +82,8 @@ public class MailboxEventAnalyserTest extends MockObjectTestCase {
     }
     
     public void testShouldClearFlagUidsUponReset() throws Exception {
-        final Mock mockMessageResult = mock(MessageResult.class);
         final long uid = 900L;
-        mockMessageResult.expects(once()).method("getUid").will(returnValue(uid));
-        final MockMailboxListenerFlagsUpdate update = new MockMailboxListenerFlagsUpdate((MessageResult) mockMessageResult.proxy(), 11);
+        final MockMailboxListenerFlagsUpdate update = new MockMailboxListenerFlagsUpdate(uid, new Flags(), 11);
         update.flags.add(Flags.Flag.ANSWERED);
         analyser.event(update);
         analyser.reset();
@@ -95,10 +92,8 @@ public class MailboxEventAnalyserTest extends MockObjectTestCase {
     }
     
     public void testShouldNotSetUidWhenSystemFlagChangeDifferentSessionInSilentMode() throws Exception {
-        final Mock mockMessageResult = mock(MessageResult.class);
         final long uid = 900L;
-        mockMessageResult.expects(once()).method("getUid").will(returnValue(uid));
-        final MockMailboxListenerFlagsUpdate update = new MockMailboxListenerFlagsUpdate((MessageResult) mockMessageResult.proxy(), 11);
+        final MockMailboxListenerFlagsUpdate update = new MockMailboxListenerFlagsUpdate(uid, new Flags(), 11);
         update.flags.add(Flags.Flag.ANSWERED);
         analyser.setSilentFlagChanges(true);
         analyser.event(update);
@@ -110,8 +105,7 @@ public class MailboxEventAnalyserTest extends MockObjectTestCase {
     }
     
     public void testShouldNotSetUidWhenSystemFlagChangeSameSessionInSilentMode() throws Exception {
-        final Mock mockMessageResult = mock(MessageResult.class);
-        final MockMailboxListenerFlagsUpdate update = new MockMailboxListenerFlagsUpdate((MessageResult) mockMessageResult.proxy(), BASE_SESSION_ID);
+        final MockMailboxListenerFlagsUpdate update = new MockMailboxListenerFlagsUpdate(345, new Flags(), BASE_SESSION_ID);
         update.flags.add(Flags.Flag.ANSWERED);
         analyser.setSilentFlagChanges(true);
         analyser.event(update);
@@ -121,8 +115,7 @@ public class MailboxEventAnalyserTest extends MockObjectTestCase {
     }
     
     public void testShouldNotSetUidWhenOnlyRecentFlagUpdated() throws Exception {
-        final Mock mockMessageResult = mock(MessageResult.class);
-        final MockMailboxListenerFlagsUpdate update = new MockMailboxListenerFlagsUpdate((MessageResult) mockMessageResult.proxy(), BASE_SESSION_ID);
+        final MockMailboxListenerFlagsUpdate update = new MockMailboxListenerFlagsUpdate(886, new Flags(), BASE_SESSION_ID);
         update.flags.add(Flags.Flag.RECENT);
         analyser.event(update);
         final Iterator iterator = analyser.flagUpdateUids();

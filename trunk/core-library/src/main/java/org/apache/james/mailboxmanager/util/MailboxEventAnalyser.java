@@ -26,7 +26,6 @@ import java.util.Set;
 import javax.mail.Flags;
 
 import org.apache.james.mailboxmanager.MailboxListener;
-import org.apache.james.mailboxmanager.MessageResult;
 
 public class MailboxEventAnalyser implements MailboxListener {
 
@@ -46,19 +45,16 @@ public class MailboxEventAnalyser implements MailboxListener {
     public void event(Event event) {
         if (event instanceof MessageEvent) {
             final MessageEvent messageEvent = (MessageEvent) event;
-            final MessageResult result =  messageEvent.getSubject();
+            final long uid =  messageEvent.getSubjectUid();
             final long eventSessionId = messageEvent.getSessionId();
-            if (result != null) {
-                if (messageEvent instanceof Added) {
-                    sizeChanged = true;
-                } else if (messageEvent instanceof FlagsUpdated) {
-                    FlagsUpdated updated = (FlagsUpdated) messageEvent;
-                    if (interestingFlags(updated) && 
-                            (sessionId != eventSessionId || !silentFlagChanges)) {
-                        final long uid = result.getUid();
-                        final Long uidObject = new Long(uid);
-                        flagUpdateUids.add(uidObject);
-                    }
+            if (messageEvent instanceof Added) {
+                sizeChanged = true;
+            } else if (messageEvent instanceof FlagsUpdated) {
+                FlagsUpdated updated = (FlagsUpdated) messageEvent;
+                if (interestingFlags(updated) && 
+                        (sessionId != eventSessionId || !silentFlagChanges)) {
+                    final Long uidObject = new Long(uid);
+                    flagUpdateUids.add(uidObject);
                 }
             }
         }

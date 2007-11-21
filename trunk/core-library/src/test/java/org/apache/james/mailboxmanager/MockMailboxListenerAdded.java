@@ -21,17 +21,17 @@ package org.apache.james.mailboxmanager;
 
 public class MockMailboxListenerAdded extends MailboxListener.Added {
 
-    public MessageResult subject;
+    public long subjectUid;
     public long sessionId;
     
-    public MockMailboxListenerAdded(MessageResult subject, long sessionId) {
+    public MockMailboxListenerAdded(long subjectUid, long sessionId) {
         super();
-        this.subject = subject;
+        this.subjectUid = subjectUid;
         this.sessionId = sessionId;
     }
 
-    public MessageResult getSubject() {
-        return subject;
+    public long getSubjectUid() {
+        return subjectUid;
     }
 
     public long getSessionId() {

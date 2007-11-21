@@ -19,7 +19,7 @@
 
 package org.apache.james.mailboxmanager.wrapper;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -159,64 +159,53 @@ public abstract class NumberStableSessionWrapper extends AbstractGeneralMailbox 
         return mr;
     }
 
-    public synchronized MessageResult[] getFlagEvents(boolean reset)
-            throws MailboxManagerException {
-        final MessageResult[] msnFlagEvents = buildMsnEvents(flagEventMap.values(),false);
-        if (reset) {
-            flagEventMap = new TreeMap();
-        }
-        return msnFlagEvents;
-    }
-
     public synchronized Iterator getExpungedEvents(boolean reset)
             throws MailboxManagerException {
-        final MessageResult[] msnExpungedEvents  = buildMsnEvents(expungedEventList,reset);
+        final Collection msnExpungedEvents  = buildMsnEvents(expungedEventList,reset);
         if (reset) {
             expungedEventList = new TreeSet();
         } 
-        return Arrays.asList(msnExpungedEvents).iterator();
+        return msnExpungedEvents.iterator();
     }
 
-    protected MessageResult[]  buildMsnEvents(final Collection messageResults, 
+    private Collection  buildMsnEvents(final Collection messageResults, 
             final boolean expunge)
             throws MailboxManagerException {
-        final MessageResult[]  msnEvents = new MessageResult[messageResults.size()];
-        int i=0;
+        final Collection msnEvents = new ArrayList(messageResults.size());
         for (final Iterator iter = messageResults.iterator(); iter.hasNext();) {
-            final MessageResult original = (MessageResult) iter.next();
-            final MessageResultImpl newMr = new MessageResultImpl(original);
-            final long uid = original.getUid();
+            final Long uidObject = (Long) iter.next();
+            final long uid = uidObject.longValue();
+            final MessageResultImpl message = new MessageResultImpl(uid);
             final UidToMsnBidiMap numberCache = getNumberCache();
             final int msn = numberCache.getMsn(uid);
-            newMr.setMsn(msn);
+            message.setMsn(msn);
             if (expunge) {
                 numberCache.expunge(uid);
             }
-            msnEvents[i++]=newMr;
+            msnEvents.add(message);
         }
         return msnEvents;
     }
 
-    public void added(MessageResult result) {
+    public void added(final long uid) {
         try {
             // added events dispatched before the cache has been started
             // should be ignored
             if (!startingNumberCache && numberCache != null) 
             {
-                getNumberCache().add(result.getUid());
+                getNumberCache().add(uid);
             }
         } catch (MailboxManagerException e) {
             getLog().error("This should not happen",e);
         }
     }
 
-    public void expunged(MessageResult mr) {
-        getLog().debug("Expunged: "+mr);
-        expungedEventList.add(mr);
+    public void expunged(final long uid) {
+        getLog().debug("Expunged: "+uid);
+        expungedEventList.add(new Long(uid));
     }
 
-    public synchronized void flagsUpdated(MessageResult mr, long sessionId) {
-        final long uid = mr.getUid();
+    public synchronized void flagsUpdated(final long uid, final Flags flags, long sessionId) {
         final Long uidObject = new Long(uid);
         if (sessionId != getSessionId() && !flagEventMap.containsKey(uidObject)) {
             // if there has been an external update in the past we should inform
@@ -224,7 +213,6 @@ public abstract class NumberStableSessionWrapper extends AbstractGeneralMailbox 
             
             // only store flags
             final MessageResultImpl lightweightResult = new MessageResultImpl(uid);
-            final Flags flags = mr.getFlags();
             lightweightResult.setFlags(flags);
             flagEventMap.put(uidObject, lightweightResult);
         }
@@ -239,13 +227,15 @@ public abstract class NumberStableSessionWrapper extends AbstractGeneralMailbox 
         if (event instanceof MessageEvent) {
             final long sessionId = event.getSessionId();
             final MessageEvent messageEvent = (MessageEvent) event;
-            final MessageResult result = messageEvent.getSubject();
+            final long uid = messageEvent.getSubjectUid();
             if (event instanceof Added) {
-                added(result);
+                added(uid);
             } else if (event instanceof Expunged) {
-                expunged(result);
+                expunged(uid);
             } else if (event instanceof FlagsUpdated) {
-                flagsUpdated(result, sessionId);
+                final FlagsUpdated flagsUpdated = (FlagsUpdated) event;
+                flagsUpdated(flagsUpdated.getSubjectUid(), flagsUpdated.getNewFlags(), 
+                        sessionId);
             }
         }
     }
