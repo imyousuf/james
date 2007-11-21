@@ -21,13 +21,10 @@ package org.apache.james.mailboxmanager;
 
 import java.util.Date;
 import java.util.Iterator;
-import java.util.List;
 
 import javax.mail.Flags;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-
-import org.apache.mailet.Mail;
 
 /**
  * <p>
@@ -71,11 +68,6 @@ public interface MessageResult extends Comparable {
      * 
      */
     public static final int MIME_MESSAGE = 0x01;
-
-    /**
-     * return a complete mail object
-     */
-    public static final int MAIL = 0x02;
 
     public static final int UID = 0x04;
 
@@ -139,8 +131,6 @@ public interface MessageResult extends Comparable {
      * 
      */
     Flags getFlags();
-
-    Mail getMail();
 
     String getKey();
     
