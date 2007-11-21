@@ -27,8 +27,6 @@ import javax.mail.Flags;
 import javax.mail.Flags.Flag;
 
 import org.apache.james.mailboxmanager.MailboxListener;
-import org.apache.james.mailboxmanager.MessageResult;
-import org.apache.james.mailboxmanager.MessageResultUtils;
 
 import EDU.oswego.cs.dl.util.concurrent.CopyOnWriteArraySet;
 
@@ -44,37 +42,29 @@ public class MailboxEventDispatcher implements MailboxListener {
         listeners.remove(mailboxListener);
     }
 
-    public void added(MessageResult result, long sessionId) {
-        if (MessageResultUtils.isUidIncluded(result)) {
-            final AddedImpl added = new AddedImpl(sessionId, result.getUid());
-            for (Iterator iter = listeners.iterator(); iter.hasNext();) {
-                MailboxListener mailboxListener = (MailboxListener) iter.next();
-                mailboxListener.event(added);
-            }
+    public void added(long uid, long sessionId) {
+        final AddedImpl added = new AddedImpl(sessionId, uid);
+        for (Iterator iter = listeners.iterator(); iter.hasNext();) {
+            MailboxListener mailboxListener = (MailboxListener) iter.next();
+            mailboxListener.event(added);
         }
     }
 
-    public void expunged(final MessageResult result, long sessionId) {
-        if (MessageResultUtils.isUidIncluded(result)) {
-            final long uid = result.getUid();
-            final ExpungedImpl expunged = new ExpungedImpl(sessionId, uid);
-            for (Iterator iter = listeners.iterator(); iter.hasNext();) {
-                MailboxListener mailboxListener = (MailboxListener) iter.next();
-                mailboxListener.event(expunged);
-            }
+    public void expunged(final long uid, long sessionId) {
+        final ExpungedImpl expunged = new ExpungedImpl(sessionId, uid);
+        for (Iterator iter = listeners.iterator(); iter.hasNext();) {
+            MailboxListener mailboxListener = (MailboxListener) iter.next();
+            mailboxListener.event(expunged);
         }
     }
 
-    public void flagsUpdated(final MessageResult result, long sessionId, final Flags original,
+    public void flagsUpdated(final long uid, long sessionId, final Flags original,
             final Flags updated) {
-        if (MessageResultUtils.isUidIncluded(result)) {
-            final long uid = result.getUid();
-            final FlagsUpdatedImpl flags = new FlagsUpdatedImpl(sessionId, uid, 
-                    original, updated);
-            for (Iterator iter = listeners.iterator(); iter.hasNext();) {
-                MailboxListener mailboxListener = (MailboxListener) iter.next();
-                mailboxListener.event(flags);
-            }
+        final FlagsUpdatedImpl flags = new FlagsUpdatedImpl(sessionId, uid, 
+                original, updated);
+        for (Iterator iter = listeners.iterator(); iter.hasNext();) {
+            MailboxListener mailboxListener = (MailboxListener) iter.next();
+            mailboxListener.event(flags);
         }
     }
 
