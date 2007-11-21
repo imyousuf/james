@@ -30,7 +30,6 @@ import javax.mail.internet.MimeMessage;
 import org.apache.commons.collections.IteratorUtils;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.MessageResultUtils;
-import org.apache.mailet.Mail;
 
 /**
  * Bean based implementation.
@@ -129,11 +128,6 @@ public class MessageResultImpl implements MessageResult {
 
     public Flags getFlags() {
         return flags;
-    }
-
-    public Mail getMail() {
-        // TODO implement or remove
-        return null;
     }
 
     public String getKey() {
