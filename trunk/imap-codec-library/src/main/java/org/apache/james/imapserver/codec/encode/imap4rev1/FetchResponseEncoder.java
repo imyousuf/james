@@ -21,6 +21,8 @@ package org.apache.james.imapserver.codec.encode.imap4rev1;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.mail.Flags;
 
@@ -52,11 +54,21 @@ public class FetchResponseEncoder extends AbstractChainedImapEncoder {
             encodeSize(composer, fetchResponse);
             encode(composer, fetchResponse.getMisc());
             encodeUid(composer, fetchResponse);
-            encode(composer, fetchResponse.getElements());
+            encodeBodyElements(composer, fetchResponse.getElements());
             composer.closeFetchResponse();
         }
     }
     
+    private void encodeBodyElements(final ImapResponseComposer composer, final List elements) throws IOException {
+        if (elements != null) {
+            for (final Iterator it = elements.iterator();it.hasNext();) {
+                FetchResponse.BodyElement element = (FetchResponse.BodyElement) it.next();
+                composer.message(element.getName());
+                composer.literal(element);
+            }
+        }
+    }
+
     private void encode(ImapResponseComposer composer, StringBuffer buffer) throws IOException {
         if (buffer != null && buffer.length() > 0) {
             composer.message(buffer.substring(1));

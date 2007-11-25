@@ -30,6 +30,8 @@ import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.api.imap.message.MessageFlags;
+import org.apache.james.imap.message.response.imap4rev1.Literal;
+import org.apache.james.imap.message.response.imap4rev1.FetchResponse.BodyElement;
 import org.apache.james.imapserver.codec.encode.ImapResponseComposer;
 import org.apache.james.imapserver.codec.encode.ImapResponseWriter;
 
@@ -449,4 +451,9 @@ public class ImapResponseComposerImpl extends AbstractLogEnabled implements
         message(FETCH);
         openParen();
     }
+
+    public void literal(Literal literal) throws IOException {
+        writer.literal(literal);
+    }
+
 }

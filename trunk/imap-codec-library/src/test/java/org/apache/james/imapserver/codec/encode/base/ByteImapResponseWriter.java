@@ -20,10 +20,14 @@
 package org.apache.james.imapserver.codec.encode.base;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.channels.Channels;
+import java.nio.channels.WritableByteChannel;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.api.imap.ImapConstants;
+import org.apache.james.imap.message.response.imap4rev1.Literal;
 import org.apache.james.imapserver.codec.encode.ImapResponseWriter;
 
 /**
@@ -153,5 +157,13 @@ public class ByteImapResponseWriter extends AbstractLogEnabled implements ImapCo
         } else {
             writer.print(SP_CHAR);
         }
+    }
+
+    public void literal(Literal literal) throws IOException {
+        space();
+        writer.flush();
+        WritableByteChannel channel = Channels.newChannel(out);
+        literal.writeTo(channel);
+        writer.flush();
     }
 }

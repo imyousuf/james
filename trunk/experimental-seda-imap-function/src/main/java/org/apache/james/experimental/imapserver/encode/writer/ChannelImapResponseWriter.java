@@ -26,6 +26,7 @@ import java.nio.charset.Charset;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.api.imap.ImapConstants;
+import org.apache.james.imap.message.response.imap4rev1.Literal;
 import org.apache.james.imapserver.codec.encode.ImapResponseWriter;
 
 /**
@@ -191,5 +192,14 @@ public class ChannelImapResponseWriter extends AbstractLogEnabled implements Ima
         } else {
             write(BYTES_SPACE);
         }
+    }
+
+    public void literal(Literal literal) throws IOException {
+        space();
+        write(BYTES_OPEN_BRACE);
+        writeASCII(Long.toString(literal.size()));
+        write(BYTES_CLOSE_BRACE);
+        write(BYTES_LINE_END);
+        literal.writeTo(out);
     }
 }

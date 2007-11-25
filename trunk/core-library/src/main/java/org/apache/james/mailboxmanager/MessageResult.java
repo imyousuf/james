@@ -19,6 +19,8 @@
 
 package org.apache.james.mailboxmanager;
 
+import java.io.IOException;
+import java.nio.channels.WritableByteChannel;
 import java.util.Date;
 import java.util.Iterator;
 
@@ -191,13 +193,21 @@ public interface MessageResult extends Comparable {
          * @param buffer <code>StringBuffer</code>, not null
          * @throws MessagingException
          */
-        public void writeTo(StringBuffer buffer) throws MailboxManagerException;
+        public void writeTo(StringBuffer buffer);
+        
+        /**
+         * Writes content to the given channel.
+         * @param channel <code>Channel</code> open, not null
+         * @throws MailboxManagerException
+         * @throws IOException when channel IO fails
+         */
+        public void writeTo(WritableByteChannel channel) throws IOException;
         
         /**
          * Size (in octets) of the content.
          * @return number of octets to be written
          * @throws MessagingException
          */
-        public long size() throws MailboxManagerException;
+        public long size();
     }
 }

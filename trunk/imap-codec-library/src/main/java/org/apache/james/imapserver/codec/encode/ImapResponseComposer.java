@@ -25,6 +25,7 @@ import java.util.List;
 import javax.mail.Flags;
 
 import org.apache.james.api.imap.ImapCommand;
+import org.apache.james.imap.message.response.imap4rev1.Literal;
 
 public interface ImapResponseComposer {
 
@@ -227,5 +228,7 @@ public interface ImapResponseComposer {
             String type, String responseCode, String text) throws IOException;
     
     public void quote(String message) throws IOException;
+
+    public void literal(Literal literal) throws IOException;
 
 }
