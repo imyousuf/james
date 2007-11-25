@@ -19,6 +19,7 @@
 
 package org.apache.james.imapserver.codec.encode.imap4rev1.server;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +29,7 @@ import org.apache.james.imapserver.codec.encode.ImapResponseComposer;
 
 public class ListingEncodingUtils {
     
-    public static void encodeListingResponse(final String responseTypeName, final ImapResponseComposer composer, final AbstractListingResponse response) {
+    public static void encodeListingResponse(final String responseTypeName, final ImapResponseComposer composer, final AbstractListingResponse response) throws IOException {
         final List attributes = getNameAttributes(response);
         
         final String name = response.getName();

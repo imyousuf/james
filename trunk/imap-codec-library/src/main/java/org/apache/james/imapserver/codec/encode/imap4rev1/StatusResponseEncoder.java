@@ -19,6 +19,8 @@
 
 package org.apache.james.imapserver.codec.encode.imap4rev1;
 
+import java.io.IOException;
+
 import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.api.imap.display.HumanReadableTextKey;
 import org.apache.james.api.imap.message.response.imap4rev1.StatusResponse;
@@ -33,7 +35,7 @@ public class StatusResponseEncoder extends AbstractChainedImapEncoder {
     }
 
     protected void doEncode(ImapMessage acceptableMessage,
-            ImapResponseComposer composer) {
+            ImapResponseComposer composer) throws IOException {
         StatusResponse response = (StatusResponse) acceptableMessage;
         composer.statusResponse(response.getTag(), response.getCommand(), 
                 asString(response.getServerResponseType()), asString(response.getResponseCode()),

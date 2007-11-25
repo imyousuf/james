@@ -18,6 +18,8 @@
  ****************************************************************/
 package org.apache.james.imapserver.codec.encode.imap4rev1.server;
 
+import java.io.IOException;
+
 import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.imap.message.response.imap4rev1.server.AbstractListingResponse;
@@ -36,7 +38,7 @@ public class LSubResponseEncoder extends AbstractChainedImapEncoder {
         super(next);
     }
     protected void doEncode(final ImapMessage acceptableMessage, 
-                                final ImapResponseComposer composer) {
+                                final ImapResponseComposer composer) throws IOException {
         final AbstractListingResponse response = (AbstractListingResponse) acceptableMessage;
         ListingEncodingUtils.encodeListingResponse(ImapConstants.LSUB_RESPONSE_NAME
                 ,composer, response);

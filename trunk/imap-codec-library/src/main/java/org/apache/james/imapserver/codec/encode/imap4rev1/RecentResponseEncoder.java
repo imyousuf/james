@@ -19,6 +19,8 @@
 
 package org.apache.james.imapserver.codec.encode.imap4rev1;
 
+import java.io.IOException;
+
 import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.imap.message.response.imap4rev1.RecentResponse;
 import org.apache.james.imapserver.codec.encode.ImapEncoder;
@@ -35,7 +37,7 @@ public class RecentResponseEncoder extends AbstractChainedImapEncoder {
         return (message instanceof RecentResponse);
     }
 
-    protected void doEncode(ImapMessage acceptableMessage, ImapResponseComposer composer) {        // TODO Auto-generated method stub
+    protected void doEncode(ImapMessage acceptableMessage, ImapResponseComposer composer) throws IOException {        // TODO Auto-generated method stub
         final RecentResponse recentResponse = (RecentResponse) acceptableMessage;
         final int numberFlaggedRecent = recentResponse.getNumberFlaggedRecent();
         composer.recentResponse(numberFlaggedRecent);

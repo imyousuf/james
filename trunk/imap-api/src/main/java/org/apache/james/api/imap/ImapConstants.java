@@ -27,11 +27,27 @@ public interface ImapConstants
     String BAD = "BAD";
     String BYE = "BYE";
     String UNTAGGED = "*";
+    
 
     String SP = " ";
     
     public static final String NIL = "NIL";
     public static final String UID = "UID";
+    
+    public static final byte BYTE_OPENING_PARENTHESIS = 0x28;
+    public static final byte[] BYTES_OPENING_PARENTHESIS = {BYTE_OPENING_PARENTHESIS};
+    public static final byte BYTE_CLOSING_PARENTHESIS = 0x29;
+    public static final byte[] BYTES_CLOSING_PARENTHESIS = {BYTE_CLOSING_PARENTHESIS};
+    public static final byte BYTE_SP = 0x20;
+    public static final byte[] BYTES_SPACE = {BYTE_SP};
+    public static final byte BYTE_DQUOTE = 0x22;
+    public static final byte BYTE_BACK_SLASH = 0x5C;
+    public static final byte BYTE_QUESTION = 0x3F;
+    public static final byte[] BYTES_DQUOTE = {BYTE_DQUOTE};
+    public static final byte BYTE_CLOSE_SQUARE_BRACKET = 0x5D;
+    public static final byte[] BYTES_CLOSE_SQUARE_BRACKET = {BYTE_CLOSE_SQUARE_BRACKET};
+    public static final byte[] BYTES_LINE_END = {0x0D, 0x0A};
+    
     public static final char OPENING_PARENTHESIS = '(';
     public static final char CLOSING_PARENTHESIS = ')';
     public static final char SP_CHAR = ' ';
@@ -48,7 +64,7 @@ public interface ImapConstants
     final String NAMESPACE_PREFIX = String.valueOf( NAMESPACE_PREFIX_CHAR );
 
     String INBOX_NAME = "INBOX";
-    public static final char FORWARD_SLASH = '\\';
+    public static final char BACK_SLASH = '\\';
     public static final String STATUS_UNSEEN = "UNSEEN";
     public static final String STATUS_UIDVALIDITY = "UIDVALIDITY";
     public static final String STATUS_UIDNEXT = "UIDNEXT";

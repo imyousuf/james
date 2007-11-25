@@ -19,6 +19,7 @@
 
 package org.apache.james.imapserver.codec.encode.base;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -42,7 +43,7 @@ abstract public class AbstractChainedImapEncoder extends AbstractLogEnabled impl
         setupLogger(next);
     }
     
-    public void encode(ImapMessage message, ImapResponseComposer composer) {
+    public void encode(ImapMessage message, ImapResponseComposer composer) throws IOException {
         final boolean isAcceptable = isAcceptable(message);
         if (isAcceptable) {
             doEncode(message, composer);
@@ -51,14 +52,14 @@ abstract public class AbstractChainedImapEncoder extends AbstractLogEnabled impl
         }
     }
 
-    protected void chainEncodeAll(final Collection messages, final ImapResponseComposer composer) {
+    protected void chainEncodeAll(final Collection messages, final ImapResponseComposer composer) throws IOException {
         for (Iterator iter = messages.iterator(); iter.hasNext();) {
             ImapMessage message = (ImapMessage) iter.next();
             chainEncode(message, composer);
         }
     }
     
-    protected void chainEncode(ImapMessage message, ImapResponseComposer composer) {
+    protected void chainEncode(ImapMessage message, ImapResponseComposer composer) throws IOException {
         next.encode(message, composer);
     }
 
@@ -79,5 +80,5 @@ abstract public class AbstractChainedImapEncoder extends AbstractLogEnabled impl
      *            <code>ImapMessage</code>, not null
      * @param composer <code>ImapResponseComposer</code>, not null
      */
-    abstract protected void doEncode(ImapMessage acceptableMessage, ImapResponseComposer composer);
+    abstract protected void doEncode(ImapMessage acceptableMessage, ImapResponseComposer composer) throws IOException;
 }

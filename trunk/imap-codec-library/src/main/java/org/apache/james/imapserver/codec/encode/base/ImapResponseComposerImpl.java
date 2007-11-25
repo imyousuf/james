@@ -19,6 +19,7 @@
 
 package org.apache.james.imapserver.codec.encode.base;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
@@ -58,17 +59,19 @@ public class ImapResponseComposerImpl extends AbstractLogEnabled implements
     }
 
     /**
+     * @throws IOException 
      * @see org.apache.james.imapserver.codec.encode.ImapResponseComposer#commandComplete(org.apache.james.api.imap.ImapCommand, java.lang.String)
      */
-    public void commandComplete(final ImapCommand command, final String tag) {
+    public void commandComplete(final ImapCommand command, final String tag) throws IOException {
         commandComplete(command, null, tag);
     }
 
     /**
+     * @throws IOException 
      * @see org.apache.james.imapserver.codec.encode.ImapResponseComposer#commandComplete(org.apache.james.api.imap.ImapCommand, java.lang.String, java.lang.String)
      */
     public void commandComplete(final ImapCommand command,
-            final String responseCode, final String tag) {
+            final String responseCode, final String tag) throws IOException {
         tag(tag);
         message(OK);
         responseCode(responseCode);
@@ -78,18 +81,20 @@ public class ImapResponseComposerImpl extends AbstractLogEnabled implements
     }
 
     /**
+     * @throws IOException 
      * @see org.apache.james.imapserver.codec.encode.ImapResponseComposer#commandFailed(org.apache.james.api.imap.ImapCommand, java.lang.String, java.lang.String)
      */
     public void commandFailed(final ImapCommand command, final String reason,
-            final String tag) {
+            final String tag) throws IOException {
         commandFailed(command, null, reason, tag);
     }
 
     /**
+     * @throws IOException 
      * @see org.apache.james.imapserver.codec.encode.ImapResponseComposer#commandFailed(org.apache.james.api.imap.ImapCommand, java.lang.String, java.lang.String, java.lang.String)
      */
     public void commandFailed(ImapCommand command, String responseCode,
-            String reason, final String tag) {
+            String reason, final String tag) throws IOException {
         tag(tag);
         message(NO);
         responseCode(responseCode);
@@ -104,9 +109,10 @@ public class ImapResponseComposerImpl extends AbstractLogEnabled implements
     }
 
     /**
+     * @throws IOException 
      * @see org.apache.james.imapserver.codec.encode.ImapResponseComposer#commandError(java.lang.String, java.lang.String)
      */
-    public void commandError(final String message, final String tag) {
+    public void commandError(final String message, final String tag) throws IOException {
         tag(tag);
         message(BAD);
         message(message);
@@ -118,9 +124,10 @@ public class ImapResponseComposerImpl extends AbstractLogEnabled implements
     }
 
     /**
+     * @throws IOException 
      * @see org.apache.james.imapserver.codec.encode.ImapResponseComposer#badResponse(java.lang.String)
      */
-    public void badResponse(String message) {
+    public void badResponse(String message) throws IOException {
         untagged();
         message(BAD);
         message(message);
@@ -132,9 +139,10 @@ public class ImapResponseComposerImpl extends AbstractLogEnabled implements
     }
 
     /**
+     * @throws IOException 
      * @see org.apache.james.imapserver.codec.encode.ImapResponseComposer#badResponse(java.lang.String, java.lang.String)
      */
-    public void badResponse(String message, String tag) {
+    public void badResponse(String message, String tag) throws IOException {
         tag(tag);
         message(BAD);
         message(message);
@@ -146,9 +154,10 @@ public class ImapResponseComposerImpl extends AbstractLogEnabled implements
     }
 
     /**
+     * @throws IOException 
      * @see org.apache.james.imapserver.codec.encode.ImapResponseComposer#okResponse(java.lang.String, java.lang.String)
      */
-    public void okResponse(String responseCode, String message) {
+    public void okResponse(String responseCode, String message) throws IOException {
         untagged();
         message(OK);
         responseCode(responseCode);
@@ -157,9 +166,10 @@ public class ImapResponseComposerImpl extends AbstractLogEnabled implements
     }
 
     /**
+     * @throws IOException 
      * @see org.apache.james.imapserver.codec.encode.ImapResponseComposer#untaggedNoResponse(java.lang.String, java.lang.String)
      */
-    public void untaggedNoResponse(String displayMessage, String responseCode) {
+    public void untaggedNoResponse(String displayMessage, String responseCode) throws IOException {
         untagged();
         message(NO);
         responseCode(responseCode);
@@ -168,18 +178,20 @@ public class ImapResponseComposerImpl extends AbstractLogEnabled implements
     }
 
     /**
+     * @throws IOException 
      * @see org.apache.james.imapserver.codec.encode.ImapResponseComposer#flagsResponse(javax.mail.Flags)
      */
-    public void flagsResponse(Flags flags) {
+    public void flagsResponse(Flags flags) throws IOException {
         untagged();
         flags(flags);
         end();
     }
 
     /**
+     * @throws IOException 
      * @see org.apache.james.imapserver.codec.encode.ImapResponseComposer#existsResponse(int)
      */
-    public void existsResponse(int count) {
+    public void existsResponse(int count) throws IOException {
         untagged();
         message(count);
         message(EXISTS);
@@ -187,9 +199,10 @@ public class ImapResponseComposerImpl extends AbstractLogEnabled implements
     }
 
     /**
+     * @throws IOException 
      * @see org.apache.james.imapserver.codec.encode.ImapResponseComposer#recentResponse(int)
      */
-    public void recentResponse(int count) {
+    public void recentResponse(int count) throws IOException {
         untagged();
         message(count);
         message(RECENT);
@@ -197,9 +210,10 @@ public class ImapResponseComposerImpl extends AbstractLogEnabled implements
     }
 
     /**
+     * @throws IOException 
      * @see org.apache.james.imapserver.codec.encode.ImapResponseComposer#expungeResponse(int)
      */
-    public void expungeResponse(int msn) {
+    public void expungeResponse(int msn) throws IOException {
         untagged();
         message(msn);
         message(EXPUNGE);
@@ -207,9 +221,10 @@ public class ImapResponseComposerImpl extends AbstractLogEnabled implements
     }
 
     /**
+     * @throws IOException 
      * @see org.apache.james.imapserver.codec.encode.ImapResponseComposer#legacyFetchResponse(int, java.lang.String)
      */
-    public void legacyFetchResponse(int msn, String msgData) {
+    public void legacyFetchResponse(int msn, String msgData) throws IOException {
         untagged();
         message(msn);
         message(FETCH);
@@ -218,9 +233,10 @@ public class ImapResponseComposerImpl extends AbstractLogEnabled implements
     }
 
     /**
+     * @throws IOException 
      * @see org.apache.james.imapserver.codec.encode.ImapResponseComposer#commandResponse(org.apache.james.api.imap.ImapCommand, java.lang.String)
      */
-    public void commandResponse(ImapCommand command, String message) {
+    public void commandResponse(ImapCommand command, String message) throws IOException {
         untagged();
         commandName(command);
         message(message);
@@ -228,53 +244,59 @@ public class ImapResponseComposerImpl extends AbstractLogEnabled implements
     }
 
     /**
+     * @throws IOException 
      * @see org.apache.james.imapserver.codec.encode.ImapResponseComposer#taggedResponse(java.lang.String, java.lang.String)
      */
-    public void taggedResponse(String message, String tag) {
+    public void taggedResponse(String message, String tag) throws IOException {
         tag(tag);
         message(message);
         end();
     }
 
     /**
+     * @throws IOException 
      * @see org.apache.james.imapserver.codec.encode.ImapResponseComposer#untaggedResponse(java.lang.String)
      */
-    public void untaggedResponse(String message) {
+    public void untaggedResponse(String message) throws IOException {
         untagged();
         message(message);
         end();
     }
 
     /**
+     * @throws IOException 
      * @see org.apache.james.imapserver.codec.encode.ImapResponseComposer#byeResponse(java.lang.String)
      */
-    public void byeResponse(String message) {
+    public void byeResponse(String message) throws IOException {
         untaggedResponse(BYE + SP + message);
     }
 
     /**
+     * @throws IOException 
      * @see org.apache.james.imapserver.codec.encode.ImapResponseComposer#untagged()
      */
-    public void untagged() {
+    public void untagged() throws IOException {
         writer.untagged();
     }
 
-    private void commandName(final ImapCommand command) {
+    private void commandName(final ImapCommand command) throws IOException {
         final String name = command.getName();
         commandName(name);
     }
 
     /**
+     * @throws IOException 
      * @see org.apache.james.imapserver.codec.encode.ImapResponseComposer#commandName(java.lang.String)
      */
-    public void commandName(final String name) {
+    public void commandName(final String name) throws IOException {
         writer.commandName(name);
     }
 
     /**
+     * @throws IOException 
      * @see org.apache.james.imapserver.codec.encode.ImapResponseComposer#message(java.lang.String)
      */
-    public void message(final String message) {
+    public void message(final String message) throws IOException {
         if (message != null) {
             // TODO: consider message normalisation
             // TODO: CR/NFs in message must be replaced
@@ -284,32 +306,36 @@ public class ImapResponseComposerImpl extends AbstractLogEnabled implements
     }
 
     /**
+     * @throws IOException 
      * @see org.apache.james.imapserver.codec.encode.ImapResponseComposer#message(long)
      */
-    public void message(final long number) {
+    public void message(final long number) throws IOException {
         writer.message(number);
     }
 
     /**
+     * @throws IOException 
      * @see org.apache.james.imapserver.codec.encode.ImapResponseComposer#responseCode(java.lang.String)
      */
-    public void responseCode(final String responseCode) {
+    public void responseCode(final String responseCode) throws IOException {
         if (responseCode != null) {
             writer.responseCode(responseCode);
         }
     }
 
     /**
+     * @throws IOException 
      * @see org.apache.james.imapserver.codec.encode.ImapResponseComposer#end()
      */
-    public void end() {
+    public void end() throws IOException {
         writer.end();
     }
 
     /**
+     * @throws IOException 
      * @see org.apache.james.imapserver.codec.encode.ImapResponseComposer#permanentFlagsResponse(javax.mail.Flags)
      */
-    public void permanentFlagsResponse(Flags flags) {
+    public void permanentFlagsResponse(Flags flags) throws IOException {
         untagged();
         message(OK);
         responseCode("PERMANENTFLAGS " + MessageFlags.format(flags));
@@ -317,16 +343,18 @@ public class ImapResponseComposerImpl extends AbstractLogEnabled implements
     }
 
     /**
+     * @throws IOException 
      * @see org.apache.james.imapserver.codec.encode.ImapResponseComposer#tag(java.lang.String)
      */
-    public void tag(String tag) {
+    public void tag(String tag) throws IOException {
         writer.tag(tag);
     }
     
     /**
+     * @throws IOException 
      * @see org.apache.james.imapserver.codec.encode.ImapResponseComposer#statusResponse(java.lang.String, org.apache.james.api.imap.ImapCommand, java.lang.String, java.lang.String, java.lang.String)
      */
-    public void statusResponse(String tag, ImapCommand command, String type, String responseCode, String text) {
+    public void statusResponse(String tag, ImapCommand command, String type, String responseCode, String text) throws IOException {
         if (tag == null) {
             untagged();
         } else {
@@ -345,7 +373,7 @@ public class ImapResponseComposerImpl extends AbstractLogEnabled implements
         end();
     }
 
-    public void listResponse(String typeName, List attributes, String hierarchyDelimiter, String name) {
+    public void listResponse(String typeName, List attributes, String hierarchyDelimiter, String name) throws IOException {
         untagged();
         message(typeName);
         openParen();
@@ -368,27 +396,27 @@ public class ImapResponseComposerImpl extends AbstractLogEnabled implements
         end();
     }
 
-    public void quote(String message) {
+    public void quote(String message) throws IOException {
         writer.quote(message);
     }
 
-    public void closeParen() {
+    public void closeParen() throws IOException {
         writer.closeParen();
         
     }
 
-    public void openParen() {
+    public void openParen() throws IOException {
         writer.openParen();
     }
 
-    public void searchResponse(long[] ids) {
+    public void searchResponse(long[] ids) throws IOException {
         untagged();
         message(ImapConstants.SEARCH_RESPONSE_NAME);
         message(ids);
         end();
     }
 
-    private void message(long[] ids) {
+    private void message(long[] ids) throws IOException {
         if (ids != null) {
             final int length = ids.length;
             for (int i=0;i<length; i++) {
@@ -398,7 +426,7 @@ public class ImapResponseComposerImpl extends AbstractLogEnabled implements
         }
     }
 
-    public void flags(Flags flags) {
+    public void flags(Flags flags) throws IOException {
         message(FLAGS);
         openParen();
         if ( flags.contains(Flags.Flag.ANSWERED) ) {
@@ -422,12 +450,12 @@ public class ImapResponseComposerImpl extends AbstractLogEnabled implements
         closeParen();
     }
 
-    public void closeFetchResponse() {
+    public void closeFetchResponse() throws IOException {
         closeParen();
         end();
     }
 
-    public void openFetchResponse(long msn) {
+    public void openFetchResponse(long msn) throws IOException {
         untagged();
         message(msn);
         message(FETCH);

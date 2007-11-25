@@ -18,6 +18,7 @@
  ****************************************************************/
 package org.apache.james.imapserver.codec.encode.imap4rev1.server;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.apache.james.api.imap.ImapCommand;
@@ -36,7 +37,7 @@ public class SearchResponseEncoder extends AbstractChainedImapEncoder {
         super(next);
     }
 
-    protected void doEncode(ImapMessage acceptableMessage, ImapResponseComposer composer) {
+    protected void doEncode(ImapMessage acceptableMessage, ImapResponseComposer composer) throws IOException {
         SearchResponse response = (SearchResponse) acceptableMessage;
         final long[] ids = response.getIds();
         composer.searchResponse(ids);

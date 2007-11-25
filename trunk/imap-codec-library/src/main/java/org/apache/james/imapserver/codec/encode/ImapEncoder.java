@@ -19,6 +19,8 @@
 
 package org.apache.james.imapserver.codec.encode;
 
+import java.io.IOException;
+
 import org.apache.james.api.imap.ImapMessage;
 
 /**
@@ -32,6 +34,7 @@ public interface ImapEncoder {
      * TODO: pass in writer rather than composer
      * @param message <code>ImapMessage</code>, not null
      * @param composer <code>ImapResponseComposer</code>, not null
+     * @throws IOException TODO
      */
-    void encode( ImapMessage message, ImapResponseComposer composer );
+    void encode( ImapMessage message, ImapResponseComposer composer ) throws IOException;
 }

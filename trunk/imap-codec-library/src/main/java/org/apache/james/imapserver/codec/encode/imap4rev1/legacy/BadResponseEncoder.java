@@ -19,6 +19,8 @@
 
 package org.apache.james.imapserver.codec.encode.imap4rev1.legacy;
 
+import java.io.IOException;
+
 import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.imap.message.response.imap4rev1.legacy.BadResponse;
 import org.apache.james.imapserver.codec.encode.ImapEncoder;
@@ -35,7 +37,7 @@ public class BadResponseEncoder extends AbstractChainedImapEncoder {
         super(next);
     }
 
-    protected void doEncode(ImapMessage acceptableMessage, ImapResponseComposer composer) {
+    protected void doEncode(ImapMessage acceptableMessage, ImapResponseComposer composer) throws IOException {
         BadResponse response = (BadResponse) acceptableMessage;
         String tag = response.getTag();
         String message = response.getMessage();

@@ -45,7 +45,7 @@ public class ImapResponseTest extends MockObjectTestCase {
     }
 
 
-    public void testCommandError() {
+    public void testCommandError() throws Exception {
         String message = "A message";
         response.commandError(message, TAG);
         assertEquals(4, writer.operations.size());
@@ -58,7 +58,7 @@ public class ImapResponseTest extends MockObjectTestCase {
                 writer.operations.get(3));
     }
 
-    public void testBadResponse() {
+    public void testBadResponse() throws Exception {
         String message = "A message";
         response.badResponse(message);
         assertEquals(4, writer.operations.size());
@@ -71,7 +71,7 @@ public class ImapResponseTest extends MockObjectTestCase {
                 writer.operations.get(3));
     }
 
-    public void testOkResponse() {
+    public void testOkResponse() throws Exception {
         String message = "A message";
         String code = "A code";
         response.okResponse(code, message);
@@ -87,7 +87,7 @@ public class ImapResponseTest extends MockObjectTestCase {
                 writer.operations.get(4));
     }
 
-    public void testFlagsResponse() {
+    public void testFlagsResponse() throws Exception {
         Flags flags = new Flags();
         response.flagsResponse(flags);
         assertEquals(5, writer.operations.size());
@@ -102,7 +102,7 @@ public class ImapResponseTest extends MockObjectTestCase {
                 writer.operations.get(4));
     }
 
-    public void testExistsResponse() {
+    public void testExistsResponse() throws Exception {
         int count = 5;
         response.existsResponse(count);
         assertEquals(4, writer.operations.size());
@@ -115,7 +115,7 @@ public class ImapResponseTest extends MockObjectTestCase {
                 writer.operations.get(3));
     }
 
-    public void testRecentResponse() {
+    public void testRecentResponse() throws Exception {
         int count = 5;
         response.recentResponse(count);
         assertEquals(4, writer.operations.size());
@@ -128,7 +128,7 @@ public class ImapResponseTest extends MockObjectTestCase {
                 writer.operations.get(3));
     }
 
-    public void testExpungeResponse() {
+    public void testExpungeResponse() throws Exception {
         int count = 5;
         response.expungeResponse(count);
         assertEquals(4, writer.operations.size());
@@ -141,7 +141,7 @@ public class ImapResponseTest extends MockObjectTestCase {
                 writer.operations.get(3));
     }
 
-    public void testFetchResponse() {
+    public void testFetchResponse() throws Exception {
         int count = 7;
         String data = "Some data";
         response.legacyFetchResponse(count, data);
@@ -158,7 +158,7 @@ public class ImapResponseTest extends MockObjectTestCase {
     }
 
 
-    public void testTaggedResponse() {
+    public void testTaggedResponse() throws Exception {
         String message = "A message";
         response.taggedResponse(message, TAG);
         assertEquals(3, writer.operations.size());
@@ -169,7 +169,7 @@ public class ImapResponseTest extends MockObjectTestCase {
                 writer.operations.get(2));
     }
 
-    public void testUntaggedResponse() {
+    public void testUntaggedResponse() throws Exception {
         String message = "A message";
         response.untaggedResponse(message);
         assertEquals(3, writer.operations.size());
@@ -180,7 +180,7 @@ public class ImapResponseTest extends MockObjectTestCase {
                 writer.operations.get(2));
     }
 
-    public void testByeResponse() {
+    public void testByeResponse() throws Exception {
         String message = "A message";
         response.byeResponse(message);
         assertEquals(3, writer.operations.size());
@@ -191,7 +191,7 @@ public class ImapResponseTest extends MockObjectTestCase {
                 writer.operations.get(2));
     }
 
-    public void testPermanentFlagsResponse() {
+    public void testPermanentFlagsResponse() throws Exception {
         Flags flags = new Flags();
         response.permanentFlagsResponse(flags);
         assertEquals(4, writer.operations.size());

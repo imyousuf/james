@@ -18,6 +18,8 @@
  ****************************************************************/
 package org.apache.james.imapserver.codec.encode.imap4rev1.legacy;
 
+import java.io.IOException;
+
 import javax.mail.Flags;
 
 import org.apache.james.api.imap.ImapCommand;
@@ -37,7 +39,7 @@ public class ExamineAndSelectResponseEncoder extends AbstractChainedImapEncoder 
         super(next);
     }
 
-    protected void doEncode(ImapMessage acceptableMessage, ImapResponseComposer composer) {
+    protected void doEncode(ImapMessage acceptableMessage, ImapResponseComposer composer) throws IOException {
         ExamineAndSelectResponse response = (ExamineAndSelectResponse) acceptableMessage;
         final Flags permanentFlags = response.getPermanentFlags();
         composer.flagsResponse(permanentFlags);
