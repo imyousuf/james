@@ -19,6 +19,10 @@
 
 package org.apache.james.mailboxmanager.torque;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.WritableByteChannel;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -42,6 +46,10 @@ import org.apache.torque.TorqueException;
 
 public class MessageRowUtils {
 
+    public static final byte[] BYTES_NEW_LINE = {0x0D, 0x0A};
+    public static final byte[] BYTES_HEADER_FIELD_VALUE_SEP = {0x3A, 0x20};
+    private static final Charset US_ASCII = Charset.forName("US-ASCII");
+    
     private static final class Header implements MessageResult.Header, MessageResult.Content {
             private final String name;
             private final String value;
@@ -65,11 +73,11 @@ public class MessageRowUtils {
                 return value;
             }
     
-            public long size() throws MailboxManagerException {
+            public long size() {
                 return size;
             }
     
-            public void writeTo(StringBuffer buffer) throws MailboxManagerException {
+            public void writeTo(StringBuffer buffer) {
     // TODO: sort out encoding
                 for (int i=0; i<name.length();i++) {
                     buffer.append((char)(byte) name.charAt(i));
@@ -80,7 +88,19 @@ public class MessageRowUtils {
                     buffer.append((char)(byte) value.charAt(i));
                 }
             }
+
+            public void writeTo(WritableByteChannel channel) throws IOException {
+                writeAll(channel, US_ASCII.encode(name));
+                ByteBuffer buffer = ByteBuffer.wrap(BYTES_HEADER_FIELD_VALUE_SEP);
+                writeAll(channel, buffer);
+                writeAll(channel, US_ASCII.encode(value));
+            }
             
+            private void writeAll(WritableByteChannel channel, ByteBuffer buffer) throws IOException {
+                while (channel.write(buffer) > 0) {
+                    // write more
+                }
+            }
         }
 
     private final static class ByteContent implements MessageResult.Content {
@@ -92,12 +112,19 @@ public class MessageRowUtils {
             size = contents.length + MessageUtils.countUnnormalLines(contents);
         }
         
-        public long size() throws MailboxManagerException {
+        public long size() {
             return size;
         }
         
-        public void writeTo(StringBuffer buffer) throws MailboxManagerException {
+        public void writeTo(StringBuffer buffer) {
             MessageUtils.normalisedWriteTo(contents, buffer);
+        }
+
+        public void writeTo(WritableByteChannel channel) throws IOException {
+            ByteBuffer buffer = ByteBuffer.wrap(contents);
+            while (channel.write(buffer) > 0) {
+                // write more
+            }
         }
     }
 
@@ -112,7 +139,7 @@ public class MessageRowUtils {
             this.size = caculateSize();
         }
     
-        private long caculateSize() throws MailboxManagerException{
+        private long caculateSize() {
             long result = contents.length + MessageUtils.countUnnormalLines(contents);
             result += 2;
             for (final Iterator it=headers.iterator(); it.hasNext();) {
@@ -125,7 +152,7 @@ public class MessageRowUtils {
             return result;
         }
     
-        public void writeTo(StringBuffer buffer) throws MailboxManagerException {
+        public void writeTo(StringBuffer buffer) {
             for (final Iterator it=headers.iterator(); it.hasNext();) {
                 final MessageResult.Header header = (MessageResult.Header) it.next();
                 if (header != null) {
@@ -139,8 +166,30 @@ public class MessageRowUtils {
             MessageUtils.normalisedWriteTo(contents, buffer);
         }
     
-        public long size() throws MailboxManagerException {
+        public long size() {
             return size;
+        }
+
+        public void writeTo(WritableByteChannel channel) throws IOException {
+            ByteBuffer newLine = ByteBuffer.wrap(BYTES_NEW_LINE);
+            for (final Iterator it=headers.iterator(); it.hasNext();) {
+                final MessageResult.Header header = (MessageResult.Header) it.next();
+                if (header != null) {
+                    header.writeTo(channel);
+                }
+                newLine.rewind();
+                writeAll(channel, newLine);
+            }
+            newLine.rewind();
+            writeAll(channel, newLine);
+            final ByteBuffer wrap = ByteBuffer.wrap(contents);
+            writeAll(channel, wrap);
+        }
+
+        private void writeAll(WritableByteChannel channel, ByteBuffer buffer) throws IOException {
+            while (channel.write(buffer) > 0) {
+                // write more
+            }
         }
     }
 

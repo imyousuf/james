@@ -19,9 +19,11 @@
 
 package org.apache.james.imapserver.codec.encode.imap4rev1.legacy;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.james.imap.message.response.imap4rev1.Literal;
 import org.apache.james.imapserver.codec.encode.ImapResponseWriter;
 
 public class MockImapResponseWriter implements ImapResponseWriter {
@@ -315,6 +317,41 @@ public class MockImapResponseWriter implements ImapResponseWriter {
         
         
     }
+
+    public void literal(Literal literal) throws IOException {
+        operations.add(new LiteralOperation(literal));
+    }
     
+    public static final class LiteralOperation {
+        public final Literal literal;
+        public LiteralOperation(Literal literal) {
+            this.literal = literal;
+        }
+
+        public int hashCode() {
+            final int PRIME = 31;
+            int result = 1;
+            result = PRIME * result + ((literal == null) ? 0 : literal.hashCode());
+            return result;
+        }
+        
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            final LiteralOperation other = (LiteralOperation) obj;
+            if (literal == null) {
+                if (other.literal != null)
+                    return false;
+            } else if (!literal.equals(other.literal))
+                return false;
+            return true;
+        }
+        
+        
+    }
     
 }

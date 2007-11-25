@@ -19,6 +19,8 @@
 
 package org.apache.james.mailboxmanager;
 
+import java.io.IOException;
+import java.nio.channels.WritableByteChannel;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,11 +45,11 @@ public class MessageResultUtilsTest extends TestCase {
             value = "Value";
         }
         
-        public long size() throws MailboxManagerException {
+        public long size() {
             return 0;
         }
 
-        public void writeTo(StringBuffer buffer) throws MailboxManagerException {
+        public void writeTo(StringBuffer buffer) {
         }
         
         public String getName() {
@@ -56,6 +58,10 @@ public class MessageResultUtilsTest extends TestCase {
 
         public String getValue() {
             return value;
+        }
+
+        public void writeTo(WritableByteChannel channel) throws IOException {
+            
         }
         
     }

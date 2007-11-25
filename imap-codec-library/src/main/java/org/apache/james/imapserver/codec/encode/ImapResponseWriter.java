@@ -21,6 +21,8 @@ package org.apache.james.imapserver.codec.encode;
 
 import java.io.IOException;
 
+import org.apache.james.imap.message.response.imap4rev1.Literal;
+
 /**
  * <p>Writes IMAP response.</p>
  * <p>Factors out basic IMAP reponse writing operations 
@@ -80,4 +82,12 @@ public interface ImapResponseWriter {
      *
      */
     void end() throws IOException;
+    
+    /**
+     * Writes literal content
+     * @param literal <code>Literal</code> to be written,
+     * not null
+     * @throws IOException
+     */
+    void literal(Literal literal) throws IOException;
 }

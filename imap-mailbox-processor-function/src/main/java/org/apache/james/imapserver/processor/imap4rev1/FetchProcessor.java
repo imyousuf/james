@@ -19,6 +19,9 @@
 
 package org.apache.james.imapserver.processor.imap4rev1;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.WritableByteChannel;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -43,6 +46,7 @@ import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
 import org.apache.james.imap.message.request.imap4rev1.FetchRequest;
 import org.apache.james.imap.message.response.imap4rev1.FetchResponse;
+import org.apache.james.imap.message.response.imap4rev1.FetchResponse.BodyElement;
 import org.apache.james.imapserver.processor.base.AbstractImapRequestProcessor;
 import org.apache.james.imapserver.processor.base.AuthorizationException;
 import org.apache.james.imapserver.processor.base.ImapSessionUtils;
@@ -53,6 +57,7 @@ import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.MessageResultUtils;
 import org.apache.james.mailboxmanager.UnsupportedCriteriaException;
+import org.apache.james.mailboxmanager.MessageResult.Content;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 
@@ -161,7 +166,7 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
         private Date internalDate;
         private Integer size;
         private StringBuffer misc;
-        private StringBuffer elements;
+        private List elements;
         
         public FetchResponseBuilder(final Logger logger) {
             super();
@@ -264,21 +269,15 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
 
                 // BODY part responses.
                 Collection elements = fetch.getBodyElements();
-                this.elements = new StringBuffer();
+                this.elements = new ArrayList();
                 for (Iterator iterator = elements.iterator(); iterator.hasNext();) {
-                    BodyFetchElement fetchElement = (BodyFetchElement) iterator
-                            .next();
-                    this.elements.append(ImapConstants.SP);
-                    this.elements.append(fetchElement.getResponseName());
-                    this.elements.append(ImapConstants.SP);
-
-                    // Various mechanisms for returning message body.
-                    String sectionSpecifier = fetchElement.getParameters();
-
-                    try {
-                        handleBodyFetch(result, sectionSpecifier, this.elements);
-                    } catch (MessagingException e) {
-                        throw new MailboxException(e.getMessage(), e);
+                    BodyFetchElement fetchElement = (BodyFetchElement) iterator.next();
+                    final String sectionSpecifier = fetchElement.getParameters();
+                    final String responseName = fetchElement.getResponseName();
+                    final FetchResponse.BodyElement element 
+                        = bodyFetch(result, sectionSpecifier, responseName);
+                    if (element != null) {
+                        this.elements.add(element);
                     }
                 }
                 return build();
@@ -302,36 +301,36 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
             reset(msn);
         }
 
-        private void handleBodyFetch(final MessageResult result,
-                String sectionSpecifier, StringBuffer response)
-                throws ProtocolException, MessagingException {
+        private FetchResponse.BodyElement bodyFetch(final MessageResult messageResult,
+                String sectionSpecifier, String name) throws MessagingException {
+            final FetchResponse.BodyElement result;
             // TODO: section specifier should be fully parsed during parsing phase
             if (sectionSpecifier.length() == 0) {
-                final MessageResult.Content fullMessage = result.getFullMessage();
-                addLiteralContent(fullMessage, response);
+                final MessageResult.Content fullMessage = messageResult.getFullMessage();
+                result = new ContentBodyElement(name, fullMessage);
             } else if (sectionSpecifier.equalsIgnoreCase("HEADER")) {
-                final Iterator headers = result.iterateHeaders();
+                final Iterator headers = messageResult.iterateHeaders();
                 List lines = MessageResultUtils.getAll(headers);
-                addHeaders(lines, response);
+                result = new HeaderBodyElement(name, lines);
             } else if (sectionSpecifier.startsWith("HEADER.FIELDS.NOT ")) {
                 String[] excludeNames = extractHeaderList(sectionSpecifier,
                         "HEADER.FIELDS.NOT ".length());
-                final Iterator headers = result.iterateHeaders();
+                final Iterator headers = messageResult.iterateHeaders();
                 List lines = MessageResultUtils.getNotMatching(excludeNames, headers);
-                addHeaders(lines, response);
+                result = new HeaderBodyElement(name, lines);
             } else if (sectionSpecifier.startsWith("HEADER.FIELDS ")) {
                 String[] includeNames = extractHeaderList(sectionSpecifier,
                         "HEADER.FIELDS ".length());
-                final Iterator headers = result.iterateHeaders();
+                final Iterator headers = messageResult.iterateHeaders();
                 List lines = MessageResultUtils.getMatching(includeNames, headers);
-                addHeaders(lines, response);
+                result = new HeaderBodyElement(name, lines);
             } else if (sectionSpecifier.equalsIgnoreCase("MIME")) {
                 // TODO implement
-                throw new ProtocolException("MIME not yet implemented.");
+                throw new MailboxManagerException("MIME not yet implemented.");
 
             } else if (sectionSpecifier.equalsIgnoreCase("TEXT")) {
-                final MessageResult.Content messageBody = result.getMessageBody();
-                addLiteralContent(messageBody, response);
+                final MessageResult.Content messageBody = messageResult.getMessageBody();
+                result = new ContentBodyElement(name, messageBody);
 
             } else {
                 // Should be a part specifier followed by a section specifier.
@@ -339,7 +338,7 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
                 // If so, get the number, get the part, and call this recursively.
                 int dotPos = sectionSpecifier.indexOf('.');
                 if (dotPos == -1) {
-                    throw new ProtocolException("Malformed fetch attribute: "
+                    throw new MailboxManagerException("Malformed fetch attribute: "
                             + sectionSpecifier);
                 }
                 int partNumber = Integer.parseInt(sectionSpecifier.substring(0,
@@ -351,21 +350,11 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
                 // with the new partSectionSpecifier.
                 // MimeMessage part;
                 // handleBodyFetch( part, partSectionSpecifier, response );
-                throw new ProtocolException(
+                throw new MailboxManagerException(
                         "Mime parts not yet implemented for fetch.");
             }
+            return result;
 
-        }
-
-        private void addLiteralContent(final MessageResult.Content content,
-                final StringBuffer response) throws MessagingException {
-            response.append('{');
-            final long length = content.size();
-            response.append(length); // TODO JD addLiteral: why was it
-                                        // bytes.length +1 here?
-            response.append('}');
-            response.append("\r\n");
-            content.writeTo(response);
         }
 
         // TODO should do this at parse time.
@@ -391,26 +380,82 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
 
             return (String[]) strings.toArray(new String[0]);
         }
+    }
+    
+    private static final class HeaderBodyElement implements BodyElement {
+        private final String name;
+        private final List headers;
+        private final long size;
+        
+        public HeaderBodyElement(final String name, final List headers) {
+            super();
+            this.name = name;
+            this.headers = headers;
+            size = calculateSize(headers);
+        }
 
-        private void addHeaders(List headerLines, StringBuffer response)
-                throws MessagingException {
+        public String getName() {
+            return name;
+        }
+        
+        private long calculateSize(List headers) {
             int count = 0;
-            for (final Iterator it = headerLines.iterator(); it.hasNext();) {
+            for (final Iterator it = headers.iterator(); it.hasNext();) {
                 MessageResult.Header header = (MessageResult.Header) it.next();
                 count += header.size() + 2;
             }
-            response.append('{');
-            response.append(count + 2);
-            response.append('}');
-            response.append("\r\n");
-
-            for (final Iterator it = headerLines.iterator(); it.hasNext();) {
-                MessageResult.Header header = (MessageResult.Header) it.next();
-                header.writeTo(response);
-                response.append("\r\n");
-            }
-            response.append("\r\n");
+            return count + 2;
         }
+
+        public long size() {
+            return size;
+        }
+
+        public void writeTo(WritableByteChannel channel) throws IOException {
+            ByteBuffer endLine = ByteBuffer.wrap(ImapConstants.BYTES_LINE_END);
+            endLine.rewind();
+            for (final Iterator it = headers.iterator(); it.hasNext();) {
+                MessageResult.Header header = (MessageResult.Header) it.next();
+                header.writeTo(channel);
+                while (channel.write(endLine) > 0) {}
+                endLine.rewind();
+            }
+            while (channel.write(endLine) > 0) {}
+        }
+        
+    }
+    
+    private static final class ContentBodyElement implements BodyElement {
+        private final String name;
+        private final MessageResult.Content content;
+        
+        public ContentBodyElement(final String name, final Content content) {
+            super();
+            this.name = name;
+            this.content = content;
+        }
+
+        /**
+         * @see org.apache.james.imap.message.response.imap4rev1.FetchResponse.BodyElement#getName()
+         */
+        public String getName() {
+            return name;
+        }
+        
+        /**
+         * @see org.apache.james.imap.message.response.imap4rev1.FetchResponse.BodyElement#size()
+         */
+        public long size() {
+            return content.size();
+        }
+        
+        /**
+         * @see org.apache.james.imap.message.response.imap4rev1.FetchResponse.BodyElement#writeTo(WritableByteChannel)
+         */
+        public void writeTo(WritableByteChannel channel) throws IOException {
+            content.writeTo(channel);
+        }
+        
         
     }
 }
