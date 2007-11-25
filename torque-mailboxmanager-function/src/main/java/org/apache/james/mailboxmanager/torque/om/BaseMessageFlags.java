@@ -593,7 +593,7 @@ public abstract class BaseMessageFlags extends BaseObject
      *
      * @throws Exception
      */
-    public void save() throws Exception
+    public void save() throws TorqueException
     {
           save(MessageFlagsPeer.getMapBuilder()
                 .getDatabaseMap().getName());

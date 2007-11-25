@@ -50,7 +50,7 @@ public class UidChangeTrackerTestCase extends TestCase {
     }
     
     
-    public void testFound() {
+    public void testFound() throws Exception {
         MessageResultImpl[] results;
         MessageResult result;
         
@@ -85,7 +85,7 @@ public class UidChangeTrackerTestCase extends TestCase {
         
     }
 
-    public void testShouldNotIssueFlagsUpdateEventWhenFlagsNotIncluded() {
+    public void testShouldNotIssueFlagsUpdateEventWhenFlagsNotIncluded() throws Exception {
         MessageResultImpl[] results = new MessageResultImpl[1];
         
         MessageResult result;

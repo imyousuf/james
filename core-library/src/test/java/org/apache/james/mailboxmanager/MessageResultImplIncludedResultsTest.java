@@ -45,7 +45,7 @@ public class MessageResultImplIncludedResultsTest extends MockObjectTestCase {
         super.tearDown();
     }
     
-    public void testShouldIncludedResultsWhenMimeMessageSet() {
+    public void testShouldIncludedResultsWhenMimeMessageSet() throws Exception {
         MimeMessage message = new MimeMessage(Session.getDefaultInstance(new Properties()));
         result.setMimeMessage(null);
         assertEquals(MessageResult.NOTHING, result.getIncludedResults());
@@ -55,7 +55,7 @@ public class MessageResultImplIncludedResultsTest extends MockObjectTestCase {
         assertEquals(MessageResult.MIME_MESSAGE, result.getIncludedResults());
     }
 
-    public void testShouldIncludedResultsWhenUidSet() {
+    public void testShouldIncludedResultsWhenUidSet() throws Exception {
         result.setUid(100);
         assertEquals(MessageResult.UID, result.getIncludedResults());
         MessageResultImpl result = new MessageResultImpl(77);
@@ -66,14 +66,14 @@ public class MessageResultImplIncludedResultsTest extends MockObjectTestCase {
         assertEquals(MessageResult.UID, result.getIncludedResults());
     }
 
-    public void testShouldIncludedResultsWhenMsnSet() {
+    public void testShouldIncludedResultsWhenMsnSet() throws Exception {
         result.setMsn(100);
         assertEquals(MessageResult.MSN, result.getIncludedResults());
         MessageResultImpl result = new MessageResultImpl(this.result);
         assertEquals(MessageResult.MSN, result.getIncludedResults());
     }
 
-    public void testShouldIncludedResultsWhenFlagsSet() {
+    public void testShouldIncludedResultsWhenFlagsSet() throws Exception {
         result.setFlags(null);
         assertEquals(MessageResult.NOTHING, result.getIncludedResults());
         Flags flags = new Flags();
@@ -85,14 +85,14 @@ public class MessageResultImplIncludedResultsTest extends MockObjectTestCase {
         assertEquals(MessageResult.FLAGS, result.getIncludedResults());
     }
 
-    public void testShouldIncludedResultsWhenSizeSet() {
+    public void testShouldIncludedResultsWhenSizeSet() throws Exception {
         result.setSize(100);
         assertEquals(MessageResult.SIZE, result.getIncludedResults());
         MessageResultImpl result = new MessageResultImpl(this.result);
         assertEquals(MessageResult.SIZE, result.getIncludedResults());
     }
 
-    public void testShouldIncludedResultsWhenInternalDateSet() {
+    public void testShouldIncludedResultsWhenInternalDateSet() throws Exception {
         result.setInternalDate(null);
         assertEquals(MessageResult.NOTHING, result.getIncludedResults());
         Date date = new Date();
@@ -102,7 +102,7 @@ public class MessageResultImplIncludedResultsTest extends MockObjectTestCase {
         assertEquals(MessageResult.INTERNAL_DATE, result.getIncludedResults());
     }
 
-    public void testShouldIncludedResultsWhenKeySet() {
+    public void testShouldIncludedResultsWhenKeySet() throws Exception {
         result.setKey(null);
         assertEquals(MessageResult.NOTHING, result.getIncludedResults());
         result.setKey("KEY");
@@ -111,7 +111,7 @@ public class MessageResultImplIncludedResultsTest extends MockObjectTestCase {
         assertEquals(MessageResult.KEY, result.getIncludedResults());
     }
 
-    public void testShouldIncludedResultsWhenHeadersSet() {
+    public void testShouldIncludedResultsWhenHeadersSet() throws Exception {
         result.setHeaders(null);
         assertEquals(MessageResult.NOTHING, result.getIncludedResults());
         result.setHeaders(new ArrayList());
@@ -120,7 +120,7 @@ public class MessageResultImplIncludedResultsTest extends MockObjectTestCase {
         assertEquals(MessageResult.HEADERS, result.getIncludedResults());
     }
     
-    public void testShouldIncludedResultsWhenFullMessageSet() {
+    public void testShouldIncludedResultsWhenFullMessageSet() throws Exception  {
         result.setFullMessage(null);
         assertEquals(MessageResult.NOTHING, result.getIncludedResults());
         result.setFullMessage(content);
@@ -129,7 +129,7 @@ public class MessageResultImplIncludedResultsTest extends MockObjectTestCase {
         assertEquals(MessageResult.FULL_CONTENT, result.getIncludedResults());
     }
 
-    public void testShouldIncludedResultsWhenMessageBodySet() {
+    public void testShouldIncludedResultsWhenMessageBodySet() throws Exception {
         result.setMessageBody(null);
         assertEquals(MessageResult.NOTHING, result.getIncludedResults());
         result.setMessageBody(content);
@@ -138,7 +138,7 @@ public class MessageResultImplIncludedResultsTest extends MockObjectTestCase {
         assertEquals(MessageResult.BODY_CONTENT, result.getIncludedResults());
     }
     
-    public void testShouldIncludedResultsWhenFlagsAndUidSet() {
+    public void testShouldIncludedResultsWhenFlagsAndUidSet() throws Exception {
         Flags flags = new Flags();
         result.setFlags(flags);
         result.setUid(99);

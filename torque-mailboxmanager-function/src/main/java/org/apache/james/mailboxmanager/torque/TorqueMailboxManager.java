@@ -53,7 +53,7 @@ import EDU.oswego.cs.dl.util.concurrent.ReadWriteLock;
 
 public class TorqueMailboxManager implements MailboxManager {
 
-    private static Random random;
+    private final static Random random = new Random();
     private MailboxCache mailboxCache;
 
     private User authUser;
@@ -146,7 +146,7 @@ public class TorqueMailboxManager implements MailboxManager {
             MailboxRow mr = new MailboxRow();
             mr.setName(namespaceName);
             mr.setLastUid(0);
-            mr.setUidValidity(Math.abs(getRandom().nextInt()));
+            mr.setUidValidity(Math.abs(random.nextInt()));
             try {
                 mr.save();
             } catch (Exception e) {
@@ -259,14 +259,7 @@ public class TorqueMailboxManager implements MailboxManager {
     public void setSubscription(String mailboxName, boolean value) {
         // TODO implement subscriptions
     }
-
-    protected static Random getRandom() {
-        if (random == null) {
-            random = new Random();
-        }
-        return random;
-    }
-
+    
     public boolean existsMailbox(String mailboxName) throws MailboxManagerException {
         Criteria c=new Criteria();
         c.add(MailboxRowPeer.NAME,mailboxName);

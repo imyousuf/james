@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import javax.mail.Flags;
+import javax.mail.MessagingException;
 
 import org.apache.james.mailboxmanager.MessageResult;
 
@@ -36,8 +37,9 @@ public class MessageFlags {
      * Converts given message results into {@link MessageFlags}.
      * @param messageResults <code>Collection</code> of {@link MessageResult}, not null
      * @return <code>MessageFlags</code> array, not null
+     * @throws MessagingException 
      */
-    public static final MessageFlags[] toMessageFlags(Collection messageResults) {
+    public static final MessageFlags[] toMessageFlags(Collection messageResults) throws MessagingException {
         final int size = messageResults.size();
         final MessageFlags[] results = new MessageFlags[size];
         int i=0;
@@ -51,7 +53,7 @@ public class MessageFlags {
     private final long uid;
     private Flags flags;
     
-    public MessageFlags(final MessageResult result) {
+    public MessageFlags(final MessageResult result) throws MessagingException {
         this(result.getUid(),result.getFlags());
     }
     

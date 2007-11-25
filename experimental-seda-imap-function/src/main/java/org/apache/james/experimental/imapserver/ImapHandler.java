@@ -149,7 +149,7 @@ public class ImapHandler
             // Write welcome message
                  
             response.okResponse(null, softwaretype + " Server "
-                    + theConfigData.getHelloName() + " ready");
+                    + theConfigData.getHelloName() + " is ready.");
 
             sessionEnded = false;
             session = new ImapSessionImpl( this,

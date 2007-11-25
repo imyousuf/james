@@ -28,8 +28,10 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import javax.mail.Flags;
+import javax.mail.MessagingException;
 
 import org.apache.james.mailboxmanager.Constants;
+import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.MessageResultUtils;
 import org.apache.james.mailboxmanager.impl.MessageFlags;
@@ -69,7 +71,27 @@ public class UidChangeTracker extends MailboxTracker implements Constants {
      * @param sessionId id of the session upating the flags
      * @see #flagsUpdated(MessageResult, long)
      */
-    public synchronized void flagsUpdated(Collection messageResults, long sessionId) {
+    public synchronized void flagsUpdated(MessageFlags[] messageFlags, long sessionId) {
+        if (messageFlags != null) {
+            final int length = messageFlags.length;
+            for (int i=0;i< length;i++){
+                final MessageFlags result = messageFlags[i];
+                final long uid = result.getUid();
+                final Flags flags = result.getFlags();
+                final Long uidObject = new Long(uid);
+                updatedFlags(uid, flags, uidObject, sessionId);
+            }
+        }
+    }
+    
+    /**
+     * Indicates that the flags on the given messages may have been updated.
+     * @param messageResults results 
+     * @param sessionId id of the session upating the flags
+     * @throws MailboxManagerException 
+     * @see #flagsUpdated(MessageResult, long)
+     */
+    public synchronized void flagsUpdated(Collection messageResults, long sessionId) throws MailboxManagerException {
         if (messageResults != null) {
             for (final Iterator it = messageResults.iterator();it.hasNext();) {
                 final MessageResult result = (MessageResult) it.next();
@@ -82,8 +104,9 @@ public class UidChangeTracker extends MailboxTracker implements Constants {
      * Indicates that the flags on the given message may have been updated.
      * @param messageResult result of update
      * @param sessionId id of the session updating the flags
+     * @throws MailboxManagerException 
      */
-    public synchronized void flagsUpdated(MessageResult messageResult, long sessionId) {
+    public synchronized void flagsUpdated(MessageResult messageResult, long sessionId) throws MailboxManagerException {
         if (messageResult != null && MessageResultUtils.isUidIncluded(messageResult)) {
             final Flags flags = messageResult.getFlags();
             final long uid = messageResult.getUid();
@@ -92,7 +115,7 @@ public class UidChangeTracker extends MailboxTracker implements Constants {
         }
     }
     
-    public synchronized void found(UidRange range, final Collection messageResults) {
+    public synchronized void found(UidRange range, final Collection messageResults) throws MessagingException {
         found(range, MessageFlags.toMessageFlags(messageResults));
     }
     
@@ -163,7 +186,7 @@ public class UidChangeTracker extends MailboxTracker implements Constants {
 
     }
 
-    public synchronized void found(MessageResult messageResult) {
+    public synchronized void found(MessageResult messageResult) throws MessagingException {
         if (messageResult != null) {
             long uid = messageResult.getUid();
             Collection results = new ArrayList();
