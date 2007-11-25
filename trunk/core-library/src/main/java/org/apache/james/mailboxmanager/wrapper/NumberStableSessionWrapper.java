@@ -21,6 +21,7 @@ package org.apache.james.mailboxmanager.wrapper;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.SortedSet;
@@ -28,6 +29,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import javax.mail.Flags;
+import javax.mail.internet.MimeMessage;
 
 import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxListener;
@@ -58,8 +60,8 @@ public abstract class NumberStableSessionWrapper extends AbstractGeneralMailbox 
     
             public Object next() {
                 final MessageResult next = (MessageResult) it.next();
-                final MessageResultImpl result = new MessageResultImpl(next);
-                result.setMsn(map.getMsn(result.getUid()));
+                final int msn = map.getMsn(next.getUid());
+                final MessageResult result = new MsnMessageResult(next, msn);
                 return result;
             }
     
@@ -67,6 +69,69 @@ public abstract class NumberStableSessionWrapper extends AbstractGeneralMailbox 
                 throw new UnsupportedOperationException();
             }
             
+            private static final class MsnMessageResult implements MessageResult {
+                private final MessageResult delegate;
+                private final int msn;
+                
+                public MsnMessageResult(final MessageResult delegate, final int msn) {
+                    super();
+                    this.delegate = delegate;
+                    this.msn = msn;
+                }
+
+                public Flags getFlags() throws MailboxManagerException {
+                    return delegate.getFlags();
+                }
+
+                public Content getFullMessage() throws MailboxManagerException {
+                    return delegate.getFullMessage();
+                }
+
+                public int getIncludedResults() {
+                    return delegate.getIncludedResults() | MessageResult.MSN;
+                }
+
+                public Date getInternalDate() {
+                    return delegate.getInternalDate();
+                }
+
+                public String getKey() {
+                    return delegate.getKey();
+                }
+
+                public Content getMessageBody() throws MailboxManagerException {
+                    return delegate.getMessageBody();
+                }
+
+                public MimeMessage getMimeMessage() throws MailboxManagerException {
+                    return delegate.getMimeMessage();
+                }
+
+                public int getMsn() {
+                    return msn;
+                }
+
+                public int getSize() {
+                    return delegate.getSize();
+                }
+
+                public long getUid() {
+                    return delegate.getUid();
+                }
+
+                public long getUidValidity() {
+                    return delegate.getUidValidity();
+                }
+
+                public Iterator iterateHeaders() throws MailboxManagerException {
+                    return delegate.iterateHeaders();
+                }
+
+                public int compareTo(Object o) {
+                    return delegate.compareTo(o);
+                }
+                
+            }
         }
 
     protected GeneralMailbox mailbox;

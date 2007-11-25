@@ -100,7 +100,7 @@ public interface MessageResult extends Comparable {
      */
     int getIncludedResults();
 
-    MimeMessage getMimeMessage();
+    MimeMessage getMimeMessage() throws MailboxManagerException;
 
     long getUid();
 
@@ -130,7 +130,7 @@ public interface MessageResult extends Comparable {
      * for the Flags.
      * 
      */
-    Flags getFlags();
+    Flags getFlags() throws MailboxManagerException;
 
     String getKey();
     
@@ -141,7 +141,7 @@ public interface MessageResult extends Comparable {
      * @return <code>Header</code> <code>Iterator</code>, 
      * or null if {@link #HEADERS} was not fetched
      */
-    Iterator iterateHeaders();
+    Iterator iterateHeaders() throws MailboxManagerException;
     
     /**
      * A header.
@@ -153,14 +153,14 @@ public interface MessageResult extends Comparable {
          * @return name of this header
          * @throws MessagingException 
          */
-        public String getName() throws MessagingException;
+        public String getName() throws MailboxManagerException;
         
         /**
          * Gets the (unparsed) value of this header.
          * @return value of this header
          * @throws MessagingException
          */
-        public String getValue() throws MessagingException;
+        public String getValue() throws MailboxManagerException;
     }
     
     /**
@@ -170,7 +170,7 @@ public interface MessageResult extends Comparable {
      * or or null if {@link #FULL_CONTENT} has not been included in the 
      * results
      */
-    Content getFullMessage();
+    Content getFullMessage() throws MailboxManagerException;
 
     /**
      * Gets the body of the message excluding headers.
@@ -179,7 +179,7 @@ public interface MessageResult extends Comparable {
      * or or null if {@link #FULL_CONTENT} has not been included in the 
      * results 
      */
-    Content getMessageBody();
+    Content getMessageBody() throws MailboxManagerException;
 
     /**
      * IMAP needs to know the size of the content before it starts to write it out.
@@ -191,13 +191,13 @@ public interface MessageResult extends Comparable {
          * @param buffer <code>StringBuffer</code>, not null
          * @throws MessagingException
          */
-        public void writeTo(StringBuffer buffer) throws MessagingException;
+        public void writeTo(StringBuffer buffer) throws MailboxManagerException;
         
         /**
          * Size (in octets) of the content.
          * @return number of octets to be written
          * @throws MessagingException
          */
-        public long size() throws MessagingException;
+        public long size() throws MailboxManagerException;
     }
 }

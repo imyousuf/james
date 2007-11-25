@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.mail.Flags;
+import javax.mail.MessagingException;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
@@ -144,7 +145,7 @@ public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements Se
                     responses.add(response);
                 }
             }
-        } catch (MailboxManagerException e) {
+        } catch (MessagingException e) {
             final String message = "Failed to retrieve flags data";
             handleResponseException(responses, e, message);
         }
@@ -162,7 +163,7 @@ public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements Se
         }
     }
 
-    private void handleResponseException(final List responses, MailboxManagerException e, final String message) {
+    private void handleResponseException(final List responses, MessagingException e, final String message) {
         getLogger().info(message);
         getLogger().debug(message, e);
         // TODO: consider whether error message should be passed to the user

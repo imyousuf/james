@@ -22,8 +22,6 @@ package org.apache.james.mailboxmanager;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.mail.MessagingException;
-
 import junit.framework.TestCase;
 
 public class MessageResultUtilsTest extends TestCase {
@@ -45,11 +43,11 @@ public class MessageResultUtilsTest extends TestCase {
             value = "Value";
         }
         
-        public long size() throws MessagingException {
+        public long size() throws MailboxManagerException {
             return 0;
         }
 
-        public void writeTo(StringBuffer buffer) throws MessagingException {
+        public void writeTo(StringBuffer buffer) throws MailboxManagerException {
         }
         
         public String getName() {

@@ -22,7 +22,6 @@ package org.apache.james.mailboxmanager.torque;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -43,10 +42,8 @@ import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.SearchParameters;
 import org.apache.james.mailboxmanager.UnsupportedCriteriaException;
-import org.apache.james.mailboxmanager.MessageResult.Content;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.impl.MailboxEventDispatcher;
-import org.apache.james.mailboxmanager.impl.MessageResultImpl;
 import org.apache.james.mailboxmanager.mailbox.AbstractGeneralMailbox;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 import org.apache.james.mailboxmanager.torque.om.MailboxRow;
@@ -235,9 +232,9 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
             if (uid>(lastScannedUid+1)) {
                 GeneralMessageSet set=GeneralMessageSetImpl.uidRange(lastScannedUid+1, uid);
                 Criteria criteria=criteriaForMessageSet(set);
-                List messageRows=mailboxRow.getMessageRows(criteria);
-                List messageResults=fillMessageResult(messageRows, MessageResult.UID);
-                getUidChangeTracker().found(uidRangeForMessageSet(set), messageResults);
+                final List messageRows=mailboxRow.getMessageRows(criteria);
+                getUidChangeTracker().found(uidRangeForMessageSet(set), 
+                        MessageRowUtils.toMessageFlags(messageRows));
             }
         }
         
@@ -268,7 +265,7 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
                 criteria.add(criterion1);
             }
         } else {
-            throw new MailboxManagerException("unsupported MessageSet: "
+            throw new MailboxManagerException("Unsupported MessageSet: "
                     + set.getType());
         }
         return criteria;
@@ -302,13 +299,13 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
         }
     }
 
-    private Iterator getMessages(int result, UidRange range, Criteria c) throws TorqueException, MessagingException, MailboxManagerException {
-        List l = MessageRowPeer.doSelectJoinMessageFlags(c);
-        final Collection messageResults = fillMessageResult(l, result
-                | MessageResult.UID | MessageResult.FLAGS);
+    private TorqueResultIterator getMessages(int result, UidRange range, Criteria c) throws TorqueException, MessagingException, MailboxManagerException {
+        List rows = MessageRowPeer.doSelectJoinMessageFlags(c);
+        Collections.sort(rows, MessageRowUtils.getUidComparator());
+        final TorqueResultIterator results = new TorqueResultIterator(rows, result, getUidToKeyConverter());
         checkForScanGap(range.getFromUid());
-        getUidChangeTracker().found(range, messageResults);
-        return messageResults.iterator();
+        getUidChangeTracker().found(range, results.getMessageFlags());
+        return results;
     }
 
     private static UidRange uidRangeForMessageSet(GeneralMessageSet set)
@@ -323,207 +320,10 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
         }
     }
 
-    private List fillMessageResult(List messageRows, int result)
+
+    public MessageResult fillMessageResult(MessageRow messageRow, int result)
             throws TorqueException, MessagingException, MailboxManagerException {
-        
-        final List messageResults = new ArrayList(messageRows.size());
-        for (Iterator iter = messageRows.iterator(); iter.hasNext();) {
-            MessageRow messageRow=(MessageRow)iter.next();
-            MessageResult messageResult = fillMessageResult(messageRow, result);
-            messageResults.add(messageResult);
-        }
-        return messageResults;
-    }
-
-    private MessageResult fillMessageResult(MessageRow messageRow, int result)
-            throws TorqueException, MessagingException, MailboxManagerException {
-        MessageResultImpl messageResult = new MessageResultImpl();
-        if ((result & MessageResult.MIME_MESSAGE) > 0) {
-            messageResult.setMimeMessage(TorqueMimeMessage.createMessage(messageRow,getLog()));
-            result -= MessageResult.MIME_MESSAGE;
-        }
-        if ((result & MessageResult.UID) > 0) {
-            messageResult.setUid(messageRow.getUid());
-            result -= MessageResult.UID;
-        }
-        if ((result & MessageResult.FLAGS) > 0) {
-            MessageFlags messageFlags=messageRow.getMessageFlags();
-            if (messageFlags!=null) {
-                messageResult.setFlags(messageFlags.getFlagsObject());  
-            }
-            result -= MessageResult.FLAGS;
-        }
-        if ((result & MessageResult.SIZE) > 0) {
-            messageResult.setSize(messageRow.getSize());
-            result -= MessageResult.SIZE;
-        }
-        if ((result & MessageResult.INTERNAL_DATE) > 0) {
-            messageResult.setInternalDate(messageRow.getInternalDate());
-            result -= MessageResult.INTERNAL_DATE;
-        }
-        if ((result & MessageResult.KEY) > 0) {
-            messageResult.setKey(getUidToKeyConverter().toKey(messageRow.getUid()));
-            result -= MessageResult.KEY;
-        }
-        if ((result & MessageResult.HEADERS) > 0) {
-            messageResult.setHeaders(createHeaders(messageRow));
-            result -= MessageResult.HEADERS;
-        }
-        if ((result & MessageResult.BODY_CONTENT) > 0) {
-            messageResult.setMessageBody(createBodyContent(messageRow));
-            result -= MessageResult.BODY_CONTENT;
-        }
-        if ((result & MessageResult.FULL_CONTENT) > 0) {
-            messageResult.setFullMessage(createFullContent(messageRow, messageResult.getHeaders()));
-            result -= MessageResult.FULL_CONTENT;
-        }
-        if ((result & MessageResult.MSN) > 0) {
-            // ATM implemented by wrappers
-            result -= MessageResult.MSN;
-        }
-        if (result != 0) {
-            throw new RuntimeException("Unsupported result: " + result);
-        }
-        
-        return messageResult;
-    }
-    
-    private final static class FullContent implements MessageResult.Content {
-        private final byte[] contents;
-        private final List headers;
-        private final long size;
-        
-        public FullContent(final byte[] contents, final List headers) throws MessagingException {
-            this.contents =  contents;
-            this.headers = headers;
-            this.size = caculateSize();
-        }
-
-        private long caculateSize() throws MessagingException{
-            long result = contents.length + MessageUtils.countUnnormalLines(contents);
-            result += 2;
-            for (final Iterator it=headers.iterator(); it.hasNext();) {
-                final MessageResult.Header header = (MessageResult.Header) it.next();
-                if (header != null) {
-                    result += header.size();
-                    result += 2;
-                }
-            }
-            return result;
-        }
-
-        public void writeTo(StringBuffer buffer) throws MessagingException {
-            for (final Iterator it=headers.iterator(); it.hasNext();) {
-                final MessageResult.Header header = (MessageResult.Header) it.next();
-                if (header != null) {
-                    header.writeTo(buffer);
-                }
-                buffer.append('\r');
-                buffer.append('\n');
-            }
-            buffer.append('\r');
-            buffer.append('\n');
-            MessageUtils.normalisedWriteTo(contents, buffer);
-        }
-
-        public long size() throws MessagingException {
-            return size;
-        }
-    }
-
-    private Content createFullContent(final MessageRow messageRow, List headers) throws TorqueException, MessagingException {
-        if (headers == null) {
-            headers = createHeaders(messageRow);
-        }
-        final MessageBody body = (MessageBody) messageRow.getMessageBodys().get(0);
-        final byte[] bytes = body.getBody();
-        final FullContent results = new FullContent(bytes, headers);
-        return results;
-    }
-    
-    private Content createBodyContent(MessageRow messageRow) throws TorqueException {
-        final MessageBody body = (MessageBody) messageRow.getMessageBodys().get(0);
-        final byte[] bytes = body.getBody();
-        final ByteContent result = new ByteContent(bytes);
-        return result;
-    }
-    
-    private final static class ByteContent implements MessageResult.Content {
-       
-        private final byte[] contents;
-        private final long size;
-        public ByteContent(final byte[] contents) {
-            this.contents = contents;
-            size = contents.length + MessageUtils.countUnnormalLines(contents);
-        }
-        
-        public long size() throws MessagingException {
-            return size;
-        }
-        
-        public void writeTo(StringBuffer buffer) throws MessagingException {
-            MessageUtils.normalisedWriteTo(contents, buffer);
-        }
-    } 
-    
-    private List createHeaders(MessageRow messageRow) throws TorqueException {
-        final List headers=messageRow.getMessageHeaders();
-        Collections.sort(headers, new Comparator() {
-
-            public int compare(Object one, Object two) {
-                return ((MessageHeader) one).getLineNumber() - ((MessageHeader)two).getLineNumber();
-            }
-            
-        });
-        
-        final List results = new ArrayList(headers.size());
-        for (Iterator it=headers.iterator();it.hasNext();) {
-            final MessageHeader messageHeader = (MessageHeader) it.next();
-            final Header header = new Header(messageHeader);
-            results.add(header);
-        }
-        return results;
-    }
-    
-    private static final class Header implements MessageResult.Header, MessageResult.Content {
-        private final String name;
-        private final String value;
-        private final long size;
-        
-        public Header(final MessageHeader header) {
-            this.name = header.getField();
-            this.value = header.getValue();
-            size = name.length() + value.length() + 2;
-        }
-        
-        public Content getContent() throws MessagingException {
-            return this;
-        }
-
-        public String getName() throws MessagingException {
-            return name;
-        }
-
-        public String getValue() throws MessagingException {
-            return value;
-        }
-
-        public long size() throws MessagingException {
-            return size;
-        }
-
-        public void writeTo(StringBuffer buffer) throws MessagingException {
-// TODO: sort out encoding
-            for (int i=0; i<name.length();i++) {
-                buffer.append((char)(byte) name.charAt(i));
-            }
-            buffer.append(':');
-            buffer.append(' ');
-            for (int i=0; i<value.length();i++) {
-                buffer.append((char)(byte) value.charAt(i));
-            }
-        }
-        
+        return MessageRowUtils.loadMessageResult(messageRow, result, getUidToKeyConverter());
     }
     
     public synchronized Flags getPermanentFlags() {
@@ -657,9 +457,11 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
 
             final List messageRows = getMailboxRow().getMessageRows(c);
             final long[] uids = uids(messageRows);
-            final List messageResults = fillMessageResult(messageRows, result
-                    | MessageResult.UID | MessageResult.FLAGS);
-
+            final TorqueResultIterator resultIterator = new TorqueResultIterator(messageRows, result
+                    | MessageResult.UID | MessageResult.FLAGS, getUidToKeyConverter());
+            // ensure all results are loaded before deletion
+            Collection messageResults = IteratorUtils.toList(resultIterator);
+            
             for (Iterator iter = messageRows.iterator(); iter.hasNext();) {
                 MessageRow messageRow = (MessageRow) iter.next();
                 Criteria todelc=new Criteria();
@@ -711,11 +513,9 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
             // TODO put this into a serializeable transaction
             final List messageRows = getMailboxRow()
                     .getMessageRows(criteriaForMessageSet(set));
-            final Collection beforeResults = fillMessageResult(messageRows,
-                    MessageResult.UID | MessageResult.FLAGS);
             UidRange uidRange=uidRangeForMessageSet(set);
             checkForScanGap(uidRange.getFromUid());
-            getUidChangeTracker().found(uidRange, beforeResults);
+            getUidChangeTracker().found(uidRange, MessageRowUtils.toMessageFlags(messageRows));
             for (Iterator iter = messageRows.iterator(); iter.hasNext();) {
                 final MessageRow messageRow = (MessageRow) iter.next();
                 final MessageFlags messageFlags = messageRow.getMessageFlags();
@@ -734,12 +534,15 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
                     messageFlags.save();
                 }
             }
-            final Collection afterResults = fillMessageResult(messageRows,
-                    results | MessageResult.UID | MessageResult.FLAGS);
-            tracker.flagsUpdated(afterResults, sessionId);
-            tracker.found(uidRange, afterResults);
-            return afterResults.iterator();
-        } catch (Exception e) {
+            final TorqueResultIterator resultIterator = new TorqueResultIterator(messageRows,
+                    results | MessageResult.UID | MessageResult.FLAGS, getUidToKeyConverter());
+            final org.apache.james.mailboxmanager.impl.MessageFlags[] messageFlags = resultIterator.getMessageFlags();
+            tracker.flagsUpdated(messageFlags, sessionId);
+            tracker.found(uidRange, messageFlags);
+            return resultIterator;
+        } catch (TorqueException e) {
+            throw new MailboxManagerException(e);
+        } catch (MessagingException e) {
             throw new MailboxManagerException(e);
         }
     }

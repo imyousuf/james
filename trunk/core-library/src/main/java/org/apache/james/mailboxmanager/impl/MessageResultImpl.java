@@ -28,6 +28,7 @@ import javax.mail.Flags.Flag;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.commons.collections.IteratorUtils;
+import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.MessageResultUtils;
 
@@ -61,7 +62,7 @@ public class MessageResultImpl implements MessageResult {
         setFlags(flags);
     }
 
-    public MessageResultImpl(MessageResult result) {
+    public MessageResultImpl(MessageResult result) throws MailboxManagerException {
         if (MessageResultUtils.isUidIncluded(result)) {
             setUid(result.getUid()); 
         }
@@ -181,10 +182,6 @@ public class MessageResultImpl implements MessageResult {
         }
     }
     
-    public String toString() {
-        return "UID: "+uid+" FLAGS: "+flagsToString(flags);
-    }
-
     public static  String flagsToString(Flags flags) {
         if (flags==null) {
             return "null";
@@ -266,4 +263,30 @@ public class MessageResultImpl implements MessageResult {
             includedResults |= BODY_CONTENT;
         }
     }
+
+    /**
+     * Renders suitably for logging.
+     *
+     * @return a <code>String</code> representation 
+     * of this object.
+     */
+    public String toString()
+    {
+        final String TAB = " ";
+        
+        String retValue = "MessageResultImpl ( "
+            + super.toString() + TAB
+            + "uid = " + this.uid + TAB
+            + "msn = " + this.msn + TAB
+            + "flags = " + this.flags + TAB
+            + "size = " + this.size + TAB
+            + "internalDate = " + this.internalDate + TAB
+            + "key = " + this.key + TAB
+            + "includedResults = " + this.includedResults + TAB
+            + " )";
+    
+        return retValue;
+    }
+    
+    
 }
