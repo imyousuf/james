@@ -49,7 +49,7 @@ public class ImapResponseCommandTest extends MockObjectTestCase {
         super.tearDown();
     }
 
-    public void testCommandCompleteImapCommand() {
+    public void testCommandCompleteImapCommand() throws Exception {
         response.commandComplete(command, TAG);
         assertEquals(5, writer.operations.size());
         assertEquals(new MockImapResponseWriter.TagOperation(TAG), writer.operations.get(0));
@@ -63,7 +63,7 @@ public class ImapResponseCommandTest extends MockObjectTestCase {
                 writer.operations.get(4));
     }
 
-    public void testCommandCompleteImapCommandString() {
+    public void testCommandCompleteImapCommandString() throws Exception  {
         final String code = "responseCode";
         response.commandComplete(command, code, TAG);
         assertEquals(6, writer.operations.size());
@@ -80,7 +80,7 @@ public class ImapResponseCommandTest extends MockObjectTestCase {
                 writer.operations.get(5));
     }
 
-    public void testCommandFailedImapCommandString() {
+    public void testCommandFailedImapCommandString() throws Exception {
         final String reason = "A reason";
         response.commandFailed(command, reason, TAG);
         assertEquals(6, writer.operations.size());
@@ -97,7 +97,7 @@ public class ImapResponseCommandTest extends MockObjectTestCase {
                 writer.operations.get(5));
     }
 
-    public void testCommandFailedImapCommandStringString() {
+    public void testCommandFailedImapCommandStringString() throws Exception {
         final String reason = "A reason";
         final String code = "A code";
         response.commandFailed(command, code, reason, TAG);
@@ -117,7 +117,7 @@ public class ImapResponseCommandTest extends MockObjectTestCase {
                 writer.operations.get(6));
     }
 
-    public void testCommandResponse() {
+    public void testCommandResponse() throws Exception {
         String message = "A message";
         response.commandResponse(command, message);
         assertEquals(4, writer.operations.size());

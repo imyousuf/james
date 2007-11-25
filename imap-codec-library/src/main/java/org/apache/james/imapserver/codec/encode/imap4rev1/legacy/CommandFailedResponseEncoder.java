@@ -19,6 +19,8 @@
 
 package org.apache.james.imapserver.codec.encode.imap4rev1.legacy;
 
+import java.io.IOException;
+
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.imap.message.response.imap4rev1.legacy.CommandFailedResponse;
@@ -36,7 +38,7 @@ public class CommandFailedResponseEncoder extends AbstractChainedImapEncoder {
     }
 
 
-    protected void doEncode(ImapMessage acceptableMessage, ImapResponseComposer composer) {
+    protected void doEncode(ImapMessage acceptableMessage, ImapResponseComposer composer) throws IOException {
         CommandFailedResponse response = (CommandFailedResponse) acceptableMessage;
         final String responseCode = response.getResponseCode();
         final ImapCommand command = response.getCommand();

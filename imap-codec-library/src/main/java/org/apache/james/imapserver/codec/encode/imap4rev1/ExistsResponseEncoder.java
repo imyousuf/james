@@ -19,6 +19,8 @@
 
 package org.apache.james.imapserver.codec.encode.imap4rev1;
 
+import java.io.IOException;
+
 import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.imap.message.response.imap4rev1.ExistsResponse;
 import org.apache.james.imapserver.codec.encode.ImapEncoder;
@@ -35,7 +37,7 @@ public class ExistsResponseEncoder extends AbstractChainedImapEncoder {
         return message instanceof ExistsResponse;
     }
 
-    protected void doEncode(ImapMessage acceptableMessage, ImapResponseComposer composer) {
+    protected void doEncode(ImapMessage acceptableMessage, ImapResponseComposer composer) throws IOException {
         final ExistsResponse existsResponse = (ExistsResponse) acceptableMessage;
         final int numberOfMessages = existsResponse.getNumberOfMessages();
         composer.existsResponse(numberOfMessages);

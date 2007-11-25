@@ -86,7 +86,12 @@ public class ImapHandler
         getLogger().debug("forceConnectionClose: "+message);
         final OutputStreamImapResponseWriter writer = new OutputStreamImapResponseWriter(outs);
         ImapResponseComposer response = new ImapResponseComposerImpl(writer);
-        response.byeResponse(message);
+        try {
+            response.byeResponse(message);
+        } catch (IOException e) {
+            getLogger().info("Write BYE failed");
+            getLogger().debug("Cannot write BYE on connection close", e);
+        }
         endSession();
     }
 

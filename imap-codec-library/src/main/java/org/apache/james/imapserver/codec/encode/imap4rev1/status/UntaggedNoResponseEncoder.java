@@ -19,6 +19,8 @@
 
 package org.apache.james.imapserver.codec.encode.imap4rev1.status;
 
+import java.io.IOException;
+
 import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.imap.message.response.imap4rev1.status.UntaggedNoResponse;
 import org.apache.james.imapserver.codec.encode.ImapEncoder;
@@ -32,7 +34,7 @@ public class UntaggedNoResponseEncoder extends AbstractChainedImapEncoder {
     }
 
     protected void doEncode(ImapMessage acceptableMessage,
-            ImapResponseComposer composer) {
+            ImapResponseComposer composer) throws IOException {
         UntaggedNoResponse response = (UntaggedNoResponse) acceptableMessage;
         final String displayText = response.getDisplayText();
         final String responseCode = response.getResponseCode();

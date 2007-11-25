@@ -19,6 +19,7 @@
 
 package org.apache.james.imapserver.codec.encode;
 
+import java.io.IOException;
 import java.util.List;
 
 import javax.mail.Flags;
@@ -39,7 +40,7 @@ public interface ImapResponseComposer {
      *                The ImapCommand which was completed.
      */
     public abstract void commandComplete(final ImapCommand command,
-            final String tag);
+            final String tag) throws IOException;
 
     /**
      * Writes a standard tagged OK response on completion of a command, with a
@@ -55,7 +56,7 @@ public interface ImapResponseComposer {
      *                A string response code to send to the client.
      */
     public abstract void commandComplete(final ImapCommand command,
-            final String responseCode, final String tag);
+            final String responseCode, final String tag) throws IOException;
 
     /**
      * Writes a standard NO response on command failure, together with a
@@ -71,7 +72,7 @@ public interface ImapResponseComposer {
      *                A message describing why the command failed.
      */
     public abstract void commandFailed(final ImapCommand command,
-            final String reason, final String tag);
+            final String reason, final String tag) throws IOException;
 
     /**
      * Writes a standard NO response on command failure, together with a
@@ -89,7 +90,7 @@ public interface ImapResponseComposer {
      *                A message describing why the command failed.
      */
     public abstract void commandFailed(ImapCommand command,
-            String responseCode, String reason, final String tag);
+            String responseCode, String reason, final String tag) throws IOException;
 
     /**
      * Writes a standard BAD response on command error, together with a
@@ -102,19 +103,19 @@ public interface ImapResponseComposer {
      * @param message
      *                The descriptive error message.
      */
-    public abstract void commandError(final String message, final String tag);
+    public abstract void commandError(final String message, final String tag) throws IOException;
 
     /**
      * Writes a standard untagged BAD response, together with a descriptive
      * message.
      */
-    public abstract void badResponse(String message);
+    public abstract void badResponse(String message) throws IOException;
 
     /**
      * Writes a standard untagged BAD response, together with a descriptive
      * message.
      */
-    public abstract void badResponse(String message, String tag);
+    public abstract void badResponse(String message, String tag) throws IOException;
 
     /**
      * Writes an untagged OK response, with the supplied response code, and an
@@ -125,7 +126,7 @@ public interface ImapResponseComposer {
      * @param message
      *                The message to follow the []
      */
-    public abstract void okResponse(String responseCode, String message);
+    public abstract void okResponse(String responseCode, String message) throws IOException;
 
     /**
      * Writes an untagged NO response. Indicates that a warning. The command may
@@ -137,27 +138,27 @@ public interface ImapResponseComposer {
      *                response code or null when there is no response code
      */
     public abstract void untaggedNoResponse(String displayMessage,
-            String responseCode);
+            String responseCode) throws IOException;
 
     /**
      * Writes flags to output using standard format.
      * @param flags <code>Flags</code>, not null
      */
-    public abstract void flags(Flags flags);
+    public abstract void flags(Flags flags) throws IOException;
     
     /**
      * Writes a complete FLAGS response.
      * @param flags <code>Flags</code>, not null
      */
-    public abstract void flagsResponse(Flags flags);
+    public abstract void flagsResponse(Flags flags) throws IOException;
     
-    public abstract void existsResponse(int count);
+    public abstract void existsResponse(int count) throws IOException;
 
-    public abstract void recentResponse(int count);
+    public abstract void recentResponse(int count) throws IOException;
 
-    public abstract void expungeResponse(int msn);
+    public abstract void expungeResponse(int msn) throws IOException;
     
-    public abstract void searchResponse(long[] ids);
+    public abstract void searchResponse(long[] ids) throws IOException;
 
     /**
      * Starts a FETCH response by writing the opening
@@ -165,21 +166,21 @@ public interface ImapResponseComposer {
      * @param msn message number
      * @see #closeFetchResponse()
      */
-    public abstract void openFetchResponse(long msn);
+    public abstract void openFetchResponse(long msn) throws IOException;
     
     /**
      * Ends a FETCH response by writing the closing
      * paren-crlf sequence.
      */
-    public abstract void closeFetchResponse();
+    public abstract void closeFetchResponse() throws IOException;
     
     /**
      * @deprecated
      * @see #openFetchResponse(long)
      */
-    public abstract void legacyFetchResponse(int msn, String msgData);
+    public abstract void legacyFetchResponse(int msn, String msgData) throws IOException;
 
-    public abstract void commandResponse(ImapCommand command, String message);
+    public abstract void commandResponse(ImapCommand command, String message) throws IOException;
 
     /**
      * Writes a list response
@@ -190,7 +191,7 @@ public interface ImapResponseComposer {
      * or null if delimiter is <code>NIL</code>
      * @param name mailbox name
      */
-    public abstract void listResponse(String typeName, List attributes, String hierarchyDelimiter, String name);
+    public abstract void listResponse(String typeName, List attributes, String hierarchyDelimiter, String name) throws IOException;
     
     /**
      * Writes the message provided to the client, prepended with the request
@@ -199,7 +200,7 @@ public interface ImapResponseComposer {
      * @param message
      *                The message to write to the client.
      */
-    public abstract void taggedResponse(String message, String tag);
+    public abstract void taggedResponse(String message, String tag) throws IOException;
 
     /**
      * Writes the message provided to the client, prepended with the untagged
@@ -208,27 +209,27 @@ public interface ImapResponseComposer {
      * @param message
      *                The message to write to the client.
      */
-    public abstract void untaggedResponse(String message);
+    public abstract void untaggedResponse(String message) throws IOException;
 
-    public abstract void byeResponse(String message);
+    public abstract void byeResponse(String message) throws IOException;
 
-    public abstract void untagged();
+    public abstract void untagged() throws IOException;
 
-    public abstract void commandName(final String name);
+    public abstract void commandName(final String name) throws IOException;
 
-    public abstract void message(final String message);
+    public abstract void message(final String message) throws IOException;
 
-    public abstract void message(final long number);
+    public abstract void message(final long number) throws IOException;
 
-    public abstract void responseCode(final String responseCode);
+    public abstract void responseCode(final String responseCode) throws IOException;
 
-    public abstract void end();
+    public abstract void end() throws IOException;
 
-    public abstract void permanentFlagsResponse(Flags flags);
+    public abstract void permanentFlagsResponse(Flags flags) throws IOException;
 
-    public abstract void tag(String tag);
+    public abstract void tag(String tag) throws IOException;
 
     public abstract void statusResponse(String tag, ImapCommand command,
-            String type, String responseCode, String text);
+            String type, String responseCode, String text) throws IOException;
 
 }

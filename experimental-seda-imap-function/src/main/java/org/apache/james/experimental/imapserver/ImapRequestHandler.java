@@ -19,6 +19,7 @@
 
 package org.apache.james.experimental.imapserver;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -91,26 +92,48 @@ public final class ImapRequestHandler extends AbstractLogEnabled {
         ImapResponseComposerImpl response = new ImapResponseComposerImpl( new OutputStreamImapResponseWriter( output ));
         response.enableLogging(getLogger()); 
 
-        doProcessRequest( request, response, session );
-
-        // Consume the rest of the line, throwing away any extras. This allows us
-        // to clean up after a protocol error.
-        request.consumeLine();
-
-        return !(ImapSessionState.LOGOUT == session.getState());
+        final boolean result;
+        if (doProcessRequest( request, response, session )) {
+    
+            // Consume the rest of the line, throwing away any extras. This allows us
+            // to clean up after a protocol error.
+            request.consumeLine();
+    
+            result = !(ImapSessionState.LOGOUT == session.getState());
+        } else {
+            result = false;
+        }
+        return result;
     }
 
-    private void doProcessRequest( ImapRequestLineReader request,
+    private boolean doProcessRequest( ImapRequestLineReader request,
                                    ImapResponseComposer response,
                                    ImapSession session)
     {
         ImapMessage message = decoder.decode(request);
-        processor.process(message, new ResponseEncoder(encoder, response), session);
+        final ResponseEncoder responseEncoder = new ResponseEncoder(encoder, response);
+        processor.process(message, responseEncoder, session);
+        final boolean result;
+        final IOException failure = responseEncoder.getFailure();
+        if (failure == null) {
+            result = true;
+        } else {
+            result = false;
+            final Logger logger = getLogger();
+            logger.info(failure.getMessage());
+            if (logger.isDebugEnabled()) {
+                logger.debug("Failed to write " + message, failure);
+            }
+        }
+        return result;
     }
 
     private static final class ResponseEncoder implements Responder {
         private final ImapEncoder encoder;
         private final ImapResponseComposer composer;
+
+        private IOException failure;
+        
         
         public ResponseEncoder(final ImapEncoder encoder, final ImapResponseComposer composer) {
             super();
@@ -119,7 +142,22 @@ public final class ImapRequestHandler extends AbstractLogEnabled {
         }
         
         public void respond(final ImapResponseMessage message) {
+            try {
             encoder.encode(message, composer);
+            } catch (IOException failure) {
+                this.failure = failure;
+            }
         }
+
+        /**
+         * Gets the recorded failure.
+         * @return the failure, 
+         * or null when no failure has occured
+         */
+        public final IOException getFailure() {
+            return failure;
+        }
+        
+        
     }
 }

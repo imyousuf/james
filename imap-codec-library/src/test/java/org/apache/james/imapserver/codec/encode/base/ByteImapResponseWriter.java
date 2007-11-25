@@ -114,8 +114,8 @@ public class ByteImapResponseWriter extends AbstractLogEnabled implements ImapCo
         final int length = message.length();
         for (int i=0;i<length;i++) {
             char character = message.charAt(i);
-            if (character == ImapConstants.FORWARD_SLASH || character == DQUOTE) {
-                writer.print(ImapConstants.FORWARD_SLASH);
+            if (character == ImapConstants.BACK_SLASH || character == DQUOTE) {
+                writer.print(ImapConstants.BACK_SLASH);
             }
             writer.print(character);
         }

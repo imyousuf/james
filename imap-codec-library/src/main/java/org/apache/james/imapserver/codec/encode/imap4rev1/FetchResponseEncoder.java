@@ -19,6 +19,8 @@
 
 package org.apache.james.imapserver.codec.encode.imap4rev1;
 
+import java.io.IOException;
+
 import javax.mail.Flags;
 
 import org.apache.james.api.imap.ImapConstants;
@@ -40,7 +42,7 @@ public class FetchResponseEncoder extends AbstractChainedImapEncoder {
             || (message instanceof FetchResponse);
     }
 
-    protected void doEncode(ImapMessage acceptableMessage, ImapResponseComposer composer) {
+    protected void doEncode(ImapMessage acceptableMessage, ImapResponseComposer composer) throws IOException {
         if (acceptableMessage instanceof FetchResponse) {
             final FetchResponse fetchResponse = (FetchResponse) acceptableMessage;
             final long messageNumber = fetchResponse.getMessageNumber();
@@ -61,7 +63,7 @@ public class FetchResponseEncoder extends AbstractChainedImapEncoder {
         }
     }
 
-    private void encodeLegacy(ImapResponseComposer composer, final LegacyFetchResponse fetchResponse) {
+    private void encodeLegacy(ImapResponseComposer composer, final LegacyFetchResponse fetchResponse) throws IOException {
         // TODO: this is inefficient
         final String data = fetchResponse.getData();
         final int number = fetchResponse.getNumber();

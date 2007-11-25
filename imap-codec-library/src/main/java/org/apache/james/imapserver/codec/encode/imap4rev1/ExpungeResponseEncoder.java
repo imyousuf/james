@@ -19,6 +19,8 @@
 
 package org.apache.james.imapserver.codec.encode.imap4rev1;
 
+import java.io.IOException;
+
 import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.imap.message.response.imap4rev1.ExpungeResponse;
 import org.apache.james.imapserver.codec.encode.ImapEncoder;
@@ -35,7 +37,7 @@ public class ExpungeResponseEncoder extends AbstractChainedImapEncoder {
         return (message instanceof ExpungeResponse);
     }
 
-    protected void doEncode(ImapMessage acceptableMessage, ImapResponseComposer composer) {
+    protected void doEncode(ImapMessage acceptableMessage, ImapResponseComposer composer) throws IOException {
         final ExpungeResponse expungeResponse = (ExpungeResponse) acceptableMessage;
         final int messageSequenceNumber = expungeResponse.getMessageSequenceNumber();
         composer.expungeResponse(messageSequenceNumber);

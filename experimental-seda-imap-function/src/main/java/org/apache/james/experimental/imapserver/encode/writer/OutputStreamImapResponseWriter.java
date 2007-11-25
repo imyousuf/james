@@ -19,132 +19,28 @@
 
 package org.apache.james.experimental.imapserver.encode.writer;
 
+import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintWriter;
-
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.api.imap.ImapConstants;
-import org.apache.james.imapserver.codec.encode.ImapResponseWriter;
-import org.apache.james.util.InternetPrintWriter;
+import java.nio.channels.Channels;
 
 /**
  * Class providing methods to send response messages from the server
  * to the client.
  */
-public class OutputStreamImapResponseWriter extends AbstractLogEnabled implements ImapConstants, ImapResponseWriter {
+public class OutputStreamImapResponseWriter extends ChannelImapResponseWriter {
     
-    private PrintWriter writer;
-    private boolean skipNextSpace;
+    private final OutputStream output;
 
     public OutputStreamImapResponseWriter( OutputStream output )
     {
-        this.writer = new InternetPrintWriter( output, true );
-        skipNextSpace = false;
+        super(Channels.newChannel(output));
+        this.output = output;
     }
 
-    /**
-     * Writes the message provided to the client, prepended with the
-     * untagged marker "*".
-     *
-     * @param message The message to write to the client.
-     */
-    public void untaggedResponse( String message )
-    {
-        untagged();
-        message( message );
-        end();
+    public void flush() throws IOException {
+        super.flush();
+        output.flush();
     }
     
-    public void byeResponse( String message ) {
-        untaggedResponse(BYE + SP + message);
-    }
-
-    public void untagged()
-    {
-        writer.print( UNTAGGED );
-    }
-
-    public void tag(String tag)
-    {
-        writer.print( tag );
-    }
-
-    public void message( String message )
-    {
-        if ( message != null ) {
-            space();
-            writer.print( message );
-        }
-    }
-
-    public void message( long number )
-    {
-        space();
-        writer.print( number );
-    }
-
-    public void responseCode( String responseCode )
-    {
-        if ( responseCode != null ) {
-            writer.print( " [" );
-            writer.print( responseCode );
-            writer.print( ']' );
-        }
-    }
-
-    public void end()
-    {
-        writer.println();
-        writer.flush();
-    }
-
-    public void commandName(String commandName) {
-        space();
-        writer.print( commandName );
-    }
-
-    public void quote(String message) {
-        space();
-        writer.print( DQUOTE );
-        final int length = message.length();
-        for (int i=0;i<length;i++) {
-            char character = message.charAt(i);
-            if (character == ImapConstants.FORWARD_SLASH || character == DQUOTE) {
-                writer.print(ImapConstants.FORWARD_SLASH);
-            }
-            writer.print(character);
-        }
-        writer.print(DQUOTE);
-    }
     
-    public void flush() {
-        writer.flush();
-    }
-
-    public void closeParen() {
-        writer.print(CLOSING_PARENTHESIS);
-        clearSkipNextSpace();
-    }
-
-    public void openParen() {
-        space();
-        writer.print(OPENING_PARENTHESIS);
-        skipNextSpace();
-    }
-    
-    private void clearSkipNextSpace() {
-        skipNextSpace = false;
-    }
-    
-    private void skipNextSpace() {
-        skipNextSpace = true;
-    }
-    
-    private void space() {
-        if (skipNextSpace) {
-            skipNextSpace = false;
-        } else {
-            writer.print(SP_CHAR);
-        }
-    }
 }
