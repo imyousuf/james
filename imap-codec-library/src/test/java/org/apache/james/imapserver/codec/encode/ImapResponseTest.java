@@ -141,23 +141,6 @@ public class ImapResponseTest extends MockObjectTestCase {
                 writer.operations.get(3));
     }
 
-    public void testFetchResponse() throws Exception {
-        int count = 7;
-        String data = "Some data";
-        response.legacyFetchResponse(count, data);
-        assertEquals(5, writer.operations.size());
-        assertEquals(new MockImapResponseWriter.UntaggedOperation(), writer.operations.get(0));
-        assertEquals(new MockImapResponseWriter.NumericMessageOperation(count), 
-                writer.operations.get(1));
-        assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapResponseComposerImpl.FETCH),
-                writer.operations.get(2));
-        assertEquals(new MockImapResponseWriter.TextMessageOperation("(" + data + ")"),
-                writer.operations.get(3));
-        assertEquals(new MockImapResponseWriter.EndOperation(), 
-                writer.operations.get(4));
-    }
-
-
     public void testTaggedResponse() throws Exception {
         String message = "A message";
         response.taggedResponse(message, TAG);

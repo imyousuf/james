@@ -18,6 +18,8 @@
  ****************************************************************/
 package org.apache.james.imap.message.response.imap4rev1;
 
+import java.util.Date;
+
 import javax.mail.Flags;
 
 import org.apache.james.api.imap.message.response.ImapResponseMessage;
@@ -27,12 +29,21 @@ public final class FetchResponse implements ImapResponseMessage {
         private final int messageNumber;
         private final Flags flags;
         private final Long uid;
+        private final Date internalDate;
+        private final Integer size;
+        private final StringBuffer misc;
+        private final StringBuffer elements;
         
-        public FetchResponse(final int messageNumber, final Flags flags, final Long uid) {
+        public FetchResponse(final int messageNumber, final Flags flags, final Long uid,
+                final Date internalDate, final Integer size, StringBuffer misc, StringBuffer elements) {
             super();
             this.messageNumber = messageNumber;
             this.flags = flags;
             this.uid = uid;
+            this.internalDate = internalDate;
+            this.size = size;
+            this.misc = misc;
+            this.elements = elements;
         }
         
         /**
@@ -61,4 +72,40 @@ public final class FetchResponse implements ImapResponseMessage {
         public Long getUid() {
             return uid;
         }
+
+        /**
+         * Gets the internal date for the fetched message.
+         * @return the internalDate,
+         * or null if the <code>FETCH</code> did not include <code>INTERNALDATE</code>
+         */
+        public final Date getInternalDate() {
+            return internalDate;
+        }
+
+        /**
+         * Gets the size for the fetched message.
+         * @return the size,
+         * or null if the <code>FETCH</code> did not include <code>SIZE</code>
+         */
+        public final Integer getSize() {
+            return size;
+        }
+
+        /**
+         * TODO: replace
+         * @return the elements
+         */
+        public final StringBuffer getElements() {
+            return elements;
+        }
+
+        /**
+         * TODO: replace
+         * @return the misc
+         */
+        public final StringBuffer getMisc() {
+            return misc;
+        }
+        
+        
 }
