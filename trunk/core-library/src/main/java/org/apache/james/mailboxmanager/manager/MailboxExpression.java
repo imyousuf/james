@@ -17,8 +17,11 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.mailboxmanager.torque;
+package org.apache.james.mailboxmanager.manager;
 
+/**
+ * Expresses select criteria for mailboxes.
+ */
 public class MailboxExpression {
     
     private final String base;
@@ -87,7 +90,7 @@ public class MailboxExpression {
     public final char getLocalWildcard() {
         return localWildcard;
     }
-
+     
     /**
      * Is the given name a match for {@link #getExpression()}?
      * @param name name to be matched

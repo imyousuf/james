@@ -33,6 +33,7 @@ import org.apache.james.mailboxmanager.mailbox.GeneralMailbox;
 import org.apache.james.mailboxmanager.mailbox.GeneralMailboxSession;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 import org.apache.james.mailboxmanager.mailbox.MailboxSession;
+import org.apache.james.mailboxmanager.manager.MailboxExpression;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerFactory;
 import org.apache.james.services.User;
@@ -128,7 +129,7 @@ public class VirtualMailboxManager extends AbstractLogEnabled implements
         return getMailboxManager(mailboxName).getMailboxSession(mailboxName, autoCreate);
     }
 
-    public ListResult[] list(String base, String expression, boolean subscribed)
+    public ListResult[] list(MailboxExpression expression)
             throws MailboxManagerException {
         // TODO call only base matching managers
         List listResults = new ArrayList();
@@ -140,8 +141,7 @@ public class VirtualMailboxManager extends AbstractLogEnabled implements
                     .getValue();
             MailboxManager mailboxManager = mailboxManagerFactory
                     .getMailboxManagerInstance(user);
-            ListResult[] thisListResults = mailboxManager.list(base,
-                    expression, subscribed);
+            ListResult[] thisListResults = mailboxManager.list(expression);
             for (int i = 0; i < thisListResults.length; i++) {
                 listResults.add(thisListResults[i]);
             }
