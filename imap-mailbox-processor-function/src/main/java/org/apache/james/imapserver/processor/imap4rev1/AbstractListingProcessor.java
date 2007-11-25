@@ -34,6 +34,7 @@ import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.ListResult;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.impl.ListResultImpl;
+import org.apache.james.mailboxmanager.manager.MailboxExpression;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 import org.apache.james.services.User;
@@ -227,7 +228,7 @@ abstract class AbstractListingProcessor extends AbstractMailboxAwareProcessor {
             String pattern) throws MailboxException {
         try {
             final MailboxManager mailboxManager = getMailboxManager(session);
-            final ListResult[] result = mailboxManager.list(base, pattern, subscribedOnly);
+            final ListResult[] result = mailboxManager.list(new MailboxExpression(base,pattern, '*', '%'));
             return result;
         } catch (MailboxManagerException e) {
             throw new MailboxException(e);

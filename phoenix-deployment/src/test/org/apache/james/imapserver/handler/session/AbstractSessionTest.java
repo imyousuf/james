@@ -57,6 +57,7 @@ import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.GeneralMailboxSession;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
+import org.apache.james.mailboxmanager.manager.MailboxExpression;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.jmock.MockObjectTestCase;
@@ -158,7 +159,7 @@ public abstract class AbstractSessionTest extends MockObjectTestCase implements 
     }
     
     public String[] getFolderNames() throws MailboxManagerException {
-        ListResult[] listResults=mailboxManager.list("","*",false);
+        ListResult[] listResults=mailboxManager.list(new MailboxExpression("","*", '*', '%'));
         String[] names=new String[listResults.length];
         for (int i = 0; i < listResults.length; i++) {
             names[i]=listResults[i].getName();

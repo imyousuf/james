@@ -17,7 +17,9 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.mailboxmanager.torque;
+package org.apache.james.mailboxmanager.manager;
+
+import org.apache.james.mailboxmanager.manager.MailboxExpression;
 
 import junit.framework.TestCase;
 

@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.james.mailboxmanager.mailbox.GeneralMailboxSession;
+import org.apache.james.mailboxmanager.manager.MailboxExpression;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 
@@ -36,9 +37,9 @@ public abstract class AbstractMailboxManagerSelfTestCase extends TestCase {
     
     public void testCreateList() throws MailboxManagerException {
         ListResult[] listResult;
-        listResult=mailboxManager.list("","*",false);
+        listResult=mailboxManager.list(new MailboxExpression("","*", '*', '%'));
         assertNotNull(listResult);
-        assertEquals(0,mailboxManager.list("","*",false).length);
+        assertEquals(0,mailboxManager.list(new MailboxExpression("","*", '*', '%')).length);
         Set boxes=new HashSet();
         boxes.add("#users.joachim.INBOX");
         boxes.add("#users.joachim.INBOX.Drafts");
@@ -47,7 +48,7 @@ public abstract class AbstractMailboxManagerSelfTestCase extends TestCase {
             String box = (String) iter.next();
             mailboxManager.createMailbox(box);    
         }
-        listResult=mailboxManager.list("","*",false);
+        listResult=mailboxManager.list(new MailboxExpression("","*", '*', '%'));
         assertEquals(3,listResult.length);
         for (int i = 0; i < listResult.length; i++) {
             assertTrue(boxes.contains(listResult[i].getName()));
@@ -71,7 +72,7 @@ public abstract class AbstractMailboxManagerSelfTestCase extends TestCase {
         mailboxManager.createMailbox("INBOX");
         mailboxManager.createMailbox("INBOX2");
         
-        ListResult[] listResult=mailboxManager.list("","INBOX",false);
+        ListResult[] listResult=mailboxManager.list(new MailboxExpression("","*", '*', '%'));
         assertNotNull(listResult);
         assertEquals(1, listResult.length);
         assertEquals("INBOX", listResult[0].getName());

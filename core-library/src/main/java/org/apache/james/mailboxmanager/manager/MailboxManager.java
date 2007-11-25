@@ -116,18 +116,12 @@ public interface MailboxManager {
     /**
      * TODO: Expression requires parsing. Probably easier for the caller to 
      * parse the expression into an object representation and use that instead.
-     * @param base
-     *            hierarchy starting point like #mail.user1 to list mailboxes of
-     *            user1
-     * @param expression
-     *            allows the use of wildcards
-     * @param subscribed
-     *            if true, only list subscribed mailboxes (needs interaction
-     *            with the user-object)
+     * @param expression <code>MailboxExpression</code> used to select mailboxes
+     * to be returned
      * @throws MailboxManagerException 
      */
 
-    ListResult[] list(String base, String expression, boolean subscribed) throws MailboxManagerException;
+    ListResult[] list(MailboxExpression expression) throws MailboxManagerException;
 
     /**
      * could be implemented later. There could be enviroments where

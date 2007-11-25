@@ -28,6 +28,7 @@ import java.util.TreeMap;
 import org.apache.james.mailboxmanager.ListResult;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.impl.VirtualMailboxManagerFactory.LengthComparator;
+import org.apache.james.mailboxmanager.manager.MailboxExpression;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerFactory;
 import org.apache.james.mailboxmanager.mock.MockUser;
@@ -91,6 +92,8 @@ public class VirtualMailboxManagerTest extends MockObjectTestCase {
     }
 
     public void testList() throws MailboxManagerException {
+        final MailboxExpression mailboxExpression = new MailboxExpression("","%", '*', '%');
+        
         String[] expected = { "#mail.t1.t2", "#mail.t1.t3", "#mail",
                 "#mail.group.t5", "#mail.group.6", "#system.t1" };
         String[] points = { "#mail", "#mail.group", "#system" };
@@ -101,23 +104,20 @@ public class VirtualMailboxManagerTest extends MockObjectTestCase {
                 mailboxManager, 1);
         MailboxManagerFactory[] mailboxManagerFactories = proxyFactoryMocks(mailboxManagerFactoryMocks);
 
-        Constraint[] args = { new IsEqual(""), new IsEqual("%"),
-                new IsEqual(Boolean.FALSE) };
-
-        mailboxManagerMocks[0].expects(once()).method("list").with(args).will(
+        mailboxManagerMocks[0].expects(once()).method("list").with(eq(mailboxExpression)).will(
                 returnValue(generateListResults(new String[] { expected[0],
                         expected[1], expected[2] })));
 
-        mailboxManagerMocks[1].expects(once()).method("list").with(args).will(
+        mailboxManagerMocks[1].expects(once()).method("list").with(eq(mailboxExpression)).will(
                 returnValue(generateListResults(new String[] { expected[3],
                         expected[4] })));
 
-        mailboxManagerMocks[2].expects(once()).method("list").with(args).will(
+        mailboxManagerMocks[2].expects(once()).method("list").with(eq(mailboxExpression)).will(
                 returnValue(generateListResults(new String[] { expected[5] })));
 
         addMountPoints(points, mailboxManagerFactories);
 
-        ListResult[] result = virtualMailboxManager.list("", "%", false);
+        ListResult[] result = virtualMailboxManager.list(mailboxExpression);
         assertEquals(expected.length, result.length);
         assertEquals(new HashSet(Arrays.asList(expected)), toNamesSet(result));
         System.out.println(toNamesSet(result));

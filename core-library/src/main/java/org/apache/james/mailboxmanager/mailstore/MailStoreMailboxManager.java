@@ -27,6 +27,7 @@ import org.apache.james.mailboxmanager.mailbox.GeneralMailbox;
 import org.apache.james.mailboxmanager.mailbox.GeneralMailboxSession;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 import org.apache.james.mailboxmanager.mailbox.MailboxSession;
+import org.apache.james.mailboxmanager.manager.MailboxExpression;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.repository.MailRepositoryMailboxSession;
 import org.apache.james.services.User;
@@ -74,7 +75,7 @@ public class MailStoreMailboxManager extends AbstractLogEnabled implements
         return mailstoreMailboxCache.getMailboxSession(mailboxName);
     }
 
-    public ListResult[] list(String base, String expression, boolean subscribed)
+    public ListResult[] list(MailboxExpression expression)
             throws MailboxManagerException {
         return new ListResult[0];
     }

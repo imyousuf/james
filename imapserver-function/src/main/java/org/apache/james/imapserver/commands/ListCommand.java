@@ -27,6 +27,7 @@ import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.ListResult;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.impl.ListResultImpl;
+import org.apache.james.mailboxmanager.manager.MailboxExpression;
 
 /**
  * Handles processeing for the LIST imap command.
@@ -154,7 +155,8 @@ class ListCommand extends AuthenticatedStateCommand
     protected ListResult[] doList( ImapSession session, String base, String pattern, boolean subscribed ) throws MailboxException
     {
         try {
-            return session.getMailboxManager().list(base,pattern,false);
+            // TODO: LSUB should use user meta-data
+            return session.getMailboxManager().list(new MailboxExpression(base, pattern, '*', '%'));
         } catch (MailboxManagerException e) {
             throw new MailboxException(e);  
         }

@@ -39,6 +39,7 @@ import org.apache.james.mailboxmanager.mailbox.GeneralMailboxSession;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 import org.apache.james.mailboxmanager.mailbox.MailboxSession;
+import org.apache.james.mailboxmanager.manager.MailboxExpression;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.torque.om.MailboxRow;
 import org.apache.james.mailboxmanager.torque.om.MailboxRowPeer;
@@ -49,10 +50,12 @@ import org.apache.james.services.User;
 import org.apache.torque.TorqueException;
 import org.apache.torque.util.CountHelper;
 import org.apache.torque.util.Criteria;
+
 import EDU.oswego.cs.dl.util.concurrent.ReadWriteLock;
 
 public class TorqueMailboxManager implements MailboxManager {
 
+    private static final char SQL_WILDCARD_CHAR = '%';
     private final static Random random = new Random();
     private MailboxCache mailboxCache;
 
@@ -222,31 +225,33 @@ public class TorqueMailboxManager implements MailboxManager {
         toMailbox.close();
     }
 
-    public ListResult[] list(String base, String expression, boolean subscribed) throws MailboxManagerException {
-        Criteria c=new Criteria();
-        if (base.length()>0) {
-            if (base.charAt(base.length()-1)==HIERARCHY_DELIMITER) {
-                base=base.substring(0, base.length()-1);
-            }
-            if (expression.length()>0) {
-                if (expression.charAt(0)==HIERARCHY_DELIMITER) {
-                    expression=base+expression;
-                } else {
-                    expression=base+HIERARCHY_DELIMITER+expression;
-                }
-            }
+    public ListResult[] list(final MailboxExpression mailboxExpression) throws MailboxManagerException {
+        final char localWildcard = mailboxExpression.getLocalWildcard();
+        final char freeWildcard = mailboxExpression.getFreeWildcard();
+        final String base = mailboxExpression.getBase();
+        final int baseLength;
+        if (base == null) {
+            baseLength = 0;
+        } else {
+            baseLength = base.length();
         }
+        
+        final String search = mailboxExpression.getCombinedName(HIERARCHY_DELIMITER)
+            .replace(freeWildcard, SQL_WILDCARD_CHAR).replace(localWildcard, SQL_WILDCARD_CHAR);
        
-        MailboxExpression mailboxExpression = new MailboxExpression(base, expression, '*', '%');
-        c.add(MailboxRowPeer.NAME,(Object)(expression.replaceAll("\\*","%")),Criteria.LIKE);
+        Criteria criteria = new Criteria();
+        criteria.add(MailboxRowPeer.NAME,(Object)(search),Criteria.LIKE);
         try {
-            List mailboxRows=MailboxRowPeer.doSelect(c);
+            List mailboxRows=MailboxRowPeer.doSelect(criteria);
             List listResults=new ArrayList(mailboxRows.size());
             for (Iterator iter = mailboxRows.iterator(); iter.hasNext();) {
                 final MailboxRow mailboxRow = (MailboxRow) iter.next();
                 final String name = mailboxRow.getName();
-                if (mailboxExpression.isExpressionMatch(name, HIERARCHY_DELIMITER)) { 
-                    listResults.add(new ListResultImpl(name,"."));
+                if (name.startsWith(base)) {
+                    final String match = name.substring(baseLength);
+                    if (mailboxExpression.isExpressionMatch(match, HIERARCHY_DELIMITER)) { 
+                        listResults.add(new ListResultImpl(name,"."));
+                    }
                 }
             }
             return (ListResult[]) listResults.toArray(ListResult.EMPTY_ARRAY);    
