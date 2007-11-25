@@ -174,12 +174,6 @@ public interface ImapResponseComposer {
      */
     public abstract void closeFetchResponse() throws IOException;
     
-    /**
-     * @deprecated
-     * @see #openFetchResponse(long)
-     */
-    public abstract void legacyFetchResponse(int msn, String msgData) throws IOException;
-
     public abstract void commandResponse(ImapCommand command, String message) throws IOException;
 
     /**
@@ -231,5 +225,7 @@ public interface ImapResponseComposer {
 
     public abstract void statusResponse(String tag, ImapCommand command,
             String type, String responseCode, String text) throws IOException;
+    
+    public void quote(String message) throws IOException;
 
 }

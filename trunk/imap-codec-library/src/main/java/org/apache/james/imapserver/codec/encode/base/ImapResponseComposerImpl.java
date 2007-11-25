@@ -222,18 +222,6 @@ public class ImapResponseComposerImpl extends AbstractLogEnabled implements
 
     /**
      * @throws IOException 
-     * @see org.apache.james.imapserver.codec.encode.ImapResponseComposer#legacyFetchResponse(int, java.lang.String)
-     */
-    public void legacyFetchResponse(int msn, String msgData) throws IOException {
-        untagged();
-        message(msn);
-        message(FETCH);
-        message("(" + msgData + ")");
-        end();
-    }
-
-    /**
-     * @throws IOException 
      * @see org.apache.james.imapserver.codec.encode.ImapResponseComposer#commandResponse(org.apache.james.api.imap.ImapCommand, java.lang.String)
      */
     public void commandResponse(ImapCommand command, String message) throws IOException {

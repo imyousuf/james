@@ -96,7 +96,7 @@ public class StoreProcessor extends AbstractImapRequestProcessor {
                         } else {
                             resultUid = null;
                         }
-                        final FetchResponse response = new FetchResponse(msn, resultFlags, resultUid);
+                        final FetchResponse response = new FetchResponse(msn, resultFlags, resultUid, null, null, null, null);
                         responder.respond(response);
                     }
                 }

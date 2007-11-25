@@ -20,13 +20,14 @@
 package org.apache.james.imapserver.codec.encode.imap4rev1;
 
 import java.io.IOException;
+import java.util.Date;
 
 import javax.mail.Flags;
 
 import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.imap.message.response.imap4rev1.FetchResponse;
-import org.apache.james.imap.message.response.imap4rev1.LegacyFetchResponse;
+import org.apache.james.imapserver.codec.encode.EncoderUtils;
 import org.apache.james.imapserver.codec.encode.ImapEncoder;
 import org.apache.james.imapserver.codec.encode.ImapResponseComposer;
 import org.apache.james.imapserver.codec.encode.base.AbstractChainedImapEncoder;
@@ -38,8 +39,7 @@ public class FetchResponseEncoder extends AbstractChainedImapEncoder {
     }
 
     public boolean isAcceptable(final ImapMessage message) {
-        return (message instanceof LegacyFetchResponse) 
-            || (message instanceof FetchResponse);
+        return (message instanceof FetchResponse);
     }
 
     protected void doEncode(ImapMessage acceptableMessage, ImapResponseComposer composer) throws IOException {
@@ -47,27 +47,53 @@ public class FetchResponseEncoder extends AbstractChainedImapEncoder {
             final FetchResponse fetchResponse = (FetchResponse) acceptableMessage;
             final long messageNumber = fetchResponse.getMessageNumber();
             composer.openFetchResponse(messageNumber);
-            final Flags flags = fetchResponse.getFlags();
-            if (flags != null) {
-                composer.flags(flags);
-            }
-            final Long uid = fetchResponse.getUid();
-            if (uid != null) {
-                composer.message(ImapConstants.UID);
-                composer.message(uid.longValue());
-            }
+            encodeFlags(composer, fetchResponse);
+            encodeInternalDate(composer, fetchResponse);
+            encodeSize(composer, fetchResponse);
+            encode(composer, fetchResponse.getMisc());
+            encodeUid(composer, fetchResponse);
+            encode(composer, fetchResponse.getElements());
             composer.closeFetchResponse();
-        } else {
-            final LegacyFetchResponse fetchResponse = (LegacyFetchResponse) acceptableMessage;
-            encodeLegacy(composer, fetchResponse);
+        }
+    }
+    
+    private void encode(ImapResponseComposer composer, StringBuffer buffer) throws IOException {
+        if (buffer != null && buffer.length() > 0) {
+            composer.message(buffer.substring(1));
         }
     }
 
-    private void encodeLegacy(ImapResponseComposer composer, final LegacyFetchResponse fetchResponse) throws IOException {
-        // TODO: this is inefficient
-        final String data = fetchResponse.getData();
-        final int number = fetchResponse.getNumber();
-        composer.legacyFetchResponse(number, data);
+    private void encodeSize(ImapResponseComposer composer, final FetchResponse fetchResponse) throws IOException {
+        final Integer size = fetchResponse.getSize();
+        if (size != null) {
+            // TODO: add method to composer
+            composer.message("RFC822.SIZE");
+            composer.message(size.intValue());
+        }
+    }
+
+    private void encodeInternalDate(ImapResponseComposer composer, final FetchResponse fetchResponse) throws IOException {
+        final Date internalDate = fetchResponse.getInternalDate();
+        if (internalDate != null) {
+            // TODO: add method to composer
+            composer.message("INTERNALDATE");
+            composer.quote(EncoderUtils.encodeDateTime(internalDate));
+        }
+    }
+
+    private void encodeUid(ImapResponseComposer composer, final FetchResponse fetchResponse) throws IOException {
+        final Long uid = fetchResponse.getUid();
+        if (uid != null) {
+            composer.message(ImapConstants.UID);
+            composer.message(uid.longValue());
+        }
+    }
+
+    private void encodeFlags(ImapResponseComposer composer, final FetchResponse fetchResponse) throws IOException {
+        final Flags flags = fetchResponse.getFlags();
+        if (flags != null) {
+            composer.flags(flags);
+        }
     }
 
 }
