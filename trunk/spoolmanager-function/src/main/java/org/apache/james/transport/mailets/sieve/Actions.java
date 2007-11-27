@@ -109,21 +109,7 @@ public class Actions
             .lookup(MailboxManagerProvider.class.getName());
             recipient = getSoleRecipient(aMail);
             user=new DefaultUser(recipient.getUser(), null);
-             // Adapted from LocalDelivery Mailet
-            // Add qmail's de facto standard Delivered-To header
-            MimeMessage localMessage = new MimeMessage(aMail.getMessage())
-            {
-                protected void updateHeaders() throws MessagingException
-                {
-                    if (getMessageID() == null)
-                        super.updateHeaders();
-                    else
-                        modified = false;
-                }
-            };
-            localMessage.addHeader("Delivered-To", recipient.toString());
-
-            localMessage.saveChanges();
+            MimeMessage localMessage = createMimeMessage(aMail, recipient);
             
             MailboxSession mailbox=mailboxManagerProvider.getMailboxSession(user, destinationMailbox, true);
             mailbox.store(localMessage);
@@ -150,6 +136,25 @@ public class Actions
                     + " into destination: \""
                     + destinationMailbox + "\"");
         }
+    }
+
+    private static MimeMessage createMimeMessage(Mail aMail, MailAddress recipient) throws MessagingException {
+        // Adapted from LocalDelivery Mailet
+        // Add qmail's de facto standard Delivered-To header
+        MimeMessage localMessage = new MimeMessage(aMail.getMessage())
+        {
+            protected void updateHeaders() throws MessagingException
+            {
+                if (getMessageID() == null)
+                    super.updateHeaders();
+                else
+                    modified = false;
+            }
+        };
+        localMessage.addHeader("Delivered-To", recipient.toString());
+
+        localMessage.saveChanges();
+        return localMessage;
     }
 
     /**

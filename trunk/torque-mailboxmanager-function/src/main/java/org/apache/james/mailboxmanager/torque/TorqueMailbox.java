@@ -20,11 +20,11 @@
 package org.apache.james.mailboxmanager.torque;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -159,43 +159,13 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
                     messageRow.setUid(uid);
                     messageRow.setInternalDate(internalDate);
 
-                    // TODO very ugly size mesurement
-                    ByteArrayOutputStream sizeBos = new ByteArrayOutputStream();
-                    message.writeTo(new CRLFOutputStream(sizeBos));
-                    messageRow.setSize(sizeBos.size());
-                    MessageFlags messageFlags = new MessageFlags();
-                    messageFlags.setFlags(message.getFlags());
-                    messageRow.addMessageFlags(messageFlags);
+                    final int size = size(message);
+                    messageRow.setSize(size);
+                    populateFlags(message, messageRow);
+                    
+                    addHeaders(message, messageRow);
 
-                    int line_number = 0;
-
-                    for (Enumeration lines = message.getAllHeaderLines(); lines
-                    .hasMoreElements();) {
-                        String line = (String) lines.nextElement();
-                        int colon = line.indexOf(": ");
-                        if (colon > 0) {
-                            line_number++;
-                            MessageHeader mh = new MessageHeader();
-                            mh.setLineNumber(line_number);
-                            mh.setField(line.substring(0, colon));
-                            // TODO avoid unlikely IOOB Exception
-                            mh.setValue(line.substring(colon + 2));
-                            messageRow.addMessageHeader(mh);
-                        }
-                    }
-
-                    MessageBody mb = new MessageBody();
-
-                    InputStream is = message.getInputStream();
-
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    byte[] buf = new byte[4096];
-                    int read;
-                    while ((read = is.read(buf)) > 0) {
-                        baos.write(buf, 0, read);
-                    }
-
-                    mb.setBody(baos.toByteArray());
+                    MessageBody mb = populateBody(message);
                     messageRow.addMessageBody(mb);
 
                     save(messageRow);
@@ -215,6 +185,56 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
         } catch (InterruptedException e) {
             throw new MailboxManagerException(e);
         }
+    }
+
+    private void populateFlags(MimeMessage message, MessageRow messageRow) throws MessagingException, TorqueException {
+        MessageFlags messageFlags = new MessageFlags();
+        messageFlags.setFlags(message.getFlags());
+        messageRow.addMessageFlags(messageFlags);
+    }
+
+    private MessageBody populateBody(MimeMessage message) throws IOException, MessagingException {
+        MessageBody mb = new MessageBody();
+
+        InputStream is = message.getInputStream();
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        byte[] buf = new byte[4096];
+        int read;
+        while ((read = is.read(buf)) > 0) {
+            baos.write(buf, 0, read);
+        }
+
+        final byte[] bytes = baos.toByteArray();
+        mb.setBody(bytes);
+        return mb;
+    }
+
+    private void addHeaders(MimeMessage message, MessageRow messageRow) throws MessagingException, TorqueException {
+        int line_number = 0;
+
+        for (Enumeration lines = message.getAllHeaderLines(); lines
+        .hasMoreElements();) {
+            String line = (String) lines.nextElement();
+            int colon = line.indexOf(": ");
+            if (colon > 0) {
+                line_number++;
+                MessageHeader mh = new MessageHeader();
+                mh.setLineNumber(line_number);
+                mh.setField(line.substring(0, colon));
+                // TODO avoid unlikely IOOB Exception
+                mh.setValue(line.substring(colon + 2));
+                messageRow.addMessageHeader(mh);
+            }
+        }
+    }
+
+    private int size(MimeMessage message) throws IOException, MessagingException {
+        // TODO very ugly size mesurement
+        ByteArrayOutputStream sizeBos = new ByteArrayOutputStream();
+        message.writeTo(new CRLFOutputStream(sizeBos));
+        final int size = sizeBos.size();
+        return size;
     }
 
     private void save(MessageRow messageRow) throws Exception {
