@@ -50,7 +50,7 @@ public class MailboxNotFoundException extends MailboxManagerException {
 
     /**
      * Gets the name of the mailbox which cannot be found.
-     * @return
+     * @return name
      */
     public final String getMailboxName() {
         return mailboxName;
