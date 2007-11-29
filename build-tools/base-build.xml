@@ -92,6 +92,7 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
         <attribute name='src'/>
         <attribute name='resources'/>   
         <attribute name='bin'/>
+        <attribute name='conf'/>    
         <attribute name='classpath-refid'/>   
         <attribute name='debug' default='${debug}'/>
         <attribute name='optimize' default='${optimize}'/>
@@ -126,6 +127,9 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
                 <fileset dir='@{resources}'>
                     <include name='**/*'/>
                 </fileset>   
+                <fileset dir='@{conf}'>
+                    <include name='**/*'/>
+                </fileset>    
             </copy>
             <PopulateMetaData bin='@{bin}' src='.' />
         </sequential>   
@@ -144,6 +148,7 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
                 src='@{src}'   
                 bin='${dir.build.bin}'
                 resources="${dir.src.resources}"   
+                conf="${dir.src.conf}"     
                 classpath-refid="@{classpath-refid}"   
                 debug='@{debug}'   
                 optimize='@{optimize}'   
@@ -288,7 +293,8 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
                 optimize='@{optimize}'   
                 deprecation='@{deprecation}'   
                 jdk-source='@{jdk-source}' 
-                jdk-target='@{jdk-target}'/>   
+                jdk-target='@{jdk-target}'
+                conf='${dir.src.test-conf}'/>   
             <copy todir='${dir.build.test}'>
                 <fileset dir='${dir.src.test}'>
                     <exclude name='**/*.java'/>   
