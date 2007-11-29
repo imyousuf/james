@@ -92,14 +92,10 @@ public class MailboxRow extends
     public int countMessages(Flags flags, boolean value)
             throws TorqueException, DataSetException {
         Criteria criteria = new Criteria();
-        criteria.addSelectColumn(" COUNT(" + MessageRowPeer.UID + ") ");
-        criteria.add(MessageRowPeer.MAILBOX_ID, getMailboxId());
-        if (flags.getSystemFlags().length > 0) {
-            criteria.add(MessageFlagsPeer.MAILBOX_ID, getMailboxId());
-            criteria.addJoin(MessageRowPeer.UID, MessageFlagsPeer.UID);
-            MessageFlagsPeer.addFlagsToCriteria(flags, value, criteria);
-        }
-        List result = MessageRowPeer.doSelectVillageRecords(criteria);
+        criteria.addSelectColumn(" COUNT(" + MessageFlagsPeer.UID + ") ");
+        criteria.add(MessageFlagsPeer.MAILBOX_ID, getMailboxId());
+        MessageFlagsPeer.addFlagsToCriteria(flags, value, criteria);
+        List result = MessageFlagsPeer.doSelectVillageRecords(criteria);
         Record record = (Record) result.get(0);
         int numberOfRecords = record.getValue(1).asInt();
         return numberOfRecords;
@@ -108,7 +104,8 @@ public class MailboxRow extends
     public void resetRecent() throws TorqueException {
         String sql = "UPDATE " + MessageFlagsPeer.TABLE_NAME + " set "
         + MessageFlagsPeer.RECENT + " = 0 WHERE " + 
-            MessageFlagsPeer.MAILBOX_ID + " = " + getMailboxId();
+            MessageFlagsPeer.MAILBOX_ID + " = " + getMailboxId() + " AND " 
+            	+ MessageFlagsPeer.RECENT + " = 1 ";
         MessageFlagsPeer.executeStatement(sql);
     }
 }
