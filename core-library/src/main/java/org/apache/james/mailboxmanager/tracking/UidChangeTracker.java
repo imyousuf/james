@@ -67,7 +67,7 @@ public class UidChangeTracker extends MailboxTracker implements Constants {
     
     /**
      * Indicates that the flags on the given messages may have been updated.
-     * @param messageResults results 
+     * @param messageFlags flags 
      * @param sessionId id of the session upating the flags
      * @see #flagsUpdated(MessageResult, long)
      */

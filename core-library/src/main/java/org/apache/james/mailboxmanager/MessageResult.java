@@ -98,7 +98,7 @@ public interface MessageResult extends Comparable {
     /**
      * Gets the results set.
      * @return bitwise indication of result set
-     * @see {@link MessageResultUtils#isIncluded(MessageResult, int)}
+     * @see MessageResultUtils#isIncluded(MessageResult, int)
      */
     int getIncludedResults();
 

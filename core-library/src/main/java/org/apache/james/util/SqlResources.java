@@ -108,7 +108,7 @@ public class SqlResources
      * replace by values from the parameters Map, if the named parameter exists.
      * Parameter values may also be specified in the resourceSection element.
      * 
-     * @param sqlFile    the input stream containing the xml
+     * @param input    the input stream containing the xml
      * @param sqlDefsSection
      *                   the xml element containing the strings to be used
      * @param conn the Jdbc DatabaseMetaData, taken from a database connection
