@@ -28,7 +28,7 @@ import org.apache.mailet.MailAddress;
  * Implementation of User Interface.
  *
  *
- * @version $Revision$
+ * @version $Revision: 521427 $
  */
 
 public class DefaultJamesUser 

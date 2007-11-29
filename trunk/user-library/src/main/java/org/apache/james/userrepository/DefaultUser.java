@@ -32,7 +32,7 @@ import java.security.NoSuchAlgorithmException;
  * the the user name to be reset.
  *
  *
- * @version CVS $Revision$
+ * @version CVS $Revision: 521427 $
  */
 
 public class DefaultUser implements User, Serializable {

@@ -22,21 +22,21 @@
 
 package org.apache.james.management;
 
-public class UserManagementException extends ManagementException {
+public class VirtualUserTableManagementException extends Exception {
 
-    public UserManagementException() {
+    public VirtualUserTableManagementException() {
         super();
     }
 
-    public UserManagementException(String message) {
+    public VirtualUserTableManagementException(String message) {
         super(message);
     }
 
-    public UserManagementException(Exception e) {
+    public VirtualUserTableManagementException(Exception e) {
         super(e);
     }
     
-    public UserManagementException(String message, Exception e) {
+    public VirtualUserTableManagementException(String message, Exception e) {
         super(message, e);
     }
 

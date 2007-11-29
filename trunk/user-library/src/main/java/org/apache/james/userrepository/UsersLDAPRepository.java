@@ -26,6 +26,8 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.james.services.User;
+import org.apache.james.userrepository.AbstractUsersRepository;
+import org.apache.james.userrepository.DefaultUser;
 
 import javax.naming.AuthenticationException;
 import javax.naming.NamingEnumeration;
@@ -52,7 +54,7 @@ import java.util.List;
  *
  * TODO: Check for aliases (mail attribute) 
  * 
- * @version This is $Revision$
+ * @version This is $Revision: 521427 $
  */
 public class UsersLDAPRepository
     extends AbstractUsersRepository
