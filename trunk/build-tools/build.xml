@@ -112,6 +112,7 @@ reflect the contents of this module.
             <mkdir dir='@{module-path}/${dir.src.conf}'/>
             <mkdir dir='@{module-path}/${dir.src.test}'/>
             <mkdir dir='@{module-path}/${dir.src.test-resources}'/>
+            <mkdir dir='@{module-path}/${dir.src.test-conf}'/>   
             <GenerateBuildFile 
                 module-build-file='@{module-build-file}' 
                 module-type='@{module-type}'
