@@ -32,6 +32,9 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.services.User;
+import org.apache.james.userrepository.AbstractUsersRepository;
+import org.apache.james.userrepository.DefaultJamesUser;
+
 
 import java.util.Iterator;
 
@@ -45,7 +48,7 @@ import java.util.Iterator;
  * Requires a logger called UsersRepository.
  *
  *
- * @version CVS $Revision$
+ * @version CVS $Revision: 521427 $
  *
  */
 public class UsersFileRepository
