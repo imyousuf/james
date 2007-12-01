@@ -63,6 +63,8 @@
 
     <path id="project.class.path">
         <fileset dir="${lib.dir}">
+            <include name='${jms-spec.jar}'/>
+            <include name='${activemq-core.jar}'/>    
             <include name="${avalon-framework.jar}"/>
             <include name="${avalon-framework-impl.jar}"/>
             <include name="${dns.jar}"/>
@@ -496,6 +498,20 @@
             <lib dir="${build.lib}/">
                 <include name="${name}-${version}.jar"/>
             </lib>
+            <lib dir='${lib.dir}/${path.lib.activeio}' includes='${jarname.activeio}'/>
+            <lib dir='${lib.dir}/${path.lib.geronimo}'>
+                <include name='${jarname.j2ee-management-spec}'/>
+                <include name='${jarname.jms-spec}'/>
+            </lib>   
+            <lib dir='${lib.dir}/${path.lib.activemq}'>
+                <include name='${jarname.activemq-web}'/>
+                <include name='${jarname.activemq-console}'/>
+                <include name='${jarname.activemq-core}'/>
+                <include name='${jarname.activemq-jaas}'/>    
+             </lib>   
+            <lib dir='${lib.dir}/concurrent/jars'>
+                <include name='backport-util-concurrent-2.1.jar'/>
+            </lib>    
             <lib dir="${lib.dir}/${path.lib.dns}" includes="${jarname.dns.jar}" />
             <lib dir="${lib.dir}/${path.lib.oro}" includes="${jarname.jakarta-oro.jar}" />
             <lib dir="${lib.dir}/${path.lib.derby}" includes="${jarname.derby.jar}" />

@@ -21,6 +21,7 @@
 <!ENTITY listserverConfig SYSTEM "../conf/james-listmanager.xml">
 <!ENTITY listserverStores SYSTEM "../conf/james-liststores.xml">
 <!ENTITY fetchmailConfig SYSTEM "../conf/james-fetchmail.xml">
+<!ENTITY jmsConfig SYSTEM "../conf/james-jms.xml">
 <!ENTITY smtphandlerchainConfig SYSTEM "../conf/james-smtphandlerchain.xml">
 ]>
 
@@ -229,6 +230,9 @@
    <!-- CHECKME: FetchMail is disabled by default, and must be configured to use. -->
    <!-- Edit the file referred to by fetchmailConfig to enable and configure.     -->
    &fetchmailConfig;
+   
+   <!-- Example configuration for JMS interoperation -->
+   &jmsConfig;
 
    <!-- Set the Java packages from which to load mailets and matchers -->
    <mailetpackages>

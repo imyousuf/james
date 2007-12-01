@@ -213,6 +213,13 @@
     <provide name="localusersrepository" role="org.apache.james.services.UsersRepository"/>
     <provide name="dnsserver" role="org.apache.james.services.DNSServer"/>
   </block>
+  
+  <!-- JMS Service 
+  EXPERIMENTAL JMS Service: uncomment before use
+  <block name="jms" class="org.apache.james.phoenix.jms.activemq.JMSService" >
+    <provide name="James" role="org.apache.james.services.MailServer"/>   
+  </block>
+  -->
 
   <!-- The High Level Storage block -->
     

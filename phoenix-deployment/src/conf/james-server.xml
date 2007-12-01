@@ -122,6 +122,12 @@
       <category name="fetchmail" log-level="INFO">
         <log-target id-ref="fetchmail-target"/>
       </category>
+      <!-- 
+      EXPERIMENTAL JMS Service: uncomment before use
+      <category name="jms" log-level="DEBUG">
+        <log-target id-ref="jms-target"/>
+      </category>
+      -->
     </categories>
 
     <!-- Logger targets -->
@@ -347,6 +353,20 @@
           </or>
         </rotation>
       </file>
+      <!-- 
+      EXPERIMENTAL JMS Service: uncomment before use
+      <file id="jms-target">
+        <filename>${app.home}/logs/jms</filename>
+        <format>%{time:dd/MM/yy HH:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
+        <append>true</append>
+        <rotation type="unique" pattern="-yyyy-MM-dd-HH-mm" suffix=".log">
+          <or>
+            <date>dd</date>
+            <size>10485760</size>
+          </or>
+        </rotation>
+      </file>
+      -->
     </targets>
   </logs>
 </server>
