@@ -165,9 +165,11 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
     </macrodef>   
  
     <macrodef name="SetBaseClasspaths">
-        <sequential>
+        <sequential>  
             <path id='classpath.base'>  
                 <fileset dir="${lib.dir}">
+                    <include name='${jms-spec.jar}'/>
+                    <include name='${activemq-core.jar}'/> 
                     <include name="${avalon-framework.jar}"/>
                     <include name="${avalon-framework-impl.jar}"/>
                     <include name="${dns.jar}"/>
