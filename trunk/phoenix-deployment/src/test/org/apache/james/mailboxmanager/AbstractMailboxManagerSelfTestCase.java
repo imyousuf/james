@@ -55,18 +55,6 @@ public abstract class AbstractMailboxManagerSelfTestCase extends TestCase {
         }
     }
     
-    public void testGetSessionMailboxLife() throws MailboxManagerException {
-        final String folder="#users.joachim3.INBOX";
-        assertEquals(0, mailboxManagerProvider.getOpenMailboxSessionCountMap().size());
-        mailboxManager.createMailbox(folder);
-        GeneralMailboxSession sessionMailbox=mailboxManager.getGeneralMailboxSession(folder);
-        assertNotNull(sessionMailbox);
-        assertEquals(1, mailboxManagerProvider.getOpenMailboxSessionCountMap().size());
-        assertEquals(new Integer(1), mailboxManagerProvider.getOpenMailboxSessionCountMap().get(folder));
-        sessionMailbox.close();
-        assertEquals(0, mailboxManagerProvider.getOpenMailboxSessionCountMap().size());
-    }
-    
     public void testListOne() throws MailboxManagerException {
         mailboxManager.createMailbox("test1");    
         mailboxManager.createMailbox("INBOX");
