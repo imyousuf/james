@@ -36,7 +36,7 @@ public class UidChangeTrackerTestCase extends TestCase {
     protected MailboxListenerCollector collector;
     
     public void setUp() {
-        tracker=new UidChangeTracker(null,"test",1000);
+        tracker=new UidChangeTracker(1000);
         collector=new MailboxListenerCollector();
         tracker.addMailboxListener(collector);
     }

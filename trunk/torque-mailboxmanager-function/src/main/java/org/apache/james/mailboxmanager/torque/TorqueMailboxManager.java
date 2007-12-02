@@ -20,8 +20,10 @@
 package org.apache.james.mailboxmanager.torque;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import javax.mail.internet.MimeMessage;
@@ -44,8 +46,6 @@ import org.apache.james.mailboxmanager.manager.MailboxExpression;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.torque.om.MailboxRow;
 import org.apache.james.mailboxmanager.torque.om.MailboxRowPeer;
-import org.apache.james.mailboxmanager.tracking.MailboxCache;
-import org.apache.james.mailboxmanager.tracking.UidChangeTracker;
 import org.apache.james.mailboxmanager.wrapper.ImapMailboxSessionWrapper;
 import org.apache.james.services.User;
 import org.apache.torque.TorqueException;
@@ -59,15 +59,16 @@ public class TorqueMailboxManager implements MailboxManager {
 
     private static final char SQL_WILDCARD_CHAR = '%';
     private final static Random random = new Random();
-    private MailboxCache mailboxCache;
     
     protected Log log = LogFactory.getLog(TorqueMailboxManager.class);
 
     private final ReadWriteLock lock;
     
+    private final Map managers;
+    
     public TorqueMailboxManager() {
         this.lock =  new WriterPreferenceReadWriteLock();
-        mailboxCache = new MailboxCache();
+        managers = new HashMap();
     }
     
     public MailboxSession getMailboxSession(String mailboxName,
@@ -99,34 +100,29 @@ public class TorqueMailboxManager implements MailboxManager {
         }
     }
     
-    
-    
     public ImapMailboxSession getImapMailboxSession(String mailboxName)
             throws MailboxManagerException {
 
         try {
-            synchronized (getMailboxCache()) {
+            synchronized (managers) {
                 MailboxRow mailboxRow = MailboxRowPeer
                         .retrieveByName(mailboxName);
 
                 if (mailboxRow != null) {
-                    UidChangeTracker tracker = (UidChangeTracker) getMailboxCache()
-                            .getMailboxTracker(mailboxName,
-                                    UidChangeTracker.class);
-                    if (tracker == null) {
-                        tracker = new UidChangeTracker(getMailboxCache(),
-                                mailboxName, mailboxRow.getLastUid());
-                        getMailboxCache().add(mailboxName, tracker);
-                    }
                     getLog().info("created ImapMailboxSession "+mailboxName);
-                    final ImapMailbox torqueMailbox = new TorqueMailbox(
-                                                mailboxRow, tracker, lock, getLog(), random.nextLong());
+                    
+                    ImapMailbox torqueMailbox = (ImapMailbox) managers.get(mailboxName);
+                    if (torqueMailbox == null) {
+                        torqueMailbox = new TorqueMailbox(
+                                                mailboxRow, lock, getLog(), random.nextLong());
+                        managers.put(mailboxName, torqueMailbox);
+                    }
+                    
                     final ImapMailboxSessionWrapper wrapper 
                         = new ImapMailboxSessionWrapper(torqueMailbox);
                     return wrapper;
                 } else {
                     getLog().info("Mailbox '" + mailboxName + "' not found.");
-                    getMailboxCache().notFound(mailboxName);
                     throw new MailboxNotFoundException(mailboxName);
                 }
             }
@@ -135,15 +131,10 @@ public class TorqueMailboxManager implements MailboxManager {
         }
     }
     
-    private MailboxCache getMailboxCache() {
-       return mailboxCache;
-    }
-    
-
     public void createMailbox(String namespaceName)
             throws MailboxManagerException {
         getLog().info("createMailbox "+namespaceName);
-        synchronized (getMailboxCache()) {
+        synchronized (managers) {
             MailboxRow mr = new MailboxRow();
             mr.setName(namespaceName);
             mr.setLastUid(0);
@@ -159,7 +150,7 @@ public class TorqueMailboxManager implements MailboxManager {
     public void deleteMailbox(String mailboxName)
             throws MailboxManagerException {
         getLog().info("deleteMailbox "+mailboxName);
-        synchronized (getMailboxCache()) {
+        synchronized (managers) {
             try {
                 // TODO put this into a serilizable transaction
                 MailboxRow mr = MailboxRowPeer.retrieveByName(mailboxName);
@@ -167,7 +158,7 @@ public class TorqueMailboxManager implements MailboxManager {
                     throw new MailboxManagerException("Mailbox not found");
                 }
                 MailboxRowPeer.doDelete(mr);
-                getMailboxCache().notFound(mailboxName);
+                managers.remove(mailboxName);
             } catch (TorqueException e) {
                 throw new MailboxManagerException(e);
             }
@@ -178,7 +169,7 @@ public class TorqueMailboxManager implements MailboxManager {
             throws MailboxManagerException {
         try {
             getLog().info("renameMailbox "+from+" to "+to);
-            synchronized (getMailboxCache()) {
+            synchronized (managers) {
                 // TODO put this into a serilizable transaction
                 MailboxRow mr = MailboxRowPeer.retrieveByName(from);
                 if (mr == null) {
@@ -201,7 +192,6 @@ public class TorqueMailboxManager implements MailboxManager {
                     sub.setName(to + sub.getName().substring(from.length()));
                     sub.save();
                     getLog().info("renameMailbox sub-mailbox "+subOrigName+" to "+subNewName);
-                    getMailboxCache().renamed(subOrigName,subNewName);
                 }
             }
         } catch (Exception e) {
@@ -269,10 +259,10 @@ public class TorqueMailboxManager implements MailboxManager {
         CountHelper countHelper=new CountHelper();
         int count;
         try {
-            synchronized (getMailboxCache()) {
+            synchronized (managers) {
                 count = countHelper.count(c);
                 if (count == 0) {
-                    getMailboxCache().notFound(mailboxName);
+                    managers.remove(mailboxName);
                     return false;
                 } else {
                     if (count == 1) {
@@ -289,13 +279,14 @@ public class TorqueMailboxManager implements MailboxManager {
     }
 
     public void close() {
+        managers.clear();
     }
 
     public void deleteEverything() throws MailboxManagerException {
         try {
             MailboxRowPeer.doDelete(new Criteria().and(MailboxRowPeer.MAILBOX_ID,
                     new Integer(-1), Criteria.GREATER_THAN));
-            mailboxCache = new MailboxCache();
+            managers.clear();
         } catch (TorqueException e) {
             throw new MailboxManagerException(e);
         }
