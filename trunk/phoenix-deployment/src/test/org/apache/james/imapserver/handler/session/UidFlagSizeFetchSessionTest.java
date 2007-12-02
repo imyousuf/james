@@ -30,7 +30,6 @@ import org.apache.james.imapserver.ProtocolException;
 import org.apache.james.imapserver.client.FetchCommand;
 import org.apache.james.imapserver.client.LoginCommand;
 import org.apache.james.imapserver.client.SelectCommand;
-import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.imapserver.util.MessageGenerator;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 
@@ -41,7 +40,7 @@ public class UidFlagSizeFetchSessionTest extends AbstractSessionTest {
     MimeMessage[] msgs= null;
     long[] uids = null;
     
-    public void setUp() throws MailboxException, MessagingException, IOException, MailboxManagerException {
+    public void setUp() throws Exception {
         super.setUp();
         msgs=MessageGenerator.generateSimpleMessages(10);
         createFolders(onlyInbox);

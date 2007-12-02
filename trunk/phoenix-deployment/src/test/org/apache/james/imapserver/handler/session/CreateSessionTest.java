@@ -29,14 +29,13 @@ import org.apache.james.imapserver.client.CreateClientCommand;
 import org.apache.james.imapserver.client.LoginCommand;
 import org.apache.james.imapserver.client.LogoutClientCommand;
 import org.apache.james.imapserver.client.SelectCommand;
-import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 
 public class CreateSessionTest extends AbstractSessionTest {
     
     String[] folders = {USER_MAILBOX_ROOT+".INBOX",USER_MAILBOX_ROOT+".test",USER_MAILBOX_ROOT+".test1",USER_MAILBOX_ROOT+".test1.test1a",USER_MAILBOX_ROOT+".test1.test1b",USER_MAILBOX_ROOT+".test2.test2a",USER_MAILBOX_ROOT+".test2.test2b"};
     
-    public void setUp() throws MailboxException, MessagingException, IOException, MailboxManagerException {
+    public void setUp() throws Exception {
         super.setUp();
         createFolders(folders);
     }

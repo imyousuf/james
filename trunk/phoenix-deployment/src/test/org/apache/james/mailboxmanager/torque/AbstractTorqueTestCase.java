@@ -31,7 +31,7 @@ public abstract class AbstractTorqueTestCase extends TestCase {
         super();
     }
 
-    public void setUp() throws TorqueException, MailboxManagerException, Exception {
-        TorqueMailboxManagerProviderSingleton.getTorqueMailboxManagerProviderInstance().deleteEverything();
+    public void setUp() throws Exception {
+        TorqueMailboxManagerProviderSingleton.reset();
     }
 }

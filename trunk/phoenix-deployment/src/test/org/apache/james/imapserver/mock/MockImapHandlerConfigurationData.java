@@ -27,7 +27,10 @@ import org.apache.james.services.UsersRepository;
 public class MockImapHandlerConfigurationData implements
         ImapHandlerConfigurationData
 {
-
+    public static void reset() throws Exception {
+        MailboxManagerProviderSingleton.reset();
+    }
+    
     public MailServer mailServer;
     public UsersRepository usersRepository = new MockUsersRepository();
     public MailboxManagerProvider mailboxManagerProvider;

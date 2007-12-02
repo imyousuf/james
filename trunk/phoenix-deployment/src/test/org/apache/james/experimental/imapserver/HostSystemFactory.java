@@ -36,7 +36,7 @@ public class HostSystemFactory {
                 defaultImapProcessorFactory.buildImapProcessor(), new ExperimentalHostSystem.Resetable() {
 
                     public void reset() throws Exception {
-                        MailboxManagerProviderSingleton.getMailboxManagerProviderInstance().deleteEverything();
+                        MailboxManagerProviderSingleton.reset();
                     }
             
         });

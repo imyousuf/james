@@ -19,6 +19,8 @@
 
 package org.apache.james.mailboxmanager.mock;
 
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.impl.DefaultMailboxManagerProvider;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 import org.apache.james.mailboxmanager.torque.TorqueMailboxManagerFactory;
@@ -26,21 +28,32 @@ import org.apache.james.test.mock.james.MockFileSystem;
 
 public class TorqueMailboxManagerProviderSingleton {
     
-    
+    private static TorqueMailboxManagerFactory torqueMailboxManagerFactory;
     private static DefaultMailboxManagerProvider defaultMailboxManagerProvider;
 
     public synchronized static MailboxManagerProvider getTorqueMailboxManagerProviderInstance() throws Exception {
         if (defaultMailboxManagerProvider==null) {
-            TorqueMailboxManagerFactory torqueMailboxManagerFactory=new TorqueMailboxManagerFactory() {{
+            getTorqueFactory();
+            defaultMailboxManagerProvider=new DefaultMailboxManagerProvider();
+            defaultMailboxManagerProvider.setMailboxManagerInstance(torqueMailboxManagerFactory);
+        }
+        return defaultMailboxManagerProvider;
+        
+    }
+
+    private static TorqueMailboxManagerFactory getTorqueFactory() throws ConfigurationException, Exception {
+        if (torqueMailboxManagerFactory == null) {
+            torqueMailboxManagerFactory=new TorqueMailboxManagerFactory() {{
                 setFileSystem(new MockFileSystem());
             }};
             torqueMailboxManagerFactory.configureDefaults();
             torqueMailboxManagerFactory.initialize();
-            defaultMailboxManagerProvider=new DefaultMailboxManagerProvider();
-            defaultMailboxManagerProvider.setMailboxManagerFactory(torqueMailboxManagerFactory);
         }
-        return defaultMailboxManagerProvider;
-        
+        return torqueMailboxManagerFactory;
+    }
+
+    public static void reset() throws Exception {
+        getTorqueFactory().deleteEverything();
     }
 
 }

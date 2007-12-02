@@ -32,7 +32,6 @@ import javax.mail.internet.MimeMessage;
 
 import org.apache.james.imapserver.ProtocolException;
 import org.apache.james.imapserver.client.LoginCommand;
-import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.imapserver.util.MessageGenerator;
 import org.apache.james.imapserver.util.UnsolicitedResponseGenerator;
 import org.apache.james.mailboxmanager.MailboxManagerException;
@@ -44,7 +43,7 @@ public class SessionTest extends AbstractSessionTest
     String[] existing = {USER_MAILBOX_ROOT+".INBOX",USER_MAILBOX_ROOT+".test",USER_MAILBOX_ROOT+".test1",USER_MAILBOX_ROOT+".test1.test1a",USER_MAILBOX_ROOT+".test1.test1b",USER_MAILBOX_ROOT+".test2.test2a",USER_MAILBOX_ROOT+".test2.test2b"};
     Set existingSet = null;
 
-    public void setUp() throws MailboxException, MessagingException, IOException, MailboxManagerException
+    public void setUp() throws Exception
     {
         super.setUp();
         existingSet=new HashSet(Arrays.asList(existing));
