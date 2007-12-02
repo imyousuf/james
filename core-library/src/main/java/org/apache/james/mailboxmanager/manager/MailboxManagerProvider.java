@@ -19,8 +19,6 @@
 
 package org.apache.james.mailboxmanager.manager;
 
-import java.util.Map;
-
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.Namespace;
 import org.apache.james.mailboxmanager.Namespaces;
@@ -51,16 +49,6 @@ public interface MailboxManagerProvider {
             boolean autoCreate) throws MailboxManagerException;
     
     /**
-     * removes all data (mailboxes, quota, acls...) that is associated 
-     * with this user.
-     * 
-     * @param authUser the authorized User for checking credentials 
-     * @param targetUser the user whos data will be deleted
-     */
-    
-    void deleteAllUserData(User authUser,User targetUser);
-
-    /**
      * The Namespaces a user has access to.
      * @param forUser TODO
      * 
@@ -79,13 +67,4 @@ public interface MailboxManagerProvider {
      */
     Namespace getPersonalDefaultNamespace(User forUser);
 
-    /**
-     * key: <b>String</b> - mailbox name <br />
-     * value: <b>Integer</b> - count of open sessions <br />
-     * <br />
-     * useful for testing
-     * @return Map of mailbox name/open session count
-     */
-    
-    Map getOpenMailboxSessionCountMap();
 }

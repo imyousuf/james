@@ -60,9 +60,6 @@ public class DefaultMailboxManagerProvider extends AbstractLogEnabled implements
         this.mailboxManagerFactory = mailboxManagerFactory;
     }
 
-    public void deleteAllUserData(User authUser, User targetUser) {
-    }
-
     public void deleteEverything() throws MailboxManagerException {
         getMailboxManagerFactory().deleteEverything();
     }
@@ -134,9 +131,4 @@ public class DefaultMailboxManagerProvider extends AbstractLogEnabled implements
         ContainerUtil.service(mailboxManagerFactory, serviceManager);
         ContainerUtil.initialize(mailboxManagerFactory);
     }
-
-    public Map getOpenMailboxSessionCountMap() {
-        return getMailboxManagerFactory().getOpenMailboxSessionCountMap();
-    }
-
 }
