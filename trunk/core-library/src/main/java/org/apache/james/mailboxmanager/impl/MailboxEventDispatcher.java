@@ -68,20 +68,6 @@ public class MailboxEventDispatcher implements MailboxListener {
         }
     }
 
-    public void mailboxDeleted() {
-        for (Iterator iter = listeners.iterator(); iter.hasNext();) {
-            MailboxListener mailboxListener = (MailboxListener) iter.next();
-            mailboxListener.mailboxDeleted();
-        }
-    }
-
-    public void mailboxRenamed(String origName, String newName) {
-        for (Iterator iter = listeners.iterator(); iter.hasNext();) {
-            MailboxListener mailboxListener = (MailboxListener) iter.next();
-            mailboxListener.mailboxRenamed(origName,origName);
-        }
-    }
-
     public void event(Event event) {
         for (Iterator iter = listeners.iterator(); iter.hasNext();) {
             MailboxListener mailboxListener = (MailboxListener) iter.next();

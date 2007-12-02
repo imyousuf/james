@@ -30,11 +30,6 @@ import javax.mail.Flags;
 
 public interface MailboxListener {
     
-    //TODO: replace with event
-    void mailboxDeleted();
-    //TODO: replace with event
-    void mailboxRenamed(String origName, String newName);
-    
     void event(final Event event);
     
     /**
