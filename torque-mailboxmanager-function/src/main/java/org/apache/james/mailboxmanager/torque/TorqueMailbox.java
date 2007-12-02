@@ -43,7 +43,6 @@ import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.SearchParameters;
 import org.apache.james.mailboxmanager.UnsupportedCriteriaException;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
-import org.apache.james.mailboxmanager.impl.MailboxEventDispatcher;
 import org.apache.james.mailboxmanager.mailbox.AbstractGeneralMailbox;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 import org.apache.james.mailboxmanager.torque.om.MailboxRow;
@@ -77,22 +76,19 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
 
     private UidChangeTracker tracker;
 
-    private MailboxEventDispatcher eventDispatcher = new MailboxEventDispatcher();
-
     private UidToKeyConverter uidToKeyConverter;
     
     private final ReadWriteLock lock;
     
     private final long sessionId;
-    
-    TorqueMailbox(final MailboxRow mailboxRow, final UidChangeTracker tracker, final ReadWriteLock lock, 
+        
+    TorqueMailbox(final MailboxRow mailboxRow, final ReadWriteLock lock, 
             final Log log, final long sessionId) {
         setLog(log);
         this.sessionId = sessionId;
         this.mailboxRow = mailboxRow;
-        this.tracker = tracker;
+        this.tracker = new UidChangeTracker(mailboxRow.getLastUid());
         this.lock = lock;
-        tracker.addMailboxListener(getEventDispatcher());
         getUidToKeyConverter().setUidValidity(mailboxRow.getUidValidity());
     }
     
@@ -113,7 +109,7 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
 
     public synchronized String getName() throws MailboxManagerException {
         checkAccess();
-        return getUidChangeTracker().getMailboxName();
+        return mailboxRow.getName();
     }
 
     public int getMessageCount() throws MailboxManagerException {
@@ -179,7 +175,6 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
                 }
             } else {
                 // mailboxRow==null
-                getUidChangeTracker().mailboxNotFound();
                 throw new MailboxManagerException("Mailbox has been deleted");
             }
         } catch (InterruptedException e) {
@@ -583,19 +578,15 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
     }
 
     public void addListener(MailboxListener listener) throws MailboxManagerException {
-        getEventDispatcher().addMailboxListener(listener);
         checkAccess();
+        tracker.addMailboxListener(listener);
     }
 
     public void removeListener(MailboxListener mailboxListener) {
-        if (!open || getEventDispatcher().size() == 0) {
+        if (!open) {
           throw new RuntimeException("mailbox not open");
         }
-        getEventDispatcher().removeMailboxListener(mailboxListener);
-        if (getEventDispatcher().size() == 0) {
-            open = false;
-            getUidChangeTracker().removeMailboxListener(getEventDispatcher());
-        }
+        tracker.removeMailboxListener(mailboxListener);
     }
 
     public long getUidValidity() throws MailboxManagerException {
@@ -627,7 +618,6 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
                         getUidChangeTracker().foundLastUid(mailboxRow.getLastUid());
                         return getUidChangeTracker().getLastUid() + 1;
                     } else {
-                        getUidChangeTracker().mailboxNotFound();
                         throw new MailboxManagerException("Mailbox has been deleted");
                     }
                 } catch (NoRowsException e) {
@@ -649,19 +639,7 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
     private void checkAccess() throws MailboxManagerException {
         if (!open) {
             throw new RuntimeException("mailbox is closed");
-        } else if (getEventDispatcher().size() == 0) {
-            throw new RuntimeException("mailbox has not been opened");
-        } else if (getUidChangeTracker().isExisting()) {
-            throw new MailboxManagerException("Mailbox is not existing");
         }
-    }
-    
-
-    protected MailboxEventDispatcher getEventDispatcher() {
-        if (eventDispatcher == null) {
-            eventDispatcher = new MailboxEventDispatcher();
-        }
-        return eventDispatcher;
     }
     
     protected UidChangeTracker getUidChangeTracker() {

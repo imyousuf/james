@@ -51,7 +51,7 @@ public class TorqueMailboxTestCase extends AbstractTorqueTestCase {
         MailboxRow mr = new MailboxRow("#users.tuser.INBOX", 100);
         mr.save();
         mr=MailboxRowPeer.retrieveByName("#users.tuser.INBOX");
-        ImapMailbox torqueMailbox = new TorqueMailbox(mr, new UidChangeTracker(null,"#users.tuser.INBOX",100),
+        ImapMailbox torqueMailbox = new TorqueMailbox(mr,
                 new WriterPreferenceReadWriteLock(),null, 1);
         torqueMailbox.addListener(new MailboxListenerCollector());
         assertEquals(0,torqueMailbox.getMessageCount());

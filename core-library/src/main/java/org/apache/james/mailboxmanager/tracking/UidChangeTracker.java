@@ -31,17 +31,19 @@ import javax.mail.Flags;
 import javax.mail.MessagingException;
 
 import org.apache.james.mailboxmanager.Constants;
+import org.apache.james.mailboxmanager.MailboxListener;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.MessageResultUtils;
+import org.apache.james.mailboxmanager.impl.MailboxEventDispatcher;
 import org.apache.james.mailboxmanager.impl.MessageFlags;
 import org.apache.james.mailboxmanager.mailbox.GeneralMailbox;
 
-public class UidChangeTracker extends MailboxTracker implements Constants {
+public class UidChangeTracker implements Constants {
     
-
+    private final MailboxEventDispatcher eventDispatcher;
     
-    private TreeMap cache = new TreeMap();
+    private final TreeMap cache;
 
     private long lastUidAtStart;
 
@@ -49,11 +51,11 @@ public class UidChangeTracker extends MailboxTracker implements Constants {
 
     private long lastScannedUid = 0;
 
-    public UidChangeTracker(MailboxCache mailboxCache, String mailboxName,
-            long lastUid) {
-        super(mailboxCache, mailboxName);
+    public UidChangeTracker(long lastUid) {
         this.lastUidAtStart = lastUid;
         this.lastUid = lastUid;
+        eventDispatcher = new MailboxEventDispatcher();
+        cache = new TreeMap();
     }
 
     public synchronized void expunged(final long[] uidsExpunged) {
@@ -209,6 +211,12 @@ public class UidChangeTracker extends MailboxTracker implements Constants {
         return lastScannedUid;
     }
 
+    public void addMailboxListener(MailboxListener listener) {
+        eventDispatcher.addMailboxListener(listener);
+    }
 
+    public void removeMailboxListener(MailboxListener listener) {
+        eventDispatcher.removeMailboxListener(listener);
+    }
 
 }
