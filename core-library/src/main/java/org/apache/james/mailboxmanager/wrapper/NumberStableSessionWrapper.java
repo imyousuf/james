@@ -305,16 +305,6 @@ public abstract class NumberStableSessionWrapper extends AbstractGeneralMailbox 
         }
     }
     
-    public void mailboxDeleted() {
-        // TODO Auto-generated method stub
-
-    }
-
-    public void mailboxRenamed(String origName, String newName) {
-        // TODO Auto-generated method stub
-
-    }
-    
     public void addListener(MailboxListener listener) {
         eventDispatcher.addMailboxListener(listener);
     }

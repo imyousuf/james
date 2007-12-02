@@ -40,11 +40,6 @@ public class MailboxTracker {
     public String getMailboxName() {
         return mailboxName;
     }
-
-    public void signalDeletion() {
-        eventDispatcher.mailboxDeleted();
-        existing=false;
-    }
     
     public void addMailboxListener(MailboxListener subject) {
         eventDispatcher.addMailboxListener(subject);
@@ -64,11 +59,6 @@ public class MailboxTracker {
 
     public boolean isExisting() {
         return existing;
-    }
-
-    public void signalRename(String newName) {
-        eventDispatcher.mailboxRenamed(mailboxName, newName);
-        mailboxName=newName;
     }
     
     public int getSessionCount() {

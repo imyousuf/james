@@ -32,7 +32,6 @@ public class MailboxCache {
         MailboxTracker tracker=(MailboxTracker) trackers.get(mailboxName);
         if (tracker!=null) {
             if (!tracker.getClass().equals(trackerClass)) {
-                tracker.signalDeletion();
                 trackers.remove(mailboxName);
                 tracker=null;
             }
@@ -43,7 +42,6 @@ public class MailboxCache {
     public synchronized void notFound(String mailboxName) {
         MailboxTracker tracker=(MailboxTracker) trackers.get(mailboxName);
         if (tracker!=null) {
-            tracker.signalDeletion();
             trackers.remove(mailboxName);
         }
     }
@@ -63,7 +61,6 @@ public class MailboxCache {
             notFound(newName);
             trackers.remove(origName);
             trackers.put(newName, tracker);
-            tracker.signalRename(newName);
         }
         notFound(origName);
     }
