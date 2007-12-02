@@ -103,10 +103,6 @@ abstract public class AbstractMailboxSelectionProcessor extends
         final ImapMailboxSession mailbox = mailboxManager
                 .getImapMailboxSession(mailboxName);
 
-        if (!mailbox.isSelectable()) {
-            throw new MailboxException("Nonselectable mailbox.");
-        }
-
         SelectedImapMailbox sessionMailbox = new SelectedMailboxSessionImpl(mailbox);
         session.selected(sessionMailbox);
         session.setAttribute(

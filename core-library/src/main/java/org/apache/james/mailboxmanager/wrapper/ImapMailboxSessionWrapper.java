@@ -40,23 +40,6 @@ public class ImapMailboxSessionWrapper extends FlaggedSessionMailboxWrapper
         super(imapMailbox);
     }
 
-    public MailboxRights myRights() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public Quota[] getQuota() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-
-
-    public boolean isSelectable() {
-        // TODO Auto-generated method stub
-        return true;
-    }
-
     public long getUidValidity() throws MailboxManagerException {
         return ((ImapMailbox) mailbox).getUidValidity();
     }
