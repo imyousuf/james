@@ -58,16 +58,13 @@ public class TorqueMailboxManager implements MailboxManager {
     private static final char SQL_WILDCARD_CHAR = '%';
     private final static Random random = new Random();
     private MailboxCache mailboxCache;
-
-    private User authUser;
     
     protected Log log;
 
     private final ReadWriteLock lock;
     
-    public TorqueMailboxManager(final User authUser, final MailboxCache mailboxCache, final ReadWriteLock lock, final Log log) {
+    public TorqueMailboxManager(final MailboxCache mailboxCache, final ReadWriteLock lock, final Log log) {
         this.mailboxCache=mailboxCache;
-        this.authUser=authUser;
         this.log=log;
         this.lock = lock;
     }

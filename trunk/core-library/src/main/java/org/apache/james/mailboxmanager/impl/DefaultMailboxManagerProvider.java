@@ -19,8 +19,6 @@
 
 package org.apache.james.mailboxmanager.impl;
 
-import java.util.Map;
-
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
@@ -65,17 +63,17 @@ public class DefaultMailboxManagerProvider extends AbstractLogEnabled implements
     }
 
     public MailboxSession getInboxSession(User user) throws MailboxManagerException {
-        return getMailboxManagerInstance(user).getMailboxSession(getInboxName(user),true);
+        return getMailboxManagerInstance().getMailboxSession(getInboxName(user),true);
     }
 
-    public MailboxManager getMailboxManagerInstance(User user)
+    public MailboxManager getMailboxManagerInstance()
             throws MailboxManagerException {
-        return getMailboxManagerFactory().getMailboxManagerInstance(user);
+        return getMailboxManagerFactory().getMailboxManagerInstance();
     }
 
     public MailboxSession getMailboxSession(User authUser, String mailboxName,
             boolean autoCreate) throws MailboxManagerException {
-        return getMailboxManagerInstance(authUser).getMailboxSession(
+        return getMailboxManagerInstance().getMailboxSession(
                 mailboxName, autoCreate);
     }
 
