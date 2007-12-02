@@ -86,10 +86,6 @@ class SelectCommand extends AuthenticatedStateCommand
     private boolean selectMailbox(String mailboxName, ImapSession session, boolean readOnly) throws MailboxException, MailboxManagerException {
         ImapMailboxSession mailbox = session.getMailboxManager().getImapMailboxSession(mailboxName);
 
-        if ( !mailbox.isSelectable() ) {
-            throw new MailboxException( "Nonselectable mailbox." );
-        }
-
         session.setSelected( mailbox, readOnly );
         return readOnly;
     }

@@ -35,20 +35,4 @@ import org.apache.james.mailboxmanager.acl.MailboxRights;
  */
 
 public interface ImapMailboxSession extends ImapMailbox, MailboxListener, GeneralMailboxSession, EventQueueingSessionMailbox {
-    
-    
-    /**
-     *
-     * @return the effective rights to this mailbox
-     */
-    MailboxRights myRights();
-    /**
-     * 
-     * @return the quota that is assigned to this mailbox
-     */
-    Quota[] getQuota();
-
-    boolean isSelectable();
-
-    
 }
