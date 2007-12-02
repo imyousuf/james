@@ -27,6 +27,7 @@ import java.util.Random;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.ListResult;
@@ -52,6 +53,7 @@ import org.apache.torque.util.CountHelper;
 import org.apache.torque.util.Criteria;
 
 import EDU.oswego.cs.dl.util.concurrent.ReadWriteLock;
+import EDU.oswego.cs.dl.util.concurrent.WriterPreferenceReadWriteLock;
 
 public class TorqueMailboxManager implements MailboxManager {
 
@@ -59,14 +61,13 @@ public class TorqueMailboxManager implements MailboxManager {
     private final static Random random = new Random();
     private MailboxCache mailboxCache;
     
-    protected Log log;
+    protected Log log = LogFactory.getLog(TorqueMailboxManager.class);
 
     private final ReadWriteLock lock;
     
-    public TorqueMailboxManager(final MailboxCache mailboxCache, final ReadWriteLock lock, final Log log) {
-        this.mailboxCache=mailboxCache;
-        this.log=log;
-        this.lock = lock;
+    public TorqueMailboxManager() {
+        this.lock =  new WriterPreferenceReadWriteLock();
+        mailboxCache = new MailboxCache();
     }
     
     public MailboxSession getMailboxSession(String mailboxName,
@@ -294,6 +295,7 @@ public class TorqueMailboxManager implements MailboxManager {
         try {
             MailboxRowPeer.doDelete(new Criteria().and(MailboxRowPeer.MAILBOX_ID,
                     new Integer(-1), Criteria.GREATER_THAN));
+            mailboxCache = new MailboxCache();
         } catch (TorqueException e) {
             throw new MailboxManagerException(e);
         }

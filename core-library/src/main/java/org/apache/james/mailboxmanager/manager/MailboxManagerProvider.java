@@ -28,14 +28,6 @@ import org.apache.james.services.User;
 public interface MailboxManagerProvider {
     
     public MailboxManager getMailboxManagerInstance() throws MailboxManagerException;
- 
-
-    /**
-     * <b>WARNING</b> this really deletes everything. Useful for testing
-     * 
-     * @throws MailboxManagerException
-     */
-    public void deleteEverything() throws MailboxManagerException;
     
     MailboxSession getInboxSession(User user) throws MailboxManagerException;
 
