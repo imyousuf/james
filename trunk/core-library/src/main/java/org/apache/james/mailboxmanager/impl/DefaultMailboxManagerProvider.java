@@ -33,7 +33,6 @@ import org.apache.james.mailboxmanager.Namespace;
 import org.apache.james.mailboxmanager.Namespaces;
 import org.apache.james.mailboxmanager.mailbox.MailboxSession;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
-import org.apache.james.mailboxmanager.manager.MailboxManagerFactory;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 import org.apache.james.services.User;
 
@@ -45,22 +44,10 @@ public class DefaultMailboxManagerProvider extends AbstractLogEnabled implements
 
     public static final String INBOX = "INBOX";
 
-    private MailboxManagerFactory mailboxManagerFactory;
+    private MailboxManager mailboxManager;
 
     private ServiceManager serviceManager;
 
-    protected MailboxManagerFactory getMailboxManagerFactory() {
-        return mailboxManagerFactory;
-    }
-
-    public void setMailboxManagerFactory(
-            MailboxManagerFactory mailboxManagerFactory) {
-        this.mailboxManagerFactory = mailboxManagerFactory;
-    }
-
-    public void deleteEverything() throws MailboxManagerException {
-        getMailboxManagerFactory().deleteEverything();
-    }
 
     public MailboxSession getInboxSession(User user) throws MailboxManagerException {
         return getMailboxManagerInstance().getMailboxSession(getInboxName(user),true);
@@ -68,7 +55,7 @@ public class DefaultMailboxManagerProvider extends AbstractLogEnabled implements
 
     public MailboxManager getMailboxManagerInstance()
             throws MailboxManagerException {
-        return getMailboxManagerFactory().getMailboxManagerInstance();
+        return mailboxManager;
     }
 
     public MailboxSession getMailboxSession(User authUser, String mailboxName,
@@ -102,12 +89,16 @@ public class DefaultMailboxManagerProvider extends AbstractLogEnabled implements
     public void configure(Configuration conf) throws ConfigurationException {
         Configuration factoryConf=conf.getChild("factory",false);
         String className=factoryConf.getAttribute("class");
-        MailboxManagerFactory factory=(MailboxManagerFactory) getClassInstace(className);
+        MailboxManager factory= (MailboxManager) getClassInstace(className);
         ContainerUtil.enableLogging(factory, getLogger());
         ContainerUtil.configure(factory, factoryConf);
-        setMailboxManagerFactory(factory);
+        setMailboxManagerInstance(factory);
     }
     
+    public void setMailboxManagerInstance(MailboxManager mailboxManager) {
+        this.mailboxManager = mailboxManager;
+    }
+
     private static Object getClassInstace(String name) {
         Object object=null;
         try {
@@ -126,7 +117,7 @@ public class DefaultMailboxManagerProvider extends AbstractLogEnabled implements
     }
 
     public void initialize() throws Exception {
-        ContainerUtil.service(mailboxManagerFactory, serviceManager);
-        ContainerUtil.initialize(mailboxManagerFactory);
+        ContainerUtil.service(mailboxManager, serviceManager);
+        ContainerUtil.initialize(mailboxManager);
     }
 }

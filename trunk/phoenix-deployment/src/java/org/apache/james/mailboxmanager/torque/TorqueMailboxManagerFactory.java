@@ -37,18 +37,14 @@ import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.logging.Log;
 import org.apache.commons.logging.impl.AvalonLogger;
-import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
-import org.apache.james.mailboxmanager.manager.MailboxManagerFactory;
 import org.apache.james.mailboxmanager.torque.om.MailboxRowPeer;
 import org.apache.james.mailboxmanager.torque.om.MessageBodyPeer;
 import org.apache.james.mailboxmanager.torque.om.MessageFlagsPeer;
 import org.apache.james.mailboxmanager.torque.om.MessageHeaderPeer;
 import org.apache.james.mailboxmanager.torque.om.MessageRowPeer;
-import org.apache.james.mailboxmanager.tracking.MailboxCache;
 import org.apache.james.services.FileSystem;
 import org.apache.james.util.SqlResources;
 import org.apache.torque.Torque;
@@ -56,41 +52,20 @@ import org.apache.torque.TorqueException;
 import org.apache.torque.util.BasePeer;
 import org.apache.torque.util.Transaction;
 
-import EDU.oswego.cs.dl.util.concurrent.ReadWriteLock;
-import EDU.oswego.cs.dl.util.concurrent.WriterPreferenceReadWriteLock;
-
-public class TorqueMailboxManagerFactory implements MailboxManagerFactory,
+public class TorqueMailboxManagerFactory extends TorqueMailboxManager implements MailboxManager, 
         Configurable, Initializable, Serviceable, LogEnabled {
-
-    private MailboxCache mailboxCache;
 
     private BaseConfiguration torqueConf;
 
     private boolean initialized;
 
-    private Log log;
-
     private FileSystem fileSystem;
-    
-    private final ReadWriteLock lock;
 
     private static final String[] tableNames = new String[] {
             MailboxRowPeer.TABLE_NAME, MessageRowPeer.TABLE_NAME,
             MessageHeaderPeer.TABLE_NAME, MessageBodyPeer.TABLE_NAME,
             MessageFlagsPeer.TABLE_NAME };
-
-    public TorqueMailboxManagerFactory() {
-        lock = new WriterPreferenceReadWriteLock();
-    }
     
-    public MailboxManager getMailboxManagerInstance()
-            throws MailboxManagerException {
-        if (!initialized) {
-            throw new MailboxManagerException("must be initialized first!");
-        }
-        return new TorqueMailboxManager(getMailboxCache(), lock, getLog());
-    }
-
     public void initialize() throws Exception {
         if (!initialized) {
             if (torqueConf == null) {
@@ -204,32 +179,12 @@ public class TorqueMailboxManagerFactory implements MailboxManagerFactory,
         }
     }
 
-    private MailboxCache getMailboxCache() {
-        if (mailboxCache == null) {
-            mailboxCache = new MailboxCache();
-        }
-        return mailboxCache;
-    }
-
-    public void deleteEverything() throws MailboxManagerException {
-        ((TorqueMailboxManager) getMailboxManagerInstance())
-                .deleteEverything();
-        mailboxCache = null;
-    }
-
     public boolean isInitialized() {
         return initialized;
     }
 
     public String toString() {
-        return "TorqueMailboxManagerProvider";
-    }
-
-    protected Log getLog() {
-        if (log == null) {
-            log = new SimpleLog("TorqueMailboxManagerFactory");
-        }
-        return log;
+        return "TorqueMailboxManagerFactory";
     }
 
     public void enableLogging(Logger logger) {
