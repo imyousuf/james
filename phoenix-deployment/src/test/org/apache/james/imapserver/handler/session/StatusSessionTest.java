@@ -29,9 +29,7 @@ import org.apache.james.imapserver.ProtocolException;
 import org.apache.james.imapserver.client.LoginCommand;
 import org.apache.james.imapserver.client.SelectCommand;
 import org.apache.james.imapserver.client.StatusClientCommand;
-import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.imapserver.util.MessageGenerator;
-import org.apache.james.mailboxmanager.MailboxManagerException;
 
 public class StatusSessionTest extends AbstractSessionTest {
     
@@ -43,7 +41,7 @@ public class StatusSessionTest extends AbstractSessionTest {
     private long f2_uidV;
     private long f2_uidNext;
     
-    public void setUp() throws MailboxManagerException, MailboxException, MessagingException, IOException {
+    public void setUp() throws Exception {
         super.setUp();
         f2_msgs=MessageGenerator.generateSimpleMessages(4);
         createFolders(folders);

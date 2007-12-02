@@ -49,8 +49,7 @@ public class TorqueMailboxManagerMailRepositoryNativeTestCase extends
     GeneralMailboxSession shadowMailbox = null;
 
     protected void configureRepository() throws Exception {
-        TorqueMailboxManagerProviderSingleton
-                .getTorqueMailboxManagerProviderInstance().deleteEverything();
+        TorqueMailboxManagerProviderSingleton.reset();
         MailboxManagerMailRepository mailboxManagerMailRepository = new MailboxManagerMailRepository();
 
         DefaultConfigurationBuilder db = new DefaultConfigurationBuilder();

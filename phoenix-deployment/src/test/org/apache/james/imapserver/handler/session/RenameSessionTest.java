@@ -28,7 +28,6 @@ import org.apache.james.imapserver.ProtocolException;
 import org.apache.james.imapserver.client.LoginCommand;
 import org.apache.james.imapserver.client.LogoutClientCommand;
 import org.apache.james.imapserver.client.RenameClientCommand;
-import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.imapserver.util.MessageGenerator;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 
@@ -43,8 +42,7 @@ public class RenameSessionTest extends AbstractSessionTest {
 
     MimeMessage[] msgs = null;
 
-    public void setUp() throws MailboxException, MessagingException,
-            IOException, MailboxManagerException {
+    public void setUp() throws Exception {
         super.setUp();
         msgs = MessageGenerator.generateSimpleMessages(2);
         createFolders(folders);

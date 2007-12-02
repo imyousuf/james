@@ -32,7 +32,6 @@ import org.apache.james.imapserver.ProtocolException;
 import org.apache.james.imapserver.client.ExpungeClientCommand;
 import org.apache.james.imapserver.client.LoginCommand;
 import org.apache.james.imapserver.client.SelectCommand;
-import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.imapserver.util.MessageGenerator;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.TestUtil;
@@ -45,8 +44,7 @@ public class ExpungeSessionTest extends AbstractSessionTest {
 
     long[] uids = null;
 
-    public void setUp() throws MailboxException, MessagingException,
-            IOException, MailboxManagerException {
+    public void setUp() throws Exception {
         super.setUp();
         createFolders(onlyInbox);
     }

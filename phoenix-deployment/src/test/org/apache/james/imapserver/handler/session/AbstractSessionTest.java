@@ -48,7 +48,6 @@ import org.apache.james.imapserver.TestConstants;
 import org.apache.james.imapserver.client.Command;
 import org.apache.james.imapserver.mock.MockImapHandler;
 import org.apache.james.imapserver.mock.MockImapHandlerConfigurationData;
-import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.ListResult;
 import org.apache.james.mailboxmanager.MailboxManagerException;
@@ -73,11 +72,11 @@ public abstract class AbstractSessionTest extends MockObjectTestCase implements 
     public AbstractSessionTest() {
     }
     
-    public void setUp() throws MailboxException, MessagingException, IOException, MailboxManagerException
+    public void setUp() throws Exception
     {
         
         MockImapHandlerConfigurationData theConfigData = new MockImapHandlerConfigurationData();
-        theConfigData.getMailboxManagerProvider().deleteEverything();
+        MockImapHandlerConfigurationData.reset();
         session = new ImapSessionImpl(theConfigData.getMailboxManagerProvider(),
                 theConfigData.getUsersRepository(), new MockImapHandler(),
                 HOST_NAME, HOST_ADDRESS);

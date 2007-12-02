@@ -28,4 +28,7 @@ public class MailboxManagerProviderSingleton {
         return TorqueMailboxManagerProviderSingleton.getTorqueMailboxManagerProviderInstance();
     }
 
+    public synchronized static void reset() throws Exception {
+        TorqueMailboxManagerProviderSingleton.reset();
+    }
 }

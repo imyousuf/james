@@ -32,7 +32,6 @@ import org.apache.james.imapserver.client.LogoutClientCommand;
 import org.apache.james.imapserver.client.MessageSet;
 import org.apache.james.imapserver.client.SelectCommand;
 import org.apache.james.imapserver.client.StoreClientCommand;
-import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.imapserver.util.MessageGenerator;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 
@@ -45,7 +44,7 @@ public class UidStoreSessionTest extends AbstractSessionTest {
     MimeMessage[] msgs= null;
     long[] uids = null;
     
-    public void setUp() throws MailboxException, MessagingException, IOException, MailboxManagerException {
+    public void setUp() throws Exception {
         super.setUp();
         msgs=MessageGenerator.generateSimpleMessages(4);
         createFolders(onlyInbox);
