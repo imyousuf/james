@@ -202,7 +202,7 @@ public final class ImapSessionImpl extends AbstractLogEnabled implements ImapSes
             if (mailboxManager!=null) {
                 mailboxManager.close();
             }
-            mailboxManager=mailboxManagerProvider.getMailboxManagerInstance(user);
+            mailboxManager=mailboxManagerProvider.getMailboxManagerInstance();
             mailboxManagerUser = user;
             mailboxManager.createInbox(user);
         }

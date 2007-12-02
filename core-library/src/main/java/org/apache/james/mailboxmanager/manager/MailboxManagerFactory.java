@@ -20,12 +20,10 @@
 package org.apache.james.mailboxmanager.manager;
 
 import org.apache.james.mailboxmanager.MailboxManagerException;
-import org.apache.james.services.User;
 
 public interface MailboxManagerFactory {
 
-    public MailboxManager getMailboxManagerInstance(User user)
-            throws MailboxManagerException;
+    public MailboxManager getMailboxManagerInstance() throws MailboxManagerException;
 
     public void deleteEverything() throws MailboxManagerException;
     

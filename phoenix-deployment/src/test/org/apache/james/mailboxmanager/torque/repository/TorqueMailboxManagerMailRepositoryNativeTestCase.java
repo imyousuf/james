@@ -38,7 +38,6 @@ import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.GeneralMailboxSession;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
-import org.apache.james.mailboxmanager.mock.MockUser;
 import org.apache.james.mailboxmanager.mock.TorqueMailboxManagerProviderSingleton;
 import org.apache.james.mailboxmanager.redundant.AbstractMailRepositoryNativeTestCase;
 import org.apache.james.mailboxmanager.repository.MailboxManagerMailRepository;
@@ -136,7 +135,7 @@ public class TorqueMailboxManagerMailRepositoryNativeTestCase extends
             try {
                 MailboxManager mailboxManager= TorqueMailboxManagerProviderSingleton
                 .getTorqueMailboxManagerProviderInstance()
-                .getMailboxManagerInstance(new MockUser());
+                .getMailboxManagerInstance();
                 if (!mailboxManager.existsMailbox(TUSER_INBOX)) {
                     mailboxManager.createMailbox(TUSER_INBOX);
                 }

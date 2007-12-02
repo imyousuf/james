@@ -26,7 +26,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
@@ -51,7 +50,6 @@ import org.apache.james.mailboxmanager.torque.om.MessageHeaderPeer;
 import org.apache.james.mailboxmanager.torque.om.MessageRowPeer;
 import org.apache.james.mailboxmanager.tracking.MailboxCache;
 import org.apache.james.services.FileSystem;
-import org.apache.james.services.User;
 import org.apache.james.util.SqlResources;
 import org.apache.torque.Torque;
 import org.apache.torque.TorqueException;
@@ -85,12 +83,12 @@ public class TorqueMailboxManagerFactory implements MailboxManagerFactory,
         lock = new WriterPreferenceReadWriteLock();
     }
     
-    public MailboxManager getMailboxManagerInstance(User user)
+    public MailboxManager getMailboxManagerInstance()
             throws MailboxManagerException {
         if (!initialized) {
             throw new MailboxManagerException("must be initialized first!");
         }
-        return new TorqueMailboxManager(user, getMailboxCache(), lock, getLog());
+        return new TorqueMailboxManager(getMailboxCache(), lock, getLog());
     }
 
     public void initialize() throws Exception {
@@ -214,7 +212,7 @@ public class TorqueMailboxManagerFactory implements MailboxManagerFactory,
     }
 
     public void deleteEverything() throws MailboxManagerException {
-        ((TorqueMailboxManager) getMailboxManagerInstance(null))
+        ((TorqueMailboxManager) getMailboxManagerInstance())
                 .deleteEverything();
         mailboxCache = null;
     }
@@ -246,14 +244,4 @@ public class TorqueMailboxManagerFactory implements MailboxManagerFactory,
     protected void setFileSystem(FileSystem system) {
         this.fileSystem = system;
     }
-
-    public void addMountPoint(String point) {
-        // TODO Auto-generated method stub
-
-    }
-
-    public Map getOpenMailboxSessionCountMap() {
-        return getMailboxCache().getOpenMailboxSessionCountMap();
-    }
-
 }

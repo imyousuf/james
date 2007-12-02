@@ -20,7 +20,6 @@
 package org.apache.james.mailboxmanager.torque;
 
 import org.apache.james.mailboxmanager.AbstractMailboxManagerSelfTestCase;
-import org.apache.james.mailboxmanager.mock.MockUser;
 import org.apache.james.mailboxmanager.mock.TorqueMailboxManagerProviderSingleton;
 import org.apache.torque.TorqueException;
 
@@ -34,7 +33,7 @@ public class TorqueMailboxManagerSelfTestCase extends
     public void setUp() throws Exception {
         mailboxManagerProvider=TorqueMailboxManagerProviderSingleton.getTorqueMailboxManagerProviderInstance();
         mailboxManagerProvider.deleteEverything();
-        mailboxManager = mailboxManagerProvider.getMailboxManagerInstance(new MockUser());
+        mailboxManager = mailboxManagerProvider.getMailboxManagerInstance();
     }
 
 }
