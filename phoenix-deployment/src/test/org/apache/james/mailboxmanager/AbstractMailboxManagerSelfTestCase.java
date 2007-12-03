@@ -23,7 +23,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.apache.james.mailboxmanager.mailbox.GeneralMailboxSession;
 import org.apache.james.mailboxmanager.manager.MailboxExpression;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;

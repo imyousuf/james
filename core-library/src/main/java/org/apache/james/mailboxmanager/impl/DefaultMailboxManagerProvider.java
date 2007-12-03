@@ -31,7 +31,7 @@ import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.Namespace;
 import org.apache.james.mailboxmanager.Namespaces;
-import org.apache.james.mailboxmanager.mailbox.MailboxSession;
+import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 import org.apache.james.services.User;
@@ -49,8 +49,8 @@ public class DefaultMailboxManagerProvider extends AbstractLogEnabled implements
     private ServiceManager serviceManager;
 
 
-    public MailboxSession getInboxSession(User user) throws MailboxManagerException {
-        return getMailboxManagerInstance().getMailboxSession(getInboxName(user),true);
+    public Mailbox getInbox(User user) throws MailboxManagerException {
+        return getMailboxManagerInstance().getMailbox(getInboxName(user),true);
     }
 
     public MailboxManager getMailboxManagerInstance()
@@ -58,9 +58,9 @@ public class DefaultMailboxManagerProvider extends AbstractLogEnabled implements
         return mailboxManager;
     }
 
-    public MailboxSession getMailboxSession(User authUser, String mailboxName,
+    public Mailbox getMailbox(User authUser, String mailboxName,
             boolean autoCreate) throws MailboxManagerException {
-        return getMailboxManagerInstance().getMailboxSession(
+        return getMailboxManagerInstance().getMailbox(
                 mailboxName, autoCreate);
     }
 

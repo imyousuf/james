@@ -33,7 +33,7 @@ import javax.mail.internet.MimeMultipart;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
-import org.apache.james.mailboxmanager.mailbox.MailboxSession;
+import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 import org.apache.james.services.User;
 import org.apache.james.userrepository.DefaultUser;
@@ -111,10 +111,8 @@ public class Actions
             user=new DefaultUser(recipient.getUser(), null);
             MimeMessage localMessage = createMimeMessage(aMail, recipient);
             
-            MailboxSession mailbox=mailboxManagerProvider.getMailboxSession(user, destinationMailbox, true);
+            Mailbox mailbox=mailboxManagerProvider.getMailbox(user, destinationMailbox, true);
             mailbox.store(localMessage);
-            mailbox.close();
-            
             delivered = true;
         }
         catch (MessagingException ex)

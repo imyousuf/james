@@ -72,7 +72,6 @@ public class SelectedMailboxSession extends AbstractLogEnabled {
     
     public void close() throws MailboxManagerException  {
         mailbox.removeListener(events);
-        mailbox.close();
         mailbox=null;
     }
 

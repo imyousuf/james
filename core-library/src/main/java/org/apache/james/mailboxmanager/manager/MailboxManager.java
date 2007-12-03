@@ -23,9 +23,8 @@ import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.ListResult;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.mailbox.GeneralMailbox;
-import org.apache.james.mailboxmanager.mailbox.GeneralMailboxSession;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
-import org.apache.james.mailboxmanager.mailbox.MailboxSession;
+import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.services.User;
 
 
@@ -74,7 +73,7 @@ public interface MailboxManager {
      * @param mailboxName
      * @throws MailboxManagerException 
      */
-    MailboxSession getMailboxSession(String mailboxName, boolean autoCreate)
+    Mailbox getMailbox(String mailboxName, boolean autoCreate)
             throws MailboxManagerException;
     
     /**
@@ -84,7 +83,7 @@ public interface MailboxManager {
      * @throws MailboxManagerException
      */
     
-    GeneralMailboxSession getGeneralMailboxSession(String mailboxName) throws MailboxManagerException;
+    GeneralMailbox getGeneralMailbox(String mailboxName) throws MailboxManagerException;
     
     /**
      * Gets an session suitable for IMAP.

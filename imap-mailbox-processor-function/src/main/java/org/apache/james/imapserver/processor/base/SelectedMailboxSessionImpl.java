@@ -62,13 +62,6 @@ public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements Se
      */
     public void deselect() {
         mailbox.removeListener(events);
-        try {
-            mailbox.close();
-        } catch (MailboxManagerException e) {
-            final Logger logger = getLogger();
-            logger.warn("Cannot close selected mailbox" + e.getMessage());
-            logger.debug("Failed to close selected mailbox. Deselection will continue.", e);
-        }
         mailbox = null;
     }
 

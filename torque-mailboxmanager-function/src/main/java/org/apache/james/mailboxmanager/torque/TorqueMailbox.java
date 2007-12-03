@@ -806,5 +806,9 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
         }
         return set;
     }
+
+    public boolean isWriteable() {
+        return true;
+    }
     
 }

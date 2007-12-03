@@ -38,7 +38,6 @@ import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.core.MailImpl;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.mailbox.Mailbox;
-import org.apache.james.mailboxmanager.mailbox.MailboxSession;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 import org.apache.mailet.Mail;
 
@@ -309,7 +308,7 @@ public class MailboxManagerMailRepository extends AbstractMailRepository
     class MailboxGateKeeper {
         int open = 0;
 
-        MailboxSession mailboxSession = null;
+        Mailbox mailboxSession = null;
 
         synchronized void use() {
             open++;
@@ -323,11 +322,6 @@ public class MailboxManagerMailRepository extends AbstractMailRepository
             if (open < 1) {
                 if (open == 0) {
                     if (mailboxSession != null) {
-                        try {
-                            mailboxSession.close();
-                        } catch (MailboxManagerException e) {
-                            getLogger().error("error closing Mailbox", e);
-                        }
                         mailboxSession=null;
                     }
                 } else {
@@ -342,7 +336,7 @@ public class MailboxManagerMailRepository extends AbstractMailRepository
                 throw new RuntimeException("use<1 !");
             }
             if (mailboxSession == null) {
-                mailboxSession = getMailboxManagerProvider().getMailboxSession(
+                mailboxSession = getMailboxManagerProvider().getMailbox(
                         null, mailboxName, true);
             }
             return mailboxSession;

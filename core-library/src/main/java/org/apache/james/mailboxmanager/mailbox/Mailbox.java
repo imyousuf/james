@@ -58,4 +58,5 @@ public interface Mailbox {
 
     void remove(String key) throws MailboxManagerException;
 
+    boolean isWriteable();
 }

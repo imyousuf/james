@@ -34,5 +34,5 @@ import org.apache.james.mailboxmanager.acl.MailboxRights;
  * should only be provided by the session</p>
  */
 
-public interface ImapMailboxSession extends ImapMailbox, MailboxListener, GeneralMailboxSession, EventQueueingSessionMailbox {
+public interface ImapMailboxSession extends ImapMailbox, MailboxListener, EventQueueingSessionMailbox {
 }
