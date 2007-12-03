@@ -35,15 +35,21 @@ import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxListener;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
+import org.apache.james.mailboxmanager.SearchParameters;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.impl.MailboxEventDispatcher;
 import org.apache.james.mailboxmanager.impl.MessageResultImpl;
 import org.apache.james.mailboxmanager.mailbox.AbstractGeneralMailbox;
 import org.apache.james.mailboxmanager.mailbox.EventQueueingSessionMailbox;
+import org.apache.james.mailboxmanager.mailbox.FlaggedMailbox;
 import org.apache.james.mailboxmanager.mailbox.GeneralMailbox;
+import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
+import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
+import org.apache.james.mailboxmanager.mailbox.SearchableMailbox;
 
-public abstract class NumberStableSessionWrapper extends AbstractGeneralMailbox implements EventQueueingSessionMailbox,
-        MailboxListener {
+public class ImapMailboxWrapper extends AbstractGeneralMailbox 
+        implements ImapMailboxSession, EventQueueingSessionMailbox, MailboxListener  {
+
 
     private static final class MsnIterator implements Iterator {
             private final Iterator it;
@@ -147,16 +153,13 @@ public abstract class NumberStableSessionWrapper extends AbstractGeneralMailbox 
     private boolean startingNumberCache = false;
     
     
-    public NumberStableSessionWrapper() {
-    }
-    
-    public NumberStableSessionWrapper(GeneralMailbox generalMailbox) throws MailboxManagerException {
-        setMailbox(generalMailbox);
+    public ImapMailboxWrapper(ImapMailbox mailbox) throws MailboxManagerException {
+        setMailbox(mailbox);
         init();
     }
     
-    public void setMailbox(GeneralMailbox generalMailbox) {
-        this.mailbox=generalMailbox;
+    public void setMailbox(ImapMailbox mailbox) {
+        this.mailbox=mailbox;
     }
 
     public void init() throws MailboxManagerException {
@@ -331,8 +334,89 @@ public abstract class NumberStableSessionWrapper extends AbstractGeneralMailbox 
         return eventDispatcher;
     }
     
+
+    public synchronized Iterator expunge(GeneralMessageSet set, int result) throws MailboxManagerException {
+        final GeneralMessageSet uidSet = toUidSet(set);
+        final int noMsnResult = noMsnResult(result);
+        final Iterator expunge = ((FlaggedMailbox) mailbox).expunge(uidSet, noMsnResult);
+        return addMsn(expunge);
+    }
+
+    public MessageResult getFirstUnseen(int result) throws MailboxManagerException {
+        return addMsnResult(((FlaggedMailbox) mailbox).getFirstUnseen(noMsnResult(result)),result);
+    }
+
+    public Flags getPermanentFlags() {
+        return ((FlaggedMailbox) mailbox).getPermanentFlags();
+    }
+
+    public int getRecentCount(boolean reset) throws MailboxManagerException {
+        return ((FlaggedMailbox) mailbox).getRecentCount(reset);
+    }
+
+    public int getUnseenCount() throws MailboxManagerException {
+        return ((FlaggedMailbox) mailbox).getUnseenCount();
+    }
+
+    public Iterator setFlags(Flags flags, boolean value, boolean replace, GeneralMessageSet set, int result) throws MailboxManagerException {
+        final Iterator results = ((FlaggedMailbox) mailbox).setFlags(flags, value, replace,toUidSet(set), result);
+        return addMsn(results);
+    }
+    
+    public MessageResult appendMessage(MimeMessage message, Date internalDate,
+            int result) throws MailboxManagerException {
+        return addMsnResult(mailbox.appendMessage(message, internalDate, noMsnResult(result)),result);
+    }
+
+    public int getMessageCount() throws MailboxManagerException {
+        return mailbox.getMessageCount();
+    }
+
+    public int getMessageResultTypes() {
+        return mailbox.getMessageResultTypes() | MessageResult.MSN;
+    }
+
+    public Iterator getMessages(GeneralMessageSet set, int result)
+            throws MailboxManagerException {
+        return addMsn(mailbox.getMessages(toUidSet(set),
+                noMsnResult(result)));
+    }
+
+    public int getMessageSetTypes() {
+        return mailbox.getMessageSetTypes() | GeneralMessageSet.TYPE_MSN;
+    }
+
+    public String getName() throws MailboxManagerException {
+        return mailbox.getName();
+    }
+
+    public MessageResult updateMessage(GeneralMessageSet messageSet, MimeMessage message, int result) throws MailboxManagerException {
+        return addMsnResult(mailbox.updateMessage(toUidSet(messageSet), message, noMsnResult(result)),result);
+    }
+
     public boolean isWriteable() {
         return true;
+    }
+
+    public void remove(GeneralMessageSet set) throws MailboxManagerException {
+        mailbox.remove(toUidSet(set));
+    }
+
+    public long getSessionId() {
+        return mailbox.getSessionId();
+    }
+
+    public long getUidValidity() throws MailboxManagerException {
+        return ((ImapMailbox) mailbox).getUidValidity();
+    }
+
+    public long getUidNext() throws MailboxManagerException {
+        return ((ImapMailbox) mailbox).getUidNext();
+    }
+
+    public Iterator search(GeneralMessageSet set, SearchParameters searchTerm, int result) throws MailboxManagerException {
+        final Iterator results = ((SearchableMailbox)mailbox).search(set, searchTerm, noMsnResult(result));
+        return addMsn(results);
     }
 
 }

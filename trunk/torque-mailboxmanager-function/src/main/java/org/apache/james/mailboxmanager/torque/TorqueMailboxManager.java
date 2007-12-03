@@ -45,7 +45,7 @@ import org.apache.james.mailboxmanager.manager.MailboxExpression;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.torque.om.MailboxRow;
 import org.apache.james.mailboxmanager.torque.om.MailboxRowPeer;
-import org.apache.james.mailboxmanager.wrapper.ImapMailboxSessionWrapper;
+import org.apache.james.mailboxmanager.wrapper.ImapMailboxWrapper;
 import org.apache.james.services.User;
 import org.apache.torque.TorqueException;
 import org.apache.torque.util.CountHelper;
@@ -117,8 +117,8 @@ public class TorqueMailboxManager implements MailboxManager {
                         managers.put(mailboxName, torqueMailbox);
                     }
                     
-                    final ImapMailboxSessionWrapper wrapper 
-                        = new ImapMailboxSessionWrapper(torqueMailbox);
+                    final ImapMailboxWrapper wrapper 
+                        = new ImapMailboxWrapper(torqueMailbox);
                     return wrapper;
                 } else {
                     getLog().info("Mailbox '" + mailboxName + "' not found.");
