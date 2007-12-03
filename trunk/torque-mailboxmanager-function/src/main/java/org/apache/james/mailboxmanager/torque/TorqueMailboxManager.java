@@ -38,10 +38,9 @@ import org.apache.james.mailboxmanager.MailboxNotFoundException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.ListResultImpl;
 import org.apache.james.mailboxmanager.mailbox.GeneralMailbox;
-import org.apache.james.mailboxmanager.mailbox.GeneralMailboxSession;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
-import org.apache.james.mailboxmanager.mailbox.MailboxSession;
+import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.mailboxmanager.manager.MailboxExpression;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.torque.om.MailboxRow;
@@ -71,7 +70,7 @@ public class TorqueMailboxManager implements MailboxManager {
         managers = new HashMap();
     }
     
-    public MailboxSession getMailboxSession(String mailboxName,
+    public Mailbox getMailbox(String mailboxName,
             boolean autoCreate) throws MailboxManagerException {
         if (autoCreate && !existsMailbox(mailboxName)) {
             getLog().info("autocreated mailbox  " + mailboxName);
@@ -82,7 +81,7 @@ public class TorqueMailboxManager implements MailboxManager {
     
 
 
-    public GeneralMailboxSession getGeneralMailboxSession(String mailboxName)
+    public GeneralMailbox getGeneralMailbox(String mailboxName)
     throws MailboxManagerException {
         return getImapMailboxSession(mailboxName);
     }
@@ -201,7 +200,7 @@ public class TorqueMailboxManager implements MailboxManager {
     }
 
     public void copyMessages(GeneralMailbox from, GeneralMessageSet set, String to) throws MailboxManagerException {
-        GeneralMailboxSession toMailbox=(GeneralMailboxSession)getGeneralMailboxSession(to);
+        GeneralMailbox toMailbox=(GeneralMailbox)getGeneralMailbox(to);
         
         Iterator it = from.getMessages(set, MessageResult.MIME_MESSAGE | MessageResult.INTERNAL_DATE);
         while (it.hasNext()) {
@@ -209,8 +208,6 @@ public class TorqueMailboxManager implements MailboxManager {
             final MimeMessage mimeMessage = result.getMimeMessage();
             toMailbox.appendMessage(mimeMessage, result.getInternalDate(), MessageResult.NOTHING);
         }
-       
-        toMailbox.close();
     }
 
     public ListResult[] list(final MailboxExpression mailboxExpression) throws MailboxManagerException {

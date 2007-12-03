@@ -330,5 +330,9 @@ public abstract class NumberStableSessionWrapper extends AbstractGeneralMailbox 
     MailboxListener getListenerObject() {
         return eventDispatcher;
     }
+    
+    public boolean isWriteable() {
+        return true;
+    }
 
 }

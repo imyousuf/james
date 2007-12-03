@@ -36,7 +36,7 @@ import org.apache.commons.collections.IteratorUtils;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
-import org.apache.james.mailboxmanager.mailbox.GeneralMailboxSession;
+import org.apache.james.mailboxmanager.mailbox.GeneralMailbox;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.mock.TorqueMailboxManagerProviderSingleton;
 import org.apache.james.mailboxmanager.redundant.AbstractMailRepositoryNativeTestCase;
@@ -46,7 +46,7 @@ public class TorqueMailboxManagerMailRepositoryNativeTestCase extends
         AbstractMailRepositoryNativeTestCase {
 
     private static final String TUSER_INBOX = "#mail.tuser.INBOX";
-    GeneralMailboxSession shadowMailbox = null;
+    GeneralMailbox shadowMailbox = null;
 
     protected void configureRepository() throws Exception {
         TorqueMailboxManagerProviderSingleton.reset();
@@ -129,7 +129,7 @@ public class TorqueMailboxManagerMailRepositoryNativeTestCase extends
 
     }
 
-    protected GeneralMailboxSession getShadowMailbox() {
+    protected GeneralMailbox getShadowMailbox() {
         if (shadowMailbox == null) {
             try {
                 MailboxManager mailboxManager= TorqueMailboxManagerProviderSingleton
@@ -138,7 +138,7 @@ public class TorqueMailboxManagerMailRepositoryNativeTestCase extends
                 if (!mailboxManager.existsMailbox(TUSER_INBOX)) {
                     mailboxManager.createMailbox(TUSER_INBOX);
                 }
-                shadowMailbox = mailboxManager.getGeneralMailboxSession(TUSER_INBOX);
+                shadowMailbox = mailboxManager.getGeneralMailbox(TUSER_INBOX);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

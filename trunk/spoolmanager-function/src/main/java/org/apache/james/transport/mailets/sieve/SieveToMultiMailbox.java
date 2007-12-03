@@ -34,7 +34,7 @@ import javax.mail.internet.MimeMessage;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
-import org.apache.james.mailboxmanager.mailbox.MailboxSession;
+import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 import org.apache.james.userrepository.DefaultUser;
 import org.apache.jsieve.SieveFactory;
@@ -232,7 +232,7 @@ public class SieveToMultiMailbox extends GenericMailet {
     }
     
     void storeMessageInbox(String username, MimeMessage message) throws MessagingException {
-        MailboxSession inbox = getMailboxManagerProvider().getInboxSession(
+        Mailbox inbox = getMailboxManagerProvider().getInbox(
                 new DefaultUser(username, null));
         if (inbox == null) {
             String error = "Mailbox for user " + username
@@ -240,7 +240,6 @@ public class SieveToMultiMailbox extends GenericMailet {
             throw new MessagingException(error);
         }
         inbox.store(message);
-        inbox.close();
     }
 
     /**
