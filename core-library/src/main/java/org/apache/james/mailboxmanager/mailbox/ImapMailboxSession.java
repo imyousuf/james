@@ -19,11 +19,6 @@
 
 package org.apache.james.mailboxmanager.mailbox;
 
-import org.apache.james.mailboxmanager.MailboxListener;
-import org.apache.james.mailboxmanager.Quota;
-import org.apache.james.mailboxmanager.acl.MailboxRights;
-
-
 /**
  * This is the Mailbox from the view of the user<br />
  * 
@@ -34,5 +29,5 @@ import org.apache.james.mailboxmanager.acl.MailboxRights;
  * should only be provided by the session</p>
  */
 
-public interface ImapMailboxSession extends ImapMailbox, MailboxListener, EventQueueingSessionMailbox {
+public interface ImapMailboxSession extends ImapMailbox, EventQueueingSessionMailbox {
 }
