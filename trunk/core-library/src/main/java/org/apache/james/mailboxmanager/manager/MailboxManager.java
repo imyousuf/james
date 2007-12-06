@@ -22,10 +22,8 @@ package org.apache.james.mailboxmanager.manager;
 import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.ListResult;
 import org.apache.james.mailboxmanager.MailboxManagerException;
-import org.apache.james.mailboxmanager.mailbox.GeneralMailbox;
+import org.apache.james.mailboxmanager.MailboxNotFoundException;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
-import org.apache.james.mailboxmanager.mailbox.Mailbox;
-import org.apache.james.services.User;
 
 
 /**
@@ -89,13 +87,13 @@ public interface MailboxManager {
      * this is done by the MailboxRepository because maybe this operation could
      * be optimized in the corresponding store.
      * 
-     * @param from
+     * @param from name of the source mailbox
      * @param set
      *            messages to copy
      * @param to
      *            name of the destination mailbox
      */
-    void copyMessages(GeneralMailbox from, GeneralMessageSet set, String to) throws MailboxManagerException;
+    void copyMessages(GeneralMessageSet set, String from, String to) throws MailboxManagerException;
 
     /**
      * TODO: Expression requires parsing. Probably easier for the caller to 

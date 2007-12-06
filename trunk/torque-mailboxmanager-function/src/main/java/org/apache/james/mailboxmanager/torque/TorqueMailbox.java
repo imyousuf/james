@@ -43,7 +43,7 @@ import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.SearchParameters;
 import org.apache.james.mailboxmanager.UnsupportedCriteriaException;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
-import org.apache.james.mailboxmanager.mailbox.AbstractGeneralMailbox;
+import org.apache.james.mailboxmanager.mailbox.AbstractImapMailbox;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 import org.apache.james.mailboxmanager.torque.om.MailboxRow;
 import org.apache.james.mailboxmanager.torque.om.MailboxRowPeer;
@@ -68,7 +68,7 @@ import EDU.oswego.cs.dl.util.concurrent.ReadWriteLock;
 import com.sun.mail.util.CRLFOutputStream;
 import com.workingdogs.village.DataSetException;
 
-public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox {
+public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
 
     private boolean open = true;
 

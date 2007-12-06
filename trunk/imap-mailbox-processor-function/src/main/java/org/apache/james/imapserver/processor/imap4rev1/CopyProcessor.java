@@ -99,7 +99,7 @@ public class CopyProcessor extends AbstractMailboxAwareProcessor {
                     lowVal = session.getSelected().uid((int)idSet[i].getLowVal());
                 }
                 GeneralMessageSet messageSet = GeneralMessageSetImpl.uidRange(lowVal, highVal);
-                mailboxManager.copyMessages(currentMailbox, messageSet,
+                mailboxManager.copyMessages(messageSet, currentMailbox.getName(), 
                         fullMailboxName);
             }
         } catch (MailboxManagerException e) {

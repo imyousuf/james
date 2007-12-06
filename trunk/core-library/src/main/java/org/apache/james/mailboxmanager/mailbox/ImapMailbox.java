@@ -19,9 +19,11 @@
 
 package org.apache.james.mailboxmanager.mailbox;
 
+import java.util.Date;
 import java.util.Iterator;
 
 import javax.mail.Flags;
+import javax.mail.internet.MimeMessage;
 
 import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxManagerException;
@@ -34,7 +36,9 @@ import org.apache.james.mailboxmanager.SearchParameters;
 /**
  * Provides access to a single Folder.<br />
  */
-public interface ImapMailbox extends GeneralMailbox {
+public interface ImapMailbox extends Mailbox, EventTriggerMailbox  {
+    
+    public static final long ANONYMOUS_SESSION = 0;
     
     /**
      * @param result
@@ -119,4 +123,44 @@ public interface ImapMailbox extends GeneralMailbox {
      */
     Iterator setFlags(Flags flags, boolean value, boolean replace, 
             GeneralMessageSet set, int result) throws MailboxManagerException;
+    
+    
+    
+    public long getSessionId(); 
+
+    /**
+     * @param internalDate
+     *            <p>IMAP defines this as the time when the message has arrived to
+     *            this server (by smtp). Clients are also allowed to set the
+     *            internalDate on apppend.</p><p>Is this Mail.getLastUpdates() for 
+     *            James delivery? Should we use MimeMessage.getReceivedDate()?
+     * @param result
+     *            which fields to be returned in MessageResult
+     * @return MessageResult with the fields defined by <b>result</b>
+     *         <ul>
+     *         <li> IMAP, Javamail Folder: nothing required </li>
+     *         <li> UIDPlusFolder: requires to return appended Message or uid</li>
+     *         <li> UIDPLUS: requires to return appended uid</li>
+     *         </ul>
+     * @throws MailboxManagerException
+     *             if anything went wrong
+     */
+    MessageResult appendMessage(MimeMessage message, Date internalDate,
+            int result) throws MailboxManagerException;
+    
+    /**
+     * 
+     * @param set
+     * @return MessageResult with the fields defined by <b>result</b>
+     *         <ul>
+     *         <li> IMAP: a set of msn, uid, Flags, header lines, content, mime
+     *         parts...</li>
+     *         <li> Javamail Folder: Message[]</li>
+     *         </ul>
+     * @throws MailboxManagerException 
+     */
+
+    Iterator getMessages(GeneralMessageSet set, int result) throws MailboxManagerException;
+    
+    void remove(GeneralMessageSet set) throws MailboxManagerException;
 }

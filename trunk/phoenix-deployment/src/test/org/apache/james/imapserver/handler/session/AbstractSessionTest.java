@@ -53,7 +53,6 @@ import org.apache.james.mailboxmanager.ListResult;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
-import org.apache.james.mailboxmanager.mailbox.GeneralMailbox;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 import org.apache.james.mailboxmanager.manager.MailboxExpression;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
@@ -94,7 +93,7 @@ public abstract class AbstractSessionTest extends MockObjectTestCase implements 
     }
     
     public void appendMessagesClosed(String folder,MimeMessage[] msgs) throws MailboxManagerException, MessagingException {
-        GeneralMailbox mailbox=getImapMailbox(folder);
+        ImapMailbox mailbox=getImapMailbox(folder);
         for (int i = 0; i < msgs.length; i++) {
             msgs[i].setFlags(new Flags(Flags.Flag.RECENT), true);
             mailbox.appendMessage(msgs[i],new Date(),MessageResult.MINIMAL);
@@ -103,7 +102,7 @@ public abstract class AbstractSessionTest extends MockObjectTestCase implements 
     }
 
     public long[] addUIDMessagesOpen(String folder,MimeMessage[] msgs) throws MailboxManagerException, MessagingException {
-        GeneralMailbox mailbox=getImapMailbox(folder);
+        ImapMailbox mailbox=getImapMailbox(folder);
         long[] uids=new long[msgs.length];
         for (int i = 0; i < msgs.length; i++) {
             msgs[i].setFlags(new Flags(Flags.Flag.RECENT), false);
@@ -125,7 +124,7 @@ public abstract class AbstractSessionTest extends MockObjectTestCase implements 
     }
     
     public MimeMessage[] getMessages(String folder) throws MailboxManagerException {
-        GeneralMailbox mailbox=getImapMailbox(folder);
+        ImapMailbox mailbox=getImapMailbox(folder);
         Iterator iterator =mailbox.getMessages(GeneralMessageSetImpl.all(),MessageResult.MIME_MESSAGE);
         List messages = IteratorUtils.toList(iterator);
         MimeMessage[] mms=new MimeMessage[messages.size()];
@@ -136,7 +135,7 @@ public abstract class AbstractSessionTest extends MockObjectTestCase implements 
     }
     
     public long[] getUids(String folder) throws MailboxManagerException {
-        GeneralMailbox mailbox=getImapMailbox(folder);
+        ImapMailbox mailbox=getImapMailbox(folder);
         Iterator iterator = mailbox.getMessages(GeneralMessageSetImpl.all(),MessageResult.MINIMAL);
         List messages = IteratorUtils.toList(iterator);
         long[] uids=new long[messages.size()];
