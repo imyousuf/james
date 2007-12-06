@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -109,7 +110,7 @@ public class UidChangeTracker implements Constants {
      * @throws MailboxManagerException 
      */
     public synchronized void flagsUpdated(MessageResult messageResult, long sessionId) throws MailboxManagerException {
-        if (messageResult != null && MessageResultUtils.isUidIncluded(messageResult)) {
+        if (messageResult != null) {
             final Flags flags = messageResult.getFlags();
             final long uid = messageResult.getUid();
             final Long uidLong = new Long(uid);
@@ -178,12 +179,16 @@ public class UidChangeTracker implements Constants {
     }
 
     private SortedSet getSubSet(UidRange range) {
+        final Long rangeStartLong = new Long(range.getFromUid());
         if (range.getToUid() > 0) {
-            return new TreeSet(cache.subMap(new Long(range.getFromUid()),
-                    new Long(range.getToUid() + 1)).keySet());
+            final long nextUidAfterRange = range.getToUid() + 1;
+            final Long nextUidAfterRangeLong = new Long(nextUidAfterRange);
+            final SortedMap subMap = cache.subMap(rangeStartLong, nextUidAfterRangeLong);
+            final Set keySet = subMap.keySet();
+            return new TreeSet(keySet);
         } else {
             return new TreeSet(cache
-                    .tailMap(new Long(range.getFromUid())).keySet());
+                    .tailMap(rangeStartLong).keySet());
         }
 
     }

@@ -19,6 +19,10 @@
 
 package org.apache.james.imapserver.processor.imap4rev1;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import javax.mail.Flags;
 
 import org.apache.james.api.imap.ImapCommand;
@@ -38,7 +42,8 @@ import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxNotFoundException;
 import org.apache.james.mailboxmanager.MessageResult;
-import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
+import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
+import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 
@@ -63,8 +68,7 @@ abstract public class AbstractMailboxSelectionProcessor extends
         try {
             String fullMailboxName = buildFullName(session, mailboxName);
             selectMailbox(fullMailboxName, session, isExamine);
-            ImapMailboxSession mailbox = ImapSessionUtils.getMailbox(session);
-            result = process(isExamine, tag, command, mailbox);
+            result = process(isExamine, tag, command, session);
         } catch (MailboxNotFoundException e) {
             result = statusResponseFactory.taggedNo(tag, command, 
                     HumanReadableTextKey.FAILURE_NO_SUCH_MAILBOX);
@@ -74,23 +78,23 @@ abstract public class AbstractMailboxSelectionProcessor extends
         return result;
     }
 
-    private ImapResponseMessage process(boolean isExamine, String tag, ImapCommand command, ImapMailboxSession mailbox) 
+    private ImapResponseMessage process(boolean isExamine, String tag, ImapCommand command, ImapSession session) 
                 throws MailboxException, MailboxManagerException {
         ImapResponseMessage result;
+        ImapMailbox mailbox = ImapSessionUtils.getMailbox(session);
         // TODO: compact this into a single API call for meta-data about the repository
         final Flags permanentFlags = mailbox.getPermanentFlags();
         final boolean writeable = mailbox.isWriteable() && !isExamine;
         final boolean resetRecent = !isExamine;
         final int recentCount = mailbox.getRecentCount(resetRecent);
         final long uidValidity = mailbox.getUidValidity();
-        final MessageResult firstUnseen = mailbox
-        .getFirstUnseen(MessageResult.MSN);
+        final MessageResult firstUnseen = mailbox.getFirstUnseen(MessageResult.MINIMAL);
         final int messageCount = mailbox.getMessageCount();
         final int msn;
         if (firstUnseen == null) {
             msn = -1;
         } else {
-            msn = firstUnseen.getMsn();
+            msn = session.getSelected().msn(firstUnseen.getUid());
         }
         result = new ExamineAndSelectResponse(command, permanentFlags,
                 writeable, recentCount, uidValidity, msn, messageCount, tag);
@@ -100,10 +104,18 @@ abstract public class AbstractMailboxSelectionProcessor extends
     private boolean selectMailbox(String mailboxName, ImapSession session,
             boolean readOnly) throws MailboxException, MailboxManagerException {
         final MailboxManager mailboxManager = getMailboxManager(session);
-        final ImapMailboxSession mailbox = mailboxManager
-                .getImapMailboxSession(mailboxName);
-
-        SelectedImapMailbox sessionMailbox = new SelectedMailboxSessionImpl(mailbox);
+        final ImapMailbox mailbox = mailboxManager
+                .getImapMailbox(mailboxName);
+        
+        final Iterator it = mailbox.getMessages(GeneralMessageSetImpl
+                .all(), MessageResult.MINIMAL);
+        final List uids = new ArrayList();
+        while(it.hasNext()) {
+            final MessageResult result = (MessageResult) it.next();
+            uids.add(new Long(result.getUid()));
+        }
+        
+        SelectedImapMailbox sessionMailbox = new SelectedMailboxSessionImpl(mailbox, uids);
         session.selected(sessionMailbox);
         session.setAttribute(
                 ImapSessionUtils.SELECTED_MAILBOX_ATTRIBUTE_SESSION_KEY,

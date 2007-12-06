@@ -34,7 +34,7 @@ import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
-import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
+import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 
 /**
  * Handles processeing for the APPEND imap command.
@@ -66,10 +66,10 @@ class AppendCommand extends AuthenticatedStateCommand
         MimeMessage message = parser.mimeMessage( request );
         parser.endLine( request );
 
-        ImapMailboxSession mailbox = null;
+        ImapMailbox mailbox = null;
         try {
             mailboxName=session.buildFullName(mailboxName);
-            mailbox = session.getMailboxManager().getImapMailboxSession(mailboxName);
+            mailbox = session.getMailboxManager().getImapMailbox(mailboxName);
         }
         catch ( MailboxManagerException mme ) {
             MailboxException me = new MailboxException(mme);

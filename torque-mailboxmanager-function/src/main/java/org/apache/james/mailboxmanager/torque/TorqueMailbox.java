@@ -96,17 +96,6 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
         return sessionId;
     }
 
-    public int getMessageResultTypes() {
-        return MessageResult.FLAGS + MessageResult.INTERNAL_DATE
-                + MessageResult.KEY + MessageResult.MIME_MESSAGE
-                + MessageResult.SIZE + MessageResult.UID;
-    }
-
-    public int getMessageSetTypes() {
-        return GeneralMessageSet.TYPE_ALL + GeneralMessageSet.TYPE_KEY
-                + GeneralMessageSet.TYPE_UID + GeneralMessageSet.TYPE_MESSAGE;
-    }
-
     public synchronized String getName() throws MailboxManagerException {
         checkAccess();
         return mailboxRow.getName();
@@ -165,8 +154,7 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
                     messageRow.addMessageBody(mb);
 
                     save(messageRow);
-                    MessageResult messageResult = fillMessageResult(messageRow,
-                            result | MessageResult.UID);
+                    MessageResult messageResult = fillMessageResult(messageRow, result);
                     checkForScanGap(uid);
                     getUidChangeTracker().found(messageResult);
                     return messageResult;
@@ -412,7 +400,7 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
                 try {
                     List messageRows = getMailboxRow().getMessageRows(c);
                     if (messageRows.size() > 0) {
-                        MessageResult messageResult=fillMessageResult((MessageRow) messageRows.get(0), result | MessageResult.UID);
+                        MessageResult messageResult=fillMessageResult((MessageRow) messageRows.get(0), result);
                         if (messageResult!=null) {
                             checkForScanGap(messageResult.getUid());
                             getUidChangeTracker().found(messageResult);
@@ -488,7 +476,7 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
             final List messageRows = getMailboxRow().getMessageRows(c);
             final long[] uids = uids(messageRows);
             final TorqueResultIterator resultIterator = new TorqueResultIterator(messageRows, result
-                    | MessageResult.UID | MessageResult.FLAGS, getUidToKeyConverter());
+                    | MessageResult.FLAGS, getUidToKeyConverter());
             // ensure all results are loaded before deletion
             Collection messageResults = IteratorUtils.toList(resultIterator);
             
@@ -565,7 +553,7 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
                 }
             }
             final TorqueResultIterator resultIterator = new TorqueResultIterator(messageRows,
-                    results | MessageResult.UID | MessageResult.FLAGS, getUidToKeyConverter());
+                    results | MessageResult.FLAGS, getUidToKeyConverter());
             final org.apache.james.mailboxmanager.impl.MessageFlags[] messageFlags = resultIterator.getMessageFlags();
             tracker.flagsUpdated(messageFlags, sessionId);
             tracker.found(uidRange, messageFlags);
@@ -784,8 +772,8 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
             lock.writeLock().acquire();
             try {
                 final Flags flags = new Flags(Flags.Flag.DELETED);
-                doSetFlags(flags, true, false, set, MessageResult.NOTHING);
-                doExpunge(set, MessageResult.NOTHING);
+                doSetFlags(flags, true, false, set, MessageResult.MINIMAL);
+                doExpunge(set, MessageResult.MINIMAL);
             } finally {
                 lock.writeLock().release();
             }
@@ -809,6 +797,5 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
 
     public boolean isWriteable() {
         return true;
-    }
-    
+    }    
 }

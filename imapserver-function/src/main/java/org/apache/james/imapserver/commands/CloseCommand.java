@@ -27,7 +27,7 @@ import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
-import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
+import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 
 /**
  * Handles processeing for the CHECK imap command.
@@ -46,10 +46,10 @@ class CloseCommand extends SelectedStateCommand
             throws ProtocolException, MailboxException
     {
         parser.endLine( request );
-        ImapMailboxSession mailbox = session.getSelected().getMailbox();
+        ImapMailbox mailbox = session.getSelected().getMailbox();
         if ( session.getSelected().getMailbox().isWriteable() ) {
             try {
-                mailbox.expunge(GeneralMessageSetImpl.all(),MessageResult.NOTHING);
+                mailbox.expunge(GeneralMessageSetImpl.all(),MessageResult.MINIMAL);
             } catch (MailboxManagerException e) {
                throw new MailboxException(e);
             }

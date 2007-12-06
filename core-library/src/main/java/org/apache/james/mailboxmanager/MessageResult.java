@@ -62,22 +62,15 @@ public interface MessageResult extends Comparable {
 
     /**
      * For example: could have best performance when doing store and then
-     * forget.
+     * forget. UIDs are always returned
      */
-    public static final int NOTHING = 0x00;
+    public static final int MINIMAL = 0x00;
 
     /**
      * 
      */
     public static final int MIME_MESSAGE = 0x01;
-
-    public static final int UID = 0x04;
-
-    /**
-     * TODO: should message number be managed by protocol client?
-     */
-    public static final int MSN = 0x08;
-
+    
     /**
      * return a string baded key (used by James)
      */
@@ -107,8 +100,6 @@ public interface MessageResult extends Comparable {
     long getUid();
 
     long getUidValidity();
-
-    int getMsn();
 
     /**
      * 

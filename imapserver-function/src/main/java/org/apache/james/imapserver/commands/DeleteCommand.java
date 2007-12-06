@@ -26,7 +26,6 @@ import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
-import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 
 /**
  * Handles processeing for the DELETE imap command.

@@ -40,7 +40,6 @@ public class MessageResultImpl implements MessageResult {
     
     private MimeMessage mimeMessage;
     private long uid;
-    private int msn;
     private Flags flags;
     private int size;
     private Date internalDate;
@@ -48,7 +47,7 @@ public class MessageResultImpl implements MessageResult {
     private List headers;
     private Content messageBody;
     private Content fullMessage;
-    private int includedResults = NOTHING;
+    private int includedResults = MINIMAL;
 
     public MessageResultImpl(long uid) {
         setUid(uid);
@@ -63,17 +62,12 @@ public class MessageResultImpl implements MessageResult {
     }
 
     public MessageResultImpl(MessageResult result) throws MailboxManagerException {
-        if (MessageResultUtils.isUidIncluded(result)) {
-            setUid(result.getUid()); 
-        }
+        setUid(result.getUid()); 
         if (MessageResultUtils.isFlagsIncluded(result)) {
             setFlags(result.getFlags());
         }
         if (MessageResultUtils.isMimeMessageIncluded(result)) {
             setMimeMessage(result.getMimeMessage());
-        }
-        if (MessageResultUtils.isMsnIncluded(result)) {
-            setMsn(result.getMsn());
         }
         if (MessageResultUtils.isSizeIncluded(result)) {
             setSize(result.getSize());
@@ -119,10 +113,6 @@ public class MessageResultImpl implements MessageResult {
         return 0;
     }
 
-    public int getMsn() {
-        return msn;
-    }
-
     public Date getInternalDate() {
         return internalDate;
     }
@@ -137,13 +127,8 @@ public class MessageResultImpl implements MessageResult {
 
     public void setUid(long uid) {
         this.uid=uid;
-        includedResults |= UID;
-        
     }
-    public void setMsn(int msn) {
-        this.msn=msn;
-        includedResults |= MSN;
-    }
+    
     public int getSize() {
         return size;
     }
@@ -275,9 +260,7 @@ public class MessageResultImpl implements MessageResult {
         final String TAB = " ";
         
         String retValue = "MessageResultImpl ( "
-            + super.toString() + TAB
             + "uid = " + this.uid + TAB
-            + "msn = " + this.msn + TAB
             + "flags = " + this.flags + TAB
             + "size = " + this.size + TAB
             + "internalDate = " + this.internalDate + TAB

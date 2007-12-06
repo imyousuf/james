@@ -122,7 +122,7 @@ public class TorqueMailboxManagerMailRepositoryNativeTestCase extends
     protected void nativeStoreMessage(MimeMessage mm) {
         try {
             getShadowMailbox().appendMessage(mm, new Date(),
-                    MessageResult.NOTHING);
+                    MessageResult.MINIMAL);
         } catch (MailboxManagerException e) {
             throw new RuntimeException(e);
         }

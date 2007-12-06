@@ -27,4 +27,8 @@ public interface SelectedImapMailbox {
 
     public abstract List unsolicitedResponses(boolean omitExpunged,
             boolean useUid);
+    
+    public int msn(long uid);
+
+    public abstract long uid(int i);
 }

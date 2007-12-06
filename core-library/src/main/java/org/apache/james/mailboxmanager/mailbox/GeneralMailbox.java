@@ -32,23 +32,7 @@ public interface GeneralMailbox extends Mailbox, EventTriggerMailbox {
     
     public static final long ANONYMOUS_SESSION = 0;
     
-    public long getSessionId();
-    
-    /**
-     * 
-     * What the Mailbox is able to put out as an result. e.g.: message number, uid, key, MimeMessage, Size, internal Date, flags
-     * @see MessageResult
-     */
-    int getMessageResultTypes();
-    
-    /**
-     * 
-     * which queries could be made to select a set of messages, e.g.: range of uid or message numbers, a key, a MimeMessage object
-     * @see GeneralMessageSet
-     */
-    int getMessageSetTypes();
-    
- 
+    public long getSessionId(); 
 
     /**
      * @param internalDate

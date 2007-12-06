@@ -118,7 +118,7 @@ public class MessageResultUtils {
         final boolean result;
         if (message == null) {
             result = false;
-        } else if (datum == MessageResult.NOTHING) {
+        } else if (datum == MessageResult.MINIMAL) {
             result = true;
         } else {
             final int includes = message.getIncludedResults();
@@ -221,30 +221,5 @@ public class MessageResultUtils {
      */
     public static boolean isSizeIncluded(final MessageResult message) {
         return isIncluded(message, MessageResult.SIZE);
-    }
-    
-    
-    /**
-     * Is {@link MessageResult#UID} included in these results?
-     * @param message <code>MessageResult</code>, possibly null
-     * @return true if <code>MessageResult</code> includes 
-     * UID, false if <code>MessageResult</code> is null
-     * or does not contain UID
-     * @see #isIncluded(MessageResult, int)
-     */
-    public static boolean isUidIncluded(final MessageResult message) {
-        return isIncluded(message, MessageResult.UID);
-    }
-    
-    /**
-     * Is {@link MessageResult#MSN} included in these results?
-     * @param message <code>MessageResult</code>, possibly null
-     * @return true if <code>MessageResult</code> includes 
-     * MSN, false if <code>MessageResult</code> is null
-     * or does not contain MSN
-     * @see #isIncluded(MessageResult, int)
-     */
-    public static boolean isMsnIncluded(final MessageResult message) {
-        return isIncluded(message, MessageResult.MSN);
     }
 }

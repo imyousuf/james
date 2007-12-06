@@ -19,9 +19,11 @@
 
 package org.apache.james.imapserver;
 
+import java.util.Collection;
+
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
-import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
+import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.services.User;
 import org.apache.james.services.UsersRepository;
@@ -94,9 +96,10 @@ public interface ImapSession
      * supplied mailbox to be the currently selected mailbox.
      * @param mailbox The selected mailbox.
      * @param readOnly If <code>true</code>, the selection is set to be read only.
+     * @param uids TODO
      * @throws MailboxManagerException 
      */
-    void setSelected( ImapMailboxSession mailbox, boolean readOnly ) throws MailboxManagerException;
+    void setSelected( ImapMailbox mailbox, boolean readOnly, Collection uids ) throws MailboxManagerException;
 
     /**
      * Moves the session out of {@link ImapSessionState#SELECTED} state and back into

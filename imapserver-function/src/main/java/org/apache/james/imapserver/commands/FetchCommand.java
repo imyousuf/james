@@ -34,6 +34,7 @@ import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
+import org.apache.james.imapserver.SelectedMailboxSession;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.imapserver.store.SimpleMessageAttributes;
 import org.apache.james.mailboxmanager.GeneralMessageSet;
@@ -42,7 +43,7 @@ import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.MessageResultUtils;
 import org.apache.james.mailboxmanager.MessageResult.Content;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
-import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
+import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 import org.apache.mailet.dates.RFC822DateFormat;
 
 /**
@@ -81,9 +82,19 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
         }
 
         final int resultToFetch = fetch.getNeededMessageResult();
-        final ImapMailboxSession mailbox = session.getSelected().getMailbox();
+        final SelectedMailboxSession selected = session.getSelected();
+        final ImapMailbox mailbox = selected.getMailbox();
         for (int i = 0; i < idSet.length; i++) {
-            final GeneralMessageSet messageSet=GeneralMessageSetImpl.range(idSet[i].getLowVal(),idSet[i].getHighVal(),useUids);
+            final long lowVal;
+            final long highVal;
+            if (useUids) {
+                lowVal = idSet[i].getLowVal();
+                highVal = idSet[i].getHighVal();   
+            } else {
+                lowVal = selected.uid((int) idSet[i].getLowVal());
+                highVal = selected.uid((int) idSet[i].getHighVal()); 
+            }
+            final GeneralMessageSet messageSet=GeneralMessageSetImpl.uidRange(lowVal,highVal);
             final Iterator it;
             try {
                 it = mailbox.getMessages(messageSet,resultToFetch);
@@ -93,7 +104,8 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
             while (it.hasNext()) {
                 final MessageResult result = (MessageResult) it.next();
                 String msgData = outputMessage( fetch, result, mailbox, useUids );
-                response.fetchResponse( result.getMsn(), msgData );
+                final int msn = selected.msn(result.getUid());
+                response.fetchResponse( msn, msgData );
 
             }
         }
@@ -104,7 +116,7 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
     }
 
     private String outputMessage(FetchRequest fetch, MessageResult result,
-            ImapMailboxSession mailbox, boolean useUids)
+            ImapMailbox mailbox, boolean useUids)
             throws MailboxException, ProtocolException {
         // Check if this fetch will cause the "SEEN" flag to be set on this
         // message
@@ -115,7 +127,7 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
             if (fetch.isSetSeen()
                     && !result.getFlags().contains(Flags.Flag.SEEN)) {
                 mailbox.setFlags(new Flags(Flags.Flag.SEEN), true, false,
-                        GeneralMessageSetImpl.oneUid(result.getUid()), MessageResult.NOTHING);
+                        GeneralMessageSetImpl.oneUid(result.getUid()), MessageResult.MINIMAL);
                 result.getFlags().add(Flags.Flag.SEEN);
                 ensureFlagsResponse = true;
             }
@@ -509,7 +521,7 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
         }
                 
         public int getNeededMessageResult() {
-            int result = MessageResult.MSN;
+            int result = MessageResult.MINIMAL;
             if (flags || setSeen) {
                 result |= MessageResult.FLAGS;
             }
@@ -518,9 +530,6 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
             }
             if (size) {
                 result |= MessageResult.SIZE;
-            }
-            if (uid) {
-                result |= MessageResult.UID;
             }
             if (mailFetchElement) {
                 result |= MessageResult.MIME_MESSAGE;

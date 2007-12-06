@@ -59,7 +59,7 @@ import org.apache.james.mailboxmanager.MessageResultUtils;
 import org.apache.james.mailboxmanager.UnsupportedCriteriaException;
 import org.apache.james.mailboxmanager.MessageResult.Content;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
-import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
+import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 
 public class FetchProcessor extends AbstractImapRequestProcessor {
 
@@ -89,15 +89,23 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
         try
         {
             int resultToFetch = getNeededMessageResult(fetch);
-            ImapMailboxSession mailbox = ImapSessionUtils.getMailbox(session);
+            ImapMailbox mailbox = ImapSessionUtils.getMailbox(session);
             for (int i = 0; i < idSet.length; i++) {
                 final FetchResponseBuilder builder = new FetchResponseBuilder(getLogger());
-                GeneralMessageSet messageSet = GeneralMessageSetImpl.range(idSet[i]
-                        .getLowVal(), idSet[i].getHighVal(), useUids);
+                final long highVal;
+                final long lowVal;
+                if (useUids) {
+                    highVal = idSet[i].getHighVal();
+                    lowVal = idSet[i].getLowVal();      
+                } else {
+                    highVal = session.getSelected().uid((int)idSet[i].getHighVal());
+                    lowVal = session.getSelected().uid((int) idSet[i].getLowVal()); 
+                }
+                GeneralMessageSet messageSet = GeneralMessageSetImpl.uidRange(lowVal, highVal);
                 final Iterator it = mailbox.getMessages(messageSet, resultToFetch);
                 while (it.hasNext()) {
                     final MessageResult result = (MessageResult) it.next();
-                    final FetchResponse response = builder.build(fetch, result, mailbox, useUids);
+                    final FetchResponse response = builder.build(fetch, result, session, useUids);
                     responder.respond(response);
                 }
             }
@@ -111,7 +119,7 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
     }
 
     private int getNeededMessageResult(FetchData fetch) {
-        int result = MessageResult.MSN;
+        int result = MessageResult.MINIMAL;
         if (fetch.isFlags() || fetch.isSetSeen()) {
             result |= MessageResult.FLAGS;
         }
@@ -120,9 +128,6 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
         }
         if (fetch.isSize()) {
             result |= MessageResult.SIZE;
-        }
-        if (fetch.isUid()) {
-            result |= MessageResult.UID;
         }
         if (fetch.isEnvelope() || fetch.isBody() || fetch.isBodyStructure()) {
             // TODO: structure
@@ -198,10 +203,10 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
         }
 
         public FetchResponse build(FetchData fetch, MessageResult result,
-                ImapMailboxSession mailbox, boolean useUids)
+                ImapSession session, boolean useUids)
                 throws MailboxException, ProtocolException {
-            
-            setMsn(result);
+            ImapMailbox mailbox = ImapSessionUtils.getMailbox(session);
+            setMsn(session.getSelected().msn(result.getUid()));
             
             // Check if this fetch will cause the "SEEN" flag to be set on this
             // message
@@ -212,7 +217,7 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
                 if (fetch.isSetSeen()
                         && !result.getFlags().contains(Flags.Flag.SEEN)) {
                     mailbox.setFlags(new Flags(Flags.Flag.SEEN), true, false,
-                            GeneralMessageSetImpl.oneUid(result.getUid()), MessageResult.NOTHING);
+                            GeneralMessageSetImpl.oneUid(result.getUid()), MessageResult.MINIMAL);
                     result.getFlags().add(Flags.Flag.SEEN);
                     ensureFlagsResponse = true;
                 }
@@ -296,8 +301,7 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
             this.internalDate = internalDate;
         }
 
-        private void setMsn(MessageResult result) {
-            final int msn = result.getMsn();
+        private void setMsn(int msn) {
             reset(msn);
         }
 
