@@ -35,7 +35,7 @@ public abstract class AbstractMailboxRowTestCase extends AbstractTorqueTestCase 
     public void setUp() throws Exception {
         super.setUp();
         assertEquals(0,MailboxRowPeer.doSelect(new Criteria()).size());
-        mm=TorqueMailboxManagerProviderSingleton.getTorqueMailboxManagerProviderInstance().getMailboxManagerInstance();
+        mm=TorqueMailboxManagerProviderSingleton.getTorqueMailboxManagerProviderInstance().getMailboxManager();
     }
     public void tearDown() {
         

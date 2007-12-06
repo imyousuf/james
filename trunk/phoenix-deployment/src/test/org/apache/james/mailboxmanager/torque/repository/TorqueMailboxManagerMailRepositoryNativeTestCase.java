@@ -134,7 +134,7 @@ public class TorqueMailboxManagerMailRepositoryNativeTestCase extends
             try {
                 MailboxManager mailboxManager= TorqueMailboxManagerProviderSingleton
                 .getTorqueMailboxManagerProviderInstance()
-                .getMailboxManagerInstance();
+                .getMailboxManager();
                 if (!mailboxManager.existsMailbox(TUSER_INBOX)) {
                     mailboxManager.createMailbox(TUSER_INBOX);
                 }

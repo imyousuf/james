@@ -34,7 +34,7 @@ public class TorqueImapMailboxSelfTestCase extends
     public void setUp() throws Exception {
         TorqueMailboxManagerProviderSingleton.reset();
         MailboxManagerProvider mailboxManagerProvider=TorqueMailboxManagerProviderSingleton.getTorqueMailboxManagerProviderInstance();
-        mailboxManager = mailboxManagerProvider.getMailboxManagerInstance();
+        mailboxManager = mailboxManagerProvider.getMailboxManager();
         
         super.setUp();
     }
