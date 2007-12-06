@@ -68,8 +68,7 @@ public interface GeneralMailbox extends Mailbox, EventTriggerMailbox {
 
     Iterator getMessages(GeneralMessageSet set, int result) throws MailboxManagerException;
     
-    void remove(GeneralMessageSet set)
-            throws MailboxManagerException;
+    void remove(GeneralMessageSet set) throws MailboxManagerException;
 
 
 }
