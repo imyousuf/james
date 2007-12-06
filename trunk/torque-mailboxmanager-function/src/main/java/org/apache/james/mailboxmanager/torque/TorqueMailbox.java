@@ -258,10 +258,6 @@ public class TorqueMailbox extends AbstractGeneralMailbox implements ImapMailbox
         
     }
 
-    public MessageResult updateMessage(GeneralMessageSet messageSet, MimeMessage message, int result) {
-        throw new RuntimeException("not yet implemented");
-    }
-
     private Criteria criteriaForMessageSet(GeneralMessageSet set)
             throws MailboxManagerException {
         Criteria criteria = new Criteria();

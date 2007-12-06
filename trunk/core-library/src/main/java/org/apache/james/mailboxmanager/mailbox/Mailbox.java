@@ -46,16 +46,6 @@ public interface Mailbox {
 
     MimeMessage retrieve(String key) throws MailboxManagerException;
 
-    /**
-     * key changes by updating
-     * 
-     * @param key
-     *            the current key
-     * @return the new key
-     */
-    String update(String key, MimeMessage message)
-            throws MailboxManagerException;
-
     void remove(String key) throws MailboxManagerException;
 
     boolean isWriteable();
