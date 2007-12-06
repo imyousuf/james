@@ -196,7 +196,7 @@ public class TorqueMailboxManager implements MailboxManager {
     }
 
     public void copyMessages(GeneralMailbox from, GeneralMessageSet set, String to) throws MailboxManagerException {
-        GeneralMailbox toMailbox=(GeneralMailbox)getGeneralMailbox(to);
+        GeneralMailbox toMailbox= getImapMailbox(to);
         
         Iterator it = from.getMessages(set, MessageResult.MIME_MESSAGE | MessageResult.INTERNAL_DATE);
         while (it.hasNext()) {
