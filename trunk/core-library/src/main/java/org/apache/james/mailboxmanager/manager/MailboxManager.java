@@ -77,15 +77,6 @@ public interface MailboxManager {
             throws MailboxManagerException;
     
     /**
-     * Supports 
-     * 
-     * @param mailboxName
-     * @throws MailboxManagerException
-     */
-    
-    GeneralMailbox getGeneralMailbox(String mailboxName) throws MailboxManagerException;
-    
-    /**
      * Gets an session suitable for IMAP.
      * @param mailboxName the name of the mailbox, not null
      * @return <code>ImapMailboxSession</code>, not null
