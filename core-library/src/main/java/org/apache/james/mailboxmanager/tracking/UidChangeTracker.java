@@ -35,10 +35,9 @@ import org.apache.james.mailboxmanager.Constants;
 import org.apache.james.mailboxmanager.MailboxListener;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
-import org.apache.james.mailboxmanager.MessageResultUtils;
 import org.apache.james.mailboxmanager.impl.MailboxEventDispatcher;
 import org.apache.james.mailboxmanager.impl.MessageFlags;
-import org.apache.james.mailboxmanager.mailbox.GeneralMailbox;
+import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 
 public class UidChangeTracker implements Constants {
     
@@ -137,7 +136,7 @@ public class UidChangeTracker implements Constants {
                 if (expectedSet.contains(uidLong)) {
                     expectedSet.remove(uidLong);
                     updatedFlags(uid, flags, uidLong, 
-                            GeneralMailbox.ANONYMOUS_SESSION);
+                            ImapMailbox.ANONYMOUS_SESSION);
                 } else {
                     cache.put(uidLong, flags);
                     if (uid > lastUidAtStart) {

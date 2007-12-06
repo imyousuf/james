@@ -31,7 +31,7 @@ import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.util.AbstractLogFactoryAware;
 
-public abstract class AbstractGeneralMailbox extends AbstractLogFactoryAware implements GeneralMailbox {
+public abstract class AbstractImapMailbox extends AbstractLogFactoryAware implements ImapMailbox {
     
     public Collection list() throws MailboxManagerException {
         final Iterator it = getMessages(GeneralMessageSetImpl.all(), MessageResult.KEY);

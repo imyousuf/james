@@ -80,7 +80,7 @@ class CopyCommand extends SelectedStateCommand implements UidEnabledCommand
                 }
                 GeneralMessageSet messageSet
                     = GeneralMessageSetImpl.uidRange(lowVal,highVal);
-                session.getMailboxManager().copyMessages(currentMailbox,messageSet,mailboxName);
+                session.getMailboxManager().copyMessages(messageSet,currentMailbox.getName(), mailboxName);
             }
         } catch (MailboxManagerException e) {
             throw new MailboxException(e);

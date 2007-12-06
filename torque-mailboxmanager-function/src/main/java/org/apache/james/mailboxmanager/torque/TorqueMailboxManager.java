@@ -37,14 +37,12 @@ import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxNotFoundException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.ListResultImpl;
-import org.apache.james.mailboxmanager.mailbox.GeneralMailbox;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.mailboxmanager.manager.MailboxExpression;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.torque.om.MailboxRow;
 import org.apache.james.mailboxmanager.torque.om.MailboxRowPeer;
-import org.apache.james.services.User;
 import org.apache.torque.TorqueException;
 import org.apache.torque.util.CountHelper;
 import org.apache.torque.util.Criteria;
@@ -176,10 +174,10 @@ public class TorqueMailboxManager implements MailboxManager {
 
     }
 
-    public void copyMessages(GeneralMailbox from, GeneralMessageSet set, String to) throws MailboxManagerException {
-        GeneralMailbox toMailbox= getImapMailbox(to, false);
-        
-        Iterator it = from.getMessages(set, MessageResult.MIME_MESSAGE | MessageResult.INTERNAL_DATE);
+    public void copyMessages(GeneralMessageSet set, String from, String to) throws MailboxManagerException {
+        ImapMailbox toMailbox= getImapMailbox(to, false);
+        ImapMailbox fromMailbox = getImapMailbox(from, false);
+        Iterator it = fromMailbox.getMessages(set, MessageResult.MIME_MESSAGE | MessageResult.INTERNAL_DATE);
         while (it.hasNext()) {
             final MessageResult result = (MessageResult) it.next();
             final MimeMessage mimeMessage = result.getMimeMessage();
