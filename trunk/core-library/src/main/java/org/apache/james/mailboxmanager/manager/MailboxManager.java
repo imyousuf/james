@@ -66,24 +66,18 @@ public interface MailboxManager {
     public static final char HIERARCHY_DELIMITER='.';
     
     public static final String USER_NAMESPACE="#mail";
-
-    /**
-     * get a session mailbox 
-     * 
-     * @param mailboxName
-     * @throws MailboxManagerException 
-     */
-    Mailbox getMailbox(String mailboxName, boolean autoCreate)
-            throws MailboxManagerException;
     
+    public static final String INBOX = "INBOX";
+
     /**
      * Gets an session suitable for IMAP.
      * @param mailboxName the name of the mailbox, not null
+     * @param autocreate create this mailbox if it doesn't exist
      * @return <code>ImapMailboxSession</code>, not null
      * @throws MailboxManagerException when the mailbox cannot be opened
      * @throws MailboxNotFoundException when the given mailbox does not exist
      */
-    ImapMailbox getImapMailbox(String mailboxName) throws MailboxManagerException;
+    ImapMailbox getImapMailbox(String mailboxName, boolean autocreate) throws MailboxManagerException;
 
     void createMailbox(String mailboxName) throws MailboxManagerException;
 
@@ -125,11 +119,5 @@ public interface MailboxManager {
     void setSubscription(String mailboxName, boolean value) throws MailboxManagerException;
 
     boolean existsMailbox(String mailboxName) throws MailboxManagerException;
-
-    void close();
-
-    // TODO maybe move createInbox to provider
-    boolean createInbox(User user) throws MailboxManagerException;
-
 }
 

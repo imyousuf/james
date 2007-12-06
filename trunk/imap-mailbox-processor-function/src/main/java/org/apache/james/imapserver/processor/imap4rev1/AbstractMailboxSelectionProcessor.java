@@ -105,7 +105,7 @@ abstract public class AbstractMailboxSelectionProcessor extends
             boolean readOnly) throws MailboxException, MailboxManagerException {
         final MailboxManager mailboxManager = getMailboxManager(session);
         final ImapMailbox mailbox = mailboxManager
-                .getImapMailbox(mailboxName);
+                .getImapMailbox(mailboxName, false);
         
         final Iterator it = mailbox.getMessages(GeneralMessageSetImpl
                 .all(), MessageResult.MINIMAL);

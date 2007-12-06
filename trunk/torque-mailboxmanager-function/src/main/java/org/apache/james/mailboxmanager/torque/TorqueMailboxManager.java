@@ -70,36 +70,17 @@ public class TorqueMailboxManager implements MailboxManager {
     
     public Mailbox getMailbox(String mailboxName,
             boolean autoCreate) throws MailboxManagerException {
+
+        return getImapMailbox(mailboxName, autoCreate);
+    }
+    
+    
+    public ImapMailbox getImapMailbox(String mailboxName, boolean autoCreate)
+            throws MailboxManagerException {
         if (autoCreate && !existsMailbox(mailboxName)) {
             getLog().info("autocreated mailbox  " + mailboxName);
             createMailbox(mailboxName);
         }
-        return getImapMailbox(mailboxName);
-    }
-    
-
-
-    public GeneralMailbox getGeneralMailbox(String mailboxName)
-    throws MailboxManagerException {
-        return getImapMailbox(mailboxName);
-    }
-    
-    public boolean createInbox(User user) throws MailboxManagerException {
-        // TODO should access getPersonalDefaultNameSpace...
-        String userInbox=USER_NAMESPACE+HIERARCHY_DELIMITER+user.getUserName()+HIERARCHY_DELIMITER+"INBOX";
-        if (!existsMailbox(userInbox)) {
-            createMailbox(userInbox);
-            getLog().info("autocreated Inbox  " + userInbox);
-            return true;    
-        }  else {
-            getLog().debug("Inbox already exists " + userInbox);
-            return false;    
-        }
-    }
-    
-    public ImapMailbox getImapMailbox(String mailboxName)
-            throws MailboxManagerException {
-
         try {
             synchronized (managers) {
                 MailboxRow mailboxRow = MailboxRowPeer
@@ -196,7 +177,7 @@ public class TorqueMailboxManager implements MailboxManager {
     }
 
     public void copyMessages(GeneralMailbox from, GeneralMessageSet set, String to) throws MailboxManagerException {
-        GeneralMailbox toMailbox= getImapMailbox(to);
+        GeneralMailbox toMailbox= getImapMailbox(to, false);
         
         Iterator it = from.getMessages(set, MessageResult.MIME_MESSAGE | MessageResult.INTERNAL_DATE);
         while (it.hasNext()) {
@@ -269,10 +250,6 @@ public class TorqueMailboxManager implements MailboxManager {
         } catch (TorqueException e) {
             throw new MailboxManagerException(e);
         }
-    }
-
-    public void close() {
-        managers.clear();
     }
 
     public void deleteEverything() throws MailboxManagerException {

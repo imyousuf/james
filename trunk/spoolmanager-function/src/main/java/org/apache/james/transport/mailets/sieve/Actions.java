@@ -34,6 +34,7 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
 import org.apache.james.mailboxmanager.mailbox.Mailbox;
+import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 import org.apache.james.services.User;
 import org.apache.james.userrepository.DefaultUser;
@@ -111,7 +112,10 @@ public class Actions
             user=new DefaultUser(recipient.getUser(), null);
             MimeMessage localMessage = createMimeMessage(aMail, recipient);
             
-            Mailbox mailbox=mailboxManagerProvider.getMailbox(user, destinationMailbox, true);
+            final String mailboxName = 
+                mailboxManagerProvider.getPersonalDefaultNamespace(user).getName()
+                    + MailboxManager.HIERARCHY_DELIMITER + destinationMailbox;
+            Mailbox mailbox=mailboxManagerProvider.getMailboxManager().getImapMailbox(mailboxName, true);
             mailbox.store(localMessage);
             delivered = true;
         }

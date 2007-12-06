@@ -138,7 +138,7 @@ public class TorqueMailboxManagerMailRepositoryNativeTestCase extends
                 if (!mailboxManager.existsMailbox(TUSER_INBOX)) {
                     mailboxManager.createMailbox(TUSER_INBOX);
                 }
-                shadowMailbox = mailboxManager.getImapMailbox(TUSER_INBOX);
+                shadowMailbox = mailboxManager.getImapMailbox(TUSER_INBOX, false);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

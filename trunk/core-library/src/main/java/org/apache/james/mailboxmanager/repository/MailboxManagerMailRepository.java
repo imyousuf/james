@@ -336,8 +336,8 @@ public class MailboxManagerMailRepository extends AbstractMailRepository
                 throw new RuntimeException("use<1 !");
             }
             if (mailboxSession == null) {
-                mailboxSession = getMailboxManagerProvider().getMailbox(
-                        null, mailboxName, true);
+                mailboxSession = getMailboxManagerProvider().getMailboxManager()
+                    .getImapMailbox(mailboxName, true);
             }
             return mailboxSession;
         }

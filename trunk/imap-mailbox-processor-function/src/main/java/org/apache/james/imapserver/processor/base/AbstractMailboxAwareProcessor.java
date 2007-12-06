@@ -41,6 +41,10 @@ abstract public class AbstractMailboxAwareProcessor extends AbstractImapRequestP
     
     public String buildFullName(final ImapSession session, String mailboxName) throws MailboxManagerException {
         User user = ImapSessionUtils.getUser(session);
+        return buildFullName(mailboxName, user);
+    }
+
+    private String buildFullName(String mailboxName, User user) {
         if (!mailboxName.startsWith(NAMESPACE_PREFIX)) {
             mailboxName = mailboxManagerProvider.getPersonalDefaultNamespace(user).getName()+HIERARCHY_DELIMITER+mailboxName;
         }
@@ -55,7 +59,7 @@ abstract public class AbstractMailboxAwareProcessor extends AbstractImapRequestP
             // TODO: handle null user
             final User user = ImapSessionUtils.getUser(session);
             result = mailboxManagerProvider.getMailboxManager();
-            result.createInbox(user);
+            result.getImapMailbox(buildFullName(MailboxManager.INBOX, user), true);
             // TODO: reconsider decision not to sunchronise
             // TODO: mailbox creation is ATM an expensive operation
             // TODO: so caching is required

@@ -93,7 +93,7 @@ public class StatusProcessor extends AbstractMailboxAwareProcessor {
 
             final MailboxManager mailboxManager = getMailboxManager(session);
             final ImapMailbox mailbox = mailboxManager
-                    .getImapMailbox(fullMailboxName);
+                    .getImapMailbox(fullMailboxName, false);
 
             if (statusDataItems.isMessages()) {
                 buffer.append(ImapConstants.STATUS_MESSAGES);
