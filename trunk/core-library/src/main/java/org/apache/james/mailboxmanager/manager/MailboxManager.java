@@ -23,7 +23,7 @@ import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.ListResult;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.mailbox.GeneralMailbox;
-import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
+import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.services.User;
 
@@ -92,7 +92,7 @@ public interface MailboxManager {
      * @throws MailboxManagerException when the mailbox cannot be opened
      * @throws MailboxNotFoundException when the given mailbox does not exist
      */
-    ImapMailboxSession getImapMailboxSession(String mailboxName) throws MailboxManagerException;
+    ImapMailbox getImapMailbox(String mailboxName) throws MailboxManagerException;
 
     void createMailbox(String mailboxName) throws MailboxManagerException;
 

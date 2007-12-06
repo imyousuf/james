@@ -27,7 +27,7 @@ import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
-import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
+import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 
 /**
  * Handles processeing for the COPY imap command.
@@ -58,7 +58,7 @@ class CopyCommand extends SelectedStateCommand implements UidEnabledCommand
         String mailboxName = parser.mailbox( request );
         parser.endLine( request );
 
-        ImapMailboxSession currentMailbox = session.getSelected().getMailbox();
+        ImapMailbox currentMailbox = session.getSelected().getMailbox();
         
         
         try {
@@ -69,7 +69,17 @@ class CopyCommand extends SelectedStateCommand implements UidEnabledCommand
                 throw e;
             }
             for (int i = 0; i < idSet.length; i++) {
-                GeneralMessageSet messageSet=GeneralMessageSetImpl.range(idSet[i].getLowVal(),idSet[i].getHighVal(),useUids);
+                final long lowVal;
+                final long highVal;
+                if (useUids) {
+                    lowVal = idSet[i].getLowVal();
+                    highVal = idSet[i].getHighVal();
+                } else {
+                    lowVal = session.getSelected().uid((int) idSet[i].getLowVal());
+                    highVal = session.getSelected().uid((int) idSet[i].getHighVal());
+                }
+                GeneralMessageSet messageSet
+                    = GeneralMessageSetImpl.uidRange(lowVal,highVal);
                 session.getMailboxManager().copyMessages(currentMailbox,messageSet,mailboxName);
             }
         } catch (MailboxManagerException e) {

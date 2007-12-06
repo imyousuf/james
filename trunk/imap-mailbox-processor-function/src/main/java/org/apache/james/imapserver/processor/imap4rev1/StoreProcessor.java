@@ -39,11 +39,11 @@ import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
-import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
+import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 
 public class StoreProcessor extends AbstractImapRequestProcessor {
 
-    private static final int STORE_FETCH_GROUP = MessageResult.FLAGS | MessageResult.MSN | MessageResult.UID;
+    private static final int STORE_FETCH_GROUP = MessageResult.FLAGS;
 
     public StoreProcessor(final ImapProcessor next, final StatusResponseFactory factory) {
         super(next, factory);
@@ -64,7 +64,7 @@ public class StoreProcessor extends AbstractImapRequestProcessor {
         final boolean isSignedPlus = request.isSignedPlus();
         final boolean isSignedMinus = request.isSignedMinus();
         
-        ImapMailboxSession mailbox = ImapSessionUtils.getMailbox(session);
+        ImapMailbox mailbox = ImapSessionUtils.getMailbox(session);
 
         final boolean replace;
         final boolean value;
@@ -80,15 +80,22 @@ public class StoreProcessor extends AbstractImapRequestProcessor {
         }
         try {
             for (int i = 0; i < idSet.length; i++) {
-                final GeneralMessageSet messageSet = GeneralMessageSetImpl
-                        .range(idSet[i].getLowVal(), idSet[i].getHighVal(),
-                                useUids);
+                final long lowVal;
+                final long highVal;
+                if (useUids) {
+                    lowVal = idSet[i].getLowVal();
+                    highVal = idSet[i].getHighVal();
+                } else {
+                    lowVal = session.getSelected().uid((int) idSet[i].getLowVal());
+                    highVal = session.getSelected().uid((int) idSet[i].getHighVal());
+                }
+                final GeneralMessageSet messageSet = GeneralMessageSetImpl.uidRange(lowVal, highVal);
                 final Iterator it = mailbox.setFlags(flags, value, 
                         replace, messageSet, STORE_FETCH_GROUP);
                 if (!silent) {
                     while(it.hasNext()) {
                         final MessageResult result = (MessageResult) it.next();
-                        final int msn = result.getMsn();
+                        final int msn = session.getSelected().msn(result.getUid());
                         final Flags resultFlags = result.getFlags();
                         final Long resultUid;
                         if (useUids) {

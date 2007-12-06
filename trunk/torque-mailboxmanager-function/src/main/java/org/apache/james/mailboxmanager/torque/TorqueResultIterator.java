@@ -95,8 +95,7 @@ public class TorqueResultIterator implements Iterator {
     }
 
     private static final class UnloadedMessageResult implements MessageResult {
-        private static final int results = MessageResult.INTERNAL_DATE | MessageResult.SIZE
-                | MessageResult.UID;
+        private static final int results = MessageResult.INTERNAL_DATE | MessageResult.SIZE;
         
         private final MailboxManagerException exception;
         private final Date internalDate;

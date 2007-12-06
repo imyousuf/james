@@ -35,9 +35,9 @@ import org.apache.james.mailboxmanager.torque.om.MailboxRow;
 import org.apache.james.mailboxmanager.torque.om.MailboxRowPeer;
 import org.apache.james.mailboxmanager.torque.om.MessageRow;
 import org.apache.james.mailboxmanager.torque.om.MessageRowPeer;
-import org.apache.james.mailboxmanager.tracking.UidChangeTracker;
 import org.apache.torque.TorqueException;
 import org.apache.torque.util.Criteria;
+
 import EDU.oswego.cs.dl.util.concurrent.WriterPreferenceReadWriteLock;
 
 public class TorqueMailboxTestCase extends AbstractTorqueTestCase {
@@ -87,8 +87,8 @@ public class TorqueMailboxTestCase extends AbstractTorqueTestCase {
         
         Flags f=new Flags();
         f.add(Flags.Flag.DELETED);
-        torqueMailbox.setFlags(f,true,false, GeneralMessageSetImpl.oneUid(1l), MessageResult.NOTHING);
-        List messageResults=IteratorUtils.toList(torqueMailbox.expunge(GeneralMessageSetImpl.all(),MessageResult.UID));
+        torqueMailbox.setFlags(f,true,false, GeneralMessageSetImpl.oneUid(1l), MessageResult.MINIMAL);
+        List messageResults=IteratorUtils.toList(torqueMailbox.expunge(GeneralMessageSetImpl.all(),MessageResult.MINIMAL));
         assertEquals(1,messageResults.size());
         assertEquals(1l,((MessageResult)messageResults.get(0)).getUid());
     }

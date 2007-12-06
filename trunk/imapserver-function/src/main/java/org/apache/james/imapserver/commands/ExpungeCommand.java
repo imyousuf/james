@@ -27,7 +27,7 @@ import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
-import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
+import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 
 /**
  * Handles processeing for the EXPUNGE imap command.
@@ -47,13 +47,13 @@ class ExpungeCommand extends SelectedStateCommand
     {
         parser.endLine( request );
 
-        ImapMailboxSession mailbox = session.getSelected().getMailbox();
+        ImapMailbox mailbox = session.getSelected().getMailbox();
         if (!mailbox.isWriteable()) {
             response.commandFailed( this, "Mailbox selected read only." );
         }
        
         try {
-            mailbox.expunge(GeneralMessageSetImpl.all(),MessageResult.NOTHING);
+            mailbox.expunge(GeneralMessageSetImpl.all(),MessageResult.MINIMAL);
         } catch (MailboxManagerException e) {
             throw new MailboxException(e);
         }

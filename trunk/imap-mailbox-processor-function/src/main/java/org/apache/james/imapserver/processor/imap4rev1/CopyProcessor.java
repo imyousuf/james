@@ -38,7 +38,7 @@ import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
-import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
+import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 
@@ -77,7 +77,7 @@ public class CopyProcessor extends AbstractMailboxAwareProcessor {
             boolean useUids, ImapSession session, String tag,
             ImapCommand command) throws MailboxException,
             AuthorizationException, ProtocolException {
-        ImapMailboxSession currentMailbox = ImapSessionUtils
+        ImapMailbox currentMailbox = ImapSessionUtils
                 .getMailbox(session);
         try {
             String fullMailboxName = buildFullName(session, mailboxName);
@@ -89,8 +89,16 @@ public class CopyProcessor extends AbstractMailboxAwareProcessor {
                 throw e;
             }
             for (int i = 0; i < idSet.length; i++) {
-                GeneralMessageSet messageSet = GeneralMessageSetImpl.range(
-                        idSet[i].getLowVal(), idSet[i].getHighVal(), useUids);
+                final long highVal;
+                final long lowVal;
+                if (useUids) {
+                    highVal = idSet[i].getHighVal();
+                    lowVal = idSet[i].getLowVal();
+                } else {
+                    highVal = session.getSelected().uid((int)idSet[i].getHighVal());
+                    lowVal = session.getSelected().uid((int)idSet[i].getLowVal());
+                }
+                GeneralMessageSet messageSet = GeneralMessageSetImpl.uidRange(lowVal, highVal);
                 mailboxManager.copyMessages(currentMailbox, messageSet,
                         fullMailboxName);
             }

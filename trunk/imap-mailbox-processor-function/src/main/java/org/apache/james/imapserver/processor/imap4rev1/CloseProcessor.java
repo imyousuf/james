@@ -34,7 +34,7 @@ import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
-import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
+import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 
 public class CloseProcessor extends AbstractImapRequestProcessor {
 
@@ -49,11 +49,11 @@ public class CloseProcessor extends AbstractImapRequestProcessor {
     protected void doProcess(ImapRequest message,
             ImapSession session, String tag, ImapCommand command, Responder responder)
             throws MailboxException, AuthorizationException, ProtocolException {
-        ImapMailboxSession mailbox = ImapSessionUtils.getMailbox(session);
+        ImapMailbox mailbox = ImapSessionUtils.getMailbox(session);
         if (mailbox.isWriteable()) {
             try {
                 mailbox.expunge(GeneralMessageSetImpl.all(),
-                        MessageResult.NOTHING);
+                        MessageResult.MINIMAL);
             } catch (MailboxManagerException e) {
                 throw new MailboxException(e);
             }

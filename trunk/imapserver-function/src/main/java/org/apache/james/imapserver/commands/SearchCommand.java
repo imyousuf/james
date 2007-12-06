@@ -25,6 +25,7 @@ import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
+import org.apache.james.imapserver.SelectedMailboxSession;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
@@ -32,7 +33,7 @@ import org.apache.james.mailboxmanager.SearchParameters;
 import org.apache.james.mailboxmanager.SearchParameters.NumericRange;
 import org.apache.james.mailboxmanager.SearchParameters.SearchCriteria;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
-import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
+import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 
 /**
  * Handles processeing for the SEARCH imap command.
@@ -65,13 +66,9 @@ class SearchCommand extends SelectedStateCommand implements UidEnabledCommand
         SearchParameters searchTerm = parser.searchTerm( request );
         parser.endLine( request );
 
-        ImapMailboxSession mailbox = session.getSelected().getMailbox();
-        final int result;
-        if (useUids) {
-            result= MessageResult.UID;
-        } else {
-            result= MessageResult.MSN;
-        }
+        final SelectedMailboxSession selected = session.getSelected();
+        ImapMailbox mailbox = selected.getMailbox();
+        final int result = MessageResult.MINIMAL;
         final Iterator it;
         try {
             it = mailbox.search(GeneralMessageSetImpl.all(),searchTerm, result);
@@ -87,11 +84,11 @@ class SearchCommand extends SelectedStateCommand implements UidEnabledCommand
                 idList.append( SP );
             }
             final MessageResult message = (MessageResult) it.next();
+            final long uid = message.getUid();
             if ( useUids ) {
-                final long uid = message.getUid();
                 idList.append( uid );
             } else {
-                final int msn = message.getMsn();
+                final int msn = selected.msn(uid);
                 idList.append( msn );
             }
         }

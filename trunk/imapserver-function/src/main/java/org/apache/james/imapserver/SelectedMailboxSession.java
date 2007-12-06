@@ -20,6 +20,7 @@
 package org.apache.james.imapserver;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -29,26 +30,29 @@ import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
-import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
+import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
+import org.apache.james.mailboxmanager.tracking.UidToMsnConverter;
 import org.apache.james.mailboxmanager.util.MailboxEventAnalyser;
 
 //TODO: manage mailbox deletion
 public class SelectedMailboxSession extends AbstractLogEnabled {
     
-    private ImapMailboxSession mailbox;
-    
     private final MailboxEventAnalyser events;
 
-    public SelectedMailboxSession(ImapMailboxSession mailbox) throws MailboxManagerException {
+    private final ImapMailbox mailbox;
+    private final UidToMsnConverter converter;    
+    
+    public SelectedMailboxSession(ImapMailbox mailbox, Collection uids) throws MailboxManagerException {
         this.mailbox = mailbox;
+        converter = new UidToMsnConverter(mailbox.getSessionId(), uids);
         final long sessionId = mailbox.getSessionId();
         events = new MailboxEventAnalyser(sessionId);
         mailbox.addListener(events);
+        mailbox.addListener(converter);
     }
 
     public void deselect() {
         mailbox.removeListener(events);
-        mailbox = null;
     }
 
     public boolean isSizeChanged() {
@@ -64,7 +68,7 @@ public class SelectedMailboxSession extends AbstractLogEnabled {
         for (final Iterator it = events.flagUpdateUids(); it.hasNext();) {
             Long uid = (Long) it.next();
             GeneralMessageSet messageSet = GeneralMessageSetImpl.oneUid(uid.longValue());
-            final Iterator messages = mailbox.getMessages(messageSet, MessageResult.FLAGS | MessageResult.MSN);
+            final Iterator messages = mailbox.getMessages(messageSet, MessageResult.FLAGS);
             results.addAll(IteratorUtils.toList(messages));
         }
         return results.iterator();
@@ -72,14 +76,26 @@ public class SelectedMailboxSession extends AbstractLogEnabled {
     
     public void close() throws MailboxManagerException  {
         mailbox.removeListener(events);
-        mailbox=null;
+        mailbox.removeListener(converter);
     }
 
-    public ImapMailboxSession getMailbox() {
+    public ImapMailbox getMailbox() {
         return mailbox;
     }
 
     public void setSilent(boolean silent) {
         events.setSilentFlagChanges(silent);
+    }
+
+    public Iterator getExpungedEvents(boolean reset) throws MailboxManagerException {
+        return converter.getExpungedEvents(reset);
+    }
+    
+    public int msn(long uid) {
+        return converter.getMsn(uid);
+    }
+
+    public long uid(int msn) {
+        return converter.getUid(msn);
     }
 }

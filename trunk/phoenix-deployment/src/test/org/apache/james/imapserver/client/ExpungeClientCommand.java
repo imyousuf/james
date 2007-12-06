@@ -34,14 +34,11 @@ public class ExpungeClientCommand extends AbstractCommand {
     List expungedMsns = new ArrayList();
 
     public ExpungeClientCommand(MimeMessage[] msgs) throws MessagingException {
-        int msnOffset = 0;
-
         command = "EXPUNGE";
         statusResponse = "OK EXPUNGE completed.";
         for (int i = 0; i < msgs.length; i++) {
             if (msgs[i].getFlags().contains(Flags.Flag.DELETED)) {
-                expungedMsns.add(new Integer(i + msnOffset + 1));
-                msnOffset--;
+                expungedMsns.add(new Integer(i + 1));
             }
         }
     }

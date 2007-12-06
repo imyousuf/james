@@ -251,13 +251,11 @@ public class MessageRowUtils {
     public static MessageResult loadMessageResult(MessageRow messageRow, int result, UidToKeyConverter uidToKeyConverter)
             throws TorqueException, MailboxManagerException {
         MessageResultImpl messageResult = new MessageResultImpl();
+        messageResult.setUid(messageRow.getUid());
+        
         if ((result & MessageResult.MIME_MESSAGE) > 0) {
             messageResult.setMimeMessage(TorqueMimeMessage.createMessage(messageRow));
             result -= MessageResult.MIME_MESSAGE;
-        }
-        if ((result & MessageResult.UID) > 0) {
-            messageResult.setUid(messageRow.getUid());
-            result -= MessageResult.UID;
         }
         if ((result & MessageResult.FLAGS) > 0) {
             org.apache.james.mailboxmanager.torque.om.MessageFlags messageFlags
@@ -290,10 +288,6 @@ public class MessageRowUtils {
         if ((result & MessageResult.FULL_CONTENT) > 0) {
             messageResult.setFullMessage(createFullContent(messageRow, messageResult.getHeaders()));
             result -= MessageResult.FULL_CONTENT;
-        }
-        if ((result & MessageResult.MSN) > 0) {
-            // ATM implemented by wrappers
-            result -= MessageResult.MSN;
         }
         if (result != 0) {
             throw new RuntimeException("Unsupported result: " + result);

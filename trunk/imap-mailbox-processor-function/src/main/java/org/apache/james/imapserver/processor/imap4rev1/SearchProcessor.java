@@ -42,7 +42,7 @@ import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.SearchParameters;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
-import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
+import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 
 public class SearchProcessor extends AbstractImapRequestProcessor {
 
@@ -67,14 +67,9 @@ public class SearchProcessor extends AbstractImapRequestProcessor {
             final boolean useUids, final ImapSession session, final String tag,
             final ImapCommand command, final Responder responder) throws MailboxException,
             AuthorizationException, ProtocolException {
-        ImapMailboxSession mailbox = ImapSessionUtils.getMailbox(session);
-        final int resultCode;
-        if (useUids) {
-            resultCode = MessageResult.UID;
-        } else {
-            resultCode = MessageResult.MSN;
-        }
-        
+        ImapMailbox mailbox = ImapSessionUtils.getMailbox(session);
+        final int resultCode = MessageResult.MINIMAL;
+
         final Iterator it;
         try {
             // TODO: implementation
@@ -91,7 +86,8 @@ public class SearchProcessor extends AbstractImapRequestProcessor {
             if (useUids) {
                 number = new Long(result.getUid());
             } else {
-                number = new Long(result.getMsn());
+                final int msn = session.getSelected().msn(result.getUid());
+                number = new Long(msn);
             }
             results.add(number);
         }

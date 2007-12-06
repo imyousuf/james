@@ -19,14 +19,20 @@
 
 package org.apache.james.imapserver.commands;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
+import org.apache.james.imapserver.SelectedMailboxSession;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
-import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
+import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
+import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 
 /**
  * Handles processeing for the SELECT imap command.
@@ -54,20 +60,22 @@ class SelectCommand extends AuthenticatedStateCommand
         try {
             mailboxName=session.buildFullName(mailboxName);
             selectMailbox(mailboxName, session, isExamine);
-            ImapMailboxSession mailbox = session.getSelected().getMailbox();
+            final SelectedMailboxSession selected = session.getSelected();
+            ImapMailbox mailbox = selected.getMailbox();
             response.flagsResponse(mailbox.getPermanentFlags());
             final boolean resetRecent = !isExamine;
             response.recentResponse(mailbox.getRecentCount(resetRecent));
             response
                     .okResponse("UIDVALIDITY " + mailbox.getUidValidity(), null);
 
-            MessageResult firstUnseen = mailbox.getFirstUnseen(MessageResult.MSN);
+            MessageResult firstUnseen = mailbox.getFirstUnseen(MessageResult.MINIMAL);
                    
             response.existsResponse(mailbox.getMessageCount());
 
             if (firstUnseen != null) {
-                response.okResponse("UNSEEN " + firstUnseen.getMsn(), "Message "
-                        + firstUnseen.getMsn() + " is the first unseen");
+                final int msn = selected.msn(firstUnseen.getUid());
+                response.okResponse("UNSEEN " + msn, "Message "
+                        + msn + " is the first unseen");
             } else {
                 response.okResponse(null, "No messages unseen");
             }
@@ -84,9 +92,15 @@ class SelectCommand extends AuthenticatedStateCommand
     }
 
     private boolean selectMailbox(String mailboxName, ImapSession session, boolean readOnly) throws MailboxException, MailboxManagerException {
-        ImapMailboxSession mailbox = session.getMailboxManager().getImapMailboxSession(mailboxName);
-
-        session.setSelected( mailbox, readOnly );
+        ImapMailbox mailbox = session.getMailboxManager().getImapMailbox(mailboxName);
+        final Iterator it = mailbox.getMessages(GeneralMessageSetImpl
+                .all(), MessageResult.MINIMAL);
+        final List uids = new ArrayList();
+        while(it.hasNext()) {
+            final MessageResult result = (MessageResult) it.next();
+            uids.add(new Long(result.getUid()));
+        }
+        session.setSelected( mailbox, readOnly, uids );
         return readOnly;
     }
 

@@ -31,7 +31,7 @@ import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
-import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
+import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 
 /**
  * Handles processeing for the STORE imap command.
@@ -70,7 +70,7 @@ class StoreCommand extends SelectedStateCommand implements UidEnabledCommand
             if (directive.isSilent()) {
                 selected.setSilent(true);
             }
-            ImapMailboxSession mailbox = selected.getMailbox();
+            ImapMailbox mailbox = selected.getMailbox();
 
             final boolean replace;
             final boolean value;
@@ -88,11 +88,19 @@ class StoreCommand extends SelectedStateCommand implements UidEnabledCommand
             }
             try {
                 for (int i = 0; i < idSet.length; i++) {
+                    final long lowVal;
+                    final long highVal;
+                    if (useUids) {
+                        lowVal = idSet[i].getLowVal();
+                        highVal = idSet[i].getHighVal();
+                    } else {
+                        lowVal = selected.uid((int) idSet[i].getLowVal());
+                        highVal = selected.uid((int) idSet[i].getHighVal());
+                    }
                     final GeneralMessageSet messageSet = GeneralMessageSetImpl
-                    .range(idSet[i].getLowVal(), idSet[i].getHighVal(),
-                            useUids);
+                    .uidRange(lowVal, highVal);
 
-                    mailbox.setFlags(flags, value, replace, messageSet, MessageResult.NOTHING);
+                    mailbox.setFlags(flags, value, replace, messageSet, MessageResult.MINIMAL);
                 }
             } catch (MailboxManagerException e) {
                 throw new MailboxException(e);

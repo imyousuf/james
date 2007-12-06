@@ -54,7 +54,7 @@ import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.GeneralMailbox;
-import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
+import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 import org.apache.james.mailboxmanager.manager.MailboxExpression;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.test.mock.avalon.MockLogger;
@@ -94,38 +94,38 @@ public abstract class AbstractSessionTest extends MockObjectTestCase implements 
     }
     
     public void appendMessagesClosed(String folder,MimeMessage[] msgs) throws MailboxManagerException, MessagingException {
-        GeneralMailbox mailbox=getImapMailboxSession(folder);
+        GeneralMailbox mailbox=getImapMailbox(folder);
         for (int i = 0; i < msgs.length; i++) {
             msgs[i].setFlags(new Flags(Flags.Flag.RECENT), true);
-            mailbox.appendMessage(msgs[i],new Date(),MessageResult.NOTHING);
+            mailbox.appendMessage(msgs[i],new Date(),MessageResult.MINIMAL);
             
         }
     }
 
     public long[] addUIDMessagesOpen(String folder,MimeMessage[] msgs) throws MailboxManagerException, MessagingException {
-        GeneralMailbox mailbox=getImapMailboxSession(folder);
+        GeneralMailbox mailbox=getImapMailbox(folder);
         long[] uids=new long[msgs.length];
         for (int i = 0; i < msgs.length; i++) {
             msgs[i].setFlags(new Flags(Flags.Flag.RECENT), false);
-            uids[i]=mailbox.appendMessage(msgs[i],new Date(),MessageResult.UID).getUid();
+            uids[i]=mailbox.appendMessage(msgs[i],new Date(),MessageResult.MINIMAL).getUid();
         }
         return uids;
     }
     public long getUidValidity(String folder) throws MailboxManagerException {
-        ImapMailboxSession mailbox=getImapMailboxSession(folder);
+        ImapMailbox mailbox=getImapMailbox(folder);
         long uidv=mailbox.getUidValidity();
         return uidv;
     }
     
     
     public long getUidNext(String folder) throws MailboxManagerException {
-        ImapMailboxSession mailbox=getImapMailboxSession(folder);
+        ImapMailbox mailbox=getImapMailbox(folder);
         long uidNext=mailbox.getUidNext();
         return uidNext;
     }
     
     public MimeMessage[] getMessages(String folder) throws MailboxManagerException {
-        GeneralMailbox mailbox=getImapMailboxSession(folder);
+        GeneralMailbox mailbox=getImapMailbox(folder);
         Iterator iterator =mailbox.getMessages(GeneralMessageSetImpl.all(),MessageResult.MIME_MESSAGE);
         List messages = IteratorUtils.toList(iterator);
         MimeMessage[] mms=new MimeMessage[messages.size()];
@@ -136,8 +136,8 @@ public abstract class AbstractSessionTest extends MockObjectTestCase implements 
     }
     
     public long[] getUids(String folder) throws MailboxManagerException {
-        GeneralMailbox mailbox=getImapMailboxSession(folder);
-        Iterator iterator = mailbox.getMessages(GeneralMessageSetImpl.all(),MessageResult.UID);
+        GeneralMailbox mailbox=getImapMailbox(folder);
+        Iterator iterator = mailbox.getMessages(GeneralMessageSetImpl.all(),MessageResult.MINIMAL);
         List messages = IteratorUtils.toList(iterator);
         long[] uids=new long[messages.size()];
         for (int i = 0; i < messages.size(); i++) {
@@ -182,9 +182,9 @@ public abstract class AbstractSessionTest extends MockObjectTestCase implements 
     }
     
     public void deleteAll(String folder) throws MailboxManagerException {
-        ImapMailboxSession mailbox=getImapMailboxSession(folder);
-        mailbox.setFlags(new Flags(Flag.DELETED),true,false,GeneralMessageSetImpl.all(), MessageResult.NOTHING);
-        mailbox.expunge(GeneralMessageSetImpl.all(),MessageResult.NOTHING);
+        ImapMailbox mailbox=getImapMailbox(folder);
+        mailbox.setFlags(new Flags(Flag.DELETED),true,false,GeneralMessageSetImpl.all(), MessageResult.MINIMAL);
+        mailbox.expunge(GeneralMessageSetImpl.all(),MessageResult.MINIMAL);
     }
     public BufferedReader handleRequestReader(String s) throws ProtocolException
     {
@@ -267,13 +267,13 @@ public abstract class AbstractSessionTest extends MockObjectTestCase implements 
     }
     
     public void setFlags(String mailboxName,long fromUid,long toUid,Flags flags, boolean value, boolean replace) throws MailboxManagerException {
-        ImapMailboxSession mailbox=getImapMailboxSession(mailboxName);
-        mailbox.setFlags(flags, value, replace, GeneralMessageSetImpl.uidRange(fromUid, toUid), MessageResult.NOTHING);
+        ImapMailbox mailbox=getImapMailbox(mailboxName);
+        mailbox.setFlags(flags, value, replace, GeneralMessageSetImpl.uidRange(fromUid, toUid), MessageResult.MINIMAL);
     }
-    private ImapMailboxSession getImapMailboxSession(String mailboxName) throws MailboxManagerException {
+    private ImapMailbox getImapMailbox(String mailboxName) throws MailboxManagerException {
         int[] neededSets = new int[] {GeneralMessageSet.TYPE_UID};
-        int neededResults= MessageResult.UID + MessageResult.MIME_MESSAGE + MessageResult.FLAGS;
-        ImapMailboxSession mailboxSession= mailboxManager.getImapMailboxSession(mailboxName);
+        int neededResults= MessageResult.MIME_MESSAGE + MessageResult.FLAGS;
+        ImapMailbox mailboxSession= mailboxManager.getImapMailbox(mailboxName);
         return mailboxSession;
     }
 }

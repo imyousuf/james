@@ -17,17 +17,33 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.mailboxmanager.wrapper;
+package org.apache.james.mailboxmanager.tracking;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedMap;
+import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-public class UidToMsnBidiMap {
+import javax.mail.Flags;
 
+import org.apache.james.mailboxmanager.MailboxListener;
+import org.apache.james.mailboxmanager.MailboxManagerException;
+import org.apache.james.mailboxmanager.impl.MessageResultImpl;
+
+public class UidToMsnConverter implements MailboxListener {
+    
+    private final long sessionId;
+    
+    protected Map flagEventMap = new TreeMap();
+
+    protected SortedSet expungedEventList = new TreeSet();
+    
     protected SortedMap msnToUid;
 
     protected SortedMap uidToMsn;
@@ -36,9 +52,23 @@ public class UidToMsnBidiMap {
     
     protected int highestMsn = 0;
 
-    public UidToMsnBidiMap() {
+    public UidToMsnConverter(final long sessionId, final Collection uids) {
         msnToUid = new TreeMap();
         uidToMsn = new TreeMap();
+        this.sessionId = sessionId;
+        if (uids != null) {
+            int msn = 1;
+            List uidsInOrder = new ArrayList(uids);
+            Collections.sort(uidsInOrder);
+            for (final Iterator it=uidsInOrder.iterator();it.hasNext();msn++) {
+                final Long uid = (Long) it.next();
+                highestUid = uid.longValue();
+                highestMsn = msn;
+                final Integer msnInteger = new Integer(msn);
+                msnToUid.put(msnInteger, uid);
+                uidToMsn.put(uid, msnInteger);
+            }
+        }
     }
 
     public synchronized long getUid(int msn) {
@@ -71,8 +101,10 @@ public class UidToMsnBidiMap {
         if (uid > highestUid) {
             highestUid = uid;
         }
-        msnToUid.put(new Integer(msn), new Long(uid));
-        uidToMsn.put(new Long(uid), new Integer(msn));
+        final Integer msnInteger = new Integer(msn);
+        final Long uidLong = new Long(uid);
+        msnToUid.put(msnInteger, uidLong);
+        uidToMsn.put(uidLong, msnInteger);
     }
 
     
@@ -139,4 +171,53 @@ public class UidToMsnBidiMap {
         return uidToMsn.size();
     }
 
+    /**
+     * @see org.apache.james.mailboxmanager.MailboxListener#event(org.apache.james.mailboxmanager.MailboxListener.Event)
+     */
+    public void event(Event event) {
+        if (event instanceof MessageEvent) {
+            final long sessionId = event.getSessionId();
+            final MessageEvent messageEvent = (MessageEvent) event;
+            final long uid = messageEvent.getSubjectUid();
+            if (event instanceof Added) {
+                add(uid);
+            } else if (event instanceof Expunged) {
+                expunged(uid);
+            } else if (event instanceof FlagsUpdated) {
+                final FlagsUpdated flagsUpdated = (FlagsUpdated) event;
+                flagsUpdated(flagsUpdated.getSubjectUid(), flagsUpdated.getNewFlags(), 
+                        sessionId);
+            }
+        }
+    }
+    
+
+    public void expunged(final long uid) {
+        final int msn = getMsn(uid);
+        if (msn >= 0) {
+            expungedEventList.add(new Integer(msn));
+        }
+    }
+
+    public synchronized void flagsUpdated(final long uid, final Flags flags, long sessionId) {
+        final Long uidObject = new Long(uid);
+        if (sessionId != this.sessionId && !flagEventMap.containsKey(uidObject)) {
+            // if there has been an external update in the past we should inform
+            // about the newest value, even if in silent mode
+            
+            // only store flags
+            final MessageResultImpl lightweightResult = new MessageResultImpl(uid);
+            lightweightResult.setFlags(flags);
+            flagEventMap.put(uidObject, lightweightResult);
+        }
+    }
+    
+    public synchronized Iterator getExpungedEvents(boolean reset)
+            throws MailboxManagerException {
+        final Collection msnExpungedEvents  = expungedEventList;
+        if (reset) {
+            expungedEventList = new TreeSet();
+        } 
+        return msnExpungedEvents.iterator();
+    }
 }

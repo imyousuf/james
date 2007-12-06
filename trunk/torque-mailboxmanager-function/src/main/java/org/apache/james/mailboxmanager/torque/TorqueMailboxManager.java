@@ -39,13 +39,11 @@ import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.ListResultImpl;
 import org.apache.james.mailboxmanager.mailbox.GeneralMailbox;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
-import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
 import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.mailboxmanager.manager.MailboxExpression;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.torque.om.MailboxRow;
 import org.apache.james.mailboxmanager.torque.om.MailboxRowPeer;
-import org.apache.james.mailboxmanager.wrapper.ImapMailboxWrapper;
 import org.apache.james.services.User;
 import org.apache.torque.TorqueException;
 import org.apache.torque.util.CountHelper;
@@ -76,14 +74,14 @@ public class TorqueMailboxManager implements MailboxManager {
             getLog().info("autocreated mailbox  " + mailboxName);
             createMailbox(mailboxName);
         }
-        return getImapMailboxSession(mailboxName);
+        return getImapMailbox(mailboxName);
     }
     
 
 
     public GeneralMailbox getGeneralMailbox(String mailboxName)
     throws MailboxManagerException {
-        return getImapMailboxSession(mailboxName);
+        return getImapMailbox(mailboxName);
     }
     
     public boolean createInbox(User user) throws MailboxManagerException {
@@ -99,7 +97,7 @@ public class TorqueMailboxManager implements MailboxManager {
         }
     }
     
-    public ImapMailboxSession getImapMailboxSession(String mailboxName)
+    public ImapMailbox getImapMailbox(String mailboxName)
             throws MailboxManagerException {
 
         try {
@@ -117,9 +115,7 @@ public class TorqueMailboxManager implements MailboxManager {
                         managers.put(mailboxName, torqueMailbox);
                     }
                     
-                    final ImapMailboxWrapper wrapper 
-                        = new ImapMailboxWrapper(torqueMailbox);
-                    return wrapper;
+                    return torqueMailbox;
                 } else {
                     getLog().info("Mailbox '" + mailboxName + "' not found.");
                     throw new MailboxNotFoundException(mailboxName);
@@ -206,7 +202,7 @@ public class TorqueMailboxManager implements MailboxManager {
         while (it.hasNext()) {
             final MessageResult result = (MessageResult) it.next();
             final MimeMessage mimeMessage = result.getMimeMessage();
-            toMailbox.appendMessage(mimeMessage, result.getInternalDate(), MessageResult.NOTHING);
+            toMailbox.appendMessage(mimeMessage, result.getInternalDate(), MessageResult.MINIMAL);
         }
     }
 

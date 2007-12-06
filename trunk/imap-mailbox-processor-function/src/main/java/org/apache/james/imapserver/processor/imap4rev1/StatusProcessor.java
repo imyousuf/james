@@ -38,7 +38,7 @@ import org.apache.james.imapserver.processor.base.AuthorizationException;
 import org.apache.james.imapserver.processor.base.ImapSessionUtils;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
-import org.apache.james.mailboxmanager.mailbox.ImapMailboxSession;
+import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 
@@ -92,8 +92,8 @@ public class StatusProcessor extends AbstractMailboxAwareProcessor {
             }
 
             final MailboxManager mailboxManager = getMailboxManager(session);
-            final ImapMailboxSession mailbox = mailboxManager
-                    .getImapMailboxSession(fullMailboxName);
+            final ImapMailbox mailbox = mailboxManager
+                    .getImapMailbox(fullMailboxName);
 
             if (statusDataItems.isMessages()) {
                 buffer.append(ImapConstants.STATUS_MESSAGES);
