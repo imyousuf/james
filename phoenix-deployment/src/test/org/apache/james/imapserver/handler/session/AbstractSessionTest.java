@@ -83,7 +83,7 @@ public abstract class AbstractSessionTest extends MockObjectTestCase implements 
         ((LogEnabled)session).enableLogging(new MockLogger());
         handler = new ImapRequestHandler();
         handler.enableLogging(new MockLogger());
-        mailboxManager=theConfigData.getMailboxManagerProvider().getMailboxManagerInstance();
+        mailboxManager=theConfigData.getMailboxManagerProvider().getMailboxManager();
 
     }
     

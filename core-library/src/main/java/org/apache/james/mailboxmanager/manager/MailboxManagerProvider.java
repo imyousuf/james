@@ -27,7 +27,7 @@ import org.apache.james.services.User;
 
 public interface MailboxManagerProvider {
     
-    public MailboxManager getMailboxManagerInstance() throws MailboxManagerException;
+    public MailboxManager getMailboxManager() throws MailboxManagerException;
     
     Mailbox getInbox(User user) throws MailboxManagerException;
 

@@ -50,17 +50,17 @@ public class DefaultMailboxManagerProvider extends AbstractLogEnabled implements
 
 
     public Mailbox getInbox(User user) throws MailboxManagerException {
-        return getMailboxManagerInstance().getMailbox(getInboxName(user),true);
+        return getMailboxManager().getMailbox(getInboxName(user),true);
     }
 
-    public MailboxManager getMailboxManagerInstance()
+    public MailboxManager getMailboxManager()
             throws MailboxManagerException {
         return mailboxManager;
     }
 
     public Mailbox getMailbox(User authUser, String mailboxName,
             boolean autoCreate) throws MailboxManagerException {
-        return getMailboxManagerInstance().getMailbox(
+        return getMailboxManager().getMailbox(
                 mailboxName, autoCreate);
     }
 
