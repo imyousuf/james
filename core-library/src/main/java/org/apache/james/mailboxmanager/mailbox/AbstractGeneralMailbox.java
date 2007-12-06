@@ -65,12 +65,4 @@ public abstract class AbstractGeneralMailbox extends AbstractLogFactoryAware imp
         MessageResult result=appendMessage(message, new Date(), MessageResult.KEY);
         return result.getKey();
     }
-
-    public String update(String key, MimeMessage message) throws MailboxManagerException {
-        MessageResult result=updateMessage(GeneralMessageSetImpl.oneKey(key),message, MessageResult.KEY);
-        return result.getKey();
-    }
-    
-    
-
 }
