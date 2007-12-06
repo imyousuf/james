@@ -92,7 +92,7 @@ class SelectCommand extends AuthenticatedStateCommand
     }
 
     private boolean selectMailbox(String mailboxName, ImapSession session, boolean readOnly) throws MailboxException, MailboxManagerException {
-        ImapMailbox mailbox = session.getMailboxManager().getImapMailbox(mailboxName);
+        ImapMailbox mailbox = session.getMailboxManager().getImapMailbox(mailboxName, false);
         final Iterator it = mailbox.getMessages(GeneralMessageSetImpl
                 .all(), MessageResult.MINIMAL);
         final List uids = new ArrayList();

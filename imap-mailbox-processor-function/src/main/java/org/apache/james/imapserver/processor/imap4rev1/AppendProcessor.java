@@ -82,7 +82,7 @@ public class AppendProcessor extends AbstractMailboxAwareProcessor {
             
             mailboxName = buildFullName(session, mailboxName);
             final MailboxManager mailboxManager = getMailboxManager(session);
-            final ImapMailbox mailbox = mailboxManager.getImapMailbox(mailboxName);
+            final ImapMailbox mailbox = mailboxManager.getImapMailbox(mailboxName, false);
             appendToMailbox(message, datetime, session, tag, command, mailbox, responder);
             
         } catch (MailboxManagerException mme) {

@@ -273,7 +273,7 @@ public abstract class AbstractSessionTest extends MockObjectTestCase implements 
     private ImapMailbox getImapMailbox(String mailboxName) throws MailboxManagerException {
         int[] neededSets = new int[] {GeneralMessageSet.TYPE_UID};
         int neededResults= MessageResult.MIME_MESSAGE + MessageResult.FLAGS;
-        ImapMailbox mailboxSession= mailboxManager.getImapMailbox(mailboxName);
+        ImapMailbox mailboxSession= mailboxManager.getImapMailbox(mailboxName, false);
         return mailboxSession;
     }
 }

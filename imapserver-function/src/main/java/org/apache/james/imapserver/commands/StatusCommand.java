@@ -68,7 +68,7 @@ class StatusCommand extends AuthenticatedStateCommand
                 logger.debug("Status called on mailbox named " + mailboxName + " (" + fullMailboxName + ")"); 
             }
             
-            ImapMailbox mailbox = session.getMailboxManager().getImapMailbox(fullMailboxName);
+            ImapMailbox mailbox = session.getMailboxManager().getImapMailbox(fullMailboxName, false);
             
             if (statusDataItems.messages) {
                 buffer.append(MESSAGES);

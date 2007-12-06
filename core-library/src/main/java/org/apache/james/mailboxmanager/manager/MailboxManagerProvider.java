@@ -22,23 +22,11 @@ package org.apache.james.mailboxmanager.manager;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.Namespace;
 import org.apache.james.mailboxmanager.Namespaces;
-import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.services.User;
 
 public interface MailboxManagerProvider {
     
     public MailboxManager getMailboxManager() throws MailboxManagerException;
-    
-    Mailbox getInbox(User user) throws MailboxManagerException;
-
-    /** 
-     *  @param authUser the authorized User for checking credentials 
-     *  @param mailboxName a logical/hierarchical mailbox name *
-     *  @throws MailboxManagerException 
-     */ 
-
-    Mailbox getMailbox(User authUser, String mailboxName,
-            boolean autoCreate) throws MailboxManagerException;
     
     /**
      * The Namespaces a user has access to.
