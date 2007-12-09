@@ -34,6 +34,7 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.collections.IteratorUtils;
 import org.apache.james.mailboxmanager.MailboxManagerException;
+import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
@@ -41,6 +42,7 @@ import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.mock.TorqueMailboxManagerProviderSingleton;
 import org.apache.james.mailboxmanager.redundant.AbstractMailRepositoryNativeTestCase;
 import org.apache.james.mailboxmanager.repository.MailboxManagerMailRepository;
+import org.apache.james.mailboxmanager.torque.TorqueMailboxSession;
 
 public class TorqueMailboxManagerMailRepositoryNativeTestCase extends
         AbstractMailRepositoryNativeTestCase {
@@ -48,6 +50,8 @@ public class TorqueMailboxManagerMailRepositoryNativeTestCase extends
     private static final String TUSER_INBOX = "#mail.tuser.INBOX";
     ImapMailbox shadowMailbox = null;
 
+    private MailboxSession session = new TorqueMailboxSession(10);
+    
     protected void configureRepository() throws Exception {
         TorqueMailboxManagerProviderSingleton.reset();
         MailboxManagerMailRepository mailboxManagerMailRepository = new MailboxManagerMailRepository();
@@ -95,7 +99,7 @@ public class TorqueMailboxManagerMailRepositoryNativeTestCase extends
 
     protected int getNativeMessageCount() {
         try {
-            return getShadowMailbox().getMessageCount();
+            return getShadowMailbox().getMessageCount(session);
         } catch (MailboxManagerException e) {
             throw new RuntimeException(e);
         }
@@ -110,7 +114,7 @@ public class TorqueMailboxManagerMailRepositoryNativeTestCase extends
         final Iterator it;
         try {
             it = getShadowMailbox().getMessages(GeneralMessageSetImpl.all(),
-                    MessageResult.MIME_MESSAGE);
+                    MessageResult.MIME_MESSAGE, session);
 
         } catch (MailboxManagerException e) {
             throw new RuntimeException(e);
@@ -122,7 +126,7 @@ public class TorqueMailboxManagerMailRepositoryNativeTestCase extends
     protected void nativeStoreMessage(MimeMessage mm) {
         try {
             getShadowMailbox().appendMessage(mm, new Date(),
-                    MessageResult.MINIMAL);
+                    MessageResult.MINIMAL, session);
         } catch (MailboxManagerException e) {
             throw new RuntimeException(e);
         }

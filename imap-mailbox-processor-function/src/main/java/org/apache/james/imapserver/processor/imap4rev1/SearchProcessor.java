@@ -74,7 +74,7 @@ public class SearchProcessor extends AbstractImapRequestProcessor {
         try {
             // TODO: implementation
             it = mailbox.search(GeneralMessageSetImpl.all(),
-                    new SearchParameters(), resultCode);
+                    new SearchParameters(), resultCode, ImapSessionUtils.getMailboxSession(session));
         } catch (MailboxManagerException e) {
             throw new MailboxException(e);
         }

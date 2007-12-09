@@ -27,14 +27,15 @@ import java.util.Iterator;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.james.mailboxmanager.MailboxManagerException;
+import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.util.AbstractLogFactoryAware;
 
 public abstract class AbstractImapMailbox extends AbstractLogFactoryAware implements ImapMailbox {
     
-    public Collection list() throws MailboxManagerException {
-        final Iterator it = getMessages(GeneralMessageSetImpl.all(), MessageResult.KEY);
+    public Collection list(MailboxSession mailboxSession) throws MailboxManagerException {
+        final Iterator it = getMessages(GeneralMessageSetImpl.all(), MessageResult.KEY, mailboxSession);
         final Collection result = new ArrayList(100);
         while (it.hasNext()) {
             final MessageResult next = (MessageResult) it.next();
@@ -44,13 +45,13 @@ public abstract class AbstractImapMailbox extends AbstractLogFactoryAware implem
         return result;
     }
 
-    public void remove(String key) throws MailboxManagerException {
-        remove(GeneralMessageSetImpl.oneKey(key));
+    public void remove(String key, MailboxSession mailboxSession) throws MailboxManagerException {
+        remove(GeneralMessageSetImpl.oneKey(key), mailboxSession);
     }
 
-    public MimeMessage retrieve(final String key) throws MailboxManagerException {
+    public MimeMessage retrieve(final String key, MailboxSession mailboxSession) throws MailboxManagerException {
         final Iterator it = getMessages(GeneralMessageSetImpl.oneKey(key),
-                MessageResult.MIME_MESSAGE);
+                MessageResult.MIME_MESSAGE, mailboxSession);
         final MimeMessage result;
         if (it.hasNext()) {
             final MessageResult message = (MessageResult) it.next();
@@ -61,8 +62,8 @@ public abstract class AbstractImapMailbox extends AbstractLogFactoryAware implem
         return result;
     }
 
-    public String store(MimeMessage message) throws MailboxManagerException {
-        MessageResult result=appendMessage(message, new Date(), MessageResult.KEY);
+    public String store(MimeMessage message, MailboxSession mailboxSession) throws MailboxManagerException {
+        MessageResult result=appendMessage(message, new Date(), MessageResult.KEY, mailboxSession);
         return result.getKey();
     }
 }

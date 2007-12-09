@@ -23,6 +23,7 @@ import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.ListResult;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxNotFoundException;
+import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 
 
@@ -86,14 +87,14 @@ public interface MailboxManager {
     /**
      * this is done by the MailboxRepository because maybe this operation could
      * be optimized in the corresponding store.
-     * 
-     * @param from name of the source mailbox
      * @param set
      *            messages to copy
+     * @param from name of the source mailbox
      * @param to
      *            name of the destination mailbox
+     * @param session <code>MailboxSession</code>, not null
      */
-    void copyMessages(GeneralMessageSet set, String from, String to) throws MailboxManagerException;
+    void copyMessages(GeneralMessageSet set, String from, String to, MailboxSession session) throws MailboxManagerException;
 
     /**
      * TODO: Expression requires parsing. Probably easier for the caller to 
@@ -117,5 +118,11 @@ public interface MailboxManager {
     void setSubscription(String mailboxName, boolean value) throws MailboxManagerException;
 
     boolean existsMailbox(String mailboxName) throws MailboxManagerException;
+    
+    /**
+     * Creates a new session.
+     * @return <code>MailboxSession</code>, not null
+     */
+    public MailboxSession createSession();
 }
 

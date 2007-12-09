@@ -37,6 +37,7 @@ import org.apache.james.imapserver.processor.base.ImapSessionUtils;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxManagerException;
+import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
@@ -90,8 +91,9 @@ public class StoreProcessor extends AbstractImapRequestProcessor {
                     highVal = session.getSelected().uid((int) idSet[i].getHighVal());
                 }
                 final GeneralMessageSet messageSet = GeneralMessageSetImpl.uidRange(lowVal, highVal);
+                final MailboxSession mailboxSession = ImapSessionUtils.getMailboxSession(session);
                 final Iterator it = mailbox.setFlags(flags, value, 
-                        replace, messageSet, STORE_FETCH_GROUP);
+                        replace, messageSet, STORE_FETCH_GROUP, mailboxSession);
                 if (!silent) {
                     while(it.hasNext()) {
                         final MessageResult result = (MessageResult) it.next();

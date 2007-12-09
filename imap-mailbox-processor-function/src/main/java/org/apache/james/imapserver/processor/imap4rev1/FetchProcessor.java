@@ -54,6 +54,7 @@ import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.imapserver.store.SimpleMessageAttributes;
 import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxManagerException;
+import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.MessageResultUtils;
 import org.apache.james.mailboxmanager.UnsupportedCriteriaException;
@@ -102,7 +103,8 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
                     lowVal = session.getSelected().uid((int) idSet[i].getLowVal()); 
                 }
                 GeneralMessageSet messageSet = GeneralMessageSetImpl.uidRange(lowVal, highVal);
-                final Iterator it = mailbox.getMessages(messageSet, resultToFetch);
+                final MailboxSession mailboxSession = ImapSessionUtils.getMailboxSession(session);
+                final Iterator it = mailbox.getMessages(messageSet, resultToFetch, mailboxSession);
                 while (it.hasNext()) {
                     final MessageResult result = (MessageResult) it.next();
                     final FetchResponse response = builder.build(fetch, result, session, useUids);
@@ -213,11 +215,12 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
             // If so, update the flags, and ensure that a flags response is included
             // in the response.
             try {
+                final MailboxSession mailboxSession = ImapSessionUtils.getMailboxSession(session);
                 boolean ensureFlagsResponse = false;
                 if (fetch.isSetSeen()
                         && !result.getFlags().contains(Flags.Flag.SEEN)) {
                     mailbox.setFlags(new Flags(Flags.Flag.SEEN), true, false,
-                            GeneralMessageSetImpl.oneUid(result.getUid()), MessageResult.MINIMAL);
+                            GeneralMessageSetImpl.oneUid(result.getUid()), MessageResult.MINIMAL, mailboxSession);
                     result.getFlags().add(Flags.Flag.SEEN);
                     ensureFlagsResponse = true;
                 }

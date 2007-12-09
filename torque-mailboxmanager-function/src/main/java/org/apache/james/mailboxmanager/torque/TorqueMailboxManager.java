@@ -35,6 +35,7 @@ import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.ListResult;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxNotFoundException;
+import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.ListResultImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
@@ -89,8 +90,7 @@ public class TorqueMailboxManager implements MailboxManager {
                     
                     ImapMailbox torqueMailbox = (ImapMailbox) managers.get(mailboxName);
                     if (torqueMailbox == null) {
-                        torqueMailbox = new TorqueMailbox(
-                                                mailboxRow, lock, getLog(), random.nextLong());
+                        torqueMailbox = new TorqueMailbox(mailboxRow, lock, getLog());
                         managers.put(mailboxName, torqueMailbox);
                     }
                     
@@ -174,14 +174,14 @@ public class TorqueMailboxManager implements MailboxManager {
 
     }
 
-    public void copyMessages(GeneralMessageSet set, String from, String to) throws MailboxManagerException {
+    public void copyMessages(GeneralMessageSet set, String from, String to, MailboxSession session) throws MailboxManagerException {
         ImapMailbox toMailbox= getImapMailbox(to, false);
         ImapMailbox fromMailbox = getImapMailbox(from, false);
-        Iterator it = fromMailbox.getMessages(set, MessageResult.MIME_MESSAGE | MessageResult.INTERNAL_DATE);
+        Iterator it = fromMailbox.getMessages(set, MessageResult.MIME_MESSAGE | MessageResult.INTERNAL_DATE, session);
         while (it.hasNext()) {
             final MessageResult result = (MessageResult) it.next();
             final MimeMessage mimeMessage = result.getMimeMessage();
-            toMailbox.appendMessage(mimeMessage, result.getInternalDate(), MessageResult.MINIMAL);
+            toMailbox.appendMessage(mimeMessage, result.getInternalDate(), MessageResult.MINIMAL, session);
         }
     }
 
@@ -265,6 +265,10 @@ public class TorqueMailboxManager implements MailboxManager {
             log=new SimpleLog("TorqueMailboxManager");
         }
         return log;
+    }
+
+    public MailboxSession createSession() {
+        return new TorqueMailboxSession(random.nextLong());
     }
 
 }

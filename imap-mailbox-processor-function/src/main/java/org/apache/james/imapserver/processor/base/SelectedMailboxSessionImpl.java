@@ -35,6 +35,7 @@ import org.apache.james.imap.message.response.imap4rev1.RecentResponse;
 import org.apache.james.imap.message.response.imap4rev1.status.UntaggedNoResponse;
 import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxManagerException;
+import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
@@ -48,15 +49,18 @@ public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements Se
     
     private final MailboxEventAnalyser events;
     private final UidToMsnConverter converter;    
+    private final MailboxSession mailboxSession;
     
-    public SelectedMailboxSessionImpl(ImapMailbox mailbox, List uids) throws MailboxManagerException {
+    public SelectedMailboxSessionImpl(ImapMailbox mailbox, List uids, 
+            MailboxSession mailboxSession) throws MailboxManagerException {
         this.mailbox = mailbox;
-        final long sessionId = mailbox.getSessionId();
+        this.mailboxSession = mailboxSession;
+        final long sessionId = mailboxSession.getSessionId();
         events = new MailboxEventAnalyser(sessionId);
         // Ignore events from our session
         events.setSilentFlagChanges(true);
         mailbox.addListener(events);
-        converter = new UidToMsnConverter(mailbox.getSessionId(), uids);
+        converter = new UidToMsnConverter(sessionId, uids);
         mailbox.addListener(converter);
     }
 
@@ -128,7 +132,7 @@ public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements Se
             for (final Iterator it = events.flagUpdateUids(); it.hasNext();) {
                 Long uid = (Long) it.next();
                 GeneralMessageSet messageSet = GeneralMessageSetImpl.oneUid(uid.longValue());
-                final Iterator messages = mailbox.getMessages(messageSet, MessageResult.FLAGS);
+                final Iterator messages = mailbox.getMessages(messageSet, MessageResult.FLAGS, mailboxSession);
                 while (messages.hasNext()) {
                     MessageResult mr = (MessageResult) it.next();
                     int msn = msn(mr.getUid());
@@ -151,7 +155,7 @@ public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements Se
 
     private void addRecentResponses(final List responses, final ImapMailbox mailbox) {
         try {
-            final int recentCount = mailbox.getRecentCount(true);
+            final int recentCount = mailbox.getRecentCount(true, mailboxSession);
             // TODO: use factory
             RecentResponse response = new RecentResponse(recentCount);
             responses.add(response);
@@ -171,7 +175,7 @@ public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements Se
 
     private void addExistsResponses(final List responses, final ImapMailbox mailbox) {
             try {
-                final int messageCount = mailbox.getMessageCount();
+                final int messageCount = mailbox.getMessageCount(mailboxSession);
                 // TODO: use factory
                 ExistsResponse response = new ExistsResponse(messageCount);
                 responses.add(response);

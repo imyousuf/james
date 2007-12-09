@@ -41,6 +41,7 @@ import org.apache.james.imapserver.processor.base.SelectedMailboxSessionImpl;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxNotFoundException;
+import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
@@ -82,14 +83,15 @@ abstract public class AbstractMailboxSelectionProcessor extends
                 throws MailboxException, MailboxManagerException {
         ImapResponseMessage result;
         ImapMailbox mailbox = ImapSessionUtils.getMailbox(session);
+        final MailboxSession mailboxSession = ImapSessionUtils.getMailboxSession(session);
         // TODO: compact this into a single API call for meta-data about the repository
         final Flags permanentFlags = mailbox.getPermanentFlags();
         final boolean writeable = mailbox.isWriteable() && !isExamine;
         final boolean resetRecent = !isExamine;
-        final int recentCount = mailbox.getRecentCount(resetRecent);
-        final long uidValidity = mailbox.getUidValidity();
-        final MessageResult firstUnseen = mailbox.getFirstUnseen(MessageResult.MINIMAL);
-        final int messageCount = mailbox.getMessageCount();
+        final int recentCount = mailbox.getRecentCount(resetRecent, mailboxSession);
+        final long uidValidity = mailbox.getUidValidity(mailboxSession);
+        final MessageResult firstUnseen = mailbox.getFirstUnseen(MessageResult.MINIMAL, mailboxSession);
+        final int messageCount = mailbox.getMessageCount(mailboxSession);
         final int msn;
         if (firstUnseen == null) {
             msn = -1;
@@ -104,18 +106,17 @@ abstract public class AbstractMailboxSelectionProcessor extends
     private boolean selectMailbox(String mailboxName, ImapSession session,
             boolean readOnly) throws MailboxException, MailboxManagerException {
         final MailboxManager mailboxManager = getMailboxManager(session);
-        final ImapMailbox mailbox = mailboxManager
-                .getImapMailbox(mailboxName, false);
-        
+        final ImapMailbox mailbox = mailboxManager.getImapMailbox(mailboxName, false);
+        final MailboxSession mailboxSession = ImapSessionUtils.getMailboxSession(session);
         final Iterator it = mailbox.getMessages(GeneralMessageSetImpl
-                .all(), MessageResult.MINIMAL);
+                .all(), MessageResult.MINIMAL, mailboxSession);
         final List uids = new ArrayList();
         while(it.hasNext()) {
             final MessageResult result = (MessageResult) it.next();
             uids.add(new Long(result.getUid()));
         }
         
-        SelectedImapMailbox sessionMailbox = new SelectedMailboxSessionImpl(mailbox, uids);
+        SelectedImapMailbox sessionMailbox = new SelectedMailboxSessionImpl(mailbox, uids, mailboxSession);
         session.selected(sessionMailbox);
         session.setAttribute(
                 ImapSessionUtils.SELECTED_MAILBOX_ATTRIBUTE_SESSION_KEY,

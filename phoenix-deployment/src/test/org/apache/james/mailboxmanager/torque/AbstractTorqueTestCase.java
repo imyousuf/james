@@ -21,14 +21,16 @@ package org.apache.james.mailboxmanager.torque;
 
 import junit.framework.TestCase;
 
-import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.mock.TorqueMailboxManagerProviderSingleton;
 import org.apache.torque.TorqueException;
 
 public abstract class AbstractTorqueTestCase extends TestCase {
     
+    public TorqueMailboxSession session;
+    
     public AbstractTorqueTestCase() throws TorqueException {
         super();
+        session = new TorqueMailboxSession(10);
     }
 
     public void setUp() throws Exception {

@@ -49,7 +49,7 @@ class CloseCommand extends SelectedStateCommand
         ImapMailbox mailbox = session.getSelected().getMailbox();
         if ( session.getSelected().getMailbox().isWriteable() ) {
             try {
-                mailbox.expunge(GeneralMessageSetImpl.all(),MessageResult.MINIMAL);
+                mailbox.expunge(GeneralMessageSetImpl.all(),MessageResult.MINIMAL, session.getMailboxSession());
             } catch (MailboxManagerException e) {
                throw new MailboxException(e);
             }

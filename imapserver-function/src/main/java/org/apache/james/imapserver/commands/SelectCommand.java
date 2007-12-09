@@ -64,13 +64,13 @@ class SelectCommand extends AuthenticatedStateCommand
             ImapMailbox mailbox = selected.getMailbox();
             response.flagsResponse(mailbox.getPermanentFlags());
             final boolean resetRecent = !isExamine;
-            response.recentResponse(mailbox.getRecentCount(resetRecent));
+            response.recentResponse(mailbox.getRecentCount(resetRecent, session.getMailboxSession()));
             response
-                    .okResponse("UIDVALIDITY " + mailbox.getUidValidity(), null);
+                    .okResponse("UIDVALIDITY " + mailbox.getUidValidity(session.getMailboxSession()), null);
 
-            MessageResult firstUnseen = mailbox.getFirstUnseen(MessageResult.MINIMAL);
+            MessageResult firstUnseen = mailbox.getFirstUnseen(MessageResult.MINIMAL, session.getMailboxSession());
                    
-            response.existsResponse(mailbox.getMessageCount());
+            response.existsResponse(mailbox.getMessageCount(session.getMailboxSession()));
 
             if (firstUnseen != null) {
                 final int msn = selected.msn(firstUnseen.getUid());
@@ -94,7 +94,7 @@ class SelectCommand extends AuthenticatedStateCommand
     private boolean selectMailbox(String mailboxName, ImapSession session, boolean readOnly) throws MailboxException, MailboxManagerException {
         ImapMailbox mailbox = session.getMailboxManager().getImapMailbox(mailboxName, false);
         final Iterator it = mailbox.getMessages(GeneralMessageSetImpl
-                .all(), MessageResult.MINIMAL);
+                .all(), MessageResult.MINIMAL, session.getMailboxSession());
         final List uids = new ArrayList();
         while(it.hasNext()) {
             final MessageResult result = (MessageResult) it.next();

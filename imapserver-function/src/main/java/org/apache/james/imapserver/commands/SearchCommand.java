@@ -71,7 +71,7 @@ class SearchCommand extends SelectedStateCommand implements UidEnabledCommand
         final int result = MessageResult.MINIMAL;
         final Iterator it;
         try {
-            it = mailbox.search(GeneralMessageSetImpl.all(),searchTerm, result);
+            it = mailbox.search(GeneralMessageSetImpl.all(),searchTerm, result, session.getMailboxSession());
         } catch (MailboxManagerException e) {
           throw new MailboxException(e);
         }
