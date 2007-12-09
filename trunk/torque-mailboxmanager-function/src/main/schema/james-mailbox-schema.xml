@@ -1,5 +1,5 @@
 <!DOCTYPE database SYSTEM
- "http://db.apache.org/torque/dtd/database_3_2.dtd">
+ "http://db.apache.org/torque/dtd/database_3_3.dtd">
 <!--
   Licensed to the Apache Software Foundation (ASF) under one   
   or more contributor license agreements.  See the NOTICE file 
@@ -19,7 +19,8 @@
   under the License.                                           
  -->
 <database
-  name="mailboxmanager">
+  name="mailboxmanager"
+  package="org.apache.james.mailboxmanager.torque.om">
 
 	<table name="mailbox" javaName="MailboxRow" description="Mailbox Table" idMethod="native">
 		<column name="mailbox_id" required="true" primaryKey="true" type="BIGINT" autoIncrement="true"

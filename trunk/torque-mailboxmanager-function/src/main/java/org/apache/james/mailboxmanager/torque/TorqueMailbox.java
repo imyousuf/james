@@ -547,9 +547,7 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
             tracker.flagsUpdated(messageFlags, mailboxSession.getSessionId());
             tracker.found(uidRange, messageFlags);
             return resultIterator;
-        } catch (TorqueException e) {
-            throw new MailboxManagerException(e);
-        } catch (MessagingException e) {
+        } catch (Exception e) {
             throw new MailboxManagerException(e);
         }
     }
