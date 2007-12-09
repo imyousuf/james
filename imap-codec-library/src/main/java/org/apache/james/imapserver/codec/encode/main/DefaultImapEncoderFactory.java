@@ -29,7 +29,6 @@ import org.apache.james.imapserver.codec.encode.imap4rev1.RecentResponseEncoder;
 import org.apache.james.imapserver.codec.encode.imap4rev1.StatusResponseEncoder;
 import org.apache.james.imapserver.codec.encode.imap4rev1.legacy.BadResponseEncoder;
 import org.apache.james.imapserver.codec.encode.imap4rev1.legacy.CapabilityResponseEncoder;
-import org.apache.james.imapserver.codec.encode.imap4rev1.legacy.CommandCompleteResponseEncoder;
 import org.apache.james.imapserver.codec.encode.imap4rev1.legacy.CommandFailedResponseEncoder;
 import org.apache.james.imapserver.codec.encode.imap4rev1.legacy.ErrorResponseEncoder;
 import org.apache.james.imapserver.codec.encode.imap4rev1.legacy.ExamineAndSelectResponseEncoder;
@@ -61,8 +60,7 @@ public class DefaultImapEncoderFactory implements ImapEncoderFactory {
         final ExamineAndSelectResponseEncoder examineAndSelectResponseEncoder = new ExamineAndSelectResponseEncoder(listResponseEncoder);
         final ErrorResponseEncoder errorResponseEncoder = new ErrorResponseEncoder(examineAndSelectResponseEncoder);
         final CommandFailedResponseEncoder commandFailedResponseEncoder = new CommandFailedResponseEncoder(errorResponseEncoder);
-        final CommandCompleteResponseEncoder commandCompleteResponseEncoder = new CommandCompleteResponseEncoder(commandFailedResponseEncoder);
-        final CapabilityResponseEncoder capabilityResponseEncoder = new CapabilityResponseEncoder(commandCompleteResponseEncoder);
+        final CapabilityResponseEncoder capabilityResponseEncoder = new CapabilityResponseEncoder(commandFailedResponseEncoder);
         final BadResponseEncoder result = new BadResponseEncoder(capabilityResponseEncoder);
         return result;
     }

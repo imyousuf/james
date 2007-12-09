@@ -30,7 +30,6 @@ import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
 import org.apache.james.api.imap.process.ImapProcessor.Responder;
 import org.apache.james.imap.message.request.imap4rev1.CopyRequest;
-import org.apache.james.imap.message.response.imap4rev1.legacy.CommandCompleteResponse;
 import org.apache.james.imapserver.processor.base.AbstractMailboxAwareProcessor;
 import org.apache.james.imapserver.processor.base.AuthorizationException;
 import org.apache.james.imapserver.processor.base.ImapSessionUtils;
@@ -58,26 +57,9 @@ public class CopyProcessor extends AbstractMailboxAwareProcessor {
             ImapSession session, String tag, ImapCommand command, Responder responder)
             throws MailboxException, AuthorizationException, ProtocolException {
         final CopyRequest request = (CopyRequest) message;
-        final ImapResponseMessage result = doProcess(request, session, tag,
-                command);
-        responder.respond(result);
-    }
-
-    private ImapResponseMessage doProcess(CopyRequest request,
-            ImapSession session, String tag, ImapCommand command)
-            throws MailboxException, AuthorizationException, ProtocolException {
         final String mailboxName = request.getMailboxName();
         final IdRange[] idSet = request.getIdSet();
         final boolean useUids = request.isUseUids();
-        final ImapResponseMessage result = doProcess(mailboxName, idSet,
-                useUids, session, tag, command);
-        return result;
-    }
-
-    private ImapResponseMessage doProcess(String mailboxName, IdRange[] idSet,
-            boolean useUids, ImapSession session, String tag,
-            ImapCommand command) throws MailboxException,
-            AuthorizationException, ProtocolException {
         ImapMailbox currentMailbox = ImapSessionUtils
                 .getMailbox(session);
         try {
@@ -107,9 +89,7 @@ public class CopyProcessor extends AbstractMailboxAwareProcessor {
         } catch (MailboxManagerException e) {
             throw new MailboxException(e);
         }
-        final CommandCompleteResponse result = new CommandCompleteResponse(
-                command, tag);
-        ImapSessionUtils.addUnsolicitedResponses(result, session, useUids);
-        return result;
+        unsolicitedResponses(session, responder, useUids);
+        okComplete(command, tag, responder);
     }
 }
