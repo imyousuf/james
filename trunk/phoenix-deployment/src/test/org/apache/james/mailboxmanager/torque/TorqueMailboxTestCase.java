@@ -42,7 +42,6 @@ import EDU.oswego.cs.dl.util.concurrent.WriterPreferenceReadWriteLock;
 
 public class TorqueMailboxTestCase extends AbstractTorqueTestCase {
 
-
     public TorqueMailboxTestCase() throws TorqueException {
         super();
     }
@@ -51,10 +50,9 @@ public class TorqueMailboxTestCase extends AbstractTorqueTestCase {
         MailboxRow mr = new MailboxRow("#users.tuser.INBOX", 100);
         mr.save();
         mr=MailboxRowPeer.retrieveByName("#users.tuser.INBOX");
-        ImapMailbox torqueMailbox = new TorqueMailbox(mr,
-                new WriterPreferenceReadWriteLock(),null, 1);
+        ImapMailbox torqueMailbox = new TorqueMailbox(mr, new WriterPreferenceReadWriteLock(),null);
         torqueMailbox.addListener(new MailboxListenerCollector());
-        assertEquals(0,torqueMailbox.getMessageCount());
+        assertEquals(0,torqueMailbox.getMessageCount(session));
         
         long time = System.currentTimeMillis();
         time = time - (time % 1000);
@@ -65,8 +63,8 @@ public class TorqueMailboxTestCase extends AbstractTorqueTestCase {
         flags.add(Flags.Flag.SEEN);
         mm.setFlags(flags,true);
         mm.writeTo(System.out);
-        torqueMailbox.appendMessage(mm, date, 0);
-        assertEquals(1,torqueMailbox.getMessageCount());
+        torqueMailbox.appendMessage(mm, date, 0, session);
+        assertEquals(1,torqueMailbox.getMessageCount(session));
         List l = MessageRowPeer.doSelect(new Criteria());
         assertEquals(1, l.size());
         MessageRow msg = (MessageRow) l.get(0);
@@ -79,7 +77,7 @@ public class TorqueMailboxTestCase extends AbstractTorqueTestCase {
         mr = MailboxRowPeer.retrieveByPK(mr.getMailboxId());
         assertEquals(1, mr.getLastUid());
         
-        List messageResult=IteratorUtils.toList(torqueMailbox.getMessages(GeneralMessageSetImpl.oneUid(1l),MessageResult.MIME_MESSAGE));
+        List messageResult=IteratorUtils.toList(torqueMailbox.getMessages(GeneralMessageSetImpl.oneUid(1l),MessageResult.MIME_MESSAGE, session));
         assertNotNull(messageResult);
         assertEquals(1,messageResult.size());
         //((MessageResult)messageResult.get(0)).getMimeMessage().writeTo(System.out);
@@ -87,8 +85,8 @@ public class TorqueMailboxTestCase extends AbstractTorqueTestCase {
         
         Flags f=new Flags();
         f.add(Flags.Flag.DELETED);
-        torqueMailbox.setFlags(f,true,false, GeneralMessageSetImpl.oneUid(1l), MessageResult.MINIMAL);
-        List messageResults=IteratorUtils.toList(torqueMailbox.expunge(GeneralMessageSetImpl.all(),MessageResult.MINIMAL));
+        torqueMailbox.setFlags(f,true,false, GeneralMessageSetImpl.oneUid(1l), MessageResult.MINIMAL, session);
+        List messageResults=IteratorUtils.toList(torqueMailbox.expunge(GeneralMessageSetImpl.all(),MessageResult.MINIMAL, session));
         assertEquals(1,messageResults.size());
         assertEquals(1l,((MessageResult)messageResults.get(0)).getUid());
     }

@@ -23,6 +23,7 @@ import java.util.Collection;
 
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
+import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.services.User;
@@ -125,5 +126,7 @@ public interface ImapSession
     MailboxManager getMailboxManager() throws MailboxManagerException;
 
     String buildFullName(String mailboxName) throws MailboxManagerException;
+    
+    MailboxSession getMailboxSession() throws MailboxManagerException;
 
 }

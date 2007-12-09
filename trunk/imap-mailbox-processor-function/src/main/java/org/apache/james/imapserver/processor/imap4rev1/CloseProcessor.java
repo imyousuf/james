@@ -32,6 +32,7 @@ import org.apache.james.imapserver.processor.base.AuthorizationException;
 import org.apache.james.imapserver.processor.base.ImapSessionUtils;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
+import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
@@ -52,8 +53,9 @@ public class CloseProcessor extends AbstractImapRequestProcessor {
         ImapMailbox mailbox = ImapSessionUtils.getMailbox(session);
         if (mailbox.isWriteable()) {
             try {
+                final MailboxSession mailboxSession = ImapSessionUtils.getMailboxSession(session);
                 mailbox.expunge(GeneralMessageSetImpl.all(),
-                        MessageResult.MINIMAL);
+                        MessageResult.MINIMAL, mailboxSession);
             } catch (MailboxManagerException e) {
                 throw new MailboxException(e);
             }

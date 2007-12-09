@@ -24,6 +24,7 @@ import org.apache.avalon.excalibur.pool.Poolable;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.Constants;
 import org.apache.james.core.AbstractJamesHandler;
+import org.apache.james.mailboxmanager.MailboxManagerException;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -156,6 +157,8 @@ public class ImapHandler
 
         }
         catch (ProtocolException e) {
+            throw new RuntimeException(e.getMessage(),e);
+        } catch (MailboxManagerException e) {
             throw new RuntimeException(e.getMessage(),e);
         }
     }

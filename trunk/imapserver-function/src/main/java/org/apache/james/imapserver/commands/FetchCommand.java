@@ -39,6 +39,7 @@ import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.imapserver.store.SimpleMessageAttributes;
 import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxManagerException;
+import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.MessageResultUtils;
 import org.apache.james.mailboxmanager.MessageResult.Content;
@@ -96,14 +97,16 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
             }
             final GeneralMessageSet messageSet=GeneralMessageSetImpl.uidRange(lowVal,highVal);
             final Iterator it;
+            final MailboxSession mailboxSession;
             try {
-                it = mailbox.getMessages(messageSet,resultToFetch);
+                mailboxSession = session.getMailboxSession();
+                it = mailbox.getMessages(messageSet,resultToFetch, mailboxSession);
             } catch (MailboxManagerException e) {
                 throw new MailboxException(e);
             }
             while (it.hasNext()) {
                 final MessageResult result = (MessageResult) it.next();
-                String msgData = outputMessage( fetch, result, mailbox, useUids );
+                final String msgData = outputMessage( fetch, result, mailbox, useUids, mailboxSession);
                 final int msn = selected.msn(result.getUid());
                 response.fetchResponse( msn, msgData );
 
@@ -116,7 +119,7 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
     }
 
     private String outputMessage(FetchRequest fetch, MessageResult result,
-            ImapMailbox mailbox, boolean useUids)
+            ImapMailbox mailbox, boolean useUids, final MailboxSession session)
             throws MailboxException, ProtocolException {
         // Check if this fetch will cause the "SEEN" flag to be set on this
         // message
@@ -127,7 +130,7 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
             if (fetch.isSetSeen()
                     && !result.getFlags().contains(Flags.Flag.SEEN)) {
                 mailbox.setFlags(new Flags(Flags.Flag.SEEN), true, false,
-                        GeneralMessageSetImpl.oneUid(result.getUid()), MessageResult.MINIMAL);
+                        GeneralMessageSetImpl.oneUid(result.getUid()), MessageResult.MINIMAL, session);
                 result.getFlags().add(Flags.Flag.SEEN);
                 ensureFlagsResponse = true;
             }

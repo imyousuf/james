@@ -79,7 +79,7 @@ public class ExpungeProcessor extends AbstractImapRequestProcessor {
         } else {
             try {
                 mailbox.expunge(GeneralMessageSetImpl.all(),
-                        MessageResult.MINIMAL);
+                        MessageResult.MINIMAL, ImapSessionUtils.getMailboxSession(session));
                 CommandCompleteResponse commandCompleteResponse = new CommandCompleteResponse(
                         command, tag);
                 ImapSessionUtils.addUnsolicitedResponses(

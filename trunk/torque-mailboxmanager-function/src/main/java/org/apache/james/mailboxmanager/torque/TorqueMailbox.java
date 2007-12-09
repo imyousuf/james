@@ -39,6 +39,7 @@ import org.apache.commons.logging.Log;
 import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxListener;
 import org.apache.james.mailboxmanager.MailboxManagerException;
+import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.SearchParameters;
 import org.apache.james.mailboxmanager.UnsupportedCriteriaException;
@@ -80,20 +81,12 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
     
     private final ReadWriteLock lock;
     
-    private final long sessionId;
-        
-    TorqueMailbox(final MailboxRow mailboxRow, final ReadWriteLock lock, 
-            final Log log, final long sessionId) {
+    TorqueMailbox(final MailboxRow mailboxRow, final ReadWriteLock lock, final Log log) {
         setLog(log);
-        this.sessionId = sessionId;
         this.mailboxRow = mailboxRow;
         this.tracker = new UidChangeTracker(mailboxRow.getLastUid());
         this.lock = lock;
         getUidToKeyConverter().setUidValidity(mailboxRow.getUidValidity());
-    }
-    
-    public long getSessionId() {
-        return sessionId;
     }
 
     public synchronized String getName() throws MailboxManagerException {
@@ -101,7 +94,7 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
         return mailboxRow.getName();
     }
 
-    public int getMessageCount() throws MailboxManagerException {
+    public int getMessageCount(MailboxSession mailboxSession) throws MailboxManagerException {
         try {
             lock.readLock().acquire();
             try {
@@ -120,7 +113,7 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
     }
 
     public MessageResult appendMessage(MimeMessage message, Date internalDate,
-            int result) throws MailboxManagerException {
+            int result, MailboxSession mailboxSession) throws MailboxManagerException {
 
         try {
             checkAccess();
@@ -285,7 +278,7 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
         return criteria;
     }
 
-    public Iterator getMessages(GeneralMessageSet set, int result)
+    public Iterator getMessages(GeneralMessageSet set, int result, MailboxSession mailboxSession)
             throws MailboxManagerException {
         try {
             lock.readLock().acquire();
@@ -350,7 +343,7 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
         return permanentFlags;
     }
 
-    public int getRecentCount(boolean reset) throws MailboxManagerException {
+    public int getRecentCount(boolean reset, MailboxSession mailboxSession) throws MailboxManagerException {
         try {
             lock.readLock().acquire();
             try {
@@ -376,7 +369,7 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
         }
     }
 
-    public MessageResult getFirstUnseen(int result)
+    public MessageResult getFirstUnseen(int result, MailboxSession mailboxSession)
             throws MailboxManagerException {
         try {
             lock.readLock().acquire();
@@ -419,7 +412,7 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
         }
     }
 
-    public int getUnseenCount() throws MailboxManagerException {
+    public int getUnseenCount(MailboxSession mailboxSession) throws MailboxManagerException {
         try {
             lock.readLock().acquire();
             try {
@@ -440,7 +433,7 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
         }
     }
 
-    public Iterator expunge(GeneralMessageSet set, int result)
+    public Iterator expunge(GeneralMessageSet set, int result, MailboxSession mailboxSession)
             throws MailboxManagerException {
         try {
             lock.writeLock().acquire();
@@ -501,12 +494,12 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
     }
 
     public Iterator setFlags(Flags flags, boolean value, boolean replace,
-            GeneralMessageSet set, int result)
+            GeneralMessageSet set, int result, MailboxSession mailboxSession)
             throws MailboxManagerException {
         try {
             lock.writeLock().acquire();
             try {
-                return doSetFlags(flags, value, replace, set, result);
+                return doSetFlags(flags, value, replace, set, result, mailboxSession);
             } finally {
                 lock.writeLock().release();
             }
@@ -517,7 +510,7 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
     }
 
     private Iterator doSetFlags(Flags flags, boolean value, boolean replace, 
-            GeneralMessageSet set, int results) throws MailboxManagerException {
+            GeneralMessageSet set, int results, MailboxSession mailboxSession) throws MailboxManagerException {
         checkAccess();
         set=toUidSet(set);  
         if (!set.isValid() || set.getType()==GeneralMessageSet.TYPE_NOTHING) {
@@ -551,7 +544,7 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
             final TorqueResultIterator resultIterator = new TorqueResultIterator(messageRows,
                     results | MessageResult.FLAGS, getUidToKeyConverter());
             final org.apache.james.mailboxmanager.impl.MessageFlags[] messageFlags = resultIterator.getMessageFlags();
-            tracker.flagsUpdated(messageFlags, sessionId);
+            tracker.flagsUpdated(messageFlags, mailboxSession.getSessionId());
             tracker.found(uidRange, messageFlags);
             return resultIterator;
         } catch (TorqueException e) {
@@ -573,7 +566,7 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
         tracker.removeMailboxListener(mailboxListener);
     }
 
-    public long getUidValidity() throws MailboxManagerException {
+    public long getUidValidity(MailboxSession mailboxSession) throws MailboxManagerException {
         try {
             lock.readLock().acquire();
             try {
@@ -590,7 +583,7 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
 
     }
 
-    public long getUidNext() throws MailboxManagerException {
+    public long getUidNext(MailboxSession mailboxSession) throws MailboxManagerException {
         try {
             lock.readLock().acquire();
             try {
@@ -639,7 +632,7 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
     }
 
     public Iterator search(GeneralMessageSet set, SearchParameters parameters,
-            int result) throws MailboxManagerException {
+            int result, MailboxSession mailboxSession) throws MailboxManagerException {
         try {
             lock.readLock().acquire();
             try {
@@ -763,12 +756,12 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
         return uidToKeyConverter;
     }
 
-    public void remove(GeneralMessageSet set) throws MailboxManagerException {
+    public void remove(GeneralMessageSet set, MailboxSession mailboxSession) throws MailboxManagerException {
         try {
             lock.writeLock().acquire();
             try {
                 final Flags flags = new Flags(Flags.Flag.DELETED);
-                doSetFlags(flags, true, false, set, MessageResult.MINIMAL);
+                doSetFlags(flags, true, false, set, MessageResult.MINIMAL, mailboxSession);
                 doExpunge(set, MessageResult.MINIMAL);
             } finally {
                 lock.writeLock().release();

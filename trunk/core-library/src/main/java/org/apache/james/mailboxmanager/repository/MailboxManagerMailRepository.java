@@ -37,6 +37,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.core.MailImpl;
 import org.apache.james.mailboxmanager.MailboxManagerException;
+import org.apache.james.mailboxmanager.MailboxSession;
+import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 import org.apache.mailet.Mail;
@@ -68,7 +70,8 @@ public class MailboxManagerMailRepository extends AbstractMailRepository
 
     protected String addMessage(MimeMessage message) throws MessagingException {
         try {
-            String myKey = getMailboxGateKeeper().getMailbox().store(message);
+            final MailboxSession mailboxSession = getMailboxGateKeeper().getMailboxSession();
+            String myKey = getMailboxGateKeeper().getMailbox().store(message, mailboxSession);
             return myKey;
         } catch (MailboxManagerException e) {
             throw new MessagingException(e.getMessage(), e);
@@ -206,7 +209,8 @@ public class MailboxManagerMailRepository extends AbstractMailRepository
             if (getKeyBidiMap().containsExternalKey(externalKey)) {
                 String internalKey = getKeyBidiMap().getByExternalKey(
                         externalKey);
-                getMailboxGateKeeper().getMailbox().remove(internalKey);
+                final MailboxSession mailboxSession = getMailboxGateKeeper().getMailboxSession();
+                getMailboxGateKeeper().getMailbox().remove(internalKey, mailboxSession);
                 getKeyBidiMap().removeByExternalKey(externalKey);
             }
         } catch (MailboxManagerException e) {
@@ -234,7 +238,7 @@ public class MailboxManagerMailRepository extends AbstractMailRepository
             String[] externalKeysBefore = getKeyBidiMap().getExternalKeys();
 
             // get the messages
-            Collection internalKeys = mailbox.list();
+            Collection internalKeys = mailbox.list(getMailboxGateKeeper().getMailboxSession());
             Collection externalKeys = new ArrayList(internalKeys.size());
             for (Iterator iter = internalKeys.iterator(); iter.hasNext();) {
                 String internalKey = (String) iter.next();
@@ -274,7 +278,8 @@ public class MailboxManagerMailRepository extends AbstractMailRepository
         MimeMessage mimeMessage = null;
         try {
             getMailboxGateKeeper().use();
-            mimeMessage = getMailboxGateKeeper().getMailbox().retrieve(internalKey);
+            final MailboxSession mailboxSession = getMailboxGateKeeper().getMailboxSession();
+            mimeMessage = getMailboxGateKeeper().getMailbox().retrieve(internalKey, mailboxSession);
         } catch (MailboxManagerException e) {
             throw new MessagingException(e.getMessage(), e);
         } finally {
@@ -308,7 +313,8 @@ public class MailboxManagerMailRepository extends AbstractMailRepository
     class MailboxGateKeeper {
         int open = 0;
 
-        Mailbox mailboxSession = null;
+        MailboxSession session = null;
+        ImapMailbox mailbox = null;
 
         synchronized void use() {
             open++;
@@ -321,8 +327,8 @@ public class MailboxManagerMailRepository extends AbstractMailRepository
             open--;
             if (open < 1) {
                 if (open == 0) {
-                    if (mailboxSession != null) {
-                        mailboxSession=null;
+                    if (mailbox != null) {
+                        mailbox=null;
                     }
                 } else {
                     throw new RuntimeException("use<0 !");
@@ -330,16 +336,22 @@ public class MailboxManagerMailRepository extends AbstractMailRepository
             }
         }
 
-        synchronized Mailbox getMailbox() throws MailboxManagerException,
-                MessagingException {
+        synchronized MailboxSession getMailboxSession() throws MailboxManagerException {
+            if (session == null) {
+                session = getMailboxManagerProvider().getMailboxManager().createSession();
+            }
+            return session;
+        }
+        
+        synchronized ImapMailbox getMailbox() throws MailboxManagerException {
             if (open < 1) {
                 throw new RuntimeException("use<1 !");
             }
-            if (mailboxSession == null) {
-                mailboxSession = getMailboxManagerProvider().getMailboxManager()
+            if (mailbox == null) {
+                mailbox = getMailboxManagerProvider().getMailboxManager()
                     .getImapMailbox(mailboxName, true);
             }
-            return mailboxSession;
+            return mailbox;
         }
     }
 

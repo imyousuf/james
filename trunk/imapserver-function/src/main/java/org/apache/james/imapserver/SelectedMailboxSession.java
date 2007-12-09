@@ -28,6 +28,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.commons.collections.IteratorUtils;
 import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxManagerException;
+import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
@@ -41,11 +42,14 @@ public class SelectedMailboxSession extends AbstractLogEnabled {
 
     private final ImapMailbox mailbox;
     private final UidToMsnConverter converter;    
+    private final MailboxSession mailboxSession;
     
-    public SelectedMailboxSession(ImapMailbox mailbox, Collection uids) throws MailboxManagerException {
+    public SelectedMailboxSession(ImapMailbox mailbox, Collection uids, 
+            MailboxSession mailboxSession) throws MailboxManagerException {
         this.mailbox = mailbox;
-        converter = new UidToMsnConverter(mailbox.getSessionId(), uids);
-        final long sessionId = mailbox.getSessionId();
+        this.mailboxSession = mailboxSession;
+        final long sessionId = mailboxSession.getSessionId();
+        converter = new UidToMsnConverter(sessionId, uids);
         events = new MailboxEventAnalyser(sessionId);
         mailbox.addListener(events);
         mailbox.addListener(converter);
@@ -68,7 +72,7 @@ public class SelectedMailboxSession extends AbstractLogEnabled {
         for (final Iterator it = events.flagUpdateUids(); it.hasNext();) {
             Long uid = (Long) it.next();
             GeneralMessageSet messageSet = GeneralMessageSetImpl.oneUid(uid.longValue());
-            final Iterator messages = mailbox.getMessages(messageSet, MessageResult.FLAGS);
+            final Iterator messages = mailbox.getMessages(messageSet, MessageResult.FLAGS, mailboxSession);
             results.addAll(IteratorUtils.toList(messages));
         }
         return results.iterator();

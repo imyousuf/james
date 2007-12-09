@@ -74,7 +74,7 @@ class StatusCommand extends AuthenticatedStateCommand
                 buffer.append(MESSAGES);
                 buffer.append(SP);
 
-                buffer.append(mailbox.getMessageCount());
+                buffer.append(mailbox.getMessageCount(session.getMailboxSession()));
 
                 buffer.append(SP);
             }
@@ -82,28 +82,28 @@ class StatusCommand extends AuthenticatedStateCommand
             if (statusDataItems.recent) {
                 buffer.append(RECENT);
                 buffer.append(SP);
-                buffer.append(mailbox.getRecentCount(false));
+                buffer.append(mailbox.getRecentCount(false, session.getMailboxSession()));
                 buffer.append(SP);
             }
 
             if (statusDataItems.uidNext) {
                 buffer.append(UIDNEXT);
                 buffer.append(SP);
-                buffer.append(mailbox.getUidNext());
+                buffer.append(mailbox.getUidNext(session.getMailboxSession()));
                 buffer.append(SP);
             }
 
             if (statusDataItems.uidValidity) {
                 buffer.append(UIDVALIDITY);
                 buffer.append(SP);
-                buffer.append(mailbox.getUidValidity());
+                buffer.append(mailbox.getUidValidity(session.getMailboxSession()));
                 buffer.append(SP);
             }
 
             if (statusDataItems.unseen) {
                 buffer.append(UNSEEN);
                 buffer.append(SP);
-                buffer.append(mailbox.getUnseenCount());
+                buffer.append(mailbox.getUnseenCount(session.getMailboxSession()));
                 buffer.append(SP);
             }
         } catch (MailboxManagerException e) {

@@ -34,6 +34,7 @@ import javax.mail.internet.MimeMessage;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
+import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
@@ -237,14 +238,17 @@ public class SieveToMultiMailbox extends GenericMailet {
         final String inboxName = mailboxManagerProvider.getPersonalDefaultNamespace(new DefaultUser(username, null))
             .getName() + MailboxManager.HIERARCHY_DELIMITER+"INBOX";
         
-        Mailbox inbox = mailboxManagerProvider.getMailboxManager().getImapMailbox(inboxName, true);
+        final MailboxManager mailboxManager = mailboxManagerProvider.getMailboxManager();
+        final MailboxSession session = mailboxManager.createSession();
+        Mailbox inbox = mailboxManager.getImapMailbox(inboxName, true);
         
         if (inbox == null) {
             String error = "Mailbox for user " + username
                     + " was not found on this server.";
             throw new MessagingException(error);
         }
-        inbox.store(message);
+        inbox.store(message, session);
+        session.close();
     }
 
     /**

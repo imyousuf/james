@@ -22,6 +22,7 @@ import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactor
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
 import org.apache.james.mailboxmanager.MailboxManagerException;
+import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 import org.apache.james.services.User;
@@ -66,6 +67,10 @@ abstract public class AbstractMailboxAwareProcessor extends AbstractImapRequestP
             // TODO: caching in the session seems like the wrong design decision, though
             // TODO: the mailbox provider should perform any caching that is required
             session.setAttribute( ImapSessionUtils.MAILBOX_MANAGER_ATTRIBUTE_SESSION_KEY, result );
+            if (ImapSessionUtils.getMailboxSession(session) == null) {
+                final MailboxSession mailboxSession = (MailboxSession) result.createSession(); 
+                ImapSessionUtils.setMailboxSession(session, mailboxSession);
+            }
         }
         return result;
     }

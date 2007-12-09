@@ -33,6 +33,7 @@ import javax.mail.internet.MimeMultipart;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
+import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
@@ -115,8 +116,11 @@ public class Actions
             final String mailboxName = 
                 mailboxManagerProvider.getPersonalDefaultNamespace(user).getName()
                     + MailboxManager.HIERARCHY_DELIMITER + destinationMailbox;
-            Mailbox mailbox=mailboxManagerProvider.getMailboxManager().getImapMailbox(mailboxName, true);
-            mailbox.store(localMessage);
+            final MailboxManager mailboxManager = mailboxManagerProvider.getMailboxManager();
+            Mailbox mailbox=mailboxManager.getImapMailbox(mailboxName, true);
+            final MailboxSession session = mailboxManager.createSession();
+            mailbox.store(localMessage, session);
+            session.close();
             delivered = true;
         }
         catch (MessagingException ex)

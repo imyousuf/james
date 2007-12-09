@@ -26,6 +26,7 @@ import org.apache.james.api.imap.message.response.ImapResponseMessage;
 import org.apache.james.api.imap.process.ImapSession;
 import org.apache.james.api.imap.process.ImapProcessor.Responder;
 import org.apache.james.imap.message.response.base.AbstractImapResponse;
+import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 import org.apache.james.services.User;
 
@@ -37,6 +38,8 @@ public class ImapSessionUtils {
         = "org.apache.james.api.imap.MAILBOX_MANAGER_ATTRIBUTE_SESSION_KEY";
     public static final String SELECTED_MAILBOX_ATTRIBUTE_SESSION_KEY 
         = "org.apache.james.api.imap.SELECTED_MAILBOX_ATTRIBUTE_SESSION_KEY";
+    public static final String MAILBOX_SESSION_ATTRIBUTE_SESSION_KEY 
+    = "org.apache.james.api.imap.MAILBOX_SESSION_ATTRIBUTE_SESSION_KEY";
     
     public static void addUnsolicitedResponses(AbstractImapResponse response, ImapSession session, boolean useUids) {
         List unsolicitedResponses = session.unsolicitedResponses(useUids);
@@ -57,6 +60,15 @@ public class ImapSessionUtils {
         return result;
     }
 
+    public static MailboxSession getMailboxSession( final ImapSession session) {
+        final MailboxSession result = (MailboxSession) session.getAttribute( ImapSessionUtils.MAILBOX_SESSION_ATTRIBUTE_SESSION_KEY );
+        return result;
+    }
+    
+    public static void setMailboxSession(final ImapSession session, final MailboxSession mailboxSession) {
+        session.setAttribute(ImapSessionUtils.MAILBOX_SESSION_ATTRIBUTE_SESSION_KEY, mailboxSession);
+    }
+    
     public static User getUser( final ImapSession session ) {
         final User result = (User) session.getAttribute(MAILBOX_USER_ATTRIBUTE_SESSION_KEY);
         return result;

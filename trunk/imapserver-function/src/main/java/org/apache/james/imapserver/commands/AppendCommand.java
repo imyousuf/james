@@ -34,6 +34,7 @@ import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
+import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 
 /**
@@ -78,7 +79,8 @@ class AppendCommand extends AuthenticatedStateCommand
         }
 
         try {
-            mailbox.appendMessage( message, datetime ,0);
+            final MailboxSession mailboxSession = session.getMailboxSession();
+            mailbox.appendMessage( message, datetime ,0, mailboxSession);
         } catch (MailboxManagerException e) {
             // TODO why not TRYCREATE?
             throw new MailboxException(e);

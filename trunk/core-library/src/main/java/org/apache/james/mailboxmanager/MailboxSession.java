@@ -17,39 +17,28 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.mailboxmanager.mailbox;
+package org.apache.james.mailboxmanager;
 
-import java.util.Collection;
-
-import javax.mail.internet.MimeMessage;
-
-import org.apache.james.mailboxmanager.MailboxManagerException;
-import org.apache.james.mailboxmanager.MailboxSession;
-
-public interface Mailbox {
+/**
+ * Mailbox session.
+ */
+public interface MailboxSession {
 
     /**
-     * Example #mail.paul.lists.apache.james-dev (3rd level folder of user paul)
-     * 
-     * @return Full folder name with namespace
-     * @throws MailboxManagerException
+     * Gets the session ID.
+     * @return session id
      */
-
-    String getName() throws MailboxManagerException;
-
-    int getMessageCount(MailboxSession mailboxSession) throws MailboxManagerException;
-
-    /** @param mailboxSession TODO
-     * @return the key */
-    String store(MimeMessage message, MailboxSession mailboxSession) throws MailboxManagerException;
-
-    /** @param mailboxSession TODO
-     * @return keys */
-    Collection list(MailboxSession mailboxSession) throws MailboxManagerException;
-
-    MimeMessage retrieve(String key, MailboxSession mailboxSession) throws MailboxManagerException;
-
-    void remove(String key, MailboxSession mailboxSession) throws MailboxManagerException;
-
-    boolean isWriteable();
+    public long getSessionId();
+    
+    /**
+     * Is this session open?
+     * @return true if the session is open,
+     * false otherwise
+     */
+    public boolean isOpen();
+    
+    /**
+     * Closes this session.
+     */
+    public void close();
 }

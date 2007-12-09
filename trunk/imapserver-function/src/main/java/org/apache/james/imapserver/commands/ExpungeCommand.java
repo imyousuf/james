@@ -53,7 +53,7 @@ class ExpungeCommand extends SelectedStateCommand
         }
        
         try {
-            mailbox.expunge(GeneralMessageSetImpl.all(),MessageResult.MINIMAL);
+            mailbox.expunge(GeneralMessageSetImpl.all(),MessageResult.MINIMAL, session.getMailboxSession());
         } catch (MailboxManagerException e) {
             throw new MailboxException(e);
         }

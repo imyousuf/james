@@ -17,39 +17,50 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.mailboxmanager.mailbox;
+package org.apache.james.mailboxmanager.torque;
 
-import java.util.Collection;
-
-import javax.mail.internet.MimeMessage;
-
-import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxSession;
 
-public interface Mailbox {
+/**
+ * Describes a mailbox session.
+ */
+public class TorqueMailboxSession implements MailboxSession {
+
+    private final long sessionId;
+    private boolean open;
+    
+    public TorqueMailboxSession(final long sessionId) {
+        super();
+        this.sessionId = sessionId;
+    }
+
+    public void close() {
+       open = false;
+    }
+
+    public long getSessionId() {
+        return sessionId;
+    }
+
+    public boolean isOpen() {
+        return open;
+    }
 
     /**
-     * Example #mail.paul.lists.apache.james-dev (3rd level folder of user paul)
-     * 
-     * @return Full folder name with namespace
-     * @throws MailboxManagerException
+     * Renders suitably for logging.
+     * @return a <code>String</code> representation 
+     * of this object.
      */
+    public String toString()
+    {
+        final String TAB = " ";
+        
+        String retValue = "TorqueMailboxSession ( "
+            + "sessionId = " + this.sessionId + TAB
+            + "open = " + this.open + TAB
+            + " )";
+    
+        return retValue;
+    }
 
-    String getName() throws MailboxManagerException;
-
-    int getMessageCount(MailboxSession mailboxSession) throws MailboxManagerException;
-
-    /** @param mailboxSession TODO
-     * @return the key */
-    String store(MimeMessage message, MailboxSession mailboxSession) throws MailboxManagerException;
-
-    /** @param mailboxSession TODO
-     * @return keys */
-    Collection list(MailboxSession mailboxSession) throws MailboxManagerException;
-
-    MimeMessage retrieve(String key, MailboxSession mailboxSession) throws MailboxManagerException;
-
-    void remove(String key, MailboxSession mailboxSession) throws MailboxManagerException;
-
-    boolean isWriteable();
 }

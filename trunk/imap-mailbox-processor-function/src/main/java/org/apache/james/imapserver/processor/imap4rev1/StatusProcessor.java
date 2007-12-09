@@ -38,6 +38,7 @@ import org.apache.james.imapserver.processor.base.AuthorizationException;
 import org.apache.james.imapserver.processor.base.ImapSessionUtils;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
+import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
@@ -77,7 +78,7 @@ public class StatusProcessor extends AbstractMailboxAwareProcessor {
             String tag, ImapCommand command) throws MailboxException,
             AuthorizationException, ProtocolException {
         final Logger logger = getLogger();
-
+        final MailboxSession mailboxSession = ImapSessionUtils.getMailboxSession(session);
         // TODO: response should not be prepared in process
         // TODO: return a transfer object
         StringBuffer buffer = new StringBuffer(mailboxName);
@@ -99,7 +100,7 @@ public class StatusProcessor extends AbstractMailboxAwareProcessor {
                 buffer.append(ImapConstants.STATUS_MESSAGES);
                 buffer.append(ImapConstants.SP);
 
-                buffer.append(mailbox.getMessageCount());
+                buffer.append(mailbox.getMessageCount(mailboxSession));
 
                 buffer.append(ImapConstants.SP);
             }
@@ -107,28 +108,28 @@ public class StatusProcessor extends AbstractMailboxAwareProcessor {
             if (statusDataItems.isRecent()) {
                 buffer.append(ImapConstants.STATUS_RECENT);
                 buffer.append(ImapConstants.SP);
-                buffer.append(mailbox.getRecentCount(false));
+                buffer.append(mailbox.getRecentCount(false, mailboxSession));
                 buffer.append(ImapConstants.SP);
             }
 
             if (statusDataItems.isUidNext()) {
                 buffer.append(ImapConstants.STATUS_UIDNEXT);
                 buffer.append(ImapConstants.SP);
-                buffer.append(mailbox.getUidNext());
+                buffer.append(mailbox.getUidNext(mailboxSession));
                 buffer.append(ImapConstants.SP);
             }
 
             if (statusDataItems.isUidValidity()) {
                 buffer.append(ImapConstants.STATUS_UIDVALIDITY);
                 buffer.append(ImapConstants.SP);
-                buffer.append(mailbox.getUidValidity());
+                buffer.append(mailbox.getUidValidity(mailboxSession));
                 buffer.append(ImapConstants.SP);
             }
 
             if (statusDataItems.isUnseen()) {
                 buffer.append(ImapConstants.STATUS_UNSEEN);
                 buffer.append(ImapConstants.SP);
-                buffer.append(mailbox.getUnseenCount());
+                buffer.append(mailbox.getUnseenCount(mailboxSession));
                 buffer.append(ImapConstants.SP);
             }
         } catch (MailboxManagerException e) {

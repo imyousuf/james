@@ -29,6 +29,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.api.imap.message.MessageFlags;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
+import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
@@ -52,6 +53,7 @@ public final class ImapSessionImpl extends AbstractLogEnabled implements ImapSes
     private ImapHandlerInterface handler;
     private MailboxManagerProvider mailboxManagerProvider;
     private UsersRepository users;
+    private MailboxSession mailboxSession;
     
     private MailboxManager mailboxManager = null;
     private User mailboxManagerUser = null;
@@ -60,7 +62,7 @@ public final class ImapSessionImpl extends AbstractLogEnabled implements ImapSes
                             UsersRepository users,
                             ImapHandlerInterface handler,
                             String clientHostName,
-                            String clientAddress )
+                            String clientAddress ) throws MailboxManagerException
     {
         this.mailboxManagerProvider = mailboxManagerProvider;
         this.users = users;
@@ -81,9 +83,9 @@ public final class ImapSessionImpl extends AbstractLogEnabled implements ImapSes
                 // New message response
                 if (selected.isSizeChanged()) {
                     response.existsResponse(selected.getMailbox()
-                            .getMessageCount());
+                            .getMessageCount(getMailboxSession()));
                     response.recentResponse(selected.getMailbox()
-                            .getRecentCount(true));
+                            .getRecentCount(true, getMailboxSession()));
                 }
 
                // Message updates
@@ -158,9 +160,16 @@ public final class ImapSessionImpl extends AbstractLogEnabled implements ImapSes
         closeMailbox();
     }
 
+    public MailboxSession getMailboxSession() throws MailboxManagerException {
+        if (mailboxSession == null) {
+            mailboxSession = getMailboxManager().createSession();
+        }
+        return mailboxSession;
+    }
+    
     public void setSelected( ImapMailbox mailbox, boolean readOnly, Collection uids ) throws MailboxManagerException
     {
-        SelectedMailboxSession sessionMailbox = new SelectedMailboxSession(mailbox, uids);
+        SelectedMailboxSession sessionMailbox = new SelectedMailboxSession(mailbox, uids, getMailboxSession());
         setupLogger(sessionMailbox);
         this.state = ImapSessionState.SELECTED;
         closeMailbox();
@@ -202,6 +211,7 @@ public final class ImapSessionImpl extends AbstractLogEnabled implements ImapSes
             mailboxManager=mailboxManagerProvider.getMailboxManager();
             mailboxManagerUser = user;
             mailboxManager.getImapMailbox(buildFullName(MailboxManager.INBOX), true);
+            mailboxSession = mailboxManager.createSession();
         }
         return mailboxManager;
     }
