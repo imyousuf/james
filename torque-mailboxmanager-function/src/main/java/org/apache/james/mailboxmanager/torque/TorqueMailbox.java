@@ -148,7 +148,6 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
 
                     save(messageRow);
                     MessageResult messageResult = fillMessageResult(messageRow, result);
-                    checkForScanGap(uid);
                     getUidChangeTracker().found(messageResult);
                     return messageResult;
                 } catch (Exception e) {
@@ -237,20 +236,6 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
         return myMailboxRow;
     }
 
-    private void checkForScanGap(long uid) throws MailboxManagerException, TorqueException, MessagingException {
-        synchronized (getUidChangeTracker()) {
-            long lastScannedUid=getUidChangeTracker().getLastScannedUid();
-            if (uid>(lastScannedUid+1)) {
-                GeneralMessageSet set=GeneralMessageSetImpl.uidRange(lastScannedUid+1, uid);
-                Criteria criteria=criteriaForMessageSet(set);
-                final List messageRows=mailboxRow.getMessageRows(criteria);
-                getUidChangeTracker().found(uidRangeForMessageSet(set), 
-                        MessageRowUtils.toMessageFlags(messageRows));
-            }
-        }
-        
-    }
-
     private Criteria criteriaForMessageSet(GeneralMessageSet set)
             throws MailboxManagerException {
         Criteria criteria = new Criteria();
@@ -310,7 +295,6 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
         List rows = MessageRowPeer.doSelectJoinMessageFlags(c);
         Collections.sort(rows, MessageRowUtils.getUidComparator());
         final TorqueResultIterator results = new TorqueResultIterator(rows, result, getUidToKeyConverter());
-        checkForScanGap(range.getFromUid());
         getUidChangeTracker().found(range, results.getMessageFlags());
         return results;
     }
@@ -391,7 +375,6 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
                     if (messageRows.size() > 0) {
                         MessageResult messageResult=fillMessageResult((MessageRow) messageRows.get(0), result);
                         if (messageResult!=null) {
-                            checkForScanGap(messageResult.getUid());
                             getUidChangeTracker().found(messageResult);
                         }
 
@@ -521,7 +504,6 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
             final List messageRows = getMailboxRow()
                     .getMessageRows(criteriaForMessageSet(set));
             UidRange uidRange=uidRangeForMessageSet(set);
-            checkForScanGap(uidRange.getFromUid());
             getUidChangeTracker().found(uidRange, MessageRowUtils.toMessageFlags(messageRows));
             for (Iterator iter = messageRows.iterator(); iter.hasNext();) {
                 final MessageRow messageRow = (MessageRow) iter.next();
