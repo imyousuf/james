@@ -22,6 +22,7 @@ package org.apache.james.imapserver.processor.imap4rev1;
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.api.imap.ProtocolException;
+import org.apache.james.api.imap.display.HumanReadableTextKey;
 import org.apache.james.api.imap.message.request.ImapRequest;
 import org.apache.james.api.imap.message.response.ImapResponseMessage;
 import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
@@ -29,8 +30,6 @@ import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
 import org.apache.james.api.imap.process.ImapProcessor.Responder;
 import org.apache.james.imap.message.request.imap4rev1.ExpungeRequest;
-import org.apache.james.imap.message.response.imap4rev1.legacy.CommandCompleteResponse;
-import org.apache.james.imap.message.response.imap4rev1.legacy.CommandFailedResponse;
 import org.apache.james.imapserver.processor.base.AbstractImapRequestProcessor;
 import org.apache.james.imapserver.processor.base.AuthorizationException;
 import org.apache.james.imapserver.processor.base.ImapSessionUtils;
@@ -56,39 +55,18 @@ public class ExpungeProcessor extends AbstractImapRequestProcessor {
             ImapSession session, String tag, ImapCommand command, Responder responder)
             throws MailboxException, AuthorizationException, ProtocolException {
         final ExpungeRequest request = (ExpungeRequest) message;
-        final ImapResponseMessage result = doProcess(request, session, tag,
-                command);
-        responder.respond(result);
-    }
-
-    private ImapResponseMessage doProcess(ExpungeRequest request,
-            ImapSession session, String tag, ImapCommand command)
-            throws MailboxException, AuthorizationException, ProtocolException {
-        final ImapResponseMessage result = doProcess(session, tag, command);
-        return result;
-    }
-
-    private ImapResponseMessage doProcess(ImapSession session, String tag,
-            ImapCommand command) throws MailboxException,
-            AuthorizationException, ProtocolException {
-        ImapResponseMessage result;
         ImapMailbox mailbox = ImapSessionUtils.getMailbox(session);
         if (!mailbox.isWriteable()) {
-            result = new CommandFailedResponse(command,
-                    "Mailbox selected read only.", tag);
+            no(command, tag, responder, HumanReadableTextKey.MAILBOX_IS_READ_ONLY);
         } else {
             try {
                 mailbox.expunge(GeneralMessageSetImpl.all(),
                         MessageResult.MINIMAL, ImapSessionUtils.getMailboxSession(session));
-                CommandCompleteResponse commandCompleteResponse = new CommandCompleteResponse(
-                        command, tag);
-                ImapSessionUtils.addUnsolicitedResponses(
-                        commandCompleteResponse, session, false);
-                result = commandCompleteResponse;
+                unsolicitedResponses(session, responder, false);
+                okComplete(command, tag, responder);
             } catch (MailboxManagerException e) {
                 throw new MailboxException(e);
             }
         }
-        return result;
     }
 }
