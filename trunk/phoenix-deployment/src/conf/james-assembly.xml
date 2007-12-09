@@ -60,16 +60,8 @@
 
     
   <block name="mailboxmanager" class="org.apache.james.mailboxmanager.impl.DefaultMailboxManagerProvider">
-      <provide name="filesystem" role="org.apache.james.services.FileSystem" />
-      <provide name="mailboxmanager-mailstore" role="org.apache.avalon.cornerstone.services.store.Store" />      
+      <provide name="filesystem" role="org.apache.james.services.FileSystem" />    
   </block>  
-
-  <block name="mailboxmanager-mailstore" class="org.apache.james.mailboxmanager.mailstore.MyAvalonMailStore" >
-    <provide name="database-connections"
-             role="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector" />
-    <provide name="filesystem" role="org.apache.james.services.FileSystem" />     
-  </block>      
- 
    
   <!-- The James Spool Manager block  -->
   <block name="spoolmanager" class="org.apache.james.transport.JamesSpoolManager" >
@@ -226,8 +218,6 @@
   <block name="mailstore" class="org.apache.james.core.AvalonMailStore" >
     <provide name="database-connections"
              role="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector" />
-    <provide name="mailboxmanager"
-             role="org.apache.james.mailboxmanager.manager.MailboxManagerProvider" />  
     <provide name="filesystem" role="org.apache.james.services.FileSystem" />     
   </block>  
         
