@@ -60,6 +60,7 @@ import org.apache.mailet.MailetContext;
  */
 public class Actions
 {
+    private static final String INBOX = "INBOX";
     static private String fieldAttributePrefix;
 
     /**
@@ -181,9 +182,7 @@ public class Actions
     public static void execute(ActionKeep anAction, Mail aMail,
             MailetContext aMailetContext) throws MessagingException
     {
-        MailAddress recipient = getSoleRecipient(aMail);
-        String inbox="#mail."+recipient.getUser()+".INBOX";
-        ActionFileInto action = new ActionFileInto(inbox);
+        final ActionFileInto action = new ActionFileInto(INBOX);
         execute(action, aMail, aMailetContext);
     }
 
