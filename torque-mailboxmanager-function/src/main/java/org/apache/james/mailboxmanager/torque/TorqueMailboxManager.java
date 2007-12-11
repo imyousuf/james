@@ -86,7 +86,7 @@ public class TorqueMailboxManager implements MailboxManager {
                         .retrieveByName(mailboxName);
 
                 if (mailboxRow != null) {
-                    getLog().info("created ImapMailboxSession "+mailboxName);
+                    getLog().debug("Loaded mailbox "+mailboxName);
                     
                     ImapMailbox torqueMailbox = (ImapMailbox) managers.get(mailboxName);
                     if (torqueMailbox == null) {
@@ -107,7 +107,7 @@ public class TorqueMailboxManager implements MailboxManager {
     
     public void createMailbox(String namespaceName)
             throws MailboxManagerException {
-        getLog().info("createMailbox "+namespaceName);
+        getLog().debug("createMailbox "+namespaceName);
         synchronized (managers) {
             MailboxRow mr = new MailboxRow();
             mr.setName(namespaceName);
@@ -142,7 +142,7 @@ public class TorqueMailboxManager implements MailboxManager {
     public void renameMailbox(String from, String to)
             throws MailboxManagerException {
         try {
-            getLog().info("renameMailbox "+from+" to "+to);
+            getLog().debug("renameMailbox "+from+" to "+to);
             synchronized (managers) {
                 // TODO put this into a serilizable transaction
                 MailboxRow mr = MailboxRowPeer.retrieveByName(from);
