@@ -40,14 +40,14 @@ import org.apache.james.mailboxmanager.MailboxManagerException;
 public class SessionTest extends AbstractSessionTest
 {
 
-    String[] existing = {USER_MAILBOX_ROOT+".INBOX",USER_MAILBOX_ROOT+".test",USER_MAILBOX_ROOT+".test1",USER_MAILBOX_ROOT+".test1.test1a",USER_MAILBOX_ROOT+".test1.test1b",USER_MAILBOX_ROOT+".test2.test2a",USER_MAILBOX_ROOT+".test2.test2b"};
+    String[] existing = {USER_MAILBOX_ROOT+".INBOX",USER_MAILBOX_ROOT+".test",USER_MAILBOX_ROOT+".test1",USER_MAILBOX_ROOT+".test1.test1a",USER_MAILBOX_ROOT+".test1.test1b",USER_MAILBOX_ROOT+".test2",USER_MAILBOX_ROOT+".test2.test2a",USER_MAILBOX_ROOT+".test2.test2b"};
     Set existingSet = null;
 
     public void setUp() throws Exception
     {
         super.setUp();
         existingSet=new HashSet(Arrays.asList(existing));
-        createFolders((String[]) existingSet.toArray(new String[0]));
+        createFolders(existing);
     }
 
 
@@ -84,7 +84,7 @@ public class SessionTest extends AbstractSessionTest
         String response=null;
         String start="* LSUB () \".\" ";
         while ((response=br.readLine())!=null) {
-            System.out.println("Parsing "+response);
+            //System.out.println("Parsing "+response);
             if (response.charAt(0)=='*') {
                 assertTrue(response.startsWith(start));
                 String name=response.substring(start.length());

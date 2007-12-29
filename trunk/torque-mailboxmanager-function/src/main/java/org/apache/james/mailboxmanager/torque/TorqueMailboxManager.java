@@ -108,16 +108,44 @@ public class TorqueMailboxManager implements MailboxManager {
     public void createMailbox(String namespaceName)
             throws MailboxManagerException {
         getLog().debug("createMailbox "+namespaceName);
-        synchronized (managers) {
-            MailboxRow mr = new MailboxRow();
-            mr.setName(namespaceName);
-            mr.setLastUid(0);
-            mr.setUidValidity(Math.abs(random.nextInt()));
-            try {
-                mr.save();
-            } catch (Exception e) {
-                throw new MailboxManagerException(e);
+        final int length = namespaceName.length();
+        if (length == 0) {
+            getLog().warn("Ignoring mailbox with empty name");
+        } else if (namespaceName.charAt(length - 1) == HIERARCHY_DELIMITER) {
+            createMailbox(namespaceName.substring(0, length - 1));
+        } else {
+            synchronized (managers) {
+                // Create root first
+                // If any creation fails then mailbox will not be created
+                // TODO: transaction
+                int index = namespaceName.indexOf(HIERARCHY_DELIMITER);
+                int count = 0;
+                while (index>=0) {
+                    // Until explicit namespace support is added,
+                    // this workaround prevents the namespaced elements being created
+                    // TODO: add explicit support for namespaces
+                    if (index > 0 && count++ > 1) {
+                        final String mailbox = namespaceName.substring(0, index);
+                        if (!existsMailbox(mailbox)) {
+                            doCreate(mailbox);
+                        }
+                    }
+                    index = namespaceName.indexOf(HIERARCHY_DELIMITER, ++index);
+                }
+                doCreate(namespaceName);
             }
+        }
+    }
+
+    private void doCreate(String namespaceName) throws MailboxManagerException {
+        MailboxRow mr = new MailboxRow();
+        mr.setName(namespaceName);
+        mr.setLastUid(0);
+        mr.setUidValidity(Math.abs(random.nextInt()));
+        try {
+            mr.save();
+        } catch (Exception e) {
+            throw new MailboxManagerException(e);
         }
     }
 
