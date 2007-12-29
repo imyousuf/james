@@ -196,10 +196,10 @@ public abstract class AbstractSessionTest extends MockObjectTestCase implements 
     {
         ByteArrayInputStream is = new ByteArrayInputStream(s.getBytes());
         ByteArrayOutputStream os = new ByteArrayOutputStream();
-        System.out.println("IN :" + s);
+        //System.out.println("IN :" + s);
         handler.handleRequest(is, os, session);
         String out = os.toString();
-        System.out.println("OUT:" + out);
+        //System.out.println("OUT:" + out);
         return out;
         
     }

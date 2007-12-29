@@ -78,6 +78,12 @@ public interface MailboxManager {
      */
     ImapMailbox getImapMailbox(String mailboxName, boolean autocreate) throws MailboxManagerException;
 
+    /**
+     * Creates a new mailbox.
+     * Any intermediary mailboxes missing from the hierarchy should be created.
+     * @param mailboxName name, not null
+     * @throws MailboxManagerException
+     */
     void createMailbox(String mailboxName) throws MailboxManagerException;
 
     void deleteMailbox(String mailboxName) throws MailboxManagerException;

@@ -44,4 +44,7 @@ public class ListResultImpl implements ListResult {
         return name;
     }
 
+    public String toString() {
+        return "ListResult: " + name;
+    }
 }

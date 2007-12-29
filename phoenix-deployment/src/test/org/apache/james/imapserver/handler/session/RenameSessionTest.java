@@ -69,7 +69,8 @@ public class RenameSessionTest extends AbstractSessionTest {
                 USER_MAILBOX_ROOT + ".test1.test1neu",
                 USER_MAILBOX_ROOT + ".test1.test1b",
                 USER_MAILBOX_ROOT + ".test2.test2a",
-                USER_MAILBOX_ROOT + ".test2.test2b" };
+                USER_MAILBOX_ROOT + ".test2.test2b",
+                USER_MAILBOX_ROOT + ".test2"};
         verifyFolderList(expected, getFolderNames());
 
         verifyCommand(new LogoutClientCommand());
@@ -79,14 +80,16 @@ public class RenameSessionTest extends AbstractSessionTest {
             MessagingException, MailboxManagerException {
         verifyCommand(new LoginCommand(USER_NAME, USER_PASSWORD));
 
-        verifyCommand(new RenameClientCommand("test1", "test2"));
+        verifyCommand(new RenameClientCommand("test1", "test3"));
 
         String[] expected = { USER_MAILBOX_ROOT + ".INBOX",
-                USER_MAILBOX_ROOT + ".test", USER_MAILBOX_ROOT + ".test2",
-                USER_MAILBOX_ROOT + ".test2.test1a",
-                USER_MAILBOX_ROOT + ".test2.test1b",
+                USER_MAILBOX_ROOT + ".test", 
+                USER_MAILBOX_ROOT + ".test3",
+                USER_MAILBOX_ROOT + ".test3.test1a",
+                USER_MAILBOX_ROOT + ".test3.test1b",
                 USER_MAILBOX_ROOT + ".test2.test2a",
-                USER_MAILBOX_ROOT + ".test2.test2b" };
+                USER_MAILBOX_ROOT + ".test2.test2b",
+                USER_MAILBOX_ROOT + ".test2"};
         verifyFolderList(expected, getFolderNames());
 
         verifyCommand(new LogoutClientCommand());

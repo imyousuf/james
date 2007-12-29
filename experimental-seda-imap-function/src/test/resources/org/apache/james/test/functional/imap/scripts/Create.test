@@ -31,6 +31,26 @@ S: 13 OK CREATE completed.
 # Create quoted
 C: 14 CREATE "Pepe juan"
 S: 14 OK CREATE completed.
+#
+# RFC3501@6.3.3p2
+# When mailbox name is suffixed with hierarchy separator
+# name created must remove tailing delimiter
+C: 15 CREATE another.test.
+S: 15 OK CREATE completed.
+C: 16 LIST "" another*
+S: \* LIST \(\) "." "another"
+S: \* LIST \(\) "." "another.test"
+S: 16 OK LIST completed.
+#
+# RFC3501@6.3.3p2
+# Intermediary mailboxes which don't exist should be created
+C: 17 CREATE alpha.beta.gamma
+S: 17 OK CREATE completed.
+C: 18 LIST "" alpha*
+S: \* LIST \(\) "." "alpha"
+S: \* LIST \(\) "." "alpha.beta"
+S: \* LIST \(\) "." "alpha.beta.gamma"
+S: 18 OK LIST completed.
 
 # Cleanup
 C: a1 DELETE test1.subfolder1
@@ -43,3 +63,13 @@ C: a1 DELETE test
 S: a1 OK DELETE completed.
 C: a10 DELETE "Pepe juan"
 S: a10 OK DELETE completed.
+C: a11 DELETE alpha.beta.gamma
+S: a11 OK DELETE completed.
+C: a11 DELETE alpha.beta
+S: a11 OK DELETE completed.
+C: a11 DELETE alpha
+S: a11 OK DELETE completed.
+C: a11 DELETE another.test
+S: a11 OK DELETE completed.
+C: a11 DELETE another
+S: a11 OK DELETE completed.
