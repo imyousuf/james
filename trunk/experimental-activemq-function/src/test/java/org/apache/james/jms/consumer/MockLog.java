@@ -19,30 +19,72 @@
 
 package org.apache.james.jms.consumer;
 
-import org.apache.james.services.MailServer;
-import org.apache.mailet.Mail;
-import org.jmock.Mock;
-import org.jmock.MockObjectTestCase;
+import org.apache.commons.logging.Log;
 
-public class SpoolToJamesMailConsumerTest extends MockObjectTestCase {
+public class MockLog implements Log {
 
-	SpoolToJamesMailConsumer consumer;
-	Mock mailServer;
-	Mail mail;
-	
-	protected void setUp() throws Exception {
-		super.setUp();
-		mail = (Mail)(mock(Mail.class).proxy());
-		mailServer = mock(MailServer.class);
-		consumer = new SpoolToJamesMailConsumer((MailServer)(mailServer.proxy()),new MockLog());
-	}
+    public void debug(Object arg0) {
+    }
 
-	protected void tearDown() throws Exception {
-		super.tearDown();
-	}
+    public void debug(Object arg0, Throwable arg1) {
+    }
 
-	public void testShouldSendMailToJames() throws Exception {
-		mailServer.expects(once()).method("sendMail").with(same(mail));
-		consumer.consume(mail);
-	}
+    public void error(Object arg0) {
+    }
+
+    public void error(Object arg0, Throwable arg1) {
+    }
+
+    public void fatal(Object arg0) {
+    }
+
+    public void fatal(Object arg0, Throwable arg1) {
+    }
+
+    public void info(Object arg0) {
+    }
+
+    public void info(Object arg0, Throwable arg1) {
+    }
+
+    public boolean isDebugEnabled() {
+        return false;
+    }
+
+    public boolean isErrorEnabled() {
+        return false;
+    }
+
+    public boolean isFatalEnabled() {
+        return false;
+    }
+
+    public boolean isInfoEnabled() {
+        return false;
+    }
+
+    public boolean isTraceEnabled() {
+        return false;
+    }
+
+    public boolean isWarnEnabled() {
+        return false;
+    }
+
+    public void trace(Object arg0) {
+
+    }
+
+    public void trace(Object arg0, Throwable arg1) {
+
+    }
+
+    public void warn(Object arg0) {
+
+    }
+
+    public void warn(Object arg0, Throwable arg1) {
+
+    }
+
 }
