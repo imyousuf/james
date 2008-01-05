@@ -84,6 +84,15 @@ public abstract class AbstractTestImapResponseComposer extends TestCase {
         checkListResponseEncode("* LIST (\\one \\two \\three \\four) \".\" \"#INBOX\"\r\n", "LIST", attributes, ".", "#INBOX");
     }
     
+    public void testEncodeStatus() throws Exception {
+        checkStatusResponseEncode("* STATUS \"#INBOX.\\\"sub directory\\\".what\" (MESSAGES 3 RECENT 5 UIDNEXT 7 UIDVALIDITY 11 UNSEEN 13)\r\n", new Long(3), new Long(5), new Long(7), new Long(11), new Long(13), "#INBOX.\"sub directory\".what");
+        checkStatusResponseEncode("* STATUS \"#INBOX\" (MESSAGES 42)\r\n", new Long(42), null, null, null, null, "#INBOX");
+        checkStatusResponseEncode("* STATUS \"#INBOX\" (RECENT 42)\r\n", null, new Long(42), null, null, null, "#INBOX");
+        checkStatusResponseEncode("* STATUS \"#INBOX\" (UIDNEXT 42)\r\n", null, null, new Long(42), null, null, "#INBOX");
+        checkStatusResponseEncode("* STATUS \"#INBOX\" (UIDVALIDITY 42)\r\n", null, null, null, new Long(42), null, "#INBOX");
+        checkStatusResponseEncode("* STATUS \"#INBOX\" (UNSEEN 42)\r\n", null, null, null, null, new Long(42), "#INBOX");
+    }
+    
     public void testShouldEncodeFlagsCorrectly() throws Exception {
         checkFlagsEncode(" FLAGS (\\Seen)", new Flags(Flags.Flag.SEEN));
         checkFlagsEncode(" FLAGS (\\Recent)", new Flags(Flags.Flag.RECENT));
@@ -139,6 +148,20 @@ public abstract class AbstractTestImapResponseComposer extends TestCase {
     
     protected abstract byte[] encodeListResponse(String typeName, List attributes, 
             String hierarchyDelimiter, String name) throws Exception;
+    
+    private void checkStatusResponseEncode(String expected, Long messages, Long recent,
+            Long uidNext, Long uidValidity, Long unseen, String mailbox) throws Exception {
+        StringBuffer buffer = new StringBuffer();
+        byte[] output = encodeStatusResponse(messages, recent, uidNext, uidValidity, unseen, mailbox);
+        for (int i=0;i<output.length;i++) {
+            buffer.append((char) output[i]);
+        }
+        assertEquals(expected, buffer.toString());
+        clear();
+    }
+    
+    protected abstract byte[] encodeStatusResponse(Long messages, Long recent,
+            Long uidNext, Long uidValidity, Long unseen, String mailbox) throws Exception;
     
     protected abstract void clear() throws Exception;
 }

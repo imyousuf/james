@@ -227,6 +227,9 @@ public interface ImapResponseComposer {
     public abstract void statusResponse(String tag, ImapCommand command,
             String type, String responseCode, String text) throws IOException;
     
+    public abstract void statusResponse(Long messages, Long recent,
+            Long uidNext, Long uidValidity, Long unseen, String mailboxName) throws IOException;
+    
     public void quote(String message) throws IOException;
 
     public void literal(Literal literal) throws IOException;

@@ -27,6 +27,9 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.message.response.ImapResponseMessage;
 
+/**
+ * @deprecated responses should correspond to specification
+ */
 abstract public class AbstractImapResponse extends AbstractLogEnabled implements ImapResponseMessage {
 
     private final ImapCommand command;

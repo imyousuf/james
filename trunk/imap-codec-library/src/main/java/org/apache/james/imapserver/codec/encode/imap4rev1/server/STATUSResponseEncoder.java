@@ -16,41 +16,37 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.imapserver.codec.encode.imap4rev1.legacy;
+
+package org.apache.james.imapserver.codec.encode.imap4rev1.server;
 
 import java.io.IOException;
-import java.util.List;
 
-import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
-import org.apache.james.imap.message.response.imap4rev1.legacy.StatusResponse;
+import org.apache.james.imap.message.response.imap4rev1.server.STATUSResponse;
 import org.apache.james.imapserver.codec.encode.ImapEncoder;
 import org.apache.james.imapserver.codec.encode.ImapResponseComposer;
 import org.apache.james.imapserver.codec.encode.base.AbstractChainedImapEncoder;
 
 /**
- * @deprecated responses should correspond directly to the specification
+ * Encodes <code>STATUS</code> responses.
  */
-public class StatusCommandResponseEncoder extends AbstractChainedImapEncoder {
-    
-    public StatusCommandResponseEncoder(ImapEncoder next) {
+public class STATUSResponseEncoder extends AbstractChainedImapEncoder {
+
+    public STATUSResponseEncoder(ImapEncoder next) {
         super(next);
     }
 
-    protected void doEncode(ImapMessage acceptableMessage, ImapResponseComposer composer) throws IOException {
-        StatusResponse response = (StatusResponse) acceptableMessage;
-        final ImapCommand command = response.getCommand();
-        final String message = response.getMessage();
-        composer.commandResponse( command, message);
-        
-        List unsolicitedResponses = response.getUnsolicatedResponses();
-        chainEncodeAll(unsolicitedResponses, composer);
-        
-        final String tag = response.getTag();
-        composer.commandComplete( command, tag );
+    protected void doEncode(ImapMessage acceptableMessage,
+            ImapResponseComposer composer) throws IOException {
+        STATUSResponse response = (STATUSResponse) acceptableMessage;
+        composer.statusResponse(response.getMessages(), response.getRecent(), 
+                response.getUidNext(), response.getUidValidity(), response.getUnseen(), 
+                response.getMailbox());
+
     }
 
     protected boolean isAcceptable(ImapMessage message) {
-        return (message instanceof StatusResponse);
+        return message != null && message instanceof STATUSResponse;
     }
+
 }

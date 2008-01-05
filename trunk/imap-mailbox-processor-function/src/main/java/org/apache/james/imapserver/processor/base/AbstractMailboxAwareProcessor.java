@@ -27,11 +27,8 @@ import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 import org.apache.james.services.User;
 
-abstract public class AbstractMailboxAwareProcessor extends AbstractImapRequestProcessor{
+abstract public class AbstractMailboxAwareProcessor extends AbstractImapRequestProcessor {
 
-    // TODO: move into ImapConstants
-
-    
     private final MailboxManagerProvider mailboxManagerProvider;
     
     public AbstractMailboxAwareProcessor(final ImapProcessor next, 

@@ -60,4 +60,9 @@ public class ImapResponseComposerImplTest extends
         return writer.getBytes();
     }
 
+    protected byte[] encodeStatusResponse(Long messages, Long recent, Long uidNext, Long uidValidity, Long unseen, String mailbox) throws Exception {
+        composer.statusResponse(messages, recent, uidNext, uidValidity, unseen, mailbox);
+        return writer.getBytes();
+    }
+
 }
