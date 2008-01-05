@@ -31,7 +31,6 @@ import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.api.imap.message.MessageFlags;
 import org.apache.james.imap.message.response.imap4rev1.Literal;
-import org.apache.james.imap.message.response.imap4rev1.FetchResponse.BodyElement;
 import org.apache.james.imapserver.codec.encode.ImapResponseComposer;
 import org.apache.james.imapserver.codec.encode.ImapResponseWriter;
 
@@ -360,6 +359,50 @@ public class ImapResponseComposerImpl extends AbstractLogEnabled implements
         if (text != null) {
             message(text);
         }
+        end();
+    }
+    
+    /**
+     * @throws IOException 
+     * @see org.apache.james.imapserver.codec.encode.ImapResponseComposer#statusResponse(Long, Long, Long, Long, Long, String)
+     */
+    public void statusResponse(Long messages, Long recent, Long uidNext, Long uidValidity, Long unseen, String mailboxName) throws IOException {
+        untagged();
+        message(STATUS_COMMAND_NAME);
+        quote(mailboxName);
+        openParen();
+        
+        if (messages != null) {
+            message(STATUS_MESSAGES);
+            final long messagesValue = messages.longValue();
+            message(messagesValue);
+        }
+        
+        if (recent != null) {
+            message(STATUS_RECENT);
+            final long recentValue = recent.longValue();
+            message(recentValue);
+        }
+            
+        if (uidNext != null) {
+            message(STATUS_UIDNEXT);
+            final long uidNextValue = uidNext.longValue();
+            message(uidNextValue);
+        }
+
+        if (uidValidity != null) {
+            message(STATUS_UIDVALIDITY);
+            final long uidValidityValue = uidValidity.longValue();
+            message(uidValidityValue);
+        }
+        
+        if (unseen != null) {
+            message(STATUS_UNSEEN);
+            final long unseenValue = unseen.longValue();
+            message(unseenValue);
+        }
+        
+        closeParen();
         end();
     }
 

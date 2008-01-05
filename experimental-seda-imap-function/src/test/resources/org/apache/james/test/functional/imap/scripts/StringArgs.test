@@ -25,12 +25,12 @@
 
 # INBOX special case
 C: a001 STATUS INBOX (MESSAGES)
-S: \* STATUS INBOX \(MESSAGES \d+\)
+S: \* STATUS \"INBOX\" \(MESSAGES \d+\)
 S: a001 OK STATUS completed.
 
 # Case-insensitive inbox
 C: a001 STATUS InBoX (MESSAGES)
-S: \* STATUS INBOX \(MESSAGES \d+\)
+S: \* STATUS \"INBOX\" \(MESSAGES \d+\)
 S: a001 OK STATUS completed.
 
 # Tests with an atomic mailbox name.
@@ -39,25 +39,25 @@ S: a1 OK CREATE completed.
 
 # atom
 C: a001 STATUS atomMailbox (MESSAGES)
-S: \* STATUS atomMailbox \(MESSAGES \d+\)
+S: \* STATUS \"atomMailbox\" \(MESSAGES \d+\)
 S: a001 OK STATUS completed.
 
 # quoted
 C: a001 STATUS "atomMailbox" (MESSAGES)
-S: \* STATUS atomMailbox \(MESSAGES \d+\)
+S: \* STATUS \"atomMailbox\" \(MESSAGES \d+\)
 S: a001 OK STATUS completed.
 
 # non-synchronized literal
 C: a001 STATUS {11}
 S: \+
 C: atomMailbox (MESSAGES)
-S: \* STATUS atomMailbox \(MESSAGES \d+\)
+S: \* STATUS \"atomMailbox\" \(MESSAGES \d+\)
 S: a001 OK STATUS completed.
 
 # synchronized literal
 C: a001 STATUS {11+}
 C: atomMailbox (MESSAGES)
-S: \* STATUS atomMailbox \(MESSAGES \d+\)
+S: \* STATUS \"atomMailbox\" \(MESSAGES \d+\)
 S: a001 OK STATUS completed.
 
 # Cleanup

@@ -33,7 +33,7 @@ import org.apache.james.imapserver.codec.encode.imap4rev1.legacy.CommandFailedRe
 import org.apache.james.imapserver.codec.encode.imap4rev1.legacy.ErrorResponseEncoder;
 import org.apache.james.imapserver.codec.encode.imap4rev1.legacy.ExamineAndSelectResponseEncoder;
 import org.apache.james.imapserver.codec.encode.imap4rev1.legacy.LogoutResponseEncoder;
-import org.apache.james.imapserver.codec.encode.imap4rev1.legacy.StatusCommandResponseEncoder;
+import org.apache.james.imapserver.codec.encode.imap4rev1.server.STATUSResponseEncoder;
 import org.apache.james.imapserver.codec.encode.imap4rev1.server.LSubResponseEncoder;
 import org.apache.james.imapserver.codec.encode.imap4rev1.server.ListResponseEncoder;
 import org.apache.james.imapserver.codec.encode.imap4rev1.server.SearchResponseEncoder;
@@ -52,7 +52,7 @@ public class DefaultImapEncoderFactory implements ImapEncoderFactory {
         final FetchResponseEncoder fetchResponseEncoder = new FetchResponseEncoder(recentResponseEncoder);
         final ExpungeResponseEncoder expungeResponseEncoder = new ExpungeResponseEncoder(fetchResponseEncoder);
         final ExistsResponseEncoder existsResponseEncoder = new ExistsResponseEncoder(expungeResponseEncoder);
-        final StatusCommandResponseEncoder statusCommandResponseEncoder = new StatusCommandResponseEncoder(existsResponseEncoder);
+        final STATUSResponseEncoder statusCommandResponseEncoder = new STATUSResponseEncoder(existsResponseEncoder);
         final SearchResponseEncoder searchResponseEncoder = new SearchResponseEncoder(statusCommandResponseEncoder);
         final LogoutResponseEncoder logoutResponseEncoder = new LogoutResponseEncoder(searchResponseEncoder);
         final LSubResponseEncoder lsubResponseEncoder = new LSubResponseEncoder(logoutResponseEncoder);

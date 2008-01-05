@@ -21,18 +21,15 @@ package org.apache.james.imapserver.processor.imap4rev1;
 
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.api.imap.ImapCommand;
-import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.api.imap.message.StatusDataItems;
 import org.apache.james.api.imap.message.request.ImapRequest;
-import org.apache.james.api.imap.message.response.ImapResponseMessage;
 import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
-import org.apache.james.api.imap.process.ImapProcessor.Responder;
 import org.apache.james.imap.message.request.imap4rev1.StatusRequest;
-import org.apache.james.imap.message.response.imap4rev1.legacy.StatusResponse;
+import org.apache.james.imap.message.response.imap4rev1.server.STATUSResponse;
 import org.apache.james.imapserver.processor.base.AbstractMailboxAwareProcessor;
 import org.apache.james.imapserver.processor.base.AuthorizationException;
 import org.apache.james.imapserver.processor.base.ImapSessionUtils;
@@ -58,32 +55,11 @@ public class StatusProcessor extends AbstractMailboxAwareProcessor {
             ImapSession session, String tag, ImapCommand command, Responder responder)
             throws MailboxException, AuthorizationException, ProtocolException {
         final StatusRequest request = (StatusRequest) message;
-        final ImapResponseMessage result = doProcess(request, session, tag,
-                command);
-        responder.respond(result);
-    }
-
-    private ImapResponseMessage doProcess(StatusRequest request,
-            ImapSession session, String tag, ImapCommand command)
-            throws MailboxException, AuthorizationException, ProtocolException {
         final String mailboxName = request.getMailboxName();
         final StatusDataItems statusDataItems = request.getStatusDataItems();
-        final ImapResponseMessage result = doProcess(mailboxName,
-                statusDataItems, session, tag, command);
-        return result;
-    }
-
-    private ImapResponseMessage doProcess(final String mailboxName,
-            final StatusDataItems statusDataItems, ImapSession session,
-            String tag, ImapCommand command) throws MailboxException,
-            AuthorizationException, ProtocolException {
         final Logger logger = getLogger();
         final MailboxSession mailboxSession = ImapSessionUtils.getMailboxSession(session);
-        // TODO: response should not be prepared in process
-        // TODO: return a transfer object
-        StringBuffer buffer = new StringBuffer(mailboxName);
-        buffer.append(ImapConstants.SP);
-        buffer.append("(");
+        
         try {
             String fullMailboxName = buildFullName(session, mailboxName);
 
@@ -95,56 +71,79 @@ public class StatusProcessor extends AbstractMailboxAwareProcessor {
             final MailboxManager mailboxManager = getMailboxManager(session);
             final ImapMailbox mailbox = mailboxManager
                     .getImapMailbox(fullMailboxName, false);
-
-            if (statusDataItems.isMessages()) {
-                buffer.append(ImapConstants.STATUS_MESSAGES);
-                buffer.append(ImapConstants.SP);
-
-                buffer.append(mailbox.getMessageCount(mailboxSession));
-
-                buffer.append(ImapConstants.SP);
-            }
-
-            if (statusDataItems.isRecent()) {
-                buffer.append(ImapConstants.STATUS_RECENT);
-                buffer.append(ImapConstants.SP);
-                buffer.append(mailbox.getRecentCount(false, mailboxSession));
-                buffer.append(ImapConstants.SP);
-            }
-
-            if (statusDataItems.isUidNext()) {
-                buffer.append(ImapConstants.STATUS_UIDNEXT);
-                buffer.append(ImapConstants.SP);
-                buffer.append(mailbox.getUidNext(mailboxSession));
-                buffer.append(ImapConstants.SP);
-            }
-
-            if (statusDataItems.isUidValidity()) {
-                buffer.append(ImapConstants.STATUS_UIDVALIDITY);
-                buffer.append(ImapConstants.SP);
-                buffer.append(mailbox.getUidValidity(mailboxSession));
-                buffer.append(ImapConstants.SP);
-            }
-
-            if (statusDataItems.isUnseen()) {
-                buffer.append(ImapConstants.STATUS_UNSEEN);
-                buffer.append(ImapConstants.SP);
-                buffer.append(mailbox.getUnseenCount(mailboxSession));
-                buffer.append(ImapConstants.SP);
-            }
+            
+            final Long messages = messages(statusDataItems, mailboxSession, mailbox);
+            final Long recent = recent(statusDataItems, mailboxSession, mailbox);
+            final Long uidNext = uidNext(statusDataItems, mailboxSession, mailbox);
+            final Long uidValidity = uidValidity(statusDataItems, mailboxSession, mailbox);
+            final Long unseen = unseen(statusDataItems, mailboxSession, mailbox);
+            
+            final STATUSResponse response = new STATUSResponse(messages, recent, uidNext, uidValidity, unseen, mailboxName);
+            responder.respond(response);
+            
         } catch (MailboxManagerException e) {
             if (logger != null && logger.isDebugEnabled()) {
                 logger.debug("STATUS command failed: ", e);
             }
             throw new MailboxException(e);
         }
-        if (buffer.charAt(buffer.length() - 1) == ' ') {
-            buffer.setLength(buffer.length() - 1);
+        
+        unsolicitedResponses(session, responder, false);
+        okComplete(command, tag, responder);
+    }
+
+    private Long unseen(final StatusDataItems statusDataItems, final MailboxSession mailboxSession, final ImapMailbox mailbox) throws MailboxManagerException {
+        final Long unseen;
+        if (statusDataItems.isUnseen()) {
+            final int unseenCountValue = mailbox.getUnseenCount(mailboxSession);
+            unseen = new Long(unseenCountValue);
+        } else {
+            unseen = null;
         }
-        buffer.append(')');
-        final StatusResponse result = new StatusResponse(command, buffer
-                .toString(), tag);
-        ImapSessionUtils.addUnsolicitedResponses(result, session, false);
-        return result;
+        return unseen;
+    }
+
+    private Long uidValidity(final StatusDataItems statusDataItems, final MailboxSession mailboxSession, final ImapMailbox mailbox) throws MailboxManagerException {
+        final Long uidValidity;
+        if (statusDataItems.isUidValidity()) {
+            final long uidValidityValue = mailbox.getUidValidity(mailboxSession);
+            uidValidity = new Long(uidValidityValue);
+        } else {
+            uidValidity = null;
+        }
+        return uidValidity;
+    }
+
+    private Long uidNext(final StatusDataItems statusDataItems, final MailboxSession mailboxSession, final ImapMailbox mailbox) throws MailboxManagerException {
+        final Long uidNext;
+        if (statusDataItems.isUidNext()) {
+            final long uidNextValue = mailbox.getUidNext(mailboxSession);
+            uidNext = new Long(uidNextValue);
+        } else {
+            uidNext = null;
+        }
+        return uidNext;
+    }
+
+    private Long recent(final StatusDataItems statusDataItems, final MailboxSession mailboxSession, final ImapMailbox mailbox) throws MailboxManagerException {
+        final Long recent;
+        if (statusDataItems.isRecent()) {
+            final int recentCount = mailbox.getRecentCount(false, mailboxSession);
+            recent = new Long(recentCount);
+        } else {
+            recent = null;
+        }
+        return recent;
+    }
+
+    private Long messages(final StatusDataItems statusDataItems, final MailboxSession mailboxSession, final ImapMailbox mailbox) throws MailboxManagerException {
+        final Long messages;
+        if (statusDataItems.isMessages()) {
+            final int messageCount = mailbox.getMessageCount(mailboxSession);
+            messages = new Long(messageCount);
+        } else {
+            messages = null;
+        }
+        return messages;
     }
 }
