@@ -19,6 +19,8 @@
 
 package org.apache.james.api.imap.display;
 
+import org.apache.james.api.imap.ImapConstants;
+
 /**
  * Keys human response text that may be displayed to the user. 
  */
@@ -43,6 +45,10 @@ public class HumanReadableTextKey {
     public static final HumanReadableTextKey MAILBOX_IS_READ_ONLY 
         = new HumanReadableTextKey("org.apache.james.imap.MAILBOX_IS_READ_ONLY",
                 "failed. Mailbox is read only.");
+    
+    public static final HumanReadableTextKey BYE 
+        = new HumanReadableTextKey("org.apache.james.imap.BYE",
+         ImapConstants.VERSION + " Server logging out");
     
     private final String defaultValue;
     private final String key;

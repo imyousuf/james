@@ -138,6 +138,11 @@ abstract public class AbstractImapRequestProcessor extends
         responder.respond(response);
     }
     
+    protected void bye(final ImapProcessor.Responder responder) {
+        final StatusResponse response = factory.bye(HumanReadableTextKey.BYE);
+        responder.respond(response);
+    }
+    
     protected abstract void doProcess(final ImapRequest message,
             ImapSession session, String tag, ImapCommand command, Responder responder)
             throws MailboxException, AuthorizationException, ProtocolException;
