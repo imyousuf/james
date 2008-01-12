@@ -36,16 +36,25 @@ public interface UserMetaDataRespository {
     
     /**
      * Gets the attribute for the given key.
+     * @param username the name of the user, not null
      * @param key conventionally an URI, not null
      * @return value, or null if the keyed attribute has 
      * no associated value.
      */
-    public Serializable getAttribute(String key) throws UserRepositoryException;
+    public Serializable getAttribute(String username, String key) throws UserRepositoryException;
     
     /**
      * Sets the attribute keyed to the given value.
+     * @param username the name of the user which meta-data is to be set, not null
      * @param value <code>Serializable</code> value, possibly null
      * @param key conventionally an URI, not null
      */
-    public void setAttribute(Serializable value, String key) throws UserRepositoryException;
+    public void setAttribute(String username, Serializable value, String key) throws UserRepositoryException;
+    
+    /**
+     * Clears all attributes for the given user.
+     * @param username the name of the user who meta data is to be cleared, not null
+     * @throws UserRepositoryException
+     */
+    public void clear(String username) throws UserRepositoryException;
 }
