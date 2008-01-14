@@ -160,7 +160,9 @@ public class TorqueResultIterator implements Iterator {
 
         public int compareTo(Object o) {
             MessageResult that=(MessageResult)o;
-            return (int) Math.signum(uid - that.getUid());
+            // Java 1.5  return (int) Math.signum(uid - that.getUid());
+            long diff = uid - that.getUid();
+            return (int) diff == 0 ? 0 : diff > 0 ? 1 : -1;
         }
         
     }
