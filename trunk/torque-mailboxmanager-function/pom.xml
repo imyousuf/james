@@ -32,29 +32,35 @@
       <groupId>javax.mail</groupId>
       <artifactId>mail</artifactId>
     </dependency>
+    <!-- 
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>mailet</artifactId>
     </dependency>
+     -->
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-library</artifactId>
     </dependency>
 
+    <!-- 
     <dependency>
       <groupId>commons-configuration</groupId>
       <artifactId>commons-configuration</artifactId>
     </dependency>
+     -->
     
     <dependency>
       <groupId>org.apache.db.torque</groupId>
       <artifactId>runtime</artifactId>
     </dependency>
 
+    <!-- 
     <dependency>
       <groupId>org.apache.avalon.framework</groupId>
       <artifactId>avalon-framework-api</artifactId>
     </dependency>
+     -->
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
@@ -66,6 +72,18 @@
     <dependency>
       <groupId>village</groupId>
       <artifactId>village</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>concurrent</groupId>
+      <artifactId>concurrent</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-beanutils</groupId>
+      <artifactId>commons-beanutils</artifactId>
     </dependency>
     
     <dependency>

@@ -35,12 +35,22 @@
     </dependency>
 
     <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-domain-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-user-api</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>org.bouncycastle</groupId>
       <artifactId>bcmail-jdk14</artifactId>
     </dependency>
     <dependency>
       <groupId>org.bouncycastle</groupId>
       <artifactId>bcmail-jdk14-workaround</artifactId>
+      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>javax.mail</groupId>
@@ -179,7 +189,7 @@
     <dependency>
       <groupId>concurrent</groupId>
       <artifactId>concurrent</artifactId>
-      <scope>runtime</scope>
+      <!--  <scope>runtime</scope> -->
     </dependency>
     <dependency>
       <groupId>commons-beanutils</groupId>
