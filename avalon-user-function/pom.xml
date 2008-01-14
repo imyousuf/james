@@ -25,26 +25,24 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.james</groupId>
-  <artifactId>james-server-experimental-activemq-function</artifactId>
-  <name>Apache JAMES Server JMS Function</name>
+  <artifactId>james-server-avalon-user-function</artifactId>
+  <name>Apache JAMES Server Avalon User function</name>
   <dependencies>
     <dependency>
       <groupId>javax.mail</groupId>
       <artifactId>mail</artifactId>
     </dependency>
-    <!-- 
-    <dependency>
-      <groupId>javax.activation</groupId>
-      <artifactId>activation</artifactId>
-    </dependency>
-     -->
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>mailet</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>apache-mime4j</artifactId>
+      <artifactId>james-server-user-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-user-library</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
@@ -52,28 +50,29 @@
     </dependency>
     
     <dependency>
-      <groupId>org.apache.activemq</groupId>
-      <artifactId>activemq-core</artifactId>
-      <version>4.1.1</version>
-    </dependency>
-    
-    <dependency>
-    	<groupId>commons-io</groupId>
-    	<artifactId>commons-io</artifactId>
+      <groupId>org.apache.avalon.framework</groupId>
+      <artifactId>avalon-framework-api</artifactId>
     </dependency>
     <dependency>
-    	<groupId>commons-logging</groupId>
-    	<artifactId>commons-logging</artifactId>
+      <groupId>org.apache.avalon.framework</groupId>
+      <artifactId>avalon-framework-impl</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.avalon.cornerstone.store</groupId>
+      <artifactId>cornerstone-store-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.excalibur.components</groupId>
+      <artifactId>excalibur-datasource</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.avalon.cornerstone.datasources</groupId>
+      <artifactId>cornerstone-datasources-api</artifactId>
     </dependency>
     
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>jmock</groupId>
-      <artifactId>jmock</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

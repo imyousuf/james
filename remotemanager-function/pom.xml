@@ -41,6 +41,14 @@
       <artifactId>james-server-core-library</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-user-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-user-library</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.apache.avalon.cornerstone.store</groupId>
       <artifactId>cornerstone-store-api</artifactId>
     </dependency>
