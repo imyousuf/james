@@ -300,8 +300,15 @@ public class ToMultiRepository extends GenericMailet {
         if (repositoryUrl == null) {
             userInbox = mailServer.getUserInbox(userName);
         } else {
+            if (!repositoryUrl.endsWith("/")) {
+        	    repositoryUrl += "/";
+            }
+        	        
+            // find the username for delivery to that user - localname, ignore the rest
+            String[] addressParts = userName.split("@");
+        	        
             StringBuffer destinationBuffer = new StringBuffer(192).append(
-                    repositoryUrl).append(userName).append("/");
+            repositoryUrl).append(addressParts[0]).append("/");
             String destination = destinationBuffer.toString();
             DefaultConfiguration mboxConf = new DefaultConfiguration(
                     "repository", "generated:ToMultiRepository.getUserInbox()");
