@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>javax.mail</groupId>
   <artifactId>mail</artifactId>
-  <version>1.4.1ea-SNAPSHOT</version>
+  <version>1.4.1</version>
   <dependencies>
     <dependency>
       <groupId>javax.activation</groupId>
