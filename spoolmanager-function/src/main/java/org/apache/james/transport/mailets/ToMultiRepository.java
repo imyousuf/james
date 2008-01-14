@@ -116,10 +116,7 @@ public class ToMultiRepository extends GenericMailet {
         Collection recipients = mail.getRecipients();
         Collection errors = new Vector();
 
-        MimeMessage message = null;
-        if (deliveryHeader != null || resetReturnPath) {
-            message = mail.getMessage();
-        }
+        MimeMessage message = mail.getMessage();
 
         if (resetReturnPath) {
             // Set Return-Path and remove all other Return-Path headers from the
