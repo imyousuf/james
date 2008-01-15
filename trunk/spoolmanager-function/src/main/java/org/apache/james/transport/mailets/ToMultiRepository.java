@@ -52,7 +52,8 @@ import java.util.Vector;
  * 
  * Differently from LocalDelivery this does not lookup the UserRepository This
  * simply store the message in a repository named like the local part of the
- * recipient address.
+ * recipient address or the full recipient address, depending on the configuration
+ * (repositorySelector).
  * 
  * If no repository is specified then this fallback to MailServer.getUserInbox.
  * Otherwise you can add your own configuration for the repository
@@ -65,6 +66,8 @@ import java.util.Vector;
  * Header "Delivered-To" can be added to every message adding the
  * <addDeliveryHeader>Delivered-To</addDeliveryHeader>
  * 
+ * <repositorySelector> defaults to "localpart" and can be changed to "full" if you
+ * prefer to use full recipient emails as repository names.
  */
 public class ToMultiRepository extends GenericMailet {
     /**
@@ -92,6 +95,14 @@ public class ToMultiRepository extends GenericMailet {
      * The optional repositoryType
      */
     private String repositoryType;
+    
+    private final static String SELECTOR_LOCALPART = "localpart";
+    private final static String SELECTOR_FULL = "full";
+    
+    /**
+     * The optional repositorySelector
+     */
+    private String repositorySelector;
 
     /**
      * The delivery header
@@ -264,9 +275,17 @@ public class ToMultiRepository extends GenericMailet {
 
         repositoryUrl = getInitParameter("repositoryUrl");
         if (repositoryUrl != null) {
+            if (!repositoryUrl.endsWith("/"))
+                repositoryUrl += "/";
             repositoryType = getInitParameter("repositoryType");
             if (repositoryType == null)
                 repositoryType = "MAIL";
+            repositorySelector = getInitParameter("repositorySelector");
+            if (repositorySelector == null)
+                repositorySelector = SELECTOR_LOCALPART;
+            if (!SELECTOR_LOCALPART.equals(repositorySelector) && !SELECTOR_FULL.equals(repositorySelector)) {
+                throw new MessagingException("repositorySelector valid options are "+SELECTOR_FULL+" or "+SELECTOR_LOCALPART);
+            }
         } else {
 
             try {
@@ -297,15 +316,14 @@ public class ToMultiRepository extends GenericMailet {
         if (repositoryUrl == null) {
             userInbox = mailServer.getUserInbox(userName);
         } else {
-            if (!repositoryUrl.endsWith("/")) {
-        	    repositoryUrl += "/";
+            if (SELECTOR_LOCALPART.equals(repositorySelector)) {
+                // find the username for delivery to that user - localname, ignore the rest
+                String[] addressParts = userName.split("@");
+                userName = addressParts[0];
             }
         	        
-            // find the username for delivery to that user - localname, ignore the rest
-            String[] addressParts = userName.split("@");
-        	        
             StringBuffer destinationBuffer = new StringBuffer(192).append(
-            repositoryUrl).append(addressParts[0]).append("/");
+            repositoryUrl).append(userName).append("/");
             String destination = destinationBuffer.toString();
             DefaultConfiguration mboxConf = new DefaultConfiguration(
                     "repository", "generated:ToMultiRepository.getUserInbox()");
