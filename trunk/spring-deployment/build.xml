@@ -333,8 +333,6 @@ java -cp ${exe-classpath}:../conf org.apache.james.container.spring.Main
 
         <!-- create windows startup script-->
         <echo file="${spring-deployment.target.bin.dir}/run.bat" append="false">
-echo This batch file is untested. Please report to server-dev@james.apache.org if it works or not. Thank you!
-pause
 java -cp ${exe-classpath};../conf org.apache.james.container.spring.Main             
         </echo>
         <replace file="${spring-deployment.target.bin.dir}/run.bat" token="${spring-deployment.target.lib.dir}" value="../lib" />
