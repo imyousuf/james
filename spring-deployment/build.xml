@@ -37,6 +37,9 @@
     <property name="spring-deployment.dist.bin.zip" value="${spring-deployment.dist.dir}/${spring-deployment.artefact.name}.zip" />
     <property name="spring-deployment.dist.bin.tar" value="${spring-deployment.dist.dir}/${spring-deployment.artefact.name}.tar" />
     <property name="spring-deployment.dist.bin.tgz" value="${spring-deployment.dist.dir}/${spring-deployment.artefact.name}.tgz" />
+
+    <property name="phoenix-deployment" value="../phoenix-deployment/" />
+    <property name="phoenix-deployment.build.lib.jar" value="${phoenix-deployment}/target/lib/${jars-prefix}${version}.jar" />
     
     <!-- Compiler options -->
 
@@ -294,6 +297,10 @@
                 <include name="**/*.LICENSE" />
                 <include name="**/LICENSE*" />
             </fileset>
+        </copy>
+        <echo>${phoenix-deployment.build.lib.jar}</echo>
+        <copy todir="${spring-deployment.target.lib.dir}" >
+            <fileset file="${phoenix-deployment.build.lib.jar}" />
         </copy>
     </target>
     
