@@ -114,9 +114,13 @@ public class Actions
             user=new DefaultUser(recipient.getUser(), null);
             MimeMessage localMessage = createMimeMessage(aMail, recipient);
             
+            if (!(destinationMailbox.length() > 0 
+                    && destinationMailbox.charAt(0) == MailboxManager.HIERARCHY_DELIMITER)) {
+                destinationMailbox =  MailboxManager.HIERARCHY_DELIMITER + destinationMailbox;
+            }
             final String mailboxName = 
                 mailboxManagerProvider.getPersonalDefaultNamespace(user).getName()
-                    + MailboxManager.HIERARCHY_DELIMITER + destinationMailbox;
+                    + destinationMailbox;
             final MailboxManager mailboxManager = mailboxManagerProvider.getMailboxManager();
             Mailbox mailbox=mailboxManager.getImapMailbox(mailboxName, true);
             final MailboxSession session = mailboxManager.createSession();
