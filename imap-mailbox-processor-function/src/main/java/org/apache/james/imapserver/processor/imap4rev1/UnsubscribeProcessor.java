@@ -22,23 +22,26 @@ package org.apache.james.imapserver.processor.imap4rev1;
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.api.imap.ProtocolException;
+import org.apache.james.api.imap.display.HumanReadableTextKey;
 import org.apache.james.api.imap.message.request.ImapRequest;
 import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
 import org.apache.james.imap.message.request.imap4rev1.UnsubscribeRequest;
-import org.apache.james.imapserver.processor.base.AbstractMailboxAwareProcessor;
+import org.apache.james.imapserver.processor.base.AbstractImapRequestProcessor;
 import org.apache.james.imapserver.processor.base.AuthorizationException;
+import org.apache.james.imapserver.processor.base.ImapSessionUtils;
 import org.apache.james.imapserver.store.MailboxException;
-import org.apache.james.mailboxmanager.MailboxManagerException;
-import org.apache.james.mailboxmanager.manager.MailboxManager;
-import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
+import org.apache.james.services.User;
 
-public class UnsubscribeProcessor extends AbstractMailboxAwareProcessor {
+public class UnsubscribeProcessor extends AbstractImapRequestProcessor {
 
-    public UnsubscribeProcessor(final ImapProcessor next,
-            final MailboxManagerProvider mailboxManagerProvider, final StatusResponseFactory factory) {
-        super(next, mailboxManagerProvider, factory);
+    private final IMAPSubscriber subscriber;
+    
+    public UnsubscribeProcessor(final ImapProcessor next, final StatusResponseFactory factory,
+            final IMAPSubscriber subscriber) {
+        super(next, factory);
+        this.subscriber = subscriber;
     }
 
     protected boolean isAcceptable(ImapMessage message) {
@@ -50,14 +53,26 @@ public class UnsubscribeProcessor extends AbstractMailboxAwareProcessor {
             throws MailboxException, AuthorizationException, ProtocolException {
         final UnsubscribeRequest request = (UnsubscribeRequest) message;
         final String mailboxName = request.getMailboxName();
+        final User user = ImapSessionUtils.getUser(session);
+        final String userName = user.getUserName();
         try {
-            final String fullMailboxName = buildFullName(session, mailboxName);
-            final MailboxManager mailboxManager = getMailboxManager(session);
-            mailboxManager.setSubscription(fullMailboxName, false);
-        } catch (MailboxManagerException e) {
-            throw new MailboxException(e);
+            subscriber.subscribe(userName, mailboxName);
+            
+            unsolicitedResponses(session, responder, false);
+            okComplete(command, tag, responder);
+            
+        } catch (SubscriptionException e) {
+            getLogger().debug("Subscription failed", e);
+            unsolicitedResponses(session, responder, false);
+            
+            final HumanReadableTextKey exceptionKey = e.getKey();
+            final HumanReadableTextKey displayTextKey;
+            if (exceptionKey == null) {
+                displayTextKey = HumanReadableTextKey.GENERIC_UNSUBSCRIPTION_FAILURE;
+            } else {
+                displayTextKey = exceptionKey;
+            }
+            no(command, tag, responder, displayTextKey);
         }
-        okComplete(command, tag, responder);
-        unsolicitedResponses(session, responder, false);
     }
 }

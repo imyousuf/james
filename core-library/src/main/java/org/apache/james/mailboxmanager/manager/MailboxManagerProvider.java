@@ -26,6 +26,9 @@ import org.apache.james.services.User;
 
 public interface MailboxManagerProvider {
     
+    public static final String ROLE 
+        =  "org.apache.james.mailboxmanager.manager.MailboxManagerProvider";
+    
     public MailboxManager getMailboxManager() throws MailboxManagerException;
     
     /**

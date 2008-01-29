@@ -32,7 +32,8 @@ public class Imap4Rev1ProcessorFactory {
     public static final ImapProcessor createDefaultChain(
             final ImapProcessor chainEndProcessor, final UsersRepository users,
             final MailboxManagerProvider mailboxManagerProvider, 
-            final StatusResponseFactory statusResponseFactory) {
+            final StatusResponseFactory statusResponseFactory,
+            final IMAPSubscriber subscriber) {
         
         final LogoutProcessor logoutProcessor = new LogoutProcessor(
                 chainEndProcessor, statusResponseFactory);
@@ -51,9 +52,9 @@ public class Imap4Rev1ProcessorFactory {
         final CloseProcessor closeProcessor = new CloseProcessor(
                 createProcessor,statusResponseFactory);
         final UnsubscribeProcessor unsubscribeProcessor = new UnsubscribeProcessor(
-                closeProcessor, mailboxManagerProvider, statusResponseFactory);
+                closeProcessor, statusResponseFactory, subscriber);
         final SubscribeProcessor subscribeProcessor = new SubscribeProcessor(
-                unsubscribeProcessor, mailboxManagerProvider, statusResponseFactory);
+                unsubscribeProcessor, statusResponseFactory, subscriber);
         final CopyProcessor copyProcessor = new CopyProcessor(
                 subscribeProcessor, mailboxManagerProvider, statusResponseFactory);
         final AuthenticateProcessor authenticateProcessor = new AuthenticateProcessor(

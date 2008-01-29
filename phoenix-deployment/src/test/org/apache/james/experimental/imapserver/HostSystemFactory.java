@@ -19,24 +19,43 @@
 
 package org.apache.james.experimental.imapserver;
 
+import java.io.File;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.james.imapserver.codec.encode.main.DefaultImapEncoderFactory;
 import org.apache.james.imapserver.mock.MailboxManagerProviderSingleton;
 import org.apache.james.imapserver.processor.main.DefaultImapProcessorFactory;
 import org.apache.james.test.functional.imap.HostSystem;
+import org.apache.james.user.impl.file.FileUserMetaDataRepository;
 
 public class HostSystemFactory {
-
+    
+    private static final String META_DATA_DIRECTORY = "target/user-meta-data";
+    
+    public static void resetUserMetaData() throws Exception {
+        
+        File dir = new File(META_DATA_DIRECTORY);
+        if (dir.exists()) {
+            FileUtils.deleteDirectory(dir);
+        }
+        dir.mkdirs();
+    }
+    
     public static HostSystem createStandardImap() throws Exception {
         
         ExperimentalHostSystem result = new ExperimentalHostSystem();
         final DefaultImapProcessorFactory defaultImapProcessorFactory = new DefaultImapProcessorFactory();
-        defaultImapProcessorFactory.configure(result, MailboxManagerProviderSingleton.getMailboxManagerProviderInstance());
+        resetUserMetaData();
+        defaultImapProcessorFactory.configure(result, 
+                MailboxManagerProviderSingleton.getMailboxManagerProviderInstance(),
+                new FileUserMetaDataRepository(META_DATA_DIRECTORY));
         result.configure(new DefaultImapDecoderFactory().buildImapDecoder(), 
                 new DefaultImapEncoderFactory().buildImapEncoder(), 
                 defaultImapProcessorFactory.buildImapProcessor(), new ExperimentalHostSystem.Resetable() {
 
                     public void reset() throws Exception {
                         MailboxManagerProviderSingleton.reset();
+                        resetUserMetaData();
                     }
             
         });
