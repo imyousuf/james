@@ -17,26 +17,41 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.imapserver.phoenix;
+package org.apache.james.imapserver.processor.imap4rev1;
 
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
-import org.apache.james.api.user.UserMetaDataRespository;
-import org.apache.james.imapserver.processor.main.DefaultImapProcessorFactory;
-import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
-import org.apache.james.services.UsersRepository;
+import org.apache.james.api.imap.display.HumanReadableTextKey;
 
-public class PhoenixImapProcessorFactory extends DefaultImapProcessorFactory implements Serviceable {
+/**
+ * Indicates exception during subscription processing.
+ */
+public class SubscriptionException extends Exception {
 
-    public void service(ServiceManager serviceManager) throws ServiceException {
-        UsersRepository usersRepository = ( UsersRepository ) serviceManager.
-            lookup( UsersRepository.ROLE );
-        MailboxManagerProvider mailboxManagerProvider = 
-            (MailboxManagerProvider) serviceManager.lookup( MailboxManagerProvider.ROLE );
-        UserMetaDataRespository userMetaDataRepository =
-            (UserMetaDataRespository) serviceManager.lookup( UserMetaDataRespository.ROLE );
-        configure(usersRepository, mailboxManagerProvider, userMetaDataRepository);
+    private static final long serialVersionUID = -2057022968413471837L;
+
+    private final HumanReadableTextKey key;
+    
+    public SubscriptionException(HumanReadableTextKey key, Throwable cause) {
+        super(key.toString(), cause);
+        this.key = key;
     }
 
+    public SubscriptionException(HumanReadableTextKey key) {
+        super(key.toString());
+        this.key = key;
+    }
+
+    public SubscriptionException(Throwable cause) {
+        super(cause);
+        key = null;
+    }
+
+    /**
+     * Gets the message key.
+     * @return the key, possibly null
+     */
+    public final HumanReadableTextKey getKey() {
+        return key;
+    }
+    
+    
 }

@@ -17,26 +17,33 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.imapserver.phoenix;
+package org.apache.james.imapserver.processor.imap4rev1;
 
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
-import org.apache.james.api.user.UserMetaDataRespository;
-import org.apache.james.imapserver.processor.main.DefaultImapProcessorFactory;
-import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
-import org.apache.james.services.UsersRepository;
+import java.util.Collection;
 
-public class PhoenixImapProcessorFactory extends DefaultImapProcessorFactory implements Serviceable {
+/**
+ * Processes IMAP subscriptions.
+ */
+public interface IMAPSubscriber {
 
-    public void service(ServiceManager serviceManager) throws ServiceException {
-        UsersRepository usersRepository = ( UsersRepository ) serviceManager.
-            lookup( UsersRepository.ROLE );
-        MailboxManagerProvider mailboxManagerProvider = 
-            (MailboxManagerProvider) serviceManager.lookup( MailboxManagerProvider.ROLE );
-        UserMetaDataRespository userMetaDataRepository =
-            (UserMetaDataRespository) serviceManager.lookup( UserMetaDataRespository.ROLE );
-        configure(usersRepository, mailboxManagerProvider, userMetaDataRepository);
-    }
-
+    /**
+     * Subscribes the user to the given mailbox.
+     * @param user the user name, not null
+     * @param mailbox the mailbox name, not null
+     */
+    public void subscribe(String user, String mailbox) throws SubscriptionException;
+    
+    /**
+     * Unsubscribes the user from the given mailbox.
+     * @param user the user name, not null
+     * @param mailbox the mailbox name, not null
+     */
+    public void unsubscribe(String user, String mailbox) throws SubscriptionException;
+    
+    /**
+     * Lists current subscriptions for the given user.
+     * @param user the user name, not null
+     * @return a <code>Collection<String></code> of mailbox names
+     */
+    public Collection subscriptions(String user) throws SubscriptionException;
 }

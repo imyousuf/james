@@ -26,6 +26,14 @@ import org.apache.james.api.imap.ImapConstants;
  */
 public class HumanReadableTextKey {
 
+    public static final HumanReadableTextKey GENERIC_UNSUBSCRIPTION_FAILURE 
+    = new HumanReadableTextKey("org.apache.james.imap.GENERIC_SUBSCRIPTION_FAILURE", 
+    "Cannot unsubscribe."); 
+    
+    public static final HumanReadableTextKey GENERIC_SUBSCRIPTION_FAILURE 
+    = new HumanReadableTextKey("org.apache.james.imap.GENERIC_SUBSCRIPTION_FAILURE", 
+    "Cannot subscribe."); 
+    
     public static final HumanReadableTextKey FAILURE_NO_SUCH_MAILBOX 
         = new HumanReadableTextKey("org.apache.james.imap.FAILURE_NO_SUCH_MAILBOX", 
                 "failed. No such mailbox.");
