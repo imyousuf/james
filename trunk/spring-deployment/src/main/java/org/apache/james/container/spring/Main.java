@@ -19,18 +19,14 @@
 package org.apache.james.container.spring;
 
 import org.apache.james.container.spring.beanfactory.AvalonApplicationContext;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 
 /**
  * Bootstraps James using a Spring container
  */
-public class Main {
+public class Main {    
 
     public static void main(String[] args) {
-        Resource containerResource = new ClassPathResource("beans-base-config.xml");
-        Resource applicationResource = new ClassPathResource("james-assembly.xml");
-        AvalonApplicationContext context = new AvalonApplicationContext(containerResource, applicationResource);
+        new AvalonApplicationContext();
     }
 
 }
