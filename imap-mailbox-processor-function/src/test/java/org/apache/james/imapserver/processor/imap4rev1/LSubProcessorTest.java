@@ -19,20 +19,36 @@
 
 package org.apache.james.imapserver.processor.imap4rev1;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapConstants;
+import org.apache.james.api.imap.display.HumanReadableTextKey;
+import org.apache.james.api.imap.message.response.imap4rev1.StatusResponse;
 import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
+import org.apache.james.imap.message.request.imap4rev1.LsubRequest;
 import org.apache.james.imap.message.response.imap4rev1.server.LSubResponse;
+import org.apache.james.imapserver.processor.base.ImapSessionUtils;
 import org.apache.james.mailboxmanager.ListResult;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
+import org.apache.james.services.User;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 
 public class LSubProcessorTest extends MockObjectTestCase {
 
-
+    private static final String ROOT = "ROOT";
+    private static final String PARENT = ROOT  + ImapConstants.HIERARCHY_DELIMITER + "PARENT";
+    private static final String CHILD_ONE = PARENT + ImapConstants.HIERARCHY_DELIMITER + "CHILD_ONE";
+    private static final String CHILD_TWO = PARENT + ImapConstants.HIERARCHY_DELIMITER + "CHILD_TWO";
+    private static final String MAILBOX_C = "C.MAILBOX";
+    private static final String MAILBOX_B = "B.MAILBOX";
+    private static final String MAILBOX_A = "A.MAILBOX";
+    private static final String USER = "A User";
+    private static final String TAG = "TAG";
     LSubProcessor processor;
     Mock next;
     Mock provider;
@@ -41,125 +57,148 @@ public class LSubProcessorTest extends MockObjectTestCase {
     Mock session;
     Mock command;
     Mock serverResponseFactory;
+    Mock subscriber;
+    Mock user;
+    Mock statusResponse;
+    Collection subscriptions;
+    ImapCommand imapCommand;
+    private ImapProcessor.Responder responderImpl;
     
     protected void setUp() throws Exception {
+        subscriptions = new ArrayList();
+        user = mock(User.class);
         serverResponseFactory = mock(StatusResponseFactory.class);
         session = mock(ImapSession.class);
         command = mock(ImapCommand.class);
+        imapCommand = (ImapCommand) command.proxy();
         next = mock(ImapProcessor.class);
         responder = mock(ImapProcessor.Responder.class);
         result = mock(ListResult.class);
+        subscriber = mock(IMAPSubscriber.class);
         provider = mock(MailboxManagerProvider.class);
-        processor = createProcessor((ImapProcessor) next.proxy(), 
-                (MailboxManagerProvider) provider.proxy(), (StatusResponseFactory) serverResponseFactory.proxy());
+        statusResponse = mock(StatusResponse.class);
+        responderImpl = (ImapProcessor.Responder) responder.proxy();
+        processor = new LSubProcessor((ImapProcessor) next.proxy(), (MailboxManagerProvider) provider.proxy(), 
+                (StatusResponseFactory) serverResponseFactory.proxy(), (IMAPSubscriber) subscriber.proxy());
     }
 
     protected void tearDown() throws Exception {
         super.tearDown();
     }
+    
+    public void testHierarchy() throws Exception {
+        subscriptions.add(MAILBOX_A);
+        subscriptions.add(MAILBOX_B);
+        subscriptions.add(MAILBOX_C);
+        
+        responder.expects(once()).method("respond")
+            .with(eq(new LSubResponse("", ImapConstants.HIERARCHY_DELIMITER, true)));
+        
+        expectOk();
+        
+        LsubRequest request = new LsubRequest(imapCommand,"", "", TAG);
+        processor.doProcess(request, (ImapSession) session.proxy(), TAG, imapCommand, 
+                responderImpl);
+        
+    }
+    
+    public void testShouldRespondToRegexWithSubscribedMailboxes() throws Exception {
+        subscriptions.add(MAILBOX_A);
+        subscriptions.add(MAILBOX_B);
+        subscriptions.add(MAILBOX_C);
+        subscriptions.add(CHILD_ONE);
+        subscriptions.add(CHILD_TWO);
+        
+        responder.expects(once()).method("respond")
+            .with(eq(new LSubResponse(CHILD_ONE, ImapConstants.HIERARCHY_DELIMITER, false)));        
+        
+        responder.expects(once()).method("respond")
+            .with(eq(new LSubResponse(CHILD_TWO, ImapConstants.HIERARCHY_DELIMITER, false)));  
+        
+        expectSubscriptions();
+        expectOk();
+        
+        LsubRequest request = new LsubRequest(imapCommand,"", PARENT + ImapConstants.HIERARCHY_DELIMITER + "%", TAG);
+        processor.doProcess(request, (ImapSession) session.proxy(), TAG, imapCommand, 
+                responderImpl);
+        
+    }
+    
+    public void testShouldRespondNoSelectToRegexWithParentsOfSubscribedMailboxes() throws Exception {
+        subscriptions.add(MAILBOX_A);
+        subscriptions.add(MAILBOX_B);
+        subscriptions.add(MAILBOX_C);
+        subscriptions.add(CHILD_ONE);
+        subscriptions.add(CHILD_TWO);
+        
+        responder.expects(once()).method("respond")
+            .with(eq(new LSubResponse(PARENT, ImapConstants.HIERARCHY_DELIMITER, true)));         
+        
+        expectSubscriptions();
+        expectOk();
+        
+        LsubRequest request = new LsubRequest(imapCommand,"", ROOT + ImapConstants.HIERARCHY_DELIMITER + "%", TAG);
+        processor.doProcess(request, (ImapSession) session.proxy(), TAG, imapCommand, 
+                responderImpl);
+        
+    }
+    
+    public void testShouldRespondSelectToRegexWithParentOfSubscribedMailboxesWhenParentSubscribed() throws Exception {
+        subscriptions.add(MAILBOX_A);
+        subscriptions.add(MAILBOX_B);
+        subscriptions.add(MAILBOX_C);
+        subscriptions.add(PARENT);
+        subscriptions.add(CHILD_ONE);
+        subscriptions.add(CHILD_TWO);
+        
+        responder.expects(once()).method("respond")
+            .with(eq(new LSubResponse(PARENT, ImapConstants.HIERARCHY_DELIMITER, false)));         
+        
+        expectSubscriptions();
+        expectOk();
+        
+        LsubRequest request = new LsubRequest(imapCommand,"", ROOT + ImapConstants.HIERARCHY_DELIMITER + "%", TAG);
+        processor.doProcess(request, (ImapSession) session.proxy(), TAG, imapCommand, 
+                responderImpl);
+        
+    }
 
-    LSubProcessor createProcessor(ImapProcessor next, MailboxManagerProvider provider, StatusResponseFactory factory) {
-        return new LSubProcessor(next, provider, factory);
-    }
-
-    LSubResponse createResponse(boolean noinferior, boolean noselect, boolean marked, 
-            boolean unmarked, String hierarchyDelimiter, String mailboxName) {
-        return new LSubResponse(noinferior, noselect, marked, unmarked, hierarchyDelimiter, mailboxName);
-    }
-
-    void setUpResult(String[] attributes, String hierarchyDelimiter, String name) {
-        result.expects(once()).method("getAttributes").will(returnValue(attributes));
-        result.expects(once()).method("getHierarchyDelimiter").will(returnValue(hierarchyDelimiter));
-        result.expects(once()).method("getName").will(returnValue(name));
-    }
-    
-    public void testNoInferiors() throws Exception {
-        String[] attributes = {"\\noise", ImapConstants.NAME_ATTRIBUTE_NOINFERIORS, "\\bogus"};
-        setUpResult(attributes, ".", "#INBOX");
-        responder.expects(once()).method("respond").with(
-                eq(createResponse(true, false, false, false, ".", "#INBOX")));
-        processor.processResult((ImapProcessor.Responder) responder.proxy(), 
-                false, 0, (ListResult) result.proxy());
+    public void testSelectAll() throws Exception {
+        subscriptions.add(MAILBOX_A);
+        responder.expects(once()).method("respond")
+            .with(eq(new LSubResponse(MAILBOX_A, ImapConstants.HIERARCHY_DELIMITER, false)));
+        subscriptions.add(MAILBOX_B);
+        responder.expects(once()).method("respond")
+            .with(eq(new LSubResponse(MAILBOX_B, ImapConstants.HIERARCHY_DELIMITER, false)));
+        subscriptions.add(MAILBOX_C);
+        responder.expects(once()).method("respond")
+            .with(eq(new LSubResponse(MAILBOX_C, ImapConstants.HIERARCHY_DELIMITER, false)));
+        
+        expectSubscriptions();
+        expectOk();
+        
+        LsubRequest request = new LsubRequest(imapCommand,"", "*", TAG);
+        processor.doProcess(request, (ImapSession) session.proxy(), TAG, imapCommand, 
+                responderImpl);
+        
     }
     
-    public void testNoSelect() throws Exception {
-        String[] attributes = {"\\noise", ImapConstants.NAME_ATTRIBUTE_NOSELECT, "\\bogus"};
-        setUpResult(attributes, ".", "#INBOX");
-        responder.expects(once()).method("respond").with(
-                eq(createResponse(false, true, false, false, ".", "#INBOX")));
-        processor.processResult((ImapProcessor.Responder) responder.proxy(), 
-                false, 0, (ListResult) result.proxy());
+    private void expectOk() {
+        StatusResponse response = (StatusResponse) statusResponse.proxy();
+        serverResponseFactory.expects(once()).method("taggedOk")
+            .with(eq(TAG), same(imapCommand), eq(HumanReadableTextKey.COMPLETED))
+                .will(returnValue(response));
+        responder.expects(once()).method("respond").with(same(response));
     }
     
-    public void testUnMarked() throws Exception {
-        String[] attributes = {"\\noise", ImapConstants.NAME_ATTRIBUTE_UNMARKED, "\\bogus"};
-        setUpResult(attributes, ".", "#INBOX");
-        responder.expects(once()).method("respond").with(
-                eq(createResponse(false, false, false, true, ".", "#INBOX")));
-        processor.processResult((ImapProcessor.Responder) responder.proxy(), 
-                false, 0, (ListResult) result.proxy());
+    private void expectSubscriptions() {
+        user.expects(once()).method("getUserName").will(returnValue(USER));
+        session.expects(once()).method("getAttribute")
+            .with(eq(ImapSessionUtils.MAILBOX_USER_ATTRIBUTE_SESSION_KEY))
+                .will(returnValue((User) user.proxy()));
+        
+        subscriber.expects(once()).method("subscriptions")
+            .with(eq(USER))
+                .will(returnValue(subscriptions));
     }
-    
-    public void testMarked() throws Exception {
-        String[] attributes = {"\\noise", ImapConstants.NAME_ATTRIBUTE_MARKED, "\\bogus"};
-        setUpResult(attributes, ".", "#INBOX");
-        responder.expects(once()).method("respond").with(
-                eq(createResponse(false, false, true, false, ".", "#INBOX")));
-        processor.processResult((ImapProcessor.Responder) responder.proxy(), 
-                false, 0, (ListResult) result.proxy());
-    }
-    
-    public void testMarkedAndUnmarked() throws Exception {
-        String[] attributes = {"\\noise", ImapConstants.NAME_ATTRIBUTE_MARKED, ImapConstants.NAME_ATTRIBUTE_UNMARKED, "\\bogus"};
-        setUpResult(attributes, ".", "#INBOX");
-        responder.expects(once()).method("respond").with(
-                eq(createResponse(false, false, true, false, ".", "#INBOX")));
-        processor.processResult((ImapProcessor.Responder) responder.proxy(), 
-                false, 0, (ListResult) result.proxy());
-    }
-    
-    public void testUnmarkedAndMarked() throws Exception {
-        String[] attributes = {"\\noise", ImapConstants.NAME_ATTRIBUTE_UNMARKED, ImapConstants.NAME_ATTRIBUTE_MARKED, "\\bogus"};
-        setUpResult(attributes, ".", "#INBOX");
-        responder.expects(once()).method("respond").with(
-                eq(createResponse(false, false, true, false, ".", "#INBOX")));
-        processor.processResult((ImapProcessor.Responder) responder.proxy(), 
-                false, 0, (ListResult) result.proxy());
-    }
-    
-    public void testNoSelectUnmarkedAndMarked() throws Exception {
-        String[] attributes = {"\\noise", ImapConstants.NAME_ATTRIBUTE_NOSELECT, ImapConstants.NAME_ATTRIBUTE_UNMARKED, ImapConstants.NAME_ATTRIBUTE_MARKED, "\\bogus"};
-        setUpResult(attributes, ".", "#INBOX");
-        responder.expects(once()).method("respond").with(
-                eq(createResponse(false, true, false, false, ".", "#INBOX")));
-        processor.processResult((ImapProcessor.Responder) responder.proxy(), 
-                false, 0, (ListResult) result.proxy());
-    }
-    
-    public void testUnmarkedAndMarkedNoSelect() throws Exception {
-        String[] attributes = {"\\noise",  ImapConstants.NAME_ATTRIBUTE_UNMARKED, ImapConstants.NAME_ATTRIBUTE_MARKED, ImapConstants.NAME_ATTRIBUTE_NOSELECT, "\\bogus"};
-        setUpResult(attributes, ".", "#INBOX");
-        responder.expects(once()).method("respond").with(
-                eq(createResponse(false, true, false, false, ".", "#INBOX")));
-        processor.processResult((ImapProcessor.Responder) responder.proxy(), 
-                false, 0, (ListResult) result.proxy());
-    }
-    
-    public void testUnmarkedNoSelectAndMarked() throws Exception {
-        String[] attributes = {"\\noise",  ImapConstants.NAME_ATTRIBUTE_UNMARKED, ImapConstants.NAME_ATTRIBUTE_NOSELECT, ImapConstants.NAME_ATTRIBUTE_MARKED, "\\bogus"};
-        setUpResult(attributes, ".", "#INBOX");
-        responder.expects(once()).method("respond").with(
-                eq(createResponse(false, true, false, false, ".", "#INBOX")));
-        processor.processResult((ImapProcessor.Responder) responder.proxy(), 
-                false, 0, (ListResult) result.proxy());
-    }
-    
-    public void testNoinferiorsUnmarkedNoSelectAndMarked() throws Exception {
-        String[] attributes = {"\\noise",  ImapConstants.NAME_ATTRIBUTE_NOINFERIORS, ImapConstants.NAME_ATTRIBUTE_UNMARKED, ImapConstants.NAME_ATTRIBUTE_NOSELECT, ImapConstants.NAME_ATTRIBUTE_MARKED, "\\bogus"};
-        setUpResult(attributes, ".", "#INBOX");
-        responder.expects(once()).method("respond").with(
-                eq(createResponse(true, true, false, false, ".", "#INBOX")));
-        processor.processResult((ImapProcessor.Responder) responder.proxy(), 
-                false, 0, (ListResult) result.proxy());
-    }    
 }

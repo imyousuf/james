@@ -161,8 +161,7 @@ public abstract class AbstractListingResponse {
     {
         final String TAB = " ";
         
-        String retValue = getClass() + " ( "
-            + super.toString() + TAB
+        String retValue = getClass().getName() + " ( "
             + "noInferiors = " + this.noInferiors + TAB
             + "noSelect = " + this.noSelect + TAB
             + "marked = " + this.marked + TAB

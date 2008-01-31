@@ -26,6 +26,10 @@ import org.apache.james.api.imap.ImapConstants;
  */
 public class HumanReadableTextKey {
 
+    public static final HumanReadableTextKey GENERIC_LSUB_FAILURE 
+    = new HumanReadableTextKey("org.apache.james.imap.GENERIC_SUBSCRIPTION_FAILURE", 
+    "Cannot list subscriptions."); 
+    
     public static final HumanReadableTextKey GENERIC_UNSUBSCRIPTION_FAILURE 
     = new HumanReadableTextKey("org.apache.james.imap.GENERIC_SUBSCRIPTION_FAILURE", 
     "Cannot unsubscribe."); 
