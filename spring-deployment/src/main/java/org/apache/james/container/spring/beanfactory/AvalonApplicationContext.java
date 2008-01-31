@@ -24,6 +24,7 @@ import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.support.AbstractRefreshableApplicationContext;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
 
@@ -35,8 +36,24 @@ import java.io.IOException;
  */
 public class AvalonApplicationContext extends AbstractRefreshableApplicationContext {
 
+    public static final Resource RESOURCE_SPRING_BEANS = new ClassPathResource("spring-beans.xml");
+    public static final Resource RESOURCE_JAMES_ASSEMBLY = new ClassPathResource("james-assembly.xml");
+    
     private Resource containerConfigurationResource;
     private Resource applicationConfigurationResource;
+
+    /**
+     * configuration-by-convention constructor, tries to find default config files on classpath
+     */
+    public AvalonApplicationContext() {
+        this(RESOURCE_SPRING_BEANS, RESOURCE_JAMES_ASSEMBLY);
+    }
+    
+    
+    public AvalonApplicationContext(Resource containerConfigurationResource,
+                                    Resource applicationConfigurationResource) {
+        this(null, containerConfigurationResource, applicationConfigurationResource);
+    }
 
     public AvalonApplicationContext(ApplicationContext parent, 
                                     Resource containerConfigurationResource, 
@@ -45,11 +62,6 @@ public class AvalonApplicationContext extends AbstractRefreshableApplicationCont
         this.containerConfigurationResource = containerConfigurationResource;
         this.applicationConfigurationResource = applicationConfigurationResource;
         refresh();
-    }
-
-    public AvalonApplicationContext(Resource containerConfigurationResource,
-                                    Resource applicationConfigurationResource) {
-        this(null, containerConfigurationResource, applicationConfigurationResource);
     }
 
     protected void loadBeanDefinitions(DefaultListableBeanFactory defaultListableBeanFactory) throws IOException, BeansException {

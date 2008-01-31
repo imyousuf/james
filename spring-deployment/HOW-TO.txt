@@ -21,7 +21,7 @@ cp trunk/stage/org.apache.james/jars/james-server-* spring-integration/stage/org
 
 if you are not root/Administrator on your machine or have a mail server already running on some privileged port,
 it is recommended to change in file
-    spring-integration/spring-deployment/src/main/config/beans-base-config.xml
+    spring-integration/spring-deployment/src/main/config/spring-beans.xml
 line
                 <!--<ref bean="exampleConfigurationInterceptor" />-->
 into 
@@ -36,7 +36,7 @@ ant run
 
 4. JMX
 
-Enabling: Uncomment the JMX section in beans-base-config.xml
+Enabling: Uncomment the JMX section in spring-beans.xml
 Connecting: The default connection URL defined in this file is 
   service:jmx:rmi://localhost/jndi/rmi://localhost:1099/jamesmailserver
 You can use this URL on the command line under Java 1.5 (or newer) like this:
