@@ -19,12 +19,12 @@ package org.apache.james.jcr;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
 import javax.jcr.Node;
+import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.mail.Address;
 import javax.mail.BodyPart;
@@ -40,6 +40,25 @@ import org.apache.jackrabbit.util.Text;
 
 /**
  * JavaBean that stores messages to a JCR content repository.
+ * <p>
+ * After instantiating this bean you should use the
+ * {@link #setParentNode(Node)} method to specify the root node under
+ * which all messages should be stored. Then you can call
+ * {@link #storeMessage(Message)} to store messages in the repository.
+ * <p>
+ * The created content structure below the given parent node consists
+ * of a date based .../year/month/day tree structure, below which the actual
+ * messages are stored. A stored message consists of an nt:file node whose
+ * name is based on the subject of the message. The jcr:content child of the
+ * nt:file node contains the MIME structure and all relevant headers of the
+ * message. Note that the original message source is <em>not</em> stored,
+ * which means that some of the message information will be lost.
+ * <p>
+ * The messages are stored using the session associated with the specified
+ * parent node. No locking or synchronization is performed, and it is expected
+ * that only one thread writing to the message subtree at any given moment.
+ * You should use JCR locking or some other explicit synchronization mechanism
+ * if you want to have concurrent writes to the message subtree.
  */
 public class JCRStoreBean {
 
@@ -62,7 +81,11 @@ public class JCRStoreBean {
     public void storeMessage(Message message)
             throws MessagingException, RepositoryException {
         try {
-            Node node = createNode(parent, getMessageName(message), "nt:file");
+            Date date = message.getSentDate();
+            Node year = getOrAddNode(parent, format("yyyy", date), "nt:folder");
+            Node month = getOrAddNode(year, format("mm", date), "nt:folder");
+            Node day = getOrAddNode(month, format("dd", date), "nt:folder");
+            Node node = createNode(day, getMessageName(message), "nt:file");
             importEntity(message, node);
             parent.save();
         } catch (IOException e) {
@@ -133,6 +156,18 @@ public class JCRStoreBean {
     }
 
     /**
+     * Formats the given date using the given {@link SimpleDateFormat}
+     * format string.
+     *
+     * @param format format string
+     * @param date date to be formatted
+     * @return formatted date
+     */
+    private String format(String format, Date date) {
+        return new SimpleDateFormat(format).format(date);
+    }
+
+    /**
      * Suggests a name for the node where the given message will be stored.
      *
      * @param message mail message
@@ -141,10 +176,36 @@ public class JCRStoreBean {
      */
     private String getMessageName(Message message)
             throws MessagingException {
-        DateFormat format = new SimpleDateFormat("yyyy-mm-dd");
-        String subject =
-            message.getSubject().replaceAll("[\\[\\]:;,./?'+-@#*\"%$]", "");
-        return format.format(message.getSentDate()) + " " + subject; 
+        String name = message.getSubject();
+        if (name == null) {
+            name = "unnamed";
+        } else {
+            name = name.replaceAll("[^A-Za-z0-9 ]", "").trim();
+            if (name.length() == 0) {
+                name = "unnamed";
+            }
+        }
+        return name;
+    }
+
+    /**
+     * Returns the named child node of the given parent. If the child node
+     * does not exist, it is automatically created with the given node type.
+     * The created node is not saved by this method.
+     *
+     * @param parent parent node
+     * @param name name of the child node
+     * @param type type of the child node
+     * @return child node
+     * @throws RepositoryException if the child node could not be accessed
+     */
+    private Node getOrAddNode(Node parent, String name, String type)
+            throws RepositoryException {
+        try {
+            return parent.getNode(name);
+        } catch (PathNotFoundException e) {
+            return parent.addNode(name, type);
+        }
     }
 
     /**
@@ -170,7 +231,7 @@ public class JCRStoreBean {
     /**
      * Returns the content type of the given message entity. Returns
      * the default "text/plain" content type if a content type is not
-     * available. Returns "applicatin/octet-stream" if an error occurs.
+     * available. Returns "application/octet-stream" if an error occurs.
      *
      * @param entity the message entity
      * @return content type, or <code>text/plain</code> if not available
