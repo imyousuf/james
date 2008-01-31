@@ -218,11 +218,7 @@ public class JCRStoreBean {
     private void setProperty(Node node, String name, String[] values)
             throws RepositoryException {
         if (values != null && values.length > 0) {
-            if (values.length == 1) {
-                node.setProperty(name, values[0]);
-            } else {
-                node.setProperty(name, values);
-            }
+            node.setProperty(name, values);
         }
     }
 
@@ -270,15 +266,11 @@ public class JCRStoreBean {
     private void setProperty(Node node, String name, Address[] values)
             throws RepositoryException {
         if (values != null && values.length > 0) {
-            if (values.length == 1) {
-                node.setProperty(name, values[0].toString());
-            } else {
-                String[] strings = new String[values.length];
-                for (int i = 0; i < values.length; i++) {
-                    strings[i] = values[i].toString();
-                }
-                node.setProperty(name, strings);
+            String[] strings = new String[values.length];
+            for (int i = 0; i < values.length; i++) {
+                strings[i] = values[i].toString();
             }
+            node.setProperty(name, strings);
         }
     }
 
