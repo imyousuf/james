@@ -49,54 +49,29 @@ public class LSubResponseEncoderTest extends MockObjectTestCase {
 
     public void testIsAcceptable() {
         assertFalse(encoder.isAcceptable(new ListResponse(true, true, true, true, ".", "name")));
-        assertTrue(encoder.isAcceptable(new LSubResponse(true, true, true, true, ".", "name")));
+        assertTrue(encoder.isAcceptable(new LSubResponse("name", ".", true)));
         assertFalse(encoder.isAcceptable((ImapMessage) mock(ImapMessage.class).proxy()));
         assertFalse(encoder.isAcceptable(null));
     }
     
     public void testName() throws Exception {
         composer.expects(once()).method("listResponse").with(same("LSUB"), NULL, same("."), same("INBOX.name"));      
-        encoder.encode(new LSubResponse(false, false, false, false, ".", "INBOX.name"), (ImapResponseComposer) composer.proxy());
+        encoder.encode(new LSubResponse("INBOX.name", ".", false), (ImapResponseComposer) composer.proxy());
     }
     
     public void testDelimiter() throws Exception {
         composer.expects(once()).method("listResponse").with(same("LSUB"), NULL, same("@"), same("INBOX.name"));      
-        encoder.encode(new LSubResponse(false, false, false, false, "@", "INBOX.name"), (ImapResponseComposer) composer.proxy());
+        encoder.encode(new LSubResponse("INBOX.name", "@", false), (ImapResponseComposer) composer.proxy());
     }
     
     public void testNoDelimiter() throws Exception {
         composer.expects(once()).method("listResponse").with(same("LSUB"), NULL, NULL, same("INBOX.name"));      
-        encoder.encode(new LSubResponse(false, false, false, false, null, "INBOX.name"), (ImapResponseComposer) composer.proxy());
-    }
-    
-    public void testAllAttributes() throws Exception {
-        String[] all = {ImapConstants.NAME_ATTRIBUTE_NOINFERIORS, ImapConstants.NAME_ATTRIBUTE_NOSELECT, 
-                ImapConstants.NAME_ATTRIBUTE_MARKED, ImapConstants.NAME_ATTRIBUTE_UNMARKED};
-        composer.expects(once()).method("listResponse").with(same("LSUB"), eq(Arrays.asList(all)), same("."), same("INBOX.name"));      
-        encoder.encode(new LSubResponse(true, true, true, true, ".", "INBOX.name"), (ImapResponseComposer) composer.proxy());
-    }
-    
-    public void testNoInferiors() throws Exception {
-        String[] values = {ImapConstants.NAME_ATTRIBUTE_NOINFERIORS};
-        composer.expects(once()).method("listResponse").with(same("LSUB"), eq(Arrays.asList(values)), same("."), same("INBOX.name"));      
-        encoder.encode(new LSubResponse(true, false, false, false, ".", "INBOX.name"), (ImapResponseComposer) composer.proxy());
+        encoder.encode(new LSubResponse("INBOX.name", null, false), (ImapResponseComposer) composer.proxy());
     }
     
     public void testNoSelect() throws Exception {
         String[] values = {ImapConstants.NAME_ATTRIBUTE_NOSELECT};
         composer.expects(once()).method("listResponse").with(same("LSUB"), eq(Arrays.asList(values)), same("."), same("INBOX.name"));      
-        encoder.encode(new LSubResponse(false, true, false, false, ".", "INBOX.name"), (ImapResponseComposer) composer.proxy());
-    }
-    
-    public void testMarked() throws Exception {
-        String[] values = {ImapConstants.NAME_ATTRIBUTE_MARKED};
-        composer.expects(once()).method("listResponse").with(same("LSUB"), eq(Arrays.asList(values)), same("."), same("INBOX.name"));      
-        encoder.encode(new LSubResponse(false, false, true, false, ".", "INBOX.name"), (ImapResponseComposer) composer.proxy());
-    }
-    
-    public void testUnmarked() throws Exception {
-        String[] values = {ImapConstants.NAME_ATTRIBUTE_UNMARKED};
-        composer.expects(once()).method("listResponse").with(same("LSUB"), eq(Arrays.asList(values)), same("."), same("INBOX.name"));      
-        encoder.encode(new LSubResponse(false, false, false, true, ".", "INBOX.name"), (ImapResponseComposer) composer.proxy());
+        encoder.encode(new LSubResponse("INBOX.name", ".", true), (ImapResponseComposer) composer.proxy());
     }
 }

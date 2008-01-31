@@ -49,7 +49,7 @@ public class SearchResponseEncoderTest extends MockObjectTestCase {
 
     public void testIsAcceptable() {
         assertTrue(encoder.isAcceptable(new ListResponse(true, true, true, true, ".", "name")));
-        assertFalse(encoder.isAcceptable(new LSubResponse(true, true, true, true, ".", "name")));
+        assertFalse(encoder.isAcceptable(new LSubResponse("name", ".", true)));
         assertFalse(encoder.isAcceptable((ImapMessage) mock(ImapMessage.class).proxy()));
         assertFalse(encoder.isAcceptable(null));
     }

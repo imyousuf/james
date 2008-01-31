@@ -71,7 +71,7 @@ public class Imap4Rev1ProcessorFactory {
         final StatusProcessor statusProcessor = new StatusProcessor(
                 noopProcessor, mailboxManagerProvider, statusResponseFactory);
         final LSubProcessor lsubProcessor = new LSubProcessor(statusProcessor,
-                mailboxManagerProvider, statusResponseFactory);
+                mailboxManagerProvider, statusResponseFactory, subscriber);
         final ListProcessor listProcessor = new ListProcessor(lsubProcessor,
                 mailboxManagerProvider, statusResponseFactory);
         final SearchProcessor searchProcessor = new SearchProcessor(

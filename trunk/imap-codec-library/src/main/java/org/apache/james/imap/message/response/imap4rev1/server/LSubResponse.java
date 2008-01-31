@@ -24,9 +24,7 @@ import org.apache.james.api.imap.message.response.ImapResponseMessage;
  * Values an IMAP4rev1 <code>LIST</code> response.
  */
 public final class LSubResponse extends AbstractListingResponse implements ImapResponseMessage {
-    public LSubResponse(final boolean noInferiors, final boolean noSelect, 
-                        final boolean marked, final boolean unmarked, 
-                        final String hierarchyDelimiter, final String name) {
-        super(noInferiors, noSelect, marked, unmarked, hierarchyDelimiter, name);
+    public LSubResponse(final String name, final String hierarchyDelimiter, final boolean noSelect) {
+        super(false, noSelect, false, false, hierarchyDelimiter, name);
     }
 }
