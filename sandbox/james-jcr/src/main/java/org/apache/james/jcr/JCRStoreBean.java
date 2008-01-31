@@ -142,7 +142,8 @@ public class JCRStoreBean {
     private String getMessageName(Message message)
             throws MessagingException {
         DateFormat format = new SimpleDateFormat("yyyy-mm-dd");
-        String subject = message.getSubject().replaceAll("[\\[\\]:/]", "");
+        String subject =
+            message.getSubject().replaceAll("[\\[\\]:;,./?'+-@#*\"%$]", "");
         return format.format(message.getSentDate()) + " " + subject; 
     }
 
