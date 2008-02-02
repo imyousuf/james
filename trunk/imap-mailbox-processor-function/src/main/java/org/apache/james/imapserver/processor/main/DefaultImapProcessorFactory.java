@@ -56,6 +56,7 @@ public class DefaultImapProcessorFactory implements ImapProcessorFactory {
             UserMetaDataRespository userMetaDataRepository) {
         setUsersRepository(usersRepository);
         setMailboxManagerProvider(mailboxManagerProvider);
+        setUserMetaDataRepository(userMetaDataRepository);
     }
     
     public final MailboxManagerProvider getMailboxManagerProvider() {

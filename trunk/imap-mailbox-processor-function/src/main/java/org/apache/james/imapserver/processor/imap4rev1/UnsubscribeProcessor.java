@@ -56,7 +56,7 @@ public class UnsubscribeProcessor extends AbstractImapRequestProcessor {
         final User user = ImapSessionUtils.getUser(session);
         final String userName = user.getUserName();
         try {
-            subscriber.subscribe(userName, mailboxName);
+            subscriber.unsubscribe(userName, mailboxName);
             
             unsolicitedResponses(session, responder, false);
             okComplete(command, tag, responder);
