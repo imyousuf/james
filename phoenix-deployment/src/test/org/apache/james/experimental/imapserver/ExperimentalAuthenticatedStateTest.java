@@ -26,11 +26,6 @@ public class ExperimentalAuthenticatedStateTest extends AbstractAuthenticatedSta
         super(HostSystemFactory.createStandardImap());
     }
     
-    public void testSubscribeUS() throws Exception {
-        // TODO: user is automatically subscribed to INBOX. 
-        // Check whether this is correct behaviour
-    }
-    
     public void testAppendExpungeUS() throws Exception {
 //      TODO: EXPUNGE does not return correct flags
     }
@@ -38,22 +33,13 @@ public class ExperimentalAuthenticatedStateTest extends AbstractAuthenticatedSta
     public void testListNamespaceUS() throws Exception {
         // TODO: root mailbox should be marked as Noselect
     }
-    
-    public void testSubscribeITALY() throws Exception {
-//      TODO: \recent flag is returned by FLAGS - specification seems ambiguoITALY on this
-    }
-    
+
     public void testAppendExpungeITALY() throws Exception {
 //      TODO: \recent flag is returned by FLAGS - specification seems ambiguoITALY on this
     }
     
     public void testListNamespaceITALY() throws Exception {
         // TODO: root mailbox should be marked as Noselect
-    }
-    
-    
-    public void testSubscribeKOREA() throws Exception {
-//      TODO: \recent flag is returned by FLAGS - specification seems ambiguoKOREA on this
     }
     
     public void testAppendExpungeKOREA() throws Exception {
