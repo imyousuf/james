@@ -37,7 +37,7 @@ import org.apache.james.services.MailProcessor;
 import org.apache.james.services.MailetLoader;
 import org.apache.james.services.MatcherLoader;
 import org.apache.james.services.SpoolRepository;
-import org.apache.james.util.MatcherInverter;
+import org.apache.james.util.mailet.MatcherInverter;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.GenericMatcher;
 import org.apache.mailet.Mail;
