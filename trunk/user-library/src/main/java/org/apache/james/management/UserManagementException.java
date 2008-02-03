@@ -24,7 +24,9 @@ package org.apache.james.management;
 
 public class UserManagementException extends Exception {
 
-    public UserManagementException() {
+	private static final long serialVersionUID = 34908520632L;
+
+	public UserManagementException() {
         super();
     }
 

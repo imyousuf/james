@@ -24,7 +24,9 @@ package org.apache.james.management;
 
 public class VirtualUserTableManagementException extends Exception {
 
-    public VirtualUserTableManagementException() {
+	private static final long serialVersionUID = 2365387465283746L;
+
+	public VirtualUserTableManagementException() {
         super();
     }
 

@@ -21,10 +21,8 @@
  
 package org.apache.james.fetchmail;
 
-import javax.mail.FetchProfile;
 import javax.mail.Flags;
 import javax.mail.Folder;
-import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 

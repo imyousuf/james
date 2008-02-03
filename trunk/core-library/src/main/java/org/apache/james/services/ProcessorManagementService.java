@@ -18,8 +18,6 @@
  ****************************************************************/
 package org.apache.james.services;
 
-import java.util.List;
-
 import org.apache.james.management.ProcessorManagementMBean;
 
 public interface ProcessorManagementService extends ProcessorManagementMBean {

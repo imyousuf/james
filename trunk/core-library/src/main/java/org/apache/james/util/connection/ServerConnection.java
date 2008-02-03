@@ -288,7 +288,7 @@ public class ServerConnection extends AbstractLogEnabled
                     .append(serverSocket.toString());
             getLogger().debug(debugBuffer.toString());
         }
-        while( !Thread.currentThread().interrupted() && null != serverConnectionThread ) {
+        while( !Thread.interrupted() && null != serverConnectionThread ) {
             try {
                 Socket clientSocket = null;
                 try {
@@ -381,7 +381,7 @@ public class ServerConnection extends AbstractLogEnabled
         }
         synchronized( this ) {
             serverConnectionThread = null;
-            Thread.currentThread().interrupted();
+            Thread.interrupted();
             notifyAll();
         }
     }
@@ -494,7 +494,7 @@ public class ServerConnection extends AbstractLogEnabled
                 synchronized( this ) {
                     clientSocketThread = null;
 
-                    Thread.currentThread().interrupted();
+                    Thread.interrupted();
 
                     // Release the handler and kill the reference to the handler factory
                     //

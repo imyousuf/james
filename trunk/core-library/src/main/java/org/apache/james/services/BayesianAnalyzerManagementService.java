@@ -21,10 +21,6 @@
 
 package org.apache.james.services;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.sql.SQLException;
-
 import org.apache.james.management.BayesianAnalyzerManagementException;
 
 public interface BayesianAnalyzerManagementService {

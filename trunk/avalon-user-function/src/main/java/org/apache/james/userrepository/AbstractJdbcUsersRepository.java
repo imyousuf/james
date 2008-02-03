@@ -33,7 +33,6 @@ import org.apache.james.services.User;
 import org.apache.james.util.JDBCUtil;
 import org.apache.james.util.SqlResources;
 
-import java.io.File;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;

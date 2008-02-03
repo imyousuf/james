@@ -19,7 +19,6 @@
 
 package org.apache.james.smtpserver.core.filter.fastfail;
 
-import java.io.File;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
