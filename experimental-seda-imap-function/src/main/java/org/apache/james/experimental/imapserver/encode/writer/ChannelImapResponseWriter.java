@@ -182,7 +182,7 @@ public class ChannelImapResponseWriter extends AbstractLogEnabled implements Ima
         skipNextSpace = false;
     }
     
-    private void skipNextSpace() {
+    public void skipNextSpace() {
         skipNextSpace = true;
     }
     

@@ -61,6 +61,15 @@ import org.apache.james.mailboxmanager.UnsupportedCriteriaException;
 import org.apache.james.mailboxmanager.MessageResult.Content;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
+import org.apache.james.mime4j.field.address.Address;
+import org.apache.james.mime4j.field.address.AddressList;
+import org.apache.james.mime4j.field.address.DomainList;
+import org.apache.james.mime4j.field.address.Group;
+import org.apache.james.mime4j.field.address.Mailbox;
+import org.apache.james.mime4j.field.address.MailboxList;
+import org.apache.james.mime4j.field.address.NamedMailbox;
+import org.apache.james.mime4j.field.address.parser.ParseException;
+import org.apache.mailet.RFC2822Headers;
 
 public class FetchProcessor extends AbstractImapRequestProcessor {
 
@@ -131,9 +140,11 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
         if (fetch.isSize()) {
             result |= MessageResult.SIZE;
         }
-        if (fetch.isEnvelope() || fetch.isBody() || fetch.isBodyStructure()) {
+        if (fetch.isEnvelope()) {
+            result |= MessageResult.HEADERS;
+        }
+        if (fetch.isBody() || fetch.isBodyStructure()) {
             // TODO: structure
-            // result |= MessageResult.ENVELOPE;
             result |= MessageResult.MIME_MESSAGE;
         }
 
@@ -174,6 +185,7 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
         private Integer size;
         private StringBuffer misc;
         private List elements;
+        private FetchResponse.Envelope envelope;
         
         public FetchResponseBuilder(final Logger logger) {
             super();
@@ -200,7 +212,7 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
         
         public FetchResponse build() {
             final FetchResponse result = new FetchResponse(msn, flags, uid, internalDate, 
-                    size, misc, elements);
+                    size, envelope, misc, elements);
             return result;
         }
 
@@ -245,18 +257,16 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
                     setSize(result.getSize());
                 }
 
+                if (fetch.isEnvelope()) {
+                    this.envelope = buildEnvelope(result);
+                }
+                
                 // Only create when needed
-                if (fetch.isEnvelope() || fetch.isBody() || fetch.isBodyStructure()) {
+                if (fetch.isBody() || fetch.isBodyStructure()) {
                     misc = new StringBuffer();
                     // TODO: replace SimpleMessageAttributes
                     final SimpleMessageAttributes attrs = new SimpleMessageAttributes(
                             result.getMimeMessage(), logger);
-
-                    // ENVELOPE response
-                    if (fetch.isEnvelope()) {
-                        misc.append(" ENVELOPE ");
-                        misc.append(attrs.getEnvelope());
-                    }
 
                     // BODY response
                     if (fetch.isBody()) {
@@ -293,9 +303,153 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
                 throw new MailboxException(mme);
             } catch (MessagingException me) {
                 throw new MailboxException(me);
+            } catch (ParseException e) {
+                logger.debug("Cannot parse header address", e);
+                throw new MailboxException("Cannot parse address");
             }
         }
 
+        private FetchResponse.Envelope buildEnvelope(final MessageResult messageResult) throws MessagingException, ParseException {
+            final String date = headerValue(messageResult, RFC2822Headers.DATE);
+            final String subject = headerValue(messageResult, RFC2822Headers.SUBJECT);
+            final FetchResponse.Envelope.Address[] fromAddresses 
+                        = buildAddresses(messageResult, RFC2822Headers.FROM);
+            final FetchResponse.Envelope.Address[] senderAddresses
+                        = buildAddresses(messageResult, RFC2822Headers.SENDER, fromAddresses);
+            final FetchResponse.Envelope.Address[] replyToAddresses
+                        = buildAddresses(messageResult, RFC2822Headers.REPLY_TO, fromAddresses);
+            final FetchResponse.Envelope.Address[] toAddresses 
+                        = buildAddresses(messageResult, RFC2822Headers.TO);
+            final FetchResponse.Envelope.Address[] ccAddresses 
+                        = buildAddresses(messageResult, RFC2822Headers.CC);
+            final FetchResponse.Envelope.Address[] bccAddresses 
+                        = buildAddresses(messageResult, RFC2822Headers.BCC);
+            final String inReplyTo = headerValue(messageResult, RFC2822Headers.IN_REPLY_TO);
+            final String messageId = headerValue(messageResult, RFC2822Headers.MESSAGE_ID);
+            final FetchResponse.Envelope envelope = new EnvelopeImpl(date, subject, fromAddresses, senderAddresses, 
+                    replyToAddresses, toAddresses, ccAddresses, bccAddresses, inReplyTo, messageId);
+            return envelope;
+        }
+        
+        private String headerValue(final MessageResult message, final String headerName) throws MessagingException, MailboxManagerException {
+            final MessageResult.Header header 
+                = MessageResultUtils.getMatching(headerName, message.iterateHeaders());
+            final String result;
+            if (header == null) {
+                result = null;
+            } else {
+                final String value = header.getValue();
+                if (value == null || "".equals(value)) {
+                    result = null;
+                } else {
+                    result = value;
+                }
+            }
+            return result;
+        }
+
+        private FetchResponse.Envelope.Address[] buildAddresses(final MessageResult message, final String headerName, 
+                final FetchResponse.Envelope.Address[] defaults) throws ParseException, MessagingException {
+            final FetchResponse.Envelope.Address[] results;
+            final FetchResponse.Envelope.Address[] addresses = buildAddresses(message, headerName);
+            if (addresses == null) {
+                results = defaults;
+            } else {
+                results = addresses;
+            }
+            return results;
+        }
+        
+        private FetchResponse.Envelope.Address[] buildAddresses(final MessageResult message, final String headerName) 
+                    throws ParseException, MessagingException {
+            final MessageResult.Header header = MessageResultUtils.getMatching(headerName, message.iterateHeaders());
+            final FetchResponse.Envelope.Address[] results;
+            if (header == null) {
+                results = null;
+            } else {
+                final String value = header.getValue();
+                if ("".equals(value.trim())) {
+                    results  = null;
+                } else {
+                    final AddressList addressList = AddressList.parse(value);
+                    final int size = addressList.size();
+                    final List addresses = new ArrayList(size);
+                    for (int i=0;i<size;i++) {
+                        final Address address = addressList.get(i);
+                        if (address instanceof Group) {
+                            final Group group = (Group) address;
+                            addAddresses(group, addresses);
+
+                        } else if (address instanceof Mailbox) {
+                            final Mailbox mailbox = (Mailbox) address;
+                            final FetchResponse.Envelope.Address mailboxAddress = buildMailboxAddress(mailbox);
+                            addresses.add(mailboxAddress);
+
+                        } else {
+                            logger.warn("Unknown address type");
+                        }
+                    }
+
+                    results = (FetchResponse.Envelope.Address[]) 
+                    addresses.toArray(FetchResponse.Envelope.Address.EMPTY);
+                }
+            }
+            return results;
+        }
+        
+        private FetchResponse.Envelope.Address buildMailboxAddress(final Mailbox mailbox) {
+            final String name;
+            if (mailbox instanceof NamedMailbox) {
+                final NamedMailbox namedMailbox = (NamedMailbox) mailbox;
+                name = namedMailbox.getName();
+            } else {
+                name = null;
+            }
+            final String domain = mailbox.getDomain();
+            final DomainList route = mailbox.getRoute();
+            final String atDomainList;
+            if (route == null) {
+                atDomainList = null;
+            } else {
+                atDomainList = route.toRouteString();
+            }
+            final String localPart = mailbox.getLocalPart();
+            final FetchResponse.Envelope.Address result = buildMailboxAddress(name, atDomainList, localPart, domain);
+            return result;
+        }
+        
+        private void addAddresses(final Group group, final List addresses) {
+            final String groupName = group.getName();
+            final FetchResponse.Envelope.Address start = startGroup(groupName);
+            addresses.add(start);
+            final MailboxList mailboxList = group.getMailboxes();
+            for (int i=0;i<mailboxList.size();i++) {
+                final Mailbox mailbox = mailboxList.get(i);
+                final FetchResponse.Envelope.Address address = buildMailboxAddress(mailbox);
+                addresses.add(address);
+            }
+            final FetchResponse.Envelope.Address end = endGroup();
+        }
+        
+        private FetchResponse.Envelope.Address startGroup(String groupName) {
+            final FetchResponse.Envelope.Address result 
+            = new AddressImpl(null, null, groupName, null);
+            return result;
+        }
+        
+        private FetchResponse.Envelope.Address endGroup() {
+            final FetchResponse.Envelope.Address result 
+            = new AddressImpl(null, null, null, null);
+            return result;
+        }
+                    
+        private FetchResponse.Envelope.Address buildMailboxAddress(String name, String atDomainList, 
+                                                            String mailbox, String domain) {
+            final FetchResponse.Envelope.Address result 
+                = new AddressImpl(atDomainList, domain, mailbox, name);
+            return result;
+        }
+        
         private void setSize(int size) {
             this.size = new Integer(size);
         }
@@ -315,22 +469,26 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
             if (sectionSpecifier.length() == 0) {
                 final MessageResult.Content fullMessage = messageResult.getFullMessage();
                 result = new ContentBodyElement(name, fullMessage);
+                
             } else if (sectionSpecifier.equalsIgnoreCase("HEADER")) {
                 final Iterator headers = messageResult.iterateHeaders();
                 List lines = MessageResultUtils.getAll(headers);
                 result = new HeaderBodyElement(name, lines);
+                
             } else if (sectionSpecifier.startsWith("HEADER.FIELDS.NOT ")) {
                 String[] excludeNames = extractHeaderList(sectionSpecifier,
                         "HEADER.FIELDS.NOT ".length());
                 final Iterator headers = messageResult.iterateHeaders();
                 List lines = MessageResultUtils.getNotMatching(excludeNames, headers);
                 result = new HeaderBodyElement(name, lines);
+                
             } else if (sectionSpecifier.startsWith("HEADER.FIELDS ")) {
                 String[] includeNames = extractHeaderList(sectionSpecifier,
                         "HEADER.FIELDS ".length());
                 final Iterator headers = messageResult.iterateHeaders();
                 List lines = MessageResultUtils.getMatching(includeNames, headers);
                 result = new HeaderBodyElement(name, lines);
+                
             } else if (sectionSpecifier.equalsIgnoreCase("MIME")) {
                 // TODO implement
                 throw new MailboxManagerException("MIME not yet implemented.");
@@ -388,6 +546,109 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
             return (String[]) strings.toArray(new String[0]);
         }
     }
+    
+    private static final class EnvelopeImpl implements FetchResponse.Envelope {
+
+        private final Address[] bcc;
+        private final Address[] cc;
+        private final String date;
+        private final Address[] from;
+        private final String inReplyTo;
+        private final String messageId;
+        private final Address[] replyTo;
+        private final Address[] sender;
+        private final String subject;                  
+        private final Address[] to;
+        
+        public EnvelopeImpl(final String date, final String subject, final Address[] from, 
+                final Address[] sender, final Address[] replyTo, final Address[] to, 
+                final Address[] cc, final Address[] bcc, final String inReplyTo, 
+                final String messageId) {
+            super();
+            this.bcc = bcc;
+            this.cc = cc;
+            this.date = date;
+            this.from = from;
+            this.inReplyTo = inReplyTo;
+            this.messageId = messageId;
+            this.replyTo = replyTo;
+            this.sender = sender;
+            this.subject = subject;
+            this.to = to;
+        }
+
+        public Address[] getBcc() {
+            return bcc;
+        }
+
+        public Address[] getCc() {
+            return cc;
+        }
+
+        public String getDate() {
+            return date;
+        }
+
+        public Address[] getFrom() {
+            return from;
+        }
+
+        public String getInReplyTo() {
+            return inReplyTo;
+        }
+
+        public String getMessageId() {
+            return messageId;
+        }
+
+        public Address[] getReplyTo() {
+            return replyTo;
+        }
+
+        public Address[] getSender() {
+            return sender;
+        }
+
+        public String getSubject() {
+            return subject;
+        }
+
+        public Address[] getTo() {
+            return to;
+        }
+    }
+    
+    private static final class AddressImpl implements FetchResponse.Envelope.Address {
+        private final String atDomainList;
+        private final String hostName;
+        private final String mailboxName;
+        private final String personalName;
+
+        public AddressImpl(final String atDomainList, final String hostName, final String mailboxName, final String personalName) {
+            super();
+            this.atDomainList = atDomainList;
+            this.hostName = hostName;
+            this.mailboxName = mailboxName;
+            this.personalName = personalName;
+        }
+
+        public String getAtDomainList() {
+            return atDomainList;
+        }
+
+        public String getHostName() {
+            return hostName;
+        }
+
+        public String getMailboxName() {
+            return mailboxName;
+        }
+
+        public String getPersonalName() {
+            return personalName;
+        }
+    }
+     
     
     private static final class HeaderBodyElement implements BodyElement {
         private final String name;

@@ -73,6 +73,12 @@ public interface ImapResponseWriter {
     void openParen() throws IOException;
     
     /**
+     * Do not write a space before the next production.
+     * @throws IOException
+     */
+    public void skipNextSpace() throws IOException;
+    
+    /**
      * Closes a parenthesis - writes a <code>)</code>.
      */
     void closeParen() throws IOException;

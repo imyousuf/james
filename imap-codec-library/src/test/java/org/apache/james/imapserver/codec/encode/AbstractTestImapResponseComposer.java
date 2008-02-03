@@ -110,6 +110,7 @@ public abstract class AbstractTestImapResponseComposer extends TestCase {
         checkFlagsEncode(" FLAGS (\\Answered \\Deleted \\Draft \\Flagged \\Seen)", flags);
     }
     
+    
     private void checkFlagsEncode(String expected, Flags flags) throws Exception {
         StringBuffer buffer = new StringBuffer();
         byte[] output = encodeFlagsResponse(flags);
