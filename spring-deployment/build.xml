@@ -346,6 +346,16 @@ java -cp ${exe-classpath};../conf org.apache.james.container.spring.Main
         <replace file="${spring-deployment.target.bin.dir}/run.bat" token=":" value=";" />
     </target>
     
+    <target name="dist-war" >
+        <war destfile="${spring-deployment.dist.dir}/${name}-spring-deployment-${version}.war" 
+             webxml="src/main/config/warfile/WEB-INF/web.xml"   >
+            <fileset dir="${spring-deployment.target.dir}" ><include name="NOTICE.txt" /></fileset>
+            <fileset dir="${spring-deployment.target.dir}" ><include name="LICENSE.txt" /></fileset>
+            <lib dir="${spring-deployment.target.lib.dir}" />
+            <zipfileset dir="${basedir}/src/main/config/james/" prefix="WEB-INF"/>
+        </war>
+    </target>
+
     <target name="dist-binary" >
         <mkdir dir="${spring-deployment.dist.dir}" />
         <zip compress="true" destfile="${spring-deployment.dist.bin.zip}" >
