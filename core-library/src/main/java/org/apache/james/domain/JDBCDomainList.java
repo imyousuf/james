@@ -21,7 +21,6 @@
 
 package org.apache.james.domain;
 
-import java.io.File;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;

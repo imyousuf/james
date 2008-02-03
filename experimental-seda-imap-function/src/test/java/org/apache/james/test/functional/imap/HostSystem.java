@@ -20,9 +20,6 @@
 
 package org.apache.james.test.functional.imap;
 
-import java.io.Reader;
-import java.io.Writer;
-
 /**
  * Host system under test.
  *

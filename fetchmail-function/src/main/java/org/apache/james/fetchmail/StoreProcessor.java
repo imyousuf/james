@@ -23,7 +23,6 @@ package org.apache.james.fetchmail;
 
 import javax.mail.Folder;
 import javax.mail.MessagingException;
-import javax.mail.Session;
 import javax.mail.Store;
 
 /**

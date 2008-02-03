@@ -143,7 +143,7 @@ public class InaccurateTimeoutWatchdog
         try {
             watchdogThread = Thread.currentThread();
 
-            while ((!(Thread.currentThread().interrupted())) && (watchdogThread != null)) {
+            while ((!(Thread.interrupted())) && (watchdogThread != null)) {
                 try {
                     if (!isChecking) {
                         if (getLogger().isDebugEnabled()) {
@@ -196,7 +196,7 @@ public class InaccurateTimeoutWatchdog
         } finally {
             // Ensure that the thread is in a non-interrupted state when it gets returned
             // to the pool.
-            Thread.currentThread().interrupted();
+            Thread.interrupted();
         }
         getLogger().debug("Watchdog " + Thread.currentThread().getName() + " is exiting run().");
     }

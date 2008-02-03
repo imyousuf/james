@@ -40,7 +40,9 @@ import org.apache.mailet.RFC2822Headers;
  */
 public class MailHeaders extends InternetHeaders implements Serializable, Cloneable {
 
-    /**
+    private static final long serialVersionUID = 238748126601L;
+
+	/**
      * No argument constructor
      *
      * @throws MessagingException if the super class cannot be properly instantiated

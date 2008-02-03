@@ -23,7 +23,9 @@ package org.apache.james.vut;
 
 public class InvalidMappingException extends Exception {
 
-    public InvalidMappingException(String string) {
+	private static final long serialVersionUID = 394857238476523L;
+
+	public InvalidMappingException(String string) {
         super(string);
     }
 

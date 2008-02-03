@@ -22,7 +22,9 @@ package org.apache.james.vut;
 
 public class ErrorMappingException extends Exception {
 
-    public ErrorMappingException(String string) {
+	private static final long serialVersionUID = 2348752938798L;
+
+	public ErrorMappingException(String string) {
         super(string);
     }
 

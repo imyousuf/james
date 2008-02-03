@@ -82,10 +82,6 @@ public class SMIMEKeyHolder implements KeyHolder{
      */
     private CertStore certStore;
     
-    /** Creates a new instance of KeyHolder */
-    private SMIMEKeyHolder() {
-    }
-    
     /**
      * Creates a new instance of <CODE>KeyHolder</CODE> using {@link java.security.KeyStore} related parameters.
      * @param keyStoreFileName The (absolute) file name of the .keystore file to load the keystore from.

@@ -24,10 +24,8 @@ import java.util.Iterator;
 import javax.mail.Flags;
 
 import org.apache.james.mailboxmanager.MailboxListener;
-import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.MockMailboxListenerAdded;
 import org.apache.james.mailboxmanager.MockMailboxListenerFlagsUpdate;
-import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 
 public class MailboxEventAnalyserTest extends MockObjectTestCase {

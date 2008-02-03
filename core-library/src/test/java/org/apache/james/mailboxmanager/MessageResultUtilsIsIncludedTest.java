@@ -19,15 +19,8 @@
 
 package org.apache.james.mailboxmanager;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.mail.MessagingException;
-
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
-
-import junit.framework.TestCase;
 
 public class MessageResultUtilsIsIncludedTest extends MockObjectTestCase {
 

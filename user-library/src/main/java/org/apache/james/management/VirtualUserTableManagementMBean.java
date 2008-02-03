@@ -24,7 +24,6 @@ package org.apache.james.management;
 import java.util.Collection;
 
 import org.apache.james.management.VirtualUserTableManagementException;
-import org.apache.james.vut.InvalidMappingException;
 
 /**
  * Expose virtualusertable management functionality through JMX.

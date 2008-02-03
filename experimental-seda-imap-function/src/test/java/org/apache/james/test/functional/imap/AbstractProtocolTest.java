@@ -19,8 +19,6 @@
 
 package org.apache.james.test.functional.imap;
 
-import java.util.Locale;
-
 import junit.framework.TestCase;
 
 
