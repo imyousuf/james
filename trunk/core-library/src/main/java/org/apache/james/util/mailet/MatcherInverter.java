@@ -18,7 +18,7 @@
  ****************************************************************/
 
 
-package org.apache.james.util;
+package org.apache.james.util.mailet;
 
 import java.util.ArrayList;
 import java.util.Collection;
