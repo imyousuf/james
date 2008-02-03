@@ -65,12 +65,16 @@ public class AvalonApplicationContext extends AbstractRefreshableApplicationCont
     }
 
     protected void loadBeanDefinitions(DefaultListableBeanFactory defaultListableBeanFactory) throws IOException, BeansException {
+        loadAvalonBasedBeanDefinitions(defaultListableBeanFactory, containerConfigurationResource, applicationConfigurationResource);
+    }
+
+    public static void loadAvalonBasedBeanDefinitions(DefaultListableBeanFactory defaultListableBeanFactory, Resource containerConfigurationResource, Resource applicationConfigurationResource) {
         XmlBeanDefinitionReader containerBeanDefinitionReader = new XmlBeanDefinitionReader(defaultListableBeanFactory);
         int containerBeanCount = containerBeanDefinitionReader.loadBeanDefinitions(containerConfigurationResource);
 
         AvalonBeanDefinitionReader applicationBeanDefinitionReader = new AvalonBeanDefinitionReader(defaultListableBeanFactory);
         int applicationBeanCount = applicationBeanDefinitionReader.loadBeanDefinitions(applicationConfigurationResource);
-        
+
         int totalBeanCount = containerBeanCount + applicationBeanCount;
     }
 }

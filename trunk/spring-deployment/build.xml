@@ -198,7 +198,7 @@
 
     <path id="runclasspath">
         <path refid="classpath.all.libs" />
-        <pathelement location="${basedir}/src/main/config/"/>
+        <pathelement location="${basedir}/src/main/config/james/"/>
         <pathelement location="${spring-deployment.target.jar}"/>
     </path>
 
@@ -306,7 +306,7 @@
     
     <target name="package-aquire-config-files" >
         <copy todir="${spring-deployment.target.config.dir}" flatten="true">
-            <fileset dir="${basedir}/src/main/config">
+            <fileset dir="${basedir}/src/main/config/james">
                 <include name="*.xml" />
                 <include name="*.properties" />
             </fileset>
