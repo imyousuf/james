@@ -73,6 +73,31 @@ public class MessageResultUtils {
     }
     
     /**
+     * Gets a header matching the given name.
+     * The matching is case-insensitive.
+     * @param name name to be matched, not null
+     * @param iterator <code>Iterator</code> of <code>MessageResult.Header</code>'s,
+     * not null
+     * @return <code>MessageResult.Header</code>, 
+     * or null if the header does not exist
+     * @throws MessagingException 
+     */
+    public static MessageResult.Header getMatching(final String name, final Iterator iterator) throws MessagingException {
+        MessageResult.Header result = null;
+        if (name != null) {
+            while(iterator.hasNext()) {
+                MessageResult.Header header = (MessageResult.Header) iterator.next();
+                final String headerName = header.getName();
+                if (name.equalsIgnoreCase(headerName)) {
+                    result = header;
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
      * Gets header lines whose header name fails to match (ignoring case)
      * all of the given names.
      * @param names header names, not null

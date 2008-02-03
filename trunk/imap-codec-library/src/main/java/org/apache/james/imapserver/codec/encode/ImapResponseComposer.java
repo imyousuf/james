@@ -175,6 +175,51 @@ public interface ImapResponseComposer {
      */
     public abstract void closeFetchResponse() throws IOException;
     
+    /**
+     * Starts a <code>FETCH ENVELOPE</code> production.
+     * @param date envelope date, or null for <code>NIL</code>
+     * @param subject envelope subject, or null for <code>NIL</code>
+     * @throws IOException
+     * @see {@link #endEnvelope(String, String)} must be called
+     */
+    public abstract void startEnvelope(String date, String subject) throws IOException;
+    
+    /**
+     * Starts a list of addresses.
+     * @throws IOException
+     */
+    public abstract void startAddresses() throws IOException;
+    
+    /**
+     * Composes an address.
+     * @param name personal name, or null for <code>NIL</code>
+     * @param domainList route address list, or null for <code>NIL</code>
+     * @param mailbox mailbox name, or null for <code>NIL</code>
+     * @param host host name, or null for <code>NIL</code>
+     * @throws IOException
+     */
+    public abstract void address(String name, String domainList, String mailbox, String host) throws IOException;
+    
+    /**
+     * Ends a list of addresses.
+     * @throws IOException
+     */
+    public abstract void endAddresses() throws IOException;
+    
+    /**
+     * Ends a <code>FETCH ENVELOPE</code> production.
+     * @param inReplyTo envelope in-reply-to, or null for <code>NIL</code>
+     * @param messageId envelope message-id, or null for <code>NIL</code>
+     * @throws IOException
+     */
+    public abstract void endEnvelope(String inReplyTo, String messageId) throws IOException;
+    
+    /**
+     * Composes a <code>NIL</code>.
+     * @throws IOException
+     */
+    public abstract void nil() throws IOException;
+    
     public abstract void commandResponse(ImapCommand command, String message) throws IOException;
 
     /**

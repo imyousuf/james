@@ -27,6 +27,19 @@ public abstract class AbstractTestFetch extends BaseTestSelectedState {
         super(system);
     }
 
+    public void testFetchEnvelopeUS() throws Exception {
+        scriptTest("FetchEnvelope", Locale.US);
+    }
+
+
+    public void testFetchEnvelopeIT() throws Exception {
+        scriptTest("FetchEnvelope", Locale.ITALY);
+    }
+
+    public void testFetchEnvelopeKOREA() throws Exception {
+        scriptTest("FetchEnvelope", Locale.KOREA);
+    }
+
     public void testFetchTextUS() throws Exception {
         scriptTest("FetchText", Locale.US);
     }

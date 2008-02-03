@@ -353,5 +353,8 @@ public class MockImapResponseWriter implements ImapResponseWriter {
         
         
     }
+
+    public void skipNextSpace() throws IOException {
+    }
     
 }

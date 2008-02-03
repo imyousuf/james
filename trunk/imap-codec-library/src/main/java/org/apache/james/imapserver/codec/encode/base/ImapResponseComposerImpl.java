@@ -41,6 +41,8 @@ import org.apache.james.imapserver.codec.encode.ImapResponseWriter;
 public class ImapResponseComposerImpl extends AbstractLogEnabled implements
         ImapConstants, ImapResponseWriter, ImapResponseComposer {
 
+    public static final String ENVELOPE = "ENVELOPE";
+    
     public static final String FETCH = "FETCH";
 
     public static final String EXPUNGE = "EXPUNGE";
@@ -499,4 +501,50 @@ public class ImapResponseComposerImpl extends AbstractLogEnabled implements
         writer.literal(literal);
     }
 
+    public void address(String name, String domainList, String mailbox, String host) throws IOException {
+        skipNextSpace();
+        openParen();
+        nillableQuote(name);
+        nillableQuote(domainList);
+        nillableQuote(mailbox);
+        nillableQuote(host);
+        closeParen();
+    }
+
+    public void endAddresses() throws IOException {
+        closeParen();
+    }
+
+    public void endEnvelope(String inReplyTo, String messageId) throws IOException {
+        nillableQuote(inReplyTo);
+        nillableQuote(messageId);
+        closeParen();
+    }
+
+    public void nil() throws IOException {
+        message(NIL);
+    }
+
+    public void startAddresses() throws IOException {
+        openParen();
+    }
+
+    public void startEnvelope(String date, String subject) throws IOException {
+        message(ENVELOPE);
+        openParen();
+        nillableQuote(date);
+        nillableQuote(subject);
+    }
+
+    public void nillableQuote(String message) throws IOException {
+        if (message == null) {
+            nil();
+        } else {
+            quote(message);
+        }
+    }
+
+    public void skipNextSpace() throws IOException {
+        writer.skipNextSpace();
+    }
 }

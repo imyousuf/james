@@ -103,4 +103,11 @@ public class MessageResultUtilsTest extends TestCase {
         assertEquals(1, results.size());
         assertEquals(headerTwo, results.get(0));
     }
+
+    public void testGetMatchingSingle() throws Exception {
+        assertEquals(headerOne, MessageResultUtils.getMatching("One", headers.iterator()));
+        assertEquals(headerThree, MessageResultUtils.getMatching("Three", headers.iterator()));
+        assertNull(MessageResultUtils.getMatching("Missing", headers.iterator()));
+    }
+
 }

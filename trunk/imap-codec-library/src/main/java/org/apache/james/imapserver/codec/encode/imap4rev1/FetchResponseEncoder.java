@@ -52,6 +52,7 @@ public class FetchResponseEncoder extends AbstractChainedImapEncoder {
             encodeFlags(composer, fetchResponse);
             encodeInternalDate(composer, fetchResponse);
             encodeSize(composer, fetchResponse);
+            encodeEnvelope(composer, fetchResponse);
             encode(composer, fetchResponse.getMisc());
             encodeUid(composer, fetchResponse);
             encodeBodyElements(composer, fetchResponse.getElements());
@@ -108,4 +109,50 @@ public class FetchResponseEncoder extends AbstractChainedImapEncoder {
         }
     }
 
+    private void encodeEnvelope(final ImapResponseComposer composer, final FetchResponse fetchResponse) throws IOException {
+        final FetchResponse.Envelope envelope = fetchResponse.getEnvelope();
+        if (envelope != null) {
+            final String date = envelope.getDate();
+            final String subject = envelope.getSubject();
+            final FetchResponse.Envelope.Address[] from = envelope.getFrom();
+            final FetchResponse.Envelope.Address[] sender = envelope.getSender();
+            final FetchResponse.Envelope.Address[] replyTo = envelope.getReplyTo();
+            final FetchResponse.Envelope.Address[] to = envelope.getTo();
+            final FetchResponse.Envelope.Address[] cc = envelope.getCc();
+            final FetchResponse.Envelope.Address[] bcc = envelope.getBcc();
+            final String inReplyTo = envelope.getInReplyTo();
+            final String messageId = envelope.getMessageId();
+            
+            composer.startEnvelope(date, subject);
+            encodeAddresses(composer, from);
+            encodeAddresses(composer, sender);
+            encodeAddresses(composer, replyTo);
+            encodeAddresses(composer, to);
+            encodeAddresses(composer, cc);
+            encodeAddresses(composer, bcc);
+            composer.endEnvelope(inReplyTo, messageId);
+        }
+    }
+    
+    private void encodeAddresses(final ImapResponseComposer composer, final FetchResponse.Envelope.Address[] addresses) throws IOException {
+        if (addresses == null || addresses.length == 0) {
+            composer.nil();
+        } else {
+            composer.startAddresses();
+            final int length = addresses.length;
+            for (int i=0;i<length;i++) {
+                final FetchResponse.Envelope.Address address = addresses[i];
+                encodeAddress(composer, address);
+            }
+            composer.endAddresses();
+        }
+    }
+
+    private void encodeAddress(final ImapResponseComposer composer, final FetchResponse.Envelope.Address address) throws IOException {
+        final String name = address.getPersonalName();
+        final String domainList = address.getAtDomainList();
+        final String mailbox = address.getMailboxName();
+        final String host = address.getHostName();
+        composer.address(name, domainList, mailbox, host);
+    }
 }

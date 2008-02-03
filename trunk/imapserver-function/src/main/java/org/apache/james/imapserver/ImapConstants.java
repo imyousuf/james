@@ -40,4 +40,7 @@ public interface ImapConstants
     final String NAMESPACE_PREFIX = String.valueOf( NAMESPACE_PREFIX_CHAR );
 
     String INBOX_NAME = "INBOX";
+    
+    public static final char SP_CHAR = ' ';
+    public static final String NIL = "NIL";
 }

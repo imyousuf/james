@@ -29,7 +29,9 @@ import java.util.Set;
 import javax.mail.Flags;
 import javax.mail.MessagingException;
 
+import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.api.imap.message.MessageFlags;
+import org.apache.james.imapserver.ImapConstants;
 import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
@@ -45,7 +47,16 @@ import org.apache.james.mailboxmanager.MessageResultUtils;
 import org.apache.james.mailboxmanager.MessageResult.Content;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
+import org.apache.james.mime4j.field.address.Address;
+import org.apache.james.mime4j.field.address.AddressList;
+import org.apache.james.mime4j.field.address.Group;
+import org.apache.james.mime4j.field.address.Mailbox;
+import org.apache.james.mime4j.field.address.MailboxList;
+import org.apache.james.mime4j.field.address.NamedMailbox;
+import org.apache.james.mime4j.field.address.parser.ParseException;
+import org.apache.mailet.RFC2822Headers;
 import org.apache.mailet.dates.RFC822DateFormat;
+
 
 /**
  * Handles processeing for the FETCH imap command.
@@ -158,8 +169,16 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
                 response.append(" RFC822.SIZE ");
                 response.append(result.getSize());
             }
+            
+            // ENVELOPE response
+            if (fetch.envelope) {
+                response.append(" ENVELOPE ");
+                final Iterator iterator = result.iterateHeaders();
+                List headers = MessageResultUtils.getAll(iterator);
+                outputEnvelope(headers, response);
+            }
 
-            if (fetch.envelope || fetch.body || fetch.bodyStructure) {
+            if (fetch.body || fetch.bodyStructure) {
                 SimpleMessageAttributes attrs = new SimpleMessageAttributes(result
                         .getMimeMessage(), getLogger());
     
@@ -328,6 +347,124 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
         }
         response.append("\r\n");
     }
+
+
+    private void outputEnvelope(List headers, StringBuffer response) throws MessagingException {
+        MessageResult.Header dateHeader = MessageResultUtils.getMatching(RFC2822Headers.DATE, headers.iterator());
+        outputEnvelope(dateHeader, response);
+        MessageResult.Header subjectHeader = MessageResultUtils.getMatching(RFC2822Headers.SUBJECT, headers.iterator());
+        outputEnvelope(subjectHeader, response);
+        MessageResult.Header fromHeader = MessageResultUtils.getMatching(RFC2822Headers.FROM, headers.iterator());
+        outputAddressEnvelope(fromHeader, response);
+        MessageResult.Header senderHeader = MessageResultUtils.getMatching(RFC2822Headers.SENDER, headers.iterator());
+        if (senderHeader == null) {
+            outputAddressEnvelope(fromHeader, response);
+        } else {
+            outputAddressEnvelope(senderHeader, response);
+        }
+        MessageResult.Header replyToHeader = MessageResultUtils.getMatching(RFC2822Headers.REPLY_TO, headers.iterator());
+        if (replyToHeader == null) {
+            outputAddressEnvelope(fromHeader, response);
+        } else {
+            outputAddressEnvelope(replyToHeader, response);
+        }
+        MessageResult.Header toHeader = MessageResultUtils.getMatching(RFC2822Headers.TO, headers.iterator());
+        outputAddressEnvelope(toHeader, response);
+        MessageResult.Header ccHeader = MessageResultUtils.getMatching(RFC2822Headers.CC, headers.iterator());
+        outputAddressEnvelope(ccHeader, response);
+        MessageResult.Header bccHeader = MessageResultUtils.getMatching(RFC2822Headers.BCC, headers.iterator());
+        outputAddressEnvelope(bccHeader, response);
+        MessageResult.Header inReplyToHeader = MessageResultUtils.getMatching(RFC2822Headers.IN_REPLY_TO, headers.iterator());
+        outputEnvelope(inReplyToHeader, response);
+        MessageResult.Header messageIdHeader = MessageResultUtils.getMatching(RFC2822Headers.MESSAGE_ID, headers.iterator());
+        outputEnvelope(messageIdHeader, response);
+    }
+
+    private void outputAddressEnvelope(final MessageResult.Header header, final StringBuffer response) throws MessagingException {
+        if (header == null) {
+            response.append(ImapConstants.NIL);
+        } else {
+            final String value = header.getValue();
+            try {
+                boolean first = true;
+                final AddressList addressList = AddressList.parse(value);
+                final int size = addressList.size();
+                for (int i=0;i<size;i++) {
+                    final Address address = addressList.get(i);
+                    if (address instanceof Group) {
+                        final Group group = (Group) address;
+                        first = outputGroup(response, first, group);
+                    } else if (address instanceof Mailbox) {
+                        final Mailbox mailbox = (Mailbox) address;
+                        first = outputMailbox(response, first, mailbox);
+                    } else {
+                        getLogger().warn("Unknown address type");
+                    }
+                }
+            } catch (ParseException e) {
+                final Logger logger = getLogger();
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Cannot parse field " + header.getName(), e);
+                }
+                throw new MessagingException("Failed to parse field " + header.getName(), e);
+            }
+        }
+    }
+    
+    private boolean outputMailbox(StringBuffer response, boolean first, Mailbox mailbox) {
+        final String name;
+        if (mailbox instanceof NamedMailbox) {
+            final NamedMailbox namedMailbox = (NamedMailbox) mailbox;
+            name = namedMailbox.getName();
+        } else {
+            name = null;
+        }
+        final String domain = mailbox.getDomain();
+        final String atDomainList = mailbox.getRoute().toRouteString();
+        final String localPart = mailbox.getLocalPart();
+        first = writeAddress(first, name, atDomainList, localPart, domain, response);
+        return first;
+    }
+
+    private boolean outputGroup(final StringBuffer response, boolean first, final Group group) {
+        final String groupName = group.getName();
+        first = writeAddress(first, null, null, groupName, null, response);
+        final MailboxList mailboxList = group.getMailboxes();
+        for (int i=0;i<mailboxList.size();i++) {
+            final Mailbox mailbox = mailboxList.get(i);
+            first = outputMailbox(response, first, mailbox);
+        }
+        first = writeAddress(first, null, null, null, null, response);
+        return first;
+    }
+
+    private boolean writeAddress(boolean first, String name, String atDomainList, String mailbox, String domain, StringBuffer response) {
+        if (first) {
+            response.append(',');
+            response.append(ImapConstants.SP_CHAR);
+        } 
+        outputNullable(name, response);
+        outputNullable(atDomainList, response);
+        outputNullable(mailbox, response);
+        outputNullable(domain, response);
+        return false;
+    }
+
+    private void outputNullable(String value, StringBuffer response) {
+        if (value == null) {
+            response.append(ImapConstants.NIL);
+        }
+    }
+
+    private void outputEnvelope(final MessageResult.Header header, final StringBuffer response) throws MessagingException {
+        if (header == null) {
+            response.append(ImapConstants.NIL);
+        } else {
+            final String value = header.getValue();
+            response.append(value);
+        }
+    }
+
 
     /** @see ImapCommand#getName */
     public String getName()
@@ -537,9 +674,11 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
             if (mailFetchElement) {
                 result |= MessageResult.MIME_MESSAGE;
             }
-            if (body || bodyStructure || envelope) {
+            if (envelope) {
+                result |= MessageResult.HEADERS;
+            }
+            if (body || bodyStructure) {
                 // TODO: structure
-                //result |= MessageResult.ENVELOPE;
                 result |= MessageResult.MIME_MESSAGE;
             }
             if (headerFetchElement || mailFetchElement) {
