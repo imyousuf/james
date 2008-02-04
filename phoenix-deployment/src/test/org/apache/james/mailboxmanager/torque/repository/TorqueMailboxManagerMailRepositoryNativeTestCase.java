@@ -35,7 +35,7 @@ import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.collections.IteratorUtils;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxSession;
-import org.apache.james.mailboxmanager.MessageResult;
+import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
@@ -114,7 +114,7 @@ public class TorqueMailboxManagerMailRepositoryNativeTestCase extends
         final Iterator it;
         try {
             it = getShadowMailbox().getMessages(GeneralMessageSetImpl.all(),
-                    MessageResult.MIME_MESSAGE, session);
+                    FetchGroupImpl.MIME_MESSAGE, session);
 
         } catch (MailboxManagerException e) {
             throw new RuntimeException(e);
@@ -126,7 +126,7 @@ public class TorqueMailboxManagerMailRepositoryNativeTestCase extends
     protected void nativeStoreMessage(MimeMessage mm) {
         try {
             getShadowMailbox().appendMessage(mm, new Date(),
-                    MessageResult.MINIMAL, session);
+                    FetchGroupImpl.MINIMAL, session);
         } catch (MailboxManagerException e) {
             throw new RuntimeException(e);
         }

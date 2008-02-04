@@ -24,18 +24,16 @@ import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.api.imap.display.HumanReadableTextKey;
 import org.apache.james.api.imap.message.request.ImapRequest;
-import org.apache.james.api.imap.message.response.ImapResponseMessage;
 import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
-import org.apache.james.api.imap.process.ImapProcessor.Responder;
 import org.apache.james.imap.message.request.imap4rev1.ExpungeRequest;
 import org.apache.james.imapserver.processor.base.AbstractImapRequestProcessor;
 import org.apache.james.imapserver.processor.base.AuthorizationException;
 import org.apache.james.imapserver.processor.base.ImapSessionUtils;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
-import org.apache.james.mailboxmanager.MessageResult;
+import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
@@ -61,7 +59,7 @@ public class ExpungeProcessor extends AbstractImapRequestProcessor {
         } else {
             try {
                 mailbox.expunge(GeneralMessageSetImpl.all(),
-                        MessageResult.MINIMAL, ImapSessionUtils.getMailboxSession(session));
+                        FetchGroupImpl.MINIMAL, ImapSessionUtils.getMailboxSession(session));
                 unsolicitedResponses(session, responder, false);
                 okComplete(command, tag, responder);
             } catch (MailboxManagerException e) {

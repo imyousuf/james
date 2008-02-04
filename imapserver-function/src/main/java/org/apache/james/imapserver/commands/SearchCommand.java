@@ -30,8 +30,10 @@ import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.SearchParameters;
+import org.apache.james.mailboxmanager.MessageResult.FetchGroup;
 import org.apache.james.mailboxmanager.SearchParameters.NumericRange;
 import org.apache.james.mailboxmanager.SearchParameters.SearchCriteria;
+import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 
@@ -68,7 +70,7 @@ class SearchCommand extends SelectedStateCommand implements UidEnabledCommand
 
         final SelectedMailboxSession selected = session.getSelected();
         ImapMailbox mailbox = selected.getMailbox();
-        final int result = MessageResult.MINIMAL;
+        final FetchGroup result = FetchGroupImpl.MINIMAL;
         final Iterator it;
         try {
             it = mailbox.search(GeneralMessageSetImpl.all(),searchTerm, result, session.getMailboxSession());

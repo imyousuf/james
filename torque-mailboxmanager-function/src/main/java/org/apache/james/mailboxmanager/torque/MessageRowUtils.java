@@ -36,6 +36,7 @@ import javax.mail.MessagingException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.MessageResult.Content;
+import org.apache.james.mailboxmanager.MessageResult.FetchGroup;
 import org.apache.james.mailboxmanager.impl.MessageFlags;
 import org.apache.james.mailboxmanager.impl.MessageResultImpl;
 import org.apache.james.mailboxmanager.torque.om.MessageBody;
@@ -253,41 +254,41 @@ public class MessageRowUtils {
         MessageResultImpl messageResult = new MessageResultImpl();
         messageResult.setUid(messageRow.getUid());
         
-        if ((result & MessageResult.MIME_MESSAGE) > 0) {
+        if ((result & FetchGroup.MIME_MESSAGE) > 0) {
             messageResult.setMimeMessage(TorqueMimeMessage.createMessage(messageRow));
-            result -= MessageResult.MIME_MESSAGE;
+            result -= FetchGroup.MIME_MESSAGE;
         }
-        if ((result & MessageResult.FLAGS) > 0) {
+        if ((result & FetchGroup.FLAGS) > 0) {
             org.apache.james.mailboxmanager.torque.om.MessageFlags messageFlags
                 = messageRow.getMessageFlags();
             if (messageFlags!=null) {
                 messageResult.setFlags(messageFlags.getFlagsObject());  
             }
-            result -= MessageResult.FLAGS;
+            result -= FetchGroup.FLAGS;
         }
-        if ((result & MessageResult.SIZE) > 0) {
+        if ((result & FetchGroup.SIZE) > 0) {
             messageResult.setSize(messageRow.getSize());
-            result -= MessageResult.SIZE;
+            result -= FetchGroup.SIZE;
         }
-        if ((result & MessageResult.INTERNAL_DATE) > 0) {
+        if ((result & FetchGroup.INTERNAL_DATE) > 0) {
             messageResult.setInternalDate(messageRow.getInternalDate());
-            result -= MessageResult.INTERNAL_DATE;
+            result -= FetchGroup.INTERNAL_DATE;
         }
-        if ((result & MessageResult.KEY) > 0) {
+        if ((result & FetchGroup.KEY) > 0) {
             messageResult.setKey(uidToKeyConverter.toKey(messageRow.getUid()));
-            result -= MessageResult.KEY;
+            result -= FetchGroup.KEY;
         }
-        if ((result & MessageResult.HEADERS) > 0) {
+        if ((result & FetchGroup.HEADERS) > 0) {
             messageResult.setHeaders(createHeaders(messageRow));
-            result -= MessageResult.HEADERS;
+            result -= FetchGroup.HEADERS;
         }
-        if ((result & MessageResult.BODY_CONTENT) > 0) {
+        if ((result & FetchGroup.BODY_CONTENT) > 0) {
             messageResult.setMessageBody(createBodyContent(messageRow));
-            result -= MessageResult.BODY_CONTENT;
+            result -= FetchGroup.BODY_CONTENT;
         }
-        if ((result & MessageResult.FULL_CONTENT) > 0) {
+        if ((result & FetchGroup.FULL_CONTENT) > 0) {
             messageResult.setFullMessage(createFullContent(messageRow, messageResult.getHeaders()));
-            result -= MessageResult.FULL_CONTENT;
+            result -= FetchGroup.FULL_CONTENT;
         }
         if (result != 0) {
             throw new RuntimeException("Unsupported result: " + result);

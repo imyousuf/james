@@ -27,6 +27,7 @@ import javax.mail.Flags;
 import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
 
+import org.apache.james.mailboxmanager.MessageResult.FetchGroup;
 import org.apache.james.mailboxmanager.impl.MessageResultImpl;
 import org.jmock.MockObjectTestCase;
 
@@ -48,118 +49,118 @@ public class MessageResultImplIncludedResultsTest extends MockObjectTestCase {
     public void testShouldIncludedResultsWhenMimeMessageSet() throws Exception {
         MimeMessage message = new MimeMessage(Session.getDefaultInstance(new Properties()));
         result.setMimeMessage(null);
-        assertEquals(MessageResult.MINIMAL, result.getIncludedResults());
+        assertEquals(FetchGroup.MINIMAL, result.getIncludedResults().content());
         result.setMimeMessage(message);
-        assertEquals(MessageResult.MIME_MESSAGE, result.getIncludedResults());
+        assertEquals(FetchGroup.MIME_MESSAGE, result.getIncludedResults().content());
         MessageResultImpl result = new MessageResultImpl(this.result);
-        assertEquals(MessageResult.MIME_MESSAGE, result.getIncludedResults());
+        assertEquals(FetchGroup.MIME_MESSAGE, result.getIncludedResults().content());
     }
 
     public void testShouldIncludedResultsWhenFlagsSet() throws Exception {
         result.setFlags(null);
-        assertEquals(MessageResult.MINIMAL, result.getIncludedResults());
+        assertEquals(FetchGroup.MINIMAL, result.getIncludedResults().content());
         Flags flags = new Flags();
         result.setFlags(flags);
-        assertEquals(MessageResult.FLAGS, result.getIncludedResults());
+        assertEquals(FetchGroup.FLAGS, result.getIncludedResults().content());
         MessageResultImpl result = new MessageResultImpl(77, flags);
-        assertEquals(MessageResult.FLAGS, result.getIncludedResults());
+        assertEquals(FetchGroup.FLAGS, result.getIncludedResults().content());
         result = new MessageResultImpl(this.result);
-        assertEquals(MessageResult.FLAGS, result.getIncludedResults());
+        assertEquals(FetchGroup.FLAGS, result.getIncludedResults().content());
     }
 
     public void testShouldIncludedResultsWhenSizeSet() throws Exception {
         result.setSize(100);
-        assertEquals(MessageResult.SIZE, result.getIncludedResults());
+        assertEquals(FetchGroup.SIZE, result.getIncludedResults().content());
         MessageResultImpl result = new MessageResultImpl(this.result);
-        assertEquals(MessageResult.SIZE, result.getIncludedResults());
+        assertEquals(FetchGroup.SIZE, result.getIncludedResults().content());
     }
 
     public void testShouldIncludedResultsWhenInternalDateSet() throws Exception {
         result.setInternalDate(null);
-        assertEquals(MessageResult.MINIMAL, result.getIncludedResults());
+        assertEquals(FetchGroup.MINIMAL, result.getIncludedResults().content());
         Date date = new Date();
         result.setInternalDate(date);
-        assertEquals(MessageResult.INTERNAL_DATE, result.getIncludedResults());
+        assertEquals(FetchGroup.INTERNAL_DATE, result.getIncludedResults().content());
         result = new MessageResultImpl(this.result);
-        assertEquals(MessageResult.INTERNAL_DATE, result.getIncludedResults());
+        assertEquals(FetchGroup.INTERNAL_DATE, result.getIncludedResults().content());
     }
 
     public void testShouldIncludedResultsWhenKeySet() throws Exception {
         result.setKey(null);
-        assertEquals(MessageResult.MINIMAL, result.getIncludedResults());
+        assertEquals(FetchGroup.MINIMAL, result.getIncludedResults().content());
         result.setKey("KEY");
-        assertEquals(MessageResult.KEY, result.getIncludedResults());
+        assertEquals(FetchGroup.KEY, result.getIncludedResults().content());
         result = new MessageResultImpl(this.result);
-        assertEquals(MessageResult.KEY, result.getIncludedResults());
+        assertEquals(FetchGroup.KEY, result.getIncludedResults().content());
     }
 
     public void testShouldIncludedResultsWhenHeadersSet() throws Exception {
         result.setHeaders(null);
-        assertEquals(MessageResult.MINIMAL, result.getIncludedResults());
+        assertEquals(FetchGroup.MINIMAL, result.getIncludedResults().content());
         result.setHeaders(new ArrayList());
-        assertEquals(MessageResult.HEADERS, result.getIncludedResults());
+        assertEquals(FetchGroup.HEADERS, result.getIncludedResults().content());
         result = new MessageResultImpl(this.result);
-        assertEquals(MessageResult.HEADERS, result.getIncludedResults());
+        assertEquals(FetchGroup.HEADERS, result.getIncludedResults().content());
     }
     
     public void testShouldIncludedResultsWhenFullMessageSet() throws Exception  {
         result.setFullMessage(null);
-        assertEquals(MessageResult.MINIMAL, result.getIncludedResults());
+        assertEquals(FetchGroup.MINIMAL, result.getIncludedResults().content());
         result.setFullMessage(content);
-        assertEquals(MessageResult.FULL_CONTENT, result.getIncludedResults());
+        assertEquals(FetchGroup.FULL_CONTENT, result.getIncludedResults().content());
         result = new MessageResultImpl(this.result);
-        assertEquals(MessageResult.FULL_CONTENT, result.getIncludedResults());
+        assertEquals(FetchGroup.FULL_CONTENT, result.getIncludedResults().content());
     }
 
     public void testShouldIncludedResultsWhenMessageBodySet() throws Exception {
         result.setMessageBody(null);
-        assertEquals(MessageResult.MINIMAL, result.getIncludedResults());
+        assertEquals(FetchGroup.MINIMAL, result.getIncludedResults().content());
         result.setMessageBody(content);
-        assertEquals(MessageResult.BODY_CONTENT, result.getIncludedResults());
+        assertEquals(FetchGroup.BODY_CONTENT, result.getIncludedResults().content());
         result = new MessageResultImpl(this.result);
-        assertEquals(MessageResult.BODY_CONTENT, result.getIncludedResults());
+        assertEquals(FetchGroup.BODY_CONTENT, result.getIncludedResults().content());
     }
     
     public void testShouldIncludedResultsWhenAllSet() {
         Flags flags = new Flags();
         result.setFlags(flags);
-        assertEquals(MessageResult.FLAGS, result.getIncludedResults());
+        assertEquals(FetchGroup.FLAGS, result.getIncludedResults().content());
         assertTrue(MessageResultUtils.isFlagsIncluded(result));
         result.setUid(99);
-        assertEquals(MessageResult.FLAGS, result.getIncludedResults());
+        assertEquals(FetchGroup.FLAGS, result.getIncludedResults().content());
         assertTrue(MessageResultUtils.isFlagsIncluded(result));
         result.setMessageBody(content);
-        assertEquals(MessageResult.FLAGS | MessageResult.BODY_CONTENT, result.getIncludedResults());
+        assertEquals(FetchGroup.FLAGS | FetchGroup.BODY_CONTENT, result.getIncludedResults().content());
         assertTrue(MessageResultUtils.isFlagsIncluded(result));
         assertTrue(MessageResultUtils.isBodyContentIncluded(result));
         result.setFullMessage(content);
-        assertEquals(MessageResult.FLAGS | 
-                MessageResult.BODY_CONTENT | MessageResult.FULL_CONTENT, result.getIncludedResults());
+        assertEquals(FetchGroup.FLAGS | 
+                FetchGroup.BODY_CONTENT | FetchGroup.FULL_CONTENT, result.getIncludedResults().content());
         assertTrue(MessageResultUtils.isFlagsIncluded(result));
         assertTrue(MessageResultUtils.isBodyContentIncluded(result));
         assertTrue(MessageResultUtils.isFullContentIncluded(result));
         result.setHeaders(new ArrayList());
-        assertEquals(MessageResult.FLAGS | 
-                MessageResult.BODY_CONTENT | MessageResult.FULL_CONTENT 
-                | MessageResult.HEADERS, result.getIncludedResults());
+        assertEquals(FetchGroup.FLAGS | 
+                FetchGroup.BODY_CONTENT | FetchGroup.FULL_CONTENT 
+                | FetchGroup.HEADERS, result.getIncludedResults().content());
         assertTrue(MessageResultUtils.isFlagsIncluded(result));
         assertTrue(MessageResultUtils.isBodyContentIncluded(result));
         assertTrue(MessageResultUtils.isFullContentIncluded(result));
         assertTrue(MessageResultUtils.isHeadersIncluded(result));
         result.setInternalDate(new Date());
-        assertEquals(MessageResult.FLAGS | 
-                MessageResult.BODY_CONTENT | MessageResult.FULL_CONTENT 
-                | MessageResult.HEADERS | MessageResult.INTERNAL_DATE, result.getIncludedResults());
+        assertEquals(FetchGroup.FLAGS | 
+                FetchGroup.BODY_CONTENT | FetchGroup.FULL_CONTENT 
+                | FetchGroup.HEADERS | FetchGroup.INTERNAL_DATE, result.getIncludedResults().content());
         assertTrue(MessageResultUtils.isFlagsIncluded(result));
         assertTrue(MessageResultUtils.isBodyContentIncluded(result));
         assertTrue(MessageResultUtils.isFullContentIncluded(result));
         assertTrue(MessageResultUtils.isHeadersIncluded(result));
         assertTrue(MessageResultUtils.isInternalDateIncluded(result));
         result.setSize(100);
-        assertEquals(MessageResult.FLAGS | 
-                MessageResult.BODY_CONTENT | MessageResult.FULL_CONTENT 
-                | MessageResult.HEADERS | MessageResult.INTERNAL_DATE
-                | MessageResult.SIZE, result.getIncludedResults());
+        assertEquals(FetchGroup.FLAGS | 
+                FetchGroup.BODY_CONTENT | FetchGroup.FULL_CONTENT 
+                | FetchGroup.HEADERS | FetchGroup.INTERNAL_DATE
+                | FetchGroup.SIZE, result.getIncludedResults().content());
         assertTrue(MessageResultUtils.isFlagsIncluded(result));
         assertTrue(MessageResultUtils.isBodyContentIncluded(result));
         assertTrue(MessageResultUtils.isFullContentIncluded(result));

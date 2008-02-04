@@ -33,7 +33,7 @@ import org.apache.james.imapserver.processor.base.ImapSessionUtils;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxSession;
-import org.apache.james.mailboxmanager.MessageResult;
+import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 
@@ -55,7 +55,7 @@ public class CloseProcessor extends AbstractImapRequestProcessor {
             try {
                 final MailboxSession mailboxSession = ImapSessionUtils.getMailboxSession(session);
                 mailbox.expunge(GeneralMessageSetImpl.all(),
-                        MessageResult.MINIMAL, mailboxSession);
+                        FetchGroupImpl.MINIMAL, mailboxSession);
             } catch (MailboxManagerException e) {
                 throw new MailboxException(e);
             }

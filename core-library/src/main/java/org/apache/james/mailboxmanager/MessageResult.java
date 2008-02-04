@@ -61,39 +61,56 @@ import javax.mail.internet.MimeMessage;
 public interface MessageResult extends Comparable {
 
     /**
-     * For example: could have best performance when doing store and then
-     * forget. UIDs are always returned
+     * Indicates the results fetched.
      */
-    public static final int MINIMAL = 0x00;
+    public interface FetchGroup {
+        
+        /**
+         * For example: could have best performance when doing store and then
+         * forget. UIDs are always returned
+         */
+        public static final int MINIMAL = 0x00;
+        /**
+         * 
+         */
+        public static final int MIME_MESSAGE = 0x01;
+        /**
+         * return a string baded key (used by James)
+         */
+        public static final int KEY = 0x10;
+        public static final int SIZE = 0x20;
+        public static final int INTERNAL_DATE = 0x40;
+        public static final int FLAGS = 0x80;
+        public static final int HEADERS = 0x100;
+        public static final int FULL_CONTENT = 0x200;
+        public static final int BODY_CONTENT = 0x400;
 
-    /**
-     * 
-     */
-    public static final int MIME_MESSAGE = 0x01;
-    
-    /**
-     * return a string baded key (used by James)
-     */
-    public static final int KEY = 0x10;
-
-    public static final int SIZE = 0x20;
-
-    public static final int INTERNAL_DATE = 0x40;
-
-    public static final int FLAGS = 0x80;
-
-    public static final int HEADERS = 0x100;
-    
-    public static final int FULL_CONTENT = 0x200;
-    
-    public static final int BODY_CONTENT = 0x400;
+        /**
+         * Contents to be retu
+         * @return  
+         */
+        public int content();
+        
+        /**
+         * Mime parts to be included in the results.
+         * @return array of mime parts numbered from one,
+         * or null
+         */
+        public int[] mimeParts();
+        
+        /**
+         * Mime headers to be included in the results.
+         * @return array of mime headers numbered from one
+         */
+        public int[] mimeHeaders();
+    }
     
     /**
      * Gets the results set.
      * @return bitwise indication of result set
      * @see MessageResultUtils#isIncluded(MessageResult, int)
      */
-    int getIncludedResults();
+    FetchGroup getIncludedResults();
 
     MimeMessage getMimeMessage() throws MailboxManagerException;
 
@@ -132,7 +149,7 @@ public interface MessageResult extends Comparable {
     /**
      * Gets headers for the message.
      * @return <code>Header</code> <code>Iterator</code>, 
-     * or null if {@link #HEADERS} was not fetched
+     * or null if {@link FetchGroup#HEADERS} was not fetched
      */
     Iterator iterateHeaders() throws MailboxManagerException;
     
@@ -160,7 +177,7 @@ public interface MessageResult extends Comparable {
      * Gets the full message including headers and body.
      * The message data should have normalised line endings (CRLF).
      * @return <code>Content</code>, 
-     * or or null if {@link #FULL_CONTENT} has not been included in the 
+     * or or null if {@link FetchGroup#FULL_CONTENT} has not been included in the 
      * results
      */
     Content getFullMessage() throws MailboxManagerException;
@@ -169,7 +186,7 @@ public interface MessageResult extends Comparable {
      * Gets the body of the message excluding headers.
      * The message data should have normalised line endings (CRLF).
      * @return <code>Content</code>,
-     * or or null if {@link #FULL_CONTENT} has not been included in the 
+     * or or null if {@link FetchGroup#FULL_CONTENT} has not been included in the 
      * results 
      */
     Content getMessageBody() throws MailboxManagerException;

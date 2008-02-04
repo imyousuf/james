@@ -37,6 +37,7 @@ import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.MessageResult;
+import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 import org.apache.james.mailboxmanager.tracking.UidToMsnConverter;
@@ -132,7 +133,7 @@ public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements Se
             for (final Iterator it = events.flagUpdateUids(); it.hasNext();) {
                 Long uid = (Long) it.next();
                 GeneralMessageSet messageSet = GeneralMessageSetImpl.oneUid(uid.longValue());
-                final Iterator messages = mailbox.getMessages(messageSet, MessageResult.FLAGS, mailboxSession);
+                final Iterator messages = mailbox.getMessages(messageSet, FetchGroupImpl.FLAGS, mailboxSession);
                 while (messages.hasNext()) {
                     MessageResult mr = (MessageResult) it.next();
                     int msn = msn(mr.getUid());

@@ -45,6 +45,8 @@ import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.MessageResultUtils;
 import org.apache.james.mailboxmanager.MessageResult.Content;
+import org.apache.james.mailboxmanager.MessageResult.FetchGroup;
+import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 import org.apache.james.mime4j.field.address.Address;
@@ -93,7 +95,7 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
             fetch.uid = true;
         }
 
-        final int resultToFetch = fetch.getNeededMessageResult();
+        final FetchGroup resultToFetch = fetch.getFetchGroup();
         final SelectedMailboxSession selected = session.getSelected();
         final ImapMailbox mailbox = selected.getMailbox();
         for (int i = 0; i < idSet.length; i++) {
@@ -141,7 +143,7 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
             if (fetch.isSetSeen()
                     && !result.getFlags().contains(Flags.Flag.SEEN)) {
                 mailbox.setFlags(new Flags(Flags.Flag.SEEN), true, false,
-                        GeneralMessageSetImpl.oneUid(result.getUid()), MessageResult.MINIMAL, session);
+                        GeneralMessageSetImpl.oneUid(result.getUid()), FetchGroupImpl.MINIMAL, session);
                 result.getFlags().add(Flags.Flag.SEEN);
                 ensureFlagsResponse = true;
             }
@@ -660,37 +662,37 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
             bodyElements.add(element);
         }
                 
-        public int getNeededMessageResult() {
-            int result = MessageResult.MINIMAL;
+        public FetchGroup getFetchGroup() {
+            int result = FetchGroup.MINIMAL;
             if (flags || setSeen) {
-                result |= MessageResult.FLAGS;
+                result |= FetchGroup.FLAGS;
             }
             if (internalDate) {
-                result |= MessageResult.INTERNAL_DATE;
+                result |= FetchGroup.INTERNAL_DATE;
             }
             if (size) {
-                result |= MessageResult.SIZE;
+                result |= FetchGroup.SIZE;
             }
             if (mailFetchElement) {
-                result |= MessageResult.MIME_MESSAGE;
+                result |= FetchGroup.MIME_MESSAGE;
             }
             if (envelope) {
-                result |= MessageResult.HEADERS;
+                result |= FetchGroup.HEADERS;
             }
             if (body || bodyStructure) {
                 // TODO: structure
-                result |= MessageResult.MIME_MESSAGE;
+                result |= FetchGroup.MIME_MESSAGE;
             }
             if (headerFetchElement || mailFetchElement) {
-                result |= MessageResult.HEADERS;
+                result |= FetchGroup.HEADERS;
             }
             if (bodyFetch) {
-                result |= MessageResult.BODY_CONTENT;
+                result |= FetchGroup.BODY_CONTENT;
             }
             if (fullContentFetch) {
-                result |= MessageResult.FULL_CONTENT;
+                result |= FetchGroup.FULL_CONTENT;
             }
-            return result;
+            return new FetchGroupImpl(result);
         }
     }
 

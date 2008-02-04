@@ -39,12 +39,14 @@ import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.MessageResult;
+import org.apache.james.mailboxmanager.MessageResult.FetchGroup;
+import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 
 public class StoreProcessor extends AbstractImapRequestProcessor {
 
-    private static final int STORE_FETCH_GROUP = MessageResult.FLAGS;
+    private static final FetchGroup STORE_FETCH_GROUP = FetchGroupImpl.FLAGS;
 
     public StoreProcessor(final ImapProcessor next, final StatusResponseFactory factory) {
         super(next, factory);

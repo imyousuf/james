@@ -47,7 +47,7 @@ public class MessageResultImpl implements MessageResult {
     private List headers;
     private Content messageBody;
     private Content fullMessage;
-    private int includedResults = MINIMAL;
+    private int includedResults = FetchGroup.MINIMAL;
 
     public MessageResultImpl(long uid) {
         setUid(uid);
@@ -89,8 +89,8 @@ public class MessageResultImpl implements MessageResult {
         }
     }
 
-    public int getIncludedResults() {
-        return includedResults;
+    public MessageResult.FetchGroup getIncludedResults() {
+        return new FetchGroupImpl(includedResults);
     }
 
     public MimeMessage getMimeMessage() {
@@ -100,7 +100,7 @@ public class MessageResultImpl implements MessageResult {
     public void setMimeMessage(MimeMessage mimeMessage) {
         this.mimeMessage=mimeMessage;
         if (mimeMessage != null) {
-            includedResults |= MIME_MESSAGE;
+            includedResults |= FetchGroup.MIME_MESSAGE;
         }
     }
     
@@ -136,7 +136,7 @@ public class MessageResultImpl implements MessageResult {
     public void setFlags(Flags flags) {
         this.flags=flags;
         if (flags != null) {
-            includedResults |= FLAGS;
+            includedResults |= FetchGroup.FLAGS;
         }
     }
 
@@ -157,13 +157,13 @@ public class MessageResultImpl implements MessageResult {
 
     public void setSize(int size) {
         this.size=size;
-        includedResults |= SIZE;
+        includedResults |= FetchGroup.SIZE;
     }
 
     public void setInternalDate(Date internalDate) {
         this.internalDate = internalDate;
         if (internalDate != null) {
-            includedResults |= INTERNAL_DATE;
+            includedResults |= FetchGroup.INTERNAL_DATE;
         }
     }
     
@@ -208,7 +208,7 @@ public class MessageResultImpl implements MessageResult {
     public void setKey(String key) {
         this.key=key;
         if (key != null) {
-            includedResults |= KEY;
+            includedResults |= FetchGroup.KEY;
         }
     }
 
@@ -223,7 +223,7 @@ public class MessageResultImpl implements MessageResult {
     public void setHeaders(List headers) {
         this.headers = headers;
         if (headers != null) {
-            includedResults |= HEADERS;
+            includedResults |= FetchGroup.HEADERS;
         }
     }
 
@@ -234,7 +234,7 @@ public class MessageResultImpl implements MessageResult {
     public final void setFullMessage(Content fullMessage) {
         this.fullMessage = fullMessage;
         if (fullMessage != null) {
-            includedResults |= FULL_CONTENT;
+            includedResults |= FetchGroup.FULL_CONTENT;
         }
     }
 
@@ -245,7 +245,7 @@ public class MessageResultImpl implements MessageResult {
     public final void setMessageBody(Content messageBody) {
         this.messageBody = messageBody;
         if (messageBody != null) {
-            includedResults |= BODY_CONTENT;
+            includedResults |= FetchGroup.BODY_CONTENT;
         }
     }
 
