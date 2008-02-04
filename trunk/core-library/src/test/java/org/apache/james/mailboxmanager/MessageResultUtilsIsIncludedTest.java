@@ -19,6 +19,8 @@
 
 package org.apache.james.mailboxmanager;
 
+import org.apache.james.mailboxmanager.MessageResult.FetchGroup;
+import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 
@@ -33,69 +35,69 @@ public class MessageResultUtilsIsIncludedTest extends MockObjectTestCase {
     }
 
     public void testShouldReturnFalseWhenNull() throws Exception {
-        assertFalse(MessageResultUtils.isIncluded(null, MessageResult.FLAGS));
+        assertFalse(MessageResultUtils.isIncluded(null, FetchGroup.FLAGS));
     }
    
     public void testBodyContentIncluded() throws Exception {
-        assertFalse(MessageResultUtils.isIncluded(mock(MessageResult.MINIMAL), MessageResult.BODY_CONTENT));
-        assertFalse(MessageResultUtils.isIncluded(mock(MessageResult.FLAGS), MessageResult.BODY_CONTENT));
-        assertTrue(MessageResultUtils.isIncluded(mock(MessageResult.BODY_CONTENT), MessageResult.BODY_CONTENT));
+        assertFalse(MessageResultUtils.isIncluded(mock(FetchGroupImpl.MINIMAL), FetchGroup.BODY_CONTENT));
+        assertFalse(MessageResultUtils.isIncluded(mock(FetchGroupImpl.FLAGS), FetchGroup.BODY_CONTENT));
+        assertTrue(MessageResultUtils.isIncluded(mock(FetchGroupImpl.BODY_CONTENT), FetchGroup.BODY_CONTENT));
     }
    
     public void testFlagsIncluded() throws Exception {
-        assertFalse(MessageResultUtils.isIncluded(mock(MessageResult.MINIMAL), MessageResult.FLAGS));
-        assertFalse(MessageResultUtils.isIncluded(mock(MessageResult.BODY_CONTENT), MessageResult.FLAGS));
-        assertTrue(MessageResultUtils.isIncluded(mock(MessageResult.FLAGS), MessageResult.FLAGS));
-        assertTrue(MessageResultUtils.isIncluded(mock(MessageResult.FLAGS | MessageResult.BODY_CONTENT), MessageResult.FLAGS));
+        assertFalse(MessageResultUtils.isIncluded(mock(FetchGroupImpl.MINIMAL), FetchGroup.FLAGS));
+        assertFalse(MessageResultUtils.isIncluded(mock(FetchGroupImpl.BODY_CONTENT), FetchGroup.FLAGS));
+        assertTrue(MessageResultUtils.isIncluded(mock(FetchGroupImpl.FLAGS), FetchGroup.FLAGS));
+        assertTrue(MessageResultUtils.isIncluded(mock(new FetchGroupImpl(FetchGroup.FLAGS | FetchGroup.BODY_CONTENT)), FetchGroup.FLAGS));
     }
     
     public void testFULL_CONTENTIncluded() throws Exception {
-        assertFalse(MessageResultUtils.isIncluded(mock(MessageResult.MINIMAL), MessageResult.FULL_CONTENT));
-        assertFalse(MessageResultUtils.isIncluded(mock(MessageResult.BODY_CONTENT), MessageResult.FULL_CONTENT));
-        assertTrue(MessageResultUtils.isIncluded(mock(MessageResult.FULL_CONTENT), MessageResult.FULL_CONTENT));
-        assertTrue(MessageResultUtils.isIncluded(mock(MessageResult.FLAGS | MessageResult.FULL_CONTENT), MessageResult.FULL_CONTENT));
+        assertFalse(MessageResultUtils.isIncluded(mock(FetchGroupImpl.MINIMAL), FetchGroup.FULL_CONTENT));
+        assertFalse(MessageResultUtils.isIncluded(mock(FetchGroupImpl.BODY_CONTENT), FetchGroup.FULL_CONTENT));
+        assertTrue(MessageResultUtils.isIncluded(mock(FetchGroupImpl.FULL_CONTENT), FetchGroup.FULL_CONTENT));
+        assertTrue(MessageResultUtils.isIncluded(mock(new FetchGroupImpl(FetchGroup.FLAGS | FetchGroup.FULL_CONTENT)), FetchGroup.FULL_CONTENT));
     }
     
     public void testHEADERSIncluded() throws Exception {
-        assertFalse(MessageResultUtils.isIncluded(mock(MessageResult.MINIMAL), MessageResult.HEADERS));
-        assertFalse(MessageResultUtils.isIncluded(mock(MessageResult.BODY_CONTENT), MessageResult.HEADERS));
-        assertTrue(MessageResultUtils.isIncluded(mock(MessageResult.HEADERS), MessageResult.HEADERS));
-        assertTrue(MessageResultUtils.isIncluded(mock(MessageResult.FLAGS | MessageResult.HEADERS), MessageResult.HEADERS));
+        assertFalse(MessageResultUtils.isIncluded(mock(FetchGroupImpl.MINIMAL), FetchGroup.HEADERS));
+        assertFalse(MessageResultUtils.isIncluded(mock(FetchGroupImpl.BODY_CONTENT), FetchGroup.HEADERS));
+        assertTrue(MessageResultUtils.isIncluded(mock(FetchGroupImpl.HEADERS), FetchGroup.HEADERS));
+        assertTrue(MessageResultUtils.isIncluded(mock(new FetchGroupImpl(FetchGroup.FLAGS | FetchGroup.HEADERS)), FetchGroup.HEADERS));
     }
     
     public void testINTERNAL_DATEIncluded() throws Exception {
-        assertFalse(MessageResultUtils.isIncluded(mock(MessageResult.MINIMAL), MessageResult.INTERNAL_DATE));
-        assertFalse(MessageResultUtils.isIncluded(mock(MessageResult.BODY_CONTENT), MessageResult.INTERNAL_DATE));
-        assertTrue(MessageResultUtils.isIncluded(mock(MessageResult.INTERNAL_DATE), MessageResult.INTERNAL_DATE));
-        assertTrue(MessageResultUtils.isIncluded(mock(MessageResult.FLAGS | MessageResult.INTERNAL_DATE), MessageResult.INTERNAL_DATE));
+        assertFalse(MessageResultUtils.isIncluded(mock(FetchGroupImpl.MINIMAL), FetchGroup.INTERNAL_DATE));
+        assertFalse(MessageResultUtils.isIncluded(mock(FetchGroupImpl.BODY_CONTENT), FetchGroup.INTERNAL_DATE));
+        assertTrue(MessageResultUtils.isIncluded(mock(FetchGroupImpl.INTERNAL_DATE), FetchGroup.INTERNAL_DATE));
+        assertTrue(MessageResultUtils.isIncluded(mock(new FetchGroupImpl(FetchGroup.FLAGS | FetchGroup.INTERNAL_DATE)), FetchGroup.INTERNAL_DATE));
     }
     
     public void testMIME_MESSAGEIncluded() throws Exception {
-        assertFalse(MessageResultUtils.isIncluded(mock(MessageResult.MINIMAL), MessageResult.MIME_MESSAGE));
-        assertFalse(MessageResultUtils.isIncluded(mock(MessageResult.BODY_CONTENT), MessageResult.MIME_MESSAGE));
-        assertTrue(MessageResultUtils.isIncluded(mock(MessageResult.MIME_MESSAGE), MessageResult.MIME_MESSAGE));
-        assertTrue(MessageResultUtils.isIncluded(mock(MessageResult.FLAGS | MessageResult.MIME_MESSAGE), MessageResult.MIME_MESSAGE));
+        assertFalse(MessageResultUtils.isIncluded(mock(FetchGroupImpl.MINIMAL), FetchGroup.MIME_MESSAGE));
+        assertFalse(MessageResultUtils.isIncluded(mock(FetchGroupImpl.BODY_CONTENT), FetchGroup.MIME_MESSAGE));
+        assertTrue(MessageResultUtils.isIncluded(mock(FetchGroupImpl.MIME_MESSAGE), FetchGroup.MIME_MESSAGE));
+        assertTrue(MessageResultUtils.isIncluded(mock(new FetchGroupImpl(FetchGroup.FLAGS | FetchGroup.MIME_MESSAGE)), FetchGroup.MIME_MESSAGE));
     }
     
     public void testShouldNOTHINGAlwaysBeIncluded() throws Exception {
-        assertTrue(MessageResultUtils.isIncluded(mock(MessageResult.MINIMAL, false), MessageResult.MINIMAL));
-        assertTrue(MessageResultUtils.isIncluded(mock(MessageResult.BODY_CONTENT, false), MessageResult.MINIMAL));
-        assertTrue(MessageResultUtils.isIncluded(mock(MessageResult.INTERNAL_DATE, false), MessageResult.MINIMAL));
-        assertTrue(MessageResultUtils.isIncluded(mock(MessageResult.FLAGS | MessageResult.MIME_MESSAGE, false), MessageResult.MINIMAL));
+        assertTrue(MessageResultUtils.isIncluded(mock(FetchGroupImpl.MINIMAL, false), FetchGroup.MINIMAL));
+        assertTrue(MessageResultUtils.isIncluded(mock(FetchGroupImpl.BODY_CONTENT, false), FetchGroup.MINIMAL));
+        assertTrue(MessageResultUtils.isIncluded(mock(FetchGroupImpl.INTERNAL_DATE, false), FetchGroup.MINIMAL));
+        assertTrue(MessageResultUtils.isIncluded(mock(new FetchGroupImpl(FetchGroup.FLAGS | FetchGroup.MIME_MESSAGE), false), FetchGroup.MINIMAL));
     }
     
     public void testMultipleData() throws Exception {
-        assertFalse(MessageResultUtils.isIncluded(mock(MessageResult.MINIMAL), MessageResult.MIME_MESSAGE | MessageResult.FLAGS));
-        assertFalse(MessageResultUtils.isIncluded(mock(MessageResult.BODY_CONTENT), MessageResult.MIME_MESSAGE | MessageResult.FLAGS));
-        assertFalse(MessageResultUtils.isIncluded(mock(MessageResult.MIME_MESSAGE), MessageResult.MIME_MESSAGE | MessageResult.FLAGS));
-        assertTrue(MessageResultUtils.isIncluded(mock(MessageResult.FLAGS | MessageResult.MIME_MESSAGE), MessageResult.MIME_MESSAGE | MessageResult.FLAGS));
+        assertFalse(MessageResultUtils.isIncluded(mock(FetchGroupImpl.MINIMAL), FetchGroup.MIME_MESSAGE | FetchGroup.FLAGS));
+        assertFalse(MessageResultUtils.isIncluded(mock(FetchGroupImpl.BODY_CONTENT), FetchGroup.MIME_MESSAGE | FetchGroup.FLAGS));
+        assertFalse(MessageResultUtils.isIncluded(mock(FetchGroupImpl.MIME_MESSAGE), FetchGroup.MIME_MESSAGE | FetchGroup.FLAGS));
+        assertTrue(MessageResultUtils.isIncluded(mock(new FetchGroupImpl(FetchGroup.FLAGS | FetchGroup.MIME_MESSAGE)), FetchGroup.MIME_MESSAGE | FetchGroup.FLAGS));
     }
     
-    private MessageResult mock(int included) {
+    private MessageResult mock(FetchGroup included) {
         return mock(included, true);
     }
     
-    private MessageResult mock(int included, boolean willBeCalled) {
+    private MessageResult mock(FetchGroup included, boolean willBeCalled) {
         Mock result = mock(MessageResult.class);
         if (willBeCalled) {
             result.expects(once()).method("getIncludedResults").will(returnValue(included));

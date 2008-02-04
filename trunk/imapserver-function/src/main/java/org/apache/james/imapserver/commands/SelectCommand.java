@@ -31,6 +31,8 @@ import org.apache.james.imapserver.SelectedMailboxSession;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
+import org.apache.james.mailboxmanager.MessageResult.FetchGroup;
+import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 
@@ -68,7 +70,7 @@ class SelectCommand extends AuthenticatedStateCommand
             response
                     .okResponse("UIDVALIDITY " + mailbox.getUidValidity(session.getMailboxSession()), null);
 
-            MessageResult firstUnseen = mailbox.getFirstUnseen(MessageResult.MINIMAL, session.getMailboxSession());
+            MessageResult firstUnseen = mailbox.getFirstUnseen(FetchGroupImpl.MINIMAL, session.getMailboxSession());
                    
             response.existsResponse(mailbox.getMessageCount(session.getMailboxSession()));
 
@@ -94,7 +96,7 @@ class SelectCommand extends AuthenticatedStateCommand
     private boolean selectMailbox(String mailboxName, ImapSession session, boolean readOnly) throws MailboxException, MailboxManagerException {
         ImapMailbox mailbox = session.getMailboxManager().getImapMailbox(mailboxName, false);
         final Iterator it = mailbox.getMessages(GeneralMessageSetImpl
-                .all(), MessageResult.MINIMAL, session.getMailboxSession());
+                .all(), FetchGroupImpl.MINIMAL, session.getMailboxSession());
         final List uids = new ArrayList();
         while(it.hasNext()) {
             final MessageResult result = (MessageResult) it.next();

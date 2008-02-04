@@ -43,6 +43,8 @@ import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxNotFoundException;
 import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.MessageResult;
+import org.apache.james.mailboxmanager.MessageResult.FetchGroup;
+import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
@@ -90,7 +92,7 @@ abstract public class AbstractMailboxSelectionProcessor extends
         final boolean resetRecent = !isExamine;
         final int recentCount = mailbox.getRecentCount(resetRecent, mailboxSession);
         final long uidValidity = mailbox.getUidValidity(mailboxSession);
-        final MessageResult firstUnseen = mailbox.getFirstUnseen(MessageResult.MINIMAL, mailboxSession);
+        final MessageResult firstUnseen = mailbox.getFirstUnseen(FetchGroupImpl.MINIMAL, mailboxSession);
         final int messageCount = mailbox.getMessageCount(mailboxSession);
         final int msn;
         if (firstUnseen == null) {
@@ -109,7 +111,7 @@ abstract public class AbstractMailboxSelectionProcessor extends
         final ImapMailbox mailbox = mailboxManager.getImapMailbox(mailboxName, false);
         final MailboxSession mailboxSession = ImapSessionUtils.getMailboxSession(session);
         final Iterator it = mailbox.getMessages(GeneralMessageSetImpl
-                .all(), MessageResult.MINIMAL, mailboxSession);
+                .all(), FetchGroupImpl.MINIMAL, mailboxSession);
         final List uids = new ArrayList();
         while(it.hasNext()) {
             final MessageResult result = (MessageResult) it.next();

@@ -30,7 +30,8 @@ import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxSession;
-import org.apache.james.mailboxmanager.MessageResult;
+import org.apache.james.mailboxmanager.MessageResult.FetchGroup;
+import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 
@@ -102,7 +103,7 @@ class StoreCommand extends SelectedStateCommand implements UidEnabledCommand
                     final GeneralMessageSet messageSet = GeneralMessageSetImpl
                     .uidRange(lowVal, highVal);
 
-                    mailbox.setFlags(flags, value, replace, messageSet, MessageResult.MINIMAL, mailboxSession);
+                    mailbox.setFlags(flags, value, replace, messageSet, FetchGroupImpl.MINIMAL, mailboxSession);
                 }
             } catch (MailboxManagerException e) {
                 throw new MailboxException(e);

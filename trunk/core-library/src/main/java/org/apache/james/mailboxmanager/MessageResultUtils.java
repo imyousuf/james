@@ -26,6 +26,7 @@ import java.util.List;
 import javax.mail.MessagingException;
 
 import org.apache.commons.collections.IteratorUtils;
+import org.apache.james.mailboxmanager.MessageResult.FetchGroup;
 
 public class MessageResultUtils {
 
@@ -143,17 +144,17 @@ public class MessageResultUtils {
         final boolean result;
         if (message == null) {
             result = false;
-        } else if (datum == MessageResult.MINIMAL) {
+        } else if (datum == FetchGroup.MINIMAL) {
             result = true;
         } else {
-            final int includes = message.getIncludedResults();
+            final int includes = message.getIncludedResults().content();
             result = (includes & datum) == datum;
         }
         return result;
     }
     
     /**
-     * Is {@link MessageResult#BODY_CONTENT} included in these results?
+     * Is {@link FetchGroup#BODY_CONTENT} included in these results?
      * @param message <code>MessageResult</code>, possibly null
      * @return true if <code>MessageResult</code> includes 
      * BODY_CONTENT, false if <code>MessageResult</code> is null
@@ -161,11 +162,11 @@ public class MessageResultUtils {
      * @see #isIncluded(MessageResult, int)
      */
     public static boolean isBodyContentIncluded(final MessageResult message) {
-        return isIncluded(message, MessageResult.BODY_CONTENT);
+        return isIncluded(message, FetchGroup.BODY_CONTENT);
     }
     
     /**
-     * Is {@link MessageResult#FLAGS} included in these results?
+     * Is {@link FetchGroup#FLAGS} included in these results?
      * @param message <code>MessageResult</code>, possibly null
      * @return true if <code>MessageResult</code> includes 
      * FLAGS, false if <code>MessageResult</code> is null
@@ -173,11 +174,11 @@ public class MessageResultUtils {
      * @see #isIncluded(MessageResult, int)
      */
     public static boolean isFlagsIncluded(final MessageResult message) {
-        return isIncluded(message, MessageResult.FLAGS);
+        return isIncluded(message, FetchGroup.FLAGS);
     }
     
     /**
-     * Is {@link MessageResult#FULL_CONTENT} included in these results?
+     * Is {@link FetchGroup#FULL_CONTENT} included in these results?
      * @param message <code>MessageResult</code>, possibly null
      * @return true if <code>MessageResult</code> includes 
      * FULL_CONTENT, false if <code>MessageResult</code> is null
@@ -185,11 +186,11 @@ public class MessageResultUtils {
      * @see #isIncluded(MessageResult, int)
      */
     public static boolean isFullContentIncluded(final MessageResult message) {
-        return isIncluded(message, MessageResult.FULL_CONTENT);
+        return isIncluded(message, FetchGroup.FULL_CONTENT);
     }
     
     /**
-     * Is {@link MessageResult#HEADERS} included in these results?
+     * Is {@link FetchGroup#HEADERS} included in these results?
      * @param message <code>MessageResult</code>, possibly null
      * @return true if <code>MessageResult</code> includes 
      * HEADERS, false if <code>MessageResult</code> is null
@@ -197,11 +198,11 @@ public class MessageResultUtils {
      * @see #isIncluded(MessageResult, int)
      */
     public static boolean isHeadersIncluded(final MessageResult message) {
-        return isIncluded(message, MessageResult.HEADERS);
+        return isIncluded(message, FetchGroup.HEADERS);
     }
     
     /**
-     * Is {@link MessageResult#KEY} included in these results?
+     * Is {@link FetchGroup#KEY} included in these results?
      * @param message <code>MessageResult</code>, possibly null
      * @return true if <code>MessageResult</code> includes 
      * KEY, false if <code>MessageResult</code> is null
@@ -209,11 +210,11 @@ public class MessageResultUtils {
      * @see #isIncluded(MessageResult, int)
      */
     public static boolean isKeyIncluded(final MessageResult message) {
-        return isIncluded(message, MessageResult.KEY);
+        return isIncluded(message, FetchGroup.KEY);
     }
     
     /**
-     * Is {@link MessageResult#INTERNAL_DATE} included in these results?
+     * Is {@link FetchGroup#INTERNAL_DATE} included in these results?
      * @param message <code>MessageResult</code>, possibly null
      * @return true if <code>MessageResult</code> includes 
      * INTERNAL_DATE, false if <code>MessageResult</code> is null
@@ -221,11 +222,11 @@ public class MessageResultUtils {
      * @see #isIncluded(MessageResult, int)
      */
     public static boolean isInternalDateIncluded(final MessageResult message) {
-        return isIncluded(message, MessageResult.INTERNAL_DATE);
+        return isIncluded(message, FetchGroup.INTERNAL_DATE);
     }
     
     /**
-     * Is {@link MessageResult#MIME_MESSAGE} included in these results?
+     * Is {@link FetchGroup#MIME_MESSAGE} included in these results?
      * @param message <code>MessageResult</code>, possibly null
      * @return true if <code>MessageResult</code> includes 
      * MIME_MESSAGE, false if <code>MessageResult</code> is null
@@ -233,11 +234,11 @@ public class MessageResultUtils {
      * @see #isIncluded(MessageResult, int)
      */
     public static boolean isMimeMessageIncluded(final MessageResult message) {
-        return isIncluded(message, MessageResult.MIME_MESSAGE);
+        return isIncluded(message, FetchGroup.MIME_MESSAGE);
     }   
     
     /**
-     * Is {@link MessageResult#SIZE} included in these results?
+     * Is {@link FetchGroup#SIZE} included in these results?
      * @param message <code>MessageResult</code>, possibly null
      * @return true if <code>MessageResult</code> includes 
      * SIZE, false if <code>MessageResult</code> is null
@@ -245,6 +246,6 @@ public class MessageResultUtils {
      * @see #isIncluded(MessageResult, int)
      */
     public static boolean isSizeIncluded(final MessageResult message) {
-        return isIncluded(message, MessageResult.SIZE);
+        return isIncluded(message, FetchGroup.SIZE);
     }
 }

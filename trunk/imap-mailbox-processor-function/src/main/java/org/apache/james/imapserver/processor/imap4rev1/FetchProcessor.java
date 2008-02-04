@@ -59,6 +59,8 @@ import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.MessageResultUtils;
 import org.apache.james.mailboxmanager.UnsupportedCriteriaException;
 import org.apache.james.mailboxmanager.MessageResult.Content;
+import org.apache.james.mailboxmanager.MessageResult.FetchGroup;
+import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 import org.apache.james.mime4j.field.address.Address;
@@ -98,7 +100,7 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
             AuthorizationException, ProtocolException {
         try
         {
-            int resultToFetch = getNeededMessageResult(fetch);
+            FetchGroup resultToFetch = getFetchGroup(fetch);
             ImapMailbox mailbox = ImapSessionUtils.getMailbox(session);
             for (int i = 0; i < idSet.length; i++) {
                 final FetchResponseBuilder builder = new FetchResponseBuilder(getLogger());
@@ -129,28 +131,28 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
         }
     }
 
-    private int getNeededMessageResult(FetchData fetch) {
-        int result = MessageResult.MINIMAL;
+    private FetchGroup getFetchGroup(FetchData fetch) {
+        int result = FetchGroup.MINIMAL;
         if (fetch.isFlags() || fetch.isSetSeen()) {
-            result |= MessageResult.FLAGS;
+            result |= FetchGroup.FLAGS;
         }
         if (fetch.isInternalDate()) {
-            result |= MessageResult.INTERNAL_DATE;
+            result |= FetchGroup.INTERNAL_DATE;
         }
         if (fetch.isSize()) {
-            result |= MessageResult.SIZE;
+            result |= FetchGroup.SIZE;
         }
         if (fetch.isEnvelope()) {
-            result |= MessageResult.HEADERS;
+            result |= FetchGroup.HEADERS;
         }
         if (fetch.isBody() || fetch.isBodyStructure()) {
             // TODO: structure
-            result |= MessageResult.MIME_MESSAGE;
+            result |= FetchGroup.MIME_MESSAGE;
         }
 
         result |= fetchForBodyElements(fetch.getBodyElements());
 
-        return result;
+        return new FetchGroupImpl(result);
     }
 
     private int fetchForBodyElements(final Collection bodyElements) {
@@ -160,16 +162,16 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
                 final BodyFetchElement element = (BodyFetchElement) it.next();
                 final String section = element.getParameters();
                 if ("HEADER".equalsIgnoreCase(section)) {
-                    result |= MessageResult.HEADERS;
+                    result |= FetchGroup.HEADERS;
                 } else if (section.startsWith("HEADER.FIELDS.NOT ")) {
-                    result |= MessageResult.HEADERS;
+                    result |= FetchGroup.HEADERS;
                 } else if (section.startsWith("HEADER.FIELDS ")) {
-                    result |= MessageResult.HEADERS;
+                    result |= FetchGroup.HEADERS;
                 } else if (section.equalsIgnoreCase("TEXT")) {
                     ;
-                    result |= MessageResult.BODY_CONTENT;
+                    result |= FetchGroup.BODY_CONTENT;
                 } else if (section.length() == 0) {
-                    result |= MessageResult.FULL_CONTENT;
+                    result |= FetchGroup.FULL_CONTENT;
                 }
             }
         }
@@ -232,7 +234,7 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
                 if (fetch.isSetSeen()
                         && !result.getFlags().contains(Flags.Flag.SEEN)) {
                     mailbox.setFlags(new Flags(Flags.Flag.SEEN), true, false,
-                            GeneralMessageSetImpl.oneUid(result.getUid()), MessageResult.MINIMAL, mailboxSession);
+                            GeneralMessageSetImpl.oneUid(result.getUid()), FetchGroupImpl.MINIMAL, mailboxSession);
                     result.getFlags().add(Flags.Flag.SEEN);
                     ensureFlagsResponse = true;
                 }

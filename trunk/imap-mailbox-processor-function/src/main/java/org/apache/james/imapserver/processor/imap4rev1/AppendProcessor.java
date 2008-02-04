@@ -42,6 +42,7 @@ import org.apache.james.imapserver.processor.base.ImapSessionUtils;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxSession;
+import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
@@ -111,7 +112,7 @@ public class AppendProcessor extends AbstractMailboxAwareProcessor {
         try {
             message.setFlag(Flag.RECENT, true);
             final MailboxSession mailboxSession = ImapSessionUtils.getMailboxSession(session);
-            mailbox.appendMessage(message, datetime, 0, mailboxSession);
+            mailbox.appendMessage(message, datetime, FetchGroupImpl.MINIMAL, mailboxSession);
         } catch (MailboxManagerException e) {
             // TODO why not TRYCREATE?
             throw new MailboxException(e);

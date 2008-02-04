@@ -32,6 +32,8 @@ import org.apache.commons.collections.BufferUtils;
 import org.apache.commons.collections.buffer.BoundedFifoBuffer;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
+import org.apache.james.mailboxmanager.MessageResult.FetchGroup;
+import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
 import org.apache.james.mailboxmanager.impl.MessageFlags;
 import org.apache.james.mailboxmanager.torque.om.MessageRow;
 import org.apache.james.mailboxmanager.util.UidToKeyConverter;
@@ -40,10 +42,10 @@ import org.apache.torque.TorqueException;
 public class TorqueResultIterator implements Iterator {
 
     private final Buffer messageRows;
-    private final int result;
+    private final FetchGroup fetchGroup;
     private final UidToKeyConverter uidToKeyConverter;
     
-    public TorqueResultIterator(final Collection messageRows, final int result,
+    public TorqueResultIterator(final Collection messageRows, final FetchGroup fetchGroup,
             final UidToKeyConverter uidToKeyConverter) {
         super();
         if (messageRows == null || messageRows.isEmpty()) {
@@ -51,7 +53,7 @@ public class TorqueResultIterator implements Iterator {
         } else {
             this.messageRows = new BoundedFifoBuffer(messageRows);
         }
-        this.result = result;
+        this.fetchGroup = fetchGroup;
         this.uidToKeyConverter = uidToKeyConverter;
     }
 
@@ -81,7 +83,7 @@ public class TorqueResultIterator implements Iterator {
         try {
         
             result = MessageRowUtils.loadMessageResult(messageRow, 
-                    this.result, uidToKeyConverter);
+                    this.fetchGroup.content(), uidToKeyConverter);
         } catch (TorqueException e) {
             result = new UnloadedMessageResult(messageRow, new MailboxManagerException(e));
         } catch (MailboxManagerException e) {
@@ -95,7 +97,7 @@ public class TorqueResultIterator implements Iterator {
     }
 
     private static final class UnloadedMessageResult implements MessageResult {
-        private static final int results = MessageResult.INTERNAL_DATE | MessageResult.SIZE;
+        private static final FetchGroup FETCH_GROUP = new FetchGroupImpl(FetchGroup.INTERNAL_DATE | FetchGroup.SIZE);
         
         private final MailboxManagerException exception;
         private final Date internalDate;
@@ -118,8 +120,8 @@ public class TorqueResultIterator implements Iterator {
             throw exception;
         }
 
-        public int getIncludedResults() {
-            return results;
+        public FetchGroup getIncludedResults() {
+            return FETCH_GROUP;
         }
 
         public Date getInternalDate() {

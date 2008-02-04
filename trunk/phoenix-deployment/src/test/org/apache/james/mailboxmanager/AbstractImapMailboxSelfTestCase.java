@@ -30,6 +30,7 @@ import javax.mail.internet.MimeMessage;
 import junit.framework.TestCase;
 
 import org.apache.commons.collections.IteratorUtils;
+import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.impl.MailboxListenerCollector;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
@@ -62,26 +63,26 @@ public abstract class AbstractImapMailboxSelfTestCase extends TestCase {
         for (int i = 0; i < 5; i++) {
             MimeMessage mm=TestUtil.createMessage();
             mm.setFlags(new Flags(Flags.Flag.SEEN), true);
-            MessageResult mr=mailbox.appendMessage(mm, new Date(), MessageResult.MINIMAL, mailboxSession);
+            MessageResult mr=mailbox.appendMessage(mm, new Date(), FetchGroupImpl.MINIMAL, mailboxSession);
             assertEquals(i+1, mr.getUid());
         }
         for (int i = 0; i < 3; i++) {
-            MessageResult mr=mailbox.appendMessage(TestUtil.createMessage(), new Date(), MessageResult.MINIMAL, mailboxSession);
+            MessageResult mr=mailbox.appendMessage(TestUtil.createMessage(), new Date(), FetchGroupImpl.MINIMAL, mailboxSession);
             assertEquals(i+6, mr.getUid());
         }
         for (int i = 0; i < 3; i++) {
             MimeMessage mm=TestUtil.createMessage();
             mm.setFlags(new Flags(Flags.Flag.SEEN), true);
-            MessageResult mr=mailbox.appendMessage(mm, new Date(), MessageResult.MINIMAL, mailboxSession);
+            MessageResult mr=mailbox.appendMessage(mm, new Date(), FetchGroupImpl.MINIMAL, mailboxSession);
             assertEquals(i+9, mr.getUid());
         }
         MessageResult mr;
-        mr=mailbox.getFirstUnseen(MessageResult.MINIMAL, mailboxSession);
+        mr=mailbox.getFirstUnseen(FetchGroupImpl.MINIMAL, mailboxSession);
         assertNotNull(mr);
         assertEquals(6, mr.getUid());
-        mailbox.setFlags(new Flags(Flags.Flag.DELETED), true, false, GeneralMessageSetImpl.uidRange(1,3), MessageResult.MINIMAL, mailboxSession);
-        mailbox.expunge(GeneralMessageSetImpl.all(), 0, mailboxSession);
-        mr=mailbox.getFirstUnseen(MessageResult.MINIMAL, mailboxSession);
+        mailbox.setFlags(new Flags(Flags.Flag.DELETED), true, false, GeneralMessageSetImpl.uidRange(1,3), FetchGroupImpl.MINIMAL, mailboxSession);
+        mailbox.expunge(GeneralMessageSetImpl.all(), FetchGroupImpl.MINIMAL, mailboxSession);
+        mr=mailbox.getFirstUnseen(FetchGroupImpl.MINIMAL, mailboxSession);
         assertNotNull(mr);
         assertEquals(6, mr.getUid());
     }
@@ -89,7 +90,7 @@ public abstract class AbstractImapMailboxSelfTestCase extends TestCase {
     
     public void testGetUidNext() throws MessagingException {
         assertEquals(1, mailbox.getUidNext(mailboxSession));
-        MessageResult mr=mailbox.appendMessage(TestUtil.createMessage(), new Date(), MessageResult.MINIMAL, mailboxSession);
+        MessageResult mr=mailbox.appendMessage(TestUtil.createMessage(), new Date(), FetchGroupImpl.MINIMAL, mailboxSession);
         assertEquals(1,mr.getUid());
         assertEquals(2, mailbox.getUidNext(mailboxSession));
     }

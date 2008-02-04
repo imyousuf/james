@@ -30,6 +30,7 @@ import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.SearchParameters;
+import org.apache.james.mailboxmanager.MessageResult.FetchGroup;
 
 
 
@@ -42,7 +43,7 @@ public interface ImapMailbox extends Mailbox, EventTriggerMailbox  {
     public static final long ANONYMOUS_SESSION = 0;
     
     /**
-     * @param result
+     * @param fetchGroup
      *            which fields to be returned in MessageResult
      * @param mailboxSession TODO
      * @return MessageResult with the fields defined by <b>result</b>
@@ -55,7 +56,7 @@ public interface ImapMailbox extends Mailbox, EventTriggerMailbox  {
      * @throws UnsupportedCriteriaException when any of the search parameters are 
      * not supported by this mailbox
      */
-    Iterator search(GeneralMessageSet set,SearchParameters searchTerm, int result, 
+    Iterator search(GeneralMessageSet set, SearchParameters searchTerm, FetchGroup fetchGroup, 
             MailboxSession mailboxSession) throws MailboxManagerException;
     
     
@@ -82,7 +83,7 @@ public interface ImapMailbox extends Mailbox, EventTriggerMailbox  {
     
     int getUnseenCount(MailboxSession mailboxSession) throws MailboxManagerException;
     
-    MessageResult getFirstUnseen(int result, MailboxSession mailboxSession) throws MailboxManagerException;
+    MessageResult getFirstUnseen(FetchGroup fetchGroup, MailboxSession mailboxSession) throws MailboxManagerException;
     
     /**
      * 
@@ -91,7 +92,7 @@ public interface ImapMailbox extends Mailbox, EventTriggerMailbox  {
      *            <li> IMAP, Javamail: not required, always expunge all</li>
      *            <li> UIDPLUS: requires the possibility of defining a uid range</li>
      *            </ul>
-     * @param result
+     * @param fetchGroup
      *            which fields to be returned in MessageResult
      * @param mailboxSession TODO
      * 
@@ -104,7 +105,7 @@ public interface ImapMailbox extends Mailbox, EventTriggerMailbox  {
      * @throws MailboxManagerException
      *             if anything went wrong
      */
-    Iterator expunge(GeneralMessageSet set, int result, MailboxSession mailboxSession) throws MailboxManagerException;
+    Iterator expunge(GeneralMessageSet set, FetchGroup fetchGroup, MailboxSession mailboxSession) throws MailboxManagerException;
     
 
     /**
@@ -120,14 +121,14 @@ public interface ImapMailbox extends Mailbox, EventTriggerMailbox  {
      *            replace all Flags with this flags, value has to be true
      * @param set
      *            the range of messages
-     * @param result fetch group for results 
+     * @param fetchGroup fetch group for results 
      * @param mailboxSession TODO
      * @return {@link MessageResult} <code>Iterator</code> containing messages
      * whose flags have been updated, not null
      * @throws MailboxManagerException
      */
     Iterator setFlags(Flags flags, boolean value, boolean replace, 
-            GeneralMessageSet set, int result, MailboxSession mailboxSession) throws MailboxManagerException;
+            GeneralMessageSet set, FetchGroup fetchGroup, MailboxSession mailboxSession) throws MailboxManagerException;
     
     /**
      * @param internalDate
@@ -135,7 +136,7 @@ public interface ImapMailbox extends Mailbox, EventTriggerMailbox  {
      *            this server (by smtp). Clients are also allowed to set the
      *            internalDate on apppend.</p><p>Is this Mail.getLastUpdates() for 
      *            James delivery? Should we use MimeMessage.getReceivedDate()?
-     * @param result
+     * @param fetchGroup
      *            which fields to be returned in MessageResult
      * @param mailboxSession TODO
      * @return MessageResult with the fields defined by <b>result</b>
@@ -148,7 +149,7 @@ public interface ImapMailbox extends Mailbox, EventTriggerMailbox  {
      *             if anything went wrong
      */
     MessageResult appendMessage(MimeMessage message, Date internalDate,
-            int result, MailboxSession mailboxSession) throws MailboxManagerException;
+            FetchGroup fetchGroup, MailboxSession mailboxSession) throws MailboxManagerException;
     
     /**
      * 
@@ -163,7 +164,7 @@ public interface ImapMailbox extends Mailbox, EventTriggerMailbox  {
      * @throws MailboxManagerException 
      */
 
-    Iterator getMessages(GeneralMessageSet set, int result, MailboxSession mailboxSession) 
+    Iterator getMessages(GeneralMessageSet set, FetchGroup fetchGroup, MailboxSession mailboxSession) 
         throws MailboxManagerException;
     
     void remove(GeneralMessageSet set, MailboxSession mailboxSession) throws MailboxManagerException;

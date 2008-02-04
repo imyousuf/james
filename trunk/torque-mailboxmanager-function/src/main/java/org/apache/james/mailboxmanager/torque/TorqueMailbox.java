@@ -43,6 +43,8 @@ import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.SearchParameters;
 import org.apache.james.mailboxmanager.UnsupportedCriteriaException;
+import org.apache.james.mailboxmanager.MessageResult.FetchGroup;
+import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.AbstractImapMailbox;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
@@ -113,7 +115,7 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
     }
 
     public MessageResult appendMessage(MimeMessage message, Date internalDate,
-            int result, MailboxSession mailboxSession) throws MailboxManagerException {
+            FetchGroup fetchGroup, MailboxSession mailboxSession) throws MailboxManagerException {
 
         try {
             checkAccess();
@@ -147,7 +149,7 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
                     messageRow.addMessageBody(mb);
 
                     save(messageRow);
-                    MessageResult messageResult = fillMessageResult(messageRow, result);
+                    MessageResult messageResult = fillMessageResult(messageRow, fetchGroup);
                     getUidChangeTracker().found(messageResult);
                     return messageResult;
                 } catch (Exception e) {
@@ -263,7 +265,7 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
         return criteria;
     }
 
-    public Iterator getMessages(GeneralMessageSet set, int result, MailboxSession mailboxSession)
+    public Iterator getMessages(GeneralMessageSet set, FetchGroup fetchGroup, MailboxSession mailboxSession)
             throws MailboxManagerException {
         try {
             lock.readLock().acquire();
@@ -277,7 +279,7 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
                 try {
                     Criteria c = criteriaForMessageSet(set);
                     c.add(MessageFlagsPeer.MAILBOX_ID,getMailboxRow().getMailboxId());
-                    return getMessages(result, range, c);
+                    return getMessages(fetchGroup, range, c);
                 } catch (TorqueException e) {
                     throw new MailboxManagerException(e);
                 } catch (MessagingException e) {
@@ -291,7 +293,7 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
         }
     }
 
-    private TorqueResultIterator getMessages(int result, UidRange range, Criteria c) throws TorqueException, MessagingException, MailboxManagerException {
+    private TorqueResultIterator getMessages(FetchGroup result, UidRange range, Criteria c) throws TorqueException, MessagingException, MailboxManagerException {
         List rows = MessageRowPeer.doSelectJoinMessageFlags(c);
         Collections.sort(rows, MessageRowUtils.getUidComparator());
         final TorqueResultIterator results = new TorqueResultIterator(rows, result, getUidToKeyConverter());
@@ -312,9 +314,9 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
     }
 
 
-    public MessageResult fillMessageResult(MessageRow messageRow, int result)
+    public MessageResult fillMessageResult(MessageRow messageRow, FetchGroup result)
             throws TorqueException, MessagingException, MailboxManagerException {
-        return MessageRowUtils.loadMessageResult(messageRow, result, getUidToKeyConverter());
+        return MessageRowUtils.loadMessageResult(messageRow, result.content(), getUidToKeyConverter());
     }
     
     public synchronized Flags getPermanentFlags() {
@@ -353,7 +355,7 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
         }
     }
 
-    public MessageResult getFirstUnseen(int result, MailboxSession mailboxSession)
+    public MessageResult getFirstUnseen(FetchGroup fetchGroup, MailboxSession mailboxSession)
             throws MailboxManagerException {
         try {
             lock.readLock().acquire();
@@ -373,7 +375,7 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
                 try {
                     List messageRows = getMailboxRow().getMessageRows(c);
                     if (messageRows.size() > 0) {
-                        MessageResult messageResult=fillMessageResult((MessageRow) messageRows.get(0), result);
+                        MessageResult messageResult=fillMessageResult((MessageRow) messageRows.get(0), fetchGroup);
                         if (messageResult!=null) {
                             getUidChangeTracker().found(messageResult);
                         }
@@ -416,12 +418,12 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
         }
     }
 
-    public Iterator expunge(GeneralMessageSet set, int result, MailboxSession mailboxSession)
+    public Iterator expunge(GeneralMessageSet set, FetchGroup fetchGroup, MailboxSession mailboxSession)
             throws MailboxManagerException {
         try {
             lock.writeLock().acquire();
             try {
-                return doExpunge(set, result);
+                return doExpunge(set, fetchGroup);
             } finally {
                 lock.writeLock().release();
             }
@@ -431,7 +433,7 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
         }
     }
 
-    private Iterator doExpunge(GeneralMessageSet set, int result) throws MailboxManagerException {
+    private Iterator doExpunge(GeneralMessageSet set, FetchGroup fetchGroup) throws MailboxManagerException {
         checkAccess();
         set=toUidSet(set);  
         if (!set.isValid() || set.getType()==GeneralMessageSet.TYPE_NOTHING) {
@@ -447,8 +449,8 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
 
             final List messageRows = getMailboxRow().getMessageRows(c);
             final long[] uids = uids(messageRows);
-            final TorqueResultIterator resultIterator = new TorqueResultIterator(messageRows, result
-                    | MessageResult.FLAGS, getUidToKeyConverter());
+            final OrFetchGroup orFetchGroup = new OrFetchGroup(fetchGroup, FetchGroup.FLAGS);
+            final TorqueResultIterator resultIterator = new TorqueResultIterator(messageRows, orFetchGroup, getUidToKeyConverter());
             // ensure all results are loaded before deletion
             Collection messageResults = IteratorUtils.toList(resultIterator);
             
@@ -477,12 +479,12 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
     }
 
     public Iterator setFlags(Flags flags, boolean value, boolean replace,
-            GeneralMessageSet set, int result, MailboxSession mailboxSession)
+            GeneralMessageSet set, FetchGroup fetchGroup, MailboxSession mailboxSession)
             throws MailboxManagerException {
         try {
             lock.writeLock().acquire();
             try {
-                return doSetFlags(flags, value, replace, set, result, mailboxSession);
+                return doSetFlags(flags, value, replace, set, fetchGroup, mailboxSession);
             } finally {
                 lock.writeLock().release();
             }
@@ -493,7 +495,7 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
     }
 
     private Iterator doSetFlags(Flags flags, boolean value, boolean replace, 
-            GeneralMessageSet set, int results, MailboxSession mailboxSession) throws MailboxManagerException {
+            GeneralMessageSet set, FetchGroup fetchGroup, MailboxSession mailboxSession) throws MailboxManagerException {
         checkAccess();
         set=toUidSet(set);  
         if (!set.isValid() || set.getType()==GeneralMessageSet.TYPE_NOTHING) {
@@ -523,8 +525,9 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
                     messageFlags.save();
                 }
             }
+            final OrFetchGroup orFetchGroup = new OrFetchGroup(fetchGroup, FetchGroup.FLAGS);
             final TorqueResultIterator resultIterator = new TorqueResultIterator(messageRows,
-                    results | MessageResult.FLAGS, getUidToKeyConverter());
+                    orFetchGroup, getUidToKeyConverter());
             final org.apache.james.mailboxmanager.impl.MessageFlags[] messageFlags = resultIterator.getMessageFlags();
             tracker.flagsUpdated(messageFlags, mailboxSession.getSessionId());
             tracker.found(uidRange, messageFlags);
@@ -612,7 +615,7 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
     }
 
     public Iterator search(GeneralMessageSet set, SearchParameters parameters,
-            int result, MailboxSession mailboxSession) throws MailboxManagerException {
+            FetchGroup fetchGroup, MailboxSession mailboxSession) throws MailboxManagerException {
         try {
             lock.readLock().acquire();
             try {
@@ -715,7 +718,7 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
                     }
                 }
                 
-                final Iterator results = getMessages(result, new UidRange(1, -1), builder.getCriteria());
+                final Iterator results = getMessages(fetchGroup, new UidRange(1, -1), builder.getCriteria());
                 return results;
             } catch (TorqueException e) {
                 throw new MailboxManagerException(e);
@@ -741,8 +744,8 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
             lock.writeLock().acquire();
             try {
                 final Flags flags = new Flags(Flags.Flag.DELETED);
-                doSetFlags(flags, true, false, set, MessageResult.MINIMAL, mailboxSession);
-                doExpunge(set, MessageResult.MINIMAL);
+                doSetFlags(flags, true, false, set, FetchGroupImpl.MINIMAL, mailboxSession);
+                doExpunge(set, FetchGroupImpl.MINIMAL);
             } finally {
                 lock.writeLock().release();
             }

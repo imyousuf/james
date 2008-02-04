@@ -37,6 +37,8 @@ import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxNotFoundException;
 import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.MessageResult;
+import org.apache.james.mailboxmanager.MessageResult.FetchGroup;
+import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
 import org.apache.james.mailboxmanager.impl.ListResultImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 import org.apache.james.mailboxmanager.mailbox.Mailbox;
@@ -53,6 +55,7 @@ import EDU.oswego.cs.dl.util.concurrent.WriterPreferenceReadWriteLock;
 
 public class TorqueMailboxManager implements MailboxManager {
 
+    private static final FetchGroupImpl FROM_FETCH_GROUP = new FetchGroupImpl(FetchGroup.MIME_MESSAGE | FetchGroup.INTERNAL_DATE);
     private static final char SQL_WILDCARD_CHAR = '%';
     private final static Random random = new Random();
     
@@ -205,11 +208,11 @@ public class TorqueMailboxManager implements MailboxManager {
     public void copyMessages(GeneralMessageSet set, String from, String to, MailboxSession session) throws MailboxManagerException {
         ImapMailbox toMailbox= getImapMailbox(to, false);
         ImapMailbox fromMailbox = getImapMailbox(from, false);
-        Iterator it = fromMailbox.getMessages(set, MessageResult.MIME_MESSAGE | MessageResult.INTERNAL_DATE, session);
+        Iterator it = fromMailbox.getMessages(set, FROM_FETCH_GROUP, session);
         while (it.hasNext()) {
             final MessageResult result = (MessageResult) it.next();
             final MimeMessage mimeMessage = result.getMimeMessage();
-            toMailbox.appendMessage(mimeMessage, result.getInternalDate(), MessageResult.MINIMAL, session);
+            toMailbox.appendMessage(mimeMessage, result.getInternalDate(), FetchGroupImpl.MINIMAL, session);
         }
     }
 
