@@ -208,6 +208,10 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
                     <include name="${concurrent.jar}"/>  
                     <include name="${mime4j.jar}"/>     
                     <include name="${commons-io.jar}"/>     
+                    <include name="${jackrabbit-api.jar}"/>
+                    <include name="${jackrabbit-commons.jar}"/>
+                    <include name="${jackrabbit-rmi.jar}"/>
+                    <include name="${jcr.jar}"/>
                 </fileset>   
             </path>   
             <path id='classpath.base.test'>  

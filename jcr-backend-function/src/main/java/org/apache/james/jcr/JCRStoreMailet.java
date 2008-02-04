@@ -139,8 +139,8 @@ public class JCRStoreMailet implements Mailet {
             } finally {
                 session.logout();
             }
-        } catch (IOException e) {
-            throw new MessagingException("IO error", e);
+//        } catch (IOException e) {
+//            throw new MessagingException("IO error", e);
         } catch (RepositoryException e) {
             throw new MessagingException("Repository access error", e);
         }
