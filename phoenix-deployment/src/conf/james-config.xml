@@ -113,6 +113,11 @@
                      postfix=".INBOX" translateDelimiters="true" type="MAIL" />
       </inboxRepository>
        -->
+       <!-- JCR Support
+       <inboxRepository>
+         <repository destinationURL="jcr://james:inbox/" type="MAIL"/>
+       </inboxRepository> 
+       -->
       <!-- Set to true to support virtualHosting. If virtualHosting support is enabled the server will accept thread every user independ on -->
       <!-- domain level. -->
       <enableVirtualHosting> false </enableVirtualHosting>     
@@ -1296,6 +1301,21 @@ Regards, Postmaster XXX.YYY
                <model>CACHE</model>
             </models>
          </repository>
+         
+         <repository class="org.apache.james.jcr.AvalonJCRMailRepository">
+             <protocols>
+               <protocol>jcr</protocol>
+             </protocols>
+             <types>
+               <type>MAIL</type>
+             </types>
+             <config>
+               <repository>//localhost/jackrabbit.repository</repository>
+               <username>admin</username>
+               <password>admin</password>
+               <workspace>default</workspace>
+             </config>
+           </repository>
       </repositories>
       
    </mailstore>

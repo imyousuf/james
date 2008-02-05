@@ -104,6 +104,10 @@
             <include name="${commons-digester.jar}"/>
             <include name="${mime4j.jar}"/>
             <include name="${commons-io.jar}"/>   
+            <include name="${jackrabbit-api.jar}"/>
+            <include name="${jackrabbit-commons.jar}"/>
+            <include name="${jackrabbit-rmi.jar}"/>
+            <include name="${jcr.jar}"/>   
             <!-- TODO: include libraries without wildcards -->
             <include name="${path.lib.james}/${jars-prefix}*-api-${version}.jar"/>
             <include name="${path.lib.james}/${jars-prefix}*-library-${version}.jar"/>
@@ -509,6 +513,12 @@
                 <include name='${jarname.activemq-core}'/>
                 <include name='${jarname.activemq-jaas}'/>    
              </lib>   
+             <lib dir='${lib.dir}/${path.lib.jackrabbit}'>
+                <include name='${jarname.jackrabbit-api}'/>
+                <include name='${jarname.jackrabbit-commons}'/>
+                <include name='${jarname.jackrabbit-rmi}'/>    
+             </lib>   
+            <lib dir="${lib.dir}/${path.lib.jcr}" includes="${jarname.jcr}" />   
             <lib dir='${lib.dir}/concurrent/jars'>
                 <include name='backport-util-concurrent-2.1.jar'/>
             </lib>    
