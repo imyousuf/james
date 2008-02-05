@@ -67,11 +67,23 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
             <delete dir='${dir.build.bin}'/>
             <delete dir='${dir.build.test}'/>   
         </sequential>   
+    </macrodef>  
+ 
+    <macrodef name="CleanStage">
+        <sequential>
+            <echo>Cleaning staging directory...</echo>     
+            <delete>
+                <fileset dir='${dir.stage.james}'>
+                    <include name='*${name.module}*'/>   
+                </fileset>   
+            </delete>   
+        </sequential>   
     </macrodef>   
     
     <macrodef name="Clean">
         <sequential>
-            <CleanBuildDirectories/>   
+            <CleanBuildDirectories/> 
+            <CleanStage/>   
         </sequential>   
     </macrodef>   
     
