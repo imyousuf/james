@@ -47,12 +47,6 @@ public class ExperimentalSelectedStateTest extends AbstractTestSelectedState {
         // super.testUid();
     }
 
-    public void testCopyUS() throws Exception {
-        // extra fetch messages
-    //    super.testCopy();
-    }    
-    
-
     public void testSearchKOREA() throws Exception {
         //TODO Implement search
     }
@@ -71,12 +65,7 @@ public class ExperimentalSelectedStateTest extends AbstractTestSelectedState {
     public void testUidKOREA() throws Exception {
         // UID fetch not working very well
         // super.testUid();
-    }
-
-    public void testCopyKOREA() throws Exception {
-        // extra fetch messages
-    //    super.testCopy();
-    }    
+    }  
 
     public void testSearchITALY() throws Exception {
         //TODO Implement search
@@ -96,11 +85,5 @@ public class ExperimentalSelectedStateTest extends AbstractTestSelectedState {
     public void testUidITALY() throws Exception {
         // UID fetch not working very well
         // super.testUid();
-    }
-
-    public void testCopyITALY() throws Exception {
-        // extra fetch messages
-    //    super.testCopy();
     }    
-    
 }
