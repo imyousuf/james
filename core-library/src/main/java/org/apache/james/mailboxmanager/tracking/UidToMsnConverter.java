@@ -183,32 +183,14 @@ public class UidToMsnConverter implements MailboxListener {
                 add(uid);
             } else if (event instanceof Expunged) {
                 expunged(uid);
-            } else if (event instanceof FlagsUpdated) {
-                final FlagsUpdated flagsUpdated = (FlagsUpdated) event;
-                flagsUpdated(flagsUpdated.getSubjectUid(), flagsUpdated.getNewFlags(), 
-                        sessionId);
             }
         }
     }
-    
 
     public void expunged(final long uid) {
         final int msn = getMsn(uid);
         if (msn >= 0) {
             expungedEventList.add(new Integer(msn));
-        }
-    }
-
-    public synchronized void flagsUpdated(final long uid, final Flags flags, long sessionId) {
-        final Long uidObject = new Long(uid);
-        if (sessionId != this.sessionId && !flagEventMap.containsKey(uidObject)) {
-            // if there has been an external update in the past we should inform
-            // about the newest value, even if in silent mode
-            
-            // only store flags
-            final MessageResultImpl lightweightResult = new MessageResultImpl(uid);
-            lightweightResult.setFlags(flags);
-            flagEventMap.put(uidObject, lightweightResult);
         }
     }
     
