@@ -61,7 +61,7 @@ public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements Se
         // Ignore events from our session
         events.setSilentFlagChanges(true);
         mailbox.addListener(events);
-        converter = new UidToMsnConverter(sessionId, uids);
+        converter = new UidToMsnConverter(uids);
         mailbox.addListener(converter);
     }
 
@@ -113,17 +113,19 @@ public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements Se
     }
     
     private void addExpungedResponses(List responses, final ImapMailbox mailbox) {
-        try {
-            final Iterator expunged = converter.getExpungedEvents(true);
-            while (expunged.hasNext()) {
-                final int msn = ((Integer) expunged.next()).intValue();
-                // TODO: use factory
-                ExpungeResponse response = new ExpungeResponse(msn);
-                responses.add(response);
-            }
-        } catch (MailboxManagerException e) {
-            final String message = "Failed to retrieve expunged count data";
-            handleResponseException(responses, e, message);
+        for  (Iterator it = events.expungedUids(); it.hasNext();) {
+            final Long uid = (Long) it.next();
+            final long uidValue = uid.longValue();
+            final int msn = msn(uidValue);
+            // TODO: use factory
+            ExpungeResponse response = new ExpungeResponse(msn);
+            responses.add(response);
+        }
+        
+        for  (Iterator it = events.expungedUids(); it.hasNext();) {
+            final Long uid = (Long) it.next();
+            final long uidValue = uid.longValue();
+            converter.expunge(uidValue);
         }
     }
 

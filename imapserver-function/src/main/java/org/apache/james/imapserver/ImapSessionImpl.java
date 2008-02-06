@@ -104,7 +104,7 @@ public final class ImapSessionImpl extends AbstractLogEnabled implements ImapSes
 
                 // Expunged messages
                 if (!omitExpunged) {
-                    final Iterator expunged = selected.getExpungedEvents(true);
+                    final Iterator expunged = selected.expungedMsn();
                     while (expunged.hasNext()) {
                         final int msn = ((Integer) expunged.next()).intValue();
                         response.expungeResponse(msn);

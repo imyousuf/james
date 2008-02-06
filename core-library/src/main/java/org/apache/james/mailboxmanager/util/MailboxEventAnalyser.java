@@ -34,11 +34,13 @@ public class MailboxEventAnalyser implements MailboxListener {
     private final long sessionId;
     private final Set flagUpdateUids;
     private final Flags.Flag uninterestingFlag;
+    private final Set expungedUids;
     
     public MailboxEventAnalyser(final long sessionId) {
         super();
         this.sessionId = sessionId;
         flagUpdateUids = new HashSet();
+        expungedUids = new HashSet();
         uninterestingFlag = Flags.Flag.RECENT;
     }
 
@@ -56,6 +58,9 @@ public class MailboxEventAnalyser implements MailboxListener {
                     final Long uidObject = new Long(uid);
                     flagUpdateUids.add(uidObject);
                 }
+            } else if (messageEvent instanceof Expunged) {
+                final Long uidObject = new Long(uid);
+                expungedUids.add(uidObject);
             }
         }
     }
@@ -79,6 +84,7 @@ public class MailboxEventAnalyser implements MailboxListener {
     public void reset() {
         sizeChanged = false;
         flagUpdateUids.clear();
+        expungedUids.clear();
     }
     
     /**
@@ -112,6 +118,9 @@ public class MailboxEventAnalyser implements MailboxListener {
         return flagUpdateUids.iterator();
     }
     
+    public Iterator expungedUids() {
+        return expungedUids.iterator();
+    }
     
     public void mailboxDeleted() {
         // TODO implementation
