@@ -52,7 +52,6 @@ public class ExpungeProcessor extends AbstractImapRequestProcessor {
     protected void doProcess(ImapRequest message,
             ImapSession session, String tag, ImapCommand command, Responder responder)
             throws MailboxException, AuthorizationException, ProtocolException {
-        final ExpungeRequest request = (ExpungeRequest) message;
         ImapMailbox mailbox = ImapSessionUtils.getMailbox(session);
         if (!mailbox.isWriteable()) {
             no(command, tag, responder, HumanReadableTextKey.MAILBOX_IS_READ_ONLY);
