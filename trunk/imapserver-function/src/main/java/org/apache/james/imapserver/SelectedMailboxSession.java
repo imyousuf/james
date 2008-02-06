@@ -49,7 +49,7 @@ public class SelectedMailboxSession extends AbstractLogEnabled {
         this.mailbox = mailbox;
         this.mailboxSession = mailboxSession;
         final long sessionId = mailboxSession.getSessionId();
-        converter = new UidToMsnConverter(sessionId, uids);
+        converter = new UidToMsnConverter(uids);
         events = new MailboxEventAnalyser(sessionId);
         mailbox.addListener(events);
         mailbox.addListener(converter);
@@ -91,8 +91,22 @@ public class SelectedMailboxSession extends AbstractLogEnabled {
         events.setSilentFlagChanges(silent);
     }
 
-    public Iterator getExpungedEvents(boolean reset) throws MailboxManagerException {
-        return converter.getExpungedEvents(reset);
+    public Iterator expungedMsn() throws MailboxManagerException {
+        final Collection results = new ArrayList();
+        for  (Iterator it = events.expungedUids(); it.hasNext();) {
+            final Long uid = (Long) it.next();
+            final long uidValue = uid.longValue();
+            final int msn = msn(uidValue);
+            final Integer msnObject = new Integer(msn);
+            results.add(msnObject);
+        }
+        
+        for  (Iterator it = events.expungedUids(); it.hasNext();) {
+            final Long uid = (Long) it.next();
+            final long uidValue = uid.longValue();
+            converter.expunge(uidValue);
+        }
+        return results.iterator();
     }
     
     public int msn(long uid) {

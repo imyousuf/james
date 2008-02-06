@@ -24,26 +24,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.SortedMap;
-import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import javax.mail.Flags;
-
 import org.apache.james.mailboxmanager.MailboxListener;
-import org.apache.james.mailboxmanager.MailboxManagerException;
-import org.apache.james.mailboxmanager.impl.MessageResultImpl;
 
 public class UidToMsnConverter implements MailboxListener {
-    
-    private final long sessionId;
-    
-    protected Map flagEventMap = new TreeMap();
-
-    protected SortedSet expungedEventList = new TreeSet();
-    
     protected SortedMap msnToUid;
 
     protected SortedMap uidToMsn;
@@ -52,10 +39,9 @@ public class UidToMsnConverter implements MailboxListener {
     
     protected int highestMsn = 0;
 
-    public UidToMsnConverter(final long sessionId, final Collection uids) {
+    public UidToMsnConverter(final Collection uids) {
         msnToUid = new TreeMap();
         uidToMsn = new TreeMap();
-        this.sessionId = sessionId;
         if (uids != null) {
             int msn = 1;
             List uidsInOrder = new ArrayList(uids);
@@ -176,30 +162,11 @@ public class UidToMsnConverter implements MailboxListener {
      */
     public void event(Event event) {
         if (event instanceof MessageEvent) {
-            final long sessionId = event.getSessionId();
             final MessageEvent messageEvent = (MessageEvent) event;
             final long uid = messageEvent.getSubjectUid();
             if (event instanceof Added) {
                 add(uid);
-            } else if (event instanceof Expunged) {
-                expunged(uid);
             }
         }
-    }
-
-    public void expunged(final long uid) {
-        final int msn = getMsn(uid);
-        if (msn >= 0) {
-            expungedEventList.add(new Integer(msn));
-        }
-    }
-    
-    public synchronized Iterator getExpungedEvents(boolean reset)
-            throws MailboxManagerException {
-        final Collection msnExpungedEvents  = expungedEventList;
-        if (reset) {
-            expungedEventList = new TreeSet();
-        } 
-        return msnExpungedEvents.iterator();
     }
 }
