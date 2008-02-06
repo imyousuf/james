@@ -20,7 +20,7 @@ C: 10 CREATE appendexpunge
 S: 10 OK CREATE completed.
 
 C: a001 STATUS appendexpunge (MESSAGES)
-S: \* STATUS appendexpunge \(MESSAGES 0\)
+S: \* STATUS "appendexpunge" \(MESSAGES 0\)
 S: a001 OK STATUS completed.
 
 C: A002 APPEND appendexpunge (\Deleted) {310+}
@@ -62,42 +62,44 @@ C: Hello Joe, could we change that to 4:30pm tomorrow?
 C:
 S: A004 OK APPEND completed.
 
-C: a1 STATUS appendexpunge (MESSAGES)
-S: \* STATUS appendexpunge \(MESSAGES 3\)
-S: a1 OK STATUS completed.
+C: A005 STATUS appendexpunge (MESSAGES)
+S: \* STATUS "appendexpunge" \(MESSAGES 3\)
+S: A005 OK STATUS completed.
 
-C: a1 SELECT appendexpunge
+C: A006 SELECT appendexpunge
 S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
 S: \* 3 EXISTS
 S: \* \d+ RECENT
 S: \* OK \[UIDVALIDITY \d+\]
 S: \* OK \[UNSEEN 1\] Message 1 is the first unseen
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
-S: a1 OK \[READ-WRITE\] SELECT completed.
+S: A006 OK \[READ-WRITE\] SELECT completed.
 
-C: a1 EXPUNGE
+C: A109 STORE 1:2 FLAGS.SILENT (\Deleted)
+S: A109 OK STORE completed.
+
+C: A007 EXPUNGE
 S: \* 1 EXPUNGE
 S: \* 2 EXPUNGE
-S: a1 OK EXPUNGE completed.
+S: A007 OK EXPUNGE completed.
 
-C: a1 STATUS appendexpunge (MESSAGES)
-S: \* STATUS appendexpunge \(MESSAGES 1\)
-S: a1 OK STATUS completed.
+C: A008 STATUS appendexpunge (MESSAGES)
+S: \* STATUS "appendexpunge" \(MESSAGES 1\)
+S: A008 OK STATUS completed.
 
-C: f2 STORE 1 FLAGS.SILENT (\Deleted)
-S: f2 OK STORE completed.
+C: A009 STORE 1 FLAGS.SILENT (\Deleted)
+S: A009 OK STORE completed.
 
-C: a1 EXPUNGE
+C: A010 EXPUNGE
 S: \* 1 EXPUNGE
-S: a1 OK EXPUNGE completed.
+S: A010 OK EXPUNGE completed.
 
-C: a1 STATUS appendexpunge (MESSAGES)
-S: \* STATUS appendexpunge \(MESSAGES 0\)
-S: a1 OK STATUS completed.
+C: A011 STATUS appendexpunge (MESSAGES)
+S: \* STATUS "appendexpunge" \(MESSAGES 0\)
+S: A011 OK STATUS completed.
 
-C: a1 DELETE appendexpunge
-S: a1 OK DELETE completed.
-
+C: A012 DELETE appendexpunge
+S: A012 OK DELETE completed.
 
 
 
