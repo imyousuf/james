@@ -24,7 +24,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.mail.Flags;
-import javax.mail.Flags.Flag;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.commons.collections.IteratorUtils;
@@ -165,44 +164,6 @@ public class MessageResultImpl implements MessageResult {
         if (internalDate != null) {
             includedResults |= FetchGroup.INTERNAL_DATE;
         }
-    }
-    
-    public static  String flagsToString(Flags flags) {
-        if (flags==null) {
-            return "null";
-        }
-        String result="";
-        Flag[] f=flags.getSystemFlags();
-        for (int i = 0; i < f.length; i++) {
-            result +=" "+flagToString(f[i]);
-        }
-        if (result.length()>0) {
-             // without leading space
-            result=result.substring(1);
-        }
-        return result;
-    }
-    public static String flagToString(Flag flag) {
-        if (flag.equals(Flag.ANSWERED)) {
-            return "\\Answered";
-        }
-        if (flag.equals(Flag.DELETED)) {
-            return "\\Deleted";
-        }
-        if (flag.equals(Flag.DRAFT)) {
-            return "\\Draft";
-        }
-        if (flag.equals(Flag.FLAGGED)) {
-            return "\\Flagged";
-        }
-        if (flag.equals(Flag.RECENT)) {
-            return "\\Recent";
-        }
-        if (flag.equals(Flag.SEEN)) {
-            return "\\Seen";
-        }
-        throw new IllegalArgumentException("unknown Flag: "+flag);
-
     }
 
     public void setKey(String key) {
