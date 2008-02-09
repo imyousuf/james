@@ -18,23 +18,80 @@
  ****************************************************************/
 package org.apache.james.api.imap.message;
 
+import java.util.Collection;
+
+import org.apache.james.api.imap.ImapConstants;
+
 public class BodyFetchElement
 {
-    private String name;
-    private String sectionIdentifier;
 
-    public BodyFetchElement( String name, String sectionIdentifier)
+    public static final int TEXT = 0;
+    public static final int MIME = 1;
+    public static final int HEADER = 2;
+    public static final int HEADER_FIELDS = 3;
+    public static final int HEADER_NOT_FIELDS = 4;
+    public static final int CONTENT = 5;
+    
+    private static final BodyFetchElement rfc822 = new BodyFetchElement(ImapConstants.FETCH_RFC822, CONTENT, null, null);
+    private static final BodyFetchElement rfc822Header = new BodyFetchElement(ImapConstants.FETCH_RFC822_HEADER, HEADER, null, null);
+    private static final BodyFetchElement rfc822Text = new BodyFetchElement(ImapConstants.FETCH_RFC822_TEXT, TEXT, null, null);
+
+    public static final BodyFetchElement createRFC822() {
+        return rfc822;
+    }
+     
+    public static final BodyFetchElement createRFC822Header() {
+        return rfc822Header;
+    }
+    
+    public static final BodyFetchElement createRFC822Text() {
+        return rfc822Text;
+    }
+    
+    
+    private final String name;
+    private final int sectionType;
+    private final int[] path; 
+    private final Collection fieldNames;
+
+    public BodyFetchElement( final String name, final int sectionType, 
+            final int[] path, final Collection fieldNames)
     {
         this.name = name;
-        this.sectionIdentifier = sectionIdentifier;
+        this.sectionType = sectionType;
+        this.fieldNames = fieldNames;
+        this.path = path;
     }
-
-    public String getParameters()
-    {
-        return this.sectionIdentifier;
-    }
-
+    
     public String getResponseName() {
         return this.name;
+    }
+
+    /**
+     * Gets field names.
+     * @return <code>String</code> collection, when {@link #HEADER_FIELDS} 
+     * or {@link #HEADER_NOT_FIELDS}
+     * or null otherwise
+     */
+    public final Collection getFieldNames() {
+        return fieldNames;
+    }
+
+    /**
+     * Gets the MIME path.
+     * @return the path, 
+     * or null if the section is the base message
+     */
+    public final int[] getPath() {
+        return path;
+    }
+
+    /**
+     * Gets the type of section.
+     * @return {@link #HEADER_FIELDS}, {@link #TEXT}, {@link #CONTENT}, {@link #HEADER},
+     * {@link #MIME} or {@link #HEADER_NOT_FIELDS}
+     */
+    public final int getSectionType() {
+        return sectionType;
     }
 }

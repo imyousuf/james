@@ -108,4 +108,11 @@ public interface ImapConstants
     public static final String NAME_ATTRIBUTE_NOSELECT = "\\Noselect";
     public static final String NAME_ATTRIBUTE_MARKED = "\\Marked";
     public static final String NAME_ATTRIBUTE_UNMARKED = "\\Unmarked";
+    
+    public static final String PS_TEXT = "TEXT";
+    public static final String PS_HEADER = "HEADER";
+    public static final String PS_MIME = "MIME";
+    public static final String FETCH_RFC822 = "RFC822";
+    public static final String FETCH_RFC822_HEADER = "RFC822.HEADER";
+    public static final String FETCH_RFC822_TEXT = "RFC822.TEXT";
 }

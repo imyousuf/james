@@ -86,23 +86,21 @@ public interface MessageResult extends Comparable {
         public static final int BODY_CONTENT = 0x400;
 
         /**
-         * Contents to be retu
-         * @return  
+         * Contents to be fetched.
+         * Composed bitwise.
+         * 
+         * @return bitwise descripion
+         * @see #MINIMAL
+         * @see #MIME_MESSAGE
+         * @see #KEY
+         * @see #SIZE
+         * @see #INTERNAL_DATE
+         * @see #FLAGS
+         * @see #HEADERS
+         * @see #FULL_CONTENT
+         * @see #BODY_CONTENT
          */
         public int content();
-        
-        /**
-         * Mime parts to be included in the results.
-         * @return array of mime parts numbered from one,
-         * or null
-         */
-        public int[] mimeParts();
-        
-        /**
-         * Mime headers to be included in the results.
-         * @return array of mime headers numbered from one
-         */
-        public int[] mimeHeaders();
     }
     
     /**
@@ -154,9 +152,21 @@ public interface MessageResult extends Comparable {
     Iterator iterateHeaders() throws MailboxManagerException;
     
     /**
+     * Iterates the MIME headers for the given
+     * part in a multipart message.
+     * @param path describing the part's position within
+     * a multipart message
+     * @return  <code>Header</code> <code>Iterator</code>, 
+     * or null when {@link FetchGroup#mimeHeaders()} does not
+     * include the index and when the mime part cannot be found
+     * @throws MailboxManagerException
+     */
+    Iterator iterateHeaders(MimePath path) throws MailboxManagerException;
+    
+    /**
      * A header.
      */
-    public interface Header extends Content{
+    public interface Header extends Content {
         
         /**
          * Gets the name of this header.
@@ -180,8 +190,19 @@ public interface MessageResult extends Comparable {
      * or or null if {@link FetchGroup#FULL_CONTENT} has not been included in the 
      * results
      */
-    Content getFullMessage() throws MailboxManagerException;
+    Content getFullContent() throws MailboxManagerException;
 
+
+    /**
+     * Gets the full content of the given mime part.
+     * @param path describes the part
+     * @return <code>Content</code>,
+     * or null when {@link FetchGroup#mimeBodies()} did not been include 
+     * the given index and when the mime part cannot be found
+     * @throws MailboxManagerException
+     */
+    Content getFullContent(MimePath path) throws MailboxManagerException;
+    
     /**
      * Gets the body of the message excluding headers.
      * The message data should have normalised line endings (CRLF).
@@ -189,7 +210,17 @@ public interface MessageResult extends Comparable {
      * or or null if {@link FetchGroup#FULL_CONTENT} has not been included in the 
      * results 
      */
-    Content getMessageBody() throws MailboxManagerException;
+    Content getBody() throws MailboxManagerException;
+    
+    /**
+     * Gets the body of the given mime part.
+     * @param path describes the part
+     * @return <code>Content</code>,
+     * or null when {@link FetchGroup#mimeBodies()} did not been include 
+     * the given index and when the mime part cannot be found
+     * @throws MailboxManagerException
+     */
+    Content getBody(MimePath path) throws MailboxManagerException;
 
     /**
      * IMAP needs to know the size of the content before it starts to write it out.
@@ -217,5 +248,17 @@ public interface MessageResult extends Comparable {
          * @throws MessagingException
          */
         public long size();
+    }
+    
+    /**
+     * Describes a path within a multipart MIME message.
+     */
+    public interface MimePath {
+        
+        /**
+         * Gets the positions of each part in the path.
+         * @return part positions describing the path
+         */
+        public int[] getPositions();
     }
 }

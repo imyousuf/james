@@ -20,11 +20,13 @@
 package org.apache.james.mailboxmanager.torque;
 
 import org.apache.james.mailboxmanager.MessageResult.FetchGroup;
+import org.apache.james.mailboxmanager.MessageResult.MimePath;
 
 /**
  * Wraps a fetch group and ORs content.
  */
 public final class OrFetchGroup implements FetchGroup {
+    
 
     private final FetchGroup delegate;
     private final int or;
@@ -39,15 +41,8 @@ public final class OrFetchGroup implements FetchGroup {
         return or | delegate.content();
     }
 
-    public int[] mimeHeaders() {
-        return delegate.mimeHeaders();
-    }
-
-    public int[] mimeParts() {
-        return delegate.mimeParts();
-    }
-
     public String toString() {
         return "Fetch " + or + " OR " + delegate;
     }
+
 }
