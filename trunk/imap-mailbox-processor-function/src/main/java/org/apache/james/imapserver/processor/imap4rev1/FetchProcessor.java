@@ -131,7 +131,7 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
         }
     }
 
-    private FetchGroup getFetchGroup(FetchData fetch) {
+    private FetchGroup getFetchGroup(FetchData fetch) throws ProtocolException {
         int result = FetchGroup.MINIMAL;
         if (fetch.isFlags() || fetch.isSetSeen()) {
             result |= FetchGroup.FLAGS;
@@ -155,24 +155,27 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
         return new FetchGroupImpl(result);
     }
 
-    private int fetchForBodyElements(final Collection bodyElements) {
+    private int fetchForBodyElements(final Collection bodyElements) throws ProtocolException {
         int result = 0;
         if (bodyElements != null) {
             for (final Iterator it = bodyElements.iterator(); it.hasNext();) {
                 final BodyFetchElement element = (BodyFetchElement) it.next();
-                final String section = element.getParameters();
-                if ("HEADER".equalsIgnoreCase(section)) {
-                    result |= FetchGroup.HEADERS;
-                } else if (section.startsWith("HEADER.FIELDS.NOT ")) {
-                    result |= FetchGroup.HEADERS;
-                } else if (section.startsWith("HEADER.FIELDS ")) {
-                    result |= FetchGroup.HEADERS;
-                } else if (section.equalsIgnoreCase("TEXT")) {
-                    ;
-                    result |= FetchGroup.BODY_CONTENT;
-                } else if (section.length() == 0) {
-                    result |= FetchGroup.FULL_CONTENT;
+                final int sectionType = element.getSectionType();
+                switch(sectionType) {
+                    case BodyFetchElement.CONTENT:
+                        result = result | MessageResult.FetchGroup.FULL_CONTENT;
+                        break;
+                    case BodyFetchElement.HEADER:
+                    case BodyFetchElement.HEADER_NOT_FIELDS:
+                    case BodyFetchElement.HEADER_FIELDS:
+                    case BodyFetchElement.MIME:
+                        result = result | MessageResult.FetchGroup.HEADERS;
+                        break;
+                    case BodyFetchElement.TEXT:
+                        result = result | MessageResult.FetchGroup.BODY_CONTENT;
+                        break;
                 }
+                
             }
         }
         return result;
@@ -238,9 +241,7 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
                     result.getFlags().add(Flags.Flag.SEEN);
                     ensureFlagsResponse = true;
                 }
-
                 
-
                 // FLAGS response
                 if (fetch.isFlags() || ensureFlagsResponse) {
                     setFlags(result.getFlags());
@@ -251,8 +252,6 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
                     setInternalDate(result
                             .getInternalDate());
                 }
-
-                // TODO: RFC822.HEADER
 
                 // RFC822.SIZE response
                 if (fetch.isSize()) {
@@ -292,10 +291,7 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
                 this.elements = new ArrayList();
                 for (Iterator iterator = elements.iterator(); iterator.hasNext();) {
                     BodyFetchElement fetchElement = (BodyFetchElement) iterator.next();
-                    final String sectionSpecifier = fetchElement.getParameters();
-                    final String responseName = fetchElement.getResponseName();
-                    final FetchResponse.BodyElement element 
-                        = bodyFetch(result, sectionSpecifier, responseName);
+                    final FetchResponse.BodyElement element = bodyFetch(result, fetchElement);
                     if (element != null) {
                         this.elements.add(element);
                     }
@@ -465,88 +461,123 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
         }
 
         private FetchResponse.BodyElement bodyFetch(final MessageResult messageResult,
-                String sectionSpecifier, String name) throws MessagingException {
+                BodyFetchElement fetchElement) throws MessagingException, ProtocolException {
+            
             final FetchResponse.BodyElement result;
-            // TODO: section specifier should be fully parsed during parsing phase
-            if (sectionSpecifier.length() == 0) {
-                final MessageResult.Content fullMessage = messageResult.getFullMessage();
-                result = new ContentBodyElement(name, fullMessage);
-                
-            } else if (sectionSpecifier.equalsIgnoreCase("HEADER")) {
-                final Iterator headers = messageResult.iterateHeaders();
-                List lines = MessageResultUtils.getAll(headers);
-                result = new HeaderBodyElement(name, lines);
-                
-            } else if (sectionSpecifier.startsWith("HEADER.FIELDS.NOT ")) {
-                String[] excludeNames = extractHeaderList(sectionSpecifier,
-                        "HEADER.FIELDS.NOT ".length());
-                final Iterator headers = messageResult.iterateHeaders();
-                List lines = MessageResultUtils.getNotMatching(excludeNames, headers);
-                result = new HeaderBodyElement(name, lines);
-                
-            } else if (sectionSpecifier.startsWith("HEADER.FIELDS ")) {
-                String[] includeNames = extractHeaderList(sectionSpecifier,
-                        "HEADER.FIELDS ".length());
-                final Iterator headers = messageResult.iterateHeaders();
-                List lines = MessageResultUtils.getMatching(includeNames, headers);
-                result = new HeaderBodyElement(name, lines);
-                
-            } else if (sectionSpecifier.equalsIgnoreCase("MIME")) {
-                // TODO implement
-                throw new MailboxManagerException("MIME not yet implemented.");
-
-            } else if (sectionSpecifier.equalsIgnoreCase("TEXT")) {
-                final MessageResult.Content messageBody = messageResult.getMessageBody();
-                result = new ContentBodyElement(name, messageBody);
-
-            } else {
-                // Should be a part specifier followed by a section specifier.
-                // See if there's a leading part specifier.
-                // If so, get the number, get the part, and call this recursively.
-                int dotPos = sectionSpecifier.indexOf('.');
-                if (dotPos == -1) {
-                    throw new MailboxManagerException("Malformed fetch attribute: "
-                            + sectionSpecifier);
-                }
-                int partNumber = Integer.parseInt(sectionSpecifier.substring(0,
-                        dotPos));
-                String partSectionSpecifier = sectionSpecifier
-                        .substring(dotPos + 1);
-
-                // TODO - get the MimePart of the mimeMessage, and call this method
-                // with the new partSectionSpecifier.
-                // MimeMessage part;
-                // handleBodyFetch( part, partSectionSpecifier, response );
-                throw new MailboxManagerException(
-                        "Mime parts not yet implemented for fetch.");
+            final String name = fetchElement.getResponseName();
+            final int specifier = fetchElement.getSectionType();
+            final int[] path = fetchElement.getPath();
+            final Collection names = fetchElement.getFieldNames();
+            final boolean isBase = (path == null || path.length == 0);
+            switch (specifier) {
+                case BodyFetchElement.CONTENT:
+                    result = content(messageResult, name, path, isBase);
+                    break;
+                    
+                case BodyFetchElement.HEADER_FIELDS:
+                    result = fields(messageResult, name, path, names, isBase);
+                    break;
+                    
+                case BodyFetchElement.HEADER_NOT_FIELDS:
+                    result = fieldsNot(messageResult, name, path, names, isBase);
+                    break;
+                    
+                case BodyFetchElement.MIME:
+                case BodyFetchElement.HEADER:
+                    result = headers(messageResult, name, path, isBase);
+                    break;
+                    
+                case BodyFetchElement.TEXT:
+                    result = text(messageResult, name, path, isBase);
+                    break;
+                    
+                default:
+                    result = null;
+                break;
             }
+
             return result;
 
         }
 
-        // TODO should do this at parse time.
-        private String[] extractHeaderList(String headerList, int prefixLen) {
-            // Remove the trailing and leading ')('
-            String tmp = headerList.substring(prefixLen + 1,
-                    headerList.length() - 1);
-            String[] headerNames = split(tmp, " ");
-            return headerNames;
-        }
-
-        private String[] split(String value, String delimiter) {
-            ArrayList strings = new ArrayList();
-            int startPos = 0;
-            int delimPos;
-            while ((delimPos = value.indexOf(delimiter, startPos)) != -1) {
-                String sub = value.substring(startPos, delimPos);
-                strings.add(sub);
-                startPos = delimPos + 1;
+        private FetchResponse.BodyElement text(final MessageResult messageResult, String name, final int[] path, final boolean isBase) throws MailboxManagerException {
+            final FetchResponse.BodyElement result;
+            final MessageResult.Content body;
+            if (isBase) {
+                body = messageResult.getBody();
+            } else {
+                MessageResult.MimePath mimePath = new MimePathImpl(path);
+                body = messageResult.getBody(mimePath);
             }
-            String sub = value.substring(startPos);
-            strings.add(sub);
-
-            return (String[]) strings.toArray(new String[0]);
+            result = new ContentBodyElement(name, body);
+            return result;
         }
+
+        private FetchResponse.BodyElement headers(final MessageResult messageResult, String name, final int[] path, final boolean isBase) throws MailboxManagerException, MessagingException {
+            final FetchResponse.BodyElement result;
+            final Iterator headers = getHeaders(messageResult, path, isBase);
+            List lines = MessageResultUtils.getAll(headers);
+            result = new HeaderBodyElement(name, lines);
+            return result;
+        }
+
+        private FetchResponse.BodyElement fieldsNot(final MessageResult messageResult, String name, 
+                final int[] path, Collection names, final boolean isBase) throws MailboxManagerException, MessagingException {
+            final FetchResponse.BodyElement result;
+            
+            final Iterator headers = getHeaders(messageResult, path, isBase);
+            
+            List lines = MessageResultUtils.getNotMatching(names, headers);
+            result = new HeaderBodyElement(name, lines);
+            return result;
+        }
+
+        private FetchResponse.BodyElement fields(final MessageResult messageResult, String name, 
+                final int[] path, Collection names, final boolean isBase) throws MailboxManagerException, MessagingException {
+            final FetchResponse.BodyElement result;
+            final Iterator headers = getHeaders(messageResult, path, isBase);
+            List lines = MessageResultUtils.getMatching(names, headers);
+            result = new HeaderBodyElement(name, lines);
+            return result;
+        }
+
+        private Iterator getHeaders(final MessageResult messageResult, final int[] path, final boolean isBase) throws MailboxManagerException {
+            final Iterator headers;
+            if (isBase) {
+                headers = messageResult.iterateHeaders();
+            } else {
+                MessageResult.MimePath mimePath = new MimePathImpl(path);
+                headers = messageResult.iterateHeaders(mimePath);
+            }
+            return headers;
+        }
+
+        private FetchResponse.BodyElement content(final MessageResult messageResult, String name, final int[] path, final boolean isBase) throws MailboxManagerException {
+            final FetchResponse.BodyElement result;
+            final MessageResult.Content full;
+            if (isBase) {
+                full = messageResult.getFullContent();
+            } else {
+                MessageResult.MimePath mimePath = new MimePathImpl(path);
+                full = messageResult.getFullContent(mimePath);
+            }
+            result = new ContentBodyElement(name, full);
+            return result;
+        }
+    }
+    
+    private static final class MimePathImpl implements MessageResult.MimePath {
+        private final int[] positions;
+        
+        public MimePathImpl(final int[] positions) {
+            super();
+            this.positions = positions;
+        }
+
+        public int[] getPositions() {
+            return positions;
+        }
+        
     }
     
     private static final class EnvelopeImpl implements FetchResponse.Envelope {

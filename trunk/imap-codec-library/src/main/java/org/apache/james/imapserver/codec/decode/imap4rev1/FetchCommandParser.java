@@ -18,6 +18,8 @@
  ****************************************************************/
 package org.apache.james.imapserver.codec.decode.imap4rev1;
 
+import java.util.List;
+
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.api.imap.ProtocolException;
@@ -26,6 +28,7 @@ import org.apache.james.api.imap.imap4rev1.Imap4Rev1MessageFactory;
 import org.apache.james.api.imap.message.BodyFetchElement;
 import org.apache.james.api.imap.message.FetchData;
 import org.apache.james.api.imap.message.IdRange;
+import org.apache.james.imapserver.codec.decode.FetchPartPathDecoder;
 import org.apache.james.imapserver.codec.decode.ImapRequestLineReader;
 import org.apache.james.imapserver.codec.decode.InitialisableCommandFactory;
 
@@ -114,11 +117,11 @@ class FetchCommandParser extends AbstractUidCommandParser  implements Initialisa
                 } else if ("UID".equalsIgnoreCase(name)) {
                     fetch.setUid(true);
                 } else if ("RFC822".equalsIgnoreCase(name)) {
-                    fetch.add(new BodyFetchElement("RFC822", ""), false);
+                    fetch.add(BodyFetchElement.createRFC822(), false);
                 } else if ("RFC822.HEADER".equalsIgnoreCase(name)) {
-                    fetch.add(new BodyFetchElement("RFC822.HEADER", "HEADER"), true);
+                    fetch.add(BodyFetchElement.createRFC822Header(), true);
                 } else if ("RFC822.TEXT".equalsIgnoreCase(name)) {
-                    fetch.add(new BodyFetchElement("RFC822.TEXT", "TEXT"), false);
+                    fetch.add(BodyFetchElement.createRFC822Text(), false);
                 } else {
                     throw new ProtocolException( "Invalid fetch attribute: " + name );
                 }
@@ -126,19 +129,68 @@ class FetchCommandParser extends AbstractUidCommandParser  implements Initialisa
             else {
                 consumeChar( command, '[' );
 
-                
                 String parameter = readWord(command, "]");
 
                 consumeChar( command, ']');
-                if ( "BODY".equalsIgnoreCase( name ) ) {
-                    fetch.add(new BodyFetchElement("BODY[" + parameter + "]", parameter), false);
-                } else if ( "BODY.PEEK".equalsIgnoreCase( name ) ) {
-                    fetch.add(new BodyFetchElement("BODY[" + parameter + "]", parameter), true);
-                } else {
-                    throw new ProtocolException( "Invalid fetch attibute: " + name + "[]" );
-                }
+                
+                final BodyFetchElement bodyFetchElement = createBodyElement(parameter);
+                final boolean isPeek = isPeek(name);
+                fetch.add(bodyFetchElement, isPeek);
             }
         }
+
+    private boolean isPeek(String name) throws ProtocolException {
+        final boolean isPeek;
+        if ( "BODY".equalsIgnoreCase( name ) ) {
+            isPeek = false;
+        } else if ( "BODY.PEEK".equalsIgnoreCase( name ) ) {
+            isPeek = true;
+        } else {
+            throw new ProtocolException( "Invalid fetch attibute: " + name + "[]" );
+        }
+        return isPeek;
+    }
+
+    private BodyFetchElement createBodyElement(String parameter) throws ProtocolException {
+        final String responseName = "BODY[" + parameter + "]";
+        FetchPartPathDecoder decoder = new FetchPartPathDecoder();
+        decoder.decode(parameter);
+        final int sectionType = getSectionType(decoder);
+        
+        final List names = decoder.getNames();
+        final int[] path = decoder.getPath();
+        final BodyFetchElement bodyFetchElement 
+            = new BodyFetchElement(responseName, sectionType, path, names);
+        return bodyFetchElement;
+    }
+
+    private int getSectionType(FetchPartPathDecoder decoder) throws ProtocolException {
+        final int specifier = decoder.getSpecifier();
+        final int sectionType;
+        switch (specifier) {
+            case FetchPartPathDecoder.CONTENT:
+                sectionType = BodyFetchElement.CONTENT;
+                break;
+            case FetchPartPathDecoder.HEADER:
+                sectionType = BodyFetchElement.HEADER;
+                break;
+            case FetchPartPathDecoder.HEADER_FIELDS:
+                sectionType = BodyFetchElement.HEADER_FIELDS;
+                break;
+            case FetchPartPathDecoder.HEADER_NOT_FIELDS:
+                sectionType = BodyFetchElement.HEADER_NOT_FIELDS;
+                break;    
+            case FetchPartPathDecoder.MIME:
+                sectionType = BodyFetchElement.MIME;
+                break;
+            case FetchPartPathDecoder.TEXT:
+                sectionType = BodyFetchElement.TEXT;
+                break;
+            default:
+                throw new ProtocolException("Section type is unsupported.");
+        }
+        return sectionType;
+    }
 
     private String readWord(ImapRequestLineReader request, String terminator) throws ProtocolException {
         StringBuffer buf = new StringBuffer();

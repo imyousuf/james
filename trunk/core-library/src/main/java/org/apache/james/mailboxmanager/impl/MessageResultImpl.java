@@ -44,10 +44,10 @@ public class MessageResultImpl implements MessageResult {
     private Date internalDate;
     private String key;
     private List headers;
-    private Content messageBody;
-    private Content fullMessage;
+    private Content body;
+    private Content fullContent;
     private int includedResults = FetchGroup.MINIMAL;
-
+    
     public MessageResultImpl(long uid) {
         setUid(uid);
     }
@@ -81,10 +81,10 @@ public class MessageResultImpl implements MessageResult {
             setHeaders(IteratorUtils.toList(result.iterateHeaders()));
         }
         if (MessageResultUtils.isFullContentIncluded(result)) {
-            setFullMessage(result.getFullMessage());
+            setFullContent(result.getFullContent());
         }
         if (MessageResultUtils.isBodyContentIncluded(result)) {
-            setMessageBody(result.getMessageBody());
+            setBody(result.getBody());
         }
     }
 
@@ -188,23 +188,23 @@ public class MessageResultImpl implements MessageResult {
         }
     }
 
-    public final Content getFullMessage() {
-        return fullMessage;
+    public final Content getFullContent() {
+        return fullContent;
     }
 
-    public final void setFullMessage(Content fullMessage) {
-        this.fullMessage = fullMessage;
+    public final void setFullContent(Content fullMessage) {
+        this.fullContent = fullMessage;
         if (fullMessage != null) {
             includedResults |= FetchGroup.FULL_CONTENT;
         }
     }
 
-    public final Content getMessageBody() {
-        return messageBody;
+    public final Content getBody() {
+        return body;
     }
 
-    public final void setMessageBody(Content messageBody) {
-        this.messageBody = messageBody;
+    public final void setBody(Content messageBody) {
+        this.body = messageBody;
         if (messageBody != null) {
             includedResults |= FetchGroup.BODY_CONTENT;
         }
@@ -230,6 +230,18 @@ public class MessageResultImpl implements MessageResult {
             + " )";
     
         return retValue;
+    }
+
+    public Content getBody(MimePath path) throws MailboxManagerException {
+        throw new MailboxManagerException("Unsupported operation");
+    }
+
+    public Content getFullContent(MimePath path) throws MailboxManagerException {
+        throw new MailboxManagerException("Unsupported operation");
+    }
+
+    public Iterator iterateHeaders(MimePath path) throws MailboxManagerException {
+        throw new MailboxManagerException("Unsupported operation");
     }
     
     

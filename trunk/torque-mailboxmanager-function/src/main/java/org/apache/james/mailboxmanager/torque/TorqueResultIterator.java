@@ -116,7 +116,7 @@ public class TorqueResultIterator implements Iterator {
             throw exception;
         }
 
-        public Content getFullMessage() throws MailboxManagerException{
+        public Content getFullContent() throws MailboxManagerException{
             throw exception;
         }
 
@@ -132,7 +132,7 @@ public class TorqueResultIterator implements Iterator {
             return null;
         }
 
-        public Content getMessageBody() throws MailboxManagerException {
+        public Content getBody() throws MailboxManagerException {
             throw exception;
         }
 
@@ -165,6 +165,18 @@ public class TorqueResultIterator implements Iterator {
             // Java 1.5  return (int) Math.signum(uid - that.getUid());
             long diff = uid - that.getUid();
             return (int) diff == 0 ? 0 : diff > 0 ? 1 : -1;
+        }
+
+        public Content getBody(MimePath path) throws MailboxManagerException {
+            throw exception;
+        }
+
+        public Content getFullContent(MimePath path) throws MailboxManagerException {
+            throw exception;
+        }
+
+        public Iterator iterateHeaders(MimePath path) throws MailboxManagerException {
+            throw exception;
         }
         
     }

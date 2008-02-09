@@ -20,6 +20,7 @@
 package org.apache.james.mailboxmanager;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -66,6 +67,56 @@ public class MessageResultUtils {
                             results.add(header);
                             break;
                         }
+                    }
+                }
+            }
+        }
+        return results;
+    }
+    
+    /**
+     * Gets header lines whose header names matches (ignoring case)
+     * any of those given.
+     * @param names header names to be matched, not null
+     * @param iterator {@link MessageResult.Header} <code>Iterator</code>
+     * @return <code>List</code> of <code>MessageResult.Header</code>'s,
+     * in their natural order
+     * @throws MessagingException
+     */
+    public static List getMatching(final Collection names, final Iterator iterator) throws MessagingException {
+        final List results = new ArrayList(names.size());
+        if (iterator != null) {
+            while(iterator.hasNext()) {
+                MessageResult.Header header = (MessageResult.Header) iterator.next();
+                final String headerName = header.getName();
+                if (headerName != null) {
+                    if (names.contains(headerName)) {
+                        results.add(header);
+                    }
+                }
+            }
+        }
+        return results;
+    }
+    
+    /**
+     * Gets header lines whose header names matches (ignoring case)
+     * any of those given.
+     * @param names header names to be matched, not null
+     * @param iterator {@link MessageResult.Header} <code>Iterator</code>
+     * @return <code>List</code> of <code>MessageResult.Header</code>'s,
+     * in their natural order
+     * @throws MessagingException
+     */
+    public static List getNotMatching(final Collection names, final Iterator iterator) throws MessagingException {
+        final List results = new ArrayList(names.size());
+        if (iterator != null) {
+            while(iterator.hasNext()) {
+                MessageResult.Header header = (MessageResult.Header) iterator.next();
+                final String headerName = header.getName();
+                if (headerName != null) {
+                    if (!names.contains(headerName)) {
+                        results.add(header);
                     }
                 }
             }

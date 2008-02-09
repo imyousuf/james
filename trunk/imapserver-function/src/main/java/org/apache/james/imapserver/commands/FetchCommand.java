@@ -248,7 +248,7 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
             throws ProtocolException, MessagingException
     {
         if ( sectionSpecifier.length() == 0 ) {
-            final Content fullMessage = result.getFullMessage();
+            final Content fullMessage = result.getFullContent();
             addLiteralContent(fullMessage, response);
         }
         else if ( sectionSpecifier.equalsIgnoreCase( "HEADER" ) ) {
@@ -273,7 +273,7 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
             throw new ProtocolException( "MIME not yet implemented." );
         }
         else if ( sectionSpecifier.equalsIgnoreCase( "TEXT" ) ) {
-            final Content messageBody = result.getMessageBody();
+            final Content messageBody = result.getBody();
             addLiteralContent(messageBody, response);
         }
         else {

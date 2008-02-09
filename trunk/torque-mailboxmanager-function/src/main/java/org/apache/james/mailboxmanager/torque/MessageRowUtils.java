@@ -283,11 +283,11 @@ public class MessageRowUtils {
             result -= FetchGroup.HEADERS;
         }
         if ((result & FetchGroup.BODY_CONTENT) > 0) {
-            messageResult.setMessageBody(createBodyContent(messageRow));
+            messageResult.setBody(createBodyContent(messageRow));
             result -= FetchGroup.BODY_CONTENT;
         }
         if ((result & FetchGroup.FULL_CONTENT) > 0) {
-            messageResult.setFullMessage(createFullContent(messageRow, messageResult.getHeaders()));
+            messageResult.setFullContent(createFullContent(messageRow, messageResult.getHeaders()));
             result -= FetchGroup.FULL_CONTENT;
         }
         if (result != 0) {

@@ -104,18 +104,18 @@ public class MessageResultImplIncludedResultsTest extends MockObjectTestCase {
     }
     
     public void testShouldIncludedResultsWhenFullMessageSet() throws Exception  {
-        result.setFullMessage(null);
+        result.setFullContent(null);
         assertEquals(FetchGroup.MINIMAL, result.getIncludedResults().content());
-        result.setFullMessage(content);
+        result.setFullContent(content);
         assertEquals(FetchGroup.FULL_CONTENT, result.getIncludedResults().content());
         result = new MessageResultImpl(this.result);
         assertEquals(FetchGroup.FULL_CONTENT, result.getIncludedResults().content());
     }
 
     public void testShouldIncludedResultsWhenMessageBodySet() throws Exception {
-        result.setMessageBody(null);
+        result.setBody(null);
         assertEquals(FetchGroup.MINIMAL, result.getIncludedResults().content());
-        result.setMessageBody(content);
+        result.setBody(content);
         assertEquals(FetchGroup.BODY_CONTENT, result.getIncludedResults().content());
         result = new MessageResultImpl(this.result);
         assertEquals(FetchGroup.BODY_CONTENT, result.getIncludedResults().content());
@@ -129,11 +129,11 @@ public class MessageResultImplIncludedResultsTest extends MockObjectTestCase {
         result.setUid(99);
         assertEquals(FetchGroup.FLAGS, result.getIncludedResults().content());
         assertTrue(MessageResultUtils.isFlagsIncluded(result));
-        result.setMessageBody(content);
+        result.setBody(content);
         assertEquals(FetchGroup.FLAGS | FetchGroup.BODY_CONTENT, result.getIncludedResults().content());
         assertTrue(MessageResultUtils.isFlagsIncluded(result));
         assertTrue(MessageResultUtils.isBodyContentIncluded(result));
-        result.setFullMessage(content);
+        result.setFullContent(content);
         assertEquals(FetchGroup.FLAGS | 
                 FetchGroup.BODY_CONTENT | FetchGroup.FULL_CONTENT, result.getIncludedResults().content());
         assertTrue(MessageResultUtils.isFlagsIncluded(result));

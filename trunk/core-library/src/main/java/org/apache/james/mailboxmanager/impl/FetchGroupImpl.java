@@ -74,7 +74,7 @@ public class FetchGroupImpl implements MessageResult.FetchGroup {
         return mimeHeaders;
     }
 
-    public int[] mimeParts() {
+    public int[] mimeBodies() {
         return mimeParts;
     }
     
