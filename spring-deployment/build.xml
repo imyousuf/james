@@ -352,7 +352,13 @@ java -cp ${exe-classpath};../conf org.apache.james.container.spring.Main
             <fileset dir="${spring-deployment.target.dir}" ><include name="NOTICE.txt" /></fileset>
             <fileset dir="${spring-deployment.target.dir}" ><include name="LICENSE.txt" /></fileset>
             <lib dir="${spring-deployment.target.lib.dir}" />
-            <zipfileset dir="${basedir}/src/main/config/james/" prefix="WEB-INF"/>
+            <zipfileset dir="${basedir}/src/main/config/james/" prefix="WEB-INF/lib" >
+                <include name="log4j.properties" />
+                <include name="james-config.xml" />
+            </zipfileset> 
+            <zipfileset dir="${basedir}/src/main/config/james/" prefix="WEB-INF" >
+                <exclude name="log4j.properties" />
+            </zipfileset> 
         </war>
     </target>
 
