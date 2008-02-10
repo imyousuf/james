@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.nio.channels.WritableByteChannel;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.Set;
 
 import javax.mail.Flags;
 import javax.mail.MessagingException;
@@ -101,6 +102,46 @@ public interface MessageResult extends Comparable {
          * @see #BODY_CONTENT
          */
         public int content();
+        
+        /**
+         * Gets contents to be fetched for contained parts.
+         * For each part to be contained, 
+         * only one descriptor should be contained.
+         * @return <code>Set</code> of {@link PartContentDescriptor},
+         * or null if there is no part content to be fetched
+         */
+        public Set getPartContentDescriptors();
+        
+        /**
+         * Describes the contents to be fetched for a mail part.
+         * All implementations MUST implement equals.
+         * Two implementations are equal if and only if
+         * their paths are equal.
+         */
+        public interface PartContentDescriptor {
+            /**
+             * Contents to be fetched.
+             * Composed bitwise.
+             * 
+             * @return bitwise descripion
+             * @see #MINIMAL
+             * @see #MIME_MESSAGE
+             * @see #KEY
+             * @see #SIZE
+             * @see #INTERNAL_DATE
+             * @see #FLAGS
+             * @see #HEADERS
+             * @see #FULL_CONTENT
+             * @see #BODY_CONTENT
+             */
+            public int content();
+            
+            /**
+             * Path describing the part to be fetched.
+             * @return path describing the part, not null
+             */
+            public MimePath path();
+        }
     }
     
     /**
@@ -252,6 +293,9 @@ public interface MessageResult extends Comparable {
     
     /**
      * Describes a path within a multipart MIME message.
+     * All implementations must implement equals.
+     * Two paths are equal if and only if
+     * each position is identical.
      */
     public interface MimePath {
         
