@@ -19,7 +19,12 @@
 
 package org.apache.james.mailboxmanager.impl;
 
+import java.util.Iterator;
+import java.util.Set;
+
 import org.apache.james.mailboxmanager.MessageResult;
+import org.apache.james.mailboxmanager.MessageResult.FetchGroup;
+import org.apache.james.mailboxmanager.MessageResult.MimePath;
 
 /**
  * Specifies a fetch group.
@@ -47,8 +52,7 @@ public class FetchGroupImpl implements MessageResult.FetchGroup {
     
     
     private int content = MessageResult.FetchGroup.MINIMAL;
-    private int[] mimeParts = null;
-    private int[] mimeHeaders = null;
+    private Set partContentDescriptors;
     
     public FetchGroupImpl() {
         super();
@@ -59,34 +63,51 @@ public class FetchGroupImpl implements MessageResult.FetchGroup {
         this.content = content;
     }
     
-    public FetchGroupImpl(int content, int[] mimeParts, int[] mimeHeaders) {
+    public FetchGroupImpl(int content, Set partContentDescriptors) {
         super();
         this.content = content;
-        this.mimeParts = mimeParts;
-        this.mimeHeaders = mimeHeaders;
+        this.partContentDescriptors = partContentDescriptors;
     }
 
     public int content() {
         return content;
     }
     
-    public int[] mimeHeaders() {
-        return mimeHeaders;
-    }
-
-    public int[] mimeBodies() {
-        return mimeParts;
-    }
-    
-    public void setMimeParts(int[] mimeParts) {
-        this.mimeParts = mimeParts;
-    }
-    
-    public void setMimeHeaders(int[] mimeHeaders) {
-        this.mimeHeaders = mimeHeaders;
+    public void or(int content) {
+        this.content = this.content | content;
     }
     
     public String toString() {
         return "Fetch " + content;
+    }
+
+    /**
+     * Gets content descriptors for the parts to be fetched.
+     * @return <code>Set</code> of {@link FetchGroup.PartContentDescriptor}, possibly null
+     */
+    public Set getPartContentDescriptors() {
+        return partContentDescriptors;
+    }
+
+    /**
+     * Adds content for the particular part.
+     * @param path <code>MimePath</code>, not null
+     * @param content bitwise content constant
+     */
+    public void addPartContent(MimePath path, int content) {
+        PartContentDescriptorImpl currentDescriptor = null;
+        for (Iterator it=partContentDescriptors.iterator();it.hasNext();) {
+            PartContentDescriptorImpl descriptor = (PartContentDescriptorImpl) it.next();
+            if (path.equals(descriptor.path())) {
+                currentDescriptor = descriptor;
+                break;
+            }
+        }
+        if (currentDescriptor == null) {
+            currentDescriptor = new PartContentDescriptorImpl(path);
+            partContentDescriptors.add(currentDescriptor);
+        }
+        
+        currentDescriptor.or(content);
     }
 }

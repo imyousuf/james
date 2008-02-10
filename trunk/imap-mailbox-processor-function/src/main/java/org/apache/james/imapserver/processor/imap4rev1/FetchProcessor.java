@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
@@ -60,6 +61,7 @@ import org.apache.james.mailboxmanager.MessageResultUtils;
 import org.apache.james.mailboxmanager.UnsupportedCriteriaException;
 import org.apache.james.mailboxmanager.MessageResult.Content;
 import org.apache.james.mailboxmanager.MessageResult.FetchGroup;
+import org.apache.james.mailboxmanager.MessageResult.MimePath;
 import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
@@ -132,53 +134,58 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
     }
 
     private FetchGroup getFetchGroup(FetchData fetch) throws ProtocolException {
-        int result = FetchGroup.MINIMAL;
+        FetchGroupImpl result = new FetchGroupImpl();
         if (fetch.isFlags() || fetch.isSetSeen()) {
-            result |= FetchGroup.FLAGS;
+            result.or(FetchGroup.FLAGS);
         }
         if (fetch.isInternalDate()) {
-            result |= FetchGroup.INTERNAL_DATE;
+            result.or(FetchGroup.INTERNAL_DATE);
         }
         if (fetch.isSize()) {
-            result |= FetchGroup.SIZE;
+            result.or(FetchGroup.SIZE);
         }
         if (fetch.isEnvelope()) {
-            result |= FetchGroup.HEADERS;
+            result.or(FetchGroup.HEADERS);
         }
         if (fetch.isBody() || fetch.isBodyStructure()) {
             // TODO: structure
-            result |= FetchGroup.MIME_MESSAGE;
+            result.or(FetchGroup.MIME_MESSAGE);
         }
 
-        result |= fetchForBodyElements(fetch.getBodyElements());
-
-        return new FetchGroupImpl(result);
-    }
-
-    private int fetchForBodyElements(final Collection bodyElements) throws ProtocolException {
-        int result = 0;
+        Collection bodyElements = fetch.getBodyElements();
         if (bodyElements != null) {
             for (final Iterator it = bodyElements.iterator(); it.hasNext();) {
                 final BodyFetchElement element = (BodyFetchElement) it.next();
                 final int sectionType = element.getSectionType();
+                final int[] path = element.getPath();
+                final boolean isBase = (path == null || path.length == 0);
                 switch(sectionType) {
                     case BodyFetchElement.CONTENT:
-                        result = result | MessageResult.FetchGroup.FULL_CONTENT;
+                        addContent(result, path, isBase, MessageResult.FetchGroup.FULL_CONTENT);
                         break;
                     case BodyFetchElement.HEADER:
                     case BodyFetchElement.HEADER_NOT_FIELDS:
                     case BodyFetchElement.HEADER_FIELDS:
                     case BodyFetchElement.MIME:
-                        result = result | MessageResult.FetchGroup.HEADERS;
+                        addContent(result, path, isBase, MessageResult.FetchGroup.HEADERS);
                         break;
                     case BodyFetchElement.TEXT:
-                        result = result | MessageResult.FetchGroup.BODY_CONTENT;
+                        addContent(result, path, isBase, MessageResult.FetchGroup.BODY_CONTENT);
                         break;
                 }
                 
             }
         }
         return result;
+    }
+
+    private void addContent(FetchGroupImpl result, final int[] path, final boolean isBase, final int content) {
+        if (isBase) {                            
+            result.or(content);
+        } else {
+            MimePath mimePath = new MimePathImpl(path);
+            result.addPartContent(mimePath, content);
+        }
     }
 
     private static final class FetchResponseBuilder {
@@ -577,7 +584,40 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
         public int[] getPositions() {
             return positions;
         }
+
+        public int hashCode() {
+            final int PRIME = 31;
+            int result = 1;
+            result = PRIME * result + Arrays.hashCode(positions);
+            return result;
+        }
+
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            final MimePathImpl other = (MimePathImpl) obj;
+            if (!Arrays.equals(positions, other.positions))
+                return false;
+            return true;
+        }
         
+        public String toString() {
+            final StringBuffer buffer = new StringBuffer("MIMEPath:");
+            boolean isFirst = false;
+            for (int i = 0; i < positions.length; i++) {
+                if (isFirst) {
+                    isFirst = false;
+                } else {
+                    buffer.append('.');
+                }
+                buffer.append(positions[i]);
+            }
+            return buffer.toString();
+        }
     }
     
     private static final class EnvelopeImpl implements FetchResponse.Envelope {
