@@ -19,12 +19,18 @@
 
 package org.apache.james.mailboxmanager.torque;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 /**
  * Utility methods for messages.
  * 
  */
 public class MessageUtils {
     
+    private static final int BYTE_STREAM_CAPACITY = 8182;
+    private static final int BYTE_BUFFER_SIZE = 4096;
     public static final byte CR = 0x0D;
     public static final byte LF = 0x0A;
     
@@ -92,5 +98,17 @@ public class MessageUtils {
         if (last == '\r') {
             buffer.append('\n');
         }
+    }
+
+    public static byte[] toByteArray(InputStream is) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream(BYTE_STREAM_CAPACITY);
+        byte[] buf = new byte[BYTE_BUFFER_SIZE];
+        int read;
+        while ((read = is.read(buf)) > 0) {
+            baos.write(buf, 0, read);
+        }
+    
+        final byte[] bytes = baos.toByteArray();
+        return bytes;
     }
 }
