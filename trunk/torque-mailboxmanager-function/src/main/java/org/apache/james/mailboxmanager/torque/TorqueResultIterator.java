@@ -83,7 +83,7 @@ public class TorqueResultIterator implements Iterator {
         try {
         
             result = MessageRowUtils.loadMessageResult(messageRow, 
-                    this.fetchGroup.content(), uidToKeyConverter);
+                    this.fetchGroup, uidToKeyConverter);
         } catch (TorqueException e) {
             result = new UnloadedMessageResult(messageRow, new MailboxManagerException(e));
         } catch (MailboxManagerException e) {

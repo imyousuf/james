@@ -20,8 +20,10 @@
 package org.apache.james.mailboxmanager.impl;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.mail.Flags;
 import javax.mail.internet.MimeMessage;
@@ -47,6 +49,7 @@ public class MessageResultImpl implements MessageResult {
     private Content body;
     private Content fullContent;
     private int includedResults = FetchGroup.MINIMAL;
+    private Map partsByPath = new HashMap();
     
     public MessageResultImpl(long uid) {
         setUid(uid);
@@ -89,7 +92,8 @@ public class MessageResultImpl implements MessageResult {
     }
 
     public MessageResult.FetchGroup getIncludedResults() {
-        return new FetchGroupImpl(includedResults);
+        final FetchGroupImpl fetchGroup = new FetchGroupImpl(includedResults);
+        return fetchGroup;
     }
 
     public MimeMessage getMimeMessage() {
@@ -244,5 +248,65 @@ public class MessageResultImpl implements MessageResult {
         throw new MailboxManagerException("Unsupported operation");
     }
     
+    public void setBodyContent(MimePath path, Content content) {
+        final PartContent partContent = getPartContent(path);
+        partContent.setBody(content);
+    }
     
+    public void setFullContent(MimePath path, Content content) {
+        final PartContent partContent = getPartContent(path);
+        partContent.setFull(content);  
+    }
+    
+    public void setHeaders(MimePath path, Iterator headers) {
+        final PartContent partContent = getPartContent(path);
+        partContent.setHeaders(headers);    
+    }
+    
+    private PartContent getPartContent(MimePath path) {
+        PartContent result = (PartContent) partsByPath.get(path);
+        if (result == null) {
+            result = new PartContent();
+            partsByPath.put(path, result);
+        }
+        return result;
+    }
+    
+    private static final class PartContent {
+        private Content body;
+        private Content full;
+        private Iterator headers;
+        private int content;
+        
+        public final int getContent() {
+            return content;
+        }
+
+        public final Content getBody() {
+            return body;
+        }
+        
+        public final void setBody(Content body) {
+            content = content | FetchGroup.BODY_CONTENT;
+            this.body = body;
+        }
+        
+        public final Content getFull() {
+            return full;
+        }
+        
+        public final void setFull(Content full) {
+            content = content | FetchGroup.FULL_CONTENT;
+            this.full = full;
+        }
+        
+        public final Iterator getHeaders() {
+            return headers;
+        }
+        
+        public final void setHeaders(Iterator headers) { 
+            content = content | FetchGroup.HEADERS;
+            this.headers = headers;
+        }
+    }
 }

@@ -20,8 +20,6 @@
 package org.apache.james.mailboxmanager.torque;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,169 +29,27 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.mail.Flags;
-import javax.mail.MessagingException;
 
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.MessageResult.Content;
 import org.apache.james.mailboxmanager.MessageResult.FetchGroup;
+import org.apache.james.mailboxmanager.MessageResult.MimePath;
 import org.apache.james.mailboxmanager.impl.MessageFlags;
 import org.apache.james.mailboxmanager.impl.MessageResultImpl;
 import org.apache.james.mailboxmanager.torque.om.MessageBody;
 import org.apache.james.mailboxmanager.torque.om.MessageHeader;
 import org.apache.james.mailboxmanager.torque.om.MessageRow;
 import org.apache.james.mailboxmanager.util.UidToKeyConverter;
+import org.apache.james.mime4j.MimeException;
 import org.apache.torque.TorqueException;
 
 public class MessageRowUtils {
 
     public static final byte[] BYTES_NEW_LINE = {0x0D, 0x0A};
     public static final byte[] BYTES_HEADER_FIELD_VALUE_SEP = {0x3A, 0x20};
-    private static final Charset US_ASCII = Charset.forName("US-ASCII");
+    static final Charset US_ASCII = Charset.forName("US-ASCII");
     
-    private static final class Header implements MessageResult.Header, MessageResult.Content {
-            private final String name;
-            private final String value;
-            private final long size;
-            
-            public Header(final MessageHeader header) {
-                this.name = header.getField();
-                this.value = header.getValue();
-                size = name.length() + value.length() + 2;
-            }
-            
-            public Content getContent() throws MessagingException {
-                return this;
-            }
-    
-            public String getName() throws MailboxManagerException {
-                return name;
-            }
-    
-            public String getValue() throws MailboxManagerException {
-                return value;
-            }
-    
-            public long size() {
-                return size;
-            }
-    
-            public void writeTo(StringBuffer buffer) {
-    // TODO: sort out encoding
-                for (int i=0; i<name.length();i++) {
-                    buffer.append((char)(byte) name.charAt(i));
-                }
-                buffer.append(':');
-                buffer.append(' ');
-                for (int i=0; i<value.length();i++) {
-                    buffer.append((char)(byte) value.charAt(i));
-                }
-            }
-
-            public void writeTo(WritableByteChannel channel) throws IOException {
-                writeAll(channel, US_ASCII.encode(name));
-                ByteBuffer buffer = ByteBuffer.wrap(BYTES_HEADER_FIELD_VALUE_SEP);
-                writeAll(channel, buffer);
-                writeAll(channel, US_ASCII.encode(value));
-            }
-            
-            private void writeAll(WritableByteChannel channel, ByteBuffer buffer) throws IOException {
-                while (channel.write(buffer) > 0) {
-                    // write more
-                }
-            }
-        }
-
-    private final static class ByteContent implements MessageResult.Content {
-    
-        private final byte[] contents;
-        private final long size;
-        public ByteContent(final byte[] contents) {
-            this.contents = contents;
-            size = contents.length + MessageUtils.countUnnormalLines(contents);
-        }
-        
-        public long size() {
-            return size;
-        }
-        
-        public void writeTo(StringBuffer buffer) {
-            MessageUtils.normalisedWriteTo(contents, buffer);
-        }
-
-        public void writeTo(WritableByteChannel channel) throws IOException {
-            ByteBuffer buffer = ByteBuffer.wrap(contents);
-            while (channel.write(buffer) > 0) {
-                // write more
-            }
-        }
-    }
-
-    private final static class FullContent implements MessageResult.Content {
-        private final byte[] contents;
-        private final List headers;
-        private final long size;
-        
-        public FullContent(final byte[] contents, final List headers) throws MailboxManagerException {
-            this.contents =  contents;
-            this.headers = headers;
-            this.size = caculateSize();
-        }
-    
-        private long caculateSize() {
-            long result = contents.length + MessageUtils.countUnnormalLines(contents);
-            result += 2;
-            for (final Iterator it=headers.iterator(); it.hasNext();) {
-                final MessageResult.Header header = (MessageResult.Header) it.next();
-                if (header != null) {
-                    result += header.size();
-                    result += 2;
-                }
-            }
-            return result;
-        }
-    
-        public void writeTo(StringBuffer buffer) {
-            for (final Iterator it=headers.iterator(); it.hasNext();) {
-                final MessageResult.Header header = (MessageResult.Header) it.next();
-                if (header != null) {
-                    header.writeTo(buffer);
-                }
-                buffer.append('\r');
-                buffer.append('\n');
-            }
-            buffer.append('\r');
-            buffer.append('\n');
-            MessageUtils.normalisedWriteTo(contents, buffer);
-        }
-    
-        public long size() {
-            return size;
-        }
-
-        public void writeTo(WritableByteChannel channel) throws IOException {
-            ByteBuffer newLine = ByteBuffer.wrap(BYTES_NEW_LINE);
-            for (final Iterator it=headers.iterator(); it.hasNext();) {
-                final MessageResult.Header header = (MessageResult.Header) it.next();
-                if (header != null) {
-                    header.writeTo(channel);
-                }
-                newLine.rewind();
-                writeAll(channel, newLine);
-            }
-            newLine.rewind();
-            writeAll(channel, newLine);
-            final ByteBuffer wrap = ByteBuffer.wrap(contents);
-            writeAll(channel, wrap);
-        }
-
-        private void writeAll(WritableByteChannel channel, ByteBuffer buffer) throws IOException {
-            while (channel.write(buffer) > 0) {
-                // write more
-            }
-        }
-    }
-
     /**
      * Converts {@link MessageRow} to {@link MessageFlags}.
      * @param messageRows <code>Collectio</code> of {@link MessageRow},
@@ -226,7 +82,7 @@ public class MessageRowUtils {
         final List results = new ArrayList(headers.size());
         for (Iterator it=headers.iterator();it.hasNext();) {
             final MessageHeader messageHeader = (MessageHeader) it.next();
-            final MessageRowUtils.Header header = new MessageRowUtils.Header(messageHeader);
+            final Header header = new Header(messageHeader);
             results.add(header);
         }
         return results;
@@ -235,7 +91,7 @@ public class MessageRowUtils {
     public static Content createBodyContent(MessageRow messageRow) throws TorqueException {
         final MessageBody body = (MessageBody) messageRow.getMessageBodys().get(0);
         final byte[] bytes = body.getBody();
-        final MessageRowUtils.ByteContent result = new MessageRowUtils.ByteContent(bytes);
+        final ByteContent result = new ByteContent(bytes);
         return result;
     }
 
@@ -245,58 +101,161 @@ public class MessageRowUtils {
         }
         final MessageBody body = (MessageBody) messageRow.getMessageBodys().get(0);
         final byte[] bytes = body.getBody();
-        final MessageRowUtils.FullContent results = new MessageRowUtils.FullContent(bytes, headers);
+        final FullContent results = new FullContent(bytes, headers);
         return results;
     }
 
-    public static MessageResult loadMessageResult(MessageRow messageRow, int result, UidToKeyConverter uidToKeyConverter)
+    public static MessageResult loadMessageResult(final MessageRow messageRow, final FetchGroup fetchGroup, 
+            final UidToKeyConverter uidToKeyConverter)
             throws TorqueException, MailboxManagerException {
         MessageResultImpl messageResult = new MessageResultImpl();
         messageResult.setUid(messageRow.getUid());
         
-        if ((result & FetchGroup.MIME_MESSAGE) > 0) {
+        int content = fetchGroup.content();
+        if ((content & FetchGroup.MIME_MESSAGE) > 0) {
             messageResult.setMimeMessage(TorqueMimeMessage.createMessage(messageRow));
-            result -= FetchGroup.MIME_MESSAGE;
+            content -= FetchGroup.MIME_MESSAGE;
         }
-        if ((result & FetchGroup.FLAGS) > 0) {
+        if ((content & FetchGroup.FLAGS) > 0) {
             org.apache.james.mailboxmanager.torque.om.MessageFlags messageFlags
                 = messageRow.getMessageFlags();
             if (messageFlags!=null) {
                 messageResult.setFlags(messageFlags.getFlagsObject());  
             }
-            result -= FetchGroup.FLAGS;
+            content -= FetchGroup.FLAGS;
         }
-        if ((result & FetchGroup.SIZE) > 0) {
+        if ((content & FetchGroup.SIZE) > 0) {
             messageResult.setSize(messageRow.getSize());
-            result -= FetchGroup.SIZE;
+            content -= FetchGroup.SIZE;
         }
-        if ((result & FetchGroup.INTERNAL_DATE) > 0) {
+        if ((content & FetchGroup.INTERNAL_DATE) > 0) {
             messageResult.setInternalDate(messageRow.getInternalDate());
-            result -= FetchGroup.INTERNAL_DATE;
+            content -= FetchGroup.INTERNAL_DATE;
         }
-        if ((result & FetchGroup.KEY) > 0) {
+        if ((content & FetchGroup.KEY) > 0) {
             messageResult.setKey(uidToKeyConverter.toKey(messageRow.getUid()));
-            result -= FetchGroup.KEY;
+            content -= FetchGroup.KEY;
         }
-        if ((result & FetchGroup.HEADERS) > 0) {
-            messageResult.setHeaders(createHeaders(messageRow));
-            result -= FetchGroup.HEADERS;
+        if ((content & FetchGroup.HEADERS) > 0) {
+            addHeaders(messageRow, messageResult);
+            content -= FetchGroup.HEADERS;
         }
-        if ((result & FetchGroup.BODY_CONTENT) > 0) {
-            messageResult.setBody(createBodyContent(messageRow));
-            result -= FetchGroup.BODY_CONTENT;
+        if ((content & FetchGroup.BODY_CONTENT) > 0) {
+            addBody(messageRow, messageResult);
+            content -= FetchGroup.BODY_CONTENT;
         }
-        if ((result & FetchGroup.FULL_CONTENT) > 0) {
-            messageResult.setFullContent(createFullContent(messageRow, messageResult.getHeaders()));
-            result -= FetchGroup.FULL_CONTENT;
+        if ((content & FetchGroup.FULL_CONTENT) > 0) {
+            addFullContent(messageRow, messageResult);
+            content -= FetchGroup.FULL_CONTENT;
         }
-        if (result != 0) {
-            throw new RuntimeException("Unsupported result: " + result);
+        if (content != 0) {
+            throw new TorqueException("Unsupported result: " + content);
         }
-        
+        try {
+            addPartContent(fetchGroup, messageRow, messageResult);
+        } catch (IOException e) {
+            throw new TorqueException("Cannot parse message", e);
+        } catch (MimeException e) {
+            throw new TorqueException("Cannot parse message", e);
+        }
         return messageResult;
     }
+
+    private static void addFullContent(final MessageRow messageRow, MessageResultImpl messageResult) throws TorqueException, MailboxManagerException {
+        final List headers = messageResult.getHeaders();
+        final Content content = createFullContent(messageRow, headers);
+        messageResult.setFullContent(content);
+    }
+
+    private static void addBody(final MessageRow messageRow, MessageResultImpl messageResult) throws TorqueException {
+        final Content content = createBodyContent(messageRow);
+        messageResult.setBody(content);
+    }
+
+    private static void addHeaders(final MessageRow messageRow, MessageResultImpl messageResult) throws TorqueException {
+        final List headers = createHeaders(messageRow);
+        messageResult.setHeaders(headers);
+    }
+
+    private static void addPartContent(final FetchGroup fetchGroup, MessageRow row, 
+            MessageResultImpl messageResult) throws TorqueException, MailboxManagerException, IOException, MimeException {
+        Collection partContent = fetchGroup.getPartContentDescriptors();
+        if (partContent != null) {
+            for (Iterator it = partContent.iterator(); it.hasNext();) {
+                FetchGroup.PartContentDescriptor descriptor = (FetchGroup.PartContentDescriptor) it.next();
+                addPartContent(descriptor, row, messageResult);
+            }
+        }
+    }
     
+    private static void addPartContent(FetchGroup.PartContentDescriptor descriptor, MessageRow row,
+                                       MessageResultImpl messageResult) throws TorqueException, MailboxManagerException, IOException, MimeException {
+        final MimePath mimePath = descriptor.path();
+        final int content = descriptor.content();
+        if ((content & MessageResult.FetchGroup.FULL_CONTENT) > 0) {
+            addFullContent(row, messageResult, mimePath);
+        }
+        if ((content & MessageResult.FetchGroup.BODY_CONTENT) > 0) {
+            addBodyContent(row, messageResult, mimePath);
+        }
+        if ((content & MessageResult.FetchGroup.HEADERS) > 0) {
+            addHeaders(row, messageResult, mimePath);
+        }
+    }
+    
+    private static PartContentBuilder build(int[] path) throws IOException, MimeException {
+        PartContentBuilder result = new PartContentBuilder();
+        for (int i = 0; i < path.length; i++) {
+            final int next = path[i];
+            result.to(next);
+        }
+        return result;
+    }
+    
+    private static final int[] path(MimePath mimePath) {
+        final int[] result;
+        if (mimePath == null) {
+            result = null;
+        } else {
+            result = mimePath.getPositions();
+        }
+        return result;
+    }
+    
+    private static void addHeaders(MessageRow row, MessageResultImpl messageResult, MimePath mimePath) throws TorqueException, IOException, MimeException {
+        final int[] path = path(mimePath);
+        if (path == null) {
+            addHeaders(row, messageResult);
+        } else {
+            final PartContentBuilder builder = build(path);
+            final List headers = builder.getHeaders();
+            messageResult.setHeaders(mimePath, headers.iterator());
+        }
+    }
+
+    private static void addBodyContent(MessageRow row, MessageResultImpl messageResult, MimePath mimePath) throws TorqueException, IOException, MimeException {
+        final int[] path = path(mimePath);
+        if (path == null) {
+            addBody(row, messageResult);
+        } else {
+            final PartContentBuilder builder = build(path);
+            final Content content = builder.getBodyContent();
+            messageResult.setBodyContent(mimePath, content);
+        }
+    }
+
+    private static void addFullContent(MessageRow row, MessageResultImpl messageResult, MimePath mimePath) 
+            throws TorqueException, MailboxManagerException, IOException, MimeException {
+        final int[] path = path(mimePath);
+        if (path == null) {
+            addFullContent(row, messageResult);
+        } else {
+            final PartContentBuilder builder = build(path);
+            final Content content = builder.getFullContent();
+            messageResult.setFullContent(mimePath, content);
+        }
+    }
+
     /**
      * Gets a comparator that evaluates {@link MessageRow}'s
      * on the basis of their UIDs.

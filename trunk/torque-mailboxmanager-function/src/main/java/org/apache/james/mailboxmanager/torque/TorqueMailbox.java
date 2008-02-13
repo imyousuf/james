@@ -175,14 +175,7 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
 
         InputStream is = message.getInputStream();
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        byte[] buf = new byte[4096];
-        int read;
-        while ((read = is.read(buf)) > 0) {
-            baos.write(buf, 0, read);
-        }
-
-        final byte[] bytes = baos.toByteArray();
+        final byte[] bytes = MessageUtils.toByteArray(is);
         mb.setBody(bytes);
         return mb;
     }
@@ -316,7 +309,7 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
 
     public MessageResult fillMessageResult(MessageRow messageRow, FetchGroup result)
             throws TorqueException, MessagingException, MailboxManagerException {
-        return MessageRowUtils.loadMessageResult(messageRow, result.content(), getUidToKeyConverter());
+        return MessageRowUtils.loadMessageResult(messageRow, result, getUidToKeyConverter());
     }
     
     public synchronized Flags getPermanentFlags() {
