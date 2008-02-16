@@ -161,7 +161,11 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
                 final boolean isBase = (path == null || path.length == 0);
                 switch(sectionType) {
                     case BodyFetchElement.CONTENT:
-                        addContent(result, path, isBase, MessageResult.FetchGroup.FULL_CONTENT);
+                        if (isBase) {
+                            addContent(result, path, isBase, MessageResult.FetchGroup.FULL_CONTENT);
+                        } else {
+                            addContent(result, path, isBase, MessageResult.FetchGroup.BODY_CONTENT);
+                        }
                         break;
                     case BodyFetchElement.HEADER:
                     case BodyFetchElement.HEADER_NOT_FIELDS:
@@ -566,7 +570,7 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
                 full = messageResult.getFullContent();
             } else {
                 MessageResult.MimePath mimePath = new MimePathImpl(path);
-                full = messageResult.getFullContent(mimePath);
+                full = messageResult.getBody(mimePath);
             }
             result = new ContentBodyElement(name, full);
             return result;

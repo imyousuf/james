@@ -42,20 +42,25 @@ public class PartContentBuilder {
     }
     
     public void to(int position) throws IOException, MimeException {
-        for (int count=0;count<position;) {
-            final int state = parser.next();
-            switch (state) {
-                case MimeTokenStream.T_START_BODYPART:
-                    count++;
-                    break;
-                case MimeTokenStream.T_START_MULTIPART:
-                    if (count>0 && count<position) {
-                        ignoreInnerMessage();
-                    }
-                    break;
-                case MimeTokenStream.T_END_OF_STREAM:
-                    throw new PartNotFoundException(position);
+        try {
+            for (int count=0;count<position;) {
+                final int state = parser.next();
+                switch (state) {
+                    case MimeTokenStream.T_START_BODYPART:
+                        count++;
+                        break;
+                    case MimeTokenStream.T_START_MULTIPART:
+                        if (count>0 && count<position) {
+                            ignoreInnerMessage();
+                        }
+                        break;
+                    case MimeTokenStream.T_END_OF_STREAM:
+                        throw new PartNotFoundException(position);
+                }
             }
+        }
+        catch (IllegalStateException e) {
+            throw new MimeException("Cannot find part " + position, e);
         }
     }
     

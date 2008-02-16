@@ -293,8 +293,8 @@ public class ProtocolSession
             String testLine = readLine(session);
             if ( ! match( expectedLine, testLine ) ) {
                 String errMsg = "\nLocation: " + location +
-                        "\nExpected: " + expectedLine +
-                        "\nActual   : " + testLine;
+                        "\nExpected: '" + expectedLine +
+                        "'\nActual   : '" + testLine + "'";
                 if (continueAfterFailure) {
                     System.out.println(errMsg);
                 } else {

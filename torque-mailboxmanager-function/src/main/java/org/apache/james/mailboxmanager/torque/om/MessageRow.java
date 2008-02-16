@@ -58,4 +58,9 @@ public  class MessageRow
         collMessageFlagss.add(messageFlags);
     }
 
+    public byte[] getBodyContent() throws TorqueException {
+        final MessageBody body = (MessageBody)getMessageBodys().get(0);
+        final byte[] result = body.getBody();
+        return result;
+    }
 }
