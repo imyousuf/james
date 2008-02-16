@@ -442,7 +442,7 @@ public class ScriptBuilder {
 
         private void escape(char next) {
             if (next == '\\' || next == '*' || next=='.' || next == '[' || next == ']' || next == '+'
-                || next == '(' || next == ')') {
+                || next == '(' || next == ')' || next == '{' || next == '}' || next == '?') {
                 System.out.print('\\');
             }
         }
@@ -462,6 +462,9 @@ public class ScriptBuilder {
                 phrase = StringUtils.replace(phrase, "+", "\\+");
                 phrase = StringUtils.replace(phrase, "(", "\\(");
                 phrase = StringUtils.replace(phrase, ")", "\\)");
+                phrase = StringUtils.replace(phrase, "}", "\\}");
+                phrase = StringUtils.replace(phrase, "{", "\\{");
+                phrase = StringUtils.replace(phrase, "?", "\\?");
             }
             System.out.print(phrase);
         }
