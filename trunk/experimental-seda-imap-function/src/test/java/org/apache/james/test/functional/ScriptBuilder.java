@@ -43,6 +43,7 @@ public class ScriptBuilder {
     
     private int tagCount = 0;
     
+    private boolean peek = false;
     private int messageNumber = 1;
     private String user = "imapuser";
     private String password = "password";
@@ -58,6 +59,14 @@ public class ScriptBuilder {
         this.client = client;
     }
     
+    public final boolean isPeek() {
+        return peek;
+    }
+
+    public final void setPeek(boolean peek) {
+        this.peek = peek;
+    }
+
     public final String getBasedir() {
         return basedir;
     }
@@ -76,7 +85,7 @@ public class ScriptBuilder {
     
     private InputStream openFile() throws Exception {
         InputStream result = this.getClass().getResourceAsStream( basedir + file );
-        return result;
+        return new IgnoreHeaderInputStream(result);
     }
     
     public final int getMessageNumber() {
@@ -138,7 +147,14 @@ public class ScriptBuilder {
     }
     
     public void fetchSection(String section) throws Exception {
-        command("FETCH " + messageNumber + " (BODY[" + section + "])");
+        final String body;
+        if (peek) {
+            body = " (BODY.PEEK[";
+        } else {
+            body = " (BODY[";
+        }
+        final String command = "FETCH " + messageNumber + body + section + "])";
+        command(command);
     }
     
     public void append() throws Exception {
@@ -148,7 +164,7 @@ public class ScriptBuilder {
         lineEnd();
         response();
     }
-    
+
     private void write(InputStream in) throws Exception {
         client.write(in);
     }
@@ -315,9 +331,7 @@ public class ScriptBuilder {
         }
         
         private void readLine() throws Exception {
-            print('S');
-            print(':');
-            print(' ');
+            out.server();
             
             final byte next = next();
             isLineTagged = next != '*';
@@ -414,7 +428,17 @@ public class ScriptBuilder {
         }
         
         public void print(char next) {
+            if (!isClient) {
+                escape(next);
+            }
             System.out.print(next);
+        }
+
+        private void escape(char next) {
+            if (next == '\\' || next == '*' || next=='.' || next == '[' || next == ']' || next == '+'
+                || next == '(' || next == ')') {
+                System.out.print('\\');
+            }
         }
 
         public void server() {
@@ -423,11 +447,68 @@ public class ScriptBuilder {
         }
         
         public void print(String phrase) {
+            if (!isClient) {
+                phrase = StringUtils.replace(phrase, "\\", "\\\\");
+                phrase = StringUtils.replace(phrase, "*", "\\*");
+                phrase = StringUtils.replace(phrase, ".", "\\.");
+                phrase = StringUtils.replace(phrase, "[", "\\[");
+                phrase = StringUtils.replace(phrase, "]", "\\]");
+                phrase = StringUtils.replace(phrase, "+", "\\+");
+                phrase = StringUtils.replace(phrase, "(", "\\(");
+                phrase = StringUtils.replace(phrase, ")", "\\)");
+            }
             System.out.print(phrase);
         }
         
         public void lineEnd() {
             System.out.println();
+        }
+    }
+    
+    private static final class IgnoreHeaderInputStream extends InputStream {
+
+        private boolean isFinishedHeaders = false;
+        private final InputStream delegate;
+        
+        public IgnoreHeaderInputStream(final InputStream delegate) {
+            super();
+            this.delegate = delegate;
+        }
+
+        public int read() throws IOException {
+            final int result;
+            final int next = delegate.read();
+            if (isFinishedHeaders) {
+                result = next;
+            } else {
+                switch (next) {
+                    case -1:
+                        isFinishedHeaders = true;
+                        result = next;
+                        break;
+                    case '#':
+                        readLine();
+                        result = read();
+                        break;
+                        
+                    case '\r':
+                    case '\n':
+                        result = read();
+                        break;
+                        
+                    default:
+                        isFinishedHeaders = true;
+                        result = next;
+                        break;
+                }
+            }
+            return result;
+        }
+        private void readLine() throws IOException {
+            int next = delegate.read();
+            while (next != -1 && next !='\r' && next !='\n') {
+                next = delegate.read();
+            }
         }
     }
 }
