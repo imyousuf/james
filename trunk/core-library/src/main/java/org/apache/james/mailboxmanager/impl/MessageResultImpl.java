@@ -237,15 +237,36 @@ public class MessageResultImpl implements MessageResult {
     }
 
     public Content getBody(MimePath path) throws MailboxManagerException {
-        throw new MailboxManagerException("Unsupported operation");
+        final Content result;
+        final PartContent partContent = getPartContent(path);
+        if (partContent == null) {
+            result = null;
+        } else {
+            result = partContent.getBody();
+        } 
+        return result;  
     }
 
     public Content getFullContent(MimePath path) throws MailboxManagerException {
-        throw new MailboxManagerException("Unsupported operation");
+        final Content result;
+        final PartContent partContent = getPartContent(path);
+        if (partContent == null) {
+            result = null;
+        } else {
+            result = partContent.getFull();
+        } 
+        return result;  
     }
 
     public Iterator iterateHeaders(MimePath path) throws MailboxManagerException {
-        throw new MailboxManagerException("Unsupported operation");
+        final Iterator result;
+        final PartContent partContent = getPartContent(path);
+        if (partContent == null) {
+            result = null;
+        } else {
+            result = partContent.getHeaders();
+        } 
+        return result;  
     }
     
     public void setBodyContent(MimePath path, Content content) {

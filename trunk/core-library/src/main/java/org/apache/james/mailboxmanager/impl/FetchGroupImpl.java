@@ -19,6 +19,7 @@
 
 package org.apache.james.mailboxmanager.impl;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -95,6 +96,9 @@ public class FetchGroupImpl implements MessageResult.FetchGroup {
      * @param content bitwise content constant
      */
     public void addPartContent(MimePath path, int content) {
+        if (partContentDescriptors == null) {
+            partContentDescriptors = new HashSet();
+        }
         PartContentDescriptorImpl currentDescriptor = null;
         for (Iterator it=partContentDescriptors.iterator();it.hasNext();) {
             PartContentDescriptorImpl descriptor = (PartContentDescriptorImpl) it.next();

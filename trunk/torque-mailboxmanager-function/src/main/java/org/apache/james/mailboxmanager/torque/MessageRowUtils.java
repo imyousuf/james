@@ -20,6 +20,8 @@
 package org.apache.james.mailboxmanager.torque;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -70,14 +72,7 @@ public class MessageRowUtils {
     }
 
     public static List createHeaders(MessageRow messageRow) throws TorqueException {
-        final List headers=messageRow.getMessageHeaders();
-        Collections.sort(headers, new Comparator() {
-    
-            public int compare(Object one, Object two) {
-                return ((MessageHeader) one).getLineNumber() - ((MessageHeader)two).getLineNumber();
-            }
-            
-        });
+        final List headers = getSortedHeaders(messageRow);
         
         final List results = new ArrayList(headers.size());
         for (Iterator it=headers.iterator();it.hasNext();) {
@@ -86,6 +81,18 @@ public class MessageRowUtils {
             results.add(header);
         }
         return results;
+    }
+
+    private static List getSortedHeaders(MessageRow messageRow) throws TorqueException {
+        final List headers=messageRow.getMessageHeaders();
+        Collections.sort(headers, new Comparator() {
+    
+            public int compare(Object one, Object two) {
+                return ((MessageHeader) one).getLineNumber() - ((MessageHeader)two).getLineNumber();
+            }
+            
+        });
+        return headers;
     }
 
     public static Content createBodyContent(MessageRow messageRow) throws TorqueException {
@@ -203,13 +210,54 @@ public class MessageRowUtils {
         }
     }
     
-    private static PartContentBuilder build(int[] path) throws IOException, MimeException {
+    private static PartContentBuilder build(int[] path, final MessageRow row) throws IOException, MimeException, TorqueException {
+        final List headers = getSortedHeaders(row);
+        final StringBuffer headersToString = new StringBuffer(headers.size()*50);
+        for (Iterator it = headers.iterator(); it.hasNext();) {
+            MessageHeader header = (MessageHeader) it.next();
+            headersToString.append(header.getField());
+            headersToString.append(": ");
+            headersToString.append(header.getValue());
+            headersToString.append("\r\n");
+        }
+        headersToString.append("\r\n");
+        
+        byte[] bodyContent = row.getBodyContent();
+        final MessageInputStream stream = new MessageInputStream(headersToString, bodyContent);
         PartContentBuilder result = new PartContentBuilder();
+        result.parse(stream);
         for (int i = 0; i < path.length; i++) {
             final int next = path[i];
             result.to(next);
         }
         return result;
+    }
+    
+    private static final class MessageInputStream extends InputStream {
+        private final StringBuffer headers;
+        private final ByteBuffer bodyContent;
+        
+        private String header;
+        private int headerPosition = 0;
+        
+        public MessageInputStream(final StringBuffer headers, final byte[] bodyContent) {
+            super();
+            this.headers = headers;
+            this.bodyContent = ByteBuffer.wrap(bodyContent);
+        }
+
+        public int read() throws IOException {
+            final int result;
+            if (headerPosition < headers.length()) {
+                result = headers.charAt(headerPosition++);
+            } else if (bodyContent.hasRemaining() ){
+                result = bodyContent.get();
+            } else {
+                result = -1;
+            }
+            return result;
+        }
+        
     }
     
     private static final int[] path(MimePath mimePath) {
@@ -227,7 +275,7 @@ public class MessageRowUtils {
         if (path == null) {
             addHeaders(row, messageResult);
         } else {
-            final PartContentBuilder builder = build(path);
+            final PartContentBuilder builder = build(path, row);
             final List headers = builder.getHeaders();
             messageResult.setHeaders(mimePath, headers.iterator());
         }
@@ -238,7 +286,7 @@ public class MessageRowUtils {
         if (path == null) {
             addBody(row, messageResult);
         } else {
-            final PartContentBuilder builder = build(path);
+            final PartContentBuilder builder = build(path, row);
             final Content content = builder.getBodyContent();
             messageResult.setBodyContent(mimePath, content);
         }
@@ -250,7 +298,7 @@ public class MessageRowUtils {
         if (path == null) {
             addFullContent(row, messageResult);
         } else {
-            final PartContentBuilder builder = build(path);
+            final PartContentBuilder builder = build(path, row);
             final Content content = builder.getFullContent();
             messageResult.setFullContent(mimePath, content);
         }
