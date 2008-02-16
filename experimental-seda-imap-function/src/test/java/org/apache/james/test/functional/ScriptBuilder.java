@@ -157,6 +157,12 @@ public class ScriptBuilder {
         command(command);
     }
     
+
+    public void fetchFlags() throws Exception {
+        final String command = "FETCH " + messageNumber + " (FLAGS)";
+        command(command);
+    }
+    
     public void append() throws Exception {
         tag();
         write("APPEND " + mailbox);
@@ -191,7 +197,7 @@ public class ScriptBuilder {
     }
     
     public void logout() throws Exception {
-        
+        command("LOGOUT");
     }
     
     public void quit() throws Exception {
