@@ -23,9 +23,21 @@ public class CreateScript {
 
     public static final void main(String[] args) throws Exception {
         ScriptBuilder builder = ScriptBuilder.open("localhost", 143);
-        multipartMixedMessagesPeek(builder);
+        recent(builder);
     }
     
+    
+    public static void recent(ScriptBuilder builder) throws Exception {
+        builder.login();
+        builder.create();
+        builder.select();
+        builder.append();
+        builder.select();
+        builder.fetchFlags();
+        builder.fetchSection("");
+        builder.fetchFlags();
+        builder.quit();
+    }
 
     public static void multipartMixedMessagesPeek(ScriptBuilder builder) throws Exception {
         builder.setPeek(true);
