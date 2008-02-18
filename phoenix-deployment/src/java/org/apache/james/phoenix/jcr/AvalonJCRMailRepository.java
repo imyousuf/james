@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.james.jcr;
+package org.apache.james.phoenix.jcr;
 
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
@@ -27,6 +27,7 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.jackrabbit.api.JackrabbitNodeTypeManager;
 import org.apache.jackrabbit.rmi.client.ClientRepositoryFactory;
 import org.apache.jackrabbit.rmi.jackrabbit.JackrabbitClientAdapterFactory;
+import org.apache.james.jcr.JCRMailRepository;
 
 /**
  * Managed Avalon wrapper for the {@link JCRMailRepository} class.
