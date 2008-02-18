@@ -34,5 +34,8 @@
     <dependency>
       <service name="org.apache.james.services.UsersRepository" version="1.0"/>
     </dependency> 
+    <dependency>
+      <service name="org.apache.james.api.user.UserMetaDataRespository" version="1.0"/>
+    </dependency> 
   </dependencies>
 </blockinfo>

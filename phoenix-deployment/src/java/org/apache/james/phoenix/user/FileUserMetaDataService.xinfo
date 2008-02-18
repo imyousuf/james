@@ -27,7 +27,7 @@
   <!-- services that are offered by this block -->
   <services>
     <service name='org.apache.james.api.user.UserMetaDataRespository' version="1.0"/>
-  </service>
+  </services>
 
   <dependencies/>  
 </blockinfo>

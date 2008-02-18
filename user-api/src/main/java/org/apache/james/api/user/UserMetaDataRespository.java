@@ -34,7 +34,7 @@ import java.io.Serializable;
  */
 public interface UserMetaDataRespository {
     
-    public static final String ROLE = "org.apache.james.api.user";
+    public static final String ROLE = "org.apache.james.api.user.UserMetaDataRespository";
     
     /**
      * Gets the attribute for the given key.
