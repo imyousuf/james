@@ -19,9 +19,9 @@
 
 package org.apache.james.mailboxmanager.util;
 
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.mail.Flags;
 
@@ -39,8 +39,8 @@ public class MailboxEventAnalyser implements MailboxListener {
     public MailboxEventAnalyser(final long sessionId) {
         super();
         this.sessionId = sessionId;
-        flagUpdateUids = new HashSet();
-        expungedUids = new HashSet();
+        flagUpdateUids = new TreeSet();
+        expungedUids = new TreeSet();
         uninterestingFlag = Flags.Flag.RECENT;
     }
 
