@@ -34,4 +34,8 @@ public final class ExpungeResponse implements ImapResponseMessage {
     public final int getMessageSequenceNumber() {
         return messageSequenceNumber;
     }
+    
+    public String toString() {
+        return "EXPUNGE " + messageSequenceNumber;
+    }
 }
