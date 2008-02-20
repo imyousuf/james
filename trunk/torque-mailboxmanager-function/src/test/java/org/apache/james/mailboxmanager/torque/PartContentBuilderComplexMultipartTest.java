@@ -143,7 +143,7 @@ public class PartContentBuilderComplexMultipartTest extends TestCase {
     private String bodyContent(int[] position) throws Exception {
         to(position);
         StringBuffer buffer = new StringBuffer();
-        builder.getBodyContent().writeTo(buffer);
+        builder.getMimeBodyContent().writeTo(buffer);
         return buffer.toString();
     }
     
@@ -157,7 +157,7 @@ public class PartContentBuilderComplexMultipartTest extends TestCase {
     
     private List headers(int[] position) throws Exception {
         to(position);
-        return builder.getHeaders();
+        return builder.getMimeHeaders();
     }
     
     private void to(int[] path) throws Exception {
