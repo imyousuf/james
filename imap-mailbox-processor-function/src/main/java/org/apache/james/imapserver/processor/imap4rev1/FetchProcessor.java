@@ -164,14 +164,16 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
                         if (isBase) {
                             addContent(result, path, isBase, MessageResult.FetchGroup.FULL_CONTENT);
                         } else {
-                            addContent(result, path, isBase, MessageResult.FetchGroup.BODY_CONTENT);
+                            addContent(result, path, isBase, MessageResult.FetchGroup.MIME_CONTENT);
                         }
                         break;
                     case BodyFetchElement.HEADER:
                     case BodyFetchElement.HEADER_NOT_FIELDS:
                     case BodyFetchElement.HEADER_FIELDS:
-                    case BodyFetchElement.MIME:
                         addContent(result, path, isBase, MessageResult.FetchGroup.HEADERS);
+                        break;
+                    case BodyFetchElement.MIME:
+                        addContent(result, path, isBase, MessageResult.FetchGroup.MIME_HEADERS);
                         break;
                     case BodyFetchElement.TEXT:
                         addContent(result, path, isBase, MessageResult.FetchGroup.BODY_CONTENT);
@@ -494,6 +496,8 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
                     break;
                     
                 case BodyFetchElement.MIME:
+                    result = mimeHeaders(messageResult, name, path, isBase);
+                    break;
                 case BodyFetchElement.HEADER:
                     result = headers(messageResult, name, path, isBase);
                     break;
@@ -524,6 +528,14 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
             return result;
         }
 
+        private FetchResponse.BodyElement mimeHeaders(final MessageResult messageResult, String name, final int[] path, final boolean isBase) throws MailboxManagerException, MessagingException {
+            final FetchResponse.BodyElement result;
+            final Iterator headers = getMimeHeaders(messageResult, path, isBase);
+            List lines = MessageResultUtils.getAll(headers);
+            result = new HeaderBodyElement(name, lines);
+            return result;
+        }
+        
         private FetchResponse.BodyElement headers(final MessageResult messageResult, String name, final int[] path, final boolean isBase) throws MailboxManagerException, MessagingException {
             final FetchResponse.BodyElement result;
             final Iterator headers = getHeaders(messageResult, path, isBase);
@@ -562,6 +574,12 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
             }
             return headers;
         }
+        
+        private Iterator getMimeHeaders(final MessageResult messageResult, final int[] path, final boolean isBase) throws MailboxManagerException {
+            MessageResult.MimePath mimePath = new MimePathImpl(path);
+            final Iterator headers = messageResult.iterateMimeHeaders(mimePath);
+            return headers;
+        }
 
         private FetchResponse.BodyElement content(final MessageResult messageResult, String name, final int[] path, final boolean isBase) throws MailboxManagerException {
             final FetchResponse.BodyElement result;
@@ -570,7 +588,7 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
                 full = messageResult.getFullContent();
             } else {
                 MessageResult.MimePath mimePath = new MimePathImpl(path);
-                full = messageResult.getBody(mimePath);
+                full = messageResult.getMimeBody(mimePath);
             }
             result = new ContentBodyElement(name, full);
             return result;

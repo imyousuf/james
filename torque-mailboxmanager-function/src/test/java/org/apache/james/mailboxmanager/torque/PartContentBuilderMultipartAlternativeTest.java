@@ -114,7 +114,7 @@ public class PartContentBuilderMultipartAlternativeTest extends TestCase {
         builder.parse(in);
         builder.to(position);
         StringBuffer buffer = new StringBuffer();
-        builder.getBodyContent().writeTo(buffer);
+        builder.getMimeBodyContent().writeTo(buffer);
         return buffer.toString();
     }
     
@@ -130,6 +130,6 @@ public class PartContentBuilderMultipartAlternativeTest extends TestCase {
         InputStream in = new ByteArrayInputStream(Charset.forName("us-ascii").encode(mail).array());
         builder.parse(in);
         builder.to(position);
-        return builder.getHeaders();
+        return builder.getMimeHeaders();
     }
 }

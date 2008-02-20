@@ -85,7 +85,9 @@ public interface MessageResult extends Comparable {
         public static final int HEADERS = 0x100;
         public static final int FULL_CONTENT = 0x200;
         public static final int BODY_CONTENT = 0x400;
-
+        public static final int MIME_HEADERS = 0x800;
+        public static final int MIME_CONTENT = 0x1000;
+        
         /**
          * Contents to be fetched.
          * Composed bitwise.
@@ -100,6 +102,7 @@ public interface MessageResult extends Comparable {
          * @see #HEADERS
          * @see #FULL_CONTENT
          * @see #BODY_CONTENT
+         * @see #MIME_CONTENT
          */
         public int content();
         
@@ -193,7 +196,7 @@ public interface MessageResult extends Comparable {
     Iterator iterateHeaders() throws MailboxManagerException;
     
     /**
-     * Iterates the MIME headers for the given
+     * Iterates the message headers for the given
      * part in a multipart message.
      * @param path describing the part's position within
      * a multipart message
@@ -203,6 +206,18 @@ public interface MessageResult extends Comparable {
      * @throws MailboxManagerException
      */
     Iterator iterateHeaders(MimePath path) throws MailboxManagerException;
+    
+    /**
+     * Iterates the MIME headers for the given
+     * part in a multipart message.
+     * @param path describing the part's position within
+     * a multipart message
+     * @return  <code>Header</code> <code>Iterator</code>, 
+     * or null when {@link FetchGroup#mimeHeaders()} does not
+     * include the index and when the mime part cannot be found
+     * @throws MailboxManagerException
+     */
+    Iterator iterateMimeHeaders(MimePath path) throws MailboxManagerException;
     
     /**
      * A header.
@@ -262,6 +277,17 @@ public interface MessageResult extends Comparable {
      * @throws MailboxManagerException
      */
     Content getBody(MimePath path) throws MailboxManagerException;
+    
+
+    /**
+     * Gets the body of the given mime part.
+     * @param path describes the part
+     * @return <code>Content</code>,
+     * or null when {@link FetchGroup#mimeBodies()} did not been include 
+     * the given index and when the mime part cannot be found
+     * @throws MailboxManagerException
+     */
+    Content getMimeBody(MimePath path) throws MailboxManagerException;
 
     /**
      * IMAP needs to know the size of the content before it starts to write it out.

@@ -167,7 +167,7 @@ public class TorqueResultIterator implements Iterator {
             return (int) diff == 0 ? 0 : diff > 0 ? 1 : -1;
         }
 
-        public Content getBody(MimePath path) throws MailboxManagerException {
+        public Content getMessageBody(MimePath path) throws MailboxManagerException {
             throw exception;
         }
 
@@ -176,6 +176,18 @@ public class TorqueResultIterator implements Iterator {
         }
 
         public Iterator iterateHeaders(MimePath path) throws MailboxManagerException {
+            throw exception;
+        }
+
+        public Iterator iterateMimeHeaders(MimePath path) throws MailboxManagerException {
+            throw exception;
+        }
+
+        public Content getBody(MimePath path) throws MailboxManagerException {
+            throw exception;
+        }
+
+        public Content getMimeBody(MimePath path) throws MailboxManagerException {
             throw exception;
         }
         

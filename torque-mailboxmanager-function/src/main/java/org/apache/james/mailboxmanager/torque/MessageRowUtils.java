@@ -205,8 +205,14 @@ public class MessageRowUtils {
         if ((content & MessageResult.FetchGroup.BODY_CONTENT) > 0) {
             addBodyContent(row, messageResult, mimePath);
         }
+        if ((content & MessageResult.FetchGroup.MIME_CONTENT) > 0) {
+            addMimeBodyContent(row, messageResult, mimePath);
+        }
         if ((content & MessageResult.FetchGroup.HEADERS) > 0) {
             addHeaders(row, messageResult, mimePath);
+        }
+        if ((content & MessageResult.FetchGroup.MIME_HEADERS) > 0) {
+            addMimeHeaders(row, messageResult, mimePath);
         }
     }
     
@@ -237,7 +243,6 @@ public class MessageRowUtils {
         private final StringBuffer headers;
         private final ByteBuffer bodyContent;
         
-        private String header;
         private int headerPosition = 0;
         
         public MessageInputStream(final StringBuffer headers, final byte[] bodyContent) {
@@ -276,8 +281,19 @@ public class MessageRowUtils {
             addHeaders(row, messageResult);
         } else {
             final PartContentBuilder builder = build(path, row);
-            final List headers = builder.getHeaders();
+            final List headers = builder.getMessageHeaders();
             messageResult.setHeaders(mimePath, headers.iterator());
+        }
+    }
+    
+    private static void addMimeHeaders(MessageRow row, MessageResultImpl messageResult, MimePath mimePath) throws TorqueException, IOException, MimeException {
+        final int[] path = path(mimePath);
+        if (path == null) {
+            addHeaders(row, messageResult);
+        } else {
+            final PartContentBuilder builder = build(path, row);
+            final List headers = builder.getMimeHeaders();
+            messageResult.setMimeHeaders(mimePath, headers.iterator());
         }
     }
 
@@ -287,9 +303,16 @@ public class MessageRowUtils {
             addBody(row, messageResult);
         } else {
             final PartContentBuilder builder = build(path, row);
-            final Content content = builder.getBodyContent();
+            final Content content = builder.getMessageBodyContent();
             messageResult.setBodyContent(mimePath, content);
         }
+    }
+    
+    private static void addMimeBodyContent(MessageRow row, MessageResultImpl messageResult, MimePath mimePath) throws TorqueException, IOException, MimeException {
+        final int[] path = path(mimePath);
+        final PartContentBuilder builder = build(path, row);
+        final Content content = builder.getMimeBodyContent();
+        messageResult.setMimeBodyContent(mimePath, content);
     }
 
     private static void addFullContent(MessageRow row, MessageResultImpl messageResult, MimePath mimePath) 

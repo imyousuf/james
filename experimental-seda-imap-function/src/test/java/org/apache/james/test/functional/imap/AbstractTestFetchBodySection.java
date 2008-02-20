@@ -51,7 +51,15 @@ public abstract class AbstractTestFetchBodySection extends BaseTestSelectedState
         scriptTest("FetchMultipartMixed", Locale.KOREA);
     }
     
-//    public void testFetchMultipartMixedComplexUS() throws Exception {
-//        scriptTest("FetchMultipartMixedComplex", Locale.US);
-//    }
+    public void testFetchMultipartMixedComplexUS() throws Exception {
+        scriptTest("FetchMultipartMixedComplex", Locale.US);
+    }
+    
+    public void testFetchMultipartMixedComplexITALY() throws Exception {
+        scriptTest("FetchMultipartMixedComplex", Locale.ITALY);
+    }
+    
+    public void testFetchMultipartMixedComplexKOREA() throws Exception {
+        scriptTest("FetchMultipartMixedComplex", Locale.KOREA);
+    }
 }
