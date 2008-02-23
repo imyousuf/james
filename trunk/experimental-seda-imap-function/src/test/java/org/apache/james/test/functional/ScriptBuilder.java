@@ -52,6 +52,7 @@ public class ScriptBuilder {
     private String basedir = "/org/apache/james/test/functional/";
     private boolean createdMailbox = false;
     private final Client client;
+    private Fetch fetch = new Fetch();
     
     
     public ScriptBuilder(final Client client) {
@@ -86,6 +87,18 @@ public class ScriptBuilder {
     private InputStream openFile() throws Exception {
         InputStream result = this.getClass().getResourceAsStream( basedir + file );
         return new IgnoreHeaderInputStream(result);
+    }
+    
+    public final Fetch getFetch() {
+        return fetch;
+    }
+
+    public final void setFetch(Fetch fetch) {
+        this.fetch = fetch;
+    }
+    
+    public final void resetFetch() {
+        this.fetch = new Fetch();
     }
     
     public final int getMessageNumber() {
@@ -157,7 +170,16 @@ public class ScriptBuilder {
         command(command);
     }
     
-
+    public void fetchAllMessages() throws Exception {
+        final String command = fetch.command();
+        command(command);
+    }
+    
+    public void fetch() throws Exception {
+        final String command = fetch.command(messageNumber);
+        command(command);
+    }
+    
     public void fetchFlags() throws Exception {
         final String command = "FETCH " + messageNumber + " (FLAGS)";
         command(command);
@@ -204,6 +226,118 @@ public class ScriptBuilder {
         delete();
         logout();
         close();
+    }
+    
+    public static final class Fetch {
+        
+        public static final String[] COMPREHENSIVE_HEADERS = {"DATE", "FROM", "TO", "CC", "SUBJECT", 
+            "REFERENCES", "IN-REPLY-TO", "MESSAGE-ID", "MIME-VERSION", "CONTENT-TYPE", 
+            "X-MAILING-LIST", "X-LOOP", "LIST-ID", "LIST-POST", "MAILING-LIST", "ORIGINATOR", "X-LIST", 
+            "SENDER", "RETURN-PATH", "X-BEENTHERE"};
+        
+        private boolean flagsFetch = false;
+        private boolean rfc822Size = false;
+        private boolean internalDate = false;
+        private String bodyPeek = null;
+        
+        public String command(int messageNumber) {
+            return "FETCH " + messageNumber + "(" + fetchData() + ")";
+        }
+        
+        public String command() {
+            return "FETCH 1:* (" + fetchData() + ")";
+        }
+        
+        public final boolean isFlagsFetch() {
+            return flagsFetch;
+        }
+
+        public final void setFlagsFetch(boolean flagsFetch) {
+            this.flagsFetch = flagsFetch;
+        }
+        
+        public final boolean isRfc822Size() {
+            return rfc822Size;
+        }
+
+        public final void setRfc822Size(boolean rfc822Size) {
+            this.rfc822Size = rfc822Size;
+        }
+        
+        public final boolean isInternalDate() {
+            return internalDate;
+        }
+
+        public final void setInternalDate(boolean internalDate) {
+            this.internalDate = internalDate;
+        }
+        
+        public final String getBodyPeek() {
+            return bodyPeek;
+        }
+
+        public final void setBodyPeek(String bodyPeek) {
+            this.bodyPeek = bodyPeek;
+        }
+
+        public void bodyPeekCompleteMessage() {
+            setBodyPeek(buildBody(true, ""));
+        }
+        
+        public void bodyPeekHeaders(String[] fields) {
+            setBodyPeek(buildBody(true, buildHeaderFields(fields)));
+        }
+        
+        public String buildBody(boolean peek, String section) {
+            String result;
+            if (peek) {
+                result  = "BODY.PEEK[";
+            } else {
+                result = "BODY[";
+            }
+            result = result + section + "]";
+            return result;
+        }
+        
+        public String buildHeaderFields(String[] fields) {
+            String result = "HEADER.FIELDS (";
+            for (int i = 0; i < fields.length; i++) {
+                if (i>0) {
+                    result = result + " ";
+                }
+                result = result + fields[i];
+            }
+            result = result + ")";
+            return result;
+        }
+        
+        public String fetchData() {
+            final StringBuffer buffer = new StringBuffer();
+            boolean first = true;
+            if (flagsFetch) {
+                first = add(buffer, first, "FLAGS");
+            }
+            if (rfc822Size) {
+                first = add(buffer, first, "RFC822.SIZE");
+            }
+            if (internalDate) {
+                first = add(buffer, first, "INTERNALDATE");
+            }
+            add(buffer, first, bodyPeek);
+            return buffer.toString();
+        }
+
+        private boolean add(final StringBuffer buffer, boolean first, String atom) {
+            if (atom != null) {
+                if (first) {
+                    first = false;
+                } else {
+                    buffer.append(" ");
+                }
+                buffer.append(atom);
+            }
+            return first;
+        }
     }
     
     public static final class Client {

@@ -23,9 +23,39 @@ public class CreateScript {
 
     public static final void main(String[] args) throws Exception {
         ScriptBuilder builder = ScriptBuilder.open("localhost", 143);
-        recent(builder);
+        simpleCombinedFetches(builder);
     }
     
+    public static void simpleCombinedFetches(ScriptBuilder builder) throws Exception {
+        builder.login();
+        builder.create();
+        builder.select();
+        builder.append();
+        builder.setFile("wild-example.mail");
+        builder.append();
+        builder.setFile("multipart-alt.mail");
+        builder.append();
+        builder.setFile("multipart-mixed.mail");
+        builder.append();
+        builder.setFile("multipart-mixed-complex.mail");
+        builder.append();
+        builder.setFile("rfc822-hello-world.mail");
+        builder.append();
+        builder.setFile("rfc822-sender.mail");
+        builder.append();
+        builder.setFile("rfc822.mail");
+        builder.append();
+        builder.setFile("rfc822-multiple-addresses.mail");
+        builder.append();
+        builder.select();
+        builder.getFetch().bodyPeekCompleteMessage();
+        builder.fetchAllMessages();
+        builder.resetFetch();
+        builder.getFetch().bodyPeekHeaders(ScriptBuilder.Fetch.COMPREHENSIVE_HEADERS);
+        builder.fetchAllMessages();
+        builder.select();
+        builder.quit();
+    }
     
     public static void recent(ScriptBuilder builder) throws Exception {
         builder.login();
