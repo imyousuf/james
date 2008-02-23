@@ -90,8 +90,12 @@ public class MessageResultUtils {
                 MessageResult.Header header = (MessageResult.Header) iterator.next();
                 final String headerName = header.getName();
                 if (headerName != null) {
-                    if (names.contains(headerName)) {
-                        results.add(header);
+                    for (final Iterator it = names.iterator(); it.hasNext();) {
+                        final String name = (String) it.next();
+                        if (name.equalsIgnoreCase(headerName)) {
+                            results.add(header);
+                            break;
+                        }
                     }
                 }
             }
