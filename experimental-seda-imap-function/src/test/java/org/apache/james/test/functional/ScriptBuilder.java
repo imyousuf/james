@@ -235,6 +235,9 @@ public class ScriptBuilder {
             "X-MAILING-LIST", "X-LOOP", "LIST-ID", "LIST-POST", "MAILING-LIST", "ORIGINATOR", "X-LIST", 
             "SENDER", "RETURN-PATH", "X-BEENTHERE"};
         
+        
+        public static final String[] SELECT_HEADERS = {"DATE", "FROM", "TO", "ORIGINATOR", "X-LIST"};
+        
         private boolean flagsFetch = false;
         private boolean rfc822Size = false;
         private boolean internalDate = false;
@@ -284,8 +287,12 @@ public class ScriptBuilder {
             setBodyPeek(buildBody(true, ""));
         }
         
+        public void bodyPeekNotHeaders(String[] fields) {
+            setBodyPeek(buildBody(true, buildHeaderFields(fields, true)));
+        }
+        
         public void bodyPeekHeaders(String[] fields) {
-            setBodyPeek(buildBody(true, buildHeaderFields(fields)));
+            setBodyPeek(buildBody(true, buildHeaderFields(fields, false)));
         }
         
         public String buildBody(boolean peek, String section) {
@@ -299,8 +306,13 @@ public class ScriptBuilder {
             return result;
         }
         
-        public String buildHeaderFields(String[] fields) {
-            String result = "HEADER.FIELDS (";
+        public String buildHeaderFields(String[] fields, boolean not) {
+            String result;
+            if (not) {
+                result = "HEADER.FIELDS.NOT (";
+            } else {
+                result = "HEADER.FIELDS (";
+            }
             for (int i = 0; i < fields.length; i++) {
                 if (i>0) {
                     result = result + " ";
