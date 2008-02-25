@@ -84,23 +84,38 @@ public class MessageResultUtils {
      * @throws MessagingException
      */
     public static List getMatching(final Collection names, final Iterator iterator) throws MessagingException {
+        final List result = matching(names, iterator, false);
+        return result;
+    }
+
+    private static List matching(final Collection names, final Iterator iterator, boolean not) throws MailboxManagerException {
         final List results = new ArrayList(names.size());
         if (iterator != null) {
             while(iterator.hasNext()) {
-                MessageResult.Header header = (MessageResult.Header) iterator.next();
-                final String headerName = header.getName();
-                if (headerName != null) {
-                    for (final Iterator it = names.iterator(); it.hasNext();) {
-                        final String name = (String) it.next();
-                        if (name.equalsIgnoreCase(headerName)) {
-                            results.add(header);
-                            break;
-                        }
-                    }
+                final MessageResult.Header header = (MessageResult.Header) iterator.next();
+                final boolean match = contains(names, header);
+                final boolean add = (not && !match) || (!not && match);
+                if (add) {
+                    results.add(header);
                 }
             }
         }
         return results;
+    }
+
+    private static boolean contains(final Collection names, MessageResult.Header header) throws MailboxManagerException {
+        boolean match = false;
+        final String headerName = header.getName();
+        if (headerName != null) {
+            for (final Iterator it = names.iterator(); it.hasNext();) {
+                final String name = (String) it.next();
+                if (name.equalsIgnoreCase(headerName)) {
+                    match = true;
+                    break;
+                }
+            }
+        }
+        return match;
     }
     
     /**
@@ -113,19 +128,8 @@ public class MessageResultUtils {
      * @throws MessagingException
      */
     public static List getNotMatching(final Collection names, final Iterator iterator) throws MessagingException {
-        final List results = new ArrayList(names.size());
-        if (iterator != null) {
-            while(iterator.hasNext()) {
-                MessageResult.Header header = (MessageResult.Header) iterator.next();
-                final String headerName = header.getName();
-                if (headerName != null) {
-                    if (!names.contains(headerName)) {
-                        results.add(header);
-                    }
-                }
-            }
-        }
-        return results;
+        final List result = matching(names, iterator, true);
+        return result;
     }
     
     /**

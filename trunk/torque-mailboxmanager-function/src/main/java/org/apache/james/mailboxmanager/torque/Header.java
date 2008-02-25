@@ -88,4 +88,8 @@ final class Header implements MessageResult.Header, MessageResult.Content {
                 // write more
             }
         }
+        
+        public String toString() {
+            return "[HEADER " + name + ": " + value + "]";
+        }
     }
