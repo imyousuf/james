@@ -27,15 +27,27 @@ public class AbstractTestFetchHeaders extends BaseTestSelectedState {
         super(system);
     }
 
-    public void testFetchMultipartAlternativeUS() throws Exception {
+    public void testFetchHeaderFieldsUS() throws Exception {
         scriptTest("FetchHeaderFields", Locale.US);
     }
     
-    public void testFetchMultipartAlternativeITALY() throws Exception {
+    public void testFetchHeaderFieldsITALY() throws Exception {
         scriptTest("FetchHeaderFields", Locale.ITALY);
     }
     
-    public void testFetchMultipartAlternativeKOREA() throws Exception {
+    public void testFetchHeaderFieldsKOREA() throws Exception {
         scriptTest("FetchHeaderFields", Locale.KOREA);
+    }
+    
+    public void testFetchHeaderFieldsNotUS() throws Exception {
+        scriptTest("FetchHeaderFieldsNot", Locale.US);
+    }
+    
+    public void testFetchHeaderFieldsNotITALY() throws Exception {
+        scriptTest("FetchHeaderFieldsNot", Locale.ITALY);
+    }
+    
+    public void testFetchHeaderFieldsNotKOREA() throws Exception {
+        scriptTest("FetchHeaderFieldsNot", Locale.KOREA);
     }
 }
