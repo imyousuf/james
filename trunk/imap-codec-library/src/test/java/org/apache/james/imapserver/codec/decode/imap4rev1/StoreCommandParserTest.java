@@ -21,7 +21,6 @@ package org.apache.james.imapserver.codec.decode.imap4rev1;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
 
 import javax.mail.Flags;
 

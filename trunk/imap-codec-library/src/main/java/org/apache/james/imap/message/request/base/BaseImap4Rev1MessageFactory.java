@@ -22,7 +22,6 @@ import java.util.Date;
 
 import javax.mail.Flags;
 import javax.mail.internet.MimeMessage;
-import javax.mail.search.SearchTerm;
 
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
@@ -30,6 +29,7 @@ import org.apache.james.api.imap.imap4rev1.Imap4Rev1MessageFactory;
 import org.apache.james.api.imap.message.FetchData;
 import org.apache.james.api.imap.message.IdRange;
 import org.apache.james.api.imap.message.StatusDataItems;
+import org.apache.james.api.imap.message.request.SearchKey;
 import org.apache.james.imap.message.request.imap4rev1.AppendRequest;
 import org.apache.james.imap.message.request.imap4rev1.AuthenticateRequest;
 import org.apache.james.imap.message.request.imap4rev1.CapabilityRequest;
@@ -130,8 +130,8 @@ public class BaseImap4Rev1MessageFactory implements Imap4Rev1MessageFactory {
         return new RenameRequest(command, existingName, newName, tag);
     }
 
-    public ImapMessage createSearchImapMessage(ImapCommand command, SearchTerm searchTerm, boolean useUids, String tag) {
-        return new SearchRequest(command, searchTerm, useUids, tag);
+    public ImapMessage createSearchMessage(ImapCommand command, SearchKey key, boolean useUids, String tag) {
+        return new SearchRequest(command, key, useUids, tag);
     }
 
     public ImapMessage createSelectMessage(ImapCommand command, String mailboxName, String tag) {

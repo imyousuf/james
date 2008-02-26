@@ -29,6 +29,7 @@ import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.api.imap.message.request.ImapRequest;
+import org.apache.james.api.imap.message.request.SearchKey;
 import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
@@ -60,12 +61,12 @@ public class SearchProcessor extends AbstractImapRequestProcessor {
             ImapSession session, String tag, ImapCommand command, Responder responder)
             throws MailboxException, AuthorizationException, ProtocolException {
         final SearchRequest request = (SearchRequest) message;
-        final SearchTerm searchTerm = request.getSearchTerm();
+        final SearchKey searchKey = request.getSearchKey();
         final boolean useUids = request.isUseUids();
-        doProcess(searchTerm, useUids, session, tag, command, responder);
+        doProcess(searchKey, useUids, session, tag, command, responder);
     }
 
-    private void doProcess(final SearchTerm searchTerm,
+    private void doProcess(final SearchKey searchKey,
             final boolean useUids, final ImapSession session, final String tag,
             final ImapCommand command, final Responder responder) throws MailboxException,
             AuthorizationException, ProtocolException {

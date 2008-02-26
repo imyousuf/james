@@ -31,6 +31,7 @@ import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.api.imap.imap4rev1.Imap4Rev1MessageFactory;
 import org.apache.james.api.imap.message.IdRange;
+import org.apache.james.api.imap.message.request.DayMonthYear;
 import org.apache.james.imapserver.codec.decode.DecoderUtils;
 import org.apache.james.imapserver.codec.decode.ImapCommandParser;
 import org.apache.james.imapserver.codec.decode.ImapRequestLineReader;
@@ -185,8 +186,41 @@ public abstract class AbstractImapCommandParser extends AbstractLogEnabled imple
     }
 
     /**
+     * Reads one <code>date</code> argument from the request.
+     * @param request <code>ImapRequestLineReader</code>, not null
+     * @return <code>DayMonthYear</code>, not null
+     * @throws ProtocolException
+     */
+    public DayMonthYear date(ImapRequestLineReader request) throws ProtocolException {
+        
+        final char dayHigh = request.consume();
+        final char dayLow = request.consume();
+        final int day = DecoderUtils.decodeFixedDay(dayHigh, dayLow);
+        
+        nextIsDash(request);
+        final char monthFirstChar = request.consume();
+        final char monthSecondChar = request.consume();
+        final char monthThirdChar = request.consume();
+        final int month = DecoderUtils.decodeMonth(monthFirstChar, monthSecondChar, monthThirdChar) + 1;
+        nextIsDash(request);
+        final char milleniumChar = request.consume();
+        final char centuryChar = request.consume();
+        final char decadeChar = request.consume();
+        final char yearChar = request.consume();
+        final int year = DecoderUtils.decodeYear(milleniumChar, centuryChar, decadeChar, yearChar);
+        final DayMonthYear result = new DayMonthYear(day, month, year);
+        return result;
+    }
+
+    private void nextIsDash(ImapRequestLineReader request) throws ProtocolException {
+        final char next = request.consume();
+        if (next != '-') {
+            throw new ProtocolException("Expected dash but was " + next);
+        }
+    }
+    
+    /**
      * Reads a "date-time" argument from the request.
-     * TODO handle timezones properly
      */
     public Date dateTime( ImapRequestLineReader request ) throws ProtocolException
     {

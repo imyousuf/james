@@ -22,13 +22,13 @@ import java.util.Date;
 
 import javax.mail.Flags;
 import javax.mail.internet.MimeMessage;
-import javax.mail.search.SearchTerm;
 
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.api.imap.message.FetchData;
 import org.apache.james.api.imap.message.IdRange;
 import org.apache.james.api.imap.message.StatusDataItems;
+import org.apache.james.api.imap.message.request.SearchKey;
 
 /**
  * Creates messages.
@@ -79,7 +79,7 @@ public interface Imap4Rev1MessageFactory {
     public ImapMessage createRenameMessage(final ImapCommand command, final String existingName, final String newName, 
             final String tag);
     
-    public ImapMessage createSearchImapMessage(final ImapCommand command, final SearchTerm searchTerm, final boolean useUids,
+    public ImapMessage createSearchMessage(final ImapCommand command, final SearchKey key, final boolean useUids,
             final String tag);
     
     public ImapMessage createSelectMessage(final ImapCommand command, final String mailboxName, final String tag);

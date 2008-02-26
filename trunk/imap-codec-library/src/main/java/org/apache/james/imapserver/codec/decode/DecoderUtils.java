@@ -77,7 +77,7 @@ public final class DecoderUtils {
             }
         }
     }
-
+    
     /**
      * Decodes the given string as a standard IMAP date-time.
      * @param dateString standard IMAP date-time
@@ -397,7 +397,7 @@ public final class DecoderUtils {
     }
 
 
-    private static int decodeFixedDay(final char dayHigh, final char dayLow) throws ProtocolException {
+    public static int decodeFixedDay(final char dayHigh, final char dayLow) throws ProtocolException {
         int result = decodeDigit(dayLow);
         if (dayHigh == '1') {
             result += 10;
