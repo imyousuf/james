@@ -25,7 +25,7 @@ C: a001 COPY 1 mailbox
 S: a001 NO COPY failed. Command not valid in this state.
 C: a001 EXPUNGE
 S: a001 NO EXPUNGE failed. Command not valid in this state.
-C: a001 SEARCH
+C: a001 SEARCH ALL
 S: a001 NO SEARCH failed. Command not valid in this state.
 C: a001 FETCH 1 ALL
 S: a001 NO FETCH failed. Command not valid in this state.

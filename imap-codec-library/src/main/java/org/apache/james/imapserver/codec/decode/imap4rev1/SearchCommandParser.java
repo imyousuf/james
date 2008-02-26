@@ -18,13 +18,12 @@
  ****************************************************************/
 package org.apache.james.imapserver.codec.decode.imap4rev1;
 
-import javax.mail.Message;
-import javax.mail.search.SearchTerm;
-
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.api.imap.imap4rev1.Imap4Rev1CommandFactory;
+import org.apache.james.api.imap.message.request.DayMonthYear;
+import org.apache.james.api.imap.message.request.SearchKey;
 import org.apache.james.imapserver.codec.decode.ImapRequestLineReader;
 import org.apache.james.imapserver.codec.decode.InitialisableCommandFactory;
 
@@ -44,37 +43,151 @@ class SearchCommandParser extends AbstractUidCommandParser implements Initialisa
     
     /**
      * Parses the request argument into a valid search term.
-     * Not yet implemented - all searches will return everything for now.
-     * TODO implement search
      */
-    public SearchTerm searchTerm( ImapRequestLineReader request )
-            throws ProtocolException
-    {
-        // Dummy implementation
-        // Consume to the end of the line.
-        char next = request.nextChar();
-        while ( next != '\n' ) {
-            request.consume();
-            next = request.nextChar();
+    public SearchKey searchKey( ImapRequestLineReader request ) throws ProtocolException {
+        final SearchKey result;
+        final char next = request.nextWordChar();
+        request.consume();
+        switch (next) {
+            case 'a':
+            case 'A':
+                result = a(request);
+                break;
+            case 'b':
+            case 'B':
+                result = b(request);
+                break;
+            default:
+                throw new ProtocolException("Unknown search key");
+        }
+        return result;
+    }
+
+    private SearchKey b(ImapRequestLineReader request) throws ProtocolException {
+        final SearchKey result;
+        final char next = request.consume();
+        switch (next) {
+            case 'c':
+            case 'C':
+                result = bcc(request);
+                break;
+            case 'E':
+            case 'e':
+                nextIsF(request);
+                nextIsO(request);
+                nextIsR(request);
+                nextIsE(request);
+                final DayMonthYear value = date(request);
+                result = SearchKey.buildBefore(value);
+                break;
+            default:
+                throw new ProtocolException("Unknown search key");
         }
 
-        // Return a search term that matches everything.
-        return new SearchTerm()
-        {
-            private static final long serialVersionUID = 5290284637903768771L;
+        return result;
+    }
 
-            public boolean match( Message message )
-            {
-                return true;
-            }
-        };
+    private SearchKey bcc(ImapRequestLineReader request) throws ProtocolException {
+        final SearchKey result;
+        nextIsC(request);
+        final String value = astring(request);
+        result = SearchKey.buildBcc(value);
+        return result;
+    }
+
+    private SearchKey a(ImapRequestLineReader request) throws ProtocolException {
+        final SearchKey result;
+        final char next = request.consume();
+        switch (next) {
+            case 'l':
+            case 'L':
+                nextIsL(request);
+                result = SearchKey.buildAll();
+                break;
+            case 'n':
+            case 'N':
+                nextIsS(request);
+                nextIsW(request);
+                nextIsE(request);
+                nextIsR(request);
+                nextIsE(request);
+                nextIsD(request);
+                result = SearchKey.buildAnswered();
+                break;
+            default:
+                throw new ProtocolException("Unknown search key");
+        }
+        return result;
+    }
+    
+    private void nextIsO( ImapRequestLineReader request ) throws ProtocolException {
+        final char next = request.consume();
+        if (next != 'O' && next != 'o') {
+            throw new ProtocolException("Unknown search key");
+        }
+    }
+    
+    private void nextIsF( ImapRequestLineReader request ) throws ProtocolException {
+        final char next = request.consume();
+        if (next != 'F' && next != 'f') {
+            throw new ProtocolException("Unknown search key");
+        }
+    }
+    
+    private void nextIsC( ImapRequestLineReader request ) throws ProtocolException {
+        final char next = request.consume();
+        if (next != 'C' && next != 'c') {
+            throw new ProtocolException("Unknown search key");
+        }
+    }
+    
+    private void nextIsD( ImapRequestLineReader request ) throws ProtocolException {
+        final char next = request.consume();
+        if (next != 'D' && next != 'd') {
+            throw new ProtocolException("Unknown search key");
+        }
+    }
+    
+    private void nextIsR( ImapRequestLineReader request ) throws ProtocolException {
+        final char next = request.consume();
+        if (next != 'R' && next != 'r') {
+            throw new ProtocolException("Unknown search key");
+        }
+    }
+    
+    private void nextIsE( ImapRequestLineReader request ) throws ProtocolException {
+        final char next = request.consume();
+        if (next != 'E' && next != 'e') {
+            throw new ProtocolException("Unknown search key");
+        }
+    }
+    
+    private void nextIsW( ImapRequestLineReader request ) throws ProtocolException {
+        final char next = request.consume();
+        if (next != 'W' && next != 'w') {
+            throw new ProtocolException("Unknown search key");
+        }
+    }
+    
+    private void nextIsS( ImapRequestLineReader request ) throws ProtocolException {
+        final char next = request.consume();
+        if (next != 'S' && next != 's') {
+            throw new ProtocolException("Unknown search key");
+        }
+    }
+    
+    private void nextIsL( ImapRequestLineReader request ) throws ProtocolException {
+        final char next = request.consume();
+        if (next != 'L' && next != 'l') {
+            throw new ProtocolException("Unknown search key");
+        }
     }
 
     protected ImapMessage decode(ImapCommand command, ImapRequestLineReader request, String tag, boolean useUids) throws ProtocolException {
         // Parse the search term from the request
-        final SearchTerm searchTerm = searchTerm( request );
+        final SearchKey key = searchKey( request );
         endLine( request );
-        final ImapMessage result = getMessageFactory().createSearchImapMessage(command, searchTerm, useUids, tag);
+        final ImapMessage result = getMessageFactory().createSearchMessage(command, key, useUids, tag);
         return result;
     }
 
