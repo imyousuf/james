@@ -18,9 +18,6 @@
  ****************************************************************/
 package org.apache.james.imapserver.codec.decode.imap4rev1;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.api.imap.ProtocolException;
@@ -31,45 +28,7 @@ import org.apache.james.imapserver.codec.decode.ImapRequestLineReader;
 import org.apache.james.imapserver.codec.decode.InitialisableCommandFactory;
 
 class SearchCommandParser extends AbstractUidCommandParser implements InitialisableCommandFactory
-{
-    public static final void main(String[] args) throws Exception {
-        final byte[] mixed = "BEforE 1-Jan-2000".getBytes("US-ASCII");
-        final byte[] allSmalls = "before 1-Jan-2000".getBytes("US-ASCII");
-        final byte[] allCaps = "BEFORE 1-Jan-2000".getBytes("US-ASCII");
-        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        SearchCommandParser parser = new SearchCommandParser();
-        long start  = System.currentTimeMillis();
-        long i = 0;
-        ByteArrayInputStream bais = new ByteArrayInputStream(allCaps);
-        while (i++ < 1000000) {
-                bais.reset();
-                ImapRequestLineReader request = new ImapRequestLineReader(
-                        bais, 
-                        baos);
-                parser.searchKey(request);
-        }
-        i = 0;
-        bais = new ByteArrayInputStream(allSmalls);
-        while (i++ < 1000000) {
-            bais.reset();
-            ImapRequestLineReader request = new ImapRequestLineReader(
-                    bais, 
-                    baos);
-            parser.searchKey(request);
-        }
-        i = 0;
-        bais = new ByteArrayInputStream(mixed);
-        while (i++ < 1000000) {
-            bais.reset();
-            ImapRequestLineReader request = new ImapRequestLineReader(
-                    bais, 
-                    baos);
-            parser.searchKey(request);
-        }
-        long end = System.currentTimeMillis();
-        System.out.println(end - start);
-    }
-    
+{   
     public SearchCommandParser() {
     }
 
@@ -103,6 +62,12 @@ class SearchCommandParser extends AbstractUidCommandParser implements Initialisa
             case 'M': throw new ProtocolException("Unknown search key");
             case 'N': return n(request);
             case 'O': return o(request);
+            case 'P': throw new ProtocolException("Unknown search key");
+            case 'Q': throw new ProtocolException("Unknown search key");
+            case 'R': return recent(request);
+            case 'S': return s(request);
+            case 'T': return t(request);
+            case 'U': return u(request);
             default:
                 throw new ProtocolException("Unknown search key");
         }
@@ -121,6 +86,90 @@ class SearchCommandParser extends AbstractUidCommandParser implements Initialisa
         final String value = astring(request);
         result = SearchKey.buildCc(value);
         return result;
+    }
+
+    private SearchKey u(ImapRequestLineReader request) throws ProtocolException {
+        final int next = consumeAndCap(request);
+        switch (next) {
+            case 'N': return un(request);
+            default:
+                throw new ProtocolException("Unknown search key");
+        }
+    }
+    
+    private SearchKey un(ImapRequestLineReader request) throws ProtocolException {
+        final int next = consumeAndCap(request);
+        switch (next) {
+            case 'A': return unanswered(request);
+            case 'D': return und(request);
+            case 'F': return unflagged(request);
+            case 'K': return unkeyword(request);
+            case 'S': return unseen(request);
+            default:
+                throw new ProtocolException("Unknown search key");
+        }
+    }
+    
+    private SearchKey und(ImapRequestLineReader request) throws ProtocolException {
+        final int next = consumeAndCap(request);
+        switch (next) {
+            case 'E': return undeleted(request);
+            case 'R': return undraft(request);
+            default:
+                throw new ProtocolException("Unknown search key");
+        }
+    }
+    
+    private SearchKey t(ImapRequestLineReader request) throws ProtocolException {
+        final int next = consumeAndCap(request);
+        switch (next) {
+            case 'E': return text(request);
+            case 'O': return to(request);
+            default:
+                throw new ProtocolException("Unknown search key");
+        }
+    }
+    
+    private SearchKey s(ImapRequestLineReader request) throws ProtocolException {
+        final int next = consumeAndCap(request);
+        switch (next) {
+            case 'E': return se(request);
+            case 'I': return since(request);
+            case 'M': return smaller(request);
+            case 'U': return subject(request);
+            default:
+                throw new ProtocolException("Unknown search key");
+        }
+    }
+    
+    private SearchKey se(ImapRequestLineReader request) throws ProtocolException {
+        final int next = consumeAndCap(request);
+        switch (next) {
+            case 'E': return seen(request);
+            case 'N': return sen(request);
+            default:
+                throw new ProtocolException("Unknown search key");
+        }
+    }
+    
+    private SearchKey sen(ImapRequestLineReader request) throws ProtocolException {
+        final int next = consumeAndCap(request);
+        switch (next) {
+            case 'T': return sent(request);
+            default:
+                throw new ProtocolException("Unknown search key");
+        }
+    }
+    
+    private SearchKey sent(ImapRequestLineReader request) throws ProtocolException {
+        final int next = consumeAndCap(request);
+        switch (next) {
+            case 'B': return sentBefore(request);
+            case 'O': return sentOn(request);
+            case 'S': return sentSince(request);
+            default:
+                throw new ProtocolException("Unknown search key");
+        }
     }
     
     private SearchKey o(ImapRequestLineReader request) throws ProtocolException {
@@ -176,6 +225,21 @@ class SearchCommandParser extends AbstractUidCommandParser implements Initialisa
         return result;
     }
     
+    private SearchKey unkeyword(ImapRequestLineReader request) throws ProtocolException {
+        final SearchKey result;
+        nextIsE(request);
+        nextIsY(request);
+        nextIsW(request);
+        nextIsO(request);
+        nextIsR(request);
+        nextIsD(request);
+        nextIsSpace(request);
+        final String value = atom(request);
+        result = SearchKey.buildUnkeyword(value);
+        return result;
+    }
+    
+    
     private SearchKey header(ImapRequestLineReader request) throws ProtocolException {
         final SearchKey result;
         nextIsE(request);
@@ -204,6 +268,19 @@ class SearchCommandParser extends AbstractUidCommandParser implements Initialisa
         return result;
     }
     
+    private SearchKey smaller(ImapRequestLineReader request) throws ProtocolException {
+        final SearchKey result;
+        nextIsA(request);
+        nextIsL(request);
+        nextIsL(request);
+        nextIsE(request);
+        nextIsR(request);
+        nextIsSpace(request);
+        final long value = number(request);
+        result = SearchKey.buildSmaller(value);
+        return result;
+    }
+    
     private SearchKey from(ImapRequestLineReader request) throws ProtocolException {
         final SearchKey result;
         nextIsO(request);
@@ -225,6 +302,60 @@ class SearchCommandParser extends AbstractUidCommandParser implements Initialisa
         return result;
     }
     
+    private SearchKey unseen(ImapRequestLineReader request) throws ProtocolException {
+        final SearchKey result;
+        nextIsE(request);
+        nextIsE(request);
+        nextIsN(request);
+        result = SearchKey.buildUnseen();
+        return result;
+    }
+    
+    private SearchKey undraft(ImapRequestLineReader request) throws ProtocolException {
+        final SearchKey result;
+        nextIsA(request);
+        nextIsF(request);
+        nextIsT(request);
+        result = SearchKey.buildUndraft();
+        return result;
+    }
+    
+    private SearchKey undeleted(ImapRequestLineReader request) throws ProtocolException {
+        final SearchKey result;
+        nextIsL(request);
+        nextIsE(request);
+        nextIsT(request);
+        nextIsE(request);
+        nextIsD(request);
+        result = SearchKey.buildUndeleted();
+        return result;
+    }
+    
+    private SearchKey unflagged(ImapRequestLineReader request) throws ProtocolException {
+        final SearchKey result;
+        nextIsL(request);
+        nextIsA(request);
+        nextIsG(request);
+        nextIsG(request);
+        nextIsE(request);
+        nextIsD(request);
+        result = SearchKey.buildUnflagged();
+        return result;
+    }
+    
+    private SearchKey unanswered(ImapRequestLineReader request) throws ProtocolException {
+        final SearchKey result;
+        nextIsN(request);
+        nextIsS(request);
+        nextIsW(request);
+        nextIsE(request);
+        nextIsR(request);
+        nextIsE(request);
+        nextIsD(request);
+        result = SearchKey.buildUnanswered();
+        return result;
+    }
+    
     private SearchKey old(ImapRequestLineReader request) throws ProtocolException {
         final SearchKey result;
         nextIsD(request);
@@ -236,6 +367,24 @@ class SearchCommandParser extends AbstractUidCommandParser implements Initialisa
         final SearchKey result;
         nextIsW(request);
         result = SearchKey.buildNew();
+        return result;
+    }
+    
+    private SearchKey recent(ImapRequestLineReader request) throws ProtocolException {
+        final SearchKey result;
+        nextIsE(request);
+        nextIsC(request);
+        nextIsE(request);
+        nextIsN(request);
+        nextIsT(request);
+        result = SearchKey.buildRecent();
+        return result;
+    }
+    
+    private SearchKey seen(ImapRequestLineReader request) throws ProtocolException {
+        final SearchKey result;
+        nextIsN(request);
+        result = SearchKey.buildSeen();
         return result;
     }
     
@@ -288,6 +437,51 @@ class SearchCommandParser extends AbstractUidCommandParser implements Initialisa
         return result;
     }
     
+    private SearchKey sentBefore(ImapRequestLineReader request) throws ProtocolException {
+        final SearchKey result;
+        nextIsE(request);
+        nextIsF(request);
+        nextIsO(request);
+        nextIsR(request);
+        nextIsE(request);
+        nextIsSpace(request);
+        final DayMonthYear value = date(request);
+        result = SearchKey.buildSentBefore(value);
+        return result;
+    }
+    
+    private SearchKey sentSince(ImapRequestLineReader request) throws ProtocolException {
+        final SearchKey result;
+        nextIsI(request);
+        nextIsN(request);
+        nextIsC(request);
+        nextIsE(request);
+        nextIsSpace(request);
+        final DayMonthYear value = date(request);
+        result = SearchKey.buildSentSince(value);
+        return result;
+    }
+    
+    private SearchKey since(ImapRequestLineReader request) throws ProtocolException {
+        final SearchKey result;
+        nextIsN(request);
+        nextIsC(request);
+        nextIsE(request);
+        nextIsSpace(request);
+        final DayMonthYear value = date(request);
+        result = SearchKey.buildSince(value);
+        return result;
+    }
+    
+    private SearchKey sentOn(ImapRequestLineReader request) throws ProtocolException {
+        final SearchKey result;
+        nextIsN(request);
+        nextIsSpace(request);
+        final DayMonthYear value = date(request);
+        result = SearchKey.buildSentOn(value);
+        return result;
+    }
+    
     private SearchKey before(ImapRequestLineReader request) throws ProtocolException {
         final SearchKey result;
         nextIsF(request);
@@ -306,6 +500,37 @@ class SearchCommandParser extends AbstractUidCommandParser implements Initialisa
         nextIsSpace(request);
         final String value = astring(request);
         result = SearchKey.buildBcc(value);
+        return result;
+    }
+    
+    private SearchKey text(ImapRequestLineReader request) throws ProtocolException {
+        final SearchKey result;
+        nextIsX(request);
+        nextIsT(request);
+        nextIsSpace(request);
+        final String value = astring(request);
+        result = SearchKey.buildText(value);
+        return result;
+    }
+    
+    private SearchKey to(ImapRequestLineReader request) throws ProtocolException {
+        final SearchKey result;
+        nextIsSpace(request);
+        final String value = astring(request);
+        result = SearchKey.buildTo(value);
+        return result;
+    }
+    
+    private SearchKey subject(ImapRequestLineReader request) throws ProtocolException {
+        final SearchKey result;
+        nextIsB(request);
+        nextIsJ(request);
+        nextIsE(request);
+        nextIsC(request);
+        nextIsT(request);
+        nextIsSpace(request);
+        final String value = astring(request);
+        result = SearchKey.buildSubject(value);
         return result;
     }
 
@@ -346,103 +571,88 @@ class SearchCommandParser extends AbstractUidCommandParser implements Initialisa
     }
     
     private void nextIsG( ImapRequestLineReader request ) throws ProtocolException {
-        final char next = request.consume();
-        if (next != 'G' && next != 'g') {
-            throw new ProtocolException("Unknown search key");
-        }
+        nextIs(request, 'G', 'g');
     }
     
     private void nextIsM( ImapRequestLineReader request ) throws ProtocolException {
-        final char next = request.consume();
-        if (next != 'M' && next != 'm') {
-            throw new ProtocolException("Unknown search key");
-        }
+        nextIs(request, 'M', 'm');
+    }
+    
+    private void nextIsI( ImapRequestLineReader request ) throws ProtocolException {
+        nextIs(request, 'I', 'i');
+    }
+    
+    private void nextIsN( ImapRequestLineReader request ) throws ProtocolException {
+        nextIs(request, 'N', 'n');
     }
     
     private void nextIsA( ImapRequestLineReader request ) throws ProtocolException {
-        final char next = request.consume();
-        if (next != 'A' && next != 'a') {
-            throw new ProtocolException("Unknown search key");
-        }
+        nextIs(request, 'A', 'a');
     }
     
     private void nextIsT( ImapRequestLineReader request ) throws ProtocolException {
-        final char next = request.consume();
-        if (next != 'T' && next != 't') {
-            throw new ProtocolException("Unknown search key");
-        }
+        nextIs(request, 'T', 't');
     }
     
     private void nextIsY( ImapRequestLineReader request ) throws ProtocolException {
-        final char next = request.consume();
-        if (next != 'Y' && next != 'y') {
-            throw new ProtocolException("Unknown search key");
-        }
+        nextIs(request, 'Y','y');
+    }
+    
+    private void nextIsX( ImapRequestLineReader request ) throws ProtocolException {
+        nextIs(request, 'X', 'x');
     }
     
     private void nextIsO( ImapRequestLineReader request ) throws ProtocolException {
-        final char next = request.consume();
-        if (next != 'O' && next != 'o') {
-            throw new ProtocolException("Unknown search key");
-        }
+        nextIs(request, 'O', 'o');
     }
     
     private void nextIsF( ImapRequestLineReader request ) throws ProtocolException {
-        final char next = request.consume();
-        if (next != 'F' && next != 'f') {
-            throw new ProtocolException("Unknown search key");
-        }
+        nextIs(request, 'F', 'f');
+    }
+    
+    private void nextIsJ( ImapRequestLineReader request ) throws ProtocolException {
+        nextIs(request, 'J', 'j');
     }
     
     private void nextIsC( ImapRequestLineReader request ) throws ProtocolException {
-        final char next = request.consume();
-        if (next != 'C' && next != 'c') {
-            throw new ProtocolException("Unknown search key");
-        }
+        nextIs(request, 'C', 'c');
     }
     
     private void nextIsD( ImapRequestLineReader request ) throws ProtocolException {
-        final char next = request.consume();
-        if (next != 'D' && next != 'd') {
-            throw new ProtocolException("Unknown search key");
-        }
+        nextIs(request, 'D', 'd');
+    }
+    
+    private void nextIsB( ImapRequestLineReader request ) throws ProtocolException {
+        nextIs(request, 'B', 'b');
     }
     
     private void nextIsR( ImapRequestLineReader request ) throws ProtocolException {
-        final char next = request.consume();
-        if (next != 'R' && next != 'r') {
-            throw new ProtocolException("Unknown search key");
-        }
+        nextIs(request, 'R', 'r');
     }
     
     private void nextIsE( ImapRequestLineReader request ) throws ProtocolException {
-        final char next = request.consume();
-        if (next != 'E' && next != 'e') {
-            throw new ProtocolException("Unknown search key");
-        }
+        nextIs(request, 'E', 'e');
     }
     
     private void nextIsW( ImapRequestLineReader request ) throws ProtocolException {
-        final char next = request.consume();
-        if (next != 'W' && next != 'w') {
-            throw new ProtocolException("Unknown search key");
-        }
+        nextIs(request, 'W', 'w');
     }
     
     private void nextIsS( ImapRequestLineReader request ) throws ProtocolException {
+        nextIs(request, 'S', 's');
+    }
+    
+    private void nextIsL( ImapRequestLineReader request ) throws ProtocolException {
+        nextIs(request, 'L', 'l');
+    }
+
+    private void nextIs( ImapRequestLineReader request, final char upper, final char lower ) throws ProtocolException {
         final char next = request.consume();
-        if (next != 'S' && next != 's') {
+        if (next != upper && next != lower) {
             throw new ProtocolException("Unknown search key");
         }
     }
     
-    private void nextIsL( ImapRequestLineReader request ) throws ProtocolException {
-        final char next = request.consume();
-        if (next != 'L' && next != 'l') {
-            throw new ProtocolException("Unknown search key");
-        }
-    }
-
     protected ImapMessage decode(ImapCommand command, ImapRequestLineReader request, String tag, boolean useUids) throws ProtocolException {
         // Parse the search term from the request
         request.nextWordChar();
