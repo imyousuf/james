@@ -193,11 +193,16 @@ public abstract class AbstractImapCommandParser extends AbstractLogEnabled imple
      */
     public DayMonthYear date(ImapRequestLineReader request) throws ProtocolException {
         
-        final char dayHigh = request.consume();
-        final char dayLow = request.consume();
-        final int day = DecoderUtils.decodeFixedDay(dayHigh, dayLow);
+        final char one = request.consume();
+        final char two = request.consume();
+        final int day;
+        if (two == '-') {
+            day = DecoderUtils.decodeFixedDay(' ', one);
+        } else {
+            day = DecoderUtils.decodeFixedDay(one, two);
+            nextIsDash(request);
+        }
         
-        nextIsDash(request);
         final char monthFirstChar = request.consume();
         final char monthSecondChar = request.consume();
         final char monthThirdChar = request.consume();

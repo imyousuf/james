@@ -21,22 +21,17 @@ package org.apache.james.imapserver.codec.decode.imap4rev1;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.util.Date;
-
-import javax.mail.Flags;
 
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.api.imap.imap4rev1.Imap4Rev1CommandFactory;
 import org.apache.james.api.imap.imap4rev1.Imap4Rev1MessageFactory;
-import org.apache.james.api.imap.message.IdRange;
-import org.apache.james.api.imap.message.request.SearchKey;
 import org.apache.james.api.imap.message.request.DayMonthYear;
+import org.apache.james.api.imap.message.request.SearchKey;
 import org.apache.james.imapserver.codec.decode.ImapRequestLineReader;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
-import org.jmock.core.Constraint;
 
 public class SearchCommandParserSearchKeyTest extends MockObjectTestCase {
 
@@ -102,6 +97,24 @@ public class SearchCommandParserSearchKeyTest extends MockObjectTestCase {
         checkInvalid("b\r\n", key);
         checkInvalid("bc\r\n", key);
         checkInvalid("bg\r\n", key);
+        checkInvalid("bccc\r\n", key);
+    }
+    
+    public void testShouldParseOn() throws Exception {
+        SearchKey key = SearchKey.buildOn(DATE);
+        checkValid("ON 1-Jan-2000\r\n", key);
+        checkValid("on 1-Jan-2000\r\n", key);
+        checkValid("oN 1-Jan-2000\r\n", key);
+        checkInvalid("o\r\n", key);
+        checkInvalid("om\r\n", key);
+        checkInvalid("oni\r\n", key);
+        checkInvalid("on \r\n", key);
+        checkInvalid("on 1\r\n", key);
+        checkInvalid("on 1-\r\n", key);
+        checkInvalid("on 1-J\r\n", key);
+        checkInvalid("on 1-Ja\r\n", key);
+        checkInvalid("on 1-Jan\r\n", key);
+        checkInvalid("on 1-Jan-\r\n", key);
     }
     
     public void testShouldParseBefore() throws Exception {
@@ -116,6 +129,7 @@ public class SearchCommandParserSearchKeyTest extends MockObjectTestCase {
         checkInvalid("BEfo\r\n", key);
         checkInvalid("BEfor\r\n", key);
         checkInvalid("BEforE\r\n", key);
+        checkInvalid("BEforEi\r\n", key);
         checkInvalid("BEforE \r\n", key);
         checkInvalid("BEforE 1\r\n", key);
         checkInvalid("BEforE 1-\r\n", key);
@@ -124,7 +138,87 @@ public class SearchCommandParserSearchKeyTest extends MockObjectTestCase {
         checkInvalid("BEforE 1-Jan\r\n", key);
         checkInvalid("BEforE 1-Jan-\r\n", key);
     }
+    
+    public void testShouldParseBody() throws Exception {
+        SearchKey key = SearchKey.buildBody("Text");
+        checkValid("BODY Text\r\n", key);
+        checkValid("BODY \"Text\"\r\n", key);
+        checkValid("body Text\r\n", key);
+        checkValid("body \"Text\"\r\n", key);
+        checkValid("BodY Text\r\n", key);
+        checkValid("BodY \"Text\"\r\n", key);
+        checkInvalid("b\r\n", key);
+        checkInvalid("Bo\r\n", key);
+        checkInvalid("Bod\r\n", key);
+        checkInvalid("Bodd\r\n", key);
+        checkInvalid("Bodym\r\n", key);   
+    }
+    
+    
+    public void testShouldParseCc() throws Exception {
+        SearchKey key = SearchKey.buildCc("SomeText");
+        checkValid("CC SomeText\r\n", key);
+        checkValid("CC \"SomeText\"\r\n", key);
+        checkValid("cc SomeText\r\n", key);
+        checkValid("cc \"SomeText\"\r\n", key);
+        checkValid("Cc SomeText\r\n", key);
+        checkValid("Cc \"SomeText\"\r\n", key);
+        checkInvalid("c\r\n", key);
+        checkInvalid("cd\r\n", key);
+        checkInvalid("ccc\r\n", key);
+    }
 
+    public void testShouldParseFrom() throws Exception {
+        SearchKey key = SearchKey.buildFrom("Someone");
+        checkValid("FROM Someone\r\n", key);
+        checkValid("FROM \"Someone\"\r\n", key);
+        checkValid("from Someone\r\n", key);
+        checkValid("from \"Someone\"\r\n", key);
+        checkValid("FRom Someone\r\n", key);
+        checkValid("FRom \"Someone\"\r\n", key);
+        checkInvalid("f\r\n", key);
+        checkInvalid("fr\r\n", key);
+        checkInvalid("ftom\r\n", key);
+        checkInvalid("froml\r\n", key);
+    }
+    
+    public void testShouldParseKeyword() throws Exception {
+        SearchKey key = SearchKey.buildKeyword("AFlag");
+        checkValid("KEYWORD AFlag\r\n", key);
+        checkInvalid("KEYWORD \"AFlag\"\r\n", key);
+        checkValid("keyword AFlag\r\n", key);
+        checkInvalid("keyword \"AFlag\"\r\n", key);
+        checkValid("KEYword AFlag\r\n", key);
+        checkInvalid("KEYword \"AFlag\"\r\n", key);
+        checkInvalid("k\r\n", key);
+        checkInvalid("ke\r\n", key);
+        checkInvalid("key\r\n", key);
+        checkInvalid("keyw\r\n", key);
+        checkInvalid("keywo\r\n", key);
+        checkInvalid("keywor\r\n", key);
+        checkInvalid("keywordi\r\n", key);
+        checkInvalid("keyword \r\n", key);
+    }
+    
+
+    public void testShouldParseHeader() throws Exception {
+        SearchKey key = SearchKey.buildHeader("Field", "Value");
+        checkValid("HEADER Field Value\r\n", key);
+        checkValid("HEADER \"Field\" \"Value\"\r\n", key);
+        checkValid("header Field Value\r\n", key);
+        checkValid("header \"Field\" \"Value\"\r\n", key);
+        checkValid("HEAder Field Value\r\n", key);
+        checkValid("HEAder \"Field\" \"Value\"\r\n", key);
+        checkInvalid("h\r\n", key);
+        checkInvalid("he\r\n", key);
+        checkInvalid("hea\r\n", key);
+        checkInvalid("head\r\n", key);
+        checkInvalid("heade\r\n", key);
+        checkInvalid("header\r\n", key);
+        checkInvalid("header field\r\n", key);
+        checkInvalid("header field \r\n", key);
+    }
+    
     private void checkValid(String input, final SearchKey key) throws Exception {
         ImapRequestLineReader reader = new ImapRequestLineReader(new ByteArrayInputStream(input.getBytes("US-ASCII")), 
                 new ByteArrayOutputStream());
@@ -132,7 +226,86 @@ public class SearchCommandParserSearchKeyTest extends MockObjectTestCase {
         assertEquals(key, parser.searchKey(reader));
     }
 
+    public void testShouldParseDeleted() throws Exception {
+        SearchKey key = SearchKey.buildDeleted();
+        checkValid("DELETED\r\n", key);
+        checkValid("deleted\r\n", key);
+        checkValid("deLEteD\r\n", key);
+        checkInvalid("d\r\n", key);
+        checkInvalid("de\r\n", key);
+        checkInvalid("del\r\n", key);
+        checkInvalid("dele\r\n", key);
+        checkInvalid("delet\r\n", key);
+        checkInvalid("delete\r\n", key);
+    }
 
+    public void testEShouldBeInvalid() throws Exception {
+        SearchKey key = SearchKey.buildDeleted();
+        checkInvalid("e\r\n", key);
+        checkInvalid("ee\r\n", key);
+    }
+    
+    public void testShouldParseDraft() throws Exception {
+        SearchKey key = SearchKey.buildDraft();
+        checkValid("DRAFT\r\n", key);
+        checkValid("draft\r\n", key);
+        checkValid("DRaft\r\n", key);
+        checkInvalid("D\r\n", key);
+        checkInvalid("DR\r\n", key);
+        checkInvalid("DRA\r\n", key);
+        checkInvalid("DRAF\r\n", key);
+    }
+    
+    public void testShouldParseNew() throws Exception {
+        SearchKey key = SearchKey.buildNew();
+        checkValid("NEW\r\n", key);
+        checkValid("new\r\n", key);
+        checkValid("NeW\r\n", key);
+        checkInvalid("n\r\n", key);
+        checkInvalid("ne\r\n", key);
+        checkInvalid("nwe\r\n", key);
+    }
+    
+    public void testShouldParseOld() throws Exception {
+        SearchKey key = SearchKey.buildOld();
+        checkValid("OLD\r\n", key);
+        checkValid("old\r\n", key);
+        checkValid("oLd\r\n", key);
+        checkInvalid("o\r\n", key);
+        checkInvalid("ol\r\n", key);
+        checkInvalid("olr\r\n", key);
+    }
+    
+    public void testShouldParseFlagged() throws Exception {
+        SearchKey key = SearchKey.buildFlagged();
+        checkValid("FLAGGED\r\n", key);
+        checkValid("flagged\r\n", key);
+        checkValid("FLAGged\r\n", key);
+        checkInvalid("F\r\n", key);
+        checkInvalid("FL\r\n", key);
+        checkInvalid("FLA\r\n", key);
+        checkInvalid("FLAG\r\n", key);
+        checkInvalid("FLAGG\r\n", key);
+        checkInvalid("FLAGGE\r\n", key);
+        checkInvalid("FLoas\r\n", key);
+    }
+    
+
+    public void testShouldParseLarger() throws Exception {
+        SearchKey key = SearchKey.buildLarger(1234);
+        checkValid("LARGER 1234\r\n", key);
+        checkValid("larger 1234\r\n", key);
+        checkValid("larger 1234\r\n", key);
+        checkInvalid("l\r\n", key);
+        checkInvalid("la\r\n", key);
+        checkInvalid("lar\r\n", key);
+        checkInvalid("larg\r\n", key);
+        checkInvalid("large\r\n", key);
+        checkInvalid("larger\r\n", key);
+        checkInvalid("larger \r\n", key);
+        checkInvalid("larger peach\r\n", key);
+     }
+    
     private void checkInvalid(String input, final SearchKey key) throws Exception {
         ImapRequestLineReader reader = new ImapRequestLineReader(new ByteArrayInputStream(input.getBytes("US-ASCII")), 
                 new ByteArrayOutputStream());
