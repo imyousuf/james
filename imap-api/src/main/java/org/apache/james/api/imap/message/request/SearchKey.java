@@ -185,7 +185,7 @@ public final class SearchKey {
                 null);
     }
 
-    public static SearchKey buildLKeyword(String value) {
+    public static SearchKey buildKeyword(String value) {
         return new SearchKey(TYPE_KEYWORD, null, null, null, 0, null,
                 value, null);
     }
