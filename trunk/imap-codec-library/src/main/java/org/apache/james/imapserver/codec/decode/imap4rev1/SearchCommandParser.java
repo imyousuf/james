@@ -18,6 +18,9 @@
  ****************************************************************/
 package org.apache.james.imapserver.codec.decode.imap4rev1;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.api.imap.ProtocolException;
@@ -49,6 +52,8 @@ class SearchCommandParser extends AbstractUidCommandParser implements Initialisa
         final char next = request.nextChar();
         if (next >= '0' && next <= '9' || next == '*') {
             return sequenceSet(request);
+        } else if (next == '(') {
+            return paren(request);
         } else {
             final int cap = consumeAndCap(request);
             switch (cap) {
@@ -76,6 +81,24 @@ class SearchCommandParser extends AbstractUidCommandParser implements Initialisa
                 default:
                     throw new ProtocolException("Unknown search key");
             }
+        }
+    }
+
+    private SearchKey paren(ImapRequestLineReader request) throws ProtocolException {
+        request.consume();
+        List keys = new ArrayList();
+        addUntilParen(request, keys);
+        return SearchKey.buildAnd(keys);
+    }
+
+    private void addUntilParen(ImapRequestLineReader request, List keys) throws ProtocolException {
+        final char next = request.nextWordChar();
+        if (next == ')') {
+            request.consume();
+        } else {
+            final SearchKey key = searchKey( request );
+            keys.add(key);
+            addUntilParen(request, keys);
         }
     }
 
@@ -696,11 +719,30 @@ class SearchCommandParser extends AbstractUidCommandParser implements Initialisa
         }
     }
     
+    public SearchKey decode(ImapRequestLineReader request) throws ProtocolException {
+        request.nextWordChar();
+        final SearchKey firstKey = searchKey( request );
+        final SearchKey result;
+        if (request.nextChar() == ' ') {
+            List keys = new ArrayList();
+            keys.add(firstKey);
+            while (request.nextChar() == ' ') {
+                request.nextWordChar();
+                final SearchKey key = searchKey( request );
+                keys.add(key);
+            }
+            result = SearchKey.buildAnd(keys);
+        } else {
+            result = firstKey;
+        }
+        endLine( request );
+        return result;
+    }
+    
     protected ImapMessage decode(ImapCommand command, ImapRequestLineReader request, String tag, boolean useUids) throws ProtocolException {
         // Parse the search term from the request
-        request.nextWordChar();
-        final SearchKey key = searchKey( request );
-        endLine( request );
+        final SearchKey key = decode( request );
+        
         final ImapMessage result = getMessageFactory().createSearchMessage(command, key, useUids, tag);
         return result;
     }

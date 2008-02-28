@@ -27,7 +27,6 @@ import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.api.imap.imap4rev1.Imap4Rev1CommandFactory;
 import org.apache.james.api.imap.imap4rev1.Imap4Rev1MessageFactory;
 import org.apache.james.api.imap.message.IdRange;
-import org.apache.james.api.imap.message.request.DayMonthYear;
 import org.apache.james.api.imap.message.request.SearchKey;
 import org.apache.james.imapserver.codec.decode.ImapRequestLineReader;
 import org.jmock.Mock;
@@ -35,7 +34,6 @@ import org.jmock.MockObjectTestCase;
 
 public class SearchCommandParserSearchKeySequenceSetTest extends MockObjectTestCase {
 
-    private static final DayMonthYear DATE = new DayMonthYear(1, 1, 2000);
     SearchCommandParser parser;
     Mock mockCommandFactory;
     Mock mockMessageFactory;

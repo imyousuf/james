@@ -34,7 +34,6 @@ import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 
 public class SearchCommandParserOrTest extends MockObjectTestCase {
-    
     SearchCommandParser parser;
     Mock mockCommandFactory;
     Mock mockMessageFactory;
