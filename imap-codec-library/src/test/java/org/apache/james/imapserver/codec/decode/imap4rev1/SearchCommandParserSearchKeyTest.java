@@ -27,6 +27,7 @@ import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.api.imap.imap4rev1.Imap4Rev1CommandFactory;
 import org.apache.james.api.imap.imap4rev1.Imap4Rev1MessageFactory;
+import org.apache.james.api.imap.message.IdRange;
 import org.apache.james.api.imap.message.request.DayMonthYear;
 import org.apache.james.api.imap.message.request.SearchKey;
 import org.apache.james.imapserver.codec.decode.ImapRequestLineReader;
@@ -622,7 +623,68 @@ public class SearchCommandParserSearchKeyTest extends MockObjectTestCase {
         checkInvalid("larger\r\n", key);
         checkInvalid("larger \r\n", key);
         checkInvalid("larger peach\r\n", key);
-     }
+    }
+    
+    public void testShouldParseUid() throws Exception {
+        IdRange[] range = {new IdRange(1)};
+        SearchKey key = SearchKey.buildUidSet(range);
+        checkValid("UID 1\r\n", key);
+        checkValid("Uid 1\r\n", key);
+        checkValid("uid 1\r\n", key);
+        checkInvalid("u\r\n", key);
+        checkInvalid("ui\r\n", key);
+        checkInvalid("uid\r\n", key);
+        checkInvalid("uid \r\n", key);
+    }
+    
+    public void testShouldParseNot() throws Exception {
+        SearchKey notdKey = SearchKey.buildSeen();
+        SearchKey key = SearchKey.buildNot(notdKey);
+        checkValid("NOT SEEN\r\n", key);
+        checkValid("Not seen\r\n", key);
+        checkValid("not Seen\r\n", key);
+        checkInvalid("n\r\n", key);
+        checkInvalid("no\r\n", key);
+        checkInvalid("not\r\n", key);
+        checkInvalid("not \r\n", key);
+    }
+    
+    public void testShouldParseOr() throws Exception {
+        SearchKey oneKey = SearchKey.buildSeen();
+        SearchKey twoKey = SearchKey.buildDraft();
+        SearchKey key = SearchKey.buildOr(oneKey, twoKey);
+        checkValid("OR SEEN DRAFT\r\n", key);
+        checkValid("oR seen draft\r\n", key);
+        checkValid("or Seen drAFT\r\n", key);
+        checkInvalid("o\r\n", key);
+        checkInvalid("or\r\n", key);
+        checkInvalid("or \r\n", key);
+        checkInvalid("or seen\r\n", key);
+        checkInvalid("or seen \r\n", key);
+    }
+    
+    public void testShouldParseSequenceSet() throws Exception {
+        checkSequenceSet(1);
+        checkSequenceSet(2);
+        checkSequenceSet(3);
+        checkSequenceSet(4);
+        checkSequenceSet(5);
+        checkSequenceSet(6);
+        checkSequenceSet(7);
+        checkSequenceSet(8);
+        checkSequenceSet(9);
+        checkSequenceSet(10);
+        checkSequenceSet(121);
+        checkSequenceSet(11354);
+        checkSequenceSet(145644656);
+        checkSequenceSet(1456452213);
+    }
+
+    private void checkSequenceSet(int number) throws Exception {
+        IdRange[] range = {new IdRange(number)};
+        SearchKey key = SearchKey.buildSequenceSet(range);
+        checkValid(number + "\r\n", key);
+    }
     
     private void checkInvalid(String input, final SearchKey key) throws Exception {
         ImapRequestLineReader reader = new ImapRequestLineReader(new ByteArrayInputStream(input.getBytes("US-ASCII")), 
