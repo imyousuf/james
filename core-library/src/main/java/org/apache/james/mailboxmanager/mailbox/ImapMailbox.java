@@ -29,7 +29,7 @@ import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.MessageResult;
-import org.apache.james.mailboxmanager.SearchParameters;
+import org.apache.james.mailboxmanager.SearchQuery;
 import org.apache.james.mailboxmanager.MessageResult.FetchGroup;
 
 
@@ -56,8 +56,7 @@ public interface ImapMailbox extends Mailbox, EventTriggerMailbox  {
      * @throws UnsupportedCriteriaException when any of the search parameters are 
      * not supported by this mailbox
      */
-    Iterator search(GeneralMessageSet set, SearchParameters searchTerm, FetchGroup fetchGroup, 
-            MailboxSession mailboxSession) throws MailboxManagerException;
+    Iterator search(SearchQuery searchQuery, FetchGroup fetchGroup, MailboxSession mailboxSession) throws MailboxManagerException;
     
     
     long getUidValidity(MailboxSession mailboxSession) throws MailboxManagerException;

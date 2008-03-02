@@ -19,7 +19,15 @@
 
 package org.apache.james.imapserver.commands;
 
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
+
+import javax.mail.Flags.Flag;
 
 import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ImapResponse;
@@ -29,13 +37,13 @@ import org.apache.james.imapserver.SelectedMailboxSession;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
-import org.apache.james.mailboxmanager.SearchParameters;
+import org.apache.james.mailboxmanager.SearchQuery;
 import org.apache.james.mailboxmanager.MessageResult.FetchGroup;
-import org.apache.james.mailboxmanager.SearchParameters.NumericRange;
-import org.apache.james.mailboxmanager.SearchParameters.SearchCriteria;
+import org.apache.james.mailboxmanager.SearchQuery.Criterion;
+import org.apache.james.mailboxmanager.SearchQuery.NumericRange;
 import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
-import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
+import org.apache.mailet.RFC2822Headers;
 
 /**
  * Handles processeing for the SEARCH imap command.
@@ -44,10 +52,64 @@ import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
  */
 class SearchCommand extends SelectedStateCommand implements UidEnabledCommand
 {
+    public static final String HEADER = "HEADER";
+    public static final String UID = "UID";
+    public static final String NOT = "NOT";
+    public static final String OR = "OR";
+    public static final String SMALLER = "SMALLER";
+    public static final String LARGER = "LARGER";
+    public static final String SINCE = "SINCE";
+    public static final String SENTSINCE = "SENTSINCE";
+    public static final String SENTON = "SENTON";
+    public static final String SENTBEFORE = "SENTBEFORE";
+    public static final String ON = "ON";
+    public static final String BEFORE = "BEFORE";
+    public static final String UNKEYWORD = "UNKEYWORD";
+    public static final String TO = "TO";
+    public static final String TEXT = "TEXT";
+    public static final String SUBJECT = "SUBJECT";
+    public static final String KEYWORD = "KEYWORD";
+    public static final String FROM = "FROM";
+    public static final String CC = "CC";
+    public static final String BODY = "BODY";
+    public static final String BCC = "BCC";
+    public static final String UNSEEN = "UNSEEN";
+    public static final String UNFLAGGED = "UNFLAGGED";
+    public static final String UNDRAFT = "UNDRAFT";
+    public static final String UNDELETED = "UNDELETED";
+    public static final String UNANSWERED = "UNANSWERED";
+    public static final String SEEN = "SEEN";
+    public static final String RECENT = "RECENT";
+    public static final String OLD = "OLD";
+    public static final String NEW = "NEW";
+    public static final String FLAGGED = "FLAGGED";
+    public static final String DRAFT = "DRAFT";
+    public static final String DELETED = "DELETED";
+    public static final String ANSWERED = "ANSWERED";
+    public static final String ALL = "ALL";
+    
+    public final static Set BASE_SEARCH_TERMS = Collections.unmodifiableSet(new HashSet(Arrays.asList(new String[] {
+            ALL, ANSWERED, DELETED, DRAFT, FLAGGED, OLD, RECENT, SEEN,
+            UNANSWERED, UNDELETED, UNDRAFT, UNFLAGGED, UNSEEN
+    })));
+    public final static Set STRING_SEARCH_TERMS = Collections.unmodifiableSet(new HashSet(Arrays.asList(new String[] {
+            BCC, BODY, CC, FROM, SUBJECT, TO
+    })));
+    public final static Set DATE_SEARCH_TERMS = Collections.unmodifiableSet(new HashSet(Arrays.asList(new String[] {
+            BEFORE, ON, SENTBEFORE, SENTON, SENTSINCE , SINCE
+    })));
+    public final static Set SPECIAL_SEARCH_TERMS = new HashSet(Arrays.asList(new String[] {
+            OR, NOT, UID, HEADER
+    }));
+    public final static Set NUMBER_SEARCH_TERMS = Collections.unmodifiableSet(new HashSet(Arrays.asList(new String[] {
+            LARGER, SMALLER
+    })));
+
     public static final String NAME = "SEARCH";
     public static final String ARGS = "<search term>";
 
     private SearchCommandParser parser = new SearchCommandParser();
+
 
     /** @see CommandTemplate#doProcess */
     protected void doProcess( ImapRequestLineReader request,
@@ -65,7 +127,7 @@ class SearchCommand extends SelectedStateCommand implements UidEnabledCommand
             throws ProtocolException, MailboxException
     {
         // Parse the search term from the request
-        SearchParameters searchTerm = parser.searchTerm( request );
+        SearchQuery searchTerm = parser.searchTerm( request );
         parser.endLine( request );
 
         final SelectedMailboxSession selected = session.getSelected();
@@ -73,7 +135,7 @@ class SearchCommand extends SelectedStateCommand implements UidEnabledCommand
         final FetchGroup result = FetchGroupImpl.MINIMAL;
         final Iterator it;
         try {
-            it = mailbox.search(GeneralMessageSetImpl.all(),searchTerm, result, session.getMailboxSession());
+            it = mailbox.search(searchTerm,result, session.getMailboxSession());
         } catch (MailboxManagerException e) {
           throw new MailboxException(e);
         }
@@ -120,16 +182,16 @@ class SearchCommand extends SelectedStateCommand implements UidEnabledCommand
         /**
          * Parses the request argument into a valid search term.
          */
-        public SearchParameters searchTerm( ImapRequestLineReader request )
+        public SearchQuery searchTerm( ImapRequestLineReader request )
                 throws ProtocolException
         {
-        	SearchParameters search = new SearchParameters();
+        	SearchQuery search = new SearchQuery();
 
         	char next = request.nextChar();
             while ( next != '\n' && next != '\r') {
                 
-            	SearchParameters.SearchCriteria crit = parseCriteria(request);
-            	search.addCriteria(crit);
+            	SearchQuery.Criterion crit = parseCriteria(request);
+            	search.andCriteria(crit);
                 next = request.nextChar();
                 while ( next == ' ' ) {
                 	request.consume();
@@ -140,29 +202,148 @@ class SearchCommand extends SelectedStateCommand implements UidEnabledCommand
             return search;
         }
 
-		private SearchCriteria parseCriteria(ImapRequestLineReader request) throws ProtocolException {
+		private Criterion parseCriteria(ImapRequestLineReader request) throws ProtocolException {
             String term = atom(request).toUpperCase();
-
-			if (SearchParameters.BASE_SEARCH_TERMS.contains(term)) {
-				return new SearchParameters.NamedSearchCriteria(term);
-			} else if (SearchParameters.STRING_SEARCH_TERMS.contains(term)) {
-				return new SearchParameters.StringSearchCriteria(term, astring(request));
-			} else if (SearchParameters.NUMBER_SEARCH_TERMS.contains(term)) {
-				return new SearchParameters.NumberSearchCriteria(term, number(request));
-			} else if (SearchParameters.DATE_SEARCH_TERMS.contains(term)) {
-				return new SearchParameters.DateSearchCriteria(term, date(request));
+            if (ALL.equals(term)) {
+                return SearchQuery.all();
+            } else if (NEW.equals(term)) {
+                return SearchQuery.and(flag(RECENT), flag(UNSEEN));
+            } else if (KEYWORD.equals(term)) {
+                return keyword(true, request);
+            } else if (UNKEYWORD.equals(term)) {
+                return keyword(false, request);
+            } else if (TEXT.equals(term)) {
+                return SearchQuery.mailContains(astring(request));
+            } else if (BODY.equals(term)) {
+                return SearchQuery.bodyContains(astring(request));
+            } else if (SearchCommand.BASE_SEARCH_TERMS.contains(term)) {
+				return flag(term);
+			} else if (SearchCommand.STRING_SEARCH_TERMS.contains(term)) {
+				return header(term, astring(request));
+			} else if (SearchCommand.NUMBER_SEARCH_TERMS.contains(term)) {
+				return numeric(request, term);
+			} else if (SearchCommand.DATE_SEARCH_TERMS.contains(term)) {
+				return date(request, term);
 			} else if ("HEADER".equals(term)) {
-				return new SearchParameters.HeaderSearchCriteria(astring(request), astring(request));
+				return SearchQuery.headerContains(astring(request), astring(request));
 			} else if ("UID".equals(term)) {
-				return new SearchParameters.UIDSearchCriteria(toNumericRange(parseIdRange(request)));
+				return SearchQuery.uid(toNumericRange(parseIdRange(request)));
 			} else if ("OR".equals(term)) {
-				return new SearchParameters.OrSearchCriteria(parseCriteria(request), parseCriteria(request));
+				return SearchQuery.or(parseCriteria(request), parseCriteria(request));
 			} else if ("NOT".equals(term)) {
-				return new SearchParameters.NotSearchCriteria(parseCriteria(request));
+				return SearchQuery.not(parseCriteria(request));
 			} else {
 				throw new ProtocolException("Term '"+term+"' not supported in the current search implementation!");
 			}
 		}
+        
+        private Criterion header(String term, String value) throws ProtocolException {
+            final String headerName;
+            if ( BCC.equals(term)) {
+                headerName = RFC2822Headers.BCC;
+            } else if (CC.equals(term)) {
+                headerName = RFC2822Headers.CC;
+            } else if (FROM.equals(term)) {
+                headerName = RFC2822Headers.FROM;
+            } else if (SUBJECT.equals(term)) {
+                headerName = RFC2822Headers.SUBJECT;
+            } else if (TO.equals(term)) { 
+                headerName = RFC2822Headers.TO;
+            } else {
+                throw new ProtocolException("Unknown search key");
+            }
+            return SearchQuery.headerContains(headerName, value);
+        }
+
+        private Criterion keyword(boolean isSet, ImapRequestLineReader request) throws ProtocolException {
+            final String keyword = astring(request);
+            return SearchQuery.flagSet(keyword, isSet);
+        }
+
+        private Criterion flag(String term) throws ProtocolException {
+            final Flag flag;
+            final boolean value;
+            if (ANSWERED.equals(term)) {
+                flag = Flag.ANSWERED;
+                value = true;
+            } else if (DELETED.equals(term)) {
+                flag = Flag.DELETED;
+                value = true;                
+            } else if (DRAFT.equals(term)) {
+                flag = Flag.DRAFT;
+                value = true;
+            } else if (FLAGGED.equals(term)) {
+                flag = Flag.FLAGGED;
+                value = true;
+            } else if (OLD.equals(term)) {
+                flag = Flag.RECENT;
+                value = false;
+            } else if (RECENT.equals(term)) {
+                flag = Flag.RECENT;
+                value = true;
+            } else if (SEEN.equals(term)) {
+                flag = Flag.SEEN;
+                value = true;
+            } else if (UNANSWERED.equals(term)) {
+                flag = Flag.ANSWERED;
+                value = false;
+            } else if (UNDELETED.equals(term)) {
+                flag = Flag.DELETED;
+                value = false;
+            } else if (UNDRAFT.equals(term)) {
+                flag = Flag.DRAFT;
+                value = false;
+            } else if (UNFLAGGED.equals(term)) {
+                flag = Flag.FLAGGED;
+                value = false;
+            } else if (UNSEEN.equals(term)) {
+                flag = Flag.SEEN;
+                value = false;
+            } else {
+                throw new ProtocolException("Unknown search key");
+            }
+            final Criterion result = SearchQuery.flagSet(flag, value);
+            return result;
+        }
+
+        private Criterion date(ImapRequestLineReader request, String term) throws ProtocolException {
+            final Date date = date(request);
+            final Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+            final int day =  calendar.get(Calendar.DAY_OF_MONTH);
+            final int month = calendar.get(Calendar.MONTH) + 1;
+            final int year = calendar.get(Calendar.YEAR);
+            final Criterion result;
+            if (BEFORE.equals(term)) {
+                result = SearchQuery.internalDateBefore(day, month, year);
+            } else if (ON.equals(term)) {
+                result = SearchQuery.internalDateOn(day, month, year);
+            } else if (SENTBEFORE.equals(term)) {
+                result = SearchQuery.headerDateBefore(RFC2822Headers.DATE, day, month, year);
+            } else if (SENTON.equals(term)) {
+                result = SearchQuery.headerDateBefore(RFC2822Headers.DATE, day, month, year);
+            } else if (SENTSINCE.equals(term)) {
+                result = SearchQuery.headerDateBefore(RFC2822Headers.DATE, day, month, year);
+            } else if (SINCE.equals(term)) {
+                result = SearchQuery.internalDateAfter(day, month, year);
+            } else {
+                throw new ProtocolException("Unknown search key");
+            }
+            return result;
+        }
+
+        private Criterion numeric(ImapRequestLineReader request, String term) throws ProtocolException {
+            final long value = number(request);
+            final Criterion result;
+            if (LARGER.equals(term)) {
+                result = SearchQuery.sizeGreaterThan(value);
+            } else if (SMALLER.equals(term)) {
+                result = SearchQuery.sizeLessThan(value);
+            } else {
+                throw new ProtocolException("Unknown search key");
+            }
+            return result;
+        }
 
         private NumericRange[] toNumericRange(final IdRange[] ranges) {
             final NumericRange[] result;
