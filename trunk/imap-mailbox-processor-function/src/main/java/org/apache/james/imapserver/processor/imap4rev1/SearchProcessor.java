@@ -41,10 +41,9 @@ import org.apache.james.imapserver.processor.base.ImapSessionUtils;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
-import org.apache.james.mailboxmanager.SearchParameters;
+import org.apache.james.mailboxmanager.SearchQuery;
 import org.apache.james.mailboxmanager.MessageResult.FetchGroup;
 import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
-import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 
 public class SearchProcessor extends AbstractImapRequestProcessor {
@@ -76,8 +75,8 @@ public class SearchProcessor extends AbstractImapRequestProcessor {
         final Iterator it;
         try {
             // TODO: implementation
-            it = mailbox.search(GeneralMessageSetImpl.all(),
-                    new SearchParameters(), resultCode, ImapSessionUtils.getMailboxSession(session));
+            it = mailbox.search(new SearchQuery(),
+                    resultCode, ImapSessionUtils.getMailboxSession(session));
         } catch (MailboxManagerException e) {
             throw new MailboxException(e);
         }
