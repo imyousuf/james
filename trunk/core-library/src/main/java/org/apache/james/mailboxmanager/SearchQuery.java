@@ -20,6 +20,7 @@
 package org.apache.james.mailboxmanager;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.mail.Flags.Flag;
@@ -216,6 +217,15 @@ public class SearchQuery {
     }
     
     /**
+     * Creates a filter composing the listed criteria.
+     * @param criteria <code>List</code> of {@link Criterion}
+     * @return <code>Criterion</code>, not null
+     */
+    public static final Criterion and(List criteria) {
+        return new ConjunctionCriterion(ConjunctionCriterion.AND, criteria);
+    }
+    
+    /**
      * Creates a filter inverting the given criteria.
      * @param criterion <code>Criterion</code>, not null
      * @return <code>Criterion</code>, not null
@@ -325,6 +335,38 @@ public class SearchQuery {
 	}
     
     /**
+     * @see java.lang.Object#hashCode()
+     */
+    //@Override
+    public int hashCode() {
+        final int PRIME = 31;
+        int result = 1;
+        result = PRIME * result + ((criterias == null) ? 0 : criterias.hashCode());
+        return result;
+    }
+
+    /**
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    //@Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        final SearchQuery other = (SearchQuery) obj;
+        if (criterias == null) {
+            if (other.criterias != null)
+                return false;
+        } else if (!criterias.equals(other.criterias))
+            return false;
+        return true;
+    }
+    
+    
+    /**
      * Numbers within a particular range.
      * Range includes both high and low boundaries.
      * May be a single value.
@@ -354,9 +396,51 @@ public class SearchQuery {
             return lowValue;
         }
         
-        public String toString() {
-            return "[" + lowValue + "->" + highValue + "]";
+        /**
+         * @see java.lang.Object#hashCode()
+         */
+        //@Override
+        public int hashCode() {
+            final int PRIME = 31;
+            int result = 1;
+            result = PRIME * result + (int) (highValue ^ (highValue >>> 32));
+            result = PRIME * result + (int) (lowValue ^ (lowValue >>> 32));
+            return result;
         }
+
+        /**
+         * @see java.lang.Object#equals(java.lang.Object)
+         */
+        //@Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            final NumericRange other = (NumericRange) obj;
+            if (highValue != other.highValue)
+                return false;
+            if (lowValue != other.lowValue)
+                return false;
+            return true;
+        }
+
+        /**
+         * Constructs a <code>String</code> with all attributes
+         * in name = value format.
+         *
+         * @return a <code>String</code> representation 
+         * of this object.
+         */
+        public String toString()
+        {
+            return new StringBuffer().append(this.lowValue)
+                .append("->").append(this.highValue).toString();
+        }
+        
+        
     }
     
     /**
@@ -401,6 +485,61 @@ public class SearchQuery {
         public final int getType() {
             return type;
         }
+
+        /**
+         * @see java.lang.Object#hashCode()
+         */
+        //@Override
+        public int hashCode() {
+            final int PRIME = 31;
+            int result = 1;
+            result = PRIME * result + ((criteria == null) ? 0 : criteria.hashCode());
+            result = PRIME * result + type;
+            return result;
+        }
+
+        /**
+         * @see java.lang.Object#equals(java.lang.Object)
+         */
+        //@Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            final ConjunctionCriterion other = (ConjunctionCriterion) obj;
+            if (criteria == null) {
+                if (other.criteria != null)
+                    return false;
+            } else if (!criteria.equals(other.criteria))
+                return false;
+            if (type != other.type)
+                return false;
+            return true;
+        }
+
+        /**
+         * Constructs a <code>String</code> with all attributes
+         * in name = value format.
+         *
+         * @return a <code>String</code> representation 
+         * of this object.
+         */
+        public String toString()
+        {
+            final String TAB = " ";
+            
+            StringBuffer retValue = new StringBuffer();
+            
+            retValue.append("ConjunctionCriterion ( ")
+                .append("criteria = ").append(this.criteria).append(TAB)
+                .append("type = ").append(this.type).append(TAB)
+                .append(" )");
+            
+            return retValue.toString();
+        }
         
         
     }
@@ -413,6 +552,26 @@ public class SearchQuery {
         
         private static final Criterion all() {
             return ALL;
+        }
+        
+        /**
+         * @see java.lang.Object#equals(java.lang.Object)
+         */
+        //@Override
+        public boolean equals(Object obj) {
+            return obj instanceof AllCriterion;
+        }
+
+        /**
+         * @see java.lang.Object#hashCode()
+         */
+        //@Override
+        public int hashCode() {
+            return 1729;
+        }
+
+        public String toString() {
+            return "AllCriterion";
         }
     }
     
@@ -453,6 +612,61 @@ public class SearchQuery {
         public final ContainsOperator getOperator() {
             return operator;
         }
+
+        /**
+         * @see java.lang.Object#hashCode()
+         */
+        //@Override
+        public int hashCode() {
+            final int PRIME = 31;
+            int result = 1;
+            result = PRIME * result + ((operator == null) ? 0 : operator.hashCode());
+            result = PRIME * result + type;
+            return result;
+        }
+
+        /**
+         * @see java.lang.Object#equals(java.lang.Object)
+         */
+        //@Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            final TextCriterion other = (TextCriterion) obj;
+            if (operator == null) {
+                if (other.operator != null)
+                    return false;
+            } else if (!operator.equals(other.operator))
+                return false;
+            if (type != other.type)
+                return false;
+            return true;
+        }
+
+        /**
+         * Constructs a <code>String</code> with all attributes
+         * in name = value format.
+         *
+         * @return a <code>String</code> representation 
+         * of this object.
+         */
+        public String toString()
+        {
+            final String TAB = " ";
+            
+            StringBuffer retValue = new StringBuffer();
+            
+            retValue.append("TextCriterion ( ")
+                .append("operator = ").append(this.operator).append(TAB)
+                .append("type = ").append(this.type).append(TAB)
+                .append(" )");
+            
+            return retValue.toString();
+        }
     }
     
     /**
@@ -483,6 +697,66 @@ public class SearchQuery {
         public final HeaderOperator getOperator() {
             return operator;
         }
+
+        /**
+         * @see java.lang.Object#hashCode()
+         */
+        //@Override
+        public int hashCode() {
+            final int PRIME = 31;
+            int result = 1;
+            result = PRIME * result + ((headerName == null) ? 0 : headerName.hashCode());
+            result = PRIME * result + ((operator == null) ? 0 : operator.hashCode());
+            return result;
+        }
+
+        /**
+         * @see java.lang.Object#equals(java.lang.Object)
+         */
+        //@Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            final HeaderCriterion other = (HeaderCriterion) obj;
+            if (headerName == null) {
+                if (other.headerName != null)
+                    return false;
+            } else if (!headerName.equals(other.headerName))
+                return false;
+            if (operator == null) {
+                if (other.operator != null)
+                    return false;
+            } else if (!operator.equals(other.operator))
+                return false;
+            return true;
+        }
+
+        /**
+         * Constructs a <code>String</code> with all attributes
+         * in name = value format.
+         *
+         * @return a <code>String</code> representation 
+         * of this object.
+         */
+        public String toString()
+        {
+            final String TAB = " ";
+            
+            StringBuffer retValue = new StringBuffer();
+            
+            retValue.append("HeaderCriterion ( ")
+                .append("headerName = ").append(this.headerName).append(TAB)
+                .append("operator = ").append(this.operator).append(TAB)
+                .append(" )");
+            
+            return retValue.toString();
+        }
+        
+        
     }
     
     /**
@@ -503,6 +777,57 @@ public class SearchQuery {
         public final DateOperator getOperator() {
             return operator;
         }
+
+        /**
+         * @see java.lang.Object#hashCode()
+         */
+        //@Override
+        public int hashCode() {
+            final int PRIME = 31;
+            int result = 1;
+            result = PRIME * result + ((operator == null) ? 0 : operator.hashCode());
+            return result;
+        }
+
+        /**
+         * @see java.lang.Object#equals(java.lang.Object)
+         */
+        //@Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            final InternalDateCriterion other = (InternalDateCriterion) obj;
+            if (operator == null) {
+                if (other.operator != null)
+                    return false;
+            } else if (!operator.equals(other.operator))
+                return false;
+            return true;
+        }
+
+        /**
+         * Constructs a <code>String</code> with all attributes
+         * in name = value format.
+         *
+         * @return a <code>String</code> representation 
+         * of this object.
+         */
+        public String toString()
+        {
+            final String TAB = " ";
+            
+            StringBuffer retValue = new StringBuffer();
+            
+            retValue.append("InternalDateCriterion ( ")
+                .append("operator = ").append(this.operator).append(TAB)
+                .append(" )");
+            
+            return retValue.toString();
+        }
     }
     
     /**
@@ -521,6 +846,57 @@ public class SearchQuery {
          */
         public final NumericOperator getOperator() {
             return operator;
+        }
+
+        /**
+         * @see java.lang.Object#hashCode()
+         */
+        //@Override
+        public int hashCode() {
+            final int PRIME = 31;
+            int result = 1;
+            result = PRIME * result + ((operator == null) ? 0 : operator.hashCode());
+            return result;
+        }
+
+        /**
+         * @see java.lang.Object#equals(java.lang.Object)
+         */
+        //@Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            final SizeCriterion other = (SizeCriterion) obj;
+            if (operator == null) {
+                if (other.operator != null)
+                    return false;
+            } else if (!operator.equals(other.operator))
+                return false;
+            return true;
+        }
+
+        /**
+         * Constructs a <code>String</code> with all attributes
+         * in name = value format.
+         *
+         * @return a <code>String</code> representation 
+         * of this object.
+         */
+        public String toString()
+        {
+            final String TAB = " ";
+            
+            StringBuffer retValue = new StringBuffer();
+            
+            retValue.append("SizeCriterion ( ")
+                .append("operator = ").append(this.operator).append(TAB)
+                .append(" )");
+            
+            return retValue.toString();
         }
     }
     
@@ -552,8 +928,64 @@ public class SearchQuery {
         public final BooleanOperator getOperator() {
             return operator;
         }
-        
-        
+
+        /**
+         * @see java.lang.Object#hashCode()
+         */
+        //@Override
+        public int hashCode() {
+            final int PRIME = 31;
+            int result = 1;
+            result = PRIME * result + ((flag == null) ? 0 : flag.hashCode());
+            result = PRIME * result + ((operator == null) ? 0 : operator.hashCode());
+            return result;
+        }
+
+        /**
+         * @see java.lang.Object#equals(java.lang.Object)
+         */
+        //@Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            final CustomFlagCriterion other = (CustomFlagCriterion) obj;
+            if (flag == null) {
+                if (other.flag != null)
+                    return false;
+            } else if (!flag.equals(other.flag))
+                return false;
+            if (operator == null) {
+                if (other.operator != null)
+                    return false;
+            } else if (!operator.equals(other.operator))
+                return false;
+            return true;
+        }
+
+        /**
+         * Constructs a <code>String</code> with all attributes
+         * in name = value format.
+         *
+         * @return a <code>String</code> representation 
+         * of this object.
+         */
+        public String toString()
+        {
+            final String TAB = " ";
+            
+            StringBuffer retValue = new StringBuffer();
+            
+            retValue.append("CustomFlagCriterion ( ")
+                .append("flag = ").append(this.flag).append(TAB)
+                .append("operator = ").append(this.operator).append(TAB)
+                .append(" )");
+            
+            return retValue.toString();
+        }
     }
     
     /**
@@ -584,6 +1016,66 @@ public class SearchQuery {
         public final BooleanOperator getOperator() {
             return operator;
         }
+
+        /**
+         * @see java.lang.Object#hashCode()
+         */
+        //@Override
+        public int hashCode() {
+            final int PRIME = 31;
+            int result = 1;
+            result = PRIME * result + ((flag == null) ? 0 : flag.hashCode());
+            result = PRIME * result + ((operator == null) ? 0 : operator.hashCode());
+            return result;
+        }
+
+        /**
+         * @see java.lang.Object#equals(java.lang.Object)
+         */
+        //@Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            final FlagCriterion other = (FlagCriterion) obj;
+            if (flag == null) {
+                if (other.flag != null)
+                    return false;
+            } else if (!flag.equals(other.flag))
+                return false;
+            if (operator == null) {
+                if (other.operator != null)
+                    return false;
+            } else if (!operator.equals(other.operator))
+                return false;
+            return true;
+        }
+
+        /**
+         * Constructs a <code>String</code> with all attributes
+         * in name = value format.
+         *
+         * @return a <code>String</code> representation 
+         * of this object.
+         */
+        public String toString()
+        {
+            final String TAB = " ";
+            
+            StringBuffer retValue = new StringBuffer();
+            
+            retValue.append("FlagCriterion ( ")
+                .append("flag = ").append(this.flag).append(TAB)
+                .append("operator = ").append(this.operator).append(TAB)
+                .append(" )");
+            
+            return retValue.toString();
+        }
+        
+        
     }
     
     /**
@@ -604,22 +1096,74 @@ public class SearchQuery {
         public final InOperator getOperator() {
             return operator;
         }
+
+        /**
+         * @see java.lang.Object#hashCode()
+         */
+        //@Override
+        public int hashCode() {
+            final int PRIME = 31;
+            int result = 1;
+            result = PRIME * result + ((operator == null) ? 0 : operator.hashCode());
+            return result;
+        }
+
+        /**
+         * @see java.lang.Object#equals(java.lang.Object)
+         */
+        //@Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            final UidCriterion other = (UidCriterion) obj;
+            if (operator == null) {
+                if (other.operator != null)
+                    return false;
+            } else if (!operator.equals(other.operator))
+                return false;
+            return true;
+        }
+
+        /**
+         * Constructs a <code>String</code> with all attributes
+         * in name = value format.
+         *
+         * @return a <code>String</code> representation 
+         * of this object.
+         */
+        public String toString()
+        {
+            final String TAB = " ";
+            
+            StringBuffer retValue = new StringBuffer();
+            
+            retValue.append("UidCriterion ( ")
+                .append("operator = ").append(this.operator).append(TAB)
+                .append(" )");
+            
+            return retValue.toString();
+        }
+        
     }
     
     /**
      * Search operator.
      */
-    public static abstract class Operator {}
+    public interface Operator {}
     
     /**
      * Marks operator as suitable for header value searching.
      */
-    public interface HeaderOperator {}
+    public interface HeaderOperator extends Operator {}
     
     /**
      * Contained value search.
      */
-    public static final class ContainsOperator extends Operator implements HeaderOperator {
+    public static final class ContainsOperator implements HeaderOperator{
         private final String value;
 
         public ContainsOperator(final String value) {
@@ -634,23 +1178,99 @@ public class SearchQuery {
         public final String getValue() {
             return value;
         }
+
+        /**
+         * @see java.lang.Object#hashCode()
+         */
+        //@Override
+        public int hashCode() {
+            final int PRIME = 31;
+            int result = 1;
+            result = PRIME * result + ((value == null) ? 0 : value.hashCode());
+            return result;
+        }
+
+        /**
+         * @see java.lang.Object#equals(java.lang.Object)
+         */
+        //@Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            final ContainsOperator other = (ContainsOperator) obj;
+            if (value == null) {
+                if (other.value != null)
+                    return false;
+            } else if (!value.equals(other.value))
+                return false;
+            return true;
+        }
+
+        /**
+         * Constructs a <code>String</code> with all attributes
+         * in name = value format.
+         *
+         * @return a <code>String</code> representation 
+         * of this object.
+         */
+        public String toString()
+        {
+            final String TAB = " ";
+            
+            StringBuffer retValue = new StringBuffer();
+            
+            retValue.append("ContainsOperator ( ")
+                .append("value = ").append(this.value).append(TAB)
+                .append(" )");
+            
+            return retValue.toString();
+        }
     }
     
     /**
      * Existance search.
      */
-    public static final class ExistsOperator extends Operator implements HeaderOperator  {
+    public static final class ExistsOperator implements HeaderOperator  {
         private static final ExistsOperator EXISTS = new ExistsOperator();
         
         public static final ExistsOperator exists() {
             return EXISTS;
         }
+
+        /**
+         * @see java.lang.Object#equals(java.lang.Object)
+         */
+        //@Override
+        public boolean equals(Object obj) {
+            return obj instanceof ExistsOperator;
+        }
+
+        /**
+         * @see java.lang.Object#hashCode()
+         */
+        //@Override
+        public int hashCode() {
+            return 42;
+        }
+
+        /**
+         * @see java.lang.Object#toString()
+         */
+        //@Override
+        public String toString() {
+            return "ExistsCriterion";
+        }
+        
     }
         
     /**
      * Boolean value search.
      */
-    public static final class BooleanOperator extends Operator {
+    public static final class BooleanOperator implements Operator {
         
         private static final BooleanOperator SET = new BooleanOperator(true);
         private static final BooleanOperator UNSET = new BooleanOperator(false);
@@ -679,12 +1299,62 @@ public class SearchQuery {
         public final boolean isSet() {
             return set;
         }
+
+        /**
+         * @see java.lang.Object#hashCode()
+         */
+        //@Override
+        public int hashCode() {
+            final int PRIME = 31;
+            int result = 1;
+            result = PRIME * result + (set ? 1231 : 1237);
+            return result;
+        }
+
+        /**
+         * @see java.lang.Object#equals(java.lang.Object)
+         */
+        //@Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            final BooleanOperator other = (BooleanOperator) obj;
+            if (set != other.set)
+                return false;
+            return true;
+        }
+
+        /**
+         * Constructs a <code>String</code> with all attributes
+         * in name = value format.
+         *
+         * @return a <code>String</code> representation 
+         * of this object.
+         */
+        public String toString()
+        {
+            final String TAB = " ";
+            
+            StringBuffer retValue = new StringBuffer();
+            
+            retValue.append("BooleanOperator ( ")
+                .append("set = ").append(this.set).append(TAB)
+                .append(" )");
+            
+            return retValue.toString();
+        }
+        
+        
     }
     
     /**
      * Searches numberic values.
      */
-    public static final class NumericOperator extends Operator {
+    public static final class NumericOperator implements Operator {
         public static final int EQUALS = 1;
         public static final int LESS_THAN = 2;
         public static final int GREATER_THAN = 3;
@@ -713,12 +1383,64 @@ public class SearchQuery {
         public final long getValue() {
             return value;
         }
+
+        /**
+         * @see java.lang.Object#hashCode()
+         */
+        //@Override
+        public int hashCode() {
+            final int PRIME = 31;
+            int result = 1;
+            result = PRIME * result + type;
+            result = PRIME * result + (int) (value ^ (value >>> 32));
+            return result;
+        }
+
+        /**
+         * @see java.lang.Object#equals(java.lang.Object)
+         */
+        //@Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            final NumericOperator other = (NumericOperator) obj;
+            if (type != other.type)
+                return false;
+            if (value != other.value)
+                return false;
+            return true;
+        }
+
+        /**
+         * Constructs a <code>String</code> with all attributes
+         * in name = value format.
+         *
+         * @return a <code>String</code> representation 
+         * of this object.
+         */
+        public String toString()
+        {
+            final String TAB = " ";
+            
+            StringBuffer retValue = new StringBuffer();
+            
+            retValue.append("NumericOperator ( ")
+                .append("type = ").append(this.type).append(TAB)
+                .append("value = ").append(this.value).append(TAB)
+                .append(" )");
+            
+            return retValue.toString();
+        }
     }
     
     /**
      * Operates on a date.
      */
-    public static final class DateOperator extends Operator implements HeaderOperator  {
+    public static final class DateOperator implements HeaderOperator  {
         public static final int BEFORE = 1;
         public static final int AFTER = 2;
         public static final int ON = 3;
@@ -767,12 +1489,73 @@ public class SearchQuery {
         public final int getYear() {
             return year;
         }
+
+        /**
+         * @see java.lang.Object#hashCode()
+         */
+        //@Override
+        public int hashCode() {
+            final int PRIME = 31;
+            int result = 1;
+            result = PRIME * result + day;
+            result = PRIME * result + month;
+            result = PRIME * result + type;
+            result = PRIME * result + year;
+            return result;
+        }
+
+        /**
+         * @see java.lang.Object#equals(java.lang.Object)
+         */
+        //@Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            final DateOperator other = (DateOperator) obj;
+            if (day != other.day)
+                return false;
+            if (month != other.month)
+                return false;
+            if (type != other.type)
+                return false;
+            if (year != other.year)
+                return false;
+            return true;
+        }
+
+        /**
+         * Constructs a <code>String</code> with all attributes
+         * in name = value format.
+         *
+         * @return a <code>String</code> representation 
+         * of this object.
+         */
+        public String toString()
+        {
+            final String TAB = " ";
+            
+            StringBuffer retValue = new StringBuffer();
+            
+            retValue.append("DateOperator ( ")
+                .append("day = ").append(this.day).append(TAB)
+                .append("month = ").append(this.month).append(TAB)
+                .append("type = ").append(this.type).append(TAB)
+                .append("year = ").append(this.year).append(TAB)
+                .append(" )");
+            
+            return retValue.toString();
+        }
+        
     }
     
     /**
      * Search for numbers within set of ranges.
      */
-    public static final class InOperator extends Operator {
+    public static final class InOperator implements Operator {
         private final NumericRange[] range;
 
         public InOperator(final NumericRange[] range) {
@@ -788,5 +1571,55 @@ public class SearchQuery {
         public final NumericRange[] getRange() {
             return range;
         }
+
+        /**
+         * @see java.lang.Object#hashCode()
+         */
+        //@Override
+        public int hashCode() {
+            final int PRIME = 31;
+            int result = 1;
+            result = PRIME * result + Arrays.hashCode(range);
+            return result;
+        }
+
+        /**
+         * @see java.lang.Object#equals(java.lang.Object)
+         */
+        //@Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            final InOperator other = (InOperator) obj;
+            if (!Arrays.equals(range, other.range))
+                return false;
+            return true;
+        }
+
+        /**
+         * Constructs a <code>String</code> with all attributes
+         * in name = value format.
+         *
+         * @return a <code>String</code> representation 
+         * of this object.
+         */
+        public String toString()
+        {
+            final String TAB = " ";
+            
+            StringBuffer retValue = new StringBuffer();
+            
+            retValue.append("InOperator ( ")
+                .append("range = ").append(this.range).append(TAB)
+                .append(" )");
+            
+            return retValue.toString();
+        }
+        
+        
     }
 }

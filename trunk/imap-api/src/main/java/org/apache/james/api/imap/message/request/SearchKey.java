@@ -57,7 +57,7 @@ public final class SearchKey {
     // OR
     public static final int TYPE_OR = 36;
     // AND
-    public static final int TYPE_AND = 36;
+    public static final int TYPE_AND = 37;
     
     private static final SearchKey UNSEEN = new SearchKey(TYPE_UNSEEN,
             null, null, 0, null, null, null);

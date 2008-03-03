@@ -19,6 +19,8 @@
 
 package org.apache.james.imap.message.response.imap4rev1.server;
 
+import java.util.Arrays;
+
 import org.apache.james.api.imap.message.response.ImapResponseMessage;
 
 /**
@@ -43,5 +45,52 @@ public class SearchResponse implements ImapResponseMessage {
     public final long[] getIds() {
         return ids;
     }
-    
+
+    /**
+     * @see java.lang.Object#hashCode()
+     */
+    //@Override
+    public int hashCode() {
+        final int PRIME = 31;
+        int result = 1;
+        result = PRIME * result + Arrays.hashCode(ids);
+        return result;
+    }
+
+    /**
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    //@Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        final SearchResponse other = (SearchResponse) obj;
+        if (!Arrays.equals(ids, other.ids))
+            return false;
+        return true;
+    }
+
+    /**
+     * Constructs a <code>String</code> with all attributes
+     * in name = value format.
+     *
+     * @return a <code>String</code> representation 
+     * of this object.
+     */
+    public String toString()
+    {
+        final String TAB = " ";
+        
+        StringBuffer retValue = new StringBuffer();
+        
+        retValue.append("SearchResponse ( ")
+            .append("ids = ").append(this.ids).append(TAB)
+            .append(" )");
+        
+        return retValue.toString();
+    }
 }
