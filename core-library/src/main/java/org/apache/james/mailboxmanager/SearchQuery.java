@@ -59,6 +59,16 @@ public class SearchQuery {
     }
     
     /**
+     * Creates a filter for message size equal to the given value
+     * @param value messages with size equal to this value will be selected
+     * by the returned criterion
+     * @return <code>Criterion</code>, not null
+     */
+    public static final Criterion sizeEquals(long value) {
+        return new SizeCriterion(new NumericOperator(value, NumericOperator.EQUALS));
+    }
+    
+    /**
      * Creates a filter matching messages with internal date after the given date.
      * @param day one based day of the month
      * @param month one based month of the year
