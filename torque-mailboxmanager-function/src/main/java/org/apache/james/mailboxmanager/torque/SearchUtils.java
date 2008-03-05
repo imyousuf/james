@@ -27,7 +27,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import javax.mail.Flags;
+
 import org.apache.james.mailboxmanager.SearchQuery;
+import org.apache.james.mailboxmanager.SearchQuery.NumericRange;
+import org.apache.james.mailboxmanager.torque.om.MessageFlags;
 import org.apache.james.mailboxmanager.torque.om.MessageHeader;
 import org.apache.james.mailboxmanager.torque.om.MessageRow;
 import org.apache.james.mime4j.field.datetime.DateTime;
@@ -48,8 +52,106 @@ class SearchUtils {
             result = matches((SearchQuery.SizeCriterion) criterion, row);
         } else if (criterion instanceof SearchQuery.HeaderCriterion) {
             result = matches((SearchQuery.HeaderCriterion) criterion, row);
+        } else if (criterion instanceof SearchQuery.UidCriterion) {
+            result = matches((SearchQuery.UidCriterion) criterion, row);
+        } else if (criterion instanceof SearchQuery.FlagCriterion) {
+            result = matches((SearchQuery.FlagCriterion) criterion, row);
+        } else if (criterion instanceof SearchQuery.AllCriterion) {
+            result = true;
+        } else if (criterion instanceof SearchQuery.ConjunctionCriterion) {
+            result = matches((SearchQuery.ConjunctionCriterion) criterion, row);
         } else {
             throw new UnsupportedSearchException();
+        }
+        return result;
+    }
+    
+    private static boolean matches(SearchQuery.ConjunctionCriterion criterion, MessageRow row) throws TorqueException {
+        final int type = criterion.getType();
+        final List criteria = criterion.getCriteria();
+        switch (type) {
+            case SearchQuery.ConjunctionCriterion.NOR: return nor(criteria, row);
+            case SearchQuery.ConjunctionCriterion.OR: return or(criteria, row);
+            case SearchQuery.ConjunctionCriterion.AND: return and(criteria, row);
+            default: return false;
+        }
+    }
+    
+    private static boolean and(final List criteria, final MessageRow row) throws TorqueException {
+        boolean result = true;
+        for (Iterator it = criteria.iterator(); it.hasNext();) {
+            final SearchQuery.Criterion criterion = (SearchQuery.Criterion) it.next();
+            final boolean matches = matches(criterion, row);
+            if (!matches) {
+                result = false;
+                break;
+            }
+        }
+        return result;
+    }
+    
+    private static boolean or(final List criteria, final MessageRow row) throws TorqueException {
+        boolean result = false;
+        for (Iterator it = criteria.iterator(); it.hasNext();) {
+            final SearchQuery.Criterion criterion = (SearchQuery.Criterion) it.next();
+            final boolean matches = matches(criterion, row);
+            if (matches) {
+                result = true;
+                break;
+            }
+        }
+        return result;
+    }
+    
+    private static boolean nor(final List criteria, final MessageRow row) throws TorqueException {
+        boolean result = true;
+        for (Iterator it = criteria.iterator(); it.hasNext();) {
+            final SearchQuery.Criterion criterion = (SearchQuery.Criterion) it.next();
+            final boolean matches = matches(criterion, row);
+            if (matches) {
+                result = false;
+                break;
+            }
+        }
+        return result;
+    }
+
+    private static boolean matches(SearchQuery.FlagCriterion criterion, MessageRow row) throws TorqueException {
+        final SearchQuery.BooleanOperator operator = criterion.getOperator();
+        final boolean isSet = operator.isSet();
+        final Flags.Flag flag = criterion.getFlag();
+        final MessageFlags messageFlags = row.getMessageFlags();
+        final boolean result;
+        if (flag == Flags.Flag.ANSWERED) {
+            result = isSet == messageFlags.getAnswered();
+        } else if (flag == Flags.Flag.SEEN) {
+            result = isSet == messageFlags.getSeen(); 
+        } else if (flag == Flags.Flag.DRAFT) {
+            result = isSet == messageFlags.getDraft(); 
+        } else if (flag == Flags.Flag.FLAGGED) {
+            result = isSet == messageFlags.getFlagged();
+        } else if (flag == Flags.Flag.RECENT) {
+            result = isSet == messageFlags.getRecent();
+        } else if (flag == Flags.Flag.DELETED) {
+            result = isSet == messageFlags.getDeleted();
+        } else {
+            result = false;
+        }
+        return result;
+    }
+    
+    private static boolean matches(SearchQuery.UidCriterion criterion, MessageRow row) throws TorqueException {
+        final SearchQuery.InOperator operator = criterion.getOperator();
+        final NumericRange[] ranges = operator.getRange();
+        final long uid = row.getUid();
+        final int length = ranges.length;
+        boolean result = false;
+        for (int i = 0; i < length; i++) {
+            final NumericRange numericRange = ranges[i];
+            if (numericRange.isIn(uid)) {
+                result = true;
+                break;
+            }
         }
         return result;
     }
