@@ -407,6 +407,16 @@ public class SearchQuery {
         }
         
         /**
+         * Is the given value in this range?
+         * @param value value to be tested
+         * @return true if the value is in range, 
+         * false otherwise
+         */
+        public boolean isIn(long value) {
+            return lowValue <= value && highValue >= value;
+        }
+        
+        /**
          * @see java.lang.Object#hashCode()
          */
         //@Override
