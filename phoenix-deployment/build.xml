@@ -592,6 +592,9 @@
             <zipfileset dir="${conf.dir}" fullpath="conf/james-liststores.xml">
                 <include name="james-liststores.xml"/>
             </zipfileset>
+            <zipfileset dir="${conf.dir}" fullpath="conf/james-jms.xml">
+                <include name="james-jms.xml"/>
+            </zipfileset>
             <zipfileset dir="${conf.dir}/samples/fetchmail" prefix="conf/samples/fetchmail">
                 <include name="*.xml"/>
             </zipfileset>

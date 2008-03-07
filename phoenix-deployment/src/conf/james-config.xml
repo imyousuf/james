@@ -209,7 +209,7 @@
    &fetchmailConfig;
    
    <!-- Example configuration for JMS interoperation -->
-   &jmsConfig;
+   <!--&jmsConfig;-->
 
    <!-- Set the Java packages from which to load mailets and matchers -->
    <mailetpackages>
