@@ -36,4 +36,14 @@ public  class MessageBody
 {
 
     private static final long serialVersionUID = -1304530949913525943L;
+
+    public MessageBody() {
+        super();
+    }
+    
+    public MessageBody(byte[] content) {
+        super();
+        setBody(content);
+    }
+    
 }

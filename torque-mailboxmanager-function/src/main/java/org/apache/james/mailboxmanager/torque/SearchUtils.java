@@ -19,6 +19,8 @@
 
 package org.apache.james.mailboxmanager.torque;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.util.Calendar;
 import java.util.Date;
@@ -34,6 +36,7 @@ import org.apache.james.mailboxmanager.SearchQuery.NumericRange;
 import org.apache.james.mailboxmanager.torque.om.MessageFlags;
 import org.apache.james.mailboxmanager.torque.om.MessageHeader;
 import org.apache.james.mailboxmanager.torque.om.MessageRow;
+import org.apache.james.mime4j.MimeException;
 import org.apache.james.mime4j.field.datetime.DateTime;
 import org.apache.james.mime4j.field.datetime.parser.DateTimeParser;
 import org.apache.james.mime4j.field.datetime.parser.ParseException;
@@ -56,6 +59,8 @@ class SearchUtils {
             result = matches((SearchQuery.UidCriterion) criterion, row);
         } else if (criterion instanceof SearchQuery.FlagCriterion) {
             result = matches((SearchQuery.FlagCriterion) criterion, row);
+        } else if (criterion instanceof SearchQuery.TextCriterion) {
+            result = matches((SearchQuery.TextCriterion) criterion, row);
         } else if (criterion instanceof SearchQuery.AllCriterion) {
             result = true;
         } else if (criterion instanceof SearchQuery.ConjunctionCriterion) {
@@ -66,6 +71,38 @@ class SearchUtils {
         return result;
     }
     
+    
+    private static boolean matches(SearchQuery.TextCriterion criterion, MessageRow row) throws TorqueException {
+        try {
+            final SearchQuery.ContainsOperator operator = criterion.getOperator();
+            final String value = operator.getValue();
+            final int type = criterion.getType();
+            switch (type) {
+                case SearchQuery.TextCriterion.BODY: return bodyContains(value, row);
+                case SearchQuery.TextCriterion.FULL_MESSAGE: return messageContains(value, row);
+                default: throw new UnsupportedSearchException();
+            }
+        } catch (IOException e) {
+            throw new TorqueException(e);
+        } catch (MimeException e) {
+            throw new TorqueException(e);
+        }
+    }
+    
+    private static boolean bodyContains(String value, MessageRow row) throws TorqueException, IOException, MimeException {
+        final InputStream input = MessageRowUtils.toInput(row);
+        final MessageSearcher searcher = new MessageSearcher(value, true, false);
+        final boolean result = searcher.isFoundIn(input);
+        return result;
+    }
+
+    private static boolean messageContains(String value, MessageRow row) throws TorqueException, IOException, MimeException {
+        final InputStream input = MessageRowUtils.toInput(row);
+        final MessageSearcher searcher = new MessageSearcher(value, true, true);
+        final boolean result = searcher.isFoundIn(input);
+        return result;
+    }
+
     private static boolean matches(SearchQuery.ConjunctionCriterion criterion, MessageRow row) throws TorqueException {
         final int type = criterion.getType();
         final List criteria = criterion.getCriteria();
@@ -187,7 +224,7 @@ class SearchUtils {
     }
 
     private static boolean matches(final SearchQuery.ContainsOperator operator, final String headerName, final MessageRow row) throws TorqueException {
-        final String text = operator.getValue();
+        final String text = operator.getValue().toUpperCase();
         boolean result = false;
         final List headers = row.getMessageHeaders();
         for (Iterator it = headers.iterator(); it.hasNext();) {
@@ -195,9 +232,11 @@ class SearchUtils {
             final String name = header.getField();
             if (headerName.equalsIgnoreCase(name)) {
                 final String value = header.getValue();
-                if (value.contains(text)) {
-                    result = true;
-                    break;
+                if (value != null) {
+                    if (value.toUpperCase().contains(text)) {
+                        result = true;
+                        break;
+                    }
                 }
             }
         }

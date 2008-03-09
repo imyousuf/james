@@ -196,6 +196,24 @@ public class SearchUtilsTest extends TestCase {
         assertFalse(SearchUtils.matches(SearchQuery.headerDateBefore("BOGUS",9, 9, 2001), row));
     }
     
+    public void testMatchHeaderContainsCaps() throws Exception {
+        addHeader(SUBJECT_FIELD, TEXT.toUpperCase());
+        assertFalse(SearchUtils.matches(SearchQuery.headerContains(DATE_FIELD, CUSTARD), row));
+        assertFalse(SearchUtils.matches(SearchQuery.headerContains(DATE_FIELD, TEXT), row));
+        assertTrue(SearchUtils.matches(SearchQuery.headerContains(SUBJECT_FIELD, TEXT), row));
+        assertTrue(SearchUtils.matches(SearchQuery.headerContains(SUBJECT_FIELD, RHUBARD), row));
+        assertFalse(SearchUtils.matches(SearchQuery.headerContains(SUBJECT_FIELD, CUSTARD), row)); 
+    }
+    
+    public void testMatchHeaderContainsLowers() throws Exception {
+        addHeader(SUBJECT_FIELD, TEXT.toLowerCase());
+        assertFalse(SearchUtils.matches(SearchQuery.headerContains(DATE_FIELD, CUSTARD), row));
+        assertFalse(SearchUtils.matches(SearchQuery.headerContains(DATE_FIELD, TEXT), row));
+        assertTrue(SearchUtils.matches(SearchQuery.headerContains(SUBJECT_FIELD, TEXT), row));
+        assertTrue(SearchUtils.matches(SearchQuery.headerContains(SUBJECT_FIELD, RHUBARD), row));
+        assertFalse(SearchUtils.matches(SearchQuery.headerContains(SUBJECT_FIELD, CUSTARD), row)); 
+    }
+    
     public void testMatchHeaderContains() throws Exception {
         addHeader(SUBJECT_FIELD, TEXT);
         assertFalse(SearchUtils.matches(SearchQuery.headerContains(DATE_FIELD, CUSTARD), row));
