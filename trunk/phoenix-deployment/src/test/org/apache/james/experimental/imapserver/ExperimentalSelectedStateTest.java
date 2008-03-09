@@ -26,11 +26,7 @@ public class ExperimentalSelectedStateTest extends AbstractTestSelectedState {
     public ExperimentalSelectedStateTest() throws Exception {
         super(HostSystemFactory.createStandardImap());
     }
-
-    public void testSearchUS() throws Exception {
-        //TODO Implement search
-    }
-
+    
     public void testFetchMultipleMessagesUS() throws Exception {
         // TODO Auto-generated method stub
         //super.testFetchMultipleMessages();
@@ -45,10 +41,6 @@ public class ExperimentalSelectedStateTest extends AbstractTestSelectedState {
     public void testUidUS() throws Exception {
         // UID fetch not working very well
         // super.testUid();
-    }
-
-    public void testSearchKOREA() throws Exception {
-        //TODO Implement search
     }
 
     public void testFetchMultipleMessagesKOREA() throws Exception {
@@ -66,10 +58,6 @@ public class ExperimentalSelectedStateTest extends AbstractTestSelectedState {
         // UID fetch not working very well
         // super.testUid();
     }  
-
-    public void testSearchITALY() throws Exception {
-        //TODO Implement search
-    }
 
     public void testFetchMultipleMessagesITALY() throws Exception {
         // TODO Auto-generated method stub

@@ -623,12 +623,12 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
                 
                 final List rows = MessageRowPeer.doSelectJoinMessageFlags(new Criteria());
                 final List filteredMessages = new ArrayList();
-                for (Iterator it = filteredMessages.iterator(); it
+                for (Iterator it = rows.iterator(); it
                         .hasNext();) {
                     final MessageRow row = (MessageRow) it.next();
                     try {
                         if (searches.isMatch(query, row)) {
-                            rows.add(row);
+                            filteredMessages.add(row);
                         }
                     } catch (TorqueException e) {
                         getLog().info("Cannot test message against search criteria. Will continue to test other messages.", e);

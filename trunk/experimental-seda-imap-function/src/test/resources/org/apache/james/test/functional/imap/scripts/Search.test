@@ -16,7 +16,19 @@
 # specific language governing permissions and limitations      #
 # under the License.                                           #
 ################################################################
-# TODO implement search - currently returns everything regardless
 C: a SEARCH FLAGGED
+S: \* SEARCH
+S: a OK SEARCH completed.
+C: b STORE 1:* +FLAGS.SILENT (\FLAGGED)
+S: b OK STORE completed.
+C: c SEARCH FLAGGED
 S: \* SEARCH 1 2 3 4
-S: a OK SEARCH completed
+S: c OK SEARCH completed.
+C: d STORE 3:* -FLAGS.SILENT (\FLAGGED)
+S: d OK STORE completed.
+C: e SEARCH FLAGGED
+S: \* SEARCH 1 2
+S: e OK SEARCH completed.
+C: e SEARCH UNFLAGGED
+S: \* SEARCH 3 4
+S: e OK SEARCH completed.
