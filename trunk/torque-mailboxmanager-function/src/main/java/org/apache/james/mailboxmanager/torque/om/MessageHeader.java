@@ -35,9 +35,16 @@ public  class MessageHeader
     extends org.apache.james.mailboxmanager.torque.om.BaseMessageHeader
     implements Persistent
 {
-
-    /**
-     * 
-     */
     private static final long serialVersionUID = -9191792349506771474L;
+
+    
+    public MessageHeader() {
+        super();
+    }
+    
+    public MessageHeader(final String field, final String value) {
+        super();
+        setField(field);
+        setValue(value);
+    }
 }

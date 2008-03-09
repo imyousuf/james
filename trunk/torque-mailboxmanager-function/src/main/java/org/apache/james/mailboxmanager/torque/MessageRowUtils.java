@@ -102,7 +102,7 @@ public class MessageRowUtils {
         return result;
     }
 
-    public static Content createFullContent(final MessageRow messageRow, List headers) throws TorqueException, MailboxManagerException {
+    public static Content createFullContent(final MessageRow messageRow, List headers) throws TorqueException {
         if (headers == null) {
             headers = createHeaders(messageRow);
         }
@@ -217,6 +217,17 @@ public class MessageRowUtils {
     }
     
     private static PartContentBuilder build(int[] path, final MessageRow row) throws IOException, MimeException, TorqueException {
+        final InputStream stream = toInput(row);
+        PartContentBuilder result = new PartContentBuilder();
+        result.parse(stream);
+        for (int i = 0; i < path.length; i++) {
+            final int next = path[i];
+            result.to(next);
+        }
+        return result;
+    }
+
+    public static InputStream toInput(final MessageRow row) throws TorqueException {
         final List headers = getSortedHeaders(row);
         final StringBuffer headersToString = new StringBuffer(headers.size()*50);
         for (Iterator it = headers.iterator(); it.hasNext();) {
@@ -230,13 +241,7 @@ public class MessageRowUtils {
         
         byte[] bodyContent = row.getBodyContent();
         final MessageInputStream stream = new MessageInputStream(headersToString, bodyContent);
-        PartContentBuilder result = new PartContentBuilder();
-        result.parse(stream);
-        for (int i = 0; i < path.length; i++) {
-            final int next = path[i];
-            result.to(next);
-        }
-        return result;
+        return stream;
     }
     
     private static final class MessageInputStream extends InputStream {
