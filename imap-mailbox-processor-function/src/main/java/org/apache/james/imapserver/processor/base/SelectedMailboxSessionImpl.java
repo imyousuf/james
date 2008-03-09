@@ -131,28 +131,32 @@ public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements Se
 
     private void addFlagsResponses(final List responses, boolean useUid, final ImapMailbox mailbox) {
         try {
-            
             for (final Iterator it = events.flagUpdateUids(); it.hasNext();) {
                 Long uid = (Long) it.next();
                 GeneralMessageSet messageSet = GeneralMessageSetImpl.oneUid(uid.longValue());
-                final Iterator messages = mailbox.getMessages(messageSet, FetchGroupImpl.FLAGS, mailboxSession);
-                while (messages.hasNext()) {
-                    MessageResult mr = (MessageResult) it.next();
-                    int msn = msn(mr.getUid());
-                    final Flags flags = mr.getFlags();
-                    final Long uidOut;
-                    if (useUid) {
-                        uidOut = new Long(mr.getUid());
-                    } else {
-                        uidOut = null;
-                    }
-                    FetchResponse response = new FetchResponse(msn, flags, uidOut, null, null, null, null, null);
-                    responses.add(response);
-                }
+                addFlagsResponses(responses, useUid, mailbox, messageSet);
             }
         } catch (MessagingException e) {
             final String message = "Failed to retrieve flags data";
             handleResponseException(responses, e, message);
+        }
+    }
+
+    private void addFlagsResponses(final List responses, boolean useUid, final ImapMailbox mailbox, GeneralMessageSet messageSet) throws MailboxManagerException {
+        final Iterator it = mailbox.getMessages(messageSet, FetchGroupImpl.FLAGS, mailboxSession);
+        while (it.hasNext()) {
+            MessageResult mr = (MessageResult) it.next();
+            final long uid = mr.getUid();
+            int msn = msn(uid);
+            final Flags flags = mr.getFlags();
+            final Long uidOut;
+            if (useUid) {
+                uidOut = new Long(uid);
+            } else {
+                uidOut = null;
+            }
+            FetchResponse response = new FetchResponse(msn, flags, uidOut, null, null, null, null, null);
+            responses.add(response);
         }
     }
 
