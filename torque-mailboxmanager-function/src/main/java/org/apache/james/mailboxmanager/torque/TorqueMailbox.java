@@ -23,6 +23,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -286,9 +287,14 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
 
     private TorqueResultIterator getMessages(FetchGroup result, UidRange range, Criteria c) throws TorqueException, MessagingException, MailboxManagerException {
         List rows = MessageRowPeer.doSelectJoinMessageFlags(c);
+        final TorqueResultIterator results = getResults(result, rows);
+        getUidChangeTracker().found(range, results.getMessageFlags());
+        return results;
+    }
+
+    private TorqueResultIterator getResults(FetchGroup result, List rows) throws TorqueException {
         Collections.sort(rows, MessageRowUtils.getUidComparator());
         final TorqueResultIterator results = new TorqueResultIterator(rows, result, getUidToKeyConverter());
-        getUidChangeTracker().found(range, results.getMessageFlags());
         return results;
     }
 
@@ -605,17 +611,28 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
         this.mailboxRow = mailboxRow;
     }
 
-    public Iterator search(SearchQuery parameters, FetchGroup fetchGroup,
+    public Iterator search(SearchQuery query, FetchGroup fetchGroup,
             MailboxSession mailboxSession) throws MailboxManagerException {
         try {
             lock.readLock().acquire();
             try {
                 checkAccess();
                 
-                TorqueCriteriaBuilder builder = new TorqueCriteriaBuilder();
+                final List rows = MessageRowPeer.doSelectJoinMessageFlags(new Criteria());
+                final List filteredMessages = new ArrayList();
+                for (Iterator it = filteredMessages.iterator(); it
+                        .hasNext();) {
+                    final MessageRow row = (MessageRow) it.next();
+                    try {
+                        if (SearchUtils.isMatch(query, row)) {
+                            rows.add(row);
+                        }
+                    } catch (TorqueException e) {
+                        getLog().info("Cannot test message against search criteria. Will continue to test other messages.", e);
+                    }
+                }
                 
-                final Iterator results = getMessages(fetchGroup, new UidRange(1, -1), builder.getCriteria());
-                return results;
+                return getResults(fetchGroup, filteredMessages);
             } catch (TorqueException e) {
                 throw new MailboxManagerException(e);
             } catch (MessagingException e) {

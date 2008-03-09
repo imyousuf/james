@@ -47,7 +47,38 @@ import org.apache.torque.TorqueException;
  */
 class SearchUtils {
     
-    public static boolean matches(SearchQuery.Criterion criterion, MessageRow row) throws TorqueException {
+    /**
+     * Does the row match the given criteria?
+     * @param query <code>SearchQuery</code>, not null
+     * @param row <code>MessageRow</code>, not null
+     * @return true if the row matches the given criteria,
+     * false otherwise
+     * @throws TorqueException
+     */
+    public static boolean isMatch(final SearchQuery query, final MessageRow row) throws TorqueException {
+        final List criteria = query.getCriterias();
+        boolean result = true;
+        if (criteria != null) {
+            for (Iterator it = criteria.iterator(); it.hasNext();) {
+                final SearchQuery.Criterion criterion = (SearchQuery.Criterion) it.next();
+                if (!isMatch(criterion, row)) {
+                    result = false;
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+    
+    /**
+     * Does the row match the given criterion?
+     * @param query <code>SearchQuery.Criterion</code>, not null
+     * @param row <code>MessageRow</code>, not null
+     * @return true if the row matches the given criterion,
+     * false otherwise
+     * @throws TorqueException
+     */
+    public static boolean isMatch(SearchQuery.Criterion criterion, MessageRow row) throws TorqueException {
         final boolean result;
         if (criterion instanceof SearchQuery.InternalDateCriterion) {
             result = matches((SearchQuery.InternalDateCriterion) criterion, row);
@@ -118,7 +149,7 @@ class SearchUtils {
         boolean result = true;
         for (Iterator it = criteria.iterator(); it.hasNext();) {
             final SearchQuery.Criterion criterion = (SearchQuery.Criterion) it.next();
-            final boolean matches = matches(criterion, row);
+            final boolean matches = isMatch(criterion, row);
             if (!matches) {
                 result = false;
                 break;
@@ -131,7 +162,7 @@ class SearchUtils {
         boolean result = false;
         for (Iterator it = criteria.iterator(); it.hasNext();) {
             final SearchQuery.Criterion criterion = (SearchQuery.Criterion) it.next();
-            final boolean matches = matches(criterion, row);
+            final boolean matches = isMatch(criterion, row);
             if (matches) {
                 result = true;
                 break;
@@ -144,7 +175,7 @@ class SearchUtils {
         boolean result = true;
         for (Iterator it = criteria.iterator(); it.hasNext();) {
             final SearchQuery.Criterion criterion = (SearchQuery.Criterion) it.next();
-            final boolean matches = matches(criterion, row);
+            final boolean matches = isMatch(criterion, row);
             if (matches) {
                 result = false;
                 break;
