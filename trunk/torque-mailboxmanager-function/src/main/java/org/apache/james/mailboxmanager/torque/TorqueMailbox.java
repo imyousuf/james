@@ -82,7 +82,10 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
     
     private final ReadWriteLock lock;
     
+    private final MessageSearches searches;
+    
     TorqueMailbox(final MailboxRow mailboxRow, final ReadWriteLock lock, final Log log) {
+        this.searches = new MessageSearches();
         setLog(log);
         this.mailboxRow = mailboxRow;
         this.tracker = new UidChangeTracker(mailboxRow.getLastUid());
@@ -624,7 +627,7 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
                         .hasNext();) {
                     final MessageRow row = (MessageRow) it.next();
                     try {
-                        if (SearchUtils.isMatch(query, row)) {
+                        if (searches.isMatch(query, row)) {
                             rows.add(row);
                         }
                     } catch (TorqueException e) {
@@ -682,5 +685,10 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
 
     public boolean isWriteable() {
         return true;
+    }
+
+    public void setLog(Log log) {
+        super.setLog(log);
+        searches.setLog(log);
     }    
 }

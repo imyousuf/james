@@ -62,7 +62,7 @@ public abstract class AbstractLogFactoryAware implements LogFactoryAware, LogEna
 
     public void enableLogging(Logger logger) {
         this.logFactory=new AvalonLogFactory(logger);
-        this.log=logFactory.getLog();
+        setLog(logFactory.getLog());
     }
     
     

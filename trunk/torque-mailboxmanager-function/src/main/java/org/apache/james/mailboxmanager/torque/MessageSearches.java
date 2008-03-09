@@ -31,6 +31,8 @@ import java.util.TimeZone;
 
 import javax.mail.Flags;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.james.mailboxmanager.SearchQuery;
 import org.apache.james.mailboxmanager.SearchQuery.NumericRange;
 import org.apache.james.mailboxmanager.torque.om.MessageFlags;
@@ -45,8 +47,23 @@ import org.apache.torque.TorqueException;
 /**
  * Uility methods to help perform search operations.
  */
-class SearchUtils {
+class MessageSearches {
     
+    private Log log;
+    private boolean isCustomLog = false;
+    
+    public final Log getLog() {
+        if (log == null) {
+            log = LogFactory.getLog(MessageSearches.class);
+        }
+        return log;
+    }
+
+    public final void setLog(Log log) {
+        isCustomLog = true;
+        this.log = log;
+    }
+
     /**
      * Does the row match the given criteria?
      * @param query <code>SearchQuery</code>, not null
@@ -55,7 +72,7 @@ class SearchUtils {
      * false otherwise
      * @throws TorqueException
      */
-    public static boolean isMatch(final SearchQuery query, final MessageRow row) throws TorqueException {
+    public boolean isMatch(final SearchQuery query, final MessageRow row) throws TorqueException {
         final List criteria = query.getCriterias();
         boolean result = true;
         if (criteria != null) {
@@ -78,7 +95,7 @@ class SearchUtils {
      * false otherwise
      * @throws TorqueException
      */
-    public static boolean isMatch(SearchQuery.Criterion criterion, MessageRow row) throws TorqueException {
+    public boolean isMatch(SearchQuery.Criterion criterion, MessageRow row) throws TorqueException {
         final boolean result;
         if (criterion instanceof SearchQuery.InternalDateCriterion) {
             result = matches((SearchQuery.InternalDateCriterion) criterion, row);
@@ -103,7 +120,7 @@ class SearchUtils {
     }
     
     
-    private static boolean matches(SearchQuery.TextCriterion criterion, MessageRow row) throws TorqueException {
+    private boolean matches(SearchQuery.TextCriterion criterion, MessageRow row) throws TorqueException {
         try {
             final SearchQuery.ContainsOperator operator = criterion.getOperator();
             final String value = operator.getValue();
@@ -120,21 +137,28 @@ class SearchUtils {
         }
     }
     
-    private static boolean bodyContains(String value, MessageRow row) throws TorqueException, IOException, MimeException {
+    private boolean bodyContains(String value, MessageRow row) throws TorqueException, IOException, MimeException {
         final InputStream input = MessageRowUtils.toInput(row);
-        final MessageSearcher searcher = new MessageSearcher(value, true, false);
+        final boolean result = isInMessage(value, input, false);
+        return result;
+    }
+
+    private boolean isInMessage(String value, final InputStream input, boolean header) throws IOException, MimeException {
+        final MessageSearcher searcher = new MessageSearcher(value, true, header);
+        if (isCustomLog) {
+            searcher.setLogger(log);
+        }
         final boolean result = searcher.isFoundIn(input);
         return result;
     }
 
-    private static boolean messageContains(String value, MessageRow row) throws TorqueException, IOException, MimeException {
+    private boolean messageContains(String value, MessageRow row) throws TorqueException, IOException, MimeException {
         final InputStream input = MessageRowUtils.toInput(row);
-        final MessageSearcher searcher = new MessageSearcher(value, true, true);
-        final boolean result = searcher.isFoundIn(input);
+        final boolean result = isInMessage(value, input, true);
         return result;
     }
 
-    private static boolean matches(SearchQuery.ConjunctionCriterion criterion, MessageRow row) throws TorqueException {
+    private boolean matches(SearchQuery.ConjunctionCriterion criterion, MessageRow row) throws TorqueException {
         final int type = criterion.getType();
         final List criteria = criterion.getCriteria();
         switch (type) {
@@ -145,7 +169,7 @@ class SearchUtils {
         }
     }
     
-    private static boolean and(final List criteria, final MessageRow row) throws TorqueException {
+    private boolean and(final List criteria, final MessageRow row) throws TorqueException {
         boolean result = true;
         for (Iterator it = criteria.iterator(); it.hasNext();) {
             final SearchQuery.Criterion criterion = (SearchQuery.Criterion) it.next();
@@ -158,7 +182,7 @@ class SearchUtils {
         return result;
     }
     
-    private static boolean or(final List criteria, final MessageRow row) throws TorqueException {
+    private boolean or(final List criteria, final MessageRow row) throws TorqueException {
         boolean result = false;
         for (Iterator it = criteria.iterator(); it.hasNext();) {
             final SearchQuery.Criterion criterion = (SearchQuery.Criterion) it.next();
@@ -171,7 +195,7 @@ class SearchUtils {
         return result;
     }
     
-    private static boolean nor(final List criteria, final MessageRow row) throws TorqueException {
+    private boolean nor(final List criteria, final MessageRow row) throws TorqueException {
         boolean result = true;
         for (Iterator it = criteria.iterator(); it.hasNext();) {
             final SearchQuery.Criterion criterion = (SearchQuery.Criterion) it.next();
@@ -184,7 +208,7 @@ class SearchUtils {
         return result;
     }
 
-    private static boolean matches(SearchQuery.FlagCriterion criterion, MessageRow row) throws TorqueException {
+    private boolean matches(SearchQuery.FlagCriterion criterion, MessageRow row) throws TorqueException {
         final SearchQuery.BooleanOperator operator = criterion.getOperator();
         final boolean isSet = operator.isSet();
         final Flags.Flag flag = criterion.getFlag();
@@ -208,7 +232,7 @@ class SearchUtils {
         return result;
     }
     
-    private static boolean matches(SearchQuery.UidCriterion criterion, MessageRow row) throws TorqueException {
+    private boolean matches(SearchQuery.UidCriterion criterion, MessageRow row) throws TorqueException {
         final SearchQuery.InOperator operator = criterion.getOperator();
         final NumericRange[] ranges = operator.getRange();
         final long uid = row.getUid();
@@ -224,7 +248,7 @@ class SearchUtils {
         return result;
     }
     
-    private static boolean matches(SearchQuery.HeaderCriterion criterion, MessageRow row) throws TorqueException {
+    private boolean matches(SearchQuery.HeaderCriterion criterion, MessageRow row) throws TorqueException {
         final SearchQuery.HeaderOperator operator = criterion.getOperator();
         final String headerName = criterion.getHeaderName();
         final boolean result;
@@ -240,7 +264,7 @@ class SearchUtils {
         return result;
     }
 
-    private static boolean exists(String headerName, MessageRow row) throws TorqueException {
+    private boolean exists(String headerName, MessageRow row) throws TorqueException {
         boolean result = false;
         final List headers = row.getMessageHeaders();
         for (Iterator it = headers.iterator(); it.hasNext();) {
@@ -254,7 +278,7 @@ class SearchUtils {
         return result;
     }
 
-    private static boolean matches(final SearchQuery.ContainsOperator operator, final String headerName, final MessageRow row) throws TorqueException {
+    private boolean matches(final SearchQuery.ContainsOperator operator, final String headerName, final MessageRow row) throws TorqueException {
         final String text = operator.getValue().toUpperCase();
         boolean result = false;
         final List headers = row.getMessageHeaders();
@@ -274,7 +298,7 @@ class SearchUtils {
         return result;
     }
 
-    private static boolean matches(final SearchQuery.DateOperator operator, final String headerName, final MessageRow row) throws TorqueException {
+    private boolean matches(final SearchQuery.DateOperator operator, final String headerName, final MessageRow row) throws TorqueException {
         final int day = operator.getDay();
         final int month = operator.getMonth();
         final int year = operator.getYear();
@@ -298,7 +322,7 @@ class SearchUtils {
         }
     }
 
-    private static String headerValue(final String headerName, final MessageRow row) throws TorqueException {
+    private String headerValue(final String headerName, final MessageRow row) throws TorqueException {
         final List headers = row.getMessageHeaders();
         String value = null;
         for (Iterator it = headers.iterator(); it.hasNext();) {
@@ -312,14 +336,14 @@ class SearchUtils {
         return value;
     }
 
-    private static int toISODate(String value) throws ParseException {
+    private int toISODate(String value) throws ParseException {
         final StringReader reader = new StringReader(value);
         final DateTime dateTime = new DateTimeParser(reader).parseAll();
         final int isoFieldValue = toISODate(dateTime.getDay(), dateTime.getMonth(), dateTime.getYear());
         return isoFieldValue;
     }
     
-    private static boolean matches(SearchQuery.SizeCriterion criterion, MessageRow row) throws UnsupportedSearchException {
+    private boolean matches(SearchQuery.SizeCriterion criterion, MessageRow row) throws UnsupportedSearchException {
         final SearchQuery.NumericOperator operator = criterion.getOperator();
         final int size = row.getSize();
         final long value = operator.getValue();
@@ -332,13 +356,13 @@ class SearchUtils {
         }
     }
     
-    private static boolean matches(SearchQuery.InternalDateCriterion criterion, MessageRow row) throws UnsupportedSearchException {
+    private boolean matches(SearchQuery.InternalDateCriterion criterion, MessageRow row) throws UnsupportedSearchException {
         final SearchQuery.DateOperator operator = criterion.getOperator();
         final boolean result = matchesInternalDate(operator, row);
         return result;
     }
 
-    private static boolean matchesInternalDate(final SearchQuery.DateOperator operator, final MessageRow row) throws UnsupportedSearchException {
+    private boolean matchesInternalDate(final SearchQuery.DateOperator operator, final MessageRow row) throws UnsupportedSearchException {
         final int day = operator.getDay();
         final int month = operator.getMonth();
         final int year = operator.getYear();
@@ -352,7 +376,7 @@ class SearchUtils {
         }
     }
     
-    private static boolean on(final int day, final int month, final int year, final Date date) {
+    private boolean on(final int day, final int month, final int year, final Date date) {
         final Calendar gmt = getGMT();
         gmt.setTime(date);
         return day == gmt.get(Calendar.DAY_OF_MONTH) 
@@ -360,15 +384,15 @@ class SearchUtils {
                             && year == gmt.get(Calendar.YEAR);
     }
     
-    private static boolean before(final int day, final int month, final int year, final Date date) {
+    private boolean before(final int day, final int month, final int year, final Date date) {
         return toISODate(date) < toISODate(day, month, year);
     }
     
-    private static boolean after(final int day, final int month, final int year, final Date date) {
+    private boolean after(final int day, final int month, final int year, final Date date) {
         return toISODate(date) > toISODate(day, month, year);
     }
     
-    private static int toISODate(final Date date) {
+    private int toISODate(final Date date) {
         final Calendar gmt = getGMT();
         gmt.setTime(date);
         final int day = gmt.get(Calendar.DAY_OF_MONTH);
@@ -378,7 +402,7 @@ class SearchUtils {
         return result;
     }
     
-    private static Calendar getGMT() {
+    private Calendar getGMT() {
         return Calendar.getInstance(TimeZone.getTimeZone("GMT"), Locale.UK);
     }
     

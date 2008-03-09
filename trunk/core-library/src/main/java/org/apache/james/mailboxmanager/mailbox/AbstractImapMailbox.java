@@ -29,7 +29,6 @@ import javax.mail.internet.MimeMessage;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.MessageResult;
-import org.apache.james.mailboxmanager.MessageResult.FetchGroup;
 import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.util.AbstractLogFactoryAware;
