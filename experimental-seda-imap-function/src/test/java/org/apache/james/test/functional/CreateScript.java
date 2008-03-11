@@ -31,6 +31,13 @@ public class CreateScript {
         builder.login();
         builder.create();
         builder.select();
+        loadLotsOfMail(builder);
+
+        builder.quit();
+    }
+
+
+    private static void loadLotsOfMail(ScriptBuilder builder) throws Exception {
         builder.append();
         builder.setFile("wild-example.mail");
         builder.append();
@@ -62,7 +69,12 @@ public class CreateScript {
         builder.append();
         builder.setFile("rfc822-group-addresses.mail");
         builder.append();
-        builder.quit();
+        builder.setFile("wild-alt-another-reply.mail");
+        builder.append();
+        builder.setFile("wild-alt-reply3.mail");
+        builder.append();
+        builder.setFile("wild-alt-reply4.mail");
+        builder.append();
     }
     
     public static void notHeaderFetches(ScriptBuilder builder) throws Exception {
