@@ -26,6 +26,45 @@ public class CreateScript {
         notHeaderFetches(builder);
     }
     
+    
+    public static void searchAtoms(ScriptBuilder builder) throws Exception {
+        builder.login();
+        builder.create();
+        builder.select();
+        builder.append();
+        builder.setFile("wild-example.mail");
+        builder.append();
+        builder.setFile("multipart-alt.mail");
+        builder.append();
+        builder.setFile("multipart-mixed.mail");
+        builder.append();
+        builder.setFile("multipart-mixed-complex.mail");
+        builder.append();
+        builder.setFile("rfc822-hello-world.mail");
+        builder.append();
+        builder.setFile("rfc822-sender.mail");
+        builder.append();
+        builder.setFile("rfc822.mail");
+        builder.append();
+        builder.setFile("rfc822-multiple-addresses.mail");
+        builder.append();
+        builder.setFile("wild-alt-reply.mail");
+        builder.append();
+        builder.setFile("wild-mixed-alt.mail");
+        builder.append();
+        builder.setFile("wild-mixed.mail");
+        builder.append();
+        builder.setFile("rfc822-reply.mail");
+        builder.append();
+        builder.setFile("rfc822-resent.mail");
+        builder.append();
+        builder.setFile("rfc822-trace.mail");
+        builder.append();
+        builder.setFile("rfc822-group-addresses.mail");
+        builder.append();
+        builder.quit();
+    }
+    
     public static void notHeaderFetches(ScriptBuilder builder) throws Exception {
         builder.login();
         builder.create();

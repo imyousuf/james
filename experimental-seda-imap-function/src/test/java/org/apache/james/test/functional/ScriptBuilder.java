@@ -53,6 +53,7 @@ public class ScriptBuilder {
     private boolean createdMailbox = false;
     private final Client client;
     private Fetch fetch = new Fetch();
+    private Search search = new Search();
     
     
     public ScriptBuilder(final Client client) {
@@ -159,6 +160,14 @@ public class ScriptBuilder {
         }
     }
     
+    public void search() throws Exception {
+        command(search.command());
+    }
+    
+    public Search getSearch() throws Exception {
+        return search;
+    }
+    
     public void fetchSection(String section) throws Exception {
         final String body;
         if (peek) {
@@ -226,6 +235,242 @@ public class ScriptBuilder {
         delete();
         logout();
         close();
+    }
+    
+    public static final class Search {
+
+        private StringBuffer buffer;
+        private boolean first;
+        
+        public Search() {
+            clear();
+        }
+        
+        public String command() {
+            return "SEARCH " + buffer.toString();
+        }
+        
+        public void clear() {
+            buffer = new StringBuffer();
+            first = true;            
+        }
+        
+        private Search append(long term) {
+            return append(new Long(term).toString());
+        }
+        
+        private Search append(String term) {
+            if (first) {
+                first = false;
+            } else {
+                buffer.append(' ');
+            }
+            buffer.append(term);
+            return this;
+        }
+        
+        private Search date(int year, int month, int day) {
+            append(day);
+            switch (month) {
+                case 1: 
+                    buffer.append("-Jan-");
+                    break;
+                case 2: 
+                    buffer.append("-Feb-");
+                    break;
+                case 3: 
+                    buffer.append("-Mar-");
+                    break;
+                case 4: 
+                    buffer.append("-Apr-");
+                    break;
+                case 5: 
+                    buffer.append("-May-");
+                    break;
+                case 6: 
+                    buffer.append("-Jun-");
+                    break;
+                case 7: 
+                    buffer.append("-Jul-");
+                    break;
+                case 8: 
+                    buffer.append("-Aug-");
+                    break;
+                case 9: 
+                    buffer.append("-Sep-");
+                    break;
+                case 10: 
+                    buffer.append("-Oct-");
+                    break;
+                case 11: 
+                    buffer.append("-Nov-");
+                    break;
+                case 12: 
+                    buffer.append("-Dec-");
+                    break;
+            }
+            buffer.append(year);
+            return this;
+        }
+        
+        public Search all() {
+            return append("ALL");
+        }
+        
+        public Search answered() {
+            return append("ANSWERED");
+        }
+        
+        public Search bcc(String address) {
+            return append("BCC " + address);
+        }
+
+        public Search before(int year, int month, int day) {
+            return append("BEFORE").date(year, month, day);
+        }
+        
+        public Search body(String text) {
+            return append("BODY").append(text);
+        }    
+
+        public Search cc(String address) {
+            return append("CC").append(address);
+        }
+
+        public Search deleted() {
+            return append("DELETED");
+        }
+        
+        public Search draft() {
+            return append("DRAFT");
+        }
+
+        public Search flagged() {
+            return append("FLAGGED");
+        }
+
+        public Search from(String address) {
+            return append("FROM").append(address);
+        }
+
+        public Search header(String field, String value) {
+            return append("HEADER").append(field).append(value); 
+        }
+        
+        public Search keyword(String flag) {
+            return append("KEYWORD").append(flag);
+        }
+        
+        public Search larger(long size) {
+            return append("LARGER").append(size);
+        }
+
+        public Search NEW() {
+            return append("NEW");
+        }
+        
+        public Search not() {
+            return append("NOT");
+        }
+        
+        public Search old() {
+            return append("OLD");
+        }
+        
+        public Search on(int year, int month, int day) {
+            return append("ON").date(year, month, day);
+        }
+
+        public Search or() {
+            return append("OR");
+        }
+
+        public Search recent() {
+            return append("RECENT");
+        }
+
+        public Search seen() {
+            return append("SEEN");
+        }
+
+        public Search sentbefore(int year, int month, int day) {
+            return append("SENTBEFORE").date(year, month, day);
+        }
+
+        public Search senton(int year, int month, int day) {
+            return append("SENTON").date(year, month, day); 
+        }
+
+        public Search sentsince(int year, int month, int day) {
+            return append("SENTSINCE").date(year, month, day);
+        }
+        
+        public Search since(int year, int month, int day) {
+            return append("SINCE").date(year, month, day); 
+        }
+        
+        public Search smaller(int size) {
+            return append("SMALLER").append(size);}
+
+        public Search subject(String address) {
+            return append("SUBJECT").append(address);
+        }
+        
+        public Search text(String text) {
+            return append("TEXT").append(text);
+        }
+        
+        public Search to(String address) {
+            return append("TO").append(address);
+        }
+        
+        public Search uid() {
+            return append("UID");
+        }
+
+        public Search unanswered() {
+            return append("UNANSWERED");
+        }
+        
+        public Search undeleted() {
+            return append("UNDELETED");
+        }
+
+        public Search undraft() {
+            return append("UNDRAFT");
+        }
+        
+        public Search unflagged() {
+            return append("UNFLAGGED");
+        }
+
+        public Search unkeyword(String flag) {
+            return append("UNKEYWORD").append(flag);
+        }
+        
+        public Search unseen() {
+            return append("UNSEEN");
+        }
+        
+        public Search openParen() {
+            return append("(");
+        }
+        
+        public Search closeParen() {
+            return append(")");
+        }
+        
+        public Search msn(int low, int high) {
+            return append(low + ":" + high);
+        }
+        
+        public Search msnAndUp(int limit) {
+            return append(limit + ":*");
+        }
+        
+        public Search msnAndDown(int limit) {
+            return append("*:" + limit);
+        }
     }
     
     public static final class Fetch {
