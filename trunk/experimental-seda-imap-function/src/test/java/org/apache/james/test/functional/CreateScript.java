@@ -23,7 +23,7 @@ public class CreateScript {
 
     public static final void main(String[] args) throws Exception {
         ScriptBuilder builder = ScriptBuilder.open("localhost", 143);
-        notHeaderFetches(builder);
+        searchAtoms(builder);
     }
     
     
@@ -32,7 +32,11 @@ public class CreateScript {
         builder.create();
         builder.select();
         loadLotsOfMail(builder);
-
+        builder.store(builder.flags().flagged().answered().range(3, 6));
+        builder.getSearch().all();
+        builder.search();
+        builder.getSearch().answered();
+        builder.search();
         builder.quit();
     }
 
