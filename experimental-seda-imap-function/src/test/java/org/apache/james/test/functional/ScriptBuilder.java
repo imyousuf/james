@@ -162,6 +162,16 @@ public class ScriptBuilder {
     
     public void search() throws Exception {
         command(search.command());
+        search = new Search();
+    }
+    
+    public Flags flags() {
+        return new Flags();
+    }
+    
+    public void store(Flags flags) throws Exception {
+        String command = flags.command();
+        command(command);
     }
     
     public Search getSearch() throws Exception {
@@ -235,6 +245,109 @@ public class ScriptBuilder {
         delete();
         logout();
         close();
+    }
+    
+    public static final class Flags {
+        private StringBuffer flags;
+        private StringBuffer msn;
+        private boolean first;
+        private boolean silent;
+        private boolean add;
+        private boolean subtract;
+        
+        public Flags() {
+            add = false;
+            subtract = false;
+            silent = false;
+            first = true;
+            flags = new StringBuffer("(");
+            msn = new StringBuffer();
+        }
+        
+        public Flags msn(long number) {
+            msn.append(number);
+            msn.append(' ');
+            return this;
+        }
+        
+        public Flags range(long low, long high) {
+            msn.append(low);
+            msn.append(':');
+            msn.append(high);
+            msn.append(' ');
+            return this;
+        }
+        
+        public Flags rangeTill(long number) {
+            msn.append("*:");
+            msn.append(number);
+            msn.append(' ');
+            return this;
+        }
+        
+        public Flags rangeFrom(long number) {
+            msn.append(number);
+            msn.append(":* ");
+            return this;
+        }
+        
+        public Flags add() {
+            add = true;
+            subtract = false;
+            return this;
+        }
+        
+        public Flags subtract() {
+            add = false;
+            subtract = true;
+            return this;
+        }
+        
+        public Flags silent() {
+            silent = true;
+            return this;
+        }
+        
+        public Flags deleted() {
+            return append("\\DELETED");
+        }
+        
+        public Flags flagged() {
+            return append("\\FLAGGED");
+        }
+        
+        public Flags answered() {
+            return append("\\ANSWERED");
+        }
+        
+        public Flags seen() {
+            return append("\\SEEN");
+        }
+        
+        public String command() {
+            String flags;
+            if (add) {
+                flags =" +FLAGS " ;
+            } else if (subtract) {
+                flags =" -FLAGS " ;
+            } else {
+                flags = " FLAGS ";
+            }
+            if (silent) {
+                flags = flags + ".SILENT";
+            }
+            return "STORE " + msn + flags + this.flags + ")";
+        }
+        
+        private Flags append(String term) {
+            if (first) {
+                first = false;
+            } else {
+                flags.append(' ');
+            }
+            flags.append(term);
+            return this;
+        }
     }
     
     public static final class Search {
