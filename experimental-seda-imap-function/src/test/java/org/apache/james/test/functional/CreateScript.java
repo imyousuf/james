@@ -20,24 +20,191 @@
 package org.apache.james.test.functional;
 
 public class CreateScript {
+    
+    public static final String RE = "Re:";
+    public static final String HEADER = "Delivered-To";
+    public static final String ANOTHER_HEADER = "Received";
+    public static final String COMMON_LETTER = "o";
+    public static final String COMMON_WORD = "the";
+    public static final String UNCOMMON_WORD = "thy";
+    public static final String UNCOMMON_PHRASE = "\"nothing worthy prove\"";
+    public static final String ANOTHER_NAME = "Robert";
+    public static final String NAME = "tim";
+    public static final String DOMAIN = "example.org";
+    public static final String ANOTHER_DOMAIN = "apache.org";
 
     public static final void main(String[] args) throws Exception {
         ScriptBuilder builder = ScriptBuilder.open("localhost", 143);
-        searchAtoms(builder);
+        searchCombinations(builder);
     }
     
+    public static void searchCombinations(ScriptBuilder builder) throws Exception {
+        setupSearch(builder);
+        builder.body(COMMON_LETTER).undraft().unflagged().answered().search();
+        builder.to(COMMON_LETTER).draft().flagged().answered().search();
+        builder.to(COMMON_LETTER).smaller(10000).all().draft().search();
+        builder.bcc(COMMON_LETTER).larger(1000).search();
+        builder.from(COMMON_LETTER).larger(1000).flagged().search();
+        builder.from(COMMON_LETTER).to(COMMON_LETTER).answered().flagged().all().body(COMMON_LETTER).sentbefore(2009, 1, 1).search();
+        builder.or().openParen().from(COMMON_LETTER).to(COMMON_LETTER).answered().flagged()
+            .all().body(COMMON_LETTER).sentbefore(2009, 1, 1).closeParen()
+            .openParen().header(HEADER, "\"\"").draft().closeParen().search();
+        builder.or().openParen().cc(COMMON_LETTER).text(COMMON_LETTER).unseen().larger(1000)
+            .all().body(COMMON_LETTER).senton(2008, 4, 8).closeParen()
+            .openParen().header(HEADER, "\"\"").draft().closeParen().search();
+        builder.or().openParen().cc(COMMON_LETTER).to(COMMON_LETTER).draft().unseen()
+            .all().text(COMMON_LETTER).sentsince(2000, 1, 1).closeParen()
+            .openParen().header(HEADER, "\"\"").draft().closeParen().search();
+        builder.or().openParen().or().openParen().or().openParen().not().text(COMMON_LETTER).cc(COMMON_LETTER).unseen().flagged()
+            .all().body(COMMON_LETTER).not().senton(2008, 3, 1).closeParen()
+            .openParen().header(HEADER, DOMAIN).flagged().closeParen().closeParen().
+            openParen().from(COMMON_LETTER).to(COMMON_LETTER).answered().flagged().all().body(COMMON_LETTER).sentbefore(2009, 1, 1)
+            .closeParen().closeParen().openParen().answered().flagged().draft().closeParen().all().deleted().search();
+        builder.or().openParen().or().openParen().or().openParen().from(COMMON_LETTER).to(COMMON_LETTER).answered().flagged()
+            .all().body(COMMON_LETTER).sentbefore(2009, 1, 1).closeParen()
+            .openParen().header(HEADER, "\"\"").draft().closeParen().closeParen().
+            openParen().from(COMMON_LETTER).to(COMMON_LETTER).answered().flagged().all().body(COMMON_LETTER).sentbefore(2009, 1, 1)
+            .closeParen().closeParen().openParen().answered().flagged().draft().closeParen().all().unanswered().search();
+        builder.quit();
+    }
     
     public static void searchAtoms(ScriptBuilder builder) throws Exception {
+        setupSearch(builder);
+        builder.all().search();
+        builder.answered().search();
+        builder.bcc(COMMON_LETTER).search();
+        builder.bcc(NAME).search();
+        builder.bcc(ANOTHER_NAME).search();
+        builder.bcc(DOMAIN).search();
+        builder.bcc(ANOTHER_DOMAIN).search();
+        builder.body(COMMON_LETTER).search();
+        builder.body(COMMON_WORD).search();
+        builder.body(UNCOMMON_WORD).search();
+        builder.body(UNCOMMON_PHRASE).search();
+        builder.cc(COMMON_LETTER).search();
+        builder.cc(NAME).search();
+        builder.cc(ANOTHER_NAME).search();
+        builder.cc(DOMAIN).search();
+        builder.cc(ANOTHER_DOMAIN).search();
+        builder.deleted().search();
+        builder.draft().search();
+        builder.flagged().search();
+        builder.from(COMMON_LETTER).search();
+        builder.from(NAME).search();
+        builder.from(ANOTHER_NAME).search();
+        builder.from(DOMAIN).search();
+        builder.from(ANOTHER_DOMAIN).search();
+        builder.header(HEADER, DOMAIN).search();
+        builder.header(HEADER, COMMON_LETTER).search();
+        builder.header(HEADER, ANOTHER_DOMAIN).search();
+        builder.header(HEADER, "\"\"").search();
+        builder.header(ANOTHER_HEADER, DOMAIN).search();
+        builder.header(ANOTHER_HEADER, COMMON_LETTER).search();
+        builder.header(ANOTHER_HEADER, ANOTHER_DOMAIN).search();
+        builder.header(ANOTHER_HEADER, "\"\"").search();
+        builder.larger(10).search();
+        builder.larger(100).search();
+        builder.larger(1000).search();
+        builder.larger(10000).search();
+        builder.larger(12500).search();
+        builder.larger(15000).search();
+        builder.larger(20000).search();
+        builder.NEW().search();
+        builder.not().flagged().search();
+        builder.msn(3, 5).search();
+        builder.msnAndDown(10).search();
+        builder.msnAndUp(17).search();
+        builder.old().search();
+        builder.or().answered().flagged().search();
+        builder.recent().search();
+        builder.seen().search();
+        builder.sentbefore(2007, 10, 10).search();
+        builder.sentbefore(2008, 1, 1).search();
+        builder.sentbefore(2008, 2, 1).search();
+        builder.sentbefore(2008, 2, 10).search();
+        builder.sentbefore(2008, 2, 20).search();
+        builder.sentbefore(2008, 2, 25).search();
+        builder.sentbefore(2008, 3, 1).search();
+        builder.sentbefore(2008, 3, 5).search();
+        builder.sentbefore(2008, 3, 10).search();
+        builder.sentbefore(2008, 4, 1).search();
+        builder.senton(2007, 10, 10).search();
+        builder.senton(2008, 1, 1).search();
+        builder.senton(2008, 2, 1).search();
+        builder.senton(2008, 2, 10).search();
+        builder.senton(2008, 2, 20).search();
+        builder.senton(2008, 2, 25).search();
+        builder.senton(2008, 3, 1).search();
+        builder.senton(2008, 3, 5).search();
+        builder.senton(2008, 3, 10).search();
+        builder.senton(2008, 4, 1).search();
+        builder.sentsince(2007, 10, 10).search();
+        builder.sentsince(2008, 1, 1).search();
+        builder.sentsince(2008, 2, 1).search();
+        builder.sentsince(2008, 2, 10).search();
+        builder.sentsince(2008, 2, 20).search();
+        builder.sentsince(2008, 2, 25).search();
+        builder.sentsince(2008, 3, 1).search();
+        builder.sentsince(2008, 3, 5).search();
+        builder.sentsince(2008, 3, 10).search();
+        builder.sentsince(2008, 4, 1).search();
+        builder.smaller(10).search();
+        builder.smaller(100).search();
+        builder.smaller(1000).search();
+        builder.smaller(10000).search();
+        builder.smaller(12500).search();
+        builder.smaller(15000).search();
+        builder.smaller(20000).search();
+        builder.subject(COMMON_LETTER).search();
+        builder.subject(COMMON_WORD).search();
+        builder.subject(UNCOMMON_PHRASE).search();
+        builder.subject(UNCOMMON_WORD).search();
+        builder.subject(RE).search();
+        builder.text(COMMON_LETTER).search();
+        builder.text(COMMON_WORD).search();
+        builder.text(UNCOMMON_PHRASE).search();
+        builder.text(UNCOMMON_WORD).search();
+        builder.text(RE).search();
+        builder.text(DOMAIN).search();
+        builder.text(ANOTHER_DOMAIN).search();
+        builder.text(ANOTHER_NAME).search();
+        builder.text(NAME).search();
+        builder.to(COMMON_LETTER).search();
+        builder.to(NAME).search();
+        builder.to(ANOTHER_NAME).search();
+        builder.to(DOMAIN).search();
+        builder.to(ANOTHER_DOMAIN).search();
+        builder.uid().msn(1, 4).search();
+        builder.unanswered().search();
+        builder.undeleted().search();
+        builder.undraft().search();
+        builder.unflagged().search();
+        builder.unseen().search();
+        builder.quit();
+    }
+
+    private static void setupSearch(ScriptBuilder builder) throws Exception {
         builder.login();
         builder.create();
         builder.select();
         loadLotsOfMail(builder);
-        builder.store(builder.flags().flagged().answered().range(3, 6));
-        builder.getSearch().all();
-        builder.search();
-        builder.getSearch().answered();
-        builder.search();
-        builder.quit();
+        builder.store(builder.flags().add().flagged().range(1, 9));
+        builder.store(builder.flags().add().answered().range(1, 4));
+        builder.store(builder.flags().add().answered().range(10, 14));
+        builder.store(builder.flags().add().seen().range(1, 2));
+        builder.store(builder.flags().add().seen().range(5, 7));
+        builder.store(builder.flags().add().seen().range(10, 12));
+        builder.store(builder.flags().add().seen().range(15, 17));
+        builder.store(builder.flags().add().draft().msn(1));
+        builder.store(builder.flags().add().draft().msn(3));
+        builder.store(builder.flags().add().draft().msn(5));
+        builder.store(builder.flags().add().draft().msn(7));
+        builder.store(builder.flags().add().draft().msn(9));
+        builder.store(builder.flags().add().draft().msn(11));
+        builder.store(builder.flags().add().draft().msn(13));
+        builder.store(builder.flags().add().draft().msn(15));
+        builder.store(builder.flags().add().draft().msn(17));
+        builder.store(builder.flags().add().deleted().range(1,3));
     }
 
 
