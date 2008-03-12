@@ -165,6 +165,206 @@ public class ScriptBuilder {
         search = new Search();
     }
     
+    public ScriptBuilder all() {
+        search.all();
+        return this;
+    }
+    
+    public ScriptBuilder answered() {
+        search.answered();
+        return this;
+    }
+    
+    public ScriptBuilder bcc(String address) {
+        search.bcc(address);
+        return this;
+    }
+
+    public ScriptBuilder before(int year, int month, int day) {
+        search.before(year, month, day);
+        return this;
+    }
+    
+    public ScriptBuilder body(String text) {
+        search.body(text);
+        return this;
+    }    
+
+    public ScriptBuilder cc(String address) {
+        search.cc(address);
+        return this;
+    }
+
+    public ScriptBuilder deleted() {
+        search.deleted();
+        return this;
+    }
+    
+    public ScriptBuilder draft() {
+        search.draft();
+        return this;
+    }
+
+    public ScriptBuilder flagged() {
+        search.flagged();
+        return this;
+    }
+
+    public ScriptBuilder from(String address) {
+        search.from(address);
+        return this;
+    }
+
+    public ScriptBuilder header(String field, String value) {
+        search.header(field, value);
+        return this; 
+    }
+    
+    public ScriptBuilder keyword(String flag) {
+        search.keyword(flag);
+        return this;
+    }
+    
+    public ScriptBuilder larger(long size) {
+        search.larger(size);
+        return this;
+    }
+
+    public ScriptBuilder NEW() {
+        search.NEW();
+        return this;
+    }
+    
+    public ScriptBuilder not() {
+        search.not();
+        return this;
+    }
+    
+    public ScriptBuilder old() {
+        search.old();
+        return this;
+    }
+    
+    public ScriptBuilder on(int year, int month, int day) {
+        search.on(year, month, day);
+        return this;
+    }
+
+    public ScriptBuilder or() {
+        search.or();
+        return this;
+    }
+
+    public ScriptBuilder recent() {
+        search.recent();
+        return this;
+    }
+
+    public ScriptBuilder seen() {
+        search.seen();
+        return this;
+    }
+
+    public ScriptBuilder sentbefore(int year, int month, int day) {
+        search.sentbefore(year, month, day);
+        return this;
+    }
+
+    public ScriptBuilder senton(int year, int month, int day) {
+        search.senton(year, month, day);
+        return this; 
+    }
+
+    public ScriptBuilder sentsince(int year, int month, int day) {
+        search.sentsince(year, month, day);
+        return this;
+    }
+    
+    public ScriptBuilder since(int year, int month, int day) {
+        search.since(year, month, day);
+        return this; 
+    }
+    
+    public ScriptBuilder smaller(int size) {
+        search.smaller(size);
+        return this;
+    }
+
+    public ScriptBuilder subject(String address) {
+        search.subject(address);
+        return this;
+    }
+    
+    public ScriptBuilder text(String text) {
+        search.text(text);
+        return this;
+    }
+    
+    public ScriptBuilder to(String address) {
+        search.to(address);
+        return this;
+    }
+    
+    public ScriptBuilder uid() {
+        search.uid();
+        return this;
+    }
+
+    public ScriptBuilder unanswered() {
+        search.unanswered();
+        return this;
+    }
+    
+    public ScriptBuilder undeleted() {
+        search.undeleted();
+        return this;
+    }
+
+    public ScriptBuilder undraft() {
+        search.undraft();
+        return this;
+    }
+    
+    public ScriptBuilder unflagged() {
+        search.unflagged();
+        return this;
+    }
+
+    public ScriptBuilder unkeyword(String flag) {
+        search.unkeyword(flag);
+        return this;
+    }
+    
+    public ScriptBuilder unseen() {
+        search.unseen();
+        return this;
+    }
+    
+    public ScriptBuilder openParen() {
+        search.openParen();
+        return this;
+    }
+    
+    public ScriptBuilder closeParen() {
+        search.closeParen();
+        return this;
+    }
+    
+    public ScriptBuilder msn(int low, int high) {
+        search.msn(low, high);
+        return this;
+    }
+    
+    public ScriptBuilder msnAndUp(int limit) {
+        search.msnAndUp(limit);
+        return this;
+    }
+    
+    public ScriptBuilder msnAndDown(int limit) {
+        search.msnAndDown(limit);
+        return this;
+    }
+    
     public Flags flags() {
         return new Flags();
     }
@@ -322,6 +522,10 @@ public class ScriptBuilder {
         
         public Flags seen() {
             return append("\\SEEN");
+        }
+        
+        public Flags draft() {
+            return append("\\DRAFT");
         }
         
         public String command() {
