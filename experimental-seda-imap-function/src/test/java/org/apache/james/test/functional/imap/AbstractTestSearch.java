@@ -22,22 +22,34 @@ package org.apache.james.test.functional.imap;
 import java.util.Locale;
 
 
-abstract public class AbstractTestSelect extends BaseTestForAuthenticatedState {
+abstract public class AbstractTestSearch extends BaseTestForAuthenticatedState {
 
-    public AbstractTestSelect(HostSystem system) throws Exception
+    public AbstractTestSearch(HostSystem system) throws Exception
     {
         super(system);
     }
-
-    public void testSelectUnseenUS() throws Exception {
-        scriptTest("SelectUnseen", Locale.US); 
+        
+    public void testSearchAtomsUS() throws Exception {
+        scriptTest("SearchAtoms", Locale.US); 
     }
     
-    public void testSelectUnseenKOREA() throws Exception {
-        scriptTest("SelectUnseen", Locale.KOREA ); 
+    public void testSearchAtomsITALY() throws Exception {
+        scriptTest("SearchAtoms", Locale.ITALY); 
     }
     
-    public void testSelectUnseenITALY() throws Exception {
-        scriptTest("SelectUnseen", Locale.ITALY); 
+    public void testSearchAtomsKOREA() throws Exception {
+        scriptTest("SearchAtoms", Locale.KOREA); 
+    }
+    
+    public void testSearchCombinationsUS() throws Exception {
+        scriptTest("SearchCombinations", Locale.US); 
+    }
+    
+    public void testSearchCombinationsITALY() throws Exception {
+        scriptTest("SearchCombinations", Locale.ITALY); 
+    }
+    
+    public void testSearchCombinationsKOREA() throws Exception {
+        scriptTest("SearchCombinations", Locale.KOREA); 
     }
 }

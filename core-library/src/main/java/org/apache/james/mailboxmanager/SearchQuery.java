@@ -413,6 +413,9 @@ public class SearchQuery {
          * false otherwise
          */
         public boolean isIn(long value) {
+            if (lowValue == Long.MAX_VALUE) {
+                return highValue >= value;
+            } 
             return lowValue <= value && highValue >= value;
         }
         
