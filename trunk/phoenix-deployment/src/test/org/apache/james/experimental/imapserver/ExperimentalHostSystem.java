@@ -277,7 +277,7 @@ public class ExperimentalHostSystem implements HostSystem, UsersRepository {
     
     static class ByteBufferInputStream extends InputStream {
         
-        ByteBuffer buffer = ByteBuffer.allocate(8192);
+        ByteBuffer buffer = ByteBuffer.allocate(16384);
         CharsetEncoder encoder = Charset.forName("ASCII").newEncoder();
         boolean readLast = true;
         

@@ -17,27 +17,13 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.test.functional.imap;
+package org.apache.james.experimental.imapserver;
 
-import java.util.Locale;
+import org.apache.james.test.functional.imap.AbstractTestSearch;
 
+public class ExperimentalSearchTest extends AbstractTestSearch {
 
-abstract public class AbstractTestSelect extends BaseTestForAuthenticatedState {
-
-    public AbstractTestSelect(HostSystem system) throws Exception
-    {
-        super(system);
-    }
-
-    public void testSelectUnseenUS() throws Exception {
-        scriptTest("SelectUnseen", Locale.US); 
-    }
-    
-    public void testSelectUnseenKOREA() throws Exception {
-        scriptTest("SelectUnseen", Locale.KOREA ); 
-    }
-    
-    public void testSelectUnseenITALY() throws Exception {
-        scriptTest("SelectUnseen", Locale.ITALY); 
+    public ExperimentalSearchTest() throws Exception {
+        super(HostSystemFactory.createStandardImap());
     }
 }
