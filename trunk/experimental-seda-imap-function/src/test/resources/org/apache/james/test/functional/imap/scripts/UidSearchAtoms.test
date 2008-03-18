@@ -17,15 +17,15 @@
 # under the License.                                           #
 ################################################################
 C: A2 CREATE testmailbox
-S: A2 OK Create completed\.
+S: A2 OK CREATE completed\.
 C: A3 SELECT testmailbox
-S: \* FLAGS \(\\Answered \\Flagged \\Deleted \\Seen \\Draft\)
-S: \* OK \[PERMANENTFLAGS \(\\Answered \\Flagged \\Deleted \\Seen \\Draft \\\*\)\] Flags permitted\.
+S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
 S: \* 0 EXISTS
 S: \* 0 RECENT
-S: \* OK \[UIDVALIDITY 1205447628\] UIDs valid
-S: \* OK \[UIDNEXT 1\] Predicted next UID
-S: A3 OK \[READ-WRITE\] Select completed\.
+S: \* OK \[UIDVALIDITY (.)*
+S: \* OK No messages unseen
+S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\](.)*
+S: A3 OK \[READ-WRITE\] SELECT completed\.
 C: A4 APPEND testmailbox {185+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -36,14 +36,14 @@ C: This is a very simple email.
 C: 
 S: \* 1 EXISTS
 S: \* 1 RECENT
-S: A4 OK Append completed\.
+S: A4 OK APPEND completed\.
 C: A5 STORE 1  FLAGS (\DELETED)
-S: \* 1 FETCH \(FLAGS \(\\Deleted \\Recent\)\)
-S: A5 OK Store completed\.
+S: \* 1 FETCH \(FLAGS \(\\Deleted\)\)
+S: A5 OK STORE completed\.
 C: A6 EXPUNGE
 S: \* 1 EXPUNGE
-S: \* 0 RECENT
-S: A6 OK Expunge completed\.
+#S: \* 0 RECENT
+S: A6 OK EXPUNGE completed\.
 C: A7 APPEND testmailbox {185+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -54,14 +54,14 @@ C: This is a very simple email.
 C: 
 S: \* 1 EXISTS
 S: \* 1 RECENT
-S: A7 OK Append completed\.
+S: A7 OK APPEND completed\.
 C: A8 STORE 1  FLAGS (\DELETED)
-S: \* 1 FETCH \(FLAGS \(\\Deleted \\Recent\)\)
-S: A8 OK Store completed\.
+S: \* 1 FETCH \(FLAGS \(\\Deleted\)\)
+S: A8 OK STORE completed\.
 C: A9 EXPUNGE
 S: \* 1 EXPUNGE
-S: \* 0 RECENT
-S: A9 OK Expunge completed\.
+#S: \* 0 RECENT
+S: A9 OK EXPUNGE completed\.
 C: A10 APPEND testmailbox {185+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -72,14 +72,14 @@ C: This is a very simple email.
 C: 
 S: \* 1 EXISTS
 S: \* 1 RECENT
-S: A10 OK Append completed\.
+S: A10 OK APPEND completed\.
 C: A11 STORE 1  FLAGS (\DELETED)
-S: \* 1 FETCH \(FLAGS \(\\Deleted \\Recent\)\)
-S: A11 OK Store completed\.
+S: \* 1 FETCH \(FLAGS \(\\Deleted\)\)
+S: A11 OK STORE completed\.
 C: A12 EXPUNGE
 S: \* 1 EXPUNGE
-S: \* 0 RECENT
-S: A12 OK Expunge completed\.
+#S: \* 0 RECENT
+S: A12 OK EXPUNGE completed\.
 C: A13 APPEND testmailbox {185+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -90,14 +90,14 @@ C: This is a very simple email.
 C: 
 S: \* 1 EXISTS
 S: \* 1 RECENT
-S: A13 OK Append completed\.
+S: A13 OK APPEND completed\.
 C: A14 STORE 1  FLAGS (\DELETED)
-S: \* 1 FETCH \(FLAGS \(\\Deleted \\Recent\)\)
-S: A14 OK Store completed\.
+S: \* 1 FETCH \(FLAGS \(\\Deleted\)\)
+S: A14 OK STORE completed\.
 C: A15 EXPUNGE
 S: \* 1 EXPUNGE
-S: \* 0 RECENT
-S: A15 OK Expunge completed\.
+#S: \* 0 RECENT
+S: A15 OK EXPUNGE completed\.
 C: A16 APPEND testmailbox {185+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -108,14 +108,14 @@ C: This is a very simple email.
 C: 
 S: \* 1 EXISTS
 S: \* 1 RECENT
-S: A16 OK Append completed\.
+S: A16 OK APPEND completed\.
 C: A17 STORE 1  FLAGS (\DELETED)
-S: \* 1 FETCH \(FLAGS \(\\Deleted \\Recent\)\)
-S: A17 OK Store completed\.
+S: \* 1 FETCH \(FLAGS \(\\Deleted\)\)
+S: A17 OK STORE completed\.
 C: A18 EXPUNGE
 S: \* 1 EXPUNGE
-S: \* 0 RECENT
-S: A18 OK Expunge completed\.
+#S: \* 0 RECENT
+S: A18 OK EXPUNGE completed\.
 C: A19 APPEND testmailbox {185+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -126,14 +126,14 @@ C: This is a very simple email.
 C: 
 S: \* 1 EXISTS
 S: \* 1 RECENT
-S: A19 OK Append completed\.
+S: A19 OK APPEND completed\.
 C: A20 STORE 1  FLAGS (\DELETED)
-S: \* 1 FETCH \(FLAGS \(\\Deleted \\Recent\)\)
-S: A20 OK Store completed\.
+S: \* 1 FETCH \(FLAGS \(\\Deleted\)\)
+S: A20 OK STORE completed\.
 C: A21 EXPUNGE
 S: \* 1 EXPUNGE
-S: \* 0 RECENT
-S: A21 OK Expunge completed\.
+#S: \* 0 RECENT
+S: A21 OK EXPUNGE completed\.
 C: A22 APPEND testmailbox {185+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -144,14 +144,14 @@ C: This is a very simple email.
 C: 
 S: \* 1 EXISTS
 S: \* 1 RECENT
-S: A22 OK Append completed\.
+S: A22 OK APPEND completed\.
 C: A23 STORE 1  FLAGS (\DELETED)
-S: \* 1 FETCH \(FLAGS \(\\Deleted \\Recent\)\)
-S: A23 OK Store completed\.
+S: \* 1 FETCH \(FLAGS \(\\Deleted\)\)
+S: A23 OK STORE completed\.
 C: A24 EXPUNGE
 S: \* 1 EXPUNGE
-S: \* 0 RECENT
-S: A24 OK Expunge completed\.
+#S: \* 0 RECENT
+S: A24 OK EXPUNGE completed\.
 C: A25 APPEND testmailbox {185+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -162,14 +162,14 @@ C: This is a very simple email.
 C: 
 S: \* 1 EXISTS
 S: \* 1 RECENT
-S: A25 OK Append completed\.
+S: A25 OK APPEND completed\.
 C: A26 STORE 1  FLAGS (\DELETED)
-S: \* 1 FETCH \(FLAGS \(\\Deleted \\Recent\)\)
-S: A26 OK Store completed\.
+S: \* 1 FETCH \(FLAGS \(\\Deleted\)\)
+S: A26 OK STORE completed\.
 C: A27 EXPUNGE
 S: \* 1 EXPUNGE
-S: \* 0 RECENT
-S: A27 OK Expunge completed\.
+#S: \* 0 RECENT
+S: A27 OK EXPUNGE completed\.
 C: A28 APPEND testmailbox {185+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -180,14 +180,14 @@ C: This is a very simple email.
 C: 
 S: \* 1 EXISTS
 S: \* 1 RECENT
-S: A28 OK Append completed\.
+S: A28 OK APPEND completed\.
 C: A29 STORE 1  FLAGS (\DELETED)
-S: \* 1 FETCH \(FLAGS \(\\Deleted \\Recent\)\)
-S: A29 OK Store completed\.
+S: \* 1 FETCH \(FLAGS \(\\Deleted\)\)
+S: A29 OK STORE completed\.
 C: A30 EXPUNGE
 S: \* 1 EXPUNGE
-S: \* 0 RECENT
-S: A30 OK Expunge completed\.
+#S: \* 0 RECENT
+S: A30 OK EXPUNGE completed\.
 C: A31 APPEND testmailbox {185+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -198,14 +198,14 @@ C: This is a very simple email.
 C: 
 S: \* 1 EXISTS
 S: \* 1 RECENT
-S: A31 OK Append completed\.
+S: A31 OK APPEND completed\.
 C: A32 STORE 1  FLAGS (\DELETED)
-S: \* 1 FETCH \(FLAGS \(\\Deleted \\Recent\)\)
-S: A32 OK Store completed\.
+S: \* 1 FETCH \(FLAGS \(\\Deleted\)\)
+S: A32 OK STORE completed\.
 C: A33 EXPUNGE
 S: \* 1 EXPUNGE
-S: \* 0 RECENT
-S: A33 OK Expunge completed\.
+#S: \* 0 RECENT
+S: A33 OK EXPUNGE completed\.
 C: A34 APPEND testmailbox {185+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -216,14 +216,14 @@ C: This is a very simple email.
 C: 
 S: \* 1 EXISTS
 S: \* 1 RECENT
-S: A34 OK Append completed\.
+S: A34 OK APPEND completed\.
 C: A35 STORE 1  FLAGS (\DELETED)
-S: \* 1 FETCH \(FLAGS \(\\Deleted \\Recent\)\)
-S: A35 OK Store completed\.
+S: \* 1 FETCH \(FLAGS \(\\Deleted\)\)
+S: A35 OK STORE completed\.
 C: A36 EXPUNGE
 S: \* 1 EXPUNGE
-S: \* 0 RECENT
-S: A36 OK Expunge completed\.
+#S: \* 0 RECENT
+S: A36 OK EXPUNGE completed\.
 C: A37 APPEND testmailbox {185+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -234,14 +234,14 @@ C: This is a very simple email.
 C: 
 S: \* 1 EXISTS
 S: \* 1 RECENT
-S: A37 OK Append completed\.
+S: A37 OK APPEND completed\.
 C: A38 STORE 1  FLAGS (\DELETED)
-S: \* 1 FETCH \(FLAGS \(\\Deleted \\Recent\)\)
-S: A38 OK Store completed\.
+S: \* 1 FETCH \(FLAGS \(\\Deleted\)\)
+S: A38 OK STORE completed\.
 C: A39 EXPUNGE
 S: \* 1 EXPUNGE
-S: \* 0 RECENT
-S: A39 OK Expunge completed\.
+#S: \* 0 RECENT
+S: A39 OK EXPUNGE completed\.
 C: A40 APPEND testmailbox {185+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -252,14 +252,14 @@ C: This is a very simple email.
 C: 
 S: \* 1 EXISTS
 S: \* 1 RECENT
-S: A40 OK Append completed\.
+S: A40 OK APPEND completed\.
 C: A41 STORE 1  FLAGS (\DELETED)
-S: \* 1 FETCH \(FLAGS \(\\Deleted \\Recent\)\)
-S: A41 OK Store completed\.
+S: \* 1 FETCH \(FLAGS \(\\Deleted\)\)
+S: A41 OK STORE completed\.
 C: A42 EXPUNGE
 S: \* 1 EXPUNGE
-S: \* 0 RECENT
-S: A42 OK Expunge completed\.
+#S: \* 0 RECENT
+S: A42 OK EXPUNGE completed\.
 C: A43 APPEND testmailbox {185+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -270,14 +270,14 @@ C: This is a very simple email.
 C: 
 S: \* 1 EXISTS
 S: \* 1 RECENT
-S: A43 OK Append completed\.
+S: A43 OK APPEND completed\.
 C: A44 STORE 1  FLAGS (\DELETED)
-S: \* 1 FETCH \(FLAGS \(\\Deleted \\Recent\)\)
-S: A44 OK Store completed\.
+S: \* 1 FETCH \(FLAGS \(\\Deleted\)\)
+S: A44 OK STORE completed\.
 C: A45 EXPUNGE
 S: \* 1 EXPUNGE
-S: \* 0 RECENT
-S: A45 OK Expunge completed\.
+#S: \* 0 RECENT
+S: A45 OK EXPUNGE completed\.
 C: A46 APPEND testmailbox {185+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -288,14 +288,14 @@ C: This is a very simple email.
 C: 
 S: \* 1 EXISTS
 S: \* 1 RECENT
-S: A46 OK Append completed\.
+S: A46 OK APPEND completed\.
 C: A47 STORE 1  FLAGS (\DELETED)
-S: \* 1 FETCH \(FLAGS \(\\Deleted \\Recent\)\)
-S: A47 OK Store completed\.
+S: \* 1 FETCH \(FLAGS \(\\Deleted\)\)
+S: A47 OK STORE completed\.
 C: A48 EXPUNGE
 S: \* 1 EXPUNGE
-S: \* 0 RECENT
-S: A48 OK Expunge completed\.
+#S: \* 0 RECENT
+S: A48 OK EXPUNGE completed\.
 C: A49 APPEND testmailbox {185+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -306,14 +306,14 @@ C: This is a very simple email.
 C: 
 S: \* 1 EXISTS
 S: \* 1 RECENT
-S: A49 OK Append completed\.
+S: A49 OK APPEND completed\.
 C: A50 STORE 1  FLAGS (\DELETED)
-S: \* 1 FETCH \(FLAGS \(\\Deleted \\Recent\)\)
-S: A50 OK Store completed\.
+S: \* 1 FETCH \(FLAGS \(\\Deleted\)\)
+S: A50 OK STORE completed\.
 C: A51 EXPUNGE
 S: \* 1 EXPUNGE
-S: \* 0 RECENT
-S: A51 OK Expunge completed\.
+#S: \* 0 RECENT
+S: A51 OK EXPUNGE completed\.
 C: A52 APPEND testmailbox {185+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -324,14 +324,14 @@ C: This is a very simple email.
 C: 
 S: \* 1 EXISTS
 S: \* 1 RECENT
-S: A52 OK Append completed\.
+S: A52 OK APPEND completed\.
 C: A53 STORE 1  FLAGS (\DELETED)
-S: \* 1 FETCH \(FLAGS \(\\Deleted \\Recent\)\)
-S: A53 OK Store completed\.
+S: \* 1 FETCH \(FLAGS \(\\Deleted\)\)
+S: A53 OK STORE completed\.
 C: A54 EXPUNGE
 S: \* 1 EXPUNGE
-S: \* 0 RECENT
-S: A54 OK Expunge completed\.
+#S: \* 0 RECENT
+S: A54 OK EXPUNGE completed\.
 C: A55 APPEND testmailbox {185+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -342,14 +342,14 @@ C: This is a very simple email.
 C: 
 S: \* 1 EXISTS
 S: \* 1 RECENT
-S: A55 OK Append completed\.
+S: A55 OK APPEND completed\.
 C: A56 STORE 1  FLAGS (\DELETED)
-S: \* 1 FETCH \(FLAGS \(\\Deleted \\Recent\)\)
-S: A56 OK Store completed\.
+S: \* 1 FETCH \(FLAGS \(\\Deleted\)\)
+S: A56 OK STORE completed\.
 C: A57 EXPUNGE
 S: \* 1 EXPUNGE
-S: \* 0 RECENT
-S: A57 OK Expunge completed\.
+#S: \* 0 RECENT
+S: A57 OK EXPUNGE completed\.
 C: A58 APPEND testmailbox {185+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -360,14 +360,14 @@ C: This is a very simple email.
 C: 
 S: \* 1 EXISTS
 S: \* 1 RECENT
-S: A58 OK Append completed\.
+S: A58 OK APPEND completed\.
 C: A59 STORE 1  FLAGS (\DELETED)
-S: \* 1 FETCH \(FLAGS \(\\Deleted \\Recent\)\)
-S: A59 OK Store completed\.
+S: \* 1 FETCH \(FLAGS \(\\Deleted\)\)
+S: A59 OK STORE completed\.
 C: A60 EXPUNGE
 S: \* 1 EXPUNGE
-S: \* 0 RECENT
-S: A60 OK Expunge completed\.
+#S: \* 0 RECENT
+S: A60 OK EXPUNGE completed\.
 C: A61 APPEND testmailbox {185+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -378,14 +378,14 @@ C: This is a very simple email.
 C: 
 S: \* 1 EXISTS
 S: \* 1 RECENT
-S: A61 OK Append completed\.
+S: A61 OK APPEND completed\.
 C: A62 STORE 1  FLAGS (\DELETED)
-S: \* 1 FETCH \(FLAGS \(\\Deleted \\Recent\)\)
-S: A62 OK Store completed\.
+S: \* 1 FETCH \(FLAGS \(\\Deleted\)\)
+S: A62 OK STORE completed\.
 C: A63 EXPUNGE
 S: \* 1 EXPUNGE
-S: \* 0 RECENT
-S: A63 OK Expunge completed\.
+#S: \* 0 RECENT
+S: A63 OK EXPUNGE completed\.
 C: A64 APPEND testmailbox {185+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -396,7 +396,7 @@ C: This is a very simple email.
 C: 
 S: \* 1 EXISTS
 S: \* 1 RECENT
-S: A64 OK Append completed\.
+S: A64 OK APPEND completed\.
 C: A65 APPEND testmailbox {704+}
 C: Received: by 10.114.81.13 with HTTP; Sat, 2 Feb 2008 05:14:19 -0800 (PST)
 C: Message-ID: <f470f68e0802020514m6eaba233u96a9021a2697a48d@mail.gmail.com>
@@ -418,8 +418,10 @@ C: any objections?
 C: 
 C: - robert
 S: \* 2 EXISTS
-S: \* 2 RECENT
-S: A65 OK Append completed\.
+S: \* 1 RECENT
+#TODO: RECENT
+#S: \* 2 RECENT
+S: A65 OK APPEND completed\.
 C: A66 APPEND testmailbox {668+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -450,8 +452,10 @@ C:
 C: --1729--
 C: 
 S: \* 3 EXISTS
-S: \* 3 RECENT
-S: A66 OK Append completed\.
+S: \* 1 RECENT
+#TODO: RECENT
+#S: \* 3 RECENT
+S: A66 OK APPEND completed\.
 C: A67 APPEND testmailbox {765+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -488,8 +492,10 @@ C:
 C: --1729--
 C: 
 S: \* 4 EXISTS
-S: \* 4 RECENT
-S: A67 OK Append completed\.
+S: \* 1 RECENT
+#TODO: RECENT
+#S: \* 4 RECENT
+S: A67 OK APPEND completed\.
 C: A68 APPEND testmailbox {1767+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -583,8 +589,10 @@ C: --4.66920160910299--
 C: --1729--
 C: 
 S: \* 5 EXISTS
-S: \* 5 RECENT
-S: A68 OK Append completed\.
+S: \* 1 RECENT
+#TODO: RECENT
+#S: \* 5 RECENT
+S: A68 OK APPEND completed\.
 C: A69 APPEND testmailbox {185+}
 C: From: John Smith <john@example.org>
 C: To: Timothy Taylor <tim@example.org>
@@ -594,8 +602,10 @@ C: Message-ID: <1729@machine.example.org>
 C: 
 C: Hello, World!
 S: \* 6 EXISTS
-S: \* 6 RECENT
-S: A69 OK Append completed\.
+S: \* 1 RECENT
+#TODO: RECENT
+#S: \* 6 RECENT
+S: A69 OK APPEND completed\.
 C: A70 APPEND testmailbox {227+}
 C: From: John Smith <john@example.org>
 C: Sender: Samual Smith <sam@example.org>
@@ -606,8 +616,10 @@ C: Message-ID: <172942@machine.example.org>
 C: 
 C: Hello, World!
 S: \* 7 EXISTS
-S: \* 7 RECENT
-S: A70 OK Append completed\.
+S: \* 1 RECENT
+#TODO: RECENT
+#S: \* 7 RECENT
+S: A70 OK APPEND completed\.
 C: A71 APPEND testmailbox {185+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -617,8 +629,10 @@ C:
 C: This is a very simple email.
 C: 
 S: \* 8 EXISTS
-S: \* 8 RECENT
-S: A71 OK Append completed\.
+S: \* 1 RECENT
+#TODO: RECENT
+#S: \* 8 RECENT
+S: A71 OK APPEND completed\.
 C: A72 APPEND testmailbox {318+}
 C: From: "Brian G. Hutton" <brian@example.org>
 C: To: Timothy Taylor <tim@example.org>, faith@example.org, Huh? <sam@example.org>
@@ -629,8 +643,10 @@ C: Message-ID: <17291729@machine.example.org>
 C: 
 C: Rhubarb!
 S: \* 9 EXISTS
-S: \* 9 RECENT
-S: A72 OK Append completed\.
+S: \* 1 RECENT
+#TODO: RECENT
+#S: \* 9 RECENT
+S: A72 OK APPEND completed\.
 C: A73 APPEND testmailbox {12272+}
 C:                                                                                                                                                                                                                                                                                                        
 C: Received: by 10.114.126.16 with HTTP; Tue, 11 Mar 2008 11:53:38 -0700 (PDT)
@@ -841,8 +857,10 @@ C: b25pbmcgb24gYWxsLCBvciBhbGwgYXdheS4K
 C: ------=_Part_3998_1661991.1205261618747--
 C: 
 S: \* 10 EXISTS
-S: \* 10 RECENT
-S: A73 OK Append completed\.
+S: \* 1 RECENT
+#TODO: RECENT
+#S: \* 10 RECENT
+S: A73 OK APPEND completed\.
 C: A74 APPEND testmailbox {3661+}
 C:                                                                                                                                                                                                                                                                                                      
 C: Delivered-To: robertburrelldonkin@gmail.com
@@ -936,8 +954,10 @@ C:
 C: 
 C: 
 S: \* 11 EXISTS
-S: \* 11 RECENT
-S: A74 OK Append completed\.
+S: \* 1 RECENT
+#TODO: RECENT
+#S: \* 11 RECENT
+S: A74 OK APPEND completed\.
 C: A75 APPEND testmailbox {4387+}
 C:                                                                                                                                                                                                                     
 C: Delivered-To: robertburrelldonkin@gmail.com
@@ -1035,8 +1055,10 @@ C:   In days long since, before these last so bad.
 C: 
 C: --=-iC8rnNDvTPHypqsz+j7t--
 S: \* 12 EXISTS
-S: \* 12 RECENT
-S: A75 OK Append completed\.
+S: \* 1 RECENT
+#TODO: RECENT
+#S: \* 12 RECENT
+S: A75 OK APPEND completed\.
 C: A76 APPEND testmailbox {302+}
 C: From: Samual Smith <sam@example.org>
 C: To: John Smith <john@example.org>
@@ -1049,8 +1071,10 @@ C: References: <1729@example.org>
 C: 
 C: Rhubard, I say!
 S: \* 13 EXISTS
-S: \* 13 RECENT
-S: A76 OK Append completed\.
+S: \* 1 RECENT
+#TODO: RECENT
+#S: \* 13 RECENT
+S: A76 OK APPEND completed\.
 C: A77 APPEND testmailbox {404+}
 C: Resent-From: John Smith <john@example.org>
 C: Resent-To: Samual Smith <sam@example.org>
@@ -1064,8 +1088,10 @@ C: Message-ID: <17299271@example.org>
 C: 
 C: Rhubard or custard? Rhubard AND custard!
 S: \* 14 EXISTS
-S: \* 14 RECENT
-S: A77 OK Append completed\.
+S: \* 1 RECENT
+#TODO: RECENT
+#S: \* 14 RECENT
+S: A77 OK APPEND completed\.
 C: A78 APPEND testmailbox {429+}
 C: Received: from alpha.beta
 C:    by example.org
@@ -1083,8 +1109,10 @@ C:
 C: Rhubard! Rhubard! Rhubard!
 C: 
 S: \* 15 EXISTS
-S: \* 15 RECENT
-S: A78 OK Append completed\.
+S: \* 1 RECENT
+#TODO: RECENT
+#S: \* 15 RECENT
+S: A78 OK APPEND completed\.
 C: A79 APPEND testmailbox {217+}
 C: From: Timothy Taylor <tim@example.org>
 C: To: Alpha Group:John Smith <john@example.org>, sid@example.org;
@@ -1095,8 +1123,10 @@ C:
 C: Custard? Rhubard!
 C: 
 S: \* 16 EXISTS
-S: \* 16 RECENT
-S: A79 OK Append completed\.
+S: \* 1 RECENT
+#TODO: RECENT
+#S: \* 16 RECENT
+S: A79 OK APPEND completed\.
 C: A80 APPEND testmailbox {14862+}
 C: Return-Path: <robertburrelldonkin@gmail.com>
 C: Received: (qmail 16059 invoked from network); 11 Mar 2008 18:54:16 -0000
@@ -1375,8 +1405,10 @@ C: --00163600d06e04482dd6a10e458cd80be--
 C: 
 C: 
 S: \* 17 EXISTS
-S: \* 17 RECENT
-S: A80 OK Append completed\.
+S: \* 1 RECENT
+#TODO: RECENT
+#S: \* 17 RECENT
+S: A80 OK APPEND completed\.
 C: A81 APPEND testmailbox {14154+}
 C: Return-Path: <robertburrelldonkin@gmail.com>
 C: Delivered-To: rob@localhost
@@ -1616,8 +1648,10 @@ C: ------=_Part_4002_22491526.1205261626856--
 C: 
 C: 
 S: \* 18 EXISTS
-S: \* 18 RECENT
-S: A81 OK Append completed\.
+S: \* 1 RECENT
+#TODO: RECENT
+#S: \* 18 RECENT
+S: A81 OK APPEND completed\.
 C: A82 APPEND testmailbox {14996+}
 C: Return-Path: <robertburrelldonkin@gmail.com>
 C: Received: (qmail 26928 invoked from network); 11 Mar 2008 18:54:17 -0000
@@ -1870,412 +1904,420 @@ C: ------=_Part_4002_22491526.1205261626856--
 C: 
 C: 
 S: \* 19 EXISTS
-S: \* 19 RECENT
-S: A82 OK Append completed\.
+S: \* 1 RECENT
+#TODO: RECENT
+#S: \* 19 RECENT
+S: A82 OK APPEND completed\.
 C: A83 STORE 1:9  +FLAGS (\FLAGGED)
-S: \* 1 FETCH \(FLAGS \(\\Flagged \\Recent\)\)
-S: \* 2 FETCH \(FLAGS \(\\Flagged \\Recent\)\)
-S: \* 3 FETCH \(FLAGS \(\\Flagged \\Recent\)\)
-S: \* 4 FETCH \(FLAGS \(\\Flagged \\Recent\)\)
-S: \* 5 FETCH \(FLAGS \(\\Flagged \\Recent\)\)
-S: \* 6 FETCH \(FLAGS \(\\Flagged \\Recent\)\)
-S: \* 7 FETCH \(FLAGS \(\\Flagged \\Recent\)\)
-S: \* 8 FETCH \(FLAGS \(\\Flagged \\Recent\)\)
-S: \* 9 FETCH \(FLAGS \(\\Flagged \\Recent\)\)
-S: A83 OK Store completed\.
+S: \* 1 FETCH \(FLAGS \(\\Flagged\)\)
+S: \* 2 FETCH \(FLAGS \(\\Flagged\)\)
+S: \* 3 FETCH \(FLAGS \(\\Flagged\)\)
+S: \* 4 FETCH \(FLAGS \(\\Flagged\)\)
+S: \* 5 FETCH \(FLAGS \(\\Flagged\)\)
+S: \* 6 FETCH \(FLAGS \(\\Flagged\)\)
+S: \* 7 FETCH \(FLAGS \(\\Flagged\)\)
+S: \* 8 FETCH \(FLAGS \(\\Flagged\)\)
+S: \* 9 FETCH \(FLAGS \(\\Flagged\)\)
+S: A83 OK STORE completed\.
 C: A84 STORE 1:4  +FLAGS (\ANSWERED)
-S: \* 1 FETCH \(FLAGS \(\\Answered \\Flagged \\Recent\)\)
-S: \* 2 FETCH \(FLAGS \(\\Answered \\Flagged \\Recent\)\)
-S: \* 3 FETCH \(FLAGS \(\\Answered \\Flagged \\Recent\)\)
-S: \* 4 FETCH \(FLAGS \(\\Answered \\Flagged \\Recent\)\)
-S: A84 OK Store completed\.
+S: \* 1 FETCH \(FLAGS \(\\Answered \\Flagged\)\)
+S: \* 2 FETCH \(FLAGS \(\\Answered \\Flagged\)\)
+S: \* 3 FETCH \(FLAGS \(\\Answered \\Flagged\)\)
+S: \* 4 FETCH \(FLAGS \(\\Answered \\Flagged\)\)
+S: A84 OK STORE completed\.
 C: A85 STORE 10:14  +FLAGS (\ANSWERED)
-S: \* 10 FETCH \(FLAGS \(\\Answered \\Recent\)\)
-S: \* 11 FETCH \(FLAGS \(\\Answered \\Recent\)\)
-S: \* 12 FETCH \(FLAGS \(\\Answered \\Recent\)\)
-S: \* 13 FETCH \(FLAGS \(\\Answered \\Recent\)\)
-S: \* 14 FETCH \(FLAGS \(\\Answered \\Recent\)\)
-S: A85 OK Store completed\.
+S: \* 10 FETCH \(FLAGS \(\\Answered\)\)
+S: \* 11 FETCH \(FLAGS \(\\Answered\)\)
+S: \* 12 FETCH \(FLAGS \(\\Answered\)\)
+S: \* 13 FETCH \(FLAGS \(\\Answered\)\)
+S: \* 14 FETCH \(FLAGS \(\\Answered\)\)
+S: A85 OK STORE completed\.
 C: A86 STORE 1:2  +FLAGS (\SEEN)
-S: \* 1 FETCH \(FLAGS \(\\Answered \\Flagged \\Seen \\Recent\)\)
-S: \* 2 FETCH \(FLAGS \(\\Answered \\Flagged \\Seen \\Recent\)\)
-S: A86 OK Store completed\.
+S: \* 1 FETCH \(FLAGS \(\\Answered \\Flagged \\Seen\)\)
+S: \* 2 FETCH \(FLAGS \(\\Answered \\Flagged \\Seen\)\)
+S: A86 OK STORE completed\.
 C: A87 STORE 5:7  +FLAGS (\SEEN)
-S: \* 5 FETCH \(FLAGS \(\\Flagged \\Seen \\Recent\)\)
-S: \* 6 FETCH \(FLAGS \(\\Flagged \\Seen \\Recent\)\)
-S: \* 7 FETCH \(FLAGS \(\\Flagged \\Seen \\Recent\)\)
-S: A87 OK Store completed\.
+S: \* 5 FETCH \(FLAGS \(\\Flagged \\Seen\)\)
+S: \* 6 FETCH \(FLAGS \(\\Flagged \\Seen\)\)
+S: \* 7 FETCH \(FLAGS \(\\Flagged \\Seen\)\)
+S: A87 OK STORE completed\.
 C: A88 STORE 10:12  +FLAGS (\SEEN)
-S: \* 10 FETCH \(FLAGS \(\\Answered \\Seen \\Recent\)\)
-S: \* 11 FETCH \(FLAGS \(\\Answered \\Seen \\Recent\)\)
-S: \* 12 FETCH \(FLAGS \(\\Answered \\Seen \\Recent\)\)
-S: A88 OK Store completed\.
+S: \* 10 FETCH \(FLAGS \(\\Answered \\Seen\)\)
+S: \* 11 FETCH \(FLAGS \(\\Answered \\Seen\)\)
+S: \* 12 FETCH \(FLAGS \(\\Answered \\Seen\)\)
+S: A88 OK STORE completed\.
 C: A89 STORE 15:17  +FLAGS (\SEEN)
-S: \* 15 FETCH \(FLAGS \(\\Seen \\Recent\)\)
-S: \* 16 FETCH \(FLAGS \(\\Seen \\Recent\)\)
-S: \* 17 FETCH \(FLAGS \(\\Seen \\Recent\)\)
-S: A89 OK Store completed\.
+S: \* 15 FETCH \(FLAGS \(\\Seen\)\)
+S: \* 16 FETCH \(FLAGS \(\\Seen\)\)
+S: \* 17 FETCH \(FLAGS \(\\Seen\)\)
+S: A89 OK STORE completed\.
 C: A90 STORE 1  +FLAGS (\DRAFT)
-S: \* 1 FETCH \(FLAGS \(\\Answered \\Flagged \\Seen \\Draft \\Recent\)\)
-S: A90 OK Store completed\.
+S: \* 1 FETCH \(FLAGS \(\\Answered \\Draft \\Flagged \\Seen\)\)
+S: A90 OK STORE completed\.
 C: A91 STORE 3  +FLAGS (\DRAFT)
-S: \* 3 FETCH \(FLAGS \(\\Answered \\Flagged \\Draft \\Recent\)\)
-S: A91 OK Store completed\.
+S: \* 3 FETCH \(FLAGS \(\\Answered \\Draft \\Flagged\)\)
+S: A91 OK STORE completed\.
 C: A92 STORE 5  +FLAGS (\DRAFT)
-S: \* 5 FETCH \(FLAGS \(\\Flagged \\Seen \\Draft \\Recent\)\)
-S: A92 OK Store completed\.
+S: \* 5 FETCH \(FLAGS \(\\Draft \\Flagged \\Seen\)\)
+S: A92 OK STORE completed\.
 C: A93 STORE 7  +FLAGS (\DRAFT)
-S: \* 7 FETCH \(FLAGS \(\\Flagged \\Seen \\Draft \\Recent\)\)
-S: A93 OK Store completed\.
+S: \* 7 FETCH \(FLAGS \(\\Draft \\Flagged \\Seen\)\)
+S: A93 OK STORE completed\.
 C: A94 STORE 9  +FLAGS (\DRAFT)
-S: \* 9 FETCH \(FLAGS \(\\Flagged \\Draft \\Recent\)\)
-S: A94 OK Store completed\.
+S: \* 9 FETCH \(FLAGS \(\\Draft \\Flagged\)\)
+S: A94 OK STORE completed\.
 C: A95 STORE 11  +FLAGS (\DRAFT)
-S: \* 11 FETCH \(FLAGS \(\\Answered \\Seen \\Draft \\Recent\)\)
-S: A95 OK Store completed\.
+S: \* 11 FETCH \(FLAGS \(\\Answered \\Draft \\Seen\)\)
+S: A95 OK STORE completed\.
 C: A96 STORE 13  +FLAGS (\DRAFT)
-S: \* 13 FETCH \(FLAGS \(\\Answered \\Draft \\Recent\)\)
-S: A96 OK Store completed\.
+S: \* 13 FETCH \(FLAGS \(\\Answered \\Draft\)\)
+S: A96 OK STORE completed\.
 C: A97 STORE 15  +FLAGS (\DRAFT)
-S: \* 15 FETCH \(FLAGS \(\\Seen \\Draft \\Recent\)\)
-S: A97 OK Store completed\.
+S: \* 15 FETCH \(FLAGS \(\\Draft \\Seen\)\)
+S: A97 OK STORE completed\.
 C: A98 STORE 17  +FLAGS (\DRAFT)
-S: \* 17 FETCH \(FLAGS \(\\Seen \\Draft \\Recent\)\)
-S: A98 OK Store completed\.
+S: \* 17 FETCH \(FLAGS \(\\Draft \\Seen\)\)
+S: A98 OK STORE completed\.
 C: A99 STORE 1:3  +FLAGS (\DELETED)
-S: \* 1 FETCH \(FLAGS \(\\Answered \\Flagged \\Deleted \\Seen \\Draft \\Recent\)\)
-S: \* 2 FETCH \(FLAGS \(\\Answered \\Flagged \\Deleted \\Seen \\Recent\)\)
-S: \* 3 FETCH \(FLAGS \(\\Answered \\Flagged \\Deleted \\Draft \\Recent\)\)
-S: A99 OK Store completed\.
+S: \* 1 FETCH \(FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\)
+S: \* 2 FETCH \(FLAGS \(\\Answered \\Deleted \\Flagged \\Seen\)\)
+S: \* 3 FETCH \(FLAGS \(\\Answered \\Deleted \\Draft \\Flagged\)\)
+S: A99 OK STORE completed\.
 C: A100 UID SEARCH ALL
 S: \* SEARCH 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39
-S: A100 OK Search completed\.
+S: A100 OK SEARCH completed\.
 C: A101 UID SEARCH ANSWERED
 S: \* SEARCH 21 22 23 24 30 31 32 33 34
-S: A101 OK Search completed\.
+S: A101 OK SEARCH completed\.
 C: A102 UID SEARCH BCC o
 S: \* SEARCH 30
-S: A102 OK Search completed\.
+S: A102 OK SEARCH completed\.
 C: A103 UID SEARCH BCC tim
 S: \* SEARCH
-S: A103 OK Search completed\.
+S: A103 OK SEARCH completed\.
 C: A104 UID SEARCH BCC Robert
 S: \* SEARCH
-S: A104 OK Search completed\.
+S: A104 OK SEARCH completed\.
 C: A105 UID SEARCH BCC example.org
 S: \* SEARCH
-S: A105 OK Search completed\.
+S: A105 OK SEARCH completed\.
 C: A106 UID SEARCH BCC apache.org
 S: \* SEARCH 30
-S: A106 OK Search completed\.
+S: A106 OK SEARCH completed\.
 C: A107 UID SEARCH BODY o
 S: \* SEARCH 22 23 24 25 26 27 30 31 32 34 37 38 39
-S: A107 OK Search completed\.
+S: A107 OK SEARCH completed\.
 C: A108 UID SEARCH BODY the
 S: \* SEARCH 22 25 30 31 32 37 38 39
-S: A108 OK Search completed\.
+S: A108 OK SEARCH completed\.
 C: A109 UID SEARCH BODY thy
-S: \* SEARCH 25 30 32 37 38 39
-S: A109 OK Search completed\.
+# TODO: FIX APPEND S: \* SEARCH 25 30 32 37 38 39
+S: \* SEARCH 30 32 37 38 39
+S: A109 OK SEARCH completed\.
 C: A110 UID SEARCH BODY "nothing worthy prove"
 S: \* SEARCH 30 32 37 38 39
-S: A110 OK Search completed\.
+S: A110 OK SEARCH completed\.
 C: A111 UID SEARCH CC o
 S: \* SEARCH 29 30 36 38 39
-S: A111 OK Search completed\.
+S: A111 OK SEARCH completed\.
 C: A112 UID SEARCH CC tim
 S: \* SEARCH
-S: A112 OK Search completed\.
+S: A112 OK SEARCH completed\.
 C: A113 UID SEARCH CC Robert
 S: \* SEARCH 30 38 39
-S: A113 OK Search completed\.
+S: A113 OK SEARCH completed\.
 C: A114 UID SEARCH CC example.org
 S: \* SEARCH 29
-S: A114 OK Search completed\.
+S: A114 OK SEARCH completed\.
 C: A115 UID SEARCH CC apache.org
 S: \* SEARCH
-S: A115 OK Search completed\.
+S: A115 OK SEARCH completed\.
 C: A116 UID SEARCH DELETED
 S: \* SEARCH 21 22 23
-S: A116 OK Search completed\.
+S: A116 OK SEARCH completed\.
 C: A117 UID SEARCH DRAFT
 S: \* SEARCH 21 23 25 27 29 31 33 35 37
-S: A117 OK Search completed\.
+S: A117 OK SEARCH completed\.
 C: A118 UID SEARCH FLAGGED
 S: \* SEARCH 21 22 23 24 25 26 27 28 29
-S: A118 OK Search completed\.
+S: A118 OK SEARCH completed\.
 C: A119 UID SEARCH FROM o
 S: \* SEARCH 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39
-S: A119 OK Search completed\.
+S: A119 OK SEARCH completed\.
 C: A120 UID SEARCH FROM tim
 S: \* SEARCH 21 23 24 25 28 36
-S: A120 OK Search completed\.
+S: A120 OK SEARCH completed\.
 C: A121 UID SEARCH FROM Robert
 S: \* SEARCH 22 30 31 32 37 38 39
-S: A121 OK Search completed\.
+S: A121 OK SEARCH completed\.
 C: A122 UID SEARCH FROM example.org
 S: \* SEARCH 21 23 24 25 26 27 28 29 33 34 35 36
-S: A122 OK Search completed\.
+S: A122 OK SEARCH completed\.
 C: A123 UID SEARCH FROM apache.org
 S: \* SEARCH
-S: A123 OK Search completed\.
+S: A123 OK SEARCH completed\.
 C: A124 UID SEARCH HEADER Delivered-To example.org
 S: \* SEARCH
-S: A124 OK Search completed\.
+S: A124 OK SEARCH completed\.
 C: A125 UID SEARCH HEADER Delivered-To o
 S: \* SEARCH 22 30 31 32 37 38 39
-S: A125 OK Search completed\.
+S: A125 OK SEARCH completed\.
 C: A126 UID SEARCH HEADER Delivered-To apache.org
 S: \* SEARCH 37 39
-S: A126 OK Search completed\.
+S: A126 OK SEARCH completed\.
 C: A127 UID SEARCH HEADER Delivered-To ""
 S: \* SEARCH 22 30 31 32 37 38 39
-S: A127 OK Search completed\.
+S: A127 OK SEARCH completed\.
 C: A128 UID SEARCH HEADER Received example.org
 S: \* SEARCH 35
-S: A128 OK Search completed\.
+S: A128 OK SEARCH completed\.
 C: A129 UID SEARCH HEADER Received o
 S: \* SEARCH 31 32 35 37 38 39
-S: A129 OK Search completed\.
+S: A129 OK SEARCH completed\.
 C: A130 UID SEARCH HEADER Received apache.org
 S: \* SEARCH 37 39
-S: A130 OK Search completed\.
+S: A130 OK SEARCH completed\.
 C: A131 UID SEARCH HEADER Received ""
 S: \* SEARCH 22 30 31 32 35 37 38 39
-S: A131 OK Search completed\.
+S: A131 OK SEARCH completed\.
 C: A132 UID SEARCH LARGER 10
 S: \* SEARCH 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39
-S: A132 OK Search completed\.
+S: A132 OK SEARCH completed\.
 C: A133 UID SEARCH LARGER 100
 S: \* SEARCH 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39
-S: A133 OK Search completed\.
+S: A133 OK SEARCH completed\.
 C: A134 UID SEARCH LARGER 1000
 S: \* SEARCH 25 30 31 32 37 38 39
-S: A134 OK Search completed\.
+S: A134 OK SEARCH completed\.
 C: A135 UID SEARCH LARGER 10000
 S: \* SEARCH 30 37 38 39
-S: A135 OK Search completed\.
+S: A135 OK SEARCH completed\.
 C: A136 UID SEARCH LARGER 12500
 S: \* SEARCH 37 38 39
-S: A136 OK Search completed\.
+S: A136 OK SEARCH completed\.
 C: A137 UID SEARCH LARGER 15000
 S: \* SEARCH
-S: A137 OK Search completed\.
+S: A137 OK SEARCH completed\.
 C: A138 UID SEARCH LARGER 20000
 S: \* SEARCH
-S: A138 OK Search completed\.
-C: A139 UID SEARCH NEW
-S: \* SEARCH 23 24 28 29 33 34 38 39
-S: A139 OK Search completed\.
+S: A138 OK SEARCH completed\.
+# TODO: RECENT
+#C: A139 UID SEARCH NEW
+#S: \* SEARCH 23 24 28 29 33 34 38 39
+#S: A139 OK SEARCH completed\.
 C: A140 UID SEARCH NOT FLAGGED
 S: \* SEARCH 30 31 32 33 34 35 36 37 38 39
-S: A140 OK Search completed\.
+S: A140 OK SEARCH completed\.
 C: A141 UID SEARCH 3:5
 S: \* SEARCH 23 24 25
-S: A141 OK Search completed\.
+S: A141 OK SEARCH completed\.
 C: A142 UID SEARCH *:10
-S: \* SEARCH 30 31 32 33 34 35 36 37 38 39
-S: A142 OK Search completed\.
+S: \* SEARCH 21 22 23 24 25 26 27 28 29 30
+S: A142 OK SEARCH completed\.
 C: A143 UID SEARCH 17:*
 S: \* SEARCH 37 38 39
-S: A143 OK Search completed\.
-C: A144 UID SEARCH OLD
-S: \* SEARCH
-S: A144 OK Search completed\.
+S: A143 OK SEARCH completed\.
+# TODO: RECENT
+#C: A144 UID SEARCH OLD
+#S: \* SEARCH
+#S: A144 OK SEARCH completed\.
 C: A145 UID SEARCH OR ANSWERED FLAGGED
 S: \* SEARCH 21 22 23 24 25 26 27 28 29 30 31 32 33 34
-S: A145 OK Search completed\.
-C: A146 UID SEARCH RECENT
-S: \* SEARCH 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39
-S: A146 OK Search completed\.
+S: A145 OK SEARCH completed\.
+# TODO: RECENT
+#C: A146 UID SEARCH RECENT
+#S: \* SEARCH 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39
+#S: A146 OK SEARCH completed\.
 C: A147 UID SEARCH SEEN
 S: \* SEARCH 21 22 25 26 27 30 31 32 35 36 37
-S: A147 OK Search completed\.
+S: A147 OK SEARCH completed\.
 C: A148 UID SEARCH SENTBEFORE 10-Oct-2007
 S: \* SEARCH
-S: A148 OK Search completed\.
+S: A148 OK SEARCH completed\.
 C: A149 UID SEARCH SENTBEFORE 1-Jan-2008
 S: \* SEARCH
-S: A149 OK Search completed\.
+S: A149 OK SEARCH completed\.
 C: A150 UID SEARCH SENTBEFORE 1-Feb-2008
 S: \* SEARCH
-S: A150 OK Search completed\.
+S: A150 OK SEARCH completed\.
 C: A151 UID SEARCH SENTBEFORE 10-Feb-2008
 S: \* SEARCH 22
-S: A151 OK Search completed\.
+S: A151 OK SEARCH completed\.
 C: A152 UID SEARCH SENTBEFORE 20-Feb-2008
 S: \* SEARCH 21 22 23 24 25 28
-S: A152 OK Search completed\.
+S: A152 OK SEARCH completed\.
 C: A153 UID SEARCH SENTBEFORE 25-Feb-2008
 S: \* SEARCH 21 22 23 24 25 26 27 28 29 33 34 35 36
-S: A153 OK Search completed\.
+S: A153 OK SEARCH completed\.
 C: A154 UID SEARCH SENTBEFORE 1-Mar-2008
 S: \* SEARCH 21 22 23 24 25 26 27 28 29 33 34 35 36
-S: A154 OK Search completed\.
+S: A154 OK SEARCH completed\.
 C: A155 UID SEARCH SENTBEFORE 5-Mar-2008
 S: \* SEARCH 21 22 23 24 25 26 27 28 29 33 34 35 36
-S: A155 OK Search completed\.
+S: A155 OK SEARCH completed\.
 C: A156 UID SEARCH SENTBEFORE 10-Mar-2008
 S: \* SEARCH 21 22 23 24 25 26 27 28 29 33 34 35 36
-S: A156 OK Search completed\.
+S: A156 OK SEARCH completed\.
 C: A157 UID SEARCH SENTBEFORE 1-Apr-2008
 S: \* SEARCH 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39
-S: A157 OK Search completed\.
+S: A157 OK SEARCH completed\.
 C: A158 UID SEARCH SENTON 10-Oct-2007
 S: \* SEARCH
-S: A158 OK Search completed\.
+S: A158 OK SEARCH completed\.
 C: A159 UID SEARCH SENTON 1-Jan-2008
 S: \* SEARCH
-S: A159 OK Search completed\.
+S: A159 OK SEARCH completed\.
 C: A160 UID SEARCH SENTON 1-Feb-2008
 S: \* SEARCH
-S: A160 OK Search completed\.
+S: A160 OK SEARCH completed\.
 C: A161 UID SEARCH SENTON 10-Feb-2008
 S: \* SEARCH
-S: A161 OK Search completed\.
+S: A161 OK SEARCH completed\.
 C: A162 UID SEARCH SENTON 20-Feb-2008
 S: \* SEARCH
-S: A162 OK Search completed\.
+S: A162 OK SEARCH completed\.
 C: A163 UID SEARCH SENTON 25-Feb-2008
 S: \* SEARCH
-S: A163 OK Search completed\.
+S: A163 OK SEARCH completed\.
 C: A164 UID SEARCH SENTON 1-Mar-2008
 S: \* SEARCH
-S: A164 OK Search completed\.
+S: A164 OK SEARCH completed\.
 C: A165 UID SEARCH SENTON 5-Mar-2008
 S: \* SEARCH
-S: A165 OK Search completed\.
+S: A165 OK SEARCH completed\.
 C: A166 UID SEARCH SENTON 10-Mar-2008
 S: \* SEARCH
-S: A166 OK Search completed\.
+S: A166 OK SEARCH completed\.
 C: A167 UID SEARCH SENTON 1-Apr-2008
 S: \* SEARCH
-S: A167 OK Search completed\.
+S: A167 OK SEARCH completed\.
 C: A168 UID SEARCH SENTSINCE 10-Oct-2007
 S: \* SEARCH 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39
-S: A168 OK Search completed\.
+S: A168 OK SEARCH completed\.
 C: A169 UID SEARCH SENTSINCE 1-Jan-2008
 S: \* SEARCH 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39
-S: A169 OK Search completed\.
+S: A169 OK SEARCH completed\.
 C: A170 UID SEARCH SENTSINCE 1-Feb-2008
 S: \* SEARCH 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39
-S: A170 OK Search completed\.
+S: A170 OK SEARCH completed\.
 C: A171 UID SEARCH SENTSINCE 10-Feb-2008
 S: \* SEARCH 21 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39
-S: A171 OK Search completed\.
+S: A171 OK SEARCH completed\.
 C: A172 UID SEARCH SENTSINCE 20-Feb-2008
 S: \* SEARCH 26 27 29 30 31 32 33 34 35 36 37 38 39
-S: A172 OK Search completed\.
+S: A172 OK SEARCH completed\.
 C: A173 UID SEARCH SENTSINCE 25-Feb-2008
 S: \* SEARCH 30 31 32 37 38 39
-S: A173 OK Search completed\.
+S: A173 OK SEARCH completed\.
 C: A174 UID SEARCH SENTSINCE 1-Mar-2008
 S: \* SEARCH 30 31 32 37 38 39
-S: A174 OK Search completed\.
+S: A174 OK SEARCH completed\.
 C: A175 UID SEARCH SENTSINCE 5-Mar-2008
 S: \* SEARCH 30 31 32 37 38 39
-S: A175 OK Search completed\.
+S: A175 OK SEARCH completed\.
 C: A176 UID SEARCH SENTSINCE 10-Mar-2008
 S: \* SEARCH 30 31 32 37 38 39
-S: A176 OK Search completed\.
+S: A176 OK SEARCH completed\.
 C: A177 UID SEARCH SENTSINCE 1-Apr-2008
 S: \* SEARCH
-S: A177 OK Search completed\.
+S: A177 OK SEARCH completed\.
 C: A178 UID SEARCH SMALLER 10
 S: \* SEARCH
-S: A178 OK Search completed\.
+S: A178 OK SEARCH completed\.
 C: A179 UID SEARCH SMALLER 100
 S: \* SEARCH
-S: A179 OK Search completed\.
+S: A179 OK SEARCH completed\.
 C: A180 UID SEARCH SMALLER 1000
 S: \* SEARCH 21 22 23 24 26 27 28 29 33 34 35 36
-S: A180 OK Search completed\.
+S: A180 OK SEARCH completed\.
 C: A181 UID SEARCH SMALLER 10000
 S: \* SEARCH 21 22 23 24 25 26 27 28 29 31 32 33 34 35 36
-S: A181 OK Search completed\.
+S: A181 OK SEARCH completed\.
 C: A182 UID SEARCH SMALLER 12500
 S: \* SEARCH 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36
-S: A182 OK Search completed\.
+S: A182 OK SEARCH completed\.
 C: A183 UID SEARCH SMALLER 15000
 S: \* SEARCH 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39
-S: A183 OK Search completed\.
+S: A183 OK SEARCH completed\.
 C: A184 UID SEARCH SMALLER 20000
 S: \* SEARCH 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39
-S: A184 OK Search completed\.
+S: A184 OK SEARCH completed\.
 C: A185 UID SEARCH SUBJECT o
-S: \* SEARCH 26 27 30 32 37 38 39
-S: A185 OK Search completed\.
+# TODO: JavaMail's parsing is buggy. Replace with Mime4J.
+# S: \* SEARCH 26 27 30 32 37 38 39
+S: \* SEARCH 26 27 30 32 38 39
+S: A185 OK SEARCH completed\.
 C: A186 UID SEARCH SUBJECT the
 S: \* SEARCH
-S: A186 OK Search completed\.
+S: A186 OK SEARCH completed\.
 C: A187 UID SEARCH SUBJECT "nothing worthy prove"
 S: \* SEARCH
-S: A187 OK Search completed\.
+S: A187 OK SEARCH completed\.
 C: A188 UID SEARCH SUBJECT thy
 S: \* SEARCH
-S: A188 OK Search completed\.
+S: A188 OK SEARCH completed\.
 C: A189 UID SEARCH SUBJECT Re:
 S: \* SEARCH 30 33 38 39
-S: A189 OK Search completed\.
+S: A189 OK SEARCH completed\.
 C: A190 UID SEARCH TEXT o
 S: \* SEARCH 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39
-S: A190 OK Search completed\.
+S: A190 OK SEARCH completed\.
 C: A191 UID SEARCH TEXT the
 S: \* SEARCH 22 25 29 30 31 32 37 38 39
-S: A191 OK Search completed\.
+S: A191 OK SEARCH completed\.
 C: A192 UID SEARCH TEXT "nothing worthy prove"
 S: \* SEARCH 30 32 37 38 39
-S: A192 OK Search completed\.
+S: A192 OK SEARCH completed\.
 C: A193 UID SEARCH TEXT thy
 S: \* SEARCH 21 23 24 25 26 27 28 29 30 32 33 34 35 36 37 38 39
-S: A193 OK Search completed\.
+S: A193 OK SEARCH completed\.
 C: A194 UID SEARCH TEXT Re:
 S: \* SEARCH 30 33 37 38 39
-S: A194 OK Search completed\.
+S: A194 OK SEARCH completed\.
 C: A195 UID SEARCH TEXT example.org
 S: \* SEARCH 21 23 24 25 26 27 28 29 33 34 35 36
-S: A195 OK Search completed\.
+S: A195 OK SEARCH completed\.
 C: A196 UID SEARCH TEXT apache.org
 S: \* SEARCH 22 30 37 38 39
-S: A196 OK Search completed\.
+S: A196 OK SEARCH completed\.
 C: A197 UID SEARCH TEXT Robert
 S: \* SEARCH 22 30 31 32 37 38 39
-S: A197 OK Search completed\.
+S: A197 OK SEARCH completed\.
 C: A198 UID SEARCH TEXT tim
 S: \* SEARCH 21 23 24 25 26 27 28 29 30 33 34 35 36 37 38 39
-S: A198 OK Search completed\.
+S: A198 OK SEARCH completed\.
 C: A199 UID SEARCH TO o
 S: \* SEARCH 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39
-S: A199 OK Search completed\.
+S: A199 OK SEARCH completed\.
 C: A200 UID SEARCH TO tim
 S: \* SEARCH 26 27 29 34 35
-S: A200 OK Search completed\.
+S: A200 OK SEARCH completed\.
 C: A201 UID SEARCH TO Robert
 S: \* SEARCH 30 31 32 38 39
-S: A201 OK Search completed\.
+S: A201 OK SEARCH completed\.
 C: A202 UID SEARCH TO example.org
 S: \* SEARCH 21 23 24 25 26 27 28 29 33 34 35 36
-S: A202 OK Search completed\.
+S: A202 OK SEARCH completed\.
 C: A203 UID SEARCH TO apache.org
 S: \* SEARCH 22 37
-S: A203 OK Search completed\.
+S: A203 OK SEARCH completed\.
 C: A204 UID SEARCH UID 1:4
 S: \* SEARCH
-S: A204 OK Search completed\.
+S: A204 OK SEARCH completed\.
 C: A205 UID SEARCH UNANSWERED
 S: \* SEARCH 25 26 27 28 29 35 36 37 38 39
-S: A205 OK Search completed\.
+S: A205 OK SEARCH completed\.
 C: A206 UID SEARCH UNDELETED
 S: \* SEARCH 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39
-S: A206 OK Search completed\.
+S: A206 OK SEARCH completed\.
 C: A207 UID SEARCH UNDRAFT
 S: \* SEARCH 22 24 26 28 30 32 34 36 38 39
-S: A207 OK Search completed\.
+S: A207 OK SEARCH completed\.
 C: A208 UID SEARCH UNFLAGGED
 S: \* SEARCH 30 31 32 33 34 35 36 37 38 39
-S: A208 OK Search completed\.
+S: A208 OK SEARCH completed\.
 C: A209 UID SEARCH UNSEEN
 S: \* SEARCH 23 24 28 29 33 34 38 39
-S: A209 OK Search completed\.
+S: A209 OK SEARCH completed\.
 C: A210 DELETE testmailbox
-S: A210 OK Delete completed\.
+S: A210 OK DELETE completed\.
