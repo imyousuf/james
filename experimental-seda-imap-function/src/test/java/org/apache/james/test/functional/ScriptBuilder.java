@@ -43,6 +43,7 @@ public class ScriptBuilder {
     
     private int tagCount = 0;
     
+    private boolean uidSearch = false;
     private boolean peek = false;
     private int messageNumber = 1;
     private String user = "imapuser";
@@ -67,6 +68,14 @@ public class ScriptBuilder {
 
     public final void setPeek(boolean peek) {
         this.peek = peek;
+    }
+
+    public final boolean isUidSearch() {
+        return uidSearch;
+    }
+
+    public final void setUidSearch(boolean uidSearch) {
+        this.uidSearch = uidSearch;
     }
 
     public final String getBasedir() {
@@ -154,6 +163,16 @@ public class ScriptBuilder {
         createdMailbox = true;
     }
     
+    public ScriptBuilder flagDeleted() throws Exception {
+        store(new Flags().deleted().msn(messageNumber));
+        return this;
+    }
+    
+    public ScriptBuilder expunge() throws Exception {
+        command("EXPUNGE");
+        return this;
+    }
+    
     public void delete() throws Exception {
         if (createdMailbox) {
             command("DELETE " + mailbox);
@@ -161,6 +180,7 @@ public class ScriptBuilder {
     }
     
     public void search() throws Exception {
+        search.setUidSearch(uidSearch);
         command(search.command());
         search = new Search();
     }
@@ -558,13 +578,26 @@ public class ScriptBuilder {
 
         private StringBuffer buffer;
         private boolean first;
+        private boolean uidSearch = false;
         
         public Search() {
             clear();
         }
         
+        public final boolean isUidSearch() {
+            return uidSearch;
+        }
+
+        public final void setUidSearch(boolean uidSearch) {
+            this.uidSearch = uidSearch;
+        }
+
         public String command() {
-            return "SEARCH " + buffer.toString();
+            if (uidSearch) {
+                return "UID SEARCH " + buffer.toString();
+            } else {
+                return "SEARCH " + buffer.toString();
+            }
         }
         
         public void clear() {

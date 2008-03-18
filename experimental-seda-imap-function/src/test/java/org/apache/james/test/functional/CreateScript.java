@@ -35,11 +35,11 @@ public class CreateScript {
 
     public static final void main(String[] args) throws Exception {
         ScriptBuilder builder = ScriptBuilder.open("localhost", 143);
-        searchCombinations(builder);
+        searchAtoms(builder, true);
     }
     
-    public static void searchCombinations(ScriptBuilder builder) throws Exception {
-        setupSearch(builder);
+    public static void searchCombinations(ScriptBuilder builder, boolean uids) throws Exception {
+        setupSearch(builder, uids);
         builder.body(COMMON_LETTER).undraft().unflagged().answered().search();
         builder.to(COMMON_LETTER).draft().flagged().answered().search();
         builder.to(COMMON_LETTER).smaller(10000).all().draft().search();
@@ -68,8 +68,8 @@ public class CreateScript {
         builder.quit();
     }
     
-    public static void searchAtoms(ScriptBuilder builder) throws Exception {
-        setupSearch(builder);
+    public static void searchAtoms(ScriptBuilder builder, boolean uids) throws Exception {
+        setupSearch(builder, uids);
         builder.all().search();
         builder.answered().search();
         builder.bcc(COMMON_LETTER).search();
@@ -183,10 +183,10 @@ public class CreateScript {
         builder.quit();
     }
 
-    private static void setupSearch(ScriptBuilder builder) throws Exception {
-        builder.login();
-        builder.create();
-        builder.select();
+    private static void setupSearch(ScriptBuilder builder, boolean uids) throws Exception {
+        builder.setUidSearch(uids);
+        setup(builder);
+        padUids(builder);
         loadLotsOfMail(builder);
         builder.store(builder.flags().add().flagged().range(1, 9));
         builder.store(builder.flags().add().answered().range(1, 4));
@@ -207,7 +207,20 @@ public class CreateScript {
         builder.store(builder.flags().add().deleted().range(1,3));
     }
 
+    private static void setup(ScriptBuilder builder) throws Exception {
+        builder.login();
+        builder.create();
+        builder.select();
+    }
 
+    private static void padUids(ScriptBuilder builder) throws Exception {
+        builder.setFile("rfc822.mail");
+        for (int i=0;i<20;i++) {
+            builder.append();
+            builder.flagDeleted().expunge();
+        }
+    }
+    
     private static void loadLotsOfMail(ScriptBuilder builder) throws Exception {
         builder.append();
         builder.setFile("wild-example.mail");
