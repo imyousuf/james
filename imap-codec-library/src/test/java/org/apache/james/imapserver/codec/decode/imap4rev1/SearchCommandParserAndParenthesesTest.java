@@ -34,7 +34,6 @@ import org.apache.james.api.imap.message.IdRange;
 import org.apache.james.api.imap.message.request.DayMonthYear;
 import org.apache.james.api.imap.message.request.SearchKey;
 import org.apache.james.imapserver.codec.decode.ImapRequestLineReader;
-import org.apache.james.imapserver.codec.decode.imap4rev1.SearchCommandParserTopLevelAndTest.Input;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 

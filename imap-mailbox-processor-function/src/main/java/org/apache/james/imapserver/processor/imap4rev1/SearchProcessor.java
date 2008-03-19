@@ -20,8 +20,10 @@
 package org.apache.james.imapserver.processor.imap4rev1;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TreeSet;
 
 import javax.mail.Flags.Flag;
 
@@ -79,6 +81,27 @@ public class SearchProcessor extends AbstractImapRequestProcessor {
 
         final SearchQuery query = toQuery(searchKey, session);
         
+        final Collection results = findIds(useUids, session, mailbox, fetchGroup, query);
+        final long[] ids = toArray(results);
+        
+        final SearchResponse response = new SearchResponse(ids);
+        responder.respond(response);
+        boolean omitExpunged = (!useUids);
+        unsolicitedResponses(session, responder, omitExpunged, useUids);
+        okComplete(command, tag, responder);
+    }
+
+    private long[] toArray(final Collection results) {
+        final Iterator it = results.iterator();
+        final int length = results.size();
+        long[] ids = new long[length];
+        for (int i = 0; i < length; i++) {
+            ids[i] = ((Long) it.next()).longValue();
+        }
+        return ids;
+    }
+
+    private Collection findIds(final boolean useUids, final ImapSession session, ImapMailbox mailbox, final FetchGroup fetchGroup, final SearchQuery query) throws MailboxException {
         final Iterator it;
         try {
             
@@ -87,7 +110,7 @@ public class SearchProcessor extends AbstractImapRequestProcessor {
             throw new MailboxException(e);
         }
 
-        final List results = new ArrayList();
+        final Collection results = new TreeSet();
         while (it.hasNext()) {
             final MessageResult result = (MessageResult) it.next();
             final Long number;
@@ -99,18 +122,7 @@ public class SearchProcessor extends AbstractImapRequestProcessor {
             }
             results.add(number);
         }
-        
-        final int length = results.size();
-        long[] ids = new long[length];
-        for (int i = 0; i < length; i++) {
-            ids[i] = ((Long) results.get(i)).longValue();
-        }
-        
-        final SearchResponse response = new SearchResponse(ids);
-        responder.respond(response);
-        boolean omitExpunged = (!useUids);
-        unsolicitedResponses(session, responder, omitExpunged, useUids);
-        okComplete(command, tag, responder);
+        return results;
     }
 
     private SearchQuery toQuery(final SearchKey key, final ImapSession session) {
