@@ -127,13 +127,21 @@ public class ByteImapResponseWriter extends AbstractLogEnabled implements ImapCo
     }
     
     public void closeParen() {
-        writer.print(CLOSING_PARENTHESIS);
+        closeBracket(CLOSING_PARENTHESIS);
+    }
+
+    private void closeBracket(final char bracket) {
+        writer.print(bracket);
         clearSkipNextSpace();
     }
 
     public void openParen() {
+        openBracket(OPENING_PARENTHESIS);
+    }
+
+    private void openBracket(final char bracket) {
         space();
-        writer.print(OPENING_PARENTHESIS);
+        writer.print(bracket);
         skipNextSpace();
     }
     
@@ -165,5 +173,13 @@ public class ByteImapResponseWriter extends AbstractLogEnabled implements ImapCo
         WritableByteChannel channel = Channels.newChannel(out);
         literal.writeTo(channel);
         writer.flush();
+    }
+
+    public void closeSquareBracket() throws IOException {
+        closeBracket(CLOSING_SQUARE_BRACKET);
+    }
+
+    public void openSquareBracket() throws IOException {
+        openBracket(OPENING_SQUARE_BRACKET);
     }
 }

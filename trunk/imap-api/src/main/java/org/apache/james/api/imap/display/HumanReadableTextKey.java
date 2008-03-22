@@ -54,6 +54,10 @@ public class HumanReadableTextKey {
         = new HumanReadableTextKey("org.apache.james.imap.UNSUPPORTED_CRITERIA",
                 "failed. One or more search criteria is unsupported.");
     
+    public static final HumanReadableTextKey BAD_CHARSET 
+        = new HumanReadableTextKey("org.apache.james.imap.BAD_CHARSET",
+                "failed. Charset is unsupported.");
+    
     public static final HumanReadableTextKey MAILBOX_IS_READ_ONLY 
         = new HumanReadableTextKey("org.apache.james.imap.MAILBOX_IS_READ_ONLY",
                 "failed. Mailbox is read only.");

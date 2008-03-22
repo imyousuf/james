@@ -30,7 +30,7 @@ public class StatusResponseTest extends TestCase {
     }
 
     public void testResponseCodeExtension() throws Exception {
-        assertEquals("Preserve names beginning with X", "[XEXTENSION]", StatusResponse.ResponseCode.createExtension("XEXTENSION").getCode());
-        assertEquals("Correct other names", "[XEXTENSION]", StatusResponse.ResponseCode.createExtension("EXTENSION").getCode());
+        assertEquals("Preserve names beginning with X", "XEXTENSION", StatusResponse.ResponseCode.createExtension("XEXTENSION").getCode());
+        assertEquals("Correct other names", "XEXTENSION", StatusResponse.ResponseCode.createExtension("EXTENSION").getCode());
     }
 }

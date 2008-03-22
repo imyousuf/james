@@ -20,20 +20,27 @@
 package org.apache.james.imapserver.codec.encode;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import javax.mail.Flags;
 
-import junit.framework.TestCase;
+import org.apache.james.api.imap.ImapCommand;
+import org.jmock.Mock;
+import org.jmock.MockObjectTestCase;
 
-public abstract class AbstractTestImapResponseComposer extends TestCase {
+public abstract class AbstractTestImapResponseComposer extends MockObjectTestCase {
 
     private static final long[] ONE_TWO_THREE = {1, 2, 3};
     private static final long[] FIBS = {1, 1, 2, 3, 5, 8, 13, 21, 34, 65, 99};
     private static final long[] EMPTY = {};
     
+    Mock mockCommand;
+    
     protected void setUp() throws Exception {
         super.setUp();
+        mockCommand = mock(ImapCommand.class);
     }
 
     protected void tearDown() throws Exception {
@@ -110,6 +117,26 @@ public abstract class AbstractTestImapResponseComposer extends TestCase {
         checkFlagsEncode(" FLAGS (\\Answered \\Deleted \\Draft \\Flagged \\Seen)", flags);
     }
     
+    public void testShouldEncodeUnparameterisedStatus() throws Exception {
+        checkStatusResponseEncode("A1 NO [ALERT] APPEND failed\r\n", "A1", command("APPEND"),
+                "NO", "ALERT", Collections.EMPTY_LIST, 0, "failed");
+        checkStatusResponseEncode("A1 BAD [TRYCREATE] SELECT whatever\r\n", "A1", command("SELECT"),
+                "BAD", "TRYCREATE", Collections.EMPTY_LIST, 0, "whatever");
+    }
+    
+    public void testShouldEncodeListParameterStatus() throws Exception {
+        Collection parameters = new ArrayList();
+        parameters.add("ONE");
+        parameters.add("TWO");
+        parameters.add("THREE");
+        checkStatusResponseEncode("A1 NO [BADCHARSET (ONE TWO THREE)] APPEND failed\r\n", "A1", command("APPEND"),
+                "NO", "BADCHARSET", parameters, 0, "failed");
+    }
+    
+    public void testShouldEncodeNumberParameterStatus() throws Exception {
+        checkStatusResponseEncode("A1 NO [UIDNEXT 10] APPEND failed\r\n", "A1", command("APPEND"),
+                "NO", "UIDNEXT", null, 10, "failed");
+    }
     
     private void checkFlagsEncode(String expected, Flags flags) throws Exception {
         StringBuffer buffer = new StringBuffer();
@@ -165,4 +192,23 @@ public abstract class AbstractTestImapResponseComposer extends TestCase {
             Long uidNext, Long uidValidity, Long unseen, String mailbox) throws Exception;
     
     protected abstract void clear() throws Exception;
+    
+    protected abstract byte[] encodeStatusResponse(String tag, ImapCommand command, String type, 
+            String responseCode, Collection parameters, int number, String text) throws Exception;
+        
+    private void checkStatusResponseEncode(String expected, String tag, ImapCommand command, String type, 
+            String responseCode, Collection parameters, int number, String text) throws Exception {
+        StringBuffer buffer = new StringBuffer();
+        byte[] output = encodeStatusResponse(tag, command, type, responseCode, parameters, number, text);
+        for (int i=0;i<output.length;i++) {
+            buffer.append((char) output[i]);
+        }
+        assertEquals(expected, buffer.toString());
+        clear();
+    }
+    
+    private ImapCommand command(String name) {
+        mockCommand.expects(once()).method("getName").will(returnValue(name));
+        return (ImapCommand) mockCommand.proxy();
+    }
 }

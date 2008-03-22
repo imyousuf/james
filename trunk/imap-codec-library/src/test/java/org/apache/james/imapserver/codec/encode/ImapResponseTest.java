@@ -94,9 +94,9 @@ public class ImapResponseTest extends MockObjectTestCase {
         assertEquals(new MockImapResponseWriter.UntaggedOperation(), writer.operations.get(0));
         assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapResponseComposerImpl.FLAGS), 
                 writer.operations.get(1));
-        assertEquals(new MockImapResponseWriter.ParenOperation(true),
+        assertEquals(new MockImapResponseWriter.BracketOperation(true, false),
                 writer.operations.get(2));
-        assertEquals(new MockImapResponseWriter.ParenOperation(false),
+        assertEquals(new MockImapResponseWriter.BracketOperation(false, false),
                 writer.operations.get(3));
         assertEquals(new MockImapResponseWriter.EndOperation(), 
                 writer.operations.get(4));

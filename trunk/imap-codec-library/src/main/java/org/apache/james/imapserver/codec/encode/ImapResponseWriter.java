@@ -84,6 +84,19 @@ public interface ImapResponseWriter {
     void closeParen() throws IOException;
 
     /**
+     * Closes a square bracket - writes a <code>[</code>.
+     * @throws IOException
+     */
+    void openSquareBracket() throws IOException;
+
+    /**
+     * Closes a square bracket - writes a <code>]</code>.
+     * @throws IOException
+     */
+    void closeSquareBracket() throws IOException;
+    
+    
+    /**
      * Ends a response.
      *
      */

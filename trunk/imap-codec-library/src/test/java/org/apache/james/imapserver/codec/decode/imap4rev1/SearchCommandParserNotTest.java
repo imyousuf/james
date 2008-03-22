@@ -116,6 +116,6 @@ public class SearchCommandParserNotTest extends MockObjectTestCase {
         ImapRequestLineReader reader = new ImapRequestLineReader(new ByteArrayInputStream(input.getBytes("US-ASCII")), 
                 new ByteArrayOutputStream());
 
-        assertEquals(key, parser.searchKey(reader));
+        assertEquals(key, parser.searchKey(reader, null, false));
     }
 }

@@ -369,7 +369,7 @@ public class SearchCommandParserSearchKeyTest extends MockObjectTestCase {
         ImapRequestLineReader reader = new ImapRequestLineReader(new ByteArrayInputStream(input.getBytes("US-ASCII")), 
                 new ByteArrayOutputStream());
 
-        assertEquals(key, parser.searchKey(reader));
+        assertEquals(key, parser.searchKey(reader, null, false));
     }
 
     public void testShouldParseDeleted() throws Exception {
@@ -691,7 +691,7 @@ public class SearchCommandParserSearchKeyTest extends MockObjectTestCase {
                 new ByteArrayOutputStream());
 
         try {
-            parser.searchKey(reader);
+            parser.searchKey(reader, null, false);
             fail("Expected protocol exception to be throw since input is invalid");
         } catch (ProtocolException e) {
             //expected

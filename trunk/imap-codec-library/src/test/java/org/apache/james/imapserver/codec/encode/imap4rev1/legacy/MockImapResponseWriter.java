@@ -268,17 +268,28 @@ public class MockImapResponseWriter implements ImapResponseWriter {
     }
 
     public void closeParen() {
-        operations.add(new ParenOperation(false));
+        operations.add(new BracketOperation(false, false));
     }
 
     public void openParen() {
-        operations.add(new ParenOperation(true));
+        operations.add(new BracketOperation(true, false));
     }
 
-    public static class ParenOperation {
+    public static class BracketOperation {
+        
+        public static BracketOperation openSquare() {
+            return new BracketOperation(true, true);
+        }
+        
+        public static BracketOperation closeSquare() {
+            return new BracketOperation(false, true);
+        }
+        
         private final boolean open;
-        public ParenOperation(final boolean open) {
+        private final boolean square;
+        public BracketOperation(final boolean open, boolean square) {
             this.open = open;
+            this.square = square;
         }
         
         /**
@@ -290,18 +301,22 @@ public class MockImapResponseWriter implements ImapResponseWriter {
         }
 
         /**
-         * @see java.lang.Object#hashCode()
+         * Is this a square bracket?
+         * @return true if this is a square bracket, 
+         * false otherwise
          */
+        public final boolean isSquare() {
+            return square;
+        }
+
         public int hashCode() {
             final int PRIME = 31;
             int result = 1;
             result = PRIME * result + (open ? 1231 : 1237);
+            result = PRIME * result + (square ? 1231 : 1237);
             return result;
         }
 
-        /**
-         * @see java.lang.Object#equals(java.lang.Object)
-         */
         public boolean equals(Object obj) {
             if (this == obj)
                 return true;
@@ -309,12 +324,14 @@ public class MockImapResponseWriter implements ImapResponseWriter {
                 return false;
             if (getClass() != obj.getClass())
                 return false;
-            final ParenOperation other = (ParenOperation) obj;
+            final BracketOperation other = (BracketOperation) obj;
             if (open != other.open)
+                return false;
+            if (square != other.square)
                 return false;
             return true;
         }
-        
+
         
     }
 
@@ -355,6 +372,14 @@ public class MockImapResponseWriter implements ImapResponseWriter {
     }
 
     public void skipNextSpace() throws IOException {
+    }
+
+    public void closeSquareBracket() throws IOException {
+        operations.add(new BracketOperation(false, true));
+    }
+
+    public void openSquareBracket() throws IOException {
+        operations.add(new BracketOperation(true, true));
     }
     
 }

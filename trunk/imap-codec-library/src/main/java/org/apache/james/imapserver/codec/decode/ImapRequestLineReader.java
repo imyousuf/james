@@ -146,6 +146,8 @@ public class ImapRequestLineReader extends AbstractLogEnabled
     /**
      * Reads and consumes a number of characters from the underlying reader,
      * filling the char array provided.
+     * TODO: remove unnecessary copying of bits; line reader should maintain an internal
+     * ByteBuffer; 
      * @param holder A char array which will be filled with chars read from the underlying reader.
      * @throws ProtocolException If a char can't be read into each array element.
      */

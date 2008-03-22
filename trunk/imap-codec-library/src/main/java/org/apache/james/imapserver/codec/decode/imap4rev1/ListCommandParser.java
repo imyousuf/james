@@ -53,7 +53,7 @@ class ListCommandParser extends AbstractUidCommandParser  implements Initialisab
             case '"':
                 return consumeQuoted( request );
             case '{':
-                return consumeLiteral( request );
+                return consumeLiteral( request, null );
             default:
                 return consumeWord( request, new ListCharValidator() );
         }

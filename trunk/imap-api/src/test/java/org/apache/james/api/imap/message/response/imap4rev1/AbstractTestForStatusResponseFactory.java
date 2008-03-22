@@ -27,7 +27,7 @@ abstract public class AbstractTestForStatusResponseFactory extends MockObjectTes
 
     private static final String TAG = "ATAG";
     private static final HumanReadableTextKey KEY = new HumanReadableTextKey("KEY", "TEXT");
-    private static final StatusResponse.ResponseCode CODE = StatusResponse.ResponseCode.ALERT;
+    private static final StatusResponse.ResponseCode CODE = StatusResponse.ResponseCode.alert();
     
     private ImapCommand command;
     
