@@ -73,7 +73,9 @@ public class ImapRequestLineReader extends AbstractLogEnabled
     /**
      * Reads the next character in the current line. This method will continue to return
      * the same character until the {@link #consume()} method is called.
-     * @return The next character.
+     * @return The next character 
+     * TODO: character encoding is variable and cannot be determine at the token level;
+     * this char is not accurate reported; should be an octet
      * @throws ProtocolException If the end-of-stream is reached.
      */
     public char nextChar() throws ProtocolException

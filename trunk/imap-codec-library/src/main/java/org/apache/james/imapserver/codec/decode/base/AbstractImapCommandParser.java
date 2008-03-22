@@ -20,8 +20,11 @@
 package org.apache.james.imapserver.codec.decode.base;
 
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
 import java.nio.charset.MalformedInputException;
 import java.nio.charset.UnmappableCharacterException;
@@ -52,6 +55,8 @@ import org.apache.james.imapserver.codec.decode.MessagingImapCommandParser;
  */
 public abstract class AbstractImapCommandParser extends AbstractLogEnabled implements ImapCommandParser, MessagingImapCommandParser
 {
+    private static final int QUOTED_BUFFER_INITIAL_CAPACITY = 64;
+
     private static final Charset US_ASCII = Charset.forName("US-ASCII");
     
     private ImapCommand command;
@@ -161,7 +166,7 @@ public abstract class AbstractImapCommandParser extends AbstractLogEnabled imple
         char next = request.nextWordChar();
         switch ( next ) {
             case '"':
-                return consumeQuoted( request );
+                return consumeQuoted( request, charset );
             case '{':
                 return consumeLiteral( request, charset );
             default:
@@ -346,23 +351,27 @@ public abstract class AbstractImapCommandParser extends AbstractLogEnabled imple
             final byte[] bytes = new byte[size];
             request.read( bytes );
             final ByteBuffer buffer = ByteBuffer.wrap(bytes);
-            try {
-                
-                final String result = charset.newDecoder()
-                    .onMalformedInput(CodingErrorAction.REPORT)
-                    .onUnmappableCharacter(CodingErrorAction.REPORT)
-                    .decode(buffer).toString();
-                return result;
-                
-            } catch (IllegalStateException e) {
-                throw new ProtocolException ("Bad character encoding", e);
-            } catch (MalformedInputException e) {
-                throw new ProtocolException ("Bad character encoding", e);
-            } catch (UnmappableCharacterException e) {
-                throw new ProtocolException ("Bad character encoding", e);
-            } catch (CharacterCodingException e) {
-                throw new ProtocolException ("Bad character encoding", e);
-            }
+            return decode(charset, buffer);
+        }
+    }
+
+    private String decode(final Charset charset, final ByteBuffer buffer) throws ProtocolException {
+        try {
+            
+            final String result = charset.newDecoder()
+                .onMalformedInput(CodingErrorAction.REPORT)
+                .onUnmappableCharacter(CodingErrorAction.REPORT)
+                .decode(buffer).toString();
+            return result;
+            
+        } catch (IllegalStateException e) {
+            throw new ProtocolException ("Bad character encoding", e);
+        } catch (MalformedInputException e) {
+            throw new ProtocolException ("Bad character encoding", e);
+        } catch (UnmappableCharacterException e) {
+            throw new ProtocolException ("Bad character encoding", e);
+        } catch (CharacterCodingException e) {
+            throw new ProtocolException ("Bad character encoding", e);
         }
     }
 
@@ -398,31 +407,28 @@ public abstract class AbstractImapCommandParser extends AbstractLogEnabled imple
     /**
      * Reads a quoted string value from the request.
      */
-    protected String consumeQuoted( ImapRequestLineReader request )
+    protected String consumeQuoted( ImapRequestLineReader request)
+            throws ProtocolException
+    { 
+        return consumeQuoted(request, null);
+    }
+    
+    /**
+     * Reads a quoted string value from the request.
+     */
+    protected String consumeQuoted( ImapRequestLineReader request, Charset charset )
             throws ProtocolException
     {
-        // The 1st character must be '"'
-        consumeChar(request, '"' );
-
-        StringBuffer quoted = new StringBuffer();
-        char next = request.nextChar();
-        while( next != '"' ) {
-            if ( next == '\\' ) {
-                request.consume();
-                next = request.nextChar();
-                if ( ! isQuotedSpecial( next ) ) {
-                    throw new ProtocolException( "Invalid escaped character in quote: '" +
-                                                 next + "'" );
-                }
-            }
-            quoted.append( next );
-            request.consume();
-            next = request.nextChar();
+        if (charset == null) {
+            return consumeQuoted(request, US_ASCII);
+        } else {
+            // The 1st character must be '"'
+            consumeChar(request, '"' );
+            final QuotedStringDecoder decoder = new QuotedStringDecoder(charset);
+            final String result = decoder.decode(request);
+            consumeChar( request, '"' );
+            return result;
         }
-
-        consumeChar( request, '"' );
-
-        return quoted.toString();
     }
 
     /**
@@ -643,4 +649,105 @@ public abstract class AbstractImapCommandParser extends AbstractLogEnabled imple
         }
     }
 
+    /**
+     * Decodes contents of a quoted string.
+     * Charset aware.
+     * One shot, not thread safe.
+     */
+    private static class QuotedStringDecoder {
+        /** Decoder suitable for charset */
+        private final CharsetDecoder decoder;
+        
+        /** byte buffer will be filled then flushed to character buffer */
+        private final ByteBuffer buffer;
+        /** character buffer may be dynamically resized */
+        CharBuffer charBuffer;
+        
+        public QuotedStringDecoder(Charset charset) {
+            decoder = charset.newDecoder();
+            buffer = ByteBuffer.allocate(QUOTED_BUFFER_INITIAL_CAPACITY);
+            charBuffer = CharBuffer.allocate(QUOTED_BUFFER_INITIAL_CAPACITY);
+        }
+        
+        public String decode(ImapRequestLineReader request) throws ProtocolException {
+            try {
+                decoder.reset();
+                char next = request.nextChar();
+                while( next != '"' ) {
+                    // fill up byte buffer before decoding
+                    if (!buffer.hasRemaining()) {
+                        decodeByteBufferToCharacterBuffer(false);
+                    }
+                    if ( next == '\\' ) {
+                        request.consume();
+                        next = request.nextChar();
+                        if ( ! isQuotedSpecial( next ) ) {
+                            throw new ProtocolException( "Invalid escaped character in quote: '" +
+                                    next + "'" );
+                        }
+                    }
+                    // TODO: nextChar does not report accurate chars so safe to cast to byte
+                    buffer.put( (byte) next );
+                    request.consume();
+                    next = request.nextChar();
+                }
+                completeDecoding();
+                final String result = charBuffer.toString();
+                return result;
+
+            } catch (IllegalStateException e) {
+                throw new ProtocolException ("Bad character encoding", e);
+            }
+        }
+
+        private void completeDecoding() throws ProtocolException {
+            decodeByteBufferToCharacterBuffer(true);
+            flush();
+            charBuffer.flip();
+        }
+
+        private void flush() throws ProtocolException {
+            final CoderResult coderResult = decoder.flush(charBuffer);
+            if (coderResult.isOverflow()) {
+                upsizeCharBuffer();
+                flush();
+            } else if (coderResult.isError()) {
+                throw new ProtocolException("Bad character encoding");
+            }
+        }
+
+        /**
+         * Decodes contents of the byte buffer to the character buffer.
+         * The character buffer will be replaced by a larger one if required.
+         * @param endOfInput is the input ended
+         */
+        private CoderResult decodeByteBufferToCharacterBuffer(final boolean endOfInput) throws ProtocolException {
+            buffer.flip();
+            return decodeMoreBytesToCharacterBuffer(endOfInput);
+        }
+
+        private CoderResult decodeMoreBytesToCharacterBuffer(final boolean endOfInput) throws ProtocolException {
+            final CoderResult coderResult = decoder.decode(buffer, charBuffer, endOfInput);
+            if (coderResult.isOverflow()) {
+                upsizeCharBuffer();
+                return decodeMoreBytesToCharacterBuffer(endOfInput);
+            } else if (coderResult.isError()) {
+                throw new ProtocolException("Bad character encoding");
+            } else if (coderResult.isUnderflow()) {
+                buffer.clear();
+            }
+            return coderResult;
+        }
+
+        /**
+         * Increases the size of the character buffer.
+         */
+        private void upsizeCharBuffer() {
+            final int oldCapacity = charBuffer.capacity();
+            CharBuffer oldBuffer = charBuffer;
+            charBuffer = CharBuffer.allocate(oldCapacity + QUOTED_BUFFER_INITIAL_CAPACITY);
+            oldBuffer.flip();
+            charBuffer.put(oldBuffer);
+        }
+    }
 }
