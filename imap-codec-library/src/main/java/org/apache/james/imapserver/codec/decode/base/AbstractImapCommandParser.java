@@ -19,6 +19,12 @@
 
 package org.apache.james.imapserver.codec.decode.base;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.CodingErrorAction;
+import java.nio.charset.MalformedInputException;
+import java.nio.charset.UnmappableCharacterException;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -32,6 +38,7 @@ import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.api.imap.imap4rev1.Imap4Rev1MessageFactory;
 import org.apache.james.api.imap.message.IdRange;
 import org.apache.james.api.imap.message.request.DayMonthYear;
+import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
 import org.apache.james.imapserver.codec.decode.DecoderUtils;
 import org.apache.james.imapserver.codec.decode.ImapCommandParser;
 import org.apache.james.imapserver.codec.decode.ImapRequestLineReader;
@@ -45,8 +52,11 @@ import org.apache.james.imapserver.codec.decode.MessagingImapCommandParser;
  */
 public abstract class AbstractImapCommandParser extends AbstractLogEnabled implements ImapCommandParser, MessagingImapCommandParser
 {
+    private static final Charset US_ASCII = Charset.forName("US-ASCII");
+    
     private ImapCommand command;
     private Imap4Rev1MessageFactory messageFactory;
+    private StatusResponseFactory statusResponseFactory;
     
     public AbstractImapCommandParser() {
         super();
@@ -72,6 +82,15 @@ public abstract class AbstractImapCommandParser extends AbstractLogEnabled imple
      */
     public void setMessageFactory(Imap4Rev1MessageFactory messageFactory) {
         this.messageFactory = messageFactory;
+    }
+
+    public final StatusResponseFactory getStatusResponseFactory() {
+        return statusResponseFactory;
+    }
+
+    public final void setStatusResponseFactory(
+            StatusResponseFactory statusResponseFactory) {
+        this.statusResponseFactory = statusResponseFactory;
     }
 
     /**
@@ -131,12 +150,20 @@ public abstract class AbstractImapCommandParser extends AbstractLogEnabled imple
      */
     public String astring(ImapRequestLineReader request) throws ProtocolException
     {
+        return astring(request, null);
+    }
+    
+    /**
+     * Reads an argument of type "astring" from the request.
+     */
+    public String astring(ImapRequestLineReader request, Charset charset) throws ProtocolException
+    {
         char next = request.nextWordChar();
         switch ( next ) {
             case '"':
                 return consumeQuoted( request );
             case '{':
-                return consumeLiteral( request );
+                return consumeLiteral( request, charset );
             default:
                 return atom( request );
         }
@@ -152,7 +179,7 @@ public abstract class AbstractImapCommandParser extends AbstractLogEnabled imple
             case '"':
                 return consumeQuoted( request );
             case '{':
-                return consumeLiteral( request );
+                return consumeLiteral( request, null );
             default:
                 String value = atom( request );
                 if ( "NIL".equals( value ) ) {
@@ -277,44 +304,66 @@ public abstract class AbstractImapCommandParser extends AbstractLogEnabled imple
      *      "{" charCount "}" CRLF *CHAR8
      * Note before calling, the request should be positioned so that nextChar
      * is '{'. Leading whitespace is not skipped in this method.
+     * @param charset ,
+     * or null for <code>US-ASCII</code>
      */
-    protected String consumeLiteral( ImapRequestLineReader request )
+    protected String consumeLiteral( final ImapRequestLineReader request, final Charset charset )
             throws ProtocolException
     {
-        // The 1st character must be '{'
-        consumeChar( request, '{' );
-
-        StringBuffer digits = new StringBuffer();
-        char next = request.nextChar();
-        while ( next != '}' && next != '+' )
-        {
-            digits.append( next );
-            request.consume();
-            next = request.nextChar();
+        if (charset == null) {
+            return consumeLiteral(request, US_ASCII);
+        } else {
+            // The 1st character must be '{'
+            consumeChar( request, '{' );
+    
+            StringBuffer digits = new StringBuffer();
+            char next = request.nextChar();
+            while ( next != '}' && next != '+' )
+            {
+                digits.append( next );
+                request.consume();
+                next = request.nextChar();
+            }
+    
+            // If the number is *not* suffixed with a '+', we *are* using a synchronized literal,
+            // and we need to send command continuation request before reading data.
+            boolean synchronizedLiteral = true;
+            // '+' indicates a non-synchronized literal (no command continuation request)
+            if ( next == '+' ) {
+                synchronizedLiteral = false;
+                consumeChar(request, '+' );
+            }
+    
+            // Consume the '}' and the newline
+            consumeChar( request, '}' );
+            consumeCRLF( request );
+    
+            if ( synchronizedLiteral ) {
+                request.commandContinuationRequest();
+            }
+    
+            final int size = Integer.parseInt( digits.toString() );
+            final byte[] bytes = new byte[size];
+            request.read( bytes );
+            final ByteBuffer buffer = ByteBuffer.wrap(bytes);
+            try {
+                
+                final String result = charset.newDecoder()
+                    .onMalformedInput(CodingErrorAction.REPORT)
+                    .onUnmappableCharacter(CodingErrorAction.REPORT)
+                    .decode(buffer).toString();
+                return result;
+                
+            } catch (IllegalStateException e) {
+                throw new ProtocolException ("Bad character encoding", e);
+            } catch (MalformedInputException e) {
+                throw new ProtocolException ("Bad character encoding", e);
+            } catch (UnmappableCharacterException e) {
+                throw new ProtocolException ("Bad character encoding", e);
+            } catch (CharacterCodingException e) {
+                throw new ProtocolException ("Bad character encoding", e);
+            }
         }
-
-        // If the number is *not* suffixed with a '+', we *are* using a synchronized literal,
-        // and we need to send command continuation request before reading data.
-        boolean synchronizedLiteral = true;
-        // '+' indicates a non-synchronized literal (no command continuation request)
-        if ( next == '+' ) {
-            synchronizedLiteral = false;
-            consumeChar(request, '+' );
-        }
-
-        // Consume the '}' and the newline
-        consumeChar( request, '}' );
-        consumeCRLF( request );
-
-        if ( synchronizedLiteral ) {
-            request.commandContinuationRequest();
-        }
-
-        int size = Integer.parseInt( digits.toString() );
-        byte[] buffer = new byte[size];
-        request.read( buffer );
-
-        return new String( buffer );
     }
 
     /**

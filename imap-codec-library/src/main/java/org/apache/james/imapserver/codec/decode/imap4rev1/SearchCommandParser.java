@@ -18,21 +18,35 @@
  ****************************************************************/
 package org.apache.james.imapserver.codec.decode.imap4rev1;
 
+import java.nio.charset.Charset;
+import java.nio.charset.IllegalCharsetNameException;
+import java.nio.charset.UnsupportedCharsetException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.api.imap.ProtocolException;
+import org.apache.james.api.imap.display.HumanReadableTextKey;
 import org.apache.james.api.imap.imap4rev1.Imap4Rev1CommandFactory;
 import org.apache.james.api.imap.message.IdRange;
 import org.apache.james.api.imap.message.request.DayMonthYear;
 import org.apache.james.api.imap.message.request.SearchKey;
+import org.apache.james.api.imap.message.response.imap4rev1.StatusResponse;
+import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
+import org.apache.james.api.imap.message.response.imap4rev1.StatusResponse.ResponseCode;
 import org.apache.james.imapserver.codec.decode.ImapRequestLineReader;
 import org.apache.james.imapserver.codec.decode.InitialisableCommandFactory;
 
 class SearchCommandParser extends AbstractUidCommandParser implements InitialisableCommandFactory
 {   
+    /** Lazy loaded */
+    private Collection charsetNames;
+    
     public SearchCommandParser() {
     }
 
@@ -47,36 +61,41 @@ class SearchCommandParser extends AbstractUidCommandParser implements Initialisa
     
     /**
      * Parses the request argument into a valid search term.
+     * @param request <code>ImapRequestLineReader</code>, not null
+     * @param charset <code>Charset</code> or null if there is no charset
+     * @param isFirstToken true when this is the first token read, 
+     * false otherwise
      */
-    public SearchKey searchKey( ImapRequestLineReader request ) throws ProtocolException {
+    public SearchKey searchKey( ImapRequestLineReader request, Charset charset, boolean isFirstToken ) 
+            throws ProtocolException, IllegalCharsetNameException, UnsupportedCharsetException {
         final char next = request.nextChar();
         if (next >= '0' && next <= '9' || next == '*') {
             return sequenceSet(request);
         } else if (next == '(') {
-            return paren(request);
+            return paren(request, charset);
         } else {
             final int cap = consumeAndCap(request);
             switch (cap) {
                 case 'A': return a(request);
-                case 'B': return b(request);
-                case 'C': return cc(request);
+                case 'B': return b(request, charset);
+                case 'C': return c(request, isFirstToken, charset);
                 case 'D': return d(request);
                 case 'E': throw new ProtocolException("Unknown search key");
-                case 'F': return f(request);
+                case 'F': return f(request, charset);
                 case 'G': throw new ProtocolException("Unknown search key");
-                case 'H': return header(request);
+                case 'H': return header(request, charset);
                 case 'I': throw new ProtocolException("Unknown search key");
                 case 'J': throw new ProtocolException("Unknown search key");
                 case 'K': return keyword(request);
                 case 'L': return larger(request);
                 case 'M': throw new ProtocolException("Unknown search key");
-                case 'N': return n(request);
-                case 'O': return o(request);
+                case 'N': return n(request, charset);
+                case 'O': return o(request, charset);
                 case 'P': throw new ProtocolException("Unknown search key");
                 case 'Q': throw new ProtocolException("Unknown search key");
                 case 'R': return recent(request);
-                case 'S': return s(request);
-                case 'T': return t(request);
+                case 'S': return s(request, charset);
+                case 'T': return t(request, charset);
                 case 'U': return u(request);
                 default:
                     throw new ProtocolException("Unknown search key");
@@ -84,21 +103,21 @@ class SearchCommandParser extends AbstractUidCommandParser implements Initialisa
         }
     }
 
-    private SearchKey paren(ImapRequestLineReader request) throws ProtocolException {
+    private SearchKey paren(ImapRequestLineReader request, Charset charset) throws ProtocolException {
         request.consume();
         List keys = new ArrayList();
-        addUntilParen(request, keys);
+        addUntilParen(request, keys, charset);
         return SearchKey.buildAnd(keys);
     }
 
-    private void addUntilParen(ImapRequestLineReader request, List keys) throws ProtocolException {
+    private void addUntilParen(ImapRequestLineReader request, List keys, Charset charset) throws ProtocolException {
         final char next = request.nextWordChar();
         if (next == ')') {
             request.consume();
         } else {
-            final SearchKey key = searchKey( request );
+            final SearchKey key = searchKey( request, null, false );
             keys.add(key);
-            addUntilParen(request, keys);
+            addUntilParen(request, keys, charset);
         }
     }
 
@@ -108,15 +127,44 @@ class SearchCommandParser extends AbstractUidCommandParser implements Initialisa
         return cap;
     }
 
-    private SearchKey cc(ImapRequestLineReader request) throws ProtocolException {
+    private SearchKey cc(ImapRequestLineReader request, final Charset charset) throws ProtocolException {
         final SearchKey result;
-        nextIsC(request);
         nextIsSpace(request);
-        final String value = astring(request);
+        final String value = astring(request, charset);
         result = SearchKey.buildCc(value);
         return result;
     }
 
+    private SearchKey c(ImapRequestLineReader request, final boolean isFirstToken, final Charset charset) 
+            throws ProtocolException, IllegalCharsetNameException, UnsupportedCharsetException {
+        final int next = consumeAndCap(request);
+        switch (next) {
+            case 'C': return cc(request, charset);
+            case 'H': return charset(request, isFirstToken);
+            default:
+                throw new ProtocolException("Unknown search key");
+        }
+    }
+    
+    private SearchKey charset(ImapRequestLineReader request, final boolean isFirstToken) 
+            throws ProtocolException, IllegalCharsetNameException, UnsupportedCharsetException {
+        final SearchKey result;
+        nextIsA(request);
+        nextIsR(request);
+        nextIsS(request);
+        nextIsE(request);
+        nextIsT(request);
+        nextIsSpace(request);
+        if (!isFirstToken) {
+            throw new ProtocolException("Unknown search key");
+        }
+        final String value = astring(request);
+        final Charset charset = Charset.forName(value);
+        request.nextWordChar();
+        result = searchKey(request, charset, false);
+        return result;
+    }
+    
     private SearchKey u(ImapRequestLineReader request) throws ProtocolException {
         final int next = consumeAndCap(request);
         switch (next) {
@@ -150,23 +198,23 @@ class SearchCommandParser extends AbstractUidCommandParser implements Initialisa
         }
     }
     
-    private SearchKey t(ImapRequestLineReader request) throws ProtocolException {
+    private SearchKey t(ImapRequestLineReader request, final Charset charset) throws ProtocolException {
         final int next = consumeAndCap(request);
         switch (next) {
-            case 'E': return text(request);
-            case 'O': return to(request);
+            case 'E': return text(request, charset);
+            case 'O': return to(request, charset);
             default:
                 throw new ProtocolException("Unknown search key");
         }
     }
     
-    private SearchKey s(ImapRequestLineReader request) throws ProtocolException {
+    private SearchKey s(ImapRequestLineReader request, final Charset charset) throws ProtocolException {
         final int next = consumeAndCap(request);
         switch (next) {
             case 'E': return se(request);
             case 'I': return since(request);
             case 'M': return smaller(request);
-            case 'U': return subject(request);
+            case 'U': return subject(request, charset);
             default:
                 throw new ProtocolException("Unknown search key");
         }
@@ -202,32 +250,32 @@ class SearchCommandParser extends AbstractUidCommandParser implements Initialisa
         }
     }
     
-    private SearchKey o(ImapRequestLineReader request) throws ProtocolException {
+    private SearchKey o(ImapRequestLineReader request, Charset charset) throws ProtocolException {
         final int next = consumeAndCap(request);
         switch (next) {
             case 'L': return old(request);
             case 'N': return on(request);
-            case 'R': return or(request);
+            case 'R': return or(request, charset);
             default:
                 throw new ProtocolException("Unknown search key");
         }
     }
     
-    private SearchKey n(ImapRequestLineReader request) throws ProtocolException {
+    private SearchKey n(ImapRequestLineReader request, Charset charset) throws ProtocolException {
         final int next = consumeAndCap(request);
         switch (next) {
             case 'E': return _new(request);
-            case 'O': return not(request);
+            case 'O': return not(request, charset);
             default:
                 throw new ProtocolException("Unknown search key");
         }
     }
     
-    private SearchKey f(ImapRequestLineReader request) throws ProtocolException {
+    private SearchKey f(ImapRequestLineReader request, final Charset charset) throws ProtocolException {
         final int next = consumeAndCap(request);
         switch (next) {
             case 'L': return flagged(request);
-            case 'R': return from(request);
+            case 'R': return from(request, charset);
             default:
                 throw new ProtocolException("Unknown search key");
         }
@@ -272,7 +320,7 @@ class SearchCommandParser extends AbstractUidCommandParser implements Initialisa
     }
     
     
-    private SearchKey header(ImapRequestLineReader request) throws ProtocolException {
+    private SearchKey header(ImapRequestLineReader request, final Charset charset) throws ProtocolException {
         final SearchKey result;
         nextIsE(request);
         nextIsA(request);
@@ -280,9 +328,9 @@ class SearchCommandParser extends AbstractUidCommandParser implements Initialisa
         nextIsE(request);
         nextIsR(request);
         nextIsSpace(request);
-        final String field = astring(request);
+        final String field = astring(request, charset);
         nextIsSpace(request);
-        final String value = astring(request);
+        final String value = astring(request, charset);
         result = SearchKey.buildHeader(field, value);
         return result;
     }
@@ -313,12 +361,12 @@ class SearchCommandParser extends AbstractUidCommandParser implements Initialisa
         return result;
     }
     
-    private SearchKey from(ImapRequestLineReader request) throws ProtocolException {
+    private SearchKey from(ImapRequestLineReader request, final Charset charset) throws ProtocolException {
         final SearchKey result;
         nextIsO(request);
         nextIsM(request);
         nextIsSpace(request);
-        final String value = astring(request);
+        final String value = astring(request, charset);
         result = SearchKey.buildFrom(value);
         return result;
     }
@@ -395,21 +443,21 @@ class SearchCommandParser extends AbstractUidCommandParser implements Initialisa
         return result;
     }
     
-    private SearchKey or(ImapRequestLineReader request) throws ProtocolException {
+    private SearchKey or(ImapRequestLineReader request, Charset charset) throws ProtocolException {
         final SearchKey result;
         nextIsSpace(request);
-        final SearchKey firstKey = searchKey(request);
+        final SearchKey firstKey = searchKey(request, charset, false);
         nextIsSpace(request);
-        final SearchKey secondKey = searchKey(request);
+        final SearchKey secondKey = searchKey(request, charset, false);
         result = SearchKey.buildOr(firstKey, secondKey);
         return result;
     }
     
-    private SearchKey not(ImapRequestLineReader request) throws ProtocolException {
+    private SearchKey not(ImapRequestLineReader request, Charset charset) throws ProtocolException {
         final SearchKey result;
         nextIsT(request);
         nextIsSpace(request);
-        final SearchKey nextKey = searchKey(request);
+        final SearchKey nextKey = searchKey(request, charset, false);
         result = SearchKey.buildNot(nextKey);
         return result;
     }
@@ -459,23 +507,23 @@ class SearchCommandParser extends AbstractUidCommandParser implements Initialisa
         return result;
     }
     
-    private SearchKey b(ImapRequestLineReader request) throws ProtocolException {
+    private SearchKey b(ImapRequestLineReader request, Charset charset) throws ProtocolException {
         final int next = consumeAndCap(request);
         switch (next) {
-            case 'C': return bcc(request);
+            case 'C': return bcc(request, charset);
             case 'E': return before(request);
-            case 'O': return body(request);
+            case 'O': return body(request, charset);
             default:
                 throw new ProtocolException("Unknown search key");
         }
     }
 
-    private SearchKey body(ImapRequestLineReader request) throws ProtocolException {
+    private SearchKey body(ImapRequestLineReader request, final Charset charset) throws ProtocolException {
         final SearchKey result;
         nextIsD(request);
         nextIsY(request);
         nextIsSpace(request);
-        final String value = astring(request);
+        final String value = astring(request, charset);
         result = SearchKey.buildBody(value);
         return result;
     }
@@ -545,21 +593,21 @@ class SearchCommandParser extends AbstractUidCommandParser implements Initialisa
         return result;
     }
 
-    private SearchKey bcc(ImapRequestLineReader request) throws ProtocolException {
+    private SearchKey bcc(ImapRequestLineReader request, Charset charset) throws ProtocolException {
         final SearchKey result;
         nextIsC(request);
         nextIsSpace(request);
-        final String value = astring(request);
+        final String value = astring(request, charset);
         result = SearchKey.buildBcc(value);
         return result;
     }
     
-    private SearchKey text(ImapRequestLineReader request) throws ProtocolException {
+    private SearchKey text(ImapRequestLineReader request, final Charset charset) throws ProtocolException {
         final SearchKey result;
         nextIsX(request);
         nextIsT(request);
         nextIsSpace(request);
-        final String value = astring(request);
+        final String value = astring(request, charset);
         result = SearchKey.buildText(value);
         return result;
     }
@@ -579,15 +627,15 @@ class SearchCommandParser extends AbstractUidCommandParser implements Initialisa
         return result;
     }
     
-    private SearchKey to(ImapRequestLineReader request) throws ProtocolException {
+    private SearchKey to(ImapRequestLineReader request, final Charset charset) throws ProtocolException {
         final SearchKey result;
         nextIsSpace(request);
-        final String value = astring(request);
+        final String value = astring(request, charset);
         result = SearchKey.buildTo(value);
         return result;
     }
     
-    private SearchKey subject(ImapRequestLineReader request) throws ProtocolException {
+    private SearchKey subject(ImapRequestLineReader request, final Charset charset) throws ProtocolException {
         final SearchKey result;
         nextIsB(request);
         nextIsJ(request);
@@ -595,7 +643,7 @@ class SearchCommandParser extends AbstractUidCommandParser implements Initialisa
         nextIsC(request);
         nextIsT(request);
         nextIsSpace(request);
-        final String value = astring(request);
+        final String value = astring(request, charset);
         result = SearchKey.buildSubject(value);
         return result;
     }
@@ -719,16 +767,16 @@ class SearchCommandParser extends AbstractUidCommandParser implements Initialisa
         }
     }
     
-    public SearchKey decode(ImapRequestLineReader request) throws ProtocolException {
+    public SearchKey decode(ImapRequestLineReader request) throws ProtocolException, IllegalCharsetNameException, UnsupportedCharsetException {
         request.nextWordChar();
-        final SearchKey firstKey = searchKey( request );
+        final SearchKey firstKey = searchKey( request, null, true );
         final SearchKey result;
         if (request.nextChar() == ' ') {
             List keys = new ArrayList();
             keys.add(firstKey);
             while (request.nextChar() == ' ') {
                 request.nextWordChar();
-                final SearchKey key = searchKey( request );
+                final SearchKey key = searchKey( request, null, false );
                 keys.add(key);
             }
             result = SearchKey.buildAnd(keys);
@@ -739,12 +787,38 @@ class SearchCommandParser extends AbstractUidCommandParser implements Initialisa
         return result;
     }
     
-    protected ImapMessage decode(ImapCommand command, ImapRequestLineReader request, String tag, boolean useUids) throws ProtocolException {
-        // Parse the search term from the request
-        final SearchKey key = decode( request );
-        
-        final ImapMessage result = getMessageFactory().createSearchMessage(command, key, useUids, tag);
+    private ImapMessage unsupportedCharset(final String tag, final ImapCommand command) {
+        loadCharsetNames();
+        final StatusResponseFactory factory = getStatusResponseFactory();
+        final ResponseCode badCharset = StatusResponse.ResponseCode.badCharset(charsetNames);
+        final StatusResponse result = factory.taggedNo(tag, command, HumanReadableTextKey.BAD_CHARSET, badCharset);
         return result;
     }
 
+    private synchronized void loadCharsetNames() {
+        if (charsetNames == null) {
+            charsetNames = new HashSet();
+            for (final Iterator it = Charset.availableCharsets().values().iterator(); it.hasNext();) {
+                final Charset charset = (Charset) it.next();
+                final Set aliases = charset.aliases();
+                charsetNames.addAll(aliases);
+            }
+        }
+    }
+    
+    protected ImapMessage decode(ImapCommand command, ImapRequestLineReader request, String tag, boolean useUids) throws ProtocolException {
+        try {
+            // Parse the search term from the request
+            final SearchKey key = decode( request );
+            
+            final ImapMessage result = getMessageFactory().createSearchMessage(command, key, useUids, tag);
+            return result;
+        } catch (IllegalCharsetNameException e) {
+            getLogger().debug(e.getMessage());
+            return unsupportedCharset(tag, command);
+        } catch (UnsupportedCharsetException e) {
+            getLogger().debug(e.getMessage());
+            return unsupportedCharset(tag, command);
+        }
+    }
 }

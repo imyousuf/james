@@ -91,7 +91,7 @@ class AppendCommandParser extends AbstractImapCommandParser implements Initialis
             throws ProtocolException
     {
         request.nextWordChar();
-        String mailString = consumeLiteral(request);
+        String mailString = consumeLiteral(request, null);
         MimeMessage mm = null;
 
         try {

@@ -44,6 +44,8 @@ public interface ImapConstants
     public static final byte BYTE_BACK_SLASH = 0x5C;
     public static final byte BYTE_QUESTION = 0x3F;
     public static final byte[] BYTES_DQUOTE = {BYTE_DQUOTE};
+    public static final byte BYTE_OPEN_SQUARE_BRACKET = 0x5B;
+    public static final byte[] BYTES_OPEN_SQUARE_BRACKET = {BYTE_OPEN_SQUARE_BRACKET};
     public static final byte BYTE_CLOSE_SQUARE_BRACKET = 0x5D;
     public static final byte[] BYTES_CLOSE_SQUARE_BRACKET = {BYTE_CLOSE_SQUARE_BRACKET};
     public static final byte BYTE_OPEN_BRACE = 0x7B;
@@ -54,6 +56,9 @@ public interface ImapConstants
     
     public static final char OPENING_PARENTHESIS = '(';
     public static final char CLOSING_PARENTHESIS = ')';
+    public static final char OPENING_SQUARE_BRACKET = '[';
+    public static final char CLOSING_SQUARE_BRACKET = ']';
+    
     public static final char SP_CHAR = ' ';
     public static final char DQUOTE ='\"';
     

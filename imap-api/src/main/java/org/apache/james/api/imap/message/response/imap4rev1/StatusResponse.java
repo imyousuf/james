@@ -19,6 +19,9 @@
 
 package org.apache.james.api.imap.message.response.imap4rev1;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.display.HumanReadableTextKey;
 import org.apache.james.api.imap.message.response.ImapResponseMessage;
@@ -125,24 +128,102 @@ public interface StatusResponse extends ImapResponseMessage {
      * Enumerates response codes.
      */
     public static final class ResponseCode {
+  
         /** RFC2060 <code>ALERT</code> response code */
-        public static final ResponseCode ALERT = new ResponseCode("[ALERT]");
-        /** RFC2060 <code>NEWNAME</code> response code */
-        public static final ResponseCode NEWNAME = new ResponseCode("[NEWNAME]");
+        private static final ResponseCode ALERT = new ResponseCode("ALERT");
         /** RFC2060 <code>PARSE</code> response code */
-        public static final ResponseCode PARSE = new ResponseCode("[PARSE]");
-        /** RFC2060 <code>PERMANENTFLAGS</code> response code */
-        public static final ResponseCode PERMANENTFLAGS = new ResponseCode("[PERMANENTFLAGS]");
+        private static final ResponseCode PARSE = new ResponseCode("PARSE");
         /** RFC2060 <code>READ_ONLY</code> response code */
-        public static final ResponseCode READ_ONLY = new ResponseCode("[READ-ONLY]");
+        private static final ResponseCode READ_ONLY = new ResponseCode("READ-ONLY");
         /** RFC2060 <code>READ_WRITE</code> response code */
-        public static final ResponseCode READ_WRITE = new ResponseCode("[READ-WRITE]");
+        private static final ResponseCode READ_WRITE = new ResponseCode("READ-WRITE");
         /** RFC2060 <code>TRYCREATE</code> response code */
-        public static final ResponseCode TRYCREATE = new ResponseCode("[TRYCREATE]");
-        /** RFC2060 <code>UIDVALIDITY</code> response code */
-        public static final ResponseCode UIDVALIDITY = new ResponseCode("[UIDVALIDITY]");
-        /** RFC2060 <code>UNSEEN</code> response code */
-        public static final ResponseCode UNSEEN = new ResponseCode("[UNSEEN]");
+        private static final ResponseCode TRYCREATE = new ResponseCode("TRYCREATE");
+       
+        /**
+         * Creates a RFC2060 <code>ALERT</code> response code.
+         * @return <code>ResponseCode</code>, not null
+         */
+        public static final ResponseCode alert() {
+            return ALERT;
+        }
+        
+        /**
+         * Creates a RFC2060 <code>BADCHARSET</code> response code.
+         * @param charsetNames <code>Collection<String></code> containing charset names
+         * @return <code>ResponseCode</code>, not null
+         */
+        public static final ResponseCode badCharset(Collection charsetNames) {
+            return new ResponseCode("BADCHARSET", charsetNames);
+        }
+        
+        /**
+         * Creates a RFC2060 <code>PARSE</code> response code.
+         * @return <code>ResponseCode</code>, not null
+         */
+        public static final ResponseCode parse() {
+            return PARSE;
+        }
+        
+        /**
+         * Creates a RFC2060 <code>PERMENANTFLAGS</code> response code.
+         * @param flagNames <code>Collection<String></code> containing flag names
+         * @return <code>ResponseCode</code>, not null
+         */
+        public static final ResponseCode permanentFlags(Collection flagNames) {
+            return new ResponseCode("PERMANENTFLAGS", flagNames);
+        }
+        
+        /**
+         * Creates a RFC2060 <code>READ-ONLY</code> response code.
+         * @return <code>ResponseCode</code>, not null
+         */
+        public static final ResponseCode readOnly() {
+            return READ_ONLY;
+        }
+        
+        /**
+         * Creates a RFC2060 <code>READ-WRITE</code> response code.
+         * @return <code>ResponseCode</code>, not null
+         */
+        public static final ResponseCode readWrite() {
+            return READ_WRITE;
+        }
+        
+        /**
+         * Creates a RFC2060 <code>TRYCREATE</code> response code.
+         * @return <code>ResponseCode</code>, not null
+         */
+        public static final ResponseCode tryCreate() {
+            return TRYCREATE;
+        }
+        
+        /**
+         * Creates a RFC2060 <code>UIDVALIDITY</code> response code.
+         * @param uid positive non-zero integer
+         * @return <code>ResponseCode</code>, not null
+         */
+        public static final ResponseCode uidValidity(int uid) {
+            return new ResponseCode("UIDVALIDITY", uid);
+        }
+        
+        /**
+         * Creates a RFC2060 <code>UNSEEN</code> response code.
+         * @param numberUnseen positive non-zero integer
+         * @return <code>ResponseCode</code>, not null
+         */
+        public static final ResponseCode unseen(int numberUnseen) {
+            return new ResponseCode("UNSEEN", numberUnseen);
+        }
+        
+        /**
+         * Creates a RFC2060 <code>UIDNEXT</code> response code.
+         * @param uid positive non-zero integer
+         * @return <code>ResponseCode</code>, not null
+         */
+        public static final ResponseCode uidNext(int uid) {
+            return new ResponseCode("UIDNEXT", uid);
+        }
         
         /**
          * Creates an extension response code.
@@ -151,32 +232,66 @@ public interface StatusResponse extends ImapResponseMessage {
          * @return <code>ResponseCode</code>, not null
          */
         public static ResponseCode createExtension(String name) {
-            StringBuffer buffer = new StringBuffer();
-            buffer.append('[');
+            StringBuffer buffer = new StringBuffer(name.length() + 2);
             if (!name.startsWith("X")) {
                 buffer.append('X');
             }
             buffer.append(name);
-            buffer.append(']');
             final ResponseCode result = new ResponseCode(buffer.toString());
             return result;
         }
         
         private final String code;
+        private final Collection parameters;
+        private final int number;
 
         private ResponseCode(final String code) {
+            this(code, Collections.EMPTY_LIST, 0);
+        }
+        
+        private ResponseCode(final String code, final int number) {
+            this(code, Collections.EMPTY_LIST, number);
+        }
+        
+        private ResponseCode(final String code, final Collection parameters) {
+            this(code, parameters, 0);
+        }
+        
+        private ResponseCode(final String code, final Collection parameters, final int number) {
             super();
             this.code = code;
+            this.parameters = parameters;
+            this.number = number;
         }
 
         public final String getCode() {
             return code;
         }
+        
+        /**
+         * Gets number for this response.
+         * @return the number, 
+         * or zero if no number has been set
+         */
+        public final int getNumber() {
+            return number;
+        }
 
+        /**
+         * Gets parameters for this code.
+         * @return the parameters <code>Collection</code>
+         * of <code>String</code> parameters, not null
+         */
+        public final Collection getParameters() {
+            return parameters;
+        }        
+        
         public int hashCode() {
             final int PRIME = 31;
             int result = 1;
             result = PRIME * result + ((code == null) ? 0 : code.hashCode());
+            result = PRIME * result + number;
+            result = PRIME * result + ((parameters == null) ? 0 : parameters.hashCode());
             return result;
         }
 
@@ -193,9 +308,16 @@ public interface StatusResponse extends ImapResponseMessage {
                     return false;
             } else if (!code.equals(other.code))
                 return false;
+            if (number != other.number)
+                return false;
+            if (parameters == null) {
+                if (other.parameters != null)
+                    return false;
+            } else if (!parameters.equals(other.parameters))
+                return false;
             return true;
         }
-        
+
         public String toString() {
             return code;
         }

@@ -101,7 +101,7 @@ public class AppendProcessor extends AbstractMailboxAwareProcessor {
                 logger.debug("Cannot open mailbox: ", mme);
             }
             no(command, tag, responder, HumanReadableTextKey.FAILURE_NO_SUCH_MAILBOX, 
-                    StatusResponse.ResponseCode.TRYCREATE);
+                    StatusResponse.ResponseCode.tryCreate());
         }
 
     }

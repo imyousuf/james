@@ -59,19 +59,23 @@ public class StatusResponseEncoderTest extends MockObjectTestCase {
     }
 
     public void testTaggedOkCode() throws Exception {
-        execute(StatusResponse.Type.OK, StatusResponse.ResponseCode.ALERT, KEY, TAG);
-        assertEquals(6, this.writer.operations.size());
+        execute(StatusResponse.Type.OK, StatusResponse.ResponseCode.alert(), KEY, TAG);
+        assertEquals(8, this.writer.operations.size());
         assertEquals(new MockImapResponseWriter.TagOperation(TAG), writer.operations.get(0));
         assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapConstants.OK), 
                 writer.operations.get(1));
-        assertEquals(new MockImapResponseWriter.TextMessageOperation(StatusResponse.ResponseCode.ALERT.getCode()),
+        assertEquals(MockImapResponseWriter.BracketOperation.openSquare(),
                 writer.operations.get(2));
-        assertEquals(new MockImapResponseWriter.CommandNameOperation(COMMAND),
+        assertEquals(new MockImapResponseWriter.TextMessageOperation(StatusResponse.ResponseCode.alert().getCode()),
                 writer.operations.get(3));
-        assertEquals(new MockImapResponseWriter.TextMessageOperation(KEY.getDefaultValue()),
+        assertEquals(MockImapResponseWriter.BracketOperation.closeSquare(),
                 writer.operations.get(4));
+        assertEquals(new MockImapResponseWriter.CommandNameOperation(COMMAND),
+                writer.operations.get(5));
+        assertEquals(new MockImapResponseWriter.TextMessageOperation(KEY.getDefaultValue()),
+                writer.operations.get(6));
         assertEquals(new MockImapResponseWriter.EndOperation(), 
-                writer.operations.get(5));        
+                writer.operations.get(7));        
     }
     
     public void testTaggedOkNoCode() throws Exception {
@@ -89,19 +93,23 @@ public class StatusResponseEncoderTest extends MockObjectTestCase {
     }
 
     public void testTaggedBadCode() throws Exception {
-        execute(StatusResponse.Type.BAD, StatusResponse.ResponseCode.ALERT, KEY, TAG);
-        assertEquals(6, this.writer.operations.size());
+        execute(StatusResponse.Type.BAD, StatusResponse.ResponseCode.alert(), KEY, TAG);
+        assertEquals(8, this.writer.operations.size());
         assertEquals(new MockImapResponseWriter.TagOperation(TAG), writer.operations.get(0));
         assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapConstants.BAD), 
                 writer.operations.get(1));
-        assertEquals(new MockImapResponseWriter.TextMessageOperation(StatusResponse.ResponseCode.ALERT.getCode()),
+        assertEquals(MockImapResponseWriter.BracketOperation.openSquare(),
                 writer.operations.get(2));
-        assertEquals(new MockImapResponseWriter.CommandNameOperation(COMMAND),
+        assertEquals(new MockImapResponseWriter.TextMessageOperation(StatusResponse.ResponseCode.alert().getCode()),
                 writer.operations.get(3));
-        assertEquals(new MockImapResponseWriter.TextMessageOperation(KEY.getDefaultValue()),
+        assertEquals(MockImapResponseWriter.BracketOperation.closeSquare(),
                 writer.operations.get(4));
+        assertEquals(new MockImapResponseWriter.CommandNameOperation(COMMAND),
+                writer.operations.get(5));
+        assertEquals(new MockImapResponseWriter.TextMessageOperation(KEY.getDefaultValue()),
+                writer.operations.get(6));
         assertEquals(new MockImapResponseWriter.EndOperation(), 
-                writer.operations.get(5));        
+                writer.operations.get(7));        
     }
     
     public void testTaggedBadNoCode() throws Exception {
@@ -119,19 +127,23 @@ public class StatusResponseEncoderTest extends MockObjectTestCase {
     }
 
     public void testTaggedNoCode() throws Exception {
-        execute(StatusResponse.Type.NO, StatusResponse.ResponseCode.ALERT, KEY, TAG);
-        assertEquals(6, this.writer.operations.size());
+        execute(StatusResponse.Type.NO, StatusResponse.ResponseCode.alert(), KEY, TAG);
+        assertEquals(8, this.writer.operations.size());
         assertEquals(new MockImapResponseWriter.TagOperation(TAG), writer.operations.get(0));
         assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapConstants.NO), 
                 writer.operations.get(1));
-        assertEquals(new MockImapResponseWriter.TextMessageOperation(StatusResponse.ResponseCode.ALERT.getCode()),
+        assertEquals(MockImapResponseWriter.BracketOperation.openSquare(),
                 writer.operations.get(2));
-        assertEquals(new MockImapResponseWriter.CommandNameOperation(COMMAND),
+        assertEquals(new MockImapResponseWriter.TextMessageOperation(StatusResponse.ResponseCode.alert().getCode()),
                 writer.operations.get(3));
-        assertEquals(new MockImapResponseWriter.TextMessageOperation(KEY.getDefaultValue()),
+        assertEquals(MockImapResponseWriter.BracketOperation.closeSquare(),
                 writer.operations.get(4));
+        assertEquals(new MockImapResponseWriter.CommandNameOperation(COMMAND),
+                writer.operations.get(5));
+        assertEquals(new MockImapResponseWriter.TextMessageOperation(KEY.getDefaultValue()),
+                writer.operations.get(6));
         assertEquals(new MockImapResponseWriter.EndOperation(), 
-                writer.operations.get(5));        
+                writer.operations.get(7));        
     }
     
     public void testTaggedNoNoCode() throws Exception {
@@ -150,17 +162,21 @@ public class StatusResponseEncoderTest extends MockObjectTestCase {
     
 
     public void testUntaggedOkCode() throws Exception {
-        execute(StatusResponse.Type.OK, StatusResponse.ResponseCode.ALERT, KEY, null);
-        assertEquals(5, this.writer.operations.size());
+        execute(StatusResponse.Type.OK, StatusResponse.ResponseCode.alert(), KEY, null);
+        assertEquals(7, this.writer.operations.size());
         assertEquals(new MockImapResponseWriter.UntaggedOperation(), writer.operations.get(0));
         assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapConstants.OK), 
                 writer.operations.get(1));
-        assertEquals(new MockImapResponseWriter.TextMessageOperation(StatusResponse.ResponseCode.ALERT.getCode()),
+        assertEquals(MockImapResponseWriter.BracketOperation.openSquare(),
                 writer.operations.get(2));
-        assertEquals(new MockImapResponseWriter.TextMessageOperation(KEY.getDefaultValue()),
+        assertEquals(new MockImapResponseWriter.TextMessageOperation(StatusResponse.ResponseCode.alert().getCode()),
                 writer.operations.get(3));
+        assertEquals(MockImapResponseWriter.BracketOperation.closeSquare(),
+                writer.operations.get(4));
+        assertEquals(new MockImapResponseWriter.TextMessageOperation(KEY.getDefaultValue()),
+                writer.operations.get(5));
         assertEquals(new MockImapResponseWriter.EndOperation(), 
-                writer.operations.get(4));        
+                writer.operations.get(6));        
     }
     
     public void testUntaggedOkNoCode() throws Exception {
@@ -176,17 +192,21 @@ public class StatusResponseEncoderTest extends MockObjectTestCase {
     }
 
     public void testUntaggedBadCode() throws Exception {
-        execute(StatusResponse.Type.BAD, StatusResponse.ResponseCode.ALERT, KEY, null);
-        assertEquals(5, this.writer.operations.size());
+        execute(StatusResponse.Type.BAD, StatusResponse.ResponseCode.alert(), KEY, null);
+        assertEquals(7, this.writer.operations.size());
         assertEquals(new MockImapResponseWriter.UntaggedOperation(), writer.operations.get(0));
         assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapConstants.BAD), 
                 writer.operations.get(1));
-        assertEquals(new MockImapResponseWriter.TextMessageOperation(StatusResponse.ResponseCode.ALERT.getCode()),
+        assertEquals(MockImapResponseWriter.BracketOperation.openSquare(),
                 writer.operations.get(2));
-        assertEquals(new MockImapResponseWriter.TextMessageOperation(KEY.getDefaultValue()),
+        assertEquals(new MockImapResponseWriter.TextMessageOperation(StatusResponse.ResponseCode.alert().getCode()),
                 writer.operations.get(3));
+        assertEquals(MockImapResponseWriter.BracketOperation.closeSquare(),
+                writer.operations.get(4));
+        assertEquals(new MockImapResponseWriter.TextMessageOperation(KEY.getDefaultValue()),
+                writer.operations.get(5));
         assertEquals(new MockImapResponseWriter.EndOperation(), 
-                writer.operations.get(4));        
+                writer.operations.get(6));        
     }
     
     public void testUntaggedBadNoCode() throws Exception {
@@ -202,17 +222,21 @@ public class StatusResponseEncoderTest extends MockObjectTestCase {
     }
 
     public void testUntaggedNoCode() throws Exception {
-        execute(StatusResponse.Type.NO, StatusResponse.ResponseCode.ALERT, KEY, null);
-        assertEquals(5, this.writer.operations.size());
+        execute(StatusResponse.Type.NO, StatusResponse.ResponseCode.alert(), KEY, null);
+        assertEquals(7, this.writer.operations.size());
         assertEquals(new MockImapResponseWriter.UntaggedOperation(), writer.operations.get(0));
         assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapConstants.NO), 
                 writer.operations.get(1));
-        assertEquals(new MockImapResponseWriter.TextMessageOperation(StatusResponse.ResponseCode.ALERT.getCode()),
+        assertEquals(MockImapResponseWriter.BracketOperation.openSquare(),
                 writer.operations.get(2));
-        assertEquals(new MockImapResponseWriter.TextMessageOperation(KEY.getDefaultValue()),
+        assertEquals(new MockImapResponseWriter.TextMessageOperation(StatusResponse.ResponseCode.alert().getCode()),
                 writer.operations.get(3));
+        assertEquals(MockImapResponseWriter.BracketOperation.closeSquare(),
+                writer.operations.get(4));
+        assertEquals(new MockImapResponseWriter.TextMessageOperation(KEY.getDefaultValue()),
+                writer.operations.get(5));
         assertEquals(new MockImapResponseWriter.EndOperation(), 
-                writer.operations.get(4));        
+                writer.operations.get(6));        
     }
     
     public void testUntaggedNoNoCode() throws Exception {

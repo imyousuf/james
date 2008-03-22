@@ -20,10 +20,14 @@
 package org.apache.james.imapserver.codec.encode.imap4rev1;
 
 import java.io.IOException;
+import java.util.Collection;
 
+import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.api.imap.display.HumanReadableTextKey;
 import org.apache.james.api.imap.message.response.imap4rev1.StatusResponse;
+import org.apache.james.api.imap.message.response.imap4rev1.StatusResponse.ResponseCode;
+import org.apache.james.api.imap.message.response.imap4rev1.StatusResponse.Type;
 import org.apache.james.imapserver.codec.encode.ImapEncoder;
 import org.apache.james.imapserver.codec.encode.ImapResponseComposer;
 import org.apache.james.imapserver.codec.encode.base.AbstractChainedImapEncoder;
@@ -37,9 +41,24 @@ public class StatusResponseEncoder extends AbstractChainedImapEncoder {
     protected void doEncode(ImapMessage acceptableMessage,
             ImapResponseComposer composer) throws IOException {
         StatusResponse response = (StatusResponse) acceptableMessage;
-        composer.statusResponse(response.getTag(), response.getCommand(), 
-                asString(response.getServerResponseType()), asString(response.getResponseCode()),
-                asString(response.getTextKey()));
+        final Type serverResponseType = response.getServerResponseType();
+        final String type = asString(serverResponseType);
+        final ResponseCode responseCode = response.getResponseCode();
+        final String code = asString(responseCode);
+        final String tag = response.getTag();
+        final ImapCommand command = response.getCommand();
+        final HumanReadableTextKey textKey = response.getTextKey();
+        final String text = asString(textKey);
+        final Collection parameters;
+        final int number;
+        if (responseCode == null) {
+            parameters = null;
+            number = 0;
+        } else { 
+            parameters = responseCode.getParameters();
+            number = responseCode.getNumber();
+        }
+        composer.statusResponse(tag, command, type, code, parameters, number, text);
     }
 
     private String asString(HumanReadableTextKey text)

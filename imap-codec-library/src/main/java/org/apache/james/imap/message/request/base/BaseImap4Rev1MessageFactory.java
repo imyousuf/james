@@ -160,7 +160,5 @@ public class BaseImap4Rev1MessageFactory implements Imap4Rev1MessageFactory {
 
     public ImapMessage createCheckMessage(ImapCommand command, String tag) {
         return new CheckRequest(command, tag);
-    }  
-    
-    
+    }
 }

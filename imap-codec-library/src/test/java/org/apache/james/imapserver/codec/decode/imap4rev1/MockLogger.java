@@ -16,18 +16,68 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.imapserver.codec.decode;
 
-import org.apache.james.api.imap.imap4rev1.Imap4Rev1MessageFactory;
-import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
+/**
+ * 
+ */
+package org.apache.james.imapserver.codec.decode.imap4rev1;
 
-public interface MessagingImapCommandParser {
+import org.apache.avalon.framework.logger.Logger;
 
-    public abstract Imap4Rev1MessageFactory getMessageFactory();
+final class MockLogger implements Logger {
+    public void debug(String arg0) {
+    }
 
-    public abstract void setMessageFactory(Imap4Rev1MessageFactory messageFactory);
+    public void debug(String arg0, Throwable arg1) {
+    }
 
-    public abstract StatusResponseFactory getStatusResponseFactory();
-    
-    public abstract void setStatusResponseFactory(StatusResponseFactory statusResponseFactory) ;
+    public void error(String arg0) {
+    }
+
+    public void error(String arg0, Throwable arg1) {
+    }
+
+    public void fatalError(String arg0) {
+    }
+
+    public void fatalError(String arg0, Throwable arg1) {
+    }
+
+    public Logger getChildLogger(String arg0) {
+        return null;
+    }
+
+    public void info(String arg0) {
+    }
+
+    public void info(String arg0, Throwable arg1) {
+    }
+
+    public boolean isDebugEnabled() {
+        return false;
+    }
+
+    public boolean isErrorEnabled() {
+        return false;
+    }
+
+    public boolean isFatalErrorEnabled() {
+        return false;
+    }
+
+    public boolean isInfoEnabled() {
+        return false;
+    }
+
+    public boolean isWarnEnabled() {
+        return false;
+    }
+
+    public void warn(String arg0) {
+        
+    }
+
+    public void warn(String arg0, Throwable arg1) {
+        
+    }
 }

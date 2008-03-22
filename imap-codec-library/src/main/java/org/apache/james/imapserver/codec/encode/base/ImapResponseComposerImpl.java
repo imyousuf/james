@@ -20,6 +20,7 @@
 package org.apache.james.imapserver.codec.encode.base;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -343,9 +344,10 @@ public class ImapResponseComposerImpl extends AbstractLogEnabled implements
     
     /**
      * @throws IOException 
-     * @see org.apache.james.imapserver.codec.encode.ImapResponseComposer#statusResponse(java.lang.String, org.apache.james.api.imap.ImapCommand, java.lang.String, java.lang.String, java.lang.String)
+     * @see org.apache.james.imapserver.codec.encode.ImapResponseComposer#statusResponse(java.lang.String, org.apache.james.api.imap.ImapCommand, java.lang.String, java.lang.String, Collection, long, java.lang.String)
      */
-    public void statusResponse(String tag, ImapCommand command, String type, String responseCode, String text) throws IOException {
+    public void statusResponse(String tag, ImapCommand command, String type, String responseCode, 
+            Collection parameters, long number, String text) throws IOException {
         if (tag == null) {
             untagged();
         } else {
@@ -353,7 +355,20 @@ public class ImapResponseComposerImpl extends AbstractLogEnabled implements
         }
         message(type);
         if (responseCode != null) {
+            openSquareBracket();
             message(responseCode);
+            if (parameters != null && ! parameters.isEmpty()) {
+                openParen();
+                for (Iterator it = parameters.iterator();it.hasNext();) {
+                    final String parameter = (String) it.next();
+                    message(parameter);
+                }
+                closeParen();
+            }
+            if (number > 0) {
+                message(number);
+            }
+            closeSquareBracket();
         }
         if (command != null) {
             commandName(command);
@@ -546,5 +561,13 @@ public class ImapResponseComposerImpl extends AbstractLogEnabled implements
 
     public void skipNextSpace() throws IOException {
         writer.skipNextSpace();
+    }
+
+    public void closeSquareBracket() throws IOException {
+        writer.closeSquareBracket();
+    }
+
+    public void openSquareBracket() throws IOException {
+        writer.openSquareBracket();
     }
 }

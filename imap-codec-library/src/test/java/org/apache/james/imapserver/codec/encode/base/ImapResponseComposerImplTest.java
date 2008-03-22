@@ -19,10 +19,12 @@
 
 package org.apache.james.imapserver.codec.encode.base;
 
+import java.util.Collection;
 import java.util.List;
 
 import javax.mail.Flags;
 
+import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.imapserver.codec.encode.AbstractTestImapResponseComposer;
 
 public class ImapResponseComposerImplTest extends
@@ -62,6 +64,11 @@ public class ImapResponseComposerImplTest extends
 
     protected byte[] encodeStatusResponse(Long messages, Long recent, Long uidNext, Long uidValidity, Long unseen, String mailbox) throws Exception {
         composer.statusResponse(messages, recent, uidNext, uidValidity, unseen, mailbox);
+        return writer.getBytes();
+    }
+
+    protected byte[] encodeStatusResponse(String tag, ImapCommand command, String type, String responseCode, Collection parameters, int number, String text) throws Exception {
+        composer.statusResponse(tag, command, type, responseCode, parameters, number, text);
         return writer.getBytes();
     }
 

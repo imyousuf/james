@@ -103,7 +103,7 @@ public class SearchCommandParserSearchKeySequenceSetTest extends MockObjectTestC
         ImapRequestLineReader reader = new ImapRequestLineReader(new ByteArrayInputStream(input.getBytes("US-ASCII")), 
                 new ByteArrayOutputStream());
 
-        final SearchKey searchKey = parser.searchKey(reader);
+        final SearchKey searchKey = parser.searchKey(reader, null, false);
         assertEquals(key, searchKey);
     }
 }

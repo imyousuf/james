@@ -28,6 +28,7 @@ import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.api.imap.imap4rev1.Imap4Rev1CommandFactory;
 import org.apache.james.api.imap.imap4rev1.Imap4Rev1MessageFactory;
+import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
 import org.apache.james.imapserver.codec.decode.DelegatingImapCommandParser;
 import org.apache.james.imapserver.codec.decode.ImapCommandParser;
 import org.apache.james.imapserver.codec.decode.ImapCommandParserFactory;
@@ -44,12 +45,15 @@ public class Imap4Rev1CommandParserFactory extends AbstractLogEnabled implements
 {
     private Map _imapCommands;
     private final Imap4Rev1MessageFactory messageFactory;
+    private final StatusResponseFactory statusResponseFactory;
     private final Imap4Rev1CommandFactory commandFactory;
     
-    public Imap4Rev1CommandParserFactory(final Imap4Rev1MessageFactory messageFactory, final Imap4Rev1CommandFactory commandFactory)
+    public Imap4Rev1CommandParserFactory(final Imap4Rev1MessageFactory messageFactory, final Imap4Rev1CommandFactory commandFactory,
+            final StatusResponseFactory statusResponseFactory)
     {
         this.messageFactory = messageFactory;
         this.commandFactory = commandFactory;
+        this.statusResponseFactory = statusResponseFactory;
         _imapCommands = new HashMap();
 
         // Commands valid in any state
@@ -144,7 +148,9 @@ public class Imap4Rev1CommandParserFactory extends AbstractLogEnabled implements
         }
         
         if (cmd instanceof MessagingImapCommandParser) {
-            ((MessagingImapCommandParser) cmd).setMessageFactory(messageFactory);
+            final MessagingImapCommandParser messagingImapCommandParser = (MessagingImapCommandParser) cmd;
+            messagingImapCommandParser.setMessageFactory(messageFactory);
+            messagingImapCommandParser.setStatusResponseFactory(statusResponseFactory);
         }
         
         if (cmd instanceof InitialisableCommandFactory) {

@@ -20,6 +20,7 @@
 package org.apache.james.imapserver.codec.encode;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 
 import javax.mail.Flags;
@@ -270,7 +271,7 @@ public interface ImapResponseComposer {
     public abstract void tag(String tag) throws IOException;
 
     public abstract void statusResponse(String tag, ImapCommand command,
-            String type, String responseCode, String text) throws IOException;
+            String type, String responseCode, Collection parameters, long number, String text) throws IOException;
     
     public abstract void statusResponse(Long messages, Long recent,
             Long uidNext, Long uidValidity, Long unseen, String mailboxName) throws IOException;

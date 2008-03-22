@@ -168,13 +168,21 @@ public class ChannelImapResponseWriter extends AbstractLogEnabled implements Ima
     }
 
     public void closeParen() throws IOException {
-        write(BYTES_CLOSING_PARENTHESIS);
+        closeBracket(BYTES_CLOSING_PARENTHESIS);
+    }
+
+    private void closeBracket(final byte[] bracket) throws IOException {
+        write(bracket);
         clearSkipNextSpace();
     }
 
     public void openParen() throws IOException {
+        openBracket(BYTES_OPENING_PARENTHESIS);
+    }
+
+    private void openBracket(final byte[] bracket) throws IOException {
         space();
-        write(BYTES_OPENING_PARENTHESIS);
+        write(bracket);
         skipNextSpace();
     }
     
@@ -201,5 +209,13 @@ public class ChannelImapResponseWriter extends AbstractLogEnabled implements Ima
         write(BYTES_CLOSE_BRACE);
         write(BYTES_LINE_END);
         literal.writeTo(out);
+    }
+
+    public void closeSquareBracket() throws IOException {
+        closeBracket(BYTES_CLOSE_SQUARE_BRACKET);
+    }
+
+    public void openSquareBracket() throws IOException {
+        openBracket(BYTES_OPEN_SQUARE_BRACKET);
     }
 }
