@@ -48,6 +48,7 @@ import org.apache.mailet.Mail;
  * This implementation should be considered as EXPERIMENTAL.
  * 
  * TODO examine for thread-safety
+ * TODO: consider deleting this implementation; may be better for the wrapping to work the other way;
  */
 public class MailboxManagerMailRepository extends AbstractMailRepository
         implements Configurable, Serviceable {
