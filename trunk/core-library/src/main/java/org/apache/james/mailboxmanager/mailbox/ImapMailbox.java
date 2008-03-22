@@ -151,7 +151,7 @@ public interface ImapMailbox extends Mailbox, EventTriggerMailbox  {
             FetchGroup fetchGroup, MailboxSession mailboxSession) throws MailboxManagerException;
     
     /**
-     * 
+     * TODO: consolidate search and getMessages into a single method
      * @param set
      * @param mailboxSession TODO
      * @return MessageResult with the fields defined by <b>result</b>
@@ -166,5 +166,11 @@ public interface ImapMailbox extends Mailbox, EventTriggerMailbox  {
     Iterator getMessages(GeneralMessageSet set, FetchGroup fetchGroup, MailboxSession mailboxSession) 
         throws MailboxManagerException;
     
+    /**
+     * TODO: this is only used by MailboxManagerMailRepository; Consider deleting;
+     * @param set
+     * @param mailboxSession
+     * @throws MailboxManagerException
+     */
     void remove(GeneralMessageSet set, MailboxSession mailboxSession) throws MailboxManagerException;
 }
