@@ -74,11 +74,10 @@ public interface ImapMailbox extends Mailbox, EventTriggerMailbox  {
     /**
      * @return Flags that can be stored
      */
-
     Flags getPermanentFlags();
     
 
-    int getRecentCount(boolean reset, MailboxSession mailboxSession) throws MailboxManagerException;
+    long[] recent(boolean reset, MailboxSession mailboxSession) throws MailboxManagerException;
     
     int getUnseenCount(MailboxSession mailboxSession) throws MailboxManagerException;
     

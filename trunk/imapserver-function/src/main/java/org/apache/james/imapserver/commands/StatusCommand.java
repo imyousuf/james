@@ -82,7 +82,7 @@ class StatusCommand extends AuthenticatedStateCommand
             if (statusDataItems.recent) {
                 buffer.append(RECENT);
                 buffer.append(SP);
-                buffer.append(mailbox.getRecentCount(false, session.getMailboxSession()));
+                buffer.append(mailbox.recent(false, session.getMailboxSession()).length);
                 buffer.append(SP);
             }
 

@@ -66,7 +66,7 @@ class SelectCommand extends AuthenticatedStateCommand
             ImapMailbox mailbox = selected.getMailbox();
             response.flagsResponse(mailbox.getPermanentFlags());
             final boolean resetRecent = !isExamine;
-            response.recentResponse(mailbox.getRecentCount(resetRecent, session.getMailboxSession()));
+            response.recentResponse(mailbox.recent(resetRecent, session.getMailboxSession()).length);
             response
                     .okResponse("UIDVALIDITY " + mailbox.getUidValidity(session.getMailboxSession()), null);
 

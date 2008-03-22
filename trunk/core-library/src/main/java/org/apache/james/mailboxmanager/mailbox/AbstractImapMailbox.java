@@ -33,6 +33,9 @@ import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.util.AbstractLogFactoryAware;
 
+/**
+ * TODO: This class is only used for mailbox respository integation; consider removal
+ */
 public abstract class AbstractImapMailbox extends AbstractLogFactoryAware implements ImapMailbox {
     
     public Collection list(MailboxSession mailboxSession) throws MailboxManagerException {

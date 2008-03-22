@@ -162,7 +162,7 @@ public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements Se
 
     private void addRecentResponses(final List responses, final ImapMailbox mailbox) {
         try {
-            final int recentCount = mailbox.getRecentCount(true, mailboxSession);
+            final int recentCount = mailbox.recent(true, mailboxSession).length;
             // TODO: use factory
             RecentResponse response = new RecentResponse(recentCount);
             responses.add(response);

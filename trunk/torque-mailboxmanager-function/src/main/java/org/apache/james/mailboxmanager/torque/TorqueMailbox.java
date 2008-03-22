@@ -329,30 +329,43 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
         return permanentFlags;
     }
 
-    public int getRecentCount(boolean reset, MailboxSession mailboxSession) throws MailboxManagerException {
+    public long[] recent(boolean reset, MailboxSession mailboxSession) throws MailboxManagerException {
         try {
             lock.readLock().acquire();
             try {
                 checkAccess();
-                Flags flags = new Flags();
-                flags.add(Flags.Flag.RECENT);
-                try {
-                    int count = getMailboxRow().countMessages(flags, true);
-                    if (reset) {
-                        getMailboxRow().resetRecent();
-                    }
-                    return count;
-                } catch (TorqueException e) {
-                    throw new MailboxManagerException(e);
-                } catch (DataSetException e) {
-                    throw new MailboxManagerException(e);
+                final Criteria criterion = queryRecentFlagSet();
+                final List messageRows = getMailboxRow().getMessageRows(criterion);
+                final long[] results = new long[messageRows.size()];
+                int count = 0;
+                for (Iterator it = messageRows.iterator(); it.hasNext();) {
+                    final MessageRow row = (MessageRow) it.next();
+                    results[count++] = row.getUid();
                 }
+
+                if (reset) {
+                    getMailboxRow().resetRecent();
+                }
+                return results;
+            } catch (TorqueException e) {
+                throw new MailboxManagerException(e);
             } finally {
                 lock.readLock().release();
             }
         } catch (InterruptedException e) {
             throw new MailboxManagerException(e);
         }
+      
+    }
+
+    private Criteria queryRecentFlagSet() {
+        final Criteria criterion = new Criteria();
+        criterion.addJoin(MessageFlagsPeer.MAILBOX_ID,
+                MessageRowPeer.MAILBOX_ID);
+        criterion.addJoin(MessageRowPeer.UID, MessageFlagsPeer.UID);
+
+        MessageFlagsPeer.addFlagsToCriteria(new Flags(Flags.Flag.RECENT), true, criterion);
+        return criterion;
     }
 
     public MessageResult getFirstUnseen(FetchGroup fetchGroup, MailboxSession mailboxSession)
