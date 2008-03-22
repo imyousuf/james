@@ -128,7 +128,7 @@ public class StatusProcessor extends AbstractMailboxAwareProcessor {
     private Long recent(final StatusDataItems statusDataItems, final MailboxSession mailboxSession, final ImapMailbox mailbox) throws MailboxManagerException {
         final Long recent;
         if (statusDataItems.isRecent()) {
-            final int recentCount = mailbox.getRecentCount(false, mailboxSession);
+            final int recentCount = mailbox.recent(false, mailboxSession).length;
             recent = new Long(recentCount);
         } else {
             recent = null;

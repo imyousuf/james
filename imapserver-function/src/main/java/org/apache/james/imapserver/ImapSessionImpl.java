@@ -85,7 +85,7 @@ public final class ImapSessionImpl extends AbstractLogEnabled implements ImapSes
                     response.existsResponse(selected.getMailbox()
                             .getMessageCount(getMailboxSession()));
                     response.recentResponse(selected.getMailbox()
-                            .getRecentCount(true, getMailboxSession()));
+                            .recent(true, getMailboxSession()).length);
                 }
 
                // Message updates

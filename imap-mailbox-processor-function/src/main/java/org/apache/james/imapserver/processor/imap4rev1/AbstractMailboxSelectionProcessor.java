@@ -90,7 +90,7 @@ abstract public class AbstractMailboxSelectionProcessor extends
         final Flags permanentFlags = mailbox.getPermanentFlags();
         final boolean writeable = mailbox.isWriteable() && !isExamine;
         final boolean resetRecent = !isExamine;
-        final int recentCount = mailbox.getRecentCount(resetRecent, mailboxSession);
+        final int recentCount = mailbox.recent(resetRecent, mailboxSession).length;
         final long uidValidity = mailbox.getUidValidity(mailboxSession);
         final MessageResult firstUnseen = mailbox.getFirstUnseen(FetchGroupImpl.MINIMAL, mailboxSession);
         final int messageCount = mailbox.getMessageCount(mailboxSession);
