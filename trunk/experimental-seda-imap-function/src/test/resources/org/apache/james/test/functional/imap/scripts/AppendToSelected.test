@@ -56,7 +56,7 @@ C:
 C: Hello Joe, could we change that to 4:00pm tomorrow?
 C:
 S: \* 2 EXISTS
-S: \* 1 RECENT
+S: \* 2 RECENT
 S: A007 OK APPEND completed.
 
 C: a1 DELETE appendBox

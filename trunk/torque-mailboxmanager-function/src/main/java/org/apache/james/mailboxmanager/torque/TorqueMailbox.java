@@ -93,7 +93,7 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
         getUidToKeyConverter().setUidValidity(mailboxRow.getUidValidity());
     }
 
-    public synchronized String getName() throws MailboxManagerException {
+    public synchronized String getName() {
         checkAccess();
         return mailboxRow.getName();
     }
@@ -609,7 +609,7 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
         }
     }
 
-    private void checkAccess() throws MailboxManagerException {
+    private void checkAccess() {
         if (!open) {
             throw new RuntimeException("mailbox is closed");
         }
@@ -650,8 +650,6 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
                 
                 return getResults(fetchGroup, filteredMessages);
             } catch (TorqueException e) {
-                throw new MailboxManagerException(e);
-            } catch (MessagingException e) {
                 throw new MailboxManagerException(e);
             } finally {
                 lock.readLock().release();

@@ -89,8 +89,8 @@ abstract public class AbstractMailboxSelectionProcessor extends
         // TODO: compact this into a single API call for meta-data about the repository
         final Flags permanentFlags = mailbox.getPermanentFlags();
         final boolean writeable = mailbox.isWriteable() && !isExamine;
-        final boolean resetRecent = !isExamine;
-        final int recentCount = mailbox.recent(resetRecent, mailboxSession).length;
+        final SelectedImapMailbox selected = session.getSelected();
+        final int recentCount = selected.recentCount();
         final long uidValidity = mailbox.getUidValidity(mailboxSession);
         final MessageResult firstUnseen = mailbox.getFirstUnseen(FetchGroupImpl.MINIMAL, mailboxSession);
         final int messageCount = mailbox.getMessageCount(mailboxSession);
@@ -98,7 +98,7 @@ abstract public class AbstractMailboxSelectionProcessor extends
         if (firstUnseen == null) {
             msn = -1;
         } else {
-            msn = session.getSelected().msn(firstUnseen.getUid());
+            msn = selected.msn(firstUnseen.getUid());
         }
         result = new ExamineAndSelectResponse(command, permanentFlags,
                 writeable, recentCount, uidValidity, msn, messageCount, tag);
@@ -117,12 +117,21 @@ abstract public class AbstractMailboxSelectionProcessor extends
             final MessageResult result = (MessageResult) it.next();
             uids.add(new Long(result.getUid()));
         }
-        
         SelectedImapMailbox sessionMailbox = new SelectedMailboxSessionImpl(mailbox, uids, mailboxSession);
+        
+        addRecent(readOnly, mailbox, mailboxSession, sessionMailbox);
         session.selected(sessionMailbox);
         session.setAttribute(
                 ImapSessionUtils.SELECTED_MAILBOX_ATTRIBUTE_SESSION_KEY,
                 mailbox);
         return readOnly;
+    }
+
+    private void addRecent(boolean readOnly, final ImapMailbox mailbox, final MailboxSession mailboxSession, SelectedImapMailbox sessionMailbox) throws MailboxManagerException {
+        final long[] recentUids = mailbox.recent(!readOnly, mailboxSession);
+        for (int i = 0; i < recentUids.length; i++) {
+            long uid = recentUids[i];
+            sessionMailbox.addRecent(uid);    
+        }
     }
 }

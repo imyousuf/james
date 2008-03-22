@@ -19,6 +19,8 @@
 
 package org.apache.james.imapserver.processor.imap4rev1;
 
+import java.util.Iterator;
+
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.api.imap.ProtocolException;
@@ -27,12 +29,14 @@ import org.apache.james.api.imap.message.request.ImapRequest;
 import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
+import org.apache.james.api.imap.process.SelectedImapMailbox;
 import org.apache.james.imap.message.request.imap4rev1.ExpungeRequest;
 import org.apache.james.imapserver.processor.base.AbstractImapRequestProcessor;
 import org.apache.james.imapserver.processor.base.AuthorizationException;
 import org.apache.james.imapserver.processor.base.ImapSessionUtils;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
+import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
@@ -57,8 +61,16 @@ public class ExpungeProcessor extends AbstractImapRequestProcessor {
             no(command, tag, responder, HumanReadableTextKey.MAILBOX_IS_READ_ONLY);
         } else {
             try {
-                mailbox.expunge(GeneralMessageSetImpl.all(),
+                final Iterator it = mailbox.expunge(GeneralMessageSetImpl.all(),
                         FetchGroupImpl.MINIMAL, ImapSessionUtils.getMailboxSession(session));
+                final SelectedImapMailbox mailboxSession = session.getSelected();
+                if (mailboxSession != null) {
+                    while(it.hasNext()) {
+                        final MessageResult result = (MessageResult) it.next();
+                        final long uid = result.getUid();
+                        mailboxSession.removeRecent(uid);
+                    }
+                }
                 unsolicitedResponses(session, responder, false);
                 okComplete(command, tag, responder);
             } catch (MailboxManagerException e) {

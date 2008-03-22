@@ -142,7 +142,6 @@ class MessageSearcher {
             parser.parse(input);
             while (!result && parser.next() != MimeTokenStream.T_END_OF_STREAM) {
                 final int state = parser.getState();
-                System.out.println(MimeTokenStream.stateToString(state));
                 switch (state) {
                     case MimeTokenStream.T_BODY:
                     case MimeTokenStream.T_PREAMBLE:
