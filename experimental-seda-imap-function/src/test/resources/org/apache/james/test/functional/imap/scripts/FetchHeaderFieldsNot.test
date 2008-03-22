@@ -59,9 +59,7 @@ C: any objections?
 C: 
 C: - robert
 S: \* 2 EXISTS
-# TODO: FIX RECENT
-#S: \* 2 RECENT
-S: \* 1 RECENT
+S: \* 2 RECENT
 S: A5 OK APPEND completed\.
 C: A6 APPEND testmailbox {668+}
 C: From: Timothy Tayler <timothy@example.org>
@@ -93,9 +91,7 @@ C:
 C: --1729--
 C: 
 S: \* 3 EXISTS
-# TODO: FIX RECENT
-#S: \* 3 RECENT
-S: \* 1 RECENT
+S: \* 3 RECENT
 S: A6 OK APPEND completed\.
 C: A7 APPEND testmailbox {765+}
 C: From: Timothy Tayler <timothy@example.org>
@@ -133,9 +129,7 @@ C:
 C: --1729--
 C: 
 S: \* 4 EXISTS
-# TODO: FIX RECENT
-#S: \* 4 RECENT
-S: \* 1 RECENT
+S: \* 4 RECENT
 S: A7 OK APPEND completed\.
 C: A8 APPEND testmailbox {1767+}
 C: From: Timothy Tayler <timothy@example.org>
@@ -230,9 +224,7 @@ C: --4.66920160910299--
 C: --1729--
 C: 
 S: \* 5 EXISTS
-# TODO: FIX RECENT
-#S: \* 5 RECENT
-S: \* 1 RECENT
+S: \* 5 RECENT
 S: A8 OK APPEND completed\.
 C: A9 APPEND testmailbox {185+}
 C: From: John Smith <john@example.org>
@@ -243,9 +235,7 @@ C: Message-ID: <1729@machine.example.org>
 C: 
 C: Hello, World!
 S: \* 6 EXISTS
-# TODO: FIX RECENT
-#S: \* 6 RECENT
-S: \* 1 RECENT
+S: \* 6 RECENT
 S: A9 OK APPEND completed\.
 C: A10 APPEND testmailbox {227+}
 C: From: John Smith <john@example.org>
@@ -257,9 +247,7 @@ C: Message-ID: <172942@machine.example.org>
 C: 
 C: Hello, World!
 S: \* 7 EXISTS
-# TODO: FIX RECENT
-#S: \* 7 RECENT
-S: \* 1 RECENT
+S: \* 7 RECENT
 S: A10 OK APPEND completed\.
 C: A11 APPEND testmailbox {185+}
 C: From: Timothy Tayler <timothy@example.org>
@@ -270,9 +258,7 @@ C:
 C: This is a very simple email.
 C: 
 S: \* 8 EXISTS
-# TODO: FIX RECENT
-#S: \* 8 RECENT
-S: \* 1 RECENT
+S: \* 8 RECENT
 S: A11 OK APPEND completed\.
 C: A12 APPEND testmailbox {318+}
 C: From: "Brian G. Hutton" <brian@example.org>
@@ -284,9 +270,7 @@ C: Message-ID: <17291729@machine.example.org>
 C: 
 C: Rhubarb!
 S: \* 9 EXISTS
-# TODO: FIX RECENT
-#S: \* 9 RECENT
-S: \* 1 RECENT
+S: \* 9 RECENT
 S: A12 OK APPEND completed\.
 C: A13 SELECT testmailbox
 S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)

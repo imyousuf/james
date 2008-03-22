@@ -20,8 +20,11 @@
 package org.apache.james.imapserver.processor.base;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.mail.Flags;
 import javax.mail.MessagingException;
@@ -51,11 +54,13 @@ public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements Se
     private final MailboxEventAnalyser events;
     private final UidToMsnConverter converter;    
     private final MailboxSession mailboxSession;
+    private final Set recentUids;
     
     public SelectedMailboxSessionImpl(ImapMailbox mailbox, List uids, 
             MailboxSession mailboxSession) throws MailboxManagerException {
         this.mailbox = mailbox;
         this.mailboxSession = mailboxSession;
+        recentUids = new TreeSet();
         final long sessionId = mailboxSession.getSessionId();
         events = new MailboxEventAnalyser(sessionId);
         // Ignore events from our session
@@ -161,15 +166,10 @@ public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements Se
     }
 
     private void addRecentResponses(final List responses, final ImapMailbox mailbox) {
-        try {
-            final int recentCount = mailbox.recent(true, mailboxSession).length;
-            // TODO: use factory
-            RecentResponse response = new RecentResponse(recentCount);
-            responses.add(response);
-        } catch (MailboxManagerException e) {
-            final String message = "Failed to retrieve recent count data";
-            handleResponseException(responses, e, message);
-        }
+        final int recentCount = recentCount();
+        // TODO: use factory
+        RecentResponse response = new RecentResponse(recentCount);
+        responses.add(response);
     }
 
     private void handleResponseException(final List responses, MessagingException e, final String message) {
@@ -194,5 +194,40 @@ public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements Se
 
     public long uid(int msn) {
         return converter.getUid(msn);
+    }
+
+    public void removeRecent(long uid) {
+        recentUids.remove(new Long(uid));
+    }
+    
+    public void addRecent(long uid) {
+        recentUids.add(new Long(uid));
+    }
+
+    public long[] getRecent() {
+        checkExpungedRecents();
+        final long[] results = new long[recentUids.size()];
+        int count = 0;
+        for (Iterator it=recentUids.iterator();it.hasNext();) {
+            Long uid = (Long) it.next();
+            results[count++] = uid.longValue();
+        }
+        return results;
+    }
+
+    public int recentCount() {
+        checkExpungedRecents();
+        return recentUids.size();
+    }
+
+    public String getName() {
+        return mailbox.getName();
+    }
+    
+    private void checkExpungedRecents() {
+        for(final Iterator it = events.expungedUids();it.hasNext();) {
+            final Long uid = (Long) it.next();
+            recentUids.remove(uid);
+        }
     }
 }

@@ -31,4 +31,14 @@ public interface SelectedImapMailbox {
     public int msn(long uid);
 
     public abstract long uid(int i);
+    
+    public void addRecent(long uid);
+    
+    public void removeRecent(long uid);
+    
+    public long[] getRecent();
+    
+    public int recentCount();
+    
+    public String getName();
 }

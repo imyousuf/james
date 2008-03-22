@@ -35,6 +35,7 @@ import org.apache.james.api.imap.message.response.imap4rev1.StatusResponse;
 import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
+import org.apache.james.api.imap.process.SelectedImapMailbox;
 import org.apache.james.imap.message.request.imap4rev1.AppendRequest;
 import org.apache.james.imapserver.processor.base.AbstractMailboxAwareProcessor;
 import org.apache.james.imapserver.processor.base.AuthorizationException;
@@ -42,6 +43,7 @@ import org.apache.james.imapserver.processor.base.ImapSessionUtils;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxSession;
+import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
@@ -110,9 +112,17 @@ public class AppendProcessor extends AbstractMailboxAwareProcessor {
             ImapSession session, String tag, ImapCommand command, ImapMailbox mailbox,
             Responder responder) throws MailboxException {
         try {
-            message.setFlag(Flag.RECENT, true);
             final MailboxSession mailboxSession = ImapSessionUtils.getMailboxSession(session);
-            mailbox.appendMessage(message, datetime, FetchGroupImpl.MINIMAL, mailboxSession);
+            final SelectedImapMailbox selectedMailbox = session.getSelected();
+            final boolean isSelectedMailbox = selectedMailbox != null && mailbox.getName().equals(selectedMailbox.getName());
+            if (!isSelectedMailbox) {
+                message.setFlag(Flag.RECENT, true);
+            }
+            final MessageResult result = mailbox.appendMessage(message, datetime, FetchGroupImpl.MINIMAL, mailboxSession);
+            final long uid = result.getUid();
+            if (isSelectedMailbox) {
+                selectedMailbox.addRecent(uid);
+            }
         } catch (MailboxManagerException e) {
             // TODO why not TRYCREATE?
             throw new MailboxException(e);

@@ -418,9 +418,7 @@ C: any objections?
 C: 
 C: - robert
 S: \* 2 EXISTS
-S: \* 1 RECENT
-#TODO: RECENT
-#S: \* 2 RECENT
+S: \* 2 RECENT
 S: A65 OK APPEND completed\.
 C: A66 APPEND testmailbox {668+}
 C: From: Timothy Tayler <timothy@example.org>
@@ -452,9 +450,7 @@ C:
 C: --1729--
 C: 
 S: \* 3 EXISTS
-S: \* 1 RECENT
-#TODO: RECENT
-#S: \* 3 RECENT
+S: \* 3 RECENT
 S: A66 OK APPEND completed\.
 C: A67 APPEND testmailbox {765+}
 C: From: Timothy Tayler <timothy@example.org>
@@ -492,9 +488,7 @@ C:
 C: --1729--
 C: 
 S: \* 4 EXISTS
-S: \* 1 RECENT
-#TODO: RECENT
-#S: \* 4 RECENT
+S: \* 4 RECENT
 S: A67 OK APPEND completed\.
 C: A68 APPEND testmailbox {1767+}
 C: From: Timothy Tayler <timothy@example.org>
@@ -589,9 +583,7 @@ C: --4.66920160910299--
 C: --1729--
 C: 
 S: \* 5 EXISTS
-S: \* 1 RECENT
-#TODO: RECENT
-#S: \* 5 RECENT
+S: \* 5 RECENT
 S: A68 OK APPEND completed\.
 C: A69 APPEND testmailbox {185+}
 C: From: John Smith <john@example.org>
@@ -602,9 +594,7 @@ C: Message-ID: <1729@machine.example.org>
 C: 
 C: Hello, World!
 S: \* 6 EXISTS
-S: \* 1 RECENT
-#TODO: RECENT
-#S: \* 6 RECENT
+S: \* 6 RECENT
 S: A69 OK APPEND completed\.
 C: A70 APPEND testmailbox {227+}
 C: From: John Smith <john@example.org>
@@ -616,9 +606,7 @@ C: Message-ID: <172942@machine.example.org>
 C: 
 C: Hello, World!
 S: \* 7 EXISTS
-S: \* 1 RECENT
-#TODO: RECENT
-#S: \* 7 RECENT
+S: \* 7 RECENT
 S: A70 OK APPEND completed\.
 C: A71 APPEND testmailbox {185+}
 C: From: Timothy Tayler <timothy@example.org>
@@ -629,9 +617,7 @@ C:
 C: This is a very simple email.
 C: 
 S: \* 8 EXISTS
-S: \* 1 RECENT
-#TODO: RECENT
-#S: \* 8 RECENT
+S: \* 8 RECENT
 S: A71 OK APPEND completed\.
 C: A72 APPEND testmailbox {318+}
 C: From: "Brian G. Hutton" <brian@example.org>
@@ -643,9 +629,7 @@ C: Message-ID: <17291729@machine.example.org>
 C: 
 C: Rhubarb!
 S: \* 9 EXISTS
-S: \* 1 RECENT
-#TODO: RECENT
-#S: \* 9 RECENT
+S: \* 9 RECENT
 S: A72 OK APPEND completed\.
 C: A73 APPEND testmailbox {12272+}
 C:                                                                                                                                                                                                                                                                                                        
@@ -857,9 +841,7 @@ C: b25pbmcgb24gYWxsLCBvciBhbGwgYXdheS4K
 C: ------=_Part_3998_1661991.1205261618747--
 C: 
 S: \* 10 EXISTS
-S: \* 1 RECENT
-#TODO: RECENT
-#S: \* 10 RECENT
+S: \* 10 RECENT
 S: A73 OK APPEND completed\.
 C: A74 APPEND testmailbox {3661+}
 C:                                                                                                                                                                                                                                                                                                      
@@ -954,9 +936,7 @@ C:
 C: 
 C: 
 S: \* 11 EXISTS
-S: \* 1 RECENT
-#TODO: RECENT
-#S: \* 11 RECENT
+S: \* 11 RECENT
 S: A74 OK APPEND completed\.
 C: A75 APPEND testmailbox {4387+}
 C:                                                                                                                                                                                                                     
@@ -1055,9 +1035,7 @@ C:   In days long since, before these last so bad.
 C: 
 C: --=-iC8rnNDvTPHypqsz+j7t--
 S: \* 12 EXISTS
-S: \* 1 RECENT
-#TODO: RECENT
-#S: \* 12 RECENT
+S: \* 12 RECENT
 S: A75 OK APPEND completed\.
 C: A76 APPEND testmailbox {302+}
 C: From: Samual Smith <sam@example.org>
@@ -1071,9 +1049,7 @@ C: References: <1729@example.org>
 C: 
 C: Rhubard, I say!
 S: \* 13 EXISTS
-S: \* 1 RECENT
-#TODO: RECENT
-#S: \* 13 RECENT
+S: \* 13 RECENT
 S: A76 OK APPEND completed\.
 C: A77 APPEND testmailbox {404+}
 C: Resent-From: John Smith <john@example.org>
@@ -1088,9 +1064,7 @@ C: Message-ID: <17299271@example.org>
 C: 
 C: Rhubard or custard? Rhubard AND custard!
 S: \* 14 EXISTS
-S: \* 1 RECENT
-#TODO: RECENT
-#S: \* 14 RECENT
+S: \* 14 RECENT
 S: A77 OK APPEND completed\.
 C: A78 APPEND testmailbox {429+}
 C: Received: from alpha.beta
@@ -1109,9 +1083,7 @@ C:
 C: Rhubard! Rhubard! Rhubard!
 C: 
 S: \* 15 EXISTS
-S: \* 1 RECENT
-#TODO: RECENT
-#S: \* 15 RECENT
+S: \* 15 RECENT
 S: A78 OK APPEND completed\.
 C: A79 APPEND testmailbox {217+}
 C: From: Timothy Taylor <tim@example.org>
@@ -1123,9 +1095,7 @@ C:
 C: Custard? Rhubard!
 C: 
 S: \* 16 EXISTS
-S: \* 1 RECENT
-#TODO: RECENT
-#S: \* 16 RECENT
+S: \* 16 RECENT
 S: A79 OK APPEND completed\.
 C: A80 APPEND testmailbox {14862+}
 C: Return-Path: <robertburrelldonkin@gmail.com>
@@ -1405,9 +1375,7 @@ C: --00163600d06e04482dd6a10e458cd80be--
 C: 
 C: 
 S: \* 17 EXISTS
-S: \* 1 RECENT
-#TODO: RECENT
-#S: \* 17 RECENT
+S: \* 17 RECENT
 S: A80 OK APPEND completed\.
 C: A81 APPEND testmailbox {14154+}
 C: Return-Path: <robertburrelldonkin@gmail.com>
@@ -1648,9 +1616,7 @@ C: ------=_Part_4002_22491526.1205261626856--
 C: 
 C: 
 S: \* 18 EXISTS
-S: \* 1 RECENT
-#TODO: RECENT
-#S: \* 18 RECENT
+S: \* 18 RECENT
 S: A81 OK APPEND completed\.
 C: A82 APPEND testmailbox {14996+}
 C: Return-Path: <robertburrelldonkin@gmail.com>
@@ -1904,9 +1870,7 @@ C: ------=_Part_4002_22491526.1205261626856--
 C: 
 C: 
 S: \* 19 EXISTS
-S: \* 1 RECENT
-#TODO: RECENT
-#S: \* 19 RECENT
+S: \* 19 RECENT
 S: A82 OK APPEND completed\.
 C: A83 STORE 1:9  +FLAGS (\FLAGGED)
 S: \* 1 FETCH \(FLAGS \(\\Flagged\)\)

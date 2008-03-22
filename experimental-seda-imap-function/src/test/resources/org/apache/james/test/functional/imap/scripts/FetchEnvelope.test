@@ -34,7 +34,7 @@ C:
 C: Works!
 C: 
 S: \* 5 EXISTS
-S: \* 1 RECENT
+S: \* 5 RECENT
 S: A007 OK APPEND completed.
 
 C: f1 FETCH 1 (ENVELOPE)

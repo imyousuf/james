@@ -35,7 +35,7 @@ public interface Mailbox {
      * @throws MailboxManagerException
      */
 
-    String getName() throws MailboxManagerException;
+    String getName();
 
     int getMessageCount(MailboxSession mailboxSession) throws MailboxManagerException;
 
