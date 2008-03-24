@@ -20,6 +20,8 @@
 package org.apache.james.mailboxmanager.torque;
 
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import junit.framework.TestCase;
 
@@ -107,6 +109,7 @@ public class SearchUtilsMultipartMixedTest extends TestCase {
     
     MessageRow row;
     MessageSearches searches;
+    Collection recent;
     
     protected void setUp() throws Exception {
         super.setUp();
@@ -118,6 +121,7 @@ public class SearchUtilsMultipartMixedTest extends TestCase {
         row.addMessageHeader(new MessageHeader("Content-Type", "multipart/mixed;boundary=1729"));
         row.addMessageBody(new MessageBody(Charset.forName("us-ascii").encode(BODY).array()));
         searches = new MessageSearches();
+        recent = new ArrayList();
     }
 
     protected void tearDown() throws Exception {
@@ -125,54 +129,54 @@ public class SearchUtilsMultipartMixedTest extends TestCase {
     }
     
     public void testShouldNotFindWhatIsNotThere() throws Exception {
-        assertFalse(searches.isMatch(SearchQuery.bodyContains("BOGUS"), row));
-        assertFalse(searches.isMatch(SearchQuery.mailContains("BOGUS"), row));
+        assertFalse(searches.isMatch(SearchQuery.bodyContains("BOGUS"), row, recent));
+        assertFalse(searches.isMatch(SearchQuery.mailContains("BOGUS"), row, recent));
     }
     
     public void testBodyShouldFindTextInBody() throws Exception {
-        assertTrue(searches.isMatch(SearchQuery.bodyContains(SAMPLE_INNER_MAIL_BODY_ONE), row));
-        assertTrue(searches.isMatch(SearchQuery.bodyContains(SAMPLE_PART_ONE), row));
-        assertTrue(searches.isMatch(SearchQuery.bodyContains(SAMPLE_PART_TWO), row));
+        assertTrue(searches.isMatch(SearchQuery.bodyContains(SAMPLE_INNER_MAIL_BODY_ONE), row, recent));
+        assertTrue(searches.isMatch(SearchQuery.bodyContains(SAMPLE_PART_ONE), row, recent));
+        assertTrue(searches.isMatch(SearchQuery.bodyContains(SAMPLE_PART_TWO), row, recent));
     }
     
     public void testBodyShouldFindTextInBodyCaseInsensitive() throws Exception {
-        assertTrue(searches.isMatch(SearchQuery.bodyContains(SAMPLE_INNER_MAIL_BODY_ONE), row));
-        assertTrue(searches.isMatch(SearchQuery.bodyContains(SAMPLE_PART_ONE), row));
-        assertTrue(searches.isMatch(SearchQuery.bodyContains(SAMPLE_PART_TWO), row));
-        assertTrue(searches.isMatch(SearchQuery.bodyContains(SAMPLE_INNER_MAIL_BODY_ONE.toLowerCase()), row));
-        assertTrue(searches.isMatch(SearchQuery.bodyContains(SAMPLE_PART_ONE.toLowerCase()), row));
-        assertTrue(searches.isMatch(SearchQuery.bodyContains(SAMPLE_PART_TWO.toLowerCase()), row));
-        assertTrue(searches.isMatch(SearchQuery.bodyContains(SAMPLE_INNER_MAIL_BODY_ONE.toUpperCase()), row));
-        assertTrue(searches.isMatch(SearchQuery.bodyContains(SAMPLE_PART_ONE.toUpperCase()), row));
-        assertTrue(searches.isMatch(SearchQuery.bodyContains(SAMPLE_PART_TWO.toUpperCase()), row));
+        assertTrue(searches.isMatch(SearchQuery.bodyContains(SAMPLE_INNER_MAIL_BODY_ONE), row, recent));
+        assertTrue(searches.isMatch(SearchQuery.bodyContains(SAMPLE_PART_ONE), row, recent));
+        assertTrue(searches.isMatch(SearchQuery.bodyContains(SAMPLE_PART_TWO), row, recent));
+        assertTrue(searches.isMatch(SearchQuery.bodyContains(SAMPLE_INNER_MAIL_BODY_ONE.toLowerCase()), row, recent));
+        assertTrue(searches.isMatch(SearchQuery.bodyContains(SAMPLE_PART_ONE.toLowerCase()), row, recent));
+        assertTrue(searches.isMatch(SearchQuery.bodyContains(SAMPLE_PART_TWO.toLowerCase()), row, recent));
+        assertTrue(searches.isMatch(SearchQuery.bodyContains(SAMPLE_INNER_MAIL_BODY_ONE.toUpperCase()), row, recent));
+        assertTrue(searches.isMatch(SearchQuery.bodyContains(SAMPLE_PART_ONE.toUpperCase()), row, recent));
+        assertTrue(searches.isMatch(SearchQuery.bodyContains(SAMPLE_PART_TWO.toUpperCase()), row, recent));
     }
     
     public void testBodyShouldNotFindTextInHeaders() throws Exception {
-        assertFalse(searches.isMatch(SearchQuery.bodyContains(SAMPLE_INNER_MAIL_FIELD), row));
-        assertFalse(searches.isMatch(SearchQuery.bodyContains(SAMPLE_PART_TWO_FIELD), row));
+        assertFalse(searches.isMatch(SearchQuery.bodyContains(SAMPLE_INNER_MAIL_FIELD), row, recent));
+        assertFalse(searches.isMatch(SearchQuery.bodyContains(SAMPLE_PART_TWO_FIELD), row, recent));
     }
     
     public void testTextShouldFindTextInBody() throws Exception {
-        assertTrue(searches.isMatch(SearchQuery.mailContains(SAMPLE_INNER_MAIL_BODY_ONE), row));
-        assertTrue(searches.isMatch(SearchQuery.mailContains(SAMPLE_PART_ONE), row));
-        assertTrue(searches.isMatch(SearchQuery.mailContains(SAMPLE_PART_TWO), row));
+        assertTrue(searches.isMatch(SearchQuery.mailContains(SAMPLE_INNER_MAIL_BODY_ONE), row, recent));
+        assertTrue(searches.isMatch(SearchQuery.mailContains(SAMPLE_PART_ONE), row, recent));
+        assertTrue(searches.isMatch(SearchQuery.mailContains(SAMPLE_PART_TWO), row, recent));
     }
     
     public void testTextShouldFindTextInBodyCaseInsensitive() throws Exception {
-        assertTrue(searches.isMatch(SearchQuery.mailContains(SAMPLE_INNER_MAIL_BODY_ONE), row));
-        assertTrue(searches.isMatch(SearchQuery.mailContains(SAMPLE_PART_ONE), row));
-        assertTrue(searches.isMatch(SearchQuery.mailContains(SAMPLE_PART_TWO), row));
-        assertTrue(searches.isMatch(SearchQuery.mailContains(SAMPLE_INNER_MAIL_BODY_ONE.toLowerCase()), row));
-        assertTrue(searches.isMatch(SearchQuery.mailContains(SAMPLE_PART_ONE.toLowerCase()), row));
-        assertTrue(searches.isMatch(SearchQuery.mailContains(SAMPLE_PART_TWO.toLowerCase()), row));
-        assertTrue(searches.isMatch(SearchQuery.mailContains(SAMPLE_INNER_MAIL_BODY_ONE.toUpperCase()), row));
-        assertTrue(searches.isMatch(SearchQuery.mailContains(SAMPLE_PART_ONE.toUpperCase()), row));
-        assertTrue(searches.isMatch(SearchQuery.mailContains(SAMPLE_PART_TWO.toUpperCase()), row));
+        assertTrue(searches.isMatch(SearchQuery.mailContains(SAMPLE_INNER_MAIL_BODY_ONE), row, recent));
+        assertTrue(searches.isMatch(SearchQuery.mailContains(SAMPLE_PART_ONE), row, recent));
+        assertTrue(searches.isMatch(SearchQuery.mailContains(SAMPLE_PART_TWO), row, recent));
+        assertTrue(searches.isMatch(SearchQuery.mailContains(SAMPLE_INNER_MAIL_BODY_ONE.toLowerCase()), row, recent));
+        assertTrue(searches.isMatch(SearchQuery.mailContains(SAMPLE_PART_ONE.toLowerCase()), row, recent));
+        assertTrue(searches.isMatch(SearchQuery.mailContains(SAMPLE_PART_TWO.toLowerCase()), row, recent));
+        assertTrue(searches.isMatch(SearchQuery.mailContains(SAMPLE_INNER_MAIL_BODY_ONE.toUpperCase()), row, recent));
+        assertTrue(searches.isMatch(SearchQuery.mailContains(SAMPLE_PART_ONE.toUpperCase()), row, recent));
+        assertTrue(searches.isMatch(SearchQuery.mailContains(SAMPLE_PART_TWO.toUpperCase()), row, recent));
     }
     
     public void testTextShouldFindTextInHeaders() throws Exception {
-        assertTrue(searches.isMatch(SearchQuery.mailContains(SAMPLE_INNER_MAIL_FIELD), row));
-        assertTrue(searches.isMatch(SearchQuery.mailContains(SAMPLE_INNER_MAIL_BODY_ONE), row));
-        assertTrue(searches.isMatch(SearchQuery.mailContains(SAMPLE_PART_TWO_FIELD), row));
+        assertTrue(searches.isMatch(SearchQuery.mailContains(SAMPLE_INNER_MAIL_FIELD), row, recent));
+        assertTrue(searches.isMatch(SearchQuery.mailContains(SAMPLE_INNER_MAIL_BODY_ONE), row, recent));
+        assertTrue(searches.isMatch(SearchQuery.mailContains(SAMPLE_PART_TWO_FIELD), row, recent));
     }
 }
