@@ -46,16 +46,9 @@ public class SearchCommandParserCharsetTest extends MockObjectTestCase {
     private static final String TAG = "A1";
     private static final String ASCII_SEARCH_TERM = "A Search Term";
     private static final String NON_ASCII_SEARCH_TERM = "\u043A\u0430\u043A \u0414\u0435\u043B\u0430?";
-    private static final byte[] BYTES_NON_ASCII_SEARCH_TERM = NON_ASCII_SEARCH_TERM.getBytes(UTF8); 
-    private static final byte[] BYTES_UTF8_NON_ASCII_SEARCH_TERM = add(" {16}\r\n".getBytes(ASCII), BYTES_NON_ASCII_SEARCH_TERM);
-    private static final byte[] CHARSET = "CHARSET UTF-8 ".getBytes(ASCII);
-    
-    private static final byte[] add(byte[] one, byte[] two) {
-        byte[] results = new byte[one.length + two.length];
-        System.arraycopy(one, 0, results, 0, one.length);
-        System.arraycopy(two, 0, results, one.length, two.length);
-        return results;
-    }
+    private static final byte[] BYTES_NON_ASCII_SEARCH_TERM = NioUtils.toBytes(NON_ASCII_SEARCH_TERM, UTF8); 
+    private static final byte[] BYTES_UTF8_NON_ASCII_SEARCH_TERM = NioUtils.add(NioUtils.toBytes(" {16}\r\n", ASCII), BYTES_NON_ASCII_SEARCH_TERM);
+    private static final byte[] CHARSET = NioUtils.toBytes("CHARSET UTF-8 ", ASCII);
     
     SearchCommandParser parser;
     Mock mockStatusResponseFactory;
@@ -151,7 +144,7 @@ public class SearchCommandParserCharsetTest extends MockObjectTestCase {
     }
     
     private void checkUTF8Valid(byte[] term, final SearchKey key) throws Exception {
-        ImapRequestLineReader reader = new ImapRequestLineReader(new ByteArrayInputStream(add(add(CHARSET, term), BYTES_UTF8_NON_ASCII_SEARCH_TERM)), 
+        ImapRequestLineReader reader = new ImapRequestLineReader(new ByteArrayInputStream(NioUtils.add(NioUtils.add(CHARSET, term), BYTES_UTF8_NON_ASCII_SEARCH_TERM)), 
                 new ByteArrayOutputStream());
         final SearchKey searchKey = parser.searchKey(reader, null, true);
         assertEquals(key, searchKey);

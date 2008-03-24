@@ -51,10 +51,7 @@ public class SearchResponse implements ImapResponseMessage {
      */
     //@Override
     public int hashCode() {
-        final int PRIME = 31;
-        int result = 1;
-        result = PRIME * result + Arrays.hashCode(ids);
-        return result;
+        return ids.length;
     }
 
     /**

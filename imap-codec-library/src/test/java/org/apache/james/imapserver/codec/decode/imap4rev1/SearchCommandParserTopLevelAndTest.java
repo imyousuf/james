@@ -168,7 +168,7 @@ public class SearchCommandParserTopLevelAndTest extends MockObjectTestCase {
         } else {
             mutations -= 1;
             for (int i = 0; i < inputs.length; i++) {
-                StringBuffer nextBuffer = new StringBuffer(buffer);
+                StringBuffer nextBuffer = new StringBuffer(buffer.toString());
                 if (nextBuffer.length() > 0) {
                     nextBuffer.append(' ');
                 }

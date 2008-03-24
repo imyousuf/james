@@ -58,12 +58,12 @@ public class SearchCommandParserQuotedCharsetTest extends MockObjectTestCase {
         NON_ASCII_SEARCH_TERM + NON_ASCII_SEARCH_TERM + NON_ASCII_SEARCH_TERM + NON_ASCII_SEARCH_TERM +
         NON_ASCII_SEARCH_TERM + NON_ASCII_SEARCH_TERM + NON_ASCII_SEARCH_TERM + NON_ASCII_SEARCH_TERM +
         NON_ASCII_SEARCH_TERM + NON_ASCII_SEARCH_TERM + NON_ASCII_SEARCH_TERM + NON_ASCII_SEARCH_TERM;
-    private static final byte[] BYTES_LENGTHY_NON_ASCII_SEARCH_TERM = LENGTHY_NON_ASCII_SEARCH_TERM.getBytes(UTF8); 
-    private static final byte[] BYTES_NON_ASCII_SEARCH_TERM = NON_ASCII_SEARCH_TERM.getBytes(UTF8); 
-    private static final byte[] BYTES_QUOTED_UTF8_LENGTHY_NON_ASCII_SEARCH_TERM = add(add(" \"".getBytes(ASCII), BYTES_LENGTHY_NON_ASCII_SEARCH_TERM), "\"".getBytes(ASCII));
-    private static final byte[] BYTES_QUOTED_UTF8_NON_ASCII_SEARCH_TERM = add(add(" \"".getBytes(ASCII), BYTES_NON_ASCII_SEARCH_TERM), "\"".getBytes(ASCII));
-    private static final byte[] BYTES_UTF8_NON_ASCII_SEARCH_TERM = add(" {16}\r\n".getBytes(ASCII), BYTES_NON_ASCII_SEARCH_TERM);
-    private static final byte[] CHARSET = "CHARSET UTF-8 ".getBytes(ASCII);
+    private static final byte[] BYTES_LENGTHY_NON_ASCII_SEARCH_TERM = NioUtils.toBytes(LENGTHY_NON_ASCII_SEARCH_TERM, UTF8); 
+    private static final byte[] BYTES_NON_ASCII_SEARCH_TERM = NioUtils.toBytes(NON_ASCII_SEARCH_TERM, UTF8); 
+    private static final byte[] BYTES_QUOTED_UTF8_LENGTHY_NON_ASCII_SEARCH_TERM = add(add(NioUtils.toBytes(" \"", ASCII), BYTES_LENGTHY_NON_ASCII_SEARCH_TERM), NioUtils.toBytes("\"", ASCII));
+    private static final byte[] BYTES_QUOTED_UTF8_NON_ASCII_SEARCH_TERM = add(add(NioUtils.toBytes(" \"", ASCII), BYTES_NON_ASCII_SEARCH_TERM), NioUtils.toBytes("\"", ASCII));
+    private static final byte[] BYTES_UTF8_NON_ASCII_SEARCH_TERM = add(NioUtils.toBytes(" {16}\r\n",ASCII), BYTES_NON_ASCII_SEARCH_TERM);
+    private static final byte[] CHARSET = NioUtils.toBytes("CHARSET UTF-8 ", ASCII);
     
     private static final byte[] add(byte[] one, byte[] two) {
         byte[] results = new byte[one.length + two.length];
