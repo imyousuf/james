@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -74,11 +75,12 @@ class MessageSearches {
      */
     public boolean isMatch(final SearchQuery query, final MessageRow row) throws TorqueException {
         final List criteria = query.getCriterias();
+        final Collection recentMessageUids = query.getRecentMessageUids();
         boolean result = true;
         if (criteria != null) {
             for (Iterator it = criteria.iterator(); it.hasNext();) {
                 final SearchQuery.Criterion criterion = (SearchQuery.Criterion) it.next();
-                if (!isMatch(criterion, row)) {
+                if (!isMatch(criterion, row, recentMessageUids)) {
                     result = false;
                     break;
                 }
@@ -95,7 +97,7 @@ class MessageSearches {
      * false otherwise
      * @throws TorqueException
      */
-    public boolean isMatch(SearchQuery.Criterion criterion, MessageRow row) throws TorqueException {
+    public boolean isMatch(SearchQuery.Criterion criterion, MessageRow row, final Collection recentMessageUids) throws TorqueException {
         final boolean result;
         if (criterion instanceof SearchQuery.InternalDateCriterion) {
             result = matches((SearchQuery.InternalDateCriterion) criterion, row);
@@ -106,13 +108,13 @@ class MessageSearches {
         } else if (criterion instanceof SearchQuery.UidCriterion) {
             result = matches((SearchQuery.UidCriterion) criterion, row);
         } else if (criterion instanceof SearchQuery.FlagCriterion) {
-            result = matches((SearchQuery.FlagCriterion) criterion, row);
+            result = matches((SearchQuery.FlagCriterion) criterion, row, recentMessageUids);
         } else if (criterion instanceof SearchQuery.TextCriterion) {
             result = matches((SearchQuery.TextCriterion) criterion, row);
         } else if (criterion instanceof SearchQuery.AllCriterion) {
             result = true;
         } else if (criterion instanceof SearchQuery.ConjunctionCriterion) {
-            result = matches((SearchQuery.ConjunctionCriterion) criterion, row);
+            result = matches((SearchQuery.ConjunctionCriterion) criterion, row, recentMessageUids);
         } else {
             throw new UnsupportedSearchException();
         }
@@ -158,22 +160,22 @@ class MessageSearches {
         return result;
     }
 
-    private boolean matches(SearchQuery.ConjunctionCriterion criterion, MessageRow row) throws TorqueException {
+    private boolean matches(SearchQuery.ConjunctionCriterion criterion, MessageRow row, final Collection recentMessageUids) throws TorqueException {
         final int type = criterion.getType();
         final List criteria = criterion.getCriteria();
         switch (type) {
-            case SearchQuery.ConjunctionCriterion.NOR: return nor(criteria, row);
-            case SearchQuery.ConjunctionCriterion.OR: return or(criteria, row);
-            case SearchQuery.ConjunctionCriterion.AND: return and(criteria, row);
+            case SearchQuery.ConjunctionCriterion.NOR: return nor(criteria, row, recentMessageUids);
+            case SearchQuery.ConjunctionCriterion.OR: return or(criteria, row, recentMessageUids);
+            case SearchQuery.ConjunctionCriterion.AND: return and(criteria, row, recentMessageUids);
             default: return false;
         }
     }
     
-    private boolean and(final List criteria, final MessageRow row) throws TorqueException {
+    private boolean and(final List criteria, final MessageRow row, final Collection recentMessageUids) throws TorqueException {
         boolean result = true;
         for (Iterator it = criteria.iterator(); it.hasNext();) {
             final SearchQuery.Criterion criterion = (SearchQuery.Criterion) it.next();
-            final boolean matches = isMatch(criterion, row);
+            final boolean matches = isMatch(criterion, row, recentMessageUids);
             if (!matches) {
                 result = false;
                 break;
@@ -182,11 +184,11 @@ class MessageSearches {
         return result;
     }
     
-    private boolean or(final List criteria, final MessageRow row) throws TorqueException {
+    private boolean or(final List criteria, final MessageRow row, final Collection recentMessageUids) throws TorqueException {
         boolean result = false;
         for (Iterator it = criteria.iterator(); it.hasNext();) {
             final SearchQuery.Criterion criterion = (SearchQuery.Criterion) it.next();
-            final boolean matches = isMatch(criterion, row);
+            final boolean matches = isMatch(criterion, row, recentMessageUids);
             if (matches) {
                 result = true;
                 break;
@@ -195,11 +197,11 @@ class MessageSearches {
         return result;
     }
     
-    private boolean nor(final List criteria, final MessageRow row) throws TorqueException {
+    private boolean nor(final List criteria, final MessageRow row, final Collection recentMessageUids) throws TorqueException {
         boolean result = true;
         for (Iterator it = criteria.iterator(); it.hasNext();) {
             final SearchQuery.Criterion criterion = (SearchQuery.Criterion) it.next();
-            final boolean matches = isMatch(criterion, row);
+            final boolean matches = isMatch(criterion, row, recentMessageUids);
             if (matches) {
                 result = false;
                 break;
@@ -208,7 +210,7 @@ class MessageSearches {
         return result;
     }
 
-    private boolean matches(SearchQuery.FlagCriterion criterion, MessageRow row) throws TorqueException {
+    private boolean matches(SearchQuery.FlagCriterion criterion, MessageRow row, final Collection recentMessageUids) throws TorqueException {
         final SearchQuery.BooleanOperator operator = criterion.getOperator();
         final boolean isSet = operator.isSet();
         final Flags.Flag flag = criterion.getFlag();
@@ -223,7 +225,8 @@ class MessageSearches {
         } else if (flag == Flags.Flag.FLAGGED) {
             result = isSet == messageFlags.getFlagged();
         } else if (flag == Flags.Flag.RECENT) {
-            result = isSet == messageFlags.getRecent();
+            final long uid = row.getUid();
+            result = isSet == recentMessageUids.contains(new Long(uid));
         } else if (flag == Flags.Flag.DELETED) {
             result = isSet == messageFlags.getDeleted();
         } else {

@@ -127,6 +127,14 @@ public class SearchProcessor extends AbstractImapRequestProcessor {
 
     private SearchQuery toQuery(final SearchKey key, final ImapSession session) {
         final SearchQuery result = new SearchQuery();
+        final SelectedImapMailbox selected = session.getSelected();
+        if (selected != null) {
+            final long[] recent = selected.getRecent();
+            for (int i = 0; i < recent.length; i++) {
+                long uid = recent[i];
+                result.getRecentMessageUids().add(new Long(uid));   
+            }
+        }
         final SearchQuery.Criterion criterion = toCriterion(key, session);
         result.andCriteria(criterion);
         return result;

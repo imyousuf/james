@@ -21,7 +21,9 @@ package org.apache.james.mailboxmanager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.mail.Flags.Flag;
 
@@ -328,8 +330,8 @@ public class SearchQuery {
         return AllCriterion.all();
     }
     
-    
-    List criterias = new ArrayList();
+    private final Set recentMessageUids = new HashSet();
+    private final List criterias = new ArrayList();
 	
 	public void andCriteria(Criterion crit) {
 		criterias.add(crit);
@@ -338,6 +340,17 @@ public class SearchQuery {
 	public List getCriterias() {
 		return criterias;
 	}
+    
+    /**
+     * Gets the UIDS of messages which are recent for this 
+     * client session.
+     * The list of recent mail is maintained in the protocol
+     * layer since the mechanics are protocol specific.
+     * @return mutable <code>Set</code> of <code>Long</code> UIDS
+     */
+    public Set getRecentMessageUids() {
+        return recentMessageUids;
+    }
 	
 	// @Override
 	public String toString() {

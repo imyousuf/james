@@ -20,6 +20,8 @@
 package org.apache.james.mailboxmanager.torque;
 
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import junit.framework.TestCase;
 
@@ -42,9 +44,11 @@ public class SearchUtilsRFC822Test extends TestCase {
     
     MessageRow row;
     MessageSearches searches;
+    Collection recent;
     
     protected void setUp() throws Exception {
         super.setUp();
+        recent = new ArrayList();
         row = new MessageRow(); 
         row.addMessageHeader(new MessageHeader(RFC2822Headers.FROM, "Alex <alex@example.org"));
         row.addMessageHeader(new MessageHeader(RFC2822Headers.TO, FROM_ADDRESS));
@@ -59,34 +63,34 @@ public class SearchUtilsRFC822Test extends TestCase {
     }
     
     public void testBodyShouldMatchPhraseInBody() throws Exception {
-        assertTrue(searches.isMatch(SearchQuery.bodyContains(CUSTARD), row));
-        assertFalse(searches.isMatch(SearchQuery.bodyContains(CUSTARD + CUSTARD), row));
+        assertTrue(searches.isMatch(SearchQuery.bodyContains(CUSTARD), row, recent));
+        assertFalse(searches.isMatch(SearchQuery.bodyContains(CUSTARD + CUSTARD), row, recent));
     }
     
     public void testBodyMatchShouldBeCaseInsensitive() throws Exception {
-        assertTrue(searches.isMatch(SearchQuery.bodyContains(RHUBARD), row));
-        assertTrue(searches.isMatch(SearchQuery.bodyContains(RHUBARD.toLowerCase()), row));
-        assertTrue(searches.isMatch(SearchQuery.bodyContains(RHUBARD.toLowerCase()), row));
+        assertTrue(searches.isMatch(SearchQuery.bodyContains(RHUBARD), row, recent));
+        assertTrue(searches.isMatch(SearchQuery.bodyContains(RHUBARD.toLowerCase()), row, recent));
+        assertTrue(searches.isMatch(SearchQuery.bodyContains(RHUBARD.toLowerCase()), row, recent));
     }
     
     public void testBodyShouldNotMatchPhraseOnlyInHeader() throws Exception {
-        assertFalse(searches.isMatch(SearchQuery.bodyContains(FROM_ADDRESS), row));
-        assertFalse(searches.isMatch(SearchQuery.bodyContains(SUBJECT_PART), row));
+        assertFalse(searches.isMatch(SearchQuery.bodyContains(FROM_ADDRESS), row, recent));
+        assertFalse(searches.isMatch(SearchQuery.bodyContains(SUBJECT_PART), row, recent));
     }
     
     public void testTextShouldMatchPhraseInBody() throws Exception {
-        assertTrue(searches.isMatch(SearchQuery.mailContains(CUSTARD), row));
-        assertFalse(searches.isMatch(SearchQuery.mailContains(CUSTARD + CUSTARD), row));
+        assertTrue(searches.isMatch(SearchQuery.mailContains(CUSTARD), row, recent));
+        assertFalse(searches.isMatch(SearchQuery.mailContains(CUSTARD + CUSTARD), row, recent));
     }
     
     public void testTextMatchShouldBeCaseInsensitive() throws Exception {
-        assertTrue(searches.isMatch(SearchQuery.mailContains(RHUBARD), row));
-        assertTrue(searches.isMatch(SearchQuery.mailContains(RHUBARD.toLowerCase()), row));
-        assertTrue(searches.isMatch(SearchQuery.mailContains(RHUBARD.toLowerCase()), row));
+        assertTrue(searches.isMatch(SearchQuery.mailContains(RHUBARD), row, recent));
+        assertTrue(searches.isMatch(SearchQuery.mailContains(RHUBARD.toLowerCase()), row, recent));
+        assertTrue(searches.isMatch(SearchQuery.mailContains(RHUBARD.toLowerCase()), row, recent));
     }
     
     public void testBodyShouldMatchPhraseOnlyInHeader() throws Exception {
-        assertTrue(searches.isMatch(SearchQuery.mailContains(FROM_ADDRESS), row));
-        assertTrue(searches.isMatch(SearchQuery.mailContains(SUBJECT_PART), row));
+        assertTrue(searches.isMatch(SearchQuery.mailContains(FROM_ADDRESS), row, recent));
+        assertTrue(searches.isMatch(SearchQuery.mailContains(SUBJECT_PART), row, recent));
     }
 }
