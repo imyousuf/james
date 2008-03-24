@@ -608,10 +608,7 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
         }
 
         public int hashCode() {
-            final int PRIME = 31;
-            int result = 1;
-            result = PRIME * result + Arrays.hashCode(positions);
-            return result;
+            return positions.length;
         }
 
         public boolean equals(Object obj) {

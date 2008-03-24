@@ -382,7 +382,7 @@ public final class SearchKey {
         int result = 1;
         result = PRIME * result + ((date == null) ? 0 : date.hashCode());
         result = PRIME * result + ((name == null) ? 0 : name.hashCode());
-        result = PRIME * result + Arrays.hashCode(sequence);
+        result = PRIME * result + sequence.length;
         result = PRIME * result + (int) (size ^ (size >>> 32));
         result = PRIME * result + ((keys == null) ? 0 : keys.hashCode());
         result = PRIME * result + type;

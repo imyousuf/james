@@ -288,7 +288,7 @@ class MessageSearches {
             if (headerName.equalsIgnoreCase(name)) {
                 final String value = header.getValue();
                 if (value != null) {
-                    if (value.toUpperCase().contains(text)) {
+                    if (value.toUpperCase().indexOf(text) > -1) {
                         result = true;
                         break;
                     }
