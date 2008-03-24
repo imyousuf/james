@@ -28,7 +28,6 @@ public class NioUtils {
         ByteBuffer buffer = charset.encode(string);
         byte[] results = new byte[buffer.limit()];
         buffer.get(results);
-        "HEllo".getBytes();
         return results;
     }
 
