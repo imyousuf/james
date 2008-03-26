@@ -472,10 +472,42 @@ public abstract class AbstractImapCommandParser extends AbstractLogEnabled imple
      */
     public long number( ImapRequestLineReader request ) throws ProtocolException
     {
-        String digits = consumeWord( request, new DigitCharValidator() );
-        return Long.parseLong( digits );
+        return readDigits(request, 0, 0, true);
     }
-
+    
+    private long readDigits( final ImapRequestLineReader request, int add, final long total, final boolean first ) throws ProtocolException
+    {
+        final char next;
+        if (first) {
+            next = request.nextWordChar();
+        } else {
+            request.consume();
+            next = request.nextChar();
+        }
+        final long currentTotal = (10 * total) + add;
+        switch (next) {
+            case '0': return readDigits(request, 0, currentTotal, false);
+            case '1': return readDigits(request, 1, currentTotal, false);
+            case '2': return readDigits(request, 2, currentTotal, false);
+            case '3': return readDigits(request, 3, currentTotal, false);
+            case '4': return readDigits(request, 4, currentTotal, false);
+            case '5': return readDigits(request, 5, currentTotal, false);
+            case '6': return readDigits(request, 6, currentTotal, false);
+            case '7': return readDigits(request, 7, currentTotal, false);
+            case '8': return readDigits(request, 8, currentTotal, false);
+            case '9': return readDigits(request, 9, currentTotal, false);
+            case '.':
+            case ' ':
+            case '>':
+            case '\r':
+            case '\n':
+            case '\t':
+                return currentTotal;
+            default:
+                throw new ProtocolException("Expected a digit but was " + next);
+        }
+    }
+    
     /**
      * Reads an argument of type "nznumber" (a non-zero number)
      * (NOTE this isn't strictly as per the spec, since the spec disallows
@@ -612,15 +644,6 @@ public abstract class AbstractImapCommandParser extends AbstractLogEnabled imple
                     chr == '{' ||
                     chr == ' ' ||
                     chr == Character.CONTROL );
-        }
-    }
-
-    public static class DigitCharValidator implements CharacterValidator
-    {
-        public boolean isValid( char chr )
-        {
-            return ( ( chr >= '0' && chr <= '9' ) ||
-                     chr == '*' );
         }
     }
 

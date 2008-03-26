@@ -108,4 +108,51 @@ public class FetchData
         }
         bodyElements.add(element);
     }
+
+    public int hashCode() {
+        final int PRIME = 31;
+        int result = 1;
+        result = PRIME * result + (body ? 1231 : 1237);
+        result = PRIME * result + ((bodyElements == null) ? 0 : bodyElements.hashCode());
+        result = PRIME * result + (bodyStructure ? 1231 : 1237);
+        result = PRIME * result + (envelope ? 1231 : 1237);
+        result = PRIME * result + (flags ? 1231 : 1237);
+        result = PRIME * result + (internalDate ? 1231 : 1237);
+        result = PRIME * result + (setSeen ? 1231 : 1237);
+        result = PRIME * result + (size ? 1231 : 1237);
+        result = PRIME * result + (uid ? 1231 : 1237);
+        return result;
+    }
+
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        final FetchData other = (FetchData) obj;
+        if (body != other.body)
+            return false;
+        if (bodyElements == null) {
+            if (other.bodyElements != null)
+                return false;
+        } else if (!bodyElements.equals(other.bodyElements))
+            return false;
+        if (bodyStructure != other.bodyStructure)
+            return false;
+        if (envelope != other.envelope)
+            return false;
+        if (flags != other.flags)
+            return false;
+        if (internalDate != other.internalDate)
+            return false;
+        if (setSeen != other.setSeen)
+            return false;
+        if (size != other.size)
+            return false;
+        if (uid != other.uid)
+            return false;
+        return true;
+    }
 }
