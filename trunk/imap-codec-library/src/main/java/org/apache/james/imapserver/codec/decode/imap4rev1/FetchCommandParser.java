@@ -45,9 +45,9 @@ class FetchCommandParser extends AbstractUidCommandParser  implements Initialisa
         final ImapCommand command = factory.getFetch();
         setCommand(command);
     }
-    
+
     public FetchData fetchRequest( ImapRequestLineReader request )
-            throws ProtocolException
+    throws ProtocolException
     {
         FetchData fetch = new FetchData();
 
@@ -63,81 +63,90 @@ class FetchCommandParser extends AbstractUidCommandParser  implements Initialisa
             consumeChar(request, ')');
         } else {
             addNextElement( request, fetch );
-            
+
         }
 
         return fetch;
     }
 
-    private void addNextElement( ImapRequestLineReader command, FetchData fetch)
-            throws ProtocolException
-    {
-        /*char next = nextCharInLine( command );
-            StringBuffer element = new StringBuffer();
-            while ( next != ' ' && next != '[' && next != ')' && next!='\n' && next!='\r' ) {
-                element.append(next);
-                command.consume();
-                next = nextCharInLine( command );
-            }*/
-         
-        
-            //String name = element.toString();
-            String name = readWord(command, " [)\r\n");
-            char next = command.nextChar();
-            // Simple elements with no '[]' parameters.
-            //if ( next == ' ' || next == ')'  || next == '\n' || next == '\r') {
-            if (next != '[') {
-                if ( "FAST".equalsIgnoreCase( name ) ) {
-                    fetch.setFlags(true);
-                    fetch.setInternalDate(true);
-                    fetch.setSize(true);
-                } else if ("FULL".equalsIgnoreCase(name)) {
-                    fetch.setFlags(true);
-                    fetch.setInternalDate(true);
-                    fetch.setSize(true);
-                    fetch.setEnvelope(true);
-                    fetch.setBody(true);
-                } else if ("ALL".equalsIgnoreCase(name)) {
-                    fetch.setFlags(true);
-                    fetch.setInternalDate(true);
-                    fetch.setSize(true);
-                    fetch.setEnvelope(true);
-                } else if ("FLAGS".equalsIgnoreCase(name)) {
-                    fetch.setFlags(true);
-                } else if ("RFC822.SIZE".equalsIgnoreCase(name)) {
-                    fetch.setSize(true);
-                } else if ("ENVELOPE".equalsIgnoreCase(name)) {
-                    fetch.setEnvelope(true);
-                } else if ("INTERNALDATE".equalsIgnoreCase(name)) {
-                    fetch.setInternalDate(true);
-                } else if ("BODY".equalsIgnoreCase(name)) {
-                    fetch.setBody(true);
-                } else if ("BODYSTRUCTURE".equalsIgnoreCase(name)) {
-                    fetch.setBodyStructure(true);
-                } else if ("UID".equalsIgnoreCase(name)) {
-                    fetch.setUid(true);
-                } else if ("RFC822".equalsIgnoreCase(name)) {
-                    fetch.add(BodyFetchElement.createRFC822(), false);
-                } else if ("RFC822.HEADER".equalsIgnoreCase(name)) {
-                    fetch.add(BodyFetchElement.createRFC822Header(), true);
-                } else if ("RFC822.TEXT".equalsIgnoreCase(name)) {
-                    fetch.add(BodyFetchElement.createRFC822Text(), false);
-                } else {
-                    throw new ProtocolException( "Invalid fetch attribute: " + name );
-                }
-            }
-            else {
-                consumeChar( command, '[' );
-
-                String parameter = readWord(command, "]");
-
-                consumeChar( command, ']');
-                
-                final BodyFetchElement bodyFetchElement = createBodyElement(parameter);
-                final boolean isPeek = isPeek(name);
-                fetch.add(bodyFetchElement, isPeek);
+    private void addNextElement( ImapRequestLineReader reader, FetchData fetch)
+    throws ProtocolException
+    {   
+        //String name = element.toString();
+        String name = readWord(reader, " [)\r\n");
+        char next = reader.nextChar();
+        // Simple elements with no '[]' parameters.
+        if (next != '[') {
+            if ( "FAST".equalsIgnoreCase( name ) ) {
+                fetch.setFlags(true);
+                fetch.setInternalDate(true);
+                fetch.setSize(true);
+            } else if ("FULL".equalsIgnoreCase(name)) {
+                fetch.setFlags(true);
+                fetch.setInternalDate(true);
+                fetch.setSize(true);
+                fetch.setEnvelope(true);
+                fetch.setBody(true);
+            } else if ("ALL".equalsIgnoreCase(name)) {
+                fetch.setFlags(true);
+                fetch.setInternalDate(true);
+                fetch.setSize(true);
+                fetch.setEnvelope(true);
+            } else if ("FLAGS".equalsIgnoreCase(name)) {
+                fetch.setFlags(true);
+            } else if ("RFC822.SIZE".equalsIgnoreCase(name)) {
+                fetch.setSize(true);
+            } else if ("ENVELOPE".equalsIgnoreCase(name)) {
+                fetch.setEnvelope(true);
+            } else if ("INTERNALDATE".equalsIgnoreCase(name)) {
+                fetch.setInternalDate(true);
+            } else if ("BODY".equalsIgnoreCase(name)) {
+                fetch.setBody(true);
+            } else if ("BODYSTRUCTURE".equalsIgnoreCase(name)) {
+                fetch.setBodyStructure(true);
+            } else if ("UID".equalsIgnoreCase(name)) {
+                fetch.setUid(true);
+            } else if ("RFC822".equalsIgnoreCase(name)) {
+                fetch.add(BodyFetchElement.createRFC822(), false);
+            } else if ("RFC822.HEADER".equalsIgnoreCase(name)) {
+                fetch.add(BodyFetchElement.createRFC822Header(), true);
+            } else if ("RFC822.TEXT".equalsIgnoreCase(name)) {
+                fetch.add(BodyFetchElement.createRFC822Text(), false);
+            } else {
+                throw new ProtocolException( "Invalid fetch attribute: " + name );
             }
         }
+        else {
+            consumeChar( reader, '[' );
+
+            String parameter = readWord(reader, "]");
+
+            consumeChar( reader, ']');
+
+            final Long firstOctet;
+            final Long numberOfOctets;
+            if(reader.nextChar() == '<') {
+                consumeChar(reader, '<');
+                firstOctet = new Long(number(reader));
+                if (reader.nextChar() == '.') {
+                    consumeChar(reader, '.');
+                    numberOfOctets = new Long(nzNumber(reader));
+                } else {
+                    numberOfOctets = null;
+                }
+                consumeChar(reader, '>');
+            } else {
+                firstOctet = null;
+                numberOfOctets = null;
+            }
+            
+            
+            final BodyFetchElement bodyFetchElement 
+                = createBodyElement(parameter, firstOctet, numberOfOctets);
+            final boolean isPeek = isPeek(name);
+            fetch.add(bodyFetchElement, isPeek);
+        }
+    }
 
     private boolean isPeek(String name) throws ProtocolException {
         final boolean isPeek;
@@ -151,16 +160,15 @@ class FetchCommandParser extends AbstractUidCommandParser  implements Initialisa
         return isPeek;
     }
 
-    private BodyFetchElement createBodyElement(String parameter) throws ProtocolException {
+    private BodyFetchElement createBodyElement(String parameter, Long firstOctet, Long numberOfOctets) throws ProtocolException {
         final String responseName = "BODY[" + parameter + "]";
         FetchPartPathDecoder decoder = new FetchPartPathDecoder();
         decoder.decode(parameter);
         final int sectionType = getSectionType(decoder);
-        
+
         final List names = decoder.getNames();
         final int[] path = decoder.getPath();
-        final BodyFetchElement bodyFetchElement 
-            = new BodyFetchElement(responseName, sectionType, path, names);
+        final BodyFetchElement bodyFetchElement = new BodyFetchElement(responseName, sectionType, path, names, firstOctet, numberOfOctets);
         return bodyFetchElement;
     }
 
@@ -202,19 +210,9 @@ class FetchCommandParser extends AbstractUidCommandParser  implements Initialisa
         }
         return buf.toString();
     }
-    
-    private char nextCharInLine( ImapRequestLineReader request )
-            throws ProtocolException
-    {
-        char next = request.nextChar();
-        if ( next == '\r' || next == '\n' ) {
-            throw new ProtocolException( "Unexpected end of line." );
-        }
-        return next;
-    }
 
     private char nextNonSpaceChar( ImapRequestLineReader request )
-            throws ProtocolException
+    throws ProtocolException
     {
         char next = request.nextChar();
         while ( next == ' ' ) {
@@ -224,11 +222,12 @@ class FetchCommandParser extends AbstractUidCommandParser  implements Initialisa
         return next;
     }
 
-    protected ImapMessage decode(ImapCommand command, ImapRequestLineReader request, String tag, boolean useUids) throws ProtocolException {
+    protected ImapMessage decode(ImapCommand command, ImapRequestLineReader request, 
+            String tag, boolean useUids) throws ProtocolException {
         IdRange[] idSet = parseIdRange( request );
         FetchData fetch = fetchRequest( request );
         endLine( request );
-        
+
         final Imap4Rev1MessageFactory factory = getMessageFactory();
         final ImapMessage result  = factory.createFetchMessage(command, useUids, idSet, fetch, tag);
         return result;
