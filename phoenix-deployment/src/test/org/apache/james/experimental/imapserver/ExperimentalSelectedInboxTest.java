@@ -26,16 +26,4 @@ public class ExperimentalSelectedInboxTest extends AbstractTestSelectedInbox {
     public ExperimentalSelectedInboxTest() throws Exception {
         super(HostSystemFactory.createStandardImap());
     }
-    
-    public void testListNamespaceUS() throws Exception {
-        //// scriptTest("ListNamespace", Locale.US);
-    }
-     
-    public void testListNamespaceITALY() throws Exception {
-        // scriptTest("ListNamespace", Locale.ITALY);
-    }  
-    
-    public void testListNamespaceKOREA() throws Exception {
-        // scriptTest("ListNamespace", Locale.KOREA);
-    }
 }
