@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.WritableByteChannel;
@@ -55,6 +56,7 @@ public class ScriptBuilder {
     private final Client client;
     private Fetch fetch = new Fetch();
     private Search search = new Search();
+    private String partialFetch = "";
     
     
     public ScriptBuilder(final Client client) {
@@ -154,8 +156,9 @@ public class ScriptBuilder {
         response();
     }
     
-    public void select() throws Exception {
+    public ScriptBuilder select() throws Exception {
         command("SELECT " + mailbox);
+        return this;
     }
     
     public void create() throws Exception {
@@ -398,15 +401,21 @@ public class ScriptBuilder {
         return search;
     }
     
-    public void fetchSection(String section) throws Exception {
+    public ScriptBuilder partial(long start, long octets) {
+        partialFetch = "<" + start +  "." + octets + ">";
+        return this;
+    }
+    
+    public ScriptBuilder fetchSection(String section) throws Exception {
         final String body;
         if (peek) {
             body = " (BODY.PEEK[";
         } else {
             body = " (BODY[";
         }
-        final String command = "FETCH " + messageNumber + body + section + "])";
+        final String command = "FETCH " + messageNumber + body + section + "]" + partialFetch + ")";
         command(command);
+        return this;
     }
     
     public void fetchAllMessages() throws Exception {
@@ -1168,9 +1177,10 @@ public class ScriptBuilder {
     }
     
     private static final class Out {
+        private final CharBuffer lineBuffer = CharBuffer.allocate(1048);
         private boolean isClient = false;
         public void client() {
-            System.out.print("C: ");
+            lineBuffer.put("C: ");
             isClient = true;
         }
         
@@ -1178,18 +1188,18 @@ public class ScriptBuilder {
             if (!isClient) {
                 escape(next);
             }
-            System.out.print(next);
+            lineBuffer.put(next);
         }
 
         private void escape(char next) {
             if (next == '\\' || next == '*' || next=='.' || next == '[' || next == ']' || next == '+'
                 || next == '(' || next == ')' || next == '{' || next == '}' || next == '?') {
-                System.out.print('\\');
+                lineBuffer.put('\\');
             }
         }
 
         public void server() {
-            System.out.print("S: ");
+            lineBuffer.put("S: ");
             isClient = false;
         }
         
@@ -1207,11 +1217,17 @@ public class ScriptBuilder {
                 phrase = StringUtils.replace(phrase, "{", "\\{");
                 phrase = StringUtils.replace(phrase, "?", "\\?");
             }
-            System.out.print(phrase);
+            lineBuffer.put(phrase);
         }
         
         public void lineEnd() {
-            System.out.println();
+            lineBuffer.flip();
+            String line = lineBuffer.toString();
+            line = StringUtils.replace(line, "OK Create completed", "OK CREATE completed");
+            line = StringUtils.replace(line, "OK Fetch completed", "OK FETCH completed");
+            line = StringUtils.replace(line, "OK Append completed", "OK APPEND completed");
+            System.out.println(line);
+            lineBuffer.clear();
         }
     }
     

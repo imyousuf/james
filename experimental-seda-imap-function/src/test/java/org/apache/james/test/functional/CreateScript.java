@@ -35,7 +35,32 @@ public class CreateScript {
 
     public static final void main(String[] args) throws Exception {
         ScriptBuilder builder = ScriptBuilder.open("localhost", 143);
-        searchAtoms(builder, true);
+        bodyPartialFetch(builder);
+    }
+    
+    public static void bodyPartialFetch(ScriptBuilder builder) throws Exception {
+        builder.login();
+        builder.create();
+        builder.select();
+        builder.setFile("multipart-mixed.mail");
+        builder.append();
+        builder.select();
+        builder.partial(0, 10).fetchSection("");
+        builder.partial(0, 100).fetchSection("");
+        builder.partial(0, 1000).fetchSection("");
+        builder.partial(0, 10000).fetchSection("");
+        builder.partial(0, 100000).fetchSection("");
+        builder.partial(100, 10).fetchSection("");
+        builder.partial(100, 100).fetchSection("");
+        builder.partial(100, 1000).fetchSection("");
+        builder.partial(100, 10000).fetchSection("");
+        builder.partial(100, 100000).fetchSection("");
+        builder.partial(10000, 10).fetchSection("");
+        builder.partial(10000, 100).fetchSection("");
+        builder.partial(10000, 1000).fetchSection("");
+        builder.partial(10000, 10000).fetchSection("");
+        builder.partial(10000, 100000).fetchSection("");
+        builder.quit();
     }
     
     public static void searchCombinations(ScriptBuilder builder, boolean uids) throws Exception {
