@@ -20,7 +20,6 @@
 package org.apache.james.imapserver.processor.imap4rev1;
 
 import org.apache.james.api.imap.ImapCommand;
-import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
@@ -66,15 +65,15 @@ public class ListProcessorTest extends MockObjectTestCase {
         return new ListResponse(noinferior, noselect, marked, unmarked, hierarchyDelimiter, mailboxName);
     }
 
-    void setUpResult(String[] attributes, String hierarchyDelimiter, String name) {
-        result.expects(once()).method("getAttributes").will(returnValue(attributes));
+    void setUpResult(final boolean isNoinferiors, final int selectability, String hierarchyDelimiter, String name) {
+        result.expects(once()).method("isNoInferiors").will(returnValue(isNoinferiors));
+        result.expects(once()).method("getSelectability").will(returnValue(selectability));
         result.expects(once()).method("getHierarchyDelimiter").will(returnValue(hierarchyDelimiter));
         result.expects(once()).method("getName").will(returnValue(name));
     }
     
     public void testNoInferiors() throws Exception {
-        String[] attributes = {"\\noise", ImapConstants.NAME_ATTRIBUTE_NOINFERIORS, "\\bogus"};
-        setUpResult(attributes, ".", "#INBOX");
+        setUpResult(true, ListResult.SELECTABILITY_FLAG_NONE, ".", "#INBOX");
         responder.expects(once()).method("respond").with(
                 eq(createResponse(true, false, false, false, ".", "#INBOX")));
         processor.processResult((ImapProcessor.Responder) responder.proxy(), 
@@ -82,8 +81,7 @@ public class ListProcessorTest extends MockObjectTestCase {
     }
     
     public void testNoSelect() throws Exception {
-        String[] attributes = {"\\noise", ImapConstants.NAME_ATTRIBUTE_NOSELECT, "\\bogus"};
-        setUpResult(attributes, ".", "#INBOX");
+        setUpResult(false, ListResult.SELECTABILITY_FLAG_NOSELECT, ".", "#INBOX");
         responder.expects(once()).method("respond").with(
                 eq(createResponse(false, true, false, false, ".", "#INBOX")));
         processor.processResult((ImapProcessor.Responder) responder.proxy(), 
@@ -91,8 +89,7 @@ public class ListProcessorTest extends MockObjectTestCase {
     }
     
     public void testUnMarked() throws Exception {
-        String[] attributes = {"\\noise", ImapConstants.NAME_ATTRIBUTE_UNMARKED, "\\bogus"};
-        setUpResult(attributes, ".", "#INBOX");
+        setUpResult(false, ListResult.SELECTABILITY_FLAG_UNMARKED, ".", "#INBOX");
         responder.expects(once()).method("respond").with(
                 eq(createResponse(false, false, false, true, ".", "#INBOX")));
         processor.processResult((ImapProcessor.Responder) responder.proxy(), 
@@ -100,65 +97,10 @@ public class ListProcessorTest extends MockObjectTestCase {
     }
     
     public void testMarked() throws Exception {
-        String[] attributes = {"\\noise", ImapConstants.NAME_ATTRIBUTE_MARKED, "\\bogus"};
-        setUpResult(attributes, ".", "#INBOX");
+        setUpResult(false, ListResult.SELECTABILITY_FLAG_MARKED, ".", "#INBOX");
         responder.expects(once()).method("respond").with(
                 eq(createResponse(false, false, true, false, ".", "#INBOX")));
         processor.processResult((ImapProcessor.Responder) responder.proxy(), 
                 false, 0, (ListResult) result.proxy());
-    }
-    
-    public void testMarkedAndUnmarked() throws Exception {
-        String[] attributes = {"\\noise", ImapConstants.NAME_ATTRIBUTE_MARKED, ImapConstants.NAME_ATTRIBUTE_UNMARKED, "\\bogus"};
-        setUpResult(attributes, ".", "#INBOX");
-        responder.expects(once()).method("respond").with(
-                eq(createResponse(false, false, true, false, ".", "#INBOX")));
-        processor.processResult((ImapProcessor.Responder) responder.proxy(), 
-                false, 0, (ListResult) result.proxy());
-    }
-    
-    public void testUnmarkedAndMarked() throws Exception {
-        String[] attributes = {"\\noise", ImapConstants.NAME_ATTRIBUTE_UNMARKED, ImapConstants.NAME_ATTRIBUTE_MARKED, "\\bogus"};
-        setUpResult(attributes, ".", "#INBOX");
-        responder.expects(once()).method("respond").with(
-                eq(createResponse(false, false, true, false, ".", "#INBOX")));
-        processor.processResult((ImapProcessor.Responder) responder.proxy(), 
-                false, 0, (ListResult) result.proxy());
-    }
-    
-    public void testNoSelectUnmarkedAndMarked() throws Exception {
-        String[] attributes = {"\\noise", ImapConstants.NAME_ATTRIBUTE_NOSELECT, ImapConstants.NAME_ATTRIBUTE_UNMARKED, ImapConstants.NAME_ATTRIBUTE_MARKED, "\\bogus"};
-        setUpResult(attributes, ".", "#INBOX");
-        responder.expects(once()).method("respond").with(
-                eq(createResponse(false, true, false, false, ".", "#INBOX")));
-        processor.processResult((ImapProcessor.Responder) responder.proxy(), 
-                false, 0, (ListResult) result.proxy());
-    }
-    
-    public void testUnmarkedAndMarkedNoSelect() throws Exception {
-        String[] attributes = {"\\noise",  ImapConstants.NAME_ATTRIBUTE_UNMARKED, ImapConstants.NAME_ATTRIBUTE_MARKED, ImapConstants.NAME_ATTRIBUTE_NOSELECT, "\\bogus"};
-        setUpResult(attributes, ".", "#INBOX");
-        responder.expects(once()).method("respond").with(
-                eq(createResponse(false, true, false, false, ".", "#INBOX")));
-        processor.processResult((ImapProcessor.Responder) responder.proxy(), 
-                false, 0, (ListResult) result.proxy());
-    }
-    
-    public void testUnmarkedNoSelectAndMarked() throws Exception {
-        String[] attributes = {"\\noise",  ImapConstants.NAME_ATTRIBUTE_UNMARKED, ImapConstants.NAME_ATTRIBUTE_NOSELECT, ImapConstants.NAME_ATTRIBUTE_MARKED, "\\bogus"};
-        setUpResult(attributes, ".", "#INBOX");
-        responder.expects(once()).method("respond").with(
-                eq(createResponse(false, true, false, false, ".", "#INBOX")));
-        processor.processResult((ImapProcessor.Responder) responder.proxy(), 
-                false, 0, (ListResult) result.proxy());
-    }
-    
-    public void testNoinferiorsUnmarkedNoSelectAndMarked() throws Exception {
-        String[] attributes = {"\\noise",  ImapConstants.NAME_ATTRIBUTE_NOINFERIORS, ImapConstants.NAME_ATTRIBUTE_UNMARKED, ImapConstants.NAME_ATTRIBUTE_NOSELECT, ImapConstants.NAME_ATTRIBUTE_MARKED, "\\bogus"};
-        setUpResult(attributes, ".", "#INBOX");
-        responder.expects(once()).method("respond").with(
-                eq(createResponse(true, true, false, false, ".", "#INBOX")));
-        processor.processResult((ImapProcessor.Responder) responder.proxy(), 
-                false, 0, (ListResult) result.proxy());
-    }
+    }    
 }

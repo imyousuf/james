@@ -25,16 +25,4 @@ public class ExperimentalAuthenticatedStateTest extends AbstractAuthenticatedSta
     public ExperimentalAuthenticatedStateTest() throws Exception {
         super(HostSystemFactory.createStandardImap());
     }
-    
-    public void testListNamespaceUS() throws Exception {
-        // TODO: root mailbox should be marked as Noselect
-    }
-
-    public void testListNamespaceITALY() throws Exception {
-        // TODO: root mailbox should be marked as Noselect
-    }
-    
-    public void testListNamespaceKOREA() throws Exception {
-        // TODO: root mailbox should be marked as Noselect
-    }
 }

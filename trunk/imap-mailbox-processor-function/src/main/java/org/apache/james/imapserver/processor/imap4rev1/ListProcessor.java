@@ -115,8 +115,7 @@ public class ListProcessor extends AbstractMailboxAwareProcessor {
 
             // Get the mailbox for the reference name.
             listResults = new ListResult[1];
-            listResults[0] = new ListResultImpl(referenceRoot,
-                    ImapConstants.HIERARCHY_DELIMITER);
+            listResults[0] = ListResultImpl.createNoSelect(referenceRoot, ImapConstants.HIERARCHY_DELIMITER);
         } else {
 
             // If the mailboxPattern is fully qualified, ignore the
@@ -151,61 +150,21 @@ public class ListProcessor extends AbstractMailboxAwareProcessor {
         final String delimiter = listResult.getHierarchyDelimiter();
         final String mailboxName = mailboxName(removeUserPrefix, prefixLength, listResult);
 
-        final String[] attrs = listResult.getAttributes();
-        boolean noInferior = false;
+        final boolean noInferior = listResult.isNoInferiors();
         boolean noSelect = false;
         boolean marked = false;
         boolean unmarked = false;
-        if (attrs != null) {
-            final int length = attrs.length;
-            for (int i=0;i<length;i++) {
-                final String attribute = attrs[i];
-                if (ImapConstants.NAME_ATTRIBUTE_NOINFERIORS.equals(attribute)) {
-                    noInferior = true;
-                } else if (ImapConstants.NAME_ATTRIBUTE_NOSELECT.equals(attribute)) {
-                    noSelect = true;
-                    // RFC 3501 does not allow Marked or Unmarked on a NoSelect mailbox
-                    if (marked || unmarked) {
-                        logMarkedUnmarkedNoSelectMailbox(mailboxName);
-                        marked = false;
-                        unmarked = false;
-                    }
-                } else if (ImapConstants.NAME_ATTRIBUTE_MARKED.equals(attribute)) {
-                    if (noSelect) {
-                        // RFC 3501 does not allow NoSelect mailboxes to be Marked
-                        marked = false;
-                        logMarkedUnmarkedNoSelectMailbox(mailboxName);
-                    } else {
-                        marked = true;
-                        if (unmarked) {
-                            // RFC3501 does not allow marked and unmarked to be returned
-                            // When the mailbox has both marked and unmarked set,
-                            // the implementation is free to choose which to return.
-                            // Choose to return marked.
-                            logMarkedUnmarkedMailbox(mailboxName);
-                            unmarked = false;
-                        }
-                    }
-                } else if (ImapConstants.NAME_ATTRIBUTE_UNMARKED.equals(attribute)) {
-                    if (noSelect) {
-                        // RFC 3501 does not allow NoSelect mailboxes to be UnMarked
-                        marked = false;
-                        logMarkedUnmarkedNoSelectMailbox(mailboxName);
-                    } else {
-                        if (marked) {
-                            // RFC3501 does not allow marked and unmarked to be returned
-                            // When the mailbox has both marked and unmarked set,
-                            // the implementation is free to choose which to return.
-                            // Choose to return marked.
-                            logMarkedUnmarkedMailbox(mailboxName);
-                        } else {
-                            unmarked = true;
-                        }
-                    }
-                }
-            }
+        switch (listResult.getSelectability()) {
+            case ListResult.SELECTABILITY_FLAG_MARKED:
+                marked = true;
+                break;
+            case ListResult.SELECTABILITY_FLAG_UNMARKED:
+                unmarked = true;
+                break;                
+            case ListResult.SELECTABILITY_FLAG_NOSELECT:
+                noSelect = true;
+                break;
         }
-        
         responder.respond(createResponse(noInferior, noSelect, marked, unmarked, 
                 delimiter, mailboxName));
     }
