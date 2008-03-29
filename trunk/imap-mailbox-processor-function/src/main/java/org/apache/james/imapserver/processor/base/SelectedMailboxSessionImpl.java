@@ -20,7 +20,6 @@
 package org.apache.james.imapserver.processor.base;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -229,5 +228,17 @@ public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements Se
             final Long uid = (Long) it.next();
             recentUids.remove(uid);
         }
+    }
+
+    public boolean isRecent(long uid) {
+        boolean result = false;
+        for (Iterator ir = recentUids.iterator(); ir.hasNext();) {
+            Long recentUid = (Long) ir.next();
+            if (recentUid.longValue() == uid) {
+                result = true;
+                break;
+            }
+        }
+        return result;
     }
 }

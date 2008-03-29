@@ -1,16 +1,31 @@
-S: \* OK Dovecot ready\.
-C: A1 LOGIN imapuser password
-S: A1 OK Logged in\.
+################################################################
+# Licensed to the Apache Software Foundation (ASF) under one   #
+# or more contributor license agreements.  See the NOTICE file #
+# distributed with this work for additional information        #
+# regarding copyright ownership.  The ASF licenses this file   #
+# to you under the Apache License, Version 2.0 (the            #
+# "License"); you may not use this file except in compliance   #
+# with the License.  You may obtain a copy of the License at   #
+#                                                              #
+#   http://www.apache.org/licenses/LICENSE-2.0                 #
+#                                                              #
+# Unless required by applicable law or agreed to in writing,   #
+# software distributed under the License is distributed on an  #
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY       #
+# KIND, either express or implied.  See the License for the    #
+# specific language governing permissions and limitations      #
+# under the License.                                           #
+################################################################
 C: A2 CREATE testmailbox
-S: A2 OK Create completed\.
+S: A2 OK CREATE completed\.
 C: A3 SELECT testmailbox
-S: \* FLAGS \(\\Answered \\Flagged \\Deleted \\Seen \\Draft\)
-S: \* OK \[PERMANENTFLAGS \(\\Answered \\Flagged \\Deleted \\Seen \\Draft \\\*\)\] Flags permitted\.
+S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
 S: \* 0 EXISTS
 S: \* 0 RECENT
-S: \* OK \[UIDVALIDITY 1206782202\] UIDs valid
-S: \* OK \[UIDNEXT 1\] Predicted next UID
-S: A3 OK \[READ-WRITE\] Select completed\.
+S: \* OK \[UIDVALIDITY (.)*\]
+S: \* OK No messages unseen
+S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
+S: A3 OK \[READ-WRITE\] SELECT completed\.
 C: A4 APPEND testmailbox {765+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -48,26 +63,25 @@ C: --1729--
 C: 
 S: \* 1 EXISTS
 S: \* 1 RECENT
-S: A4 OK Append completed\.
+S: A4 OK APPEND completed\.
 C: A5 SELECT testmailbox
-S: \* FLAGS \(\\Answered \\Flagged \\Deleted \\Seen \\Draft\)
-S: \* OK \[PERMANENTFLAGS \(\\Answered \\Flagged \\Deleted \\Seen \\Draft \\\*\)\] Flags permitted\.
+S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
 S: \* 1 EXISTS
 S: \* 1 RECENT
-S: \* OK \[UNSEEN 1\] First unseen\.
-S: \* OK \[UIDVALIDITY 1206782202\] UIDs valid
-S: \* OK \[UIDNEXT 2\] Predicted next UID
-S: A5 OK \[READ-WRITE\] Select completed\.
+S: \* OK \[UIDVALIDITY (.)*\]
+S: \* OK \[UNSEEN 1\](.)*
+S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
+S: A5 OK \[READ-WRITE\] SELECT completed\.
 C: A6 FETCH 1 (BODY[]<0.10>)
-S: \* 1 FETCH \(FLAGS \(\\Seen \\Recent\) BODY\[\]<0> \{10\}
+S: \* 1 FETCH \(FLAGS \(\\Recent \\Seen\) BODY\[\]<0> \{10\}
 S: From: Timo\)
-S: A6 OK Fetch completed\.
+S: A6 OK FETCH completed\.
 C: A7 FETCH 1 (BODY[]<0.100>)
 S: \* 1 FETCH \(BODY\[\]<0> \{100\}
 S: From: Timothy Tayler <timothy@example\.org>
 S: To: Samual Smith <samual@example\.org>
 S: Date: Thu, 14 Feb\)
-S: A7 OK Fetch completed\.
+S: A7 OK FETCH completed\.
 C: A8 FETCH 1 (BODY[]<0.1000>)
 S: \* 1 FETCH \(BODY\[\]<0> \{765\}
 S: From: Timothy Tayler <timothy@example\.org>
@@ -104,7 +118,7 @@ S: 1234567890ABCDEFGHIJKLMNOPQ
 S: 
 S: --1729--
 S: \)
-S: A8 OK Fetch completed\.
+S: A8 OK FETCH completed\.
 C: A9 FETCH 1 (BODY[]<0.10000>)
 S: \* 1 FETCH \(BODY\[\]<0> \{765\}
 S: From: Timothy Tayler <timothy@example\.org>
@@ -141,7 +155,7 @@ S: 1234567890ABCDEFGHIJKLMNOPQ
 S: 
 S: --1729--
 S: \)
-S: A9 OK Fetch completed\.
+S: A9 OK FETCH completed\.
 C: A10 FETCH 1 (BODY[]<0.100000>)
 S: \* 1 FETCH \(BODY\[\]<0> \{765\}
 S: From: Timothy Tayler <timothy@example\.org>
@@ -178,18 +192,17 @@ S: 1234567890ABCDEFGHIJKLMNOPQ
 S: 
 S: --1729--
 S: \)
-S: A10 OK Fetch completed\.
+S: A10 OK FETCH completed\.
 C: A11 FETCH 1 (BODY[]<100.10>)
 S: \* 1 FETCH \(BODY\[\]<100> \{10\}
 S:  2008 12:0\)
-S: A11 OK Fetch completed\.
+S: A11 OK FETCH completed\.
 C: A12 FETCH 1 (BODY[]<100.100>)
 S: \* 1 FETCH \(BODY\[\]<100> \{100\}
 S:  2008 12:00:00 \+0000 \(GMT\)
 S: Subject: A Multipart Email
-S: Content-Type: multipart/mixed;boundary=1729
-\)
-S: A12 OK Fetch completed\.
+S: Content-Type: multipart/mixed;boundary=1729\r\)
+S: A12 OK FETCH completed\.
 C: A13 FETCH 1 (BODY[]<100.1000>)
 S: \* 1 FETCH \(BODY\[\]<100> \{665\}
 S:  2008 12:00:00 \+0000 \(GMT\)
@@ -224,7 +237,7 @@ S: 1234567890ABCDEFGHIJKLMNOPQ
 S: 
 S: --1729--
 S: \)
-S: A13 OK Fetch completed\.
+S: A13 OK FETCH completed\.
 C: A14 FETCH 1 (BODY[]<100.10000>)
 S: \* 1 FETCH \(BODY\[\]<100> \{665\}
 S:  2008 12:00:00 \+0000 \(GMT\)
@@ -259,7 +272,7 @@ S: 1234567890ABCDEFGHIJKLMNOPQ
 S: 
 S: --1729--
 S: \)
-S: A14 OK Fetch completed\.
+S: A14 OK FETCH completed\.
 C: A15 FETCH 1 (BODY[]<100.100000>)
 S: \* 1 FETCH \(BODY\[\]<100> \{665\}
 S:  2008 12:00:00 \+0000 \(GMT\)
@@ -294,29 +307,27 @@ S: 1234567890ABCDEFGHIJKLMNOPQ
 S: 
 S: --1729--
 S: \)
-S: A15 OK Fetch completed\.
+S: A15 OK FETCH completed\.
 C: A16 FETCH 1 (BODY[]<10000.10>)
 S: \* 1 FETCH \(BODY\[\]<10000> \{0\}
 S: \)
-S: A16 OK Fetch completed\.
+S: A16 OK FETCH completed\.
 C: A17 FETCH 1 (BODY[]<10000.100>)
 S: \* 1 FETCH \(BODY\[\]<10000> \{0\}
 S: \)
-S: A17 OK Fetch completed\.
+S: A17 OK FETCH completed\.
 C: A18 FETCH 1 (BODY[]<10000.1000>)
 S: \* 1 FETCH \(BODY\[\]<10000> \{0\}
 S: \)
-S: A18 OK Fetch completed\.
+S: A18 OK FETCH completed\.
 C: A19 FETCH 1 (BODY[]<10000.10000>)
 S: \* 1 FETCH \(BODY\[\]<10000> \{0\}
 S: \)
-S: A19 OK Fetch completed\.
+S: A19 OK FETCH completed\.
 C: A20 FETCH 1 (BODY[]<10000.100000>)
 S: \* 1 FETCH \(BODY\[\]<10000> \{0\}
 S: \)
-S: A20 OK Fetch completed\.
+S: A20 OK FETCH completed\.
 C: A21 DELETE testmailbox
-S: A21 OK Delete completed\.
-C: A22 LOGOUT
-S: \* BYE Logging out
-S: A22 OK Logout completed\.
+S: A21 OK DELETE completed\.
+

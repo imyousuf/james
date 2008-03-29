@@ -32,6 +32,7 @@ public class PartialFetchBodyElementTest extends MockObjectTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         mockBodyElement = mock(BodyElement.class);
+        mockBodyElement.expects(once()).method("getName").will(returnValue("Name"));
     }
 
     protected void tearDown() throws Exception {
@@ -63,10 +64,26 @@ public class PartialFetchBodyElementTest extends MockObjectTestCase {
     }
     
     public void testWhenStartPlusNumberOfOctetsIsLessThanSizeSizeShouldBeNumberOfOctetsMinusStart() throws Exception {
-        long size = 600;
+        long size = 100;
         PartialFetchBodyElement element = new PartialFetchBodyElement((BodyElement) mockBodyElement.proxy(), 
                 10, NUMBER_OF_OCTETS);
         mockBodyElement.expects(once()).method("size").will(returnValue(new Long(size)));
         assertEquals("Size is less than number of octets so should be size", 90, element.size());
+    }
+    
+    public void testSizeShouldBeZeroWhenStartIsMoreThanSize() throws Exception {
+        long size = 100;
+        PartialFetchBodyElement element = new PartialFetchBodyElement((BodyElement) mockBodyElement.proxy(), 
+                1000, NUMBER_OF_OCTETS);
+        mockBodyElement.expects(once()).method("size").will(returnValue(new Long(size)));
+        assertEquals("Size is less than number of octets so should be size", 0, element.size());
+    }
+    
+    public void testSizeShouldBeNumberOfOctetsWhenStartMoreThanOctets() throws Exception {
+        long size = 2000;
+        PartialFetchBodyElement element = new PartialFetchBodyElement((BodyElement) mockBodyElement.proxy(), 
+                1000, NUMBER_OF_OCTETS);
+        mockBodyElement.expects(once()).method("size").will(returnValue(new Long(size)));
+        assertEquals("Content size is less than start. Size should be zero.", NUMBER_OF_OCTETS, element.size());
     }
 }

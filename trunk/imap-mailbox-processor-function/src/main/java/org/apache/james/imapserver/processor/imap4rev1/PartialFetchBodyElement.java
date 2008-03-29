@@ -13,6 +13,7 @@ final class PartialFetchBodyElement implements BodyElement {
     private final BodyElement delegate;
     private final long firstOctet;
     private final long numberOfOctets;
+    private final String name;
     
     public PartialFetchBodyElement(final BodyElement delegate, final long firstOctet, 
             final long numberOfOctets) {
@@ -20,21 +21,24 @@ final class PartialFetchBodyElement implements BodyElement {
         this.delegate = delegate;
         this.firstOctet = firstOctet;
         this.numberOfOctets = numberOfOctets;
+        name = delegate.getName() + "<" + firstOctet + ">";
     }
 
     public String getName() {
-        return delegate.getName();
+        return name;
     }
 
     public long size() {
         final long size = delegate.size();
-        final long numberOfOctets;
-        if (size > this.numberOfOctets) {
-            numberOfOctets = this.numberOfOctets;
+        final long lastOctet = this.numberOfOctets + firstOctet;
+        final long result;
+        if (firstOctet > size) {
+            result = 0;
+        } else if (size > lastOctet) {
+            result = numberOfOctets;
         } else {
-            numberOfOctets = size;
+            result = size - firstOctet;
         }
-        final long result = numberOfOctets - firstOctet;
         return result;
     }
 

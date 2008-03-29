@@ -56,7 +56,7 @@ S: abcd OK \[READ-WRITE\] SELECT completed.
 C: abcd SELECT "INBOX"
 S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
 S: \* 2 EXISTS
-S: \* 0 RECENT
+S: \* 2 RECENT
 S: \* OK \[UIDVALIDITY \d+\]
 S: (\* OK \[UNSEEN 1\] Message 1 is the first unseen)|(\* OK No messages unseen)
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]

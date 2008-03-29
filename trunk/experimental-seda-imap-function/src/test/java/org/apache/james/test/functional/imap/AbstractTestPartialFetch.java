@@ -17,30 +17,17 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.api.imap.process;
+package org.apache.james.test.functional.imap;
 
-import java.util.List;
+import java.util.Locale;
 
-public interface SelectedImapMailbox {
+public abstract class AbstractTestPartialFetch extends BaseTestSelectedState {
 
-    public abstract void deselect();
-
-    public abstract List unsolicitedResponses(boolean omitExpunged,
-            boolean useUid);
+    public AbstractTestPartialFetch(HostSystem system) {
+        super(system);
+    }
     
-    public int msn(long uid);
-
-    public abstract long uid(int i);
-    
-    public void addRecent(long uid);
-    
-    public void removeRecent(long uid);
-    
-    public long[] getRecent();
-    
-    public int recentCount();
-    
-    public String getName();
-
-    public boolean isRecent(long uid);
+    public void testBodyPartialFetchUS() throws Exception {
+        scriptTest("BodyPartialFetch", Locale.US);
+    }
 }

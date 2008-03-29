@@ -17,30 +17,14 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.api.imap.process;
+package org.apache.james.experimental.imapserver;
 
-import java.util.List;
+import org.apache.james.test.functional.imap.AbstractTestPartialFetch;
 
-public interface SelectedImapMailbox {
+public class ExperimentalPartialFetchTest extends AbstractTestPartialFetch {
 
-    public abstract void deselect();
+    public ExperimentalPartialFetchTest() throws Exception {
+        super(HostSystemFactory.createStandardImap());
+    }
 
-    public abstract List unsolicitedResponses(boolean omitExpunged,
-            boolean useUid);
-    
-    public int msn(long uid);
-
-    public abstract long uid(int i);
-    
-    public void addRecent(long uid);
-    
-    public void removeRecent(long uid);
-    
-    public long[] getRecent();
-    
-    public int recentCount();
-    
-    public String getName();
-
-    public boolean isRecent(long uid);
 }

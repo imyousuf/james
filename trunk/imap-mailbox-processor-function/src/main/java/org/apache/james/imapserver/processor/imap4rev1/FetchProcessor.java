@@ -45,6 +45,7 @@ import org.apache.james.api.imap.message.request.ImapRequest;
 import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
+import org.apache.james.api.imap.process.SelectedImapMailbox;
 import org.apache.james.imap.message.request.imap4rev1.FetchRequest;
 import org.apache.james.imap.message.response.imap4rev1.FetchResponse;
 import org.apache.james.imap.message.response.imap4rev1.FetchResponse.BodyElement;
@@ -238,7 +239,10 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
                 ImapSession session, boolean useUids)
                 throws MailboxException, ProtocolException {
             ImapMailbox mailbox = ImapSessionUtils.getMailbox(session);
-            setMsn(session.getSelected().msn(result.getUid()));
+            final SelectedImapMailbox selected = session.getSelected();
+            final long resultUid = result.getUid();
+            final int resultMsn = selected.msn(resultUid);
+            setMsn(resultMsn);
             
             // Check if this fetch will cause the "SEEN" flag to be set on this
             // message
@@ -247,17 +251,21 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
             try {
                 final MailboxSession mailboxSession = ImapSessionUtils.getMailboxSession(session);
                 boolean ensureFlagsResponse = false;
+                final Flags resultFlags = result.getFlags();
                 if (fetch.isSetSeen()
-                        && !result.getFlags().contains(Flags.Flag.SEEN)) {
+                        && !resultFlags.contains(Flags.Flag.SEEN)) {
                     mailbox.setFlags(new Flags(Flags.Flag.SEEN), true, false,
-                            GeneralMessageSetImpl.oneUid(result.getUid()), FetchGroupImpl.MINIMAL, mailboxSession);
-                    result.getFlags().add(Flags.Flag.SEEN);
+                            GeneralMessageSetImpl.oneUid(resultUid), FetchGroupImpl.MINIMAL, mailboxSession);
+                    resultFlags.add(Flags.Flag.SEEN);
                     ensureFlagsResponse = true;
                 }
                 
                 // FLAGS response
                 if (fetch.isFlags() || ensureFlagsResponse) {
-                    setFlags(result.getFlags());
+                    if (selected.isRecent(resultUid)) {
+                        resultFlags.add(Flags.Flag.RECENT);
+                    }
+                    setFlags(resultFlags);
                 }
 
                 // INTERNALDATE response
@@ -296,7 +304,7 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
                 }
                 // UID response
                 if (fetch.isUid()) {
-                    setUid(result.getUid());
+                    setUid(resultUid);
                 }
 
                 // BODY part responses.
@@ -440,6 +448,7 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
                 addresses.add(address);
             }
             final FetchResponse.Envelope.Address end = endGroup();
+            addresses.add(end);
         }
         
         private FetchResponse.Envelope.Address startGroup(String groupName) {
