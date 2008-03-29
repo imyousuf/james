@@ -111,12 +111,21 @@ class ListCommand extends AuthenticatedStateCommand
 
        for (int i = 0; i < listResults.length; i++) {
             StringBuffer message = new StringBuffer( "(" );
-            String[] attrs=listResults[i].getAttributes();
-            for (int j = 0; j < attrs.length; j++) {
-                if (j > 0) {
-                    message.append(' ');
-                }
-                message.append( attrs[j] );
+            boolean spaceNeeded = false;
+            if (listResults[i].isNoInferiors()) {
+                spaceNeeded = true;
+                message.append("\\Noinferiors");
+            }
+            switch (listResults[i].getSelectability()) {
+                case ListResult.SELECTABILITY_FLAG_MARKED:
+                    add(message, spaceNeeded, "\\Marked");
+                    break;
+                case ListResult.SELECTABILITY_FLAG_UNMARKED:
+                    add(message, spaceNeeded, "\\Unmarked");
+                    break;
+                case ListResult.SELECTABILITY_FLAG_NOSELECT:
+                    add(message, spaceNeeded, "\\Noselect");
+                    break;
             }
             message.append( ") \"" );
             message.append( listResults[i].getHierarchyDelimiter() );
@@ -145,6 +154,13 @@ class ListCommand extends AuthenticatedStateCommand
 
         session.unsolicitedResponses( response, false );
         response.commandComplete( this );
+    }
+
+    private void add(StringBuffer message, boolean spaceNeeded, String flag) {
+        if (spaceNeeded) {
+            message.append(' ');
+        }
+        message.append(flag);
     }
 
     protected ListResult[] doList( ImapSession session, String base, String pattern ) throws MailboxException {

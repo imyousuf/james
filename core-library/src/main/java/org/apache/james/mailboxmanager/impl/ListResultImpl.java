@@ -23,18 +23,48 @@ import org.apache.james.mailboxmanager.ListResult;
 
 public class ListResultImpl implements ListResult {
 
-    private String name;
-    private String delimiter;
-    private String[] attributes=new String[0];
+    public static ListResult createNoSelect(String name, String delimiter) {
+        return new ListResultImpl(name, delimiter, false, SELECTABILITY_FLAG_NOSELECT);
+    }
+
+    
+    private final String name;
+    private final String delimiter;
+    private final boolean noInferiors;
+    private final int selectability;
 
     public ListResultImpl(String name, String delimiter) {
-        this.name=name;
-        this.delimiter=delimiter;
+        this(name, delimiter, false, SELECTABILITY_FLAG_NONE);
+    }
+   
+    public ListResultImpl(final String name, final String delimiter, final boolean noInferiors, 
+            final int selectability) {
+        super();
+        this.name = name;
+        this.delimiter = delimiter;
+        this.noInferiors = noInferiors;
+        this.selectability = selectability;
     }
 
-    public String[] getAttributes() {
-        return attributes;
+    /**
+     * Is this mailbox <code>\Noinferiors</code> as per RFC3501.
+     * @return true if marked, false otherwise
+     */
+    public final boolean isNoInferiors() {
+        return noInferiors;
     }
+
+    /**
+     * Gets the RFC3501 Selectability flag setting.
+     * @return {@link ListResult#SELECTABILITY_FLAG_NONE},
+     * {@link ListResult#SELECTABILITY_FLAG_MARKED},
+     * {@link ListResult#SELECTABILITY_FLAG_NOSELECT},
+     * or {@link ListResult#SELECTABILITY_FLAG_UNMARKED}
+     */
+    public final int getSelectability() {
+        return selectability;
+    }
+
 
     public String getHierarchyDelimiter() {
         return delimiter;

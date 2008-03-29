@@ -22,16 +22,33 @@ package org.apache.james.mailboxmanager;
 /**
  * Returned by the list method of MailboxRepository and others
  */
-
 public interface ListResult {
+    
+    /** Indicates that no RFC3501 Selectability flag is set */
+    public static final int SELECTABILITY_FLAG_NONE = 0;
+    /** Indicates that RFC3501 Selectability is set to \Marked */
+    public static final int SELECTABILITY_FLAG_MARKED = 1;
+    /** Indicates that RFC3501 Selectability is set to \Unmarked */
+    public static final int SELECTABILITY_FLAG_UNMARKED = 2;
+    /** Indicates that RFC3501 Selectability is set to \Noselect */
+    public static final int SELECTABILITY_FLAG_NOSELECT = 3;
     
     public static final ListResult[] EMPTY_ARRAY = {};
     
     /**
-     * \Noinferiors, \Noselect, \Marked, \Unmarked 
-     * TODO this should be done in a different way..
+     * Is this mailbox <code>\Noinferiors</code> as per RFC3501.
+     * @return true if marked, false otherwise
      */
-    String[] getAttributes();
+    public boolean isNoInferiors();
+
+    /**
+     * Gets the RFC3501 Selectability flag setting.
+     * @return {@link #SELECTABILITY_FLAG_NONE},
+     * {@link #SELECTABILITY_FLAG_MARKED},
+     * {@link #SELECTABILITY_FLAG_NOSELECT},
+     * or {@link #SELECTABILITY_FLAG_UNMARKED}
+     */
+    public int getSelectability();
     
     String getHierarchyDelimiter();
     
