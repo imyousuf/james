@@ -159,19 +159,19 @@ public class ProtocolSession
     /**
      * adds a new Server Response line to the test elements, with the specified location.
      */
-    public void SL( int sessionNumber, String serverLine, String location )
+    public void SL( int sessionNumber, String serverLine, String location, String lastClientMessage )
     {
         this.maxSessionNumber = Math.max(this.maxSessionNumber, sessionNumber);
-        testElements.add( new ServerResponse( sessionNumber, serverLine, location ) );
+        testElements.add( new ServerResponse( sessionNumber, serverLine, location, lastClientMessage ) );
     }
 
     /**
      * adds a new Server Unordered Block to the test elements.
      */
-    public void SUB( int sessionNumber, List serverLines, String location )
+    public void SUB( int sessionNumber, List serverLines, String location, String lastClientMessage )
     {
         this.maxSessionNumber = Math.max(this.maxSessionNumber, sessionNumber);
-        testElements.add( new ServerUnorderedBlockResponse( sessionNumber, serverLines, location ) );
+        testElements.add( new ServerUnorderedBlockResponse( sessionNumber, serverLines, location, lastClientMessage ) );
     }
 
     /**
@@ -236,6 +236,7 @@ public class ProtocolSession
      */
     private class ServerResponse implements ProtocolElement
     {
+        private String lastClientMessage;
         private int sessionNumber;
         private String expectedLine;
         protected String location;
@@ -248,7 +249,7 @@ public class ProtocolSession
          */
         public ServerResponse( String expectedPattern, String location )
         {
-            this(-1, expectedPattern, location);
+            this(-1, expectedPattern, location, null);
         }
 
         /**
@@ -258,11 +259,12 @@ public class ProtocolSession
          *                        the line recieved.
          * @param location A descriptive value to use in error messages.
          */
-        public ServerResponse( int sessionNumber, String expectedPattern, String location )
+        public ServerResponse( int sessionNumber, String expectedPattern, String location, String lastClientMessage )
         {
             this.sessionNumber = sessionNumber;
             this.expectedLine = expectedPattern;
             this.location = location;
+            this.lastClientMessage = lastClientMessage;
         }
 
         /**
@@ -293,6 +295,7 @@ public class ProtocolSession
             String testLine = readLine(session);
             if ( ! match( expectedLine, testLine ) ) {
                 String errMsg = "\nLocation: " + location +
+                        "\nLastClientMsg: " + lastClientMessage +
                         "\nExpected: '" + expectedLine +
                         "'\nActual   : '" + testLine + "'";
                 if (continueAfterFailure) {
@@ -355,7 +358,7 @@ public class ProtocolSession
          */
         public ServerUnorderedBlockResponse( List expectedLines, String location )
         {
-            this(-1, expectedLines, location);
+            this(-1, expectedLines, location, null);
         }
 
         /**
@@ -367,9 +370,9 @@ public class ProtocolSession
          * @param location A descriptive location string for error messages.
          */
         public ServerUnorderedBlockResponse( int sessionNumber,
-                                             List expectedLines, String location )
+                                             List expectedLines, String location, String lastClientMessage)
         {
-            super( sessionNumber, "<Unordered Block>", location );
+            super( sessionNumber, "<Unordered Block>", location, lastClientMessage);
             this.expectedLines = expectedLines;
         }
 

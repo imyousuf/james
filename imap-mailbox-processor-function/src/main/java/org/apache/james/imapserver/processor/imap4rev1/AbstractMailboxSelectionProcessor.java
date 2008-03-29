@@ -67,7 +67,6 @@ abstract public class AbstractMailboxSelectionProcessor extends
             ImapCommand command) throws MailboxException,
             AuthorizationException, ProtocolException {
         ImapResponseMessage result;
-        session.deselect();
         try {
             String fullMailboxName = buildFullName(session, mailboxName);
             selectMailbox(fullMailboxName, session, isExamine);
@@ -110,6 +109,21 @@ abstract public class AbstractMailboxSelectionProcessor extends
         final MailboxManager mailboxManager = getMailboxManager(session);
         final ImapMailbox mailbox = mailboxManager.getImapMailbox(mailboxName, false);
         final MailboxSession mailboxSession = ImapSessionUtils.getMailboxSession(session);
+
+        final SelectedImapMailbox sessionMailbox;
+        final SelectedImapMailbox currentMailbox = session.getSelected();
+        if (currentMailbox == null || !currentMailbox.getName().equals(mailboxName)) {
+            sessionMailbox = createNewSelectedMailbox(mailbox, mailboxSession, session);            
+        } else {
+            sessionMailbox = currentMailbox;
+        }
+        addRecent(readOnly, mailbox, mailboxSession, sessionMailbox);
+        return readOnly;
+    }
+
+    private SelectedImapMailbox createNewSelectedMailbox(final ImapMailbox mailbox, final MailboxSession mailboxSession,
+            ImapSession session) throws MailboxManagerException {
+        final SelectedImapMailbox sessionMailbox;
         final Iterator it = mailbox.getMessages(GeneralMessageSetImpl
                 .all(), FetchGroupImpl.MINIMAL, mailboxSession);
         final List uids = new ArrayList();
@@ -117,14 +131,12 @@ abstract public class AbstractMailboxSelectionProcessor extends
             final MessageResult result = (MessageResult) it.next();
             uids.add(new Long(result.getUid()));
         }
-        SelectedImapMailbox sessionMailbox = new SelectedMailboxSessionImpl(mailbox, uids, mailboxSession);
-        
-        addRecent(readOnly, mailbox, mailboxSession, sessionMailbox);
+        sessionMailbox = new SelectedMailboxSessionImpl(mailbox, uids, mailboxSession);
         session.selected(sessionMailbox);
         session.setAttribute(
                 ImapSessionUtils.SELECTED_MAILBOX_ATTRIBUTE_SESSION_KEY,
                 mailbox);
-        return readOnly;
+        return sessionMailbox;
     }
 
     private void addRecent(boolean readOnly, final ImapMailbox mailbox, final MailboxSession mailboxSession, SelectedImapMailbox sessionMailbox) throws MailboxManagerException {

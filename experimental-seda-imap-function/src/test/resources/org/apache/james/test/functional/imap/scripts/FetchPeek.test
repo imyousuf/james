@@ -22,7 +22,7 @@ S: f1 OK STORE completed.
 
 # Check that the initial flags are correct
 C: f1 FETCH 2 (FLAGS)
-S: \* 2 FETCH \(FLAGS \(\\Flagged\)\)
+S: \* 2 FETCH \(FLAGS \(\\Flagged \\Recent\)\)
 S: f1 OK FETCH completed.
 
 # BODY.PEEK[]
@@ -87,6 +87,6 @@ S: f1 OK FETCH completed.
 
 # Check that the flags are still correct
 C: f1 FETCH 2 (FLAGS)
-S: \* 2 FETCH \(FLAGS \(\\Flagged\)\)
+S: \* 2 FETCH \(FLAGS \(\\Flagged \\Recent\)\)
 S: f1 OK FETCH completed.
 

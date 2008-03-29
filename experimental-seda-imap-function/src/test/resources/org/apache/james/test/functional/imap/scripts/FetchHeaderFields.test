@@ -275,7 +275,7 @@ S: A12 OK APPEND completed\.
 C: A13 SELECT testmailbox
 S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
 S: \* 9 EXISTS
-S: \* 0 RECENT
+S: \* 9 RECENT
 S: \* OK \[UIDVALIDITY (.)*
 S: \* OK \[UNSEEN 1\] Message 1 is the first unseen
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\](.)*
@@ -579,7 +579,7 @@ S: A15 OK FETCH completed\.
 C: A16 SELECT testmailbox
 S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
 S: \* 9 EXISTS
-S: \* 0 RECENT
+S: \* 9 RECENT
 S: \* OK \[UIDVALIDITY (.)*
 S: \* OK \[UNSEEN 1\] (.)*
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\](.)*

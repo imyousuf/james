@@ -18,10 +18,10 @@
 ################################################################
 # FLAGS
 C: f1 FETCH 1:4 (FLAGS)
-S: \* 1 FETCH \(FLAGS \(\)\)
-S: \* 2 FETCH \(FLAGS \(\)\)
-S: \* 3 FETCH \(FLAGS \(\)\)
-S: \* 4 FETCH \(FLAGS \(\)\)
+S: \* 1 FETCH \(FLAGS \(\\Recent\)\)
+S: \* 2 FETCH \(FLAGS \(\\Recent\)\)
+S: \* 3 FETCH \(FLAGS \(\\Recent\)\)
+S: \* 4 FETCH \(FLAGS \(\\Recent\)\)
 S: f1 OK FETCH completed.
 
 #Simple store
@@ -30,7 +30,7 @@ S: \* 1 FETCH \(FLAGS \(\\Deleted\)\)
 S: f2 OK STORE completed.
 
 C: f3 FETCH 1 (FLAGS)
-S: \* 1 FETCH \(FLAGS \(\\Deleted\)\)
+S: \* 1 FETCH \(FLAGS \(\\Deleted \\Recent\)\)
 S: f3 OK FETCH completed.
 
 #Override previous value (silent)
@@ -38,7 +38,7 @@ C: f2 STORE 1 FLAGS.SILENT (\Draft \Flagged)
 S: f2 OK STORE completed.
 
 C: f1 FETCH 1 (FLAGS)
-S: \* 1 FETCH \(FLAGS \(\\Draft \\Flagged\)\)
+S: \* 1 FETCH \(FLAGS \(\\Draft \\Flagged \\Recent\)\)
 S: f1 OK FETCH completed.
 
 #Add to existing flags
@@ -47,7 +47,7 @@ S: \* 1 FETCH \(FLAGS \(\\Deleted \\Draft \\Flagged\)\)
 S: f2 OK STORE completed.
 
 C: f1 FETCH 1 (FLAGS)
-S: \* 1 FETCH \(FLAGS \(\\Deleted \\Draft \\Flagged\)\)
+S: \* 1 FETCH \(FLAGS \(\\Deleted \\Draft \\Flagged \\Recent\)\)
 S: f1 OK FETCH completed.
 
 #Remove from existing flags (silent)
@@ -55,7 +55,7 @@ C: f2 STORE 1 -FLAGS.SILENT (\Draft)
 S: f2 OK STORE completed.
 
 C: f1 FETCH 1 (FLAGS)
-S: \* 1 FETCH \(FLAGS \(\\Deleted \\Flagged\)\)
+S: \* 1 FETCH \(FLAGS \(\\Deleted \\Flagged \\Recent\)\)
 S: f1 OK FETCH completed.
 
 C: f4 STORE 3:4 FLAGS (\Flagged)
@@ -64,8 +64,8 @@ S: \* 4 FETCH \(FLAGS \(\\Flagged\)\)
 S: f4 OK STORE completed.
 
 C: f1 FETCH 1:4 (FLAGS)
-S: \* 1 FETCH \(FLAGS \(\\Deleted \\Flagged\)\)
-S: \* 2 FETCH \(FLAGS \(\)\)
-S: \* 3 FETCH \(FLAGS \(\\Flagged\)\)
-S: \* 4 FETCH \(FLAGS \(\\Flagged\)\)
+S: \* 1 FETCH \(FLAGS \(\\Deleted \\Flagged \\Recent\)\)
+S: \* 2 FETCH \(FLAGS \(\\Recent\)\)
+S: \* 3 FETCH \(FLAGS \(\\Flagged \\Recent\)\)
+S: \* 4 FETCH \(FLAGS \(\\Flagged \\Recent\)\)
 S: f1 OK FETCH completed.

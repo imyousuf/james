@@ -19,7 +19,7 @@
 # RFC822
 # Not PEEK, so the Seen flag is implicitly set.
 C: f1 FETCH 1 (RFC822)
-S: \* 1 FETCH \(FLAGS \(\\Seen\) RFC822 \{254\}
+S: \* 1 FETCH \(FLAGS \(\\Recent \\Seen\) RFC822 \{254\}
 S: Date: Mon, 7 Feb 1994 21:52:25 -0800 \(PST\)
 S: From: Fred Foobar <foobar@Blurdybloop\.COM>
 S: Subject: Test 01

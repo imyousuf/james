@@ -18,7 +18,7 @@
 ################################################################
 # RFC822.TEXT
 C: f1 FETCH 1 (RFC822.TEXT)
-S: \* 1 FETCH \(FLAGS \(\\Seen\) RFC822.TEXT \{9\}
+S: \* 1 FETCH \(FLAGS \(\\Recent \\Seen\) RFC822.TEXT \{9\}
 S: Test 01
 S: \)
 S: f1 OK FETCH completed.

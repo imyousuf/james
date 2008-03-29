@@ -90,6 +90,7 @@ public class FileProtocolSessionBuilder
         BufferedReader reader = new BufferedReader( new InputStreamReader( is ) );
         String next;
         int lineNumber = -1;
+        String lastClientMsg = "";
         while ( ( next = reader.readLine() ) != null ) {
             String location = fileName + ":" + lineNumber;
             if (SERVER_CONTINUATION_TAG.equals(next)) {
@@ -100,13 +101,14 @@ public class FileProtocolSessionBuilder
                     clientMsg = next.substring( 3 );
                 }
                 session.CL( sessionNumber, clientMsg );
+                lastClientMsg = clientMsg;
             }
             else if ( next.startsWith( SERVER_TAG ) ) {
                 String serverMsg = "";
                 if ( next.length() > 3 ) {
                     serverMsg = next.substring( 3 );
                 }
-                session.SL( sessionNumber, serverMsg, location );
+                session.SL( sessionNumber, serverMsg, location, lastClientMsg );
             }
             else if ( next.startsWith( OPEN_UNORDERED_BLOCK_TAG ) ) {
                 List unorderedLines = new ArrayList( 5 );
@@ -122,7 +124,7 @@ public class FileProtocolSessionBuilder
                     lineNumber++;
                 }
 
-                session.SUB( sessionNumber, unorderedLines, location );
+                session.SUB( sessionNumber, unorderedLines, location, lastClientMsg );
             }
             else if ( next.startsWith( COMMENT_TAG )
                     || next.trim().length() == 0 ) {
