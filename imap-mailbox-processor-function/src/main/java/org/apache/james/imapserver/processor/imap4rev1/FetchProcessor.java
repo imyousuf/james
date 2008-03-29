@@ -476,43 +476,70 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
         private FetchResponse.BodyElement bodyFetch(final MessageResult messageResult,
                 BodyFetchElement fetchElement) throws MessagingException, ProtocolException {
             
-            final FetchResponse.BodyElement result;
+            final Long firstOctet = fetchElement.getFirstOctet();
+            final Long numberOfOctets = fetchElement.getNumberOfOctets();
             final String name = fetchElement.getResponseName();
             final int specifier = fetchElement.getSectionType();
             final int[] path = fetchElement.getPath();
             final Collection names = fetchElement.getFieldNames();
             final boolean isBase = (path == null || path.length == 0);
+            final FetchResponse.BodyElement fullResult 
+                = bodyContent(messageResult, name, specifier, path, names, isBase);
+            final FetchResponse.BodyElement result 
+                = wrapIfPartialFetch(firstOctet, numberOfOctets, fullResult);
+            return result;
+
+        }
+
+        private FetchResponse.BodyElement bodyContent(final MessageResult messageResult, final String name, final int specifier, final int[] path, final Collection names, final boolean isBase) throws MailboxManagerException, MessagingException {
+            final FetchResponse.BodyElement fullResult;
             switch (specifier) {
                 case BodyFetchElement.CONTENT:
-                    result = content(messageResult, name, path, isBase);
+                    fullResult = content(messageResult, name, path, isBase);
                     break;
                     
                 case BodyFetchElement.HEADER_FIELDS:
-                    result = fields(messageResult, name, path, names, isBase);
+                    fullResult = fields(messageResult, name, path, names, isBase);
                     break;
                     
                 case BodyFetchElement.HEADER_NOT_FIELDS:
-                    result = fieldsNot(messageResult, name, path, names, isBase);
+                    fullResult = fieldsNot(messageResult, name, path, names, isBase);
                     break;
                     
                 case BodyFetchElement.MIME:
-                    result = mimeHeaders(messageResult, name, path, isBase);
+                    fullResult = mimeHeaders(messageResult, name, path, isBase);
                     break;
                 case BodyFetchElement.HEADER:
-                    result = headers(messageResult, name, path, isBase);
+                    fullResult = headers(messageResult, name, path, isBase);
                     break;
                     
                 case BodyFetchElement.TEXT:
-                    result = text(messageResult, name, path, isBase);
+                    fullResult = text(messageResult, name, path, isBase);
                     break;
                     
                 default:
-                    result = null;
+                    fullResult = null;
                 break;
             }
+            return fullResult;
+        }
 
+        private FetchResponse.BodyElement wrapIfPartialFetch(final Long firstOctet, final Long numberOfOctets, final FetchResponse.BodyElement fullResult) {
+            final FetchResponse.BodyElement result;
+            if (firstOctet == null) {
+                result = fullResult;
+            } else {
+                final long numberOfOctetsAsLong;
+                if (numberOfOctets == null) {
+                    numberOfOctetsAsLong = Long.MAX_VALUE;
+                } else {
+                    numberOfOctetsAsLong = numberOfOctets.longValue();
+                }
+                final long firstOctetAsLong = firstOctet.longValue();
+                result = new PartialFetchBodyElement(fullResult, 
+                        firstOctetAsLong, numberOfOctetsAsLong); 
+            }
             return result;
-
         }
 
         private FetchResponse.BodyElement text(final MessageResult messageResult, String name, final int[] path, final boolean isBase) throws MailboxManagerException {
@@ -815,7 +842,5 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
         public void writeTo(WritableByteChannel channel) throws IOException {
             content.writeTo(channel);
         }
-        
-        
     }
 }
