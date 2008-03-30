@@ -50,4 +50,28 @@ public abstract class AbstractTestPartialFetch extends BaseTestSelectedState {
     public void testTextPartialFetchIT() throws Exception {
         scriptTest("TextPartialFetch", Locale.US);
     }
+    
+    public void testMimePartialFetchUS() throws Exception {
+        scriptTest("MimePartialFetch", Locale.US);
+    }
+    
+    public void testMimePartialFetchIT() throws Exception {
+        scriptTest("MimePartialFetch", Locale.ITALY);
+    }
+    
+    public void testMimePartialFetchKO() throws Exception {
+        scriptTest("MimePartialFetch", Locale.KOREA);
+    }
+    
+    public void testHeaderPartialFetchUS() throws Exception {
+        scriptTest("HeaderPartialFetch", Locale.US);
+    }
+
+    public void testHeaderPartialFetchIT() throws Exception {
+        scriptTest("HeaderPartialFetch", Locale.ITALY);
+    }
+
+    public void testHeaderPartialFetchKO() throws Exception {
+        scriptTest("HeaderPartialFetch", Locale.KOREA);
+    }
 }
