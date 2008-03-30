@@ -81,6 +81,7 @@ S: A109 OK STORE completed.
 C: A007 EXPUNGE
 S: \* 1 EXPUNGE
 S: \* 2 EXPUNGE
+S: \* \d+ RECENT
 S: A007 OK EXPUNGE completed.
 
 C: A008 STATUS appendexpunge (MESSAGES)
@@ -92,6 +93,7 @@ S: A009 OK STORE completed.
 
 C: A010 EXPUNGE
 S: \* 1 EXPUNGE
+S: \* \d+ RECENT
 S: A010 OK EXPUNGE completed.
 
 C: A011 STATUS appendexpunge (MESSAGES)

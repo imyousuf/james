@@ -54,12 +54,14 @@ public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements Se
     private final UidToMsnConverter converter;    
     private final MailboxSession mailboxSession;
     private final Set recentUids;
+    private boolean recentUidRemoved;
     
     public SelectedMailboxSessionImpl(ImapMailbox mailbox, List uids, 
             MailboxSession mailboxSession) throws MailboxManagerException {
         this.mailbox = mailbox;
         this.mailboxSession = mailboxSession;
         recentUids = new TreeSet();
+        recentUidRemoved = false;
         final long sessionId = mailboxSession.getSessionId();
         events = new MailboxEventAnalyser(sessionId);
         // Ignore events from our session
@@ -90,23 +92,22 @@ public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements Se
     public List unsolicitedResponses(boolean omitExpunged, boolean useUid) {
         final List results = new ArrayList();
         final ImapMailbox mailbox = getMailbox();
+        final boolean sizeChanged = isSizeChanged();
         // New message response
-        if (isSizeChanged()) {
+        if (sizeChanged) {
             addExistsResponses(results, mailbox);
-            addRecentResponses(results, mailbox);
         }
-
-        // Message updates
-        // TODO: slow to check flags every time
-        // TODO: add conditional to selected mailbox
-        addFlagsResponses(results, useUid, mailbox);
-
         // Expunged messages
         if (!omitExpunged) {
-            // TODO: slow to check flags every time
-            // TODO: add conditional to selected mailbox
             addExpungedResponses(results, mailbox);
         }
+        if(sizeChanged || (recentUidRemoved && !omitExpunged)) {
+            addRecentResponses(results, mailbox);
+            recentUidRemoved = false;
+        }
+        
+        // Message updates
+        addFlagsResponses(results, useUid, mailbox);
         
         events.reset();
         return results;
@@ -195,12 +196,17 @@ public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements Se
         return converter.getUid(msn);
     }
 
-    public void removeRecent(long uid) {
-        recentUids.remove(new Long(uid));
+    public boolean removeRecent(long uid) {
+        final boolean result = recentUids.remove(new Long(uid));
+        if (result) {
+            recentUidRemoved = true;
+        }
+        return result;
     }
     
-    public void addRecent(long uid) {
-        recentUids.add(new Long(uid));
+    public boolean addRecent(long uid) {
+        final boolean result = recentUids.add(new Long(uid));
+        return result;
     }
 
     public long[] getRecent() {
@@ -226,7 +232,7 @@ public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements Se
     private void checkExpungedRecents() {
         for(final Iterator it = events.expungedUids();it.hasNext();) {
             final Long uid = (Long) it.next();
-            recentUids.remove(uid);
+            removeRecent(uid.longValue());
         }
     }
 
