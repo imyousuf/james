@@ -35,7 +35,50 @@ public class CreateScript {
 
     public static final void main(String[] args) throws Exception {
         ScriptBuilder builder = ScriptBuilder.open("localhost", 143);
-        mimePartialFetch(builder);
+        rename(builder);
+    }
+    
+    public static void rename(ScriptBuilder builder) throws Exception {
+        setupSearch(builder, true);
+        builder.select();
+        String originalMailbox = builder.getMailbox();
+        builder.getFetch().setFlagsFetch(true).bodyPeekHeaders(ScriptBuilder.Fetch.SELECT_HEADERS).setUid(true);
+        builder.fetchAllMessages();
+        builder.setMailbox("other").create().select().append();
+        builder.setMailbox("base").create().select();
+        builder.rename(originalMailbox, "moved").setMailbox("moved").select().fetchAllMessages();
+        builder.setMailbox(originalMailbox).select();
+        builder.rename("other", "base");
+        builder.setMailbox(originalMailbox).select();
+        builder.setMailbox("moved").select();
+        builder.setMailbox("other").select();
+        builder.setMailbox("base").select();
+        builder.setMailbox("BOGUS").select();
+        builder.setMailbox("WHATEVER").select();
+        builder.rename("other", originalMailbox);
+        builder.setMailbox(originalMailbox).select();
+        builder.setMailbox("moved").select();
+        builder.setMailbox("other").select();
+        builder.setMailbox("base").select();
+        builder.setMailbox("BOGUS").select();
+        builder.setMailbox("WHATEVER").select();
+        builder.rename("BOGUS", "WHATEVER");
+        builder.rename(originalMailbox, "INBOX");
+        builder.rename(originalMailbox, "inbox");
+        builder.rename(originalMailbox, "Inbox");
+        builder.setMailbox(originalMailbox).select();
+        builder.setMailbox("moved").select();
+        builder.setMailbox("other").select();
+        builder.setMailbox("base").select();
+        builder.setMailbox("BOGUS").select();
+        builder.setMailbox("WHATEVER").select();;
+        builder.setMailbox("BOGUS").delete();
+        builder.setMailbox("WHATEVER").delete();
+        builder.setMailbox(originalMailbox).delete();
+        builder.setMailbox("base").delete();
+        builder.setMailbox("other").delete();
+        builder.setMailbox("moved").delete();
+        builder.quit();
     }
     
     public static void mimePartialFetch(ScriptBuilder builder) throws Exception {

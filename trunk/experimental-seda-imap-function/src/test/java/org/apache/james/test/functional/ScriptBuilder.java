@@ -125,8 +125,9 @@ public class ScriptBuilder {
         return mailbox;
     }
 
-    public final void setMailbox(String mailbox) {
+    public final ScriptBuilder setMailbox(String mailbox) {
         this.mailbox = mailbox;
+        return this;
     }
 
     public final String getPassword() {
@@ -156,14 +157,20 @@ public class ScriptBuilder {
         response();
     }
     
+    public ScriptBuilder rename(String from, String to) throws Exception {
+        command("RENAME " + from + " " + to);
+        return this;
+    }
+    
     public ScriptBuilder select() throws Exception {
         command("SELECT " + mailbox);
         return this;
     }
     
-    public void create() throws Exception {
+    public ScriptBuilder create() throws Exception {
         command("CREATE " + mailbox);
         createdMailbox = true;
+        return this;
     }
     
     public ScriptBuilder flagDeleted() throws Exception {
@@ -845,6 +852,7 @@ public class ScriptBuilder {
         private boolean flagsFetch = false;
         private boolean rfc822Size = false;
         private boolean internalDate = false;
+        private boolean uid = false;
         private String bodyPeek = null;
         
         public String command(int messageNumber) {
@@ -859,24 +867,36 @@ public class ScriptBuilder {
             return flagsFetch;
         }
 
-        public final void setFlagsFetch(boolean flagsFetch) {
+        public final Fetch setFlagsFetch(boolean flagsFetch) {
             this.flagsFetch = flagsFetch;
+            return this;
         }
         
+        public final boolean isUid() {
+            return uid;
+        }
+
+        public final Fetch setUid(boolean uid) {
+            this.uid = uid;
+            return this;
+        }
+
         public final boolean isRfc822Size() {
             return rfc822Size;
         }
 
-        public final void setRfc822Size(boolean rfc822Size) {
+        public final Fetch setRfc822Size(boolean rfc822Size) {
             this.rfc822Size = rfc822Size;
+            return this;
         }
         
         public final boolean isInternalDate() {
             return internalDate;
         }
 
-        public final void setInternalDate(boolean internalDate) {
+        public final Fetch setInternalDate(boolean internalDate) {
             this.internalDate = internalDate;
+            return this;
         }
         
         public final String getBodyPeek() {
@@ -895,8 +915,9 @@ public class ScriptBuilder {
             setBodyPeek(buildBody(true, buildHeaderFields(fields, true)));
         }
         
-        public void bodyPeekHeaders(String[] fields) {
+        public Fetch bodyPeekHeaders(String[] fields) {
             setBodyPeek(buildBody(true, buildHeaderFields(fields, false)));
+            return this;
         }
         
         public String buildBody(boolean peek, String section) {
@@ -938,6 +959,9 @@ public class ScriptBuilder {
             }
             if (internalDate) {
                 first = add(buffer, first, "INTERNALDATE");
+            }
+            if (uid) {
+                first = add(buffer, first, "UID");
             }
             add(buffer, first, bodyPeek);
             return buffer.toString();
@@ -1188,7 +1212,7 @@ public class ScriptBuilder {
                                         "OK Logged in",
                                         "LOGOUT"};
         
-        private final CharBuffer lineBuffer = CharBuffer.allocate(4096);
+        private final CharBuffer lineBuffer = CharBuffer.allocate(65536);
         private boolean isClient = false;
         public void client() {
             lineBuffer.put("C: ");
