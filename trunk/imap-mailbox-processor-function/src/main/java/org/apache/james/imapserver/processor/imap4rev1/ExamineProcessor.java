@@ -19,18 +19,10 @@
 
 package org.apache.james.imapserver.processor.imap4rev1;
 
-import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
-import org.apache.james.api.imap.ProtocolException;
-import org.apache.james.api.imap.message.request.ImapRequest;
-import org.apache.james.api.imap.message.response.ImapResponseMessage;
 import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
 import org.apache.james.api.imap.process.ImapProcessor;
-import org.apache.james.api.imap.process.ImapSession;
-import org.apache.james.api.imap.process.ImapProcessor.Responder;
 import org.apache.james.imap.message.request.imap4rev1.ExamineRequest;
-import org.apache.james.imapserver.processor.base.AuthorizationException;
-import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 
 public class ExamineProcessor extends AbstractMailboxSelectionProcessor {
@@ -38,28 +30,10 @@ public class ExamineProcessor extends AbstractMailboxSelectionProcessor {
     public ExamineProcessor(final ImapProcessor next,
             final MailboxManagerProvider mailboxManagerProvider,
             final StatusResponseFactory statusResponseFactory) {
-        super(next, mailboxManagerProvider, statusResponseFactory);
+        super(next, mailboxManagerProvider, statusResponseFactory, true);
     }
 
     protected boolean isAcceptable(ImapMessage message) {
         return (message instanceof ExamineRequest);
-    }
-
-    protected void doProcess(ImapRequest message,
-            ImapSession session, String tag, ImapCommand command, Responder responder)
-            throws MailboxException, AuthorizationException, ProtocolException {
-        final ExamineRequest request = (ExamineRequest) message;
-        final ImapResponseMessage result = doProcess(request, session, tag,
-                command);
-        responder.respond(result);
-    }
-
-    private ImapResponseMessage doProcess(ExamineRequest request,
-            ImapSession session, String tag, ImapCommand command)
-            throws MailboxException, AuthorizationException, ProtocolException {
-        final String mailboxName = request.getMailboxName();
-        final ImapResponseMessage result = doProcess(mailboxName, true,
-                session, tag, command);
-        return result;
     }
 }

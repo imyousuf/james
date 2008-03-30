@@ -19,19 +19,11 @@
 package org.apache.james.imap.message.request.imap4rev1;
 
 import org.apache.james.api.imap.ImapCommand;
-import org.apache.james.imap.message.request.base.AbstractImapRequest;
 
-public class SelectRequest extends AbstractImapRequest {
-    private final String mailboxName;
+public class SelectRequest extends AbstractMailboxSelectionRequest {
 
     public SelectRequest(final ImapCommand command, final String mailboxName,
             final String tag) {
-        super(tag, command);
-        this.mailboxName = mailboxName;
+        super(command, mailboxName, tag);
     }
-
-    public final String getMailboxName() {
-        return mailboxName;
-    }
-
 }

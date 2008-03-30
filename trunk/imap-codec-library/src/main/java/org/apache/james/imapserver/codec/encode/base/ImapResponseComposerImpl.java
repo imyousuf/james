@@ -30,7 +30,6 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapConstants;
-import org.apache.james.api.imap.message.MessageFlags;
 import org.apache.james.imap.message.response.imap4rev1.Literal;
 import org.apache.james.imapserver.codec.encode.ImapResponseComposer;
 import org.apache.james.imapserver.codec.encode.ImapResponseWriter;
@@ -310,7 +309,7 @@ public class ImapResponseComposerImpl extends AbstractLogEnabled implements
      * @see org.apache.james.imapserver.codec.encode.ImapResponseComposer#responseCode(java.lang.String)
      */
     public void responseCode(final String responseCode) throws IOException {
-        if (responseCode != null) {
+        if (responseCode != null && !"".equals(responseCode)) {
             writer.responseCode(responseCode);
         }
     }
@@ -321,17 +320,6 @@ public class ImapResponseComposerImpl extends AbstractLogEnabled implements
      */
     public void end() throws IOException {
         writer.end();
-    }
-
-    /**
-     * @throws IOException 
-     * @see org.apache.james.imapserver.codec.encode.ImapResponseComposer#permanentFlagsResponse(javax.mail.Flags)
-     */
-    public void permanentFlagsResponse(Flags flags) throws IOException {
-        untagged();
-        message(OK);
-        responseCode("PERMANENTFLAGS " + MessageFlags.format(flags));
-        end();
     }
 
     /**
@@ -373,7 +361,7 @@ public class ImapResponseComposerImpl extends AbstractLogEnabled implements
         if (command != null) {
             commandName(command);
         }
-        if (text != null) {
+        if (text != null && !"".equals(text)) {
             message(text);
         }
         end();

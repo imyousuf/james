@@ -19,6 +19,9 @@
 
 package org.apache.james.api.imap.message;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import javax.mail.Flags;
 
 
@@ -30,6 +33,13 @@ import javax.mail.Flags;
  */
 public class MessageFlags
 {
+    public static final String SEEN_OUTPUT_CAPITALISED = "\\Seen";
+    public static final String RECENT_OUTPUT_CAPITALISED = "\\Recent";
+    public static final String FLAGGED_OUTPUT_CAPITALISED = "\\Flagged";
+    public static final String DRAFT_OUTPUT_CAPITALISED = "\\Draft";
+    public static final String DELETED_OUTPUT_CAPITALISED = "\\Deleted";
+    public static final String ANSWERED_OUTPUT_CAPITALISED = "\\Answered";
+    
     public static final Flags ALL_FLAGS = new Flags();
     static {
         ALL_FLAGS.add(Flags.Flag.ANSWERED);
@@ -40,13 +50,41 @@ public class MessageFlags
         ALL_FLAGS.add(Flags.Flag.SEEN);
     }
     
-    public static final String ANSWERED = "\\ANSWERED";
-    public static final String DELETED = "\\DELETED";
-    public static final String DRAFT = "\\DRAFT";
-    public static final String FLAGGED = "\\FLAGGED";
-    public static final String SEEN = "\\SEEN";
-    public static final String RECENT = "\\RECENT";
+    public static final String ANSWERED_ALL_CAPS = "\\ANSWERED";
+    public static final String DELETED_ALL_CAPS = "\\DELETED";
+    public static final String DRAFT_ALL_CAPS = "\\DRAFT";
+    public static final String FLAGGED_ALL_CAPS = "\\FLAGGED";
+    public static final String SEEN_ALL_CAPS = "\\SEEN";
+    public static final String RECENT_ALL_CAPS = "\\RECENT";
 
+    /**
+     * Returns IMAP formatted String naming flags.
+     * @return <code>Collection</code> of <code>String</code>'s
+     * naming the flags.
+     */
+    public static Collection names(Flags flags) {
+        final Collection results = new ArrayList();
+        if ( flags.contains(Flags.Flag.ANSWERED) ) {
+            results.add( ANSWERED_OUTPUT_CAPITALISED );
+        }
+        if ( flags.contains(Flags.Flag.DELETED) ) {
+            results.add( DELETED_OUTPUT_CAPITALISED );
+        }
+        if ( flags.contains(Flags.Flag.DRAFT) ) {
+            results.add( DRAFT_OUTPUT_CAPITALISED );
+        }
+        if ( flags.contains(Flags.Flag.FLAGGED) ) {
+            results.add( FLAGGED_OUTPUT_CAPITALISED );
+        }
+        if ( flags.contains(Flags.Flag.RECENT) ) {
+            results.add( RECENT_OUTPUT_CAPITALISED );
+        }
+        if ( flags.contains(Flags.Flag.SEEN) ) {
+            results.add( SEEN_OUTPUT_CAPITALISED );
+        }
+        return results;
+    }
+    
     /**
      * Returns IMAP formatted String of MessageFlags for named user
      */

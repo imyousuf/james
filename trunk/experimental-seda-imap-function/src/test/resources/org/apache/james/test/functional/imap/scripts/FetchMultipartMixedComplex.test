@@ -24,7 +24,6 @@ S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
 S: \* 0 EXISTS
 S: \* 0 RECENT
 S: \* OK \[UIDVALIDITY (.)*
-S: \* OK No messages unseen
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\](.)*
 S: A3 OK \[READ-WRITE\] SELECT completed\.
 C: A4 APPEND testmailbox {1767+}
@@ -127,7 +126,7 @@ S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
 S: \* 1 EXISTS
 S: \* 1 RECENT
 S: \* OK \[UIDVALIDITY (.)*
-S: \* OK \[UNSEEN 1\] Message 1 is the first unseen
+S: \* OK \[UNSEEN 1\]
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\](.)*
 S: A5 OK \[READ-WRITE\] SELECT completed\.
 C: A6 FETCH 1 (BODY[])
@@ -564,7 +563,6 @@ S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
 S: \* 1 EXISTS
 S: \* 1 RECENT
 S: \* OK \[UIDVALIDITY (.)*
-S: \* OK No messages unseen
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\](.)*
 S: A26 OK \[READ-WRITE\] SELECT completed\.
 C: A27 DELETE testmailbox

@@ -24,7 +24,6 @@ S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
 S: \* 0 EXISTS
 S: \* 0 RECENT
 S: \* OK \[UIDVALIDITY (.)*
-S: \* OK No messages unseen
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\](.)*
 S: A3 OK \[READ-WRITE\] SELECT completed\.
 C: A4 APPEND testmailbox {185+}
@@ -277,7 +276,7 @@ S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
 S: \* 9 EXISTS
 S: \* 9 RECENT
 S: \* OK \[UIDVALIDITY (.)*
-S: \* OK \[UNSEEN 1\] (.)*
+S: \* OK \[UNSEEN 1\]
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\](.)*
 S: A13 OK \[READ-WRITE\] SELECT completed\.
 C: A14 FETCH 1:* (BODY.PEEK[])
@@ -558,7 +557,7 @@ S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
 S: \* 9 EXISTS
 S: \* 9 RECENT
 S: \* OK \[UIDVALIDITY (.)*
-S: \* OK \[UNSEEN 1\] (.)*
+S: \* OK \[UNSEEN 1\]
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\](.)*
 S: A16 OK \[READ-WRITE\] SELECT completed\.
 C: A17 DELETE testmailbox

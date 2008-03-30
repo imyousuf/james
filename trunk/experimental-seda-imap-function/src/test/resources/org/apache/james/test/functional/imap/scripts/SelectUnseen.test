@@ -27,7 +27,6 @@ S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
 S: \* 0 EXISTS
 S: \* 0 RECENT
 S: \* OK \[UIDVALIDITY \d+\]
-S: \* OK No messages unseen
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
 S: 10 OK \[READ-WRITE\] SELECT completed.
 
@@ -70,7 +69,6 @@ S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
 S: \* 0 EXISTS
 S: \* 0 RECENT
 S: \* OK \[UIDVALIDITY \d+\]
-S: \* OK No messages unseen
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
 S: 20 OK \[READ-WRITE\] SELECT completed.
 
@@ -79,7 +77,7 @@ S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
 S: \* 2 EXISTS
 S: \* 0 RECENT
 S: \* OK \[UIDVALIDITY \d+\]
-S: \* OK \[UNSEEN 1\] Message 1 is the first unseen
+S: \* OK \[UNSEEN 1\]
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
 S: 21 OK \[READ-WRITE\] SELECT completed.
 
@@ -102,7 +100,6 @@ S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
 S: \* 0 EXISTS
 S: \* 0 RECENT
 S: \* OK \[UIDVALIDITY \d+\]
-S: \* OK No messages unseen
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
 S: 30 OK \[READ-WRITE\] SELECT completed.
 
@@ -111,7 +108,7 @@ S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
 S: \* 2 EXISTS
 S: \* 0 RECENT
 S: \* OK \[UIDVALIDITY \d+\]
-S: \* OK \[UNSEEN 2\] Message 2 is the first unseen
+S: \* OK \[UNSEEN 2\]
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
 S: 40 OK \[READ-WRITE\] SELECT completed.
 
