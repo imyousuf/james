@@ -35,7 +35,31 @@ public class CreateScript {
 
     public static final void main(String[] args) throws Exception {
         ScriptBuilder builder = ScriptBuilder.open("localhost", 143);
-        rename(builder);
+        renameHierarchy(builder);
+    }
+    
+    public static void renameHierarchy(ScriptBuilder builder) throws Exception {
+        builder.login();
+        builder.setMailbox("one").create();
+        builder.setMailbox("one.two").create();
+        builder.setMailbox("one.two.three").create();
+        builder.setMailbox("one.two.three.four").create();
+        builder.list();
+        builder.rename("one.two", "alpha.beta");
+        builder.list();
+        builder.rename("alpha.beta.three.four", "alpha.beta.gamma.delta");
+        builder.list();
+        builder.rename("alpha.beta.three", "aleph");
+        builder.list();
+        builder.rename("aleph", "alpha.beta.gamma.delta.epsilon");
+        builder.list();
+        builder.rename("alpha.beta.gamma", "one");
+        builder.list();
+        builder.setMailbox("one").delete();
+        builder.setMailbox("alpha").delete();
+        builder.setMailbox("aleph");
+        builder.list();
+        builder.quit();
     }
     
     public static void rename(ScriptBuilder builder) throws Exception {

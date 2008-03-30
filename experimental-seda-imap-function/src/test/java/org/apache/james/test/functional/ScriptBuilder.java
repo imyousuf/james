@@ -430,6 +430,11 @@ public class ScriptBuilder {
         command(command);
     }
     
+    public ScriptBuilder list() throws Exception {
+        command("LIST \"\" \"*\"");
+        return this;
+    }
+    
     public void fetch() throws Exception {
         final String command = fetch.command(messageNumber);
         command(command);
@@ -1266,6 +1271,9 @@ public class ScriptBuilder {
                     line = StringUtils.replace(line, "OK Fetch completed", "OK FETCH completed");
                     line = StringUtils.replace(line, "OK Append completed", "OK APPEND completed");
                     line = StringUtils.replace(line, "OK Delete completed", "OK DELETE completed");
+                    line = StringUtils.replace(line, "OK Store completed", "OK STORE completed");
+                    line = StringUtils.replace(line, "OK Rename completed", "OK RENAME completed");
+                    line = StringUtils.replace(line, "OK Expunge completed", "OK EXPUNGE completed");
                     line = StringUtils.replace(line, "Select completed", "SELECT completed");
                     line = StringUtils.replace(line, "\\\\Seen \\\\Draft", "\\\\Draft \\\\Seen");
                     line = StringUtils.replace(line, "\\\\Flagged \\\\Deleted", "\\\\Deleted \\\\Flagged");
