@@ -22,7 +22,7 @@ C: A3 SELECT testmailbox
 S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
 S: \* 0 EXISTS
 S: \* 0 RECENT
-S: \* OK \[UIDVALIDITY \d+\\]
+S: \* OK \[UIDVALIDITY \d+\]
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
 S: A3 OK \[READ-WRITE\] SELECT completed\.
 C: A4 APPEND testmailbox {1767+}
@@ -124,24 +124,21 @@ C: A5 SELECT testmailbox
 S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
 S: \* 1 EXISTS
 S: \* 1 RECENT
+S: \* OK \[UIDVALIDITY \d+\]
 S: \* OK \[UNSEEN 1\](.)*
-S: \* OK \[UIDVALIDITY \d+\\]
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
 S: A5 OK \[READ-WRITE\] SELECT completed\.
 C: A6 FETCH 1 (BODY[TEXT]<0.0>)
-S: \* 1 FETCH \(FLAGS \(\\Recent \\Seen\) BODY\[TEXT\]<0> \{0\}
-S: \)
-S: A6 OK FETCH completed\.
+S: A6 BAD Zero value not permitted(.)*
 C: A7 FETCH 1 (BODY[TEXT]<0.16>)
-S: \* 1 FETCH \(BODY\[TEXT\]<0> \{16\}
+S: \* 1 FETCH \(FLAGS \(\\Recent \\Seen\) BODY\[TEXT\]<0> \{16\}
 S: Start with a pre\)
 S: A7 OK FETCH completed\.
 C: A8 FETCH 1 (BODY[TEXT]<0.32>)
 S: \* 1 FETCH \(BODY\[TEXT\]<0> \{32\}
 S: Start with a preamble
 S: 
-S: --1729
-\)
+S: --1729\r\)
 S: A8 OK FETCH completed\.
 C: A9 FETCH 1 (BODY[TEXT]<0.64>)
 S: \* 1 FETCH \(BODY\[TEXT\]<0> \{64\}
@@ -307,9 +304,7 @@ S: --1729--
 S: \)
 S: A12 OK FETCH completed\.
 C: A13 FETCH 1 (BODY[TEXT]<7.0>)
-S: \* 1 FETCH \(BODY\[TEXT\]<7> \{0\}
-S: \)
-S: A13 OK FETCH completed\.
+S: A13 BAD Zero value not permitted(.)*
 C: A14 FETCH 1 (BODY[TEXT]<7.16>)
 S: \* 1 FETCH \(BODY\[TEXT\]<7> \{16\}
 S: ith a preamble
@@ -487,9 +482,7 @@ S: --1729--
 S: \)
 S: A19 OK FETCH completed\.
 C: A20 FETCH 1 (BODY[TEXT]<10000.0>)
-S: \* 1 FETCH \(BODY\[TEXT\]<10000> \{0\}
-S: \)
-S: A20 OK FETCH completed\.
+S: A20 BAD Zero value not permitted(.)*
 C: A21 FETCH 1 (BODY[TEXT]<10000.16>)
 S: \* 1 FETCH \(BODY\[TEXT\]<10000> \{0\}
 S: \)
