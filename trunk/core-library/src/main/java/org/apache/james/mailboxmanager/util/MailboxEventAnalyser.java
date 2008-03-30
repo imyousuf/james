@@ -122,6 +122,10 @@ public class MailboxEventAnalyser implements MailboxListener {
         return expungedUids.iterator();
     }
     
+    public boolean hasExpungedUids() {
+        return !expungedUids.isEmpty();
+    }
+    
     public void mailboxDeleted() {
         // TODO implementation
 

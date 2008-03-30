@@ -38,11 +38,11 @@ S: \* 1 RECENT
 S: A4 OK APPEND completed\.
 C: A5 STORE 1  FLAGS (\DELETED)
 S: \* 1 FETCH \(FLAGS \(\\Deleted \\Recent\)\)
-S: A5 OK Store completed\.
+S: A5 OK STORE completed\.
 C: A6 EXPUNGE
 S: \* 1 EXPUNGE
 S: \* 0 RECENT
-S: A6 OK Expunge completed\.
+S: A6 OK EXPUNGE completed\.
 C: A7 APPEND testmailbox {185+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -56,11 +56,11 @@ S: \* 1 RECENT
 S: A7 OK APPEND completed\.
 C: A8 STORE 1  FLAGS (\DELETED)
 S: \* 1 FETCH \(FLAGS \(\\Deleted \\Recent\)\)
-S: A8 OK Store completed\.
+S: A8 OK STORE completed\.
 C: A9 EXPUNGE
 S: \* 1 EXPUNGE
 S: \* 0 RECENT
-S: A9 OK Expunge completed\.
+S: A9 OK EXPUNGE completed\.
 C: A10 APPEND testmailbox {185+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -74,11 +74,11 @@ S: \* 1 RECENT
 S: A10 OK APPEND completed\.
 C: A11 STORE 1  FLAGS (\DELETED)
 S: \* 1 FETCH \(FLAGS \(\\Deleted \\Recent\)\)
-S: A11 OK Store completed\.
+S: A11 OK STORE completed\.
 C: A12 EXPUNGE
 S: \* 1 EXPUNGE
 S: \* 0 RECENT
-S: A12 OK Expunge completed\.
+S: A12 OK EXPUNGE completed\.
 C: A13 APPEND testmailbox {185+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -92,11 +92,11 @@ S: \* 1 RECENT
 S: A13 OK APPEND completed\.
 C: A14 STORE 1  FLAGS (\DELETED)
 S: \* 1 FETCH \(FLAGS \(\\Deleted \\Recent\)\)
-S: A14 OK Store completed\.
+S: A14 OK STORE completed\.
 C: A15 EXPUNGE
 S: \* 1 EXPUNGE
 S: \* 0 RECENT
-S: A15 OK Expunge completed\.
+S: A15 OK EXPUNGE completed\.
 C: A16 APPEND testmailbox {185+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -110,11 +110,11 @@ S: \* 1 RECENT
 S: A16 OK APPEND completed\.
 C: A17 STORE 1  FLAGS (\DELETED)
 S: \* 1 FETCH \(FLAGS \(\\Deleted \\Recent\)\)
-S: A17 OK Store completed\.
+S: A17 OK STORE completed\.
 C: A18 EXPUNGE
 S: \* 1 EXPUNGE
 S: \* 0 RECENT
-S: A18 OK Expunge completed\.
+S: A18 OK EXPUNGE completed\.
 C: A19 APPEND testmailbox {185+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -128,11 +128,11 @@ S: \* 1 RECENT
 S: A19 OK APPEND completed\.
 C: A20 STORE 1  FLAGS (\DELETED)
 S: \* 1 FETCH \(FLAGS \(\\Deleted \\Recent\)\)
-S: A20 OK Store completed\.
+S: A20 OK STORE completed\.
 C: A21 EXPUNGE
 S: \* 1 EXPUNGE
 S: \* 0 RECENT
-S: A21 OK Expunge completed\.
+S: A21 OK EXPUNGE completed\.
 C: A22 APPEND testmailbox {185+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -146,11 +146,11 @@ S: \* 1 RECENT
 S: A22 OK APPEND completed\.
 C: A23 STORE 1  FLAGS (\DELETED)
 S: \* 1 FETCH \(FLAGS \(\\Deleted \\Recent\)\)
-S: A23 OK Store completed\.
+S: A23 OK STORE completed\.
 C: A24 EXPUNGE
 S: \* 1 EXPUNGE
 S: \* 0 RECENT
-S: A24 OK Expunge completed\.
+S: A24 OK EXPUNGE completed\.
 C: A25 APPEND testmailbox {185+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -164,11 +164,11 @@ S: \* 1 RECENT
 S: A25 OK APPEND completed\.
 C: A26 STORE 1  FLAGS (\DELETED)
 S: \* 1 FETCH \(FLAGS \(\\Deleted \\Recent\)\)
-S: A26 OK Store completed\.
+S: A26 OK STORE completed\.
 C: A27 EXPUNGE
 S: \* 1 EXPUNGE
 S: \* 0 RECENT
-S: A27 OK Expunge completed\.
+S: A27 OK EXPUNGE completed\.
 C: A28 APPEND testmailbox {185+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -182,11 +182,11 @@ S: \* 1 RECENT
 S: A28 OK APPEND completed\.
 C: A29 STORE 1  FLAGS (\DELETED)
 S: \* 1 FETCH \(FLAGS \(\\Deleted \\Recent\)\)
-S: A29 OK Store completed\.
+S: A29 OK STORE completed\.
 C: A30 EXPUNGE
 S: \* 1 EXPUNGE
 S: \* 0 RECENT
-S: A30 OK Expunge completed\.
+S: A30 OK EXPUNGE completed\.
 C: A31 APPEND testmailbox {185+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -200,11 +200,11 @@ S: \* 1 RECENT
 S: A31 OK APPEND completed\.
 C: A32 STORE 1  FLAGS (\DELETED)
 S: \* 1 FETCH \(FLAGS \(\\Deleted \\Recent\)\)
-S: A32 OK Store completed\.
+S: A32 OK STORE completed\.
 C: A33 EXPUNGE
 S: \* 1 EXPUNGE
 S: \* 0 RECENT
-S: A33 OK Expunge completed\.
+S: A33 OK EXPUNGE completed\.
 C: A34 APPEND testmailbox {185+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -218,11 +218,11 @@ S: \* 1 RECENT
 S: A34 OK APPEND completed\.
 C: A35 STORE 1  FLAGS (\DELETED)
 S: \* 1 FETCH \(FLAGS \(\\Deleted \\Recent\)\)
-S: A35 OK Store completed\.
+S: A35 OK STORE completed\.
 C: A36 EXPUNGE
 S: \* 1 EXPUNGE
 S: \* 0 RECENT
-S: A36 OK Expunge completed\.
+S: A36 OK EXPUNGE completed\.
 C: A37 APPEND testmailbox {185+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -236,11 +236,11 @@ S: \* 1 RECENT
 S: A37 OK APPEND completed\.
 C: A38 STORE 1  FLAGS (\DELETED)
 S: \* 1 FETCH \(FLAGS \(\\Deleted \\Recent\)\)
-S: A38 OK Store completed\.
+S: A38 OK STORE completed\.
 C: A39 EXPUNGE
 S: \* 1 EXPUNGE
 S: \* 0 RECENT
-S: A39 OK Expunge completed\.
+S: A39 OK EXPUNGE completed\.
 C: A40 APPEND testmailbox {185+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -254,11 +254,11 @@ S: \* 1 RECENT
 S: A40 OK APPEND completed\.
 C: A41 STORE 1  FLAGS (\DELETED)
 S: \* 1 FETCH \(FLAGS \(\\Deleted \\Recent\)\)
-S: A41 OK Store completed\.
+S: A41 OK STORE completed\.
 C: A42 EXPUNGE
 S: \* 1 EXPUNGE
 S: \* 0 RECENT
-S: A42 OK Expunge completed\.
+S: A42 OK EXPUNGE completed\.
 C: A43 APPEND testmailbox {185+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -272,11 +272,11 @@ S: \* 1 RECENT
 S: A43 OK APPEND completed\.
 C: A44 STORE 1  FLAGS (\DELETED)
 S: \* 1 FETCH \(FLAGS \(\\Deleted \\Recent\)\)
-S: A44 OK Store completed\.
+S: A44 OK STORE completed\.
 C: A45 EXPUNGE
 S: \* 1 EXPUNGE
 S: \* 0 RECENT
-S: A45 OK Expunge completed\.
+S: A45 OK EXPUNGE completed\.
 C: A46 APPEND testmailbox {185+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -290,11 +290,11 @@ S: \* 1 RECENT
 S: A46 OK APPEND completed\.
 C: A47 STORE 1  FLAGS (\DELETED)
 S: \* 1 FETCH \(FLAGS \(\\Deleted \\Recent\)\)
-S: A47 OK Store completed\.
+S: A47 OK STORE completed\.
 C: A48 EXPUNGE
 S: \* 1 EXPUNGE
 S: \* 0 RECENT
-S: A48 OK Expunge completed\.
+S: A48 OK EXPUNGE completed\.
 C: A49 APPEND testmailbox {185+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -308,11 +308,11 @@ S: \* 1 RECENT
 S: A49 OK APPEND completed\.
 C: A50 STORE 1  FLAGS (\DELETED)
 S: \* 1 FETCH \(FLAGS \(\\Deleted \\Recent\)\)
-S: A50 OK Store completed\.
+S: A50 OK STORE completed\.
 C: A51 EXPUNGE
 S: \* 1 EXPUNGE
 S: \* 0 RECENT
-S: A51 OK Expunge completed\.
+S: A51 OK EXPUNGE completed\.
 C: A52 APPEND testmailbox {185+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -326,11 +326,11 @@ S: \* 1 RECENT
 S: A52 OK APPEND completed\.
 C: A53 STORE 1  FLAGS (\DELETED)
 S: \* 1 FETCH \(FLAGS \(\\Deleted \\Recent\)\)
-S: A53 OK Store completed\.
+S: A53 OK STORE completed\.
 C: A54 EXPUNGE
 S: \* 1 EXPUNGE
 S: \* 0 RECENT
-S: A54 OK Expunge completed\.
+S: A54 OK EXPUNGE completed\.
 C: A55 APPEND testmailbox {185+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -344,11 +344,11 @@ S: \* 1 RECENT
 S: A55 OK APPEND completed\.
 C: A56 STORE 1  FLAGS (\DELETED)
 S: \* 1 FETCH \(FLAGS \(\\Deleted \\Recent\)\)
-S: A56 OK Store completed\.
+S: A56 OK STORE completed\.
 C: A57 EXPUNGE
 S: \* 1 EXPUNGE
 S: \* 0 RECENT
-S: A57 OK Expunge completed\.
+S: A57 OK EXPUNGE completed\.
 C: A58 APPEND testmailbox {185+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -362,11 +362,11 @@ S: \* 1 RECENT
 S: A58 OK APPEND completed\.
 C: A59 STORE 1  FLAGS (\DELETED)
 S: \* 1 FETCH \(FLAGS \(\\Deleted \\Recent\)\)
-S: A59 OK Store completed\.
+S: A59 OK STORE completed\.
 C: A60 EXPUNGE
 S: \* 1 EXPUNGE
 S: \* 0 RECENT
-S: A60 OK Expunge completed\.
+S: A60 OK EXPUNGE completed\.
 C: A61 APPEND testmailbox {185+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -380,11 +380,11 @@ S: \* 1 RECENT
 S: A61 OK APPEND completed\.
 C: A62 STORE 1  FLAGS (\DELETED)
 S: \* 1 FETCH \(FLAGS \(\\Deleted \\Recent\)\)
-S: A62 OK Store completed\.
+S: A62 OK STORE completed\.
 C: A63 EXPUNGE
 S: \* 1 EXPUNGE
 S: \* 0 RECENT
-S: A63 OK Expunge completed\.
+S: A63 OK EXPUNGE completed\.
 C: A64 APPEND testmailbox {185+}
 C: From: Timothy Tayler <timothy@example.org>
 C: To: Samual Smith <samual@example.org>
@@ -1881,189 +1881,189 @@ S: \* 6 FETCH \(FLAGS \(\\Flagged \\Recent\)\)
 S: \* 7 FETCH \(FLAGS \(\\Flagged \\Recent\)\)
 S: \* 8 FETCH \(FLAGS \(\\Flagged \\Recent\)\)
 S: \* 9 FETCH \(FLAGS \(\\Flagged \\Recent\)\)
-S: A83 OK Store completed\.
+S: A83 OK STORE completed\.
 C: A84 STORE 1:4  +FLAGS (\ANSWERED)
 S: \* 1 FETCH \(FLAGS \(\\Answered \\Flagged \\Recent\)\)
 S: \* 2 FETCH \(FLAGS \(\\Answered \\Flagged \\Recent\)\)
 S: \* 3 FETCH \(FLAGS \(\\Answered \\Flagged \\Recent\)\)
 S: \* 4 FETCH \(FLAGS \(\\Answered \\Flagged \\Recent\)\)
-S: A84 OK Store completed\.
+S: A84 OK STORE completed\.
 C: A85 STORE 10:14  +FLAGS (\ANSWERED)
 S: \* 10 FETCH \(FLAGS \(\\Answered \\Recent\)\)
 S: \* 11 FETCH \(FLAGS \(\\Answered \\Recent\)\)
 S: \* 12 FETCH \(FLAGS \(\\Answered \\Recent\)\)
 S: \* 13 FETCH \(FLAGS \(\\Answered \\Recent\)\)
 S: \* 14 FETCH \(FLAGS \(\\Answered \\Recent\)\)
-S: A85 OK Store completed\.
+S: A85 OK STORE completed\.
 C: A86 STORE 1:2  +FLAGS (\SEEN)
 S: \* 1 FETCH \(FLAGS \(\\Answered \\Flagged \\Recent \\Seen\)\)
 S: \* 2 FETCH \(FLAGS \(\\Answered \\Flagged \\Recent \\Seen\)\)
-S: A86 OK Store completed\.
+S: A86 OK STORE completed\.
 C: A87 STORE 5:7  +FLAGS (\SEEN)
 S: \* 5 FETCH \(FLAGS \(\\Flagged \\Recent \\Seen\)\)
 S: \* 6 FETCH \(FLAGS \(\\Flagged \\Recent \\Seen\)\)
 S: \* 7 FETCH \(FLAGS \(\\Flagged \\Recent \\Seen\)\)
-S: A87 OK Store completed\.
+S: A87 OK STORE completed\.
 C: A88 STORE 10:12  +FLAGS (\SEEN)
 S: \* 10 FETCH \(FLAGS \(\\Answered \\Recent \\Seen\)\)
 S: \* 11 FETCH \(FLAGS \(\\Answered \\Recent \\Seen\)\)
 S: \* 12 FETCH \(FLAGS \(\\Answered \\Recent \\Seen\)\)
-S: A88 OK Store completed\.
+S: A88 OK STORE completed\.
 C: A89 STORE 15:17  +FLAGS (\SEEN)
 S: \* 15 FETCH \(FLAGS \(\\Recent \\Seen\)\)
 S: \* 16 FETCH \(FLAGS \(\\Recent \\Seen\)\)
 S: \* 17 FETCH \(FLAGS \(\\Recent \\Seen\)\)
-S: A89 OK Store completed\.
+S: A89 OK STORE completed\.
 C: A90 STORE 1  +FLAGS (\DRAFT)
 S: \* 1 FETCH \(FLAGS \(\\Answered \\Draft \\Flagged \\Recent \\Seen\)\)
-S: A90 OK Store completed\.
+S: A90 OK STORE completed\.
 C: A91 STORE 3  +FLAGS (\DRAFT)
 S: \* 3 FETCH \(FLAGS \(\\Answered \\Draft \\Flagged \\Recent\)\)
-S: A91 OK Store completed\.
+S: A91 OK STORE completed\.
 C: A92 STORE 5  +FLAGS (\DRAFT)
 S: \* 5 FETCH \(FLAGS \(\\Draft \\Flagged \\Recent \\Seen\)\)
-S: A92 OK Store completed\.
+S: A92 OK STORE completed\.
 C: A93 STORE 7  +FLAGS (\DRAFT)
 S: \* 7 FETCH \(FLAGS \(\\Draft \\Flagged \\Recent \\Seen\)\)
-S: A93 OK Store completed\.
+S: A93 OK STORE completed\.
 C: A94 STORE 9  +FLAGS (\DRAFT)
 S: \* 9 FETCH \(FLAGS \(\\Draft \\Flagged \\Recent\)\)
-S: A94 OK Store completed\.
+S: A94 OK STORE completed\.
 C: A95 STORE 11  +FLAGS (\DRAFT)
 S: \* 11 FETCH \(FLAGS \(\\Answered \\Draft \\Recent \\Seen\)\)
-S: A95 OK Store completed\.
+S: A95 OK STORE completed\.
 C: A96 STORE 13  +FLAGS (\DRAFT)
 S: \* 13 FETCH \(FLAGS \(\\Answered \\Draft \\Recent\)\)
-S: A96 OK Store completed\.
+S: A96 OK STORE completed\.
 C: A97 STORE 15  +FLAGS (\DRAFT)
 S: \* 15 FETCH \(FLAGS \(\\Draft \\Recent \\Seen\)\)
-S: A97 OK Store completed\.
+S: A97 OK STORE completed\.
 C: A98 STORE 17  +FLAGS (\DRAFT)
 S: \* 17 FETCH \(FLAGS \(\\Draft \\Recent \\Seen\)\)
-S: A98 OK Store completed\.
+S: A98 OK STORE completed\.
 C: A99 STORE 1:3  +FLAGS (\DELETED)
 S: \* 1 FETCH \(FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Recent \\Seen\)\)
 S: \* 2 FETCH \(FLAGS \(\\Answered \\Deleted \\Flagged \\Recent \\Seen\)\)
 S: \* 3 FETCH \(FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Recent\)\)
-S: A99 OK Store completed\.
+S: A99 OK STORE completed\.
 C: A100 SELECT testmailbox
 S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
 S: \* 19 EXISTS
-S: \* 0 RECENT
-S: \* OK \[UNSEEN 3\](.)*
+S: \* 19 RECENT
 S: \* OK \[UIDVALIDITY \d+\]
+S: \* OK \[UNSEEN 3\](.)*
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
 S: A100 OK \[READ-WRITE\] SELECT completed\.
 C: A101 FETCH 1:* (FLAGS UID BODY.PEEK[HEADER.FIELDS (DATE FROM TO ORIGINATOR X-LIST)])
-S: \* 1 FETCH \(FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\) UID 21 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{130\}
+S: \* 1 FETCH \(FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Recent \\Seen\) UID 21 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{130\}
 S: From: Timothy Tayler <timothy@example\.org>
 S: To: Samual Smith <samual@example\.org>
 S: Date: Thu, 14 Feb 2008 12:00:00 \+0000 \(GMT\)
 S: 
 S: \)
-S: \* 2 FETCH \(FLAGS \(\\Answered \\Deleted \\Flagged \\Seen\) UID 22 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{162\}
+S: \* 2 FETCH \(FLAGS \(\\Answered \\Deleted \\Flagged \\Recent \\Seen\) UID 22 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{162\}
 S: Date: Sat, 2 Feb 2008 13:14:19 \+0000
 S: From: "Robert Burrell Donkin" <robertburrelldonkin@gmail\.com>
 S: To: "James Developers List" <server-dev@james\.apache\.org>
 S: 
 S: \)
-S: \* 3 FETCH \(FLAGS \(\\Answered \\Deleted \\Draft \\Flagged\) UID 23 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{130\}
+S: \* 3 FETCH \(FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Recent\) UID 23 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{130\}
 S: From: Timothy Tayler <timothy@example\.org>
 S: To: Samual Smith <samual@example\.org>
 S: Date: Thu, 14 Feb 2008 12:00:00 \+0000 \(GMT\)
 S: 
 S: \)
-S: \* 4 FETCH \(FLAGS \(\\Answered \\Flagged\) UID 24 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{130\}
+S: \* 4 FETCH \(FLAGS \(\\Answered \\Flagged \\Recent\) UID 24 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{130\}
 S: From: Timothy Tayler <timothy@example\.org>
 S: To: Samual Smith <samual@example\.org>
 S: Date: Thu, 14 Feb 2008 12:00:00 \+0000 \(GMT\)
 S: 
 S: \)
-S: \* 5 FETCH \(FLAGS \(\\Draft \\Flagged \\Seen\) UID 25 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{130\}
+S: \* 5 FETCH \(FLAGS \(\\Draft \\Flagged \\Recent \\Seen\) UID 25 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{130\}
 S: From: Timothy Tayler <timothy@example\.org>
 S: To: Samual Smith <samual@example\.org>
 S: Date: Thu, 14 Feb 2008 12:00:00 \+0000 \(GMT\)
 S: 
 S: \)
-S: \* 6 FETCH \(FLAGS \(\\Flagged \\Seen\) UID 26 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{116\}
+S: \* 6 FETCH \(FLAGS \(\\Flagged \\Recent \\Seen\) UID 26 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{116\}
 S: From: John Smith <john@example\.org>
 S: To: Timothy Taylor <tim@example\.org>
 S: Date: Sat, 23 Feb 2008 07:48:03 -0600
 S: 
 S: \)
-S: \* 7 FETCH \(FLAGS \(\\Draft \\Flagged \\Seen\) UID 27 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{116\}
+S: \* 7 FETCH \(FLAGS \(\\Draft \\Flagged \\Recent \\Seen\) UID 27 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{116\}
 S: From: John Smith <john@example\.org>
 S: To: Timothy Taylor <tim@example\.org>
 S: Date: Sat, 23 Feb 2008 07:48:03 -0600
 S: 
 S: \)
-S: \* 8 FETCH \(FLAGS \(\\Flagged\) UID 28 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{130\}
+S: \* 8 FETCH \(FLAGS \(\\Flagged \\Recent\) UID 28 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{130\}
 S: From: Timothy Tayler <timothy@example\.org>
 S: To: Samual Smith <samual@example\.org>
 S: Date: Thu, 14 Feb 2008 12:00:00 \+0000 \(GMT\)
 S: 
 S: \)
-S: \* 9 FETCH \(FLAGS \(\\Draft \\Flagged\) UID 29 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{167\}
+S: \* 9 FETCH \(FLAGS \(\\Draft \\Flagged \\Recent\) UID 29 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{167\}
 S: From: "Brian G\. Hutton" <brian@example\.org>
 S: To: Timothy Taylor <tim@example\.org>, faith@example\.org, Huh\? <sam@example\.org>
 S: Date: Sat, 23 Feb 2008 07:48:03 -0600
 S: 
 S: \)
-S: \* 10 FETCH \(FLAGS \(\\Answered \\Seen\) UID 30 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{172\}
+S: \* 10 FETCH \(FLAGS \(\\Answered \\Recent \\Seen\) UID 30 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{172\}
 S: Date: Tue, 11 Mar 2008 18:53:38 \+0000
 S: From: "Robert Burrell Donkin" <robertburrelldonkin@gmail\.com>
 S: To: "Robert Burrell Donkin" <robertburrelldonkin@blueyonder\.co\.uk>
 S: 
 S: \)
-S: \* 11 FETCH \(FLAGS \(\\Answered \\Draft \\Seen\) UID 31 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{144\}
+S: \* 11 FETCH \(FLAGS \(\\Answered \\Draft \\Recent \\Seen\) UID 31 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{144\}
 S: From: Robert Burrell Donkin <robertburrelldonkin@blueyonder\.co\.uk>
 S: To: robertburrelldonkin@gmail\.com
 S: Date: Tue, 11 Mar 2008 18:41:40 \+0000
 S: 
 S: \)
-S: \* 12 FETCH \(FLAGS \(\\Answered \\Seen\) UID 32 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{144\}
+S: \* 12 FETCH \(FLAGS \(\\Answered \\Recent \\Seen\) UID 32 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{144\}
 S: From: Robert Burrell Donkin <robertburrelldonkin@blueyonder\.co\.uk>
 S: To: robertburrelldonkin@gmail\.com
 S: Date: Tue, 11 Mar 2008 18:45:07 \+0000
 S: 
 S: \)
-S: \* 13 FETCH \(FLAGS \(\\Answered \\Draft\) UID 33 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{114\}
+S: \* 13 FETCH \(FLAGS \(\\Answered \\Draft \\Recent\) UID 33 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{114\}
 S: From: Samual Smith <sam@example\.org>
 S: To: John Smith <john@example\.org>
 S: Date: Sat, 23 Feb 2008 18:15:18 \+0000
 S: 
 S: \)
-S: \* 14 FETCH \(FLAGS \(\\Answered\) UID 34 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{123\}
+S: \* 14 FETCH \(FLAGS \(\\Answered \\Recent\) UID 34 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{123\}
 S: From: Samual Webster <webster@example\.org>
 S: To: Timothy Taylor <tim@example\.org>
 S: Date: Sat, 23 Feb 2008 14:10:00 \+0000
 S: 
 S: \)
-S: \* 15 FETCH \(FLAGS \(\\Draft \\Seen\) UID 35 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{123\}
+S: \* 15 FETCH \(FLAGS \(\\Draft \\Recent \\Seen\) UID 35 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{123\}
 S: From: Samual Webster <webster@example\.org>
 S: To: Timothy Taylor <tim@example\.org>
 S: Date: Sat, 23 Feb 2008 18:26:56 \+0000
 S: 
 S: \)
-S: \* 16 FETCH \(FLAGS \(\\Seen\) UID 36 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{146\}
+S: \* 16 FETCH \(FLAGS \(\\Recent \\Seen\) UID 36 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{146\}
 S: From: Timothy Taylor <tim@example\.org>
 S: To: Alpha Group:John Smith <john@example\.org>, sid@example\.org;
 S: Date: Sat, 23 Feb 2008 18:12:13 \+0000
 S: 
 S: \)
-S: \* 17 FETCH \(FLAGS \(\\Draft \\Seen\) UID 37 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{126\}
+S: \* 17 FETCH \(FLAGS \(\\Draft \\Recent \\Seen\) UID 37 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{126\}
 S: Date: Tue, 11 Mar 2008 11:53:38 -0700
 S: From: Robert Burrell Donkin <robertburrelldonkin@gmail\.com>
 S: To: rdonkin@apache\.org
 S: 
 S: \)
-S: \* 18 FETCH \(FLAGS \(\) UID 38 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{172\}
+S: \* 18 FETCH \(FLAGS \(\\Recent\) UID 38 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{172\}
 S: Date: Tue, 11 Mar 2008 18:53:38 \+0000
 S: From: "Robert Burrell Donkin" <robertburrelldonkin@gmail\.com>
 S: To: "Robert Burrell Donkin" <robertburrelldonkin@blueyonder\.co\.uk>
 S: 
 S: \)
-S: \* 19 FETCH \(FLAGS \(\) UID 39 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{172\}
+S: \* 19 FETCH \(FLAGS \(\\Recent\) UID 39 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{172\}
 S: Date: Tue, 11 Mar 2008 18:53:38 \+0000
 S: From: "Robert Burrell Donkin" <robertburrelldonkin@gmail\.com>
 S: To: "Robert Burrell Donkin" <robertburrelldonkin@blueyonder\.co\.uk>
@@ -2343,13 +2343,13 @@ S: \* OK \[UIDVALIDITY \d+\]
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
 S: A106 OK \[READ-WRITE\] SELECT completed\.
 C: A107 RENAME testmailbox moved
-S: A107 OK Rename completed\.
+S: A107 OK RENAME completed\.
 C: A108 SELECT moved
 S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
 S: \* 19 EXISTS
 S: \* 0 RECENT
-S: \* OK \[UNSEEN 3\](.)*
 S: \* OK \[UIDVALIDITY \d+\]
+S: \* OK \[UNSEEN 3\](.)*
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
 S: A108 OK \[READ-WRITE\] SELECT completed\.
 C: A109 FETCH 1:* (FLAGS UID BODY.PEEK[HEADER.FIELDS (DATE FROM TO ORIGINATOR X-LIST)])
@@ -2469,25 +2469,25 @@ S:
 S: \)
 S: A109 OK FETCH completed\.
 C: A110 SELECT testmailbox
-S: A110 NO Mailbox doesn't exist: testmailbox
+S: A110 NO (.)*
 C: A111 RENAME other base
-S: A111 NO Mailbox exists\.
+S: A111 NO (.)*
 C: A112 SELECT testmailbox
-S: A112 NO Mailbox doesn't exist: testmailbox
+S: A112 NO (.)*
 C: A113 SELECT moved
 S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
 S: \* 19 EXISTS
 S: \* 0 RECENT
-S: \* OK \[UNSEEN 3\](.)*
 S: \* OK \[UIDVALIDITY \d+\]
+S: \* OK \[UNSEEN 3\](.)*
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
 S: A113 OK \[READ-WRITE\] SELECT completed\.
 C: A114 SELECT other
 S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
 S: \* 1 EXISTS
-S: \* 1 RECENT
-S: \* OK \[UNSEEN 1\](.)*
+S: \* 0 RECENT
 S: \* OK \[UIDVALIDITY \d+\]
+S: \* OK \[UNSEEN 1\](.)*
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
 S: A114 OK \[READ-WRITE\] SELECT completed\.
 C: A115 SELECT base
@@ -2498,29 +2498,29 @@ S: \* OK \[UIDVALIDITY \d+\]
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
 S: A115 OK \[READ-WRITE\] SELECT completed\.
 C: A116 SELECT BOGUS
-S: A116 NO Mailbox doesn't exist: BOGUS
+S: A116 NO (.)*
 C: A117 SELECT WHATEVER
-S: A117 NO Mailbox doesn't exist: WHATEVER
+S: A117 NO (.)*
 C: A118 RENAME other testmailbox
-S: A118 OK Rename completed\.
+S: A118 OK RENAME completed\.
 C: A119 SELECT testmailbox
 S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
 S: \* 1 EXISTS
 S: \* 0 RECENT
-S: \* OK \[UNSEEN 1\](.)*
 S: \* OK \[UIDVALIDITY \d+\]
+S: \* OK \[UNSEEN 1\](.)*
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
 S: A119 OK \[READ-WRITE\] SELECT completed\.
 C: A120 SELECT moved
 S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
 S: \* 19 EXISTS
 S: \* 0 RECENT
-S: \* OK \[UNSEEN 3\](.)*
 S: \* OK \[UIDVALIDITY \d+\]
+S: \* OK \[UNSEEN 3\](.)*
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
 S: A120 OK \[READ-WRITE\] SELECT completed\.
 C: A121 SELECT other
-S: A121 NO Mailbox doesn't exist: other
+S: A121 NO (.)*
 C: A122 SELECT base
 S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
 S: \* 0 EXISTS
@@ -2529,35 +2529,35 @@ S: \* OK \[UIDVALIDITY \d+\]
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
 S: A122 OK \[READ-WRITE\] SELECT completed\.
 C: A123 SELECT BOGUS
-S: A123 NO Mailbox doesn't exist: BOGUS
+S: A123 NO (.)*
 C: A124 SELECT WHATEVER
-S: A124 NO Mailbox doesn't exist: WHATEVER
+S: A124 NO (.)*
 C: A125 RENAME BOGUS WHATEVER
-S: A125 NO Mailbox doesn't exist: BOGUS
+S: A125 NO (.)*
 C: A126 RENAME testmailbox INBOX
-S: A126 NO Mailbox exists\.
+S: A126 NO (.)*
 C: A127 RENAME testmailbox inbox
-S: A127 NO Mailbox exists\.
+S: A127 NO (.)*
 C: A128 RENAME testmailbox Inbox
-S: A128 NO Mailbox exists\.
+S: A128 NO (.)*
 C: A129 SELECT testmailbox
 S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
 S: \* 1 EXISTS
 S: \* 0 RECENT
-S: \* OK \[UNSEEN 1\](.)*
 S: \* OK \[UIDVALIDITY \d+\]
+S: \* OK \[UNSEEN 1\](.)*
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
 S: A129 OK \[READ-WRITE\] SELECT completed\.
 C: A130 SELECT moved
 S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
 S: \* 19 EXISTS
 S: \* 0 RECENT
-S: \* OK \[UNSEEN 3\](.)*
 S: \* OK \[UIDVALIDITY \d+\]
+S: \* OK \[UNSEEN 3\](.)*
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
 S: A130 OK \[READ-WRITE\] SELECT completed\.
 C: A131 SELECT other
-S: A131 NO Mailbox doesn't exist: other
+S: A131 (.)*
 C: A132 SELECT base
 S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
 S: \* 0 EXISTS
@@ -2566,20 +2566,20 @@ S: \* OK \[UIDVALIDITY \d+\]
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
 S: A132 OK \[READ-WRITE\] SELECT completed\.
 C: A133 SELECT BOGUS
-S: A133 NO Mailbox doesn't exist: BOGUS
+S: A133 NO (.)*
 C: A134 SELECT WHATEVER
-S: A134 NO Mailbox doesn't exist: WHATEVER
+S: A134 NO (.)*
 C: A135 DELETE BOGUS
-S: A135 NO Mailbox doesn't exist: BOGUS
+S: A135 NO (.)*
 C: A136 DELETE WHATEVER
-S: A136 NO Mailbox doesn't exist: WHATEVER
+S: A136 NO (.)*
 C: A137 DELETE testmailbox
 S: A137 OK DELETE completed\.
 C: A138 DELETE base
 S: A138 OK DELETE completed\.
 C: A139 DELETE other
-S: A139 NO Mailbox doesn't exist: other
+S: A139 NO (.)*
 C: A140 DELETE moved
 S: A140 OK DELETE completed\.
 C: A141 DELETE moved
-S: A141 NO Mailbox doesn't exist: moved
+S: A141 NO (.)*

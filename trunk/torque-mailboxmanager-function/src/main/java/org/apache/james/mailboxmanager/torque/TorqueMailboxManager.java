@@ -182,9 +182,9 @@ public class TorqueMailboxManager implements MailboxManager {
                 }
                 mr.setName(to);
                 mr.save();
+                managers.remove(from);
                 
                 // rename submailbox
-                
                 Criteria c = new Criteria();
                 c.add(MailboxRowPeer.NAME,
                         (Object) (from + HIERARCHY_DELIMITER + "%"),

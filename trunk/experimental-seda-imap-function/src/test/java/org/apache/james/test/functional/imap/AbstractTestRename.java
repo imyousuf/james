@@ -17,30 +17,25 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.api.imap.process;
+package org.apache.james.test.functional.imap;
 
-import java.util.List;
+import java.util.Locale;
 
-public interface SelectedImapMailbox {
+public abstract class AbstractTestRename extends BaseTestSelectedState {
 
-    public abstract void deselect();
+    public AbstractTestRename(HostSystem system) {
+        super(system);
+    }
 
-    public abstract List unsolicitedResponses(boolean omitExpunged,
-            boolean useUid);
-    
-    public int msn(long uid);
-
-    public abstract long uid(int i);
-    
-    public boolean addRecent(long uid);
-    
-    public boolean removeRecent(long uid);
-    
-    public long[] getRecent();
-    
-    public int recentCount();
-    
-    public String getName();
-
-    public boolean isRecent(long uid);
+    public void testRenameUS() throws Exception {
+        scriptTest("Rename", Locale.US);
+    }
+//    
+//    public void testAppendToSelectedKOREA() throws Exception {
+//        scriptTest("AppendToSelected", Locale.KOREA);
+//    }
+//    
+//    public void testAppendToSelectedITALY() throws Exception {
+//        scriptTest("AppendToSelected", Locale.ITALY);
+//    }
 }
