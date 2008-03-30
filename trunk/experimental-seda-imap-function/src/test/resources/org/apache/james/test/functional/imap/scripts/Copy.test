@@ -25,7 +25,7 @@ S: a1 OK STATUS completed.
 
 # mark one message as deleted before copying (to check that flags are copied)
 C: a1 STORE 3 FLAGS (\Deleted)
-S: \* 3 FETCH \(FLAGS \(\\Deleted\)\)
+S: \* 3 FETCH \(FLAGS \(\\Deleted \\Recent\)\)
 S: a1 OK STORE completed.
 
 # copy messages 2-4
@@ -39,7 +39,7 @@ S: a1 OK STATUS completed.
 
 # Modify an original after copying, to ensure it's not the same message.
 C: a1 STORE 2 FLAGS (\Flagged)
-S: \* 2 FETCH \(FLAGS \(\\Flagged\)\)
+S: \* 2 FETCH \(FLAGS \(\\Flagged \\Recent\)\)
 S: a1 OK STORE completed.
 
 C: a1 SELECT copied

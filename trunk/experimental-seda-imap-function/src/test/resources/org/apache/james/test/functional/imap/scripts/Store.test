@@ -26,7 +26,7 @@ S: f1 OK FETCH completed.
 
 #Simple store
 C: f2 STORE 1 FLAGS (\Deleted)
-S: \* 1 FETCH \(FLAGS \(\\Deleted\)\)
+S: \* 1 FETCH \(FLAGS \(\\Deleted \\Recent\)\)
 S: f2 OK STORE completed.
 
 C: f3 FETCH 1 (FLAGS)
@@ -43,7 +43,7 @@ S: f1 OK FETCH completed.
 
 #Add to existing flags
 C: f2 STORE 1 +FLAGS (\Deleted)
-S: \* 1 FETCH \(FLAGS \(\\Deleted \\Draft \\Flagged\)\)
+S: \* 1 FETCH \(FLAGS \(\\Deleted \\Draft \\Flagged \\Recent\)\)
 S: f2 OK STORE completed.
 
 C: f1 FETCH 1 (FLAGS)
@@ -59,8 +59,8 @@ S: \* 1 FETCH \(FLAGS \(\\Deleted \\Flagged \\Recent\)\)
 S: f1 OK FETCH completed.
 
 C: f4 STORE 3:4 FLAGS (\Flagged)
-S: \* 3 FETCH \(FLAGS \(\\Flagged\)\)
-S: \* 4 FETCH \(FLAGS \(\\Flagged\)\)
+S: \* 3 FETCH \(FLAGS \(\\Flagged \\Recent\)\)
+S: \* 4 FETCH \(FLAGS \(\\Flagged \\Recent\)\)
 S: f4 OK STORE completed.
 
 C: f1 FETCH 1:4 (FLAGS)

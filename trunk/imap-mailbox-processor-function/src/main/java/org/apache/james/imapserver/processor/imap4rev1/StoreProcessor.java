@@ -30,6 +30,7 @@ import org.apache.james.api.imap.message.request.ImapRequest;
 import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
+import org.apache.james.api.imap.process.SelectedImapMailbox;
 import org.apache.james.imap.message.request.imap4rev1.StoreRequest;
 import org.apache.james.imap.message.response.imap4rev1.FetchResponse;
 import org.apache.james.imapserver.processor.base.AbstractImapRequestProcessor;
@@ -85,12 +86,13 @@ public class StoreProcessor extends AbstractImapRequestProcessor {
             for (int i = 0; i < idSet.length; i++) {
                 final long lowVal;
                 final long highVal;
+                final SelectedImapMailbox selected = session.getSelected();
                 if (useUids) {
                     lowVal = idSet[i].getLowVal();
                     highVal = idSet[i].getHighVal();
                 } else {
-                    lowVal = session.getSelected().uid((int) idSet[i].getLowVal());
-                    highVal = session.getSelected().uid((int) idSet[i].getHighVal());
+                    lowVal = selected.uid((int) idSet[i].getLowVal());
+                    highVal = selected.uid((int) idSet[i].getHighVal());
                 }
                 final GeneralMessageSet messageSet = GeneralMessageSetImpl.uidRange(lowVal, highVal);
                 final MailboxSession mailboxSession = ImapSessionUtils.getMailboxSession(session);
@@ -99,13 +101,17 @@ public class StoreProcessor extends AbstractImapRequestProcessor {
                 if (!silent) {
                     while(it.hasNext()) {
                         final MessageResult result = (MessageResult) it.next();
-                        final int msn = session.getSelected().msn(result.getUid());
+                        final long uid = result.getUid();
+                        final int msn = selected.msn(uid);
                         final Flags resultFlags = result.getFlags();
                         final Long resultUid;
                         if (useUids) {
-                            resultUid = new Long(result.getUid());
+                            resultUid = new Long(uid);
                         } else {
                             resultUid = null;
+                        }
+                        if (selected.isRecent(uid)) {
+                            resultFlags.add(Flags.Flag.RECENT);
                         }
                         final FetchResponse response 
                             = new FetchResponse(msn, resultFlags, resultUid, null, null, null, null, null);
