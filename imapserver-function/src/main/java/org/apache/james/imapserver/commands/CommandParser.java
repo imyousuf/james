@@ -331,22 +331,22 @@ public class CommandParser
 
     public void setFlag( String flagString, Flags flags ) throws ProtocolException
     {
-        if ( flagString.equalsIgnoreCase( MessageFlags.ANSWERED ) ) {
+        if ( flagString.equalsIgnoreCase( MessageFlags.ANSWERED_ALL_CAPS ) ) {
             flags.add(Flags.Flag.ANSWERED);
         }
-        else if ( flagString.equalsIgnoreCase( MessageFlags.DELETED ) ) {
+        else if ( flagString.equalsIgnoreCase( MessageFlags.DELETED_ALL_CAPS ) ) {
             flags.add(Flags.Flag.DELETED);
         }
-        else if ( flagString.equalsIgnoreCase( MessageFlags.DRAFT ) ) {
+        else if ( flagString.equalsIgnoreCase( MessageFlags.DRAFT_ALL_CAPS ) ) {
             flags.add(Flags.Flag.DRAFT);
         }
-        else if ( flagString.equalsIgnoreCase( MessageFlags.FLAGGED ) ) {
+        else if ( flagString.equalsIgnoreCase( MessageFlags.FLAGGED_ALL_CAPS ) ) {
             flags.add(Flags.Flag.FLAGGED);
         }
-        else if ( flagString.equalsIgnoreCase( MessageFlags.SEEN ) ) {
+        else if ( flagString.equalsIgnoreCase( MessageFlags.SEEN_ALL_CAPS ) ) {
             flags.add(Flags.Flag.SEEN);
         }
-        else if ( flagString.equalsIgnoreCase( MessageFlags.RECENT) ) {
+        else if ( flagString.equalsIgnoreCase( MessageFlags.RECENT_ALL_CAPS) ) {
             flags.add(Flags.Flag.RECENT);
         } 
         else {

@@ -22,7 +22,6 @@ package org.apache.james.imapserver.codec.encode;
 import javax.mail.Flags;
 
 import org.apache.james.api.imap.ImapConstants;
-import org.apache.james.api.imap.message.MessageFlags;
 import org.apache.james.imapserver.codec.encode.base.ImapResponseComposerImpl;
 import org.apache.james.imapserver.codec.encode.imap4rev1.legacy.MockImapResponseWriter;
 import org.jmock.MockObjectTestCase;
@@ -173,18 +172,4 @@ public class ImapResponseTest extends MockObjectTestCase {
         assertEquals(new MockImapResponseWriter.EndOperation(), 
                 writer.operations.get(2));
     }
-
-    public void testPermanentFlagsResponse() throws Exception {
-        Flags flags = new Flags();
-        response.permanentFlagsResponse(flags);
-        assertEquals(4, writer.operations.size());
-        assertEquals(new MockImapResponseWriter.UntaggedOperation(), writer.operations.get(0));
-        assertEquals(new MockImapResponseWriter.TextMessageOperation(ImapResponseComposerImpl.OK),
-                writer.operations.get(1));
-        assertEquals(new MockImapResponseWriter.ResponseCodeOperation("PERMANENTFLAGS " + MessageFlags.format(flags)),
-                writer.operations.get(2));
-        assertEquals(new MockImapResponseWriter.EndOperation(), 
-                writer.operations.get(3));
-    }
-
 }

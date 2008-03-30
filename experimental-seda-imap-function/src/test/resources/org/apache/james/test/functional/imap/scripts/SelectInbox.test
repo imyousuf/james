@@ -21,6 +21,5 @@ S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
 S: \* \d+ EXISTS
 S: \* \d+ RECENT
 S: \* OK \[UIDVALIDITY \d+\]
-S: (\* OK \[UNSEEN 1\] Message 1 is the first unseen)|(\* OK No messages unseen)
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
 S: abcd OK \[READ-WRITE\] SELECT completed.

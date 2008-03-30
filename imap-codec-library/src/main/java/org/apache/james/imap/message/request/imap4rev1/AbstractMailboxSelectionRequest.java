@@ -16,14 +16,24 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
+
 package org.apache.james.imap.message.request.imap4rev1;
 
 import org.apache.james.api.imap.ImapCommand;
+import org.apache.james.imap.message.request.base.AbstractImapRequest;
 
-public class ExamineRequest extends AbstractMailboxSelectionRequest {
-    public ExamineRequest(final ImapCommand command, final String mailboxName,
+public abstract class AbstractMailboxSelectionRequest extends
+        AbstractImapRequest {
+    private final String mailboxName;
+
+    public AbstractMailboxSelectionRequest(final ImapCommand command, final String mailboxName,
             final String tag) {
-        super(command, mailboxName, tag);
+        super(tag, command);
+        this.mailboxName = mailboxName;
+    }
+
+    public final String getMailboxName() {
+        return mailboxName;
     }
 
 }

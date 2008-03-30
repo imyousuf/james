@@ -25,7 +25,23 @@ import org.apache.james.api.imap.ImapConstants;
  * Keys human response text that may be displayed to the user. 
  */
 public class HumanReadableTextKey {
+    
+    public static final HumanReadableTextKey SELECT
+    = new HumanReadableTextKey("org.apache.james.imap.SELECT", 
+        "completed.");
+    
+    public static final HumanReadableTextKey UNSEEN
+    = new HumanReadableTextKey("org.apache.james.imap.UNSEEN", 
+        "");
+    
+    public static final HumanReadableTextKey UID_VALIDITY 
+    = new HumanReadableTextKey("org.apache.james.imap.UID_VALIDITY", 
+    "");
 
+    public static final HumanReadableTextKey PERMANENT_FLAGS 
+    = new HumanReadableTextKey("org.apache.james.imap.PERMANENT_FLAGS", 
+    ""); 
+    
     public static final HumanReadableTextKey GENERIC_LSUB_FAILURE 
     = new HumanReadableTextKey("org.apache.james.imap.GENERIC_SUBSCRIPTION_FAILURE", 
     "Cannot list subscriptions."); 

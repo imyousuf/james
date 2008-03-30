@@ -16,14 +16,32 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.imap.message.request.imap4rev1;
 
-import org.apache.james.api.imap.ImapCommand;
+package org.apache.james.imapserver.codec.encode.imap4rev1;
 
-public class ExamineRequest extends AbstractMailboxSelectionRequest {
-    public ExamineRequest(final ImapCommand command, final String mailboxName,
-            final String tag) {
-        super(command, mailboxName, tag);
+import java.io.IOException;
+
+import javax.mail.Flags;
+
+import org.apache.james.api.imap.ImapMessage;
+import org.apache.james.imap.message.response.imap4rev1.FlagsResponse;
+import org.apache.james.imapserver.codec.encode.ImapEncoder;
+import org.apache.james.imapserver.codec.encode.ImapResponseComposer;
+import org.apache.james.imapserver.codec.encode.base.AbstractChainedImapEncoder;
+
+public class FlagsResponseEncoder extends AbstractChainedImapEncoder {
+
+    public FlagsResponseEncoder(ImapEncoder next) {
+        super(next);
     }
 
+    public boolean isAcceptable(ImapMessage message) {
+        return message instanceof FlagsResponse;
+    }
+
+    protected void doEncode(ImapMessage acceptableMessage, ImapResponseComposer composer) throws IOException {
+        final FlagsResponse flagsResponse = (FlagsResponse) acceptableMessage;
+        final Flags flags = flagsResponse.getFlags();
+        composer.flagsResponse(flags);
+    }
 }

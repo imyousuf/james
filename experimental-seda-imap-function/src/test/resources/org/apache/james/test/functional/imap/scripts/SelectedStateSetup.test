@@ -76,7 +76,7 @@ S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
 S: \* 4 EXISTS
 S: \* 4 RECENT
 S: \* OK \[UIDVALIDITY \d+\]
-S: \* OK \[UNSEEN 1\] Message 1 is the first unseen
+S: \* OK \[UNSEEN 1\]
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
 S: a1 OK \[READ-WRITE\] SELECT completed.
 

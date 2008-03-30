@@ -31,7 +31,6 @@ S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
 S: \* 0 EXISTS
 S: \* 0 RECENT
 S: \* OK \[UIDVALIDITY \d+\]
-S: \* OK No messages unseen
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
 S: abcd OK \[READ-WRITE\] SELECT completed.
 
@@ -41,7 +40,6 @@ S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
 S: \* 0 EXISTS
 S: \* 0 RECENT
 S: \* OK \[UIDVALIDITY \d+\]
-S: \* OK No messages unseen
 }
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
 S: abcd OK \[READ-WRITE\] SELECT completed.
@@ -51,7 +49,6 @@ S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
 S: \* 0 EXISTS
 S: \* 0 RECENT
 S: \* OK \[UIDVALIDITY \d+\]
-S: \* OK No messages unseen
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
 S: abcd OK \[READ-WRITE\] SELECT completed.
 

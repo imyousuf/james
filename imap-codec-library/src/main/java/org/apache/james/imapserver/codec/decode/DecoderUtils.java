@@ -53,22 +53,22 @@ public final class DecoderUtils {
                                         | JUL_BIT | AUG_BIT | SEP_BIT | OCT_BIT | NOV_BIT | DEC_BIT;
     
     public static void setFlag( final String flagString, final Flags flags )  {
-        if ( flagString.equalsIgnoreCase( MessageFlags.ANSWERED ) ) {
+        if ( flagString.equalsIgnoreCase( MessageFlags.ANSWERED_ALL_CAPS ) ) {
             flags.add(Flags.Flag.ANSWERED);
         }
-        else if ( flagString.equalsIgnoreCase( MessageFlags.DELETED ) ) {
+        else if ( flagString.equalsIgnoreCase( MessageFlags.DELETED_ALL_CAPS ) ) {
             flags.add(Flags.Flag.DELETED);
         }
-        else if ( flagString.equalsIgnoreCase( MessageFlags.DRAFT ) ) {
+        else if ( flagString.equalsIgnoreCase( MessageFlags.DRAFT_ALL_CAPS ) ) {
             flags.add(Flags.Flag.DRAFT);
         }
-        else if ( flagString.equalsIgnoreCase( MessageFlags.FLAGGED ) ) {
+        else if ( flagString.equalsIgnoreCase( MessageFlags.FLAGGED_ALL_CAPS ) ) {
             flags.add(Flags.Flag.FLAGGED);
         }
-        else if ( flagString.equalsIgnoreCase( MessageFlags.SEEN ) ) {
+        else if ( flagString.equalsIgnoreCase( MessageFlags.SEEN_ALL_CAPS ) ) {
             flags.add(Flags.Flag.SEEN);
         } else {
-            if ( flagString.equalsIgnoreCase( MessageFlags.RECENT) ) {
+            if ( flagString.equalsIgnoreCase( MessageFlags.RECENT_ALL_CAPS) ) {
                 // RFC3501 specifically excludes /Recent 
                 // The /Recent flag should be set automatically by the server
             } else {

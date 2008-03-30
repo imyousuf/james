@@ -22,8 +22,11 @@ package org.apache.james.api.imap.message.response.imap4rev1;
 import java.util.Collection;
 import java.util.Collections;
 
+import javax.mail.Flags;
+
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.display.HumanReadableTextKey;
+import org.apache.james.api.imap.message.MessageFlags;
 import org.apache.james.api.imap.message.response.ImapResponseMessage;
 
 /**
@@ -170,8 +173,8 @@ public interface StatusResponse extends ImapResponseMessage {
          * @param flagNames <code>Collection<String></code> containing flag names
          * @return <code>ResponseCode</code>, not null
          */
-        public static final ResponseCode permanentFlags(Collection flagNames) {
-            return new ResponseCode("PERMANENTFLAGS", flagNames);
+        public static final ResponseCode permanentFlags(Flags flags) {
+            return new ResponseCode("PERMANENTFLAGS", MessageFlags.names(flags));
         }
         
         /**
@@ -203,7 +206,7 @@ public interface StatusResponse extends ImapResponseMessage {
          * @param uid positive non-zero integer
          * @return <code>ResponseCode</code>, not null
          */
-        public static final ResponseCode uidValidity(int uid) {
+        public static final ResponseCode uidValidity(long uid) {
             return new ResponseCode("UIDVALIDITY", uid);
         }
         
@@ -243,13 +246,13 @@ public interface StatusResponse extends ImapResponseMessage {
         
         private final String code;
         private final Collection parameters;
-        private final int number;
+        private final long number;
 
         private ResponseCode(final String code) {
             this(code, Collections.EMPTY_LIST, 0);
         }
         
-        private ResponseCode(final String code, final int number) {
+        private ResponseCode(final String code, final long number) {
             this(code, Collections.EMPTY_LIST, number);
         }
         
@@ -257,7 +260,7 @@ public interface StatusResponse extends ImapResponseMessage {
             this(code, parameters, 0);
         }
         
-        private ResponseCode(final String code, final Collection parameters, final int number) {
+        private ResponseCode(final String code, final Collection parameters, final long number) {
             super();
             this.code = code;
             this.parameters = parameters;
@@ -273,7 +276,7 @@ public interface StatusResponse extends ImapResponseMessage {
          * @return the number, 
          * or zero if no number has been set
          */
-        public final int getNumber() {
+        public final long getNumber() {
             return number;
         }
 
@@ -290,7 +293,7 @@ public interface StatusResponse extends ImapResponseMessage {
             final int PRIME = 31;
             int result = 1;
             result = PRIME * result + ((code == null) ? 0 : code.hashCode());
-            result = PRIME * result + number;
+            result = PRIME * result + (int) (number ^ (number >>> 32));
             result = PRIME * result + ((parameters == null) ? 0 : parameters.hashCode());
             return result;
         }

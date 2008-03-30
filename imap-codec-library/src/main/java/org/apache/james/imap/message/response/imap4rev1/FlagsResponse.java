@@ -16,14 +16,54 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.imap.message.request.imap4rev1;
 
-import org.apache.james.api.imap.ImapCommand;
+package org.apache.james.imap.message.response.imap4rev1;
 
-public class ExamineRequest extends AbstractMailboxSelectionRequest {
-    public ExamineRequest(final ImapCommand command, final String mailboxName,
-            final String tag) {
-        super(command, mailboxName, tag);
+import javax.mail.Flags;
+
+import org.apache.james.api.imap.message.response.ImapResponseMessage;
+
+/**
+ * Carries a RFC3501 <code>Flags</code> response.
+ */
+public class FlagsResponse implements ImapResponseMessage {
+    private final Flags flags;
+
+    public FlagsResponse(final Flags flags) {
+        super();
+        this.flags = flags;
     }
 
+    public String toString() {
+        return "Flags: " + flags;
+    }
+    
+    public Flags getFlags() {
+        return flags;
+    }
+    
+    public int hashCode() {
+        final int PRIME = 31;
+        int result = 1;
+        result = PRIME * result + ((flags == null) ? 0 : flags.hashCode());
+        return result;
+    }
+
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        final FlagsResponse other = (FlagsResponse) obj;
+        if (flags == null) {
+            if (other.flags != null)
+                return false;
+        } else if (!flags.equals(other.flags))
+            return false;
+        return true;
+    }
+    
+    
 }

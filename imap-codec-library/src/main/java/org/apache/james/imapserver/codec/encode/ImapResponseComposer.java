@@ -262,11 +262,7 @@ public interface ImapResponseComposer {
 
     public abstract void message(final long number) throws IOException;
 
-    public abstract void responseCode(final String responseCode) throws IOException;
-
     public abstract void end() throws IOException;
-
-    public abstract void permanentFlagsResponse(Flags flags) throws IOException;
 
     public abstract void tag(String tag) throws IOException;
 

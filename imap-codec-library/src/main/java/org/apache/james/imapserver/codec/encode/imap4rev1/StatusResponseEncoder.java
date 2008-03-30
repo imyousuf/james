@@ -50,7 +50,7 @@ public class StatusResponseEncoder extends AbstractChainedImapEncoder {
         final HumanReadableTextKey textKey = response.getTextKey();
         final String text = asString(textKey);
         final Collection parameters;
-        final int number;
+        final long number;
         if (responseCode == null) {
             parameters = null;
             number = 0;
