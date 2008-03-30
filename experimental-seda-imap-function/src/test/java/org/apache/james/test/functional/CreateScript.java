@@ -35,8 +35,40 @@ public class CreateScript {
 
     public static final void main(String[] args) throws Exception {
         ScriptBuilder builder = ScriptBuilder.open("localhost", 143);
-        bodyPartialFetch(builder);
+        textPartialFetch(builder);
     }
+    
+    public static void textPartialFetch(ScriptBuilder builder) throws Exception {
+        builder.login();
+        builder.create();
+        builder.select();
+        builder.setFile("multipart-mixed-complex.mail");
+        builder.append();
+        builder.select();
+        builder.partial(0, 0).fetchSection("TEXT");
+        builder.partial(0, 16).fetchSection("TEXT");
+        builder.partial(0, 32).fetchSection("TEXT");
+        builder.partial(0, 64).fetchSection("TEXT");
+        builder.partial(0, 128).fetchSection("TEXT");
+        builder.partial(0, 1024).fetchSection("TEXT");
+        builder.partial(0, 2048).fetchSection("TEXT");
+        builder.partial(7, 0).fetchSection("TEXT");
+        builder.partial(7, 16).fetchSection("TEXT");
+        builder.partial(7, 32).fetchSection("TEXT");
+        builder.partial(7, 64).fetchSection("TEXT");
+        builder.partial(7, 128).fetchSection("TEXT");
+        builder.partial(7, 1024).fetchSection("TEXT");
+        builder.partial(7, 2048).fetchSection("TEXT");
+        builder.partial(10000, 0).fetchSection("TEXT");
+        builder.partial(10000, 16).fetchSection("TEXT");
+        builder.partial(10000, 32).fetchSection("TEXT");
+        builder.partial(10000, 64).fetchSection("TEXT");
+        builder.partial(10000, 128).fetchSection("TEXT");
+        builder.partial(10000, 1024).fetchSection("TEXT");
+        builder.partial(10000, 2048).fetchSection("TEXT");
+        builder.quit();
+    }
+    
     
     public static void bodyPartialFetch(ScriptBuilder builder) throws Exception {
         builder.login();

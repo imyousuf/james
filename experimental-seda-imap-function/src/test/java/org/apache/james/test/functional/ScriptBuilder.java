@@ -1177,7 +1177,18 @@ public class ScriptBuilder {
     }
     
     private static final class Out {
-        private final CharBuffer lineBuffer = CharBuffer.allocate(1048);
+        private static final String[] IGNORE_LINES_STARTING_WITH = {  
+                                                        "S: \\* OK \\[PERMANENTFLAGS",
+                                                        "C: A22 LOGOUT",
+                                                        "S: \\* BYE Logging out", 
+                                                        "S: \\* OK Dovecot ready\\."};
+        private static final String[] IGNORE_LINES_CONTAINING = {
+                                        "OK Logout completed.",
+                                        "LOGIN imapuser password", 
+                                        "OK Logged in",
+                                        "LOGOUT"};
+        
+        private final CharBuffer lineBuffer = CharBuffer.allocate(4096);
         private boolean isClient = false;
         public void client() {
             lineBuffer.put("C: ");
@@ -1222,12 +1233,47 @@ public class ScriptBuilder {
         
         public void lineEnd() {
             lineBuffer.flip();
-            String line = lineBuffer.toString();
-            line = StringUtils.replace(line, "OK Create completed", "OK CREATE completed");
-            line = StringUtils.replace(line, "OK Fetch completed", "OK FETCH completed");
-            line = StringUtils.replace(line, "OK Append completed", "OK APPEND completed");
-            System.out.println(line);
+            final String text = lineBuffer.toString();
+            String[] lines = text.split("\r\n");
+            for (int i = 0; i < lines.length; i++) {
+                String line = StringUtils.chomp(lines[i]);    
+                if (!ignoreLine(line)) {
+                    line = StringUtils.replace(line, "OK Create completed", "OK CREATE completed");
+                    line = StringUtils.replace(line, "OK Fetch completed", "OK FETCH completed");
+                    line = StringUtils.replace(line, "OK Append completed", "OK APPEND completed");
+                    line = StringUtils.replace(line, "OK Delete completed", "OK DELETE completed");
+                    line = StringUtils.replace(line, "Select completed", "SELECT completed");
+                    line = StringUtils.replace(line, "\\\\Seen \\\\Draft", "\\\\Draft \\\\Seen");
+                    line = StringUtils.replace(line, "\\\\Flagged \\\\Deleted", "\\\\Deleted \\\\Flagged");
+                    line = StringUtils.replace(line, "\\\\Flagged \\\\Draft", "\\\\Draft \\\\Flagged");
+                    line = StringUtils.replace(line, "\\\\Seen \\\\Recent", "\\\\Recent \\\\Seen");
+                    line = StringUtils.replace(line, "\\] First unseen\\.", "\\](.)*");
+                    if (line.startsWith("S: \\* OK \\[UIDVALIDITY ")) {
+                        line = "S: \\* OK \\[UIDVALIDITY \\d+\\\\]";
+                    } else if (line.startsWith("S: \\* OK \\[UIDNEXT")) {
+                        line = "S: \\* OK \\[PERMANENTFLAGS \\(\\\\Answered \\\\Deleted \\\\Draft \\\\Flagged \\\\Seen\\)\\]";
+                    }
+                    System.out.println(line);
+                }
+            }
             lineBuffer.clear();
+        }
+
+        private boolean ignoreLine(String line) {
+            boolean result = false;
+            for (int i = 0; i < IGNORE_LINES_CONTAINING.length; i++) {
+                if (line.indexOf(IGNORE_LINES_CONTAINING[i]) > 0) {
+                    result = true;
+                    break;
+                }
+            }
+            for (int i = 0; i < IGNORE_LINES_STARTING_WITH.length && ! result; i++) {
+                if (line.startsWith(IGNORE_LINES_STARTING_WITH[i])) {
+                    result = true;
+                    break;
+                }
+            }
+            return result;
         }
     }
     
