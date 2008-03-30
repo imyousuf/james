@@ -35,8 +35,71 @@ public class CreateScript {
 
     public static final void main(String[] args) throws Exception {
         ScriptBuilder builder = ScriptBuilder.open("localhost", 143);
-        textPartialFetch(builder);
+        mimePartialFetch(builder);
     }
+    
+    public static void mimePartialFetch(ScriptBuilder builder) throws Exception {
+        builder.login();
+        builder.create();
+        builder.select();
+        builder.setFile("multipart-mixed-complex.mail");
+        builder.append();
+        builder.select();
+        builder.partial(0, 0).fetchSection("4.1.MIME");
+        builder.partial(0, 15).fetchSection("4.1.MIME");
+        builder.partial(0, 31).fetchSection("4.1.MIME");
+        builder.partial(0, 63).fetchSection("4.1.MIME");
+        builder.partial(0, 127).fetchSection("4.1.MIME");
+        builder.partial(0, 1023).fetchSection("4.1.MIME");
+        builder.partial(0, 2047).fetchSection("4.1.MIME");
+        builder.partial(17, 0).fetchSection("4.1.MIME");
+        builder.partial(17, 16).fetchSection("4.1.MIME");
+        builder.partial(17, 32).fetchSection("4.1.MIME");
+        builder.partial(17, 64).fetchSection("4.1.MIME");
+        builder.partial(17, 128).fetchSection("4.1.MIME");
+        builder.partial(17, 1024).fetchSection("4.1.MIME");
+        builder.partial(17, 2048).fetchSection("4.1.MIME");
+        builder.partial(10000, 0).fetchSection("4.1.MIME");
+        builder.partial(10000, 16).fetchSection("4.1.MIME");
+        builder.partial(10000, 32).fetchSection("4.1.MIME");
+        builder.partial(10000, 64).fetchSection("4.1.MIME");
+        builder.partial(10000, 128).fetchSection("4.1.MIME");
+        builder.partial(10000, 1024).fetchSection("4.1.MIME");
+        builder.partial(10000, 2048).fetchSection("4.1.MIME");
+        builder.quit();
+    }
+    
+    public static void headerPartialFetch(ScriptBuilder builder) throws Exception {
+        builder.login();
+        builder.create();
+        builder.select();
+        builder.setFile("multipart-mixed-complex.mail");
+        builder.append();
+        builder.select();
+        builder.partial(0, 0).fetchSection("HEADER");
+        builder.partial(0, 16).fetchSection("HEADER");
+        builder.partial(0, 32).fetchSection("HEADER");
+        builder.partial(0, 64).fetchSection("HEADER");
+        builder.partial(0, 128).fetchSection("HEADER");
+        builder.partial(0, 1024).fetchSection("HEADER");
+        builder.partial(0, 2048).fetchSection("HEADER");
+        builder.partial(7, 0).fetchSection("HEADER");
+        builder.partial(7, 16).fetchSection("HEADER");
+        builder.partial(7, 32).fetchSection("HEADER");
+        builder.partial(7, 64).fetchSection("HEADER");
+        builder.partial(7, 128).fetchSection("HEADER");
+        builder.partial(7, 1024).fetchSection("HEADER");
+        builder.partial(7, 2048).fetchSection("HEADER");
+        builder.partial(10000, 0).fetchSection("HEADER");
+        builder.partial(10000, 16).fetchSection("HEADER");
+        builder.partial(10000, 32).fetchSection("HEADER");
+        builder.partial(10000, 64).fetchSection("HEADER");
+        builder.partial(10000, 128).fetchSection("HEADER");
+        builder.partial(10000, 1024).fetchSection("HEADER");
+        builder.partial(10000, 2048).fetchSection("HEADER");
+        builder.quit();
+    }
+    
     
     public static void textPartialFetch(ScriptBuilder builder) throws Exception {
         builder.login();

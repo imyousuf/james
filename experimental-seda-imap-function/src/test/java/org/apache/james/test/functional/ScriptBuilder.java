@@ -1249,7 +1249,7 @@ public class ScriptBuilder {
                     line = StringUtils.replace(line, "\\\\Seen \\\\Recent", "\\\\Recent \\\\Seen");
                     line = StringUtils.replace(line, "\\] First unseen\\.", "\\](.)*");
                     if (line.startsWith("S: \\* OK \\[UIDVALIDITY ")) {
-                        line = "S: \\* OK \\[UIDVALIDITY \\d+\\\\]";
+                        line = "S: \\* OK \\[UIDVALIDITY \\d+\\]";
                     } else if (line.startsWith("S: \\* OK \\[UIDNEXT")) {
                         line = "S: \\* OK \\[PERMANENTFLAGS \\(\\\\Answered \\\\Deleted \\\\Draft \\\\Flagged \\\\Seen\\)\\]";
                     }
