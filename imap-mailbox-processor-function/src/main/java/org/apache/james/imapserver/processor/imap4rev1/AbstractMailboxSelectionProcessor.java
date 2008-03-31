@@ -26,7 +26,6 @@ import java.util.List;
 import javax.mail.Flags;
 
 import org.apache.james.api.imap.ImapCommand;
-import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.api.imap.display.HumanReadableTextKey;
 import org.apache.james.api.imap.message.request.ImapRequest;
 import org.apache.james.api.imap.message.response.imap4rev1.StatusResponse;
@@ -40,10 +39,8 @@ import org.apache.james.imap.message.response.imap4rev1.ExistsResponse;
 import org.apache.james.imap.message.response.imap4rev1.FlagsResponse;
 import org.apache.james.imap.message.response.imap4rev1.RecentResponse;
 import org.apache.james.imapserver.processor.base.AbstractMailboxAwareProcessor;
-import org.apache.james.imapserver.processor.base.AuthorizationException;
 import org.apache.james.imapserver.processor.base.ImapSessionUtils;
 import org.apache.james.imapserver.processor.base.SelectedMailboxSessionImpl;
-import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxNotFoundException;
 import org.apache.james.mailboxmanager.MailboxSession;
@@ -77,16 +74,9 @@ abstract public class AbstractMailboxSelectionProcessor extends
     }
     
     protected void doProcess(ImapRequest message,
-            ImapSession session, String tag, ImapCommand command, Responder responder)
-            throws MailboxException, AuthorizationException, ProtocolException {
+            ImapSession session, String tag, ImapCommand command, Responder responder) {
         final AbstractMailboxSelectionRequest request = (AbstractMailboxSelectionRequest) message;
         final String mailboxName = request.getMailboxName();
-        doProcess(mailboxName, session, tag, command, responder);
-    }
-
-    protected final void doProcess(String mailboxName, ImapSession session, String tag,
-            ImapCommand command, Responder responder) throws MailboxException,
-            AuthorizationException, ProtocolException {
         try {
             final String fullMailboxName = buildFullName(session, mailboxName);
             selectMailbox(fullMailboxName, session);
@@ -95,12 +85,12 @@ abstract public class AbstractMailboxSelectionProcessor extends
             responder.respond(statusResponseFactory.taggedNo(tag, command, 
                     HumanReadableTextKey.FAILURE_NO_SUCH_MAILBOX));
         } catch (MailboxManagerException e) {
-            throw new MailboxException(e);
-        }
+            no(command, tag, responder, e);
+        } 
     }
 
     private void respond(String tag, ImapCommand command, ImapSession session,
-            Responder responder) throws MailboxException, MailboxManagerException {
+            Responder responder) throws MailboxManagerException {
         
         ImapMailbox mailbox = ImapSessionUtils.getMailbox(session);
         final MailboxSession mailboxSession = ImapSessionUtils.getMailboxSession(session);
@@ -167,7 +157,7 @@ abstract public class AbstractMailboxSelectionProcessor extends
         responder.respond(existsResponse);
     }
 
-    private void selectMailbox(String mailboxName, ImapSession session) throws MailboxException, MailboxManagerException {
+    private void selectMailbox(String mailboxName, ImapSession session) throws MailboxManagerException {
         final MailboxManager mailboxManager = getMailboxManager(session);
         final ImapMailbox mailbox = mailboxManager.getImapMailbox(mailboxName, false);
         final MailboxSession mailboxSession = ImapSessionUtils.getMailboxSession(session);

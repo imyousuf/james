@@ -54,6 +54,10 @@ public class HumanReadableTextKey {
     = new HumanReadableTextKey("org.apache.james.imap.GENERIC_SUBSCRIPTION_FAILURE", 
     "Cannot subscribe."); 
     
+    public static final HumanReadableTextKey FAILURE_MAIL_PARSE 
+    = new HumanReadableTextKey("org.apache.james.imap.FAILURE_MAIL_PARSE", 
+            "failed. Mail cannot be parsed.");
+    
     public static final HumanReadableTextKey FAILURE_NO_SUCH_MAILBOX 
         = new HumanReadableTextKey("org.apache.james.imap.FAILURE_NO_SUCH_MAILBOX", 
                 "failed. No such mailbox.");
@@ -74,6 +78,10 @@ public class HumanReadableTextKey {
     public static final HumanReadableTextKey UNSUPPORTED_SEARCH_CRITERIA 
         = new HumanReadableTextKey("org.apache.james.imap.UNSUPPORTED_CRITERIA",
                 "failed. One or more search criteria is unsupported.");
+    
+    public static final HumanReadableTextKey UNSUPPORTED_AUTHENTICATION_MECHANISM 
+    = new HumanReadableTextKey("org.apache.james.imap.UNSUPPORTED_AUTHENTICATION_MECHANISM",
+            "failed. Authentication mechanism is unsupported.");
     
     public static final HumanReadableTextKey BAD_CHARSET 
         = new HumanReadableTextKey("org.apache.james.imap.BAD_CHARSET",

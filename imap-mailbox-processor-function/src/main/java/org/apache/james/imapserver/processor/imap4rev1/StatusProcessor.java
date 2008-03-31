@@ -22,7 +22,6 @@ package org.apache.james.imapserver.processor.imap4rev1;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
-import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.api.imap.message.StatusDataItems;
 import org.apache.james.api.imap.message.request.ImapRequest;
 import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
@@ -31,9 +30,7 @@ import org.apache.james.api.imap.process.ImapSession;
 import org.apache.james.imap.message.request.imap4rev1.StatusRequest;
 import org.apache.james.imap.message.response.imap4rev1.server.STATUSResponse;
 import org.apache.james.imapserver.processor.base.AbstractMailboxAwareProcessor;
-import org.apache.james.imapserver.processor.base.AuthorizationException;
 import org.apache.james.imapserver.processor.base.ImapSessionUtils;
-import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
@@ -52,8 +49,7 @@ public class StatusProcessor extends AbstractMailboxAwareProcessor {
     }
 
     protected void doProcess(ImapRequest message,
-            ImapSession session, String tag, ImapCommand command, Responder responder)
-            throws MailboxException, AuthorizationException, ProtocolException {
+            ImapSession session, String tag, ImapCommand command, Responder responder) {
         final StatusRequest request = (StatusRequest) message;
         final String mailboxName = request.getMailboxName();
         final StatusDataItems statusDataItems = request.getStatusDataItems();
@@ -80,16 +76,12 @@ public class StatusProcessor extends AbstractMailboxAwareProcessor {
             
             final STATUSResponse response = new STATUSResponse(messages, recent, uidNext, uidValidity, unseen, mailboxName);
             responder.respond(response);
+            unsolicitedResponses(session, responder, false);
+            okComplete(command, tag, responder);
             
         } catch (MailboxManagerException e) {
-            if (logger != null && logger.isDebugEnabled()) {
-                logger.debug("STATUS command failed: ", e);
-            }
-            throw new MailboxException(e);
+            no(command, tag, responder, e);
         }
-        
-        unsolicitedResponses(session, responder, false);
-        okComplete(command, tag, responder);
     }
 
     private Long unseen(final StatusDataItems statusDataItems, final MailboxSession mailboxSession, final ImapMailbox mailbox) throws MailboxManagerException {

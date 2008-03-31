@@ -39,7 +39,7 @@ public class MessageResultUtils {
      * 
      * @throws MessagingException
      */
-    public static List getAll(final Iterator iterator) throws MessagingException {
+    public static List getAll(final Iterator iterator) {
         List results = IteratorUtils.toList(iterator);
         return results;
     }

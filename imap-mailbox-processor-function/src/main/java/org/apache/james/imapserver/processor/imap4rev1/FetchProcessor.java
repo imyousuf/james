@@ -36,7 +36,6 @@ import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.api.imap.ImapMessage;
-import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.api.imap.display.HumanReadableTextKey;
 import org.apache.james.api.imap.message.BodyFetchElement;
 import org.apache.james.api.imap.message.FetchData;
@@ -50,9 +49,7 @@ import org.apache.james.imap.message.request.imap4rev1.FetchRequest;
 import org.apache.james.imap.message.response.imap4rev1.FetchResponse;
 import org.apache.james.imap.message.response.imap4rev1.FetchResponse.BodyElement;
 import org.apache.james.imapserver.processor.base.AbstractImapRequestProcessor;
-import org.apache.james.imapserver.processor.base.AuthorizationException;
 import org.apache.james.imapserver.processor.base.ImapSessionUtils;
-import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.imapserver.store.SimpleMessageAttributes;
 import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxManagerException;
@@ -88,19 +85,11 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
     }
 
     protected void doProcess(ImapRequest message, ImapSession session,
-            String tag, ImapCommand command, Responder responder)
-            throws MailboxException, AuthorizationException, ProtocolException {
+            String tag, ImapCommand command, Responder responder) {
         final FetchRequest request = (FetchRequest) message;
         final boolean useUids = request.isUseUids();
         final IdRange[] idSet = request.getIdSet();
         final FetchData fetch = request.getFetch();
-        doProcess(useUids, idSet, fetch, session, tag, command, responder);
-    }
-
-    private void doProcess(final boolean useUids,
-            final IdRange[] idSet, final FetchData fetch, ImapSession session,
-            String tag, ImapCommand command, Responder responder) throws MailboxException,
-            AuthorizationException, ProtocolException {
         try
         {
             FetchGroup resultToFetch = getFetchGroup(fetch);
@@ -129,12 +118,14 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
             okComplete(command, tag, responder);
         } catch (UnsupportedCriteriaException e) {
             no(command, tag, responder, HumanReadableTextKey.UNSUPPORTED_SEARCH_CRITERIA);
-        } catch (MailboxManagerException e) {
-            throw new MailboxException(e);
+        } catch (MessagingException e) {
+            no(command, tag, responder, e);
+        } catch (ParseException e) {
+            no(command, tag, responder, HumanReadableTextKey.FAILURE_MAIL_PARSE);
         }
     }
 
-    private FetchGroup getFetchGroup(FetchData fetch) throws ProtocolException {
+    private FetchGroup getFetchGroup(FetchData fetch) {
         FetchGroupImpl result = new FetchGroupImpl();
         if (fetch.isFlags() || fetch.isSetSeen()) {
             result.or(FetchGroup.FLAGS);
@@ -236,96 +227,86 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
         }
 
         public FetchResponse build(FetchData fetch, MessageResult result,
-                ImapSession session, boolean useUids)
-                throws MailboxException, ProtocolException {
+                ImapSession session, boolean useUids) throws MessagingException, ParseException {
             ImapMailbox mailbox = ImapSessionUtils.getMailbox(session);
             final SelectedImapMailbox selected = session.getSelected();
             final long resultUid = result.getUid();
             final int resultMsn = selected.msn(resultUid);
             setMsn(resultMsn);
-            
+
             // Check if this fetch will cause the "SEEN" flag to be set on this
             // message
             // If so, update the flags, and ensure that a flags response is included
             // in the response.
-            try {
-                final MailboxSession mailboxSession = ImapSessionUtils.getMailboxSession(session);
-                boolean ensureFlagsResponse = false;
-                final Flags resultFlags = result.getFlags();
-                if (fetch.isSetSeen()
-                        && !resultFlags.contains(Flags.Flag.SEEN)) {
-                    mailbox.setFlags(new Flags(Flags.Flag.SEEN), true, false,
-                            GeneralMessageSetImpl.oneUid(resultUid), FetchGroupImpl.MINIMAL, mailboxSession);
-                    resultFlags.add(Flags.Flag.SEEN);
-                    ensureFlagsResponse = true;
-                }
-                
-                // FLAGS response
-                if (fetch.isFlags() || ensureFlagsResponse) {
-                    if (selected.isRecent(resultUid)) {
-                        resultFlags.add(Flags.Flag.RECENT);
-                    }
-                    setFlags(resultFlags);
-                }
-
-                // INTERNALDATE response
-                if (fetch.isInternalDate()) {
-                    setInternalDate(result
-                            .getInternalDate());
-                }
-
-                // RFC822.SIZE response
-                if (fetch.isSize()) {
-                    setSize(result.getSize());
-                }
-
-                if (fetch.isEnvelope()) {
-                    this.envelope = buildEnvelope(result);
-                }
-                
-                // Only create when needed
-                if (fetch.isBody() || fetch.isBodyStructure()) {
-                    misc = new StringBuffer();
-                    // TODO: replace SimpleMessageAttributes
-                    final SimpleMessageAttributes attrs = new SimpleMessageAttributes(
-                            result.getMimeMessage(), logger);
-
-                    // BODY response
-                    if (fetch.isBody()) {
-                        misc.append(" BODY ");
-                        misc.append(attrs.getBodyStructure(false));
-                    }
-
-                    // BODYSTRUCTURE response
-                    if (fetch.isBodyStructure()) {
-                        misc.append(" BODYSTRUCTURE ");
-                        misc.append(attrs.getBodyStructure(true));
-                    }
-                }
-                // UID response
-                if (fetch.isUid()) {
-                    setUid(resultUid);
-                }
-
-                // BODY part responses.
-                Collection elements = fetch.getBodyElements();
-                this.elements = new ArrayList();
-                for (Iterator iterator = elements.iterator(); iterator.hasNext();) {
-                    BodyFetchElement fetchElement = (BodyFetchElement) iterator.next();
-                    final FetchResponse.BodyElement element = bodyFetch(result, fetchElement);
-                    if (element != null) {
-                        this.elements.add(element);
-                    }
-                }
-                return build();
-            } catch (MailboxManagerException mme) {
-                throw new MailboxException(mme);
-            } catch (MessagingException me) {
-                throw new MailboxException(me);
-            } catch (ParseException e) {
-                logger.debug("Cannot parse header address", e);
-                throw new MailboxException("Cannot parse address");
+            final MailboxSession mailboxSession = ImapSessionUtils.getMailboxSession(session);
+            boolean ensureFlagsResponse = false;
+            final Flags resultFlags = result.getFlags();
+            if (fetch.isSetSeen()
+                    && !resultFlags.contains(Flags.Flag.SEEN)) {
+                mailbox.setFlags(new Flags(Flags.Flag.SEEN), true, false,
+                        GeneralMessageSetImpl.oneUid(resultUid), FetchGroupImpl.MINIMAL, mailboxSession);
+                resultFlags.add(Flags.Flag.SEEN);
+                ensureFlagsResponse = true;
             }
+
+            // FLAGS response
+            if (fetch.isFlags() || ensureFlagsResponse) {
+                if (selected.isRecent(resultUid)) {
+                    resultFlags.add(Flags.Flag.RECENT);
+                }
+                setFlags(resultFlags);
+            }
+
+            // INTERNALDATE response
+            if (fetch.isInternalDate()) {
+                setInternalDate(result
+                        .getInternalDate());
+            }
+
+            // RFC822.SIZE response
+            if (fetch.isSize()) {
+                setSize(result.getSize());
+            }
+
+            if (fetch.isEnvelope()) {
+                this.envelope = buildEnvelope(result);
+            }
+
+            // Only create when needed
+            if (fetch.isBody() || fetch.isBodyStructure()) {
+                misc = new StringBuffer();
+                // TODO: replace SimpleMessageAttributes
+                final SimpleMessageAttributes attrs = new SimpleMessageAttributes(
+                        result.getMimeMessage(), logger);
+
+                // BODY response
+                if (fetch.isBody()) {
+                    misc.append(" BODY ");
+                    misc.append(attrs.getBodyStructure(false));
+                }
+
+                // BODYSTRUCTURE response
+                if (fetch.isBodyStructure()) {
+                    misc.append(" BODYSTRUCTURE ");
+                    misc.append(attrs.getBodyStructure(true));
+                }
+            }
+            // UID response
+            if (fetch.isUid()) {
+                setUid(resultUid);
+            }
+
+            // BODY part responses.
+            Collection elements = fetch.getBodyElements();
+            this.elements = new ArrayList();
+            for (Iterator iterator = elements.iterator(); iterator.hasNext();) {
+                BodyFetchElement fetchElement = (BodyFetchElement) iterator.next();
+                final FetchResponse.BodyElement element = bodyFetch(result, fetchElement);
+                if (element != null) {
+                    this.elements.add(element);
+                }
+            }
+            return build();
         }
 
         private FetchResponse.Envelope buildEnvelope(final MessageResult messageResult) throws MessagingException, ParseException {
@@ -483,7 +464,7 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
         }
 
         private FetchResponse.BodyElement bodyFetch(final MessageResult messageResult,
-                BodyFetchElement fetchElement) throws MessagingException, ProtocolException {
+                BodyFetchElement fetchElement) throws MessagingException {
             
             final Long firstOctet = fetchElement.getFirstOctet();
             final Long numberOfOctets = fetchElement.getNumberOfOctets();
@@ -500,7 +481,8 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
 
         }
 
-        private FetchResponse.BodyElement bodyContent(final MessageResult messageResult, final String name, final int specifier, final int[] path, final Collection names, final boolean isBase) throws MailboxManagerException, MessagingException {
+        private FetchResponse.BodyElement bodyContent(final MessageResult messageResult, final String name, 
+                final int specifier, final int[] path, final Collection names, final boolean isBase) throws MessagingException {
             final FetchResponse.BodyElement fullResult;
             switch (specifier) {
                 case BodyFetchElement.CONTENT:
@@ -533,7 +515,8 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
             return fullResult;
         }
 
-        private FetchResponse.BodyElement wrapIfPartialFetch(final Long firstOctet, final Long numberOfOctets, final FetchResponse.BodyElement fullResult) {
+        private FetchResponse.BodyElement wrapIfPartialFetch(final Long firstOctet, final Long numberOfOctets, 
+                final FetchResponse.BodyElement fullResult) {
             final FetchResponse.BodyElement result;
             if (firstOctet == null) {
                 result = fullResult;
@@ -564,7 +547,8 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
             return result;
         }
 
-        private FetchResponse.BodyElement mimeHeaders(final MessageResult messageResult, String name, final int[] path, final boolean isBase) throws MailboxManagerException, MessagingException {
+        private FetchResponse.BodyElement mimeHeaders(final MessageResult messageResult, 
+                String name, final int[] path, final boolean isBase) throws MessagingException {
             final FetchResponse.BodyElement result;
             final Iterator headers = getMimeHeaders(messageResult, path, isBase);
             List lines = MessageResultUtils.getAll(headers);
@@ -611,13 +595,15 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
             return headers;
         }
         
-        private Iterator getMimeHeaders(final MessageResult messageResult, final int[] path, final boolean isBase) throws MailboxManagerException {
+        private Iterator getMimeHeaders(final MessageResult messageResult, final int[] path, 
+                final boolean isBase) throws MessagingException {
             MessageResult.MimePath mimePath = new MimePathImpl(path);
             final Iterator headers = messageResult.iterateMimeHeaders(mimePath);
             return headers;
         }
 
-        private FetchResponse.BodyElement content(final MessageResult messageResult, String name, final int[] path, final boolean isBase) throws MailboxManagerException {
+        private FetchResponse.BodyElement content(final MessageResult messageResult, String name, 
+                final int[] path, final boolean isBase) throws MessagingException {
             final FetchResponse.BodyElement result;
             final MessageResult.Content full;
             if (isBase) {

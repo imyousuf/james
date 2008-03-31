@@ -21,17 +21,16 @@ package org.apache.james.imapserver.processor.imap4rev1;
 
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
-import org.apache.james.api.imap.ProtocolException;
+import org.apache.james.api.imap.display.HumanReadableTextKey;
 import org.apache.james.api.imap.message.IdRange;
 import org.apache.james.api.imap.message.request.ImapRequest;
 import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
+import org.apache.james.api.imap.message.response.imap4rev1.StatusResponse.ResponseCode;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
 import org.apache.james.imap.message.request.imap4rev1.CopyRequest;
 import org.apache.james.imapserver.processor.base.AbstractMailboxAwareProcessor;
-import org.apache.james.imapserver.processor.base.AuthorizationException;
 import org.apache.james.imapserver.processor.base.ImapSessionUtils;
-import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxSession;
@@ -52,8 +51,7 @@ public class CopyProcessor extends AbstractMailboxAwareProcessor {
     }
 
     protected void doProcess(ImapRequest message,
-            ImapSession session, String tag, ImapCommand command, Responder responder)
-            throws MailboxException, AuthorizationException, ProtocolException {
+            ImapSession session, String tag, ImapCommand command, Responder responder) {
         final CopyRequest request = (CopyRequest) message;
         final String mailboxName = request.getMailboxName();
         final IdRange[] idSet = request.getIdSet();
@@ -63,31 +61,31 @@ public class CopyProcessor extends AbstractMailboxAwareProcessor {
         try {
             String fullMailboxName = buildFullName(session, mailboxName);
             final MailboxManager mailboxManager = getMailboxManager(session);
-            if (!mailboxManager.existsMailbox(fullMailboxName)) {
-                MailboxException e = new MailboxException(
-                        "Mailbox does not exists");
-                e.setResponseCode("TRYCREATE");
-                throw e;
-            }
-            for (int i = 0; i < idSet.length; i++) {
-                final long highVal;
-                final long lowVal;
-                if (useUids) {
-                    highVal = idSet[i].getHighVal();
-                    lowVal = idSet[i].getLowVal();
-                } else {
-                    highVal = session.getSelected().uid((int)idSet[i].getHighVal());
-                    lowVal = session.getSelected().uid((int)idSet[i].getLowVal());
+            final boolean mailboxExists = mailboxManager.existsMailbox(fullMailboxName);
+            if (!mailboxExists) {
+                no(command, tag, responder, 
+                        HumanReadableTextKey.FAILURE_NO_SUCH_MAILBOX, ResponseCode.tryCreate());
+            } else {
+                for (int i = 0; i < idSet.length; i++) {
+                    final long highVal;
+                    final long lowVal;
+                    if (useUids) {
+                        highVal = idSet[i].getHighVal();
+                        lowVal = idSet[i].getLowVal();
+                    } else {
+                        highVal = session.getSelected().uid((int)idSet[i].getHighVal());
+                        lowVal = session.getSelected().uid((int)idSet[i].getLowVal());
+                    }
+                    GeneralMessageSet messageSet = GeneralMessageSetImpl.uidRange(lowVal, highVal);
+                    final MailboxSession mailboxSession = ImapSessionUtils.getMailboxSession(session);
+                    mailboxManager.copyMessages(messageSet, currentMailbox.getName(), 
+                            fullMailboxName, mailboxSession);
                 }
-                GeneralMessageSet messageSet = GeneralMessageSetImpl.uidRange(lowVal, highVal);
-                final MailboxSession mailboxSession = ImapSessionUtils.getMailboxSession(session);
-                mailboxManager.copyMessages(messageSet, currentMailbox.getName(), 
-                        fullMailboxName, mailboxSession);
+                unsolicitedResponses(session, responder, useUids);
+                okComplete(command, tag, responder);
             }
         } catch (MailboxManagerException e) {
-            throw new MailboxException(e);
+            no(command, tag, responder, e);
         }
-        unsolicitedResponses(session, responder, useUids);
-        okComplete(command, tag, responder);
     }
 }
