@@ -85,31 +85,31 @@ S: A8 OK APPEND completed\.
 C: A9 SELECT testmailbox
 S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
 S: \* 5 EXISTS
-S: \* 1 RECENT
-S: \* OK \[UNSEEN 1\](.)*
+S: \* 5 RECENT
 S: \* OK \[UIDVALIDITY \d+\]
+S: \* OK \[UNSEEN 1\](.)*
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
 S: A9 OK \[READ-WRITE\] SELECT completed\.
 C: A10 FETCH 1:* (FLAGS UID BODY.PEEK[HEADER.FIELDS (DATE FROM TO ORIGINATOR X-LIST)])
-S: \* 1 FETCH \(FLAGS \(\) UID 1 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{130\}
+S: \* 1 FETCH \(FLAGS \(\\Recent\) UID 1 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{130\}
 S: From: Timothy Tayler <timothy@example\.org>
 S: To: Samual Smith <samual@example\.org>
 S: Date: Thu, 14 Feb 2008 12:00:00 \+0000 \(GMT\)
 S: 
 S: \)
-S: \* 2 FETCH \(FLAGS \(\) UID 2 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{116\}
+S: \* 2 FETCH \(FLAGS \(\\Recent\) UID 2 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{116\}
 S: From: John Smith <john@example\.org>
 S: To: Timothy Taylor <tim@example\.org>
 S: Date: Sat, 23 Feb 2008 07:48:03 -0600
 S: 
 S: \)
-S: \* 3 FETCH \(FLAGS \(\) UID 3 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{116\}
+S: \* 3 FETCH \(FLAGS \(\\Recent\) UID 3 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{116\}
 S: From: John Smith <john@example\.org>
 S: To: Timothy Taylor <tim@example\.org>
 S: Date: Sat, 23 Feb 2008 07:48:03 -0600
 S: 
 S: \)
-S: \* 4 FETCH \(FLAGS \(\) UID 4 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{130\}
+S: \* 4 FETCH \(FLAGS \(\\Recent\) UID 4 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{130\}
 S: From: Timothy Tayler <timothy@example\.org>
 S: To: Samual Smith <samual@example\.org>
 S: Date: Thu, 14 Feb 2008 12:00:00 \+0000 \(GMT\)
@@ -123,43 +123,41 @@ S:
 S: \)
 S: A10 OK FETCH completed\.
 C: A11 LIST "" "*"
-S: \* LIST \(\\HasNoChildren\) "\." "anothermailbox"
-S: \* LIST \(\\HasNoChildren\) "\." "testmailbox"
-S: \* LIST \(\\HasNoChildren\) "\." "INBOX"
-S: \* LIST \(\\HasChildren\) "\." "alpha\.beta"
-S: \* LIST \(\\HasChildren\) "\." "alpha\.beta\.gamma\.delta"
-S: \* LIST \(\\HasNoChildren\) "\." "alpha\.beta\.gamma\.delta\.epsilon"
+SUB {
+S: \* LIST \(\) "\." "testmailbox"
+S: \* LIST \(\) "\." "INBOX"
+S: \* LIST \(\) "\." "selected"
+}
 S: A11 OK LIST completed\.
 C: A12 RENAME testmailbox anothermailbox
-S: A12 NO Mailbox exists\.
+S: A12 OK RENAME completed.
 C: A13 LIST "" "*"
-S: \* LIST \(\\HasNoChildren\) "\." "anothermailbox"
-S: \* LIST \(\\HasNoChildren\) "\." "testmailbox"
-S: \* LIST \(\\HasNoChildren\) "\." "INBOX"
-S: \* LIST \(\\HasChildren\) "\." "alpha\.beta"
-S: \* LIST \(\\HasChildren\) "\." "alpha\.beta\.gamma\.delta"
-S: \* LIST \(\\HasNoChildren\) "\." "alpha\.beta\.gamma\.delta\.epsilon"
+SUB {
+S: \* LIST \(\) "\." "anothermailbox"
+S: \* LIST \(\) "\." "INBOX"
+S: \* LIST \(\) "\." "selected"
+}
 S: A13 OK LIST completed\.
 C: A14 FETCH 1:* (FLAGS UID BODY.PEEK[HEADER.FIELDS (DATE FROM TO ORIGINATOR X-LIST)])
-S: \* 1 FETCH \(FLAGS \(\) UID 1 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{130\}
+S: \* 1 FETCH \(FLAGS \(\\Recent\) UID 1 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{130\}
 S: From: Timothy Tayler <timothy@example\.org>
 S: To: Samual Smith <samual@example\.org>
 S: Date: Thu, 14 Feb 2008 12:00:00 \+0000 \(GMT\)
 S: 
 S: \)
-S: \* 2 FETCH \(FLAGS \(\) UID 2 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{116\}
+S: \* 2 FETCH \(FLAGS \(\\Recent\) UID 2 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{116\}
 S: From: John Smith <john@example\.org>
 S: To: Timothy Taylor <tim@example\.org>
 S: Date: Sat, 23 Feb 2008 07:48:03 -0600
 S: 
 S: \)
-S: \* 3 FETCH \(FLAGS \(\) UID 3 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{116\}
+S: \* 3 FETCH \(FLAGS \(\\Recent\) UID 3 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{116\}
 S: From: John Smith <john@example\.org>
 S: To: Timothy Taylor <tim@example\.org>
 S: Date: Sat, 23 Feb 2008 07:48:03 -0600
 S: 
 S: \)
-S: \* 4 FETCH \(FLAGS \(\) UID 4 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{130\}
+S: \* 4 FETCH \(FLAGS \(\\Recent\) UID 4 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{130\}
 S: From: Timothy Tayler <timothy@example\.org>
 S: To: Samual Smith <samual@example\.org>
 S: Date: Thu, 14 Feb 2008 12:00:00 \+0000 \(GMT\)
@@ -173,34 +171,34 @@ S:
 S: \)
 S: A14 OK FETCH completed\.
 C: A15 STORE 1:2  +FLAGS (\FLAGGED)
-S: \* 1 FETCH \(FLAGS \(\\Flagged\)\)
-S: \* 2 FETCH \(FLAGS \(\\Flagged\)\)
+S: \* 1 FETCH \(FLAGS \(\\Flagged \\Recent\)\)
+S: \* 2 FETCH \(FLAGS \(\\Flagged \\Recent\)\)
 S: A15 OK STORE completed\.
 C: A16 STORE 1:3  +FLAGS (\ANSWERED)
-S: \* 1 FETCH \(FLAGS \(\\Answered \\Flagged\)\)
-S: \* 2 FETCH \(FLAGS \(\\Answered \\Flagged\)\)
-S: \* 3 FETCH \(FLAGS \(\\Answered\)\)
+S: \* 1 FETCH \(FLAGS \(\\Answered \\Flagged \\Recent\)\)
+S: \* 2 FETCH \(FLAGS \(\\Answered \\Flagged \\Recent\)\)
+S: \* 3 FETCH \(FLAGS \(\\Answered \\Recent\)\)
 S: A16 OK STORE completed\.
 C: A17 FETCH 1:* (FLAGS UID BODY.PEEK[HEADER.FIELDS (DATE FROM TO ORIGINATOR X-LIST)])
-S: \* 1 FETCH \(FLAGS \(\\Answered \\Flagged\) UID 1 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{130\}
+S: \* 1 FETCH \(FLAGS \(\\Answered \\Flagged \\Recent\) UID 1 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{130\}
 S: From: Timothy Tayler <timothy@example\.org>
 S: To: Samual Smith <samual@example\.org>
 S: Date: Thu, 14 Feb 2008 12:00:00 \+0000 \(GMT\)
 S: 
 S: \)
-S: \* 2 FETCH \(FLAGS \(\\Answered \\Flagged\) UID 2 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{116\}
+S: \* 2 FETCH \(FLAGS \(\\Answered \\Flagged \\Recent\) UID 2 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{116\}
 S: From: John Smith <john@example\.org>
 S: To: Timothy Taylor <tim@example\.org>
 S: Date: Sat, 23 Feb 2008 07:48:03 -0600
 S: 
 S: \)
-S: \* 3 FETCH \(FLAGS \(\\Answered\) UID 3 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{116\}
+S: \* 3 FETCH \(FLAGS \(\\Answered \\Recent\) UID 3 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{116\}
 S: From: John Smith <john@example\.org>
 S: To: Timothy Taylor <tim@example\.org>
 S: Date: Sat, 23 Feb 2008 07:48:03 -0600
 S: 
 S: \)
-S: \* 4 FETCH \(FLAGS \(\) UID 4 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{130\}
+S: \* 4 FETCH \(FLAGS \(\\Recent\) UID 4 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{130\}
 S: From: Timothy Tayler <timothy@example\.org>
 S: To: Samual Smith <samual@example\.org>
 S: Date: Thu, 14 Feb 2008 12:00:00 \+0000 \(GMT\)
@@ -214,19 +212,13 @@ S:
 S: \)
 S: A17 OK FETCH completed\.
 C: A18 SELECT testmailbox
+S: A18 NO SELECT failed. No such mailbox\.
+C: A19 SELECT anothermailbox
 S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
 S: \* 5 EXISTS
 S: \* 0 RECENT
-S: \* OK \[UNSEEN 1\](.)*
 S: \* OK \[UIDVALIDITY \d+\]
-S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
-S: A18 OK \[READ-WRITE\] SELECT completed\.
-C: A19 SELECT anothermailbox
-S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
-S: \* 10 EXISTS
-S: \* 0 RECENT
 S: \* OK \[UNSEEN 1\](.)*
-S: \* OK \[UIDVALIDITY \d+\]
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
 S: A19 OK \[READ-WRITE\] SELECT completed\.
 C: A20 FETCH 1:* (FLAGS UID BODY.PEEK[HEADER.FIELDS (DATE FROM TO ORIGINATOR X-LIST)])
@@ -260,38 +252,6 @@ S: To: Timothy Taylor <tim@example\.org>, faith@example\.org, Huh\? <sam@example
 S: Date: Sat, 23 Feb 2008 07:48:03 -0600
 S: 
 S: \)
-S: \* 6 FETCH \(FLAGS \(\) UID 6 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{130\}
-S: From: Timothy Tayler <timothy@example\.org>
-S: To: Samual Smith <samual@example\.org>
-S: Date: Thu, 14 Feb 2008 12:00:00 \+0000 \(GMT\)
-S: 
-S: \)
-S: \* 7 FETCH \(FLAGS \(\) UID 7 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{116\}
-S: From: John Smith <john@example\.org>
-S: To: Timothy Taylor <tim@example\.org>
-S: Date: Sat, 23 Feb 2008 07:48:03 -0600
-S: 
-S: \)
-S: \* 8 FETCH \(FLAGS \(\) UID 8 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{116\}
-S: From: John Smith <john@example\.org>
-S: To: Timothy Taylor <tim@example\.org>
-S: Date: Sat, 23 Feb 2008 07:48:03 -0600
-S: 
-S: \)
-S: \* 9 FETCH \(FLAGS \(\) UID 9 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{130\}
-S: From: Timothy Tayler <timothy@example\.org>
-S: To: Samual Smith <samual@example\.org>
-S: Date: Thu, 14 Feb 2008 12:00:00 \+0000 \(GMT\)
-S: 
-S: \)
-S: \* 10 FETCH \(FLAGS \(\) UID 10 BODY\[HEADER\.FIELDS \(DATE FROM TO ORIGINATOR X-LIST\)\] \{167\}
-S: From: "Brian G\. Hutton" <brian@example\.org>
-S: To: Timothy Taylor <tim@example\.org>, faith@example\.org, Huh\? <sam@example\.org>
-S: Date: Sat, 23 Feb 2008 07:48:03 -0600
-S: 
-S: \)
 S: A20 OK FETCH completed\.
 C: A21 DELETE anothermailbox
 S: A21 OK DELETE completed\.
-C: A22 DELETE anothermailbox
-S: A23 OK DELETE completed\.

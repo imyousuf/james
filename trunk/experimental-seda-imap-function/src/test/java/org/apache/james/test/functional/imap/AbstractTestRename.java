@@ -50,4 +50,16 @@ public abstract class AbstractTestRename extends BaseTestSelectedState {
     public void testRenameHierarchyIT() throws Exception {
         scriptTest("RenameHierarchy", Locale.ITALY);
     }
+    
+    public void testRenameSelectedUS() throws Exception {
+        scriptTest("RenameSelected", Locale.US);
+    }
+    
+    public void testRenameSelectedIT() throws Exception {
+        scriptTest("RenameSelected", Locale.ITALY);
+    }
+    
+    public void testRenameSelectedKO() throws Exception {
+        scriptTest("RenameSelected", Locale.KOREA);
+    }
 }
