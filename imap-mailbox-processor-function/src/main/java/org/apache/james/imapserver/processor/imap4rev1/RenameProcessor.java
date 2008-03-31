@@ -21,16 +21,16 @@ package org.apache.james.imapserver.processor.imap4rev1;
 
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
-import org.apache.james.api.imap.ProtocolException;
+import org.apache.james.api.imap.display.HumanReadableTextKey;
 import org.apache.james.api.imap.message.request.ImapRequest;
 import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
 import org.apache.james.imap.message.request.imap4rev1.RenameRequest;
 import org.apache.james.imapserver.processor.base.AbstractMailboxAwareProcessor;
-import org.apache.james.imapserver.processor.base.AuthorizationException;
-import org.apache.james.imapserver.store.MailboxException;
+import org.apache.james.mailboxmanager.MailboxExistsException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
+import org.apache.james.mailboxmanager.MailboxNotFoundException;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 
@@ -46,21 +46,25 @@ public class RenameProcessor extends AbstractMailboxAwareProcessor {
     }
 
     protected void doProcess(ImapRequest message,
-            ImapSession session, String tag, ImapCommand command, Responder responder)
-            throws MailboxException, AuthorizationException, ProtocolException {
+            ImapSession session, String tag, ImapCommand command, Responder responder) {
         final RenameRequest request = (RenameRequest) message;
         final String existingName = request.getExistingName();
         final String newName = request.getNewName();
         try {
+            
             final String fullExistingName = buildFullName(session, existingName);
             final String fullNewName = buildFullName(session, newName);
             final MailboxManager mailboxManager = getMailboxManager(session);
             mailboxManager.renameMailbox(fullExistingName, fullNewName);
+            okComplete(command, tag, responder);
+            unsolicitedResponses(session, responder, false);
+            
+        } catch (MailboxExistsException e) {
+            no(command, tag, responder, HumanReadableTextKey.FAILURE_MAILBOX_EXISTS);
+        } catch (MailboxNotFoundException e) {
+            no(command, tag, responder, HumanReadableTextKey.FAILURE_NO_SUCH_MAILBOX);
         } catch (MailboxManagerException e) {
-            throw new MailboxException(e);
+            no(command, tag, responder, e);
         }
-
-        okComplete(command, tag, responder);
-        unsolicitedResponses(session, responder, false);
     }
 }

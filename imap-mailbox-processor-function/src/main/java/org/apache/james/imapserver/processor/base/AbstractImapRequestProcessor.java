@@ -36,6 +36,9 @@ import org.apache.james.api.imap.process.ImapSession;
 import org.apache.james.imap.message.response.imap4rev1.legacy.CommandFailedResponse;
 import org.apache.james.imap.message.response.imap4rev1.legacy.ErrorResponse;
 import org.apache.james.imapserver.store.MailboxException;
+import org.apache.james.mailboxmanager.MailboxExistsException;
+import org.apache.james.mailboxmanager.MailboxManagerException;
+import org.apache.james.mailboxmanager.MailboxNotFoundException;
 
 abstract public class AbstractImapRequestProcessor extends
         AbstractChainedImapProcessor implements ImapConstants {
@@ -55,38 +58,66 @@ abstract public class AbstractImapRequestProcessor extends
 
     protected final void process(final ImapRequest message, final Responder responder,
             final ImapSession session) {
-        final Logger logger = getLogger();
         final ImapCommand command = message.getCommand();
         final String tag = message.getTag();
         try {
             doProcess(message, command, tag, responder, session);
         } catch (MailboxException e) {
-            if (logger != null) {
-                logger.debug("error processing command ", e);
-            }
-             final ImapResponseMessage response = new CommandFailedResponse(command, e.getResponseCode(), e
-                    .getMessage(), tag);
-             responder.respond(response);
+            no(command, tag, responder, e);
         } catch (AuthorizationException e) {
-            if (logger != null) {
-                logger.debug("error processing command ", e);
-            }
-            final String msg = "Authorization error: Lacking permissions to perform requested operation.";
-            final ImapResponseMessage response = new CommandFailedResponse(command, null, msg, tag);
-            responder.respond(response);
-            
+            no(command, tag, responder, e);
         } catch (ProtocolException e) {
-            if (logger != null) {
-                logger.debug("error processing command ", e);
-            }
-            final String msg = e.getMessage() + " Command should be '"
-                    + command.getExpectedMessage() + "'";
-            final ImapResponseMessage response = new ErrorResponse(msg, tag);
-            responder.respond(response);
-            
+            no(command, tag, responder, e);
         }
     }
 
+    protected void no(final ImapCommand command, final String tag, final Responder responder, ProtocolException e) {
+        final Logger logger = getLogger();
+        if (logger != null) {
+            logger.debug("error processing command ", e);
+        }
+        final String msg = e.getMessage() + " Command should be '"
+                + command.getExpectedMessage() + "'";
+        final ImapResponseMessage response = new ErrorResponse(msg, tag);
+        responder.respond(response);
+    }
+
+    protected void no(final ImapCommand command, final String tag, final Responder responder, AuthorizationException e) {
+        final Logger logger = getLogger();
+        if (logger != null) {
+            logger.debug("error processing command ", e);
+        }
+        final String msg = "Authorization error: Lacking permissions to perform requested operation.";
+        final ImapResponseMessage response = new CommandFailedResponse(command, null, msg, tag);
+        responder.respond(response);
+    }
+
+    protected void no(final ImapCommand command, final String tag, final Responder responder, final MailboxManagerException e) {
+        final Logger logger = getLogger();
+        final ImapResponseMessage response;
+        if (e instanceof MailboxExistsException) {
+            response = factory.taggedNo(tag, command, HumanReadableTextKey.FAILURE_MAILBOX_EXISTS);
+        } else if (e instanceof MailboxNotFoundException) {
+            response = factory.taggedNo(tag, command, HumanReadableTextKey.FAILURE_NO_SUCH_MAILBOX);
+        } else {
+            if (logger != null) {
+                logger.debug("error processing command ", e);
+            }
+            response = new CommandFailedResponse(command, null, e.getMessage(), tag);
+        }
+        responder.respond(response);
+    }
+
+    protected void no(final ImapCommand command, final String tag, final Responder responder, final MailboxException e) {
+        final Logger logger = getLogger();
+        if (logger != null) {
+            logger.debug("error processing command ", e);
+        }
+        final ImapResponseMessage response = new CommandFailedResponse(command, e.getResponseCode(), e
+                .getMessage(), tag);
+        responder.respond(response);
+    }
+    
     final void doProcess(final ImapRequest message,
             final ImapCommand command, final String tag, Responder responder, ImapSession session)
             throws MailboxException, AuthorizationException, ProtocolException {

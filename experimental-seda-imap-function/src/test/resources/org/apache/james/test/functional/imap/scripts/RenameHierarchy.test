@@ -25,66 +25,73 @@ S: A4 OK CREATE completed\.
 C: A5 CREATE one.two.three.four
 S: A5 OK CREATE completed\.
 C: A6 LIST "" "*"
-S: \* LIST  "\." "one"
-S: \* LIST "\." "INBOX"
-S: \* LIST  "\." "one\.two"
-S: \* LIST  "\." "one\.two\.three"
-S: \* LIST "\." "one\.two\.three\.four"
-S: A6 OK List completed\.
+S: \* LIST \(\) "\." "INBOX"
+S: \* LIST \(\) "\." "one"
+S: \* LIST \(\) "\." "one\.two"
+S: \* LIST \(\) "\." "one\.two\.three"
+S: \* LIST \(\) "\." "one\.two\.three\.four"
+S: \* LIST \(\) "\." "selected"
+S: A6 OK LIST completed\.
 C: A7 RENAME one.two alpha.beta
 S: A7 OK RENAME completed\.
 C: A8 LIST "" "*"
-S: \* LIST  "\." "alpha\.beta"
-S: \* LIST  "\." "alpha\.beta\.three"
-S: \* LIST "\." "alpha\.beta\.three\.four"
-S: \* LIST "\." "one"
-S: \* LIST "\." "INBOX"
-S: A8 OK List completed\.
+S: \* LIST \(\) "\." "INBOX"
+S: \* LIST \(\) "\." "alpha\.beta"
+S: \* LIST \(\) "\." "alpha\.beta\.three"
+S: \* LIST \(\) "\." "alpha\.beta\.three\.four"
+S: \* LIST \(\) "\." "one"
+S: \* LIST \(\) "\." "selected"
+S: A8 OK LIST completed\.
 C: A9 RENAME alpha.beta.three.four alpha.beta.gamma.delta
 S: A9 OK RENAME completed\.
 C: A10 LIST "" "*"
-S: \* LIST "\." "one"
-S: \* LIST "\." "INBOX"
-S: \* LIST  "\." "alpha\.beta"
-S: \* LIST "\." "alpha\.beta\.gamma\.delta"
-S: \* LIST "\." "alpha\.beta\.three"
-S: A10 OK List completed\.
+S: \* LIST \(\) "\." "INBOX"
+S: \* LIST \(\) "\." "alpha\.beta"
+S: \* LIST \(\) "\." "alpha\.beta\.gamma\.delta"
+S: \* LIST \(\) "\." "alpha\.beta\.three"
+S: \* LIST \(\) "\." "one"
+S: \* LIST \(\) "\." "selected"
+S: A10 OK LIST completed\.
 C: A11 RENAME alpha.beta.three aleph
 S: A11 OK RENAME completed\.
 C: A12 LIST "" "*"
-S: \* LIST "\." "one"
-S: \* LIST "\." "aleph"
-S: \* LIST "\." "INBOX"
-S: \* LIST  "\." "alpha\.beta"
-S: \* LIST "\." "alpha\.beta\.gamma\.delta"
-S: A12 OK List completed\.
+S: \* LIST \(\) "\." "INBOX"
+S: \* LIST \(\) "\." "aleph"
+S: \* LIST \(\) "\." "alpha\.beta"
+S: \* LIST \(\) "\." "alpha\.beta\.gamma\.delta"
+S: \* LIST \(\) "\." "one"
+S: \* LIST \(\) "\." "selected"
+S: A12 OK LIST completed\.
 C: A13 RENAME aleph alpha.beta.gamma.delta.epsilon
 S: A13 OK RENAME completed\.
 C: A14 LIST "" "*"
-S: \* LIST "\." "one"
-S: \* LIST "\." "INBOX"
-S: \* LIST  "\." "alpha\.beta"
-S: \* LIST  "\." "alpha\.beta\.gamma\.delta"
-S: \* LIST "\." "alpha\.beta\.gamma\.delta\.epsilon"
-S: A14 OK List completed\.
+S: \* LIST \(\) "\." "INBOX"
+S: \* LIST \(\) "\." "alpha\.beta"
+S: \* LIST \(\) "\." "alpha\.beta\.gamma\.delta"
+S: \* LIST \(\) "\." "alpha\.beta\.gamma\.delta\.epsilon"
+S: \* LIST \(\) "\." "one"
+S: \* LIST \(\) "\." "selected"
+S: A14 OK LIST completed\.
 C: A15 RENAME alpha.beta.gamma one
-S: A15 NO Mailbox exists\.
+S: A15 NO RENAME failed. Mailbox already exists\.
 C: A16 LIST "" "*"
-S: \* LIST "\." "one"
-S: \* LIST "\." "INBOX"
-S: \* LIST  "\." "alpha\.beta"
-S: \* LIST  "\." "alpha\.beta\.gamma\.delta"
-S: \* LIST "\." "alpha\.beta\.gamma\.delta\.epsilon"
-S: A16 OK List completed\.
+S: \* LIST \(\) "\." "INBOX"
+S: \* LIST \(\) "\." "alpha\.beta"
+S: \* LIST \(\) "\." "alpha\.beta\.gamma\.delta"
+S: \* LIST \(\) "\." "alpha\.beta\.gamma\.delta\.epsilon"
+S: \* LIST \(\) "\." "one"
+S: \* LIST \(\) "\." "selected"
+S: A16 OK LIST completed\.
 C: A17 DELETE one
 S: A17 OK DELETE completed\.
 C: A18 DELETE alpha
-S: A18 NO Mailbox doesn't exist: alpha
+S: A18 NO DELETE failed. No such mailbox\.
 C: A19 LIST "" "*"
-S: \* LIST  "\." "alpha\.beta"
-S: \* LIST  "\." "alpha\.beta\.gamma\.delta"
-S: \* LIST "\." "alpha\.beta\.gamma\.delta\.epsilon"
-S: \* LIST "\." "INBOX"
-S: A19 OK List completed\.
+S: \* LIST \(\) "\." "INBOX"
+S: \* LIST \(\) "\." "alpha\.beta"
+S: \* LIST \(\) "\." "alpha\.beta\.gamma\.delta"
+S: \* LIST \(\) "\." "alpha\.beta\.gamma\.delta\.epsilon"
+S: \* LIST \(\) "\." "selected"
+S: A19 OK LIST completed\.
 C: A20 DELETE aleph
-S: A20 NO Mailbox doesn't exist: aleph
+S: A20 NO DELETE failed. No such mailbox\.

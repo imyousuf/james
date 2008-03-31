@@ -88,6 +88,14 @@ public interface MailboxManager {
 
     void deleteMailbox(String mailboxName) throws MailboxManagerException;
 
+    /**
+     * Renames a mailbox. 
+     * @param from original name for the mailbox
+     * @param to new name for the mailbox
+     * @throws MailboxManagerException
+     * @throws MailboxExistsException when the <code>to</code> mailbox exists
+     * @throws MailboxNotFound when the <code>from</code> mailbox does not exist
+     */
     void renameMailbox(String from, String to) throws MailboxManagerException;
 
     /**

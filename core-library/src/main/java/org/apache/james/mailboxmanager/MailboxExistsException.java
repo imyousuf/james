@@ -17,37 +17,32 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.test.functional.imap;
+package org.apache.james.mailboxmanager;
 
-import java.util.Locale;
+/**
+ * Indicates that the operation failed
+ * since the mailbox already exists.
+ */
+public class MailboxExistsException extends MailboxManagerException {
 
-public abstract class AbstractTestRename extends BaseTestSelectedState {
+    private static final long serialVersionUID = -486951759505030166L;
 
-    public AbstractTestRename(HostSystem system) {
-        super(system);
+    private final String mailboxName;
+    
+    public MailboxExistsException(String mailboxName) {
+        super("Mailbox '" + mailboxName + "' already exists.");
+        this.mailboxName = mailboxName;
     }
 
-    public void testRenameUS() throws Exception {
-        scriptTest("Rename", Locale.US);
+    /**
+     * Gets the name of the mailbox which alredy exists.
+     * @return the mailboxName, not null
+     */
+    public final String getMailboxName() {
+        return mailboxName;
     }
-    
-    public void testRenameKOREA() throws Exception {
-        scriptTest("Rename", Locale.KOREA);
-    }
-    
-    public void testRenameITALY() throws Exception {
-        scriptTest("Rename", Locale.ITALY);
-    }
-    
-    public void testRenameHierarchyUS() throws Exception {
-        scriptTest("RenameHierarchy", Locale.US);
-    }
-    
-    public void testRenameHierarchyKO() throws Exception {
-        scriptTest("RenameHierarchy", Locale.KOREA);
-    }
-    
-    public void testRenameHierarchyIT() throws Exception {
-        scriptTest("RenameHierarchy", Locale.ITALY);
+
+    public String toString() {
+        return getMessage();
     }
 }

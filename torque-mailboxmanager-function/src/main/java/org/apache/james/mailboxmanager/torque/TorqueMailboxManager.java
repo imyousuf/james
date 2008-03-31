@@ -33,6 +33,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.ListResult;
+import org.apache.james.mailboxmanager.MailboxExistsException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxNotFoundException;
 import org.apache.james.mailboxmanager.MailboxSession;
@@ -160,7 +161,7 @@ public class TorqueMailboxManager implements MailboxManager {
                 // TODO put this into a serilizable transaction
                 MailboxRow mr = MailboxRowPeer.retrieveByName(mailboxName);
                 if (mr == null) {
-                    throw new MailboxManagerException("Mailbox not found");
+                    throw new MailboxNotFoundException("Mailbox not found");
                 }
                 MailboxRowPeer.doDelete(mr);
                 managers.remove(mailboxName);
@@ -171,19 +172,26 @@ public class TorqueMailboxManager implements MailboxManager {
     }
 
     public void renameMailbox(String from, String to)
-            throws MailboxManagerException {
+    throws MailboxManagerException {
+        getLog().debug("renameMailbox "+from+" to "+to);
         try {
-            getLog().debug("renameMailbox "+from+" to "+to);
             synchronized (managers) {
+                if (existsMailbox(to)) {
+                    throw new MailboxExistsException(to);
+                }
                 // TODO put this into a serilizable transaction
-                MailboxRow mr = MailboxRowPeer.retrieveByName(from);
+                final MailboxRow mr;
+
+                mr = MailboxRowPeer.retrieveByName(from);
+
                 if (mr == null) {
-                    throw new MailboxManagerException("Mailbox not found");
+                    throw new MailboxNotFoundException(from);
                 }
                 mr.setName(to);
                 mr.save();
+
                 managers.remove(from);
-                
+
                 // rename submailbox
                 Criteria c = new Criteria();
                 c.add(MailboxRowPeer.NAME,
@@ -199,10 +207,9 @@ public class TorqueMailboxManager implements MailboxManager {
                     getLog().info("renameMailbox sub-mailbox "+subOrigName+" to "+subNewName);
                 }
             }
-        } catch (Exception e) {
+        } catch (TorqueException e) {
             throw new MailboxManagerException(e);
         }
-
     }
 
     public void copyMessages(GeneralMessageSet set, String from, String to, MailboxSession session) throws MailboxManagerException {
