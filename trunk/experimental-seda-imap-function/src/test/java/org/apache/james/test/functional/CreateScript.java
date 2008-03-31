@@ -35,7 +35,37 @@ public class CreateScript {
 
     public static final void main(String[] args) throws Exception {
         ScriptBuilder builder = ScriptBuilder.open("localhost", 143);
-        renameHierarchy(builder);
+        renameSelected(builder);
+    }
+    
+    public static void renameSelected(ScriptBuilder builder) throws Exception {
+        builder.login();
+        builder.create();
+        builder.select();
+        builder.append();
+        builder.setFile("rfc822-hello-world.mail");
+        builder.append();
+        builder.setFile("rfc822-sender.mail");
+        builder.append();
+        builder.setFile("rfc822.mail");
+        builder.append();
+        builder.setFile("rfc822-multiple-addresses.mail");
+        builder.append();
+        builder.select();
+        builder.getFetch().setFlagsFetch(true).bodyPeekHeaders(ScriptBuilder.Fetch.SELECT_HEADERS).setUid(true);
+        builder.fetchAllMessages();
+        builder.list();
+        builder.rename("anothermailbox");
+        builder.list();
+        builder.fetchAllMessages();
+        builder.store(builder.flags().add().flagged().range(1, 2));
+        builder.store(builder.flags().add().answered().range(1, 3));
+        builder.fetchAllMessages();
+        builder.select();
+        builder.setMailbox("anothermailbox");
+        builder.select();
+        builder.fetchAllMessages();
+        builder.quit();
     }
     
     public static void renameHierarchy(ScriptBuilder builder) throws Exception {
