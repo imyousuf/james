@@ -57,6 +57,11 @@ public class HumanReadableTextKey {
     public static final HumanReadableTextKey FAILURE_NO_SUCH_MAILBOX 
         = new HumanReadableTextKey("org.apache.james.imap.FAILURE_NO_SUCH_MAILBOX", 
                 "failed. No such mailbox.");
+    
+    
+    public static final HumanReadableTextKey FAILURE_MAILBOX_EXISTS
+        = new HumanReadableTextKey("org.apache.james.imap.FAILURE_NO_SUCH_MAILBOX", 
+                "failed. Mailbox already exists.");
 
     public static final HumanReadableTextKey COMPLETED 
         = new HumanReadableTextKey("org.apache.james.imap.COMPLETED", 
