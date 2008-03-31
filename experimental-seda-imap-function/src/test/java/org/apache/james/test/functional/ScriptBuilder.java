@@ -157,6 +157,10 @@ public class ScriptBuilder {
         response();
     }
     
+    public ScriptBuilder rename(String to) throws Exception {
+        return rename(getMailbox(), to);
+    }
+    
     public ScriptBuilder rename(String from, String to) throws Exception {
         command("RENAME " + from + " " + to);
         return this;
@@ -1072,7 +1076,9 @@ public class ScriptBuilder {
                 print(result);
             } else {
                 inBuffer.compact();
-                while (source.read(inBuffer) == 0);
+                int i = 0;
+                while ((i = source.read(inBuffer)) == 0);
+                if (i == -1) throw new RuntimeException("Unexpected EOF");
                 inBuffer.flip();
                 result = next();
             }
@@ -1274,6 +1280,7 @@ public class ScriptBuilder {
                     line = StringUtils.replace(line, "OK Store completed", "OK STORE completed");
                     line = StringUtils.replace(line, "OK Rename completed", "OK RENAME completed");
                     line = StringUtils.replace(line, "OK Expunge completed", "OK EXPUNGE completed");
+                    line = StringUtils.replace(line, "OK List completed", "OK LIST completed");
                     line = StringUtils.replace(line, "Select completed", "SELECT completed");
                     line = StringUtils.replace(line, "\\\\Seen \\\\Draft", "\\\\Draft \\\\Seen");
                     line = StringUtils.replace(line, "\\\\Flagged \\\\Deleted", "\\\\Deleted \\\\Flagged");
