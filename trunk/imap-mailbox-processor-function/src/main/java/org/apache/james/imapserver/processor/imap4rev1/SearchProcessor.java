@@ -29,7 +29,6 @@ import javax.mail.Flags.Flag;
 
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
-import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.api.imap.message.IdRange;
 import org.apache.james.api.imap.message.request.DayMonthYear;
 import org.apache.james.api.imap.message.request.ImapRequest;
@@ -41,9 +40,7 @@ import org.apache.james.api.imap.process.SelectedImapMailbox;
 import org.apache.james.imap.message.request.imap4rev1.SearchRequest;
 import org.apache.james.imap.message.response.imap4rev1.server.SearchResponse;
 import org.apache.james.imapserver.processor.base.AbstractImapRequestProcessor;
-import org.apache.james.imapserver.processor.base.AuthorizationException;
 import org.apache.james.imapserver.processor.base.ImapSessionUtils;
-import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.SearchQuery;
@@ -64,31 +61,27 @@ public class SearchProcessor extends AbstractImapRequestProcessor {
     }
 
     protected void doProcess(ImapRequest message,
-            ImapSession session, String tag, ImapCommand command, Responder responder)
-            throws MailboxException, AuthorizationException, ProtocolException {
-        final SearchRequest request = (SearchRequest) message;
-        final SearchKey searchKey = request.getSearchKey();
-        final boolean useUids = request.isUseUids();
-        doProcess(searchKey, useUids, session, tag, command, responder);
-    }
-
-    private void doProcess(final SearchKey searchKey,
-            final boolean useUids, final ImapSession session, final String tag,
-            final ImapCommand command, final Responder responder) throws MailboxException,
-            AuthorizationException, ProtocolException {
-        ImapMailbox mailbox = ImapSessionUtils.getMailbox(session);
-        final FetchGroup fetchGroup = FetchGroupImpl.MINIMAL;
-
-        final SearchQuery query = toQuery(searchKey, session);
-        
-        final Collection results = findIds(useUids, session, mailbox, fetchGroup, query);
-        final long[] ids = toArray(results);
-        
-        final SearchResponse response = new SearchResponse(ids);
-        responder.respond(response);
-        boolean omitExpunged = (!useUids);
-        unsolicitedResponses(session, responder, omitExpunged, useUids);
-        okComplete(command, tag, responder);
+            ImapSession session, String tag, ImapCommand command, Responder responder) {
+        try {
+            final SearchRequest request = (SearchRequest) message;
+            final SearchKey searchKey = request.getSearchKey();
+            final boolean useUids = request.isUseUids();
+            ImapMailbox mailbox = ImapSessionUtils.getMailbox(session);
+            final FetchGroup fetchGroup = FetchGroupImpl.MINIMAL;
+    
+            final SearchQuery query = toQuery(searchKey, session);
+            
+            final Collection results = findIds(useUids, session, mailbox, fetchGroup, query);
+            final long[] ids = toArray(results);
+            
+            final SearchResponse response = new SearchResponse(ids);
+            responder.respond(response);
+            boolean omitExpunged = (!useUids);
+            unsolicitedResponses(session, responder, omitExpunged, useUids);
+            okComplete(command, tag, responder);
+        } catch (MailboxManagerException e) {
+            no(command, tag, responder, e);
+        }
     }
 
     private long[] toArray(final Collection results) {
@@ -101,14 +94,9 @@ public class SearchProcessor extends AbstractImapRequestProcessor {
         return ids;
     }
 
-    private Collection findIds(final boolean useUids, final ImapSession session, ImapMailbox mailbox, final FetchGroup fetchGroup, final SearchQuery query) throws MailboxException {
-        final Iterator it;
-        try {
-            
-            it = mailbox.search(query, fetchGroup, ImapSessionUtils.getMailboxSession(session));
-        } catch (MailboxManagerException e) {
-            throw new MailboxException(e);
-        }
+    private Collection findIds(final boolean useUids, final ImapSession session, ImapMailbox mailbox, 
+            final FetchGroup fetchGroup, final SearchQuery query) throws MailboxManagerException {
+        final Iterator it = mailbox.search(query, fetchGroup, ImapSessionUtils.getMailboxSession(session));
 
         final Collection results = new TreeSet();
         while (it.hasNext()) {

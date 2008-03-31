@@ -21,15 +21,12 @@ package org.apache.james.imapserver.processor.imap4rev1;
 
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
-import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.api.imap.message.request.ImapRequest;
 import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
 import org.apache.james.imap.message.request.imap4rev1.CreateRequest;
 import org.apache.james.imapserver.processor.base.AbstractMailboxAwareProcessor;
-import org.apache.james.imapserver.processor.base.AuthorizationException;
-import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
@@ -46,8 +43,7 @@ public class CreateProcessor extends AbstractMailboxAwareProcessor {
     }
 
     protected void doProcess(ImapRequest message,
-            ImapSession session, String tag, ImapCommand command, Responder responder)
-            throws MailboxException, AuthorizationException, ProtocolException {
+            ImapSession session, String tag, ImapCommand command, Responder responder) {
         final CreateRequest request = (CreateRequest) message;
         final String mailboxName = request.getMailboxName();
         try {
@@ -55,10 +51,10 @@ public class CreateProcessor extends AbstractMailboxAwareProcessor {
             final String fullMailboxName = buildFullName(session, mailboxName);
             final MailboxManager mailboxManager = getMailboxManager(session);
             mailboxManager.createMailbox(fullMailboxName);
+            okComplete(command, tag, responder);
+            unsolicitedResponses(session, responder, false);
         } catch (MailboxManagerException e) {
-            throw new MailboxException(e);
+            no(command, tag, responder, e);
         }
-        okComplete(command, tag, responder);
-        unsolicitedResponses(session, responder, false);
     }
 }

@@ -28,7 +28,6 @@ import javax.mail.internet.MimeMessage;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
-import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.api.imap.display.HumanReadableTextKey;
 import org.apache.james.api.imap.message.request.ImapRequest;
 import org.apache.james.api.imap.message.response.imap4rev1.StatusResponse;
@@ -38,9 +37,7 @@ import org.apache.james.api.imap.process.ImapSession;
 import org.apache.james.api.imap.process.SelectedImapMailbox;
 import org.apache.james.imap.message.request.imap4rev1.AppendRequest;
 import org.apache.james.imapserver.processor.base.AbstractMailboxAwareProcessor;
-import org.apache.james.imapserver.processor.base.AuthorizationException;
 import org.apache.james.imapserver.processor.base.ImapSessionUtils;
-import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.MessageResult;
@@ -64,31 +61,19 @@ public class AppendProcessor extends AbstractMailboxAwareProcessor {
     }
 
     protected void doProcess(ImapRequest message,
-            ImapSession session, String tag, ImapCommand command, Responder responder)
-            throws MailboxException, AuthorizationException, ProtocolException {
+            ImapSession session, String tag, ImapCommand command, Responder responder){
         final AppendRequest request = (AppendRequest) message;
         final String mailboxName = request.getMailboxName();
         final MimeMessage mimeMessage = request.getMessage();
         final Date datetime = request.getDatetime();
-        doProcess(mailboxName, mimeMessage,
-                datetime, session, tag, command, responder);
-    }
-
-
-
-    private void doProcess(String mailboxName,
-            MimeMessage message, Date datetime, ImapSession session,
-            String tag, ImapCommand command, Responder responder) throws MailboxException,
-            AuthorizationException, ProtocolException {
-        
         // TODO: Flags are ignore: check whether the specification says that
         // they should be processed
         try {
             
-            mailboxName = buildFullName(session, mailboxName);
+            final String fullMailboxName = buildFullName(session, mailboxName);
             final MailboxManager mailboxManager = getMailboxManager(session);
-            final ImapMailbox mailbox = mailboxManager.getImapMailbox(mailboxName, false);
-            appendToMailbox(message, datetime, session, tag, command, mailbox, responder);
+            final ImapMailbox mailbox = mailboxManager.getImapMailbox(fullMailboxName, false);
+            appendToMailbox(mimeMessage, datetime, session, tag, command, mailbox, responder);
             
         } catch (MailboxManagerException mme) {
             // Mailbox API does not provide facilities for diagnosing the problem
@@ -110,7 +95,7 @@ public class AppendProcessor extends AbstractMailboxAwareProcessor {
 
     private void appendToMailbox(MimeMessage message, Date datetime, 
             ImapSession session, String tag, ImapCommand command, ImapMailbox mailbox,
-            Responder responder) throws MailboxException {
+            Responder responder) {
         try {
             final MailboxSession mailboxSession = ImapSessionUtils.getMailboxSession(session);
             final SelectedImapMailbox selectedMailbox = session.getSelected();
@@ -123,15 +108,14 @@ public class AppendProcessor extends AbstractMailboxAwareProcessor {
             if (isSelectedMailbox) {
                 selectedMailbox.addRecent(uid);
             }
+            unsolicitedResponses(session, responder, false);
+            okComplete(command, tag, responder);
         } catch (MailboxManagerException e) {
             // TODO why not TRYCREATE?
-            throw new MailboxException(e);
+            no(command, tag, responder, e);
         } catch (MessagingException e) {
-            throw new MailboxException(e);
+            no(command, tag, responder, e);
         }
-        
-        unsolicitedResponses(session, responder, false);
-        okComplete(command, tag, responder);
         
     }
 }

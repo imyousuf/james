@@ -23,7 +23,6 @@ import java.util.Iterator;
 
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
-import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.api.imap.display.HumanReadableTextKey;
 import org.apache.james.api.imap.message.request.ImapRequest;
 import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
@@ -32,9 +31,7 @@ import org.apache.james.api.imap.process.ImapSession;
 import org.apache.james.api.imap.process.SelectedImapMailbox;
 import org.apache.james.imap.message.request.imap4rev1.ExpungeRequest;
 import org.apache.james.imapserver.processor.base.AbstractImapRequestProcessor;
-import org.apache.james.imapserver.processor.base.AuthorizationException;
 import org.apache.james.imapserver.processor.base.ImapSessionUtils;
-import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
@@ -54,8 +51,7 @@ public class ExpungeProcessor extends AbstractImapRequestProcessor {
     }
 
     protected void doProcess(ImapRequest message,
-            ImapSession session, String tag, ImapCommand command, Responder responder)
-            throws MailboxException, AuthorizationException, ProtocolException {
+            ImapSession session, String tag, ImapCommand command, Responder responder) {
         ImapMailbox mailbox = ImapSessionUtils.getMailbox(session);
         if (!mailbox.isWriteable()) {
             no(command, tag, responder, HumanReadableTextKey.MAILBOX_IS_READ_ONLY);
@@ -74,7 +70,7 @@ public class ExpungeProcessor extends AbstractImapRequestProcessor {
                 unsolicitedResponses(session, responder, false);
                 okComplete(command, tag, responder);
             } catch (MailboxManagerException e) {
-                throw new MailboxException(e);
+                no(command, tag, responder, e);
             }
         }
     }

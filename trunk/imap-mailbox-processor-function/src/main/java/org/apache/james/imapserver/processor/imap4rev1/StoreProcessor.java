@@ -35,7 +35,6 @@ import org.apache.james.imap.message.request.imap4rev1.StoreRequest;
 import org.apache.james.imap.message.response.imap4rev1.FetchResponse;
 import org.apache.james.imapserver.processor.base.AbstractImapRequestProcessor;
 import org.apache.james.imapserver.processor.base.ImapSessionUtils;
-import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxSession;
@@ -58,8 +57,7 @@ public class StoreProcessor extends AbstractImapRequestProcessor {
     }
 
     protected void doProcess(ImapRequest message,
-            ImapSession session, String tag, ImapCommand command, Responder responder)
-            throws MailboxException {
+            ImapSession session, String tag, ImapCommand command, Responder responder) {
         final StoreRequest request = (StoreRequest) message;
         final IdRange[] idSet = request.getIdSet();
         final Flags flags = request.getFlags();
@@ -119,12 +117,11 @@ public class StoreProcessor extends AbstractImapRequestProcessor {
                     }
                 }
             }
+            final boolean omitExpunged = (!useUids);
+            unsolicitedResponses(session, responder, omitExpunged, useUids);
+            okComplete(command, tag, responder);
         } catch (MailboxManagerException e) {
-            throw new MailboxException(e);
+            no(command, tag, responder, e);
         }
-
-        final boolean omitExpunged = (!useUids);
-        unsolicitedResponses(session, responder, omitExpunged, useUids);
-        okComplete(command, tag, responder);
     }
 }

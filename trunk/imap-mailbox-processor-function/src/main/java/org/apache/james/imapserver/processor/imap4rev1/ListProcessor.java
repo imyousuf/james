@@ -19,11 +19,9 @@
 
 package org.apache.james.imapserver.processor.imap4rev1;
 
-import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.api.imap.ImapMessage;
-import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.api.imap.message.request.ImapRequest;
 import org.apache.james.api.imap.message.response.ImapResponseMessage;
 import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
@@ -32,9 +30,7 @@ import org.apache.james.api.imap.process.ImapSession;
 import org.apache.james.imap.message.request.imap4rev1.ListRequest;
 import org.apache.james.imap.message.response.imap4rev1.server.ListResponse;
 import org.apache.james.imapserver.processor.base.AbstractMailboxAwareProcessor;
-import org.apache.james.imapserver.processor.base.AuthorizationException;
 import org.apache.james.imapserver.processor.base.ImapSessionUtils;
-import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.ListResult;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.impl.ListResultImpl;
@@ -55,8 +51,7 @@ public class ListProcessor extends AbstractMailboxAwareProcessor {
     }
 
     protected void doProcess(ImapRequest message,
-            ImapSession session, String tag, ImapCommand command, Responder responder)
-            throws MailboxException, AuthorizationException, ProtocolException {
+            ImapSession session, String tag, ImapCommand command, Responder responder) {
         final ListRequest request = (ListRequest) message;
         final String baseReferenceName = request.getBaseReferenceName();
         final String mailboxPatternString = request.getMailboxPattern();
@@ -75,74 +70,76 @@ public class ListProcessor extends AbstractMailboxAwareProcessor {
             final String mailboxPattern,
             final ImapSession session, 
             final String tag, ImapCommand command,
-            final Responder responder)
-            throws MailboxException, AuthorizationException, ProtocolException {
+            final Responder responder) {
+        try {
+            String referenceName = baseReferenceName;
+            // Should the #user.userName section be removed from names returned?
+            final boolean removeUserPrefix;
 
-        String referenceName = baseReferenceName;
-        // Should the #user.userName section be removed from names returned?
-        final boolean removeUserPrefix;
+            final ListResult[] listResults;
 
-        final ListResult[] listResults;
+            final User user = ImapSessionUtils.getUser(session);
+            final String personalNamespace = ImapConstants.USER_NAMESPACE
+            + ImapConstants.HIERARCHY_DELIMITER_CHAR + user.getUserName();
 
-        final User user = ImapSessionUtils.getUser(session);
-        final String personalNamespace = ImapConstants.USER_NAMESPACE
-                + ImapConstants.HIERARCHY_DELIMITER_CHAR + user.getUserName();
+            if (mailboxPattern.length() == 0) {
+                // An empty mailboxPattern signifies a request for the hierarchy
+                // delimiter
+                // and root name of the referenceName argument
 
-        if (mailboxPattern.length() == 0) {
-            // An empty mailboxPattern signifies a request for the hierarchy
-            // delimiter
-            // and root name of the referenceName argument
-
-            String referenceRoot;
-            if (referenceName.startsWith(ImapConstants.NAMESPACE_PREFIX)) {
-                // A qualified reference name - get the first element,
-                // and don't remove the user prefix
-                removeUserPrefix = false;
-                int firstDelimiter = referenceName
-                        .indexOf(ImapConstants.HIERARCHY_DELIMITER_CHAR);
-                if (firstDelimiter == -1) {
-                    referenceRoot = referenceName;
+                String referenceRoot;
+                if (referenceName.startsWith(ImapConstants.NAMESPACE_PREFIX)) {
+                    // A qualified reference name - get the first element,
+                    // and don't remove the user prefix
+                    removeUserPrefix = false;
+                    int firstDelimiter = referenceName
+                    .indexOf(ImapConstants.HIERARCHY_DELIMITER_CHAR);
+                    if (firstDelimiter == -1) {
+                        referenceRoot = referenceName;
+                    } else {
+                        referenceRoot = referenceName.substring(0, firstDelimiter);
+                    }
                 } else {
-                    referenceRoot = referenceName.substring(0, firstDelimiter);
+                    // A relative reference name - need to remove user prefix from
+                    // results.
+                    referenceRoot = "";
+                    removeUserPrefix = true;
+
                 }
+
+                // Get the mailbox for the reference name.
+                listResults = new ListResult[1];
+                listResults[0] = ListResultImpl.createNoSelect(referenceRoot, ImapConstants.HIERARCHY_DELIMITER);
             } else {
-                // A relative reference name - need to remove user prefix from
-                // results.
-                referenceRoot = "";
-                removeUserPrefix = true;
 
+                // If the mailboxPattern is fully qualified, ignore the
+                // reference name.
+                if (mailboxPattern.charAt(0) == ImapConstants.NAMESPACE_PREFIX_CHAR) {
+                    referenceName = "";
+                }
+
+                // If the search pattern is relative, need to remove user prefix
+                // from results.
+                removeUserPrefix = ((referenceName + mailboxPattern).charAt(0) != ImapConstants.NAMESPACE_PREFIX_CHAR);
+
+                if (removeUserPrefix) {
+                    referenceName = personalNamespace + "." + referenceName;
+                }
+
+                listResults = doList(session, referenceName, mailboxPattern);
             }
 
-            // Get the mailbox for the reference name.
-            listResults = new ListResult[1];
-            listResults[0] = ListResultImpl.createNoSelect(referenceRoot, ImapConstants.HIERARCHY_DELIMITER);
-        } else {
+            int prefixLength = personalNamespace.length();
 
-            // If the mailboxPattern is fully qualified, ignore the
-            // reference name.
-            if (mailboxPattern.charAt(0) == ImapConstants.NAMESPACE_PREFIX_CHAR) {
-                referenceName = "";
-            }
+            for (int i = 0; i < listResults.length; i++) {
+                final ListResult listResult = listResults[i];
+                processResult(responder, removeUserPrefix, prefixLength, listResult);
+            }   
 
-            // If the search pattern is relative, need to remove user prefix
-            // from results.
-            removeUserPrefix = ((referenceName + mailboxPattern).charAt(0) != ImapConstants.NAMESPACE_PREFIX_CHAR);
-
-            if (removeUserPrefix) {
-                referenceName = personalNamespace + "." + referenceName;
-            }
-
-            listResults = doList(session, referenceName, mailboxPattern);
+            okComplete(command, tag, responder);
+        } catch (MailboxManagerException e) {
+            no(command,tag, responder, e);
         }
-
-        int prefixLength = personalNamespace.length();
-
-        for (int i = 0; i < listResults.length; i++) {
-            final ListResult listResult = listResults[i];
-            processResult(responder, removeUserPrefix, prefixLength, listResult);
-        }   
-        
-        okComplete(command, tag, responder);
     }
 
     void processResult(final Responder responder, final boolean removeUserPrefix, 
@@ -169,20 +166,6 @@ public class ListProcessor extends AbstractMailboxAwareProcessor {
                 delimiter, mailboxName));
     }
 
-    private void logMarkedUnmarkedNoSelectMailbox(final String mailboxName) {
-        final Logger logger = getLogger();
-        if (logger != null && logger.isDebugEnabled()) {
-            logger.debug("Marked or unmarked flags set on NoSelect mailbox: " + mailboxName);
-        }
-    }
-    
-    private void logMarkedUnmarkedMailbox(final String mailboxName) {
-        final Logger logger = getLogger();
-        if (logger != null && logger.isDebugEnabled()) {
-            logger.debug("Marked and unmarked flags set on mailbox: " + mailboxName);
-        }
-    }
-
     private String mailboxName(final boolean removeUserPrefix, int prefixLength, final ListResult listResult) {
         final String mailboxName;
         final String name = listResult.getName();
@@ -199,13 +182,9 @@ public class ListProcessor extends AbstractMailboxAwareProcessor {
     }
    
     protected final ListResult[] doList(ImapSession session, String base,
-            String pattern) throws MailboxException {
-        try {
-            final MailboxManager mailboxManager = getMailboxManager(session);
-            final ListResult[] result = mailboxManager.list(new MailboxExpression(base,pattern, '*', '%'));
-            return result;
-        } catch (MailboxManagerException e) {
-            throw new MailboxException(e);
-        }
+            String pattern) throws MailboxManagerException  {
+        final MailboxManager mailboxManager = getMailboxManager(session);
+        final ListResult[] result = mailboxManager.list(new MailboxExpression(base,pattern, '*', '%'));
+        return result;
     }
 }

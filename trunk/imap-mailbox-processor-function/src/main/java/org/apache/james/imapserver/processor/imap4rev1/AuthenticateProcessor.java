@@ -21,17 +21,13 @@ package org.apache.james.imapserver.processor.imap4rev1;
 
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
-import org.apache.james.api.imap.ProtocolException;
+import org.apache.james.api.imap.display.HumanReadableTextKey;
 import org.apache.james.api.imap.message.request.ImapRequest;
-import org.apache.james.api.imap.message.response.ImapResponseMessage;
 import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
 import org.apache.james.imap.message.request.imap4rev1.AuthenticateRequest;
-import org.apache.james.imap.message.response.imap4rev1.legacy.CommandFailedResponse;
 import org.apache.james.imapserver.processor.base.AbstractImapRequestProcessor;
-import org.apache.james.imapserver.processor.base.AuthorizationException;
-import org.apache.james.imapserver.store.MailboxException;
 
 public class AuthenticateProcessor extends AbstractImapRequestProcessor {
 
@@ -44,28 +40,11 @@ public class AuthenticateProcessor extends AbstractImapRequestProcessor {
     }
 
     protected void doProcess(ImapRequest message,
-            ImapSession session, String tag, ImapCommand command, Responder responder)
-            throws MailboxException, AuthorizationException, ProtocolException {
+            ImapSession session, String tag, ImapCommand command, Responder responder) {
         final AuthenticateRequest request = (AuthenticateRequest) message;
-        final ImapResponseMessage result = doProcess(request, session, tag,
-                command);
-        responder.respond(result);
-    }
-
-    private ImapResponseMessage doProcess(AuthenticateRequest request,
-            ImapSession session, String tag, ImapCommand command)
-            throws MailboxException, AuthorizationException, ProtocolException {
         final String authType = request.getAuthType();
-        final ImapResponseMessage result = doProcess(authType, session, tag,
-                command);
-        return result;
+        getLogger().info("Unsupported authentication mechanism '" + authType + "'");
+        no(command, tag, responder, HumanReadableTextKey.UNSUPPORTED_AUTHENTICATION_MECHANISM);
     }
 
-    private ImapResponseMessage doProcess(String authType, ImapSession session,
-            String tag, ImapCommand command) throws MailboxException,
-            AuthorizationException, ProtocolException {
-        final CommandFailedResponse result = new CommandFailedResponse(command,
-                "Unsupported authentication mechanism '" + authType + "'", tag);
-        return result;
-    }
 }
