@@ -188,7 +188,16 @@
    </imap-connections>      
     
    <imapserver enabled="true">
-      <!-- port 993 is the well-known/IANA registered port for IMAPs ie over SSL/TLS -->
+      <!-- port 993 is the well-known/IANA registered port for IMAPs ie over SSL/TLS 
+        <port>993</port>
+        <useTLS>true</useTLS>
+        <provider>org.bouncycastle.jce.provider.BouncyCastleProvider</provider>
+        <handler>
+            <connectiontimeout>1800000</connectiontimeout>         
+            <streamdump enabled="true" directory="../apps/james/streamdump" />
+        </handler> 
+      
+      -->
       <!-- port 143 is the well-known/IANA registered port for Standard IMAP4 -->
       <port>10143</port>
       <handler>
@@ -968,6 +977,10 @@ Regards, Postmaster XXX.YYY
       <!--
       <useTLS>true</useTLS>
       -->
+      <!-- Uncomment this if you want to use BouncyCastle's JCE provider with TLS-->
+      <!-- 
+      <provider>org.bouncycastle.jce.provider.BouncyCastleProvider</provider>
+      -->
 
       <handler>
          <!-- This is the name used by the server to identify itself in the POP3 -->
@@ -998,6 +1011,10 @@ Regards, Postmaster XXX.YYY
       <!-- Uncomment this if you want to use TLS (SSL) on this port -->
       <!--
       <useTLS>true</useTLS>
+      -->
+      <!-- Uncomment this if you want to use BouncyCastle's JCE provider with TLS -->
+      <!-- 
+      <provider>org.bouncycastle.jce.provider.BouncyCastleProvider</provider>
       -->
 
       <handler>

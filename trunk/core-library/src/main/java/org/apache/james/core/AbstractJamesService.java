@@ -38,6 +38,7 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
@@ -52,6 +53,8 @@ import java.net.BindException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.UnknownHostException;
+import java.security.Provider;
+import java.security.Security;
 
 /**
  * Server which creates connection handlers. All new James service must
@@ -212,8 +215,9 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
      */
     public void configure(Configuration conf) throws ConfigurationException {
         enabled = conf.getAttributeAsBoolean("enabled", true);
+        final Logger logger = getLogger();
         if (!enabled) {
-          getLogger().info(getServiceType() + " disabled by configuration");
+          logger.info(getServiceType() + " disabled by configuration");
           return;
         }
 
@@ -249,7 +253,8 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
             // deployments
             final boolean useTLS = conf.getChild("useTLS").getValueAsBoolean(isDefaultTLSEnabled());
             if (useTLS) {
-              serverSocketType = "ssl";
+                serverSocketType = "ssl";
+                loadJCEProviders(conf, logger);
             }
         } else {
             serverSocketType = confSocketType;
@@ -263,10 +268,10 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
                         .append(getServiceType())
                         .append(" uses thread group: ")
                         .append(threadGroup);
-            getLogger().info(infoBuffer.toString());
+            logger.info(infoBuffer.toString());
         }
         else {
-            getLogger().info(getServiceType() + " uses default thread group.");
+            logger.info(getServiceType() + " uses default thread group.");
         }
 
         try {
@@ -278,7 +283,7 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
                             .append(getServiceType())
                             .append(" bound to: ")
                             .append(bindTo);
-                getLogger().info(infoBuffer.toString());
+                logger.info(infoBuffer.toString());
             }
         }
         catch( final UnknownHostException unhe ) {
@@ -294,7 +299,7 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
                     .append(getServiceType())
                     .append(" handler connection timeout is: ")
                     .append(timeout);
-        getLogger().info(infoBuffer.toString());
+        logger.info(infoBuffer.toString());
 
         backlog = conf.getChild(BACKLOG_NAME).getValueAsInteger(DEFAULT_BACKLOG);
 
@@ -303,17 +308,17 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
                     .append(getServiceType())
                     .append(" connection backlog is: ")
                     .append(backlog);
-        getLogger().info(infoBuffer.toString());
+        logger.info(infoBuffer.toString());
 
         String connectionLimitString = conf.getChild("connectionLimit").getValue(null);
         if (connectionLimitString != null) {
             try {
                 connectionLimit = new Integer(connectionLimitString);
             } catch (NumberFormatException nfe) {
-                getLogger().error("Connection limit value is not properly formatted.", nfe);
+                logger.error("Connection limit value is not properly formatted.", nfe);
             }
             if (connectionLimit.intValue() < 0) {
-                getLogger().error("Connection limit value cannot be less than zero.");
+                logger.error("Connection limit value cannot be less than zero.");
                 throw new ConfigurationException("Connection limit value cannot be less than zero.");
             }
         } else {
@@ -324,7 +329,7 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
             .append(" will allow a maximum of ")
             .append(connectionLimit.intValue())
             .append(" connections.");
-        getLogger().info(infoBuffer.toString());
+        logger.info(infoBuffer.toString());
         
         String connectionLimitPerIP = conf.getChild("connectionLimitPerIP").getValue(null);
         if (connectionLimitPerIP != null) {
@@ -332,10 +337,10 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
             connPerIP = new Integer(connectionLimitPerIP).intValue();
             connPerIPConfigured = true;
             } catch (NumberFormatException nfe) {
-                getLogger().error("Connection limit per IP value is not properly formatted.", nfe);
+                logger.error("Connection limit per IP value is not properly formatted.", nfe);
             }
             if (connPerIP < 0) {
-                getLogger().error("Connection limit per IP value cannot be less than zero.");
+                logger.error("Connection limit per IP value cannot be less than zero.");
                 throw new ConfigurationException("Connection limit value cannot be less than zero.");
             }
         } else {
@@ -346,8 +351,41 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
             .append(" will allow a maximum of ")
             .append(connPerIP)
             .append(" per IP connections for " +getServiceType());
-        getLogger().info(infoBuffer.toString());
+        logger.info(infoBuffer.toString());
         
+    }
+
+    private void loadJCEProviders(Configuration conf, final Logger logger) throws ConfigurationException {
+        final Configuration [] providerConfiguration = conf.getChildren("provider");
+        for (int i = 0; i < providerConfiguration.length; i++) {
+            final String providerName = providerConfiguration[i].getValue();
+            loadProvider(logger, providerName);
+        }
+    }
+
+    private void loadProvider(final Logger logger, final String providerName) {
+        if (providerName == null) {
+            logger.warn("Failed to specify provider. Continuing but JCE provider will not be loaded");   
+        } else {
+            try {
+                logger.debug("Trying to load JCE provider '" + providerName + "'");
+                Security.addProvider((Provider) Class.forName(providerName).newInstance());
+                logger.info("Load JCE provider '" + providerName + "'");
+            } catch (IllegalAccessException e) {
+                logJCELoadFailure(logger, providerName, e);
+            } catch (InstantiationException e) {
+                logJCELoadFailure(logger, providerName, e);
+            } catch (ClassNotFoundException e) {
+                logJCELoadFailure(logger, providerName, e);
+            } catch (RuntimeException e) {
+                logJCELoadFailure(logger, providerName, e);
+            }
+        }
+    }
+
+    private void logJCELoadFailure(final Logger logger, final String providerName, Exception e) {
+        logger.warn("Cannot load JCE provider" + providerName);
+        logger.debug(e.getMessage(), e);
     }
 
     protected void setStreamDumpDir(String streamdumpDir) {
