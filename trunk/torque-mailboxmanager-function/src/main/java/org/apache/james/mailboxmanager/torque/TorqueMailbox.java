@@ -44,6 +44,8 @@ import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.SearchQuery;
 import org.apache.james.mailboxmanager.MessageResult.FetchGroup;
+import org.apache.james.mailboxmanager.SearchQuery.Criterion;
+import org.apache.james.mailboxmanager.SearchQuery.NumericRange;
 import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.AbstractImapMailbox;
@@ -634,7 +636,8 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
             try {
                 checkAccess();
                 
-                final List rows = MessageRowPeer.doSelectJoinMessageFlags(new Criteria());
+                final Criteria criterion = preSelect(query);
+                final List rows = MessageRowPeer.doSelectJoinMessageFlags(criterion);
                 final List filteredMessages = new ArrayList();
                 for (Iterator it = rows.iterator(); it
                         .hasNext();) {
@@ -656,6 +659,43 @@ public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
             }
         } catch (InterruptedException e) {
             throw new MailboxManagerException(e);
+        }
+    }
+    
+    private Criteria preSelect(SearchQuery query) {
+        final Criteria results = new Criteria();
+        final List criteria = query.getCriterias();
+        if (criteria.size() == 1) {
+            final Criterion criterion = (Criterion) criteria.get(0);
+            if (criterion instanceof SearchQuery.UidCriterion) {
+                final SearchQuery.UidCriterion uidCriterion = (SearchQuery.UidCriterion) criterion;
+                preSelectUid(results, uidCriterion);
+            }
+        }
+        return results;
+    }
+
+    private void preSelectUid(final Criteria results, final SearchQuery.UidCriterion uidCriterion) {
+        final NumericRange[] ranges = uidCriterion.getOperator().getRange();
+        for (int i = 0; i < ranges.length; i++) {
+            final long low = ranges[i].getLowValue();
+            final long high = ranges[i].getHighValue();
+            if (low == Long.MAX_VALUE) {
+                results.add(MessageRowPeer.UID, high, Criteria.LESS_EQUAL);
+            } else if (low == high) {
+                results.add(MessageRowPeer.UID, low);
+            } else {
+                final Criteria.Criterion fromCriterion 
+                    = results.getNewCriterion(MessageRowPeer.UID, new Long(low),
+                        Criteria.GREATER_EQUAL);
+                if (high > 0 && high < Long.MAX_VALUE) {
+                    final Criteria.Criterion toCriterion 
+                        = results.getNewCriterion(MessageRowPeer.UID, new Long(high),
+                            Criteria.LESS_EQUAL);
+                    fromCriterion.and(toCriterion);
+                }
+                results.add(fromCriterion);
+            }
         }
     }
     
