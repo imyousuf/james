@@ -28,7 +28,6 @@ import org.apache.james.imapserver.codec.encode.imap4rev1.FetchResponseEncoder;
 import org.apache.james.imapserver.codec.encode.imap4rev1.FlagsResponseEncoder;
 import org.apache.james.imapserver.codec.encode.imap4rev1.RecentResponseEncoder;
 import org.apache.james.imapserver.codec.encode.imap4rev1.StatusResponseEncoder;
-import org.apache.james.imapserver.codec.encode.imap4rev1.legacy.BadResponseEncoder;
 import org.apache.james.imapserver.codec.encode.imap4rev1.legacy.CapabilityResponseEncoder;
 import org.apache.james.imapserver.codec.encode.imap4rev1.server.LSubResponseEncoder;
 import org.apache.james.imapserver.codec.encode.imap4rev1.server.ListResponseEncoder;
@@ -55,8 +54,7 @@ public class DefaultImapEncoderFactory implements ImapEncoderFactory {
         final ListResponseEncoder listResponseEncoder = new ListResponseEncoder(lsubResponseEncoder);
         final FlagsResponseEncoder flagsResponseEncoder = new FlagsResponseEncoder(listResponseEncoder);
         final CapabilityResponseEncoder capabilityResponseEncoder = new CapabilityResponseEncoder(flagsResponseEncoder);
-        final BadResponseEncoder result = new BadResponseEncoder(capabilityResponseEncoder);
-        return result;
+        return capabilityResponseEncoder;
     }
 
     public ImapEncoder buildImapEncoder() {

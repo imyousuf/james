@@ -21,14 +21,23 @@ package org.apache.james.imapserver.processor.base;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
+import org.apache.james.api.imap.display.HumanReadableTextKey;
 import org.apache.james.api.imap.message.request.ImapRequest;
 import org.apache.james.api.imap.message.response.ImapResponseMessage;
+import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
-import org.apache.james.imap.message.response.imap4rev1.legacy.BadResponse;
 
 public class UnknownRequestImapProcessor extends AbstractLogEnabled implements ImapProcessor {
+
+    private final StatusResponseFactory factory;
+    
+    public UnknownRequestImapProcessor(StatusResponseFactory factory) {
+        super();
+        this.factory = factory;
+    }
 
     public ImapResponseMessage process(ImapMessage message, ImapSession session) {
         Logger logger = getLogger();
@@ -38,9 +47,11 @@ public class UnknownRequestImapProcessor extends AbstractLogEnabled implements I
         final ImapResponseMessage result;
         if (message instanceof ImapRequest) {
             ImapRequest request = (ImapRequest) message;
-            result = new BadResponse("Unknown command.", request.getTag());
+            final String tag = request.getTag();
+            final ImapCommand command = request.getCommand();
+            result = factory.taggedBad(tag, command, HumanReadableTextKey.UNKNOWN_COMMAND);
         } else {
-            result = new BadResponse("Unknown command.");
+            result = factory.untaggedBad(HumanReadableTextKey.UNKNOWN_COMMAND);
         }
         return result;
     }

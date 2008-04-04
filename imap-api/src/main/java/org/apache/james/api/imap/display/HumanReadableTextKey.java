@@ -58,6 +58,10 @@ public class HumanReadableTextKey {
     = new HumanReadableTextKey("org.apache.james.imap.INVALID_COMMAND", 
             "failed. Command not valid in this state.");
     
+    public static final HumanReadableTextKey ILLEGAL_TAG
+    = new HumanReadableTextKey("org.apache.james.imap.ILLEGAL_TAG", 
+            "Illegal tag.");
+    
     public static final HumanReadableTextKey ILLEGAL_ARGUMENTS
     = new HumanReadableTextKey("org.apache.james.imap.ILLEGAL_ARGUMENTS", 
             "failed. Illegal arguments.");

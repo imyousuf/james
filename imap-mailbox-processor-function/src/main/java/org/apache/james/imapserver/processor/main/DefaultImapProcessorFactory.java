@@ -40,7 +40,7 @@ public class DefaultImapProcessorFactory implements ImapProcessorFactory {
     public static final ImapProcessor createDefaultProcessor(final UsersRepository usersRepository,
             final MailboxManagerProvider mailboxManagerProvider, final UserMetaDataRespository userMetaDataRepository) {
         final StatusResponseFactory statusResponseFactory = new UnpooledStatusResponseFactory();
-        final UnknownRequestImapProcessor unknownRequestImapProcessor = new UnknownRequestImapProcessor();
+        final UnknownRequestImapProcessor unknownRequestImapProcessor = new UnknownRequestImapProcessor(statusResponseFactory);
         final IMAPSubscriber subscriber = new UserMetaDataIMAPSubscriber(userMetaDataRepository);
         final ImapProcessor imap4rev1Chain = Imap4Rev1ProcessorFactory.createDefaultChain(unknownRequestImapProcessor, 
                 usersRepository, mailboxManagerProvider, statusResponseFactory, subscriber);
