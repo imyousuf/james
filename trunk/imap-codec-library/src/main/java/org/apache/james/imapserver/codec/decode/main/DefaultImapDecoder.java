@@ -32,8 +32,6 @@ import org.apache.james.imapserver.codec.decode.base.AbstractImapCommandParser;
 
 public class DefaultImapDecoder extends AbstractLogEnabled implements ImapDecoder {
 
-    private static final String REQUEST_SYNTAX = "Protocol Error: Was expecting <tag SPACE command [arguments]>";
-
     private final Imap4Rev1MessageFactory messageFactory;
     private final ImapCommandParserFactory imapCommands;
     
