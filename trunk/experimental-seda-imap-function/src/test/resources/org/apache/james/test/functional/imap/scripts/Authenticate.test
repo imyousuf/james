@@ -21,7 +21,7 @@ C: abcd AUTHENTICATE KERBEROS_V4
 S: abcd NO AUTHENTICATE failed. Authentication mechanism is unsupported.
 
 C: abcd AUTHENTICATE
-S: abcd BAD Missing argument. Command should be '<tag> AUTHENTICATE <auth_type> \*\(CRLF base64\)'
+S: abcd BAD AUTHENTICATE failed. Illegal arguments.
 
 C: abcd AUTHENTICATE KERBEROS_V4 extra
-S: abcd BAD Expected end-of-line, found 'e'. Command should be '<tag> AUTHENTICATE <auth_type> \*\(CRLF base64\)'
+S: abcd BAD AUTHENTICATE failed. Illegal arguments.

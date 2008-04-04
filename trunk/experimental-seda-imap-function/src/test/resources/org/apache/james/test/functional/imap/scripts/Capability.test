@@ -21,4 +21,4 @@ S: \* CAPABILITY IMAP4rev1 LITERAL\+
 S: abcd OK CAPABILITY completed.
 
 C: abcd CAPABILITY extra stuff
-S: abcd BAD Expected end-of-line, found 'e'. Command should be '<tag> CAPABILITY'
+S: abcd BAD CAPABILITY failed. Illegal arguments.

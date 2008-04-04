@@ -58,6 +58,10 @@ public class HumanReadableTextKey {
     = new HumanReadableTextKey("org.apache.james.imap.INVALID_COMMAND", 
             "failed. Command not valid in this state.");
     
+    public static final HumanReadableTextKey ILLEGAL_ARGUMENTS
+    = new HumanReadableTextKey("org.apache.james.imap.ILLEGAL_ARGUMENTS", 
+            "failed. Illegal arguments.");
+    
     public static final HumanReadableTextKey FAILURE_MAIL_PARSE 
     = new HumanReadableTextKey("org.apache.james.imap.FAILURE_MAIL_PARSE", 
             "failed. Mail cannot be parsed.");
@@ -89,6 +93,10 @@ public class HumanReadableTextKey {
     public static final HumanReadableTextKey UNSUPPORTED_AUTHENTICATION_MECHANISM 
     = new HumanReadableTextKey("org.apache.james.imap.UNSUPPORTED_AUTHENTICATION_MECHANISM",
             "failed. Authentication mechanism is unsupported.");
+    
+    public static final HumanReadableTextKey UNKNOWN_COMMAND
+    = new HumanReadableTextKey("org.apache.james.imap.UNKNOWN_COMMAND",
+            "failed. Unknown command.");
     
     public static final HumanReadableTextKey BAD_CHARSET 
         = new HumanReadableTextKey("org.apache.james.imap.BAD_CHARSET",

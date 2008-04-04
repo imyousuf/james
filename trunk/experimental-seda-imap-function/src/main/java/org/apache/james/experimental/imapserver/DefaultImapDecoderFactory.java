@@ -35,11 +35,14 @@ import org.apache.james.imapserver.codec.decode.main.DefaultImapDecoder;
  */
 public class DefaultImapDecoderFactory implements ImapDecoderFactory{
     
+    
+    
     public static final ImapDecoder createDecoder() {
-        final Imap4Rev1MessageFactory messageFactory = new BaseImap4Rev1MessageFactory();
+        final UnpooledStatusResponseFactory unpooledStatusResponseFactory = new UnpooledStatusResponseFactory();
+        final Imap4Rev1MessageFactory messageFactory = new BaseImap4Rev1MessageFactory(unpooledStatusResponseFactory);
         final Imap4Rev1CommandFactory commandFactory = new StandardImap4Rev1CommandFactory();
         final ImapCommandParserFactory imapCommands = new Imap4Rev1CommandParserFactory(
-                messageFactory, commandFactory, new UnpooledStatusResponseFactory());
+                messageFactory, commandFactory, unpooledStatusResponseFactory);
         final ImapDecoder result = new DefaultImapDecoder(messageFactory,
                 imapCommands);
         return result;

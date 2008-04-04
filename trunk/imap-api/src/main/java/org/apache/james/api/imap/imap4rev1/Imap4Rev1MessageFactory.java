@@ -25,10 +25,12 @@ import javax.mail.internet.MimeMessage;
 
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
+import org.apache.james.api.imap.display.HumanReadableTextKey;
 import org.apache.james.api.imap.message.FetchData;
 import org.apache.james.api.imap.message.IdRange;
 import org.apache.james.api.imap.message.StatusDataItems;
 import org.apache.james.api.imap.message.request.SearchKey;
+import org.apache.james.api.imap.message.response.imap4rev1.StatusResponse;
 
 /**
  * Creates messages.
@@ -36,7 +38,14 @@ import org.apache.james.api.imap.message.request.SearchKey;
  */
 public interface Imap4Rev1MessageFactory {
 
-    public ImapMessage createErrorMessage(String message, String tag);
+    /**
+     * Creates a tagged BAD status response.
+     * @param tag <code>CharSequence</code>, not null
+     * @param command <code>ImapCommand</code>, not null
+     * @param displayTextKey key to the human readable code to be displayed
+     * @return <code>StatusResponse</code>, not null
+     */
+    public StatusResponse taggedBad(String tag, ImapCommand command, HumanReadableTextKey displayTextKey);
     
     public ImapMessage createBadRequestMessage(final String message);
     
