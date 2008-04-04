@@ -56,7 +56,6 @@ import org.apache.james.imap.message.request.imap4rev1.StatusRequest;
 import org.apache.james.imap.message.request.imap4rev1.StoreRequest;
 import org.apache.james.imap.message.request.imap4rev1.SubscribeRequest;
 import org.apache.james.imap.message.request.imap4rev1.UnsubscribeRequest;
-import org.apache.james.imap.message.response.imap4rev1.legacy.BadResponse;
 
 /**
  * Naive, factory creates unpooled instances.
@@ -159,11 +158,7 @@ public class BaseImap4Rev1MessageFactory implements Imap4Rev1MessageFactory {
     public ImapMessage createUnsubscribeMessage(ImapCommand command, String mailboxName, String tag) {
         return new UnsubscribeRequest(command, mailboxName, tag);
     }
-
-    public ImapMessage createBadRequestMessage(String message) {
-        return new BadResponse(message);
-    }
-
+    
     public ImapMessage createCheckMessage(ImapCommand command, String tag) {
         return new CheckRequest(command, tag);
     }
@@ -171,5 +166,9 @@ public class BaseImap4Rev1MessageFactory implements Imap4Rev1MessageFactory {
     public StatusResponse taggedBad(String tag, ImapCommand command,
             HumanReadableTextKey displayTextKey) {
         return statusResponseFactory.taggedBad(tag, command, displayTextKey);
+    }
+
+    public StatusResponse bye(HumanReadableTextKey displayTextKey) {
+        return statusResponseFactory.bye(displayTextKey);
     }
 }

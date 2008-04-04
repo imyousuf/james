@@ -47,7 +47,7 @@ public interface Imap4Rev1MessageFactory {
      */
     public StatusResponse taggedBad(String tag, ImapCommand command, HumanReadableTextKey displayTextKey);
     
-    public ImapMessage createBadRequestMessage(final String message);
+    public StatusResponse bye(HumanReadableTextKey message);
     
     public ImapMessage createAppendMessage(ImapCommand command, String mailboxName, Flags flags, 
             Date datetime, MimeMessage message, String tag); 

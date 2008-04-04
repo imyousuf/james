@@ -60,8 +60,8 @@ public class DefaultImapDecoder extends AbstractLogEnabled implements ImapDecode
             message = decodeCommandTagged(request, logger, tag);
         }
         catch ( ProtocolException e ) {
-            logger.debug("error parsing request", e);
-            message = messageFactory.createBadRequestMessage( REQUEST_SYNTAX );
+            logger.debug("Cannot parse tag", e);
+            message = messageFactory.bye(HumanReadableTextKey.ILLEGAL_TAG);
         }
         return message;
     }
