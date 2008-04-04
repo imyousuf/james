@@ -59,6 +59,10 @@ public class DefaultImapDecoder extends AbstractLogEnabled implements ImapDecode
         }
         catch ( ProtocolException e ) {
             logger.debug("Cannot parse tag", e);
+            
+            // When the tag cannot be read, there is something seriously wrong.
+            // It is probably not possible to recover
+            // and (since this may indicate an attack) wiser not to try
             message = messageFactory.bye(HumanReadableTextKey.ILLEGAL_TAG);
         }
         return message;
