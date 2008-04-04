@@ -17,7 +17,7 @@
 # under the License.                                           #
 ################################################################
 C: a023 LOGOUT extra stuff
-S: a023 BAD Expected end-of-line, found 'e'. Command should be '<tag> LOGOUT'
+S: a023 BAD LOGOUT failed. Illegal arguments.
 
 C: A023 LOGOUT
 S: \* BYE IMAP4rev1 Server logging out

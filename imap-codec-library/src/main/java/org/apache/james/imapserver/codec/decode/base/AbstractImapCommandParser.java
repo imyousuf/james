@@ -38,6 +38,7 @@ import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.api.imap.ProtocolException;
+import org.apache.james.api.imap.display.HumanReadableTextKey;
 import org.apache.james.api.imap.imap4rev1.Imap4Rev1MessageFactory;
 import org.apache.james.api.imap.message.IdRange;
 import org.apache.james.api.imap.message.request.DayMonthYear;
@@ -113,10 +114,8 @@ public abstract class AbstractImapCommandParser extends AbstractLogEnabled imple
             result = message;
             
         } catch ( ProtocolException e ) {
-            getLogger().debug("error processing command ", e);
-            String msg = e.getMessage() + " Command should be '" +
-                    command.getExpectedMessage() + "'";
-            result = messageFactory.createErrorMessage( msg, tag );
+            getLogger().debug("Cannot parse protocol ", e);
+            result = messageFactory.taggedBad(tag, command, HumanReadableTextKey.ILLEGAL_ARGUMENTS);
         }
         return result;
     }

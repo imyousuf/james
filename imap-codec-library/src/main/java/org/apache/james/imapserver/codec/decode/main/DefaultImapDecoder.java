@@ -22,6 +22,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.api.imap.ProtocolException;
+import org.apache.james.api.imap.display.HumanReadableTextKey;
 import org.apache.james.api.imap.imap4rev1.Imap4Rev1MessageFactory;
 import org.apache.james.imapserver.codec.decode.ImapCommandParser;
 import org.apache.james.imapserver.codec.decode.ImapCommandParserFactory;
@@ -31,7 +32,6 @@ import org.apache.james.imapserver.codec.decode.base.AbstractImapCommandParser;
 
 public class DefaultImapDecoder extends AbstractLogEnabled implements ImapDecoder {
 
-    private static final String INVALID_COMMAND = "Invalid command.";
     private static final String REQUEST_SYNTAX = "Protocol Error: Was expecting <tag SPACE command [arguments]>";
 
     private final Imap4Rev1MessageFactory messageFactory;
@@ -77,7 +77,7 @@ public class DefaultImapDecoder extends AbstractLogEnabled implements ImapDecode
         }
         catch ( ProtocolException e ) {
             logger.debug("Error during initial request parsing", e);            
-            message = messageFactory.createErrorMessage(REQUEST_SYNTAX , tag);
+            message = messageFactory.taggedBad(tag, null, HumanReadableTextKey.UNKNOWN_COMMAND);
         }
         return message;
     }
@@ -91,7 +91,7 @@ public class DefaultImapDecoder extends AbstractLogEnabled implements ImapDecode
         final ImapCommandParser command = imapCommands.getParser( commandName );
         if ( command == null ) {
             logger.info("Missing command implementation.");
-            message = messageFactory.createErrorMessage(INVALID_COMMAND, tag);
+            message = messageFactory.taggedBad(tag, null, HumanReadableTextKey.UNKNOWN_COMMAND);
         } else {
             message = command.parse( request, tag );
         }

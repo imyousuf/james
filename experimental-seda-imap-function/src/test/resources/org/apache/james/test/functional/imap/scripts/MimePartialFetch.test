@@ -129,7 +129,7 @@ S: \* OK \[UNSEEN 1\](.)*
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
 S: A5 OK \[READ-WRITE\] SELECT completed\.
 C: A6 FETCH 1 (BODY[4.1.MIME]<0.0>)
-S: A6 BAD Zero value not permitted(.)*
+S: A6 BAD FETCH failed. Illegal arguments.
 C: A7 FETCH 1 (BODY[4.1.MIME]<0.15>)
 S: \* 1 FETCH \(FLAGS \(\\Recent \\Seen\) BODY\[4\.1\.MIME\]<0> \{15\}
 S: Content-Type: i\)
@@ -174,7 +174,7 @@ S:
 S: \)
 S: A12 OK FETCH completed\.
 C: A13 FETCH 1 (BODY[4.1.MIME]<17.0>)
-S: A13 BAD Zero value not permitted(.)*
+S: A13 BAD FETCH failed. Illegal arguments.
 C: A14 FETCH 1 (BODY[4.1.MIME]<17.16>)
 S: \* 1 FETCH \(BODY\[4\.1\.MIME\]<17> \{16\}
 S: ge/gif
@@ -221,7 +221,7 @@ S:
 S: \)
 S: A19 OK FETCH completed\.
 C: A20 FETCH 1 (BODY[4.1.MIME]<10000.0>)
-S: A20 BAD Zero value not permitted(.)*
+S: A20 BAD FETCH failed. Illegal arguments.
 C: A21 FETCH 1 (BODY[4.1.MIME]<10000.16>)
 S: \* 1 FETCH \(BODY\[4\.1\.MIME\]<10000> \{0\}
 S: \)

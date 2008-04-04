@@ -18,13 +18,13 @@
 ################################################################
 # Empty file to use for simple login test.
 C: a001 LOGIN
-S: a001 BAD Missing argument. Command should be '<tag> LOGIN <userid> <password>'
+S: a001 BAD LOGIN failed. Illegal arguments.
 
 C: a002 LOGIN invaliduser
-S: a002 BAD Missing argument. Command should be '<tag> LOGIN <userid> <password>'
+S: a002 BAD LOGIN failed. Illegal arguments.
 
 C: a002a LOGIN imapuser password extra
-S: a002a BAD Expected end-of-line, found 'e'. Command should be '<tag> LOGIN <userid> <password>'
+S: a002a BAD LOGIN failed. Illegal arguments.
 
 C: a003 LOGIN invaliduser password
 S: a003 NO LOGIN failed. Invalid login/password.

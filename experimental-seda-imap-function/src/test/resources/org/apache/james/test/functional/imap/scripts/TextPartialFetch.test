@@ -129,7 +129,7 @@ S: \* OK \[UNSEEN 1\](.)*
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
 S: A5 OK \[READ-WRITE\] SELECT completed\.
 C: A6 FETCH 1 (BODY[TEXT]<0.0>)
-S: A6 BAD Zero value not permitted(.)*
+S: A6 BAD FETCH failed. Illegal arguments.
 C: A7 FETCH 1 (BODY[TEXT]<0.16>)
 S: \* 1 FETCH \(FLAGS \(\\Recent \\Seen\) BODY\[TEXT\]<0> \{16\}
 S: Start with a pre\)
@@ -304,7 +304,7 @@ S: --1729--
 S: \)
 S: A12 OK FETCH completed\.
 C: A13 FETCH 1 (BODY[TEXT]<7.0>)
-S: A13 BAD Zero value not permitted(.)*
+S: A13 BAD FETCH failed. Illegal arguments.
 C: A14 FETCH 1 (BODY[TEXT]<7.16>)
 S: \* 1 FETCH \(BODY\[TEXT\]<7> \{16\}
 S: ith a preamble
@@ -482,7 +482,7 @@ S: --1729--
 S: \)
 S: A19 OK FETCH completed\.
 C: A20 FETCH 1 (BODY[TEXT]<10000.0>)
-S: A20 BAD Zero value not permitted(.)*
+S: A20 BAD FETCH failed. Illegal arguments.
 C: A21 FETCH 1 (BODY[TEXT]<10000.16>)
 S: \* 1 FETCH \(BODY\[TEXT\]<10000> \{0\}
 S: \)

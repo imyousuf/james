@@ -25,11 +25,14 @@ import javax.mail.internet.MimeMessage;
 
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
+import org.apache.james.api.imap.display.HumanReadableTextKey;
 import org.apache.james.api.imap.imap4rev1.Imap4Rev1MessageFactory;
 import org.apache.james.api.imap.message.FetchData;
 import org.apache.james.api.imap.message.IdRange;
 import org.apache.james.api.imap.message.StatusDataItems;
 import org.apache.james.api.imap.message.request.SearchKey;
+import org.apache.james.api.imap.message.response.imap4rev1.StatusResponse;
+import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
 import org.apache.james.imap.message.request.imap4rev1.AppendRequest;
 import org.apache.james.imap.message.request.imap4rev1.AuthenticateRequest;
 import org.apache.james.imap.message.request.imap4rev1.CapabilityRequest;
@@ -54,15 +57,18 @@ import org.apache.james.imap.message.request.imap4rev1.StoreRequest;
 import org.apache.james.imap.message.request.imap4rev1.SubscribeRequest;
 import org.apache.james.imap.message.request.imap4rev1.UnsubscribeRequest;
 import org.apache.james.imap.message.response.imap4rev1.legacy.BadResponse;
-import org.apache.james.imap.message.response.imap4rev1.legacy.ErrorResponse;
 
 /**
  * Naive, factory creates unpooled instances.
  */
 public class BaseImap4Rev1MessageFactory implements Imap4Rev1MessageFactory {
-
-    public ImapMessage createErrorMessage(String message, String tag) {
-        return new ErrorResponse( message, tag );
+    
+    private StatusResponseFactory statusResponseFactory;
+    
+    public BaseImap4Rev1MessageFactory(
+            StatusResponseFactory statusResponseFactory) {
+        super();
+        this.statusResponseFactory = statusResponseFactory;
     }
 
     public ImapMessage createAppendMessage(ImapCommand command, String mailboxName, Flags flags, Date datetime, MimeMessage message, String tag) {
@@ -160,5 +166,10 @@ public class BaseImap4Rev1MessageFactory implements Imap4Rev1MessageFactory {
 
     public ImapMessage createCheckMessage(ImapCommand command, String tag) {
         return new CheckRequest(command, tag);
+    }
+
+    public StatusResponse taggedBad(String tag, ImapCommand command,
+            HumanReadableTextKey displayTextKey) {
+        return statusResponseFactory.taggedBad(tag, command, displayTextKey);
     }
 }
