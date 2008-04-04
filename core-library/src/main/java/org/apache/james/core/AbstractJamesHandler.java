@@ -52,6 +52,10 @@ import java.net.SocketException;
 public abstract class AbstractJamesHandler extends AbstractLogEnabled implements ConnectionHandler, Poolable,Serviceable {
 
 
+    private static final int DEFAULT_OUTPUT_BUFFER_SIZE = 1024;
+
+    private static final int DEFAULT_INPUT_BUFFER_SIZE = 1024;
+
     /**
      * The thread executing this handler
      */
@@ -146,17 +150,17 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
             synchronized (this) {
                 handlerThread = Thread.currentThread();
             }
-            in = new BufferedInputStream(socket.getInputStream(), 1024);
-            // An ASCII encoding can be used because all transmissions other
-            // that those in the message body command are guaranteed
-            // to be ASCII
-            
-            outs = new BufferedOutputStream(socket.getOutputStream(), 1024);
+            in = new BufferedInputStream(socket.getInputStream(), DEFAULT_INPUT_BUFFER_SIZE);
+            outs = new BufferedOutputStream(socket.getOutputStream(), DEFAULT_OUTPUT_BUFFER_SIZE);
             // enable tcp dump for debug
             if (tcplogprefix != null) {
                 outs = new SplitOutputStream(outs, new FileOutputStream(tcplogprefix+"out"));
                 in = new CopyInputStream(in, new FileOutputStream(tcplogprefix+"in"));
             }
+            
+            // An ASCII encoding can be used because all transmissions other
+            // that those in the message body command are guaranteed
+            // to be ASCII
             inReader = new CRLFTerminatedReader(in, "ASCII");
             
             out = new InternetPrintWriter(outs, true);
