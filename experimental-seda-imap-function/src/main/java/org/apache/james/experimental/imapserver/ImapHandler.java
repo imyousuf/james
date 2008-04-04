@@ -191,7 +191,7 @@ public class ImapHandler
     }
     
     /**
-     * Method which will be colled on error
+     * Method which will be called on error
      *  
      * @param e the RuntimeException
      */
