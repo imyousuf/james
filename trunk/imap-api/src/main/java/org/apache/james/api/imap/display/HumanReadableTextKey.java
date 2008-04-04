@@ -54,6 +54,10 @@ public class HumanReadableTextKey {
     = new HumanReadableTextKey("org.apache.james.imap.GENERIC_SUBSCRIPTION_FAILURE", 
     "Cannot subscribe."); 
     
+    public static final HumanReadableTextKey INVALID_COMMAND 
+    = new HumanReadableTextKey("org.apache.james.imap.INVALID_COMMAND", 
+            "failed. Command not valid in this state.");
+    
     public static final HumanReadableTextKey FAILURE_MAIL_PARSE 
     = new HumanReadableTextKey("org.apache.james.imap.FAILURE_MAIL_PARSE", 
             "failed. Mail cannot be parsed.");
@@ -62,6 +66,9 @@ public class HumanReadableTextKey {
         = new HumanReadableTextKey("org.apache.james.imap.FAILURE_NO_SUCH_MAILBOX", 
                 "failed. No such mailbox.");
     
+    public static final HumanReadableTextKey GENERIC_FAILURE_DURING_PROCESSING
+        = new HumanReadableTextKey("org.apache.james.imap.GENERIC_FAILURE_DURING_PROCESSING", 
+            "processing failed.");
     
     public static final HumanReadableTextKey FAILURE_MAILBOX_EXISTS
         = new HumanReadableTextKey("org.apache.james.imap.FAILURE_NO_SUCH_MAILBOX", 

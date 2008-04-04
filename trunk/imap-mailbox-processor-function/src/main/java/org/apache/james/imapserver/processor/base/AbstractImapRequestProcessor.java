@@ -34,7 +34,6 @@ import org.apache.james.api.imap.message.response.imap4rev1.StatusResponse;
 import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
-import org.apache.james.imap.message.response.imap4rev1.legacy.CommandFailedResponse;
 import org.apache.james.mailboxmanager.MailboxExistsException;
 import org.apache.james.mailboxmanager.MailboxNotFoundException;
 
@@ -70,9 +69,10 @@ abstract public class AbstractImapRequestProcessor extends
             response = factory.taggedNo(tag, command, HumanReadableTextKey.FAILURE_NO_SUCH_MAILBOX);
         } else {
             if (logger != null) {
-                logger.debug("error processing command ", e);
+                logger.info(e.getMessage());
+                logger.debug("Processing failed:", e);
             }
-            response = new CommandFailedResponse(command, null, e.getMessage(), tag);
+            response = factory.taggedNo(tag, command, HumanReadableTextKey.GENERIC_FAILURE_DURING_PROCESSING);
         }
         responder.respond(response);
     }
@@ -80,8 +80,7 @@ abstract public class AbstractImapRequestProcessor extends
     final void doProcess(final ImapRequest message,
             final ImapCommand command, final String tag, Responder responder, ImapSession session) {
         if (!command.validForState(session.getState())) {
-            ImapResponseMessage response = new CommandFailedResponse(command,
-                    "Command not valid in this state.", tag);
+            ImapResponseMessage response = factory.taggedNo(tag, command, HumanReadableTextKey.INVALID_COMMAND);
             responder.respond(response);
             
         } else {
