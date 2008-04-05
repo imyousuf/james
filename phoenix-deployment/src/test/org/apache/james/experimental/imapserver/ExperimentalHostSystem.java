@@ -38,7 +38,6 @@ import org.apache.james.imapserver.codec.encode.ImapEncoder;
 import org.apache.james.services.User;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.test.functional.imap.HostSystem;
-import org.apache.james.test.functional.imap.HostSystem.Continuation;
 import org.apache.james.test.mock.avalon.MockLogger;
 
 public class ExperimentalHostSystem implements HostSystem, UsersRepository {
@@ -227,7 +226,7 @@ public class ExperimentalHostSystem implements HostSystem, UsersRepository {
         return true;
     }
     
-    class Session implements HostSystem.Session, ImapHandlerInterface
+    class Session implements HostSystem.Session
     {
         ByteBufferOutputStream out;
         ByteBufferInputStream in;
@@ -240,7 +239,7 @@ public class ExperimentalHostSystem implements HostSystem, UsersRepository {
             in = new ByteBufferInputStream();
             handler = new ImapRequestHandler(decoder, processor, encoder);
             handler.enableLogging(new MockLogger());
-            session = new ImapSessionImpl(this, "localhost", "127.0.0.1");
+            session = new ImapSessionImpl();
         }
         
         public String readLine() throws Exception {
