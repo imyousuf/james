@@ -33,27 +33,17 @@ import org.apache.james.api.imap.process.SelectedImapMailbox;
 import EDU.oswego.cs.dl.util.concurrent.ConcurrentHashMap;
 
 /**
- * @version $Revision: 109034 $
+ * Implements a session.
  */
 public final class ImapSessionImpl extends AbstractLogEnabled implements ImapSession, ImapConstants
 {
     private ImapSessionState state = ImapSessionState.NON_AUTHENTICATED;
     private SelectedImapMailbox selectedMailbox = null;
-
-    private final String clientHostName;
-    private final String clientAddress;
-
-    private ImapHandlerInterface handler;
     
     private final Map attributesByKey;
     
-    public ImapSessionImpl( ImapHandlerInterface handler,
-                            String clientHostName,
-                            String clientAddress )
+    public ImapSessionImpl()
     {
-        this.handler = handler;
-        this.clientHostName = clientHostName;
-        this.clientAddress = clientAddress;
         this.attributesByKey = new ConcurrentHashMap();
     }
 
@@ -71,26 +61,11 @@ public final class ImapSessionImpl extends AbstractLogEnabled implements ImapSes
         }
         return results;
     }
-    
-    public void closeConnection(String byeMessage) {
-        closeMailbox();
-        handler.forceConnectionClose(byeMessage);
-    }
 
     public void logout()
     {
         closeMailbox();
         state = ImapSessionState.LOGOUT;
-    }
-
-    public String getClientHostname()
-    {
-        return clientHostName;
-    }
-
-    public String getClientIP()
-    {
-        return clientAddress;
     }
 
     public void authenticated( )
@@ -129,7 +104,6 @@ public final class ImapSessionImpl extends AbstractLogEnabled implements ImapSes
         }
         
     }
-
 
     public Object getAttribute(String key) {
         final Object result = attributesByKey.get(key);

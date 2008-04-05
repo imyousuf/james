@@ -28,10 +28,6 @@ import org.apache.james.api.imap.ImapSessionState;
  * Encapsulates all state held for an ongoing Imap session,
  * which commences when a client first establishes a connection to the Imap
  * server, and continues until that connection is closed.
- *
- * TODO: {@link #logout()}, {@link #closeConnection(String)}, 
- * {@link #closeMailbox()} and {@link #deselect()} are too closely related
- * in function to justify separate API methods
  * @version $Revision: 109034 $
  */
 public interface ImapSession
@@ -52,22 +48,7 @@ public interface ImapSession
     void logout();
 
     /**
-     * TODO: this method is not clearly 
-     * @param byeMessage
-     */
-    void closeConnection(String byeMessage);
-
-    /**
-     * @return The hostname of the connected client.
-     */
-    String getClientHostname();
-
-    /**
-     * @return The IP address of the connected client.
-     */
-    String getClientIP();
-
-    /**
+     * Gets the current client state.
      * @return Returns the current state of this session.
      */
     ImapSessionState getState();
@@ -98,11 +79,6 @@ public interface ImapSession
      * @return the currently selected mailbox.
      */
     SelectedImapMailbox getSelected();
-
-    /**
-     * Closes the Mailbox
-     */
-    void closeMailbox();
 
     /**
      * Gets an attribute of this session by name.

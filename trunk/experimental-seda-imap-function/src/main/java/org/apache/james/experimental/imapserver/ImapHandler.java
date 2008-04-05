@@ -38,13 +38,11 @@ import org.apache.james.imapserver.codec.encode.ImapResponseComposer;
 import org.apache.james.imapserver.codec.encode.base.ImapResponseComposerImpl;
 
 /**
- * The handler class for IMAP connections.
- * TODO: This is a quick cut-and-paste hack from POP3Handler. This, and the ImapServer
- * should probably be rewritten from scratch.
+ * Handles IMAP connections.
  */
 public class ImapHandler
         extends AbstractJamesHandler
-        implements ImapHandlerInterface, ConnectionHandler, Poolable, ImapConstants
+        implements ConnectionHandler, Poolable, ImapConstants
 {
 
     // TODO: inject dependency
@@ -80,19 +78,6 @@ public class ImapHandler
         }
     }
 
-    public void forceConnectionClose(final String message) {
-        getLogger().debug("forceConnectionClose: "+message);
-        final OutputStreamImapResponseWriter writer = new OutputStreamImapResponseWriter(outs);
-        ImapResponseComposer response = new ImapResponseComposerImpl(writer);
-        try {
-            response.byeResponse(message);
-        } catch (IOException e) {
-            getLogger().info("Write BYE failed");
-            getLogger().debug("Cannot write BYE on connection close", e);
-        }
-        endSession();
-    }
-
     /**
      * @see org.apache.james.smtpserver.SMTPSession#endSession()
      */
@@ -117,7 +102,7 @@ public class ImapHandler
         // Clear user data
         try {
             if (session != null) {
-                session.closeMailbox();
+                session.logout();
             }
         } catch (Exception e) {
             getLogger().warn("Failed to close mailbox: " + e.getMessage());
@@ -140,9 +125,7 @@ public class ImapHandler
                     + theConfigData.getHelloName() + " is ready.");
 
             sessionEnded = false;
-            session = new ImapSessionImpl( this,
-                                           socket.getInetAddress().getHostName(),
-                                           socket.getInetAddress().getHostAddress());
+            session = new ImapSessionImpl();
             setupLogger(session);
 
             theWatchdog.start();
