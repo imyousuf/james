@@ -56,8 +56,6 @@ public class ImapHandler
      * The per-service configuration data that applies to all handlers
      */
     private ImapHandlerConfigurationData theConfigData;
-    
-    private boolean handlerIsUp=false;
 
     /**
      * The session termination status
@@ -113,10 +111,6 @@ public class ImapHandler
      * Resets the handler data to a basic state.
      */
     public void resetHandler() {
-        if (handlerIsUp == false) {
-            return;
-        }
-        handlerIsUp = false;
         
         endSession();
         
@@ -126,21 +120,10 @@ public class ImapHandler
                 session.closeMailbox();
             }
         } catch (Exception e) {
-            getLogger().error("session.cleanUp", e);
+            getLogger().warn("Failed to close mailbox: " + e.getMessage());
+            getLogger().debug(e.getMessage(), e);
         }
         session = null;
-
-        // Clear config data
-        // Removed: we should never clean this one:
-        // theConfigData = null;
-    }
-    
-    protected void initHandler( Socket connection ) throws IOException {
-        handlerIsUp=true;
-        getLogger().debug("Accepting connection for "+connection.toString());
-        // DEBUG
-        
-        super.initHandler(connection);
     }
 
     /**
@@ -163,7 +146,7 @@ public class ImapHandler
             setupLogger(session);
 
             theWatchdog.start();
-            while ( handlerIsUp && !sessionEnded && handleRequest() ) {
+            while ( !sessionEnded && handleRequest() ) {
                 theWatchdog.reset();
             }
             theWatchdog.stop();
