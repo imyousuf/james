@@ -27,12 +27,12 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.api.imap.ImapSessionState;
-import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.api.imap.message.response.ImapResponseMessage;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
 import org.apache.james.api.imap.process.ImapProcessor.Responder;
 import org.apache.james.experimental.imapserver.encode.writer.OutputStreamImapResponseWriter;
+import org.apache.james.imapserver.codec.ProtocolException;
 import org.apache.james.imapserver.codec.decode.ImapDecoder;
 import org.apache.james.imapserver.codec.decode.ImapRequestLineReader;
 import org.apache.james.imapserver.codec.encode.ImapEncoder;
@@ -44,6 +44,9 @@ import org.apache.james.imapserver.codec.encode.base.ImapResponseComposerImpl;
  */
 public final class ImapRequestHandler extends AbstractLogEnabled {
 
+    private static final byte[] ABANDON_SIGNOFF = {'*',' ', 'B', 'Y', 'E', ' ', 
+        'A','b','a','n','d','o','n','e','d','\r', '\n'};
+    
     private final ImapDecoder decoder;
     private final ImapProcessor processor;
     private final ImapEncoder encoder;
@@ -76,36 +79,56 @@ public final class ImapRequestHandler extends AbstractLogEnabled {
     public boolean handleRequest( InputStream input,
                                   OutputStream output,
                                   ImapSession session )
-            throws ProtocolException
     {
         ImapRequestLineReader request = new ImapRequestLineReader( input, output );
         setupLogger(request);
         
+        final Logger logger = getLogger();
         try {
             request.nextChar();
         }
         catch ( ProtocolException e ) {
-            getLogger().debug("Unexpected end of line. Cannot handle request: ", e);
+            logger.debug("Unexpected end of line. Cannot handle request: ", e);
             return false;
         }
 
         ImapResponseComposerImpl response = new ImapResponseComposerImpl( new OutputStreamImapResponseWriter( output ));
-        response.enableLogging(getLogger()); 
+        response.enableLogging(logger); 
 
         final boolean result;
         if (doProcessRequest( request, response, session )) {
     
-            // Consume the rest of the line, throwing away any extras. This allows us
-            // to clean up after a protocol error.
-            request.consumeLine();
+            try {
+                // Consume the rest of the line, throwing away any extras. This allows us
+                // to clean up after a protocol error.
+                request.consumeLine();
+            } catch (ProtocolException e) {
+                // Cannot clean up. No recovery is therefore possible.
+                // Abandon connection.
+                if (logger.isInfoEnabled()) {
+                    logger.info("Fault during clean up: " + e.getMessage());
+                }
+                logger.debug("Abandoning after fault in clean up", e);
+                session.logout();
+                abandon(output);
+            }
     
             result = !(ImapSessionState.LOGOUT == session.getState());
         } else {
             result = false;
+            abandon(output);
         }
         return result;
     }
 
+    private void abandon(OutputStream out) {
+        try {
+            out.write(ABANDON_SIGNOFF);
+        } catch (Throwable t) {
+            getLogger().debug("Failed to write ABANDON_SIGNOFF", t);
+        }
+    }
+    
     private boolean doProcessRequest( ImapRequestLineReader request,
                                    ImapResponseComposer response,
                                    ImapSession session)
@@ -152,7 +175,7 @@ public final class ImapRequestHandler extends AbstractLogEnabled {
         /**
          * Gets the recorded failure.
          * @return the failure, 
-         * or null when no failure has occured
+         * or null when no failure has occurred
          */
         public final IOException getFailure() {
             return failure;

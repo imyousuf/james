@@ -22,7 +22,7 @@ package org.apache.james.imapserver.codec.decode;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.james.api.imap.ProtocolException;
+import org.apache.james.imapserver.codec.ProtocolException;
 
 
 public class FetchPartPathDecoder {

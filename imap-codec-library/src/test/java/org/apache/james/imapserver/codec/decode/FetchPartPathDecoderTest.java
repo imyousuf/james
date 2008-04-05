@@ -22,7 +22,7 @@ package org.apache.james.imapserver.codec.decode;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.apache.james.api.imap.ProtocolException;
+import org.apache.james.imapserver.codec.ProtocolException;
 
 import junit.framework.TestCase;
 

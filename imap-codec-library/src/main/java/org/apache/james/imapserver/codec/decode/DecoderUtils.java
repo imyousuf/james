@@ -27,8 +27,8 @@ import java.util.TimeZone;
 
 import javax.mail.Flags;
 
-import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.api.imap.message.MessageFlags;
+import org.apache.james.imapserver.codec.ProtocolException;
 
 /**
  * Utility procedures.
