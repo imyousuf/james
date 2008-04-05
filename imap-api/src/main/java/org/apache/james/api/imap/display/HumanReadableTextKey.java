@@ -114,6 +114,10 @@ public class HumanReadableTextKey {
         = new HumanReadableTextKey("org.apache.james.imap.BYE",
          ImapConstants.VERSION + " Server logging out");
     
+    public static final HumanReadableTextKey TOO_MANY_FAILURES
+        = new HumanReadableTextKey("org.apache.james.imap.TOO_MANY_FAILURES",
+             "Login failed too many times.");
+    
     private final String defaultValue;
     private final String key;
     public HumanReadableTextKey(final String key, final String defaultValue) {

@@ -131,6 +131,11 @@ abstract public class AbstractImapRequestProcessor extends
         responder.respond(response);
     }
     
+    protected void bye(final ImapProcessor.Responder responder, final HumanReadableTextKey key) {
+        final StatusResponse response = factory.bye(key);
+        responder.respond(response);
+    }
+    
     protected abstract void doProcess(final ImapRequest message,
             ImapSession session, String tag, ImapCommand command, Responder responder);
     
