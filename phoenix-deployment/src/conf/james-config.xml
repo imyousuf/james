@@ -190,15 +190,36 @@
    <imapserver enabled="true">
       <!-- port 993 is the well-known/IANA registered port for IMAPs ie over SSL/TLS 
         <port>993</port>
+        <!-- JAMES TLS uses JSSE. This means that for many Sun JVMs,
+             the sunjce_provider.jar must be copied from $JAVA_HOME/lib/ext
+             into $JAMES_HOME/lib. It may also be necessary to download and
+             install unlimited strength policies. -->
+        <!--
         <useTLS>true</useTLS>
-        <provider>org.bouncycastle.jce.provider.BouncyCastleProvider</provider>
-        <handler>
+        -->
+        <!-- Use provider elements to specify additional JCE providers.
+             The jars should be put into $JAMES_HOME/lib.
+             For example, BouncyCastle JCE (http://www.bouncycastle.org)
+        <provider>org.bouncycastle.jce.provider.BouncyCastleProvider</provider> -->
+        <!--
+        <handler> 
+            <!-- RFC 3501 requires a minimum timeout of 30 minutes -->
+            <!-- 
             <connectiontimeout>1800000</connectiontimeout>         
             <streamdump enabled="true" directory="../apps/james/streamdump" />
         </handler> 
-      
       -->
-      <!-- port 143 is the well-known/IANA registered port for Standard IMAP4 -->
+      <!-- port 143 is the well-known/IANA registered port for Standard IMAP4 
+        <port>143</port>
+        <handler>-->
+          <!-- RFC 3501 requires a minimum timeout of 30 minutes -->
+          <!-- 
+          <connectiontimeout>1800000</connectiontimeout>         
+          <streamdump enabled="true" directory="../apps/james/streamdump" />
+        </handler> 
+        -->
+      -->
+      <!-- Experimental high port -->
       <port>10143</port>
       <handler>
        <!-- RFC 3501 requires a minimum timeout of 30 minutes -->
@@ -973,15 +994,18 @@ Regards, Postmaster XXX.YYY
       <!--
       <bind> </bind>
       -->
-      <!--  Uncomment this if you want to use TLS (SSL) on this port -->
+      <!-- JAMES TLS uses JSSE. This means that for many Sun JVMs,
+           the sunjce_provider.jar must be copied from $JAVA_HOME/lib/ext
+           into $JAMES_HOME/lib. It may also be necessary to download and
+           install unlimited strength policies. -->
       <!--
       <useTLS>true</useTLS>
       -->
-      <!-- Uncomment this if you want to use BouncyCastle's JCE provider with TLS-->
-      <!-- 
-      <provider>org.bouncycastle.jce.provider.BouncyCastleProvider</provider>
-      -->
-
+      <!-- Use provider elements to specify additional JCE providers.
+         The jars should be put into $JAMES_HOME/lib.
+           For example, Uncomment this if you want to use 
+           BouncyCastle JCE (http://www.bouncycastle.org)
+      <provider>org.bouncycastle.jce.provider.BouncyCastleProvider</provider> -->
       <handler>
          <!-- This is the name used by the server to identify itself in the POP3 -->
          <!-- protocol.  If autodetect is TRUE, the server will discover its -->
@@ -1008,14 +1032,18 @@ Regards, Postmaster XXX.YYY
       <!--
       <bind> </bind>
       -->
-      <!-- Uncomment this if you want to use TLS (SSL) on this port -->
+      <!-- JAMES TLS uses JSSE. This means that for many Sun JVMs,
+           the sunjce_provider.jar must be copied from $JAVA_HOME/lib/ext
+           into $JAMES_HOME/lib. It may also be necessary to download and
+           install unlimited strength policies. -->
       <!--
       <useTLS>true</useTLS>
       -->
-      <!-- Uncomment this if you want to use BouncyCastle's JCE provider with TLS -->
-      <!-- 
-      <provider>org.bouncycastle.jce.provider.BouncyCastleProvider</provider>
-      -->
+      <!-- Use provider elements to specify additional JCE providers.
+         The jars should be put into $JAMES_HOME/lib.
+           For example, Uncomment this if you want to use 
+           BouncyCastle JCE (http://www.bouncycastle.org)
+      <provider>org.bouncycastle.jce.provider.BouncyCastleProvider</provider> -->
 
       <handler>
          <!-- This is the name used by the server to identify itself in the SMTP -->
