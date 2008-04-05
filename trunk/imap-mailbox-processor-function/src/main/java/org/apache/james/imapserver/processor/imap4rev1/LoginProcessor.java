@@ -37,6 +37,11 @@ import org.apache.james.services.UsersRepository;
  */
 public class LoginProcessor extends AbstractImapRequestProcessor {
 
+    private static final String ATTRIBUTE_NUMBER_OF_FAILURES 
+        = "org.apache.james.imapserver.processor.imap4rev1.LoginProcessor.NUMBER_OF_FAILURES";
+    // TODO: this should be configurable
+    private static final int MAX_FAILURES = 3;
+    
     private final UsersRepository users;
 
     public LoginProcessor(final ImapProcessor next, final UsersRepository users, 
@@ -60,7 +65,20 @@ public class LoginProcessor extends AbstractImapRequestProcessor {
             ImapSessionUtils.setUser(session, user);
             okComplete(command, tag, responder);
         } else {
-            no(command,tag, responder, HumanReadableTextKey.INVALID_LOGIN);
+            final Integer currentNumberOfFailures = (Integer) session.getAttribute(ATTRIBUTE_NUMBER_OF_FAILURES);
+            final int failures;
+            if (currentNumberOfFailures == null) {
+                failures = 1;
+            } else {
+                failures = currentNumberOfFailures.intValue() + 1;
+            }
+            if (failures < MAX_FAILURES) {
+                session.setAttribute(ATTRIBUTE_NUMBER_OF_FAILURES, new Integer(failures));
+                no(command,tag, responder, HumanReadableTextKey.INVALID_LOGIN);
+            } else {
+                bye(responder, HumanReadableTextKey.TOO_MANY_FAILURES);
+                session.logout();
+            }
         }
     }
 }
