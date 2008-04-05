@@ -25,6 +25,7 @@ import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.avalon.excalibur.pool.Poolable;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
@@ -255,25 +256,29 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
     public void handleConnection(Socket connection) throws IOException {
         initHandler(connection);
 
+        final Logger logger = getLogger();
         try {
             
             // Do something:
             handleProtocol();
             
-            getLogger().debug("Closing socket.");
+            logger.debug("Closing socket.");
         } catch (SocketException se) {
-            if (getLogger().isErrorEnabled()) {
-                StringBuffer errorBuffer =
+            // Indicates a problem at the underlying protocol level
+            if (logger.isWarnEnabled()) {
+                String message =
                     new StringBuffer(64)
                         .append("Socket to ")
                         .append(remoteHost)
                         .append(" (")
                         .append(remoteIP)
-                        .append(") closed remotely.");
-                getLogger().error(errorBuffer.toString(), se );
+                        .append("): ")
+                        .append(se.getMessage()).toString();
+                logger.warn(message);
+                logger.debug(se.getMessage(), se);
             }
         } catch ( InterruptedIOException iioe ) {
-            if (getLogger().isErrorEnabled()) {
+            if (logger.isErrorEnabled()) {
                 StringBuffer errorBuffer =
                     new StringBuffer(64)
                         .append("Socket to ")
@@ -281,19 +286,20 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
                         .append(" (")
                         .append(remoteIP)
                         .append(") timeout.");
-                getLogger().error( errorBuffer.toString(), iioe );
+                logger.error( errorBuffer.toString(), iioe );
             }
         } catch ( IOException ioe ) {
-            if (getLogger().isErrorEnabled()) {
-                StringBuffer errorBuffer =
+            if (logger.isWarnEnabled()) {
+                String message =
                     new StringBuffer(256)
                             .append("Exception handling socket to ")
                             .append(remoteHost)
                             .append(" (")
                             .append(remoteIP)
                             .append(") : ")
-                            .append(ioe.getMessage());
-                getLogger().error( errorBuffer.toString(), ioe );
+                            .append(ioe.getMessage()).toString();
+                logger.warn(message);
+                logger.debug( ioe.getMessage(), ioe );
             }
         } catch (RuntimeException e) {
             errorHandler(e);
