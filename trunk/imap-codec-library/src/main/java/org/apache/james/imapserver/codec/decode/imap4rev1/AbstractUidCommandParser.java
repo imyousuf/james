@@ -21,7 +21,7 @@ package org.apache.james.imapserver.codec.decode.imap4rev1;
 
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapMessage;
-import org.apache.james.api.imap.ProtocolException;
+import org.apache.james.imapserver.codec.ProtocolException;
 import org.apache.james.imapserver.codec.decode.ImapRequestLineReader;
 import org.apache.james.imapserver.codec.decode.base.AbstractImapCommandParser;
 

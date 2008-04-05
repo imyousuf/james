@@ -24,7 +24,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.api.imap.ProtocolException;
+import org.apache.james.imapserver.codec.ProtocolException;
 
 /**
  * Wraps the client input reader with a bunch of convenience methods, allowing lookahead=1
@@ -95,7 +95,6 @@ public class ImapRequestLineReader extends AbstractLogEnabled
 
             nextSeen = true;
             nextChar = ( char ) next;
-//            System.out.println( "Read '" + nextChar + "'" );
         }
         return nextChar;
     }
@@ -181,8 +180,7 @@ public class ImapRequestLineReader extends AbstractLogEnabled
      * Sends a server command continuation request '+' back to the client,
      * requesting more data to be sent.
      */
-    public void commandContinuationRequest()
-            throws ProtocolException
+    public void commandContinuationRequest() throws ProtocolException
     {
         try {
             output.write( '+' );

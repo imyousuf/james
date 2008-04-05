@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.api.imap;
+package org.apache.james.imapserver.codec;
 
 /**
  * @version $Revision: 109034 $

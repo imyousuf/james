@@ -29,7 +29,7 @@ import javax.mail.Flags;
 import junit.framework.TestCase;
 
 import org.apache.commons.lang.time.FastDateFormat;
-import org.apache.james.api.imap.ProtocolException;
+import org.apache.james.imapserver.codec.ProtocolException;
 
 public class DecoderUtilsTest extends TestCase {
     

@@ -27,7 +27,6 @@ import org.apache.avalon.excalibur.pool.Poolable;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.Constants;
 import org.apache.james.api.imap.ImapConstants;
-import org.apache.james.api.imap.ProtocolException;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
 import org.apache.james.core.AbstractJamesHandler;
@@ -44,6 +43,8 @@ public class ImapHandler
         extends AbstractJamesHandler
         implements ConnectionHandler, Poolable, ImapConstants
 {
+    private static final byte[] EMERGENCY_SIGNOFF = {'*',' ', 'B', 'Y', 'E', ' ', 
+        'S', 'e', 'r', 'v', 'e', 'r', ' ', 'f', 'a', 'u', 'l', 't', '\r', '\n'};
 
     // TODO: inject dependency
     private String softwaretype = "JAMES "+VERSION+" Server " + Constants.SOFTWARE_VERSION;
@@ -54,11 +55,6 @@ public class ImapHandler
      * The per-service configuration data that applies to all handlers
      */
     private ImapHandlerConfigurationData theConfigData;
-
-    /**
-     * The session termination status
-     */
-    private boolean sessionEnded = false;
 
     /**
      * Set the configuration data for the handler.
@@ -79,25 +75,9 @@ public class ImapHandler
     }
 
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#endSession()
-     */
-    public void endSession() {
-        sessionEnded = true;
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#isSessionEnded()
-     */
-    public boolean isSessionEnded() {
-        return sessionEnded;
-    }
-
-    /**
      * Resets the handler data to a basic state.
      */
     public void resetHandler() {
-        
-        endSession();
         
         // Clear user data
         try {
@@ -115,7 +95,6 @@ public class ImapHandler
      * @see ConnectionHandler#handleConnection(Socket)
      */
     protected void handleProtocol() throws IOException {
-        try {
             final OutputStreamImapResponseWriter writer = new OutputStreamImapResponseWriter( outs );
             ImapResponseComposer response = new ImapResponseComposerImpl( writer);
 
@@ -124,36 +103,23 @@ public class ImapHandler
             response.okResponse(null, softwaretype + " Server "
                     + theConfigData.getHelloName() + " is ready.");
 
-            sessionEnded = false;
             session = new ImapSessionImpl();
             setupLogger(session);
 
             theWatchdog.start();
-            while ( !sessionEnded && handleRequest() ) {
+            while ( handleRequest() ) {
                 theWatchdog.reset();
             }
             theWatchdog.stop();
             
-
-            // TODO (?) Write BYE message.
-            
             getLogger().info(
                     "Connection from " + remoteHost + " (" + remoteIP
                             + ") closed.");
-
-        }
-        catch (ProtocolException e) {
-            // TODO: throwing a runtime seems wrong
-            throw new RuntimeException(e.getMessage(),e);
-        }
     }
 
-    private boolean handleRequest() throws ProtocolException {
-        final boolean continuing = requestHandler.handleRequest( in, outs, session );
-        if (!continuing) {
-            resetHandler();
-        }
-        return continuing;
+    private boolean handleRequest() {
+        final boolean result = requestHandler.handleRequest( in, outs, session );
+        return result;
     }
     
     /**
@@ -162,21 +128,12 @@ public class ImapHandler
      * @param e the RuntimeException
      */
     protected void errorHandler(RuntimeException e) {
-        if (e != null && e.getCause() instanceof ProtocolException) {
-            out.println("Protocol exception.");
-            out.flush();
-            StringBuffer exceptionBuffer =
-                    new StringBuffer( 128 )
-                    .append( "Protocol exception during connection from " )
-                    .append( remoteHost )
-                    .append( " (" )
-                    .append( remoteIP )
-                    .append( ") : " )
-                    .append( e.getMessage() );
-            getLogger().error( exceptionBuffer.toString(), e.getCause() );
-        } else {
-            super.errorHandler(e);
+        try {
+            outs.write(EMERGENCY_SIGNOFF);
+        } catch (Throwable t) {
+            getLogger().debug("Write emergency signoff failed.", t);
         }
+        super.errorHandler(e);
     }
 
     public void enableLogging(Logger logger) {
