@@ -19,7 +19,8 @@
 package org.apache.james.imapserver.codec.decode;
 
 import org.apache.james.api.imap.ImapMessage;
+import org.apache.james.api.imap.process.ImapSession;
 
 public interface ImapDecoder {
-    public ImapMessage decode(final ImapRequestLineReader request);
+    public ImapMessage decode(final ImapRequestLineReader request, ImapSession session);
 }

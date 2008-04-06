@@ -118,6 +118,10 @@ public class HumanReadableTextKey {
         = new HumanReadableTextKey("org.apache.james.imap.TOO_MANY_FAILURES",
              "Login failed too many times.");
     
+    public static final HumanReadableTextKey BYE_UNKNOWN_COMMAND
+    = new HumanReadableTextKey("org.apache.james.imap.BYE_UNKNOWN_COMMAND",
+            "Unknown command.");
+    
     private final String defaultValue;
     private final String key;
     public HumanReadableTextKey(final String key, final String defaultValue) {
