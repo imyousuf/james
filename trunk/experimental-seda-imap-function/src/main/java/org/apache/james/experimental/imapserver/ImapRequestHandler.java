@@ -133,7 +133,7 @@ public final class ImapRequestHandler extends AbstractLogEnabled {
                                    ImapResponseComposer response,
                                    ImapSession session)
     {
-        ImapMessage message = decoder.decode(request);
+        ImapMessage message = decoder.decode(request, session);
         final ResponseEncoder responseEncoder = new ResponseEncoder(encoder, response);
         processor.process(message, responseEncoder, session);
         final boolean result;
