@@ -50,7 +50,17 @@ Master template for module builds.
         unless='dont.build.module'>
         <SetBaseClasspaths/>   
     </target>   
-       
+    
+	<!--
+Convenience targets
+	-->
+	<target 
+		name='eclipse'
+		depends='check-environment,set-classpath'>
+		<GenerateEclipseProject 
+			name='${name.module}' dir='${basedir}'/>
+	</target>
+	
     <!--
 Main User Targets
     -->

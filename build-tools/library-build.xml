@@ -17,7 +17,6 @@
   specific language governing permissions and limitations
   under the License.    
 -->
-
 <project name='library-template'>
      <description>
 Template build for library modules
@@ -41,4 +40,17 @@ Template build for library modules
                <path refid='classpath.test'/>   
            </path>   
     </target>    
+	
+	<target 
+		name='eclipse'
+		depends='check-environment,set-classpath'>
+		<GenerateEclipseProject 
+			name='${name.module}' dir='${basedir}'>
+			<dependencies>
+				<classpathentry combineaccessrules="false" kind='src' path='/domain-api'/> 
+				<classpathentry combineaccessrules="false" kind='src' path='/imap-api'/>
+				<classpathentry combineaccessrules="false" kind="src" path="/user-api"/>
+			</dependencies>
+		</GenerateEclipseProject>
+	</target>
  </project>

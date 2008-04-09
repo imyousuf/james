@@ -111,6 +111,7 @@ Master build file for JAMES server.
  USER TARGETS
  =========================================================================
 -->     
+
     <target 
         name='clean'
         description='Cleans all modules'
@@ -119,6 +120,14 @@ Master build file for JAMES server.
         <foralldo do='clean'/>
     </target> 
     
+    <target 
+        name='eclipse'
+        description='Cleans all modules'
+        depends='clean'>
+        <echo>Generating project files</echo>   
+        <foralldo do='eclipse'/>
+    </target> 
+
     <target 
         name='lite'
         description='Builds modules and performs lightweight deployment'>
