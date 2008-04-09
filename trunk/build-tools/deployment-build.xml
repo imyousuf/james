@@ -40,4 +40,39 @@ Template build for deployment modules
                <path refid='classpath.test'/>   
            </path>   
     </target>    
+	
+	<target 
+		name='eclipse'
+		depends='check-environment,set-classpath'>
+		<GenerateEclipseProject 
+			name='${name.module}' dir='${basedir}'>
+			<dependencies>
+				<classpathentry combineaccessrules="false" kind='src' path='/domain-api'/> 
+				<classpathentry combineaccessrules="false" kind='src' path='/imap-api'/>
+				<classpathentry combineaccessrules="false" kind="src" path="/user-api"/>
+				<classpathentry combineaccessrules="false" kind="src" path="/core-library"/>; 				
+				<classpathentry combineaccessrules="false" kind="src" path="/imap-codec-library"/> 
+				<classpathentry combineaccessrules="false" kind="src" path="/imap-command-library"/> 
+				<classpathentry combineaccessrules="false" kind="src" path="/imapmailbox-library"/>
+				<classpathentry combineaccessrules="false" kind="src" path="/mordred-library"/>; 
+				<classpathentry combineaccessrules="false" kind="src" path="/user-library"/>;
+				<classpathentry combineaccessrules="false" kind="src" path="/avalon-user-function"/> 
+				<classpathentry combineaccessrules="false" kind="src" path="/basic-user-function"/> 
+				<classpathentry combineaccessrules="false" kind="src" path="/experimental-activemq-function"/> 
+				<classpathentry combineaccessrules="false" kind="src" path="/experimental-seda-imap-function"/> 
+				<classpathentry combineaccessrules="false" kind="src" path="/fetchmail-function"/> 
+				<classpathentry combineaccessrules="false" kind="src" path="/imap-mailbox-processor-function"/> 
+				<classpathentry combineaccessrules="false" kind="src" path="/imapserver-function"/> 
+				<classpathentry combineaccessrules="false" kind="src" path="/jcr-backend-function"/> 
+				<classpathentry combineaccessrules="false" kind="src" path="/nntpserver-function"/> 
+				<classpathentry combineaccessrules="false" kind="src" path="/phoenix-deployment"/> 
+				<classpathentry combineaccessrules="false" kind="src" path="/pop3server-function"/> 
+				<classpathentry combineaccessrules="false" kind="src" path="/remotemanager-function"/> 
+				<classpathentry combineaccessrules="false" kind="src" path="/smtpserver-function"/> 
+				<classpathentry combineaccessrules="false" kind="src" path="/spoolmanager-function"/> 
+				<classpathentry combineaccessrules="false" kind="src" path="/spring-deployment"/> 
+				<classpathentry combineaccessrules="false" kind="src" path="/torque-mailboxmanager-function"/>">
+			</dependencies>
+		</GenerateEclipseProject>
+	</target>
  </project>

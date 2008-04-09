@@ -429,6 +429,42 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
         </sequential>   
     </macrodef>   
     
+	<macrodef name='GenerateEclipseProject'>
+		<attribute name='dir'/>
+		<attribute name='name'/>
+        <element name='dependencies'/>
+		<sequential>
+			<echo>Generating Eclipse project @{name} in @{dir}</echo>
+			<echoxml file="@{dir}/.project">
+<projectDescription>
+	<name>@{name}</name>
+	<comment></comment>
+	<projects>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>org.eclipse.jdt.core.javabuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>org.eclipse.jdt.core.javanature</nature>
+	</natures>
+</projectDescription>
+</echoxml>
+<echoxml file="@{dir}/.classpath"><classpath>
+	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="src" output="target/test-classes" path="src/test/java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/james"/>
+	<dependencies/>
+	<classpathentry kind="output" path="target/classes"/>
+</classpath>
+</echoxml>
+		</sequential>
+	</macrodef>
+	
  <!--
  Targets
  -->   

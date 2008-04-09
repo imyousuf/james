@@ -37,6 +37,16 @@ Template build for API
             </path>   
             <path id='classpath.test.runtime'>
                 <path refid='classpath.test'/>   
-            </path>   
+            </path>
      </target>     
+	
+	<target 
+		name='eclipse'
+		depends='check-environment,set-classpath'>
+		<GenerateEclipseProject 
+			name='${name.module}' dir='${basedir}'>
+			<dependencies>
+			</dependencies>
+		</GenerateEclipseProject>
+	</target>
  </project>

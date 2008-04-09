@@ -41,4 +41,23 @@ Template build for function modules
                <path refid='classpath.test'/>   
            </path>   
     </target>    
+	
+	<target 
+		name='eclipse'
+		depends='check-environment,set-classpath'>
+		<GenerateEclipseProject 
+			name='${name.module}' dir='${basedir}'>
+			<dependencies>
+				<classpathentry combineaccessrules="false" kind='src' path='/domain-api'/> 
+				<classpathentry combineaccessrules="false" kind='src' path='/imap-api'/>
+				<classpathentry combineaccessrules="false" kind="src" path="/user-api"/>
+				<classpathentry combineaccessrules="false" kind="src" path="/core-library"/>; 				
+				<classpathentry combineaccessrules="false" kind="src" path="/imap-codec-library"/> 
+				<classpathentry combineaccessrules="false" kind="src" path="/imap-command-library"/> 
+				<classpathentry combineaccessrules="false" kind="src" path="/imapmailbox-library"/>
+				<classpathentry combineaccessrules="false" kind="src" path="/mordred-library"/>; 
+				<classpathentry combineaccessrules="false" kind="src" path="/user-library"/>;
+			</dependencies>
+		</GenerateEclipseProject>
+	</target>
  </project>
