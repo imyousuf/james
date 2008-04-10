@@ -397,8 +397,8 @@ java -cp ${exe-classpath};../conf org.apache.james.container.spring.Main
 				<classpathentry combineaccessrules="false" kind="src" path="/imap-codec-library"/> 
 				<classpathentry combineaccessrules="false" kind="src" path="/imap-command-library"/> 
 				<classpathentry combineaccessrules="false" kind="src" path="/imapmailbox-library"/>
-				<classpathentry combineaccessrules="false" kind="src" path="/mordred-library"/>; 
-				<classpathentry combineaccessrules="false" kind="src" path="/user-library"/>;
+				<classpathentry combineaccessrules="false" kind="src" path="/mordred-library"/> 
+				<classpathentry combineaccessrules="false" kind="src" path="/user-library"/>
 				<classpathentry combineaccessrules="false" kind="src" path="/avalon-user-function"/> 
 				<classpathentry combineaccessrules="false" kind="src" path="/basic-user-function"/> 
 				<classpathentry combineaccessrules="false" kind="src" path="/experimental-activemq-function"/> 

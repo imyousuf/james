@@ -50,12 +50,12 @@ Template build for deployment modules
 				<classpathentry combineaccessrules="false" kind='src' path='/domain-api'/> 
 				<classpathentry combineaccessrules="false" kind='src' path='/imap-api'/>
 				<classpathentry combineaccessrules="false" kind="src" path="/user-api"/>
-				<classpathentry combineaccessrules="false" kind="src" path="/core-library"/>; 				
+				<classpathentry combineaccessrules="false" kind="src" path="/core-library"/> 				
 				<classpathentry combineaccessrules="false" kind="src" path="/imap-codec-library"/> 
 				<classpathentry combineaccessrules="false" kind="src" path="/imap-command-library"/> 
 				<classpathentry combineaccessrules="false" kind="src" path="/imapmailbox-library"/>
-				<classpathentry combineaccessrules="false" kind="src" path="/mordred-library"/>; 
-				<classpathentry combineaccessrules="false" kind="src" path="/user-library"/>;
+				<classpathentry combineaccessrules="false" kind="src" path="/mordred-library"/> 
+				<classpathentry combineaccessrules="false" kind="src" path="/user-library"/>
 				<classpathentry combineaccessrules="false" kind="src" path="/avalon-user-function"/> 
 				<classpathentry combineaccessrules="false" kind="src" path="/basic-user-function"/> 
 				<classpathentry combineaccessrules="false" kind="src" path="/experimental-activemq-function"/> 
