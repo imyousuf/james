@@ -348,18 +348,45 @@ java -cp ${exe-classpath};../conf org.apache.james.container.spring.Main
         <replace file="${spring-deployment.target.bin.dir}/run.bat" token=":" value=";" />
     </target>
     
-    <target name="dist-war" >
+    <target name="eliminate-entity-references-in-james-config" depends="package-aquire-config-files" >
+
+        <!-- inline the content of the XML entities files into james-config.xml -->
+        <property name="listserverConfigEmptyContent" value=" this is content for the comment " />
+        <loadfile property="listserverConfigContent" srcfile="${basedir}/src/main/config/james/james-listmanager.xml" />  
+        <replace file="${spring-deployment.target.config.dir}/james-config.xml" token="&amp;listserverConfig;" value="${listserverConfigEmptyContent}" /> 
+        
+        <property name="listserverStoresEmptyContent" value=" this is content for the comment " />
+        <loadfile property="listserverStoresContent" srcfile="${basedir}/src/main/config/james/james-liststores.xml" />  
+        <replace file="${spring-deployment.target.config.dir}/james-config.xml" token="&amp;listserverStores;" value="${listserverStoresEmptyContent}" /> 
+        
+        <loadfile property="fetchmailConfigContent" srcfile="${basedir}/src/main/config/james/james-fetchmail.xml" />  
+        <replace file="${spring-deployment.target.config.dir}/james-config.xml" token="&amp;fetchmailConfig;" value="${fetchmailConfigContent}" /> 
+
+        <loadfile property="jmsConfigContent" srcfile="${basedir}/src/main/config/james/james-jms.xml" />  
+        <replace file="${spring-deployment.target.config.dir}/james-config.xml" token="&amp;jmsConfig;" value="${jmsConfigContent}" /> 
+        
+        <loadfile property="smtphandlerchainConfigContent" srcfile="${basedir}/src/main/config/james/james-smtphandlerchain.xml" />  
+        <replace file="${spring-deployment.target.config.dir}/james-config.xml" token="&amp;smtphandlerchainConfig;" value="${smtphandlerchainConfigContent}" />
+    
+    </target>
+        
+    <target name="dist-war" description="build a war file distribution" depends="eliminate-entity-references-in-james-config" >
         <war destfile="${spring-deployment.dist.dir}/${name}-spring-deployment-${version}.war" 
              webxml="src/main/config/warfile/WEB-INF/web.xml"   >
             <fileset dir="${spring-deployment.target.dir}" ><include name="NOTICE.txt" /></fileset>
             <fileset dir="${spring-deployment.target.dir}" ><include name="LICENSE.txt" /></fileset>
             <lib dir="${spring-deployment.target.lib.dir}" />
-            <zipfileset dir="${basedir}/src/main/config/james/" prefix="WEB-INF/lib" >
+            <zipfileset dir="${spring-deployment.target.config.dir}" prefix="WEB-INF/lib" >
                 <include name="log4j.properties" />
-                <include name="james-config.xml" />
             </zipfileset> 
-            <zipfileset dir="${basedir}/src/main/config/james/" prefix="WEB-INF" >
+            <zipfileset dir="${spring-deployment.target.config.dir}" prefix="WEB-INF" >
+                <include name="spring-beans.xml" />
+                <include name="james-assembly.xml" />
+            </zipfileset> 
+            <zipfileset dir="${spring-deployment.target.config.dir}" prefix="WEB-INF/classes" >
                 <exclude name="log4j.properties" />
+                <exclude name="spring-beans.xml" />
+                <exclude name="james-assembly.xml" />
             </zipfileset> 
         </war>
     </target>
