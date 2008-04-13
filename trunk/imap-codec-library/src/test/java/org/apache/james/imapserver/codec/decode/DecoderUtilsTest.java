@@ -140,6 +140,10 @@ public class DecoderUtilsTest extends TestCase {
         assertEquals("20 Oct 1972 20:00:00 GMT", DecoderUtils.decodeDateTime("21-Oct-1972 06:00:00 +1000").toGMTString());
         assertEquals("21 Oct 1972 16:00:00 GMT", DecoderUtils.decodeDateTime("21-Oct-1972 06:00:00 -1000").toGMTString());
     }
+
+    public void testAppleMailPrependsZeroNotSpace() throws Exception {
+        assertEquals("9 Apr 2008 13:17:51 GMT", DecoderUtils.decodeDateTime("09-Apr-2008 15:17:51 +0200").toGMTString());
+    }
     
     public void testDecodeDateTime() throws Exception {
         runTimeZoneTest(TimeZone.getTimeZone("GMT+0"));

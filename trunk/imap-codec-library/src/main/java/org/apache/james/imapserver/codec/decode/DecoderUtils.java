@@ -399,16 +399,14 @@ public final class DecoderUtils {
 
     public static int decodeFixedDay(final char dayHigh, final char dayLow) throws ProtocolException {
         int result = decodeDigit(dayLow);
-        if (dayHigh == '1') {
-            result += 10;
-        } else if (dayHigh == '2') {
-            result += 20;
-        } else if (dayHigh == '3') {
-            result += 30;
-        } else if (dayHigh != ' ') {
-            throw new ProtocolException("Expected SP, 1, 2, or 3 but was " + dayHigh);
+        switch (dayHigh) {
+            case '0': return result;
+            case '1': return result += 10;
+            case '2': return result += 20;
+            case '3': return result += 30;
+            case ' ': return result;
         }
-        return result;
+        throw new ProtocolException("Expected SP, 0, 1, 2, or 3 but was " + dayHigh);
     }
     
     /**
