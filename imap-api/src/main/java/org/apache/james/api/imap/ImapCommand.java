@@ -39,25 +39,4 @@ public interface ImapCommand
      * @return <code>true</code> if the command is valid in this state.
      */
     boolean validForState( ImapSessionState state );
-
-    /**
-     * Provides the syntax for the command arguments if any. This value is used
-     * to provide user feedback in the case of a malformed request.
-     *
-     * For commands which do not allow any arguments, <code>null</code> should
-     * be returned.
-     *
-     * @return The syntax for the command arguments, or <code>null</code> for
-     *         commands without arguments.
-     */
-    String getArgSyntax();
-    
-    /**
-     * Provides a message which describes the expected format and arguments
-     * for this command. This is used to provide user feedback when a command
-     * request is malformed.
-     *
-     * @return A message describing the command protocol format.
-     */
-    String getExpectedMessage();
 }
