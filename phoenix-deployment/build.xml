@@ -533,8 +533,6 @@
             <lib dir="${lib.dir}/${path.lib.javamail}" includes="${jarname.javax-mail.jar}" />
             <lib dir="${lib.dir}/${path.lib.commonsdbcp}" includes="${jarname.commons-dbcp.jar}" />
             <lib dir="${lib.dir}/${path.lib.commonspool}" includes="${jarname.commons-pool.jar}" />
-            <lib dir="${lib.dir}/${path.lib.bouncycastle}" includes="${jarname.bcmail.jar}" />
-            <lib dir="${lib.dir}/${path.lib.bouncycastle}" includes="${jarname.bcmail-workaround.jar}" />
             <lib dir="${lib.dir}/${path.lib.excaliburthread}" includes="${jarname.excalibur-thread-api.jar}" />
             <lib dir="${lib.dir}/${path.lib.excaliburthread}" includes="${jarname.excalibur-thread-impl.jar}" />
             <lib dir="${lib.dir}/${path.lib.excaliburpool}" includes="${jarname.excalibur-pool-api.jar}" />
