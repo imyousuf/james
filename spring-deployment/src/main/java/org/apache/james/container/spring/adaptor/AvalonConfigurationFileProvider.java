@@ -53,7 +53,7 @@ public class AvalonConfigurationFileProvider implements ConfigurationProvider, A
         Resource resource = applicationContext.getResource(configuration);
         InputStream inputStream;
         try {
-            inputStream = applicationContext.getResource(configuration).getInputStream();
+            inputStream = resource.getInputStream();
         } catch (IOException e) {
             throw new RuntimeException("could not locate configuration file " + configuration, e);
         }
@@ -61,6 +61,7 @@ public class AvalonConfigurationFileProvider implements ConfigurationProvider, A
         Configuration configuration;
         try
         {
+            inputSource.setSystemId(resource.getURL().toString());
             configuration = ConfigurationBuilder.build(inputSource, null, null);
         }
         catch( final Exception e )
