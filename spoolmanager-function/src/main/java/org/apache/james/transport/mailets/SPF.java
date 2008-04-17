@@ -99,9 +99,15 @@ public class SPF extends GenericMailet {
 
     private class SPFLoggerAdapter implements Logger {
         private boolean debug = false;
+        private String name = "SPFLogger";
 
         public SPFLoggerAdapter(boolean debug) {
-
+            this.debug = debug;
+        }
+        
+        public SPFLoggerAdapter(String name, boolean debug) {
+            this.name = name;
+            this.debug = debug;
         }
 
         public void debug(String arg0) {
@@ -132,8 +138,8 @@ public class SPF extends GenericMailet {
             log(arg0, arg1);
         }
 
-        public Logger getChildLogger(String arg0) {
-            throw new UnsupportedOperationException("Not supported");
+        public Logger getChildLogger(String childName) {
+            return new SPFLoggerAdapter(name + "." + childName, debug);
         }
 
         public void info(String arg0) {
