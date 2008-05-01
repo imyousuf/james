@@ -56,6 +56,7 @@
     <module>imapserver-function</module>
     <module>experimental-seda-imap-function</module>
     <module>experimental-activemq-function</module>
+    <module>jcr-backend-function</module>
     <module>phoenix-deployment</module>
   </modules>
   <scm>
@@ -327,6 +328,11 @@
       <version>3.0-SNAPSHOT</version>
       <type>test-jar</type>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-jcr-backend-function</artifactId>
+      <version>3.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
