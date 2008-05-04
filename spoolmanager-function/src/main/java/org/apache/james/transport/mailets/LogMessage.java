@@ -25,7 +25,6 @@ import java.util.Enumeration;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
-import org.apache.james.core.MailImpl;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 
@@ -71,8 +70,7 @@ public class LogMessage extends GenericMailet {
      *
      * @param genericmail the mail to process
      */
-    public void service(Mail genericmail) {
-        MailImpl mail = (MailImpl)genericmail;
+    public void service(Mail mail) {
         log(new StringBuffer(160).append("Logging mail ").append(mail.getName()).toString());
         if (comment != null) log(comment);
         try {
