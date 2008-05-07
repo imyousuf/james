@@ -21,7 +21,6 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.james.util.io.IOUtil;
 import org.apache.mailet.RFC2822Headers;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
@@ -34,9 +33,12 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -682,13 +684,95 @@ public class ClamAVScan extends GenericMailet {
             log("Exception caught calling CLAMD on " + socket.getInetAddress() + ": " + ex.getMessage(), ex);
             throw new MessagingException("Exception caught", ex);
         } finally {
-            IOUtil.shutdownReader(reader);
-            IOUtil.shutdownWriter(writer);
-            IOUtil.shutdownStream(bos);
-            IOUtil.shutdownSocket(streamSocket);
-            IOUtil.shutdownSocket(socket);
+            shutdownReader(reader);
+            shutdownWriter(writer);
+            shutdownStream(bos);
+            shutdownSocket(streamSocket);
+            shutdownSocket(socket);
         }
         
+    }
+    
+    /**
+     * Unconditionally close an <code>OutputStream</code>.
+     * Equivalent to {@link OutputStream#close()}, except any exceptions will be ignored.
+     * @param output A (possibly null) OutputStream
+     */
+    private static void shutdownStream( final OutputStream output )
+    {
+        if( null == output )
+        {
+            return;
+        }
+
+        try
+        {
+            output.close();
+        }
+        catch( final IOException ioe )
+        {
+        }
+    }
+    
+    /**
+     * Unconditionally close an <code>Socket</code>.
+     * Equivalent to {@link Socket#close()}, except any exceptions will be ignored.
+     * @param socket A (possibly null) Socket
+     */
+    private static void shutdownSocket( final Socket socket ) {
+        if( null == socket ) {
+            return;
+        }
+
+        try {
+            socket.close();
+        } catch( final IOException ioe ){
+        }
+    }
+    
+    /**
+     * Unconditionally close an <code>Writer</code>.
+     * Equivalent to {@link Writer#close()}, except any exceptions will be ignored.
+     *
+     * @param output A (possibly null) Writer
+     */
+    private void shutdownWriter( final Writer output )
+    {
+        if( null == output )
+        {
+            return;
+        }
+
+        try
+        {
+            output.close();
+        }
+        catch( final IOException ioe )
+        {
+        }
+    }
+
+    
+    /**
+     * Unconditionally close an <code>Reader</code>.
+     * Equivalent to {@link Reader#close()}, except any exceptions will be ignored.
+     *
+     * @param input A (possibly null) Reader
+     */
+    private void shutdownReader( final Reader input )
+    {
+        if( null == input )
+        {
+            return;
+        }
+
+        try
+        {
+            input.close();
+        }
+        catch( final IOException ioe )
+        {
+        }
     }
     
     /**
