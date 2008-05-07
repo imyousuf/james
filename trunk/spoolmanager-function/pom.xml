@@ -59,6 +59,11 @@
 
     <dependency>
       <groupId>org.apache.james</groupId>
+      <artifactId>apache-james-mailet-base</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.james</groupId>
       <artifactId>apache-jspf</artifactId>
     </dependency>
     

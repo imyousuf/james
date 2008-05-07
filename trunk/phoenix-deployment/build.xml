@@ -98,7 +98,7 @@
             <include name="${village.jar}"/>
             <include name="${commons-lang.jar}"/>
             <include name="${commons-configuration.jar}"/>
-
+            <include name="${base-mailet.jar}"/>
             <include name="${jsieve.jar}"/>
 			<include name="${mailet.jar}"/>
             <include name="${commons-digester.jar}"/>
@@ -566,6 +566,7 @@
             <lib dir="${lib.dir}/${path.lib.commonsio}" includes="${jarname.commons-io.jar}" />
             <lib dir="${lib.dir}/${path.lib.james}" includes="${jarname.mime4j.jar}" />
             <lib dir="${lib.dir}/${path.lib.james}" includes="${jarname.std-mailet.jar}"/>   
+            <lib dir="${lib.dir}/${path.lib.james}" includes="${jarname.base-mailet.jar}"/>                  
             <!-- include every api, library and function -->
             <!-- TODO this should list exactly the module defined, without wildcards -->
             <lib dir="${lib.dir}/${path.lib.james}">
