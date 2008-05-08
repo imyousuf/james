@@ -28,6 +28,7 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.core.DefaultVirtualUserTable;
+import org.apache.james.services.VirtualUserTable;
 import org.apache.james.services.VirtualUserTableManagementService;
 import org.apache.james.services.VirtualUserTableStore;
 import org.apache.james.vut.InvalidMappingException;
@@ -70,7 +71,7 @@ public class VirtualUserTableManagement implements Serviceable, VirtualUserTable
         if (tableName == null) {
             return defaultVUT;
         } else {
-            org.apache.james.services.VirtualUserTableManagement vut = (org.apache.james.services.VirtualUserTableManagement) store.getTable(tableName);
+            VirtualUserTable vut = store.getTable(tableName);
     
             // Check if a table with the given name exists, if not throw an Exception
             if (vut == null) {
@@ -79,7 +80,7 @@ public class VirtualUserTableManagement implements Serviceable, VirtualUserTable
                 // Used VUT not support management, throw an Exception
                 throw new VirtualUserTableManagementException("Used VirtualUserTable implementation not support management");
             } else {
-                return vut;
+                return (org.apache.james.services.VirtualUserTableManagement) vut;
             }
         }
     }
