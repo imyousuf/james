@@ -1,15 +1,13 @@
 package org.apache.james.mailboxmanager.torque.om.map;
 
-import java.util.Date;
-import java.math.BigDecimal;
-
 import org.apache.torque.Torque;
 import org.apache.torque.TorqueException;
-import org.apache.torque.map.MapBuilder;
-import org.apache.torque.map.DatabaseMap;
-import org.apache.torque.map.TableMap;
 import org.apache.torque.map.ColumnMap;
-import org.apache.torque.map.InheritanceMap;
+import org.apache.torque.map.DatabaseMap;
+import org.apache.torque.map.MapBuilder;
+import org.apache.torque.map.TableMap;
+
+import java.util.Date;
 
 /**
  * 

@@ -19,11 +19,6 @@
 
 package org.apache.james.imapserver.processor.imap4rev1;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.mail.Flags.Flag;
-
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.display.HumanReadableTextKey;
 import org.apache.james.api.imap.message.IdRange;
@@ -37,7 +32,6 @@ import org.apache.james.api.imap.process.SelectedImapMailbox;
 import org.apache.james.api.imap.process.ImapProcessor.Responder;
 import org.apache.james.imap.message.request.imap4rev1.SearchRequest;
 import org.apache.james.imap.message.response.imap4rev1.server.SearchResponse;
-import org.apache.james.imapserver.codec.encode.imap4rev1.legacy.MockImapResponseWriter;
 import org.apache.james.imapserver.processor.base.ImapSessionUtils;
 import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.SearchQuery;
@@ -46,6 +40,11 @@ import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 import org.apache.mailet.RFC2822Headers;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
+
+import javax.mail.Flags.Flag;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SearchProcessorTest extends MockObjectTestCase {
     private static final int DAY = 6;

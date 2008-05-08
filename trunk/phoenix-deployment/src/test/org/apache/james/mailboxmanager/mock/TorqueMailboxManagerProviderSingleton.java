@@ -20,7 +20,6 @@
 package org.apache.james.mailboxmanager.mock;
 
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.impl.DefaultMailboxManagerProvider;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 import org.apache.james.mailboxmanager.torque.TorqueMailboxManagerFactory;
