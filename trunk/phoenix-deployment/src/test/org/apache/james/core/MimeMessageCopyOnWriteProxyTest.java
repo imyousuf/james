@@ -246,10 +246,8 @@ public class MimeMessageCopyOnWriteProxyTest extends MimeMessageFromStreamTest {
         }
         if (m instanceof MimeMessageWrapper) {
             ref.append("W");
-        } else if (m instanceof MimeMessage) {
-            ref.append("M");
         } else {
-            ref.append(m.getClass());
+            ref.append("M");
         }
         return ref.toString();
     }
