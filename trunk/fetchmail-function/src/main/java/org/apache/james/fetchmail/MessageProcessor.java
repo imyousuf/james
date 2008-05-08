@@ -781,8 +781,8 @@ public class MessageProcessor extends ProcessorAbstract
                 while (inFrom && tokenizer.hasMoreTokens())
                 {
                     String token = tokenizer.nextToken();
-                    if (inFrom =
-                        getRFC2822RECEIVEDHeaderFields().indexOf(token) == -1)
+                    inFrom = (getRFC2822RECEIVEDHeaderFields().indexOf(token) == -1);
+                    if (inFrom)
                     {
                         domainBuffer.append(token);
                         domainBuffer.append(' ');
