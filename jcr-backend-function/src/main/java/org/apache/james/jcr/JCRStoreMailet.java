@@ -16,13 +16,10 @@
  */
 package org.apache.james.jcr;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
+import org.apache.jackrabbit.rmi.client.ClientRepositoryFactory;
+import org.apache.mailet.Mail;
+import org.apache.mailet.Mailet;
+import org.apache.mailet.MailetConfig;
 
 import javax.jcr.Credentials;
 import javax.jcr.Item;
@@ -31,21 +28,7 @@ import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
-import javax.mail.Address;
-import javax.mail.BodyPart;
-import javax.mail.Message;
 import javax.mail.MessagingException;
-import javax.mail.Multipart;
-import javax.mail.Part;
-import javax.mail.Message.RecipientType;
-import javax.mail.internet.ContentType;
-import javax.mail.internet.MimeMessage;
-
-import org.apache.jackrabbit.rmi.client.ClientRepositoryFactory;
-import org.apache.jackrabbit.util.Text;
-import org.apache.mailet.Mail;
-import org.apache.mailet.Mailet;
-import org.apache.mailet.MailetConfig;
 
 /**
  * Mailet that stores messages to a JCR content repository.

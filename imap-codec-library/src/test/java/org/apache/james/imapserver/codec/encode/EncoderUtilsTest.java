@@ -20,7 +20,6 @@
 package org.apache.james.imapserver.codec.encode;
 
 import java.util.Date;
-import java.util.Random;
 
 import junit.framework.TestCase;
 

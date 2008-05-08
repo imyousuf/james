@@ -19,11 +19,10 @@
 
 package org.apache.james.imapserver.client;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import javax.mail.internet.MimeMessage;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MessageSet {
     

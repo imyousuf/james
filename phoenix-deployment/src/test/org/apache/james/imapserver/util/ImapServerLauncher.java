@@ -19,13 +19,6 @@
 
 package org.apache.james.imapserver.util;
 
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
-
-import javax.mail.MessagingException;
-
-import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.imapserver.ImapHandler;
@@ -35,6 +28,12 @@ import org.apache.james.imapserver.mock.MockWatchdog;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.services.DNSServer;
 import org.apache.james.test.mock.avalon.MockLogger;
+
+import javax.mail.MessagingException;
+
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 public class ImapServerLauncher  implements TestConstants 
 {
