@@ -22,6 +22,7 @@ package org.apache.james.transport.mailets.sieve;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Vector;
@@ -35,7 +36,7 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
 import org.apache.james.mailboxmanager.MailboxSession;
-import org.apache.james.mailboxmanager.mailbox.Mailbox;
+import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 import org.apache.james.userrepository.DefaultUser;
@@ -240,14 +241,14 @@ public class SieveToMultiMailbox extends GenericMailet {
         
         final MailboxManager mailboxManager = mailboxManagerProvider.getMailboxManager();
         final MailboxSession session = mailboxManager.createSession();
-        Mailbox inbox = mailboxManager.getImapMailbox(inboxName, true);
+        ImapMailbox inbox = mailboxManager.getImapMailbox(inboxName, true);
         
         if (inbox == null) {
             String error = "Mailbox for user " + username
                     + " was not found on this server.";
             throw new MessagingException(error);
         }
-        inbox.store(message, session);
+        inbox.appendMessage(message, new Date(), null, session);
         session.close();
     }
 
