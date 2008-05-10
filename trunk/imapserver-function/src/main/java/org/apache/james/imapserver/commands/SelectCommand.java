@@ -29,7 +29,7 @@ import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
-import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
+import org.apache.james.mailboxmanager.mailbox.Mailbox;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -62,7 +62,7 @@ class SelectCommand extends AuthenticatedStateCommand
             mailboxName=session.buildFullName(mailboxName);
             selectMailbox(mailboxName, session, isExamine);
             final SelectedMailboxSession selected = session.getSelected();
-            ImapMailbox mailbox = selected.getMailbox();
+            Mailbox mailbox = selected.getMailbox();
             response.flagsResponse(mailbox.getPermanentFlags());
             final boolean resetRecent = !isExamine;
             response.recentResponse(mailbox.recent(resetRecent, session.getMailboxSession()).length);
@@ -93,7 +93,7 @@ class SelectCommand extends AuthenticatedStateCommand
     }
 
     private boolean selectMailbox(String mailboxName, ImapSession session, boolean readOnly) throws MailboxException, MailboxManagerException {
-        ImapMailbox mailbox = session.getMailboxManager().getImapMailbox(mailboxName, false);
+        Mailbox mailbox = session.getMailboxManager().getMailbox(mailboxName, false);
         final Iterator it = mailbox.getMessages(GeneralMessageSetImpl
                 .all(), FetchGroupImpl.MINIMAL, session.getMailboxSession());
         final List uids = new ArrayList();

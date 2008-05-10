@@ -31,7 +31,7 @@ import org.apache.james.mailboxmanager.TestUtil;
 import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.impl.MailboxListenerCollector;
-import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
+import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.mailboxmanager.torque.om.MailboxRow;
 import org.apache.james.mailboxmanager.torque.om.MailboxRowPeer;
 import org.apache.james.mailboxmanager.torque.om.MessageRow;
@@ -51,7 +51,7 @@ public class TorqueMailboxTestCase extends AbstractTorqueTestCase {
         MailboxRow mr = new MailboxRow("#users.tuser.INBOX", 100);
         mr.save();
         mr=MailboxRowPeer.retrieveByName("#users.tuser.INBOX");
-        ImapMailbox torqueMailbox = new TorqueMailbox(mr, new WriterPreferenceReadWriteLock(),null);
+        Mailbox torqueMailbox = new TorqueMailbox(mr, new WriterPreferenceReadWriteLock(),null);
         torqueMailbox.addListener(new MailboxListenerCollector());
         assertEquals(0,torqueMailbox.getMessageCount(session));
         

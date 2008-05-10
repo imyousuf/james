@@ -31,7 +31,7 @@ import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
-import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
+import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.mailboxmanager.tracking.UidToMsnConverter;
 import org.apache.james.mailboxmanager.util.MailboxEventAnalyser;
 
@@ -40,11 +40,11 @@ public class SelectedMailboxSession extends AbstractLogEnabled {
     
     private final MailboxEventAnalyser events;
 
-    private final ImapMailbox mailbox;
+    private final Mailbox mailbox;
     private final UidToMsnConverter converter;    
     private final MailboxSession mailboxSession;
     
-    public SelectedMailboxSession(ImapMailbox mailbox, Collection uids, 
+    public SelectedMailboxSession(Mailbox mailbox, Collection uids, 
             MailboxSession mailboxSession) throws MailboxManagerException {
         this.mailbox = mailbox;
         this.mailboxSession = mailboxSession;
@@ -83,7 +83,7 @@ public class SelectedMailboxSession extends AbstractLogEnabled {
         mailbox.removeListener(converter);
     }
 
-    public ImapMailbox getMailbox() {
+    public Mailbox getMailbox() {
         return mailbox;
     }
 

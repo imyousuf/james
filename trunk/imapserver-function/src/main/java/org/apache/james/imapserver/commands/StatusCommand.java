@@ -26,7 +26,7 @@ import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
-import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
+import org.apache.james.mailboxmanager.mailbox.Mailbox;
 
 /**
  * Handles processeing for the STATUS imap command.
@@ -68,7 +68,7 @@ class StatusCommand extends AuthenticatedStateCommand
                 logger.debug("Status called on mailbox named " + mailboxName + " (" + fullMailboxName + ")"); 
             }
             
-            ImapMailbox mailbox = session.getMailboxManager().getImapMailbox(fullMailboxName, false);
+            Mailbox mailbox = session.getMailboxManager().getMailbox(fullMailboxName, false);
             
             if (statusDataItems.messages) {
                 buffer.append(MESSAGES);

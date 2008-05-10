@@ -31,7 +31,7 @@ import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.MessageResult;
-import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
+import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 import org.apache.james.services.User;
@@ -167,7 +167,7 @@ public final class ImapSessionImpl extends AbstractLogEnabled implements ImapSes
         return mailboxSession;
     }
     
-    public void setSelected( ImapMailbox mailbox, boolean readOnly, Collection uids ) throws MailboxManagerException
+    public void setSelected( Mailbox mailbox, boolean readOnly, Collection uids ) throws MailboxManagerException
     {
         SelectedMailboxSession sessionMailbox = new SelectedMailboxSession(mailbox, uids, getMailboxSession());
         setupLogger(sessionMailbox);
@@ -210,7 +210,7 @@ public final class ImapSessionImpl extends AbstractLogEnabled implements ImapSes
         if (mailboxManager==null || !usersEqual) {
             mailboxManager=mailboxManagerProvider.getMailboxManager();
             mailboxManagerUser = user;
-            mailboxManager.getImapMailbox(buildFullName(MailboxManager.INBOX), true);
+            mailboxManager.getMailbox(buildFullName(MailboxManager.INBOX), true);
             mailboxSession = mailboxManager.createSession();
         }
         return mailboxManager;

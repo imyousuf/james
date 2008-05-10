@@ -42,7 +42,7 @@ import org.apache.james.mailboxmanager.MessageResult.FetchGroup;
 import org.apache.james.mailboxmanager.SearchQuery.Criterion;
 import org.apache.james.mailboxmanager.SearchQuery.NumericRange;
 import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
-import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
+import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.mailet.RFC2822Headers;
 
 /**
@@ -131,7 +131,7 @@ class SearchCommand extends SelectedStateCommand implements UidEnabledCommand
         parser.endLine( request );
 
         final SelectedMailboxSession selected = session.getSelected();
-        ImapMailbox mailbox = selected.getMailbox();
+        Mailbox mailbox = selected.getMailbox();
         final FetchGroup result = FetchGroupImpl.MINIMAL;
         final Iterator it;
         try {

@@ -35,7 +35,7 @@ import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
-import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
+import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 
@@ -56,7 +56,7 @@ public class CopyProcessor extends AbstractMailboxAwareProcessor {
         final String mailboxName = request.getMailboxName();
         final IdRange[] idSet = request.getIdSet();
         final boolean useUids = request.isUseUids();
-        ImapMailbox currentMailbox = ImapSessionUtils
+        Mailbox currentMailbox = ImapSessionUtils
                 .getMailbox(session);
         try {
             String fullMailboxName = buildFullName(session, mailboxName);

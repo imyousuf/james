@@ -41,7 +41,6 @@ import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.MessageResult.FetchGroup;
 import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
 import org.apache.james.mailboxmanager.impl.ListResultImpl;
-import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
 import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.mailboxmanager.manager.MailboxExpression;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
@@ -71,14 +70,7 @@ public class TorqueMailboxManager implements MailboxManager {
         managers = new HashMap();
     }
     
-    public Mailbox getMailbox(String mailboxName,
-            boolean autoCreate) throws MailboxManagerException {
-
-        return getImapMailbox(mailboxName, autoCreate);
-    }
-    
-    
-    public ImapMailbox getImapMailbox(String mailboxName, boolean autoCreate)
+    public Mailbox getMailbox(String mailboxName, boolean autoCreate)
             throws MailboxManagerException {
         if (autoCreate && !existsMailbox(mailboxName)) {
             getLog().info("autocreated mailbox  " + mailboxName);
@@ -92,7 +84,7 @@ public class TorqueMailboxManager implements MailboxManager {
                 if (mailboxRow != null) {
                     getLog().debug("Loaded mailbox "+mailboxName);
                     
-                    ImapMailbox torqueMailbox = (ImapMailbox) managers.get(mailboxName);
+                    Mailbox torqueMailbox = (Mailbox) managers.get(mailboxName);
                     if (torqueMailbox == null) {
                         torqueMailbox = new TorqueMailbox(mailboxRow, lock, getLog());
                         managers.put(mailboxName, torqueMailbox);
@@ -213,8 +205,8 @@ public class TorqueMailboxManager implements MailboxManager {
     }
 
     public void copyMessages(GeneralMessageSet set, String from, String to, MailboxSession session) throws MailboxManagerException {
-        ImapMailbox toMailbox= getImapMailbox(to, false);
-        ImapMailbox fromMailbox = getImapMailbox(from, false);
+        Mailbox toMailbox= getMailbox(to, false);
+        Mailbox fromMailbox = getMailbox(from, false);
         Iterator it = fromMailbox.getMessages(set, FROM_FETCH_GROUP, session);
         while (it.hasNext()) {
             final MessageResult result = (MessageResult) it.next();

@@ -36,7 +36,7 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
 import org.apache.james.mailboxmanager.MailboxSession;
-import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
+import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 import org.apache.james.userrepository.DefaultUser;
@@ -241,7 +241,7 @@ public class SieveToMultiMailbox extends GenericMailet {
         
         final MailboxManager mailboxManager = mailboxManagerProvider.getMailboxManager();
         final MailboxSession session = mailboxManager.createSession();
-        ImapMailbox inbox = mailboxManager.getImapMailbox(inboxName, true);
+        Mailbox inbox = mailboxManager.getMailbox(inboxName, true);
         
         if (inbox == null) {
             String error = "Mailbox for user " + username

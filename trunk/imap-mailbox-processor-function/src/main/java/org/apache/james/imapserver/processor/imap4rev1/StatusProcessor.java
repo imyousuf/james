@@ -33,7 +33,7 @@ import org.apache.james.imapserver.processor.base.AbstractMailboxAwareProcessor;
 import org.apache.james.imapserver.processor.base.ImapSessionUtils;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxSession;
-import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
+import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 
@@ -65,8 +65,8 @@ public class StatusProcessor extends AbstractMailboxAwareProcessor {
             }
 
             final MailboxManager mailboxManager = getMailboxManager(session);
-            final ImapMailbox mailbox = mailboxManager
-                    .getImapMailbox(fullMailboxName, false);
+            final Mailbox mailbox = mailboxManager
+                    .getMailbox(fullMailboxName, false);
             
             final Long messages = messages(statusDataItems, mailboxSession, mailbox);
             final Long recent = recent(statusDataItems, mailboxSession, mailbox);
@@ -84,7 +84,7 @@ public class StatusProcessor extends AbstractMailboxAwareProcessor {
         }
     }
 
-    private Long unseen(final StatusDataItems statusDataItems, final MailboxSession mailboxSession, final ImapMailbox mailbox) throws MailboxManagerException {
+    private Long unseen(final StatusDataItems statusDataItems, final MailboxSession mailboxSession, final Mailbox mailbox) throws MailboxManagerException {
         final Long unseen;
         if (statusDataItems.isUnseen()) {
             final int unseenCountValue = mailbox.getUnseenCount(mailboxSession);
@@ -95,7 +95,7 @@ public class StatusProcessor extends AbstractMailboxAwareProcessor {
         return unseen;
     }
 
-    private Long uidValidity(final StatusDataItems statusDataItems, final MailboxSession mailboxSession, final ImapMailbox mailbox) throws MailboxManagerException {
+    private Long uidValidity(final StatusDataItems statusDataItems, final MailboxSession mailboxSession, final Mailbox mailbox) throws MailboxManagerException {
         final Long uidValidity;
         if (statusDataItems.isUidValidity()) {
             final long uidValidityValue = mailbox.getUidValidity(mailboxSession);
@@ -106,7 +106,7 @@ public class StatusProcessor extends AbstractMailboxAwareProcessor {
         return uidValidity;
     }
 
-    private Long uidNext(final StatusDataItems statusDataItems, final MailboxSession mailboxSession, final ImapMailbox mailbox) throws MailboxManagerException {
+    private Long uidNext(final StatusDataItems statusDataItems, final MailboxSession mailboxSession, final Mailbox mailbox) throws MailboxManagerException {
         final Long uidNext;
         if (statusDataItems.isUidNext()) {
             final long uidNextValue = mailbox.getUidNext(mailboxSession);
@@ -117,7 +117,7 @@ public class StatusProcessor extends AbstractMailboxAwareProcessor {
         return uidNext;
     }
 
-    private Long recent(final StatusDataItems statusDataItems, final MailboxSession mailboxSession, final ImapMailbox mailbox) throws MailboxManagerException {
+    private Long recent(final StatusDataItems statusDataItems, final MailboxSession mailboxSession, final Mailbox mailbox) throws MailboxManagerException {
         final Long recent;
         if (statusDataItems.isRecent()) {
             final int recentCount = mailbox.recent(false, mailboxSession).length;
@@ -128,7 +128,7 @@ public class StatusProcessor extends AbstractMailboxAwareProcessor {
         return recent;
     }
 
-    private Long messages(final StatusDataItems statusDataItems, final MailboxSession mailboxSession, final ImapMailbox mailbox) throws MailboxManagerException {
+    private Long messages(final StatusDataItems statusDataItems, final MailboxSession mailboxSession, final Mailbox mailbox) throws MailboxManagerException {
         final Long messages;
         if (statusDataItems.isMessages()) {
             final int messageCount = mailbox.getMessageCount(mailboxSession);

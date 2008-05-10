@@ -48,11 +48,10 @@ import org.apache.james.mailboxmanager.MessageResult.Content;
 import org.apache.james.mailboxmanager.MessageResult.FetchGroup;
 import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
-import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
+import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.mime4j.field.address.Address;
 import org.apache.james.mime4j.field.address.AddressList;
 import org.apache.james.mime4j.field.address.Group;
-import org.apache.james.mime4j.field.address.Mailbox;
 import org.apache.james.mime4j.field.address.MailboxList;
 import org.apache.james.mime4j.field.address.NamedMailbox;
 import org.apache.james.mime4j.field.address.parser.ParseException;
@@ -97,7 +96,7 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
 
         final FetchGroup resultToFetch = fetch.getFetchGroup();
         final SelectedMailboxSession selected = session.getSelected();
-        final ImapMailbox mailbox = selected.getMailbox();
+        final Mailbox mailbox = selected.getMailbox();
         for (int i = 0; i < idSet.length; i++) {
             final long lowVal;
             final long highVal;
@@ -132,7 +131,7 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
     }
 
     private String outputMessage(FetchRequest fetch, MessageResult result,
-            ImapMailbox mailbox, boolean useUids, final MailboxSession session)
+            Mailbox mailbox, boolean useUids, final MailboxSession session)
             throws MailboxException, ProtocolException {
         // Check if this fetch will cause the "SEEN" flag to be set on this
         // message
@@ -396,8 +395,9 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
                     if (address instanceof Group) {
                         final Group group = (Group) address;
                         first = outputGroup(response, first, group);
-                    } else if (address instanceof Mailbox) {
-                        final Mailbox mailbox = (Mailbox) address;
+                    } else if (address instanceof org.apache.james.mime4j.field.address.Mailbox) {
+                        final org.apache.james.mime4j.field.address.Mailbox mailbox 
+                            = (org.apache.james.mime4j.field.address.Mailbox) address;
                         first = outputMailbox(response, first, mailbox);
                     } else {
                         getLogger().warn("Unknown address type");
@@ -413,7 +413,7 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
         }
     }
     
-    private boolean outputMailbox(StringBuffer response, boolean first, Mailbox mailbox) {
+    private boolean outputMailbox(StringBuffer response, boolean first, org.apache.james.mime4j.field.address.Mailbox mailbox) {
         final String name;
         if (mailbox instanceof NamedMailbox) {
             final NamedMailbox namedMailbox = (NamedMailbox) mailbox;
@@ -433,7 +433,7 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
         first = writeAddress(first, null, null, groupName, null, response);
         final MailboxList mailboxList = group.getMailboxes();
         for (int i=0;i<mailboxList.size();i++) {
-            final Mailbox mailbox = mailboxList.get(i);
+            final org.apache.james.mime4j.field.address.Mailbox mailbox = mailboxList.get(i);
             first = outputMailbox(response, first, mailbox);
         }
         first = writeAddress(first, null, null, null, null, response);

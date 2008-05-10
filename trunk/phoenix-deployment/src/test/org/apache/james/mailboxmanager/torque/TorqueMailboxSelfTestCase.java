@@ -17,33 +17,26 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.mailboxmanager.mailbox;
+package org.apache.james.mailboxmanager.torque;
 
-import org.apache.james.mailboxmanager.MailboxListener;
-import org.apache.james.mailboxmanager.MailboxManagerException;
+import org.apache.james.mailboxmanager.AbstractMailboxSelfTestCase;
+import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
+import org.apache.james.mailboxmanager.mock.TorqueMailboxManagerProviderSingleton;
+import org.apache.torque.TorqueException;
 
+public class TorqueMailboxSelfTestCase extends
+        AbstractMailboxSelfTestCase {
+    
+    public TorqueMailboxSelfTestCase() throws TorqueException {
+        super();
+    }
 
-
-/**
- * 
- * An EventTriggerMailbox will fire an event of the types defined in
- * MailboxListener. When the underlaying store is modified by mupltiple
- * instances it has to keep track of last known status and deliver events as
- * soon as it detects external operations
- * 
- */
-public interface EventTriggerMailbox {
-
-    /**
-     * Implementations of Mailbox may interpret the fact that someone is
-     * listening and do some caching and even postpone persistence until
-     * everyone has removed itself.
-     * 
-     * @param listener
-     * @throws MailboxManagerException 
-     */
-    void addListener(MailboxListener listener) throws MailboxManagerException;
-
-    void removeListener(MailboxListener listener);
+    public void setUp() throws Exception {
+        TorqueMailboxManagerProviderSingleton.reset();
+        MailboxManagerProvider mailboxManagerProvider=TorqueMailboxManagerProviderSingleton.getTorqueMailboxManagerProviderInstance();
+        mailboxManager = mailboxManagerProvider.getMailboxManager();
+        
+        super.setUp();
+    }
 
 }

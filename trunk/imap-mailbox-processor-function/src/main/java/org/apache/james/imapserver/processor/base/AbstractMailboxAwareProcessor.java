@@ -57,7 +57,7 @@ abstract public class AbstractMailboxAwareProcessor extends AbstractImapRequestP
             // TODO: handle null user
             final User user = ImapSessionUtils.getUser(session);
             result = mailboxManagerProvider.getMailboxManager();
-            result.getImapMailbox(buildFullName(MailboxManager.INBOX, user), true);
+            result.getMailbox(buildFullName(MailboxManager.INBOX, user), true);
             // TODO: reconsider decision not to sunchronise
             // TODO: mailbox creation is ATM an expensive operation
             // TODO: so caching is required

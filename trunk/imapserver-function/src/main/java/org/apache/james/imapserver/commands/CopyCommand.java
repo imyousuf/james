@@ -28,7 +28,7 @@ import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
-import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
+import org.apache.james.mailboxmanager.mailbox.Mailbox;
 
 /**
  * Handles processeing for the COPY imap command.
@@ -59,7 +59,7 @@ class CopyCommand extends SelectedStateCommand implements UidEnabledCommand
         String mailboxName = parser.mailbox( request );
         parser.endLine( request );
 
-        ImapMailbox currentMailbox = session.getSelected().getMailbox();
+        Mailbox currentMailbox = session.getSelected().getMailbox();
         
         
         try {

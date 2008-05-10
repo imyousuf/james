@@ -42,7 +42,7 @@ import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.MessageResult.FetchGroup;
 import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
-import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
+import org.apache.james.mailboxmanager.mailbox.Mailbox;
 
 public class StoreProcessor extends AbstractImapRequestProcessor {
 
@@ -66,7 +66,7 @@ public class StoreProcessor extends AbstractImapRequestProcessor {
         final boolean isSignedPlus = request.isSignedPlus();
         final boolean isSignedMinus = request.isSignedMinus();
         
-        ImapMailbox mailbox = ImapSessionUtils.getMailbox(session);
+        Mailbox mailbox = ImapSessionUtils.getMailbox(session);
 
         final boolean replace;
         final boolean value;
