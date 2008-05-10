@@ -42,7 +42,7 @@ import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
-import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
+import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 
@@ -72,7 +72,7 @@ public class AppendProcessor extends AbstractMailboxAwareProcessor {
             
             final String fullMailboxName = buildFullName(session, mailboxName);
             final MailboxManager mailboxManager = getMailboxManager(session);
-            final ImapMailbox mailbox = mailboxManager.getImapMailbox(fullMailboxName, false);
+            final Mailbox mailbox = mailboxManager.getMailbox(fullMailboxName, false);
             appendToMailbox(mimeMessage, datetime, session, tag, command, mailbox, responder);
             
         } catch (MailboxManagerException mme) {
@@ -94,7 +94,7 @@ public class AppendProcessor extends AbstractMailboxAwareProcessor {
     }
 
     private void appendToMailbox(MimeMessage message, Date datetime, 
-            ImapSession session, String tag, ImapCommand command, ImapMailbox mailbox,
+            ImapSession session, String tag, ImapCommand command, Mailbox mailbox,
             Responder responder) {
         try {
             final MailboxSession mailboxSession = ImapSessionUtils.getMailboxSession(session);

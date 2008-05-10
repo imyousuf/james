@@ -47,7 +47,7 @@ import org.apache.james.mailboxmanager.SearchQuery;
 import org.apache.james.mailboxmanager.MessageResult.FetchGroup;
 import org.apache.james.mailboxmanager.SearchQuery.Criterion;
 import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
-import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
+import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.mailet.RFC2822Headers;
 
 public class SearchProcessor extends AbstractImapRequestProcessor {
@@ -66,7 +66,7 @@ public class SearchProcessor extends AbstractImapRequestProcessor {
             final SearchRequest request = (SearchRequest) message;
             final SearchKey searchKey = request.getSearchKey();
             final boolean useUids = request.isUseUids();
-            ImapMailbox mailbox = ImapSessionUtils.getMailbox(session);
+            Mailbox mailbox = ImapSessionUtils.getMailbox(session);
             final FetchGroup fetchGroup = FetchGroupImpl.MINIMAL;
     
             final SearchQuery query = toQuery(searchKey, session);
@@ -94,7 +94,7 @@ public class SearchProcessor extends AbstractImapRequestProcessor {
         return ids;
     }
 
-    private Collection findIds(final boolean useUids, final ImapSession session, ImapMailbox mailbox, 
+    private Collection findIds(final boolean useUids, final ImapSession session, Mailbox mailbox, 
             final FetchGroup fetchGroup, final SearchQuery query) throws MailboxManagerException {
         final Iterator it = mailbox.search(query, fetchGroup, ImapSessionUtils.getMailboxSession(session));
 

@@ -24,7 +24,7 @@ import org.apache.james.mailboxmanager.ListResult;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxNotFoundException;
 import org.apache.james.mailboxmanager.MailboxSession;
-import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
+import org.apache.james.mailboxmanager.mailbox.Mailbox;
 
 
 /**
@@ -76,7 +76,7 @@ public interface MailboxManager {
      * @throws MailboxManagerException when the mailbox cannot be opened
      * @throws MailboxNotFoundException when the given mailbox does not exist
      */
-    ImapMailbox getImapMailbox(String mailboxName, boolean autocreate) throws MailboxManagerException;
+    Mailbox getMailbox(String mailboxName, boolean autocreate) throws MailboxManagerException;
 
     /**
      * Creates a new mailbox.

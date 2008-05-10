@@ -41,14 +41,14 @@ import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
-import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
+import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.mailboxmanager.tracking.UidToMsnConverter;
 import org.apache.james.mailboxmanager.util.MailboxEventAnalyser;
 
 //TODO: deal with deleted or renamed mailboxes
 public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements SelectedImapMailbox {
 
-    private final ImapMailbox mailbox;
+    private final Mailbox mailbox;
     
     private final MailboxEventAnalyser events;
     private final UidToMsnConverter converter;    
@@ -56,7 +56,7 @@ public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements Se
     private final Set recentUids;
     private boolean recentUidRemoved;
     
-    public SelectedMailboxSessionImpl(ImapMailbox mailbox, List uids, 
+    public SelectedMailboxSessionImpl(Mailbox mailbox, List uids, 
             MailboxSession mailboxSession) throws MailboxManagerException {
         this.mailbox = mailbox;
         this.mailboxSession = mailboxSession;
@@ -82,7 +82,7 @@ public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements Se
         return events.isSizeChanged();
     }
     
-    public ImapMailbox getMailbox() {
+    public Mailbox getMailbox() {
         return mailbox;
     }
 
@@ -91,7 +91,7 @@ public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements Se
      */
     public List unsolicitedResponses(boolean omitExpunged, boolean useUid) {
         final List results = new ArrayList();
-        final ImapMailbox mailbox = getMailbox();
+        final Mailbox mailbox = getMailbox();
         final boolean sizeChanged = isSizeChanged();
         // New message response
         if (sizeChanged) {
@@ -117,7 +117,7 @@ public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements Se
         return converter.getMsn(uid);
     }
     
-    private void addExpungedResponses(List responses, final ImapMailbox mailbox) {
+    private void addExpungedResponses(List responses, final Mailbox mailbox) {
         for  (Iterator it = events.expungedUids(); it.hasNext();) {
             final Long uid = (Long) it.next();
             final long uidValue = uid.longValue();
@@ -134,7 +134,7 @@ public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements Se
         }
     }
 
-    private void addFlagsResponses(final List responses, boolean useUid, final ImapMailbox mailbox) {
+    private void addFlagsResponses(final List responses, boolean useUid, final Mailbox mailbox) {
         try {
             for (final Iterator it = events.flagUpdateUids(); it.hasNext();) {
                 Long uid = (Long) it.next();
@@ -147,7 +147,7 @@ public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements Se
         }
     }
 
-    private void addFlagsResponses(final List responses, boolean useUid, final ImapMailbox mailbox, GeneralMessageSet messageSet) throws MailboxManagerException {
+    private void addFlagsResponses(final List responses, boolean useUid, final Mailbox mailbox, GeneralMessageSet messageSet) throws MailboxManagerException {
         final Iterator it = mailbox.getMessages(messageSet, FetchGroupImpl.FLAGS, mailboxSession);
         while (it.hasNext()) {
             MessageResult mr = (MessageResult) it.next();
@@ -165,7 +165,7 @@ public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements Se
         }
     }
 
-    private void addRecentResponses(final List responses, final ImapMailbox mailbox) {
+    private void addRecentResponses(final List responses, final Mailbox mailbox) {
         final int recentCount = recentCount();
         // TODO: use factory
         RecentResponse response = new RecentResponse(recentCount);
@@ -180,7 +180,7 @@ public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements Se
         responses.add(response);
     }
 
-    private void addExistsResponses(final List responses, final ImapMailbox mailbox) {
+    private void addExistsResponses(final List responses, final Mailbox mailbox) {
             try {
                 final int messageCount = mailbox.getMessageCount(mailboxSession);
                 // TODO: use factory

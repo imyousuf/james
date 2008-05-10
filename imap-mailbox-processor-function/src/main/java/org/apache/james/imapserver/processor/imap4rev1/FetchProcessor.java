@@ -62,12 +62,11 @@ import org.apache.james.mailboxmanager.MessageResult.FetchGroup;
 import org.apache.james.mailboxmanager.MessageResult.MimePath;
 import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
-import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
+import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.mime4j.field.address.Address;
 import org.apache.james.mime4j.field.address.AddressList;
 import org.apache.james.mime4j.field.address.DomainList;
 import org.apache.james.mime4j.field.address.Group;
-import org.apache.james.mime4j.field.address.Mailbox;
 import org.apache.james.mime4j.field.address.MailboxList;
 import org.apache.james.mime4j.field.address.NamedMailbox;
 import org.apache.james.mime4j.field.address.parser.ParseException;
@@ -93,7 +92,7 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
         try
         {
             FetchGroup resultToFetch = getFetchGroup(fetch);
-            ImapMailbox mailbox = ImapSessionUtils.getMailbox(session);
+            Mailbox mailbox = ImapSessionUtils.getMailbox(session);
             for (int i = 0; i < idSet.length; i++) {
                 final FetchResponseBuilder builder = new FetchResponseBuilder(getLogger());
                 final long highVal;
@@ -228,7 +227,7 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
 
         public FetchResponse build(FetchData fetch, MessageResult result,
                 ImapSession session, boolean useUids) throws MessagingException, ParseException {
-            ImapMailbox mailbox = ImapSessionUtils.getMailbox(session);
+            Mailbox mailbox = ImapSessionUtils.getMailbox(session);
             final SelectedImapMailbox selected = session.getSelected();
             final long resultUid = result.getUid();
             final int resultMsn = selected.msn(resultUid);
@@ -380,8 +379,9 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
                             final Group group = (Group) address;
                             addAddresses(group, addresses);
 
-                        } else if (address instanceof Mailbox) {
-                            final Mailbox mailbox = (Mailbox) address;
+                        } else if (address instanceof org.apache.james.mime4j.field.address.Mailbox) {
+                            final org.apache.james.mime4j.field.address.Mailbox mailbox 
+                                = (org.apache.james.mime4j.field.address.Mailbox) address;
                             final FetchResponse.Envelope.Address mailboxAddress = buildMailboxAddress(mailbox);
                             addresses.add(mailboxAddress);
 
@@ -397,7 +397,7 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
             return results;
         }
         
-        private FetchResponse.Envelope.Address buildMailboxAddress(final Mailbox mailbox) {
+        private FetchResponse.Envelope.Address buildMailboxAddress(final org.apache.james.mime4j.field.address.Mailbox mailbox) {
             final String name;
             if (mailbox instanceof NamedMailbox) {
                 final NamedMailbox namedMailbox = (NamedMailbox) mailbox;
@@ -424,7 +424,7 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
             addresses.add(start);
             final MailboxList mailboxList = group.getMailboxes();
             for (int i=0;i<mailboxList.size();i++) {
-                final Mailbox mailbox = mailboxList.get(i);
+                final org.apache.james.mime4j.field.address.Mailbox mailbox = mailboxList.get(i);
                 final FetchResponse.Envelope.Address address = buildMailboxAddress(mailbox);
                 addresses.add(address);
             }

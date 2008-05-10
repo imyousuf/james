@@ -48,8 +48,7 @@ import org.apache.james.mailboxmanager.SearchQuery.Criterion;
 import org.apache.james.mailboxmanager.SearchQuery.NumericRange;
 import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
-import org.apache.james.mailboxmanager.mailbox.AbstractImapMailbox;
-import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
+import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.mailboxmanager.torque.om.MailboxRow;
 import org.apache.james.mailboxmanager.torque.om.MailboxRowPeer;
 import org.apache.james.mailboxmanager.torque.om.MessageBody;
@@ -60,6 +59,7 @@ import org.apache.james.mailboxmanager.torque.om.MessageRow;
 import org.apache.james.mailboxmanager.torque.om.MessageRowPeer;
 import org.apache.james.mailboxmanager.tracking.UidChangeTracker;
 import org.apache.james.mailboxmanager.tracking.UidRange;
+import org.apache.james.mailboxmanager.util.AbstractLogFactoryAware;
 import org.apache.james.mailboxmanager.util.UidToKeyConverter;
 import org.apache.james.mailboxmanager.util.UidToKeyConverterImpl;
 import org.apache.torque.NoRowsException;
@@ -72,7 +72,7 @@ import EDU.oswego.cs.dl.util.concurrent.ReadWriteLock;
 import com.sun.mail.util.CRLFOutputStream;
 import com.workingdogs.village.DataSetException;
 
-public class TorqueMailbox extends AbstractImapMailbox implements ImapMailbox {
+public class TorqueMailbox extends AbstractLogFactoryAware implements Mailbox {
 
     private boolean open = true;
 

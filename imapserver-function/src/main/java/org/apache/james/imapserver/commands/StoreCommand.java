@@ -30,7 +30,7 @@ import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
-import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
+import org.apache.james.mailboxmanager.mailbox.Mailbox;
 
 import javax.mail.Flags;
 
@@ -71,7 +71,7 @@ class StoreCommand extends SelectedStateCommand implements UidEnabledCommand
             if (directive.isSilent()) {
                 selected.setSilent(true);
             }
-            ImapMailbox mailbox = selected.getMailbox();
+            Mailbox mailbox = selected.getMailbox();
 
             final boolean replace;
             final boolean value;

@@ -30,7 +30,7 @@ public class TorqueTestSuite {
         //$JUnit-BEGIN$
         suite.addTestSuite(TorqueMailboxManagerSelfTestCase.class);
         suite.addTestSuite(TorqueMailboxManagerTest.class);
-        suite.addTestSuite(TorqueImapMailboxSelfTestCase.class);
+        suite.addTestSuite(TorqueMailboxSelfTestCase.class);
         suite.addTestSuite(TorqueMailboxTestCase.class);
         //$JUnit-END$
         return suite;

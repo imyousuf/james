@@ -47,7 +47,7 @@ import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
-import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
+import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 
@@ -92,7 +92,7 @@ abstract public class AbstractMailboxSelectionProcessor extends
     private void respond(String tag, ImapCommand command, ImapSession session,
             Responder responder) throws MailboxManagerException {
         
-        ImapMailbox mailbox = ImapSessionUtils.getMailbox(session);
+        Mailbox mailbox = ImapSessionUtils.getMailbox(session);
         final MailboxSession mailboxSession = ImapSessionUtils.getMailboxSession(session);
         final SelectedImapMailbox selected = session.getSelected();
         
@@ -106,7 +106,7 @@ abstract public class AbstractMailboxSelectionProcessor extends
         taggedOk(responder, tag, command, mailbox);
     }
 
-    private void taggedOk(final Responder responder, final String tag, final ImapCommand command, final ImapMailbox mailbox) {
+    private void taggedOk(final Responder responder, final String tag, final ImapCommand command, final Mailbox mailbox) {
         final boolean writeable = mailbox.isWriteable() && !openReadOnly;
         final ResponseCode code;
         if (writeable) {
@@ -122,13 +122,13 @@ abstract public class AbstractMailboxSelectionProcessor extends
         responder.respond(standardFlags);
     }
 
-    private void permanentFlags(Responder responder, ImapMailbox mailbox) {
+    private void permanentFlags(Responder responder, Mailbox mailbox) {
         final Flags permanentFlags = mailbox.getPermanentFlags();
         final StatusResponse untaggedOk = statusResponseFactory.untaggedOk(HumanReadableTextKey.PERMANENT_FLAGS, ResponseCode.permanentFlags(permanentFlags));
         responder.respond(untaggedOk);
     }
 
-    private void unseen(Responder responder, ImapMailbox mailbox, final MailboxSession mailboxSession, final SelectedImapMailbox selected) throws MailboxManagerException {
+    private void unseen(Responder responder, Mailbox mailbox, final MailboxSession mailboxSession, final SelectedImapMailbox selected) throws MailboxManagerException {
         final MessageResult firstUnseen = mailbox.getFirstUnseen(FetchGroupImpl.MINIMAL, mailboxSession);
         if (firstUnseen != null) {
             final long unseenUid = firstUnseen.getUid();
@@ -139,7 +139,7 @@ abstract public class AbstractMailboxSelectionProcessor extends
         
     }
 
-    private void uidValidity(Responder responder, ImapMailbox mailbox, final MailboxSession mailboxSession) throws MailboxManagerException {
+    private void uidValidity(Responder responder, Mailbox mailbox, final MailboxSession mailboxSession) throws MailboxManagerException {
         final long uidValidity = mailbox.getUidValidity(mailboxSession);
         final StatusResponse untaggedOk = statusResponseFactory.untaggedOk(HumanReadableTextKey.UID_VALIDITY, ResponseCode.uidValidity(uidValidity));
         responder.respond(untaggedOk);
@@ -151,7 +151,7 @@ abstract public class AbstractMailboxSelectionProcessor extends
         responder.respond(recentResponse);
     }
 
-    private void exists(Responder responder, ImapMailbox mailbox, final MailboxSession mailboxSession) throws MailboxManagerException {
+    private void exists(Responder responder, Mailbox mailbox, final MailboxSession mailboxSession) throws MailboxManagerException {
         final int messageCount = mailbox.getMessageCount(mailboxSession);
         final ExistsResponse existsResponse = new ExistsResponse(messageCount);
         responder.respond(existsResponse);
@@ -159,7 +159,7 @@ abstract public class AbstractMailboxSelectionProcessor extends
 
     private void selectMailbox(String mailboxName, ImapSession session) throws MailboxManagerException {
         final MailboxManager mailboxManager = getMailboxManager(session);
-        final ImapMailbox mailbox = mailboxManager.getImapMailbox(mailboxName, false);
+        final Mailbox mailbox = mailboxManager.getMailbox(mailboxName, false);
         final MailboxSession mailboxSession = ImapSessionUtils.getMailboxSession(session);
 
         final SelectedImapMailbox sessionMailbox;
@@ -172,7 +172,7 @@ abstract public class AbstractMailboxSelectionProcessor extends
         addRecent(mailbox, mailboxSession, sessionMailbox);
     }
 
-    private SelectedImapMailbox createNewSelectedMailbox(final ImapMailbox mailbox, final MailboxSession mailboxSession,
+    private SelectedImapMailbox createNewSelectedMailbox(final Mailbox mailbox, final MailboxSession mailboxSession,
             ImapSession session) throws MailboxManagerException {
         final SelectedImapMailbox sessionMailbox;
         final Iterator it = mailbox.getMessages(GeneralMessageSetImpl
@@ -190,7 +190,7 @@ abstract public class AbstractMailboxSelectionProcessor extends
         return sessionMailbox;
     }
 
-    private void addRecent(final ImapMailbox mailbox, final MailboxSession mailboxSession, SelectedImapMailbox sessionMailbox) throws MailboxManagerException {
+    private void addRecent(final Mailbox mailbox, final MailboxSession mailboxSession, SelectedImapMailbox sessionMailbox) throws MailboxManagerException {
         final long[] recentUids = mailbox.recent(!openReadOnly, mailboxSession);
         for (int i = 0; i < recentUids.length; i++) {
             long uid = recentUids[i];

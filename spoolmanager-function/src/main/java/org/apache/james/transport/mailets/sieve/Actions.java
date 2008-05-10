@@ -35,7 +35,7 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
 import org.apache.james.mailboxmanager.MailboxSession;
-import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
+import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 import org.apache.james.services.User;
@@ -123,7 +123,7 @@ public class Actions
                 mailboxManagerProvider.getPersonalDefaultNamespace(user).getName()
                     + destinationMailbox;
             final MailboxManager mailboxManager = mailboxManagerProvider.getMailboxManager();
-            ImapMailbox mailbox=mailboxManager.getImapMailbox(mailboxName, true);
+            Mailbox mailbox=mailboxManager.getMailbox(mailboxName, true);
             final MailboxSession session = mailboxManager.createSession();
             mailbox.appendMessage(localMessage, new Date(), null, session);
             session.close();

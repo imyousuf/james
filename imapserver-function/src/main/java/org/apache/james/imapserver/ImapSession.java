@@ -24,7 +24,7 @@ import java.util.Collection;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxSession;
-import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
+import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.services.User;
 import org.apache.james.services.UsersRepository;
@@ -100,7 +100,7 @@ public interface ImapSession
      * @param uids TODO
      * @throws MailboxManagerException 
      */
-    void setSelected( ImapMailbox mailbox, boolean readOnly, Collection uids ) throws MailboxManagerException;
+    void setSelected( Mailbox mailbox, boolean readOnly, Collection uids ) throws MailboxManagerException;
 
     /**
      * Moves the session out of {@link ImapSessionState#SELECTED} state and back into

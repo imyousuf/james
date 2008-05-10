@@ -33,16 +33,16 @@ import org.apache.commons.collections.IteratorUtils;
 import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.impl.MailboxListenerCollector;
-import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
+import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 
-public abstract class AbstractImapMailboxSelfTestCase extends TestCase {
+public abstract class AbstractMailboxSelfTestCase extends TestCase {
     
     protected MailboxManager mailboxManager;
     
     public MailboxSession mailboxSession;
     
-    protected ImapMailbox mailbox;
+    protected Mailbox mailbox;
     
     protected MailboxListenerCollector collector;
     
@@ -51,7 +51,7 @@ public abstract class AbstractImapMailboxSelfTestCase extends TestCase {
     public void setUp() throws Exception {
         super.setUp();
         mailboxManager.createMailbox(INBOX);
-        mailbox=mailboxManager.getImapMailbox(INBOX, false);
+        mailbox=mailboxManager.getMailbox(INBOX, false);
         mailboxSession = mailboxManager.createSession();
         collector=new MailboxListenerCollector();
         mailbox.addListener(collector);

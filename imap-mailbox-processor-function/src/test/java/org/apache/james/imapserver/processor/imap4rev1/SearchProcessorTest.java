@@ -36,7 +36,7 @@ import org.apache.james.imapserver.processor.base.ImapSessionUtils;
 import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.SearchQuery;
 import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
-import org.apache.james.mailboxmanager.mailbox.ImapMailbox;
+import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.mailet.RFC2822Headers;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
@@ -82,7 +82,7 @@ public class SearchProcessorTest extends MockObjectTestCase {
         responder = mock(ImapProcessor.Responder.class);
         statusResponse = mock(StatusResponse.class);
         responderImpl = (ImapProcessor.Responder) responder.proxy();
-        mailbox = mock(ImapMailbox.class);
+        mailbox = mock(Mailbox.class);
         processor = new SearchProcessor((ImapProcessor) next.proxy(),
                 (StatusResponseFactory) serverResponseFactory.proxy());
         expectOk();
@@ -338,7 +338,7 @@ public class SearchProcessorTest extends MockObjectTestCase {
             .will(returnValue((MailboxSession) mailboxSession));
         session.expects(once()).method("getAttribute")
             .with(eq(ImapSessionUtils.SELECTED_MAILBOX_ATTRIBUTE_SESSION_KEY))
-            .will(returnValue((ImapMailbox) mailbox.proxy()));
+            .will(returnValue((Mailbox) mailbox.proxy()));
         session.expects(once()).method("unsolicitedResponses").with(eq(true), eq(false)).will(returnValue(new ArrayList()));
         mailbox.expects(once()).method("search")
             .with(eq(query), eq(FetchGroupImpl.MINIMAL), eq(mailboxSession))
