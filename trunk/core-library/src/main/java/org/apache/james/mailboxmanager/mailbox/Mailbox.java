@@ -39,17 +39,5 @@ public interface Mailbox {
 
     int getMessageCount(MailboxSession mailboxSession) throws MailboxManagerException;
 
-    /** @param mailboxSession TODO
-     * @return the key */
-    String store(MimeMessage message, MailboxSession mailboxSession) throws MailboxManagerException;
-
-    /** @param mailboxSession TODO
-     * @return keys */
-    Collection list(MailboxSession mailboxSession) throws MailboxManagerException;
-
-    MimeMessage retrieve(String key, MailboxSession mailboxSession) throws MailboxManagerException;
-
-    void remove(String key, MailboxSession mailboxSession) throws MailboxManagerException;
-
     boolean isWriteable();
 }

@@ -136,6 +136,7 @@ public interface ImapMailbox extends Mailbox, EventTriggerMailbox  {
      *            James delivery? Should we use MimeMessage.getReceivedDate()?
      * @param fetchGroup
      *            which fields to be returned in MessageResult
+     *            or null for minimal fetch group only
      * @param mailboxSession TODO
      * @return MessageResult with the fields defined by <b>result</b>
      *         <ul>

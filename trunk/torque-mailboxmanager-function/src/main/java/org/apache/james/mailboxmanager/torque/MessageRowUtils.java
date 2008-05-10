@@ -115,55 +115,57 @@ public class MessageRowUtils {
     public static MessageResult loadMessageResult(final MessageRow messageRow, final FetchGroup fetchGroup, 
             final UidToKeyConverter uidToKeyConverter)
             throws TorqueException, MailboxManagerException {
+        
         MessageResultImpl messageResult = new MessageResultImpl();
         messageResult.setUid(messageRow.getUid());
-        
-        int content = fetchGroup.content();
-        if ((content & FetchGroup.MIME_MESSAGE) > 0) {
-            messageResult.setMimeMessage(TorqueMimeMessage.createMessage(messageRow));
-            content -= FetchGroup.MIME_MESSAGE;
-        }
-        if ((content & FetchGroup.FLAGS) > 0) {
-            org.apache.james.mailboxmanager.torque.om.MessageFlags messageFlags
-                = messageRow.getMessageFlags();
-            if (messageFlags!=null) {
-                messageResult.setFlags(messageFlags.getFlagsObject());  
+        if (fetchGroup != null) {
+            int content = fetchGroup.content();
+            if ((content & FetchGroup.MIME_MESSAGE) > 0) {
+                messageResult.setMimeMessage(TorqueMimeMessage.createMessage(messageRow));
+                content -= FetchGroup.MIME_MESSAGE;
             }
-            content -= FetchGroup.FLAGS;
-        }
-        if ((content & FetchGroup.SIZE) > 0) {
-            messageResult.setSize(messageRow.getSize());
-            content -= FetchGroup.SIZE;
-        }
-        if ((content & FetchGroup.INTERNAL_DATE) > 0) {
-            messageResult.setInternalDate(messageRow.getInternalDate());
-            content -= FetchGroup.INTERNAL_DATE;
-        }
-        if ((content & FetchGroup.KEY) > 0) {
-            messageResult.setKey(uidToKeyConverter.toKey(messageRow.getUid()));
-            content -= FetchGroup.KEY;
-        }
-        if ((content & FetchGroup.HEADERS) > 0) {
-            addHeaders(messageRow, messageResult);
-            content -= FetchGroup.HEADERS;
-        }
-        if ((content & FetchGroup.BODY_CONTENT) > 0) {
-            addBody(messageRow, messageResult);
-            content -= FetchGroup.BODY_CONTENT;
-        }
-        if ((content & FetchGroup.FULL_CONTENT) > 0) {
-            addFullContent(messageRow, messageResult);
-            content -= FetchGroup.FULL_CONTENT;
-        }
-        if (content != 0) {
-            throw new TorqueException("Unsupported result: " + content);
-        }
-        try {
-            addPartContent(fetchGroup, messageRow, messageResult);
-        } catch (IOException e) {
-            throw new TorqueException("Cannot parse message", e);
-        } catch (MimeException e) {
-            throw new TorqueException("Cannot parse message", e);
+            if ((content & FetchGroup.FLAGS) > 0) {
+                org.apache.james.mailboxmanager.torque.om.MessageFlags messageFlags
+                    = messageRow.getMessageFlags();
+                if (messageFlags!=null) {
+                    messageResult.setFlags(messageFlags.getFlagsObject());  
+                }
+                content -= FetchGroup.FLAGS;
+            }
+            if ((content & FetchGroup.SIZE) > 0) {
+                messageResult.setSize(messageRow.getSize());
+                content -= FetchGroup.SIZE;
+            }
+            if ((content & FetchGroup.INTERNAL_DATE) > 0) {
+                messageResult.setInternalDate(messageRow.getInternalDate());
+                content -= FetchGroup.INTERNAL_DATE;
+            }
+            if ((content & FetchGroup.KEY) > 0) {
+                messageResult.setKey(uidToKeyConverter.toKey(messageRow.getUid()));
+                content -= FetchGroup.KEY;
+            }
+            if ((content & FetchGroup.HEADERS) > 0) {
+                addHeaders(messageRow, messageResult);
+                content -= FetchGroup.HEADERS;
+            }
+            if ((content & FetchGroup.BODY_CONTENT) > 0) {
+                addBody(messageRow, messageResult);
+                content -= FetchGroup.BODY_CONTENT;
+            }
+            if ((content & FetchGroup.FULL_CONTENT) > 0) {
+                addFullContent(messageRow, messageResult);
+                content -= FetchGroup.FULL_CONTENT;
+            }
+            if (content != 0) {
+                throw new TorqueException("Unsupported result: " + content);
+            }
+            try {
+                addPartContent(fetchGroup, messageRow, messageResult);
+            } catch (IOException e) {
+                throw new TorqueException("Cannot parse message", e);
+            } catch (MimeException e) {
+                throw new TorqueException("Cannot parse message", e);
+            }
         }
         return messageResult;
     }
