@@ -47,7 +47,6 @@ import org.apache.james.mailboxmanager.MessageResult.FetchGroup;
 import org.apache.james.mailboxmanager.SearchQuery.Criterion;
 import org.apache.james.mailboxmanager.SearchQuery.NumericRange;
 import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
-import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.mailboxmanager.torque.om.MailboxRow;
 import org.apache.james.mailboxmanager.torque.om.MailboxRowPeer;
@@ -262,16 +261,12 @@ public class TorqueMailbox extends AbstractLogFactoryAware implements Mailbox {
         return criteria;
     }
 
-    public Iterator getMessages(GeneralMessageSet set, FetchGroup fetchGroup, MailboxSession mailboxSession)
+    public Iterator getMessages(final GeneralMessageSet set, FetchGroup fetchGroup, MailboxSession mailboxSession)
             throws MailboxManagerException {
         try {
             lock.readLock().acquire();
             try {
                 checkAccess();
-                set=toUidSet(set);
-                if (!set.isValid() || set.getType()==GeneralMessageSet.TYPE_NOTHING) {
-                    return IteratorUtils.EMPTY_ITERATOR;
-                }
                 UidRange range = uidRangeForMessageSet(set);
                 try {
                     Criteria c = criteriaForMessageSet(set);
@@ -448,12 +443,8 @@ public class TorqueMailbox extends AbstractLogFactoryAware implements Mailbox {
         }
     }
 
-    private Iterator doExpunge(GeneralMessageSet set, FetchGroup fetchGroup) throws MailboxManagerException {
+    private Iterator doExpunge(final GeneralMessageSet set, FetchGroup fetchGroup) throws MailboxManagerException {
         checkAccess();
-        set=toUidSet(set);  
-        if (!set.isValid() || set.getType()==GeneralMessageSet.TYPE_NOTHING) {
-            return IteratorUtils.EMPTY_ITERATOR;
-        }
         try {
             // TODO put this into a serializable transaction
             final Criteria c = criteriaForMessageSet(set);
@@ -510,12 +501,8 @@ public class TorqueMailbox extends AbstractLogFactoryAware implements Mailbox {
     }
 
     private Iterator doSetFlags(Flags flags, boolean value, boolean replace, 
-            GeneralMessageSet set, FetchGroup fetchGroup, MailboxSession mailboxSession) throws MailboxManagerException {
-        checkAccess();
-        set=toUidSet(set);  
-        if (!set.isValid() || set.getType()==GeneralMessageSet.TYPE_NOTHING) {
-            return Collections.EMPTY_LIST.iterator();
-        }        
+            final GeneralMessageSet set, FetchGroup fetchGroup, MailboxSession mailboxSession) throws MailboxManagerException {
+        checkAccess();         
         try {
             // TODO put this into a serializeable transaction
             final List messageRows = getMailboxRow()
@@ -720,18 +707,6 @@ public class TorqueMailbox extends AbstractLogFactoryAware implements Mailbox {
         } catch (InterruptedException e) {
             throw new MailboxManagerException(e);
         }
-    }
-
-    private GeneralMessageSet toUidSet(GeneralMessageSet set) {
-        if (set.getType()==GeneralMessageSet.TYPE_KEY) {
-            Long uid=getUidToKeyConverter().toUid(set.getKey());
-            if (uid!=null) {
-                set=GeneralMessageSetImpl.oneUid(uid.longValue());
-            } else {
-                set=GeneralMessageSetImpl.nothing();
-            }
-        }
-        return set;
     }
 
     public boolean isWriteable() {
