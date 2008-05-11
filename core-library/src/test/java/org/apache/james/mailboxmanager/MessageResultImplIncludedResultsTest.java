@@ -85,15 +85,6 @@ public class MessageResultImplIncludedResultsTest extends MockObjectTestCase {
         assertEquals(FetchGroup.INTERNAL_DATE, result.getIncludedResults().content());
     }
 
-    public void testShouldIncludedResultsWhenKeySet() throws Exception {
-        result.setKey(null);
-        assertEquals(FetchGroup.MINIMAL, result.getIncludedResults().content());
-        result.setKey("KEY");
-        assertEquals(FetchGroup.KEY, result.getIncludedResults().content());
-        result = new MessageResultImpl(this.result);
-        assertEquals(FetchGroup.KEY, result.getIncludedResults().content());
-    }
-
     public void testShouldIncludedResultsWhenHeadersSet() throws Exception {
         result.setHeaders(null);
         assertEquals(FetchGroup.MINIMAL, result.getIncludedResults().content());

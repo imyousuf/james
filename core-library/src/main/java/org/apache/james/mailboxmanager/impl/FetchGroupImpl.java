@@ -36,8 +36,6 @@ public class FetchGroupImpl implements MessageResult.FetchGroup {
             = new FetchGroupImpl(MessageResult.FetchGroup.MINIMAL);
     public static final MessageResult.FetchGroup MIME_MESSAGE 
             = new FetchGroupImpl(MessageResult.FetchGroup.MIME_MESSAGE);
-    public static final MessageResult.FetchGroup KEY 
-            = new FetchGroupImpl(MessageResult.FetchGroup.KEY);
     public static final MessageResult.FetchGroup SIZE 
             = new FetchGroupImpl(MessageResult.FetchGroup.SIZE);
     public static final MessageResult.FetchGroup INTERNAL_DATE 

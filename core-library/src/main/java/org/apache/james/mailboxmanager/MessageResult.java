@@ -75,10 +75,7 @@ public interface MessageResult extends Comparable {
          * 
          */
         public static final int MIME_MESSAGE = 0x01;
-        /**
-         * return a string baded key (used by James)
-         */
-        public static final int KEY = 0x10;
+
         public static final int SIZE = 0x20;
         public static final int INTERNAL_DATE = 0x40;
         public static final int FLAGS = 0x80;
@@ -184,8 +181,6 @@ public interface MessageResult extends Comparable {
      */
     Flags getFlags() throws MailboxManagerException;
 
-    String getKey();
-    
     int getSize();
     
     /**

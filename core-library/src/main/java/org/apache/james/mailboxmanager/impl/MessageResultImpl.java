@@ -44,7 +44,6 @@ public class MessageResultImpl implements MessageResult {
     private Flags flags;
     private int size;
     private Date internalDate;
-    private String key;
     private List headers;
     private Content body;
     private Content fullContent;
@@ -76,9 +75,6 @@ public class MessageResultImpl implements MessageResult {
         }
         if (MessageResultUtils.isInternalDateIncluded(result)) {
             setInternalDate(result.getInternalDate());
-        }
-        if (MessageResultUtils.isKeyIncluded(result)) {
-            setKey(result.getKey());
         }
         if (MessageResultUtils.isHeadersIncluded(result)) {
             setHeaders(IteratorUtils.toList(result.iterateHeaders()));
@@ -124,10 +120,6 @@ public class MessageResultImpl implements MessageResult {
         return flags;
     }
 
-    public String getKey() {
-        return key;
-    }
-
     public void setUid(long uid) {
         this.uid=uid;
     }
@@ -167,13 +159,6 @@ public class MessageResultImpl implements MessageResult {
         this.internalDate = internalDate;
         if (internalDate != null) {
             includedResults |= FetchGroup.INTERNAL_DATE;
-        }
-    }
-
-    public void setKey(String key) {
-        this.key=key;
-        if (key != null) {
-            includedResults |= FetchGroup.KEY;
         }
     }
 
@@ -229,7 +214,6 @@ public class MessageResultImpl implements MessageResult {
             + "flags = " + this.flags + TAB
             + "size = " + this.size + TAB
             + "internalDate = " + this.internalDate + TAB
-            + "key = " + this.key + TAB
             + "includedResults = " + this.includedResults + TAB
             + " )";
     
