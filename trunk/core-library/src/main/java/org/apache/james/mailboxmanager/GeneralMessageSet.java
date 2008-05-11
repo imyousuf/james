@@ -28,9 +28,7 @@ package org.apache.james.mailboxmanager;
 
 public interface GeneralMessageSet {
     
-    public static int TYPE_NOTHING=0;
     public static int TYPE_UID=2;
-    public static int TYPE_KEY=4;
     public static int TYPE_ALL=16;
     
     int getType();
@@ -38,9 +36,4 @@ public interface GeneralMessageSet {
     long getUidFrom();
     
     long getUidTo();
-    
-    String getKey();
-    
-    boolean isValid();
-
 }

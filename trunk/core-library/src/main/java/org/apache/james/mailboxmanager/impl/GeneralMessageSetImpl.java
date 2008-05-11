@@ -23,91 +23,54 @@ import org.apache.james.mailboxmanager.GeneralMessageSet;
 
 public class GeneralMessageSetImpl implements GeneralMessageSet {
 
-    private int type;
+    private static final int NOT_A_UID = -1;
 
-    private long uidFrom;
+    private final int type;
 
-    private long uidTo;
+    private final long uidFrom;
 
-    private String key;
+    private final long uidTo;
 
-    private GeneralMessageSetImpl() {
+
+    private GeneralMessageSetImpl(final int type, final long uidFrom, final long uidTo) {
+        super();
+        this.type = type;
+        this.uidFrom = uidFrom;
+        this.uidTo = uidTo;
     }
 
     public int getType() {
         return type;
     }
 
-    public long getUidFrom() throws IllegalStateException {
-        if (type != TYPE_UID)
-            throw new IllegalStateException("not in UID mode");
+    public long getUidFrom() {
         return uidFrom;
     }
 
-    public long getUidTo() throws IllegalStateException {
-        if (type != TYPE_UID)
-            throw new IllegalStateException("not in UID mode");
+    public long getUidTo() {
         return uidTo;
     }
 
-    public String getKey() throws IllegalStateException {
-        return key;
-    }
 
     public static GeneralMessageSet oneUid(long uid) {
-        GeneralMessageSetImpl gms = new GeneralMessageSetImpl();
-        gms.type = TYPE_UID;
-        gms.uidFrom = uid;
-        gms.uidTo = uid;
-        return gms;
+        GeneralMessageSetImpl result = new GeneralMessageSetImpl(TYPE_UID, uid, uid);
+        return result;
     }
 
     public static GeneralMessageSet all() {
-        GeneralMessageSetImpl gms = new GeneralMessageSetImpl();
-        gms.type = TYPE_ALL;
-        return gms;
+        GeneralMessageSetImpl result = new GeneralMessageSetImpl(TYPE_ALL, NOT_A_UID, NOT_A_UID);
+        return result;
     }
 
     public static GeneralMessageSet uidRange(long from, long to) {
-        GeneralMessageSetImpl gms = new GeneralMessageSetImpl();
         if (to == Long.MAX_VALUE) {
-            to = -1;
+            to = NOT_A_UID;
         }
-        gms.type = TYPE_UID;
-        gms.uidFrom = from;
-        gms.uidTo = to;
-        return gms;
+        GeneralMessageSetImpl result = new GeneralMessageSetImpl(TYPE_UID, from, to);
+        return result;
     }
 
     public String toString() {
         return "TYPE: " + type + " UID: " + uidFrom + ":" + uidTo;
-    }
-
-    public boolean isValid() {
-        if (type == TYPE_ALL) {
-            return true;
-        } else if (type == TYPE_UID) {
-            if (uidTo < 0) {
-                return true;
-            } else {
-                return (uidFrom <= uidTo);
-            }
-        } else {
-            return false;
-        }
-
-    }
-
-    public static GeneralMessageSet oneKey(String key) {
-        GeneralMessageSetImpl gms = new GeneralMessageSetImpl();
-        gms.type = TYPE_KEY;
-        gms.key=key;
-        return gms; 
-    }
-
-    public static GeneralMessageSet nothing() {
-        GeneralMessageSetImpl gms = new GeneralMessageSetImpl();
-        gms.type = TYPE_NOTHING;
-        return gms;
     }
 }
