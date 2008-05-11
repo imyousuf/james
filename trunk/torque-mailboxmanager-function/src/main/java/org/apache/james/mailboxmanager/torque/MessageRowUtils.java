@@ -140,10 +140,6 @@ public class MessageRowUtils {
                 messageResult.setInternalDate(messageRow.getInternalDate());
                 content -= FetchGroup.INTERNAL_DATE;
             }
-            if ((content & FetchGroup.KEY) > 0) {
-                messageResult.setKey(uidToKeyConverter.toKey(messageRow.getUid()));
-                content -= FetchGroup.KEY;
-            }
             if ((content & FetchGroup.HEADERS) > 0) {
                 addHeaders(messageRow, messageResult);
                 content -= FetchGroup.HEADERS;

@@ -261,18 +261,6 @@ public class MessageResultUtils {
     }
     
     /**
-     * Is {@link FetchGroup#KEY} included in these results?
-     * @param message <code>MessageResult</code>, possibly null
-     * @return true if <code>MessageResult</code> includes 
-     * KEY, false if <code>MessageResult</code> is null
-     * or does not contain KEY
-     * @see #isIncluded(MessageResult, int)
-     */
-    public static boolean isKeyIncluded(final MessageResult message) {
-        return isIncluded(message, FetchGroup.KEY);
-    }
-    
-    /**
      * Is {@link FetchGroup#INTERNAL_DATE} included in these results?
      * @param message <code>MessageResult</code>, possibly null
      * @return true if <code>MessageResult</code> includes 
