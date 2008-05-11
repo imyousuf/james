@@ -59,8 +59,6 @@ import org.apache.james.mailboxmanager.torque.om.MessageRowPeer;
 import org.apache.james.mailboxmanager.tracking.UidChangeTracker;
 import org.apache.james.mailboxmanager.tracking.UidRange;
 import org.apache.james.mailboxmanager.util.AbstractLogFactoryAware;
-import org.apache.james.mailboxmanager.util.UidToKeyConverter;
-import org.apache.james.mailboxmanager.util.UidToKeyConverterImpl;
 import org.apache.torque.NoRowsException;
 import org.apache.torque.TooManyRowsException;
 import org.apache.torque.TorqueException;
@@ -79,8 +77,6 @@ public class TorqueMailbox extends AbstractLogFactoryAware implements Mailbox {
 
     private UidChangeTracker tracker;
 
-    private UidToKeyConverter uidToKeyConverter;
-    
     private final ReadWriteLock lock;
     
     private final MessageSearches searches;
@@ -91,7 +87,6 @@ public class TorqueMailbox extends AbstractLogFactoryAware implements Mailbox {
         this.mailboxRow = mailboxRow;
         this.tracker = new UidChangeTracker(mailboxRow.getLastUid());
         this.lock = lock;
-        getUidToKeyConverter().setUidValidity(mailboxRow.getUidValidity());
     }
 
     public synchronized String getName() {
@@ -294,7 +289,7 @@ public class TorqueMailbox extends AbstractLogFactoryAware implements Mailbox {
 
     private TorqueResultIterator getResults(FetchGroup result, List rows) throws TorqueException {
         Collections.sort(rows, MessageRowUtils.getUidComparator());
-        final TorqueResultIterator results = new TorqueResultIterator(rows, result, getUidToKeyConverter());
+        final TorqueResultIterator results = new TorqueResultIterator(rows, result);
         return results;
     }
 
@@ -313,7 +308,7 @@ public class TorqueMailbox extends AbstractLogFactoryAware implements Mailbox {
 
     public MessageResult fillMessageResult(MessageRow messageRow, FetchGroup result)
             throws TorqueException, MessagingException, MailboxManagerException {
-        return MessageRowUtils.loadMessageResult(messageRow, result, getUidToKeyConverter());
+        return MessageRowUtils.loadMessageResult(messageRow, result);
     }
     
     public synchronized Flags getPermanentFlags() {
@@ -456,7 +451,7 @@ public class TorqueMailbox extends AbstractLogFactoryAware implements Mailbox {
             final List messageRows = getMailboxRow().getMessageRows(c);
             final long[] uids = uids(messageRows);
             final OrFetchGroup orFetchGroup = new OrFetchGroup(fetchGroup, FetchGroup.FLAGS);
-            final TorqueResultIterator resultIterator = new TorqueResultIterator(messageRows, orFetchGroup, getUidToKeyConverter());
+            final TorqueResultIterator resultIterator = new TorqueResultIterator(messageRows, orFetchGroup);
             // ensure all results are loaded before deletion
             Collection messageResults = IteratorUtils.toList(resultIterator);
             
@@ -529,7 +524,7 @@ public class TorqueMailbox extends AbstractLogFactoryAware implements Mailbox {
             }
             final OrFetchGroup orFetchGroup = new OrFetchGroup(fetchGroup, FetchGroup.FLAGS);
             final TorqueResultIterator resultIterator = new TorqueResultIterator(messageRows,
-                    orFetchGroup, getUidToKeyConverter());
+                    orFetchGroup);
             final org.apache.james.mailboxmanager.impl.MessageFlags[] messageFlags = resultIterator.getMessageFlags();
             tracker.flagsUpdated(messageFlags, mailboxSession.getSessionId());
             tracker.found(uidRange, messageFlags);
@@ -686,13 +681,6 @@ public class TorqueMailbox extends AbstractLogFactoryAware implements Mailbox {
         }
     }
     
-    protected UidToKeyConverter getUidToKeyConverter() {
-        if (uidToKeyConverter == null) {
-            uidToKeyConverter = new UidToKeyConverterImpl();
-        }
-        return uidToKeyConverter;
-    }
-
     public void remove(GeneralMessageSet set, MailboxSession mailboxSession) throws MailboxManagerException {
         try {
             lock.writeLock().acquire();

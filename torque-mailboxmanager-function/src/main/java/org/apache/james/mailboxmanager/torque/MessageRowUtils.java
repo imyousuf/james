@@ -42,7 +42,6 @@ import org.apache.james.mailboxmanager.impl.MessageResultImpl;
 import org.apache.james.mailboxmanager.torque.om.MessageBody;
 import org.apache.james.mailboxmanager.torque.om.MessageHeader;
 import org.apache.james.mailboxmanager.torque.om.MessageRow;
-import org.apache.james.mailboxmanager.util.UidToKeyConverter;
 import org.apache.james.mime4j.MimeException;
 import org.apache.torque.TorqueException;
 
@@ -112,8 +111,7 @@ public class MessageRowUtils {
         return results;
     }
 
-    public static MessageResult loadMessageResult(final MessageRow messageRow, final FetchGroup fetchGroup, 
-            final UidToKeyConverter uidToKeyConverter)
+    public static MessageResult loadMessageResult(final MessageRow messageRow, final FetchGroup fetchGroup)
             throws TorqueException, MailboxManagerException {
         
         MessageResultImpl messageResult = new MessageResultImpl();

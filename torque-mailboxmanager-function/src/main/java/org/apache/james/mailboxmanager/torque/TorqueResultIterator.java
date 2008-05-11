@@ -36,17 +36,14 @@ import org.apache.james.mailboxmanager.MessageResult.FetchGroup;
 import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
 import org.apache.james.mailboxmanager.impl.MessageFlags;
 import org.apache.james.mailboxmanager.torque.om.MessageRow;
-import org.apache.james.mailboxmanager.util.UidToKeyConverter;
 import org.apache.torque.TorqueException;
 
 public class TorqueResultIterator implements Iterator {
 
     private final Buffer messageRows;
     private final FetchGroup fetchGroup;
-    private final UidToKeyConverter uidToKeyConverter;
     
-    public TorqueResultIterator(final Collection messageRows, final FetchGroup fetchGroup,
-            final UidToKeyConverter uidToKeyConverter) {
+    public TorqueResultIterator(final Collection messageRows, final FetchGroup fetchGroup) {
         super();
         if (messageRows == null || messageRows.isEmpty()) {
             this.messageRows = BufferUtils.EMPTY_BUFFER;
@@ -54,7 +51,6 @@ public class TorqueResultIterator implements Iterator {
             this.messageRows = new BoundedFifoBuffer(messageRows);
         }
         this.fetchGroup = fetchGroup;
-        this.uidToKeyConverter = uidToKeyConverter;
     }
 
     public MessageFlags[] getMessageFlags() throws TorqueException {
@@ -83,7 +79,7 @@ public class TorqueResultIterator implements Iterator {
         try {
         
             result = MessageRowUtils.loadMessageResult(messageRow, 
-                    this.fetchGroup, uidToKeyConverter);
+                    this.fetchGroup);
         } catch (TorqueException e) {
             result = new UnloadedMessageResult(messageRow, new MailboxManagerException(e));
         } catch (MailboxManagerException e) {
