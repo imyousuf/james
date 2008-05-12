@@ -130,7 +130,7 @@ public final class DecoderUtils {
             if (chars == null) {
                 message = "Expected a date-time but was nothing.";
             } else {
-                message =  new StringBuffer("Expected a date-time but was "). append(chars).toString();
+                message =  new StringBuffer("Expected a date-time but was "). append(chars.toString()).toString();
             }
                 
             throw new ProtocolException(message);
