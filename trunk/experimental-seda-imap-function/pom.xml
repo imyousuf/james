@@ -30,10 +30,6 @@
       <artifactId>james-server-imap-codec-library</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-imap-command-library</artifactId>
-    </dependency>
-    <dependency>
       <groupId>concurrent</groupId>
       <artifactId>concurrent</artifactId>
     </dependency>
