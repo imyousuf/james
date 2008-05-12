@@ -25,8 +25,8 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.james</groupId>
-  <artifactId>james-server-spoolmanager-function</artifactId>
-  <name>Apache JAMES Server SpoolManager function</name>
+  <artifactId>james-server-mailets-function</artifactId>
+  <name>Apache JAMES Server Mailets function</name>
   <dependencies>
     <dependency>
       <groupId>javax.mail</groupId>
