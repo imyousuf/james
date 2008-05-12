@@ -34,6 +34,8 @@ import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.RFC2822Headers;
 
+import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicLong;
+
 import javax.mail.Header;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetHeaders;
@@ -73,7 +75,7 @@ public class ToMultiRepository extends GenericMailet {
      * The number of mails generated. Access needs to be synchronized for thread
      * safety and to ensure that all threads see the latest value.
      */
-    private static long count;
+    private final static AtomicLong count = new AtomicLong(1);
 
     /**
      * The mailserver reference
@@ -246,10 +248,7 @@ public class ToMultiRepository extends GenericMailet {
      * @return a new mail id
      */
     public String getId() {
-        long localCount = -1;
-        synchronized (this) {
-            localCount = count++;
-        }
+        final long localCount = count.getAndIncrement();
         StringBuffer idBuffer = new StringBuffer(64).append("Mail").append(
                 System.currentTimeMillis()).append("-").append(localCount).append('L');
         return idBuffer.toString();
