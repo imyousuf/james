@@ -36,6 +36,8 @@ import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.commons.collections.map.ReferenceMap;
 
+import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicLong;
+
 import org.apache.james.core.MailHeaders;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MailetConfigImpl;
@@ -147,7 +149,7 @@ public class James
      * The number of mails generated.  Access needs to be synchronized for
      * thread safety and to ensure that all threads see the latest value.
      */
-    private static long count;
+    private final static AtomicLong count = new AtomicLong(1);
 
     /**
      * The address of the postmaster for this server
@@ -610,10 +612,7 @@ public class James
      * @see org.apache.james.services.MailServer#getId()
      */
     public String getId() {
-        long localCount = -1;
-        synchronized (James.class) {
-            localCount = count++;
-        }
+        long localCount =  count.getAndIncrement();
         StringBuffer idBuffer =
             new StringBuffer(64)
                     .append("Mail")

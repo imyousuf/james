@@ -107,7 +107,8 @@
             <include name="${jackrabbit-api.jar}"/>
             <include name="${jackrabbit-commons.jar}"/>
             <include name="${jackrabbit-rmi.jar}"/>
-            <include name="${jcr.jar}"/>   
+            <include name="${jcr.jar}"/>
+        	<include name="${backport-concurrent.jar}"/>
             <!-- TODO: include libraries without wildcards -->
             <include name="${path.lib.james}/${jars-prefix}*-api-${version}.jar"/>
             <include name="${path.lib.james}/${jars-prefix}*-library-${version}.jar"/>
