@@ -21,7 +21,6 @@ package org.apache.james.imap.command.imap4rev1;
 
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapConstants;
-import org.apache.james.imap.command.CommandTemplate;
 import org.apache.james.imap.command.SelectedStateCommand;
 
 
@@ -32,17 +31,9 @@ import org.apache.james.imap.command.SelectedStateCommand;
  */
 class UidCommand extends SelectedStateCommand
 {
-    public static final String ARGS = "<fetch-command>|<store-command>|<copy-command>|<search-command>";
-
     /** @see ImapCommand#getName */
     public String getName()
     {
         return ImapConstants.UID_COMMAND_NAME;
-    }
-
-    /** @see CommandTemplate#getArgSyntax */
-    public String getArgSyntax()
-    {
-        return ARGS;
     }
 }

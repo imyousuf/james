@@ -42,37 +42,4 @@ abstract public class CommandTemplate
     {
         return true;
     }
-    
-    /**
-     * Provides a message which describes the expected format and arguments
-     * for this command. This is used to provide user feedback when a command
-     * request is malformed.
-     *
-     * @return A message describing the command protocol format.
-     */
-    public String getExpectedMessage()
-    {
-        StringBuffer syntax = new StringBuffer( "<tag> " );
-        syntax.append( getName() );
-
-        String args = getArgSyntax();
-        if ( args != null && args.length() > 0 ) {
-            syntax.append( " " );
-            syntax.append( args );
-        }
-
-        return syntax.toString();
-    }
-
-    /**
-     * Provides the syntax for the command arguments if any. This value is used
-     * to provide user feedback in the case of a malformed request.
-     *
-     * For commands which do not allow any arguments, <code>null</code> should
-     * be returned.
-     *
-     * @return The syntax for the command arguments, or <code>null</code> for
-     *         commands without arguments.
-     */
-    public abstract String getArgSyntax();
 }

@@ -21,7 +21,6 @@ package org.apache.james.imap.command.imap4rev1;
 
 import org.apache.james.api.imap.ImapCommand;
 import org.apache.james.api.imap.ImapConstants;
-import org.apache.james.imap.command.CommandTemplate;
 import org.apache.james.imap.command.SelectedStateCommand;
 
 
@@ -32,46 +31,9 @@ import org.apache.james.imap.command.SelectedStateCommand;
  */
 class ExpungeCommand extends SelectedStateCommand
 {
-    public static final String ARGS = null;
-
     /** @see ImapCommand#getName */
     public String getName()
     {
         return ImapConstants.EXPUNGE_COMMAND_NAME;
     }
-
-    /** @see CommandTemplate#getArgSyntax */
-    public String getArgSyntax()
-    {
-        return ARGS;
-    }
 }
-/*
-6.4.3.  EXPUNGE Command
-
-   Arguments:  none
-
-   Responses:  untagged responses: EXPUNGE
-
-   Result:     OK - expunge completed
-               NO - expunge failure: can't expunge (e.g. permission
-                    denied)
-               BAD - command unknown or arguments invalid
-
-      The EXPUNGE command permanently removes from the currently
-      selected mailbox all messages that have the \Deleted flag set.
-      Before returning an OK to the client, an untagged EXPUNGE response
-      is sent for each message that is removed.
-
-   Example:    C: A202 EXPUNGE
-               S: * 3 EXPUNGE
-               S: * 3 EXPUNGE
-               S: * 5 EXPUNGE
-               S: * 8 EXPUNGE
-               S: A202 OK EXPUNGE completed
-
-      Note: in this example, messages 3, 4, 7, and 11 had the
-      \Deleted flag set.  See the description of the EXPUNGE
-      response for further explanation.
-*/
-

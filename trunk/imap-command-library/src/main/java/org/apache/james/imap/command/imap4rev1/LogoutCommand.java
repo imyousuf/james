@@ -31,38 +31,9 @@ import org.apache.james.imap.command.CommandTemplate;
  */
 class LogoutCommand extends CommandTemplate
 {
-    public static final String ARGS = null;
-    
     /** @see ImapCommand#getName */
     public String getName()
     {
         return ImapConstants.LOGOUT_COMMAND_NAME;
     }
-
-    /** @see CommandTemplate#getArgSyntax */
-    public String getArgSyntax()
-    {
-        return ARGS;
-    }
 }
-
-/*
-6.1.3.  LOGOUT Command
-
-   Arguments:  none
-
-   Responses:  REQUIRED untagged response: BYE
-
-   Result:     OK - logout completed
-               BAD - command unknown or arguments invalid
-
-      The LOGOUT command informs the server that the client is done with
-      the connection.  The server MUST send a BYE untagged response
-      before the (tagged) OK response, and then close the network
-      connection.
-
-   Example:    C: A023 LOGOUT
-               S: * BYE IMAP4rev1 Server logging out
-               S: A023 OK LOGOUT completed
-               (Server and client then close the connection)
-*/
