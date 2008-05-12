@@ -19,200 +19,201 @@
 package org.apache.james.imap.command.imap4rev1;
 
 import org.apache.james.api.imap.ImapCommand;
+import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.api.imap.imap4rev1.Imap4Rev1CommandFactory;
 
 public class StandardImap4Rev1CommandFactory implements Imap4Rev1CommandFactory {
 
-    private final AppendCommand APPEND = new AppendCommand();   
-    private final AuthenticateCommand AUTHENTICATE = new AuthenticateCommand();
-    private final CapabilityCommand CAPABILITY = new CapabilityCommand();
-    private final CheckCommand CHECK = new CheckCommand();
-    private final CloseCommand CLOSE  = new CloseCommand();
-    private final CopyCommand COPY = new CopyCommand();
-    private final CreateCommand CREATE = new CreateCommand();
-    private final DeleteCommand DELETE = new DeleteCommand();
-    private final ExamineCommand EXAMINE = new ExamineCommand();
-    private final ExpungeCommand EXPUNGE = new ExpungeCommand();
-    private final FetchCommand FETCH = new FetchCommand();
-    private final ListCommand LIST = new ListCommand();
-    private final LoginCommand LOGIN = new LoginCommand();
-    private final LogoutCommand LOGOUT = new LogoutCommand();
-    private final LsubCommand LSUB = new LsubCommand();
-    private final NoopCommand NOOP = new NoopCommand();
-    private final RenameCommand RENAME = new RenameCommand();
-    private final SearchCommand SEARCH = new SearchCommand();
-    private final SelectCommand SELECT = new SelectCommand();
-    private final StatusCommand STATUS = new StatusCommand();
-    private final StoreCommand STORE = new StoreCommand();
-    private final SubscribeCommand SUBSCRIBE = new SubscribeCommand();
-    private final UidCommand UID = new UidCommand();
-    private final UnsubscribeCommand UNSUBSCRIBE  = new UnsubscribeCommand();
+    private final ImapCommand append = ImapCommandImpl.authenticatedStateCommand(ImapConstants.APPEND_COMMAND_NAME);   
+    private final ImapCommand authenticate = ImapCommandImpl.nonAuthenticatedStateCommand(ImapConstants.AUTHENTICATE_COMMAND_NAME);
+    private final ImapCommand capability = ImapCommandImpl.anyStateCommand(ImapConstants.CAPABILITY_COMMAND_NAME);
+    private final ImapCommand check = ImapCommandImpl.selectedStateCommand(ImapConstants.CHECK_COMMAND_NAME);
+    private final ImapCommand close  = ImapCommandImpl.selectedStateCommand(ImapConstants.CLOSE_COMMAND_NAME);
+    private final ImapCommand copy = ImapCommandImpl.selectedStateCommand(ImapConstants.COPY_COMMAND_NAME);
+    private final ImapCommand create = ImapCommandImpl.authenticatedStateCommand(ImapConstants.CREATE_COMMAND_NAME);
+    private final ImapCommand delete = ImapCommandImpl.authenticatedStateCommand(ImapConstants.DELETE_COMMAND_NAME);
+    private final ImapCommand examine = ImapCommandImpl.authenticatedStateCommand(ImapConstants.EXAMINE_COMMAND_NAME);
+    private final ImapCommand expunge = ImapCommandImpl.selectedStateCommand(ImapConstants.EXPUNGE_COMMAND_NAME);
+    private final ImapCommand fetch = ImapCommandImpl.selectedStateCommand(ImapConstants.FETCH_COMMAND_NAME);
+    private final ImapCommand list = ImapCommandImpl.authenticatedStateCommand(ImapConstants.LIST_COMMAND_NAME);
+    private final ImapCommand login = ImapCommandImpl.nonAuthenticatedStateCommand(ImapConstants.LOGIN_COMMAND_NAME);
+    private final ImapCommand logout = ImapCommandImpl.anyStateCommand(ImapConstants.LOGOUT_COMMAND_NAME);
+    private final ImapCommand lsub = ImapCommandImpl.authenticatedStateCommand(ImapConstants.LSUB_COMMAND_NAME);
+    private final ImapCommand noop = ImapCommandImpl.anyStateCommand(ImapConstants.NOOP_COMMAND_NAME);
+    private final ImapCommand rename = ImapCommandImpl.authenticatedStateCommand(ImapConstants.RENAME_COMMAND_NAME);
+    private final ImapCommand search = ImapCommandImpl.selectedStateCommand(ImapConstants.SEARCH_COMMAND_NAME);
+    private final ImapCommand select = ImapCommandImpl.authenticatedStateCommand(ImapConstants.SELECT_COMMAND_NAME);
+    private final ImapCommand status = ImapCommandImpl.authenticatedStateCommand(ImapConstants.STATUS_COMMAND_NAME);
+    private final ImapCommand store = ImapCommandImpl.selectedStateCommand(ImapConstants.STORE_COMMAND_NAME);
+    private final ImapCommand subscribe = ImapCommandImpl.authenticatedStateCommand(ImapConstants.SUBSCRIBE_COMMAND_NAME);
+    private final ImapCommand uid = ImapCommandImpl.selectedStateCommand(ImapConstants.UID_COMMAND_NAME);
+    private final ImapCommand unsubscribe  = ImapCommandImpl.authenticatedStateCommand(ImapConstants.UNSUBSCRIBE_COMMAND_NAME);
     
     /**
      * @see org.apache.james.api.imap.imap4rev1.Imap4Rev1CommandFactory#getAppend()
      */
     public ImapCommand getAppend() {
-        return APPEND;
+        return append;
     }
     
     /**
      * @see org.apache.james.api.imap.imap4rev1.Imap4Rev1CommandFactory#getAuthenticate()
      */
     public ImapCommand getAuthenticate() {
-        return AUTHENTICATE;
+        return authenticate;
     }
     
     /**
      * @see org.apache.james.api.imap.imap4rev1.Imap4Rev1CommandFactory#getCapability()
      */
     public ImapCommand getCapability() {
-        return CAPABILITY;
+        return capability;
     }
     
     /**
      * @see org.apache.james.api.imap.imap4rev1.Imap4Rev1CommandFactory#getCheck()
      */
     public ImapCommand getCheck() {
-        return CHECK;
+        return check;
     }
     
     /**
      * @see org.apache.james.api.imap.imap4rev1.Imap4Rev1CommandFactory#getClose()
      */
     public ImapCommand getClose() {
-        return CLOSE;
+        return close;
     }
     
     /**
      * @see org.apache.james.api.imap.imap4rev1.Imap4Rev1CommandFactory#getCopy()
      */
     public ImapCommand getCopy() {
-        return COPY;
+        return copy;
     }
     
     /**
      * @see org.apache.james.api.imap.imap4rev1.Imap4Rev1CommandFactory#getCreate()
      */
     public ImapCommand getCreate() {
-        return CREATE;
+        return create;
     }
     
     /**
      * @see org.apache.james.api.imap.imap4rev1.Imap4Rev1CommandFactory#getDelete()
      */
     public ImapCommand getDelete() {
-        return DELETE;
+        return delete;
     }
     
     /**
      * @see org.apache.james.api.imap.imap4rev1.Imap4Rev1CommandFactory#getExamine()
      */
     public ImapCommand getExamine() {
-        return EXAMINE;
+        return examine;
     }
     
     /**
      * @see org.apache.james.api.imap.imap4rev1.Imap4Rev1CommandFactory#getExpunge()
      */
     public ImapCommand getExpunge() {
-        return EXPUNGE;
+        return expunge;
     }
     
     /**
      * @see org.apache.james.api.imap.imap4rev1.Imap4Rev1CommandFactory#getFetch()
      */
     public ImapCommand getFetch() {
-        return FETCH;
+        return fetch;
     }
     
     /**
      * @see org.apache.james.api.imap.imap4rev1.Imap4Rev1CommandFactory#getList()
      */
     public ImapCommand getList() {
-        return LIST;
+        return list;
     }
     
     /**
      * @see org.apache.james.api.imap.imap4rev1.Imap4Rev1CommandFactory#getLogin()
      */
     public ImapCommand getLogin() {
-        return LOGIN;
+        return login;
     }
 
     /**
      * @see org.apache.james.api.imap.imap4rev1.Imap4Rev1CommandFactory#getLogout()
      */
     public ImapCommand getLogout() {
-        return LOGOUT;
+        return logout;
     }
     
     /**
      * @see org.apache.james.api.imap.imap4rev1.Imap4Rev1CommandFactory#getLsub()
      */
     public ImapCommand getLsub() {
-        return LSUB;
+        return lsub;
     }
     
     /**
      * @see org.apache.james.api.imap.imap4rev1.Imap4Rev1CommandFactory#getNoop()
      */
     public ImapCommand getNoop() {
-        return NOOP;
+        return noop;
     }
     
     /**
      * @see org.apache.james.api.imap.imap4rev1.Imap4Rev1CommandFactory#getRename()
      */
     public ImapCommand getRename() {
-        return RENAME;
+        return rename;
     }
     
     /**
      * @see org.apache.james.api.imap.imap4rev1.Imap4Rev1CommandFactory#getSearch()
      */
     public ImapCommand getSearch() {
-        return SEARCH;
+        return search;
     }
     
     /**
      * @see org.apache.james.api.imap.imap4rev1.Imap4Rev1CommandFactory#getSelect()
      */
     public ImapCommand getSelect() {
-        return SELECT;
+        return select;
     }
     
     /**
      * @see org.apache.james.api.imap.imap4rev1.Imap4Rev1CommandFactory#getStatus()
      */
     public ImapCommand getStatus() {
-        return STATUS;
+        return status;
     }
     
     /**
      * @see org.apache.james.api.imap.imap4rev1.Imap4Rev1CommandFactory#getStore()
      */
     public ImapCommand getStore() {
-        return STORE;
+        return store;
     }
     
     /**
      * @see org.apache.james.api.imap.imap4rev1.Imap4Rev1CommandFactory#getSubscribe()
      */
     public ImapCommand getSubscribe() {
-        return SUBSCRIBE;
+        return subscribe;
     }
     
     /**
      * @see org.apache.james.api.imap.imap4rev1.Imap4Rev1CommandFactory#getUid()
      */
     public ImapCommand getUid() {
-        return UID;
+        return uid;
     }
     
     /**
      * @see org.apache.james.api.imap.imap4rev1.Imap4Rev1CommandFactory#getUnsubscribe()
      */
     public ImapCommand getUnsubscribe() {
-        return UNSUBSCRIBE;
+        return unsubscribe;
     }
 }
