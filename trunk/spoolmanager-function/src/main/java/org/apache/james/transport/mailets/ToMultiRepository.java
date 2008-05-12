@@ -26,7 +26,6 @@ import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
-import org.apache.james.James;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
@@ -248,11 +247,11 @@ public class ToMultiRepository extends GenericMailet {
      */
     public String getId() {
         long localCount = -1;
-        synchronized (James.class) {
+        synchronized (this) {
             localCount = count++;
         }
         StringBuffer idBuffer = new StringBuffer(64).append("Mail").append(
-                System.currentTimeMillis()).append("-").append(localCount);
+                System.currentTimeMillis()).append("-").append(localCount).append('L');
         return idBuffer.toString();
     }
 
@@ -321,7 +320,7 @@ public class ToMultiRepository extends GenericMailet {
                 String[] addressParts = userName.split("@");
                 userName = addressParts[0];
             }
-        	        
+                        
             StringBuffer destinationBuffer = new StringBuffer(192).append(
             repositoryUrl).append(userName).append("/");
             String destination = destinationBuffer.toString();
