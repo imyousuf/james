@@ -38,8 +38,6 @@ import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
-import org.apache.james.services.User;
-import org.apache.james.userrepository.DefaultUser;
 import org.apache.james.util.mail.mdn.ActionModeAutomatic;
 import org.apache.james.util.mail.mdn.Disposition;
 import org.apache.james.util.mail.mdn.DispositionModifier;
@@ -104,7 +102,6 @@ public class Actions
             .getAttribute(Constants.AVALON_COMPONENT_MANAGER);
         String destinationMailbox = anAction.getDestination();
         MailAddress recipient;
-        User user;
         MailboxManagerProvider mailboxManagerProvider;
         boolean delivered = false;
         try
@@ -112,7 +109,6 @@ public class Actions
             mailboxManagerProvider = (MailboxManagerProvider) compMgr
             .lookup(MailboxManagerProvider.class.getName());
             recipient = getSoleRecipient(aMail);
-            user=new DefaultUser(recipient.getUser(), null);
             MimeMessage localMessage = createMimeMessage(aMail, recipient);
             
             if (!(destinationMailbox.length() > 0 
@@ -120,8 +116,7 @@ public class Actions
                 destinationMailbox =  MailboxManager.HIERARCHY_DELIMITER + destinationMailbox;
             }
             final String mailboxName = 
-                mailboxManagerProvider.getPersonalDefaultNamespace(user).getName()
-                    + destinationMailbox;
+                mailboxManagerProvider.getMailboxManager().resolve(recipient.getUser(), destinationMailbox);
             final MailboxManager mailboxManager = mailboxManagerProvider.getMailboxManager();
             Mailbox mailbox=mailboxManager.getMailbox(mailboxName, true);
             final MailboxSession session = mailboxManager.createSession();

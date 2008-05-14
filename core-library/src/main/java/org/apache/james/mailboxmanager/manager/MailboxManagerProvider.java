@@ -20,8 +20,6 @@
 package org.apache.james.mailboxmanager.manager;
 
 import org.apache.james.mailboxmanager.MailboxManagerException;
-import org.apache.james.mailboxmanager.Namespace;
-import org.apache.james.services.User;
 
 public interface MailboxManagerProvider {
     
@@ -29,16 +27,5 @@ public interface MailboxManagerProvider {
         =  "org.apache.james.mailboxmanager.manager.MailboxManagerProvider";
     
     public MailboxManager getMailboxManager() throws MailboxManagerException;
-
-    /**
-     * To get the Inbox you can just to a mailbox
-     * defaultNameSpace=ImapMailboxRepository.getPersonalDefaultNameSpace(user)
-     * inbox=defaultNameSpace.getName()+defaultNameSpace.getHierarchyDelimter()+"INBOX";
-     * TODO add a convinience method to get directly a session mailbox for a users inbox
-     * @param forUser TODO
-     * 
-     * @return <code>Namespace</code> TODO: allows nulls?
-     */
-    Namespace getPersonalDefaultNamespace(User forUser);
 
 }
