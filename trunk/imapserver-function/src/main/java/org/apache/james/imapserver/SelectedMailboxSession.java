@@ -32,8 +32,8 @@ import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
 import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
 import org.apache.james.mailboxmanager.mailbox.Mailbox;
-import org.apache.james.mailboxmanager.tracking.UidToMsnConverter;
 import org.apache.james.mailboxmanager.util.MailboxEventAnalyser;
+import org.apache.james.mailboxmanager.util.UidToMsnConverter;
 
 //TODO: manage mailbox deletion
 public class SelectedMailboxSession extends AbstractLogEnabled {

@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.mailboxmanager.tracking;
+package org.apache.james.mailboxmanager.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
