@@ -21,7 +21,6 @@ package org.apache.james.mailboxmanager.manager;
 
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.Namespace;
-import org.apache.james.mailboxmanager.Namespaces;
 import org.apache.james.services.User;
 
 public interface MailboxManagerProvider {
@@ -30,14 +29,6 @@ public interface MailboxManagerProvider {
         =  "org.apache.james.mailboxmanager.manager.MailboxManagerProvider";
     
     public MailboxManager getMailboxManager() throws MailboxManagerException;
-    
-    /**
-     * The Namespaces a user has access to.
-     * @param forUser TODO
-     * 
-     * @return <code>Namespaces</code> TODO: allows nulls?
-     */
-    Namespaces getNamespaces(User forUser);
 
     /**
      * To get the Inbox you can just to a mailbox

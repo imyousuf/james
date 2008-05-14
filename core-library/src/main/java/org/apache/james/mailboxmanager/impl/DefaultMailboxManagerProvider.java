@@ -30,7 +30,6 @@ import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.Namespace;
-import org.apache.james.mailboxmanager.Namespaces;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 import org.apache.james.services.User;
@@ -52,26 +51,9 @@ public class DefaultMailboxManagerProvider extends AbstractLogEnabled implements
         return mailboxManager;
     }
 
-    public Namespaces getNamespaces(User forUser) {
-        NamespacesImpl nameSpaces = new NamespacesImpl();
-        nameSpaces.setShared(new Namespace[0]);
-        Namespace userNamespace = new NamespaceImpl("" + HIERARCHY_DELIMITER,
-                USER_NAMESPACE);
-        nameSpaces.setUser(new Namespace[] { userNamespace });
-        Namespace personalDefault = getPersonalDefaultNamespace(forUser);
-        nameSpaces.setPersonal(new Namespace[] { personalDefault });
-        nameSpaces.setPersonalDefault(personalDefault);
-        return nameSpaces;
-    }
-
     public Namespace getPersonalDefaultNamespace(User forUser) {
         return new NamespaceImpl("" + HIERARCHY_DELIMITER, USER_NAMESPACE
                 + HIERARCHY_DELIMITER + forUser.getUserName());
-    }
-
-    String getInboxName(User user) {
-        Namespace nameSpace=getPersonalDefaultNamespace(user);
-        return nameSpace.getName()+nameSpace.getHierarchyDelimter()+INBOX;
     }
 
     public void configure(Configuration conf) throws ConfigurationException {
