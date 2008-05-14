@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.mailboxmanager.tracking;
+package org.apache.james.mailboxmanager.util;
 
 public class UidRange implements Comparable {
     
