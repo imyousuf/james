@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.mailboxmanager;
+package org.apache.james.mailboxmanager.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,7 +27,10 @@ import java.util.List;
 import javax.mail.MessagingException;
 
 import org.apache.commons.collections.IteratorUtils;
+import org.apache.james.mailboxmanager.MailboxManagerException;
+import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.MessageResult.FetchGroup;
+import org.apache.james.mailboxmanager.MessageResult.Header;
 
 public class MessageResultUtils {
 

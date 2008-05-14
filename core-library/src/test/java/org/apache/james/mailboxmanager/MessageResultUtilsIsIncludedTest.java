@@ -21,6 +21,7 @@ package org.apache.james.mailboxmanager;
 
 import org.apache.james.mailboxmanager.MessageResult.FetchGroup;
 import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
+import org.apache.james.mailboxmanager.util.MessageResultUtils;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 

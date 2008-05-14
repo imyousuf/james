@@ -29,6 +29,8 @@ import javax.mail.Flags;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
+import org.apache.james.mailboxmanager.util.MessageResultUtils;
+
 /**
  * <p>
  * Used to get specific informations about a Message without dealing with a
