@@ -21,6 +21,7 @@ package org.apache.james.mailboxmanager.manager;
 
 import org.apache.james.mailboxmanager.GeneralMessageSet;
 import org.apache.james.mailboxmanager.ListResult;
+import org.apache.james.mailboxmanager.MailboxExistsException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxNotFoundException;
 import org.apache.james.mailboxmanager.MailboxSession;
