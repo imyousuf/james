@@ -42,9 +42,9 @@ abstract public class AbstractMailboxAwareProcessor extends AbstractImapRequestP
         return buildFullName(mailboxName, user);
     }
 
-    private String buildFullName(String mailboxName, User user) {
+    private String buildFullName(String mailboxName, User user) throws MailboxManagerException {
         if (!mailboxName.startsWith(NAMESPACE_PREFIX)) {
-            mailboxName = mailboxManagerProvider.getPersonalDefaultNamespace(user).getName()+HIERARCHY_DELIMITER+mailboxName;
+            mailboxName = mailboxManagerProvider.getMailboxManager().resolve(user.getUserName(),mailboxName);
         }
         return mailboxName;
     }

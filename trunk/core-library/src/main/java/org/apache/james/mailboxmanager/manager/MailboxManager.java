@@ -67,6 +67,14 @@ public interface MailboxManager {
     public static final String USER_NAMESPACE="#mail";
     
     public static final String INBOX = "INBOX";
+    
+    /**
+     * <p>Resolves a path for the given user.</p>
+     * TODO: Think about replacing this operation
+     * TODO: More elegant to pass in the username
+     * TODO: Or switch to URLs
+     */ 
+    String resolve(String userName, String mailboxPath);
 
     /**
      * Gets an session suitable for IMAP.

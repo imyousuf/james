@@ -301,4 +301,12 @@ public class TorqueMailboxManager implements MailboxManager {
         return new TorqueMailboxSession(random.nextLong());
     }
 
+    public String resolve(final String userName, String mailboxPath) {
+        if (mailboxPath.charAt(0) != HIERARCHY_DELIMITER) {
+            mailboxPath = HIERARCHY_DELIMITER + mailboxPath ;
+        } 
+        final String result = USER_NAMESPACE + HIERARCHY_DELIMITER + userName + mailboxPath;
+        return result;
+    }
+
 }

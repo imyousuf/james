@@ -236,8 +236,7 @@ public class SieveToMultiMailbox extends GenericMailet {
     
     void storeMessageInbox(String username, MimeMessage message) throws MessagingException {
         final MailboxManagerProvider mailboxManagerProvider = getMailboxManagerProvider();
-        final String inboxName = mailboxManagerProvider.getPersonalDefaultNamespace(new DefaultUser(username, null))
-            .getName() + MailboxManager.HIERARCHY_DELIMITER+"INBOX";
+        final String inboxName = mailboxManagerProvider.getMailboxManager().resolve(username, "INBOX");
         
         final MailboxManager mailboxManager = mailboxManagerProvider.getMailboxManager();
         final MailboxSession session = mailboxManager.createSession();
