@@ -31,7 +31,7 @@ import javax.mail.internet.MimeMessage;
 import org.apache.commons.collections.IteratorUtils;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
-import org.apache.james.mailboxmanager.MessageResultUtils;
+import org.apache.james.mailboxmanager.util.MessageResultUtils;
 
 /**
  * Bean based implementation.

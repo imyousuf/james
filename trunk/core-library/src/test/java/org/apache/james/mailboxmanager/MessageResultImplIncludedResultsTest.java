@@ -29,6 +29,7 @@ import javax.mail.internet.MimeMessage;
 
 import org.apache.james.mailboxmanager.MessageResult.FetchGroup;
 import org.apache.james.mailboxmanager.impl.MessageResultImpl;
+import org.apache.james.mailboxmanager.util.MessageResultUtils;
 import org.jmock.MockObjectTestCase;
 
 public class MessageResultImplIncludedResultsTest extends MockObjectTestCase {
