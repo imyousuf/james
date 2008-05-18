@@ -31,7 +31,7 @@ import org.apache.james.imapserver.processor.base.ImapSessionUtils;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
-import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
+import org.apache.james.mailboxmanager.impl.MessageRangeImpl;
 import org.apache.james.mailboxmanager.mailbox.Mailbox;
 
 public class CloseProcessor extends AbstractImapRequestProcessor {
@@ -50,7 +50,7 @@ public class CloseProcessor extends AbstractImapRequestProcessor {
         if (mailbox.isWriteable()) {
             try {
                 final MailboxSession mailboxSession = ImapSessionUtils.getMailboxSession(session);
-                mailbox.expunge(GeneralMessageSetImpl.all(),
+                mailbox.expunge(MessageRangeImpl.all(),
                         FetchGroupImpl.MINIMAL, mailboxSession);
                 session.deselect();
                 // TODO: the following comment was present in the code before

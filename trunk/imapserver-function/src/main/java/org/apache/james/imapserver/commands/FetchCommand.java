@@ -39,14 +39,14 @@ import org.apache.james.imapserver.ProtocolException;
 import org.apache.james.imapserver.SelectedMailboxSession;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.imapserver.store.SimpleMessageAttributes;
-import org.apache.james.mailboxmanager.GeneralMessageSet;
+import org.apache.james.mailboxmanager.MessageRange;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.MessageResult.Content;
 import org.apache.james.mailboxmanager.MessageResult.FetchGroup;
 import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
-import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
+import org.apache.james.mailboxmanager.impl.MessageRangeImpl;
 import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.mailboxmanager.util.MessageResultUtils;
 import org.apache.james.mime4j.field.address.Address;
@@ -107,7 +107,7 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
                 lowVal = selected.uid((int) idSet[i].getLowVal());
                 highVal = selected.uid((int) idSet[i].getHighVal()); 
             }
-            final GeneralMessageSet messageSet=GeneralMessageSetImpl.uidRange(lowVal,highVal);
+            final MessageRange messageSet=MessageRangeImpl.uidRange(lowVal,highVal);
             final Iterator it;
             final MailboxSession mailboxSession;
             try {
@@ -142,7 +142,7 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
             if (fetch.isSetSeen()
                     && !result.getFlags().contains(Flags.Flag.SEEN)) {
                 mailbox.setFlags(new Flags(Flags.Flag.SEEN), true, false,
-                        GeneralMessageSetImpl.oneUid(result.getUid()), FetchGroupImpl.MINIMAL, session);
+                        MessageRangeImpl.oneUid(result.getUid()), FetchGroupImpl.MINIMAL, session);
                 result.getFlags().add(Flags.Flag.SEEN);
                 ensureFlagsResponse = true;
             }

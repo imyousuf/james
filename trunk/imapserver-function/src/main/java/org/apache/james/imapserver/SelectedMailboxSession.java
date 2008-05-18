@@ -26,11 +26,11 @@ import java.util.List;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.commons.collections.IteratorUtils;
-import org.apache.james.mailboxmanager.GeneralMessageSet;
+import org.apache.james.mailboxmanager.MessageRange;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
-import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
+import org.apache.james.mailboxmanager.impl.MessageRangeImpl;
 import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.mailboxmanager.util.MailboxEventAnalyser;
 import org.apache.james.mailboxmanager.util.UidToMsnConverter;
@@ -71,7 +71,7 @@ public class SelectedMailboxSession extends AbstractLogEnabled {
         List results = new ArrayList();
         for (final Iterator it = events.flagUpdateUids(); it.hasNext();) {
             Long uid = (Long) it.next();
-            GeneralMessageSet messageSet = GeneralMessageSetImpl.oneUid(uid.longValue());
+            MessageRange messageSet = MessageRangeImpl.oneUid(uid.longValue());
             final Iterator messages = mailbox.getMessages(messageSet, FetchGroupImpl.FLAGS, mailboxSession);
             results.addAll(IteratorUtils.toList(messages));
         }

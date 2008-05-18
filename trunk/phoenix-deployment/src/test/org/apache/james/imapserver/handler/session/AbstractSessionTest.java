@@ -48,14 +48,14 @@ import org.apache.james.imapserver.TestConstants;
 import org.apache.james.imapserver.client.Command;
 import org.apache.james.imapserver.mock.MockImapHandler;
 import org.apache.james.imapserver.mock.MockImapHandlerConfigurationData;
-import org.apache.james.mailboxmanager.GeneralMessageSet;
+import org.apache.james.mailboxmanager.MessageRange;
 import org.apache.james.mailboxmanager.ListResult;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.MessageResult.FetchGroup;
 import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
-import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
+import org.apache.james.mailboxmanager.impl.MessageRangeImpl;
 import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.mailboxmanager.manager.MailboxExpression;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
@@ -129,7 +129,7 @@ public abstract class AbstractSessionTest extends MockObjectTestCase implements 
     
     public MimeMessage[] getMessages(String folder) throws MailboxManagerException {
         Mailbox mailbox=getMailbox(folder);
-        Iterator iterator =mailbox.getMessages(GeneralMessageSetImpl.all(),FetchGroupImpl.MIME_MESSAGE, mailboxSession);
+        Iterator iterator =mailbox.getMessages(MessageRangeImpl.all(),FetchGroupImpl.MIME_MESSAGE, mailboxSession);
         List messages = IteratorUtils.toList(iterator);
         MimeMessage[] mms=new MimeMessage[messages.size()];
         for (int i = 0; i < messages.size(); i++) {
@@ -140,7 +140,7 @@ public abstract class AbstractSessionTest extends MockObjectTestCase implements 
     
     public long[] getUids(String folder) throws MailboxManagerException {
         Mailbox mailbox=getMailbox(folder);
-        Iterator iterator = mailbox.getMessages(GeneralMessageSetImpl.all(),FetchGroupImpl.MINIMAL, mailboxSession);
+        Iterator iterator = mailbox.getMessages(MessageRangeImpl.all(),FetchGroupImpl.MINIMAL, mailboxSession);
         List messages = IteratorUtils.toList(iterator);
         long[] uids=new long[messages.size()];
         for (int i = 0; i < messages.size(); i++) {
@@ -186,8 +186,8 @@ public abstract class AbstractSessionTest extends MockObjectTestCase implements 
     
     public void deleteAll(String folder) throws MailboxManagerException {
         Mailbox mailbox=getMailbox(folder);
-        mailbox.setFlags(new Flags(Flag.DELETED),true,false,GeneralMessageSetImpl.all(), FetchGroupImpl.MINIMAL, mailboxSession);
-        mailbox.expunge(GeneralMessageSetImpl.all(),FetchGroupImpl.MINIMAL, mailboxSession);
+        mailbox.setFlags(new Flags(Flag.DELETED),true,false,MessageRangeImpl.all(), FetchGroupImpl.MINIMAL, mailboxSession);
+        mailbox.expunge(MessageRangeImpl.all(),FetchGroupImpl.MINIMAL, mailboxSession);
     }
     public BufferedReader handleRequestReader(String s) throws ProtocolException
     {
@@ -271,10 +271,10 @@ public abstract class AbstractSessionTest extends MockObjectTestCase implements 
     
     public void setFlags(String mailboxName,long fromUid,long toUid,Flags flags, boolean value, boolean replace) throws MailboxManagerException {
         Mailbox mailbox=getMailbox(mailboxName);
-        mailbox.setFlags(flags, value, replace, GeneralMessageSetImpl.uidRange(fromUid, toUid), FetchGroupImpl.MINIMAL, mailboxSession);
+        mailbox.setFlags(flags, value, replace, MessageRangeImpl.uidRange(fromUid, toUid), FetchGroupImpl.MINIMAL, mailboxSession);
     }
     private Mailbox getMailbox(String mailboxName) throws MailboxManagerException {
-        int[] neededSets = new int[] {GeneralMessageSet.TYPE_UID};
+        int[] neededSets = new int[] {MessageRange.TYPE_UID};
         int neededResults= FetchGroup.MIME_MESSAGE + FetchGroup.FLAGS;
         Mailbox mailboxSession= mailboxManager.getMailbox(mailboxName, false);
         return mailboxSession;

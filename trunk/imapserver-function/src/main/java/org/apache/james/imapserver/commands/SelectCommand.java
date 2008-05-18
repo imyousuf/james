@@ -28,7 +28,7 @@ import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
-import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
+import org.apache.james.mailboxmanager.impl.MessageRangeImpl;
 import org.apache.james.mailboxmanager.mailbox.Mailbox;
 
 import java.util.ArrayList;
@@ -94,7 +94,7 @@ class SelectCommand extends AuthenticatedStateCommand
 
     private boolean selectMailbox(String mailboxName, ImapSession session, boolean readOnly) throws MailboxException, MailboxManagerException {
         Mailbox mailbox = session.getMailboxManager().getMailbox(mailboxName, false);
-        final Iterator it = mailbox.getMessages(GeneralMessageSetImpl
+        final Iterator it = mailbox.getMessages(MessageRangeImpl
                 .all(), FetchGroupImpl.MINIMAL, session.getMailboxSession());
         final List uids = new ArrayList();
         while(it.hasNext()) {

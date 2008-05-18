@@ -25,7 +25,7 @@ import java.util.Iterator;
 import javax.mail.Flags;
 import javax.mail.internet.MimeMessage;
 
-import org.apache.james.mailboxmanager.GeneralMessageSet;
+import org.apache.james.mailboxmanager.MessageRange;
 import org.apache.james.mailboxmanager.MailboxListener;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxSession;
@@ -112,7 +112,7 @@ public interface Mailbox {
      * @throws MailboxManagerException
      *             if anything went wrong
      */
-    Iterator expunge(GeneralMessageSet set, FetchGroup fetchGroup, MailboxSession mailboxSession) throws MailboxManagerException;
+    Iterator expunge(MessageRange set, FetchGroup fetchGroup, MailboxSession mailboxSession) throws MailboxManagerException;
     
 
     /**
@@ -135,7 +135,7 @@ public interface Mailbox {
      * @throws MailboxManagerException
      */
     Iterator setFlags(Flags flags, boolean value, boolean replace, 
-            GeneralMessageSet set, FetchGroup fetchGroup, MailboxSession mailboxSession) throws MailboxManagerException;
+            MessageRange set, FetchGroup fetchGroup, MailboxSession mailboxSession) throws MailboxManagerException;
     
     /**
      * @param internalDate
@@ -172,7 +172,7 @@ public interface Mailbox {
      * @throws MailboxManagerException 
      */
 
-    Iterator getMessages(GeneralMessageSet set, FetchGroup fetchGroup, MailboxSession mailboxSession) 
+    Iterator getMessages(MessageRange set, FetchGroup fetchGroup, MailboxSession mailboxSession) 
         throws MailboxManagerException;
 
     /**

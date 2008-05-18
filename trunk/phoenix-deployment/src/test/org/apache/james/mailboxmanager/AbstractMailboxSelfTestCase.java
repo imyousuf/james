@@ -31,7 +31,7 @@ import junit.framework.TestCase;
 
 import org.apache.commons.collections.IteratorUtils;
 import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
-import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
+import org.apache.james.mailboxmanager.impl.MessageRangeImpl;
 import org.apache.james.mailboxmanager.impl.MailboxListenerCollector;
 import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
@@ -80,8 +80,8 @@ public abstract class AbstractMailboxSelfTestCase extends TestCase {
         mr=mailbox.getFirstUnseen(FetchGroupImpl.MINIMAL, mailboxSession);
         assertNotNull(mr);
         assertEquals(6, mr.getUid());
-        mailbox.setFlags(new Flags(Flags.Flag.DELETED), true, false, GeneralMessageSetImpl.uidRange(1,3), FetchGroupImpl.MINIMAL, mailboxSession);
-        mailbox.expunge(GeneralMessageSetImpl.all(), FetchGroupImpl.MINIMAL, mailboxSession);
+        mailbox.setFlags(new Flags(Flags.Flag.DELETED), true, false, MessageRangeImpl.uidRange(1,3), FetchGroupImpl.MINIMAL, mailboxSession);
+        mailbox.expunge(MessageRangeImpl.all(), FetchGroupImpl.MINIMAL, mailboxSession);
         mr=mailbox.getFirstUnseen(FetchGroupImpl.MINIMAL, mailboxSession);
         assertNotNull(mr);
         assertEquals(6, mr.getUid());

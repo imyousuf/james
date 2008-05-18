@@ -19,7 +19,7 @@
 
 package org.apache.james.mailboxmanager.manager;
 
-import org.apache.james.mailboxmanager.GeneralMessageSet;
+import org.apache.james.mailboxmanager.MessageRange;
 import org.apache.james.mailboxmanager.ListResult;
 import org.apache.james.mailboxmanager.MailboxExistsException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
@@ -117,7 +117,7 @@ public interface MailboxManager {
      *            name of the destination mailbox
      * @param session <code>MailboxSession</code>, not null
      */
-    void copyMessages(GeneralMessageSet set, String from, String to, MailboxSession session) throws MailboxManagerException;
+    void copyMessages(MessageRange set, String from, String to, MailboxSession session) throws MailboxManagerException;
 
     /**
      * TODO: Expression requires parsing. Probably easier for the caller to 

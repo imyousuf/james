@@ -35,12 +35,12 @@ import org.apache.james.imap.message.response.imap4rev1.ExpungeResponse;
 import org.apache.james.imap.message.response.imap4rev1.FetchResponse;
 import org.apache.james.imap.message.response.imap4rev1.RecentResponse;
 import org.apache.james.imap.message.response.imap4rev1.status.UntaggedNoResponse;
-import org.apache.james.mailboxmanager.GeneralMessageSet;
+import org.apache.james.mailboxmanager.MessageRange;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
-import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
+import org.apache.james.mailboxmanager.impl.MessageRangeImpl;
 import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.mailboxmanager.util.MailboxEventAnalyser;
 import org.apache.james.mailboxmanager.util.UidToMsnConverter;
@@ -138,7 +138,7 @@ public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements Se
         try {
             for (final Iterator it = events.flagUpdateUids(); it.hasNext();) {
                 Long uid = (Long) it.next();
-                GeneralMessageSet messageSet = GeneralMessageSetImpl.oneUid(uid.longValue());
+                MessageRange messageSet = MessageRangeImpl.oneUid(uid.longValue());
                 addFlagsResponses(responses, useUid, mailbox, messageSet);
             }
         } catch (MessagingException e) {
@@ -147,7 +147,7 @@ public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements Se
         }
     }
 
-    private void addFlagsResponses(final List responses, boolean useUid, final Mailbox mailbox, GeneralMessageSet messageSet) throws MailboxManagerException {
+    private void addFlagsResponses(final List responses, boolean useUid, final Mailbox mailbox, MessageRange messageSet) throws MailboxManagerException {
         final Iterator it = mailbox.getMessages(messageSet, FetchGroupImpl.FLAGS, mailboxSession);
         while (it.hasNext()) {
             MessageResult mr = (MessageResult) it.next();

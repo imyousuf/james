@@ -26,7 +26,7 @@ package org.apache.james.mailboxmanager;
  * 
  */
 
-public interface GeneralMessageSet {
+public interface MessageRange {
     
     public static int TYPE_UID=2;
     public static int TYPE_ALL=16;

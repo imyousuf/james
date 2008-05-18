@@ -35,13 +35,13 @@ import org.apache.james.imap.message.request.imap4rev1.StoreRequest;
 import org.apache.james.imap.message.response.imap4rev1.FetchResponse;
 import org.apache.james.imapserver.processor.base.AbstractImapRequestProcessor;
 import org.apache.james.imapserver.processor.base.ImapSessionUtils;
-import org.apache.james.mailboxmanager.GeneralMessageSet;
+import org.apache.james.mailboxmanager.MessageRange;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.MessageResult.FetchGroup;
 import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
-import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
+import org.apache.james.mailboxmanager.impl.MessageRangeImpl;
 import org.apache.james.mailboxmanager.mailbox.Mailbox;
 
 public class StoreProcessor extends AbstractImapRequestProcessor {
@@ -92,7 +92,7 @@ public class StoreProcessor extends AbstractImapRequestProcessor {
                     lowVal = selected.uid((int) idSet[i].getLowVal());
                     highVal = selected.uid((int) idSet[i].getHighVal());
                 }
-                final GeneralMessageSet messageSet = GeneralMessageSetImpl.uidRange(lowVal, highVal);
+                final MessageRange messageSet = MessageRangeImpl.uidRange(lowVal, highVal);
                 final MailboxSession mailboxSession = ImapSessionUtils.getMailboxSession(session);
                 final Iterator it = mailbox.setFlags(flags, value, 
                         replace, messageSet, STORE_FETCH_GROUP, mailboxSession);

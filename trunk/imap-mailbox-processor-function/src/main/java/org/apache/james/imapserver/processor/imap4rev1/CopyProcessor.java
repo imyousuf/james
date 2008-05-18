@@ -31,10 +31,10 @@ import org.apache.james.api.imap.process.ImapSession;
 import org.apache.james.imap.message.request.imap4rev1.CopyRequest;
 import org.apache.james.imapserver.processor.base.AbstractMailboxAwareProcessor;
 import org.apache.james.imapserver.processor.base.ImapSessionUtils;
-import org.apache.james.mailboxmanager.GeneralMessageSet;
+import org.apache.james.mailboxmanager.MessageRange;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxSession;
-import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
+import org.apache.james.mailboxmanager.impl.MessageRangeImpl;
 import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
@@ -76,7 +76,7 @@ public class CopyProcessor extends AbstractMailboxAwareProcessor {
                         highVal = session.getSelected().uid((int)idSet[i].getHighVal());
                         lowVal = session.getSelected().uid((int)idSet[i].getLowVal());
                     }
-                    GeneralMessageSet messageSet = GeneralMessageSetImpl.uidRange(lowVal, highVal);
+                    MessageRange messageSet = MessageRangeImpl.uidRange(lowVal, highVal);
                     final MailboxSession mailboxSession = ImapSessionUtils.getMailboxSession(session);
                     mailboxManager.copyMessages(messageSet, currentMailbox.getName(), 
                             fullMailboxName, mailboxSession);

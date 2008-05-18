@@ -51,7 +51,7 @@ import org.apache.james.imap.message.response.imap4rev1.FetchResponse.BodyElemen
 import org.apache.james.imapserver.processor.base.AbstractImapRequestProcessor;
 import org.apache.james.imapserver.processor.base.ImapSessionUtils;
 import org.apache.james.imapserver.store.SimpleMessageAttributes;
-import org.apache.james.mailboxmanager.GeneralMessageSet;
+import org.apache.james.mailboxmanager.MessageRange;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.MessageResult;
@@ -60,7 +60,7 @@ import org.apache.james.mailboxmanager.MessageResult.Content;
 import org.apache.james.mailboxmanager.MessageResult.FetchGroup;
 import org.apache.james.mailboxmanager.MessageResult.MimePath;
 import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
-import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
+import org.apache.james.mailboxmanager.impl.MessageRangeImpl;
 import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.mailboxmanager.util.MessageResultUtils;
 import org.apache.james.mime4j.field.address.Address;
@@ -104,7 +104,7 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
                     highVal = session.getSelected().uid((int)idSet[i].getHighVal());
                     lowVal = session.getSelected().uid((int) idSet[i].getLowVal()); 
                 }
-                GeneralMessageSet messageSet = GeneralMessageSetImpl.uidRange(lowVal, highVal);
+                MessageRange messageSet = MessageRangeImpl.uidRange(lowVal, highVal);
                 final MailboxSession mailboxSession = ImapSessionUtils.getMailboxSession(session);
                 final Iterator it = mailbox.getMessages(messageSet, resultToFetch, mailboxSession);
                 while (it.hasNext()) {
@@ -243,7 +243,7 @@ public class FetchProcessor extends AbstractImapRequestProcessor {
             if (fetch.isSetSeen()
                     && !resultFlags.contains(Flags.Flag.SEEN)) {
                 mailbox.setFlags(new Flags(Flags.Flag.SEEN), true, false,
-                        GeneralMessageSetImpl.oneUid(resultUid), FetchGroupImpl.MINIMAL, mailboxSession);
+                        MessageRangeImpl.oneUid(resultUid), FetchGroupImpl.MINIMAL, mailboxSession);
                 resultFlags.add(Flags.Flag.SEEN);
                 ensureFlagsResponse = true;
             }

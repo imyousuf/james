@@ -31,7 +31,7 @@ import javax.mail.internet.MimeMessage;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.impl.SimpleLog;
-import org.apache.james.mailboxmanager.GeneralMessageSet;
+import org.apache.james.mailboxmanager.MessageRange;
 import org.apache.james.mailboxmanager.ListResult;
 import org.apache.james.mailboxmanager.MailboxExistsException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
@@ -204,7 +204,7 @@ public class TorqueMailboxManager implements MailboxManager {
         }
     }
 
-    public void copyMessages(GeneralMessageSet set, String from, String to, MailboxSession session) throws MailboxManagerException {
+    public void copyMessages(MessageRange set, String from, String to, MailboxSession session) throws MailboxManagerException {
         Mailbox toMailbox= getMailbox(to, false);
         Mailbox fromMailbox = getMailbox(from, false);
         Iterator it = fromMailbox.getMessages(set, FROM_FETCH_GROUP, session);

@@ -35,7 +35,7 @@ import org.apache.james.imapserver.processor.base.ImapSessionUtils;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
-import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
+import org.apache.james.mailboxmanager.impl.MessageRangeImpl;
 import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 
@@ -57,7 +57,7 @@ public class ExpungeProcessor extends AbstractImapRequestProcessor {
             no(command, tag, responder, HumanReadableTextKey.MAILBOX_IS_READ_ONLY);
         } else {
             try {
-                final Iterator it = mailbox.expunge(GeneralMessageSetImpl.all(),
+                final Iterator it = mailbox.expunge(MessageRangeImpl.all(),
                         FetchGroupImpl.MINIMAL, ImapSessionUtils.getMailboxSession(session));
                 final SelectedImapMailbox mailboxSession = session.getSelected();
                 if (mailboxSession != null) {

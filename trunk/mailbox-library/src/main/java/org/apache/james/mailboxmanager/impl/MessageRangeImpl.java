@@ -19,9 +19,9 @@
 
 package org.apache.james.mailboxmanager.impl;
 
-import org.apache.james.mailboxmanager.GeneralMessageSet;
+import org.apache.james.mailboxmanager.MessageRange;
 
-public class GeneralMessageSetImpl implements GeneralMessageSet {
+public class MessageRangeImpl implements MessageRange {
 
     private static final int NOT_A_UID = -1;
 
@@ -32,7 +32,7 @@ public class GeneralMessageSetImpl implements GeneralMessageSet {
     private final long uidTo;
 
 
-    private GeneralMessageSetImpl(final int type, final long uidFrom, final long uidTo) {
+    private MessageRangeImpl(final int type, final long uidFrom, final long uidTo) {
         super();
         this.type = type;
         this.uidFrom = uidFrom;
@@ -52,21 +52,21 @@ public class GeneralMessageSetImpl implements GeneralMessageSet {
     }
 
 
-    public static GeneralMessageSet oneUid(long uid) {
-        GeneralMessageSetImpl result = new GeneralMessageSetImpl(TYPE_UID, uid, uid);
+    public static MessageRange oneUid(long uid) {
+        MessageRangeImpl result = new MessageRangeImpl(TYPE_UID, uid, uid);
         return result;
     }
 
-    public static GeneralMessageSet all() {
-        GeneralMessageSetImpl result = new GeneralMessageSetImpl(TYPE_ALL, NOT_A_UID, NOT_A_UID);
+    public static MessageRange all() {
+        MessageRangeImpl result = new MessageRangeImpl(TYPE_ALL, NOT_A_UID, NOT_A_UID);
         return result;
     }
 
-    public static GeneralMessageSet uidRange(long from, long to) {
+    public static MessageRange uidRange(long from, long to) {
         if (to == Long.MAX_VALUE) {
             to = NOT_A_UID;
         }
-        GeneralMessageSetImpl result = new GeneralMessageSetImpl(TYPE_UID, from, to);
+        MessageRangeImpl result = new MessageRangeImpl(TYPE_UID, from, to);
         return result;
     }
 
