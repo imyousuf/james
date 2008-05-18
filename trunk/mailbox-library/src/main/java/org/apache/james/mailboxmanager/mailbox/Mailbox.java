@@ -36,21 +36,20 @@ import org.apache.james.mailboxmanager.MessageResult.FetchGroup;
 
 public interface Mailbox {
 
+    public static final long ANONYMOUS_SESSION = 0;
+    
     /**
      * Example #mail.paul.lists.apache.james-dev (3rd level folder of user paul)
      * 
      * @return Full folder name with namespace
      * @throws MailboxManagerException
      */
-
     String getName();
 
     int getMessageCount(MailboxSession mailboxSession) throws MailboxManagerException;
 
     boolean isWriteable();
     
-
-    public static final long ANONYMOUS_SESSION = 0;
     
     /**
      * @param fetchGroup
@@ -175,15 +174,6 @@ public interface Mailbox {
 
     Iterator getMessages(GeneralMessageSet set, FetchGroup fetchGroup, MailboxSession mailboxSession) 
         throws MailboxManagerException;
-    
-    /**
-     * TODO: this is only used by MailboxManagerMailRepository; Consider deleting;
-     * @param set
-     * @param mailboxSession
-     * @throws MailboxManagerException
-     */
-    void remove(GeneralMessageSet set, MailboxSession mailboxSession) throws MailboxManagerException;
-
 
     /**
      * Implementations of Mailbox may interpret the fact that someone is
