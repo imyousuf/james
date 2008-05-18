@@ -685,22 +685,6 @@ public class TorqueMailbox extends AbstractLogEnabled implements Mailbox {
             }
         }
     }
-    
-    public void remove(GeneralMessageSet set, MailboxSession mailboxSession) throws MailboxManagerException {
-        try {
-            lock.writeLock().acquire();
-            try {
-                final Flags flags = new Flags(Flags.Flag.DELETED);
-                doSetFlags(flags, true, false, set, FetchGroupImpl.MINIMAL, mailboxSession);
-                doExpunge(set, FetchGroupImpl.MINIMAL);
-            } finally {
-                lock.writeLock().release();
-            }
-
-        } catch (InterruptedException e) {
-            throw new MailboxManagerException(e);
-        }
-    }
 
     public boolean isWriteable() {
         return true;
