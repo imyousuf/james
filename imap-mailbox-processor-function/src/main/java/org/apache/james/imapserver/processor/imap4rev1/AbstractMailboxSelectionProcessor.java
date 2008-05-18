@@ -46,7 +46,7 @@ import org.apache.james.mailboxmanager.MailboxNotFoundException;
 import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
-import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
+import org.apache.james.mailboxmanager.impl.MessageRangeImpl;
 import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
@@ -175,7 +175,7 @@ abstract public class AbstractMailboxSelectionProcessor extends
     private SelectedImapMailbox createNewSelectedMailbox(final Mailbox mailbox, final MailboxSession mailboxSession,
             ImapSession session) throws MailboxManagerException {
         final SelectedImapMailbox sessionMailbox;
-        final Iterator it = mailbox.getMessages(GeneralMessageSetImpl
+        final Iterator it = mailbox.getMessages(MessageRangeImpl
                 .all(), FetchGroupImpl.MINIMAL, mailboxSession);
         final List uids = new ArrayList();
         while(it.hasNext()) {

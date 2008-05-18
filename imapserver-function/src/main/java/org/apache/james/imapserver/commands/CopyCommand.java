@@ -24,10 +24,10 @@ import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
 import org.apache.james.imapserver.store.MailboxException;
-import org.apache.james.mailboxmanager.GeneralMessageSet;
+import org.apache.james.mailboxmanager.MessageRange;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxSession;
-import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
+import org.apache.james.mailboxmanager.impl.MessageRangeImpl;
 import org.apache.james.mailboxmanager.mailbox.Mailbox;
 
 /**
@@ -79,8 +79,8 @@ class CopyCommand extends SelectedStateCommand implements UidEnabledCommand
                     lowVal = session.getSelected().uid((int) idSet[i].getLowVal());
                     highVal = session.getSelected().uid((int) idSet[i].getHighVal());
                 }
-                GeneralMessageSet messageSet
-                    = GeneralMessageSetImpl.uidRange(lowVal,highVal);
+                MessageRange messageSet
+                    = MessageRangeImpl.uidRange(lowVal,highVal);
                 final MailboxSession mailboxSession = session.getMailboxSession();
                 session.getMailboxManager().copyMessages(messageSet,currentMailbox.getName(), mailboxName, mailboxSession);
             }

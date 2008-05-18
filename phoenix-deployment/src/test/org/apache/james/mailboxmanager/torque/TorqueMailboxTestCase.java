@@ -29,7 +29,7 @@ import org.apache.commons.collections.IteratorUtils;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.TestUtil;
 import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
-import org.apache.james.mailboxmanager.impl.GeneralMessageSetImpl;
+import org.apache.james.mailboxmanager.impl.MessageRangeImpl;
 import org.apache.james.mailboxmanager.impl.MailboxListenerCollector;
 import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.mailboxmanager.torque.om.MailboxRow;
@@ -78,7 +78,7 @@ public class TorqueMailboxTestCase extends AbstractTorqueTestCase {
         mr = MailboxRowPeer.retrieveByPK(mr.getMailboxId());
         assertEquals(1, mr.getLastUid());
         
-        List messageResult=IteratorUtils.toList(torqueMailbox.getMessages(GeneralMessageSetImpl.oneUid(1l),FetchGroupImpl.MIME_MESSAGE, session));
+        List messageResult=IteratorUtils.toList(torqueMailbox.getMessages(MessageRangeImpl.oneUid(1l),FetchGroupImpl.MIME_MESSAGE, session));
         assertNotNull(messageResult);
         assertEquals(1,messageResult.size());
         //((MessageResult)messageResult.get(0)).getMimeMessage().writeTo(System.out);
@@ -86,8 +86,8 @@ public class TorqueMailboxTestCase extends AbstractTorqueTestCase {
         
         Flags f=new Flags();
         f.add(Flags.Flag.DELETED);
-        torqueMailbox.setFlags(f,true,false, GeneralMessageSetImpl.oneUid(1l), FetchGroupImpl.MINIMAL, session);
-        List messageResults=IteratorUtils.toList(torqueMailbox.expunge(GeneralMessageSetImpl.all(),FetchGroupImpl.MINIMAL, session));
+        torqueMailbox.setFlags(f,true,false, MessageRangeImpl.oneUid(1l), FetchGroupImpl.MINIMAL, session);
+        List messageResults=IteratorUtils.toList(torqueMailbox.expunge(MessageRangeImpl.all(),FetchGroupImpl.MINIMAL, session));
         assertEquals(1,messageResults.size());
         assertEquals(1l,((MessageResult)messageResults.get(0)).getUid());
     }

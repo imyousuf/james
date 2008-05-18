@@ -41,7 +41,7 @@ import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.impl.AvalonLogger;
-import org.apache.james.mailboxmanager.GeneralMessageSet;
+import org.apache.james.mailboxmanager.MessageRange;
 import org.apache.james.mailboxmanager.MailboxListener;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxSession;
@@ -234,13 +234,13 @@ public class TorqueMailbox extends AbstractLogEnabled implements Mailbox {
         return myMailboxRow;
     }
 
-    private Criteria criteriaForMessageSet(GeneralMessageSet set)
+    private Criteria criteriaForMessageSet(MessageRange set)
             throws MailboxManagerException {
         Criteria criteria = new Criteria();
         criteria.addAscendingOrderByColumn(MessageRowPeer.UID);
-        if (set.getType() == GeneralMessageSet.TYPE_ALL) {
+        if (set.getType() == MessageRange.TYPE_ALL) {
             // empty Criteria = everything
-        } else if (set.getType() == GeneralMessageSet.TYPE_UID) {
+        } else if (set.getType() == MessageRange.TYPE_UID) {
             
             if (set.getUidFrom() == set.getUidTo()) {
                 criteria.add(MessageRowPeer.UID, set.getUidFrom());
@@ -261,7 +261,7 @@ public class TorqueMailbox extends AbstractLogEnabled implements Mailbox {
         return criteria;
     }
 
-    public Iterator getMessages(final GeneralMessageSet set, FetchGroup fetchGroup, MailboxSession mailboxSession)
+    public Iterator getMessages(final MessageRange set, FetchGroup fetchGroup, MailboxSession mailboxSession)
             throws MailboxManagerException {
         try {
             lock.readLock().acquire();
@@ -298,11 +298,11 @@ public class TorqueMailbox extends AbstractLogEnabled implements Mailbox {
         return results;
     }
 
-    private static UidRange uidRangeForMessageSet(GeneralMessageSet set)
+    private static UidRange uidRangeForMessageSet(MessageRange set)
             throws MailboxManagerException {
-        if (set.getType() == GeneralMessageSet.TYPE_UID) {
+        if (set.getType() == MessageRange.TYPE_UID) {
             return new UidRange(set.getUidFrom(), set.getUidTo());
-        } else if (set.getType() == GeneralMessageSet.TYPE_ALL) {
+        } else if (set.getType() == MessageRange.TYPE_ALL) {
             return new UidRange(1, -1);
         } else {
             throw new MailboxManagerException("unsupported MessageSet: "
@@ -428,7 +428,7 @@ public class TorqueMailbox extends AbstractLogEnabled implements Mailbox {
         }
     }
 
-    public Iterator expunge(GeneralMessageSet set, FetchGroup fetchGroup, MailboxSession mailboxSession)
+    public Iterator expunge(MessageRange set, FetchGroup fetchGroup, MailboxSession mailboxSession)
             throws MailboxManagerException {
         try {
             lock.writeLock().acquire();
@@ -443,7 +443,7 @@ public class TorqueMailbox extends AbstractLogEnabled implements Mailbox {
         }
     }
 
-    private Iterator doExpunge(final GeneralMessageSet set, FetchGroup fetchGroup) throws MailboxManagerException {
+    private Iterator doExpunge(final MessageRange set, FetchGroup fetchGroup) throws MailboxManagerException {
         checkAccess();
         try {
             // TODO put this into a serializable transaction
@@ -485,7 +485,7 @@ public class TorqueMailbox extends AbstractLogEnabled implements Mailbox {
     }
 
     public Iterator setFlags(Flags flags, boolean value, boolean replace,
-            GeneralMessageSet set, FetchGroup fetchGroup, MailboxSession mailboxSession)
+            MessageRange set, FetchGroup fetchGroup, MailboxSession mailboxSession)
             throws MailboxManagerException {
         try {
             lock.writeLock().acquire();
@@ -501,7 +501,7 @@ public class TorqueMailbox extends AbstractLogEnabled implements Mailbox {
     }
 
     private Iterator doSetFlags(Flags flags, boolean value, boolean replace, 
-            final GeneralMessageSet set, FetchGroup fetchGroup, MailboxSession mailboxSession) throws MailboxManagerException {
+            final MessageRange set, FetchGroup fetchGroup, MailboxSession mailboxSession) throws MailboxManagerException {
         checkAccess();         
         try {
             // TODO put this into a serializeable transaction
