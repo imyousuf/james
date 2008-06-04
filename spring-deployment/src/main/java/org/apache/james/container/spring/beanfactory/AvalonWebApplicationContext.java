@@ -48,7 +48,7 @@ public class AvalonWebApplicationContext extends AbstractRefreshableWebApplicati
         if (locationStrings == null) locationStrings = new String[] {"/WEB-INF/james-assembly.xml", "/WEB-INF/spring-beans.xml"};
         for (int i = 0; i < locationStrings.length; i++) {
             String locationString = locationStrings[i];
-            if (locationString.contains("james-assembly")) jamesAssemblyResources.add(getResourceByPath(locationString));
+            if (locationString.indexOf("james-assembly") != -1) jamesAssemblyResources.add(getResourceByPath(locationString));
             else springBeanLocations.add(locationString);
         }
     }
