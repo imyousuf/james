@@ -85,10 +85,6 @@
       <artifactId>oro</artifactId>
     </dependency>
     <dependency>
-      <groupId>commons-collections</groupId>
-      <artifactId>commons-collections</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.apache.avalon.cornerstone.store</groupId>
       <artifactId>cornerstone-store-api</artifactId>
     </dependency>
@@ -99,17 +95,6 @@
     <dependency>
       <groupId>org.apache.avalon.cornerstone.datasources</groupId>
       <artifactId>cornerstone-datasources-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>jsieve</artifactId>
-    </dependency>
-    
-    
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
     </dependency>
   </dependencies>
 </project>

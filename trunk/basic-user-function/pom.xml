@@ -29,10 +29,6 @@
   <name>Apache JAMES Server Basic User function</name>
   <dependencies>
     <dependency>
-      <groupId>javax.mail</groupId>
-      <artifactId>mail</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-user-api</artifactId>
     </dependency>
@@ -46,7 +42,7 @@
       <artifactId>commons-io</artifactId>
     </dependency>
     
-    <!-- Neeled by the UsersLDAPRepository -->
+    <!-- Needed by the UsersLDAPRepository -->
     <dependency>
       <groupId>org.apache.avalon.framework</groupId>
       <artifactId>avalon-framework-api</artifactId>

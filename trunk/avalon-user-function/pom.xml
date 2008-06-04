@@ -69,11 +69,6 @@
       <groupId>org.apache.avalon.cornerstone.datasources</groupId>
       <artifactId>cornerstone-datasources-api</artifactId>
     </dependency>
-    
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
+
   </dependencies>
 </project>

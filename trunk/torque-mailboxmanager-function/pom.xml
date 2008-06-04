@@ -32,15 +32,19 @@
       <groupId>javax.mail</groupId>
       <artifactId>mail</artifactId>
     </dependency>
-    <!-- 
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>mailet</artifactId>
+      <artifactId>apache-james-mailet-base</artifactId>
+    </dependency>
+     <!-- 
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-core-library</artifactId>
     </dependency>
      -->
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-core-library</artifactId>
+      <artifactId>james-server-mailbox-library</artifactId>
     </dependency>
 
     <!-- 
@@ -60,12 +64,10 @@
       <artifactId>runtime</artifactId>
     </dependency>
 
-    <!-- 
     <dependency>
       <groupId>org.apache.avalon.framework</groupId>
       <artifactId>avalon-framework-api</artifactId>
     </dependency>
-     -->
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
@@ -86,10 +88,12 @@
       <groupId>commons-collections</groupId>
       <artifactId>commons-collections</artifactId>
     </dependency>
+    <!-- 
     <dependency>
       <groupId>commons-beanutils</groupId>
       <artifactId>commons-beanutils</artifactId>
     </dependency>
+     -->
     
     <dependency>
       <groupId>junit</groupId>

@@ -69,7 +69,27 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
+      <artifactId>james-server-imap-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-domain-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-library</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-imap-codec-library</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-user-library</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-mailbox-library</artifactId>
     </dependency>
 
     <dependency>
@@ -133,16 +153,13 @@
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-jcr-backend-function</artifactId>
     </dependency>
-
+		<dependency>
+		  <groupId>org.apache.activemq</groupId>
+		  <artifactId>activemq-core</artifactId>
+		</dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-jspf</artifactId>
-    </dependency>
-
-    <dependency>
-    	<groupId>xml-apis</groupId>
-    	<artifactId>xml-apis</artifactId>
-    	<scope>provided</scope>
     </dependency>
 
     <dependency>
@@ -164,6 +181,18 @@
     <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-configuration</groupId>
+      <artifactId>commons-configuration</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.excalibur.components</groupId>
@@ -237,9 +266,8 @@
       <version>1.3</version>
     </dependency>
     <dependency>
-      <groupId>org.apache.jackrabbit</groupId>
-      <artifactId>jackrabbit-jcr-commons</artifactId>
-      <version>1.3</version>
+    	<groupId>concurrent</groupId>
+    	<artifactId>concurrent</artifactId>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
