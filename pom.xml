@@ -41,6 +41,7 @@
     <module>imap-codec-library</module>
     <module>user-library</module>
     <module>core-library</module>
+    <module>mailbox-library</module>
     <module>smtpserver-function</module>
     <module>pop3server-function</module>
     <module>nntpserver-function</module>
@@ -57,6 +58,7 @@
     <module>experimental-activemq-function</module>
     <module>jcr-backend-function</module>
     <module>phoenix-deployment</module>
+    <module>spring-deployment</module>
   </modules>
   <scm>
     <connection>scm:svn:http://svn.apache.org/repos/asf/james/server/trunk</connection>
@@ -249,6 +251,11 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-user-library</artifactId>
+      <version>3.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-mailbox-library</artifactId>
       <version>3.0-SNAPSHOT</version>
     </dependency>
     <dependency>
@@ -785,12 +792,14 @@
       <version>2.0.2</version>
       <scope>provided</scope>
     </dependency>
+    <!-- 
     <dependency>
       <groupId>xerces</groupId>
       <artifactId>xercesImpl</artifactId>
       <version>2.6.2</version>
       <scope>provided</scope>
     </dependency>
+     -->
     <dependency>
       <groupId>com.thoughtworks.xstream</groupId>
       <artifactId>xstream</artifactId>

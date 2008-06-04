@@ -32,12 +32,6 @@
       <groupId>javax.mail</groupId>
       <artifactId>mail</artifactId>
     </dependency>
-    <!-- 
-    <dependency>
-      <groupId>javax.activation</groupId>
-      <artifactId>activation</artifactId>
-    </dependency>
-     -->
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>mailet</artifactId>
@@ -66,11 +60,6 @@
     	<artifactId>commons-logging</artifactId>
     </dependency>
     
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
     <dependency>
       <groupId>jmock</groupId>
       <artifactId>jmock</artifactId>
