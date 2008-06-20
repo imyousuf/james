@@ -19,6 +19,8 @@
 
 package org.apache.james.imapserver.util;
 
+import org.apache.james.util.CRLFOutputStream;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Date;
@@ -29,8 +31,6 @@ import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-
-import com.sun.mail.util.CRLFOutputStream;
 
 public class MessageGenerator
 {
