@@ -74,6 +74,8 @@ public class HasMailAttributeWithValueRegexTest extends
 
         String invalidRegex = "(!(";
         String regexException = null;
+        // NOTE the expected exception changes when the project is built/run
+        // against non java 1.4 jvm. 
         String exception = "Malformed pattern: " + invalidRegex;
 
         setRegex(invalidRegex);
