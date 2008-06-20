@@ -21,27 +21,34 @@
 
 package org.apache.james.util;
 
+import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- * Adds extra dot if dot occurs in message body at beginning of line (according to RFC1939)
- * Compare also org.apache.james.smtpserver.SMTPInputStream
+ * A Filter for use with SMTP or other protocols in which lines must end with
+ * CRLF. Converts every "isolated" occourency of \r or \n with \r\n
  */
-public class ExtraDotOutputStream extends CRLFOutputStream {
+public class CRLFOutputStream extends FilterOutputStream {
+
+    /**
+     * Counter for number of last (0A or 0D).
+     */
+    protected int countLast0A0D;
 
     /**
      * Constructor that wraps an OutputStream.
      *
      * @param out the OutputStream to be wrapped
      */
-    public ExtraDotOutputStream(OutputStream out) {
+    public CRLFOutputStream(OutputStream out) {
         super(out);
+        countLast0A0D = 2; // we already assume a CRLF at beginning (otherwise TOP would not work correctly !)
     }
 
     /**
-     * Writes a byte to the stream, adding dots where appropriate.
-     * Also fixes any naked CR or LF to the RFC 2821 mandated CRLF
+     * Writes a byte to the stream
+     * Fixes any naked CR or LF to the RFC 2821 mandated CFLF
      * pairing.
      *
      * @param b the byte to write
@@ -49,10 +56,36 @@ public class ExtraDotOutputStream extends CRLFOutputStream {
      * @throws IOException if an error occurs writing the byte
      */
     public void write(int b) throws IOException {
-        if (b == '.' && countLast0A0D == 2) {
-            // add extra dot (the first of the pair)
-            out.write('.');
+        switch (b) {
+            case '\r':
+                if (countLast0A0D == 1) out.write('\n'); // two CR in a row, so insert an LF first
+                countLast0A0D = 1;
+                break;
+            case '\n':
+                /* RFC 2821 #2.3.7 mandates that line termination is
+                 * CRLF, and that CR and LF must not be transmitted
+                 * except in that pairing.  If we get a naked LF,
+                 * convert to CRLF.
+                 */
+                if (countLast0A0D != 1) out.write('\r');
+                countLast0A0D = 2;
+                break;
+            default:
+                // we're  no longer at the start of a line
+                countLast0A0D = 0;
+                break;
         }
-        super.write(b);
+        out.write(b);
+    }
+    
+    /**
+     * Ensure that the stream is CRLF terminated.
+     * 
+     * @throws IOException  if an error occurs writing the byte
+     */
+    public void checkCRLFTerminator() throws IOException {
+        if (countLast0A0D != 2) {
+            write('\n');
+        }
     }
 }
