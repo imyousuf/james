@@ -20,6 +20,7 @@
 package org.apache.james.mailboxmanager;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.james.util.CRLFOutputStream;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -35,8 +36,6 @@ import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-
-import com.sun.mail.util.CRLFOutputStream;
 
 public class TestUtil {
     

@@ -62,6 +62,7 @@ import org.apache.james.mailboxmanager.torque.om.MessageRow;
 import org.apache.james.mailboxmanager.torque.om.MessageRowPeer;
 import org.apache.james.mailboxmanager.util.UidChangeTracker;
 import org.apache.james.mailboxmanager.util.UidRange;
+import org.apache.james.util.CRLFOutputStream;
 import org.apache.torque.NoRowsException;
 import org.apache.torque.TooManyRowsException;
 import org.apache.torque.TorqueException;
@@ -69,7 +70,6 @@ import org.apache.torque.util.Criteria;
 
 import EDU.oswego.cs.dl.util.concurrent.ReadWriteLock;
 
-import com.sun.mail.util.CRLFOutputStream;
 import com.workingdogs.village.DataSetException;
 
 public class TorqueMailbox extends AbstractLogEnabled implements Mailbox {
