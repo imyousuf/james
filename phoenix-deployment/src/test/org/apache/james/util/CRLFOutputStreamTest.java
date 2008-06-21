@@ -58,8 +58,6 @@ public class CRLFOutputStreamTest extends TestCase {
         assertEquals("Test\r\n",bOut.toString());
         // if the stream ends with \r we should simply add the \n
         os.write("A line with incomplete ending\r".getBytes());
-        os.flush();
-        assertEquals("Test\r\nA line with incomplete ending\r",bOut.toString());
         os.checkCRLFTerminator();
         os.flush();
         assertEquals("Test\r\nA line with incomplete ending\r\n",bOut.toString());
@@ -67,6 +65,32 @@ public class CRLFOutputStreamTest extends TestCase {
         os.checkCRLFTerminator();
         os.flush();
         assertEquals("Test\r\nA line with incomplete ending\r\n",bOut.toString());
+    }
+    
+    public void testMixedSizeChunks() throws IOException {
+        String[] data = new String[] {".","This is a test","","\r\n","of the thing.\r","\nWe should not have much trouble.\r","\n",".","doubled?\r\n","or not?\n.","double","d\nor not?\r","\n\r\n","\n\n\r","\r\r\n"};
+        ByteArrayOutputStream bOut = new ByteArrayOutputStream();
+        OutputStream os = new CRLFOutputStream(bOut);
+        for(int i = 0; i < data.length; i++) {
+            os.write(data[i].getBytes());
+            os.flush();
+        }
+        String expected = ".This is a test\r\nof the thing.\r\nWe should not have much trouble.\r\n.doubled?\r\nor not?\r\n.doubled\r\nor not?\r\n\r\n\r\n\r\n\r\n\r\n\r\n";
+        assertEquals(expected,bOut.toString());
+    }
+
+
+    public void testBytePerByte() throws IOException {
+        String data = ".This is a test\r\nof the thing.\r\nWe should not have much trouble.\r\n.doubled?\r\nor not?\n.doubled\nor not?\r\n\r\n\n\n\r\r\r\n";
+        ByteArrayOutputStream bOut = new ByteArrayOutputStream();
+        OutputStream os = new CRLFOutputStream(bOut);
+        byte[] buffer = data.getBytes();
+        for (int i = 0; i < buffer.length; i++) {
+            os.write(buffer[i]);
+        }
+        os.flush();
+        String expected = ".This is a test\r\nof the thing.\r\nWe should not have much trouble.\r\n.doubled?\r\nor not?\r\n.doubled\r\nor not?\r\n\r\n\r\n\r\n\r\n\r\n\r\n";
+        assertEquals(expected,bOut.toString());
     }
 
 }

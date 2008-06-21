@@ -40,6 +40,20 @@ public class ExtraDotOutputStream extends CRLFOutputStream {
     }
 
     /**
+     * Overrides super writeChunk in order to add a "." if the previous chunk ended with
+     * a new line and a new chunk starts with "."
+     * 
+     * @see org.apache.james.util.CRLFOutputStream#writeChunk(byte[], int, int)
+     */
+    protected void writeChunk(byte buffer[], int offset, int length) throws IOException {
+        if (length > 0 && buffer[offset] == '.' && startOfLine) {
+            // add extra dot (the first of the pair)
+            out.write('.');
+        }
+        super.writeChunk(buffer, offset, length);
+    }
+
+    /**
      * Writes a byte to the stream, adding dots where appropriate.
      * Also fixes any naked CR or LF to the RFC 2821 mandated CRLF
      * pairing.
@@ -49,7 +63,7 @@ public class ExtraDotOutputStream extends CRLFOutputStream {
      * @throws IOException if an error occurs writing the byte
      */
     public void write(int b) throws IOException {
-        if (b == '.' && countLast0A0D == 2) {
+        if (b == '.' && statusLast != LAST_WAS_OTHER) {
             // add extra dot (the first of the pair)
             out.write('.');
         }
