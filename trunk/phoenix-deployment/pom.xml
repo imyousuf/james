@@ -38,6 +38,12 @@
           <include>**/*.xml</include>
         </includes>
       </testResource>
+      <testResource>
+        <directory>src/conf</directory>
+        <includes>
+          <include>**/*.xml</include>
+        </includes>
+      </testResource>
     </testResources>
     <plugins>
       <plugin>
@@ -222,9 +228,23 @@
       <groupId>org.apache.excalibur.components</groupId>
       <artifactId>excalibur-thread-impl</artifactId>
     </dependency>
+    <!--
+    <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-activation_1.1_spec</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.geronimo.javamail</groupId>
+      <artifactId>geronimo-javamail_1.4_mail</artifactId>
+    </dependency>
+    -->
     <dependency>
       <groupId>javax.activation</groupId>
       <artifactId>activation</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>javax.mail</groupId>
+      <artifactId>mail</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.avalon.cornerstone.datasources</groupId>
@@ -243,10 +263,6 @@
       <artifactId>dnsjava</artifactId>
     </dependency>
     <dependency>
-      <groupId>javax.mail</groupId>
-      <artifactId>mail</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.apache.avalon.cornerstone.store</groupId>
       <artifactId>cornerstone-store-api</artifactId>
     </dependency>
@@ -259,6 +275,12 @@
       <groupId>org.apache.jackrabbit</groupId>
       <artifactId>jackrabbit-jcr-rmi</artifactId>
       <version>1.3</version>
+      <exclusions>
+      	<exclusion>
+      		<groupId>xerces</groupId>
+      		<artifactId>xercesImpl</artifactId>
+      	</exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.jackrabbit</groupId>
@@ -289,6 +311,11 @@
       <artifactId>james-server-experimental-seda-imap-function</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.derby</groupId>
+      <artifactId>derby</artifactId>
+      <scope>runtime</scope>
     </dependency>
   </dependencies>
 </project>
