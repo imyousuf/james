@@ -458,7 +458,7 @@
     ===================================================================
     -->
     <!-- removed website from depends list: it does not belong to the phoenix deployment -->
-    <target name="everything" depends="clean,dist-bin,dist-src,dist-mailet-SDK"/>
+    <target name="everything" depends="clean,run-unit-tests,dist-bin,dist-src,dist-mailet-SDK"/>
     
 
     <!--
@@ -950,13 +950,17 @@
             <fileset dir="${junitjava.dir}" includes="**/*.zone" />
             <fileset dir="${junitjava.dir}" includes="**/*.xml" />
         </copy>
+        <copy todir="${build.test.classes}">
+            <fileset dir="${conf.dir}" includes="**/*.xml" />
+            <fileset dir="${conf.dir}" includes="*.xml" />
+        </copy>
     </target>
 
     <target name="run-unit-tests" depends="compile-unit-tests">
         <echo message="Running James Unit Tests in directory ${basedir}"/>
         <mkdir dir="${build.test}"/>
         <mkdir dir="${build.test.reports}"/>
-        <junit printsummary="yes" haltonfailure="yes"  dir='${basedir}'>
+        <junit printsummary="yes" haltonfailure="no"  dir='${basedir}'>
             <classpath refid="unittest.class.path"/>
             <classpath refid="project.class.path"/>
             <classpath>
@@ -968,6 +972,7 @@
             <batchtest fork="yes" todir="${build.test.reports}">
               <fileset dir="${junitjava.dir}">
                 <include name="**/*Test.java"/>
+                <include name="**/*TestCase.java"/>
                 <exclude name="**/AllTests.java"/>
                 <exclude name="**/Abstract*.java"/>
               </fileset>
