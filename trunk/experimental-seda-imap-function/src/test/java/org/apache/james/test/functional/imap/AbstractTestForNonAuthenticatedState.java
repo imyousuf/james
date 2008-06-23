@@ -22,7 +22,7 @@ package org.apache.james.test.functional.imap;
 import java.util.Locale;
 
 public abstract class AbstractTestForNonAuthenticatedState extends
-        BaseTestNonAuthenticatedState {
+        AbstractTestNonAuthenticatedState {
 
     public AbstractTestForNonAuthenticatedState(HostSystem system) {
         super(system);

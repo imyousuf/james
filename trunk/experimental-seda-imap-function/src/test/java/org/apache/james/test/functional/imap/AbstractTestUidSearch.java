@@ -22,7 +22,7 @@ package org.apache.james.test.functional.imap;
 import java.util.Locale;
 
 
-abstract public class AbstractTestUidSearch extends BaseTestForAuthenticatedState {
+abstract public class AbstractTestUidSearch extends AbstractTestForAuthenticatedState {
 
     public AbstractTestUidSearch(HostSystem system) throws Exception
     {

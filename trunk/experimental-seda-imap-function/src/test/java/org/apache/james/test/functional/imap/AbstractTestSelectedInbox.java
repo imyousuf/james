@@ -21,7 +21,7 @@ package org.apache.james.test.functional.imap;
 
 import java.util.Locale;
 
-public abstract class AbstractTestSelectedInbox extends BaseTestSelectedInbox {
+public abstract class AbstractTestSelectedInbox extends AbstractBaseTestSelectedInbox {
 
     public AbstractTestSelectedInbox(HostSystem system) {
         super(system);

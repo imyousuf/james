@@ -17,40 +17,26 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.test.functional.imap;
+package org.apache.james.mailboxmanager.torque;
 
+import org.apache.james.mailboxmanager.AbstractMailboxSelfTestCase;
+import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
+import org.apache.james.mailboxmanager.mock.TorqueMailboxManagerProviderSingleton;
+import org.apache.torque.TorqueException;
 
-
-/**
- * <p>Runs tests for commands valid in the NON_AUTHENTICATED state.
- * A welcome message precedes the execution of the test elements.
- * </p><p>
- * Recommended test scripts:
- * </p><ul>
- * <li>ValidAuthenticated</li>
- * <li>ValidSelected</li>
- * <li>Capability</li>
- * <li>Noop</li>
- * <li>Logout</li>
- * <li>Authenticate</li>
- * <li>Login</li>
- * </ul>
- */
-public class BaseTestNonAuthenticatedState
-        extends SimpleScriptedTestProtocol
-{
-    public BaseTestNonAuthenticatedState( HostSystem system )
-    {
-        super( system );
+public class TorqueMailboxSelfTest extends
+        AbstractMailboxSelfTestCase {
+    
+    public TorqueMailboxSelfTest() throws TorqueException {
+        super();
     }
 
-    /**
-     * Adds a welcome message to the {@link #preElements}.
-     * @throws Exception
-     */
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
+        TorqueMailboxManagerProviderSingleton.reset();
+        MailboxManagerProvider mailboxManagerProvider=TorqueMailboxManagerProviderSingleton.getTorqueMailboxManagerProviderInstance();
+        mailboxManager = mailboxManagerProvider.getMailboxManager();
+        
         super.setUp();
-        addTestFile( "Welcome.test", preElements );
     }
+
 }

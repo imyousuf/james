@@ -29,7 +29,7 @@ import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.util.UidChangeTracker;
 import org.apache.james.mailboxmanager.util.UidRange;
 
-public class UidChangeTrackerTestCase extends TestCase {
+public class UidChangeTrackerTest extends TestCase {
     
     protected UidChangeTracker tracker;
     

@@ -30,7 +30,7 @@ import java.util.Locale;
  * Subclasses of this test can set up {@link #preElements} and {@link #postElements}
  * for extra elements not defined in the protocol session file.
  */
-public class SimpleScriptedTestProtocol
+public abstract class AbstractSimpleScriptedTestProtocol
         extends AbstractProtocolTest
 {    
     private FileProtocolSessionBuilder builder =
@@ -44,7 +44,7 @@ public class SimpleScriptedTestProtocol
      * in the same location as this test class.
      * @param fileName The name of the file to read protocol elements from.
      */
-    public SimpleScriptedTestProtocol( HostSystem hostSystem  )
+    public AbstractSimpleScriptedTestProtocol( HostSystem hostSystem  )
     {
         super( hostSystem );
     }
