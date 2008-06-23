@@ -21,7 +21,7 @@ package org.apache.james.test.functional.imap;
 
 import java.util.Locale;
 
-public abstract class AbstractTestSecurity extends SimpleScriptedTestProtocol {
+public abstract class AbstractTestSecurity extends AbstractSimpleScriptedTestProtocol {
 
     public AbstractTestSecurity(HostSystem system) {
         super(system);

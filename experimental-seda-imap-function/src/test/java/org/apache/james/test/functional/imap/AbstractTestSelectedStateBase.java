@@ -23,36 +23,26 @@ package org.apache.james.test.functional.imap;
 
 
 /**
- * <p>Tests commands which are valid in AUTHENTICATED and NONAUTHENTICATED by running
- * them in the SELECTED state. Many commands function identically, while others
- * are invalid in this state.
+ * <p>Runs tests for commands valid only in the SELECTED state. A login session
+ * and setup of a "seleted" mailbox precedes the execution of the test elements.
  * </p><p>
  * Recommended scripts:
  * </p><ul>
- * <li>ValidNonAuthenticated</li>
- * <li>Capability</li>
- * <li>Noop</li>
- * <li>Logout</li>
- * <li>Create</li>
- * <li>ExamineEmpty</li>
- * <li>SelectEmpty</li>
- * <li>ListNamespace</li>
- * <li>ListMailboxes</li>
- * <li>Status</li>
- * <li>StringArgs</li>
- * <li>Subscribe</li>
- * <li>Append</li>
- * <li>Delete</li>
+ * <li>Check"</li>
+ * <li>Expunge"</li>
+ * <li>Search"</li>
+ * <li>FetchSingleMessage"</li>
+ * <li>FetchMultipleMessages"</li>
+ * <li>FetchPeek"</li>
+ * <li>Store"</li>
+ * <li>Copy"</li>
+ * <li>Uid"</li>
  * </ul>
- *
- * @author  Darrell DeBoer <darrell@apache.org>
- *
- * @version $Revision: 560719 $
  */
-public class BaseTestSelectedInbox
-        extends BaseTestForAuthenticatedState
+public class AbstractTestSelectedStateBase
+        extends AbstractTestForAuthenticatedState
 {
-    public BaseTestSelectedInbox( HostSystem system )
+    public AbstractTestSelectedStateBase( HostSystem system )
     {
         super( system );
     }
@@ -65,12 +55,7 @@ public class BaseTestSelectedInbox
     public void setUp() throws Exception
     {
         super.setUp();
-        addTestFile( "SelectInbox.test", preElements );
-    }
-
-    protected void addCloseInbox()
-    {
-        postElements.CL( "a CLOSE");
-        postElements.SL( ".*", "BaseTestSelectedInbox.java:76");
+        addTestFile( "SelectedStateSetup.test", preElements );
+        addTestFile( "SelectedStateCleanup.test", postElements );
     }
 }

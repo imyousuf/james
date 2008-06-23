@@ -21,7 +21,7 @@ package org.apache.james.test.functional.imap;
 
 import java.util.Locale;
 
-public abstract class AbstractTestRename extends BaseTestSelectedState {
+public abstract class AbstractTestRename extends AbstractTestSelectedStateBase {
 
     public AbstractTestRename(HostSystem system) {
         super(system);

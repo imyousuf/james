@@ -23,10 +23,10 @@ import org.apache.james.mailboxmanager.AbstractMailboxManagerSelfTestCase;
 import org.apache.james.mailboxmanager.mock.TorqueMailboxManagerProviderSingleton;
 import org.apache.torque.TorqueException;
 
-public class TorqueMailboxManagerSelfTestCase extends
+public class TorqueMailboxManagerSelfTest extends
         AbstractMailboxManagerSelfTestCase {
 
-    public TorqueMailboxManagerSelfTestCase() throws TorqueException {
+    public TorqueMailboxManagerSelfTest() throws TorqueException {
         super();
     }
 

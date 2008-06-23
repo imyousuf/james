@@ -21,41 +21,58 @@
 package org.apache.james.test.functional.imap;
 
 
-
 /**
- * <p>Runs tests for commands valid only in the SELECTED state. A login session
- * and setup of a "seleted" mailbox precedes the execution of the test elements.
+ * <p>Runs tests for commands valid in the AUTHENTICATED state. A login session precedes
+ * the execution of the test elements.
  * </p><p>
- * Recommended scripts:
+ * Suggested tests:
  * </p><ul>
- * <li>Check"</li>
- * <li>Expunge"</li>
- * <li>Search"</li>
- * <li>FetchSingleMessage"</li>
- * <li>FetchMultipleMessages"</li>
- * <li>FetchPeek"</li>
- * <li>Store"</li>
- * <li>Copy"</li>
- * <li>Uid"</li>
+ * <li>ValidSelected</li>
+ * <li>ValidNonAuthenticated</li>
+ * <li>Capability</li>
+ * <li>Noop</li>
+ * <li>Logout</li>
+ * <li>AppendExamineInbox</li>
+ * <li>AppendSelectInbox</li>
+ * <li>Create</li>
+ * <li>ExamineEmpty</li>
+ * <li>SelectEmpty</li>
+ * <li>ListNamespace</li>
+ * <li>ListMailboxes</li>
+ * <li>Status</li>
+ * <li>Subscribe</li>
+ * <li>Delete</li>
+ * <li>Append</li>
+ * <li>Compound:<ul>
+ * <li>AppendExpunge</li>
+ * <li>SelectAppend</li>
+ * <li>StringArgs</li>
+ * </ul></li>
  * </ul>
+ * </p>
  */
-public class BaseTestSelectedState
-        extends BaseTestForAuthenticatedState
+public abstract class AbstractTestForAuthenticatedState
+        extends AbstractSimpleScriptedTestProtocol implements ImapTestConstants
 {
-    public BaseTestSelectedState( HostSystem system )
+    public AbstractTestForAuthenticatedState( HostSystem hostSystem)
     {
-        super( system );
+        super( hostSystem );
     }
 
     /**
-     * Superclass sets up welcome message and login session in {@link #preElements}.
-     * A "SELECT INBOX" session is then added to these elements.
+     * Sets up {@link #preElements} with a welcome message and login request/response.
      * @throws Exception
      */
     public void setUp() throws Exception
     {
         super.setUp();
-        addTestFile( "SelectedStateSetup.test", preElements );
-        addTestFile( "SelectedStateCleanup.test", postElements );
+        addTestFile( "Welcome.test", preElements );
+        addLogin( USER, PASSWORD );
+    }
+
+    protected void addLogin( String username, String password )
+    {
+        preElements.CL( "a001 LOGIN " + username + " " + password );
+        preElements.SL( "a001 OK LOGIN completed.", "AbstractTestForAuthenticatedState.java:53" );
     }
 }

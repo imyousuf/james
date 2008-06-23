@@ -21,7 +21,7 @@ package org.apache.james.test.functional.imap;
 
 import java.util.Locale;
 
-public abstract class AbstractTestEvents extends BaseTestSelectedState {
+public abstract class AbstractTestEvents extends AbstractTestSelectedStateBase {
 
     public AbstractTestEvents(HostSystem system) {
         super(system);

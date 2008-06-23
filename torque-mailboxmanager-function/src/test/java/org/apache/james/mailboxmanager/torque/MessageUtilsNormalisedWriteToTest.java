@@ -21,7 +21,7 @@ package org.apache.james.mailboxmanager.torque;
 
 import junit.framework.TestCase;
 
-public class MessageUtilsNormalisedWriteTo extends TestCase {
+public class MessageUtilsNormalisedWriteToTest extends TestCase {
 
     StringBuffer buffer;
     
