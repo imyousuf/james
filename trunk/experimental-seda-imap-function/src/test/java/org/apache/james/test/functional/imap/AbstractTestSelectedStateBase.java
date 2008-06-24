@@ -39,7 +39,7 @@ package org.apache.james.test.functional.imap;
  * <li>Uid"</li>
  * </ul>
  */
-public class AbstractTestSelectedStateBase
+public abstract class AbstractTestSelectedStateBase
         extends AbstractTestForAuthenticatedState
 {
     public AbstractTestSelectedStateBase( HostSystem system )

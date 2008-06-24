@@ -49,7 +49,7 @@ package org.apache.james.test.functional.imap;
  *
  * @version $Revision: 560719 $
  */
-public class AbstractBaseTestSelectedInbox
+public abstract class AbstractBaseTestSelectedInbox
         extends AbstractTestForAuthenticatedState
 {
     public AbstractBaseTestSelectedInbox( HostSystem system )
