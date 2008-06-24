@@ -1,4 +1,4 @@
-This document describes how to build Spring bean container support for Apache James
+This document describes how to build/run Spring bean container support for Apache James
 
 1. Preparations
 
@@ -8,14 +8,7 @@ svn co http://svn.apache.org/repos/asf/james/server/trunk
 cd trunk
 ant dist
 
-1.2 Fetch Spring Integration module from svn
-
-svn co http://svn.apache.org/repos/asf/james/server/sandbox/spring-integration
-
-1.3 Add freshly generated James jars to spring-integration
-(this step can be ommitted, once spring-deployment is moved to trunk)
-
-cp trunk/stage/org.apache.james/jars/james-server-* spring-integration/stage/org.apache.james/jars/
+1.2 Build James running "ant"
 
 2. Considering some configuration
 
@@ -31,7 +24,7 @@ more or less incompatible with the rest of the emailing universe.
 
 3. Building and Running
 
-cd spring-integration/spring-deployment
+cd spring-deployment
 ant run
 
 4. JMX
