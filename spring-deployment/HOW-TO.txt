@@ -14,7 +14,7 @@ ant dist
 
 if you are not root/Administrator on your machine or have a mail server already running on some privileged port,
 it is recommended to change in file
-    spring-integration/spring-deployment/src/main/config/spring-beans.xml
+    spring-deployment/src/main/config/spring-beans.xml
 line
                 <!--<ref bean="exampleConfigurationInterceptor" />-->
 into 
