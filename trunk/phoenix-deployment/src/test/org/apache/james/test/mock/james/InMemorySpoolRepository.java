@@ -17,7 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
 package org.apache.james.test.mock.james;
 
 import org.apache.avalon.framework.activity.Disposable;
@@ -140,8 +139,18 @@ public class InMemorySpoolRepository
                 }
             }
             try {
+                // Remove any previous copy of this mail
+                if (spool.containsKey(key)) {
+                    // do not use this.remove because this would
+                    // also remove a current lock.
+                    Object o = spool.remove(key);
+                    ContainerUtil.dispose(o);
+                }
+                // Clone the mail (so the caller could modify it).
                 MailImpl m = new MailImpl(mc,mc.getName());
                 m.setState(mc.getState());
+                m.setLastUpdated(mc.getLastUpdated());
+                m.setErrorMessage(mc.getErrorMessage());
                 spool.put(mc.getName(),m);
             } finally {
                 if (!wasLocked) {
@@ -184,6 +193,8 @@ public class InMemorySpoolRepository
             try {
                 mc = new MailImpl((Mail) spool.get(key),key);
                 mc.setState(((Mail) spool.get(key)).getState());
+                mc.setErrorMessage(((Mail) spool.get(key)).getErrorMessage());
+                mc.setLastUpdated(((Mail) spool.get(key)).getLastUpdated());
             } 
             catch (RuntimeException re){
                 StringBuffer exceptionBuffer = new StringBuffer(128);
