@@ -42,11 +42,6 @@ import org.apache.oro.text.regex.Pattern;
 import org.apache.oro.text.regex.Perl5Compiler;
 import org.apache.oro.text.regex.Perl5Matcher;
 
-import com.sun.mail.smtp.SMTPAddressFailedException;
-import com.sun.mail.smtp.SMTPAddressSucceededException;
-import com.sun.mail.smtp.SMTPSendFailedException;
-import com.sun.mail.smtp.SMTPTransport;
-
 import javax.mail.Address;
 import javax.mail.MessagingException;
 import javax.mail.SendFailedException;
@@ -61,6 +56,8 @@ import javax.mail.internet.ParseException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.SocketException;
@@ -398,8 +395,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
      * @param e The MessagingException to use
      * @return logString
      */
-    private String exceptionToLogString(MessagingException e) {
-        if (e instanceof SMTPSendFailedException) {
+    private String exceptionToLogString(Exception e) {
+        if (e.getClass().getName().endsWith(".SMTPSendFailedException")) {
               return "RemoteHost said: " + e.getMessage();
         } else if (e instanceof SendFailedException) {
             SendFailedException exception  = (SendFailedException) e;
@@ -413,12 +410,19 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
              boolean smtpExFound = false;
              sb.append("RemoteHost said:");
 
-             while((ex = e.getNextException()) != null & ex instanceof MessagingException) {
-                 e = (MessagingException)ex;
-                 if (ex instanceof SMTPAddressFailedException) {
-                     SMTPAddressFailedException exc = (SMTPAddressFailedException) ex;
-                     sb.append(" ( " + exc.getAddress() + " - [" + exc.getMessage().replaceAll("\\n", "") + "] )");
-                     smtpExFound = true;
+             
+             if (e instanceof MessagingException) while((ex = ((MessagingException) e).getNextException()) != null && ex instanceof MessagingException) {
+                 e = ex;
+                 if (ex.getClass().getName().endsWith(".SMTPAddressFailedException")) {
+                     try {
+                         InternetAddress ia = (InternetAddress) invokeGetter(ex, "getAddress");
+                         sb.append(" ( " + ia + " - [" + ex.getMessage().replaceAll("\\n", "") + "] )");
+                         smtpExFound = true;
+                     } catch (IllegalStateException ise) {
+                         // Error invoking the getAddress method
+                     } catch (ClassCastException cce) {
+                         // The getAddress method returned something different than InternetAddress
+                     }
                  } 
              }
              if (!smtpExFound) {
@@ -441,6 +445,28 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         }
         return null;
     }
+    
+    /**
+     * Utility method used to invoke getters for javamail implementation specific classes.
+     * 
+     * @param target the object whom method will be invoked
+     * @param getter the no argument method name
+     * @return the result object
+     * @throws IllegalStateException on invocation error
+     */
+    private Object invokeGetter(Object target, String getter) {
+        try {
+            Method getAddress = target.getClass().getMethod(getter, null);
+            return getAddress.invoke(target, null);
+        } catch (NoSuchMethodException nsme) {
+            // An SMTPAddressFailedException with no getAddress method.
+        } catch (IllegalAccessException iae) {
+        } catch (IllegalArgumentException iae) {
+        } catch (InvocationTargetException ite) {
+            // Other issues with getAddress invokation.
+        }
+        return new IllegalStateException("Exception invoking "+getter+" on a "+target.getClass()+" object");
+    }
 
     /*
      * private method to log the extended SendFailedException introduced in JavaMail 1.3.2.
@@ -448,35 +474,45 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
     private void logSendFailedException(SendFailedException sfe) {
         if (isDebug) {
             MessagingException me = sfe;
-            if (me instanceof SMTPSendFailedException) {
-                SMTPSendFailedException ssfe = (SMTPSendFailedException)me;
-                log("SMTP SEND FAILED:");
-                log(ssfe.toString());
-                log("  Command: " + ssfe.getCommand());
-                log("  RetCode: " + ssfe.getReturnCode());
-                log("  Response: " + ssfe.getMessage());
+            if (me.getClass().getName().endsWith(".SMTPSendFailedException")) {
+                try {
+                    String command = (String) invokeGetter(sfe, "getCommand");
+                    Integer returnCode = (Integer) invokeGetter(sfe, "getReturnCode");
+                    log("SMTP SEND FAILED:");
+                    log(sfe.toString());
+                    log("  Command: " + command);
+                    log("  RetCode: " + returnCode);
+                    log("  Response: " + sfe.getMessage());
+                } catch (IllegalStateException ise) {
+                    // Error invoking the getAddress method
+                    log("Send failed: " + me.toString());
+                } catch (ClassCastException cce) {
+                    // The getAddress method returned something different than InternetAddress
+                    log("Send failed: " + me.toString());
+                }
             } else {
                 log("Send failed: " + me.toString());
             }
             Exception ne;
             while ((ne = me.getNextException()) != null && ne instanceof MessagingException) {
                 me = (MessagingException)ne;
-                if (me instanceof SMTPAddressFailedException) {
-                    SMTPAddressFailedException e = (SMTPAddressFailedException)me;
-                    log("ADDRESS FAILED:");
-                    log(e.toString());
-                    log("  Address: " + e.getAddress());
-                    log("  Command: " + e.getCommand());
-                    log("  RetCode: " + e.getReturnCode());
-                    log("  Response: " + e.getMessage());
-                } else if (me instanceof SMTPAddressSucceededException) {
-                    log("ADDRESS SUCCEEDED:");
-                    SMTPAddressSucceededException e = (SMTPAddressSucceededException)me;
-                    log(e.toString());
-                    log("  Address: " + e.getAddress());
-                    log("  Command: " + e.getCommand());
-                    log("  RetCode: " + e.getReturnCode());
-                    log("  Response: " + e.getMessage());
+                if (me.getClass().getName().endsWith(".SMTPAddressFailedException") || me.getClass().getName().endsWith(".SMTPAddressSucceededException")) {
+                    try {
+                        String action = me.getClass().getName().endsWith(".SMTPAddressFailedException") ? "FAILED" : "SUCCEEDED";
+                        InternetAddress address = (InternetAddress) invokeGetter(me, "getAddress");
+                        String command = (String) invokeGetter(me, "getCommand");
+                        Integer returnCode = (Integer) invokeGetter(me, "getReturnCode");
+                        log("ADDRESS "+action+":");
+                        log(me.toString());
+                        log("  Address: " + address);
+                        log("  Command: " + command);
+                        log("  RetCode: " + returnCode);
+                        log("  Response: " + me.getMessage());
+                    } catch (IllegalStateException ise) {
+                        // Error invoking the getAddress method
+                    } catch (ClassCastException cce) {
+                        // A method returned something different than expected
+                    }
                 }
             }
         }
@@ -610,8 +646,18 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                         }
                         // if the transport is a SMTPTransport (from sun) some
                         // performance enhancement can be done.
-                        if (transport instanceof SMTPTransport)  {
-                            SMTPTransport smtpTransport = (SMTPTransport) transport;
+                        if (transport.getClass().getName().endsWith(".SMTPTransport"))  {
+                            boolean supports8bitmime = false;
+                            try {
+                                Method supportsExtension = transport.getClass().getMethod("supportsExtension", new Class[] {String.class});
+                                supports8bitmime = ((Boolean) supportsExtension.invoke(transport, new Object[] {"8BITMIME"})).booleanValue();
+                            } catch (NoSuchMethodException nsme) {
+                                // An SMTPAddressFailedException with no getAddress method.
+                            } catch (IllegalAccessException iae) {
+                            } catch (IllegalArgumentException iae) {
+                            } catch (InvocationTargetException ite) {
+                                // Other issues with getAddress invokation.
+                            }
                            
                             // if the message is alredy 8bit or binary and the
                             // server doesn't support the 8bit extension it has
@@ -620,7 +666,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                             // rfc-compliant smtp server.
                             
                             // Temporarily disabled. See JAMES-638
-                            if (!smtpTransport.supportsExtension("8BITMIME")) { 
+                            if (!supports8bitmime) {
                                 try {
                                     convertTo7Bit(message);
                                 } catch (IOException e) {
@@ -677,10 +723,14 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                     }
 
                     /* SMTPSendFailedException introduced in JavaMail 1.3.2, and provides detailed protocol reply code for the operation */
-                    if (sfe instanceof SMTPSendFailedException) {
-                        SMTPSendFailedException ssfe = (SMTPSendFailedException) sfe;
-                        // if 5xx, terminate this delivery attempt by re-throwing the exception.
-                        if (ssfe.getReturnCode() >= 500 && ssfe.getReturnCode() <= 599) throw sfe;
+                    if (sfe.getClass().getName().endsWith(".SMTPSendFailedException")) {
+                        try {
+                            int returnCode = ((Integer) invokeGetter(sfe, "getReturnCode")).intValue();
+                            // if 5xx, terminate this delivery attempt by re-throwing the exception.
+                            if (returnCode >= 500 && returnCode <= 599) throw sfe;
+                        } catch (ClassCastException cce) {
+                        } catch (IllegalArgumentException iae) {
+                        }
                     }
 
                     if (sfe.getValidUnsentAddresses() != null
@@ -756,21 +806,27 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
              */
 
             /* SMTPSendFailedException introduced in JavaMail 1.3.2, and provides detailed protocol reply code for the operation */
-            if (sfe instanceof SMTPSendFailedException) {
-                // If we got an SMTPSendFailedException, use its RetCode to determine default permanent/temporary failure
-                SMTPSendFailedException ssfe = (SMTPSendFailedException) sfe;
-                deleteMessage = (ssfe.getReturnCode() >= 500 && ssfe.getReturnCode() <= 599);
-            } else {
-                // Sometimes we'll get a normal SendFailedException with nested SMTPAddressFailedException, so use the latter RetCode
-                MessagingException me = sfe;
-                Exception ne;
-                while ((ne = me.getNextException()) != null && ne instanceof MessagingException) {
-                    me = (MessagingException)ne;
-                    if (me instanceof SMTPAddressFailedException) {
-                        SMTPAddressFailedException ssfe = (SMTPAddressFailedException)me;
-                        deleteMessage = (ssfe.getReturnCode() >= 500 && ssfe.getReturnCode() <= 599);
+            try {
+                if (sfe.getClass().getName().endsWith(".SMTPSendFailedException")) {
+                    int returnCode = ((Integer) invokeGetter(sfe, "getReturnCode")).intValue();
+                    // If we got an SMTPSendFailedException, use its RetCode to determine default permanent/temporary failure
+                    deleteMessage = (returnCode >= 500 && returnCode <= 599);
+                } else {
+                    // Sometimes we'll get a normal SendFailedException with nested SMTPAddressFailedException, so use the latter RetCode
+                    MessagingException me = sfe;
+                    Exception ne;
+                    while ((ne = me.getNextException()) != null && ne instanceof MessagingException) {
+                        me = (MessagingException)ne;
+                        if (me.getClass().getName().endsWith(".SMTPAddressFailedException")) {
+                            int returnCode = ((Integer) invokeGetter(me, "getReturnCode")).intValue();
+                            deleteMessage = (returnCode >= 500 && returnCode <= 599);
+                        }
                     }
                 }
+            } catch (IllegalStateException ise) {
+                // unexpected exception (not a compatible javamail implementation)
+            } catch (ClassCastException cce) {
+                // unexpected exception (not a compatible javamail implementation)
             }
 
             // log the original set of intended recipients
@@ -810,9 +866,9 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                         }
                     }
                     if (isDebug) log("Unsent recipients: " + recipients);
-                    if (sfe instanceof SMTPSendFailedException) {
-                        SMTPSendFailedException ssfe = (SMTPSendFailedException) sfe;
-                        deleteMessage = failMessage(mail, sfe, ssfe.getReturnCode() >= 500 && ssfe.getReturnCode() <= 599);
+                    if (sfe.getClass().getName().endsWith(".SMTPSendFailedException")) {
+                        int returnCode = ((Integer) invokeGetter(sfe, "getReturnCode")).intValue();
+                        deleteMessage = failMessage(mail, sfe, returnCode >= 500 && returnCode <= 599);
                     } else {
                         deleteMessage = failMessage(mail, sfe, false);
                     }
@@ -833,6 +889,9 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             // or mailbox is full or domain is setup wrong).
             // We fail permanently if this was a 5xx error
             return failMessage(mail, ex, ('5' == ex.getMessage().charAt(0)));
+        } catch (Exception ex) {
+            // Generic exception = permanent failure
+            return failMessage(mail, ex, true);
         }
 
         /* If we get here, we've exhausted the loop of servers without
@@ -876,7 +935,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
      * @param permanent
      * @return boolean Whether the message failed fully and can be deleted
      */
-    private boolean failMessage(Mail mail, MessagingException ex, boolean permanent) {
+    private boolean failMessage(Mail mail, Exception ex, boolean permanent) {
         StringWriter sout = new StringWriter();
         PrintWriter out = new PrintWriter(sout, true);
         if (permanent) {
@@ -965,7 +1024,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         return true;
     }
 
-    private void bounce(Mail mail, MessagingException ex) {
+    private void bounce(Mail mail, Exception ex) {
         StringWriter sout = new StringWriter();
         PrintWriter out = new PrintWriter(sout, true);
         String machine = "[unknown]";
@@ -989,22 +1048,24 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         for (Iterator i = mail.getRecipients().iterator(); i.hasNext(); ) {
             out.println(i.next());
         }
-        if (ex.getNextException() == null) {
-            out.println(ex.getMessage().trim());
-        } else {
-            Exception ex1 = ex.getNextException();
-            if (ex1 instanceof SendFailedException) {
-                out.println("Remote mail server told me: " + ex1.getMessage().trim());
-            } else if (ex1 instanceof UnknownHostException) {
-                out.println("Unknown host: " + ex1.getMessage().trim());
-                out.println("This could be a DNS server error, a typo, or a problem with the recipient's mail server.");
-            } else if (ex1 instanceof ConnectException) {
-                //Already formatted as "Connection timed out: connect"
-                out.println(ex1.getMessage().trim());
-            } else if (ex1 instanceof SocketException) {
-                out.println("Socket exception: " + ex1.getMessage().trim());
+        if (ex instanceof MessagingException) {
+            if (((MessagingException) ex).getNextException() == null) {
+                out.println(ex.getMessage().trim());
             } else {
-                out.println(ex1.getMessage().trim());
+                Exception ex1 = ((MessagingException) ex).getNextException();
+                if (ex1 instanceof SendFailedException) {
+                    out.println("Remote mail server told me: " + ex1.getMessage().trim());
+                } else if (ex1 instanceof UnknownHostException) {
+                    out.println("Unknown host: " + ex1.getMessage().trim());
+                    out.println("This could be a DNS server error, a typo, or a problem with the recipient's mail server.");
+                } else if (ex1 instanceof ConnectException) {
+                    //Already formatted as "Connection timed out: connect"
+                    out.println(ex1.getMessage().trim());
+                } else if (ex1 instanceof SocketException) {
+                    out.println("Socket exception: " + ex1.getMessage().trim());
+                } else {
+                    out.println(ex1.getMessage().trim());
+                }
             }
         }
         out.println();
@@ -1176,7 +1237,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         
         props.putAll(defprops);
 
-        Session session = Session.getInstance(props, null);
+        Session session = obtainSession(props);
         try {
             while (!Thread.interrupted() && !destroyed) {
                 try {
@@ -1241,6 +1302,16 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             sum += delay.getAttempts();
         }
         return sum;
+    }
+    
+    /**
+     * Returns the javamail Session object.
+     * @param props
+     * @param authenticator 
+     * @return
+     */
+    protected Session obtainSession(Properties props) {
+        return Session.getInstance(props);
     }
     
     /**
@@ -1452,5 +1523,13 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                 throw new UnsupportedOperationException ("remove not supported by this iterator");
             }
         };
+    }
+    
+    /**
+     * Setter for the dnsserver service
+     * @param dnsServer dns service
+     */
+    protected synchronized void setDNSServer(DNSServer dnsServer) {
+        this.dnsServer = dnsServer;
     }
 }
