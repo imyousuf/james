@@ -25,9 +25,9 @@ import org.apache.james.test.functional.imap.AbstractTestFetch;
  * Script verification against local IMAP.
  * 
  */
-public class ExternalFetchRunnerTest extends AbstractTestFetch {
+public class ExternalFetchRunner extends AbstractTestFetch {
 
-    public ExternalFetchRunnerTest() {
+    public ExternalFetchRunner() {
         super(ExternalHostSystem.createLocalImap());
         continueAfterFailure();
     }
