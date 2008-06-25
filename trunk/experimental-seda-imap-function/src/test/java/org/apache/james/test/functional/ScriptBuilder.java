@@ -109,8 +109,9 @@ public class ScriptBuilder {
         this.fetch = fetch;
     }
     
-    public final void resetFetch() {
+    public final Fetch resetFetch() {
         this.fetch = new Fetch();
+        return fetch;
     }
     
     public final int getMessageNumber() {
@@ -437,6 +438,10 @@ public class ScriptBuilder {
     public ScriptBuilder list() throws Exception {
         command("LIST \"\" \"*\"");
         return this;
+    }
+    
+    public void fetchBody() throws Exception {
+        
     }
     
     public void fetch() throws Exception {
@@ -850,6 +855,7 @@ public class ScriptBuilder {
     
     public static final class Fetch {
         
+        
         public static final String[] COMPREHENSIVE_HEADERS = {"DATE", "FROM", "TO", "CC", "SUBJECT", 
             "REFERENCES", "IN-REPLY-TO", "MESSAGE-ID", "MIME-VERSION", "CONTENT-TYPE", 
             "X-MAILING-LIST", "X-LOOP", "LIST-ID", "LIST-POST", "MAILING-LIST", "ORIGINATOR", "X-LIST", 
@@ -862,8 +868,28 @@ public class ScriptBuilder {
         private boolean rfc822Size = false;
         private boolean internalDate = false;
         private boolean uid = false;
-        private String bodyPeek = null;
+        private String body = null;
+        private boolean bodyFetch = false;
+        private boolean bodyStructureFetch = false;
         
+        public final boolean isBodyFetch() {
+            return bodyFetch;
+        }
+
+        public final Fetch setBodyFetch(boolean bodyFetch) {
+            this.bodyFetch = bodyFetch;
+            return this;
+        }
+
+        public final boolean isBodyStructureFetch() {
+            return bodyStructureFetch;
+        }
+
+        public final Fetch setBodyStructureFetch(boolean bodyStructureFetch) {
+            this.bodyStructureFetch = bodyStructureFetch;
+            return this;
+        }
+
         public String command(int messageNumber) {
             return "FETCH " + messageNumber + "(" + fetchData() + ")";
         }
@@ -908,24 +934,24 @@ public class ScriptBuilder {
             return this;
         }
         
-        public final String getBodyPeek() {
-            return bodyPeek;
+        public final String getBody() {
+            return body;
         }
 
-        public final void setBodyPeek(String bodyPeek) {
-            this.bodyPeek = bodyPeek;
+        public final void setBody(String bodyPeek) {
+            this.body = bodyPeek;
         }
 
         public void bodyPeekCompleteMessage() {
-            setBodyPeek(buildBody(true, ""));
+            setBody(buildBody(true, ""));
         }
         
         public void bodyPeekNotHeaders(String[] fields) {
-            setBodyPeek(buildBody(true, buildHeaderFields(fields, true)));
+            setBody(buildBody(true, buildHeaderFields(fields, true)));
         }
         
         public Fetch bodyPeekHeaders(String[] fields) {
-            setBodyPeek(buildBody(true, buildHeaderFields(fields, false)));
+            setBody(buildBody(true, buildHeaderFields(fields, false)));
             return this;
         }
         
@@ -972,7 +998,13 @@ public class ScriptBuilder {
             if (uid) {
                 first = add(buffer, first, "UID");
             }
-            add(buffer, first, bodyPeek);
+            if (bodyFetch) {
+                first = add(buffer, first, "BODY");
+            }
+            if (bodyStructureFetch) {
+                first = add(buffer, first, "BODYSTRUCTURE");
+            }
+            add(buffer, first, body);
             return buffer.toString();
         }
 
