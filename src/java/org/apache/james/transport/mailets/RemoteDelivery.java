@@ -775,7 +775,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             for (int i = 0; i < count; i++) {
                 convertTo7Bit((MimePart)parts.getBodyPart(i));
             }
-        } else {
+        } else if ("8bit".equals(part.getEncoding())) {
             // The content may already be in encoded the form (likely with mail created from a
             // stream).  In that case, just changing the encoding to quoted-printable will mangle 
             // the result when this is transmitted.  We must first convert the content into its 
