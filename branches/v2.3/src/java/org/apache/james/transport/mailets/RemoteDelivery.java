@@ -776,14 +776,17 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                 convertTo7Bit((MimePart)parts.getBodyPart(i));
             }
         } else {
-            if (part.isMimeType("text/*")) {
-                part.setHeader("Content-Transfer-Encoding", "quoted-printable");
-                part.addHeader("X-MIME-Autoconverted", "from 8bit to quoted-printable by "+getMailetContext().getServerInfo());
-            } else {
-                // if the part doesn't contain text it will be base64 encoded.
-                part.setHeader("Content-Transfer-Encoding", "base64");
-                part.addHeader("X-MIME-Autoconverted", "from 8bit to base64 by "+getMailetContext().getServerInfo());
-            }
+            // The content may already be in encoded the form (likely with mail created from a
+            // stream).  In that case, just changing the encoding to quoted-printable will mangle 
+            // the result when this is transmitted.  We must first convert the content into its 
+            // native format, set it back, and only THEN set the transfer encoding to force the 
+            // content to be encoded appropriately.
+            
+            // if the part doesn't contain text it will be base64 encoded.
+            String contentTransferEncoding = part.isMimeType("text/*") ? "quoted-printable" : "base64";
+            part.setContent(part.getContent(), part.getContentType()); 
+            part.setHeader("Content-Transfer-Encoding", contentTransferEncoding);
+            part.addHeader("X-MIME-Autoconverted", "from 8bit to "+contentTransferEncoding+" by "+getMailetContext().getServerInfo());
         }
     }
     
