@@ -2,7 +2,7 @@
   ===         The Apache Software Foundation JAMES Server             ===
   =======================================================================
 
-  Upgrading ...
+  Upgrading from James 2.2.0 to 2.3.x
   -----------------
   
   Please note that you need to start james 2.3.x once before this steps can be performed. For installation guidelines 
