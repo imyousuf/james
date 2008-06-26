@@ -437,7 +437,7 @@ Legal:
                 Build everything
     ===================================================================
     -->
-    <target name="everything" depends="clean,website,dist-bin,dist-src,dist-mailet-SDK"/>
+    <target name="everything" depends="clean,dist-bin,dist-src,dist-mailet-SDK"/>
 
     <!--
     ===================================================================
@@ -667,7 +667,7 @@ Legal:
         <delete file="${dist.source.dir}/${name}-with-phoenix-${version}-src.tar"/>
     </target>
 
-    <target name="dist-src-common" depends="dist-lite,xdocs,javadocs">
+    <target name="dist-src-common" depends="dist-lite,javadocs">
         <echo message ="Building source distributions"/>
 
         <property name="dist.source.dir" value="${dist.dir}/downloads/src"/>
@@ -715,7 +715,7 @@ Legal:
                                   Mailet SDK distribution
     ===================================================================
     -->
-    <target name="dist-mailet-SDK" depends="dist-lite,xdocs,javadocs">
+    <target name="dist-mailet-SDK" depends="dist-lite,javadocs">
 
         <echo message ="building mailet SDK distributions"/>
 
