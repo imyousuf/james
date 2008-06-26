@@ -45,8 +45,6 @@ identified.</p>
 jar/zip files for the JDBC driver in the lib subdirectory of the James installation directory.  Any additional 
 libraries upon which the JDBC library depends that are not part of the standard Java distribution should also be
 added to this directory.</p>
-<p>Please note that a MySQL driver is included as part of the James distribution and
-so there is no need to add such a driver to the lib directory.</p>
 <p>Second, the config.xml must be modified so that Phoenix initializes the database connections.  The relevant 
 configuration is in the database-connections block.  The database-connections tag has only a single child tag, 
 data-sources.  This latter tag is a simple container tag for a number of child elements.  It is these child 
@@ -104,7 +102,7 @@ must have table creation privileges.</p>
 
 <source>
 &lt;data-source name="maildb" class="org.apache.james.util.mordred.JdbcDataSource"&gt;
-  &lt;driver&gt;org.gjt.mm.mysql.Driver&lt;/driver&gt;
+  &lt;driver&gt;com.mysql.jdbc.Driver&lt;/driver&gt;
   &lt;dburl&gt;jdbc:mysql://127.0.0.1/mail&lt;/dburl&gt;
   &lt;user&gt;username&lt;/user&gt;
   &lt;password&gt;password&lt;/password&gt;
