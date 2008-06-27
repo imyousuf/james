@@ -1,0 +1,288 @@
+<?xml version="1.0"?>
+
+<!-- ==========================================================================
+
+ James build file
+
+Authors:
+ Federico Barbieri <scoobie@systemy.it>
+ Serge
+ Charles Benett (charles@benet1.demon.co.uk>
+
+
+Legal:
+  Copyright (c) 1999 The Apache Software Foundation. All Rights Reserved.
+
+===============================================================================
+
+                          Needed packages to run JAMES
+                          ============================
+
+JAMES is a mail server running on top of the Avalon. Avalon is a component-
+based server framework. Components are organized into blocks, and one or more
+ blocks are packaged in block archive files (*.bar). James is a single block in
+ its own archive.
+
+To compile and run James you need the avalon-loader.jar and avalon-engine.jar
+ as well as the JAMES.bar. The default implementation of JAMES also uses the
+ blocks from avalon-core-blocks.bar.
+
+After that you'll need activation.jar and mail.jar from Sun. For optional TLS
+ support, you will need the JSSE jars from Sun.
+
+All these package are in current distribution.
+
+=========================================================================== -->
+
+<project default="block-archive" basedir=".">
+
+  <!--
+    Give user a chance to override without editing this file
+    (and without typing -D each time he compiles it)
+  -->
+
+  <property name="name" value="james"/>
+  <property name="version" value="1.2.2alpha"/>
+  <property name="year" value="1999-2000"/>
+
+  <property name="build.compiler" value="classic"/>
+  <property name="debug" value="off"/>
+  <property name="optimize" value="on"/>
+  <property name="deprecation" value="off"/>
+
+  <!-- The properties in the init section should not normally be changed 
+-->
+  <target name="init">
+	
+	<property name="classpath" value="./lib/avalonapi.jar;./lib/activation.jar;./lib/mail_1_2.jar;./lib/xerces.jar;./lib/dnsjava.jar;./lib/town.jar"/>
+
+	<property name="src.dir" value="./src"/>
+	<property name="conf.dir" value="./conf"/>
+	<property name="lib.dir" value="lib"/>
+
+	<property name="build.dir" value="./build"/>
+	<property name="build.src" value="${build.dir}/src"/>
+	<property name="build.classes" value="${build.dir}/classes"/>
+        <property name="build.docs" value="${build.dir}/docs"/>
+        <property name="build.mailetdocs" value="${build.dir}/mailetdocs"/>
+	<property name="build.javadocs" value="${build.dir}/javadocs"/>
+	<property name="build.lib" value="${build.dir}/lib"/>
+
+	<property name="constants.file" value="org/apache/james/Constants.java"/>
+	<property name="conf.file" value="james.conf.xml"/>
+	<property name="blockdefs.file" value="blockdefs.properties"/>
+
+	<property name="dist.dir" value="./dist"/>
+        <property name="dist.name" value="${name}-${version}"/>
+	<property name="site.dir" value="../xml-site/sources/james"/>
+	<property name="site.docs" value="../xml-site/targets/james"/>
+  </target>
+
+  <!-- =================================================================== -->
+  <!-- Help on usage                                                       -->
+  <!-- =================================================================== -->
+  <target name="usage">
+    <echo message=""/>
+    <echo message=""/>
+    <echo message="JAMES Build file"/>
+    <echo message="-------------------------------------------------------------"/>
+    <echo message=""/>
+    <echo message=" available targets are:"/>
+    <echo message=""/>
+    <echo message="   block-archive  --> generates the James.bar file (default)"/>
+    <echo message="   auxiliary-jars  --> generates the mailet.jar and the simple-server-demo.bar"/>
+    <echo message="   compile  --> compiles the source code"/>
+    <echo message="   dist     --> generates the JAMES distribution"/>
+    <echo message="   clean    --> cleans up the directory"/>
+    <echo message="   javadoc  --> creates the Javadoc"/>
+    <echo message="   javadocmailet --> creates the Javadoc for the mailet API"/>
+    <echo message=""/>
+    <echo message=" See the comments inside the build.xml file for more details."/>
+    <echo message="-------------------------------------------------------------"/>
+    <echo message=""/>
+    <echo message=""/>
+  </target>
+
+  <!-- =================================================================== -->
+  <!-- Prepares the build directory                                        -->
+  <!-- =================================================================== -->
+  <target name="prepare" depends="init">
+    <mkdir dir="${build.dir}"/>
+  </target>
+
+  <!-- =================================================================== -->
+  <!-- Copies the source code                                              -->
+  <!-- =================================================================== -->
+  <target name="prepare-src" depends="prepare">
+    <!-- create directories -->
+    <mkdir dir="${build.src}"/>
+    <mkdir dir="${build.classes}"/>
+    <mkdir dir="${build.lib}"/>
+
+    <!-- copy src files -->
+    <copy todir="${build.src}">
+      <fileset dir="${src.dir}" excludes="**/CVS/**,*.xml"/>
+    </copy>
+
+    <copy file="${lib.dir}/avalon-core-blocks.bar" tofile="${build.lib}/avalon-core-blocks.bar"/>
+
+    <!-- substitute tokens as needed -->
+    <replace file="${build.src}/${constants.file}" token="@@version@@" value="${version}"/>
+  </target>
+
+  <!-- =================================================================== -->
+  <!-- Compiles the source directory                                       -->
+  <!-- =================================================================== -->
+  <target name="compile" depends="prepare-src">
+    <javac srcdir="${build.src}" destdir="${build.classes}" classpath="${classpath}"
+           debug="${debug}"
+           optimize="${optimize}"
+           deprecation="${deprecation}"/>
+
+    <copy todir="${build.classes}">
+      <fileset dir="${build.src}">
+        <include name="**/*.properties"/>
+        <include name="**/*.xinfo"/>
+      </fileset>
+    </copy>
+
+  </target>
+
+  <!-- =================================================================== -->
+  <!-- Creates the JAMES.bar archive                                       -->
+  <!-- =================================================================== -->
+  <target name="block-archive" depends="compile">
+
+    <jar jarfile="${build.dir}/${name}.bar"
+         basedir="${build.classes}"
+         manifest="${build.src}/Manifest.mf">
+
+       <include name="org/**"/>
+
+    </jar>
+
+    <copy file="${build.dir}/${name}.bar" tofile="${build.lib}/${name}.bar"/>
+  
+  </target>
+
+  <!-- =================================================================== -->
+  <!-- Creates the mailet.jar                                              -->
+  <!-- =================================================================== -->
+  <target name="auxiliary-jars" depends="compile">
+    <jar jarfile="${build.dir}/mailet.jar" basedir="${build.classes}"
+         manifest="${build.src}/Manifest.mf" includes="org/apache/mailet/**"/>
+  </target>
+
+
+  <!--
+       ===================================================================
+                           Creates the .sar file
+       ===================================================================
+  -->
+  <target name="sar" depends="block-archive">
+
+    <jar jarfile="${build.lib}/${name}.sar">
+
+      <fileset dir="${build.lib}/" prefix="blocks/">
+        <include name="*.bar"/>
+      </fileset>
+
+      <fileset dir="${conf.dir}" fullpath="conf/assembly.xml">
+        <include name="james.conf.xml"/>
+      </fileset>
+
+    </jar>
+
+  </target>
+
+  <!-- =================================================================== -->
+  <!-- Creates the distribution                                            -->
+  <!-- =================================================================== -->
+
+  <target name="dist" depends="sar, auxiliary-jars">
+    <mkdir dir="${dist.dir}"/>
+    <mkdir dir="${dist.dir}/bin"/>
+    <mkdir dir="${dist.dir}/bin/blocks"/>
+    <mkdir dir="${dist.dir}/src"/>
+    <mkdir dir="${dist.dir}/conf"/>
+    <mkdir dir="${dist.dir}/docs"/>
+
+    <copy todir="${dist.dir}/src">
+      <fileset dir="${build.src}" excludes="james.conf.xml"/>
+    </copy>
+    <copy todir="${dist.dir}/docs">
+      <fileset dir="./docs/"/>
+    </copy>
+    <copy file="${build.lib}/${name}.sar" tofile="${dist.dir}/bin/blocks/${name}.sar"/>
+
+    <copy file="./lib/avalon-engine.jar" tofile="${dist.dir}/bin/avalon-engine.jar"/>
+    <copy file="./lib/avalon-loader.jar" tofile="${dist.dir}/bin/avalon-loader.jar"/>
+    <copy file="./lib/avalonapi.jar" tofile="${dist.dir}/lib/avalonapi.jar"/>
+    <copy file="./lib/activation.jar" tofile="${dist.dir}/lib/activation.jar"/>
+    <copy file="./lib/mail_1_2.jar" tofile="${dist.dir}/lib/mail_1_2.jar"/>
+    <copy file="./lib/xerces.jar" tofile="${dist.dir}/lib/xerces.jar"/>
+    <copy file="./lib/dnsjava.jar" tofile="${dist.dir}/lib/dnsjava.jar"/>
+    <copy file="./lib/town.jar" tofile="${dist.dir}/lib/town.jar"/>
+    <copy file="${build.dir}/mailet.jar" tofile="${dist.dir}/lib/mailet.jar"/>
+
+    <copy file="./res/run.bat" tofile="${dist.dir}/bin/run.bat"/>
+    <copy file="./res/run.sh" tofile="${dist.dir}/bin/run.sh"/>
+    <copy file="./res/avalonTestKeys" tofile="${dist.dir}/conf/avalonTestKeys"/>
+    <chmod dir="${dist.dir}" perm="go-rwx" />
+    <chmod file="${dist.dir}/bin/run.sh" perm="u+x"/>
+    <fixcrlf srcdir="${dist.dir}" cr="add" includes="**/*.bat" />
+    <fixcrlf srcdir="${dist.dir}" cr="remove" includes="**/*.sh" />
+
+    <copy todir="${dist.dir}/var">
+      <fileset dir="res"/>
+    </copy>
+
+    <copy file="README" tofile="${dist.dir}/README"/>
+    <replace file="${dist.dir}/README" token="@@version@@" value="${version}"/>
+    <copy file="LICENSE" tofile="${dist.dir}/LICENSE"/>
+    <copy file="build.xml" tofile="${dist.dir}/build.xml"/>
+
+    <zip zipfile="${name}-${version}.zip" basedir="${dist.dir}" includes="**"/>
+    <tar tarfile="${name}-${version}.tar" basedir="${dist.dir}" includes="**"/>
+    <gzip zipfile="${name}-${version}.tar.gz" src="${name}-${version}.tar"/>
+  </target>
+
+  <!-- =================================================================== -->
+  <!-- Cleans everything                                                   -->
+  <!-- =================================================================== -->
+  <target name="clean" depends="init">
+    <delete dir="${build.dir}"/>
+    <delete dir="${dist.dir}"/>
+    <delete file="${name}-${version}.zip"/>
+    <delete file="${name}-${version}.tar"/>
+    <delete file="${name}-${version}.tar.gz"/>
+  </target>
+
+  <!-- =================================================================== -->
+  <!-- Generates the javadoc                                               -->
+  <!-- =================================================================== -->
+  <target name="javadoc" depends="prepare-src">
+    <mkdir dir="${build.docs}"/>
+    <javadoc sourcepath="${build.src}"
+        destdir="${build.docs}"
+        packagenames="org.apache.james.*,org.apache.james.core.*,org.apache.james.dnsserver.*,org.apache.james.filestorage.*,org.apache.james.mailrepository.*,org.apache.james.pop3server.*,org.apache.james.imapserver.*,org.apache.james.remotemanager.*,org.apache.james.services.*,org.apache.james.smtpserver.*,org.apache.james.transport.*,org.apache.james.transport.matchers.*,org.apache.james.transport.mailets.*,org.apache.james.usersrepository.*,org.apache.james.util.*,org.apache.mailet.*"
+        classpath="${classpath}"
+	use="true"
+        />
+  </target>
+
+  <!-- =================================================================== -->
+  <!-- Generates the javadoc for the mailet API                            -->
+  <!-- =================================================================== -->
+  <target name="javadocmailet" depends="prepare-src">
+    <mkdir dir="${build.mailetdocs}"/>
+    <javadoc sourcepath="${build.src}"
+        destdir="${build.mailetdocs}"
+        packagenames="org.apache.mailet.*"
+        classpath="${classpath}"
+        />
+  </target>
+</project>
+
+
+<!-- End of file -->

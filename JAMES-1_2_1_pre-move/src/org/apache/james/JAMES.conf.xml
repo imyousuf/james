@@ -1,0 +1,413 @@
+<?xml version="1.0"?>
+<!--
+                                README!
+
+    REQUIRED
+
+    Please fill the DNSservers.server tag with the value of your DNS.
+
+    <dnsServer>
+        <servers>
+            <server> [hear goes your dns] </server>
+        </servers>
+    </dnsServer>
+
+    You can set as many dns as you want.
+
+    OPTIONAL, but very important
+
+    You should probably fill in the following settings:
+
+    <postmaster> [the email address to use as your postmaster] </postmaster>
+
+    <servernames>
+        <servername> [a domain name for this server to handle] </servername>
+        <servername> [another domain name to handle] </servername>
+    </servernames>
+
+    <account login="root" password="[my password]"/>
+    Note that you cannot leave a blank password.  If the password is blank, the admin account is disabled.
+
+    Anti-relay mailet: Add your network address here, e.g. "RemoteAddrNotInNetwork=127.0.0.1, abc.de.*"
+   <processor name="transport">
+       <mailet match="RemoteAddrNotInNetwork=127.0.0.1" class="ToProcessor">
+
+
+    OPTIONAL, and interesting
+
+    For TLS support on POP3 or RemoteManager, enable the TLS Listener in AVALON.conf.xml, then uncomment
+    the <useTLS>TRUE</useTLS> elements for the appropriate protocol/ service. Please check
+    docs/usingTLS.html for requirements.
+
+
+    For LDAP support for users, change the  <userRepository> element from:
+    <userRepository>file://../var/users/ </userRepository> to: <userRepository>ldap </userRepository>
+    then set the parameteers for your LDAP server.  Please check docs/usingLDAP.html for requirements.
+
+
+    !!TODO!
+
+    - Quickly mention where to look to configure for database storage
+-->
+<avalon>
+    <servicesmap>
+        <service name="JamesMailServer">
+            <resource type="org.apache.avalon.blocks.Logger" mapTo="JamesLogger"/>
+            <resource type="org.apache.avalon.blocks.ThreadManager" mapTo="ApacheDefaultThreadManager"/>
+            <resource type="org.apache.avalon.blocks.Store" mapTo="JamesObjectStore"/>
+            <resource type="org.apache.avalon.blocks.ConnectionManager" mapTo="ApacheDefaultConnectionManager"/>
+            <resource type="org.apache.avalon.blocks.TimeServer" mapTo="ApacheDefaultTimeServer"/>
+            <resource type="org.apache.avalon.blocks.SocketServer" mapTo="ApacheDefaultSocketServer"/>
+        </service>
+        <service name="JamesObjectStore">
+            <resource type="org.apache.avalon.blocks.Logger" mapTo="ApacheDefaultLogger"/>
+            <resource type="org.apache.avalon.blocks.Store" mapTo="ApacheDefaultStore"/>
+        </service>
+    </servicesmap>
+
+    <blocks>
+        <block class="org.apache.james.James"
+               name="JamesMailServer"
+               implementedInterface="org.apache.avalon.blocks.MailServer">
+
+            <postmaster> Postmaster@localhost </postmaster>
+            <!-- helloName is the single host name this instance of James will use to
+                 identify itself  for example, in SMTP and POP3 greetings.
+                 If autodetect is TRUE, James will attempt to discover its own name OR
+                 use 'localhost'. If autodetect is FALSE, James will use the value given
+                 OR 'localhost' -->
+    	    <helloName autodetect="TRUE">myMailServer</helloName>
+
+            <!-- servernames identifies the DNS namespace served by this instance of James.
+                 If autodetect is TRUE, James wil attempt to discover its own name AND use
+                 any specified servernames.  If autodetect is FALSE, James will use only
+                 the specified servernames.  By default, the servername 'localhost' is
+                 specified. This can be removed, if required. -->
+            <servernames autodetect="TRUE">
+                <!-- <servername> To override autodetected server names uncomment this. </servername> -->
+                <!-- <servername> To override autodetected server names uncomment this. </servername> -->
+                <!-- <servername> To override autodetected server names uncomment this. </servername> -->
+                <servername>localhost</servername>
+            </servernames>
+
+            <!-- Place here the path where incoming mail are temporaly stored before beeing processed.
+                 (ex. file://c:/james/spool/) -->
+            <spoolRepository> file://../var/mail/spool/ </spoolRepository>
+            <inboxRepository> file://../var/mail/localinbox/ </inboxRepository>
+
+            <!--
+            These are optional in case you'd like to store the mail spool and POP3 messages in
+            the database.  Simply uncomment these and remove the ones above.
+
+            <spoolRepository> town://mainspool </spoolRepository>
+            <inboxRepository> town://inbox </inboxRepository>
+            -->
+
+            <!-- This is to specify the user repository for the server.
+	      Optionally, to use the experimental LDAP implementation,
+	       enter 'ldap' here.  -->
+            <userRepository> file://../var/users/ </userRepository>
+            <!-- If you want to use a database to track user accounts, uncomment this line
+            <userRepository> town://users </userRepository> -->
+	    <!-- If you are going to use the LDAP implementation for a
+	      UserRepository, you must configure this section with your LDAP
+	       server's information -->
+	    <usersLDAP class="org.apache.james.userrepository.UsersLDAPRepository">
+	        <LDAPServer>ldap://localhost:389</LDAPServer>
+                <LDAPRoot>dc=apache, dc=org</LDAPRoot>
+                <ThisServerRDN>cn=mailserver.apache.org</ThisServerRDN>
+                <MailAddressAttribute>mail</MailAddressAttribute>
+                <IdentityAttribute>uid</IdentityAttribute>
+                <AuthenticationType>simple</AuthenticationType>
+                <Principal> <!-- FILL ME!!! --> </Principal>
+                <Password> <!-- FILL ME!!! --> </Password>
+                <MembersAttribute>member</MembersAttribute>
+	        <ManageGroupAttribute>TRUE</ManageGroupAttribute>
+                <GroupAttribute>memberOfGroup</GroupAttribute>
+                <ManagePasswordAttribute>FALSE</ManagePasswordAttribute>
+                <PasswordAttribute>userpassword</PasswordAttribute>
+            </usersLDAP>
+
+            <smtpServer>
+                <port>25</port>
+                    <!-- <bind>  </bind>  uncomment this if you want to bind to a specific inetaddress -->
+                    <!-- <useTLS>TRUE</useTLS> uncomment this if you want to use TLS (SSL) on this port -->
+                <smtphandler>
+                    <connectiontimeout> 360000 </connectiontimeout>
+                </smtphandler>
+            </smtpServer>
+
+            <pop3Server>
+                <port>110</port>
+                <!-- <port>995</port> -->
+                <!-- port 995 is the well-known/IANA registered port for POP3S ie over SSL/TLS -->
+
+                <!-- <bind>  </bind>  uncomment this if you want to bind to a specific inetaddress-->
+                <!-- <useTLS>TRUE</useTLS> uncomment this if you want to use TLS (SSL) on this port -->
+                <pop3handler>
+                    <connectiontimeout> 120000 </connectiontimeout>
+                </pop3handler>
+            </pop3Server>
+
+            <remoteManager>
+                <port>4555</port>
+                <!-- <bind>  </bind> uncomment this if you want to bind to a specific inetaddress -->
+                <!-- <useTLS>TRUE</useTLS> uncomment this if you want to use TLS (SSL) on this port -->
+                <administrator_accounts>
+                    <!-- FILL ME!!!!!!  You must provide a password for your administrator accounts (cannot be blank) -->
+                    <account login="root" password=""/>
+                </administrator_accounts>
+                <connectiontimeout> 60000 </connectiontimeout>
+            </remoteManager>
+
+            <dnsServer>
+                <servers>
+<!--                <server> FILL ME!!!! </server> -->
+<!--                <server> FILL ME!!!! </server> -->
+                </servers>
+                <authoritative>false</authoritative>
+            </dnsServer>
+
+            <spoolmanagerthreads> 1 </spoolmanagerthreads>
+            <spoolmanager>
+                <!-- Set the packages from which to load mailets and matches -->
+                <mailetpackages>
+                    <mailetpackage>org.apache.james.transport.mailets.</mailetpackage>
+                </mailetpackages>
+                <matcherpackages>
+                    <matcherpackage>org.apache.james.transport.matchers.</matcherpackage>
+                </matcherpackages>
+
+<!--        Processor CONFIGURATION SAMPLE: root is the first processor all mails enter -->
+                <processor name="root">
+                <!-- Checks that the MAIL FROM command was for a valid domain. Important for spam prevention. -->
+                    <mailet match="SenderInFakeDomain" class="ToProcessor">
+                        <processor> spam </processor>
+                    </mailet>
+                <!-- Important check to avoid race conditions -->
+                    <mailet match="RelayLimit=30" class="Null">
+                    </mailet>
+                <!-- Check for delivery from a known spam server -->
+                    <mailet match="InSpammerBlacklist=blackholes.mail-abuse.org" class="ToProcessor">
+                        <processor> spam </processor>
+                        <notice> Rejected - see  http://www.mail-abuse.org/rbl/ </notice>
+                    </mailet>
+                    <mailet match="InSpammerBlacklist=dialups.mail-abuse.org" class="ToProcessor">
+                        <processor> spam </processor>
+                        <notice> Dialup - see http://www.mail-abuse.org/dul/ </notice>
+                    </mailet>
+                    <mailet match="InSpammerBlacklist=relays.mail-abuse.org" class="ToProcessor">
+                        <processor> spam </processor>
+                        <notice> Open spam relay - see http://www.mail-abuse.org/rss/ </notice>
+                    </mailet>
+
+                <!-- Sample matching to kill a message (send to Null) -->
+                    <mailet match="RecipientIs=badboy@badhost" class="Null">
+                    </mailet>
+                <!-- Sample listserv wrapping a local avalon list of users. -->
+                    <mailet match="CommandForListserv=james@localhost" class="AvalonListservManager">
+                        <membersPath> file://../var/users/list-james </membersPath>
+                    </mailet>
+                    <mailet match="RecipientIs=james@localhost" class="AvalonListserv">
+                        <membersonly> false </membersonly>
+                        <attachmentsallowed> true </attachmentsallowed>
+                        <replytolist> true </replytolist>
+                        <membersPath> file://../var/users/list-james </membersPath>
+                    </mailet>
+                <!-- Sends remaining mails to the transport processor for either local or remote delivery -->
+                    <mailet match="All" class="ToProcessor">
+                        <processor> transport </processor>
+                    </mailet>
+                </processor>
+
+<!--        Processor CONFIGURATION SAMPLE: error is the processor mails with failure conditions enter -->
+                <processor name="error">
+                <!-- Logs any messages to the repository specified -->
+                    <mailet match="All" class="ToRepository">
+                        <repositoryPath> file://../var/mail/error/</repositoryPath>
+                        <!-- <repositoryPath> town://mail-error </repositoryPath>-->
+                        <passThrough> true </passThrough>
+                    </mailet>
+                <!-- If you want to notify the sender their message was marked as spam, uncomment this
+                    <mailet match="All" class="NotifySender">
+                    </mailet> -->
+                <!-- If you want to notify the postmaster that a message was marked as spam, uncomment this
+                    <mailet match="All" class="NotifyPostmaster">
+                    </mailet> -->
+                </processor>
+
+<!--        Processor CONFIGURATION SAMPLE: transport is a sample custom processor for local or remote delivery -->
+                <processor name="transport">
+                <!-- Is the recipient is for a local account, deliver it locally -->
+                    <mailet match="RecipientIsLocal" class="LocalDelivery">
+                    </mailet>
+                <!-- If the host is handled by this server and it did not get locally delivered, this is an invalid recipient -->
+                    <mailet match="HostIsLocal" class="ToProcessor">
+                        <processor>error</processor>
+                    </mailet>
+                <!-- This matcher-mailet pair can prevent relaying... if you change this, you risk making your mail
+                    server an open relay point for spammers .
+		    NOTE 1: the order of matcher-mailets is important: it must come after valid local recipients have
+		     been dealt with but before any attempt is made to delivery the mail remotely.
+		     NOTE 2: Add your own network, if you want to relay mail outwards -->
+                    <mailet match="RemoteAddrNotInNetwork=127.0.0.1" class="ToProcessor">
+                        <processor> spam </processor>
+                    </mailet>
+                <!-- Attempt remote delivery using the specified repository for the spool, using delay time to retry delivery and the maximum number of retries -->
+                    <mailet match="All" class="RemoteDelivery">
+                        <outgoing> file://../var/mail/outgoing/ </outgoing>
+                        <!-- <outgoing> town://mail-outgoing </outgoing>-->
+                        <delayTime> 21600000 </delayTime>
+                        <maxRetries> 5 </maxRetries>
+                    </mailet>
+                </processor>
+
+<!--        Processor CONFIGURATION SAMPLE: spam is where messages detected as relaying or other problems will get sent.  You can either log these, bounce these, or just ignore them. -->
+                <processor name="spam">
+                <!-- If you wanted, you could just destroy messages, uncomment this matcher/mailet
+                    <mailet match="All" class="Null">
+                    </mailet> -->
+                <!-- If you want to notify the sender their message was marked as spam, uncomment this
+                    <mailet match="All" class="NotifySender">
+                    </mailet> -->
+                <!-- If you want to notify the postmaster that a message was marked as spam, uncomment this
+                    <mailet match="All" class="NotifyPostmaster">
+                    </mailet> -->
+                <!-- Out of the box, this will log the message to a repository -->
+                    <mailet match="All" class="ToRepository">
+                        <repositoryPath> file://../var/mail/spam/ </repositoryPath>
+                        <!-- <repositoryPath> town://spam </repositoryPath> -->
+                    </mailet>
+                </processor>
+            </spoolmanager>
+        </block>
+
+        <block class="org.apache.avalon.blocks.masterstore.MasterStore"
+                name="JamesObjectStore"
+                implementedInterface="org.apache.avalon.blocks.Store"
+                help="This is an imlpementation of the Store interface and
+                    provides a powerful interface to store any kind of objects. Its
+                    power resides in its pluggable pattern.">
+            <repositoriesDefinition help="Here goes Repository definitions. If
+            an application needs its own Repository (see MailRepository
+            for JAMES), it will place here its definition. These are default
+            Repository.">
+                <repository type="OBJECT" model="SYNCHRONOUS, ASYNCHRONOUS"
+                    destination="file://"
+                    class="org.apache.avalon.blocks.masterstore.PersistentStore"/>
+                <repository type="STREAM" model="SYNCHRONOUS, ASYNCHRONOUS"
+                    destination="file://"
+                    class="org.apache.avalon.blocks.masterstore.StreamStore"/>
+                <repository type="MAIL" model="SYNCHRONOUS, ASYNCHRONOUS"
+                    destination="file://"
+                    class="org.apache.james.mailrepository.AvalonMailRepository"/>
+                <repository type="MAIL" model="SYNCHRONOUS, ASYNCHRONOUS"
+                    destination="town://"
+                    class="org.apache.james.mailrepository.TownSpoolRepository">
+                    <conn>file:///dev/james/dist/var/maildatabase</conn>
+                    <table>Message</table>
+                </repository>
+                <repository type="SPOOL" model="SYNCHRONOUS, ASYNCHRONOUS"
+                    destination="town://"
+                    class="org.apache.james.mailrepository.TownSpoolRepository">
+                    <conn>file:///dev/james/dist/var/maildatabase</conn>
+                    <table>Message</table>
+                </repository>
+                <repository type="SPOOL" model="SYNCHRONOUS, ASYNCHRONOUS"
+                    destination="file://"
+                    class="org.apache.james.mailrepository.AvalonMailRepository"/>
+                <repository type="USER" model="SYNCHRONOUS, ASYNCHRONOUS"
+                    destination="file://"
+                    class="org.apache.james.userrepository.UsersFileRepository"/>
+                <repository type="USER" model="SYNCHRONOUS, ASYNCHRONOUS"
+                    destination="town://"
+                    class="org.apache.james.userrepository.UsersTownRepository">
+		    <conn>file:///var/maildatabase</conn>
+		    <table>Users</table>
+		</repository>
+
+            </repositoriesDefinition>
+            <publicrepositories help="When an application needs a Repository for
+                    its personal use it can just ask for a private Repository which will
+                    be available only to caller application. If, on the other side, it
+                    needs to share that repository with other Block the Repository must
+                    be defined public since none of these block has 'the right' to own
+                    Repository configurations. Place here any public Repository definition">
+            </publicrepositories>
+        </block>
+
+        <block class="org.apache.avalon.blocks.omero.Omero"
+               name="JamesLogger"
+               implementedInterface="org.apache.avalon.blocks.Logger"
+               help="Provides a pluggable logging system">
+            <timestamp>
+                <granularity help="Sets the timestamp time granularity in
+                        milliseconds. If set to 0 means to use maximum time precision
+                        else timestam is calculated every 'granularity' milliseconds">
+                    0
+                </granularity>
+                <format help="Define the format for the timestamp">
+                    yyyy.MM.dd hh:mm:ss SSS
+                </format>
+            </timestamp>
+            <channels help="Every log call is performed througt a channel.
+                    The proposed pattern is: each application (Block) should use its own
+                    channel to allow adminitrators to set what to log from that
+                    application and where to place logs. So if you plug a new server
+                    under Avalon you MUST place channel definition from that server
+                    configuration file hereafter">
+                <channel name="default"      loglevel="DEBUG"  logwriter="mailet"/>
+                <channel name="JamesSystem"  loglevel="DEBUG"  logwriter="jamesfile"/>
+                <channel name="SMTP"         loglevel="DEBUG"  logwriter="netfile"/>
+                <channel name="DNS"          loglevel="DEBUG"  logwriter="dnsfile"/>
+                <channel name="POP3"         loglevel="DEBUG"  logwriter="netfile"/>
+                <channel name="IMAP"         loglevel="DEBUG"  logwriter="netfile"/>
+                <channel name="RemoteAdmin"  loglevel="DEBUG"  logwriter="netfile"/>
+                <channel name="Mailets"      loglevel="DEBUG"  logwriter="mailet"/>
+                <channel name="Processor"    loglevel="DEBUG"  logwriter="jamesfile"/>
+                <channel name="Test"         loglevel="DEBUG"  logwriter="test"/>
+                <channel name="UserManager"  loglevel="DEBUG"  logwriter="usersfile"/>
+
+            </channels>
+            <logwriters help="Each filtered channel goes to the specified logwriter.
+                    Place here any additionl logwriter definition needed">
+                <writer name="default" class="org.apache.avalon.blocks.omero.FileWriter">
+                    <destination> file://../logs/default.log </destination>
+                    <buffersize>2048</buffersize>
+                    <sleep>500</sleep>
+                </writer>
+                <writer name="jamesfile" class="org.apache.avalon.blocks.omero.FileWriter">
+                    <destination> file://../logs/jamesfile.log </destination>
+                    <buffersize>2048</buffersize>
+                    <sleep>500</sleep>
+                </writer>
+                <writer name="usersfile" class="org.apache.avalon.blocks.omero.FileWriter">
+                    <destination> file://../logs/usersfile.log </destination>
+                    <buffersize>2048</buffersize>
+                    <sleep>500</sleep>
+                </writer>
+                <writer name="netfile" class="org.apache.avalon.blocks.omero.FileWriter">
+                    <destination> file://../logs/netfile.log </destination>
+                    <buffersize>2048</buffersize>
+                    <sleep>500</sleep>
+                </writer>
+                <writer name="mailet" class="org.apache.avalon.blocks.omero.FileWriter">
+                    <destination> file://../logs/mailet.log </destination>
+                    <buffersize>2048</buffersize>
+                    <sleep>500</sleep>
+                </writer>
+                <writer name="test" class="org.apache.avalon.blocks.omero.FileWriter">
+                    <destination> file://../logs/test.log </destination>
+                    <buffersize>2048</buffersize>
+                    <sleep>500</sleep>
+                </writer>
+                <writer name="dnsfile" class="org.apache.avalon.blocks.omero.FileWriter">
+                    <destination> file://../logs/dns.log </destination>
+                    <buffersize>2048</buffersize>
+                    <sleep>500</sleep>
+                </writer>
+            </logwriters>
+        </block>
+
+    </blocks>
+</avalon>

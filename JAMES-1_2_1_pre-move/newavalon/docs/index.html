@@ -1,0 +1,162 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+
+<head>
+<meta HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<title>Java Apache Mail Enterprise Server</title>
+</head>
+
+<body BGCOLOR="#FFFFFF">
+<!--
+<h2 align="center"><img SRC="images/java-apache-project.gif" BORDER="0" HEIGHT="100"
+WIDTH="609"></h2>
+-->
+<h1 align="center">Java Apache Mail Enterprise Server</h1>
+<h3 align="center">a.k.a. Apache JAMES </h3><br>
+<h4 align="center">JAMES 1.2</h4>
+
+<h3>What is it?</h3>
+
+<blockquote>
+  <p>  The Java Apache Mail Enterprise Server (a.k.a. Apache James) is a 100% pure
+  Java server designed to be a complete and portable enterprise mail engine solution
+  based on currently available open protocols (SMTP, POP3, IMAP, HTTP).  It requires
+  Java 2 (minimum requirement is the JRE 1.2).</p>
+</blockquote>
+
+
+<h3>Current Features</h3>
+
+<blockquote>
+  <p>These are some of the currently implemented features:
+    <ul>
+    <li>complete portability:  Apache James is be a 100% pure Java application
+       based on the Java 2 platform and the JavaMail 1.1 API.</li>
+    <li>protocol abstraction:  unlike other mail engines, protocols are seen only
+       like "communication languages" ruling comunications between clients and
+       the server. Apache James is not be tied to any particular protocol but
+       follow an abstracted server design (almost like JavaMail did on the
+       client side)</li>
+    <li>complete solution:  the mail system is able to handle both mail
+       transport and storage in a single server application. Apache James
+       works alone without the need for any other server or solution.</li>
+    <li>mailet support:  Apache James supports the Apache Mailet API. A Mailet
+       is a discrete piece of mail-processing logic which is incorporated into
+       a Mailet-compliant mail-server's processing. This easy-to-write,
+       easy-to-use pattern allows developers to build powerful customized mail
+       systems. Examples of the services a Mailet might provide include: a
+       mail-to-fax or mail-to-phone transformer, a filter, a language translator, a mailling
+       list manager, etc. Several Mailets are included in the JAMES
+       distribution (see <a href="configuration.html">Configuration</a>).</li>
+    <li>resource abstraction:  like protocols, resources are abstracted and,
+       accessed through defined interfaces (JavaMail for transport, JDBC for
+       storage in RDBMS's, Apache Mailet API). The server is highly
+       modular and reuse solutions from other projects.</li>
+    <li>secure and multi-threaded design:  based on the technology developed for
+       the Apache JServ servlet engine, Apache James has a careful,
+       security-oriented, full multi-threaded design, to allow performance,
+       scalability and mission-critical use.</li>
+    <li>anything else you may want if you help us writing it :-)</li>
+    </ul>
+</blockquote>
+
+
+<h3>Development Status</h3>
+
+<blockquote>
+  <p>Current release (1.2) is a reliable SMTP agent.  POP3 is stable on UNIX, further testing on NT may be required.
+  </p>
+
+
+<table>
+  <tr>
+    <th>Item</th>
+    <th>Current Status  - release 1.2</th>
+    <th>This status since: </th>
+    <th>First released</th>
+  </tr>
+  <tr>
+    <td>SMTP server (UNIX & NT)</td>
+    <td>Stable</td>
+    <td>1.0</td>
+    <td>0.95</td>
+  </tr>
+  <tr>
+    <td>Mailet Engine (UNIX & NT)</td>
+    <td>Stable</td>
+    <td>1.2 - Major Revision!</td>
+    <td>1.0</td>
+  </tr>
+  <tr>
+    <td>FileSystem mailboxes</td>
+    <td>Stable</td>
+    <td>1.2</td>
+    <td>1.0</td>
+  </tr>
+  <tr>
+    <td>RDBMS mailboxes</td>
+    <td>Beta</td>
+    <td>1.2 -New!</td>
+    <td>1.2</td>
+  </tr>
+  <tr>
+    <td>POP3 server (UNIX)</td>
+    <td>Stable</td>
+    <td>1.1</td>
+    <td>1.0</td>
+  </tr>
+  <tr>
+    <td>POP3 server (NT)</td>
+    <td>Beta (needs more testing)</td>
+    <td>1.1</td>
+    <td>1.0</td>
+  </tr>
+  <tr>
+    <td>Remote Manager (UNIX & NT)</td>
+    <td>Stable</td>
+    <td>1.0</td>
+    <td>1.0</td>
+  </tr>
+  <tr>
+    <td>TLS Support - Server Authentication (Remote Manager)</td>
+    <td>Stable</td>
+    <td>1.2 -New!</td>
+    <td>1.2</td>
+  </tr>
+  <tr>
+    <td>TLS Support - Server Authentication (POP3)</td>
+    <td>Experimental</td>
+    <td>1.2 -New!</td>
+    <td>1.2</td>
+  </tr>
+  <tr>
+    <td>LDAP Support - Users</td>
+    <td>Experimental</td>
+    <td>1.2 -New!</td>
+    <td>1.2</td>
+  </tr>
+</table>
+</blockquote>
+
+
+
+<h3>Available resources</h3>
+
+<blockquote>
+<p>These are the currently available resources:
+
+<ul>
+  <li><a href="http://java.apache.org/james/dist/">Distribution</a></li>
+  <li><a href="install.html"> Installation </a></li>
+  <li><a href="configuration.html">Configuration</a> (Docs under development)</li>
+  <li><a href="usingTLS.html">Using TLS</a></li>
+  <li><a href="javadoc/mailet/index.html">Mailet API documentation generated by JavaDoc</a></li>
+  <li>Using an<a href="usingLDAP.html"> LDAP directory </a>for managing users</li>
+  <li><a href="developer.html">Notes for Developers</a></li>
+</ul></blockquote>
+<p align="center"><font SIZE="-1">Copyright (c) 1997-98 <a HREF="http://java.apache.org">The
+Java Apache Project</a>.<br>
+All rights reserved.</font></p>
+
+</body>
+</html>

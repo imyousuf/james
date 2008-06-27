@@ -1,0 +1,162 @@
+
+
+    _J_A_V_A___A_P_A_C_H_E___M_A_I_L___E_N_T_E_R_P_R_I_S_E___S_E_R_V_E_R_
+
+
+  What is it?
+  -----------
+
+  The Java Apache Mail Enterprise Server (a.k.a. Apache James) is a 100% pure 
+  Java server application designed to be a complete, portable and powerful
+  enterprise mail engine solution based on currently available open protocols 
+  (SMTP, POP3, IMAP, HTTP etc).
+
+  Development Status for JAMES 1.2
+  --------------------------------
+  
+  SMTP Server: Stable 
+  POP3 Server: Beta 
+  
+  Current Feature
+  ----------------
+
+  These are some JAMES features:
+  
+    o  complete portability:  Apache James is a 100% pure Java(tm) application
+       based on the Java 2 platform and the JavaMail 1.1 API.
+       
+    o  protocol abstraction:  unlike other mail engines, protocols are seen only
+       like "communication languages" ruling comunications between clients and
+       the server. Apache James is not be tied to any particular protocol but
+       follow an abstracted server design (almost like JavaMail did on the
+       client side)
+       
+    o  complete solution:  the mail system is able to handle both mail
+       transport and storage in a single server application. Apache James
+       works alone without the need for any other server or solution.
+       
+    o  mailet support:  Apache James supports the Apache Mailet API. A Mailet
+       is a discrete piece of mail-processing logic which is incorporated into
+       a Mailet-compliant mail-server's processing. This easy-to-write,
+       easy-to-use pattern allows developers to build powerful customized mail
+       systems. Examples of the services a Mailet might provide include: a
+       mail-to-fax or mail-to-phone transformer, a filter, a language
+       translator, a mailling list manager, etc.
+       Several Mailets are included in the JAMES distribution (see
+       docs/Configuration.html).
+    
+    o  resource abstraction:  like protocols, resources are abstracted and,
+       accessed through defined interfaces (JavaMail for transport, JDBC for
+       storage in RDBMS's, Apache Mailet API), the server is highly modular
+       and can reuse solutions from other projects or applications.  
+       
+    o  secure and multi-threaded design:  based on the technology developed for
+       the Apache JServ servlet engine, Apache James has a careful, 
+       security-oriented, full multi-threaded design, to allow performance, 
+       scalability and mission-critical use.
+       
+    o  Currently JAMES support SMTP, POP3 and a simple remote administration
+       facility.
+       
+
+  Planned Features
+  ----------------
+
+    o  IMAP suppport.
+    
+    o  IMAP server side filtering.
+
+    o  Download remote inbox to your local inbox.
+    
+    o  More powerful remote admin protocol and tool.
+    
+    o  Extended set of Mailet to easily support most mail system request.
+    
+    o  anything else you may want if you help us writing it :-)
+       
+
+  Requirements
+  ------------
+
+  - JAMES.jar (of course).
+  - mailet.jar
+  - javax package (activation.jar, mail.jar)
+  - Avalon server framework including:
+      Avalon.jar
+      AvalonAware.jar
+      Loader.jar
+      Xerces.jar (or any other SAX capable XML Parser).
+  - dnsjava.jar
+  - town.jar (optional - for RDBMS storage)
+
+  JAMES distribution includes all of the above.
+  
+  To recompile James from sources you should use org.apache.tools.ant and its 
+  needed packages (ant.jar, javac.jar, xml.jar).
+
+  Up and working...
+  -----------------
+  
+Step 1: installation.
+
+    Download distibution. Extract all files in your favorite folder.
+    
+Step 2: configuration.
+
+    Read the short and snappy documentation at docs/index.html for a proper
+    overview of configuring the system.
+
+Summary (for impatient people)
+   
+    M$ users shuold just run /bin/run.bat. Unix users will find run.sh
+    under the same folder. A JVM must be in the path.
+    Running [run* -help] will provide a simple command line help.	
+
+    Most UNIX systems require superuser privileges to open sockets below 1024,
+    which includes the IANA-standard SMTP (on port 25) and POP3 (on port 110).
+    These default ports can be changed in the conf.xml file. (Obviously, you
+    would then need to reconfigure your clients. This may not be an option if
+    you want to recieve mail from exernal mailservers.)
+
+    The Avalon framework will unpack the neccessay configuration files and wait
+    for you to configure them. For basic use, you only need to set two items
+    in the JAMES.conf.xml file: a root password for the remote administration
+    facility and the IP address of a DNS server. Once you have edited the
+    configuration files, press 'Enter' on the terminal where Avalon is waiting.
+    
+Step 4: kickstart.
+
+    Once started you'll see a message saying Avalon is running. This means that
+    Avalon has loaded JAMES and every other needed Block (see /logs/avalon.log)
+    and is now waiting for a socket request. 
+    Since at the beginning James is empty, it will not have any local users
+    registered.
+    To register a local user open a telnet session with localhost on port 4555,
+    log in as root ("root[enter]  <password-you-set-in-conf.xml>[enter]") and
+    type "help" for a list of availale commands in the "JAMES remote
+    administrator tool". It is really a basic set but should allow you to test
+    installation.
+    
+    Once you have some local users registered, try sending mail to one of them
+    @localhost with SMTP (port 25) (assuming you have not changed the default
+    server names in the conf.xml file). You'll see the mail appear under
+    ../var/mail/localinbox/[user].
+    Try now to retrive that mail using POP3 (port 110).
+    Trace out JAMES actions in /logs/*info.log.
+    Action that will be taken by JAMES on incoming mail are configurated in
+    the mailet pipe line (/conf/james.conf.xml). Look at it if you want to
+    understand what's happening.
+  
+  Good luck :)  
+
+
+  Licensing and legal issues
+  --------------------------
+
+  For legal and licensing issues, please look in the legal section of
+  the documentation or read the LICENSE file.
+
+  Thanks.
+
+                                           The Java Apache Project
+                                           http://java.apache.org/
