@@ -1,0 +1,220 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<!-- Content Stylesheet for Site -->
+
+        
+<!-- start the processing -->
+    <!-- ====================================================================== -->
+    <!-- Main Page Section -->
+    <!-- ====================================================================== -->
+    <html>
+        <head>
+            <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+
+                                                    <meta name="author" value="Serge Knystautas">
+            <meta name="email" value="sergek@lokitech.com">
+                                        <meta name="author" value="Charles Benett">
+            <meta name="email" value="charles@benett1.co.uk">
+            
+            <title>Jakarta James - TODO</title>
+        </head>
+
+        <body bgcolor="#ffffff" text="#000000" link="#525D76">        
+            <table border="0" width="100%" cellspacing="0">
+                <!-- TOP IMAGE -->
+                <tr>
+                    <td align="left">
+<a href="http://jakarta.apache.org"><img src="http://jakarta.apache.org/images/jakarta-logo.gif" border="0"/></a>
+</td>
+<td align="right">
+<a href="http://jakarta.apache.org/james/"><img src="./images/james-logo.jpg" alt="JAMES - Java Apache Mail Enterprise Server" border="0"/></a>
+</td>
+                </tr>
+            </table>
+            <table border="0" width="100%" cellspacing="4">
+                <tr><td colspan="2">
+                    <hr noshade="" size="1"/>
+                </td></tr>
+                
+                <tr>
+                    <!-- LEFT SIDE NAVIGATION -->
+                    <td width="20%" valign="top" nowrap="true">
+                                <p><strong>James</strong></p>
+        <ul>
+                    <li>    <a href="./index.html">Overview</a>
+</li>
+                    <li>    <a href="./install.html">Install</a>
+</li>
+                    <li>    <a href="./configuration_v2_0.html">Configuration</a>
+</li>
+                    <li>    <a href="./architecture_v2_0.html">Architecture</a>
+</li>
+                    <li>    <a href="./code-standards.html">Coding Standards</a>
+</li>
+                    <li>    <a href="./license.html">License</a>
+</li>
+                    <li>    <a href="./todo.html">TODO</a>
+</li>
+                    <li>    <a href="./changelog.html">Changelog</a>
+</li>
+                </ul>
+            <p><strong>Download</strong></p>
+        <ul>
+                    <li>    <a href="http://jakarta.apache.org/site/binindex.html">Binaries</a>
+</li>
+                    <li>    <a href="http://jakarta.apache.org/site/sourceindex.html">Source Code</a>
+</li>
+                </ul>
+            <p><strong>Guides</strong></p>
+        <ul>
+                    <li>    <a href="./mailet/index.html">Mailet API</a>
+</li>
+                    <li>    <a href="./usingLDAP_v1_2.html">Using LDAP</a>
+</li>
+                    <li>    <a href="./usingJDBC_v2.0.html">Using JDBC</a>
+</li>
+                    <li>    <a href="./usingTLS_v1_2.html">Using TLS</a>
+</li>
+                    <li>    <a href="http://jakarta.apache.org/james/rfclist">Useful RFCs {web}</a>
+</li>
+                </ul>
+            <p><strong>Get Involved {web}</strong></p>
+        <ul>
+                    <li>    <a href="http://jakarta.apache.org/site/getinvolved.html">Overview</a>
+</li>
+                    <li>    <a href="http://jakarta.apache.org/site/cvsindex.html">CVS Repositories</a>
+</li>
+                    <li>    <a href="http://jakarta.apache.org/site/mail.html">Mailing Lists</a>
+</li>
+                    <li>    <a href="http://jakarta.apache.org/site/library.html">Reference Library</a>
+</li>
+                    <li>    <a href="http://jakarta.apache.org/site/bugs.html">Bug Database</a>
+</li>
+                </ul>
+            <p><strong>Jakarta Essentials {web}</strong></p>
+        <ul>
+                    <li>    <a href="http://jakarta.apache.org/index.html">Front Page</a>
+</li>
+                    <li>    <a href="http://jakarta.apache.org/site/news.html">News & Status</a>
+</li>
+                    <li>    <a href="http://jakarta.apache.org/site/mission.html">Mission</a>
+</li>
+                    <li>    <a href="http://jakarta.apache.org/site/guidelines.html">Guidelines Notes</a>
+</li>
+                    <li>    <a href="http://jakarta.apache.org/site/faqs.html">FAQs</a>
+</li>
+                </ul>
+            <p><strong>Related Projects {web}</strong></p>
+        <ul>
+                    <li>    <a href="http://jakarta.apache.org/ant/index.html">Ant</a>
+</li>
+                    <li>    <a href="http://jakarta.apache.org/avalon/index.html">Avalon</a>
+</li>
+                </ul>
+                        </td>
+                    <td width="80%" align="left" valign="top">
+                                                                    <table border="0" cellspacing="0" cellpadding="2" width="100%">
+      <tr><td bgcolor="#525D76">
+        <font color="#ffffff" face="arial,helvetica,sanserif">
+          <a name="TODO"><strong>TODO</strong></a>
+        </font>
+      </td></tr>
+      <tr><td>
+        <blockquote>
+                                    <p>This is a living document that will give new and existing volunteers some areas where we need help.  As always, any help is appreciated, be it documentation, code, suggestions, or feedback.
+Last Updated  30 October 2001.</p>
+                            </blockquote>
+        </p>
+      </td></tr>
+      <tr><td><br/></td></tr>
+    </table>
+                                                <table border="0" cellspacing="0" cellpadding="2" width="100%">
+      <tr><td bgcolor="#525D76">
+        <font color="#ffffff" face="arial,helvetica,sanserif">
+          <a name="High Priority"><strong>High Priority</strong></a>
+        </font>
+      </td></tr>
+      <tr><td>
+        <blockquote>
+                                    <p>Get classloaders working so custom mailets don't have to be in james.bar</p>
+                                                <p>Update and write more documentation, including  a) how to setup user accounts for pop3 delivery/retrieval, b) how to setup a database for message storage, c) how to setup a database for user accounts, d) how to write a mailet.</p>
+                                                <p>Make JamesSpoolManager disposable, calling destroy on mailets, for a graceful shutdown.</p>
+                                                <p>Add regex matchers</p>
+                            </blockquote>
+        </p>
+      </td></tr>
+      <tr><td><br/></td></tr>
+    </table>
+                                                <table border="0" cellspacing="0" cellpadding="2" width="100%">
+      <tr><td bgcolor="#525D76">
+        <font color="#ffffff" face="arial,helvetica,sanserif">
+          <a name="Medium Priority"><strong>Medium Priority</strong></a>
+        </font>
+      </td></tr>
+      <tr><td>
+        <blockquote>
+                                    <p>Determine a way to support multiple domains</p>
+                                                <p>Fix NNTP authentication</p>
+                                                <p>Fix NNTP ssl</p>
+                                                <p>Write more documentation. </p>
+                                                <p>Write more documentation. </p>
+                                                <p>Get IMAP server to alpha standard, ie basic interoperation with e-mail clients.</p>
+                                                <p>Add #news namespace to IMAP system</p>
+                                                <p>Revisit UserRepository - after doing IMAP List &amp; Subscribe</p>
+                                                <p>Add needed functions to RemoteManager, Including Stop and ReConfigure, Reinject mail, Store RemoteManger password securely.</p>
+                                                <p>Add support for better mailet router/processing (maybe like RequestDispatcher) - Use Stage/Pipline pattern</p>
+                                                <p>Add support for deployable message processing apps using Camelot pattern</p>
+                                                <p>Give admins option to enforce one access at a time to a POP3 mailbox.</p>
+                                                <p>Tie in the NNTP Repository with POP/SMTP/IMAP repository structure.</p>
+                                                <p>Test and move RMI interface from proposal directory to main branch.</p>
+                            </blockquote>
+        </p>
+      </td></tr>
+      <tr><td><br/></td></tr>
+    </table>
+                                                <table border="0" cellspacing="0" cellpadding="2" width="100%">
+      <tr><td bgcolor="#525D76">
+        <font color="#ffffff" face="arial,helvetica,sanserif">
+          <a name="Low Priority"><strong>Low Priority</strong></a>
+        </font>
+      </td></tr>
+      <tr><td>
+        <blockquote>
+                                    <p>Add support for DRAC login/relay allowing</p>
+                                                <p>Enable read receipts to be handled properly</p>
+                                                <p>Add support for mbox mail repository format.</p>
+                            </blockquote>
+        </p>
+      </td></tr>
+      <tr><td><br/></td></tr>
+    </table>
+                                        </td>
+                </tr>
+
+                <!-- FOOTER -->
+                <tr><td colspan="2">
+                    <hr noshade="" size="1"/>
+                </td></tr>
+                <tr><td colspan="2">
+                    <div align="center"><font color="#525D76" size="-1"><em>
+                    Copyright &#169; 1999-2002, Apache Software Foundation
+                    </em></font></div>
+                </td></tr>
+            </table>
+        </body>
+    </html>
+<!-- end the processing -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+

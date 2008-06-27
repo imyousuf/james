@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+
+<document>
+
+ <properties>
+  <title>TODO</title>
+  <author email="sergek@lokitech.com">Serge Knystautas</author>
+  <author email="charles@benett1.co.uk">Charles Benett</author>
+ </properties>
+
+<body>
+
+<section name="TODO">
+<p>This is a living document that will give new and existing volunteers some areas where we need help.  As always, any help is appreciated, be it documentation, code, suggestions, or feedback.
+Last Updated  30 October 2001.</p>
+</section>
+
+<section name="High Priority">
+<p>Get classloaders working so custom mailets don't have to be in james.bar</p>
+<p>Update and write more documentation, including  a) how to setup user accounts for pop3 delivery/retrieval, b) how to setup a database for message storage, c) how to setup a database for user accounts, d) how to write a mailet.</p>
+<p>Make JamesSpoolManager disposable, calling destroy on mailets, for a graceful shutdown.</p>
+<p>Add regex matchers</p>
+</section>
+
+<section name="Medium Priority">
+<p>Determine a way to support multiple domains</p>
+<p>Fix NNTP authentication</p>
+<p>Fix NNTP ssl</p>
+<p>Write more documentation. </p>
+<p>Write more documentation. </p>
+<p>Get IMAP server to alpha standard, ie basic interoperation with e-mail clients.</p>
+<p>Add #news namespace to IMAP system</p>
+<p>Revisit UserRepository - after doing IMAP List &amp; Subscribe</p>
+<p>Add needed functions to RemoteManager, Including Stop and ReConfigure, Reinject mail, Store RemoteManger password securely.</p>
+<p>Add support for better mailet router/processing (maybe like RequestDispatcher) - Use Stage/Pipline pattern</p>
+<p>Add support for deployable message processing apps using Camelot pattern</p>
+<p>Give admins option to enforce one access at a time to a POP3 mailbox.</p>
+<p>Tie in the NNTP Repository with POP/SMTP/IMAP repository structure.</p>
+<p>Test and move RMI interface from proposal directory to main branch.</p>
+</section>
+
+<section name="Low Priority">
+
+<p>Add support for DRAC login/relay allowing</p>
+<p>Enable read receipts to be handled properly</p>
+<p>Add support for mbox mail repository format.</p>
+</section>
+
+</body>
+</document>
+
