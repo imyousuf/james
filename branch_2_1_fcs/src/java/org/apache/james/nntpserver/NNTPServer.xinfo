@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+
+<blockinfo>
+
+  <!-- section to describe block -->
+  <block>
+    <version>1.0</version>
+  </block>
+
+  <!-- services that are offered by this block -->
+  <services>
+    <service name="org.apache.avalon.framework.component.Component" version="1.0"/>
+  </services>
+
+  <!-- interfaces that may be exported to manange this block -->
+  <management-access-points>
+    <service name="org.apache.james.nntpserver.NNTPServerMBean"/>
+  </management-access-points>
+
+  <dependencies>
+    <dependency>
+      <service name="org.apache.james.services.JamesConnectionManager" 
+               version="1.0"/>
+    </dependency>
+    <dependency>
+      <service name="org.apache.avalon.cornerstone.services.sockets.SocketManager" version="1.0"/>
+    </dependency>
+    <dependency>
+      <service name="org.apache.james.nntpserver.repository.NNTPRepository" version="1.0"/>
+    </dependency> 
+    <dependency>
+      <service name="org.apache.james.services.UsersStore" version="1.0"/>
+    </dependency> 
+    <dependency>
+      <service name="org.apache.avalon.cornerstone.services.threads.ThreadManager" version="1.0"/>
+    </dependency>
+  </dependencies>
+
+</blockinfo>
