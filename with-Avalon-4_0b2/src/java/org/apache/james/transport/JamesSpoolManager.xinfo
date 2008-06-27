@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+<blockinfo>
+  <services>
+    <service name="org.apache.avalon.framework.component.Component" version="1.0"/>
+  </services>
+
+  <dependencies>
+    <dependency>
+      <role>org.apache.mailet.MailetContext</role>
+      <service name="org.apache.mailet.MailetContext" version="1.0"/>
+    </dependency>
+    <dependency>
+      <role>org.apache.james.services.MailStore</role>
+      <service name="org.apache.james.services.MailStore" version="1.0"/>
+    </dependency>
+  </dependencies>  
+</blockinfo>

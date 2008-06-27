@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+
+<blockinfo>
+  <services>
+    <service name="org.apache.james.nntpserver.repository.NNTPRepository" version="1.0"/>
+  </services>
+
+  <dependencies>
+  </dependencies>  
+</blockinfo>
