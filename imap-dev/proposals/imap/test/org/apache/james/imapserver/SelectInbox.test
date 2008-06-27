@@ -1,0 +1,18 @@
+C: abcd SELECT inbox
+S: * FLAGS (\Seen \Answered \Flagged \Deleted \Draft)
+S: * ${ignore} EXISTS
+S: * ${ignore} RECENT
+S: * OK [UIDVALIDITY ${ignore}]
+S: * OK [UNSEEN 1] 1 is the first unseen
+//S: * OK [PERMANENTFLAGS ()]
+S: abcd OK [READ-WRITE] SELECT completed
+
+// Try again to ensure that no changes to flags were made.
+C: abcd SELECT "INBOX"
+S: * FLAGS (\Seen \Answered \Flagged \Deleted \Draft)
+S: * ${ignore} EXISTS
+S: * ${ignore} RECENT
+S: * OK [UIDVALIDITY ${ignore}]
+S: * OK [UNSEEN 1] 1 is the first unseen
+//S: * OK [PERMANENTFLAGS ()]
+S: abcd OK [READ-WRITE] SELECT completed

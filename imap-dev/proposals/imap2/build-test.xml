@@ -1,0 +1,195 @@
+<?xml version="1.0"?>
+
+<!-- ==========================================================================
+
+James Functional Test build file.
+This file provides targets for building the functional test harness,
+and running a number of functional tests against a running instance of James.
+
+Authors:
+    Darrell DeBoer  <darrell@apache.org>
+
+Legal:
+  Copyright (c) 1999-2001 The Apache Software Foundation. All Rights Reserved.
+
+
+==============================================================================
+ -->
+
+<project default="main" name="IMAP tests for v2" basedir="../..">
+
+    <!--
+      Give user a chance to override without editing this file
+      (and without typing -D each time he compiles it)
+    -->
+    <property file=".ant.properties"/>
+    <property file="${user.home}/.ant.properties"/>
+
+    <!-- There should be no need to override default compiler but need to change
+      javac task to run without this
+    <property name="build.compiler" value="classic"/>-->
+
+    <!--
+      these are here only for those who use jikes compiler. For other
+      developers this part makes no difference.
+    -->
+    <property name="build.compiler.emacs" value="on"/>
+    <property name="build.compiler.pedantic" value="true"/>
+    <property name="build.compiler.depend" value="true"/>
+    <property name="build.compiler.fulldepend" value="true"/>
+
+    <property name="debug" value="on"/>
+    <property name="optimize" value="on"/>
+    <property name="deprecation" value="off"/>
+
+
+    <!-- Set the properties for source directories -->
+    <property name="proposal.base" value="proposals"/>
+    <property name="proposal.dir" value="${proposal.base}/imap2"/>
+    <property name="java.proposal.dir" value="${proposal.dir}/java"/>
+    <property name="conf.proposal.dir" value="${proposal.dir}/conf"/>
+    <property name="test.dir" value="${proposal.dir}/test"/>
+
+    <property name="lib.dir" value="lib"/>
+    <property name="phoenix.dir" value="phoenix-bin"/>
+
+    <!-- Set the properties for build directory -->
+    <property name="build.dir" value="${proposal.dir}/build"/>
+    <property name="build.classes" value="${build.dir}/classes"/>
+    <property name="build.test.classes" value="${build.dir}/test/classes"/>
+
+    <property name="xerces.jar" value="${lib.dir}/xerces-1.4.3.jar"/>
+
+    <path id="test.class.path">
+        <pathelement location="${build.classes}"/>
+        <pathelement location="${xerces.jar}"/>
+        <pathelement path="${java.class.path}"/>
+        <fileset dir="${lib.dir}">
+            <include name="**/*.jar"/>
+            <exclude name="xerces.jar"/>
+        </fileset>
+        <fileset dir="${phoenix.dir}/lib">
+            <include name="*.jar"/>
+        </fileset>
+        <fileset dir="${phoenix.dir}/bin/lib">
+            <include name="phoenix-engine.jar"/>
+        </fileset>
+    </path>
+
+    <!--
+         ===================================================================
+                                    Main target
+         ===================================================================
+    -->
+    <target name="main" depends="compile"/>
+
+    <target name="clean">
+        <delete dir="${build.test.classes}"/>
+    </target>
+
+    <target name="clean-james">
+        <ant antfile="proposals/imap/build.xml" target="rebuild-dist"/>
+    </target>
+
+    <!-- Compiles the Functional tests -->
+    <target name="compile">
+        <echo message="${java.home}"/>
+        <mkdir dir="${build.test.classes}"/>
+
+        <javac destdir="${build.test.classes}"
+            debug="${debug}"
+            optimize="${optimize}"
+            deprecation="${deprecation}"
+            classpathref="test.class.path">
+
+            <src path="${test.dir}"/>
+            <!--        <exclude name="**/JamesTask.java"/>-->
+        </javac>
+
+        <!-- Copy extra files (resources) into the classes directory -->
+        <copy todir="${build.test.classes}">
+            <fileset dir="${test.dir}">
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <!-- Run the full set of Imap tests against local components -->
+    <target name="unit-tests" depends="compile"
+            description="Run the full set of IMAP tests against local components.">
+        <junit fork="yes" failureproperty="unit-test.failed"  >
+            <classpath>
+                <pathelement location="${build.test.classes}"/>
+                <path refid="test.class.path"/>
+            </classpath>
+            <sysproperty key="runTestsLocal" value="true"/>
+            <formatter type="plain" usefile="false"/>
+            <test name="org.apache.james.imapserver.CommandParserTest"/>
+            <test name="org.apache.james.imapserver.ImapHostTest"/>
+            <test name="org.apache.james.imapserver.ImapStoreTest"/>
+            <test name="org.apache.james.imapserver.ImapMailboxTest"/>
+            <test name="org.apache.james.imapserver.TestCommandsInNonAuthenticatedState"/>
+            <test name="org.apache.james.imapserver.TestCommandsInAuthenticatedState"/>
+            <test name="org.apache.james.imapserver.TestOtherCommandsInSelectedState"/>
+            <test name="org.apache.james.imapserver.TestSelectedCommandsInSelectedState"/>
+            <test name="org.apache.james.imapserver.TestCompound"/>
+            <test name="org.apache.james.imapserver.TestConcurrentSessions"/>
+        </junit>
+        
+        <fail if="unit-test.failed" message="One or more unit-tests failed"/>
+    </target>
+
+    <!-- Executes tests against a running instance of James -->
+    <target name="protocol-tests" depends="testimap-init, testimap-commands"
+            description="Run the full set of IMAP protocol tests against a running instance of James. Note: James must be started manually."/>
+
+    <!-- Initialises the IMAP server for running tests.
+         Namely, creates the "imapuser" user, and sends 4 test messages to that user
+         via SMTP
+    -->
+    <target name="testimap-init" depends="compile">
+        <junit fork="yes">
+            <classpath>
+                <pathelement location="${build.test.classes}"/>
+                <path refid="test.class.path"/>
+            </classpath>
+            <sysproperty key="runTestsLocal" value="false"/>
+            <formatter type="plain" usefile="false"/>
+            <test name="org.apache.james.remotemanager.InitialImapUsersTest"/>
+<!--            <test name="org.apache.james.imapserver.InitialMail"/>-->
+        </junit>
+    </target>
+
+    <!-- Tests IMAP commands against a running instance of James -->
+    <target name="testimap-commands" depends="compile">
+        <junit fork="yes" failureproperty="protocol-test.failed" >
+            <classpath>
+                <pathelement location="${build.test.classes}"/>
+                <path refid="test.class.path"/>
+            </classpath>
+            <sysproperty key="runTestsLocal" value="false"/>
+            <formatter type="plain" usefile="false"/>
+            <test name="org.apache.james.imapserver.TestCommandsInNonAuthenticatedState"/>
+            <test name="org.apache.james.imapserver.TestCommandsInAuthenticatedState"/>
+            <test name="org.apache.james.imapserver.TestOtherCommandsInSelectedState"/>
+            <test name="org.apache.james.imapserver.TestSelectedCommandsInSelectedState"/>
+            <test name="org.apache.james.imapserver.TestCompound"/>
+            <test name="org.apache.james.imapserver.TestConcurrentSessions"/>
+        </junit>
+        
+        <fail message="One or more protocol tests failed" if="protocol-test.failed"/>
+    </target>
+    
+    <target name="build-and-test">
+        <ant antfile="proposals/imap2/build.xml" target="main"/>
+        <antcall target="unit-tests"/>
+    </target>
+    
+    <target name="copytests">
+        <mkdir dir="${build.test.classes}"/>
+        <copy todir="${build.test.classes}">
+            <fileset dir="${test.dir}" includes="**/*.test"/>
+        </copy>
+    </target>
+</project>
+
