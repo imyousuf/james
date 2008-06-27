@@ -1,0 +1,136 @@
+
+
+    _J_A_V_A___A_P_A_C_H_E___M_A_I_L___E_N_T_E_R_P_R_I_S_E___S_E_R_V_E_R_
+
+
+  What is it?
+  -----------
+
+  The Java Apache Mail Enterprise Server (a.k.a. Apache James) is a 100% pure 
+  Java server application designed to be a complete, portable and powerful
+  enterprise mail engine solution based on currently available open protocols 
+  (SMTP, POP3, IMAP, HTTP etc).
+
+  Development Status
+  ------------------
+  
+  Current release is under beta test. 
+  
+  Current Features
+  ----------------
+
+  These are some JAMES features:
+  
+    o  complete portability:  Apache James is be a 100% pure Java application
+       based on the Java 2 platform and on to of JavaMail extentions.
+       
+    o  protocol abstraction:  unlike other mail engines, protocols are seen only
+       like "communication languages" ruling comunications between clients and
+       the server. Apache James is not be tied to any particular protocol but
+       follow an abstracted server design (almost like JavaMail did on the
+       client side)
+       
+    o  complete solution:  the mail system is able to handle both mail
+       transport and storage in a single server application. Apache James
+       works alone without the need or any other server or solution.
+       
+    o  servlet support:  Apache James supports MailServlet. This easy-to-write 
+       easy-to-use pattern allow to buid powerful mail system. Example can be a 
+       mail to fax Servlet, mail to phone, filters, translator, mailling list 
+       etc.
+    
+    o  resource abstraction:  like protocols, resources are abstracted and,
+       working thru defined interfaces (JavaMail for transport, JDBC for storage,
+       servlet engine abstraction for servlets), the server will be highly 
+       modular and reuse solutions from other projects or applications.
+       
+    o  secure and multi-threaded design:  based on the technology developed for
+       the Apache JServ servlet engine, Apache James has a careful, 
+       security-oriented, full multi-threaded design, to allow performance, 
+       scalability and mission-critical use.
+       
+    o  Currently JAMES support SMTP, POP3 and a simple remote mailbox manager.
+       
+
+  Planned Features
+  ----------------
+
+    o  IMAP suppport.
+    
+    o  IMAP server side filtering.
+
+    o  Download remote inbox to your local inbox.
+    
+    o  More powerful remote admin protocol and tool.
+    
+    o  Extended set of Servlet to easily support most mail system request.
+    
+    o  anything else you may want if you help us writing it :-)
+       
+
+  Requirements
+  ------------
+
+  - JAMES.jar (of course).
+  - javax package (activation.jar, mail.jar)
+  - Avalon server framework including:
+      Avalon.jar
+      Xerces.jar (or any other SAX capable XML Parser).
+  - dnsjava.jar
+
+  JAMES distribution includes all of the above.
+  
+  To recompile James from sources you should use org.apache.tools.ant and its 
+  needed packages (ant.jar, javac.jar, xml.jar).
+
+  Up and working...
+  -----------------
+  
+Step 1: installation.
+
+    Download distibution. Extract all files in your favorite folder.
+    
+Step 2: configuration.
+
+    In the distribution you'll find configuration file "/conf/avalon.conf.xml".
+    Edit /conf/avalon.conf.xml and fill it with needed configuration follwing
+    instructions inside that means replace any FILL ME tag with appropiate value. 
+    
+Step 3: run.
+
+    M$ users shuold just run /bin/run.bat. Unix users will find run.sh
+    under the same folder. A JVM must be in the path.
+    Running [run* -help] will provide a simple command line help.
+    
+Step 4: kickstart.
+
+    Once started you'll see a message saying Avalon is running. This means Avalon 
+    has loaded JAMES and every other needed Block (see /logs/avalon.log) and is 
+    now waiting for a socket request. 
+    Since at beginning James is empty, it will not have any local user registered.
+    To add a local inbox open a telnet session with localhost on port 4555, log in
+    as root ("root[enter] root[enter]" see in config) and type "help" for a list of availale
+    command in the "JAMES remote administrator tool". It is really a basic set but 
+    should allow you to test installation.
+    
+    Once you have some local users registered try sending mail to one of them @localhost
+    with SMTP (port 25). You'll see the mail appear under /mail/localinbox/[user].
+    Try now to retrive that mail using POP3 (port 110).
+    Trace out JAMES actions in /logs/*info.log.
+    Action that will be taken by JAMES on incoming mail are configurated in the servlet
+    pipe line (/conf/avalon.conf.xml). Look at it if you want to understand what's appening.
+  
+  Good luck :)
+    
+
+
+  Licensing and legal issues
+  --------------------------
+
+  For legal and licensing issues, please look in the legal section of
+  the documentation or read the LICENSE file.
+
+  Thanks.
+
+                                           The Java Apache Project
+                                           http://java.apache.org/

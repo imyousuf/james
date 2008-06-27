@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE changes SYSTEM "./dtd/changes-v10.dtd">
+
+<changes title="JAMES History of Changes">
+  <devs>
+    <person name="Federico Barbieri" email="scoobie@systemy.it" id="FB"/>
+    <person name="Serge Knystautas" email="sergek@lokitech.com" id="SK"/>
+  </devs>
+
+<release version="1.0" date="26-Feb-2000">
+  <action dev="SKFB" type="code">
+    Added DNS stuff to remote delivery.
+  </action>
+  <action dev="FB" type="code">
+    Add some autodetect support for easier configuration.
+  </action>
+  <action dev="FB" type="code">
+    Add support for MailServlet.
+  </action>
+  <action dev="FB" type="update">
+    Add Mailservlet interface draft.
+  </action>
+</release>
+
+<release version="0.9.5" date="2000">
+  <action dev="FB" type="update">
+    Split the SMTP Server in a protocol handler and a MailServer available to 
+    all Avalon blocks.
+  </action>
+  <action dev="FB" type="update">
+    Tune MessageContainer class.
+  </action>
+</release>
+
+ <release version="0.9-dev" date="Can't remember">
+  <action dev="FB" type="update">
+  	Based on much code from Serge Knystautas first implementation of JAMES on 
+  	top of the Avalon framework.
+  </action>
+</release>
+
+</changes>
