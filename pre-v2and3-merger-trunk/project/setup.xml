@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<project name="setup" default="setup" basedir=".">
+
+  <property file="install.properties"/>
+
+  <property name="magic.install.host" value="http://www.dpml.net"/>
+  <property name="magic.bar" value="avalon-tools-magic.bar"/>
+  <property name="magic.group" value="avalon/tools"/>
+  <property name="magic.bar.dir" value="${magic.group}/bars"/>
+  <property name="magic.bar.path" value="${magic.bar.dir}/${magic.bar}"/>
+  <property name="magic.bar.url" value="${magic.install.host}/${magic.bar.path}"/>
+  <property name="magic.jar" value="avalon-tools-magic.jar"/>
+
+  <property name="magic.junit.jar" value="junit-3.8.1.jar"/>
+  <property name="magic.junit.jar.url" 
+     value="${magic.install.host}/junit/jars/${magic.junit.jar}"/>
+
+  <property environment="ENV"/>
+
+  <condition property="magic.env.declared" value="false">
+    <isset property="ENV.MAGIC_HOME"/>
+  </condition>
+
+  <available property="magic.junit.available" 
+    classname="junit.framework.TestCase"/> 
+
+  <target name="setup" 
+      depends="check-magic-home,declare-magic-home,create-magic-home,setup-junit">
+    <echo message="Setup complete."/>
+  </target>
+
+  <target name="declare-magic-home" if="magic.env.declared">
+    <property name="magic.home" value="${ENV.MAGIC_HOME}"/>
+  </target>
+
+  <target name="check-magic-home" unless="magic.env.declared">
+    <property name="magic.home" value="${user.home}/.magic"/>
+  </target>
+
+  <target name="create-magic-home" 
+      depends="setup-proxy,setup-antlib">
+
+    <echo message="Preparing magic system using ${magic.home}"/>
+    <echo message="Using home directory: ${magic.home}"/>
+    <mkdir dir="${magic.home}"/>
+
+    <property file="${magic.home}/user.properties"/>
+    <property file="${magic.home}/magic.properties"/>
+
+    <!-- Create the artifact cache. -->
+    <property name="magic.cache" value="${magic.home}/main"/>
+    <echo message="Using cache: ${magic.cache}"/>
+    <mkdir dir="${magic.cache}"/>
+
+    <!-- Create the docs cache. -->
+    <property name="magic.docs" value="${magic.home}/docs"/>
+    <echo message="Using doc repository: ${magic.docs}"/>
+    <mkdir dir="${magic.docs}"/>
+
+    <!-- Create the magic group cache dir. -->
+    <property name="magic.bar.destination" 
+      value="${magic.cache}/${magic.group}"/>
+    <mkdir dir="${magic.bar.destination}/bars"/>
+
+    <!-- Pull down the latest version of magic. -->
+    <get src="${magic.bar.url}" usetimestamp="true"
+      dest="${magic.bar.destination}/bars/${magic.bar}"/>
+
+    <!-- Unpack magic in the artifact cache. -->
+    <property name="magic.bar.file" 
+      value="${magic.bar.destination}/bars/${magic.bar}"/>
+    <unzip src="${magic.bar.file}" dest="${magic.bar.destination}">
+      <patternset>
+        <include name="**/*"/>
+        <exclude name="META-INF/**"/>
+        <exclude name="**/bars/**"/>
+      </patternset>
+    </unzip>
+
+    <!-- copy default magic properties to magic home -->
+    <copy todir="${magic.home}" 
+      file="${magic.bar.destination}/properties/magic.properties"/>
+
+    <!-- add magic templates -->
+    <mkdir dir="${magic.home}/templates"/>
+    <copy todir="${magic.home}/templates">
+      <fileset dir="${magic.bar.destination}/templates"/>
+    </copy>
+
+    <!-- add magic themes -->
+    <mkdir dir="${magic.home}/themes"/>
+    <copy todir="${magic.home}/themes">
+      <fileset dir="${magic.bar.destination}/themes"/>
+    </copy>
+
+    <!-- add magic antlib to ant -->
+    <copy todir="${ant.lib}">
+      <fileset file="${magic.cache}/${magic.group}/jars/${magic.jar}"/>
+    </copy>
+
+  </target>
+
+  <condition property="magic.proxy.declared" value="false">
+    <isset property="magic.proxy.host"/>
+  </condition>
+
+  <target name="setup-proxy" if="magic.proxy.declared">
+     <setproxy 
+         proxyhost="${magic.proxy.host}"
+         proxyport="${magic.proxy.port}"
+	   proxyuser="${magic.proxy.user}"
+	   proxypassword="${magic.proxy.password}"/>
+  </target>
+
+  <available property="magic.junit.available" 
+    classname="junit.framework.TestCase"/>
+
+  <target name="setup-junit" depends="setup-antlib" 
+      unless="magic.junit.available">
+    <echo message="Resolving junit..."/>
+    <get src="${magic.junit.jar.url}" usetimestamp="true"
+      dest="${ant.lib}/${magic.junit.jar}"/>
+  </target>
+
+  <target name="setup-antlib">
+    <property name="ant.lib" value="${user.home}/.ant/lib"/>
+    <mkdir dir="${ant.lib}"/>
+  </target>
+
+</project>

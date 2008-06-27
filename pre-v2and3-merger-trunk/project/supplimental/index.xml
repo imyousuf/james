@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<index>
+
+  <!--
+  Avalon eXternal Supplemental.
+  -->
+
+  <project basedir=".">
+    <info>
+      <group>james</group>
+      <name>james-supplemental</name>
+      <version>1.0</version>
+    </info>
+  </project>
+
+</index>

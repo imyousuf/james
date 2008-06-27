@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+    <targets>
+
+      <!--
+      =================================================================================
+      configuration overrides 
+      =================================================================================
+      -->
+
+      <target path="/james/server">
+        <configuration>
+          <postmaster>postmaster@localhost</postmaster>
+          <!-- CHANGE ME -->
+          <servernames autodetect="false" autodetectIP="false">
+            <servername>localhost</servername> 
+          </servernames>
+          <usernames ignoreCase="true" enableAliases="true" enableForwarding="true"/>
+          <inboxRepository>
+            <repository destinationURL="file://var/mail/inboxes/" type="MAIL"/>
+          </inboxRepository>
+        </configuration>
+      </target>
+
+      <target path="/james/remote">
+        <configuration>
+          <port>4555</port>
+          <handler>
+            <helloName autodetect="TRUE"/>
+            <!-- CHANGE ME -->
+            <administrator_accounts>
+              <account login="demo" password="demo"/> 
+            </administrator_accounts>
+            <connectiontimeout> 60000 </connectiontimeout>
+          </handler>
+        </configuration>
+      </target>
+
+      <target path="james/dns">
+        <configuration>
+          <autodiscover>true</autodiscover>
+          <authoritative>false</authoritative>
+          <!-- CHANGE ME -->
+          <servers> 
+            <server>130.244.127.161</server>
+            <server>130.244.127.169</server>
+          </servers>
+        </configuration>
+      </target>
+
+      <target path="/james/smtp">
+        <configuration>
+          <handler>
+            <!-- CHANGE ME -->
+            <helloName autodetect="false">localhost</helloName>
+          </handler>
+        </configuration>
+      </target>
+
+    </targets>
+

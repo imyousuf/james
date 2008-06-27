@@ -1,0 +1,6 @@
+# try to delete the select mailbox (don't worry about failures
+C: a1 DELETE selected
+S: .*
+
+C: a1 SELECT selected
+S: a1 NO SELECT failed. No such mailbox.

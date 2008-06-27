@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<project name="james-server" default="install" basedir="../." 
+    xmlns:x="antlib:org.apache.avalon.tools">
+
+  <!-- 
+  ==============================================================================
+  Declare james specific properties used within the build.
+  ==============================================================================
+  --> 
+  <property name="Name" value="James Mail Server"/>
+  <property name="constants.filename" value="org/apache/james/Constants.java"/>
+  <property name="poolconn.filename" value="org/apache/james/util/mordred/PoolConnEntry.java"/>
+  <available property="jdbc3.present" classname="java.sql.Savepoint"/>
+  <property name="project.src.main" value="java"/> 
+
+  <!--
+  ==============================================================================
+  Include standard build procedure.
+  ==============================================================================
+  -->
+  <import file="standard.xml"/>
+
+  <!--
+  ==============================================================================
+  Add james specific build enhancements.
+  ==============================================================================
+  -->
+
+  <target name="prepare" depends="verify,standard.prepare,jdbc3">
+    <replace file="target/build/main/${constants.filename}" 
+      token="@@VERSION@@" value="${project.version}"/>
+    <replace file="target/build/main/${constants.filename}" 
+      token="@@NAME@@" value="${Name}"/>
+    <replace file="target/build/main/${constants.filename}" 
+      token="@@DATE@@" value="${TODAY}"/>
+  </target>
+
+  <target name="build" depends="standard.build">
+    <x:block name="james" embed="MAIN">
+     <x:include name="threads" 
+       artifact="block:avalon/cornerstone/cornerstone-threads-impl#SNAPSHOT"/>
+     <x:include name="sockets" 
+       artifact="block:avalon/cornerstone/cornerstone-sockets-impl#SNAPSHOT"/>
+     <x:include name="scheduler" 
+       artifact="block:avalon/cornerstone/cornerstone-scheduler-impl#SNAPSHOT"/>
+     <x:include name="datasources" 
+       artifact="block:avalon/cornerstone/cornerstone-datasources-impl#SNAPSHOT"/>
+     <x:include name="store" 
+       artifact="block:avalon/cornerstone/cornerstone-store-impl#SNAPSHOT"/>
+     <x:component name="connections" 
+         class="org.apache.james.util.connection.SimpleConnectionManager"/>
+     <x:component name="server" 
+         class="org.apache.james.James"/>
+     <x:component name="dns" 
+         class="org.apache.james.dnsserver.DNSServer"/>
+     <x:component name="remote" 
+         class="org.apache.james.remotemanager.RemoteManager"/>
+     <x:component name="pop3" 
+         class="org.apache.james.pop3server.POP3Server"/>
+     <x:component name="smtp" 
+         class="org.apache.james.smtpserver.SMTPServer"/>
+     <x:component name="mailstore" 
+         class="org.apache.james.core.AvalonMailStore"/>
+     <x:component name="userstore" 
+         class="org.apache.james.core.AvalonUsersStore"/>
+     <x:component name="spool" 
+         class="org.apache.james.transport.JamesSpoolManager"/>
+     <x:component name="nntp-repository" 
+         class="org.apache.james.nntpserver.repository.NNTPRepositoryImpl" activation="false"/>
+     <x:component name="nntp" 
+         class="org.apache.james.nntpserver.NNTPServer" activation="false"/>
+     <x:component name="fetchpop" 
+         class="org.apache.james.fetchpop.FetchScheduler" activation="false"/>
+    </x:block>
+  </target>
+
+  <!--
+  ==============================================================================
+  James utility targets.
+  ==============================================================================
+  -->
+
+  <target name="jdbc3" depends="verify,standard.prepare" if="jdbc3.present">
+    <echo message="JDBC v3 in classpath - making code JDBC 3.0 compliant"/>
+    <replace file="target/build/main/${poolconn.filename}" 
+       token="/* JDBC_3_ANT_KEY" value=""/>
+    <replace file="target/build/main/${poolconn.filename}" 
+       token="JDBC_3_ANT_KEY */" value=""/>
+  </target>
+
+  <!--
+  ==============================================================================
+  Gump template generation.
+  ==============================================================================
+  -->
+  <target name="gump" depends="verify">
+    <x:home/>
+    <x:gump description="James Server" 
+         public="true" filename="project/gump.xml">
+      <x:url href="http://james.apache.org/"/>
+      <x:cvs repository="james"/>
+      <x:license file="LICENSE.TXT"/>
+      <x:nag to="server-dev@james.apache.org"/>
+    </x:gump>
+  </target>
+
+</project>
