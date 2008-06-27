@@ -1,0 +1,352 @@
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>Apache Jakarta James - James 2.1 - Configuring FetchPOP - Java Mail and News server, SMTP POP3 NNTP</title>
+<meta content="mail,email,SMTP,POP3,NNTP,IMAP,MAILET,JAVA,WINDOWS,LINUX,server,Windows,2k,NT,98,ME,XP,Linux." name="keywords">
+<meta content="Java mail server (mailserver) providing SMTP POP3 IMAP and News NNTP runs on Microsoft Windows 2k,NT,98,ME,XP, and most flavours of Linux." name="description">
+<meta content="ALL" name="ROBOTS">
+<LINK TITLE="Style" HREF="stylesheet.css" TYPE="text/css" REL="stylesheet">
+</head>
+<body vlink="#525D76" alink="#525D76" link="#525D76" text="#000000" bgcolor="#ffffff">
+<table cellspacing="4" width="100%" border="0">
+<!--PAGE HEADER-->
+<tr>
+<td colspan="2">
+<!--JAKARTA LOGO--><a href="http://jakarta.apache.org/"><img border="0" alt="The Jakarta Project" align="left" src="http://jakarta.apache.org/images/jakarta-logo.gif"></a>
+<!--PROJECT LOGO--><a href="http://jakarta.apache.org/james"><img border="0" alt="James - Java Apache Mail Enterprise Server" align="right" src="http://jakarta.apache.org/james/images/james-logo.jpg"></a></td>
+</tr>
+<!--HEADER SEPARATOR-->
+<tr>
+<td colspan="2">
+<hr size="1" noshade="">
+</td>
+</tr>
+<tr>
+<!--LEFT SIDE NAVIGATION-->
+<td nowrap="true" valign="top" width="20%">
+<p>
+<strong>James</strong>
+</p>
+<ul>
+<li>
+<a href="./index.html">Overview</a>
+</li>
+<li>
+<a href="./FAQ.html">James FAQ</a>
+</li>
+</ul>
+<p>
+<strong>Translated</strong>
+</p>
+<ul>
+<li>
+<a href="http://james.terra-intl.com/">Japanese (web)</a>
+</li>
+</ul>
+<p>
+<strong>Downloads</strong>
+</p>
+<ul>
+<li>
+<a href="http://jakarta.apache.org/site/binindex.cgi">Binaries</a>
+</li>
+<li>
+<a href="http://jakarta.apache.org/site/sourceindex.cgi">Source Code</a>
+</li>
+</ul>
+<p>
+<strong>Current Documentation</strong>
+</p>
+<ul>
+<li>
+<a href="./documentation_2_1.html">James 2.1 Documentation</a>
+</li>
+<li>
+<a href="./javadocs/index.html">James Javadocs</a>
+</li>
+<li>
+<a href="./mailet/index.html">Mailet API</a>
+</li>
+<li>
+<a href="./james_and_sendmail.html">James and sendmail</a>
+</li>
+<li>
+<a href="./rfclist.html">Useful RFCs</a>
+</li>
+</ul>
+<p>
+<strong>Older Documentation</strong>
+</p>
+<ul>
+<li>
+<a href="./document_archive.html">James Document Archive</a>
+</li>
+</ul>
+<p>
+<strong>Project</strong>
+</p>
+<ul>
+<li>
+<a href="http://jakarta.apache.org/site/bugs.html">Bug Database </a>
+</li>
+<li>
+<a href="./contribute.html">How Can I Contribute?</a>
+</li>
+<li>
+<a href="./code-standards.html">Coding Standards</a>
+</li>
+<li>
+<a href="./license.html">License</a>
+</li>
+<li>
+<a href="./todo.html">TODO</a>
+</li>
+<li>
+<a href="./changelog.html">Changelog</a>
+</li>
+<li>
+<a href="./weare.html">Who We Are</a>
+</li>
+</ul>
+<p>
+<strong>Jakarta Information (web)</strong>
+</p>
+<ul>
+<li>
+<a href="http://jakarta.apache.org/index.html">Front Page</a>
+</li>
+<li>
+<a href="http://jakarta.apache.org/site/news.html">News &amp; Status</a>
+</li>
+<li>
+<a href="http://jakarta.apache.org/site/mail.html">Mailing Lists</a>
+</li>
+<li>
+<a href="http://jakarta.apache.org/site/getinvolved.html">Get Involved</a>
+</li>
+<li>
+<a href="http://jakarta.apache.org/site/cvsindex.html">CVS Repositories</a>
+</li>
+<li>
+<a href="http://jakarta.apache.org/site/library.html">Reference Library</a>
+</li>
+<li>
+<a href="http://jakarta.apache.org/site/faqs.html">FAQs</a>
+</li>
+</ul>
+<p>
+<strong>Related Projects (web)</strong>
+</p>
+<ul>
+<li>
+<a href="http://jakarta.apache.org/index.html">Jakarta</a>
+</li>
+<li>
+<a href="http://ant.apache.org/index.html">Ant</a>
+</li>
+<li>
+<a href="http://avalon.apache.org/index.html">Avalon</a>
+</li>
+</ul>
+</td>
+<!--RIGHT SIDE MAIN BODY--><td align="left" valign="top" width="80%">
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#525D76"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="FetchPOP%20Is%20Being%20Deprecated"><strong>FetchPOP Is Being Deprecated</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>FetchPOP is being deprecated.
+<a href="fetchmail_configuration_2_2.html">fetchMail</a> provides a superset of
+FetchPOP's functionality and is the preferred solution.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#525D76"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="FetchPOP%20Configuration"><strong>FetchPOP Configuration</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>FetchPOP is controlled by a configuration block in the config.xml.
+The fetchpop tag defines the boundaries of the configuration block.  It encloses 
+all the relevant configuration for the FetchPOP scheduler.  The behavior of the POP service is
+controlled by the attributes and children of this tag.</p>
+
+<p>This tag has an optional boolean attribute - <strong>enabled</strong> - that defines whether 
+the service is active or not.  The value defaults to "false" if not present.</p>
+
+<p>The only permitted children of the fetchpop tag are <strong>fetch</strong> elements.  Each of 
+these <strong>fetch</strong> tags defines a single FetchPOP task.</p>
+
+<p>The <strong>fetch</strong> tag has a single required attribute, <strong>name</strong>.  The name 
+of each FetchPOP task must be unique.</p>
+
+<p>In addition to the <strong>name</strong> attribute, the <strong>fetch</strong> tag has four 
+children, all of which are required.</p>
+
+<ul>
+
+<li>
+<strong>host</strong> - The host name or IP address of the POP3 server hosting the mail to be fetched.</li>
+
+<li>
+<strong>user</strong> - The user name of the account whose mail is to be fetched.</li>
+
+<li>
+<strong>password</strong> - The password for the account whose mail is to be fetched.</li>
+
+<li>
+<strong>interval</strong> - A non-negative integer representing the number of milliseconds between fetches.</li>
+
+</ul>
+
+</blockquote>
+</td>
+</tr>
+</table>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#525D76"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="Considerations%20When%20Handling%20Fetched%20Mail"><strong>Considerations When Handling Fetched Mail</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>There are a number of issues which have to be considered when handling fetched mail, such as avoiding circular
+routing of mail.  Some scenarios are described below with suggested configurations.</p>
+
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="Handling%20All%20Mail%20for%20a%20Domain"><strong>Handling All Mail for a Domain</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>This is the intended primary use of FetchPOP.
+If all mail for a domain being fetched is ultimately being handled by this server then it is enough to add
+the domain name as a servername to the servernames section described <a href="serverwide_configuration_2_1.html">here</a>.
+<br>This is the simplest solution and is used where James is being used to redistribute all mail from the
+free catch-all POP accounts provided by many domain registration/hosting companies.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="Handling%20a%20Subset%20of%20a%20Domain's%20Mail"><strong>Handling a Subset of a Domain's Mail</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>If only part of a domain's mail (perhaps only a single user's POP account) is being handled by this instance
+of James it is important that outgoing mail addressed to this domain that is not intended for James be properly delivered.</p>
+
+<p>To enable this filtering the FetchPOP scheduler adds a header, X-fetchedby, to the fetched message.  This header can be checked using
+the provided matcher <b>FetchedFrom</b>.  This matcher can be used to direct fetched mail to a processor set up 
+to handle mail fetched from one or more POP3 accounts.  The matcher should be used exactly once in the mail 
+pipeline for each FetchPOP task, as the matcher removes a matching header to prevent outgoing replies or 
+redirections from looping.</p>
+
+<p>The FetchedFrom matcher is configured with the name of the particular FetchPOP task it is supposed to match.  In general,
+this matcher will be used to direct mail to a custom processor for further processing.  A mailet tag such as the 
+following</p>
+
+<div align="left">
+<table border="0" cellpadding="0" cellspacing="4">
+<tr>
+<td height="1" width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td>
+</tr>
+<tr>
+<td width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" bgcolor="#ffffff">
+<pre>
+&lt;mailet match="FetchedFrom=fetchtaskname" class="ToProcessor"&gt;
+&lt;processor&gt;fetchprocessor&lt;/processor&gt;
+&lt;/mailet&gt;
+</pre>
+</td><td width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td>
+</tr>
+<tr>
+<td height="1" width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td>
+</tr>
+</table>
+</div>
+
+<p>where <i>fetchtaskname</i> is the name of the FetchPOP task being matched and <i>fetchprocessor</i> is the name of the fetched mail 
+processor can be used to this purpose.  The fetched mail processor should contain mailets which will filter 
+and forward mail to real local or remote users.  This can be achieved in the usual fashion as described in the 
+<a href="spoolmanager_configuration_2_1.html">SpoolManager configuration section</a> and in the out of the box 
+configuration file.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+ 
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="Catching%20Undeliverable%20Mail"><strong>Catching Undeliverable Mail</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>It is important to note that this first version of FetchPOP does not access the original intended recipient
+address of the mail, but instead uses the <b>To:</b> address from the message headers.  Since this header may contain an
+alias for the intended recipient, or may never have contained the intended recipient address (it could have been 
+in the Cc: or Bcc: fields) it is possible that James will be unable to deliver the fetched mail.  It is intended 
+that this behaviour be addressed in the next version of James, but in the meantime a catch-all forwarding of 
+locally undeliverable fetched mail is recommended.</p>
+
+<p>To handle messages where the intended recipient can be determined but is not present in the To: header, the FetchedFrom 
+matcher can be used.  Place a mailet tag with this matcher between the "RecipientIsLocal" and "HostIsLocal" in the 
+Transport processor as defined in the out of the box configuration.  The mailet tag should be configured to use the 
+provided ToProcessor mailet to direct fetched mail to a custom processor.  Thus all mail fetched by FetchPOP that 
+could not be trivially mapped to a local user account will undergo further processing, allowing more complex
+delivery handling.</p>
+
+<p>For safety the All matcher should be used at the end of your custom fetched mail processor.  This can be used to 
+catch all mail not handled by previous mailets in the processor.  This will enable you to ensure that your 
+configuration is correct and that any mail not correctly delivered is available for examination by the postmaster.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+</blockquote>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+<!--FOOTER SEPARATOR-->
+<tr>
+<td colspan="2">
+<hr size="1" noshade="">
+</td>
+</tr>
+<!--PAGE FOOTER-->
+<tr>
+<td colspan="2">
+<div align="center">
+<font size="-1" color="#525D76"><em>
+        Copyright &copy; 1999-2002, Apache Software Foundation
+        </em></font>
+</div>
+</td>
+</tr>
+</table>
+</body>
+</html>
