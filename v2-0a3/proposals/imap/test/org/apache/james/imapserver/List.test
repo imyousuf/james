@@ -1,0 +1,3 @@
+// LSUB
+//C: 10 LSUB "" "*"
+//S: 10 OK LSUB completed

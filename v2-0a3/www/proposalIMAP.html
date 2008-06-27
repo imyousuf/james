@@ -1,0 +1,156 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+
+<head>
+<meta HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<title>Java Apache Mail Enterprise Server</title>
+</head>
+
+<body BGCOLOR="#FFFFFF">
+<!--
+<h2 align="center"><img SRC="images/java-apache-project.gif" BORDER="0" HEIGHT="100"
+WIDTH="609"></h2>
+-->
+<h1 align="center">IMAP Proposal - First Draft</h1>
+
+<h4 align="center">JAMES 1.1</h4>
+
+<h3>Overview of proposed IMAP server on JAMES</h3>
+<blockquote>
+Objective:  A set of interfaces and basic implementations that provide:
+<ul>
+  <li>The core functionality of RFC 2060, IMAP4Rev1.</li>
+  <li>Mailbox referrals - RFC 2193</li>
+  <li>Login referrals - RFC 2221</li>
+  <li>Access Control Lists - RFC 2086</li>
+  <li>Quotas - RFC 2087</li>
+  <li>Namespaces - RFC 2342</li>
+</ul>
+</blockquote>
+
+
+
+<h3>System, hosts and Mailboxes</h3>
+<table >
+  <tr>
+    <td colspan=6></td>
+    <td align="center">**************<br>* IMAPSystem *<br>**************</td>
+    <td colspan=6></td>
+  </tr>
+  <tr>
+    <td colspan=6 align="center">********<br>* Host *<br>********</td>
+    <td></td>
+    <td colspan=6 align="center">********<br>* Host *<br>********</td>
+  </tr>
+  <tr>
+    <td colspan=2 align="center">********************<br>* Folder Repository *<br>********************</td>
+    <td colspan=2 align="center">***********<br>* Mailbox *<br>***********</td>
+    <td colspan=2 align="center">***********<br>* Mailbox *<br>***********</td>
+    <td></td>
+    <td colspan=2 align="center">********************<br>* Folder Repository *<br>********************</td>
+    <td colspan=2 align="center">***********<br>* Mailbox *<br>***********</td>
+    <td colspan=2 align="center">***********<br>* Mailbox *<br>***********</td>
+  </tr>
+  <tr>
+    <td align="center">**********<br>* Folder *<br>* Record *<br>**********</td>
+    <td align="center">**********<br>* Folder *<br>* Record *<br>**********</td>
+    <td align="center">***********<br>* Message *<br>***********</td>
+    <td align="center">***********<br>* Message *<br>* Attribute *<br>***********</td>
+    <td align="center">***********<br>* Message *<br>***********</td>
+    <td align="center">***********<br>* Message *<br>* Attribute *<br>***********</td>
+    <td></td>
+    <td align="center">**********<br>* Folder *<br>* Record *<br>**********</td>
+    <td align="center">**********<br>* Folder *<br>* Record *<br>**********</td>
+    <td align="center">***********<br>* Message *<br>***********</td>
+    <td align="center">***********<br>* Message *<br>* Attribute *<br>***********</td>
+    <td align="center">***********<br>* Message *<br>***********</td>
+    <td align="center">***********<br>* Message *<br>* Attribute *<br>***********</td>
+  </tr>
+</table>
+
+
+<p>
+<b>interface IMAPSystem</b><br>
+
+An IMAP system may include more than one host (ie server in the physical machine sense). For example, different hosts may handle private mailboxes, shared mailboxes and news. This interface allows a James instance to identify other servers in the IMAP system, for Login referrals and Mailbox referrals.
+
+</p>
+
+<p>
+<b>interface Host</b><br>
+
+An IMAP host establishes if a user has their private mail here or access to any other mail.  It handles access to a mailbox.
+
+<blockquote>
+plan: <i>implemented by James.java</i>
+</blockquote>
+</p>
+
+<p>
+<b>interface FolderRecord</b><br>
+An IMAP server needs to keep track of deleted mailboxes, so that mailboxes created with the name of a previously deleted mailbox have different UID or UIDValidity values. In some circumstances, a mailbox may be deleted but not available for its name to be reused.  This interface captures this data.
+
+<blockquote>
+plan: <i>class SimpleFolderRecord</i> File system implementation of FolderRecord.
+</blockquote>
+</p>
+
+<p>
+<b>interface RecordRepository</b><br>
+Place to keep FolderRecords
+
+<blockquote>
+plan: <i>class AvalonFolderRepository</i> FileSystem implementation.
+</blockquote>
+</p>
+
+<p>
+<b>interface MailBox</b><br>
+As well as storing messages, an IMAP mailbox needs to keep track of folder options, such as whether inferiors/ child folders are allowed and accepatable flags and message attributes (such as flags, and envelope details).
+
+<blockquote>
+plan: <i> AvalonMailbox</i> FileSystem implementation of IMAPMailBox.
+</blockquote>
+</p>
+
+<p>
+<b>interface MessageAttributes</b><br>
+Holds message flags and parsed data. 
+
+<blockquote>
+plan: <i>class FileMessageAttributes</i> FileSystem implemetation of IMAPMessageAttributes.  
+</blockquote>
+</p>
+
+<h3>Servers, Connections, Commands, Events</h3>
+<p>
+<b>class Server</b><br>
+Monitors socket and launches connection handler.
+</p>
+
+<p>
+<b>interface ConnectionHandler</b>
+<br>
+Each instance handles a single connection. This includes authenticating the user, collecting commands from the client (which can require server input) and then arranging for the commands to be processed. The connection handler may arrange for multiple non-ambiguous commands to be processed concurrently, but must process ambiguous multiple commands in the order in which they are received from the client. See the <a href="commandsIMAP.html">Overview of IMAP commands</a>.
+</p>Because IMAP s designed for long-lived connections (the minimum timeout is 30 minutes) it is likely that new mail will be delivered to an Inbox or mail may be added to or removed from a shared mailbox while no client commands are in process.  The protocol therefore allows server data to be sent unilaterally to the client, that is not in response to a request for that data. Unilateral data may be sent while a command is being processed, indeed mailbox size changes must be sent if observed during the course of processing a command. The server may also send data while no commands are being processed (except for Expunge responses).
+
+<p>
+<b>class MailboxEvent</b>
+<br>
+MailboxEvents are sent by MailboxEventSources to any registered listener when there has been a relevant change in the Mailbox.
+
+<p>
+<b>interface MailboxEventListener</b>
+<br>
+The MailBoxEventListener interface is implemented by any object needing to monitor a mailbox. The Listener must register with the appropriate EventSource. Typically a ConnectionHandler will register with a Mailbox when it enters selected state and deregister when that mailbox is deselected. 
+<p>
+<b>interface MailboxEventSource</b>
+<br>
+The MailboxEventSource interface is implemented by any object needing to send events to listeners. Typically a mailbox.
+<p>
+<p align="center"><font SIZE="-1">Copyright (c) 1997-2000 <a HREF="http://java.apache.org">The
+Java Apache Project</a>.<br>
+All rights reserved.</font></p>
+
+</body>
+</html>
