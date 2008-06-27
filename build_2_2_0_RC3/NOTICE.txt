@@ -1,0 +1,26 @@
+   =========================================================================
+   ==  NOTICE file for use with the Apache License, Version 2.0,  ==
+   =========================================================================
+
+   This product includes software developed by
+   The Apache Software Foundation (http://www.apache.org/).
+
+   This product also includes software developed by :
+     - the W3C consortium (http://www.w3c.org/),
+     - the SAX project (http://www.saxproject.org/)
+     - the ISO-RELAX project (http://iso-relax.sourceforge.net/)
+     - the Thai Open Source Software Center Ltd. 
+       (http://www.thaiopensource.com/relaxng/jing.html)
+     - the MX4J project (http://mx4j.sourceforge.net/)
+     - Sun Microsystems (http://java.sun.com/)
+     - the MySQL project (http://mmmysql.sourceforge.net/)
+     - the dnsjava project (http://www.dnsjava.org/)
+
+   The source version of this product includes software used exclusively 
+   during the build process developed by the following:
+     - the JUnit project (http://www.junit.org/)
+     - the JDOM project (http://www.jdom.org/)
+     - the XDoclet project (http://xdoclet.sourceforge.net/)
+
+   Please read the different LICENSE files present in the root directory of
+   this distribution.   

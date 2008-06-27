@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+<blockinfo>
+
+  <!-- section to describe block -->
+  <block>
+    <version>1.0</version>
+  </block>
+
+  <!-- services that are offered by this block -->
+  <services>
+    <service name="org.apache.james.imapserver.IMAPSystem" version="1.0"/>
+  </services>
+
+  <dependencies>
+  </dependencies>
+
+</blockinfo>
