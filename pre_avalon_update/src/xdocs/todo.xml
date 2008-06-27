@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+
+<document>
+
+ <properties>
+  <title>TODO</title>
+  <author email="sergek@lokitech.com">Serge Knystautas</author>
+  <author email="charles@benett1.co.uk">Charles Benett</author>
+ </properties>
+
+<body>
+
+<section name="TODO">
+<p>This is a living document that will give new and existing volunteers some areas where we need help.  As always, any help is appreciated, be it documentation, code, suggestions, or feedback.
+Last Updated  20 April 2002.</p>
+</section>
+
+<section name="High Priority">
+<p>Refactor to use the latest Avalon releases.</p>
+<p>Determine a way to support multiple domains.</p>
+<p>Update and write more documentation, including  a) how to setup user accounts for pop3 delivery/retrieval, b) how to setup a database for message storage, c) how to setup a database for user accounts, d) how to write a mailet, e) how to setup and use SMTP auth to allow remote delivery for valid users.</p>
+<p>Improve the debugging output, including a) catching that DNS servers are not correct (at least have DNS log channel record DNS server usage)</p>
+<p>Make log files appending and at 'INFO' level (not debug) by default</p>
+<p>Get IMAP server to alpha standard, ie basic interoperation with e-mail clients.</p>
+</section>
+
+<section name="Medium Priority">
+<p>Get classloaders working so custom mailets don't have to be in james.jar (SK: I suggest adding support for apps/james/classes and apps/james/lib directories and have the MailetLoader and MatcherLoader use these in addition to system level classpath).</p>
+<p>Refactor RemoteManager to be an object that can be controlled via RMI or what have you, and have the remote manager telnet interface make appropriate calls to this interface.</p>
+<p>Add support in the RemoteManager to manage repositories.  This includes listing what's in a repository, viewing individual messages, deleting messages, copying messages, and moving messages.</p>
+<p>Implement an imap:// repository implementation.  The goal would be to allow you to transfer messages using the RemoteManager from an IMAP account from or to a James message repository.</p>
+<p>Write an ezmlm comparable listserv manager</p>
+<p>Add regex matchers</p>
+<p>Add support in the CharTerminatedInputStream to support read(byte[]) instead of just read().</p>
+<p>Fix NNTP authentication</p>
+<p>Fix NNTP ssl</p>
+<p>Write more documentation. </p>
+<p>Add #news namespace to IMAP system</p>
+<p>Revisit UserRepository - after doing IMAP List &amp; Subscribe</p>
+<p>Add needed functions to RemoteManager, Including Stop and ReConfigure (?), Reinject mail (this should just be copying/moving messages...), Store RemoteManger password securely.</p>
+<p>Add support for better mailet router/processing (maybe like RequestDispatcher) - Use Stage/Pipline pattern</p>
+<p>Add support for deployable message processing apps using Camelot pattern</p>
+<p>Give admins option to enforce one access at a time to a POP3 mailbox.</p>
+<p>Tie in the NNTP Repository with POP/SMTP/IMAP repository structure.</p>
+<p>Test and move RMI interface from proposal directory to main branch.</p>
+</section>
+
+<section name="Low Priority">
+<p>Add support for DRAC login/relay allowing</p>
+<p>Enable read receipts to be handled properly (?)</p>
+<p>Add support for mbox mail repository format.</p>
+<p>Add support for mail.dir (?) repository format.</p>
+</section>
+
+</body>
+</document>
+

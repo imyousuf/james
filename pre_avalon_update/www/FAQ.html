@@ -1,0 +1,458 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<!-- Content Stylesheet for Site -->
+
+        
+<!-- start the processing -->
+    <!-- ====================================================================== -->
+    <!-- Main Page Section -->
+    <!-- ====================================================================== -->
+    <html>
+        <head>
+            <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+
+                                                    <meta name="author" value="Danny Angus">
+            <meta name="email" value="danny@thought.co.uk">
+            
+           
+                                    
+            <title>Jakarta James - Frequently Asked Questions</title>
+        </head>
+
+        <body bgcolor="#ffffff" text="#000000" link="#525D76">        
+            <table border="0" width="100%" cellspacing="0">
+                <!-- TOP IMAGE -->
+                <tr>
+                    <td align="left">
+<a href="http://jakarta.apache.org"><img src="http://jakarta.apache.org/images/jakarta-logo.gif" border="0"/></a>
+</td>
+<td align="right">
+<a href="http://jakarta.apache.org/james/"><img src="./images/james-logo.jpg" alt="JAMES - Java Apache Mail Enterprise Server" border="0"/></a>
+</td>
+                </tr>
+            </table>
+            <table border="0" width="100%" cellspacing="4">
+                <tr><td colspan="2">
+                    <hr noshade="" size="1"/>
+                </td></tr>
+                
+                <tr>
+                    <!-- LEFT SIDE NAVIGATION -->
+                    <td width="20%" valign="top" nowrap="true">
+                                <p><strong>James</strong></p>
+        <ul>
+                    <li>    <a href="./index.html">Overview</a>
+</li>
+                    <li>    <a href="./install.html">Install</a>
+</li>
+                    <li>    <a href="./configuration_v2_0.html">Configuration</a>
+</li>
+                    <li>    <a href="./architecture_v2_0.html">Architecture</a>
+</li>
+                    <li>    <a href="./FAQ.html">James FAQ</a>
+</li>
+                </ul>
+            <p><strong>Download</strong></p>
+        <ul>
+                    <li>    <a href="http://jakarta.apache.org/site/binindex.html">Binaries</a>
+</li>
+                    <li>    <a href="http://jakarta.apache.org/site/sourceindex.html">Source Code</a>
+</li>
+                </ul>
+            <p><strong>Guides</strong></p>
+        <ul>
+                    <li>    <a href="./javadocs/index.html">James API</a>
+</li>
+                    <li>    <a href="./mailet/index.html">Mailet API</a>
+</li>
+                    <li>    <a href="./usingJDBC_v2.0.html">Using JDBC</a>
+</li>
+                    <li>    <a href="./usingLDAP_v1_2.html">Using LDAP</a>
+</li>
+                    <li>    <a href="./usingTLS_v1_2.html">Using TLS</a>
+</li>
+                    <li>    <a href="http://jakarta.apache.org/james/rfclist">Useful RFCs {web}</a>
+</li>
+                </ul>
+            <p><strong>Project</strong></p>
+        <ul>
+                    <li>    <a href="./code-standards.html">Coding Standards</a>
+</li>
+                    <li>    <a href="./license.html">License</a>
+</li>
+                    <li>    <a href="./todo.html">TODO</a>
+</li>
+                    <li>    <a href="./changelog.html">Changelog</a>
+</li>
+                    <li>    <a href="./weare.html">Who We Are</a>
+</li>
+                </ul>
+            <p><strong>Jakarta Information {web}</strong></p>
+        <ul>
+                    <li>    <a href="http://jakarta.apache.org/site/getinvolved.html">Get Involved</a>
+</li>
+                    <li>    <a href="http://jakarta.apache.org/site/cvsindex.html">CVS Repositories</a>
+</li>
+                    <li>    <a href="http://jakarta.apache.org/site/mail.html">Mailing Lists</a>
+</li>
+                    <li>    <a href="http://jakarta.apache.org/site/library.html">Reference Library</a>
+</li>
+                    <li>    <a href="http://jakarta.apache.org/site/bugs.html">Bug Database</a>
+</li>
+                </ul>
+            <p><strong>Jakarta Essentials {web}</strong></p>
+        <ul>
+                    <li>    <a href="http://jakarta.apache.org/index.html">Front Page</a>
+</li>
+                    <li>    <a href="http://jakarta.apache.org/site/news.html">News & Status</a>
+</li>
+                    <li>    <a href="http://jakarta.apache.org/site/mission.html">Mission</a>
+</li>
+                    <li>    <a href="http://jakarta.apache.org/site/guidelines.html">Guidelines Notes</a>
+</li>
+                    <li>    <a href="http://jakarta.apache.org/site/faqs.html">FAQs</a>
+</li>
+                </ul>
+            <p><strong>Related Projects {web}</strong></p>
+        <ul>
+                    <li>    <a href="http://jakarta.apache.org/ant/index.html">Ant</a>
+</li>
+                    <li>    <a href="http://jakarta.apache.org/avalon/index.html">Avalon</a>
+</li>
+                </ul>
+                        </td>
+                    <td width="80%" align="left" valign="top">
+                                                                    <table border="0" cellspacing="0" cellpadding="2" width="100%">
+      <tr><td bgcolor="#525D76">
+        <font color="#ffffff" face="arial,helvetica,sanserif">
+          <a name="This FAQ"><strong>This FAQ</strong></a>
+        </font>
+      </td></tr>
+      <tr><td>
+        <blockquote>
+                                    <P>This is a living document that provides answers to common questions about James, installation, configuration, admin and running not already answered in the documentation. Last Updated February 2002.</P>
+                            </blockquote>
+        </p>
+      </td></tr>
+      <tr><td><br/></td></tr>
+    </table>
+                                                <table border="0" cellspacing="0" cellpadding="2" width="100%">
+      <tr><td bgcolor="#525D76">
+        <font color="#ffffff" face="arial,helvetica,sanserif">
+          <a name="Questions"><strong>Questions</strong></a>
+        </font>
+      </td></tr>
+      <tr><td>
+        <blockquote>
+                                    <p>
+<ul>
+<li><a href="#1">Would you please teach me how to set up a mailing list</a></li>
+<li><a href="#2">Is James an Open Relay for Spam?</a></li>
+<li><a href="#3">I can send messages to James, but nobody is receiving them.  What do I do?</a></li>
+<li><a href="#4">I can send people messages via James, but nobody can send me messages.  What do I do?</a></li>
+<li><a href="#5">I'm trying to debug messages that James is trying to deliver.  Where should I look?</a></li>
+<li><a href="#6">What about IMAP support?</a></li>
+<li><a href="#7">What about support virtual hosting?</a></li>
+<li><a href="#8">Where do I stick classes and jars?</a></li>
+</ul>
+</p>
+                            </blockquote>
+        </p>
+      </td></tr>
+      <tr><td><br/></td></tr>
+    </table>
+                                                <table border="0" cellspacing="0" cellpadding="2" width="100%">
+      <tr><td bgcolor="#525D76">
+        <font color="#ffffff" face="arial,helvetica,sanserif">
+          <a name="Answers"><strong>Answers</strong></a>
+        </font>
+      </td></tr>
+      <tr><td>
+        <blockquote>
+                                    <a name="1" />
+                                                    <table border="0" cellspacing="0" cellpadding="2" width="100%">
+      <tr><td bgcolor="#828DA6">
+        <font color="#ffffff" face="arial,helvetica,sanserif">
+          <a name="Would you please teach me how to set up a mailing list"><strong>Would you please teach me how to set up a mailing list</strong></a>
+        </font>
+      </td></tr>
+      <tr><td>
+        <blockquote>
+                                    <p>James currently (v2.0a2) includes only the most basic list functionality, users can subscribe and unsubscribe, but there is no moderation of messages or subscriptions</p>
+                                                <p>To enable a list you need the following in config.xml in the root processor block and above the final mailet block -</p>
+                                                    <div align="left">
+    <table cellspacing="4" cellpadding="0" border="0">
+    <tr>
+      <td bgcolor="#023264" width="1" height="1"><img src="/images/void.gif" width="1" height="1" vspace="0" hspace="0" border="0"/></td>
+      <td bgcolor="#023264" height="1"><img src="/images/void.gif" width="1" height="1" vspace="0" hspace="0" border="0"/></td>
+      <td bgcolor="#023264" width="1" height="1"><img src="/images/void.gif" width="1" height="1" vspace="0" hspace="0" border="0"/></td>
+    </tr>
+    <tr>
+      <td bgcolor="#023264" width="1"><img src="/images/void.gif" width="1" height="1" vspace="0" hspace="0" border="0"/></td>
+      <td bgcolor="#ffffff"><pre>
+&lt;mailet match=&quot;CommandForListserv=james@localhost&quot;
+    class=&quot;AvalonListservManager&quot;&gt;
+    &lt;repositoryName&gt;list-james&lt;/repositoryName&gt;
+&lt;/mailet&gt;
+</pre></td>
+      <td bgcolor="#023264" width="1"><img src="/images/void.gif" width="1" height="1" vspace="0" hspace="0" border="0"/></td>
+    </tr>
+    <tr>
+      <td bgcolor="#023264" width="1" height="1"><img src="/images/void.gif" width="1" height="1" vspace="0" hspace="0" border="0"/></td>
+      <td bgcolor="#023264" height="1"><img src="/images/void.gif" width="1" height="1" vspace="0" hspace="0" border="0"/></td>
+      <td bgcolor="#023264" width="1" height="1"><img src="/images/void.gif" width="1" height="1" vspace="0" hspace="0" border="0"/></td>
+    </tr>
+    </table>
+    </div>
+                                                <p>that will intercept the command emails sent to
+<ul>
+<li>james-on@localhost to subscribe the sender</li>
+<li>james-off@localhost to unsubscribe the sender</li>
+</ul>
+</p>
+                                                <p>and-</p>
+                                                    <div align="left">
+    <table cellspacing="4" cellpadding="0" border="0">
+    <tr>
+      <td bgcolor="#023264" width="1" height="1"><img src="/images/void.gif" width="1" height="1" vspace="0" hspace="0" border="0"/></td>
+      <td bgcolor="#023264" height="1"><img src="/images/void.gif" width="1" height="1" vspace="0" hspace="0" border="0"/></td>
+      <td bgcolor="#023264" width="1" height="1"><img src="/images/void.gif" width="1" height="1" vspace="0" hspace="0" border="0"/></td>
+    </tr>
+    <tr>
+      <td bgcolor="#023264" width="1"><img src="/images/void.gif" width="1" height="1" vspace="0" hspace="0" border="0"/></td>
+      <td bgcolor="#ffffff"><pre>
+&lt;mailet match=&quot;RecipientIs=james@localhost&quot; class=&quot;AvalonListserv&quot;&gt;
+    &lt;membersonly&gt; false &lt;/membersonly&gt;
+    &lt;attachmentsallowed&gt; true &lt;/attachmentsallowed&gt;
+    &lt;replytolist&gt; true &lt;/replytolist&gt;
+    &lt;repositoryName&gt;list-james&lt;/repositoryName&gt;
+    &lt;subjectprefix&gt;JamesList&lt;/subjectprefix&gt;
+&lt;/mailet&gt;
+</pre></td>
+      <td bgcolor="#023264" width="1"><img src="/images/void.gif" width="1" height="1" vspace="0" hspace="0" border="0"/></td>
+    </tr>
+    <tr>
+      <td bgcolor="#023264" width="1" height="1"><img src="/images/void.gif" width="1" height="1" vspace="0" hspace="0" border="0"/></td>
+      <td bgcolor="#023264" height="1"><img src="/images/void.gif" width="1" height="1" vspace="0" hspace="0" border="0"/></td>
+      <td bgcolor="#023264" width="1" height="1"><img src="/images/void.gif" width="1" height="1" vspace="0" hspace="0" border="0"/></td>
+    </tr>
+    </table>
+    </div>
+                                                <p>Which will distribute the mail to the current subscribers</p>
+                                                <p>in addition to the above you need to have a repository configured in the users-store block(usually near the bottom of config.xml) like so (database)-</p>
+                                                    <div align="left">
+    <table cellspacing="4" cellpadding="0" border="0">
+    <tr>
+      <td bgcolor="#023264" width="1" height="1"><img src="/images/void.gif" width="1" height="1" vspace="0" hspace="0" border="0"/></td>
+      <td bgcolor="#023264" height="1"><img src="/images/void.gif" width="1" height="1" vspace="0" hspace="0" border="0"/></td>
+      <td bgcolor="#023264" width="1" height="1"><img src="/images/void.gif" width="1" height="1" vspace="0" hspace="0" border="0"/></td>
+    </tr>
+    <tr>
+      <td bgcolor="#023264" width="1"><img src="/images/void.gif" width="1" height="1" vspace="0" hspace="0" border="0"/></td>
+      <td bgcolor="#ffffff"><pre>
+&lt;repository name=&quot;list-james&quot;
+    class=&quot;org.apache.james.userrepository.ListUsersJdbcRepository&quot;
+    destinationURL=&quot;db://maildb/lists/list-james&quot;&gt;
+    &lt;sqlFile&gt;file://conf/sqlResources.xml&lt;/sqlFile&gt;
+&lt;/repository&gt;
+</pre></td>
+      <td bgcolor="#023264" width="1"><img src="/images/void.gif" width="1" height="1" vspace="0" hspace="0" border="0"/></td>
+    </tr>
+    <tr>
+      <td bgcolor="#023264" width="1" height="1"><img src="/images/void.gif" width="1" height="1" vspace="0" hspace="0" border="0"/></td>
+      <td bgcolor="#023264" height="1"><img src="/images/void.gif" width="1" height="1" vspace="0" hspace="0" border="0"/></td>
+      <td bgcolor="#023264" width="1" height="1"><img src="/images/void.gif" width="1" height="1" vspace="0" hspace="0" border="0"/></td>
+    </tr>
+    </table>
+    </div>
+                                                <p>Database users will also need to ensure that they have configured a data-source named to match the destination URL</p>
+                                                <p>Using the filesystem:-</p>
+                                                    <div align="left">
+    <table cellspacing="4" cellpadding="0" border="0">
+    <tr>
+      <td bgcolor="#023264" width="1" height="1"><img src="/images/void.gif" width="1" height="1" vspace="0" hspace="0" border="0"/></td>
+      <td bgcolor="#023264" height="1"><img src="/images/void.gif" width="1" height="1" vspace="0" hspace="0" border="0"/></td>
+      <td bgcolor="#023264" width="1" height="1"><img src="/images/void.gif" width="1" height="1" vspace="0" hspace="0" border="0"/></td>
+    </tr>
+    <tr>
+      <td bgcolor="#023264" width="1"><img src="/images/void.gif" width="1" height="1" vspace="0" hspace="0" border="0"/></td>
+      <td bgcolor="#ffffff"><pre>
+&lt;repository name=&quot;list-james&quot;
+    class=&quot;org.apache.james.userrepository.UsersFileRepository&quot;&gt;
+    &lt;destination URL=&quot;file://var/lists/list-james/&quot;/&gt;
+&lt;/repository&gt;
+</pre></td>
+      <td bgcolor="#023264" width="1"><img src="/images/void.gif" width="1" height="1" vspace="0" hspace="0" border="0"/></td>
+    </tr>
+    <tr>
+      <td bgcolor="#023264" width="1" height="1"><img src="/images/void.gif" width="1" height="1" vspace="0" hspace="0" border="0"/></td>
+      <td bgcolor="#023264" height="1"><img src="/images/void.gif" width="1" height="1" vspace="0" hspace="0" border="0"/></td>
+      <td bgcolor="#023264" width="1" height="1"><img src="/images/void.gif" width="1" height="1" vspace="0" hspace="0" border="0"/></td>
+    </tr>
+    </table>
+    </div>
+                                                <p>Restart James, send a mail to james-on@localhost and you should be subscribed.</p>
+                                                <p>The repository, be it a database table or directory in the filesystem will be created automatically.</p>
+                                                <p>Database users can manipulate the users repository using SQL, and hence any application capable of running SQL queries against it.<br />Danny Angus</p>
+                            </blockquote>
+      </td></tr>
+      <tr><td><br/></td></tr>
+    </table>
+                                                <a name="2" />
+                                                    <table border="0" cellspacing="0" cellpadding="2" width="100%">
+      <tr><td bgcolor="#828DA6">
+        <font color="#ffffff" face="arial,helvetica,sanserif">
+          <a name="James seems to be an open relay for Spam, is it?"><strong>James seems to be an open relay for Spam, is it?</strong></a>
+        </font>
+      </td></tr>
+      <tr><td>
+        <blockquote>
+                                    <p>In some simple tests of mail relays James appears to be an open relay, properly configured it is not. </p>
+                                                <p>Because James is an email application platform it currently accepts all mail delivered to it via SMTP for processing. Only after the mail has been recieved does this processing begin.</p>
+                                                <p>This means that James accepts Spam. However the default configuration, and any sensible re-configuration has a number of anti-spam measures which will prevent the re-transmisson of spam from James. This makes it a blackhole for spam.</p>
+                                                <p>This also means that James will not verify addresses, but of course this means that valid addresses can't be harvested from James by spammers either.<br />Danny Angus</p>
+                            </blockquote>
+      </td></tr>
+      <tr><td><br/></td></tr>
+    </table>
+                                                <a name="3" />
+                                                    <table border="0" cellspacing="0" cellpadding="2" width="100%">
+      <tr><td bgcolor="#828DA6">
+        <font color="#ffffff" face="arial,helvetica,sanserif">
+          <a name="I can send messages to James, but nobody is receiving them.  What do I do?"><strong>I can send messages to James, but nobody is receiving them.  What do I do?</strong></a>
+        </font>
+      </td></tr>
+      <tr><td>
+        <blockquote>
+                                    <p>Check that you've added valid DNS servers to your James installation.  Email delivery requires the use of special mail related DNS information (MX records), so James needs to explicitly be given DNS servers.  Look at your config.xml file for a &lt;dnsserver&gt; section and add one or more DNS servers.<br />Serge Knystautas</p>
+                            </blockquote>
+      </td></tr>
+      <tr><td><br/></td></tr>
+    </table>
+                                                <a name="4" />
+                                                    <table border="0" cellspacing="0" cellpadding="2" width="100%">
+      <tr><td bgcolor="#828DA6">
+        <font color="#ffffff" face="arial,helvetica,sanserif">
+          <a name="I can send people messages via James, but nobody can send me messages.  What do I do?"><strong>I can send people messages via James, but nobody can send me messages.  What do I do?</strong></a>
+        </font>
+      </td></tr>
+      <tr><td>
+        <blockquote>
+                                    <p>You need to do one of two things:
+  <ol>
+  <li>Update your domain's DNS entries so there are MX records that point to the machine that is running James.  Note that it is illegal for MX records to point to IP addresses.  You need to point MX records to a valid CNAME or A name entry, and then map that eventually to an IP address.</li>
+  <li>You could alternatively give people an email address with IP addresses.  Most people will think it's a very strange email address, but hello@[192.168.0.1] is a valid email address.  Note that you need to wrap the IP address in brackets.</li>
+  </ol>
+  Serge Knystautas</p>
+                            </blockquote>
+      </td></tr>
+      <tr><td><br/></td></tr>
+    </table>
+                                                <a name="5" />
+                                                    <table border="0" cellspacing="0" cellpadding="2" width="100%">
+      <tr><td bgcolor="#828DA6">
+        <font color="#ffffff" face="arial,helvetica,sanserif">
+          <a name="I'm trying to debug messages that James is trying to deliver.  Where should I look?"><strong>I'm trying to debug messages that James is trying to deliver.  Where should I look?</strong></a>
+        </font>
+      </td></tr>
+      <tr><td>
+        <blockquote>
+                                    <p>First step is to look in the log directory at the James.Mailet.log file.  Look for entries that include the text "RemoteDelivery".  This should provide some high-level debug information of James's attempt to delivery mail remotely.</p>
+                                                <p>If you want to delve into the code, look at the RemoteDelivery mailet.  You may also want to review the mail repository source code for the repository type you are using (file, db, etc...).<br />Serge Knystautas</p>
+                            </blockquote>
+      </td></tr>
+      <tr><td><br/></td></tr>
+    </table>
+                                                <a name="6" />
+                                                    <table border="0" cellspacing="0" cellpadding="2" width="100%">
+      <tr><td bgcolor="#828DA6">
+        <font color="#ffffff" face="arial,helvetica,sanserif">
+          <a name="What about IMAP support?"><strong>What about IMAP support?</strong></a>
+        </font>
+      </td></tr>
+      <tr><td>
+        <blockquote>
+                                    <p>Unfortunately IMAP support is currently stalled.  There is a proposal in CVS, but IMAP is a significantly more complex than other mail protocols, both from a protocol command support and in terms of complexity you need on the server.  If you are interested in taking the proverbial ball and running with it, we would all very much appreciated. (I personally am incredibly frustrated with an old Netscape Mail server, but I've sworn myself to upgrade only to James's IMAP once ready as incentive.)
+  <br />Serge Knystautas</p>
+                            </blockquote>
+      </td></tr>
+      <tr><td><br/></td></tr>
+    </table>
+                                                <a name="7" />
+                                                    <table border="0" cellspacing="0" cellpadding="2" width="100%">
+      <tr><td bgcolor="#828DA6">
+        <font color="#ffffff" face="arial,helvetica,sanserif">
+          <a name="What about support virtual hosting?"><strong>What about support virtual hosting?</strong></a>
+        </font>
+      </td></tr>
+      <tr><td>
+        <blockquote>
+                                    <p>Virtual hosting is something the developers are still wrestling with.  The challenge is that POP3 does not support virtual hosting in that it does not have a command to indicate what domain the user is in.  What this means is the mail server needs to develop a 'mapping' or 'translation', e.g., 'user1@domaina.com' gets a username 'domaina.user1'.  This allows the mail server to have a single username namespace.  We have seen a few good proposals put forward, but nothing that seemed the clear solution as ideally we could have this part solve the next issue.</p>
+                                                <p>Beyond that, James needs to refine virtual hosting for mailet processing.  The mailet API has a Mail.getUser() method that no longer would be useable as a reliable indicator of whether they were in the local username namespace.  To date we are unclear of the best way to bring this translation into the mailet processing.  Similarly, it would be nice to support different mailet processing based on the domain, although this is somewhat feasible using the limited processing flow offered with a HostIs/ForwardTo combination.</p>
+                                                <p>This is one of the most requested feature, so hopefully this will be resolved soon.
+  <br />Serge Knystautas</p>
+                            </blockquote>
+      </td></tr>
+      <tr><td><br/></td></tr>
+    </table>
+                                                <a name="8" />
+                                                    <table border="0" cellspacing="0" cellpadding="2" width="100%">
+      <tr><td bgcolor="#828DA6">
+        <font color="#ffffff" face="arial,helvetica,sanserif">
+          <a name="Where do I stick classes and jars?"><strong>Where do I stick classes and jars?</strong></a>
+        </font>
+      </td></tr>
+      <tr><td>
+        <blockquote>
+                                    <p>We are largely reliant on what Avalon is doing in terms of classloading, but here are a few tips and suggestions:
+  <ul>
+  <li>Stick jars in the james/lib directory and add them to the classpath in run.bat or run.sh.</li>
+  <li>Custom mailets and matchers must be included in the james.bar (which is just a zip like a jar or war file).</li>
+  </ul>
+  Eventually we hope to support mailet reloading and a special lib and classes directory within the james directory that custom mailets can load from, but for now these are hopefully some useful tips.
+  <br />Serge Knystautas</p>
+                            </blockquote>
+      </td></tr>
+      <tr><td><br/></td></tr>
+    </table>
+                            </blockquote>
+        </p>
+      </td></tr>
+      <tr><td><br/></td></tr>
+    </table>
+                                        </td>
+                </tr>
+
+                <!-- FOOTER -->
+                <tr><td colspan="2">
+                    <hr noshade="" size="1"/>
+                </td></tr>
+                <tr><td colspan="2">
+                    <div align="center"><font color="#525D76" size="-1"><em>
+                    Copyright &#169; 1999-2002, Apache Software Foundation
+                    </em></font></div>
+                </td></tr>
+            </table>
+        </body>
+    </html>
+<!-- end the processing -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
