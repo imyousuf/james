@@ -1,0 +1,412 @@
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>Apache Jakarta James - TODO - Java Mail and News server, SMTP POP3 NNTP</title>
+<meta value="Serge Knystautas" name="author">
+<meta value="sergek@lokitech.com" name="email">
+<meta value="Charles Benett" name="author">
+<meta value="charles@benett1.co.uk" name="email">
+<meta value="Peter M. Goldstein" name="author">
+<meta value="farsight@alum.mit.edu" name="email">
+<meta content="mail,email,SMTP,POP3,NNTP,IMAP,MAILET,JAVA,WINDOWS,LINUX,server,Windows,2k,NT,98,ME,XP,Linux." name="keywords">
+<meta content="Java mail server (mailserver) providing SMTP POP3 IMAP and News NNTP runs on Microsoft Windows 2k,NT,98,ME,XP, and most flavours of Linux." name="description">
+<meta content="ALL" name="ROBOTS">
+<LINK TITLE="Style" HREF="stylesheet.css" TYPE="text/css" REL="stylesheet">
+</head>
+<body vlink="#525D76" alink="#525D76" link="#525D76" text="#000000" bgcolor="#ffffff">
+<table cellspacing="4" width="100%" border="0">
+<!--PAGE HEADER-->
+<tr>
+<td colspan="2">
+<!--JAKARTA LOGO--><a href="http://jakarta.apache.org/"><img border="0" alt="The Jakarta Project" align="left" src="http://jakarta.apache.org/images/jakarta-logo.gif"></a>
+<!--PROJECT LOGO--><a href="http://jakarta.apache.org/james"><img border="0" alt="James - Java Apache Mail Enterprise Server" align="right" src="http://jakarta.apache.org/james/images/james-logo.jpg"></a></td>
+</tr>
+<!--HEADER SEPARATOR-->
+<tr>
+<td colspan="2">
+<hr size="1" noshade="">
+</td>
+</tr>
+<tr>
+<!--LEFT SIDE NAVIGATION-->
+<td nowrap="true" valign="top" width="20%">
+<p>
+<strong>James</strong>
+</p>
+<ul>
+<li>
+<a href="./index.html">Overview</a>
+</li>
+<li>
+<a href="./FAQ.html">James FAQ</a>
+</li>
+</ul>
+<p>
+<strong>Translated</strong>
+</p>
+<ul>
+<li>
+<a href="http://james.terra-intl.com/">Japanese (web)</a>
+</li>
+</ul>
+<p>
+<strong>Downloads</strong>
+</p>
+<ul>
+<li>
+<a href="http://jakarta.apache.org/site/binindex.cgi">Binaries</a>
+</li>
+<li>
+<a href="http://jakarta.apache.org/site/sourceindex.cgi">Source Code</a>
+</li>
+</ul>
+<p>
+<strong>Current Documentation</strong>
+</p>
+<ul>
+<li>
+<a href="./documentation_2_1.html">James 2.1 Documentation</a>
+</li>
+<li>
+<a href="./javadocs/index.html">James Javadocs</a>
+</li>
+<li>
+<a href="./mailet/index.html">Mailet API</a>
+</li>
+<li>
+<a href="./james_and_sendmail.html">James and sendmail</a>
+</li>
+<li>
+<a href="./rfclist.html">Useful RFCs</a>
+</li>
+</ul>
+<p>
+<strong>Older Documentation</strong>
+</p>
+<ul>
+<li>
+<a href="./document_archive.html">James Document Archive</a>
+</li>
+</ul>
+<p>
+<strong>Project</strong>
+</p>
+<ul>
+<li>
+<a href="http://jakarta.apache.org/site/bugs.html">Bug Database </a>
+</li>
+<li>
+<a href="./contribute.html">How Can I Contribute?</a>
+</li>
+<li>
+<a href="./code-standards.html">Coding Standards</a>
+</li>
+<li>
+<a href="./license.html">License</a>
+</li>
+<li>
+<a href="./todo.html">TODO</a>
+</li>
+<li>
+<a href="./changelog.html">Changelog</a>
+</li>
+<li>
+<a href="./weare.html">Who We Are</a>
+</li>
+</ul>
+<p>
+<strong>Jakarta Information (web)</strong>
+</p>
+<ul>
+<li>
+<a href="http://jakarta.apache.org/index.html">Front Page</a>
+</li>
+<li>
+<a href="http://jakarta.apache.org/site/news.html">News &amp; Status</a>
+</li>
+<li>
+<a href="http://jakarta.apache.org/site/mail.html">Mailing Lists</a>
+</li>
+<li>
+<a href="http://jakarta.apache.org/site/getinvolved.html">Get Involved</a>
+</li>
+<li>
+<a href="http://jakarta.apache.org/site/cvsindex.html">CVS Repositories</a>
+</li>
+<li>
+<a href="http://jakarta.apache.org/site/library.html">Reference Library</a>
+</li>
+<li>
+<a href="http://jakarta.apache.org/site/faqs.html">FAQs</a>
+</li>
+</ul>
+<p>
+<strong>Related Projects (web)</strong>
+</p>
+<ul>
+<li>
+<a href="http://jakarta.apache.org/index.html">Jakarta</a>
+</li>
+<li>
+<a href="http://ant.apache.org/index.html">Ant</a>
+</li>
+<li>
+<a href="http://avalon.apache.org/index.html">Avalon</a>
+</li>
+</ul>
+</td>
+<!--RIGHT SIDE MAIN BODY--><td align="left" valign="top" width="80%">
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#525D76"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="TODO"><strong>TODO</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>This is a living document that will give new and existing volunteers some areas where we need help.  As always, any help is appreciated, be it documentation, code, suggestions, or feedback.
+Last Updated  10 December 2002.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#525D76"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="Cross-Service%20Issues"><strong>Cross-Service Issues</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Determine a way to support multiple domains.</p>
+
+<p>Revisit UserRepository.  The interface must support multiple authentication types per user,
+aliasing (both local and non-local), as well as per-user quotas.  It may be desirable to be able 
+to associate attributes with users in the repository.</p>
+
+<p>Revisit the MailRepository interface and associated implementations.  Special consideration is
+necessary to support IMAP Search functionality.  It should be possible to associate attributes 
+with mail messages stored in the repository.</p>
+
+<p>Revisit the SpoolRepository implementations and do away with the current exception-generating
+two-phase message retrieval.</p>
+
+<p>Define a simple mechaism for addressing repositories in a uniform way.</p>
+
+<p>Add support for mbox mail file repository.</p>
+
+<p>Add support for the <a href="http://cr.yp.to/proto/maildir.html">maildir</a> file repository.</p>
+
+<p>Add support for DRAC login/relay authorization.  This feature records the IP addresses and times of 
+POP3 logins.  SMTP connections from these same IP addresses are considered authenticated  if they occur 
+within a fixed period of the POP3 authentication.</p>
+
+<p>Develop repository migration tools so that users of the old repositories can easily migrate to newer repositories.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#525D76"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="SMTP%20Service"><strong>SMTP Service</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Add support for the enhanced status codes extension (<a href="http://www.faqs.org/rfcs/rfc2034.html">RFC 2034</a>).</p>
+
+<p>Add support for the 8BITMIME extension.</p>
+
+<p>Expand the SMTP server so it supports a variety of SASL authentication mechanisms.</p>
+
+<p>Complete support for delivery service notification (<a href="http://www.faqs.org/rfcs/rfc1891.html">RFC 1891</a>).</p>
+
+<p>Discuss optional support for VRFY and EXPN.</p>
+
+<p>Discuss some form of spam filtering that would allow filtering before messages are fully read in from the network.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#525D76"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="IMAP%20Service"><strong>IMAP Service</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Get IMAP server to alpha standard (i.e. basic interoperation with e-mail clients).</p>
+
+<p>Add #news namespace to IMAP system</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#525D76"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="POP3%20Service"><strong>POP3 Service</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Give admins the option to enforce one access at a time to a POP3 mailbox.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#525D76"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="NNTP%20Service"><strong>NNTP Service</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Refactor NNTP code base.</p>
+
+<p>Tie in the NNTP Repository with POP/SMTP/IMAP repository structure.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#525D76"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="List%20Management"><strong>List Management</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Write a list server implementation with functionality comparable to ezmlm.  This would include
+the capability to handle multiple lists of 100,000+ members, double opt-in subscription mechanisms,
+and a full suite of mail-driven commands.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#525D76"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="Avalon%20Integration"><strong>Avalon Integration</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Update code base to use Serviceable/ServiceManager rather than Composable/ComponentManager.  This 
+requires an effective change in how we expose components through the Mailet API.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#525D76"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="Mailet%20API"><strong>Mailet API</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Discuss and design the next revision of the Mailet API.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#525D76"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="DNS%20Server"><strong>DNS Server</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Improve the debugging output, including a) catching that DNS servers are not correct (at least have DNS log channel record DNS server usage)</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#525D76"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="SpoolManager"><strong>SpoolManager</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Add support for better mailet router/processing (maybe like RequestDispatcher) - Use Stage/Pipeline pattern</p>
+
+<p>Get classloaders working so custom mailets don't have to be in james.jar (SK: I suggest adding support for apps/james/classes and apps/james/lib directories and have the MailetLoader and MatcherLoader use these in addition to system level classpath).</p>
+
+<p>Add support for deployable message processing apps using Camelot pattern</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#525D76"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="Remote%20Management"><strong>Remote Management</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Rewrite RemoteManager to be an exposed object that can be controlled via RMI or what have you, and have the remote manager telnet interface make appropriate calls to this interface.</p>
+
+<p>Take advantage of Phoenix JMX capabilities to enable more complete measurement of James behavior.</p>
+
+<p>Add support in the RemoteManager to manage repositories.  This includes listing what's in a repository, viewing individual messages, deleting messages, copying messages, and moving messages.</p>
+
+<p>Add needed functions to RemoteManager, Including Stop and ReConfigure (?), Reinject mail (this should just be copying/moving messages...), Store RemoteManger password securely.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#525D76"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="Documentation"><strong>Documentation</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Document instructions on configuring logging in James.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+<!--FOOTER SEPARATOR-->
+<tr>
+<td colspan="2">
+<hr size="1" noshade="">
+</td>
+</tr>
+<!--PAGE FOOTER-->
+<tr>
+<td colspan="2">
+<div align="center">
+<font size="-1" color="#525D76"><em>
+        Copyright &copy; 1999-2002, Apache Software Foundation
+        </em></font>
+</div>
+</td>
+</tr>
+</table>
+</body>
+</html>

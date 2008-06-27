@@ -1,0 +1,22 @@
+// Fetch 3 messages with UID
+C: f1 FETCH 1:3 (UID)
+S: * 1 FETCH (UID ${ignore})
+S: * 2 FETCH (UID ${ignore})
+S: * 3 FETCH (UID ${ignore})
+S: f1 OK FETCH completed
+
+// Fetch 3 messages with BODY
+C: f1 FETCH 1:3 (BODY[HEADER.FIELDS (Subject)])
+S: * 1 FETCH (BODY[HEADER.FIELDS (Subject)] {22}
+S: Subject: Message 1
+S: 
+S: )
+S: * 2 FETCH (BODY[HEADER.FIELDS (Subject)] {22}
+S: Subject: Message 2
+S: 
+S: )
+S: * 3 FETCH (BODY[HEADER.FIELDS (Subject)] {22}
+S: Subject: Message 3
+S: 
+S: )
+S: f1 OK FETCH completed

@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+
+<blockinfo>
+  <block>
+    <version>1.0</version>
+  </block>
+
+  <services>
+    <service name="org.apache.avalon.framework.component.Component" version="1.0"/>
+  </services>
+
+  <dependencies>
+    <dependency>
+      <role>org.apache.james.services.UsersStore</role>
+      <service name="org.apache.james.services.UsersStore" version="1.0"/>
+    </dependency>
+    <dependency>
+      <role>org.apache.james.services.MailServer</role>
+      <service name="org.apache.james.services.MailServer" version="1.0"/>
+    </dependency> 
+  </dependencies>  
+</blockinfo>
