@@ -134,8 +134,6 @@ class MessageSearches {
             }
         } catch (IOException e) {
             throw new TorqueException(e);
-        } catch (MimeException e) {
-            throw new TorqueException(e);
         }
     }
     
