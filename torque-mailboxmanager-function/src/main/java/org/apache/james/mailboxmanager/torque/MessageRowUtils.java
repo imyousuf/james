@@ -157,8 +157,6 @@ public class MessageRowUtils {
                 addPartContent(fetchGroup, messageRow, messageResult);
             } catch (IOException e) {
                 throw new TorqueException("Cannot parse message", e);
-            } catch (MimeException e) {
-                throw new TorqueException("Cannot parse message", e);
             }
         }
         return messageResult;
