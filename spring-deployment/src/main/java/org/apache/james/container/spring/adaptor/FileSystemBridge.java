@@ -18,58 +18,46 @@
  ****************************************************************/
 package org.apache.james.container.spring.adaptor;
 
+import org.apache.james.services.FileSystem;
+import org.springframework.core.io.ResourceLoader;
+
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.io.IOException;
-import java.io.FileInputStream;
-
-import org.apache.james.services.FileSystem;
+import java.io.InputStream;
 
 public class FileSystemBridge implements FileSystem {
-    private static final String FILE_PROTOCOL = "file://";
-    private static final String FILE_PROTOCOL_AND_CONF = "file://conf/";
-    private static final String FILE_PROTOCOL_AND_VAR = "file://var/";
 
     public File getBasedir() throws FileNotFoundException {
         return new File(".");
     }
+    
+    private ResourceLoader resourceLoader = null;
 
     /**
      * loads resources from classpath or file system 
      */
     public InputStream getResource(String url) throws IOException {
-        if (url.startsWith("classpath:")) {
-            String resourceName = url.substring("classpath:".length());
-            InputStream resourceAsStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(resourceName);
-            if (resourceAsStream==null) {
-                throw new IOException("Resource '" + resourceName + "' not found in the classpath!");
-            }
-            return resourceAsStream;
-        }
-        return new FileInputStream(getFile(url));
+        return resourceLoader.getResource(url).getInputStream();
     }
 
     /**
      * @see org.apache.james.services.FileSystem#getFile(String filURL) 
      */
     public File getFile(String fileURL) throws FileNotFoundException {
-        if (fileURL.startsWith(FILE_PROTOCOL)) {
-            File file = null;
-            if (fileURL.startsWith(FILE_PROTOCOL_AND_CONF)) {
-                file = new File("../conf/" + fileURL.substring(FILE_PROTOCOL_AND_CONF.length()));
-            } else if (fileURL.startsWith(FILE_PROTOCOL_AND_VAR)) {
-                file = new File("../var/" + fileURL.substring(FILE_PROTOCOL_AND_VAR.length()));
-            } else {
-                file = new File("./" + fileURL.substring(FILE_PROTOCOL.length()));
-            }
-            if (!file.exists()) {
-                throw new FileNotFoundException("cannot access file " + file.toString());
-            }
-            return file;
-        } else {
-            throw new UnsupportedOperationException("getFile: " + fileURL);
+        try {
+            return resourceLoader.getResource(fileURL).getFile();
+        } catch (IOException e) {
+            throw new FileNotFoundException(e.getMessage());
         }
+    }
+
+    protected synchronized ResourceLoader getResourceLoader() {
+        return resourceLoader;
+    }
+
+    public synchronized void setResourceLoader(ResourceLoader provider) {
+        this.resourceLoader = provider;
     }
 
 }
