@@ -21,13 +21,11 @@ package org.apache.james.container.spring.beanfactory;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.phoenix.tools.configuration.ConfigurationBuilder;
-import org.apache.james.container.spring.adaptor.ConfigurationProvider;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.support.AbstractBeanDefinitionReader;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.util.ClassUtils;
 import org.xml.sax.InputSource;
 
@@ -38,10 +36,6 @@ import java.util.List;
 /**
  */
 public class AvalonBeanDefinitionReader extends AbstractBeanDefinitionReader {
-
-    private ConfigurationProvider configurationProvider;
-    private ResourceLoader resourceLoader;
-    private ClassLoader beanClassLoader;
 
     public AvalonBeanDefinitionReader(BeanDefinitionRegistry beanDefinitionRegistry) {
         super(beanDefinitionRegistry);
@@ -138,6 +132,7 @@ public class AvalonBeanDefinitionReader extends AbstractBeanDefinitionReader {
 
     private Configuration getConfiguration(Resource resource) throws IOException {
         InputSource inputSource = new InputSource(resource.getInputStream());
+        inputSource.setSystemId(resource.getURL().toString());
         try
         {
             Configuration configuration = ConfigurationBuilder.build(inputSource, null, null);

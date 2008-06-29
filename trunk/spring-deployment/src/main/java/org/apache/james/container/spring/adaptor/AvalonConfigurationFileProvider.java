@@ -21,47 +21,46 @@ package org.apache.james.container.spring.adaptor;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.phoenix.tools.configuration.ConfigurationBuilder;
 import org.apache.james.container.spring.configuration.ConfigurationInterceptor;
+import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.io.Resource;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.ApplicationContext;
-import org.springframework.beans.BeansException;
+import org.springframework.core.io.ResourceLoader;
 import org.xml.sax.InputSource;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
-import java.io.InputStream;
-import java.io.IOException;
 
 /**
  * loads the well-known classic James configuration file
  *
   * TODO make this thing be based on Resource class and inject resource.getInputStream() into InputSource 
  */
-public class AvalonConfigurationFileProvider implements ConfigurationProvider, ApplicationContextAware {
+public class AvalonConfigurationFileProvider implements ConfigurationProvider, ResourceLoaderAware {
 
-    private String absoluteFilePath;
     private List configurationInterceptors;
-    private ApplicationContext applicationContext;
     private String configuration;
-
-    public void setConfigurationResource(String configuration) {
-        this.configuration = configuration;
-    }
-
-
+    private ResourceLoader resourceLoader;
+    
     public Configuration getConfiguration() {
-        Resource resource = applicationContext.getResource(configuration);
-        InputStream inputStream;
+        InputStream inputStream = null;
+        String systemId = null;
+        
+        Resource resource = resourceLoader.getResource(configuration);
+        if (!resource.exists()) {
+            throw new RuntimeException("could not locate configuration file " + configuration);
+        }
         try {
             inputStream = resource.getInputStream();
-        } catch (IOException e) {
-            throw new RuntimeException("could not locate configuration file " + configuration, e);
+            systemId = resource.getURL().toString();
+        } catch (IOException e1) {
+            throw new RuntimeException("could not open configuration file " + configuration, e1);
         }
         InputSource inputSource = new InputSource(inputStream);
         Configuration configuration;
         try
         {
-            inputSource.setSystemId(resource.getURL().toString());
+            inputSource.setSystemId(systemId);
             configuration = ConfigurationBuilder.build(inputSource, null, null);
         }
         catch( final Exception e )
@@ -81,12 +80,15 @@ public class AvalonConfigurationFileProvider implements ConfigurationProvider, A
         
         return configuration;
     }
+    public void setConfigurationResource(String configuration) {
+        this.configuration = configuration;
+    }
 
     public void setConfigurationInterceptors(List configurationInterceptors) {
         this.configurationInterceptors = configurationInterceptors;
     }
 
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
+    public synchronized void setResourceLoader(ResourceLoader resourceLoader) {
+        this.resourceLoader = resourceLoader;
     }
 }
