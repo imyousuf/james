@@ -34,6 +34,7 @@
   <inceptionYear>2002</inceptionYear>
   <packaging>pom</packaging>
   <modules>
+    <module>stage</module>
     <module>user-api</module>
     <module>domain-api</module>
     <module>imap-api</module>
@@ -109,6 +110,7 @@
     </plugins>
   </build>
   <repositories>
+<!--
     <repository>
       <id>local-james-stage-m1</id>
       <name>Local James stage repository</name>
@@ -123,7 +125,7 @@
         <checksumPolicy>ignore</checksumPolicy>
       </snapshots>
     </repository>
-    <!-- this is an hack for submodules to find stage folder -->
+    <! - - this is an hack for submodules to find stage folder - ->
     <repository>
       <id>parent-james-stage-m1</id>
       <name>Parent James stage repository</name>
@@ -138,7 +140,7 @@
         <checksumPolicy>ignore</checksumPolicy>
       </snapshots>
     </repository>
-    
+-->    
     <!-- Override parent POM to remove repositories -->
     <!-- 
     <repository>
@@ -368,6 +370,12 @@
       <version>3.0-SNAPSHOT</version>
       <type>test-jar</type>
       <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-phoenix-deployment</artifactId>
+      <version>3.0-SNAPSHOT</version>
     </dependency>
 
     <dependency>
@@ -861,6 +869,27 @@
       <groupId>org.apache.activemq</groupId>
       <artifactId>activemq-core</artifactId>
       <version>4.1.1</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.jcr</groupId>
+      <artifactId>jcr</artifactId>
+      <version>1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>avalon-phoenix</groupId>
+      <artifactId>avalon-phoenix-client</artifactId>
+      <version>4.2-SNAPSHOT</version>
+    </dependency>
+    <!-- phoenix runtime -->
+    <dependency>
+      <groupId>spice</groupId>
+      <artifactId>spice-configkit</artifactId>
+      <version>1.1.2</version>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.14</version>
     </dependency>
     </dependencies>
   </dependencyManagement>
