@@ -63,7 +63,7 @@ public class BayesianAnalyzerManagement implements BayesianAnalyzerManagementSer
     private DataSourceSelector selector;
     private DataSourceComponent component;
     private String repos;
-    private String sqlFileUrl = "file://conf/sqlResources.xml";
+    private String sqlFileUrl;
     private FileSystem fileSystem;
     
     /**
@@ -103,6 +103,8 @@ public class BayesianAnalyzerManagement implements BayesianAnalyzerManagementSer
         if (reposPath != null) {
             setRepositoryPath(reposPath.getValue());
         }
+        sqlFileUrl = arg0.getChild("sqlFile").getValue();
+        if (sqlFileUrl == null) sqlFileUrl = "file://conf/sqlResources.xml";
     }
     
     /**

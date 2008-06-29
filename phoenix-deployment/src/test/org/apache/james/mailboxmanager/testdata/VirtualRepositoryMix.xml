@@ -53,6 +53,7 @@
 					<point point="#mail"/>
 					<target
 						class="org.apache.james.mailboxmanager.torque.TorqueMailboxManagerFactory">
+						<configFile name="file://conf/mailboxManagerSqlResources.xml"/>
 						<torque-properties>
 							<property name="torque.database.default"
 								value="mailboxmanager"/>

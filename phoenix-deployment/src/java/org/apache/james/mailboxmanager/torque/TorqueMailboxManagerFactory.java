@@ -60,6 +60,7 @@ public class TorqueMailboxManagerFactory extends TorqueMailboxManager implements
     private boolean initialized;
 
     private FileSystem fileSystem;
+    private String configFile;
 
     private static final String[] tableNames = new String[] {
             MailboxRowPeer.TABLE_NAME, MessageRowPeer.TABLE_NAME,
@@ -80,7 +81,7 @@ public class TorqueMailboxManagerFactory extends TorqueMailboxManager implements
                 conn = Transaction.begin(MailboxRowPeer.DATABASE_NAME);
                 SqlResources sqlResources = new SqlResources();
                 sqlResources.init(fileSystem
-                        .getResource("file://conf/mailboxManagerSqlResources.xml"),
+                        .getResource(configFile),
                         TorqueMailboxManagerFactory.class.getName(), conn,
                         new HashMap());
 
@@ -119,10 +120,10 @@ public class TorqueMailboxManagerFactory extends TorqueMailboxManager implements
 
     public void configureDefaults()
             throws org.apache.commons.configuration.ConfigurationException {
-        File configFile = new File("torque.properties");
-        if (configFile.canRead()) {
+        File torqueConfigFile = new File("torque.properties");
+        if (torqueConfigFile.canRead()) {
             getLog().info("reading torque.properties...");
-            torqueConf = new PropertiesConfiguration(configFile);
+            torqueConf = new PropertiesConfiguration(torqueConfigFile);
         } else {
             torqueConf = new BaseConfiguration();
             torqueConf.addProperty("torque.database.default", "mailboxmanager");
@@ -144,6 +145,7 @@ public class TorqueMailboxManagerFactory extends TorqueMailboxManager implements
             torqueConf.addProperty(
                     "torque.dsfactory.mailboxmanager.pool.maxActive", "100");
         }
+        configFile = "file://conf/mailboxManagerSqlResources.xml";
     }
 
     public void configure(
@@ -156,6 +158,8 @@ public class TorqueMailboxManagerFactory extends TorqueMailboxManager implements
             torqueConf.addProperty(tps[i].getAttribute("name"), tps[i]
                     .getAttribute("value"));
         }
+        configFile = conf.getChild("configFile").getValue();
+        if (configFile == null) configFile = "file://conf/mailboxManagerSqlResources.xml";
     }
 
     private boolean tableExists(DatabaseMetaData dbMetaData, String tableName)
