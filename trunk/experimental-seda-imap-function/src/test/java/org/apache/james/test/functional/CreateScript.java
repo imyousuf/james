@@ -35,10 +35,46 @@ public class CreateScript {
 
     public static final void main(String[] args) throws Exception {
         ScriptBuilder builder = ScriptBuilder.open("localhost", 143);
-        bodyStructure(builder);
+        bodyStructureSimple(builder);
     }
     
-    public static void bodyStructure(ScriptBuilder builder) throws Exception {
+    public static void bodyStructureSimple(ScriptBuilder builder) throws Exception {
+        builder.login();
+        builder.create();
+        builder.select();
+        builder.setFile("rfc822-multiple-addresses.mail");
+        builder.append();
+        builder.setFile("wild-example.mail");
+        builder.append();
+        builder.setFile("mime-plain-text.mail");
+        builder.append();
+        builder.fetchAllMessages();
+        builder.fetchSection("");
+        builder.fetchSection("TEXT");
+        builder.fetchSection("HEADER");
+        builder.fetchSection("1");
+        builder.fetchSection("2");
+        builder.fetchSection("3");
+        builder.fetchSection("3.HEADER");
+        builder.fetchSection("3.TEXT");
+        builder.fetchSection("3.1");
+        builder.fetchSection("3.2");
+        builder.fetchSection("4");
+        builder.fetchSection("4.1");
+        builder.fetchSection("4.1.MIME");
+        builder.fetchSection("4.2");
+        builder.fetchSection("4.2.HEADER");
+        builder.fetchSection("4.2.TEXT");
+        builder.fetchSection("4.2.1");
+        builder.fetchSection("4.2.2");
+        builder.fetchSection("4.2.2.1");
+        builder.fetchSection("4.2.2.2");
+        builder.resetFetch().setBodyFetch(true).setBodyStructureFetch(true);
+        builder.fetchAllMessages();
+        builder.quit();
+    }
+    
+    public static void bodyStructureMultipart(ScriptBuilder builder) throws Exception {
         builder.login();
         builder.create();
         builder.select();
