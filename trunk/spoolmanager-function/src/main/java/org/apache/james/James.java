@@ -301,7 +301,10 @@ public class James
         attributes.put(Constants.AVALON_COMPONENT_MANAGER, compMgr);
 
         //Temporary get out to allow complex mailet config files to stop blocking sergei sozonoff's work on bouce processing
-        java.io.File configDir = fileSystem.getFile("file://conf/");
+        String confDir = conf.getChild("configuration-directory").getValue();
+        // defaults to the old behaviour
+        if (confDir == null) confDir = "file://conf/";
+        java.io.File configDir = fileSystem.getFile(confDir);
         attributes.put("confDir", configDir.getCanonicalPath());
 
         try {

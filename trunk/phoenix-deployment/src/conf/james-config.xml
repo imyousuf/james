@@ -133,6 +133,8 @@
       <!-- will use the specified value. -->
       <!-- Set the default helloName which is used in all services if not overridden in the specific service-->
       <helloName autodetect="true">myMailServer</helloName>
+      <!-- according to the James code the need for this might be a temporary hack -->
+      <configuration-directory>file://conf</configuration-directory>
    </James>
 
     <!--
@@ -145,6 +147,7 @@
         </namespaces>
         <factory
             class="org.apache.james.mailboxmanager.torque.TorqueMailboxManagerFactory">
+                   <configFile>file://conf/mailboxManagerSqlResources.xml</configFile>
                    <torque-properties>
                        <property name="torque.database.default"
                            value="mailboxmanager"/>
@@ -944,7 +947,8 @@ Regards, Postmaster XXX.YYY
    <!-- This is needed by the RemoteManager to enable the BayesianAnaylyzerManagement commands --> 
    <bayesiananalyzermanagement> 
       <repositoryPath> db://maildb </repositoryPath>
-   </bayesiananalyzermanagement>  
+      <sqlFile>file://conf/sqlResources.xml</sqlFile>
+   </bayesiananalyzermanagement>
     
 
    <!-- The RemoteManager server is enabled by default -->
