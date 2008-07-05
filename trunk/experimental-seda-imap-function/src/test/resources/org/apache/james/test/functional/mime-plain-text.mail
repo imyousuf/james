@@ -31,8 +31,9 @@ Content-Disposition: inline; foo=bar; one=1; param=value;
 Content-Language: en, en-US, en-CA
 Content-ID: <477345345@example.org>
 Content-Description: Homage to 70's TV
-Content-Type: application/xhtml+xml
+Content-Type: application/xhtml+xml; e=mc*mc;
 Content-Location: http://www.example.org/rhubard.html
+Content-MD5: Q2hlY2sgSW50ZWdyaXR5IQ==
 
 <!DOCTYPE html
 PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN
