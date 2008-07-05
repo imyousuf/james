@@ -60,7 +60,7 @@ C: - robert
 S: \* 2 EXISTS
 S: \* 2 RECENT
 S: A5 OK APPEND completed\.
-C: A6 APPEND testmailbox {786+}
+C: A6 APPEND testmailbox {835+}
 C: From: Samual Smith <sam@example.org>
 C: To: John Smith <john@example.org>
 C: Reply-To: "Timothy Taylor: Email" <tim@example.org>
@@ -75,8 +75,9 @@ C: Content-Disposition: inline; foo=bar; one=1; param=value;
 C: Content-Language: en, en-US, en-CA
 C: Content-ID: <477345345@example.org>
 C: Content-Description: Homage to 70's TV
-C: Content-Type: application/xhtml+xml
+C: Content-Type: application/xhtml+xml; e=mc*mc;
 C: Content-Location: http://www.example.org/rhubard.html
+C: Content-MD5: Q2hlY2sgSW50ZWdyaXR5IQ==
 C: 
 C: <!DOCTYPE html
 C: PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN
@@ -171,7 +172,7 @@ S: A27 OK FETCH completed\.
 C: A28 FETCH 1:* (BODY BODYSTRUCTURE)
 S: \* 1 FETCH \(BODY \("text" "plain" \("charset" "us-ascii"\) NIL NIL "7bit" 8 0\) BODYSTRUCTURE \("text" "plain" \("charset" "us-ascii"\) NIL NIL "7bit" 8 0 NIL NIL NIL\)\)
 S: \* 2 FETCH \(BODY \("text" "plain" \("charset" "ISO-8859-1"\) NIL NIL "7bit" 192 6\) BODYSTRUCTURE \("text" "plain" \("charset" "ISO-8859-1"\) NIL NIL "7bit" 192 6 NIL \("inline" NIL\) NIL\)\)
-S: \* 3 FETCH \(BODY \("application" "xhtml\+xml" NIL "<477345345@example\.org>" "Homage to 70's TV" "7bit" 183\) BODYSTRUCTURE \("application" "xhtml\+xml" NIL "<477345345@example\.org>" "Homage to 70's TV" "7bit" 183 NIL \("inline" \("foo" "bar" "one" "1" "param" "value"\)\) \("en" "en-US" "en-CA"\)\)\)
+S: \* 3 FETCH \(BODY \("application" "xhtml\+xml" \("e" "mc\*mc"\) "<477345345@example\.org>" "Homage to 70's TV" "7bit" 183\) BODYSTRUCTURE \("application" "xhtml\+xml" \("e" "mc\*mc"\) "<477345345@example\.org>" "Homage to 70's TV" "7bit" 183 "Q2hlY2sgSW50ZWdyaXR5IQ==" \("inline" \("foo" "bar" "one" "1" "param" "value"\)\) \("en" "en-US" "en-CA"\)\)\)
 S: A28 OK FETCH completed\.
 C: A29 DELETE testmailbox
 S: A29 OK DELETE completed\.
