@@ -215,26 +215,27 @@ public class James
      */
     public void initialize() throws Exception {
 
-        getLogger().info("JAMES init...");
+        final Logger logger = getLogger();
+        logger.info("JAMES init...");
 
         initializeServices();
 
         Configuration userNamesConf = conf.getChild("usernames");
         if (userNamesConf != null) {
             if (localusers instanceof JamesUsersRepository) {
-                getLogger().warn("<usernames> parameter in James block is deprecated. Please configure this data in UsersRepository block: configuration injected for backward compatibility");
+                logger.warn("<usernames> parameter in James block is deprecated. Please configure this data in UsersRepository block: configuration injected for backward compatibility");
                 ((JamesUsersRepository) localusers).setIgnoreCase(userNamesConf.getAttributeAsBoolean("ignoreCase", false));
                 ((JamesUsersRepository) localusers).setEnableAliases(userNamesConf.getAttributeAsBoolean("enableAliases", false));
                 ((JamesUsersRepository) localusers).setEnableForwarding(userNamesConf.getAttributeAsBoolean("enableForwarding", false));
             } else {
-                getLogger().error("<usernames> parameter is no more supported. Backward compatibility is provided when using an AbstractUsersRepository but this repository is a "+localusers.getClass().toString());
+                logger.error("<usernames> parameter is no more supported. Backward compatibility is provided when using an AbstractUsersRepository but this repository is a "+localusers.getClass().toString());
             }
         }
         
         Configuration serverConf = conf.getChild("servernames");
         if (serverConf != null) {
             if (domains instanceof ManageableDomainList) {
-                getLogger().warn("<servernames> parameter in James block is deprecated. Please configure this data in domainlist block: configuration injected for backward compatibility");
+                logger.warn("<servernames> parameter in James block is deprecated. Please configure this data in domainlist block: configuration injected for backward compatibility");
                 ManageableDomainList dom = (ManageableDomainList) domains;
                 dom.setAutoDetect(serverConf.getAttributeAsBoolean("autodetect",true));    
                 dom.setAutoDetectIP(serverConf.getAttributeAsBoolean("autodetectIP", true));
@@ -244,7 +245,7 @@ public class James
                     dom.addDomain( serverNameConfs[i].getValue().toLowerCase(Locale.US));
                 }
             } else {
-                getLogger().error("<servernames> parameter is no more supported. Backward compatibility is provided when using an XMLDomainList");
+                logger.error("<servernames> parameter is no more supported. Backward compatibility is provided when using an XMLDomainList");
             }
         }
 
@@ -257,14 +258,14 @@ public class James
 
         inboxRootURL = conf.getChild("inboxRepository").getChild("repository").getAttribute("destinationURL");
 
-        getLogger().info("Private Repository LocalInbox opened");
+        logger.info("Private Repository LocalInbox opened");
         
         Configuration virtualHostingConfig = conf.getChild("enableVirtualHosting");
         if (virtualHostingConfig != null ) {
             virtualHosting = virtualHostingConfig.getValueAsBoolean(false);
         }
         
-        getLogger().info("VirtualHosting supported: " + virtualHosting);
+        logger.info("VirtualHosting supported: " + virtualHosting);
         
         Configuration defaultDomainConfig = conf.getChild("defaultDomain");
         if (defaultDomainConfig != null ) {
@@ -273,7 +274,7 @@ public class James
             throw new ConfigurationException("Please configure a defaultDomain if using VirtualHosting");
         }
         
-        getLogger().info("Defaultdomain: " + defaultDomain);
+        logger.info("Defaultdomain: " + defaultDomain);
         
         Configuration helloNameConfig = conf.getChild("helloName");
         if (helloNameConfig != null) {
@@ -301,7 +302,16 @@ public class James
         attributes.put(Constants.AVALON_COMPONENT_MANAGER, compMgr);
 
         //Temporary get out to allow complex mailet config files to stop blocking sergei sozonoff's work on bouce processing
-        String confDir = conf.getChild("configuration-directory").getValue();
+        String confDir;
+        try {
+            confDir = conf.getChild("configuration-directory").getValue();
+        } catch (ConfigurationException e) {
+            if (logger.isInfoEnabled()) {
+                logger.info("Failed to read configuration directory configuration. Will continue using default.");
+            }
+            logger.debug("Failed to read configuration directory configuration", e);
+            confDir = null;
+        }
         // defaults to the old behaviour
         if (confDir == null) confDir = "file://conf/";
         java.io.File configDir = fileSystem.getFile(confDir);
@@ -318,7 +328,7 @@ public class James
         initializeLocalDeliveryMailet();
 
         System.out.println(SOFTWARE_NAME_VERSION);
-        getLogger().info("JAMES ...init end");
+        logger.info("JAMES ...init end");
     }
 
     private void initializeServices() throws Exception {
