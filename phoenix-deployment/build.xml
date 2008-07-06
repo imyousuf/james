@@ -960,7 +960,7 @@
         <echo message="Running James Unit Tests in directory ${basedir}"/>
         <mkdir dir="${build.test}"/>
         <mkdir dir="${build.test.reports}"/>
-        <junit printsummary="yes" haltonfailure="no"  dir='${basedir}'>
+        <junit printsummary="yes" haltonfailure="yes"  dir='${basedir}'>
             <classpath refid="unittest.class.path"/>
             <classpath refid="project.class.path"/>
             <classpath>
