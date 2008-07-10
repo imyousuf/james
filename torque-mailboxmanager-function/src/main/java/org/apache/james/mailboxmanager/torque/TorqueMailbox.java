@@ -635,6 +635,7 @@ public class TorqueMailbox extends AbstractLogEnabled implements Mailbox {
                         }
                     } catch (TorqueException e) {
                         getLog().info("Cannot test message against search criteria. Will continue to test other messages.", e);
+                        if (getLog().isDebugEnabled()) getLog().debug("UID: " + row.getUid());
                     }
                 }
                 

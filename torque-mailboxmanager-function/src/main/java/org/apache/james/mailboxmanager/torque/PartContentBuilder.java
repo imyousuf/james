@@ -90,7 +90,7 @@ public class PartContentBuilder {
 
     private byte[] messageBodyContent() throws IOException, MimeException {
         advancedToMessage();
-        parser.setRecursionMode(MimeTokenStream.M_NO_RECURSE);
+        parser.setRecursionMode(MimeTokenStream.M_FLAT);
         for ( int state = parser.getState(); 
                 state != MimeTokenStream.T_BODY && state != MimeTokenStream.T_START_MULTIPART; 
                 state = parser.next()) {
@@ -108,7 +108,7 @@ public class PartContentBuilder {
     }
 
     private byte[] mimeBodyContent() throws IOException, MimeException {
-        parser.setRecursionMode(MimeTokenStream.M_NO_RECURSE);
+        parser.setRecursionMode(MimeTokenStream.M_FLAT);
         for ( int state = parser.getState(); 
                 state != MimeTokenStream.T_BODY && state != MimeTokenStream.T_START_MULTIPART; 
                 state = parser.next()) {

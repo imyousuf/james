@@ -63,15 +63,11 @@ public class UidChangeTrackerTest extends TestCase {
         results[0]=new MessageResultImpl(1001l);
         tracker.found(new UidRange(1001,1001),Arrays.asList(results));
         assertCollectorSizes(1,0,0);
-        assertEquals(1001,((MessageResult) collector.getAddedList(true).get(0)).getUid());
+        assertEquals(1001,((Long) collector.getAddedList(true).get(0)).longValue());
         assertCollectorSizes(0,0,0);
         
         results[0]=new MessageResultImpl(1001l,new Flags(Flags.Flag.FLAGGED));
         tracker.found(new UidRange(1001,1001),Arrays.asList(results));
-        assertCollectorSizes(0,0,1);
-        MessageFlags messageFlags =(MessageFlags) collector.getFlaggedList(true).get(0);
-        assertEquals(1001,messageFlags.getUid());
-        assertEquals(new Flags(Flags.Flag.FLAGGED),messageFlags.getFlags());
         
         // nothing changed
         tracker.found(new UidRange(1001,1001),Arrays.asList(results));
@@ -114,9 +110,6 @@ public class UidChangeTrackerTest extends TestCase {
         results[0]=new MessageResultImpl(1000l,new Flags(Flags.Flag.DRAFT));
         tracker.found(new UidRange(1000,1000),Arrays.asList(results));
         assertCollectorSizes(0,0,1);
-        result=(MessageResult) collector.getFlaggedList(true).get(0);
-        assertEquals(1000,result.getUid());
-        assertEquals(new Flags(Flags.Flag.DRAFT),result.getFlags());
         
     }
 }
