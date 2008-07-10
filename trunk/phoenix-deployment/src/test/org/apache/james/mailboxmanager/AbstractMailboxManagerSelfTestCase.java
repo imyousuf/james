@@ -19,8 +19,10 @@
 
 package org.apache.james.mailboxmanager;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.james.mailboxmanager.manager.MailboxExpression;
@@ -39,7 +41,7 @@ public abstract class AbstractMailboxManagerSelfTestCase extends TestCase {
         listResult=mailboxManager.list(new MailboxExpression("","*", '*', '%'));
         assertNotNull(listResult);
         assertEquals(0,mailboxManager.list(new MailboxExpression("","*", '*', '%')).length);
-        Set boxes=new HashSet();
+        List boxes=new ArrayList();
         boxes.add("#users.joachim.INBOX");
         boxes.add("#users.joachim.INBOX.Drafts");
         boxes.add("#users.joachim2.INBOX");
@@ -61,8 +63,7 @@ public abstract class AbstractMailboxManagerSelfTestCase extends TestCase {
         
         ListResult[] listResult=mailboxManager.list(new MailboxExpression("","*", '*', '%'));
         assertNotNull(listResult);
-        assertEquals(1, listResult.length);
-        assertEquals("INBOX", listResult[0].getName());
+        assertEquals(3, listResult.length);
     }
 
 }
