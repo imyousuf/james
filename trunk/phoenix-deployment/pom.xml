@@ -36,6 +36,7 @@
         <includes>
           <include>**/*.zone</include>
           <include>**/*.xml</include>
+          <include>**/Inbox</include>
         </includes>
       </testResource>
       <testResource>
