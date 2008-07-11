@@ -26,9 +26,7 @@
     <!--
          beans which replace Avalon specific container logic
     -->
-    <bean id="fileSystemOverride" class="org.apache.james.container.spring.adaptor.FileSystemBridge">
-    	<property name="resourceLoader" ref="JamesResourceLoader" />
-    </bean>
+    <bean id="fileSystemOverride" class="org.apache.james.container.spring.adaptor.FileSystemBridge" />
          
     <bean id="serviceManager" class="org.apache.james.container.spring.adaptor.DefaultServiceManagerFactory" >
         <property name="replacements">
@@ -89,8 +87,6 @@
         </property>
     </bean>
     
-    <bean id="JamesResourceLoader" class="org.apache.james.container.spring.adaptor.JamesResourceLoader" />
-
     <bean id="avalonContext" class="org.apache.james.container.spring.adaptor.AvalonContext" >
         <property name="applicationHome" value="data" />
         <property name="applicationName" value="Apache JAMES Server" />

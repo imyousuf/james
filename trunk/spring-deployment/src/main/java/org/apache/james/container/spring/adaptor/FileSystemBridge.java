@@ -19,6 +19,7 @@
 package org.apache.james.container.spring.adaptor;
 
 import org.apache.james.services.FileSystem;
+import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.io.ResourceLoader;
 
 import java.io.File;
@@ -26,7 +27,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class FileSystemBridge implements FileSystem {
+public class FileSystemBridge implements FileSystem, ResourceLoaderAware {
 
     public File getBasedir() throws FileNotFoundException {
         return new File(".");
