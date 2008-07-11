@@ -42,6 +42,7 @@
     <module>imap-codec-library</module>
     <module>user-library</module>
     <module>core-library</module>
+    <module>avalon-spring-bridge-library</module>
     <module>mailbox-library</module>
     <module>smtpserver-function</module>
     <module>pop3server-function</module>
@@ -253,6 +254,11 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-user-library</artifactId>
+      <version>3.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-avalon-spring-bridge-library</artifactId>
       <version>3.0-SNAPSHOT</version>
     </dependency>
     <dependency>
@@ -879,6 +885,12 @@
       <groupId>avalon-phoenix</groupId>
       <artifactId>avalon-phoenix-client</artifactId>
       <version>4.2-SNAPSHOT</version>
+      <exclusions>
+        <exclusion>
+          <groupId>avalon-framework</groupId>
+          <artifactId>avalon-framework</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <!-- phoenix runtime -->
     <dependency>
