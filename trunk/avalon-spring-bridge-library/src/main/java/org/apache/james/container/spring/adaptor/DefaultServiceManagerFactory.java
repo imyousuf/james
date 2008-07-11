@@ -33,7 +33,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 /**
- * provides a Avalon-style service manager to all James components
+ * provides a Avalon-style service manager to all components
  */
 public class DefaultServiceManagerFactory implements ApplicationContextAware, ServiceManagerFactory {
 
@@ -115,7 +115,7 @@ public class DefaultServiceManagerFactory implements ApplicationContextAware, Se
 	}
 
     /**
-     * for replacing services without changing vanilla Avalon james-assembly.xml
+     * for replacing services without changing vanilla Avalon/Phoenix assembly.xml
      * @param replacements - Map<String, String>, the key indicating the service reference to be replaced, the value
      * indicating the replacement bean
      */

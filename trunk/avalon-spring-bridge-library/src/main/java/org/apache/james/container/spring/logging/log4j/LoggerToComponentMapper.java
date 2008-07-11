@@ -19,14 +19,13 @@
 package org.apache.james.container.spring.logging.log4j;
 
 import org.apache.avalon.framework.logger.Logger;
-import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.PropertyConfigurator;
-import org.springframework.core.io.support.PropertiesLoaderUtils;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PropertiesLoaderUtils;
 
-import java.util.Properties;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Properties;
 
 /**
  * simple default implementation. change the log4j configuration file to change specific logging behavior

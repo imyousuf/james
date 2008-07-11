@@ -19,7 +19,7 @@
 package org.apache.james.container.spring.beanfactory;
 
 /**
- * content of a "provide" XML element from an james-assembly file.
+ * content of a "provide" XML element from an assembly file.
  * occurs within a block element like this:
  *     <provide name="domainlist" role="org.apache.james.services.DomainList"/>
  *
