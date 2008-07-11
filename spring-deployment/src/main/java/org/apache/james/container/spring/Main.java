@@ -18,7 +18,7 @@
  ****************************************************************/
 package org.apache.james.container.spring;
 
-import org.apache.james.container.spring.beanfactory.AvalonApplicationContext;
+import org.apache.james.container.spring.beanfactory.JamesApplicationContext;
 
 /**
  * Bootstraps James using a Spring container
@@ -26,7 +26,7 @@ import org.apache.james.container.spring.beanfactory.AvalonApplicationContext;
 public class Main {    
 
     public static void main(String[] args) {
-        new AvalonApplicationContext("spring-beans.xml", "james-assembly.xml");
+        JamesApplicationContext.newJamesApplicationContext();
     }
 
 }

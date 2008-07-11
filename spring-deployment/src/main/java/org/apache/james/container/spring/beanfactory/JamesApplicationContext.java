@@ -16,30 +16,54 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.container.spring.adaptor;
+package org.apache.james.container.spring.beanfactory;
 
-import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 
 import java.io.File;
 
 /**
- * A resource loader supporting JAMES' conf/var specific behaviours and
- * the "classpath:" prefix.
+ * Override the ResourceLoader capabilities from the AvalonApplicationContext
+ * supporting JAMES' conf/var specific behaviours and the "classpath:" prefix.
  */
-public class JamesResourceLoader implements ResourceLoader, ApplicationContextAware {
+public class JamesApplicationContext extends AvalonApplicationContext {
 
-    private ApplicationContext applicationContext;
-    
     private static final String FILE_PROTOCOL = "file://";
     private static final String FILE_PROTOCOL_AND_CONF = "file://conf/";
     private static final String FILE_PROTOCOL_AND_VAR = "file://var/";
     
+    public static final String JAMES_ASSEMBLY_CONF = "james-assembly.xml";
+
+
+    /**
+     * configuration-by-convention constructor, tries to find default config files on classpath
+     */
+    public static JamesApplicationContext newJamesApplicationContext() {
+        return newJamesApplicationContext(SPRING_BEANS_CONF, JAMES_ASSEMBLY_CONF);
+    }
+    
+    public static JamesApplicationContext newJamesApplicationContext(String containerConf, String applicationConf) {
+        return newJamesApplicationContext(new ClassPathResource(containerConf), new ClassPathResource(applicationConf));
+    }
+    
+    
+    public static JamesApplicationContext newJamesApplicationContext(Resource containerConfigurationResource,
+                                    Resource applicationConfigurationResource) {
+        JamesApplicationContext result = new JamesApplicationContext(null, containerConfigurationResource, applicationConfigurationResource);
+        result.refresh();
+        return result;
+    }
+
+    
+    public JamesApplicationContext(ApplicationContext parent,
+            Resource containerConfigurationResource,
+            Resource applicationConfigurationResource) {
+        super(parent, containerConfigurationResource, applicationConfigurationResource);
+    }
+
     public ClassLoader getClassLoader() {
         return Thread.currentThread().getContextClassLoader();
     }
@@ -60,13 +84,10 @@ public class JamesResourceLoader implements ResourceLoader, ApplicationContextAw
             }
             r = new FileSystemResource(file);
         } else {
-            r = applicationContext.getResource(fileURL);
+            r = super.getResource(fileURL);
         }
         return r;
     }
 
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
-    }
 
 }
