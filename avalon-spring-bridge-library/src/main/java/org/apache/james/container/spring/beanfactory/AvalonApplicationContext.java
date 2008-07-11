@@ -21,16 +21,17 @@ package org.apache.james.container.spring.beanfactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.AbstractRefreshableApplicationContext;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
 
 /**
  * loads an Avalon/Phoenix configuration.
  * this is done by using a two step approach:
+ * 
  * 1. loading the avalon mocking beans from a spring xml beans configuration
  * 2. loading the avalon application beans from the assembly.xml
  */
@@ -45,20 +46,18 @@ public class AvalonApplicationContext extends AbstractRefreshableApplicationCont
     /**
      * configuration-by-convention constructor, tries to find default config files on classpath
      */
-    public static AvalonApplicationContext newAvalonApplicationContext() {
-        return newAvalonApplicationContext(SPRING_BEANS_CONF, PHOENIX_ASSEMBLY_CONF);
+    public AvalonApplicationContext() {
+        this(SPRING_BEANS_CONF, PHOENIX_ASSEMBLY_CONF);
     }
     
-    public static AvalonApplicationContext newAvalonApplicationContext(String containerConf, String applicationConf) {
-        return newAvalonApplicationContext(new ClassPathResource(containerConf), new ClassPathResource(applicationConf));
+    public AvalonApplicationContext(String containerConf, String applicationConf) {
+        this(new ClassPathResource(containerConf), new ClassPathResource(applicationConf));
     }
     
     
-    public static AvalonApplicationContext newAvalonApplicationContext(Resource containerConfigurationResource,
+    public AvalonApplicationContext(Resource containerConfigurationResource,
                                     Resource applicationConfigurationResource) {
-        AvalonApplicationContext result = new AvalonApplicationContext(null, containerConfigurationResource, applicationConfigurationResource);
-        result.refresh();
-        return result;
+        this(null, containerConfigurationResource, applicationConfigurationResource);
     }
 
     public AvalonApplicationContext(ApplicationContext parent, 
@@ -67,6 +66,7 @@ public class AvalonApplicationContext extends AbstractRefreshableApplicationCont
         super(parent);
         this.containerConfigurationResource = containerConfigurationResource;
         this.applicationConfigurationResource = applicationConfigurationResource;
+        refresh();
     }
 
     protected void loadBeanDefinitions(DefaultListableBeanFactory defaultListableBeanFactory) throws IOException, BeansException {
