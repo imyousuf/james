@@ -226,6 +226,9 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
                     <include name="${jackrabbit-rmi.jar}"/>
                     <include name="${jcr.jar}"/>
                     <include name="${base-mailet.jar}"/>
+                    <include name="${spring.jar}"/>     
+                    <include name="${log4j.jar}"/>     
+                    <include name="${avalon-phoenix.jar}"/>     
                 </fileset>   
             </path>   
             <path id='classpath.base.test'>  
