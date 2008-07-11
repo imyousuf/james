@@ -26,7 +26,7 @@ import org.apache.james.container.spring.beanfactory.AvalonApplicationContext;
 public class Main {    
 
     public static void main(String[] args) {
-        new AvalonApplicationContext();
+        new AvalonApplicationContext("spring-beans.xml", "james-assembly.xml");
     }
 
 }

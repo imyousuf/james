@@ -36,8 +36,8 @@ import java.io.IOException;
  */
 public class AvalonApplicationContext extends AbstractRefreshableApplicationContext {
 
-    public static final Resource RESOURCE_SPRING_BEANS = new ClassPathResource("spring-beans.xml");
-    public static final Resource RESOURCE_JAMES_ASSEMBLY = new ClassPathResource("james-assembly.xml");
+    public static final String SPRING_BEANS_CONF = "spring-beans.xml";
+    public static final String PHOENIX_ASSEMBLY_CONF = "assembly.xml";
     
     private Resource containerConfigurationResource;
     private Resource applicationConfigurationResource;
@@ -46,7 +46,11 @@ public class AvalonApplicationContext extends AbstractRefreshableApplicationCont
      * configuration-by-convention constructor, tries to find default config files on classpath
      */
     public AvalonApplicationContext() {
-        this(RESOURCE_SPRING_BEANS, RESOURCE_JAMES_ASSEMBLY);
+        this(SPRING_BEANS_CONF, PHOENIX_ASSEMBLY_CONF);
+    }
+    
+    public AvalonApplicationContext(String containerConf, String applicationConf) {
+        this(new ClassPathResource(containerConf), new ClassPathResource(applicationConf));
     }
     
     
