@@ -93,6 +93,7 @@
 
     <bean id="avalonContext" class="org.apache.james.container.spring.adaptor.AvalonContext" >
         <property name="applicationHome" value="data" />
+        <property name="applicationName" value="Apache JAMES Server" />
     </bean>
 
     <!--

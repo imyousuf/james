@@ -32,7 +32,7 @@ import java.io.IOException;
  * loads an Avalon/Phoenix configuration.
  * this is done by using a two step approach:
  * 1. loading the avalon mocking beans from a spring xml beans configuration
- * 2. loading the James beans from a james-assembly.xml 
+ * 2. loading the avalon application beans from the assembly.xml
  */
 public class AvalonApplicationContext extends AbstractRefreshableApplicationContext {
 

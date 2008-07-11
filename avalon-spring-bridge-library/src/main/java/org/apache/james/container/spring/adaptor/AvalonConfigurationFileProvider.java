@@ -32,7 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * loads the well-known classic James configuration file
+ * loads the well-known classic avalon/phoenix configuration file
  *
   * TODO make this thing be based on Resource class and inject resource.getInputStream() into InputSource 
  */

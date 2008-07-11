@@ -31,16 +31,20 @@ import java.io.File;
 public class AvalonContext implements Context {
 
     private String applicationHome = null;
-
+    private String applicationName = null;
 
     public void setApplicationHome(String applicationHome) {
         this.applicationHome = applicationHome;
+    }
+    
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
     }
 
     public Object get(Object key) throws ContextException {
         if( BlockContext.APP_NAME.equals( key ) )
         {
-            return "James Server";
+            return applicationName;
         }
         else if( BlockContext.APP_HOME_DIR.equals( key ) )
         {
@@ -48,7 +52,7 @@ public class AvalonContext implements Context {
         }
         else if( BlockContext.NAME.equals( key ) )
         {
-            return "James Server";
+            return "Avalon Context";
         }
         else
         {
