@@ -37,14 +37,19 @@ public class MockFileSystem implements FileSystem {
     }
 
     public File getFile(String fileURL) throws FileNotFoundException {
-        if (fileURL.startsWith("file://")) {
-            if (fileURL.startsWith("file://conf/")) {
-                return new File("./src"+fileURL.substring(6));
+        try {
+            if (fileURL.startsWith("file://")) {
+                if (fileURL.startsWith("file://conf/")) {
+                    return new File(MockFileSystem.class.getClassLoader().getResource("./"+fileURL.substring(12)).getFile());
+                    // return new File("./src"+fileURL.substring(6));
+                } else {
+                    throw new UnsupportedOperationException("getFile: "+fileURL);
+                }
             } else {
                 throw new UnsupportedOperationException("getFile: "+fileURL);
             }
-        } else {
-            throw new UnsupportedOperationException("getFile: "+fileURL);
+        } catch (NullPointerException npe) {
+            throw new FileNotFoundException("NPE on: "+fileURL);
         }
     }
 }

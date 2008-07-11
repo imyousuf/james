@@ -20,6 +20,7 @@
 
 package org.apache.james.mailrepository;
 
+import java.io.File;
 import java.util.Iterator;
 
 import junit.framework.TestCase;
@@ -29,6 +30,7 @@ import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.james.services.MailRepository;
 import org.apache.james.test.mock.avalon.MockLogger;
+import org.apache.james.test.mock.james.MockFileSystem;
 
 /**
  * NOTE this test *WAS* disabled because MBoxMailRepository does not
@@ -45,7 +47,11 @@ public class MBoxMailRepositoryTest extends TestCase {
 
         mr.enableLogging(new MockLogger());
         DefaultConfiguration defaultConfiguration = new DefaultConfiguration("ReposConf");
-        defaultConfiguration.setAttribute("destinationURL","mbox://src/test/org/apache/james/mailrepository/testdata/Inbox");
+        
+        File fInbox = new MockFileSystem().getFile("file://conf/org/apache/james/mailrepository/testdata/Inbox");
+        String mboxPath = "mbox://"+fInbox.toURI().toString().substring(new File("").toURI().toString().length());
+        
+        defaultConfiguration.setAttribute("destinationURL",mboxPath);
         defaultConfiguration.setAttribute("type","MAIL");
         mr.configure(defaultConfiguration);
         return mr;
