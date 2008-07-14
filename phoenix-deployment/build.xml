@@ -949,6 +949,7 @@
         <copy todir="${build.test.classes}">
             <fileset dir="${junitjava.dir}" includes="**/*.zone" />
             <fileset dir="${junitjava.dir}" includes="**/*.xml" />
+            <fileset dir="${junitjava.dir}" includes="**/Inbox" />
         </copy>
         <copy todir="${build.test.classes}">
             <fileset dir="${conf.dir}" includes="**/*.xml" />
