@@ -35,7 +35,7 @@ import org.apache.james.api.user.UserRepositoryException;
 public class UserMetaDataIMAPSubscriber implements IMAPSubscriber {
 
     public static final String META_DATA_KEY
-        ="org.apache.james.imapserver.processor.imap4rev1.SUBSCRIPTIONS";
+        ="org.apache.james.IMAP_SUBSCRIPTIONS";
     
     private Log log = LogFactory.getLog(UserMetaDataIMAPSubscriber.class);
     
