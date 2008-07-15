@@ -20,6 +20,7 @@
 package org.apache.james.mailboxmanager.torque;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -244,7 +245,9 @@ public class TorqueMailboxManager implements MailboxManager {
                     }
                 }
             }
-            return (ListResult[]) listResults.toArray(ListResult.EMPTY_ARRAY);    
+            final ListResult[] results = (ListResult[]) listResults.toArray(ListResult.EMPTY_ARRAY);
+            Arrays.sort(results);    
+            return results;
         } catch (TorqueException e) {
             throw new MailboxManagerException(e);
         }

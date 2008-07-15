@@ -21,7 +21,7 @@ package org.apache.james.mailboxmanager.impl;
 
 import org.apache.james.mailboxmanager.ListResult;
 
-public class ListResultImpl implements ListResult {
+public class ListResultImpl implements ListResult, Comparable {
 
     public static ListResult createNoSelect(String name, String delimiter) {
         return new ListResultImpl(name, delimiter, false, SELECTABILITY_FLAG_NOSELECT);
@@ -77,4 +77,53 @@ public class ListResultImpl implements ListResult {
     public String toString() {
         return "ListResult: " + name;
     }
+
+    /**
+     * @see java.lang.Object#hashCode()
+     */
+    public int hashCode() {
+        final int PRIME = 31;
+        int result = 1;
+        result = PRIME * result + ((name == null) ? 0 : name.hashCode());
+        return result;
+    }
+
+    /**
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        final ListResultImpl other = (ListResultImpl) obj;
+        if (name == null) {
+            if (other.name != null)
+                return false;
+        } else if (!name.equals(other.name))
+            return false;
+        return true;
+    }
+
+    public int compareTo(Object o) {
+        final ListResultImpl other = (ListResultImpl) o;
+        final String otherName = other.getName();
+        final int result;
+        if ("INBOX".equals(this.name)) {
+            result = "INBOX".equals(otherName) ? 0 : -1;
+        } else if ("INBOX".equals(otherName)) {
+            result = 1;
+        } else if (this.name == null) {
+            result = otherName == null ? 0 : 1;
+        } else if (otherName == null){
+            result = -1;
+        } else {
+            result = name.compareTo(otherName);
+        }
+        return result;
+    }
+    
+    
 }
