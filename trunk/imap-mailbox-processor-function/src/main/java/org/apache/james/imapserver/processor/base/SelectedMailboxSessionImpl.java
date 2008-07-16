@@ -160,7 +160,7 @@ public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements Se
             } else {
                 uidOut = null;
             }
-            FetchResponse response = new FetchResponse(msn, flags, uidOut, null, null, null, null, null);
+            FetchResponse response = new FetchResponse(msn, flags, uidOut, null, null, null, null, null, null);
             responses.add(response);
         }
     }

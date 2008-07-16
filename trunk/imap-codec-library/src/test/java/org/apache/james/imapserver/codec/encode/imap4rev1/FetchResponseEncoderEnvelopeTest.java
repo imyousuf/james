@@ -77,7 +77,7 @@ public class FetchResponseEncoderEnvelopeTest extends MockObjectTestCase {
     
         
         message = new FetchResponse(MSN, null, null, null, null, 
-                (FetchResponse.Envelope) envelope.proxy(), null, null);
+                (FetchResponse.Envelope) envelope.proxy(), null, null, null);
         mockComposer = mock(ImapResponseComposer.class);
         composer = (ImapResponseComposer) mockComposer.proxy();
         mockNextEncoder = mock(ImapEncoder.class);

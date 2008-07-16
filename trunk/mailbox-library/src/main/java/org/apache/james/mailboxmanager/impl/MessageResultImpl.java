@@ -49,6 +49,7 @@ public class MessageResultImpl implements MessageResult {
     private Content fullContent;
     private int includedResults = FetchGroup.MINIMAL;
     private Map partsByPath = new HashMap();
+    private MimeDescriptor mimeDescriptor;
     
     public MessageResultImpl(long uid) {
         setUid(uid);
@@ -67,9 +68,6 @@ public class MessageResultImpl implements MessageResult {
         if (MessageResultUtils.isFlagsIncluded(result)) {
             setFlags(result.getFlags());
         }
-        if (MessageResultUtils.isMimeMessageIncluded(result)) {
-            setMimeMessage(result.getMimeMessage());
-        }
         if (MessageResultUtils.isSizeIncluded(result)) {
             setSize(result.getSize());
         }
@@ -77,7 +75,7 @@ public class MessageResultImpl implements MessageResult {
             setInternalDate(result.getInternalDate());
         }
         if (MessageResultUtils.isHeadersIncluded(result)) {
-            setHeaders(IteratorUtils.toList(result.iterateHeaders()));
+            setHeaders(IteratorUtils.toList(result.headers()));
         }
         if (MessageResultUtils.isFullContentIncluded(result)) {
             setFullContent(result.getFullContent());
@@ -94,13 +92,6 @@ public class MessageResultImpl implements MessageResult {
 
     public MimeMessage getMimeMessage() {
         return mimeMessage;
-    }
-
-    public void setMimeMessage(MimeMessage mimeMessage) {
-        this.mimeMessage=mimeMessage;
-        if (mimeMessage != null) {
-            includedResults |= FetchGroup.MIME_MESSAGE;
-        }
     }
     
     public long getUid() {
@@ -162,7 +153,7 @@ public class MessageResultImpl implements MessageResult {
         }
     }
 
-    public Iterator iterateHeaders() {
+    public Iterator headers() {
         return headers.iterator();
     }
     
@@ -366,5 +357,14 @@ public class MessageResultImpl implements MessageResult {
             content = content | FetchGroup.MIME_HEADERS;
             this.mimeHeaders = mimeHeaders;
         }
+    }
+
+    public void setMimeDescriptor(final MimeDescriptor mimeDescriptor) {
+        includedResults |= FetchGroup.MIME_DESCRIPTOR;
+        this.mimeDescriptor = mimeDescriptor;
+    }
+    
+    public MimeDescriptor getMimeDescriptor() {
+        return mimeDescriptor;
     }
 }

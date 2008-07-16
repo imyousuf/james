@@ -38,7 +38,6 @@ import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
 import org.apache.james.imapserver.SelectedMailboxSession;
 import org.apache.james.imapserver.store.MailboxException;
-import org.apache.james.imapserver.store.SimpleMessageAttributes;
 import org.apache.james.mailboxmanager.MessageRange;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxSession;
@@ -174,31 +173,26 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
             // ENVELOPE response
             if (fetch.envelope) {
                 response.append(" ENVELOPE ");
-                final Iterator iterator = result.iterateHeaders();
+                final Iterator iterator = result.headers();
                 List headers = MessageResultUtils.getAll(iterator);
                 outputEnvelope(headers, response);
             }
 
             if (fetch.body || fetch.bodyStructure) {
-                SimpleMessageAttributes attrs = new SimpleMessageAttributes(result
-                        .getMimeMessage(), getLogger());
-    
+                    
                 // ENVELOPE response
                 if (fetch.envelope) {
                     response.append(" ENVELOPE ");
-                    response.append(attrs.getEnvelope());
                 }
     
                 // BODY response
                 if (fetch.body) {
                     response.append(" BODY ");
-                    response.append(attrs.getBodyStructure(false));
                 }
     
                 // BODYSTRUCTURE response
                 if (fetch.bodyStructure) {
                     response.append(" BODYSTRUCTURE ");
-                    response.append(attrs.getBodyStructure(true));
                 }
             }
             
@@ -251,19 +245,19 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
             addLiteralContent(fullMessage, response);
         }
         else if ( sectionSpecifier.equalsIgnoreCase( "HEADER" ) ) {
-            final Iterator headers = result.iterateHeaders();
+            final Iterator headers = result.headers();
             List lines = MessageResultUtils.getAll(headers);
             addHeaders( lines, response );
         }
         else if ( sectionSpecifier.startsWith( "HEADER.FIELDS.NOT " ) ) {
             String[] excludeNames = extractHeaderList( sectionSpecifier, "HEADER.FIELDS.NOT ".length() );
-            final Iterator headers = result.iterateHeaders();
+            final Iterator headers = result.headers();
             List lines = MessageResultUtils.getMatching(excludeNames, headers);
             addHeaders( lines, response );
         }
         else if ( sectionSpecifier.startsWith( "HEADER.FIELDS " ) ) {
             String[] includeNames = extractHeaderList( sectionSpecifier, "HEADER.FIELDS ".length() );
-            final Iterator headers = result.iterateHeaders();
+            final Iterator headers = result.headers();
             List lines = MessageResultUtils.getMatching(includeNames, headers);
             addHeaders( lines, response );
         }
@@ -673,15 +667,8 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
             if (size) {
                 result |= FetchGroup.SIZE;
             }
-            if (mailFetchElement) {
-                result |= FetchGroup.MIME_MESSAGE;
-            }
             if (envelope) {
                 result |= FetchGroup.HEADERS;
-            }
-            if (body || bodyStructure) {
-                // TODO: structure
-                result |= FetchGroup.MIME_MESSAGE;
             }
             if (headerFetchElement || mailFetchElement) {
                 result |= FetchGroup.HEADERS;

@@ -73,27 +73,12 @@ public class MessageResultUtilsIsIncludedTest extends MockObjectTestCase {
         assertTrue(MessageResultUtils.isIncluded(mock(new FetchGroupImpl(FetchGroup.FLAGS | FetchGroup.INTERNAL_DATE)), FetchGroup.INTERNAL_DATE));
     }
     
-    public void testMIME_MESSAGEIncluded() throws Exception {
-        assertFalse(MessageResultUtils.isIncluded(mock(FetchGroupImpl.MINIMAL), FetchGroup.MIME_MESSAGE));
-        assertFalse(MessageResultUtils.isIncluded(mock(FetchGroupImpl.BODY_CONTENT), FetchGroup.MIME_MESSAGE));
-        assertTrue(MessageResultUtils.isIncluded(mock(FetchGroupImpl.MIME_MESSAGE), FetchGroup.MIME_MESSAGE));
-        assertTrue(MessageResultUtils.isIncluded(mock(new FetchGroupImpl(FetchGroup.FLAGS | FetchGroup.MIME_MESSAGE)), FetchGroup.MIME_MESSAGE));
-    }
-    
     public void testShouldNOTHINGAlwaysBeIncluded() throws Exception {
         assertTrue(MessageResultUtils.isIncluded(mock(FetchGroupImpl.MINIMAL, false), FetchGroup.MINIMAL));
         assertTrue(MessageResultUtils.isIncluded(mock(FetchGroupImpl.BODY_CONTENT, false), FetchGroup.MINIMAL));
         assertTrue(MessageResultUtils.isIncluded(mock(FetchGroupImpl.INTERNAL_DATE, false), FetchGroup.MINIMAL));
-        assertTrue(MessageResultUtils.isIncluded(mock(new FetchGroupImpl(FetchGroup.FLAGS | FetchGroup.MIME_MESSAGE), false), FetchGroup.MINIMAL));
     }
-    
-    public void testMultipleData() throws Exception {
-        assertFalse(MessageResultUtils.isIncluded(mock(FetchGroupImpl.MINIMAL), FetchGroup.MIME_MESSAGE | FetchGroup.FLAGS));
-        assertFalse(MessageResultUtils.isIncluded(mock(FetchGroupImpl.BODY_CONTENT), FetchGroup.MIME_MESSAGE | FetchGroup.FLAGS));
-        assertFalse(MessageResultUtils.isIncluded(mock(FetchGroupImpl.MIME_MESSAGE), FetchGroup.MIME_MESSAGE | FetchGroup.FLAGS));
-        assertTrue(MessageResultUtils.isIncluded(mock(new FetchGroupImpl(FetchGroup.FLAGS | FetchGroup.MIME_MESSAGE)), FetchGroup.MIME_MESSAGE | FetchGroup.FLAGS));
-    }
-    
+        
     private MessageResult mock(FetchGroup included) {
         return mock(included, true);
     }

@@ -36,6 +36,8 @@ import org.apache.james.imapserver.codec.encode.ImapResponseWriter;
  */
 public class ByteImapResponseWriter extends AbstractLogEnabled implements ImapConstants, ImapResponseWriter {
     
+    private static final int LOWER_CASE_OFFSET = 'a' - 'A';
+    
     private PrintWriter writer;
     private ByteArrayOutputStream out;
     private boolean skipNextSpace;
@@ -181,5 +183,29 @@ public class ByteImapResponseWriter extends AbstractLogEnabled implements ImapCo
 
     public void openSquareBracket() throws IOException {
         openBracket(OPENING_SQUARE_BRACKET);
+    }
+
+    public void upperCaseAscii(String message) throws IOException {
+        upperCaseAscii(message, false);
+    }
+
+    private void upperCaseAscii(String message, boolean quote) {
+        space();
+        if (quote) writer.print(DQUOTE);
+        // message is ASCII
+        final int length = message.length();
+        for (int i=0;i<length;i++) {
+            final char next = message.charAt(i);
+            if (next >= 'a' && next <= 'z') {
+                writer.print(next + LOWER_CASE_OFFSET);
+            } else {
+                writer.print(next);
+            }
+        }
+        if (quote) writer.print(DQUOTE);
+    }
+
+    public void quoteUpperCaseAscii(String message) {
+        upperCaseAscii(message, true);
     }
 }

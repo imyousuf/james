@@ -39,7 +39,7 @@ import org.apache.james.imapserver.codec.encode.ImapResponseWriter;
  * client.
  */
 public class ImapResponseComposerImpl extends AbstractLogEnabled implements
-        ImapConstants, ImapResponseWriter, ImapResponseComposer {
+        ImapConstants, ImapResponseComposer {
 
     public static final String ENVELOPE = "ENVELOPE";
     
@@ -287,13 +287,14 @@ public class ImapResponseComposerImpl extends AbstractLogEnabled implements
      * @throws IOException 
      * @see org.apache.james.imapserver.codec.encode.ImapResponseComposer#message(java.lang.String)
      */
-    public void message(final String message) throws IOException {
+    public ImapResponseComposer message(final String message) throws IOException {
         if (message != null) {
             // TODO: consider message normalisation
             // TODO: CR/NFs in message must be replaced
             // TODO: probably best done in the writer
             writer.message(message);
         }
+        return this;
     }
 
     /**
@@ -438,13 +439,14 @@ public class ImapResponseComposerImpl extends AbstractLogEnabled implements
         writer.quote(message);
     }
 
-    public void closeParen() throws IOException {
+    public ImapResponseComposer closeParen() throws IOException {
         writer.closeParen();
-        
+        return this;
     }
 
-    public void openParen() throws IOException {
+    public ImapResponseComposer openParen() throws IOException {
         writer.openParen();
+        return this;
     }
 
     public void searchResponse(long[] ids) throws IOException {
@@ -539,12 +541,13 @@ public class ImapResponseComposerImpl extends AbstractLogEnabled implements
         nillableQuote(subject);
     }
 
-    public void nillableQuote(String message) throws IOException {
+    public ImapResponseComposer nillableQuote(String message) throws IOException {
         if (message == null) {
             nil();
         } else {
             quote(message);
         }
+        return this;
     }
 
     public void skipNextSpace() throws IOException {
@@ -557,5 +560,49 @@ public class ImapResponseComposerImpl extends AbstractLogEnabled implements
 
     public void openSquareBracket() throws IOException {
         writer.openSquareBracket();
+    }
+
+    public ImapResponseComposer nillableComposition(String masterQuote, String[] quotes) throws IOException {
+        if (masterQuote == null) {
+            nil();
+        }  else {
+            openParen();
+            quote(masterQuote);
+            nillableQuotes(quotes);
+            closeParen();
+        }
+        return this;
+    }
+
+    public ImapResponseComposer nillableQuotes(String[] quotes) throws IOException {
+        if (quotes == null) {
+            nil();
+        } else {
+            openParen();
+            for (int i = 0; i < quotes.length; i++) {
+                final String string = quotes[i];
+                nillableQuote(string);
+            }
+            closeParen();
+        }
+        return this;
+    }
+
+    public ImapResponseComposer upperCaseAscii(String message) throws IOException {
+        if (message == null) {
+            nil();
+        } else {
+            writer.upperCaseAscii(message);
+        }
+        return this;
+    }
+
+    public ImapResponseComposer quoteUpperCaseAscii(String message) throws IOException {
+        if (message == null) {
+            nil();
+        } else {
+            writer.quoteUpperCaseAscii(message);
+        }
+        return this;
     }
 }

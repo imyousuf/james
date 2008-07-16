@@ -21,7 +21,9 @@ package org.apache.james.imap.message.response.imap4rev1;
 import java.io.IOException;
 import java.nio.channels.WritableByteChannel;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.mail.Flags;
 
@@ -34,13 +36,14 @@ public final class FetchResponse implements ImapResponseMessage {
     private final Long uid;
     private final Date internalDate;
     private final Integer size;
-    private final StringBuffer misc;
     private final List elements;
     private final Envelope envelope;
+    private final Structure body;
+    private final Structure bodystructure;
     
     public FetchResponse(final int messageNumber, final Flags flags, final Long uid,
             final Date internalDate, final Integer size, final Envelope envelope,
-            StringBuffer misc, List elements) {
+            final Structure body, final Structure bodystructure, List elements) {
         super();
         this.messageNumber = messageNumber;
         this.flags = flags;
@@ -48,10 +51,29 @@ public final class FetchResponse implements ImapResponseMessage {
         this.internalDate = internalDate;
         this.size = size;
         this.envelope = envelope;
-        this.misc = misc;
         this.elements = elements;
+        this.body = body;
+        this.bodystructure = bodystructure;
+    }
+    
+    /**
+     * Gets the structure of this message.
+     * @return <code>Structure</code>,
+     * or null if the <code>FETCH</code> did not include <code>BODY</code>
+     */
+    public Structure getBody() {
+        return body;
     }
 
+    /**
+     * Gets the structure of this message.
+     * @return <code>Structure</code>,
+     * or null if the <code>FETCH</code> did not include <code>BODYSTRUCTURE</code>
+     */
+    public Structure getBodyStructure() {
+        return bodystructure;
+    }
+    
     /**
      * Gets the number of the message whose details 
      * have been fetched.
@@ -114,13 +136,123 @@ public final class FetchResponse implements ImapResponseMessage {
     public final List getElements() {
         return elements;
     }
-
+    
     /**
-     * TODO: replace
-     * @return the misc
+     * Describes the message structure.
      */
-    public final StringBuffer getMisc() {
-        return misc;
+    public interface Structure {
+        /**
+         * Gets the MIME media type.
+         * @return media type, 
+         * or null if default
+         */
+        public String getMediaType();
+        
+        /**
+         * Gets the MIME content subtype
+         * @return subtype 
+         * of null if default
+         */
+        public String getSubType();
+        
+        /**
+         * Gets body type parameters. 
+         * @return parameters, 
+         * or null
+         */
+        public String[] getParameters();
+        
+        /**
+         * Gets <code>Content-ID</code>.
+         * @return MIME content ID,
+         * possibly null
+         */
+        public String getId();
+        
+        /**
+         * Gets <code>Content-Description</code>.
+         * @return MIME <code>Content-Description</code>,
+         * possibly null
+         */
+        public String getDescription();
+        
+        /**
+         * Gets content transfer encoding.
+         * @return MIME <code>Content-Transfer-Encoding</code>,
+         * possibly null
+         */
+        public String getEncoding();
+        
+        /**
+         * Gets the size of message body the in octets.
+         * @return number of octets in the message.
+         */
+        public long getOctets();
+        
+        /**
+         * Gets the number of lines fo transfer encoding 
+         * for a <code>TEXT</code> type.
+         * @return number of lines when <code>TEXT</code>,
+         * -1 otherwise
+         */
+        public long getLines();
+        
+        /**
+         * Gets <code>Content-MD5</code>.
+         * @return Content-MD5
+         * or null if <code>BODY</code> FETCH or not present
+         */
+        public String getMD5();
+        
+        /**
+         * Gets header field-value from <code>Content-Disposition</code>.
+         * @return map of field value <code>String</code> 
+         * indexed by field name <code>String</code>
+         * or null if <code>BODY</code> FETCH or not present
+         */
+        public Map getDispositionParams();
+        
+        /**
+         * Gets header field-value from <code>Content-Disposition</code>.
+         * @return disposition 
+         * or null if <code>BODY</code> FETCH or not present
+         */
+        public String getDisposition();
+        
+        /**
+         * Gets MIME <code>Content-Language</code>'s.
+         * @return List of <code>Content-Language</code> name <code>String</code>'s
+         * possibly null or null when <code>BODY</code> FETCH
+         */
+        public List getLanguages();
+        
+        /**
+         * Gets <code>Content-Location</code>.
+         * @return Content-Location possibly null;
+         * or null when <code>BODY</code> FETCH
+         */
+        public String getLocation();
+        
+        /**
+         * Iterates parts of a composite media type.
+         * @return <code>Structure</code> <code>Iterator</code>
+         * when composite type, null otherwise
+         */
+        public Iterator parts();
+        
+        /**
+         * Gets the envelope of an embedded mail.
+         * @return <code>Envelope</code> when <code>message/rfc822</code>
+         * otherwise null
+         */
+        public Envelope getEnvelope();
+        
+        /**
+         * Gets the envelope of an embedded mail.
+         * @return <code>Structure</code> when when <code>message/rfc822</code>
+         * otherwise null
+         */
+        public Structure getBody();
     }
     
     /**

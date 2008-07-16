@@ -44,6 +44,8 @@ public  class MessageRow
      */
     private static final long serialVersionUID = -75081490028686786L;
 
+    public MessageRow() {}
+        
     public MessageFlags getMessageFlags() throws TorqueException {
         MessageFlags mf =null;
         List l = getMessageFlagss();

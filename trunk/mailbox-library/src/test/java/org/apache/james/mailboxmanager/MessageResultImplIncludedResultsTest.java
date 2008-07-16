@@ -21,11 +21,8 @@ package org.apache.james.mailboxmanager;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Properties;
 
 import javax.mail.Flags;
-import javax.mail.Session;
-import javax.mail.internet.MimeMessage;
 
 import org.apache.james.mailboxmanager.MessageResult.FetchGroup;
 import org.apache.james.mailboxmanager.impl.MessageResultImpl;
@@ -45,16 +42,6 @@ public class MessageResultImplIncludedResultsTest extends MockObjectTestCase {
 
     protected void tearDown() throws Exception {
         super.tearDown();
-    }
-    
-    public void testShouldIncludedResultsWhenMimeMessageSet() throws Exception {
-        MimeMessage message = new MimeMessage(Session.getDefaultInstance(new Properties()));
-        result.setMimeMessage(null);
-        assertEquals(FetchGroup.MINIMAL, result.getIncludedResults().content());
-        result.setMimeMessage(message);
-        assertEquals(FetchGroup.MIME_MESSAGE, result.getIncludedResults().content());
-        MessageResultImpl result = new MessageResultImpl(this.result);
-        assertEquals(FetchGroup.MIME_MESSAGE, result.getIncludedResults().content());
     }
 
     public void testShouldIncludedResultsWhenFlagsSet() throws Exception {

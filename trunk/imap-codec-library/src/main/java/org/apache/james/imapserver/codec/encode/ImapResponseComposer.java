@@ -161,7 +161,7 @@ public interface ImapResponseComposer {
     public abstract void expungeResponse(int msn) throws IOException;
     
     public abstract void searchResponse(long[] ids) throws IOException;
-
+    
     /**
      * Starts a FETCH response by writing the opening
      * star-FETCH-number-paren sequence.
@@ -258,7 +258,7 @@ public interface ImapResponseComposer {
 
     public abstract void commandName(final String name) throws IOException;
 
-    public abstract void message(final String message) throws IOException;
+    public ImapResponseComposer message(final String message) throws IOException;
 
     public abstract void message(final long number) throws IOException;
 
@@ -275,5 +275,61 @@ public interface ImapResponseComposer {
     public void quote(String message) throws IOException;
 
     public void literal(Literal literal) throws IOException;
-
+    
+    public ImapResponseComposer openParen() throws IOException;
+    public ImapResponseComposer closeParen() throws IOException;
+    
+    /**
+     * Appends the given message after conversion to upper case.
+     * The message may be assumed to be ASCII encoded.
+     * Conversion of characters MUST NOT be performed according 
+     * to the current locale but as per ASCII.
+     * @param message ASCII encoded, not null
+     * @return self, not null
+     * @throws IOException
+     */
+    public ImapResponseComposer upperCaseAscii(final String message) throws IOException;
+    
+    /**
+     * Appends the given message after conversion to upper case.
+     * The message may be assumed to be ASCII encoded.
+     * Conversion of characters MUST NOT be performed according 
+     * to the current locale but as per ASCII.
+     * @param message ASCII encoded, not null
+     * @return self, not null
+     * @throws IOException
+     */
+    public ImapResponseComposer quoteUpperCaseAscii(final String message) throws IOException;
+    
+    /**
+     * Appends the given message after appropriate quoting (when not null)
+     * or <code>NIL</code> (when null).
+     * @param message possibly null
+     * @return self, not null
+     * @throws IOException
+     */
+    public ImapResponseComposer nillableQuote(String message) throws IOException;
+    
+    /**
+     * Composes a sequence of nillables quotes.
+     * When messages are null, a single <code>NIL</code> is appended.
+     * Otherwise, each element is appended in sequence as per {@link #nillableQuote(String)}.
+     * @param quotes messages, possibly null
+     * @return self, not null
+     * @throws IOException
+     */
+    public ImapResponseComposer nillableQuotes(String[] quotes) throws IOException;
+    
+    /**
+     * Composes a nillable composition.
+     * When the master quote is null, <code>NIL</code> is appended.
+     * Otherwise, a parenthesized list is created starting with the master quote.
+     * When the quotes are null, <code>NIL</code> is appended only.
+     * Otherwise, each element is appended in sequence as per {@link #nillableQuote(String)}
+     * @param quote master, possibly null
+     * @param quotes quotes, possibly null
+     * @return self, not null
+     * @throws IOException
+     */
+    public ImapResponseComposer nillableComposition(String masterQuote, String[] quotes) throws IOException;
 }
