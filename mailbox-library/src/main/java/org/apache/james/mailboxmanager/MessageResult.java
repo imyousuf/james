@@ -23,11 +23,12 @@ import java.io.IOException;
 import java.nio.channels.WritableByteChannel;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.mail.Flags;
 import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
 
 import org.apache.james.mailboxmanager.util.MessageResultUtils;
 
@@ -61,7 +62,7 @@ import org.apache.james.mailboxmanager.util.MessageResultUtils;
  * 
  */
 
-public interface MessageResult extends Comparable {
+public interface MessageResult extends Comparable, Headers {
 
     /**
      * Indicates the results fetched.
@@ -76,7 +77,7 @@ public interface MessageResult extends Comparable {
         /**
          * 
          */
-        public static final int MIME_MESSAGE = 0x01;
+        public static final int MIME_DESCRIPTOR = 0x01;
 
         public static final int SIZE = 0x20;
         public static final int INTERNAL_DATE = 0x40;
@@ -153,7 +154,7 @@ public interface MessageResult extends Comparable {
      */
     FetchGroup getIncludedResults();
 
-    MimeMessage getMimeMessage() throws MailboxManagerException;
+    MimeDescriptor getMimeDescriptor() throws MailboxManagerException;
 
     long getUid();
 
@@ -190,7 +191,7 @@ public interface MessageResult extends Comparable {
      * @return <code>Header</code> <code>Iterator</code>, 
      * or null if {@link FetchGroup#HEADERS} was not fetched
      */
-    Iterator iterateHeaders() throws MailboxManagerException;
+    Iterator headers() throws MailboxManagerException;
     
     /**
      * Iterates the message headers for the given
@@ -327,5 +328,125 @@ public interface MessageResult extends Comparable {
          * @return part positions describing the path
          */
         public int[] getPositions();
+    }
+    
+    public interface MimeDescriptor extends Headers {
+
+        /**
+         * Gets the top level MIME content media type.
+         * @return top level MIME content media type,
+         * or null if default 
+         */
+        public String getMimeType();
+        
+        /**
+         * Gets the MIME content subtype.
+         * @return the MIME content subtype,
+         * or null if default
+         */
+        public String getMimeSubType();
+        
+        /**
+         * Gets the MIME <code>Content-ID</code> header value.
+         * @return MIME <code>Content-ID</code>,
+         * possibly null
+         */
+        public String getContentID();
+        
+        /**
+         * Gets MIME <code>Content-Description</code> header value.
+         * @return MIME <code>Content-Description</code>,
+         * possibly null
+         */
+        public String getContentDescription();
+        
+        /**
+         * Gets MIME <code>Content-Location</code> header value.
+         * @return parsed MIME <code>Content-Location</code>, 
+         * possibly null
+         */
+        public String getContentLocation();
+        
+        /**
+         * Gets MIME <code>Content-MD5</code> header value.
+         * @return parsed MIME <code>Content-MD5</code>, 
+         * possibly null
+         */
+        public String getContentMD5();
+        
+        /**
+         * Gets the MIME content transfer encoding.
+         * @return MIME <code>Content-Transfer-Encoding</code>,
+         * possibly null
+         */
+        public String getTransferContentEncoding();
+        
+        /**
+         * Gets the languages, 
+         * From the MIME <code>Content-Language</code> header value.
+         * @return <code>List</code> of <code>String</code> names
+         */
+        public List getLanguages();
+        
+        /**
+         * Gets MIME <code>Content-Disposition</code>.
+         * @return <code>Content-Disposition</code>,
+         * or null if no disposition header exists
+         */
+        public String getDisposition();
+        
+        /**
+         * Gets MIME <code>Content-Disposition</code> 
+         * parameters.
+         * @return <code>Content-Disposition</code>
+         * values indexed by names
+         */
+        public Map getDispositionParams();
+        
+        /**
+         * Gets the number of lines of text in a part
+         * of type <code>TEXT</code> when transfer
+         * encoded.
+         * 
+         * @return <code>CRLF</code> count
+         * when a <code>TEXT</code> type, otherwise -1
+         */
+        public long getLines();
+        
+        /**
+         * The number of octets contained in the body of this part.
+         * 
+         * @return number of octets
+         */
+        public long getBodyOctets();
+        
+        /**
+         * Gets parts.
+         * @return <code>MimeDescriptor</code> <code>Iterator</code> 
+         * when a composite top level MIME media type,
+         * null otherwise
+         */
+        public Iterator parts();
+        
+        /**
+         * Gets embedded message.
+         * @return <code>MimeDescriptor</code> when top level MIME type is <code>message</code>, 
+         * null otherwise
+         */
+        public MimeDescriptor embeddedMessage();
+        
+        /**
+         * Gets headers.
+         * @return <code>Header</code> <code>Iterator</code>,
+         * not null 
+         */
+        public Iterator headers();
+        
+        /**
+         * Gets MIME body parameters parsed from <code>Content-Type</code>.
+         * @return <code>Header</code> <code>Iterator</code>,
+         * not null
+         */
+        public Iterator contentTypeParameters();
     }
 }

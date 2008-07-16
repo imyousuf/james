@@ -41,9 +41,9 @@ import org.apache.torque.util.Criteria;
 
 import EDU.oswego.cs.dl.util.concurrent.WriterPreferenceReadWriteLock;
 
-public class TorqueMailboxTest extends AbstractTorqueTestCase {
+public class TorqueMailboxTestCase extends AbstractTorqueTestCase {
 
-    public TorqueMailboxTest() throws TorqueException {
+    public TorqueMailboxTestCase() throws TorqueException {
         super();
     }
 

@@ -109,4 +109,25 @@ public interface ImapResponseWriter {
      * @throws IOException
      */
     void literal(Literal literal) throws IOException;
+
+    /**
+     * Writes given message converted to upper case.
+     * The message may be assumed to be ASCII encoded.
+     * Conversion of characters MUST NOT be performed according 
+     * to the current locale but as per ASCII.
+     * @param message ASCII encoded, not null
+     * @throws IOException
+     */
+    void upperCaseAscii(String message) throws IOException;
+
+    /**
+     * Writes given message converted to upper case.
+     * The message may be assumed to be ASCII encoded.
+     * Conversion of characters MUST NOT be performed according 
+     * to the current locale but as per ASCII.
+     * The message is surrounded by quotes.
+     * @param message ASCII encoded, not null
+     * @throws IOException 
+     */
+    void quoteUpperCaseAscii(String message) throws IOException;
 }

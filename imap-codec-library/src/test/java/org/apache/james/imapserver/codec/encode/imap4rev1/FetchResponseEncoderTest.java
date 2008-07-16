@@ -57,11 +57,11 @@ public class FetchResponseEncoderTest extends MockObjectTestCase {
     }
     
     public void testShouldAcceptFetchResponse() throws Exception {
-        assertTrue(encoder.isAcceptable(new FetchResponse(11, null, null, null, null, null, null, null)));
+        assertTrue(encoder.isAcceptable(new FetchResponse(11, null, null, null, null, null, null, null, null)));
     }
     
     public void testShouldEncodeFlagsResponse() throws Exception {
-        FetchResponse message = new FetchResponse(100, flags, null, null, null, null, null, null);
+        FetchResponse message = new FetchResponse(100, flags, null, null, null, null, null, null, null);
         mockComposer.expects(once()).method("openFetchResponse").with(eq(100L));
         mockComposer.expects(once()).method("flags").with(eq(flags));
         mockComposer.expects(once()).method("closeFetchResponse");
@@ -69,7 +69,7 @@ public class FetchResponseEncoderTest extends MockObjectTestCase {
     }
     
     public void testShouldEncodeUidResponse() throws Exception {
-        FetchResponse message = new FetchResponse(100, null, new Long(72), null, null, null, null, null);
+        FetchResponse message = new FetchResponse(100, null, new Long(72), null, null, null, null, null, null);
         mockComposer.expects(once()).method("openFetchResponse").with(eq(100L));
         mockComposer.expects(once()).method("message").with(eq("UID"));
         mockComposer.expects(once()).method("message").with(eq(72L));
@@ -78,7 +78,7 @@ public class FetchResponseEncoderTest extends MockObjectTestCase {
     }
     
     public void testShouldEncodeAllResponse() throws Exception {
-        FetchResponse message = new FetchResponse(100, flags, new Long(72), null, null, null, null, null);
+        FetchResponse message = new FetchResponse(100, flags, new Long(72), null, null, null, null, null, null);
         mockComposer.expects(once()).method("openFetchResponse").with(eq(100L));
         mockComposer.expects(once()).method("flags").with(eq(flags));
         mockComposer.expects(once()).method("message").with(eq("UID"));

@@ -20,15 +20,19 @@
 package org.apache.james.imapserver.codec.encode.imap4rev1;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.mail.Flags;
 
+import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.api.imap.ImapMessage;
 import org.apache.james.imap.message.response.imap4rev1.FetchResponse;
+import org.apache.james.imap.message.response.imap4rev1.FetchResponse.Structure;
 import org.apache.james.imapserver.codec.encode.EncoderUtils;
 import org.apache.james.imapserver.codec.encode.ImapEncoder;
 import org.apache.james.imapserver.codec.encode.ImapResponseComposer;
@@ -36,6 +40,8 @@ import org.apache.james.imapserver.codec.encode.base.AbstractChainedImapEncoder;
 
 public class FetchResponseEncoder extends AbstractChainedImapEncoder {
 
+    private static final String[] EMPTY_STRING_ARRAY={};
+    
     public FetchResponseEncoder(final ImapEncoder next) {
         super(next);
     }
@@ -53,28 +59,190 @@ public class FetchResponseEncoder extends AbstractChainedImapEncoder {
             encodeInternalDate(composer, fetchResponse);
             encodeSize(composer, fetchResponse);
             encodeEnvelope(composer, fetchResponse);
-            encode(composer, fetchResponse.getMisc());
+            encodeBody(composer, fetchResponse.getBody());
+            encodeBodyStructure(composer, fetchResponse.getBodyStructure());
             encodeUid(composer, fetchResponse);
             encodeBodyElements(composer, fetchResponse.getElements());
             composer.closeFetchResponse();
         }
     }
     
+    private void encodeBody(ImapResponseComposer composer, Structure body) throws IOException {
+        if (body != null) {
+            composer.message(ImapConstants.FETCH_BODY);
+            encodeStructure(composer, body, false);
+        }
+    }
+
+    private void encodeBodyStructure(ImapResponseComposer composer, Structure bodyStructure) throws IOException {
+        if (bodyStructure != null) {
+            composer.message(ImapConstants.FETCH_BODY_STRUCTURE);
+            encodeStructure(composer, bodyStructure, true);
+        }
+    }
+    
+    private void encodeStructure(final ImapResponseComposer composer, 
+            final Structure structure, final boolean includeExtensions) throws IOException {
+        
+        final String mediaType;
+        final String subType;
+        final String rawMediaType = structure.getMediaType();
+        if (rawMediaType == null) {
+            mediaType = ImapConstants.MIME_TYPE_TEXT;
+            subType = ImapConstants.MIME_SUBTYPE_PLAIN;
+        } else {
+            mediaType = rawMediaType;
+            subType = structure.getSubType();
+        }
+        encodeStructure(composer, structure, includeExtensions, mediaType, subType);
+    }
+
+    private void encodeStructure(final ImapResponseComposer composer, final Structure structure, 
+            final boolean includeExtensions, final String mediaType, final String subType) throws IOException {
+        if (ImapConstants.MIME_TYPE_MULTIPART.equalsIgnoreCase(mediaType)) {
+            
+            encodeMultipart(composer, structure, subType, includeExtensions);
+            
+        } else {
+            if (ImapConstants.MIME_TYPE_MESSAGE.equalsIgnoreCase(mediaType) 
+                    && ImapConstants.MIME_SUBTYPE_RFC822.equalsIgnoreCase(subType)) {
+
+                encodeRfc822Message(composer, structure, mediaType, subType, includeExtensions);
+            } else {
+                encodeBasic(composer, structure, includeExtensions, mediaType, subType);
+            }
+        }
+    }
+
+    private void encodeBasic(final ImapResponseComposer composer, final Structure structure, final boolean includeExtensions, final String mediaType, final String subType) throws IOException {
+        if (ImapConstants.MIME_TYPE_TEXT.equalsIgnoreCase(mediaType)) {
+            
+            final long lines = structure.getLines();
+            
+            encodeBodyFields(composer, structure, mediaType, subType);
+            composer.message(lines);                
+        } else {
+            encodeBodyFields(composer, structure, mediaType, subType);
+        }
+        if (includeExtensions) {
+            encodeOnePartBodyExtensions(composer, structure);
+        }   
+        composer.closeParen();
+    }
+
+    private void encodeOnePartBodyExtensions(final ImapResponseComposer composer, final Structure structure) throws IOException {
+        final String md5 = structure.getMD5();
+        final String[] languages = languages(structure);
+        final String location = structure.getLocation();
+        composer.nillableQuote(md5);
+        bodyFldDsp(structure, composer).nillableQuotes(languages).nillableQuote(location);
+    }
+
+    private ImapResponseComposer bodyFldDsp(final Structure structure, final ImapResponseComposer composer) throws IOException {
+        final String disposition = structure.getDisposition();
+        if (disposition == null) {
+            composer.nil();
+        } else {
+            composer.openParen();
+            composer.quote(disposition);
+            final Map params = structure.getDispositionParams();
+            bodyFldParam(params, composer);
+            composer.closeParen();
+        }
+        return composer;
+    }
+    
+    private void bodyFldParam(final Map params, final ImapResponseComposer composer) throws IOException {
+        if (params == null || params.isEmpty()) {
+            composer.nil();
+        } else {
+            composer.openParen();
+            final Collection names = params.keySet();
+            for (Iterator iter = names.iterator(); iter.hasNext();) {
+                final String name = (String) iter.next();
+                final String value = (String) params.get(name);
+                if (value == null) {
+                    final Logger logger = getLogger();
+                    logger.warn("Disposition parameter name has no value.");
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Disposition parameter " + name + " has no matching value");
+                    }
+                } else {
+                    composer.quote(name);
+                    composer.quote(value);
+                }
+            }
+            composer.closeParen();
+        }
+    }
+
+    private void encodeBodyFields(final ImapResponseComposer composer, final Structure structure, final String mediaType, final String subType) throws IOException {
+        final String[] bodyParams = structure.getParameters();
+        final String id = structure.getId();
+        final String description = structure.getDescription();
+        final String encoding = structure.getEncoding();
+        final long octets = structure.getOctets();
+        composer.openParen().quoteUpperCaseAscii(mediaType).quoteUpperCaseAscii(subType).nillableQuotes(bodyParams)
+                .nillableQuote(id).nillableQuote(description).quoteUpperCaseAscii(encoding).message(octets);
+    }
+
+    private void encodeMultipart(ImapResponseComposer composer, Structure structure, 
+            final String subType, final boolean includeExtensions) throws IOException {
+        composer.openParen();
+        
+        for (Iterator it = structure.parts(); it.hasNext();) {
+            final Structure part = (Structure) it.next();
+            encodeStructure(composer, part, includeExtensions);
+        }
+        
+        if (includeExtensions) {
+            final String[] languages = languages(structure);
+            composer.nillableQuotes(structure.getParameters());
+            bodyFldDsp(structure, composer).nillableQuotes(languages).nillableQuote(structure.getLocation());
+        }
+        composer.upperCaseAscii(subType).closeParen();
+    }
+
+    private String[] languages(Structure structure) {
+        final List languageList = structure.getLanguages();
+        final String[] languages;
+        if (languageList == null) {
+            languages = null;
+        } else {
+            languages = (String[]) languageList.toArray(EMPTY_STRING_ARRAY);
+        }
+        return languages;
+    }
+
+    private void encodeRfc822Message(ImapResponseComposer composer, Structure structure, 
+            final String mediaType, final String subType, final boolean includeExtensions) throws IOException {
+        final long lines = structure.getLines();
+        final FetchResponse.Envelope envelope = structure.getEnvelope();
+        final FetchResponse.Structure embeddedStructure = structure.getBody();
+        
+        encodeBodyFields(composer, structure, mediaType, subType);
+        encodeEnvelope(composer, envelope);
+        encodeStructure(composer, embeddedStructure, includeExtensions);
+        composer.message(lines);
+        
+        if (includeExtensions) {
+            encodeOnePartBodyExtensions(composer, structure);
+        }
+        composer.closeParen();
+    }
+    
+
     private void encodeBodyElements(final ImapResponseComposer composer, final List elements) throws IOException {
         if (elements != null) {
             for (final Iterator it = elements.iterator();it.hasNext();) {
                 FetchResponse.BodyElement element = (FetchResponse.BodyElement) it.next();
-                composer.message(element.getName());
+                final String name = element.getName();
+                composer.message(name);
                 composer.literal(element);
             }
         }
     }
 
-    private void encode(ImapResponseComposer composer, StringBuffer buffer) throws IOException {
-        if (buffer != null && buffer.length() > 0) {
-            composer.message(buffer.substring(1));
-        }
-    }
 
     private void encodeSize(ImapResponseComposer composer, final FetchResponse fetchResponse) throws IOException {
         final Integer size = fetchResponse.getSize();
@@ -111,6 +279,10 @@ public class FetchResponseEncoder extends AbstractChainedImapEncoder {
 
     private void encodeEnvelope(final ImapResponseComposer composer, final FetchResponse fetchResponse) throws IOException {
         final FetchResponse.Envelope envelope = fetchResponse.getEnvelope();
+        encodeEnvelope(composer, envelope);
+    }
+
+    private void encodeEnvelope(final ImapResponseComposer composer, final FetchResponse.Envelope envelope) throws IOException {
         if (envelope != null) {
             final String date = envelope.getDate();
             final String subject = envelope.getSubject();

@@ -122,57 +122,89 @@ S: \* 1 FETCH \(BODY\[1\] \{8\}
 S: Rhubarb!\)
 S: A11 OK FETCH completed\.
 C: A12 FETCH 1 (BODY[2])
-S: \* 1 FETCH \(BODY\[2\] NIL\)
+# See http://markmail.org/message/2jconrj7scvdi5dj
+S: \* 1 FETCH \(BODY\[2\] \{0\}
+S: \)
 S: A12 OK FETCH completed\.
 C: A13 FETCH 1 (BODY[3])
-S: \* 1 FETCH \(BODY\[3\] NIL\)
+# See http://markmail.org/message/2jconrj7scvdi5dj
+S: \* 1 FETCH \(BODY\[3\] \{0\}
+S: \)
 S: A13 OK FETCH completed\.
 C: A14 FETCH 1 (BODY[3.HEADER])
-S: \* 1 FETCH \(BODY\[3\.HEADER\] NIL\)
+# See http://markmail.org/message/2jconrj7scvdi5dj
+S: \* 1 FETCH \(BODY\[3\.HEADER\] \{0\}
+S: \)
 S: A14 OK FETCH completed\.
 C: A15 FETCH 1 (BODY[3.TEXT])
-S: \* 1 FETCH \(BODY\[3\.TEXT\] NIL\)
+# See http://markmail.org/message/2jconrj7scvdi5dj
+S: \* 1 FETCH \(BODY\[3\.TEXT\] \{0\}
+S: \)
 S: A15 OK FETCH completed\.
 C: A16 FETCH 1 (BODY[3.1])
-S: \* 1 FETCH \(BODY\[3\.1\] NIL\)
+# See http://markmail.org/message/2jconrj7scvdi5dj
+S: \* 1 FETCH \(BODY\[3\.1\] \{0\}
+S: \)
 S: A16 OK FETCH completed\.
 C: A17 FETCH 1 (BODY[3.2])
-S: \* 1 FETCH \(BODY\[3\.2\] NIL\)
+# See http://markmail.org/message/2jconrj7scvdi5dj
+S: \* 1 FETCH \(BODY\[3\.2\] \{0\}
+S: \)
 S: A17 OK FETCH completed\.
 C: A18 FETCH 1 (BODY[4])
-S: \* 1 FETCH \(BODY\[4\] NIL\)
+# See http://markmail.org/message/2jconrj7scvdi5dj
+S: \* 1 FETCH \(BODY\[4\] \{0\}
+S: \)
 S: A18 OK FETCH completed\.
 C: A19 FETCH 1 (BODY[4.1])
-S: \* 1 FETCH \(BODY\[4\.1\] NIL\)
+# See http://markmail.org/message/2jconrj7scvdi5dj
+S: \* 1 FETCH \(BODY\[4\.1\] \{0\}
+S: \)
 S: A19 OK FETCH completed\.
 C: A20 FETCH 1 (BODY[4.1.MIME])
-S: \* 1 FETCH \(BODY\[4\.1\.MIME\] NIL\)
+# See http://markmail.org/message/2jconrj7scvdi5dj
+S: \* 1 FETCH \(BODY\[4\.1\.MIME\] \{0\}
+S: \)
 S: A20 OK FETCH completed\.
 C: A21 FETCH 1 (BODY[4.2])
-S: \* 1 FETCH \(BODY\[4\.2\] NIL\)
+# See http://markmail.org/message/2jconrj7scvdi5dj
+S: \* 1 FETCH \(BODY\[4\.2\] \{0\}
+S: \)
 S: A21 OK FETCH completed\.
 C: A22 FETCH 1 (BODY[4.2.HEADER])
-S: \* 1 FETCH \(BODY\[4\.2\.HEADER\] NIL\)
+# See http://markmail.org/message/2jconrj7scvdi5dj
+S: \* 1 FETCH \(BODY\[4\.2\.HEADER\] \{0\}
+S: \)
 S: A22 OK FETCH completed\.
 C: A23 FETCH 1 (BODY[4.2.TEXT])
-S: \* 1 FETCH \(BODY\[4\.2\.TEXT\] NIL\)
+# See http://markmail.org/message/2jconrj7scvdi5dj
+S: \* 1 FETCH \(BODY\[4\.2\.TEXT\] \{0\}
+S: \)
 S: A23 OK FETCH completed\.
 C: A24 FETCH 1 (BODY[4.2.1])
-S: \* 1 FETCH \(BODY\[4\.2\.1\] NIL\)
+# See http://markmail.org/message/2jconrj7scvdi5dj
+S: \* 1 FETCH \(BODY\[4\.2\.1\] \{0\}
+S: \)
 S: A24 OK FETCH completed\.
 C: A25 FETCH 1 (BODY[4.2.2])
-S: \* 1 FETCH \(BODY\[4\.2\.2\] NIL\)
+# See http://markmail.org/message/2jconrj7scvdi5dj
+S: \* 1 FETCH \(BODY\[4\.2\.2\] \{0\}
+S: \)
 S: A25 OK FETCH completed\.
 C: A26 FETCH 1 (BODY[4.2.2.1])
-S: \* 1 FETCH \(BODY\[4\.2\.2\.1\] NIL\)
+# See http://markmail.org/message/2jconrj7scvdi5dj
+S: \* 1 FETCH \(BODY\[4\.2\.2\.1\] \{0\}
+S: \)
 S: A26 OK FETCH completed\.
 C: A27 FETCH 1 (BODY[4.2.2.2])
-S: \* 1 FETCH \(BODY\[4\.2\.2\.2\] NIL\)
+# See http://markmail.org/message/2jconrj7scvdi5dj
+S: \* 1 FETCH \(BODY\[4\.2\.2\.2\] \{0\}
+S: \)
 S: A27 OK FETCH completed\.
 C: A28 FETCH 1:* (BODY BODYSTRUCTURE)
-S: \* 1 FETCH \(BODY \("text" "plain" \("charset" "us-ascii"\) NIL NIL "7bit" 8 0\) BODYSTRUCTURE \("text" "plain" \("charset" "us-ascii"\) NIL NIL "7bit" 8 0 NIL NIL NIL\)\)
-S: \* 2 FETCH \(BODY \("text" "plain" \("charset" "ISO-8859-1"\) NIL NIL "7bit" 192 6\) BODYSTRUCTURE \("text" "plain" \("charset" "ISO-8859-1"\) NIL NIL "7bit" 192 6 NIL \("inline" NIL\) NIL\)\)
-S: \* 3 FETCH \(BODY \("application" "xhtml\+xml" \("e" "mc\*mc"\) "<477345345@example\.org>" "Homage to 70's TV" "7bit" 183\) BODYSTRUCTURE \("application" "xhtml\+xml" \("e" "mc\*mc"\) "<477345345@example\.org>" "Homage to 70's TV" "7bit" 183 "Q2hlY2sgSW50ZWdyaXR5IQ==" \("inline" \("foo" "bar" "one" "1" "param" "value"\)\) \("en" "en-US" "en-CA"\)\)\)
+S: \* 1 FETCH \(BODY \("TEXT" "PLAIN" \("charset" "us-ascii"\) NIL NIL "7BIT" 8 0\) BODYSTRUCTURE \("TEXT" "PLAIN" \("charset" "us-ascii"\) NIL NIL "7BIT" 8 0 NIL NIL NIL NIL\)\)
+S: \* 2 FETCH \(BODY \("TEXT" "PLAIN" \("charset" "iso-8859-1"\) NIL NIL "7BIT" 192 6\) BODYSTRUCTURE \("TEXT" "PLAIN" \("charset" "iso-8859-1"\) NIL NIL "7BIT" 192 6 NIL \("inline" NIL\) NIL NIL\)\)
+S: \* 3 FETCH \(BODY \("APPLICATION" "XHTML\+XML" \("e" "mc\*mc"\) "<477345345@example\.org>" "Homage to 70's TV" "7BIT" 183\) BODYSTRUCTURE \("APPLICATION" "XHTML\+XML" \("e" "mc\*mc"\) "<477345345@example\.org>" "Homage to 70's TV" "7BIT" 183 "Q2hlY2sgSW50ZWdyaXR5IQ==" \("inline" \("param" "value" "one" "1" "foo" "bar"\)\) \("en" "en-US" "en-CA"\) "http://www.example.org/rhubard.html"\)\)
 S: A28 OK FETCH completed\.
 C: A29 DELETE testmailbox
 S: A29 OK DELETE completed\.

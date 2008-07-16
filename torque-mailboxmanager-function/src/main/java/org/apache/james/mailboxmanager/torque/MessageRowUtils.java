@@ -118,10 +118,6 @@ public class MessageRowUtils {
         messageResult.setUid(messageRow.getUid());
         if (fetchGroup != null) {
             int content = fetchGroup.content();
-            if ((content & FetchGroup.MIME_MESSAGE) > 0) {
-                messageResult.setMimeMessage(TorqueMimeMessage.createMessage(messageRow));
-                content -= FetchGroup.MIME_MESSAGE;
-            }
             if ((content & FetchGroup.FLAGS) > 0) {
                 org.apache.james.mailboxmanager.torque.om.MessageFlags messageFlags
                     = messageRow.getMessageFlags();
@@ -150,6 +146,10 @@ public class MessageRowUtils {
                 addFullContent(messageRow, messageResult);
                 content -= FetchGroup.FULL_CONTENT;
             }
+            if ((content & FetchGroup.MIME_DESCRIPTOR) > 0) {
+                addMimeDescriptor(messageRow, messageResult);
+                content -= FetchGroup.MIME_DESCRIPTOR;
+            }
             if (content != 0) {
                 throw new TorqueException("Unsupported result: " + content);
             }
@@ -160,6 +160,15 @@ public class MessageRowUtils {
             }
         }
         return messageResult;
+    }
+
+    private static void addMimeDescriptor(MessageRow messageRow, MessageResultImpl messageResult) throws TorqueException  {
+        try {   
+            MessageResult.MimeDescriptor descriptor = MimeDescriptorImpl.build(toInput(messageRow));
+            messageResult.setMimeDescriptor(descriptor);
+        } catch (IOException e) {
+            throw new TorqueException("Cannot parse message", e);
+        }
     }
 
     private static void addFullContent(final MessageRow messageRow, MessageResultImpl messageResult) throws TorqueException, MailboxManagerException {
@@ -214,9 +223,15 @@ public class MessageRowUtils {
         final InputStream stream = toInput(row);
         PartContentBuilder result = new PartContentBuilder();
         result.parse(stream);
-        for (int i = 0; i < path.length; i++) {
-            final int next = path[i];
-            result.to(next);
+        try {
+            for (int i = 0; i < path.length; i++) {
+                final int next = path[i];
+                result.to(next);
+            }
+        } catch (PartContentBuilder.PartNotFoundException e) {
+            // Missing parts should return zero sized content
+            // See http://markmail.org/message/2jconrj7scvdi5dj
+            result.markEmpty();
         }
         return result;
     }

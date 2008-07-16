@@ -367,8 +367,6 @@ public class MockImapResponseWriter implements ImapResponseWriter {
                 return false;
             return true;
         }
-        
-        
     }
 
     public void skipNextSpace() throws IOException {
@@ -381,5 +379,46 @@ public class MockImapResponseWriter implements ImapResponseWriter {
     public void openSquareBracket() throws IOException {
         operations.add(new BracketOperation(true, true));
     }
+
+    public void upperCaseAscii(String message) throws IOException {
+        operations.add(new UpperCaseASCIIOperation(message, false));
+    }
     
+    public static final class UpperCaseASCIIOperation {
+        public final String message;
+        public final boolean quote;
+        public UpperCaseASCIIOperation(String message, boolean quote) {
+            this.message = message;
+            this.quote = quote;
+        }
+
+        public int hashCode() {
+            final int PRIME = 31;
+            int result = 1;
+            result = PRIME * result + ((message == null) ? 0 : message.hashCode());
+            return result;
+        }
+        
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            final UpperCaseASCIIOperation other = (UpperCaseASCIIOperation) obj;
+            if (message == null) {
+                if (other.message != null)
+                    return false;
+            } else if (!message.equals(other.message))
+                return false;
+            return true;
+        }
+        
+        
+    }
+
+    public void quoteUpperCaseAscii(String message) throws IOException {
+        operations.add(new UpperCaseASCIIOperation(message, true));
+    }    
 }

@@ -41,10 +41,10 @@ import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.impl.AvalonLogger;
-import org.apache.james.mailboxmanager.MessageRange;
 import org.apache.james.mailboxmanager.MailboxListener;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxSession;
+import org.apache.james.mailboxmanager.MessageRange;
 import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.SearchQuery;
 import org.apache.james.mailboxmanager.MessageResult.FetchGroup;
@@ -168,8 +168,13 @@ public class TorqueMailbox extends AbstractLogEnabled implements Mailbox {
     }
 
     private void populateFlags(MimeMessage message, MessageRow messageRow) throws MessagingException, TorqueException {
+        final Flags flags = message.getFlags();
+        buildFlags(messageRow, flags);
+    }
+
+    private void buildFlags(MessageRow messageRow, final Flags flags) throws TorqueException {
         MessageFlags messageFlags = new MessageFlags();
-        messageFlags.setFlags(message.getFlags());
+        messageFlags.setFlags(flags);
         messageRow.addMessageFlags(messageFlags);
     }
 
@@ -210,7 +215,7 @@ public class TorqueMailbox extends AbstractLogEnabled implements Mailbox {
         return size;
     }
 
-    private void save(MessageRow messageRow) throws Exception {
+    private void save(MessageRow messageRow) throws TorqueException, InterruptedException {
         try {
             lock.writeLock().acquire();
             messageRow.save();
@@ -708,6 +713,76 @@ public class TorqueMailbox extends AbstractLogEnabled implements Mailbox {
         super.enableLogging(logger);
         setLog(new AvalonLogger(logger));
     }
+
+    public void copyTo(MessageRange set, TorqueMailbox toMailbox, MailboxSession session) throws MailboxManagerException {
+        try {
+            lock.readLock().acquire();
+            try {
+                checkAccess();
+                try {
+                    Criteria c = criteriaForMessageSet(set);
+                    c.add(MessageFlagsPeer.MAILBOX_ID,getMailboxRow().getMailboxId());
+                    List rows = MessageRowPeer.doSelectJoinMessageFlags(c);
+                    toMailbox.copy(rows, session);
+                } catch (TorqueException e) {
+                    throw new MailboxManagerException(e);
+                } catch (MessagingException e) {
+                    throw new MailboxManagerException(e);
+                }
+            } finally {
+                lock.readLock().release();
+            }
+        } catch (InterruptedException e) {
+            throw new MailboxManagerException(e);
+        }
+    }
     
-    
+    private void copy(List rows, MailboxSession session) throws MailboxManagerException {
+        try {
+            for (Iterator iter = rows.iterator(); iter.hasNext();) {
+                MessageRow fromRow = (MessageRow) iter.next();
+                final MailboxRow mailbox = reserveNextUid();
+
+                if (mailbox != null) {
+                    // To be thread safe, we first get our own copy and the
+                    // exclusive
+                    // Uid
+                    // TODO create own message_id and assign uid later
+                    // at the moment it could lead to the situation that uid 5 is
+                    // inserted long before 4, when
+                    // mail 4 is big and comes over a slow connection.
+                    long uid = mailbox.getLastUid();
+                    this.mailboxRow = mailbox;
+
+                    MessageRow newRow = new MessageRow();
+                    newRow.setMailboxId(getMailboxRow().getMailboxId());
+                    newRow.setUid(uid);
+                    newRow.setInternalDate(fromRow.getInternalDate());
+                    newRow.setSize(fromRow.getSize());
+                    buildFlags(newRow, fromRow.getMessageFlags().getFlagsObject());
+
+                    final List headers = fromRow.getMessageHeaders();
+                    for (Iterator iterator = headers.iterator(); iterator.hasNext();) {
+                        final MessageHeader fromHeader = (MessageHeader) iterator.next();
+                        final MessageHeader newHeader = new MessageHeader(fromHeader.getField(), fromHeader.getValue(), fromHeader.getLineNumber());
+                        newRow.addMessageHeader(newHeader);
+                    }
+
+                    MessageBody mb = new MessageBody(fromRow.getBodyContent());
+                    newRow.addMessageBody(mb);
+
+                    save(newRow);
+                    MessageResult messageResult = fillMessageResult(newRow, FetchGroupImpl.MINIMAL);
+                    getUidChangeTracker().found(messageResult); 
+                }            
+            }
+        }
+        catch (TorqueException e) {
+            throw new MailboxManagerException(e);
+        }  catch (InterruptedException e) {
+            throw new MailboxManagerException(e);
+        } catch (MessagingException e) {
+            throw new MailboxManagerException(e);
+        }
+    }
 }

@@ -34,6 +34,12 @@ public interface ImapConstants
     public static final String NIL = "NIL";
     public static final String UID = "UID";
     
+    public static final String MIME_HEADER_CONTENT_LOCATION = "Content-Location";
+    public static final String MIME_HEADER_CONTENT_MD5 = "Content-MD5";
+    public static final String MIME_HEADER_CONTENT_LANGUAGE = "Content-Language";
+    
+    public static final String[] EMPTY_STRING_ARRAY = {};
+    
     public static final byte BYTE_OPENING_PARENTHESIS = 0x28;
     public static final byte[] BYTES_OPENING_PARENTHESIS = {BYTE_OPENING_PARENTHESIS};
     public static final byte BYTE_CLOSING_PARENTHESIS = 0x29;
@@ -73,6 +79,12 @@ public interface ImapConstants
     final String NAMESPACE_PREFIX = String.valueOf( NAMESPACE_PREFIX_CHAR );
 
     String INBOX_NAME = "INBOX";
+    public String MIME_TYPE_TEXT = "TEXT";
+    public String MIME_TYPE_MULTIPART = "MULTIPART";
+    public String MIME_SUBTYPE_PLAIN = "PLAIN";
+    public String MIME_TYPE_MESSAGE = "MESSAGE";
+    public String MIME_SUBTYPE_RFC822 = "RFC822";
+    
     public static final char BACK_SLASH = '\\';
     public static final String STATUS_UNSEEN = "UNSEEN";
     public static final String STATUS_UIDVALIDITY = "UIDVALIDITY";
@@ -120,4 +132,6 @@ public interface ImapConstants
     public static final String FETCH_RFC822 = "RFC822";
     public static final String FETCH_RFC822_HEADER = "RFC822.HEADER";
     public static final String FETCH_RFC822_TEXT = "RFC822.TEXT";
+    public static final String FETCH_BODY_STRUCTURE = "BODYSTRUCTURE";
+    public static final String FETCH_BODY = "BODY";
 }

@@ -1,4 +1,4 @@
-package org.apache.james.imapserver.processor.imap4rev1;
+package org.apache.james.imapserver.processor.imap4rev1.fetch;
 
 import java.io.IOException;
 import java.nio.channels.WritableByteChannel;

@@ -112,7 +112,7 @@ public class StoreProcessor extends AbstractImapRequestProcessor {
                             resultFlags.add(Flags.Flag.RECENT);
                         }
                         final FetchResponse response 
-                            = new FetchResponse(msn, resultFlags, resultUid, null, null, null, null, null);
+                            = new FetchResponse(msn, resultFlags, resultUid, null, null, null, null, null, null);
                         responder.respond(response);
                     }
                 }

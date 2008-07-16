@@ -1212,7 +1212,7 @@ public abstract class BaseMessageRow extends BaseObject
      *
      * @throws Exception
      */
-    public void save() throws Exception
+    public void save() throws TorqueException
     {
           save(MessageRowPeer.DATABASE_NAME);
       }

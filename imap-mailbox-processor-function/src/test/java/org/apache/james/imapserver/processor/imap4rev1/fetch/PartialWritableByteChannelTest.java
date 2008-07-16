@@ -17,11 +17,13 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.imapserver.processor.imap4rev1;
+package org.apache.james.imapserver.processor.imap4rev1.fetch;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
+
+import org.apache.james.imapserver.processor.imap4rev1.fetch.PartialWritableByteChannel;
 
 import junit.framework.TestCase;
 

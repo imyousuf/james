@@ -35,6 +35,7 @@ import org.apache.james.imapserver.codec.encode.ImapResponseWriter;
  */
 public class ChannelImapResponseWriter extends AbstractLogEnabled implements ImapConstants, ImapResponseWriter {
     
+    private static final int LOWER_CASE_OFFSET = 'a' - 'A';
     private static final int DEFAULT_BUFFER_SIZE = 128;
     
     private final Charset usAscii;
@@ -205,10 +206,13 @@ public class ChannelImapResponseWriter extends AbstractLogEnabled implements Ima
     public void literal(Literal literal) throws IOException {
         space();
         write(BYTES_OPEN_BRACE);
-        writeASCII(Long.toString(literal.size()));
+        final long size = literal.size();
+        writeASCII(Long.toString(size));
         write(BYTES_CLOSE_BRACE);
         write(BYTES_LINE_END);
-        literal.writeTo(out);
+        if (size>0) {
+            literal.writeTo(out);
+        }
     }
 
     public void closeSquareBracket() throws IOException {
@@ -217,5 +221,37 @@ public class ChannelImapResponseWriter extends AbstractLogEnabled implements Ima
 
     public void openSquareBracket() throws IOException {
         openBracket(BYTES_OPEN_SQUARE_BRACKET);
+    }
+    
+    public void upperCaseAscii(String message) throws IOException {
+        upperCaseAscii(message, false);
+    }
+    
+    private void upperCaseAscii(String message, boolean quote) throws IOException {
+        space();
+        final int length = message.length();
+        buffer.clear();
+        if (quote) {
+            buffer.put(BYTE_DQUOTE);
+        }
+        for (int i=0;i<length;i++) {
+            writeIfFull();
+            final char next = message.charAt(i);
+            if (next >= 'a' && next <= 'z') {
+                buffer.put((byte)(next - LOWER_CASE_OFFSET));
+            } else {
+                buffer.put((byte)(next));
+            }
+        }
+        writeIfFull();
+        if (quote) {
+            buffer.put(BYTE_DQUOTE);
+        }
+        buffer.flip();
+        write(buffer);
+    }
+
+    public void quoteUpperCaseAscii(String message) throws IOException {
+        upperCaseAscii(message, true);   
     }
 }

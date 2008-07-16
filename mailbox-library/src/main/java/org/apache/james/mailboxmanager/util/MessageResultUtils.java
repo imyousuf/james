@@ -275,18 +275,6 @@ public class MessageResultUtils {
     }
     
     /**
-     * Is {@link FetchGroup#MIME_MESSAGE} included in these results?
-     * @param message <code>MessageResult</code>, possibly null
-     * @return true if <code>MessageResult</code> includes 
-     * MIME_MESSAGE, false if <code>MessageResult</code> is null
-     * or does not contain MIME_MESSAGE
-     * @see #isIncluded(MessageResult, int)
-     */
-    public static boolean isMimeMessageIncluded(final MessageResult message) {
-        return isIncluded(message, FetchGroup.MIME_MESSAGE);
-    }   
-    
-    /**
      * Is {@link FetchGroup#SIZE} included in these results?
      * @param message <code>MessageResult</code>, possibly null
      * @return true if <code>MessageResult</code> includes 

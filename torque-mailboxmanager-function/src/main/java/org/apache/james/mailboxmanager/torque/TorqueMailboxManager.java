@@ -27,20 +27,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import javax.mail.internet.MimeMessage;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.impl.SimpleLog;
-import org.apache.james.mailboxmanager.MessageRange;
 import org.apache.james.mailboxmanager.ListResult;
 import org.apache.james.mailboxmanager.MailboxExistsException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxNotFoundException;
 import org.apache.james.mailboxmanager.MailboxSession;
-import org.apache.james.mailboxmanager.MessageResult;
-import org.apache.james.mailboxmanager.MessageResult.FetchGroup;
-import org.apache.james.mailboxmanager.impl.FetchGroupImpl;
+import org.apache.james.mailboxmanager.MessageRange;
 import org.apache.james.mailboxmanager.impl.ListResultImpl;
 import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.mailboxmanager.manager.MailboxExpression;
@@ -52,11 +47,10 @@ import org.apache.torque.util.CountHelper;
 import org.apache.torque.util.Criteria;
 
 import EDU.oswego.cs.dl.util.concurrent.ReadWriteLock;
-import EDU.oswego.cs.dl.util.concurrent.WriterPreferenceReadWriteLock;
+import EDU.oswego.cs.dl.util.concurrent.ReentrantWriterPreferenceReadWriteLock;
 
 public class TorqueMailboxManager implements MailboxManager {
 
-    private static final FetchGroupImpl FROM_FETCH_GROUP = new FetchGroupImpl(FetchGroup.MIME_MESSAGE | FetchGroup.INTERNAL_DATE);
     private static final char SQL_WILDCARD_CHAR = '%';
     private final static Random random = new Random();
     
@@ -67,12 +61,16 @@ public class TorqueMailboxManager implements MailboxManager {
     private final Map managers;
     
     public TorqueMailboxManager() {
-        this.lock =  new WriterPreferenceReadWriteLock();
+        this.lock =  new ReentrantWriterPreferenceReadWriteLock();
         managers = new HashMap();
     }
     
     public Mailbox getMailbox(String mailboxName, boolean autoCreate)
             throws MailboxManagerException {
+        return doGetMailbox(mailboxName, autoCreate);
+    }
+    
+    private TorqueMailbox doGetMailbox(String mailboxName, boolean autoCreate) throws MailboxManagerException {
         if (autoCreate && !existsMailbox(mailboxName)) {
             getLog().info("autocreated mailbox  " + mailboxName);
             createMailbox(mailboxName);
@@ -85,7 +83,7 @@ public class TorqueMailboxManager implements MailboxManager {
                 if (mailboxRow != null) {
                     getLog().debug("Loaded mailbox "+mailboxName);
                     
-                    Mailbox torqueMailbox = (Mailbox) managers.get(mailboxName);
+                    TorqueMailbox torqueMailbox = (TorqueMailbox) managers.get(mailboxName);
                     if (torqueMailbox == null) {
                         torqueMailbox = new TorqueMailbox(mailboxRow, lock, getLog());
                         managers.put(mailboxName, torqueMailbox);
@@ -206,14 +204,9 @@ public class TorqueMailboxManager implements MailboxManager {
     }
 
     public void copyMessages(MessageRange set, String from, String to, MailboxSession session) throws MailboxManagerException {
-        Mailbox toMailbox= getMailbox(to, false);
-        Mailbox fromMailbox = getMailbox(from, false);
-        Iterator it = fromMailbox.getMessages(set, FROM_FETCH_GROUP, session);
-        while (it.hasNext()) {
-            final MessageResult result = (MessageResult) it.next();
-            final MimeMessage mimeMessage = result.getMimeMessage();
-            toMailbox.appendMessage(mimeMessage, result.getInternalDate(), FetchGroupImpl.MINIMAL, session);
-        }
+        TorqueMailbox toMailbox= doGetMailbox(to, false);
+        TorqueMailbox fromMailbox = doGetMailbox(from, false);
+        fromMailbox.copyTo(set, toMailbox, session);
     }
 
     public ListResult[] list(final MailboxExpression mailboxExpression) throws MailboxManagerException {
