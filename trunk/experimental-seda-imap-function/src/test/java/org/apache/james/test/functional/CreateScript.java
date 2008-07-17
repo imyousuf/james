@@ -35,7 +35,7 @@ public class CreateScript {
 
     public static final void main(String[] args) throws Exception {
         ScriptBuilder builder = ScriptBuilder.open("localhost", 143);
-        bodyStructureSimple(builder);
+        bodyStructureMultipart(builder);
     }
     
     public static void bodyStructureSimple(ScriptBuilder builder) throws Exception {
