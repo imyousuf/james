@@ -25,6 +25,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.mail.Flags;
 
@@ -157,7 +159,8 @@ public class FetchResponseEncoder extends AbstractChainedImapEncoder {
             composer.nil();
         } else {
             composer.openParen();
-            final Collection names = params.keySet();
+            final Set keySet = params.keySet();
+            final Collection names = new TreeSet(keySet);
             for (Iterator iter = names.iterator(); iter.hasNext();) {
                 final String name = (String) iter.next();
                 final String value = (String) params.get(name);
