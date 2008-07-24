@@ -451,12 +451,12 @@ public class Tester {
 //      MailAddress address = (MailAddress)recipients.next();
 //      ProcMail pmail = getProcMail(mail, address);
 //      if (pmail == null) {
-//          // (1) Chiamato per primo quando la mail viene accettata e messa nello spool
+//          // (1) Called as the first step. The email is accepted and spooled.
 //          pmail = new ProcMail(this, mail, address);
 //          storeProcMail(pmail);
 //          onOutgoingStoreStart(pmail, mail);
 //      } else {
-//          // (5b) E anche per ultimo se la mail ha degli errori temporanei
+//          // (5b) And again as the last step when we have temporary errors
 //          onOutgoingStoreEnd(pmail, mail);
 //      }
 //  }
@@ -466,7 +466,7 @@ protected void onOutgoingAccept(Mail mail) {
 //  Vector l = new Vector();
 //  acceptedProcMailList.set(l);
 //  
-//  // (2) Chiamato per secondo, quando la mail viene presa in carico per la spedizione
+//  // (2) Called as the second step. The email is being loaded for sending.
 //  Iterator recipients = mail.getRecipients().iterator();
 //  while (recipients.hasNext()) {
 //      MailAddress address = (MailAddress)recipients.next();
@@ -480,7 +480,7 @@ protected void onOutgoingAccept(Mail mail) {
 }
 
 protected void onOutgoingRemove(Mail mail) {
-//  // (5a) Chiamato per ultimo se la mail è OK o ha avuto errori permanenti 
+//  // (5a) Called as the last method if the mail has a permanent result (perm fail or success) 
 //  Iterator recipients = mail.getRecipients().iterator();
 //  while (recipients.hasNext()) {
 //      MailAddress address = (MailAddress)recipients.next();
@@ -491,9 +491,9 @@ protected void onOutgoingRemove(Mail mail) {
 }
 
 protected void onOutgoingRemove(String key) {
-//  // (5a) Chiamato per ultimo se la mail è OK o ha avuto errori permanenti
+//  // (5a) Called as the last method if the mail has a permanent result (perm fail or success)
 //  
-//  // Cerca la stessa chiave tra le ultime accettate (dovrebbero averla tutte)
+//  // Look for the same key between the last accepted.
 //  Vector l = (Vector) acceptedProcMailList.get();
 //  if (l != null) 
 //      for (int i = 0; i < l.size(); i++) {
@@ -503,45 +503,6 @@ protected void onOutgoingRemove(String key) {
 //          onOutgoingRemove(pmail, mail);
 //      }
 }
-
-//protected void onOutgoingStoreStart(ProcMail pmail, Mail mail) {
-//  // (1) Chiamato per primo quando la mail viene accettata e messa nello spool
-//  log("DEBUG", "onOutgoingStore(start) "+pmail.getKey());
-//  pmail.spool(mail);
-//}
-//
-//protected void onOutgoingAccept(ProcMail pmail, Mail mail) {
-//  // (2) Chiamato per secondo, quando la mail viene presa in carico per la spedizione 
-//  log("DEBUG", "onOutgoingAccept "+pmail.getKey());
-//  pmail.fetchFromSpool(mail);
-//}
-//
-//protected void onTransportConnect(ProcMail pmail, Exception e) {
-//  // (3) Chiamata per inizializzare la connessione, in realtà non è un evento
-//  //     strettamento legato alla mail
-//  log("DEBUG", "onTransportConnect "+pmail.getKey());
-//  pmail.setState(ProcMail.STATE_SENDING);
-//  if (e != null) pmail.setConnectException(e);
-//}
-//
-//protected void onTransportSend(ProcMail pmail, Exception e) {
-//  // (4) Invio vero e proprio del messaggio
-//  log("DEBUG", "onTransportSend "+pmail.getKey());
-//  pmail.setState(ProcMail.STATE_SENDTERMINATED);
-//  if (e != null) pmail.setSendException(e);
-//}
-//
-//protected void onOutgoingRemove(ProcMail pmail, Mail mail) {
-//  // (5a) Chiamato per ultimo se la mail è OK o ha avuto errori permanenti 
-//  log("DEBUG", "onOutgoingRemove "+pmail.getKey());
-//  pmail.terminate(mail, true);
-//}
-//
-//protected void onOutgoingStoreEnd(ProcMail pmail, Mail mail) {
-//  // (5b) Chiamato per ultimo se la mail ha degli errori temporanei
-//  log("DEBUG", "onOutgoingStore(end) "+pmail.getKey());
-//  pmail.terminate(mail, false);
-//}
 
     /**
      * Runtime status of test.
