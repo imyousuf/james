@@ -230,7 +230,7 @@ public class TesterMailetConfig implements MailetConfig {
     private Properties parameters;
     private MailetContextTester mailetContext;
     
-    // wrappedSpoolRepository verrà settato solo se si decide di gestire l'outgoing
+    // wrappedSpoolRepository will be set only when this manage the outgoing
     private SpoolRepository wrappedSpoolRepository;
 
     public TesterMailetConfig(Tester owner, Properties properties, ServiceManager serviceManager) {
