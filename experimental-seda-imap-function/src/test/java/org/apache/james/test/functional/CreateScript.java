@@ -35,7 +35,83 @@ public class CreateScript {
 
     public static final void main(String[] args) throws Exception {
         ScriptBuilder builder = ScriptBuilder.open("localhost", 143);
-        bodyStructureMultipart(builder);
+        bodyStructureEmbedded(builder);
+    }
+    
+    public static void bodyStructureEmbedded(ScriptBuilder builder) throws Exception {
+        builder.login();
+        builder.create();
+        builder.select();
+        builder.setFile("multipart-mixed-complex.mail");
+        builder.append();
+        builder.fetchSection("");
+        builder.fetchSection("TEXT");
+        builder.fetchSection("HEADER");
+        builder.fetchSection("1");
+        builder.fetchSection("2");
+        builder.fetchSection("3");
+        builder.fetchSection("3.HEADER");
+        builder.fetchSection("3.TEXT");
+        builder.fetchSection("3.1");
+        builder.fetchSection("3.2");
+        builder.fetchSection("4");
+        builder.fetchSection("4.1");
+        builder.fetchSection("4.1.MIME");
+        builder.fetchSection("4.2");
+        builder.fetchSection("4.2.HEADER");
+        builder.fetchSection("4.2.TEXT");
+        builder.fetchSection("4.2.1");
+        builder.fetchSection("4.2.2");
+        builder.fetchSection("4.2.2.1");
+        builder.fetchSection("4.2.2.2");
+        builder.resetFetch().setBodyFetch(true).setBodyStructureFetch(true);
+        builder.fetchAllMessages();
+        builder.quit();
+    }
+    
+    public static void bodyStructureComplex(ScriptBuilder builder) throws Exception {
+        builder.login();
+        builder.create();
+        builder.select();
+        builder.setFile("wild-alt-reply3.mail");
+        builder.append();
+        builder.setFile("wild-alt-reply4.mail");
+        builder.append();
+        builder.setFile("multipart-mixed.mail");
+        builder.append();
+        builder.setFile("wild-mixed-alt.mail");
+        builder.append();
+        builder.setFile("wild-mixed.mail");
+        builder.append();
+        builder.setFile("mime-plain-text.mail");
+        builder.append();
+        builder.fetchAllMessages();
+        for (int i=1;i<7;i++) {
+            builder.setMessageNumber(i);
+            builder.fetchSection("");
+            builder.fetchSection("TEXT");
+            builder.fetchSection("HEADER");
+            builder.fetchSection("1");
+            builder.fetchSection("2");
+            builder.fetchSection("3");
+            builder.fetchSection("3.HEADER");
+            builder.fetchSection("3.TEXT");
+            builder.fetchSection("3.1");
+            builder.fetchSection("3.2");
+            builder.fetchSection("4");
+            builder.fetchSection("4.1");
+            builder.fetchSection("4.1.MIME");
+            builder.fetchSection("4.2");
+            builder.fetchSection("4.2.HEADER");
+            builder.fetchSection("4.2.TEXT");
+            builder.fetchSection("4.2.1");
+            builder.fetchSection("4.2.2");
+            builder.fetchSection("4.2.2.1");
+            builder.fetchSection("4.2.2.2");
+        }
+        builder.resetFetch().setBodyFetch(true).setBodyStructureFetch(true);
+        builder.fetchAllMessages();
+        builder.quit();
     }
     
     public static void bodyStructureSimple(ScriptBuilder builder) throws Exception {
