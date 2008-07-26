@@ -38,16 +38,49 @@ public class MimeDescriptorImpl implements MessageResult.MimeDescriptor {
     public static MimeDescriptorImpl build(final InputStream stream) throws IOException {
         final MimeTokenStream parser = MimeTokenStream.createMaximalDescriptorStream();
         parser.parse(stream);
+        return createDescriptor(parser);
+    }
+
+    private static MimeDescriptorImpl createDescriptor(
+            final MimeTokenStream parser) throws IOException, MimeException {
         int next = parser.next();
-        while (next != MimeTokenStream.T_BODY && next != MimeTokenStream.T_END_OF_STREAM) { 
+        while (next != MimeTokenStream.T_BODY && next != MimeTokenStream.T_END_OF_STREAM
+                && next != MimeTokenStream.T_START_MULTIPART) { 
+            next = parser.next();
+        }        
+        
+        final MimeDescriptorImpl mimeDescriptorImpl;
+        switch (next) {
+            case MimeTokenStream.T_BODY:
+                mimeDescriptorImpl = simplePartDescriptor(parser);
+                break;
+            case MimeTokenStream.T_START_MULTIPART:
+                mimeDescriptorImpl = compositePartDescriptor(parser);
+                break;
+            case MimeTokenStream.T_END_OF_STREAM:
+                throw new MimeException("Premature end of stream");
+            default:
+                throw new MimeException("Unexpected parse state");
+        }
+        return mimeDescriptorImpl;
+    }
+
+    private static MimeDescriptorImpl compositePartDescriptor(
+            final MimeTokenStream parser) throws IOException {
+        MaximalBodyDescriptor descriptor = (MaximalBodyDescriptor) parser.getBodyDescriptor();
+        MimeDescriptorImpl mimeDescriptor = createDescriptor(0, 0, descriptor);
+        int next = parser.next();
+        while (next != MimeTokenStream.T_END_MULTIPART && next != MimeTokenStream.T_END_OF_STREAM) {
+            if (next == MimeTokenStream.T_START_BODYPART) {
+                mimeDescriptor.addPart(createDescriptor(parser));
+            }
             next = parser.next();
         }
-        
-        if (next == MimeTokenStream.T_END_OF_STREAM) {
-            throw new MimeException("Premature end of stream");
-        }
-        
-        MaximalBodyDescriptor descriptor = (MaximalBodyDescriptor) parser.getBodyDescriptor();
+        return mimeDescriptor;
+    }
+    
+    private static MimeDescriptorImpl simplePartDescriptor(
+            final MimeTokenStream parser) throws IOException {
         final InputStream body = parser.getInputStream();
         long bodyOctets = 0;
         long lines = 0;
@@ -58,6 +91,14 @@ public class MimeDescriptorImpl implements MessageResult.MimeDescriptor {
             bodyOctets++;
         }
         
+        MaximalBodyDescriptor descriptor = (MaximalBodyDescriptor) parser.getBodyDescriptor();
+        final MimeDescriptorImpl mimeDescriptorImpl = createDescriptor(
+                bodyOctets, lines, descriptor);
+        return mimeDescriptorImpl;
+    }
+
+    private static MimeDescriptorImpl createDescriptor(long bodyOctets,
+            long lines, MaximalBodyDescriptor descriptor) {
         final String contentDescription = descriptor.getContentDescription();
         final String contentId = descriptor.getContentId();
         
@@ -86,6 +127,10 @@ public class MimeDescriptorImpl implements MessageResult.MimeDescriptor {
         if (header != null) {
             contentTypeParameters.add(header);
         }
+        final String boundary = descriptor.getBoundary();
+        if (boundary != null) {
+            contentTypeParameters.add(new Header("boundary", boundary));
+        }
         final List languages = descriptor.getContentLanguage();
         final String disposition = descriptor.getContentDispositionType();
         final Map dispositionParams = descriptor.getContentDispositionParameters();
@@ -93,9 +138,10 @@ public class MimeDescriptorImpl implements MessageResult.MimeDescriptor {
         final Collection parts = new ArrayList();
         final String location = descriptor.getContentLocation();
         final String md5 = descriptor.getContentMD5Raw();
-        return new MimeDescriptorImpl(bodyOctets, contentDescription, contentId, lines, subType, type, transferEncoding,
+        final MimeDescriptorImpl mimeDescriptorImpl = new MimeDescriptorImpl(bodyOctets, contentDescription, contentId, lines, subType, type, transferEncoding,
                 headers, contentTypeParameters, languages, disposition, dispositionParams, embeddedMessage, parts,
                 location, md5);
+        return mimeDescriptorImpl;
     }
     
     private final long bodyOctets;
@@ -183,6 +229,10 @@ public class MimeDescriptorImpl implements MessageResult.MimeDescriptor {
         return parts.iterator();
     }
 
+    private void addPart(MimeDescriptor descriptor) {
+        parts.add(descriptor);
+    }
+    
     public List getLanguages() {
         return languages;
     }

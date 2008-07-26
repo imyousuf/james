@@ -304,7 +304,7 @@ public class ExperimentalHostSystem implements HostSystem, UsersRepository {
     }
     
     static class ByteBufferOutputStream extends OutputStream {
-        ByteBuffer buffer = ByteBuffer.allocate(8192);
+        ByteBuffer buffer = ByteBuffer.allocate(16384);
         Charset ascii = Charset.forName("ASCII");
         Continuation continuation;
         boolean matchPlus = false;

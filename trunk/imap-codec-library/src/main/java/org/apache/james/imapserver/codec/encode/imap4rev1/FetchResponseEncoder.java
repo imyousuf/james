@@ -72,19 +72,19 @@ public class FetchResponseEncoder extends AbstractChainedImapEncoder {
     private void encodeBody(ImapResponseComposer composer, Structure body) throws IOException {
         if (body != null) {
             composer.message(ImapConstants.FETCH_BODY);
-            encodeStructure(composer, body, false);
+            encodeStructure(composer, body, false, false);
         }
     }
 
     private void encodeBodyStructure(ImapResponseComposer composer, Structure bodyStructure) throws IOException {
         if (bodyStructure != null) {
             composer.message(ImapConstants.FETCH_BODY_STRUCTURE);
-            encodeStructure(composer, bodyStructure, true);
+            encodeStructure(composer, bodyStructure, true, false);
         }
     }
     
     private void encodeStructure(final ImapResponseComposer composer, 
-            final Structure structure, final boolean includeExtensions) throws IOException {
+            final Structure structure, final boolean includeExtensions, final boolean isInnerPart) throws IOException {
         
         final String mediaType;
         final String subType;
@@ -96,11 +96,14 @@ public class FetchResponseEncoder extends AbstractChainedImapEncoder {
             mediaType = rawMediaType;
             subType = structure.getSubType();
         }
-        encodeStructure(composer, structure, includeExtensions, mediaType, subType);
+        encodeStructure(composer, structure, includeExtensions, mediaType, subType, isInnerPart);
     }
 
     private void encodeStructure(final ImapResponseComposer composer, final Structure structure, 
-            final boolean includeExtensions, final String mediaType, final String subType) throws IOException {
+            final boolean includeExtensions, final String mediaType, final String subType, boolean isInnerPart) throws IOException {
+        if (isInnerPart) {
+            composer.skipNextSpace();
+        }
         if (ImapConstants.MIME_TYPE_MULTIPART.equalsIgnoreCase(mediaType)) {
             
             encodeMultipart(composer, structure, subType, includeExtensions);
@@ -195,15 +198,16 @@ public class FetchResponseEncoder extends AbstractChainedImapEncoder {
         
         for (Iterator it = structure.parts(); it.hasNext();) {
             final Structure part = (Structure) it.next();
-            encodeStructure(composer, part, includeExtensions);
+            encodeStructure(composer, part, includeExtensions, true);
         }
         
+        composer.quoteUpperCaseAscii(subType);
         if (includeExtensions) {
             final String[] languages = languages(structure);
             composer.nillableQuotes(structure.getParameters());
             bodyFldDsp(structure, composer).nillableQuotes(languages).nillableQuote(structure.getLocation());
         }
-        composer.upperCaseAscii(subType).closeParen();
+        composer.closeParen();
     }
 
     private String[] languages(Structure structure) {
@@ -225,7 +229,7 @@ public class FetchResponseEncoder extends AbstractChainedImapEncoder {
         
         encodeBodyFields(composer, structure, mediaType, subType);
         encodeEnvelope(composer, envelope);
-        encodeStructure(composer, embeddedStructure, includeExtensions);
+        encodeStructure(composer, embeddedStructure, includeExtensions, true);
         composer.message(lines);
         
         if (includeExtensions) {

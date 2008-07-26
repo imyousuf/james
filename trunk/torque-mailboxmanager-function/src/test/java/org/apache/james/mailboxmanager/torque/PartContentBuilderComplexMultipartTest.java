@@ -24,6 +24,8 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.List;
 
+import org.apache.james.mailboxmanager.torque.PartContentBuilder.PartNotFoundException;
+
 import junit.framework.TestCase;
 
 public class PartContentBuilderComplexMultipartTest extends TestCase {
@@ -96,7 +98,23 @@ public class PartContentBuilderComplexMultipartTest extends TestCase {
     protected void tearDown() throws Exception {
         super.tearDown();
     }
-
+    
+    public void testShouldNotFoundSubPartOfNonMultiPartTopLevel() throws Exception {
+        int[] path = {1, 1};
+        for (int i=1;i<10;i++) {
+            path[1] = i;
+            checkNotPartFound(path);
+        }
+    }
+    
+    public void testShouldNotFoundSubPartOfNonMultiInnerPart() throws Exception {
+        int[] path = {2, 2, 1};
+        for (int i=1;i<10;i++) {
+            path[2] = i;
+            checkNotPartFound(path);
+        }
+    }
+    
     public void testShouldLocateOuterHtml() throws Exception {
         int[] path = {1};
         check(FULL_OUTER_HTML, OUTER_HTML_BODY, CONTENT_TYPE_HTML, path);
@@ -127,6 +145,15 @@ public class PartContentBuilderComplexMultipartTest extends TestCase {
         check(FULL_INNER_TXT, INNER_PLAIN_BODY, CONTENT_TYPE_PLAIN, path);
     }
   
+    private void checkNotPartFound(int[] position) throws Exception {
+        try {
+            to(position);
+            fail("Part does not exist. Expected exception to be thrown.");
+        } catch (PartNotFoundException e) {
+            // expected
+        }
+    }
+    
     private void check(String full, String body, String contentType, int[] position) throws Exception {
         checkContentType(contentType, position);
         assertEquals(body, bodyContent(position));
@@ -163,7 +190,7 @@ public class PartContentBuilderComplexMultipartTest extends TestCase {
     private void to(int[] path) throws Exception {
         InputStream in = new ByteArrayInputStream(Charset.forName("us-ascii").encode(MULTIPART_MIXED).array());
         builder.parse(in);
-        for (int i = 0; i < path.length; i++) {
+        for (int i=0;i<path.length;i++) {
             builder.to(path[i]);
         }
     }

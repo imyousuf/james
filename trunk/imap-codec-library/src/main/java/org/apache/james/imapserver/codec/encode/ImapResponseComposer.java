@@ -332,4 +332,6 @@ public interface ImapResponseComposer {
      * @throws IOException
      */
     public ImapResponseComposer nillableComposition(String masterQuote, String[] quotes) throws IOException;
+
+    public void skipNextSpace() throws IOException;
 }

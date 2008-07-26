@@ -35,6 +35,7 @@ public class PartContentBuilder {
     
     private MimeTokenStream parser;
     private boolean empty = false;
+    private boolean topLevel = true;
     
     public PartContentBuilder() {
         parser = new MimeTokenStream();
@@ -47,10 +48,27 @@ public class PartContentBuilder {
     public void parse(final InputStream in) {
         parser.setRecursionMode(MimeTokenStream.M_RECURSE);
         parser.parse(in);
+        topLevel = true;
     }
     
-    public void to(int position) throws IOException, MimeException {
+    private void skipToStartOfInner(int position) throws IOException {
+        final int state = parser.next();
+        switch (state) {
+            case MimeTokenStream.T_START_MULTIPART: break;
+            case MimeTokenStream.T_START_MESSAGE: break;
+            case MimeTokenStream.T_END_OF_STREAM: throw new PartNotFoundException(position);
+            case MimeTokenStream.T_END_BODYPART: throw new PartNotFoundException(position);
+            default: skipToStartOfInner(position);
+        }
+    }
+    
+    public void to(int position) throws IOException {
         try {
+            if (topLevel) {
+                topLevel = false;
+            } else {
+                skipToStartOfInner(position);
+            }
             for (int count=0;count<position;) {
                 final int state = parser.next();
                 switch (state) {
@@ -77,11 +95,11 @@ public class PartContentBuilder {
         }
     }
     
-    private void ignoreInnerMessage() throws IOException, MimeException {
+    private void ignoreInnerMessage() throws IOException {
         for (int state = parser.next(); state != MimeTokenStream.T_END_MULTIPART; state = parser.next()) {
             switch (state) {
                 case MimeTokenStream.T_END_OF_STREAM:
-                    throw new IOException("Unexpected EOF");
+                    throw new UnexpectedEOFException();
                     
                 case MimeTokenStream.T_START_MULTIPART:
                     ignoreInnerMessage();
@@ -90,61 +108,84 @@ public class PartContentBuilder {
         }
     }
     
-    public Content getFullContent() throws IOException, MimeException {
+    public Content getFullContent() throws IOException {
         final List headers = getMimeHeaders();
         final byte[] content = mimeBodyContent();
         return new FullContent(content, headers);
     }
     
-    public Content getMessageBodyContent() throws IOException, MimeException {
+    public Content getMessageBodyContent() throws IOException {
         final byte[] content = messageBodyContent();
         return new ByteContent(content);
     }
 
-    private byte[] messageBodyContent() throws IOException, MimeException {
+    private byte[] messageBodyContent() throws IOException {
         final byte[] content;
         if (empty) {
             content = EMPTY;
         } else {
-            advancedToMessage();
-            parser.setRecursionMode(MimeTokenStream.M_FLAT);
-            for ( int state = parser.getState(); 
-                    state != MimeTokenStream.T_BODY && state != MimeTokenStream.T_START_MULTIPART; 
-                    state = parser.next()) {
-                if (state == MimeTokenStream.T_END_OF_STREAM) {
-                    throw new IOException("Unexpected EOF");
-                }
+            boolean valid;
+            try 
+            {
+                advancedToMessage();
+                valid = true;
+            } catch (UnexpectedEOFException e) {
+                // No TEXT part
+                valid = false;
             }
-            content = MessageUtils.toByteArray(parser.getInputStream());
+            if (valid) {
+                parser.setRecursionMode(MimeTokenStream.M_FLAT);
+                for ( int state = parser.getState(); 
+                        state != MimeTokenStream.T_BODY && state != MimeTokenStream.T_START_MULTIPART; 
+                        state = parser.next()) {
+                    if (state == MimeTokenStream.T_END_OF_STREAM) {
+                        valid = false;
+                        break;
+                    }
+                }
+                if (valid) {
+                    content = MessageUtils.toByteArray(parser.getInputStream());
+                } else {
+                    content = EMPTY;
+                }
+            } else {
+                content = EMPTY;
+            }
         }
         return content;
     }
     
-    public Content getMimeBodyContent() throws IOException, MimeException {
+    public Content getMimeBodyContent() throws IOException {
         final byte[] content = mimeBodyContent();
         return new ByteContent(content);
     }
 
-    private byte[] mimeBodyContent() throws IOException, MimeException {
+    private byte[] mimeBodyContent() throws IOException {
         final byte[] content;
         if (empty) {
             content = EMPTY;
         } else {
             parser.setRecursionMode(MimeTokenStream.M_FLAT);
+            boolean valid = true;
             for ( int state = parser.getState(); 
                     state != MimeTokenStream.T_BODY && state != MimeTokenStream.T_START_MULTIPART; 
                     state = parser.next()) {
                 if (state == MimeTokenStream.T_END_OF_STREAM) {
-                    throw new IOException("Unexpected EOF");
+                    valid = false;
+                    break;
                 }
             }
-            content = MessageUtils.toByteArray(parser.getInputStream());
+            if (valid) {
+                content = MessageUtils.toByteArray(parser.getInputStream());
+            } else {
+                content = EMPTY;
+            }
         }
         String temp = new String(content);
         return content;
     }
     
-    public List getMimeHeaders() throws IOException, MimeException {
+    public List getMimeHeaders() throws IOException {
         final List results;
         if (empty) {
             results = Collections.EMPTY_LIST;
@@ -153,7 +194,7 @@ public class PartContentBuilder {
             for (int state = parser.getState(); state != MimeTokenStream.T_END_HEADER; state = parser.next()) {
                 switch (state) {
                     case MimeTokenStream.T_END_OF_STREAM:
-                        throw new IOException("Unexpected EOF");
+                        throw new UnexpectedEOFException();
                         
                     case MimeTokenStream.T_FIELD:
                         final String fieldValue = parser.getFieldValue().trim();
@@ -167,37 +208,51 @@ public class PartContentBuilder {
         return results;
     }
     
-    public List getMessageHeaders() throws IOException, MimeException {
+    public List getMessageHeaders() throws IOException {
         final List results;
         if (empty) {
             results = Collections.EMPTY_LIST;
         } else {
-            advancedToMessage();
-                
             results = new ArrayList();
-            for (int state = parser.getState(); state != MimeTokenStream.T_END_HEADER; state = parser.next()) {
-                switch (state) {
-                    case MimeTokenStream.T_END_OF_STREAM:
-                        throw new IOException("Unexpected EOF");
-                        
-                    case MimeTokenStream.T_FIELD:
-                        final String fieldValue = parser.getFieldValue().trim();
-                        final String fieldName = parser.getFieldName();
-                        Header header = new Header(fieldName, fieldValue);
-                        results.add(header);
-                        break;
+            try
+            {
+                advancedToMessage();
+                
+                for (int state = parser.getState(); state != MimeTokenStream.T_END_HEADER; state = parser.next()) {
+                    switch (state) {
+                        case MimeTokenStream.T_END_OF_STREAM:
+                            throw new IOException("Unexpected EOF");
+                            
+                        case MimeTokenStream.T_FIELD:
+                            final String fieldValue = parser.getFieldValue().trim();
+                            final String fieldName = parser.getFieldName();
+                            Header header = new Header(fieldName, fieldValue);
+                            results.add(header);
+                            break;
+                    }
                 }
+            } catch (UnexpectedEOFException e) {
+                // No headers found
             }
         }
         return results;
     }
 
-    private void advancedToMessage() throws IOException, MimeException {
+    private void advancedToMessage() throws IOException {
         for (int state = parser.getState(); state != MimeTokenStream.T_START_MESSAGE; state = parser.next()) {
             if (state == MimeTokenStream.T_END_OF_STREAM) {
-                throw new IOException("Unexpected EOF");
+                throw new UnexpectedEOFException();
             }
         }
+    }
+    
+    public static final class UnexpectedEOFException extends MimeException {
+
+        private static final long serialVersionUID = -3755637466593055796L;
+
+        public UnexpectedEOFException() {
+            super("Unexpected EOF");
+        }        
     }
     
     public static final class PartNotFoundException extends MimeException {
@@ -214,7 +269,7 @@ public class PartContentBuilder {
             super("Part " + position + " not found.", e);
             this.position = position;
         }
-
+        
         public final int getPosition() {
             return position;
         }
