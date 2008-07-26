@@ -7,8 +7,7 @@ S: \* 0 RECENT
 S: \* OK \[UIDVALIDITY \d+\]
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
 S: A3 OK \[READ-WRITE\] SELECT completed\.
-C: A4 APPEND testmailbox {8994+}
-C:  
+C: A4 APPEND testmailbox {8989+}
 C: Return-Path: <robertburrelldonkin@blueyonder.co.uk>
 C: Received: (qmail 18554 invoked from network); 25 May 2008 14:38:53 -0000
 C: Received: from unknown (HELO p3presmtp01-16.prod.phx3.secureserver.net)
@@ -49,7 +48,7 @@ C:         rdonkin@apache.org; Sun, 25 May 2008 15:38:14 +0100
 C: Subject: This is an example of a multipart mixed email with image content
 C: From: Robert Burrell Donkin <robertburrelldonkin@blueyonder.co.uk>
 C: To: Robert Burrell Donkin <rdonkin@apache.org>
-C: Content-Type: multipart/mixed; boundary=\"=-tIdGYVstQJghyEDATnJ+\"
+C: Content-Type: multipart/mixed; boundary="=-tIdGYVstQJghyEDATnJ+"
 C: Content-Location: http://www.example.org/
 C: Date: Sun, 25 May 2008 15:38:13 +0100
 C: Message-Id: <1211726293.5772.10.camel@localhost>
@@ -209,8 +208,7 @@ S: \* 1 FETCH \(\)
 S: \* 2 FETCH \(\)
 S: A6 OK FETCH completed\.
 C: A7 FETCH 1 (BODY[])
-S: \* 1 FETCH \(FLAGS \(\\Recent \\Seen\) BODY\[\] \{8994\}
-S:  
+S: \* 1 FETCH \(FLAGS \(\\Recent \\Seen\) BODY\[\] \{8989\}
 S: Return-Path: <robertburrelldonkin@blueyonder\.co\.uk>
 S: Received: \(qmail 18554 invoked from network\); 25 May 2008 14:38:53 -0000
 S: Received: from unknown \(HELO p3presmtp01-16\.prod\.phx3\.secureserver\.net\)
@@ -251,7 +249,7 @@ S:         rdonkin@apache\.org; Sun, 25 May 2008 15:38:14 \+0100
 S: Subject: This is an example of a multipart mixed email with image content
 S: From: Robert Burrell Donkin <robertburrelldonkin@blueyonder\.co\.uk>
 S: To: Robert Burrell Donkin <rdonkin@apache\.org>
-S: Content-Type: multipart/mixed; boundary=\\"=-tIdGYVstQJghyEDATnJ\+\\"
+S: Content-Type: multipart/mixed; boundary="=-tIdGYVstQJghyEDATnJ\+"
 S: Content-Location: http://www\.example\.org/
 S: Date: Sun, 25 May 2008 15:38:13 \+0100
 S: Message-Id: <1211726293\.5772\.10\.camel@localhost>
@@ -485,8 +483,7 @@ S:
 S: --=-tIdGYVstQJghyEDATnJ\+--\)
 S: A8 OK FETCH completed\.
 C: A9 FETCH 1 (BODY[HEADER])
-S: \* 1 FETCH \(BODY\[HEADER\] \{2867\}
-S:  
+S: \* 1 FETCH \(BODY\[HEADER\] \{2862\}
 S: Return-Path: <robertburrelldonkin@blueyonder\.co\.uk>
 S: Received: \(qmail 18554 invoked from network\); 25 May 2008 14:38:53 -0000
 S: Received: from unknown \(HELO p3presmtp01-16\.prod\.phx3\.secureserver\.net\)
@@ -527,7 +524,7 @@ S:         rdonkin@apache\.org; Sun, 25 May 2008 15:38:14 \+0100
 S: Subject: This is an example of a multipart mixed email with image content
 S: From: Robert Burrell Donkin <robertburrelldonkin@blueyonder\.co\.uk>
 S: To: Robert Burrell Donkin <rdonkin@apache\.org>
-S: Content-Type: multipart/mixed; boundary=\\"=-tIdGYVstQJghyEDATnJ\+\\"
+S: Content-Type: multipart/mixed; boundary="=-tIdGYVstQJghyEDATnJ\+"
 S: Content-Location: http://www\.example\.org/
 S: Date: Sun, 25 May 2008 15:38:13 \+0100
 S: Message-Id: <1211726293\.5772\.10\.camel@localhost>
@@ -594,19 +591,12 @@ S: \* 1 FETCH \(BODY\[3\.TEXT\] \{0\}
 S: \)
 S: A14 OK FETCH completed\.
 C: A15 FETCH 1 (BODY[3.1])
-S: \* 1 FETCH \(BODY\[3\.1\] \{492\}
-S: iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAIAAAACUFjqAAAAAXNSR0IArs4c6QAAAAlwSFlzAAAL
-S: EwAACxMBAJqcGAAAAAd0SU1FB9gFGQ4iJ99ufcYAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRo
-S: IEdJTVBXgQ4XAAAA0ElEQVQY02XMwUrDQBhF4XsnkyYhjWJaCloEN77/a/gERVwJLQiiNjYmbTqZ
-S: /7qIG/VsPziMTw\+23Wj/ovZdMQJgViCvWNVusfa23djuUf2nugbnI2RynkWF5a2Fwdvrs7q9vhqE
-S: E2QAEIO6BhZBerUf6luMw49NyTR0OLw5kJD9sqk4Ipwc6GAREv5n5piXTDOQfy1JMSs8ZgXKq2kF
-S: iwDgEriEecnLlefFEmGAIvqD4ggJJNMM85qLtXfX9xYGuEQ\+4/kIi0g88zlXd66\+\+QaQDG5GPZyp
-S: rQAAAABJRU5ErkJggg==
-S: 
+S: \* 1 FETCH \(BODY\[3\.1\] \{0\}
 S: \)
 S: A15 OK FETCH completed\.
 C: A16 FETCH 1 (BODY[3.2])
-S: \* 1 FETCH \(BODY\[3\.2\] NIL\)
+S: \* 1 FETCH \(BODY\[3\.2\] \{0\}
+S: \)
 S: A16 OK FETCH completed\.
 C: A17 FETCH 1 (BODY[4])
 S: \* 1 FETCH \(BODY\[4\] \{3193\}
@@ -654,86 +644,44 @@ S: Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb
 S: \)
 S: A17 OK FETCH completed\.
 C: A18 FETCH 1 (BODY[4.1])
-S: \* 1 FETCH \(BODY\[4\.1\] \{3193\}
-S: Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhu=
-S: barb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubar=
-S: b Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb R=
-S: hubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhub=
-S: arb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb=
-S:  Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rh=
-S: ubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhuba=
-S: rb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb =
-S: Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhu=
-S: barb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubar=
-S: b Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb R=
-S: hubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhub=
-S: arb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb=
-S:  Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rh=
-S: ubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhuba=
-S: rb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb =
-S: Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhu=
-S: barb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubar=
-S: b Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb R=
-S: hubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhub=
-S: arb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb=
-S:  Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rh=
-S: ubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhuba=
-S: rb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb =
-S: Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhu=
-S: barb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubar=
-S: b Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb R=
-S: hubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhub=
-S: arb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb=
-S:  Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rh=
-S: ubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhuba=
-S: rb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb =
-S: Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhu=
-S: barb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubar=
-S: b Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb R=
-S: hubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhub=
-S: arb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb=
-S:  Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rh=
-S: ubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhuba=
-S: rb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb =
-S: Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb Rhubarb
+S: \* 1 FETCH \(BODY\[4\.1\] \{0\}
 S: \)
 S: A18 OK FETCH completed\.
 C: A19 FETCH 1 (BODY[4.1.MIME])
-S: \* 1 FETCH \(BODY\[4\.1\.MIME\] \{354\}
-S: Content-Disposition: attachment; filename=rhubarb\.txt
-S: Content-Type: text/plain; name=rhubarb\.txt; charset=us-ascii
-S: Content-Language: en, en-US, en-CA, en-AU
-S: Content-Transfer-Encoding: quoted-printable
-S: Content-Location: "ftp://ftp\.example\.org/lots/lots/lots/
-S:                    lots/lots/lots/lots/lots/lots/lots/
-S:                    rhubard\.txt"
-S: 
+S: \* 1 FETCH \(BODY\[4\.1\.MIME\] \{0\}
 S: \)
 S: A19 OK FETCH completed\.
 C: A20 FETCH 1 (BODY[4.2])
-S: \* 1 FETCH \(BODY\[4\.2\] NIL\)
+S: \* 1 FETCH \(BODY\[4\.2\] \{0\}
+S: \)
 S: A20 OK FETCH completed\.
 C: A21 FETCH 1 (BODY[4.2.HEADER])
-S: \* 1 FETCH \(BODY\[4\.2\.HEADER\] NIL\)
+S: \* 1 FETCH \(BODY\[4\.2\.HEADER\] \{0\}
+S: \)
 S: A21 OK FETCH completed\.
 C: A22 FETCH 1 (BODY[4.2.TEXT])
-S: \* 1 FETCH \(BODY\[4\.2\.TEXT\] NIL\)
+S: \* 1 FETCH \(BODY\[4\.2\.TEXT\] \{0\}
+S: \)
 S: A22 OK FETCH completed\.
 C: A23 FETCH 1 (BODY[4.2.1])
-S: \* 1 FETCH \(BODY\[4\.2\.1\] NIL\)
+S: \* 1 FETCH \(BODY\[4\.2\.1\] \{0\}
+S: \)
 S: A23 OK FETCH completed\.
 C: A24 FETCH 1 (BODY[4.2.2])
-S: \* 1 FETCH \(BODY\[4\.2\.2\] NIL\)
+S: \* 1 FETCH \(BODY\[4\.2\.2\] \{0\}
+S: \)
 S: A24 OK FETCH completed\.
 C: A25 FETCH 1 (BODY[4.2.2.1])
-S: \* 1 FETCH \(BODY\[4\.2\.2\.1\] NIL\)
+S: \* 1 FETCH \(BODY\[4\.2\.2\.1\] \{0\}
+S: \)
 S: A25 OK FETCH completed\.
 C: A26 FETCH 1 (BODY[4.2.2.2])
-S: \* 1 FETCH \(BODY\[4\.2\.2\.2\] NIL\)
+S: \* 1 FETCH \(BODY\[4\.2\.2\.2\] \{0\}
+S: \)
 S: A26 OK FETCH completed\.
 C: A27 FETCH 1:* (BODY BODYSTRUCTURE)
-S: \* 1 FETCH \(BODY \(\("text" "plain" \("charset" "us-ascii"\) NIL NIL "7bit" 781 17\)\("image" "png" \("name" "blob\.png"\) NIL NIL "base64" 492\)\("image" "png" \("name" "blob\.png"\) NIL NIL "base64" 492\)\("text" "plain" \("name" "rhubarb\.txt" "charset" "us-ascii"\) NIL NIL "quoted-printable" 3193 41\)\("text" "plain" \("charset" "us-ascii"\) NIL NIL "7bit" 0 0\) "mixed"\) BODYSTRUCTURE \(\("text" "plain" \("charset" "us-ascii"\) NIL NIL "7bit" 781 17 NIL NIL NIL\)\("image" "png" \("name" "blob\.png"\) NIL NIL "base64" 492 NIL \("attachment" \("filename" "blob\.png" "modification-date" "Sun, 21 Jun 2008 15:32:18 \+0000" "creation-date" "Sat, 20 Jun 2008 10:15:09 \+0000" "read-date" "Mon, 22 Jun 2008 12:08:56 \+0000" "size" "482"\)\) NIL\)\("image" "png" \("name" "blob\.png"\) NIL NIL "base64" 492 NIL \("attachment" \("filename" "blob\.png"\)\) NIL\)\("text" "plain" \("name" "rhubarb\.txt" "charset" "us-ascii"\) NIL NIL "quoted-printable" 3193 41 NIL \("attachment" \("filename" "rhubarb\.txt"\)\) \("en" "en-US" "en-CA" "en-AU"\)\)\("text" "plain" \("charset" "us-ascii"\) NIL NIL "7bit" 0 0 NIL NIL NIL\) "mixed" \("boundary" ""\) NIL NIL\)\)
-S: \* 2 FETCH \(BODY \(\("text" "plain" \("charset" "US-ASCII"\) NIL NIL "7bit" 15 1\)\("text" "plain" \("charset" "US-ASCII"\) NIL NIL "7bit" 18 1\)\("text" "plain" \("charset" "US-ASCII"\) NIL NIL "7bit" 16 1\) "alternative"\) BODYSTRUCTURE \(\("text" "plain" \("charset" "US-ASCII"\) NIL NIL "7bit" 15 1 NIL NIL \("en" "en-US" "en-CA"\)\)\("text" "plain" \("charset" "US-ASCII"\) NIL NIL "7bit" 18 1 NIL NIL \("fr" "fr-Latn-CA"\)\)\("text" "plain" \("charset" "US-ASCII"\) NIL NIL "7bit" 16 1 NIL NIL \("nl-BE"\)\) "alternative" \("boundary" "1729"\) NIL NIL\)\)
+S: \* 1 FETCH \(BODY \(\("TEXT" "PLAIN" \("charset" "us-ascii"\) NIL NIL "7BIT" 781 17\)\("IMAGE" "PNG" \("name" "blob\.png"\) NIL NIL "BASE64" 492\)\("IMAGE" "PNG" \("name" "blob\.png"\) NIL NIL "BASE64" 492\)\("TEXT" "PLAIN" \("name" "rhubarb\.txt" "charset" "us-ascii"\) NIL NIL "QUOTED-PRINTABLE" 3193 41\) "MIXED"\) BODYSTRUCTURE \(\("TEXT" "PLAIN" \("charset" "us-ascii"\) NIL NIL "7BIT" 781 17 NIL NIL NIL "relative/license.txt"\)\("IMAGE" "PNG" \("name" "blob\.png"\) NIL NIL "BASE64" 492 NIL \("attachment" \("creation-date" "Sat, 20 Jun 2008 10:15:09 \+0000" "filename" "blob\.png" "modification-date" "Sun, 21 Jun 2008 15:32:18 \+0000" "read-date" "Mon, 22 Jun 2008 12:08:56 \+0000" "size" "482"\)\) NIL "http://www.example.org/blob.png"\)\("IMAGE" "PNG" \("name" "blob\.png"\) NIL NIL "BASE64" 492 NIL \("attachment" \("filename" "blob\.png"\)\) NIL "http://www.example.org/blob.png"\)\("TEXT" "PLAIN" \("name" "rhubarb\.txt" "charset" "us-ascii"\) NIL NIL "QUOTED-PRINTABLE" 3193 41 NIL \("attachment" \("filename" "rhubarb\.txt"\)\) \("en" "en-US" "en-CA" "en-AU"\) "ftp://ftp.example.org/lots/lots/lots/lots/lots/lots/lots/lots/lots/lots/rhubard.txt"\) "MIXED" \("boundary" "=-tIdGYVstQJghyEDATnJ\+"\) NIL NIL "http://www.example.org/"\)\)
+S: \* 2 FETCH \(BODY \(\("TEXT" "PLAIN" \("charset" "us-ascii"\) NIL NIL "7BIT" 15 1\)\("TEXT" "PLAIN" \("charset" "us-ascii"\) NIL NIL "7BIT" 18 1\)\("TEXT" "PLAIN" \("charset" "us-ascii"\) NIL NIL "7BIT" 16 1\) "ALTERNATIVE"\) BODYSTRUCTURE \(\("TEXT" "PLAIN" \("charset" "us-ascii"\) NIL NIL "7BIT" 15 1 NIL NIL \("en" "en-US" "en-CA"\) NIL\)\("TEXT" "PLAIN" \("charset" "us-ascii"\) NIL NIL "7BIT" 18 1 NIL NIL \("fr" "fr-Latn-CA"\) NIL\)\("TEXT" "PLAIN" \("charset" "us-ascii"\) NIL NIL "7BIT" 16 1 NIL NIL \("nl-BE"\) NIL\) "ALTERNATIVE" \("boundary" "1729"\) NIL NIL NIL\)\)
 S: A27 OK FETCH completed\.
 C: A28 DELETE testmailbox
 S: A28 OK DELETE completed\.
