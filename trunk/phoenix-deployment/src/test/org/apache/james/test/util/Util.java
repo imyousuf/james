@@ -35,20 +35,10 @@ import org.apache.james.smtpserver.core.RsetCmdHandler;
 import org.apache.james.smtpserver.core.SendMailHandler;
 import org.apache.james.smtpserver.core.VrfyCmdHandler;
 import org.apache.james.test.mock.avalon.MockLogger;
-import org.apache.james.test.mock.james.MockMailServer;
-import org.apache.james.test.mock.javaxmail.MockMimeMessage;
-import org.apache.james.test.mock.mailet.MockMail;
 import org.apache.james.test.mock.util.AttrValConfiguration;
-import org.apache.mailet.MailAddress;
-
-import javax.mail.MessagingException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.ParseException;
 
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.util.Arrays;
 
 /**
  * some utilities for James unit testing
@@ -139,46 +129,6 @@ public class Util {
         String classname = commandClass.getName();
         cmdHandlerConfig.setAttribute("class", classname);
         return cmdHandlerConfig;
-    }
-
-    public static MockMail createMockMail2Recipients(MimeMessage m) throws ParseException {
-        MockMail mockedMail = new MockMail();
-        mockedMail.setName(MockMailServer.newId());
-        mockedMail.setMessage(m);
-        mockedMail.setRecipients(Arrays.asList(new MailAddress[] {
-                new MailAddress("test@james.apache.org"),
-                new MailAddress("test2@james.apache.org") }));
-        return mockedMail;
-    }
-
-    public static MockMimeMessage createMimeMessage() throws MessagingException {
-        return createMimeMessage(null, null);
-    }
-    
-    public static MockMimeMessage createMimeMessageWithSubject(String subject) throws MessagingException {
-        return createMimeMessage(null, null, subject, 0);
-    }
-    
-    public static MockMimeMessage createMimeMessage(String subject, int number) throws MessagingException {
-        return createMimeMessage(null, null, subject, number);
-    }
-    
-    public static MockMimeMessage createMimeMessage(String headerName, String headerValue) throws MessagingException {
-        return createMimeMessage(headerName, headerValue, "testmail", 0);
-    }
-    
-    public static MockMimeMessage createMimeMessage(String headerName, String headerValue, String subject, int number) throws MessagingException {
-        String sender = "test@james.apache.org";
-        String rcpt = "test2@james.apache.org";
-
-        MockMimeMessage mockedMimeMessage = new MockMimeMessage(number);
-        mockedMimeMessage.setFrom(new InternetAddress(sender));
-        mockedMimeMessage.setRecipients(MimeMessage.RecipientType.TO, rcpt);
-        if (headerName != null) mockedMimeMessage.setHeader(headerName, headerValue);
-        if (subject != null) mockedMimeMessage.setSubject(subject);
-        mockedMimeMessage.setText("testtext");
-        mockedMimeMessage.saveChanges();
-        return mockedMimeMessage;
     }
 
     /**

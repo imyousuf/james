@@ -21,20 +21,22 @@
 
 package org.apache.james.management;
 
-import junit.framework.TestCase;
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockServiceManager;
 import org.apache.james.test.mock.avalon.MockStore;
 import org.apache.james.test.mock.james.InMemorySpoolRepository;
-import org.apache.james.test.mock.mailet.MockMail;
 import org.apache.james.test.mock.javaxmail.MockMimeMessage;
-import org.apache.james.test.util.Util;
+import org.apache.james.test.mock.mailet.MockMail;
+import org.apache.james.test.mock.util.MailUtil;
 import org.apache.mailet.Mail;
 
 import javax.mail.MessagingException;
+
 import java.util.HashMap;
+
+import junit.framework.TestCase;
 
 /**
  * Tests the SpoolManagement
@@ -158,16 +160,16 @@ public class SpoolManagementTest extends TestCase {
     }
 
     private MockMail createSpoolMail(String state, String subject, int number) throws MessagingException {
-        MockMimeMessage mimeMessage = Util.createMimeMessage(subject, number);
-        MockMail mockMail = Util.createMockMail2Recipients(mimeMessage);
+        MockMimeMessage mimeMessage = MailUtil.createMimeMessage(subject, number);
+        MockMail mockMail = MailUtil.createMockMail2Recipients(mimeMessage);
         mockMail.setState(state);
         m_mockSpoolRepository.store(mockMail);
         return mockMail;
     }
 
     private MockMail createSpoolMail(String state, String headerName, String headerRegex, int number) throws MessagingException {
-        MockMimeMessage mimeMessage = Util.createMimeMessage(headerName, headerRegex, "test", number);
-        MockMail mockMail = Util.createMockMail2Recipients(mimeMessage);
+        MockMimeMessage mimeMessage = MailUtil.createMimeMessage(headerName, headerRegex, "test", number);
+        MockMail mockMail = MailUtil.createMockMail2Recipients(mimeMessage);
         mockMail.setState(state);
         m_mockSpoolRepository.store(mockMail);
         return mockMail;

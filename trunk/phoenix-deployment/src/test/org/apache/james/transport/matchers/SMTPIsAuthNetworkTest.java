@@ -31,7 +31,7 @@ import junit.framework.TestCase;
 import org.apache.james.test.mock.mailet.MockMail;
 import org.apache.james.test.mock.mailet.MockMailContext;
 import org.apache.james.test.mock.mailet.MockMatcherConfig;
-import org.apache.james.test.util.Util;
+import org.apache.james.test.mock.util.MailUtil;
 import org.apache.mailet.Matcher;
 
 public class SMTPIsAuthNetworkTest extends TestCase {
@@ -54,7 +54,7 @@ public class SMTPIsAuthNetworkTest extends TestCase {
     }
 
     private void setupMockedMail() throws ParseException {
-        mockedMail = Util.createMockMail2Recipients(null);
+        mockedMail = MailUtil.createMockMail2Recipients(null);
         if (isAuthorized) {
             mockedMail.setAttribute(MAIL_ATTRIBUTE_NAME, "true");
         }

@@ -24,7 +24,7 @@ import junit.framework.TestCase;
 import org.apache.james.test.mock.mailet.MockMail;
 import org.apache.james.test.mock.mailet.MockMailContext;
 import org.apache.james.test.mock.mailet.MockMailetConfig;
-import org.apache.james.test.util.Util;
+import org.apache.james.test.mock.util.MailUtil;
 import org.apache.mailet.Mailet;
 
 import javax.mail.MessagingException;
@@ -76,7 +76,7 @@ public class MailAttributesToMimeHeadersTest extends TestCase {
     }
 
     private MockMail setupMail(MimeMessage m) throws ParseException {
-        MockMail mockedMail = Util.createMockMail2Recipients(m);
+        MockMail mockedMail = MailUtil.createMockMail2Recipients(m);
         mockedMail.setAttribute(MAIL_ATTRIBUTE_NAME1, MAIL_ATTRIBUTE_VALUE1);
         mockedMail.setAttribute(MAIL_ATTRIBUTE_NAME2, MAIL_ATTRIBUTE_VALUE2);
         return mockedMail;
@@ -84,7 +84,7 @@ public class MailAttributesToMimeHeadersTest extends TestCase {
 
     // test if the Headers were added
     public void testHeadersArePresent() throws MessagingException {
-        MockMail mockedMail = setupMail(Util.createMimeMessage());
+        MockMail mockedMail = setupMail(MailUtil.createMimeMessage());
         setupMailet();
 
         mailet.service(mockedMail);
@@ -100,7 +100,7 @@ public class MailAttributesToMimeHeadersTest extends TestCase {
     // test if exception was thrown
     public void testInvalidConfig() throws MessagingException {
         boolean exception = false;
-        MockMail mockedMail = setupMail(Util.createMimeMessage());
+        MockMail mockedMail = setupMail(MailUtil.createMimeMessage());
         setConfig1("test");
 
         try {
