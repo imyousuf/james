@@ -19,6 +19,9 @@
 
 package org.apache.james.test.mock.james;
 
+import org.apache.avalon.framework.activity.Disposable;
+import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.james.core.MailImpl;
 import org.apache.james.services.SpoolRepository;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.util.Lock;
@@ -44,7 +47,7 @@ import java.util.Iterator;
  * @version 1.0.0, 24/04/1999
  */
 public class InMemorySpoolRepository
-    implements SpoolRepository {
+    implements SpoolRepository, Disposable {
 
     /**
      * Whether 'deep debugging' is turned on.
@@ -136,7 +139,19 @@ public class InMemorySpoolRepository
                 }
             }
             try {
-                spool.put(key,mc);
+                // Remove any previous copy of this mail
+                if (spool.containsKey(key)) {
+                    // do not use this.remove because this would
+                    // also remove a current lock.
+                    Object o = spool.remove(key);
+                    ContainerUtil.dispose(o);
+                }
+                // Clone the mail (so the caller could modify it).
+                MailImpl m = new MailImpl(mc,mc.getName());
+                m.setState(mc.getState());
+                m.setLastUpdated(mc.getLastUpdated());
+                m.setErrorMessage(mc.getErrorMessage());
+                spool.put(mc.getName(),m);
             } finally {
                 if (!wasLocked) {
                     // If it wasn't locked, we need to unlock now
@@ -157,7 +172,7 @@ public class InMemorySpoolRepository
             }
 
         } catch (Exception e) {
-            getLogger().error("Exception storing mail: " + e);
+            getLogger().error("Exception storing mail: " + e,e);
             throw new MessagingException("Exception caught while storing Message Container: ",e);
         }
     }
@@ -176,7 +191,10 @@ public class InMemorySpoolRepository
         try {
             Mail mc = null;
             try {
-                mc = (Mail) spool.get(key);
+                mc = new MailImpl((Mail) spool.get(key),key);
+                mc.setState(((Mail) spool.get(key)).getState());
+                mc.setErrorMessage(((Mail) spool.get(key)).getErrorMessage());
+                mc.setLastUpdated(((Mail) spool.get(key)).getLastUpdated());
             } 
             catch (RuntimeException re){
                 StringBuffer exceptionBuffer = new StringBuffer(128);
@@ -230,7 +248,10 @@ public class InMemorySpoolRepository
     public void remove(String key) throws MessagingException {
         if (lock(key)) {
             try {
-                if (spool != null) spool.remove(key);
+                if (spool != null) {
+                    Object o = spool.remove(key);
+                    ContainerUtil.dispose(o);
+                }
             } finally {
                 unlock(key);
             }
@@ -414,7 +435,30 @@ public class InMemorySpoolRepository
     }
 
     public void clear() {
-        spool.clear();
+        if (spool != null) {
+            Iterator i = list();
+            while (i.hasNext()) {
+                String key = (String) i.next();
+                try {
+                    remove(key);
+                } catch (MessagingException e) {
+                }
+            }
+        }
+    }
+
+    public void dispose() {
+        clear();
+    }
+
+    public String toString() {
+        StringBuffer result = new StringBuffer();
+        result.append(super.toString());
+        Iterator i = list();
+        while (i.hasNext()) {
+            result.append("\n\t"+i.next());
+        }
+        return result.toString();
     }
     
 }
