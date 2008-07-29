@@ -24,7 +24,6 @@ import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
-import org.apache.james.smtpserver.MessageSizeException;
 import org.apache.james.userrepository.MockUsersRepository;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
@@ -82,11 +81,7 @@ public class MockMailServer implements MailServer, Disposable {
 
     public void sendMail(Mail mail) throws MessagingException {
         int bodySize = mail.getMessage().getSize();
-        try {
-            if (m_maxMessageSizeBytes != 0 && m_maxMessageSizeBytes < bodySize) throw new MessageSizeException();
-        } catch (MessageSizeException e) {
-            throw new MessagingException("message size exception is nested", e);
-        }
+        if (m_maxMessageSizeBytes != 0 && m_maxMessageSizeBytes < bodySize) throw new MessagingException("message size exception");
         
         lastMailKey = mail.getName();
         mails.store(mail);
