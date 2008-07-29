@@ -281,7 +281,7 @@ public class MimeMessageTest extends TestCase {
             res = outputHead.toString();
         }
         
-        res = res.replaceAll("----=_Part_\\d_\\d+\\.\\d+","----=_Part_\\0_XXXXXXXXXXX.XXXXXXXXXXX");
+        res = res.replaceAll("----=_Part_\\d+_\\d+\\.\\d+","----=_Part_\\0_XXXXXXXXXXX.XXXXXXXXXXX");
         return res;
     }
     
