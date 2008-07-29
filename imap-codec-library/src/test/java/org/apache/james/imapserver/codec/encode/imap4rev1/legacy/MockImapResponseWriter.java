@@ -420,5 +420,8 @@ public class MockImapResponseWriter implements ImapResponseWriter {
 
     public void quoteUpperCaseAscii(String message) throws IOException {
         operations.add(new UpperCaseASCIIOperation(message, true));
+    }
+
+    public void space() {
     }    
 }

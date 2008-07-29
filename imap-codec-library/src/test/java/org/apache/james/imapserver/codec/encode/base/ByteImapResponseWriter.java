@@ -161,7 +161,7 @@ public class ByteImapResponseWriter extends AbstractLogEnabled implements ImapCo
         skipNextSpace = true;
     }
     
-    private void space() {
+    public void space() {
         if (skipNextSpace) {
             skipNextSpace = false;
         } else {

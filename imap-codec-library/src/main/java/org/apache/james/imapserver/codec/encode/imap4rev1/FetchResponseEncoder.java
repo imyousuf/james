@@ -228,8 +228,8 @@ public class FetchResponseEncoder extends AbstractChainedImapEncoder {
         final FetchResponse.Structure embeddedStructure = structure.getBody();
         
         encodeBodyFields(composer, structure, mediaType, subType);
-        encodeEnvelope(composer, envelope);
-        encodeStructure(composer, embeddedStructure, includeExtensions, true);
+        encodeEnvelope(composer, envelope, false);
+        encodeStructure(composer, embeddedStructure, includeExtensions, false);
         composer.message(lines);
         
         if (includeExtensions) {
@@ -286,10 +286,11 @@ public class FetchResponseEncoder extends AbstractChainedImapEncoder {
 
     private void encodeEnvelope(final ImapResponseComposer composer, final FetchResponse fetchResponse) throws IOException {
         final FetchResponse.Envelope envelope = fetchResponse.getEnvelope();
-        encodeEnvelope(composer, envelope);
+        encodeEnvelope(composer, envelope, true);
     }
 
-    private void encodeEnvelope(final ImapResponseComposer composer, final FetchResponse.Envelope envelope) throws IOException {
+    private void encodeEnvelope(final ImapResponseComposer composer, final FetchResponse.Envelope envelope, 
+            boolean prefixWithName) throws IOException {
         if (envelope != null) {
             final String date = envelope.getDate();
             final String subject = envelope.getSubject();
@@ -302,7 +303,7 @@ public class FetchResponseEncoder extends AbstractChainedImapEncoder {
             final String inReplyTo = envelope.getInReplyTo();
             final String messageId = envelope.getMessageId();
             
-            composer.startEnvelope(date, subject);
+            composer.startEnvelope(date, subject, prefixWithName);
             encodeAddresses(composer, from);
             encodeAddresses(composer, sender);
             encodeAddresses(composer, replyTo);

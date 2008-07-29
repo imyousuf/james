@@ -195,7 +195,7 @@ public class ChannelImapResponseWriter extends AbstractLogEnabled implements Ima
         skipNextSpace = true;
     }
     
-    private void space() throws IOException {
+    public void space() throws IOException {
         if (skipNextSpace) {
             skipNextSpace = false;
         } else {
