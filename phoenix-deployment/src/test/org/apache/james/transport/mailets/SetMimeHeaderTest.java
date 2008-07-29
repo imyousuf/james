@@ -24,7 +24,7 @@ import junit.framework.TestCase;
 import org.apache.james.test.mock.mailet.MockMail;
 import org.apache.james.test.mock.mailet.MockMailContext;
 import org.apache.james.test.mock.mailet.MockMailetConfig;
-import org.apache.james.test.util.Util;
+import org.apache.james.test.mock.util.MailUtil;
 import org.apache.mailet.Mailet;
 
 import javax.mail.MessagingException;
@@ -67,8 +67,8 @@ public class SetMimeHeaderTest extends TestCase {
 
     // test if the Header was add
     public void testHeaderIsPresent() throws MessagingException {
-        MimeMessage mockedMimeMessage = Util.createMimeMessage(headerName, headerValue);
-        MockMail mockedMail = Util.createMockMail2Recipients(mockedMimeMessage);
+        MimeMessage mockedMimeMessage = MailUtil.createMimeMessage(headerName, headerValue);
+        MockMail mockedMail = MailUtil.createMockMail2Recipients(mockedMimeMessage);
         setupMailet();
 
         mailet.service(mockedMail);
@@ -83,8 +83,8 @@ public class SetMimeHeaderTest extends TestCase {
         setHeaderName(HEADER_NAME);
         setHeaderValue(headerValue);
 
-        MimeMessage mockedMimeMessage = Util.createMimeMessage(headerName, headerValue);
-        MockMail mockedMail = Util.createMockMail2Recipients(mockedMimeMessage);
+        MimeMessage mockedMimeMessage = MailUtil.createMimeMessage(headerName, headerValue);
+        MockMail mockedMail = MailUtil.createMockMail2Recipients(mockedMimeMessage);
         setupMailet();
 
         mailet.service(mockedMail);

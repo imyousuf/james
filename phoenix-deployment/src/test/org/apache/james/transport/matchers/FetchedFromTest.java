@@ -24,7 +24,7 @@ import junit.framework.TestCase;
 import org.apache.james.test.mock.mailet.MockMail;
 import org.apache.james.test.mock.mailet.MockMailContext;
 import org.apache.james.test.mock.mailet.MockMatcherConfig;
-import org.apache.james.test.util.Util;
+import org.apache.james.test.mock.util.MailUtil;
 import org.apache.mailet.Matcher;
 
 import javax.mail.MessagingException;
@@ -62,11 +62,11 @@ public class FetchedFromTest extends TestCase {
     }
 
     private void setupMockedMimeMessage() throws MessagingException {
-        mockedMimeMessage = Util.createMimeMessage(headerName, headerValue);
+        mockedMimeMessage = MailUtil.createMimeMessage(headerName, headerValue);
     }
 
     private void setupMockedMail(MimeMessage m) throws ParseException {
-        mockedMail = Util.createMockMail2Recipients(m);
+        mockedMail = MailUtil.createMockMail2Recipients(m);
     }
 
     private void setupMatcher() throws MessagingException {

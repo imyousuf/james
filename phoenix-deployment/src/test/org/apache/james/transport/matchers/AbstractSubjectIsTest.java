@@ -25,7 +25,7 @@ import org.apache.james.test.mock.javaxmail.MockMimeMessage;
 import org.apache.james.test.mock.mailet.MockMail;
 import org.apache.james.test.mock.mailet.MockMailContext;
 import org.apache.james.test.mock.mailet.MockMatcherConfig;
-import org.apache.james.test.util.Util;
+import org.apache.james.test.mock.util.MailUtil;
 import org.apache.mailet.Matcher;
 
 import javax.mail.MessagingException;
@@ -58,7 +58,7 @@ public abstract class AbstractSubjectIsTest extends TestCase {
     }
 
     protected void setupMockedMimeMessage() throws MessagingException {
-        mockedMimeMessage = Util.createMimeMessage("test", "test");
+        mockedMimeMessage = MailUtil.createMimeMessage("test", "test");
         mockedMimeMessage.setSubject(subject);
     }
 

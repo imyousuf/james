@@ -27,7 +27,7 @@ import javax.mail.internet.MimeMessage;
 import org.apache.james.test.mock.mailet.MockMail;
 import org.apache.james.test.mock.mailet.MockMailContext;
 import org.apache.james.test.mock.mailet.MockMailetConfig;
-import org.apache.james.test.util.Util;
+import org.apache.james.test.mock.util.MailUtil;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 
@@ -50,7 +50,7 @@ public class RemoveMimeHeaderTest extends TestCase {
     }
     
     private MimeMessage getMockedMimeMessage() throws MessagingException {
-        MimeMessage mockedMimeMessage = Util.createMimeMessage();
+        MimeMessage mockedMimeMessage = MailUtil.createMimeMessage();
         mockedMimeMessage.setHeader(HEADER1, "true");
         mockedMimeMessage.setHeader(HEADER2, "true");
         mockedMimeMessage.saveChanges();

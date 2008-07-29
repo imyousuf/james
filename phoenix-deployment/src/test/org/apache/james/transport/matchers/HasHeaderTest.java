@@ -24,7 +24,7 @@ import junit.framework.TestCase;
 import org.apache.james.test.mock.mailet.MockMail;
 import org.apache.james.test.mock.mailet.MockMailContext;
 import org.apache.james.test.mock.mailet.MockMatcherConfig;
-import org.apache.james.test.util.Util;
+import org.apache.james.test.mock.util.MailUtil;
 import org.apache.mailet.Matcher;
 
 import javax.mail.MessagingException;
@@ -61,7 +61,7 @@ public class HasHeaderTest extends TestCase {
     }
 
     private void setupMockedMimeMessage() throws MessagingException {
-        mockedMimeMessage = Util.createMimeMessage(headerName, headerValue);
+        mockedMimeMessage = MailUtil.createMimeMessage(headerName, headerValue);
     }
 
     private void setupMatcher() throws MessagingException {
@@ -78,7 +78,7 @@ public class HasHeaderTest extends TestCase {
         setHeaderValue(HEADER_VALUE);
 
         setupMockedMimeMessage();
-        mockedMail = Util.createMockMail2Recipients(mockedMimeMessage);
+        mockedMail = MailUtil.createMockMail2Recipients(mockedMimeMessage);
         setupMatcher();
 
         Collection matchedRecipients = matcher.match(mockedMail);
@@ -91,7 +91,7 @@ public class HasHeaderTest extends TestCase {
     // test if the Header was not matched
     public void testHeaderIsNotMatched() throws MessagingException {
         setupMockedMimeMessage();
-        mockedMail = Util.createMockMail2Recipients(mockedMimeMessage);
+        mockedMail = MailUtil.createMockMail2Recipients(mockedMimeMessage);
         setupMatcher();
 
         Collection matchedRecipients = matcher.match(mockedMail);

@@ -23,7 +23,7 @@ package org.apache.james.transport.mailets;
 import junit.framework.TestCase;
 import org.apache.james.test.mock.mailet.MockMailContext;
 import org.apache.james.test.mock.mailet.MockMailetConfig;
-import org.apache.james.test.util.Util;
+import org.apache.james.test.mock.util.MailUtil;
 import org.apache.mailet.Mail;
 import org.apache.mailet.Mailet;
 
@@ -44,7 +44,7 @@ public class RemoveAllMailAttributesTest extends TestCase {
     }
 
     private void setupMockedMail(MimeMessage m) throws ParseException {
-        mockedMail = Util.createMockMail2Recipients(m);
+        mockedMail = MailUtil.createMockMail2Recipients(m);
         mockedMail.setAttribute("org.apache.james.test.junit", "true");
 
     }

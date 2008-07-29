@@ -23,7 +23,7 @@ package org.apache.james.transport.mailets;
 import junit.framework.TestCase;
 import org.apache.james.test.mock.mailet.MockMailContext;
 import org.apache.james.test.mock.mailet.MockMailetConfig;
-import org.apache.james.test.util.Util;
+import org.apache.james.test.mock.util.MailUtil;
 import org.apache.mailet.Mail;
 import org.apache.mailet.Mailet;
 
@@ -57,7 +57,7 @@ public class SetMailAttributeTest extends TestCase {
 
     // test if the Header was add
     public void testMailAttributeAdded() throws MessagingException {
-        mockedMail = Util.createMockMail2Recipients(null);
+        mockedMail = MailUtil.createMockMail2Recipients(null);
         setupMailet();
 
         assertNull(mockedMail.getAttribute(ATTRIBUTE_NAME1));
