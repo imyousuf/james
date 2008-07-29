@@ -129,7 +129,7 @@ public class FetchResponseEncoderEnvelopeTest extends MockObjectTestCase {
     public void testShouldNilAllNullProperties() throws Exception {
         envelopExpects();
         mockComposer.expects(once()).method("openFetchResponse").with(eq((long)MSN)).id("open");
-        mockComposer.expects(once()).method("startEnvelope").with(NULL, NULL).after("open").id("start");
+        mockComposer.expects(once()).method("startEnvelope").with(NULL, NULL, eq(true)).after("open").id("start");
         mockComposer.expects(exactly(6)).method("nil").after("start").id("last");
         mockComposer.expects(once()).method("endEnvelope").with(NULL, NULL).after("last").id("end");
         mockComposer.expects(once()).method("closeFetchResponse").after("end");
@@ -141,7 +141,7 @@ public class FetchResponseEncoderEnvelopeTest extends MockObjectTestCase {
         date = "a date";
         envelopExpects();
         mockComposer.expects(once()).method("openFetchResponse").with(eq((long)MSN)).id("open");
-        mockComposer.expects(once()).method("startEnvelope").with(eq(date), NULL).after("open").id("start");
+        mockComposer.expects(once()).method("startEnvelope").with(eq(date), NULL, eq(true)).after("open").id("start");
         mockComposer.expects(exactly(6)).method("nil").after("start").id("last");
         mockComposer.expects(once()).method("endEnvelope").with(NULL, NULL).after("last").id("end");
         mockComposer.expects(once()).method("closeFetchResponse").after("end");
@@ -153,7 +153,7 @@ public class FetchResponseEncoderEnvelopeTest extends MockObjectTestCase {
         subject = "some subject";
         envelopExpects();
         mockComposer.expects(once()).method("openFetchResponse").with(eq((long)MSN)).id("open");
-        mockComposer.expects(once()).method("startEnvelope").with(NULL, eq(subject)).after("open").id("start");
+        mockComposer.expects(once()).method("startEnvelope").with(NULL, eq(subject), eq(true)).after("open").id("start");
         mockComposer.expects(exactly(6)).method("nil").after("start").id("last");
         mockComposer.expects(once()).method("endEnvelope").with(NULL, NULL).after("last").id("end");
         mockComposer.expects(once()).method("closeFetchResponse").after("end");
@@ -165,7 +165,7 @@ public class FetchResponseEncoderEnvelopeTest extends MockObjectTestCase {
         inReplyTo = "some reply to";
         envelopExpects();
         mockComposer.expects(once()).method("openFetchResponse").with(eq((long)MSN)).id("open");
-        mockComposer.expects(once()).method("startEnvelope").with(NULL, NULL).after("open").id("start");
+        mockComposer.expects(once()).method("startEnvelope").with(NULL, NULL, eq(true)).after("open").id("start");
         mockComposer.expects(exactly(6)).method("nil").after("start").id("last");
         mockComposer.expects(once()).method("endEnvelope").with(eq(inReplyTo), NULL).after("last").id("end");
         mockComposer.expects(once()).method("closeFetchResponse").after("end");
@@ -177,7 +177,7 @@ public class FetchResponseEncoderEnvelopeTest extends MockObjectTestCase {
         messageId = "some message id";
         envelopExpects();
         mockComposer.expects(once()).method("openFetchResponse").with(eq((long)MSN)).id("open");
-        mockComposer.expects(once()).method("startEnvelope").with(NULL, NULL).after("open").id("start");
+        mockComposer.expects(once()).method("startEnvelope").with(NULL, NULL, eq(true)).after("open").id("start");
         mockComposer.expects(exactly(6)).method("nil").after("start").id("last");
         mockComposer.expects(once()).method("endEnvelope").with(NULL, eq(messageId)).after("last").id("end");
         mockComposer.expects(once()).method("closeFetchResponse").after("end");
@@ -189,7 +189,7 @@ public class FetchResponseEncoderEnvelopeTest extends MockObjectTestCase {
         from = mockOneAddress();
         envelopExpects();
         mockComposer.expects(once()).method("openFetchResponse").with(eq((long)MSN)).id("open");
-        mockComposer.expects(once()).method("startEnvelope").with(NULL, NULL).after("open").id("start");
+        mockComposer.expects(once()).method("startEnvelope").with(NULL, NULL, eq(true)).after("open").id("start");
         mockComposer.expects(once()).method("startAddresses").after("start").id("start-from");
         mockComposer.expects(once()).method("address").with(eq(ADDRESS_ONE_NAME), eq(ADDRESS_ONE_DOMAIN_LIST), eq(ADDRESS_ONE_MAILBOX), eq(ADDRESS_ONE_HOST)).after("start-from").id("address-one");
         mockComposer.expects(once()).method("endAddresses").after("address-one").id("from");
@@ -204,7 +204,7 @@ public class FetchResponseEncoderEnvelopeTest extends MockObjectTestCase {
         from = mockManyAddresses();
         envelopExpects();
         mockComposer.expects(once()).method("openFetchResponse").with(eq((long)MSN)).id("open");
-        mockComposer.expects(once()).method("startEnvelope").with(NULL, NULL).after("open").id("start");
+        mockComposer.expects(once()).method("startEnvelope").with(NULL, NULL, eq(true)).after("open").id("start");
         mockComposer.expects(once()).method("startAddresses").after("start").id("start-from");
         mockComposer.expects(once()).method("address").with(eq(ADDRESS_ONE_NAME), eq(ADDRESS_ONE_DOMAIN_LIST), eq(ADDRESS_ONE_MAILBOX), eq(ADDRESS_ONE_HOST)).after("start-from").id("address-one");
         mockComposer.expects(once()).method("address").with(eq(ADDRESS_TWO_NAME), eq(ADDRESS_TWO_DOMAIN_LIST), eq(ADDRESS_TWO_MAILBOX), eq(ADDRESS_TWO_HOST)).after("address-one").id("address-two");
@@ -220,7 +220,7 @@ public class FetchResponseEncoderEnvelopeTest extends MockObjectTestCase {
         sender = mockOneAddress();
         envelopExpects();
         mockComposer.expects(once()).method("openFetchResponse").with(eq((long)MSN)).id("open");
-        mockComposer.expects(once()).method("startEnvelope").with(NULL, NULL).after("open").id("start");
+        mockComposer.expects(once()).method("startEnvelope").with(NULL, NULL, eq(true)).after("open").id("start");
         mockComposer.expects(exactly(1)).method("nil").after("start").id("before");
         mockComposer.expects(once()).method("startAddresses").after("before").id("start-addresses");
         mockComposer.expects(once()).method("address").with(eq(ADDRESS_ONE_NAME), eq(ADDRESS_ONE_DOMAIN_LIST), eq(ADDRESS_ONE_MAILBOX), eq(ADDRESS_ONE_HOST)).after("start-addresses").id("address-one");
@@ -236,7 +236,7 @@ public class FetchResponseEncoderEnvelopeTest extends MockObjectTestCase {
         sender = mockManyAddresses();
         envelopExpects();
         mockComposer.expects(once()).method("openFetchResponse").with(eq((long)MSN)).id("open");
-        mockComposer.expects(once()).method("startEnvelope").with(NULL, NULL).after("open").id("start");
+        mockComposer.expects(once()).method("startEnvelope").with(NULL, NULL, eq(true)).after("open").id("start");
         mockComposer.expects(exactly(1)).method("nil").after("start").id("before");
         mockComposer.expects(once()).method("startAddresses").after("before").id("start-addresses");
         mockComposer.expects(once()).method("address").with(eq(ADDRESS_ONE_NAME), eq(ADDRESS_ONE_DOMAIN_LIST), eq(ADDRESS_ONE_MAILBOX), eq(ADDRESS_ONE_HOST)).after("start-addresses").id("address-one");
@@ -254,7 +254,7 @@ public class FetchResponseEncoderEnvelopeTest extends MockObjectTestCase {
         replyTo = mockOneAddress();
         envelopExpects();
         mockComposer.expects(once()).method("openFetchResponse").with(eq((long)MSN)).id("open");
-        mockComposer.expects(once()).method("startEnvelope").with(NULL, NULL).after("open").id("start");
+        mockComposer.expects(once()).method("startEnvelope").with(NULL, NULL, eq(true)).after("open").id("start");
         mockComposer.expects(exactly(2)).method("nil").after("start").id("before");
         mockComposer.expects(once()).method("startAddresses").after("before").id("start-addresses");
         mockComposer.expects(once()).method("address").with(eq(ADDRESS_ONE_NAME), eq(ADDRESS_ONE_DOMAIN_LIST), eq(ADDRESS_ONE_MAILBOX), eq(ADDRESS_ONE_HOST)).after("start-addresses").id("address-one");
@@ -270,7 +270,7 @@ public class FetchResponseEncoderEnvelopeTest extends MockObjectTestCase {
         replyTo = mockManyAddresses();
         envelopExpects();
         mockComposer.expects(once()).method("openFetchResponse").with(eq((long)MSN)).id("open");
-        mockComposer.expects(once()).method("startEnvelope").with(NULL, NULL).after("open").id("start");
+        mockComposer.expects(once()).method("startEnvelope").with(NULL, NULL, eq(true)).after("open").id("start");
         mockComposer.expects(exactly(2)).method("nil").after("start").id("before");
         mockComposer.expects(once()).method("startAddresses").after("before").id("start-addresses");
         mockComposer.expects(once()).method("address").with(eq(ADDRESS_ONE_NAME), eq(ADDRESS_ONE_DOMAIN_LIST), eq(ADDRESS_ONE_MAILBOX), eq(ADDRESS_ONE_HOST)).after("start-addresses").id("address-one");
@@ -287,7 +287,7 @@ public class FetchResponseEncoderEnvelopeTest extends MockObjectTestCase {
         to = mockOneAddress();
         envelopExpects();
         mockComposer.expects(once()).method("openFetchResponse").with(eq((long)MSN)).id("open");
-        mockComposer.expects(once()).method("startEnvelope").with(NULL, NULL).after("open").id("start");
+        mockComposer.expects(once()).method("startEnvelope").with(NULL, NULL, eq(true)).after("open").id("start");
         mockComposer.expects(exactly(3)).method("nil").after("start").id("before");
         mockComposer.expects(once()).method("startAddresses").after("before").id("start-addresses");
         mockComposer.expects(once()).method("address").with(eq(ADDRESS_ONE_NAME), eq(ADDRESS_ONE_DOMAIN_LIST), eq(ADDRESS_ONE_MAILBOX), eq(ADDRESS_ONE_HOST)).after("start-addresses").id("address-one");
@@ -303,7 +303,7 @@ public class FetchResponseEncoderEnvelopeTest extends MockObjectTestCase {
         to = mockManyAddresses();
         envelopExpects();
         mockComposer.expects(once()).method("openFetchResponse").with(eq((long)MSN)).id("open");
-        mockComposer.expects(once()).method("startEnvelope").with(NULL, NULL).after("open").id("start");
+        mockComposer.expects(once()).method("startEnvelope").with(NULL, NULL, eq(true)).after("open").id("start");
         mockComposer.expects(exactly(3)).method("nil").after("start").id("before");
         mockComposer.expects(once()).method("startAddresses").after("before").id("start-addresses");
         mockComposer.expects(once()).method("address").with(eq(ADDRESS_ONE_NAME), eq(ADDRESS_ONE_DOMAIN_LIST), eq(ADDRESS_ONE_MAILBOX), eq(ADDRESS_ONE_HOST)).after("start-addresses").id("address-one");
@@ -321,7 +321,7 @@ public class FetchResponseEncoderEnvelopeTest extends MockObjectTestCase {
         cc = mockOneAddress();
         envelopExpects();
         mockComposer.expects(once()).method("openFetchResponse").with(eq((long)MSN)).id("open");
-        mockComposer.expects(once()).method("startEnvelope").with(NULL, NULL).after("open").id("start");
+        mockComposer.expects(once()).method("startEnvelope").with(NULL, NULL, eq(true)).after("open").id("start");
         mockComposer.expects(exactly(4)).method("nil").after("start").id("before");
         mockComposer.expects(once()).method("startAddresses").after("before").id("start-addresses");
         mockComposer.expects(once()).method("address").with(eq(ADDRESS_ONE_NAME), eq(ADDRESS_ONE_DOMAIN_LIST), eq(ADDRESS_ONE_MAILBOX), eq(ADDRESS_ONE_HOST)).after("start-addresses").id("address-one");
@@ -337,7 +337,7 @@ public class FetchResponseEncoderEnvelopeTest extends MockObjectTestCase {
         cc = mockManyAddresses();
         envelopExpects();
         mockComposer.expects(once()).method("openFetchResponse").with(eq((long)MSN)).id("open");
-        mockComposer.expects(once()).method("startEnvelope").with(NULL, NULL).after("open").id("start");
+        mockComposer.expects(once()).method("startEnvelope").with(NULL, NULL, eq(true)).after("open").id("start");
         mockComposer.expects(exactly(4)).method("nil").after("start").id("before");
         mockComposer.expects(once()).method("startAddresses").after("before").id("start-addresses");
         mockComposer.expects(once()).method("address").with(eq(ADDRESS_ONE_NAME), eq(ADDRESS_ONE_DOMAIN_LIST), eq(ADDRESS_ONE_MAILBOX), eq(ADDRESS_ONE_HOST)).after("start-addresses").id("address-one");
@@ -354,7 +354,7 @@ public class FetchResponseEncoderEnvelopeTest extends MockObjectTestCase {
         bcc = mockOneAddress();
         envelopExpects();
         mockComposer.expects(once()).method("openFetchResponse").with(eq((long)MSN)).id("open");
-        mockComposer.expects(once()).method("startEnvelope").with(NULL, NULL).after("open").id("start");
+        mockComposer.expects(once()).method("startEnvelope").with(NULL, NULL, eq(true)).after("open").id("start");
         mockComposer.expects(exactly(5)).method("nil").after("start").id("before");
         mockComposer.expects(once()).method("startAddresses").after("before").id("start-addresses");
         mockComposer.expects(once()).method("address").with(eq(ADDRESS_ONE_NAME), eq(ADDRESS_ONE_DOMAIN_LIST), eq(ADDRESS_ONE_MAILBOX), eq(ADDRESS_ONE_HOST)).after("start-addresses").id("address-one");
@@ -369,7 +369,7 @@ public class FetchResponseEncoderEnvelopeTest extends MockObjectTestCase {
         bcc = mockManyAddresses();
         envelopExpects();
         mockComposer.expects(once()).method("openFetchResponse").with(eq((long)MSN)).id("open");
-        mockComposer.expects(once()).method("startEnvelope").with(NULL, NULL).after("open").id("start");
+        mockComposer.expects(once()).method("startEnvelope").with(NULL, NULL, eq(true)).after("open").id("start");
         mockComposer.expects(exactly(5)).method("nil").after("start").id("before");
         mockComposer.expects(once()).method("startAddresses").after("before").id("start-addresses");
         mockComposer.expects(once()).method("address").with(eq(ADDRESS_ONE_NAME), eq(ADDRESS_ONE_DOMAIN_LIST), eq(ADDRESS_ONE_MAILBOX), eq(ADDRESS_ONE_HOST)).after("start-addresses").id("address-one");

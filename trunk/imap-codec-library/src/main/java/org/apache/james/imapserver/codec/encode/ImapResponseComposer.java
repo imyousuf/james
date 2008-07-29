@@ -180,10 +180,11 @@ public interface ImapResponseComposer {
      * Starts a <code>FETCH ENVELOPE</code> production.
      * @param date envelope date, or null for <code>NIL</code>
      * @param subject envelope subject, or null for <code>NIL</code>
+     * @param prefixWithName whether <code>ENVELOPE</code> should be prefixed
      * @throws IOException
      * @see {@link #endEnvelope(String, String)} must be called
      */
-    public abstract void startEnvelope(String date, String subject) throws IOException;
+    public abstract void startEnvelope(String date, String subject, boolean prefixWithName) throws IOException;
     
     /**
      * Starts a list of addresses.

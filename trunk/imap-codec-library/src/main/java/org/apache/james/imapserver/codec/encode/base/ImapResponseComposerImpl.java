@@ -534,8 +534,10 @@ public class ImapResponseComposerImpl extends AbstractLogEnabled implements
         openParen();
     }
 
-    public void startEnvelope(String date, String subject) throws IOException {
-        message(ENVELOPE);
+    public void startEnvelope(String date, String subject, boolean prefixWithName) throws IOException {
+        if (prefixWithName) {
+            message(ENVELOPE);
+        }
         openParen();
         nillableQuote(date);
         nillableQuote(subject);
@@ -575,7 +577,7 @@ public class ImapResponseComposerImpl extends AbstractLogEnabled implements
     }
 
     public ImapResponseComposer nillableQuotes(String[] quotes) throws IOException {
-        if (quotes == null) {
+        if (quotes == null || quotes.length == 0) {
             nil();
         } else {
             openParen();

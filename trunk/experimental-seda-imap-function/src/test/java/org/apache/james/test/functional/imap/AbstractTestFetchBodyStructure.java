@@ -50,4 +50,16 @@ public abstract class AbstractTestFetchBodyStructure extends AbstractTestSelecte
     public void testFetchFetchMultipartBodyStructureITALY() throws Exception {
         scriptTest("FetchMultipartBodyStructure", Locale.ITALY);
     }
+    
+    public void testFetchStructureEmbeddedUS() throws Exception {
+        scriptTest("FetchStructureEmbedded", Locale.US);
+    }
+
+    public void testFetchStructureEmbeddedITALY() throws Exception {
+        scriptTest("FetchStructureEmbedded", Locale.ITALY);
+    }
+
+    public void testFetchStructureEmbeddedKOREA() throws Exception {
+        scriptTest("FetchStructureEmbedded", Locale.KOREA);
+    }
 }
