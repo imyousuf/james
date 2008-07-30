@@ -927,6 +927,7 @@
       <version>1.5-SNAPSHOT</version>
     </dependency>
     -->
+    <!--
     <dependency>
       <groupId>javax.mail</groupId>
       <artifactId>mail</artifactId>
@@ -937,5 +938,6 @@
       <artifactId>activation</artifactId>
       <version>1.1.1</version>
     </dependency>
+    -->
   </dependencies>
 </project>
