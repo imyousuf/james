@@ -235,7 +235,7 @@
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-mailet-base</artifactId>
       <version>1.0-SNAPSHOT</version>
-      <type>test-jar</type>
+      <classifier>tests</classifier>
       <scope>test</scope>
     </dependency>
     <dependency>
