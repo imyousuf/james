@@ -24,6 +24,7 @@ import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
+import org.apache.james.test.mock.util.MailUtil;
 import org.apache.james.userrepository.MockUsersRepository;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
@@ -44,7 +45,6 @@ public class MockMailServer implements MailServer, Disposable {
 
     private final MockUsersRepository m_users = new MockUsersRepository();
 
-    private static int m_counter = 0;
     private int m_maxMessageSizeBytes = 0;
 
     // private final ArrayList mails = new ArrayList();
@@ -65,7 +65,7 @@ public class MockMailServer implements MailServer, Disposable {
         //        Object[] mailObjects = new Object[]{sender, recipients, new MimeMessageCopyOnWriteProxy(msg)};
 //        mails.add(mailObjects);
 //        
-        String newId = newId();
+        String newId = MailUtil.newId();
         MailImpl m = new MailImpl(newId, sender, recipients, msg);
         sendMail(m);
         m.dispose();
@@ -74,7 +74,7 @@ public class MockMailServer implements MailServer, Disposable {
     public void sendMail(MailAddress sender, Collection recipients, InputStream msg) throws MessagingException {
 //        Object[] mailObjects = new Object[]{sender, recipients, msg};
 //        mails.add(mailObjects);
-        MailImpl m = new MailImpl(newId(), sender, recipients, msg);
+        MailImpl m = new MailImpl(MailUtil.newId(), sender, recipients, msg);
         sendMail(m);
         m.dispose();
     }
@@ -128,12 +128,7 @@ public class MockMailServer implements MailServer, Disposable {
 
 
     public synchronized String getId() {
-        return newId();
-    }
-
-    public static String newId() {
-        m_counter++;
-        return "MockMailServer-ID-" + m_counter;
+        return MailUtil.newId();
     }
 
     public boolean addUser(String userName, String password) {
