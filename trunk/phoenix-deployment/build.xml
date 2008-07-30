@@ -927,6 +927,8 @@
                 <include name="${concurrent.jar}"/>
                 <include name='${derby.jar}'/>
                 <include name='${commons-beanutils.jar}'/>
+                <include name='${base-mailet.tests.jar}'/>
+                <include name='${std-mailet.tests.jar}'/>
             </fileset>
             <fileset dir="${lib.dir}/${path.lib.james}">
                   <include name="${jars-prefix}*-api-test-${version}.jar" />
