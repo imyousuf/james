@@ -95,7 +95,7 @@ public class RemoteManagerTestConfiguration extends DefaultConfiguration {
         
         // handlerConfig.addChild(Util.getValuedConfiguration("prompt", ">"));
 
-        handlerConfig.addChild(Util.createRemoteManagerHandlerChainConfiguration());
+        handlerConfig.addChild(createRemoteManagerHandlerChainConfiguration());
         addChild(handlerConfig);
         
         DefaultConfiguration commandConfiguration = new DefaultConfiguration("command");
@@ -103,5 +103,11 @@ public class RemoteManagerTestConfiguration extends DefaultConfiguration {
         
         addChild(commandConfiguration);
     }
+
+    public static DefaultConfiguration createRemoteManagerHandlerChainConfiguration() {
+        DefaultConfiguration handlerChainConfig = new DefaultConfiguration("test");
+        return handlerChainConfig;
+    }
+
 
 }
