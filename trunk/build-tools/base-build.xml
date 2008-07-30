@@ -216,6 +216,7 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
                     <include name="${commons-configuration.jar}"/>
                     <include name="${jsieve.jar}"/>
                     <include name="${mailet.jar}"/>
+                    <include name="${base-mailet.jar}"/>
                     <include name="${std-mailet.jar}"/>   
                     <include name="${commons-digester.jar}"/>    
                     <include name="${concurrent.jar}"/>  
@@ -225,7 +226,6 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
                     <include name="${jackrabbit-commons.jar}"/>
                     <include name="${jackrabbit-rmi.jar}"/>
                     <include name="${jcr.jar}"/>
-                    <include name="${base-mailet.jar}"/>
                     <include name="${spring.jar}"/>     
                     <include name="${log4j.jar}"/>     
                     <include name="${avalon-phoenix.jar}"/>     
@@ -239,6 +239,8 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
                     <include name="${commons-net.jar}"/>
                     <include name="${jmock.jar}"/>
                     <include name="${commons-beanutils.jar}"/>   
+                    <include name="${base-mailet.tests.jar}"/>
+                    <include name="${std-mailet.tests.jar}"/>   
                     <include name="${derby.jar}"/>    
                 </fileset>   
             </path>   
