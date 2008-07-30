@@ -21,8 +21,8 @@
 
 package org.apache.james.core;
 
-import org.apache.james.test.mock.james.MockMailServer;
 import org.apache.james.test.mock.javaxmail.MockMimeMessage;
+import org.apache.james.test.mock.util.MailUtil;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.Mail;
 
@@ -47,7 +47,7 @@ public class MailImplTest extends MailTestAllImplementations {
 
     public void testConstr2() throws MessagingException {
         ArrayList recepients = new ArrayList();
-        String name = MockMailServer.newId();
+        String name = MailUtil.newId();
         String sender = "sender@localhost";
         MailAddress senderMailAddress = new MailAddress(sender);
         MailImpl mail = new MailImpl(name, senderMailAddress, recepients);
@@ -64,7 +64,7 @@ public class MailImplTest extends MailTestAllImplementations {
 
     public void testConstr3() throws MessagingException {
         ArrayList recepients = new ArrayList();
-        String name = MockMailServer.newId();
+        String name = MailUtil.newId();
         String sender = "sender@localhost";
         MailAddress senderMailAddress = new MailAddress(sender);
         MockMimeMessage mimeMessage = new MockMimeMessage();

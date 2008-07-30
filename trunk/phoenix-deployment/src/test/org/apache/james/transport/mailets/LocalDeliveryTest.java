@@ -32,6 +32,7 @@ import org.apache.james.test.mock.javaxmail.MockMimeMessage;
 import org.apache.james.test.mock.mailet.MockMail;
 import org.apache.james.test.mock.mailet.MockMailContext;
 import org.apache.james.test.mock.mailet.MockMailetConfig;
+import org.apache.james.test.mock.util.MailUtil;
 import org.apache.james.userrepository.DefaultJamesUser;
 import org.apache.james.userrepository.MockUsersRepository;
 import org.apache.mailet.Mail;
@@ -287,7 +288,7 @@ public class LocalDeliveryTest extends TestCase {
             }
 
             public void sendMail(MailAddress sender, Collection recipients, MimeMessage msg, String state) throws MessagingException {
-                MailImpl m = new MailImpl(MockMailServer.newId(), sender, recipients, msg);
+                MailImpl m = new MailImpl(MailUtil.newId(), sender, recipients, msg);
                 m.setState(state);
                 mockMailServer.sendMail(m);
                 m.dispose();

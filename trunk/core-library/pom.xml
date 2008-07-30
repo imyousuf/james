@@ -146,5 +146,25 @@
       <groupId>mx4j</groupId>
       <artifactId>mx4j-jmx</artifactId>
     </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.excalibur.components</groupId>
+      <artifactId>excalibur-thread-impl</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.avalon.cornerstone.sockets</groupId>
+      <artifactId>cornerstone-sockets-impl</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-user-api</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 </project>
