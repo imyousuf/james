@@ -68,7 +68,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>apache-james-standard-mailets</artifactId>
+      <artifactId>standard-mailets</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
