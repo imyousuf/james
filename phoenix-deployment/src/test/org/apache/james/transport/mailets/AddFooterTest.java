@@ -19,7 +19,7 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.james.core.MailImpl;
+import org.apache.james.test.mock.mailet.MockMail;
 import org.apache.james.test.mock.mailet.MockMailContext;
 import org.apache.james.test.mock.mailet.MockMailetConfig;
 import org.apache.mailet.Mail;
@@ -293,7 +293,7 @@ public class AddFooterTest extends TestCase {
 
         mailet.init(mci);
 
-        Mail mail = new MailImpl();
+        Mail mail = new MockMail();
         mail.setMessage(new MimeMessage(Session
                 .getDefaultInstance(new Properties()),
                 new ByteArrayInputStream(asciisource.getBytes())));
