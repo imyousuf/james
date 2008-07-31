@@ -169,9 +169,9 @@ public class RemoteManagerTest extends TestCase {
         SimpleConnectionManager connectionManager = new SimpleConnectionManager();
         ContainerUtil.enableLogging(connectionManager, new MockLogger());
         serviceManager.put(JamesConnectionManager.ROLE, connectionManager);
-        mailServer = new MockMailServer();
+        m_mockUsersRepository = new MockUsersRepository();
+        mailServer = new MockMailServer(m_mockUsersRepository);
         serviceManager.put(MailServer.ROLE, mailServer);
-        m_mockUsersRepository = mailServer.getUsersRepository();
         serviceManager.put(UsersRepository.ROLE, m_mockUsersRepository);
         serviceManager.put(UsersStore.ROLE, new MockUsersStore(m_mockUsersRepository));
         serviceManager.put(SocketManager.ROLE, new MockSocketManager(m_remoteManagerListenerPort));

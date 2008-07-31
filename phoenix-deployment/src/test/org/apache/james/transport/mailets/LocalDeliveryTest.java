@@ -269,7 +269,7 @@ public class LocalDeliveryTest extends TestCase {
         u.setForwarding(true);
         u.setForwardingDestination(new MailAddress("localuser@ignoreddomain"));
         mockServiceManager.put(UsersRepository.ROLE,mockUsersRepository);
-        mockMailServer = new MockMailServer();
+        mockMailServer = new MockMailServer(mockUsersRepository);
         mailboxes = new HashMap();
         mailboxes.put("localuser", new InMemorySpoolRepository());
         mailboxes.put("aliasedUser", new InMemorySpoolRepository());
