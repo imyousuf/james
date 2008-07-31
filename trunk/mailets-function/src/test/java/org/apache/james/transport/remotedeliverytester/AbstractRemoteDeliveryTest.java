@@ -35,6 +35,7 @@ import java.util.Iterator;
 import java.util.Properties;
 import java.util.Random;
 
+import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 
 public abstract class AbstractRemoteDeliveryTest extends TestCase {
@@ -385,11 +386,19 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
         assertEquals(0, waitEmptySpool(10000));
         
         // Checks
-        assertWhole(tester.getTestStatus(), 5, 4);
-        assertServer(tester.getTestStatus(), servers[0][1], 5, 4);
-        assertEquals(2, tester.getProcMails().size());
-        assertProcMail(mails.get("a@test.it"), ProcMail.STATE_SENT_ERROR, 4, 1, servers[0][1]);
-        assertProcMail(mails.get("b@test.it"), ProcMail.STATE_SENT_ERROR, 1, 1, servers[0][1]);
+        try {
+            assertWhole(tester.getTestStatus(), 5, 4);
+            assertServer(tester.getTestStatus(), servers[0][1], 5, 4);
+            assertEquals(2, tester.getProcMails().size());
+            assertProcMail(mails.get("a@test.it"), ProcMail.STATE_SENT_ERROR, 4, 1, servers[0][1]);
+            assertProcMail(mails.get("b@test.it"), ProcMail.STATE_SENT_ERROR, 1, 1, servers[0][1]);
+        } catch (AssertionFailedError e) {
+            // TEMPORARILY add a dump stack on failure to 
+            // see if we have a deadlock (unlikely) or simply the
+            // notification is not working properly. (see JAMES-850)
+            Thread.dumpStack();
+            throw e;
+        }
     }
 
     /**
