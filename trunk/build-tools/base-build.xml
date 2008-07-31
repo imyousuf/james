@@ -242,6 +242,8 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
                     <include name="${base-mailet.tests.jar}"/>
                     <include name="${std-mailet.tests.jar}"/>   
                     <include name="${cornerstone-datasources-impl.jar}"/>
+                    <include name="${cornerstone-sockets-impl.jar}"/>
+                    <include name="${excalibur-thread-impl.jar}"/>
                     <include name="${derby.jar}"/>    
                 </fileset>   
             </path>   

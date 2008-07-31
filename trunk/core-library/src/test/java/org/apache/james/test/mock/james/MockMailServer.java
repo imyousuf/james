@@ -24,8 +24,8 @@ import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
+import org.apache.james.services.UsersRepository;
 import org.apache.james.test.mock.util.MailUtil;
-import org.apache.james.userrepository.MockUsersRepository;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
@@ -43,7 +43,7 @@ import java.util.Map;
 
 public class MockMailServer implements MailServer, Disposable {
 
-    private final MockUsersRepository m_users = new MockUsersRepository();
+    private final UsersRepository m_users;
 
     private int m_maxMessageSizeBytes = 0;
 
@@ -56,9 +56,8 @@ public class MockMailServer implements MailServer, Disposable {
     
     private boolean virtualHosting;
 
-    
-    public MockUsersRepository getUsersRepository() {
-        return m_users;
+    public MockMailServer(UsersRepository usersRepository) {
+        this.m_users = usersRepository;
     }
 
     public void sendMail(MailAddress sender, Collection recipients, MimeMessage msg) throws MessagingException {
