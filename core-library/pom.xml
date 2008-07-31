@@ -166,5 +166,10 @@
       <artifactId>james-server-user-api</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.apache.avalon.cornerstone.datasources</groupId>
+      <artifactId>cornerstone-datasources-impl</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 </project>
