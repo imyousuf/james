@@ -82,10 +82,6 @@
 <!--
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-imapmailbox-library</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
       <artifactId>james-server-imap-codec-library</artifactId>
     </dependency>
     <dependency>

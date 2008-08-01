@@ -38,7 +38,6 @@
     <module>user-api</module>
     <module>domain-api</module>
     <module>imap-api</module>
-    <module>imapmailbox-library</module>
     <module>imap-codec-library</module>
     <module>user-library</module>
     <module>core-library</module>
@@ -278,11 +277,6 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-mailbox-library</artifactId>
-      <version>3.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-imapmailbox-library</artifactId>
       <version>3.0-SNAPSHOT</version>
     </dependency>
     <dependency>
