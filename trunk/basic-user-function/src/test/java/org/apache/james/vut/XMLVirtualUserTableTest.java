@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 
-import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
@@ -40,7 +39,6 @@ import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.james.MockFileSystem;
 import org.apache.james.test.mock.util.AttrValConfiguration;
 
-import org.apache.james.test.util.Util;
 import org.apache.james.util.VirtualUserTableUtil;
 
 public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
@@ -49,7 +47,6 @@ public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
     protected AbstractVirtualUserTable getVirtalUserTable() throws Exception {
         DefaultServiceManager serviceManager = new DefaultServiceManager();
         serviceManager.put(FileSystem.ROLE, new MockFileSystem());
-        serviceManager.put(DataSourceSelector.ROLE, Util.getDataSourceSelector());
         serviceManager.put(DNSServer.ROLE, setUpDNSServer());
         XMLVirtualUserTable mr = new XMLVirtualUserTable();
         ContainerUtil.enableLogging(mr, new MockLogger());
@@ -90,7 +87,7 @@ public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
         }
     
         try {
-            ContainerUtil.configure(((XMLVirtualUserTable) virtualUserTable),defaultConfiguration);
+            ContainerUtil.configure(virtualUserTable,defaultConfiguration);
         } catch (ConfigurationException e) {
             if (mappings.size() > 0) {
                 return false;
