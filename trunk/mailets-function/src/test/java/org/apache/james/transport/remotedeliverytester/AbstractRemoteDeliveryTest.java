@@ -96,13 +96,9 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
         if (doTest == 0 || doTest == 10) doTest10(getDeliverer(), getParameters());
     }
 
-    /* Temporarily disabled. Maybe this randomly fails
-     * It's not clear if the issue is THIS specific test and if the random
-     * problem is in the RemoteDelivery code or in the test suite. 
     public void testMulti() throws Exception {
         if (doTest == 0 || doTest == -1) doTestMulti(getDeliverer(), getParameters());
     }
-    */
     
     protected void initEnvironment() {
         // Generate mock environment
@@ -717,7 +713,7 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
             results[i] = tester.service("M" + i, i + "@test.it", (String[]) rcpts.toArray(new String[0]), "Subject: test" + i + "\r\nContent-Transfer-Encoding: plain\r\n\r\nbody");
             synchronized(this) {
                 if (loopWait > 0) wait(loopWait);
-                if (loopWaitRandom > 0) wait(rnd.nextInt(loopWaitRandom));
+                if (loopWaitRandom > 0) wait(rnd.nextInt(loopWaitRandom)+1);
             }
         }
         
