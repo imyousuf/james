@@ -258,10 +258,6 @@
       <artifactId>excalibur-datasource</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-imapmailbox-library</artifactId>
-    </dependency>
-    <dependency>
       <groupId>dnsjava</groupId>
       <artifactId>dnsjava</artifactId>
     </dependency>
