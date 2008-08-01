@@ -44,10 +44,7 @@ public class SMTPTransport extends Transport {
     }
     
     protected SMTPTransport(Session session, URLName urlname, String s, int i, boolean flag) {
-        super(session, urlname);
-        owner = (Tester) session.getProperties().get("Tester");
-        connected = false;
-        if (owner == null) throw new IllegalStateException("Can only be used by a Tester");
+        this(session, urlname);
     }
 
     public synchronized void connect() throws MessagingException {
