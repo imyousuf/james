@@ -278,7 +278,7 @@ public class Tester {
         return ((List)hostAddresses.get(domainName)).iterator();
     }
     
-    public void onTransportConnect(SMTPTransport tester) throws MessagingException {
+    public synchronized void onTransportConnect(SMTPTransport tester) throws MessagingException {
         String server = getServerName(tester.getURLName());
         log("TRANSPORT", "Connection to " + server);
         
@@ -301,7 +301,7 @@ public class Tester {
         }
     }
 
-    public void onTransportSendMessage(SMTPTransport tester, Message message, Address[] recipients) throws MessagingException, SendFailedException {
+    public synchronized void onTransportSendMessage(SMTPTransport tester, Message message, Address[] recipients) throws MessagingException, SendFailedException {
         String server = getServerName(tester.getURLName());
         ProcMail.Listing listing = new ProcMail.Listing();
         Vector rules = new Vector();
@@ -390,7 +390,7 @@ public class Tester {
         return res.toString();
     }
 
-    public void onTransportClose(SMTPTransport tester) throws MessagingException {
+    public synchronized void onTransportClose(SMTPTransport tester) throws MessagingException {
         String server = getServerName(tester.getURLName());
         log("TRANSPORT", "Closing connection to " + server);
         
@@ -413,7 +413,7 @@ public class Tester {
         }
     }
 
-    public boolean OnTransportSupportsExtension(SMTPTransport tester, String arg0) {
+    public synchronized boolean OnTransportSupportsExtension(SMTPTransport tester, String arg0) {
         String server = getServerName(tester.getURLName());
         log("TRANSPORT", "Asking if " + server + " supports " + arg0);
         
