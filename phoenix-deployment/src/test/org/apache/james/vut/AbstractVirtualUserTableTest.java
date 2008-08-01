@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.vut;
 
 import java.net.InetAddress;
@@ -30,7 +28,7 @@ import java.util.Map;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.ServiceException;
-import org.apache.james.services.AbstractDNSServer;
+import org.apache.james.dnsserver.TemporaryResolutionException;
 import org.apache.james.services.DNSServer;
 import org.apache.james.services.VirtualUserTable;
 
@@ -95,7 +93,7 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
     
  
     protected DNSServer setUpDNSServer() {
-        DNSServer dns = new AbstractDNSServer() {
+        DNSServer dns = new DNSServer() {
             public String getHostName(InetAddress inet) {
                 return "test";
             }
@@ -106,6 +104,25 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
             
             public InetAddress getLocalHost() throws UnknownHostException {
                 return InetAddress.getLocalHost();
+            }
+
+            public Collection findMXRecords(String hostname)
+                    throws TemporaryResolutionException {
+                throw new UnsupportedOperationException("Should never be called");
+            }
+
+            public Collection findTXTRecords(String hostname) {
+                throw new UnsupportedOperationException("Should never be called");
+            }
+
+            public InetAddress getByName(String host)
+                    throws UnknownHostException {
+                throw new UnsupportedOperationException("Should never be called");
+            }
+
+            public Iterator getSMTPHostAddresses(String domainName)
+                    throws TemporaryResolutionException {
+                throw new UnsupportedOperationException("Should never be called");
             }
         };
         return dns;
