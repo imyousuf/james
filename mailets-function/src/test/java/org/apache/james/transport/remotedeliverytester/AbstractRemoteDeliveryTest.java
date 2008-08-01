@@ -29,11 +29,14 @@ import javax.mail.MessagingException;
 import javax.mail.SendFailedException;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
+import java.util.Set;
 
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
@@ -396,7 +399,22 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
             // TEMPORARILY add a dump stack on failure to 
             // see if we have a deadlock (unlikely) or simply the
             // notification is not working properly. (see JAMES-850)
-            Thread.dumpStack();
+            
+            // Use reflection to invoke java 1.5 stack functions.
+            try {
+                Method m = Thread.class.getMethod("getAllStackTraces", null);
+                Map stackDump = (Map) m.invoke(null, null);
+                Set threads = stackDump.keySet();
+                for (Iterator i = threads.iterator(); i.hasNext(); ) {
+                    Thread th = (Thread) i.next();
+                    System.out.println("Thread "+th);
+                    StackTraceElement[] stack = (StackTraceElement[]) stackDump.get(th);
+                    for (int k = 0; k < stack.length; k++) {
+                        System.out.println("STE: "+stack[k]);
+                    }
+                }
+            } catch (Exception reflectException) {
+            }
             throw e;
         }
     }
