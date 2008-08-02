@@ -50,7 +50,7 @@ public abstract class AbstractTestFetchBodyStructure extends AbstractTestSelecte
     public void testFetchFetchMultipartBodyStructureITALY() throws Exception {
         scriptTest("FetchMultipartBodyStructure", Locale.ITALY);
     }
-    
+
     public void testFetchStructureEmbeddedUS() throws Exception {
         scriptTest("FetchStructureEmbedded", Locale.US);
     }
@@ -61,5 +61,17 @@ public abstract class AbstractTestFetchBodyStructure extends AbstractTestSelecte
 
     public void testFetchStructureEmbeddedKOREA() throws Exception {
         scriptTest("FetchStructureEmbedded", Locale.KOREA);
+    }
+
+    public void testFetchStructureComplexUS() throws Exception {
+        scriptTest("FetchStructureComplex", Locale.US);
+    }
+
+    public void testFetchStructureComplexITALY() throws Exception {
+        scriptTest("FetchStructureComplex", Locale.ITALY);
+    }
+
+    public void testFetchStructureComplexKOREA() throws Exception {
+        scriptTest("FetchStructureComplex", Locale.KOREA);
     }
 }
