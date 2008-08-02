@@ -237,75 +237,87 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
     protected void doTest1(RemoteDeliveryTestable rd, Properties params) throws Exception {
         initEnvironment();
         Tester tester = new Tester(rd);
-        tester.init(serviceManager, params);
-        
-        // test initialization
-        tester.addDomainServer("test.it", "smtp://mail.test.it:25");
-        
-        ProcMail.Listing mails = tester.service("mail", "from@test.it", "to@test.it", "Subject: test\r\nContent-Transfer-Encoding: plain\r\n\r\nbody");
-
-        // Wait for empty spool
-        assertEquals(0, waitEmptySpool(5000));
-        
-        // checks
-        assertWhole(tester.getTestStatus(), 1, 1);
-        assertServer(tester.getTestStatus(), "smtp://mail.test.it:25", 1, 1);
-        assertEquals(1, tester.getProcMails().size());
-        assertProcMail(mails.get("to@test.it"), ProcMail.STATE_SENT, 1, 0, "smtp://mail.test.it:25");
+        try {
+            tester.init(serviceManager, params);
+            
+            // test initialization
+            tester.addDomainServer("test.it", "smtp://mail.test.it:25");
+            
+            ProcMail.Listing mails = tester.service("mail", "from@test.it", "to@test.it", "Subject: test\r\nContent-Transfer-Encoding: plain\r\n\r\nbody");
+    
+            // Wait for empty spool
+            assertEquals(0, waitEmptySpool(5000));
+            
+            // checks
+            assertWhole(tester.getTestStatus(), 1, 1);
+            assertServer(tester.getTestStatus(), "smtp://mail.test.it:25", 1, 1);
+            assertEquals(1, tester.getProcMails().size());
+            assertProcMail(mails.get("to@test.it"), ProcMail.STATE_SENT, 1, 0, "smtp://mail.test.it:25");
+        } finally {
+            tester.destroy();
+        }
     }
 
     protected void doTest2_0(RemoteDeliveryTestable rd, Properties params) throws Exception {
         initEnvironment();
         Tester tester = new Tester(rd);
-        tester.init(serviceManager, params);
-        
-        // test initialization
-        tester.addDomainServer("test.it", "smtp://mail.test.it:25", new TransportRule.Default() {
-            public void onConnect(Tester.TestStatus status, String server) throws MessagingException {
-                // Manda una connessione al connect, solo la prima connessione
-                if (status.getTransportServerConnectionCount(server) == 0) throw new MessagingException("Connect");
-            }
-        });
-        
-        ProcMail.Listing mails = tester.service("mail", "from@test.it", new String[] {"to@test.it", "other@test.it"}, "Subject: test\r\nContent-Transfer-Encoding: plain\r\n\r\nbody", new TransportRule.Default() {
-            public void onSendMessage(TestStatus status, String server, ProcMail.Listing pmails) throws MessagingException, SendFailedException {
-                // Manda una connessione al send, solo al primo send
-                if (status.getTransportServerSendCount(server) == 0) throw new MessagingException("Send");
-            }
-        });
-
-        // Wait for empty spool
-        assertEquals(0, waitEmptySpool(5000));
-        
-        // checks
-        assertWhole(tester.getTestStatus(), 4, 3);
-        assertServer(tester.getTestStatus(), "smtp://mail.test.it:25", 4, 3);
-        assertEquals(2, tester.getProcMails().size());
-        assertProcMail(mails.get("to@test.it"), ProcMail.STATE_SENT, 2, 0, "smtp://mail.test.it:25");
-        assertProcMail(mails.get("other@test.it"), ProcMail.STATE_SENT, 2, 0, "smtp://mail.test.it:25");
+        try {
+            tester.init(serviceManager, params);
+            
+            // test initialization
+            tester.addDomainServer("test.it", "smtp://mail.test.it:25", new TransportRule.Default() {
+                public void onConnect(Tester.TestStatus status, String server) throws MessagingException {
+                    // Manda una connessione al connect, solo la prima connessione
+                    if (status.getTransportServerConnectionCount(server) == 0) throw new MessagingException("Connect");
+                }
+            });
+            
+            ProcMail.Listing mails = tester.service("mail", "from@test.it", new String[] {"to@test.it", "other@test.it"}, "Subject: test\r\nContent-Transfer-Encoding: plain\r\n\r\nbody", new TransportRule.Default() {
+                public void onSendMessage(TestStatus status, String server, ProcMail.Listing pmails) throws MessagingException, SendFailedException {
+                    // Manda una connessione al send, solo al primo send
+                    if (status.getTransportServerSendCount(server) == 0) throw new MessagingException("Send");
+                }
+            });
+    
+            // Wait for empty spool
+            assertEquals(0, waitEmptySpool(5000));
+            
+            // checks
+            assertWhole(tester.getTestStatus(), 4, 3);
+            assertServer(tester.getTestStatus(), "smtp://mail.test.it:25", 4, 3);
+            assertEquals(2, tester.getProcMails().size());
+            assertProcMail(mails.get("to@test.it"), ProcMail.STATE_SENT, 2, 0, "smtp://mail.test.it:25");
+            assertProcMail(mails.get("other@test.it"), ProcMail.STATE_SENT, 2, 0, "smtp://mail.test.it:25");
+        } finally {
+            tester.destroy();
+        }
     }
     
     protected void doTest2(RemoteDeliveryTestable rd, Properties params) throws Exception {
         initEnvironment();
         Tester tester = new Tester(rd);
-        tester.init(serviceManager, params);
-        
-        String[][] servers = addServers(tester, new String[][] {
-                { "test.it", "smtp://mail-me-1-ok.*-me-1-ok.test.it:25" }
-        }, true);
-        
-
-        ProcMail.Listing mails = tester.service("mail", "from@test.it", new String[] {"to@test.it", "other@test.it"}, "Subject: test\r\nContent-Transfer-Encoding: plain\r\n\r\nbody");
-
-        // Wait for empty spool
-        assertEquals(0, waitEmptySpool(5000));
-        
-        // Checks
-        assertWhole(tester.getTestStatus(), 4, 3);
-        assertServer(tester.getTestStatus(), servers[0][1], 4, 3);
-        assertEquals(2, tester.getProcMails().size());
-        assertProcMail(mails.get("to@test.it"), ProcMail.STATE_SENT, 2, 0, servers[0][1]);
-        assertProcMail(mails.get("other@test.it"), ProcMail.STATE_SENT, 2, 0, servers[0][1]);
+        try {
+            tester.init(serviceManager, params);
+            
+            String[][] servers = addServers(tester, new String[][] {
+                    { "test.it", "smtp://mail-me-1-ok.*-me-1-ok.test.it:25" }
+            }, true);
+            
+    
+            ProcMail.Listing mails = tester.service("mail", "from@test.it", new String[] {"to@test.it", "other@test.it"}, "Subject: test\r\nContent-Transfer-Encoding: plain\r\n\r\nbody");
+    
+            // Wait for empty spool
+            assertEquals(0, waitEmptySpool(5000));
+            
+            // Checks
+            assertWhole(tester.getTestStatus(), 4, 3);
+            assertServer(tester.getTestStatus(), servers[0][1], 4, 3);
+            assertEquals(2, tester.getProcMails().size());
+            assertProcMail(mails.get("to@test.it"), ProcMail.STATE_SENT, 2, 0, servers[0][1]);
+            assertProcMail(mails.get("other@test.it"), ProcMail.STATE_SENT, 2, 0, servers[0][1]);
+        } finally {
+            tester.destroy();
+        }
     }
     
     /**
@@ -317,23 +329,27 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
     protected void doTest3(RemoteDeliveryTestable rd, Properties params) throws Exception {
         initEnvironment();
         Tester tester = new Tester(rd);
-        tester.init(serviceManager, params);
-        
-        String[][] servers = addServers(tester, new String[][] {
-                { "test.it", "smtp://s1-ok.a*-smtpafe400.test.it:25" }
-        }, true);
-        
-        ProcMail.Listing mails = tester.service("mail", "from@test.it", new String[] {"a@test.it", "b@test.it"}, "Subject: test\r\nContent-Transfer-Encoding: plain\r\n\r\nbody");
-
-        // Wait for empty spool
-        assertEquals(0, waitEmptySpool(5000));
-        
-        // Checks
-        assertWhole(tester.getTestStatus(), 2, 1);
-        assertServer(tester.getTestStatus(), servers[0][1], 2, 1);
-        assertEquals(2, tester.getProcMails().size());
-        assertProcMail(mails.get("a@test.it"), ProcMail.STATE_SENT_ERROR, 1, 1, servers[0][1]);
-        assertProcMail(mails.get("b@test.it"), ProcMail.STATE_SENT, 1, 0, servers[0][1]);
+        try {
+            tester.init(serviceManager, params);
+            
+            String[][] servers = addServers(tester, new String[][] {
+                    { "test.it", "smtp://s1-ok.a*-smtpafe400.test.it:25" }
+            }, true);
+            
+            ProcMail.Listing mails = tester.service("mail", "from@test.it", new String[] {"a@test.it", "b@test.it"}, "Subject: test\r\nContent-Transfer-Encoding: plain\r\n\r\nbody");
+    
+            // Wait for empty spool
+            assertEquals(0, waitEmptySpool(5000));
+            
+            // Checks
+            assertWhole(tester.getTestStatus(), 2, 1);
+            assertServer(tester.getTestStatus(), servers[0][1], 2, 1);
+            assertEquals(2, tester.getProcMails().size());
+            assertProcMail(mails.get("a@test.it"), ProcMail.STATE_SENT_ERROR, 1, 1, servers[0][1]);
+            assertProcMail(mails.get("b@test.it"), ProcMail.STATE_SENT, 1, 0, servers[0][1]);
+        } finally {
+            tester.destroy();
+        }
     }
 
     /**
@@ -345,23 +361,27 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
     protected void doTest4(RemoteDeliveryTestable rd, Properties params) throws Exception {
         initEnvironment();
         Tester tester = new Tester(rd);
-        tester.init(serviceManager, params);
-        
-        String[][] servers = addServers(tester, new String[][] {
-                { "test.it", "smtp://s1-ok.a*-smtpafe400V.test.it:25" }
-        }, true);
-        
-        ProcMail.Listing mails = tester.service("mail", "from@test.it", new String[] {"a@test.it", "b@test.it"}, "Subject: test\r\nContent-Transfer-Encoding: plain\r\n\r\nbody");
-
-        // Wait for empty spool
-        assertEquals(0, waitEmptySpool(10000));
-        
-        // Checks
-        assertWhole(tester.getTestStatus(), 5, 4);
-        assertServer(tester.getTestStatus(), servers[0][1], 5, 4);
-        assertEquals(2, tester.getProcMails().size());
-        assertProcMail(mails.get("a@test.it"), ProcMail.STATE_SENT_ERROR, 4, 1, servers[0][1]);
-        assertProcMail(mails.get("b@test.it"), ProcMail.STATE_SENT, 1, 0, servers[0][1]);
+        try {
+            tester.init(serviceManager, params);
+            
+            String[][] servers = addServers(tester, new String[][] {
+                    { "test.it", "smtp://s1-ok.a*-smtpafe400V.test.it:25" }
+            }, true);
+            
+            ProcMail.Listing mails = tester.service("mail", "from@test.it", new String[] {"a@test.it", "b@test.it"}, "Subject: test\r\nContent-Transfer-Encoding: plain\r\n\r\nbody");
+    
+            // Wait for empty spool
+            assertEquals(0, waitEmptySpool(10000));
+            
+            // Checks
+            assertWhole(tester.getTestStatus(), 5, 4);
+            assertServer(tester.getTestStatus(), servers[0][1], 5, 4);
+            assertEquals(2, tester.getProcMails().size());
+            assertProcMail(mails.get("a@test.it"), ProcMail.STATE_SENT_ERROR, 4, 1, servers[0][1]);
+            assertProcMail(mails.get("b@test.it"), ProcMail.STATE_SENT, 1, 0, servers[0][1]);
+        } finally {
+            tester.destroy();
+        }
     }
 
     /**
@@ -373,45 +393,49 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
     protected void doTest5(RemoteDeliveryTestable rd, Properties params) throws Exception {
         initEnvironment();
         Tester tester = new Tester(rd);
-        tester.init(serviceManager, params);
-        
-        String[][] servers = addServers(tester, new String[][] {
-                { "test.it", "smtp://s1-ok.a*-smtpafe411V.b*-smtpafe500.test.it:25" }
-        }, true);
-        
-        ProcMail.Listing mails = tester.service("mail", "from@test.it", new String[] {"a@test.it", "b@test.it"}, "Subject: test\r\nContent-Transfer-Encoding: plain\r\n\r\nbody");
-
-        // Wait for empty spool
-        assertEquals(0, waitEmptySpool(10000));
-        
-        // Checks
         try {
-            assertWhole(tester.getTestStatus(), 5, 4);
-            assertServer(tester.getTestStatus(), servers[0][1], 5, 4);
-            assertEquals(2, tester.getProcMails().size());
-            assertProcMail(mails.get("a@test.it"), ProcMail.STATE_SENT_ERROR, 4, 1, servers[0][1]);
-            assertProcMail(mails.get("b@test.it"), ProcMail.STATE_SENT_ERROR, 1, 1, servers[0][1]);
-        } catch (AssertionFailedError e) {
-            // TEMPORARILY add a dump stack on failure to 
-            // see if we have a deadlock (unlikely) or simply the
-            // notification is not working properly. (see JAMES-850)
+            tester.init(serviceManager, params);
             
-            // Use reflection to invoke java 1.5 stack functions.
+            String[][] servers = addServers(tester, new String[][] {
+                    { "test.it", "smtp://s1-ok.a*-smtpafe411V.b*-smtpafe500.test.it:25" }
+            }, true);
+            
+            ProcMail.Listing mails = tester.service("mail", "from@test.it", new String[] {"a@test.it", "b@test.it"}, "Subject: test\r\nContent-Transfer-Encoding: plain\r\n\r\nbody");
+    
+            // Wait for empty spool
+            assertEquals(0, waitEmptySpool(10000));
+            
+            // Checks
             try {
-                Method m = Thread.class.getMethod("getAllStackTraces", null);
-                Map stackDump = (Map) m.invoke(null, null);
-                Set threads = stackDump.keySet();
-                for (Iterator i = threads.iterator(); i.hasNext(); ) {
-                    Thread th = (Thread) i.next();
-                    System.out.println("Thread "+th);
-                    StackTraceElement[] stack = (StackTraceElement[]) stackDump.get(th);
-                    for (int k = 0; k < stack.length; k++) {
-                        System.out.println("STE: "+stack[k]);
+                assertWhole(tester.getTestStatus(), 5, 4);
+                assertServer(tester.getTestStatus(), servers[0][1], 5, 4);
+                assertEquals(2, tester.getProcMails().size());
+                assertProcMail(mails.get("a@test.it"), ProcMail.STATE_SENT_ERROR, 4, 1, servers[0][1]);
+                assertProcMail(mails.get("b@test.it"), ProcMail.STATE_SENT_ERROR, 1, 1, servers[0][1]);
+            } catch (AssertionFailedError e) {
+                // TEMPORARILY add a dump stack on failure to 
+                // see if we have a deadlock (unlikely) or simply the
+                // notification is not working properly. (see JAMES-850)
+                
+                // Use reflection to invoke java 1.5 stack functions.
+                try {
+                    Method m = Thread.class.getMethod("getAllStackTraces", null);
+                    Map stackDump = (Map) m.invoke(null, null);
+                    Set threads = stackDump.keySet();
+                    for (Iterator i = threads.iterator(); i.hasNext(); ) {
+                        Thread th = (Thread) i.next();
+                        System.out.println("Thread "+th);
+                        StackTraceElement[] stack = (StackTraceElement[]) stackDump.get(th);
+                        for (int k = 0; k < stack.length; k++) {
+                            System.out.println("  - "+stack[k]);
+                        }
                     }
+                } catch (Exception reflectException) {
                 }
-            } catch (Exception reflectException) {
+                throw e;
             }
-            throw e;
+        } finally {
+            tester.destroy();
         }
     }
 
@@ -424,34 +448,38 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
     protected void doTest6(RemoteDeliveryTestable rd, Properties params) throws Exception {
         initEnvironment();
         Tester tester = new Tester(rd);
-        tester.init(serviceManager, params);
-        
-        String[][] servers = addServers(tester, new String[][] {
-                { "test.it", "smtp://s1-ok.a*-smtpafe400V.b*-smtpafe500.test.it:25" },
-                { "test2.it", "smtp://s1-ok.a*-smtpafe400V.b*-smtpafe500.test2.it:25" }
-        }, true);
-        
-        ProcMail.Listing mails1 = tester.service("mail1", "from1@test.it", new String[] {"a@test.it", "b@test.it"}, "Subject: test1\r\nContent-Transfer-Encoding: plain\r\n\r\nbody");
-        ProcMail.Listing mails2 = tester.service("mail2", "from2@test.it", new String[] {"c@test2.it", "b@test2.it"}, "Subject: test2\r\nContent-Transfer-Encoding: plain\r\n\r\nbody");
-        ProcMail.Listing mails3 = tester.service("mail3", "from3@test.it", new String[] {"a@test.it", "b@test.it"}, "Subject: test3\r\nContent-Transfer-Encoding: plain\r\n\r\nbody");
-        ProcMail.Listing mails4 = tester.service("mail4", "from4@test.it", new String[] {"c@test2.it", "b@test2.it"}, "Subject: test4\r\nContent-Transfer-Encoding: plain\r\n\r\nbody");
-
-        // Wait for empty spool
-        assertEquals(0, waitEmptySpool(5000));
-        
-        // Checks
-        assertWhole(tester.getTestStatus(), 14, 10);
-        assertServer(tester.getTestStatus(), servers[0][1], 10, 8);
-        assertServer(tester.getTestStatus(), servers[1][1], 4, 2);
-        assertEquals(8, tester.getProcMails().size());
-        assertProcMail(mails1.get("a@test.it"), ProcMail.STATE_SENT_ERROR, 4, 1, servers[0][1]);
-        assertProcMail(mails1.get("b@test.it"), ProcMail.STATE_SENT_ERROR, 1, 1, servers[0][1]);
-        assertProcMail(mails2.get("b@test2.it"), ProcMail.STATE_SENT_ERROR, 1, 1, servers[1][1]);
-        assertProcMail(mails2.get("c@test2.it"), ProcMail.STATE_SENT, 1, 0, servers[1][1]);
-        assertProcMail(mails3.get("a@test.it"), ProcMail.STATE_SENT_ERROR, 4, 1, servers[0][1]);
-        assertProcMail(mails3.get("b@test.it"), ProcMail.STATE_SENT_ERROR, 1, 1, servers[0][1]);
-        assertProcMail(mails4.get("b@test2.it"), ProcMail.STATE_SENT_ERROR, 1, 1, servers[1][1]);
-        assertProcMail(mails4.get("c@test2.it"), ProcMail.STATE_SENT, 1, 0, servers[1][1]);
+        try {
+            tester.init(serviceManager, params);
+            
+            String[][] servers = addServers(tester, new String[][] {
+                    { "test.it", "smtp://s1-ok.a*-smtpafe400V.b*-smtpafe500.test.it:25" },
+                    { "test2.it", "smtp://s1-ok.a*-smtpafe400V.b*-smtpafe500.test2.it:25" }
+            }, true);
+            
+            ProcMail.Listing mails1 = tester.service("mail1", "from1@test.it", new String[] {"a@test.it", "b@test.it"}, "Subject: test1\r\nContent-Transfer-Encoding: plain\r\n\r\nbody");
+            ProcMail.Listing mails2 = tester.service("mail2", "from2@test.it", new String[] {"c@test2.it", "b@test2.it"}, "Subject: test2\r\nContent-Transfer-Encoding: plain\r\n\r\nbody");
+            ProcMail.Listing mails3 = tester.service("mail3", "from3@test.it", new String[] {"a@test.it", "b@test.it"}, "Subject: test3\r\nContent-Transfer-Encoding: plain\r\n\r\nbody");
+            ProcMail.Listing mails4 = tester.service("mail4", "from4@test.it", new String[] {"c@test2.it", "b@test2.it"}, "Subject: test4\r\nContent-Transfer-Encoding: plain\r\n\r\nbody");
+    
+            // Wait for empty spool
+            assertEquals(0, waitEmptySpool(5000));
+            
+            // Checks
+            assertWhole(tester.getTestStatus(), 14, 10);
+            assertServer(tester.getTestStatus(), servers[0][1], 10, 8);
+            assertServer(tester.getTestStatus(), servers[1][1], 4, 2);
+            assertEquals(8, tester.getProcMails().size());
+            assertProcMail(mails1.get("a@test.it"), ProcMail.STATE_SENT_ERROR, 4, 1, servers[0][1]);
+            assertProcMail(mails1.get("b@test.it"), ProcMail.STATE_SENT_ERROR, 1, 1, servers[0][1]);
+            assertProcMail(mails2.get("b@test2.it"), ProcMail.STATE_SENT_ERROR, 1, 1, servers[1][1]);
+            assertProcMail(mails2.get("c@test2.it"), ProcMail.STATE_SENT, 1, 0, servers[1][1]);
+            assertProcMail(mails3.get("a@test.it"), ProcMail.STATE_SENT_ERROR, 4, 1, servers[0][1]);
+            assertProcMail(mails3.get("b@test.it"), ProcMail.STATE_SENT_ERROR, 1, 1, servers[0][1]);
+            assertProcMail(mails4.get("b@test2.it"), ProcMail.STATE_SENT_ERROR, 1, 1, servers[1][1]);
+            assertProcMail(mails4.get("c@test2.it"), ProcMail.STATE_SENT, 1, 0, servers[1][1]);
+        } finally {
+            tester.destroy();
+        }
     }
 
     /**
@@ -463,29 +491,34 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
     protected void doTest7a(RemoteDeliveryTestable rd, Properties params) throws Exception {
         initEnvironment();
         Tester tester = new Tester(rd);
-        tester.init(serviceManager, params);
-        
-        String[][] servers = addServers(tester, new String[][] {
-                { "test.it", "smtp://s1-ok.a*-null.test.it:25" },
-        }, true);
-        
-        ProcMail.Listing mails1 = tester.service("M0", "from0@test.it", new String[] {"a@test.it", "b@test.it"}, "Subject: test1\r\nContent-Transfer-Encoding: plain\r\n\r\nbody");
-
-        // Wait for empty spool
-        //assertEquals(0, waitEmptySpool(5000));
-        assertEquals(0, waitEmptySpool(0));
-        
-        // Checks
-        assertWhole(tester.getTestStatus(), 2, 1);
-        assertServer(tester.getTestStatus(), servers[0][1], 2, 1);
-        assertEquals(2, tester.getProcMails().size());
-        assertProcMail(mails1.get("a@test.it"), ProcMail.STATE_SENT_ERROR, 1, 1, servers[0][1]);
-        assertProcMail(mails1.get("b@test.it"), ProcMail.STATE_SENT_ERROR, 1, 1, servers[0][1]);
+        try {
+            tester.init(serviceManager, params);
+            
+            String[][] servers = addServers(tester, new String[][] {
+                    { "test.it", "smtp://s1-ok.a*-null.test.it:25" },
+            }, true);
+            
+            ProcMail.Listing mails1 = tester.service("M0", "from0@test.it", new String[] {"a@test.it", "b@test.it"}, "Subject: test1\r\nContent-Transfer-Encoding: plain\r\n\r\nbody");
+    
+            // Wait for empty spool
+            //assertEquals(0, waitEmptySpool(5000));
+            assertEquals(0, waitEmptySpool(0));
+            
+            // Checks
+            assertWhole(tester.getTestStatus(), 2, 1);
+            assertServer(tester.getTestStatus(), servers[0][1], 2, 1);
+            assertEquals(2, tester.getProcMails().size());
+            assertProcMail(mails1.get("a@test.it"), ProcMail.STATE_SENT_ERROR, 1, 1, servers[0][1]);
+            assertProcMail(mails1.get("b@test.it"), ProcMail.STATE_SENT_ERROR, 1, 1, servers[0][1]);
+        } finally {
+            tester.destroy();
+        }
     }
     
     protected void doTest7b(RemoteDeliveryTestable rd, Properties params) throws Exception {
-            initEnvironment();
-            Tester tester = new Tester(rd);
+        initEnvironment();
+        Tester tester = new Tester(rd);
+        try {
             tester.init(serviceManager, params);
             
             String[][] servers = addServers(tester, new String[][] {
@@ -493,7 +526,7 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
             }, true);
             
             ProcMail.Listing mails1 = tester.service("M0", "from0@test.it", new String[] {"a@test.it", "b@test.it"}, "Subject: test1\r\nContent-Transfer-Encoding: plain\r\n\r\nbody");
-
+    
             // Wait for empty spool
             assertEquals(0, waitEmptySpool(5000));
             
@@ -503,7 +536,10 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
             assertEquals(2, tester.getProcMails().size());
             assertProcMail(mails1.get("a@test.it"), ProcMail.STATE_IDLE, 0, 1, null);
             assertProcMail(mails1.get("b@test.it"), ProcMail.STATE_IDLE, 0, 1, null);
+        } finally {
+            tester.destroy();
         }
+    }
 
     /**
      * Multiple mx servers for a single domain. One failing with a 400V on the first reception.
@@ -514,28 +550,32 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
     protected void doTest8(RemoteDeliveryTestable rd, Properties params) throws Exception {
         initEnvironment();
         Tester tester = new Tester(rd);
-        tester.init(serviceManager, params);
-        
-        String[][] servers = addServers(tester, new String[][] {
-            // a.it: all addresses ok.
-            { "a.it", "smtp://s1-ok.a.it:25", "smtp://s2-ok.a.it:25" },
+        try {
+            tester.init(serviceManager, params);
             
-            // b.it: one server always reply smtpafe400V, the other works.
-            { "b.it", "smtp://s1-ok.**-smtpafe400V.b.it:25", "smtp://s2-ok.b.it:25" },
-        }, true);
-        
-        ProcMail.Listing mails = tester.service("M0", "o@test.it", new String[] {"a@a.it", "b@b.it"}, "Subject: test0\r\nContent-Transfer-Encoding: plain\r\n\r\nbody");
-        //ProcMail.Listing mails = tester.service("M0", "o@test.it", new String[] {"b@b.it"}, "Subject: test0\r\nContent-Transfer-Encoding: plain\r\n\r\nbody");
-        // Wait for empty spool
-        assertEquals(0, waitEmptySpool(5000));
-        
-        // Checks
-        assertWhole(tester.getTestStatus(), -2, -2); // Almeno 2 connessioni deve averle fatte
-        assertServer(tester.getTestStatus(), servers[0][1], 1, 1);
-        assertServer(tester.getTestStatus(), servers[1][1], -1, -1);
-        assertEquals(2, tester.getProcMails().size());
-        assertProcMail(mails.get("a@a.it"), ProcMail.STATE_SENT, 1, 0, servers[0][1]);
-        assertProcMail(mails.get("b@b.it"), ProcMail.STATE_SENT, -1, 0, servers[1][2]);
+            String[][] servers = addServers(tester, new String[][] {
+                // a.it: all addresses ok.
+                { "a.it", "smtp://s1-ok.a.it:25", "smtp://s2-ok.a.it:25" },
+                
+                // b.it: one server always reply smtpafe400V, the other works.
+                { "b.it", "smtp://s1-ok.**-smtpafe400V.b.it:25", "smtp://s2-ok.b.it:25" },
+            }, true);
+            
+            ProcMail.Listing mails = tester.service("M0", "o@test.it", new String[] {"a@a.it", "b@b.it"}, "Subject: test0\r\nContent-Transfer-Encoding: plain\r\n\r\nbody");
+            //ProcMail.Listing mails = tester.service("M0", "o@test.it", new String[] {"b@b.it"}, "Subject: test0\r\nContent-Transfer-Encoding: plain\r\n\r\nbody");
+            // Wait for empty spool
+            assertEquals(0, waitEmptySpool(5000));
+            
+            // Checks
+            assertWhole(tester.getTestStatus(), -2, -2); // Almeno 2 connessioni deve averle fatte
+            assertServer(tester.getTestStatus(), servers[0][1], 1, 1);
+            assertServer(tester.getTestStatus(), servers[1][1], -1, -1);
+            assertEquals(2, tester.getProcMails().size());
+            assertProcMail(mails.get("a@a.it"), ProcMail.STATE_SENT, 1, 0, servers[0][1]);
+            assertProcMail(mails.get("b@b.it"), ProcMail.STATE_SENT, -1, 0, servers[1][2]);
+        } finally {
+            tester.destroy();
+        }
     }
 
     /**
@@ -544,29 +584,33 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
     protected void doTest9(RemoteDeliveryTestable rd, Properties params) throws Exception {
         initEnvironment();
         Tester tester = new Tester(rd);
-        tester.init(serviceManager, params);
-        
-        String[][] servers = addServers(tester, new String[][] {
-            // a.it: all addresses ok.
-            { "a.it", "smtp://s1-ok.a.it:25", "smtp://s2-ok.a.it:25" },
+        try {
+            tester.init(serviceManager, params);
             
-            // b.it: one server always reply smtpsfe500V, the other works.
-            { "b.it", "smtp://s1-me.b.it:25", "smtp://s2-ok.b.it:25" },
-        }, true);
-        
-        ProcMail.Listing mails = tester.service("M0", "o@test.it", new String[] {"a@a.it", "b@b.it"}, "Subject: test0\r\nContent-Transfer-Encoding: plain\r\n\r\nbody");
-        //ProcMail.Listing mails = tester.service("M0", "o@test.it", new String[] {"b@b.it"}, "Subject: test0\r\nContent-Transfer-Encoding: plain\r\n\r\nbody");
-        // Wait for empty spool
-        assertEquals(0, waitEmptySpool(5000));
-        
-        // Checks
-        assertWhole(tester.getTestStatus(), -2, -3); // Almeno 2 connessioni deve averle fatte
-        assertServer(tester.getTestStatus(), servers[0][1], 1, 1);
-        assertServer(tester.getTestStatus(), servers[1][1], 0, 1);
-        assertServer(tester.getTestStatus(), servers[1][2], 1, 1);
-        assertEquals(2, tester.getProcMails().size());
-        assertProcMail(mails.get("a@a.it"), ProcMail.STATE_SENT, 1, 0, servers[0][1]);
-        assertProcMail(mails.get("b@b.it"), ProcMail.STATE_SENT, 1, 0, servers[1][2]);
+            String[][] servers = addServers(tester, new String[][] {
+                // a.it: all addresses ok.
+                { "a.it", "smtp://s1-ok.a.it:25", "smtp://s2-ok.a.it:25" },
+                
+                // b.it: one server always reply smtpsfe500V, the other works.
+                { "b.it", "smtp://s1-me.b.it:25", "smtp://s2-ok.b.it:25" },
+            }, true);
+            
+            ProcMail.Listing mails = tester.service("M0", "o@test.it", new String[] {"a@a.it", "b@b.it"}, "Subject: test0\r\nContent-Transfer-Encoding: plain\r\n\r\nbody");
+            //ProcMail.Listing mails = tester.service("M0", "o@test.it", new String[] {"b@b.it"}, "Subject: test0\r\nContent-Transfer-Encoding: plain\r\n\r\nbody");
+            // Wait for empty spool
+            assertEquals(0, waitEmptySpool(5000));
+            
+            // Checks
+            assertWhole(tester.getTestStatus(), -2, -3); // Almeno 2 connessioni deve averle fatte
+            assertServer(tester.getTestStatus(), servers[0][1], 1, 1);
+            assertServer(tester.getTestStatus(), servers[1][1], 0, 1);
+            assertServer(tester.getTestStatus(), servers[1][2], 1, 1);
+            assertEquals(2, tester.getProcMails().size());
+            assertProcMail(mails.get("a@a.it"), ProcMail.STATE_SENT, 1, 0, servers[0][1]);
+            assertProcMail(mails.get("b@b.it"), ProcMail.STATE_SENT, 1, 0, servers[1][2]);
+        } finally {
+            tester.destroy();
+        }
     }
 
     /**
@@ -576,26 +620,30 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
    // creazione tester
         initEnvironment();
         Tester tester = new Tester(rd);
-        tester.init(serviceManager, params);
-        
-        String[][] servers = addServers(tester, new String[][] {
-            // i.it: ioexception (during connect or send for "a", depending on the server) 
-            { "i.it", "smtp://s1-io.i.it:25",  "smtp://s2-ok.a*-io.i.it:25"},
-        }, true);
-        
-        //ProcMail.Listing mails = tester.service("M0", "o@test.it", new String[] {"a@i.it", "b@i.it"}, "Subject: test0\r\nContent-Transfer-Encoding: plain\r\n\r\nbody");
-        ProcMail.Listing mails = tester.service("M0", "o@test.it", new String[] {"b@i.it"}, "Subject: test0\r\nContent-Transfer-Encoding: plain\r\n\r\nbody");
-
-        // Wait for empty spool
-        assertEquals(0, waitEmptySpool(5000));
-        
-        // Checks
-        assertWhole(tester.getTestStatus(), 1, 2); 
-        assertServer(tester.getTestStatus(), servers[0][1], 0, 1);
-        assertServer(tester.getTestStatus(), servers[0][2], 1, 1);
-        assertEquals(1, tester.getProcMails().size());
-        //assertProcMail(mails.get("a@i.it"), ProcMail.STATE_SENT_ERROR, 1, 0, servers[0][1]);
-        assertProcMail(mails.get("b@i.it"), ProcMail.STATE_SENT, -1, 0, servers[0][2]);
+        try {
+            tester.init(serviceManager, params);
+            
+            String[][] servers = addServers(tester, new String[][] {
+                // i.it: ioexception (during connect or send for "a", depending on the server) 
+                { "i.it", "smtp://s1-io.i.it:25",  "smtp://s2-ok.a*-io.i.it:25"},
+            }, true);
+            
+            //ProcMail.Listing mails = tester.service("M0", "o@test.it", new String[] {"a@i.it", "b@i.it"}, "Subject: test0\r\nContent-Transfer-Encoding: plain\r\n\r\nbody");
+            ProcMail.Listing mails = tester.service("M0", "o@test.it", new String[] {"b@i.it"}, "Subject: test0\r\nContent-Transfer-Encoding: plain\r\n\r\nbody");
+    
+            // Wait for empty spool
+            assertEquals(0, waitEmptySpool(5000));
+            
+            // Checks
+            assertWhole(tester.getTestStatus(), 1, 2); 
+            assertServer(tester.getTestStatus(), servers[0][1], 0, 1);
+            assertServer(tester.getTestStatus(), servers[0][2], 1, 1);
+            assertEquals(1, tester.getProcMails().size());
+            //assertProcMail(mails.get("a@i.it"), ProcMail.STATE_SENT_ERROR, 1, 0, servers[0][1]);
+            assertProcMail(mails.get("b@i.it"), ProcMail.STATE_SENT, -1, 0, servers[0][2]);
+        } finally {
+            tester.destroy();
+        }
     }
 
     protected String[][] getTestMultiServers() {
@@ -660,85 +708,89 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
         // creazione tester
         initEnvironment();
         Tester tester = new Tester(rd);
-        tester.init(serviceManager, params);
-        
-        // String[][] servers = 
-        addServers(tester, getTestMultiServers(), true);
-        String[][] emails = getTestMultiEmails();
-        
-        Random rnd = new Random();
-        ProcMail.Listing[] results = new ProcMail.Listing[loopCount];
-        for (int i = 0; i < loopCount; i++) {
-            // Calcolo recipients
-            ArrayList rcpts = new ArrayList();
-            int rcptn = rnd.nextInt(maxRecipientsPerEmail) + 1;
-            if (rnd.nextInt(100) < probRecipientsSameDomain) {
-                // same domain
-                int dom = rnd.nextInt(emails.length);
-                // for the domain we don't have more email, takes other domains emails
-                if (rcptn >= (emails[dom].length - 1) / 2) for (int j = 1; j < emails[dom].length; j += 2) rcpts.add(emails[dom][j]);
-                else {
-                    boolean[] got = new boolean[(emails[dom].length - 1) / 2];
-                    int done = 0;
-                    while (done < rcptn) {
-                        int t = rnd.nextInt((emails[dom].length - 1) / 2);
-                        if (!got[t]) {
-                            rcpts.add(emails[dom][t * 2 + 1]);
-                            got[t] = true;
-                            done++;
+        try {
+            tester.init(serviceManager, params);
+            
+            // String[][] servers = 
+            addServers(tester, getTestMultiServers(), true);
+            String[][] emails = getTestMultiEmails();
+            
+            Random rnd = new Random();
+            ProcMail.Listing[] results = new ProcMail.Listing[loopCount];
+            for (int i = 0; i < loopCount; i++) {
+                // Calcolo recipients
+                ArrayList rcpts = new ArrayList();
+                int rcptn = rnd.nextInt(maxRecipientsPerEmail) + 1;
+                if (rnd.nextInt(100) < probRecipientsSameDomain) {
+                    // same domain
+                    int dom = rnd.nextInt(emails.length);
+                    // for the domain we don't have more email, takes other domains emails
+                    if (rcptn >= (emails[dom].length - 1) / 2) for (int j = 1; j < emails[dom].length; j += 2) rcpts.add(emails[dom][j]);
+                    else {
+                        boolean[] got = new boolean[(emails[dom].length - 1) / 2];
+                        int done = 0;
+                        while (done < rcptn) {
+                            int t = rnd.nextInt((emails[dom].length - 1) / 2);
+                            if (!got[t]) {
+                                rcpts.add(emails[dom][t * 2 + 1]);
+                                got[t] = true;
+                                done++;
+                            }
                         }
                     }
+                } else {
+                    // multiple domains
+                    boolean got[][] = new boolean[emails.length][];
+                    for (int j = 0; j < emails.length; j++) got[j] = new boolean[1 + (emails[j].length - 1) / 2];
+                    int done = 0;
+                    int gotdepth = 0;
+                    while (done < rcptn && gotdepth < got.length) {
+                        int dom;
+                        do {dom = rnd.nextInt(got.length);} while (got[dom][0]);
+                        int t;
+                        do {t = rnd.nextInt(got[dom].length - 1);} while (got[dom][t + 1]);
+                        rcpts.add(emails[dom][t * 2 + 1]);
+                        got[dom][t + 1] = true;
+                        for (int j = 1; j < got[dom].length && got[dom][j]; j++) if (j == got[dom].length - 1) got[dom][0] = true;
+                        done ++;
+                    }
                 }
-            } else {
-                // multiple domains
-                boolean got[][] = new boolean[emails.length][];
-                for (int j = 0; j < emails.length; j++) got[j] = new boolean[1 + (emails[j].length - 1) / 2];
-                int done = 0;
-                int gotdepth = 0;
-                while (done < rcptn && gotdepth < got.length) {
-                    int dom;
-                    do {dom = rnd.nextInt(got.length);} while (got[dom][0]);
-                    int t;
-                    do {t = rnd.nextInt(got[dom].length - 1);} while (got[dom][t + 1]);
-                    rcpts.add(emails[dom][t * 2 + 1]);
-                    got[dom][t + 1] = true;
-                    for (int j = 1; j < got[dom].length && got[dom][j]; j++) if (j == got[dom].length - 1) got[dom][0] = true;
-                    done ++;
+                
+                System.out.println("------");
+                for (int j = 0; j < rcpts.size(); j++) System.out.println(rcpts.get(j)); 
+                
+                results[i] = tester.service("M" + i, i + "@test.it", (String[]) rcpts.toArray(new String[0]), "Subject: test" + i + "\r\nContent-Transfer-Encoding: plain\r\n\r\nbody");
+                synchronized(this) {
+                    if (loopWait > 0) wait(loopWait);
+                    if (loopWaitRandom > 0) wait(rnd.nextInt(loopWaitRandom)+1);
                 }
             }
             
-            System.out.println("------");
-            for (int j = 0; j < rcpts.size(); j++) System.out.println(rcpts.get(j)); 
+            // Wait for empty spool
+            assertEquals(0, waitEmptySpool(30000));
             
-            results[i] = tester.service("M" + i, i + "@test.it", (String[]) rcpts.toArray(new String[0]), "Subject: test" + i + "\r\nContent-Transfer-Encoding: plain\r\n\r\nbody");
-            synchronized(this) {
-                if (loopWait > 0) wait(loopWait);
-                if (loopWaitRandom > 0) wait(rnd.nextInt(loopWaitRandom)+1);
-            }
-        }
-        
-        // Wait for empty spool
-        assertEquals(0, waitEmptySpool(30000));
-        
-        Hashtable emailsRes = new Hashtable();
-        for (int i = 0; i < emails.length; i ++) for (int j = 1; j < emails[i].length; j += 2) emailsRes.put(emails[i][j], emails[i][j + 1]);
-        
-        boolean error = false;
-        for (int i = 0; i < results.length; i++) {
-            System.out.println("Call#" + i);
-            for (int j = 0; j < results[i].size(); j++) {
-                ProcMail pmail = results[i].get(j);
-                System.out.print(pmail.getKey() + " status:" + (pmail.getState() == ProcMail.STATE_SENT ? "SENT" : pmail.getState() == ProcMail.STATE_SENT_ERROR ? "ERR" : "" + pmail.getState() ) + " sends:" + pmail.getSendCount());
-                String res = (String) emailsRes.get(pmail.getRecipient().toString());
-                if (pmail.getState() == ProcMail.STATE_IDLE) pmail.setState(ProcMail.STATE_SENT_ERROR);
-                if (pmail.getState() != (res.equals("0") ? ProcMail.STATE_SENT_ERROR: ProcMail.STATE_SENT)) {
-                    System.out.print(" <<< ERROR");
-                    error = true;
+            Hashtable emailsRes = new Hashtable();
+            for (int i = 0; i < emails.length; i ++) for (int j = 1; j < emails[i].length; j += 2) emailsRes.put(emails[i][j], emails[i][j + 1]);
+            
+            boolean error = false;
+            for (int i = 0; i < results.length; i++) {
+                System.out.println("Call#" + i);
+                for (int j = 0; j < results[i].size(); j++) {
+                    ProcMail pmail = results[i].get(j);
+                    System.out.print(pmail.getKey() + " status:" + (pmail.getState() == ProcMail.STATE_SENT ? "SENT" : pmail.getState() == ProcMail.STATE_SENT_ERROR ? "ERR" : "" + pmail.getState() ) + " sends:" + pmail.getSendCount());
+                    String res = (String) emailsRes.get(pmail.getRecipient().toString());
+                    if (pmail.getState() == ProcMail.STATE_IDLE) pmail.setState(ProcMail.STATE_SENT_ERROR);
+                    if (pmail.getState() != (res.equals("0") ? ProcMail.STATE_SENT_ERROR: ProcMail.STATE_SENT)) {
+                        System.out.print(" <<< ERROR");
+                        error = true;
+                    }
+                    System.out.print("\n");
                 }
-                System.out.print("\n");
             }
+            assertFalse(error);
+        } finally {
+            tester.destroy();
         }
-        assertFalse(error);
     }
 
 }
