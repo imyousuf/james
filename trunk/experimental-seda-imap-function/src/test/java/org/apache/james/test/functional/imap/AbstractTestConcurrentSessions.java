@@ -17,13 +17,17 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.experimental.imapserver;
+package org.apache.james.test.functional.imap;
 
-import org.apache.james.test.functional.imap.AbstractTestSelectedState;
+import java.util.Locale;
 
-public class ExperimentalSelectedStateTest extends AbstractTestSelectedState {
+public abstract class AbstractTestConcurrentSessions extends AbstractSimpleScriptedTestProtocol {
 
-    public ExperimentalSelectedStateTest() throws Exception {
-        super(HostSystemFactory.createStandardImap());
+    public AbstractTestConcurrentSessions(HostSystem system) {
+        super(system);
+    }
+
+    public void testFetchEnvelopeUS() throws Exception {
+        //scriptTest("ConcurrentExistsResponse", Locale.US);
     }
 }

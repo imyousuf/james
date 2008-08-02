@@ -18,10 +18,11 @@
 ################################################################
 #Delete the first message, so that UIDs don't match MSNs
 C: a STORE 1 +FLAGS (\Deleted)
-S: \* 1 FETCH \(FLAGS \(\\Deleted\)\)
+S: \* 1 FETCH \(FLAGS \(\\Deleted \\Recent\)\)
 S: a OK STORE completed.
 C: a EXPUNGE
 S: \* 1 EXPUNGE
+S: \* 3 RECENT
 S: a OK EXPUNGE completed.
 
 #Regular fetch
@@ -38,28 +39,31 @@ S: \* 2 FETCH \(INTERNALDATE ".*" UID 3\)
 S: a OK FETCH completed.
 
 #UID store
-C: a UID STORE 2:3 +FLAGS (\Deleted)
-S: \* 1 FETCH \(FLAGS \(\\Deleted\) UID 2\)
-S: \* 2 FETCH \(FLAGS \(\\Deleted\) UID 3\)
-S: a OK STORE completed.
+C: a1 UID STORE 2:3 +FLAGS (\Deleted)
+S: \* 1 FETCH \(FLAGS \(\\Deleted \\Recent\) UID 2\)
+S: \* 2 FETCH \(FLAGS \(\\Deleted \\Recent\) UID 3\)
+S: a1 OK STORE completed.
 
 # Regular fetch
-C: a FETCH 1:100 (FLAGS UID)
-S: \* 1 FETCH \(FLAGS \(\\Deleted\) UID 2\)
-S: \* 2 FETCH \(FLAGS \(\\Deleted\) UID 3\)
-S: \* 3 FETCH \(FLAGS \(\) UID 4\)
-S: a OK FETCH completed.
+C: a2 FETCH 1:100 (FLAGS UID)
+S: \* 1 FETCH \(FLAGS \(\\Deleted \\Recent\) UID 2\)
+S: \* 2 FETCH \(FLAGS \(\\Deleted \\Recent\) UID 3\)
+S: \* 3 FETCH \(FLAGS \(\\Recent\) UID 4\)
+S: a2 OK FETCH completed.
 
 # CREATE and do a UID COPY
-C: a CREATE copied
-S: a OK CREATE completed.
+C: a3 CREATE copied
+S: a3 OK CREATE completed.
 
-C: a UID COPY 2 copied
-S: a OK COPY completed.
+C: a4 UID COPY 2 copied
+S: a4 OK COPY completed.
 
 C: a STATUS copied (MESSAGES)
-S: \* STATUS copied \(MESSAGES 1\)
+S: \* STATUS "copied" \(MESSAGES 1\)
 S: a OK STATUS completed.
+
+C: A003 STORE 1:4 +FLAGS.SILENT (\FLAGGED)
+S: A003 OK STORE completed.
 
 # Do a UID SEARCH
 C: a UID SEARCH FLAGGED
