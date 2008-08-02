@@ -35,7 +35,42 @@ public class CreateScript {
 
     public static final void main(String[] args) throws Exception {
         ScriptBuilder builder = ScriptBuilder.open("localhost", 143);
-        bodyStructureEmbedded(builder);
+        rfcFetch(builder);
+    }
+    
+    public static void rfcFetch(ScriptBuilder builder) throws Exception {
+        try {
+            setup(builder);
+            builder.append();
+            builder.setFile("wild-example.mail");
+            builder.append();
+            builder.setFile("multipart-alt.mail");
+            builder.append();
+            builder.setFile("multipart-mixed-complex.mail");
+            builder.append();
+            builder.setFile("rfc822-hello-world.mail");
+            builder.append();
+            builder.setFile("wild-mixed-alt.mail");
+            builder.append();
+            builder.setFile("wild-mixed.mail");
+            builder.append();
+            builder.setFile("rfc822-resent.mail");
+            builder.append();
+            builder.setFile("rfc822-trace.mail");
+            builder.append();
+            builder.setFile("wild-alt-reply4.mail");
+            builder.append();
+            builder.resetFetch().setRfc822Size(true);
+            builder.fetchAllMessages();
+            builder.resetFetch().setRfc(true);
+            builder.fetchAllMessages();
+            builder.resetFetch().setRfcHeaders(true);
+            builder.fetchAllMessages();
+            builder.resetFetch().setRfcText(true);
+            builder.fetchAllMessages();
+        } finally {
+            builder.quit();
+        }
     }
     
     public static void bodyStructureEmbedded(ScriptBuilder builder) throws Exception {
