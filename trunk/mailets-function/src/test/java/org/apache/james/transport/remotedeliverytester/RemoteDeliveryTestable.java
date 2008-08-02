@@ -39,4 +39,6 @@ public interface RemoteDeliveryTestable {
     void init() throws MessagingException;
     void init(MailetConfig newConfig) throws MessagingException;
     void service(Mail mail) throws MessagingException;
+    
+    void destroy();
 }

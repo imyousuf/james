@@ -617,4 +617,8 @@ protected void onOutgoingRemove(String key) {
         }
         
     }
+
+    public void destroy() {
+        remoteDelivery.destroy();
+    }
 }
