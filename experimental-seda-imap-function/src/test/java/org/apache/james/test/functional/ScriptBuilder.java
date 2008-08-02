@@ -866,6 +866,9 @@ public class ScriptBuilder {
         
         private boolean flagsFetch = false;
         private boolean rfc822Size = false;
+        private boolean rfc = false;
+        private boolean rfcText = false;
+        private boolean rfcHeaders = false;
         private boolean internalDate = false;
         private boolean uid = false;
         private String body = null;
@@ -925,6 +928,33 @@ public class ScriptBuilder {
             return this;
         }
         
+        public final boolean isRfc() {
+            return rfc;
+        }
+
+        public final Fetch setRfc(boolean rfc) {
+            this.rfc = rfc;
+            return this;
+        }
+
+        public final boolean isRfcHeaders() {
+            return rfcHeaders;
+        }
+
+        public final Fetch setRfcHeaders(boolean rfcHeaders) {
+            this.rfcHeaders = rfcHeaders;
+            return this;
+        }
+
+        public final boolean isRfcText() {
+            return rfcText;
+        }
+
+        public final Fetch setRfcText(boolean rfcText) {
+            this.rfcText = rfcText;
+            return this;
+        }
+
         public final boolean isInternalDate() {
             return internalDate;
         }
@@ -991,6 +1021,15 @@ public class ScriptBuilder {
             }
             if (rfc822Size) {
                 first = add(buffer, first, "RFC822.SIZE");
+            }
+            if (rfc) {
+                first = add(buffer, first, "RFC822");
+            }
+            if (rfcHeaders) {
+                first = add(buffer, first, "RFC822.HEADER");
+            }
+            if (rfcText) {
+                first = add(buffer, first, "RFC822.TEXT");
             }
             if (internalDate) {
                 first = add(buffer, first, "INTERNALDATE");
@@ -1255,7 +1294,7 @@ public class ScriptBuilder {
                                         "OK Logged in",
                                         "LOGOUT"};
         
-        private final CharBuffer lineBuffer = CharBuffer.allocate(65536);
+        private final CharBuffer lineBuffer = CharBuffer.allocate(131072);
         private boolean isClient = false;
         public void client() {
             lineBuffer.put("C: ");
