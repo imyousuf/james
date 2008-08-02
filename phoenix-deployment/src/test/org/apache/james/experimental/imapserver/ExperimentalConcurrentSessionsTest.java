@@ -19,11 +19,12 @@
 
 package org.apache.james.experimental.imapserver;
 
-import org.apache.james.test.functional.imap.AbstractTestSelectedState;
+import org.apache.james.test.functional.imap.AbstractTestConcurrentSessions;
 
-public class ExperimentalSelectedStateTest extends AbstractTestSelectedState {
+public class ExperimentalConcurrentSessionsTest extends AbstractTestConcurrentSessions {
 
-    public ExperimentalSelectedStateTest() throws Exception {
+    public ExperimentalConcurrentSessionsTest() throws Exception {
         super(HostSystemFactory.createStandardImap());
     }
+
 }

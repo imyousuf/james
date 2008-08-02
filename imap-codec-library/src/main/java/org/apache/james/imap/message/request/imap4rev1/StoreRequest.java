@@ -96,4 +96,41 @@ public class StoreRequest extends AbstractImapRequest {
     public final boolean isUseUids() {
         return useUids;
     }
+    
+    public String toString() {
+        final StringBuffer buffer = new StringBuffer(100);
+        buffer.append("STORE ");
+        if (isUseUids()) {
+            buffer.append("UID ");
+        }
+        if (isSilent()) {
+            buffer.append("SILENT ");
+            
+        }
+        if (isSignedPlus()) {
+            buffer.append("+ ");
+        }
+        if (isSignedMinus()) {
+            buffer.append("- ");
+        }
+        if (flags.contains(Flags.Flag.ANSWERED)) {
+            buffer.append(" ANSWERED");
+        }
+        if (flags.contains(Flags.Flag.DELETED)) {
+            buffer.append(" DELETED");
+        }
+        if (flags.contains(Flags.Flag.FLAGGED)) {
+            buffer.append(" FLAGGED");
+        }
+        if (flags.contains(Flags.Flag.DRAFT)) {
+            buffer.append(" DRAFT");
+        }
+        if (flags.contains(Flags.Flag.SEEN)) {
+            buffer.append(" SEEN");
+        }
+        if (flags.contains(Flags.Flag.RECENT)) {
+            buffer.append(" RECEN");
+        }
+        return buffer.toString();
+    }
 }
