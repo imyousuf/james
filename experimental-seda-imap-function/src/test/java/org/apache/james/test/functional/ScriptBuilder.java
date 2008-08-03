@@ -1415,6 +1415,8 @@ public class ScriptBuilder {
                         
                     case '\r':
                     case '\n':
+                    case ' ':
+                    case '\t':
                         result = read();
                         break;
                         

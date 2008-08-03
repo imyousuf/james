@@ -197,8 +197,7 @@ C: Hello, World!
 S: \* 5 EXISTS
 S: \* 5 RECENT
 S: A8 OK APPEND completed\.
-C: A9 APPEND testmailbox {3661+}
-C:                                                                                                                                                                                                                                                                                                      
+C: A9 APPEND testmailbox {3366+}
 C: Delivered-To: robertburrelldonkin@gmail.com
 C: Received: by 10.114.126.16 with SMTP id y16cs68962wac;
 C:         Tue, 11 Mar 2008 11:41:47 -0700 (PDT)
@@ -292,8 +291,7 @@ C:
 S: \* 6 EXISTS
 S: \* 6 RECENT
 S: A9 OK APPEND completed\.
-C: A10 APPEND testmailbox {4387+}
-C:                                                                                                                                                                                                                     
+C: A10 APPEND testmailbox {4173+}
 C: Delivered-To: robertburrelldonkin@gmail.com
 C: Received: by 10.114.126.16 with SMTP id y16cs69319wac;
 C:         Tue, 11 Mar 2008 11:45:12 -0700 (PDT)
@@ -685,8 +683,8 @@ S: \* 2 FETCH \(RFC822\.SIZE 704\)
 S: \* 3 FETCH \(RFC822\.SIZE 668\)
 S: \* 4 FETCH \(RFC822\.SIZE 1767\)
 S: \* 5 FETCH \(RFC822\.SIZE 185\)
-S: \* 6 FETCH \(RFC822\.SIZE 3661\)
-S: \* 7 FETCH \(RFC822\.SIZE 4387\)
+S: \* 6 FETCH \(RFC822\.SIZE 3366\)
+S: \* 7 FETCH \(RFC822\.SIZE 4173\)
 S: \* 8 FETCH \(RFC822\.SIZE 404\)
 S: \* 9 FETCH \(RFC822\.SIZE 429\)
 S: \* 10 FETCH \(RFC822\.SIZE 14996\)
@@ -849,8 +847,7 @@ S: Date: Sat, 23 Feb 2008 07:48:03 -0600
 S: Message-ID: <1729@machine\.example\.org>
 S: 
 S: Hello, World!\)
-S: \* 6 FETCH \(FLAGS \(\\Recent \\Seen\) RFC822 \{3661\}
-S:                                                                                                                                                                                                                                                                                                      
+S: \* 6 FETCH \(FLAGS \(\\Recent \\Seen\) RFC822 \{3366\}
 S: Delivered-To: robertburrelldonkin@gmail\.com
 S: Received: by 10\.114\.126\.16 with SMTP id y16cs68962wac;
 S:         Tue, 11 Mar 2008 11:41:47 -0700 \(PDT\)
@@ -941,8 +938,7 @@ S: --=-blWYb/063JwXox8nBGv5--
 S: 
 S: 
 S: \)
-S: \* 7 FETCH \(FLAGS \(\\Recent \\Seen\) RFC822 \{4387\}
-S:                                                                                                                                                                                                                     
+S: \* 7 FETCH \(FLAGS \(\\Recent \\Seen\) RFC822 \{4173\}
 S: Delivered-To: robertburrelldonkin@gmail\.com
 S: Received: by 10\.114\.126\.16 with SMTP id y16cs69319wac;
 S:         Tue, 11 Mar 2008 11:45:12 -0700 \(PDT\)
@@ -1363,8 +1359,7 @@ S: Date: Sat, 23 Feb 2008 07:48:03 -0600
 S: Message-ID: <1729@machine\.example\.org>
 S: 
 S: \)
-S: \* 6 FETCH \(RFC822\.HEADER \{1919\}
-S:                                                                                                                                                                                                                                                                                                      
+S: \* 6 FETCH \(RFC822\.HEADER \{1624\}
 S: Delivered-To: robertburrelldonkin@gmail\.com
 S: Received: by 10\.114\.126\.16 with SMTP id y16cs68962wac;
 S:         Tue, 11 Mar 2008 11:41:47 -0700 \(PDT\)
@@ -1394,8 +1389,7 @@ S: Mime-Version: 1\.0
 S: X-Mailer: Evolution 2\.12\.1 
 S: 
 S: \)
-S: \* 7 FETCH \(RFC822\.HEADER \{1846\}
-S:                                                                                                                                                                                                                     
+S: \* 7 FETCH \(RFC822\.HEADER \{1632\}
 S: Delivered-To: robertburrelldonkin@gmail\.com
 S: Received: by 10\.114\.126\.16 with SMTP id y16cs69319wac;
 S:         Tue, 11 Mar 2008 11:45:12 -0700 \(PDT\)
