@@ -30,6 +30,7 @@ import org.apache.james.api.imap.ImapSessionState;
 import org.apache.james.api.imap.message.response.ImapResponseMessage;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
+import org.apache.james.api.imap.process.SelectedImapMailbox;
 import org.apache.james.api.imap.process.ImapProcessor.Responder;
 import org.apache.james.experimental.imapserver.encode.writer.OutputStreamImapResponseWriter;
 import org.apache.james.imapserver.codec.ProtocolException;
@@ -46,6 +47,10 @@ public final class ImapRequestHandler extends AbstractLogEnabled {
 
     private static final byte[] ABANDON_SIGNOFF = {'*',' ', 'B', 'Y', 'E', ' ', 
         'A','b','a','n','d','o','n','e','d','\r', '\n'};
+    
+    private static final byte[] MAILBOX_DELETED_SIGNOFF = {'*',' ','B','Y','E',' ',
+        'S','e','l','e','c','t','e','d',' ','m','a','i','l','b','o','x',' ','h','a',
+        's',' ','b','e','e','n',' ','d','e','l','e','t','e','d','\r','\n'};
     
     private final ImapDecoder decoder;
     private final ImapProcessor processor;
@@ -80,45 +85,70 @@ public final class ImapRequestHandler extends AbstractLogEnabled {
                                   OutputStream output,
                                   ImapSession session )
     {
-        ImapRequestLineReader request = new ImapRequestLineReader( input, output );
-        setupLogger(request);
-        
-        final Logger logger = getLogger();
-        try {
-            request.nextChar();
-        }
-        catch ( ProtocolException e ) {
-            logger.debug("Unexpected end of line. Cannot handle request: ", e);
-            return false;
-        }
-
-        ImapResponseComposerImpl response = new ImapResponseComposerImpl( new OutputStreamImapResponseWriter( output ));
-        response.enableLogging(logger); 
-
         final boolean result;
-        if (doProcessRequest( request, response, session )) {
-    
+        if (isSelectedMailboxDeleted(session)) {
+            writeSignoff(output);
+            result = false;
+        } else {
+            ImapRequestLineReader request = new ImapRequestLineReader( input, output );
+            setupLogger(request);
+            
+            final Logger logger = getLogger();
             try {
-                // Consume the rest of the line, throwing away any extras. This allows us
-                // to clean up after a protocol error.
-                request.consumeLine();
-            } catch (ProtocolException e) {
-                // Cannot clean up. No recovery is therefore possible.
-                // Abandon connection.
-                if (logger.isInfoEnabled()) {
-                    logger.info("Fault during clean up: " + e.getMessage());
-                }
-                logger.debug("Abandoning after fault in clean up", e);
-                session.logout();
-                abandon(output);
+                request.nextChar();
+            }
+            catch ( ProtocolException e ) {
+                logger.debug("Unexpected end of line. Cannot handle request: ", e);
+                return false;
             }
     
-            result = !(ImapSessionState.LOGOUT == session.getState());
-        } else {
-            result = false;
-            abandon(output);
+            ImapResponseComposerImpl response = new ImapResponseComposerImpl( new OutputStreamImapResponseWriter( output ));
+            response.enableLogging(logger); 
+    
+            if (doProcessRequest( request, response, session )) {
+        
+                try {
+                    // Consume the rest of the line, throwing away any extras. This allows us
+                    // to clean up after a protocol error.
+                    request.consumeLine();
+                } catch (ProtocolException e) {
+                    // Cannot clean up. No recovery is therefore possible.
+                    // Abandon connection.
+                    if (logger.isInfoEnabled()) {
+                        logger.info("Fault during clean up: " + e.getMessage());
+                    }
+                    logger.debug("Abandoning after fault in clean up", e);
+                    session.logout();
+                    abandon(output);
+                }
+        
+                result = !(ImapSessionState.LOGOUT == session.getState());
+            } else {
+                result = false;
+                abandon(output);
+            }
         }
         return result;
+    }
+
+    private void writeSignoff(OutputStream output) {
+        try {
+            output.write(MAILBOX_DELETED_SIGNOFF);
+        } catch (IOException e) {
+            getLogger().warn("Failed to write signoff");
+            getLogger().debug("Failed to write signoff:", e);
+        }
+    }
+
+    private boolean isSelectedMailboxDeleted(ImapSession session) {
+        final boolean selectedMailboxIsDeleted;
+        final SelectedImapMailbox mailbox = session.getSelected();
+        if (mailbox != null) {
+            selectedMailboxIsDeleted = mailbox.isDeletedByOtherSession();
+        } else {
+            selectedMailboxIsDeleted = false;
+        }
+        return selectedMailboxIsDeleted;
     }
 
     private void abandon(OutputStream out) {

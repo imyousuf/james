@@ -117,6 +117,15 @@ public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements Se
         return converter.getMsn(uid);
     }
     
+    /**
+     * Is the mailbox deleted?
+     * @return true when the mailbox has been deleted by another session, 
+     * false otherwise
+     */
+    public boolean isDeletedByOtherSession() {
+        return events.isDeletedByOtherSession();
+    }
+    
     private void addExpungedResponses(List responses, final Mailbox mailbox) {
         for  (Iterator it = events.expungedUids(); it.hasNext();) {
             final Long uid = (Long) it.next();
@@ -159,6 +168,11 @@ public class SelectedMailboxSessionImpl extends AbstractLogEnabled implements Se
                 uidOut = new Long(uid);
             } else {
                 uidOut = null;
+            }
+            if (isRecent(uid)) {
+                flags.add(Flags.Flag.RECENT);
+            } else {
+                flags.remove(Flags.Flag.RECENT);
             }
             FetchResponse response = new FetchResponse(msn, flags, uidOut, null, null, null, null, null, null);
             responses.add(response);

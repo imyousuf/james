@@ -29,6 +29,7 @@ import org.apache.james.mailboxmanager.MailboxListener;
 
 public class MailboxEventAnalyser implements MailboxListener {
 
+    private boolean isDeletedByOtherSession = false;
     private boolean sizeChanged = false;
     private boolean silentFlagChanges = false;
     private final long sessionId;
@@ -45,10 +46,10 @@ public class MailboxEventAnalyser implements MailboxListener {
     }
 
     public void event(Event event) {
+        final long eventSessionId = event.getSessionId();
         if (event instanceof MessageEvent) {
             final MessageEvent messageEvent = (MessageEvent) event;
             final long uid =  messageEvent.getSubjectUid();
-            final long eventSessionId = messageEvent.getSessionId();
             if (messageEvent instanceof Added) {
                 sizeChanged = true;
             } else if (messageEvent instanceof FlagsUpdated) {
@@ -61,6 +62,10 @@ public class MailboxEventAnalyser implements MailboxListener {
             } else if (messageEvent instanceof Expunged) {
                 final Long uidObject = new Long(uid);
                 expungedUids.add(uidObject);
+            }
+        } else if (event instanceof MailboxDeletionEvent) {
+            if (eventSessionId != sessionId) {
+                isDeletedByOtherSession = true;
             }
         }
     }
@@ -85,6 +90,7 @@ public class MailboxEventAnalyser implements MailboxListener {
         sizeChanged = false;
         flagUpdateUids.clear();
         expungedUids.clear();
+        isDeletedByOtherSession = false;
     }
     
     /**
@@ -113,6 +119,15 @@ public class MailboxEventAnalyser implements MailboxListener {
     public final boolean isSizeChanged() {
         return sizeChanged;
     }
+    
+    /**
+     * Is the mailbox deleted?
+     * @return true when the mailbox has been deleted by another session, 
+     * false otherwise
+     */
+    public final boolean isDeletedByOtherSession() {
+        return isDeletedByOtherSession;
+    }
 
     public Iterator flagUpdateUids() {
         return flagUpdateUids.iterator();
@@ -124,15 +139,5 @@ public class MailboxEventAnalyser implements MailboxListener {
     
     public boolean hasExpungedUids() {
         return !expungedUids.isEmpty();
-    }
-    
-    public void mailboxDeleted() {
-        // TODO implementation
-
-    }
-
-    public void mailboxRenamed(String origName, String newName) {
-        // TODO implementation
-
     }
 }

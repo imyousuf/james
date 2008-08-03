@@ -80,7 +80,7 @@ public class TorqueMailbox extends AbstractLogEnabled implements Mailbox {
 
     private MailboxRow mailboxRow;
 
-    private UidChangeTracker tracker;
+    private final UidChangeTracker tracker;
 
     private final ReadWriteLock lock;
     
@@ -784,5 +784,9 @@ public class TorqueMailbox extends AbstractLogEnabled implements Mailbox {
         } catch (MessagingException e) {
             throw new MailboxManagerException(e);
         }
+    }
+
+    public void deleted(MailboxSession session) {
+        tracker.mailboxDeleted(session.getSessionId());
     }
 }

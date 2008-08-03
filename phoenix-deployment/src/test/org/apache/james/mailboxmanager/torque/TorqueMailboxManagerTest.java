@@ -45,7 +45,7 @@ public class TorqueMailboxManagerTest extends AbstractMailboxRowTestCase {
         assertEquals(1,l.size());
         assertEquals("#users.tuser2.INBOX",((MailboxRow)l.get(0)).getName());
         
-        mm.deleteMailbox("#users.tuser2.INBOX");
+        mm.deleteMailbox("#users.tuser2.INBOX", null);
         l=MailboxRowPeer.doSelect(new Criteria());
         assertEquals(0,l.size());
     }

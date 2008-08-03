@@ -26,7 +26,10 @@ import javax.mail.Flags;
 import org.apache.james.mailboxmanager.MailboxListener;
 import org.apache.james.mailboxmanager.MockMailboxListenerAdded;
 import org.apache.james.mailboxmanager.MockMailboxListenerFlagsUpdate;
+import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
+
+import com.sun.org.apache.bcel.internal.generic.LALOAD;
 
 public class MailboxEventAnalyserTest extends MockObjectTestCase {
 
@@ -44,7 +47,9 @@ public class MailboxEventAnalyserTest extends MockObjectTestCase {
     }
 
     public void testShouldBeNoSizeChangeOnOtherEvent() throws Exception {
-        analyser.event((MailboxListener.Event) mock(MailboxListener.Event.class).proxy());
+        final Mock mock = mock(MailboxListener.Event.class);
+        mock.expects(atLeastOnce()).method("getSessionId").will(returnValue(11L));
+        analyser.event((MailboxListener.Event) mock.proxy());
         assertFalse(analyser.isSizeChanged());
     }
     

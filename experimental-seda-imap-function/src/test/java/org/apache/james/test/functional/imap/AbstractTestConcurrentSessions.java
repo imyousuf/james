@@ -21,13 +21,57 @@ package org.apache.james.test.functional.imap;
 
 import java.util.Locale;
 
-public abstract class AbstractTestConcurrentSessions extends AbstractSimpleScriptedTestProtocol {
+public abstract class AbstractTestConcurrentSessions extends AbstractTestForAuthenticatedState {
 
     public AbstractTestConcurrentSessions(HostSystem system) {
         super(system);
     }
 
-    public void testFetchEnvelopeUS() throws Exception {
-        //scriptTest("ConcurrentExistsResponse", Locale.US);
+    public void testConcurrentExistsResponseUS() throws Exception {
+        scriptTest("ConcurrentExistsResponse", Locale.US);
+    }
+    
+    public void testConcurrentDeleteSelectedUS() throws Exception {
+        scriptTest("ConcurrentDeleteSelected", Locale.US);
+    }
+    
+    public void testConcurrentFetchResponseUS() throws Exception {
+        scriptTest("ConcurrentFetchResponse", Locale.US);
+    }
+    
+    public void testConcurrentRenameSelectedUS() throws Exception {
+        scriptTest("ConcurrentRenameSelected", Locale.US);
+    }
+   
+    public void testConcurrentExistsResponseKOREA() throws Exception {
+        scriptTest("ConcurrentExistsResponse", Locale.KOREA);
+    }
+    
+    public void testConcurrentDeleteSelectedKOREA() throws Exception {
+        scriptTest("ConcurrentDeleteSelected", Locale.KOREA);
+    }
+    
+    public void testConcurrentFetchResponseKOREA() throws Exception {
+        scriptTest("ConcurrentFetchResponse", Locale.KOREA);
+    }
+    
+    public void testConcurrentRenameSelectedKOREA() throws Exception {
+        scriptTest("ConcurrentRenameSelected", Locale.KOREA);
+    }
+    
+    public void testConcurrentExistsResponseITALY() throws Exception {
+        scriptTest("ConcurrentExistsResponse", Locale.ITALY);
+    }
+    
+    public void testConcurrentDeleteSelectedITALY() throws Exception {
+        scriptTest("ConcurrentDeleteSelected", Locale.ITALY);
+    }
+    
+    public void testConcurrentFetchResponseITALY() throws Exception {
+        scriptTest("ConcurrentFetchResponse", Locale.ITALY);
+    }
+    
+    public void testConcurrentRenameSelectedITALY() throws Exception {
+        scriptTest("ConcurrentRenameSelected", Locale.ITALY);
     }
 }
