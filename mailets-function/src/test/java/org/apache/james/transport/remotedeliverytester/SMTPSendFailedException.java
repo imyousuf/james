@@ -23,6 +23,9 @@ import javax.mail.Address;
 import javax.mail.SendFailedException;
 
 public class SMTPSendFailedException extends SendFailedException {
+    
+    private static final long serialVersionUID = -6457533751694372913L;
+    
     // the failing command
     protected String cmd;
 
