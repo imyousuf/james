@@ -55,7 +55,7 @@ class DeleteCommand extends AuthenticatedStateCommand
                     session.deselect();
                 }
             }
-            session.getMailboxManager().deleteMailbox(mailboxName);
+            session.getMailboxManager().deleteMailbox(mailboxName, null);
         } catch (MailboxManagerException e) {
             throw new MailboxException(e);
         }

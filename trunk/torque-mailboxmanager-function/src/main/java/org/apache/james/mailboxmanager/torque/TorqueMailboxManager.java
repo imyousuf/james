@@ -144,7 +144,7 @@ public class TorqueMailboxManager implements MailboxManager {
         }
     }
 
-    public void deleteMailbox(String mailboxName)
+    public void deleteMailbox(String mailboxName, MailboxSession session)
             throws MailboxManagerException {
         getLog().info("deleteMailbox "+mailboxName);
         synchronized (managers) {
@@ -155,7 +155,10 @@ public class TorqueMailboxManager implements MailboxManager {
                     throw new MailboxNotFoundException("Mailbox not found");
                 }
                 MailboxRowPeer.doDelete(mr);
-                managers.remove(mailboxName);
+                TorqueMailbox mailbox = (TorqueMailbox) managers.remove(mailboxName);
+                if (mailbox != null) {
+                    mailbox.deleted(session);
+                }
             } catch (TorqueException e) {
                 throw new MailboxManagerException(e);
             }

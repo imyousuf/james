@@ -46,7 +46,6 @@ public class ExperimentalHostSystem implements HostSystem, UsersRepository {
     private ImapEncoder encoder;
     private ImapProcessor processor;
     private Resetable dataReset;
-    private boolean isReadLast = true;
     private final Set users;
     
     public ExperimentalHostSystem() {
@@ -232,7 +231,7 @@ public class ExperimentalHostSystem implements HostSystem, UsersRepository {
         ByteBufferInputStream in;
         ImapRequestHandler handler;
         ImapSessionImpl session;
-        
+        boolean isReadLast = true;
         
         public Session(Continuation continuation) {
             out = new ByteBufferOutputStream(continuation);

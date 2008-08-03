@@ -23,8 +23,8 @@ C: 1a CREATE existsresponse
 S: 1a OK CREATE completed.
 
 C: 1b STATUS existsresponse (MESSAGES)
-S: \* STATUS existsresponse \(MESSAGES 0\)
-S: 1b OK STATUS completed
+S: \* STATUS \"existsresponse\" \(MESSAGES 0\)
+S: 1b OK STATUS completed.
 
 SESSION: 2
 C: 2a SELECT existsresponse
@@ -32,9 +32,8 @@ S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
 S: \* 0 EXISTS
 S: \* 0 RECENT
 S: \* OK \[UIDVALIDITY \d+\]
-S: \* OK No messages unseen
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
-S: 2a OK \[READ-WRITE\] SELECT completed
+S: 2a OK \[READ-WRITE\] SELECT completed.
 
 SESSION: 3
 C: 3a SELECT existsresponse
@@ -42,9 +41,8 @@ S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
 S: \* 0 EXISTS
 S: \* 0 RECENT
 S: \* OK \[UIDVALIDITY \d+\]
-S: \* OK No messages unseen
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
-S: 3a OK \[READ-WRITE\] SELECT completed
+S: 3a OK \[READ-WRITE\] SELECT completed.
 
 SESSION: 4
 C: 4a SELECT existsresponse
@@ -52,9 +50,8 @@ S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
 S: \* 0 EXISTS
 S: \* 0 RECENT
 S: \* OK \[UIDVALIDITY \d+\]
-S: \* OK No messages unseen
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
-S: 4a OK \[READ-WRITE\] SELECT completed
+S: 4a OK \[READ-WRITE\] SELECT completed.
 
 SESSION: 1
 C: 1c APPEND existsresponse {310+}
@@ -68,43 +65,43 @@ C: Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
 C:
 C: Hello Joe, do you think we can meet at 3:30 tomorrow?
 C:
-S: 1c OK APPEND completed
+S: 1c OK APPEND completed.
 
 C: 1b STATUS existsresponse (MESSAGES RECENT)
-S: \* STATUS existsresponse \(MESSAGES 1 RECENT 1\)
-S: 1b OK STATUS completed
+S: \* STATUS \"existsresponse\" \(MESSAGES 1 RECENT 1\)
+S: 1b OK STATUS completed.
 
 # EXISTS response on NOOP
 SESSION: 2
 C: 2b NOOP
 S: \* 1 EXISTS
-S: \* 1 RECENT
-S: 2b OK NOOP completed
+S: \* 0 RECENT
+S: 2b OK NOOP completed.
 
 C: 2c CLOSE
-S: 2c OK CLOSE completed
+S: 2c OK CLOSE completed.
 
 # EXISTS response on STORE (recent is no longer set)
 SESSION: 3
 C: 3b STORE 1 +FLAGS.SILENT (\Flagged)
 S: \* 1 EXISTS
 S: \* 0 RECENT
-S: 3b OK STORE completed
+S: 3b OK STORE completed.
 
 C: 3c CLOSE
-S: 3c OK CLOSE completed
+S: 3c OK CLOSE completed.
 
 # EXISTS response on CREATE
 SESSION: 4
 C: 4b CREATE another
 S: \* 1 EXISTS
 S: \* 0 RECENT
-S: \* 1 FETCH \(FLAGS \(\\Flagged\)
-S: 4b OK CREATE completed
+S: \* 1 FETCH \(FLAGS \(\\Flagged\)\)
+S: 4b OK CREATE completed.
 
 C: 4c DELETE another
-S: 4c OK DELETE completed
+S: 4c OK DELETE completed.
 
 C: 4c DELETE existsresponse
-S: 4c OK DELETE completed
+S: 4c OK DELETE completed.
 

@@ -44,6 +44,11 @@ public interface MailboxListener {
     }
     
     /**
+     * Indicates that mailbox has been deleted.
+     */
+    public interface MailboxDeletionEvent extends Event {}
+    
+    /**
      * A mailbox event related to a message.
      */
     public interface MessageEvent extends Event {

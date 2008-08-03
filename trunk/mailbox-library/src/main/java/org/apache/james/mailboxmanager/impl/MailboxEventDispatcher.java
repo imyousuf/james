@@ -215,4 +215,25 @@ public class MailboxEventDispatcher implements MailboxListener {
         }
     }
 
+    public void mailboxDeleted(long sessionId) {
+        final MailboxDeletionEventImpl event = new MailboxDeletionEventImpl(sessionId);
+        for (Iterator iter = listeners.iterator(); iter.hasNext();) {
+            MailboxListener mailboxListener = (MailboxListener) iter.next();
+            mailboxListener.event(event);
+        }
+    }
+
+    private static final class MailboxDeletionEventImpl implements  MailboxListener.MailboxDeletionEvent {
+        private final long sessionId;
+        
+        public MailboxDeletionEventImpl(final long sessionId) {
+            super();
+            this.sessionId = sessionId;
+        }
+
+        public long getSessionId() {
+            return sessionId;
+        }
+        
+    }
 }

@@ -95,7 +95,7 @@ public interface MailboxManager {
      */
     void createMailbox(String mailboxName) throws MailboxManagerException;
 
-    void deleteMailbox(String mailboxName) throws MailboxManagerException;
+    void deleteMailbox(String mailboxName, MailboxSession session) throws MailboxManagerException;
 
     /**
      * Renames a mailbox. 

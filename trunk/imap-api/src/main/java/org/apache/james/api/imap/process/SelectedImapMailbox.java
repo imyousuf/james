@@ -43,4 +43,11 @@ public interface SelectedImapMailbox {
     public String getName();
 
     public boolean isRecent(long uid);
+    
+    /**
+     * Is the mailbox deleted?
+     * @return true when the mailbox has been deleted by another session, 
+     * false otherwise
+     */
+    public boolean isDeletedByOtherSession();
 }
