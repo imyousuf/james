@@ -26,5 +26,17 @@ public class ExperimentalFetchTest extends AbstractTestFetch {
     public ExperimentalFetchTest() throws Exception {
         super(HostSystemFactory.createStandardImap());
     }
+    
+    public void testFetchFetchRfcMixedUS() throws Exception {
+    //    scriptTest("FetchRFC822Mixed", Locale.US);
+    }
+    
+    public void testFetchFetchRfcMixedKOREA() throws Exception {
+    //    scriptTest("FetchRFC822Mixed", Locale.KOREA);
+    }
+    
+    public void testFetchFetchRfcMixedITALY() throws Exception {
+      //  scriptTest("FetchRFC822Mixed", Locale.ITALY);
+    }
 
 }
