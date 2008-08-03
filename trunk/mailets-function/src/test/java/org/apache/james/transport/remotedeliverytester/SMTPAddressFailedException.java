@@ -23,6 +23,9 @@ import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 
 public class SMTPAddressFailedException extends MessagingException {
+    
+    private static final long serialVersionUID = -6462957141184285313L;
+
     // the failing address
     InternetAddress addr;
 
