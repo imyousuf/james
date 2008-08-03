@@ -28,7 +28,6 @@ import org.apache.mailet.MailAddress;
 import org.apache.mailet.RFC2822Headers;
 
 import javax.mail.MessagingException;
-import javax.mail.SendFailedException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.ParseException;
@@ -159,47 +158,22 @@ public class MailImpl implements Disposable, Mail {
         setRemoteAddr(mail.getRemoteAddr());
         setLastUpdated(mail.getLastUpdated());
         try {
-            HashMap attribs = new HashMap();
-            for (Iterator i = mail.getAttributeNames(); i.hasNext(); ) {
-                String hashKey = (String) i.next();
-                final Serializable attribute = mail.getAttribute(hashKey);
-                if (attribute instanceof SendFailedException) {
-                    SendFailedException ex = (SendFailedException) attribute;
-                    Throwable t = ex.getNextException();
-                    debug(t); 
+            if (mail instanceof MailImpl) {
+                setAttributesRaw((HashMap) cloneSerializableObject(((MailImpl) mail).getAttributesRaw()));
+            } else {
+                HashMap attribs = new HashMap();
+                for (Iterator i = mail.getAttributeNames(); i.hasNext(); ) {
+                    String hashKey = (String) i.next();
+                    attribs.put(hashKey,cloneSerializableObject(mail.getAttribute(hashKey)));
                 }
-                final Object cloneSerializableObject = cloneSerializableObject(attribute);
-                attribs.put(hashKey,cloneSerializableObject);
+                setAttributesRaw(attribs);
             }
-            setAttributesRaw(attribs);
         } catch (IOException e) {
             // should never happen for in memory streams
             setAttributesRaw(new HashMap());
         } catch (ClassNotFoundException e) {
             // should never happen as we just serialized it
             setAttributesRaw(new HashMap());
-        }
-    }
-    private void debug(Throwable t) {
-        if (t == null) {
-            System.err.println("[END]");
-        } else {
-            System.err.println("NEXT@" + System.identityHashCode(t)  + t );
-            if (t instanceof MessagingException) {
-                MessagingException e = (MessagingException) t;
-                System.err.println("NEXT@" + System.identityHashCode(e)  + e );
-                t = e.getNextException();
-                if (t == null) {
-                    t = e.getCause();
-                }
-                debug(t);
-            } else {
-                System.err.println("NEXT@" + System.identityHashCode(t)  + t );
-                Throwable next = t.getCause();
-                if (next != t) {
-                    debug(next);
-                }
-            }
         }
     }
 
@@ -634,7 +608,7 @@ public class MailImpl implements Disposable, Mail {
      * @throws IOException
      * @throws ClassNotFoundException
      */
-    public static Object cloneSerializableObject(Object o) throws IOException, ClassNotFoundException {
+    private static Object cloneSerializableObject(Object o) throws IOException, ClassNotFoundException {
         ByteArrayOutputStream b = new ByteArrayOutputStream();
         ObjectOutputStream out = new ObjectOutputStream(b);
         out.writeObject(o);
