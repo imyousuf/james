@@ -111,4 +111,16 @@ public abstract class AbstractTestFetch extends AbstractTestSelectedStateBase {
     public void testFetchInternalDateKOREA() throws Exception {
         scriptTest("FetchInternalDate", Locale.KOREA);
     } 
+    
+    public void testFetchFetchRfcMixedUS() throws Exception {
+        scriptTest("FetchRFC822Mixed", Locale.US);
+    }
+    
+    public void testFetchFetchRfcMixedKOREA() throws Exception {
+        scriptTest("FetchRFC822Mixed", Locale.KOREA);
+    }
+    
+    public void testFetchFetchRfcMixedITALY() throws Exception {
+        scriptTest("FetchRFC822Mixed", Locale.ITALY);
+    }
 }
