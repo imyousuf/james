@@ -29,8 +29,6 @@ import org.apache.james.mailboxmanager.MockMailboxListenerFlagsUpdate;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 
-import com.sun.org.apache.bcel.internal.generic.LALOAD;
-
 public class MailboxEventAnalyserTest extends MockObjectTestCase {
 
     private static final long BASE_SESSION_ID = 99;
