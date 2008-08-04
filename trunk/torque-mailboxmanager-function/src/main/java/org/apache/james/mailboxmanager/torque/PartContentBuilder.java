@@ -27,7 +27,7 @@ import java.util.List;
 
 import org.apache.james.mailboxmanager.MessageResult.Content;
 import org.apache.james.mime4j.MimeException;
-import org.apache.james.mime4j.MimeTokenStream;
+import org.apache.james.mime4j.parser.MimeTokenStream;
 
 public class PartContentBuilder {
     
@@ -181,7 +181,6 @@ public class PartContentBuilder {
                 content = EMPTY;
             }
         }
-        String temp = new String(content);
         return content;
     }
     

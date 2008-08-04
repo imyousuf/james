@@ -30,7 +30,7 @@ import java.nio.charset.UnsupportedCharsetException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.james.mime4j.MimeException;
-import org.apache.james.mime4j.MimeTokenStream;
+import org.apache.james.mime4j.parser.MimeTokenStream;
 
 /**
  * Searches an email for content.
