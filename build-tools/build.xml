@@ -23,7 +23,7 @@
 Build utilities and builds for tools. Generation of new modules.
      </description>
     
-    <import file='../build-tools/base-build.xml' optional='no'/>
+    <import file='../build-tools/common-build.xml' optional='no'/>
     
 <!--
 Build macros
