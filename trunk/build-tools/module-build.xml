@@ -23,7 +23,7 @@
 Master template for module builds.
      </description>
     
-     <import file='../build-tools/base-build.xml' optional='no'/>    
+     <import file='../build-tools/common-build.xml' optional='no'/>    
     
  <!--
  Internal Support Targets

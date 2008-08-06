@@ -18,7 +18,7 @@
   under the License.    
 -->
 
-<project name='james-base' default='usage'>
+<project name='james-common' default='usage'>
      <description>
 Defines common macros and properties used by builds.
      </description>
