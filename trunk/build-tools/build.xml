@@ -157,6 +157,13 @@ User Targets
     </target>
  
     <target 
+        name='generate-util-module'
+        description='Generates util module outline.
+ Usage: ant -DMODULE=&lt;modulename&gt; generate-util-module.'>
+        <GenerateModuleOfType type='util'/>
+    </target>
+    
+    <target 
         name='generate-library-module'
         description='Generates library module outline.
 Usage: ant -DMODULE=&lt;modulename&gt; generate-library-module.'>

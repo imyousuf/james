@@ -18,9 +18,9 @@
   under the License.    
 -->
 
-<project name='api-template'>
+<project name='util-template'>
      <description>
-Template build for API
+Template build for utility modules
      </description>
      
      <import file='../build-tools/base-build.xml' optional='no'/>
