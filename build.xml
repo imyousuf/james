@@ -42,14 +42,15 @@ Master build file for JAMES server.
             </subant>   
         </sequential>   
     </macrodef>
-    
+
     <macrodef 
-            name='forapido'
+            name='forbasedo'
             description='Executes a target for all deployment modules'>
         <attribute name='do'/>   
         <attribute name='dir' default='.'/>   
         <sequential>
             <fordo do='@{do}' dir='@{dir}' type='api'/>
+            <fordo do='@{do}' dir='@{dir}' type='util'/>
         </sequential>   
     </macrodef>  
  
@@ -88,7 +89,7 @@ Master build file for JAMES server.
            description='Executes a target for all modules'>
         <attribute name='do'/>   
         <sequential>
-            <forapido do='@{do}'/>
+            <forbasedo do='@{do}'/>
             <forlibrariesdo do='@{do}'/>
             <forfunctionsdo do='@{do}'/>   
             <fordeploymentsdo do='@{do}'/> 
@@ -148,7 +149,7 @@ Master build file for JAMES server.
         description='Complete clean build, deployment and creates full distributions' 
         depends='clean, clean-dist'>
         <echo>Building, deploying and creating full distributions for everything</echo> 
-        <forapido do='dist'/>
+        <forbasedo do='dist'/>
         <forlibrariesdo do='dist'/>
         <forfunctionsdo do='dist'/>      
         <fordeploymentsdo do='everything'/>
