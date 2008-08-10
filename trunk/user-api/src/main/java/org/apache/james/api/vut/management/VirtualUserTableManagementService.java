@@ -30,7 +30,7 @@ public interface VirtualUserTableManagementService {
     /**
      * The component role used by components implementing this service
      */
-    public static final String ROLE = "org.apache.james.services.VirtualUserTableManagementService";
+    public static final String ROLE = "org.apache.james.api.vut.management.VirtualUserTableManagementService";
 
     /**
      * Add regex mapping

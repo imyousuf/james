@@ -31,7 +31,7 @@ public interface VirtualUserTableManagement extends VirtualUserTable{
     /**
      * The component role used by components implementing this service
      */
-    public static final String ROLE = "org.apache.james.services.VirtualUserTableManagement";
+    public static final String ROLE = "org.apache.james.api.vut.management.VirtualUserTableManagement";
     
     /**
      * Add regex mapping

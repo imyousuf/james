@@ -33,7 +33,7 @@ public interface VirtualUserTable {
     /**
      * The component role used by components implementing this service
      */
-    public static final String ROLE = "org.apache.james.services.VirtualUserTable";
+    public static final String ROLE = "org.apache.james.api.vut.VirtualUserTable";
     
     /**
      * The prefix which is used for error mappings
