@@ -21,6 +21,7 @@
 
 package org.apache.james.services;
 
+import org.apache.james.api.user.User;
 import org.apache.mailet.MailAddress;
 
 /**

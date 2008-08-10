@@ -21,13 +21,13 @@ package org.apache.james.imapserver;
 
 import java.util.Collection;
 
+import org.apache.james.api.user.User;
+import org.apache.james.api.user.UsersRepository;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
-import org.apache.james.services.User;
-import org.apache.james.services.UsersRepository;
 
 
 /**

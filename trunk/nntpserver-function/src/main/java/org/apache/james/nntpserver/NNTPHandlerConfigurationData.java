@@ -21,8 +21,8 @@
 
 package org.apache.james.nntpserver;
 
+import org.apache.james.api.user.UsersRepository;
 import org.apache.james.nntpserver.repository.NNTPRepository;
-import org.apache.james.services.UsersRepository;
 
 /**
  * Provides a number of server-wide constant values to the

@@ -27,7 +27,7 @@
 
   <!-- services that are offered by this block -->
   <services>
-    <service name="org.apache.james.services.UsersRepository" version="1.0" />
+    <service name="org.apache.james.api.user.UsersRepository" version="1.0" />
     <service name="org.apache.james.services.JamesUsersRepository" version="1.0" />
     <service name="org.apache.james.api.vut.VirtualUserTable" version="1.0" />
   </services>
@@ -39,7 +39,7 @@
   
   <dependencies>
     <dependency>
-      <service name="org.apache.james.services.UsersStore" version="1.0"/>
+      <service name="org.apache.james.api.user.UsersStore" version="1.0"/>
     </dependency>
   </dependencies>
 </blockinfo>

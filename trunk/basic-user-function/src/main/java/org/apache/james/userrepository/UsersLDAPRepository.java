@@ -25,7 +25,7 @@ import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.james.services.User;
+import org.apache.james.api.user.User;
 import org.apache.james.userrepository.AbstractUsersRepository;
 import org.apache.james.userrepository.DefaultUser;
 
@@ -237,28 +237,28 @@ public class UsersLDAPRepository
     }
 
     /**
-     * @see org.apache.james.services.UsersRepository#getUserByName(java.lang.String)
+     * @see org.apache.james.api.user.UsersRepository#getUserByName(java.lang.String)
      */
     public  User getUserByName(String name) {
         return new DefaultUser("dummy", "dummy");
     }
 
     /**
-     * @see org.apache.james.services.UsersRepository#getUserByNameCaseInsensitive(java.lang.String)
+     * @see org.apache.james.api.user.UsersRepository#getUserByNameCaseInsensitive(java.lang.String)
      */
     public User getUserByNameCaseInsensitive(String name) {
         return getUserByName(name);
     }
 
     /**
-     * @see org.apache.james.services.UsersRepository#containsCaseInsensitive(java.lang.String)
+     * @see org.apache.james.api.user.UsersRepository#containsCaseInsensitive(java.lang.String)
      */
     public boolean containsCaseInsensitive(String name) {
         return getUsers().contains(name);
     }
 
     /**
-     * @see org.apache.james.services.UsersRepository#getRealName(java.lang.String)
+     * @see org.apache.james.api.user.UsersRepository#getRealName(java.lang.String)
      */
     public String getRealName(String name) {
         return getRealName(name, ignoreCase);
@@ -285,14 +285,14 @@ public class UsersLDAPRepository
     }
 
     /**
-     * @see org.apache.james.services.UsersRepository#updateUser(org.apache.james.services.User)
+     * @see org.apache.james.api.user.UsersRepository#updateUser(org.apache.james.api.user.User)
      */
     public boolean updateUser(User user) {
         return false;
     }
     
     /**
-     * @see org.apache.james.services.UsersRepository#addUser(java.lang.String, java.lang.String)
+     * @see org.apache.james.api.user.UsersRepository#addUser(java.lang.String, java.lang.String)
      */
     public boolean addUser(String username, String password) {
         if (!contains(username)) {
@@ -374,7 +374,7 @@ public class UsersLDAPRepository
     }
 
     /**
-     * @see org.apache.james.services.UsersRepository#removeUser(java.lang.String)
+     * @see org.apache.james.api.user.UsersRepository#removeUser(java.lang.String)
      */
     public synchronized void removeUser(String userName) {
         String[] attrIDs = {membersAttr};
@@ -516,7 +516,7 @@ public class UsersLDAPRepository
 
 
     /**
-     * @see org.apache.james.services.UsersRepository#contains(java.lang.String)
+     * @see org.apache.james.api.user.UsersRepository#contains(java.lang.String)
      */
     public boolean contains(String name) {
         boolean found = false;
@@ -548,7 +548,7 @@ public class UsersLDAPRepository
 
 
     /**
-     * @see org.apache.james.services.UsersRepository#test(java.lang.String, java.lang.String)
+     * @see org.apache.james.api.user.UsersRepository#test(java.lang.String, java.lang.String)
      */
     public boolean test(String name, String testPassword) {
         boolean result = false;
@@ -651,7 +651,7 @@ public class UsersLDAPRepository
     }
 
     /**
-     * @see org.apache.james.services.UsersRepository#countUsers()
+     * @see org.apache.james.api.user.UsersRepository#countUsers()
      */
     public int countUsers() {
         return getUsers().size();

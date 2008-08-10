@@ -36,6 +36,8 @@ import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.commons.collections.map.ReferenceMap;
 
+import org.apache.james.api.user.UsersRepository;
+import org.apache.james.api.user.UsersStore;
 import org.apache.james.core.MailHeaders;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MailetConfigImpl;
@@ -48,8 +50,6 @@ import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.ManageableDomainList;
 import org.apache.james.services.SpoolRepository;
-import org.apache.james.services.UsersRepository;
-import org.apache.james.services.UsersStore;
 import org.apache.james.transport.mailets.LocalDelivery;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;

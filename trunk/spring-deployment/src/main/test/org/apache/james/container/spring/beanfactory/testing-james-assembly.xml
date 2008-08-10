@@ -52,8 +52,8 @@ It might become outdated. Check for production quality configs outside the test 
     here must match the names specified for a Block in this xml file.   -->
     <provide name="dnsserver" role="org.apache.james.services.DNSServer"/>
     <provide name="mailstore" role="org.apache.avalon.cornerstone.services.store.Store"/>
-    <provide name="users-store" role="org.apache.james.services.UsersStore"/>
-    <provide name="localusersrepository" role="org.apache.james.services.UsersRepository"/>
+    <provide name="users-store" role="org.apache.james.api.user.UsersStore"/>
+    <provide name="localusersrepository" role="org.apache.james.api.user.UsersRepository"/>
     <provide name="spoolrepository" role="org.apache.james.services.SpoolRepository"/>
     <provide name="filesystem" role="org.apache.james.services.FileSystem" />
     <provide name="domainlist" role="org.apache.james.services.DomainList" />
@@ -114,8 +114,8 @@ It might become outdated. Check for production quality configs outside the test 
 
   <block name="remotemanager" class="org.apache.james.remotemanager.RemoteManager" >
     <provide name="mailstore" role="org.apache.avalon.cornerstone.services.store.Store"/>
-    <provide name="users-store" role="org.apache.james.services.UsersStore"/>
-    <provide name="localusersrepository" role="org.apache.james.services.UsersRepository"/>
+    <provide name="users-store" role="org.apache.james.api.user.UsersStore"/>
+    <provide name="localusersrepository" role="org.apache.james.api.user.UsersRepository"/>
     <provide name="sockets"
              role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
     <provide name="connections"
@@ -135,8 +135,8 @@ It might become outdated. Check for production quality configs outside the test 
 
   <!-- The User Management block  -->
   <block name="usermanagement" class="org.apache.james.management.UserManagement" >
-    <provide name="localusersrepository" role="org.apache.james.services.UsersRepository"/>
-    <provide name="users-store" role="org.apache.james.services.UsersStore"/>
+    <provide name="localusersrepository" role="org.apache.james.api.user.UsersRepository"/>
+    <provide name="users-store" role="org.apache.james.api.user.UsersStore"/>
   </block>
     
     <!-- IMAP Server -->
@@ -147,7 +147,7 @@ It might become outdated. Check for production quality configs outside the test 
   </block>  
     
   <block name="imapserver" class="org.apache.james.imapserver.ImapServer" >
-    <provide name="localusersrepository" role="org.apache.james.services.UsersRepository"/>
+    <provide name="localusersrepository" role="org.apache.james.api.user.UsersRepository"/>
     <provide name="sockets"
              role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
     <provide name="imap-connections"
@@ -162,7 +162,7 @@ It might become outdated. Check for production quality configs outside the test 
     
   <!-- POP3 Server -->
   <block name="pop3server" class="org.apache.james.pop3server.POP3Server" >
-    <provide name="localusersrepository" role="org.apache.james.services.UsersRepository"/>
+    <provide name="localusersrepository" role="org.apache.james.api.user.UsersRepository"/>
     <provide name="sockets"
              role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
     <provide name="connections"
@@ -176,7 +176,7 @@ It might become outdated. Check for production quality configs outside the test 
   <!-- SMTP Server -->
   <block name="smtpserver" class="org.apache.james.smtpserver.SMTPServer" >
     <provide name="James" role="org.apache.mailet.MailetContext"/>
-    <provide name="localusersrepository" role="org.apache.james.services.UsersRepository"/>
+    <provide name="localusersrepository" role="org.apache.james.api.user.UsersRepository"/>
     <provide name="dnsserver" role="org.apache.james.services.DNSServer"/>
     <provide name="sockets"
              role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
@@ -194,7 +194,7 @@ It might become outdated. Check for production quality configs outside the test 
 
   <!-- NNTP Server -->
   <block name="nntpserver" class="org.apache.james.nntpserver.NNTPServer" >
-    <provide name="localusersrepository" role="org.apache.james.services.UsersRepository"/>
+    <provide name="localusersrepository" role="org.apache.james.api.user.UsersRepository"/>
     <provide name="sockets"
              role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
     <provide name="connections"
@@ -217,7 +217,7 @@ It might become outdated. Check for production quality configs outside the test 
     <provide name="scheduler"
              role="org.apache.avalon.cornerstone.services.scheduler.TimeScheduler"/> 
     <provide name="James" role="org.apache.james.services.MailServer"/>      
-    <provide name="localusersrepository" role="org.apache.james.services.UsersRepository"/>
+    <provide name="localusersrepository" role="org.apache.james.api.user.UsersRepository"/>
     <provide name="dnsserver" role="org.apache.james.services.DNSServer"/>
   </block>
 
@@ -254,7 +254,7 @@ It might become outdated. Check for production quality configs outside the test 
   <!-- could be safely used -->
   <block name="localusersrepository" class="org.apache.james.core.LocalJamesUsersRepository">
     <provide name="users-store"
-             role="org.apache.james.services.UsersStore"/>
+             role="org.apache.james.api.user.UsersStore"/>
   </block>
 
   <!-- The context FileSystem implementation -->

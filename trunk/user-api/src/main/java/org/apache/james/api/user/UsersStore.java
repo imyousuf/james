@@ -19,38 +19,40 @@
 
 
 
-package org.apache.james.services;
+package org.apache.james.api.user;
+
+import java.util.Iterator;
 
 /**
- * Interface for objects representing users.
+ * Interface for Phoenix blocks to access a store of Users. A UserStore
+ * contains one or more UserRepositories. Multiple UserRepositories may or may
+ * not have overlapping membership. 
  *
- *
- * @version $Revision$
+ * @version 1.0.0, 24/04/1999
  */
-
-public interface User {
-
+public interface UsersStore 
+{
     /**
-     * Return the user name of this user
-     *
-     * @return the user name for this user
+     * The component role used by components implementing this service
      */
-    String getUserName();
+    String ROLE = "org.apache.james.services.UsersStore";
 
-    /**
-     * Return true if pass matches password of this user.
+    /** 
+     * Get the repository, if any, whose name corresponds to
+     * the argument parameter
      *
-     * @param pass the password to test
-     * @return whether the password being tested is valid
+     * @param name the name of the desired repository
+     *
+     * @return the UsersRepository corresponding to the name parameter
      */
-    boolean verifyPassword(String pass);
+    UsersRepository getRepository( String name );
 
-    /**
-     * Sets new password from String. No checks made on guessability of
-     * password.
+    /** 
+     * Yield an <code>Iterator</code> over the set of repository
+     * names managed internally by this store.
      *
-     * @param newPass the String that is the new password.
-     * @return true if newPass successfully added
+     * @return an Iterator over the set of repository names
+     *         for this store
      */
-    boolean setPassword(String newPass);
+    Iterator getRepositoryNames();
 }

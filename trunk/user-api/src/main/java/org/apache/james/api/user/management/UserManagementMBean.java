@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.management;
+package org.apache.james.api.user.management;
 
 import java.util.List;
 

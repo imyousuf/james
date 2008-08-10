@@ -19,7 +19,7 @@
 
 package org.apache.james.mailboxmanager.mock;
 
-import org.apache.james.services.User;
+import org.apache.james.api.user.User;
 
 public class MockUser implements User {
 

@@ -21,10 +21,10 @@ package org.apache.james.transport.mailets;
 
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.Constants;
+import org.apache.james.api.user.UsersRepository;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
-import org.apache.james.services.UsersRepository;
 import org.apache.james.test.mock.avalon.MockServiceManager;
 import org.apache.james.test.mock.james.InMemorySpoolRepository;
 import org.apache.james.test.mock.james.MockMailServer;

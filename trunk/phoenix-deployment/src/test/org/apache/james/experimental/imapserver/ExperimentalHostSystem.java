@@ -33,10 +33,10 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.james.api.imap.process.ImapProcessor;
+import org.apache.james.api.user.User;
+import org.apache.james.api.user.UsersRepository;
 import org.apache.james.imapserver.codec.decode.ImapDecoder;
 import org.apache.james.imapserver.codec.encode.ImapEncoder;
-import org.apache.james.services.User;
-import org.apache.james.services.UsersRepository;
 import org.apache.james.test.functional.imap.HostSystem;
 import org.apache.james.test.mock.avalon.MockLogger;
 

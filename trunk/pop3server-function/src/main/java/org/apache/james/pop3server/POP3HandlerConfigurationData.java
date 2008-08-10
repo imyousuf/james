@@ -21,8 +21,8 @@
 
 package org.apache.james.pop3server;
 
+import org.apache.james.api.user.UsersRepository;
 import org.apache.james.services.MailServer;
-import org.apache.james.services.UsersRepository;
 
 /**
  * Provides a number of server-wide constant values to the

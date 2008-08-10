@@ -25,10 +25,12 @@ package org.apache.james.management;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
-import org.apache.james.services.UsersRepository;
-import org.apache.james.services.User;
+import org.apache.james.api.user.User;
+import org.apache.james.api.user.UsersRepository;
+import org.apache.james.api.user.UsersStore;
+import org.apache.james.api.user.management.UserManagementException;
+import org.apache.james.api.user.management.UserManagementMBean;
 import org.apache.james.services.JamesUser;
-import org.apache.james.services.UsersStore;
 import org.apache.mailet.MailAddress;
 
 import javax.mail.internet.ParseException;
@@ -91,14 +93,14 @@ public class UserManagement implements UserManagementMBean, Serviceable {
     }
 
     /**
-     * @see org.apache.james.management.UserManagementMBean#addUser(java.lang.String, java.lang.String, java.lang.String)
+     * @see org.apache.james.api.user.management.UserManagementMBean#addUser(java.lang.String, java.lang.String, java.lang.String)
      */
     public boolean addUser(String userName, String password, String repositoryName) throws UserManagementException {
         return getUserRepository(repositoryName).addUser(userName, password);
     }
 
     /**
-     * @see org.apache.james.management.UserManagementMBean#deleteUser(java.lang.String, java.lang.String)
+     * @see org.apache.james.api.user.management.UserManagementMBean#deleteUser(java.lang.String, java.lang.String)
      */
     public boolean deleteUser(String userName, String repositoryName) throws UserManagementException {
         UsersRepository users = getUserRepository(repositoryName);
@@ -108,7 +110,7 @@ public class UserManagement implements UserManagementMBean, Serviceable {
     }
 
     /**
-     * @see org.apache.james.management.UserManagementMBean#verifyExists(java.lang.String, java.lang.String)
+     * @see org.apache.james.api.user.management.UserManagementMBean#verifyExists(java.lang.String, java.lang.String)
      */
     public boolean verifyExists(String userName, String repositoryName) throws UserManagementException {
         UsersRepository users = getUserRepository(repositoryName);
@@ -116,7 +118,7 @@ public class UserManagement implements UserManagementMBean, Serviceable {
     }
 
     /**
-     * @see org.apache.james.management.UserManagementMBean#countUsers(java.lang.String)
+     * @see org.apache.james.api.user.management.UserManagementMBean#countUsers(java.lang.String)
      */
     public long countUsers(String repositoryName) throws UserManagementException {
         UsersRepository users = getUserRepository(repositoryName);
@@ -124,7 +126,7 @@ public class UserManagement implements UserManagementMBean, Serviceable {
     }
 
     /**
-     * @see org.apache.james.management.UserManagementMBean#listAllUsers(java.lang.String)
+     * @see org.apache.james.api.user.management.UserManagementMBean#listAllUsers(java.lang.String)
      */
     public String[] listAllUsers(String repositoryName) throws UserManagementException {
         List userNames = new ArrayList();
@@ -136,7 +138,7 @@ public class UserManagement implements UserManagementMBean, Serviceable {
     }
 
     /**
-     * @see org.apache.james.management.UserManagementMBean#setPassword(java.lang.String, java.lang.String, java.lang.String)
+     * @see org.apache.james.api.user.management.UserManagementMBean#setPassword(java.lang.String, java.lang.String, java.lang.String)
      */
     public boolean setPassword(String userName, String password, String repositoryName) throws UserManagementException {
         UsersRepository users = getUserRepository(repositoryName);
@@ -146,7 +148,7 @@ public class UserManagement implements UserManagementMBean, Serviceable {
     }
 
     /**
-     * @see org.apache.james.management.UserManagementMBean#setAlias(java.lang.String, java.lang.String, java.lang.String)
+     * @see org.apache.james.api.user.management.UserManagementMBean#setAlias(java.lang.String, java.lang.String, java.lang.String)
      */
     public boolean setAlias(String userName, String aliasUserName, String repositoryName) throws UserManagementException {
         JamesUser user = getJamesUser(userName, null);
@@ -160,7 +162,7 @@ public class UserManagement implements UserManagementMBean, Serviceable {
     }
 
     /**
-     * @see org.apache.james.management.UserManagementMBean#unsetAlias(java.lang.String, java.lang.String)
+     * @see org.apache.james.api.user.management.UserManagementMBean#unsetAlias(java.lang.String, java.lang.String)
      */
     public boolean unsetAlias(String userName, String repositoryName) throws UserManagementException {
         JamesUser user = getJamesUser(userName, null);
@@ -172,7 +174,7 @@ public class UserManagement implements UserManagementMBean, Serviceable {
     }
 
     /**
-     * @see org.apache.james.management.UserManagementMBean#getAlias(java.lang.String, java.lang.String)
+     * @see org.apache.james.api.user.management.UserManagementMBean#getAlias(java.lang.String, java.lang.String)
      */
     public String getAlias(String userName, String repositoryName) throws UserManagementException {
         JamesUser user = getJamesUser(userName, null);
@@ -181,7 +183,7 @@ public class UserManagement implements UserManagementMBean, Serviceable {
     }
 
     /**
-     * @see org.apache.james.management.UserManagementMBean#setForwardAddress(java.lang.String, java.lang.String, java.lang.String)
+     * @see org.apache.james.api.user.management.UserManagementMBean#setForwardAddress(java.lang.String, java.lang.String, java.lang.String)
      */
     public boolean setForwardAddress(String userName, String forwardEmailAddress, String repositoryName) throws UserManagementException {
         MailAddress forwardAddress;
@@ -201,7 +203,7 @@ public class UserManagement implements UserManagementMBean, Serviceable {
     }
 
     /**
-     * @see org.apache.james.management.UserManagementMBean#unsetForwardAddress(java.lang.String, java.lang.String)
+     * @see org.apache.james.api.user.management.UserManagementMBean#unsetForwardAddress(java.lang.String, java.lang.String)
      */
     public boolean unsetForwardAddress(String userName, String repositoryName) throws UserManagementException {
         JamesUser user = getJamesUser(userName, null);
@@ -214,7 +216,7 @@ public class UserManagement implements UserManagementMBean, Serviceable {
     }
 
     /**
-     * @see org.apache.james.management.UserManagementMBean#getForwardAddress(java.lang.String, java.lang.String)
+     * @see org.apache.james.api.user.management.UserManagementMBean#getForwardAddress(java.lang.String, java.lang.String)
      */
     public String getForwardAddress(String userName, String repositoryName) throws UserManagementException {
         JamesUser user = getJamesUser(userName, null);
@@ -223,7 +225,7 @@ public class UserManagement implements UserManagementMBean, Serviceable {
     }
 
     /**
-     * @see org.apache.james.management.UserManagementMBean#getUserRepositoryNames()
+     * @see org.apache.james.api.user.management.UserManagementMBean#getUserRepositoryNames()
      */
     public List getUserRepositoryNames() {
         List result = new ArrayList();

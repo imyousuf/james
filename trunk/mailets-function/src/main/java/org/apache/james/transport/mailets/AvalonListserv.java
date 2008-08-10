@@ -24,8 +24,8 @@ package org.apache.james.transport.mailets;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
-import org.apache.james.services.UsersRepository;
-import org.apache.james.services.UsersStore;
+import org.apache.james.api.user.UsersRepository;
+import org.apache.james.api.user.UsersStore;
 import org.apache.mailet.MailAddress;
 
 import javax.mail.internet.ParseException;

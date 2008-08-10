@@ -22,9 +22,9 @@ package org.apache.james.imapserver.mock;
 import java.util.Arrays;
 import java.util.Iterator;
 
+import org.apache.james.api.user.User;
+import org.apache.james.api.user.UsersRepository;
 import org.apache.james.imapserver.TestConstants;
-import org.apache.james.services.User;
-import org.apache.james.services.UsersRepository;
 
 public class MockUsersRepository implements UsersRepository, TestConstants
 {

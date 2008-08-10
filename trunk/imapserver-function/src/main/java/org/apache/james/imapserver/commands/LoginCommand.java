@@ -19,11 +19,11 @@
 
 package org.apache.james.imapserver.commands;
 
+import org.apache.james.api.user.User;
 import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
-import org.apache.james.services.User;
 
 
 /**

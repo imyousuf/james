@@ -19,10 +19,10 @@
 
 package org.apache.james.imapserver.mock;
 
+import org.apache.james.api.user.UsersRepository;
 import org.apache.james.imapserver.ImapHandlerConfigurationData;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 import org.apache.james.services.MailServer;
-import org.apache.james.services.UsersRepository;
 
 public class MockImapHandlerConfigurationData implements
         ImapHandlerConfigurationData

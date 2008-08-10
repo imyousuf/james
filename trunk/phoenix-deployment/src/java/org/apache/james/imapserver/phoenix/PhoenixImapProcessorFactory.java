@@ -23,9 +23,9 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.api.user.UserMetaDataRespository;
+import org.apache.james.api.user.UsersRepository;
 import org.apache.james.imapserver.processor.main.DefaultImapProcessorFactory;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
-import org.apache.james.services.UsersRepository;
 
 public class PhoenixImapProcessorFactory extends DefaultImapProcessorFactory implements Serviceable {
 
