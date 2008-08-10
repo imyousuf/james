@@ -31,8 +31,8 @@ import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.api.user.User;
 import org.apache.james.impl.jamesuser.AbstractUsersRepository;
 import org.apache.james.services.FileSystem;
-import org.apache.james.util.JDBCUtil;
-import org.apache.james.util.SqlResources;
+import org.apache.james.util.sql.JDBCUtil;
+import org.apache.james.util.sql.SqlResources;
 
 import java.io.InputStream;
 import java.sql.Connection;

@@ -21,7 +21,7 @@
 
 package org.apache.james.nntpserver.repository;
 
-import org.apache.james.util.Base64;
+import org.apache.james.util.codec.Base64;
 
 import java.io.File;
 import java.io.FileInputStream;

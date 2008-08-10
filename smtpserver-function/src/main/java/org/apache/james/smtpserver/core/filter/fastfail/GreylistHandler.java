@@ -48,11 +48,11 @@ import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.services.FileSystem;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
-import org.apache.james.util.JDBCUtil;
-import org.apache.james.util.SqlResources;
 import org.apache.james.util.TimeConverter;
 import org.apache.james.util.dnsservice.NetMatcher;
 import org.apache.james.util.mail.dsn.DSNStatus;
+import org.apache.james.util.sql.JDBCUtil;
+import org.apache.james.util.sql.SqlResources;
 import org.apache.mailet.MailAddress;
 
 /**

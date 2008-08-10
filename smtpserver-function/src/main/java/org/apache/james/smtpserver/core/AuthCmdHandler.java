@@ -23,6 +23,7 @@ package org.apache.james.smtpserver.core;
 
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.util.codec.Base64;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 
@@ -30,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.StringTokenizer;
-import org.apache.james.util.Base64;
 import java.io.IOException;
 
 

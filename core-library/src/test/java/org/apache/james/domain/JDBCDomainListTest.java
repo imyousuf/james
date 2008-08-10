@@ -43,7 +43,7 @@ import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockServiceManager;
 import org.apache.james.test.mock.james.MockFileSystem;
 import org.apache.james.test.util.Util;
-import org.apache.james.util.JDBCUtil;
+import org.apache.james.util.sql.JDBCUtil;
 
 public class JDBCDomainListTest  extends TestCase {
     private String repos = "db://maildb/";

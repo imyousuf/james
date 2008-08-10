@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.util;
+package org.apache.james.util.sql;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;

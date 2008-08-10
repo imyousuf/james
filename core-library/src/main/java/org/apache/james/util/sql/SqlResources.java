@@ -18,7 +18,7 @@
  ****************************************************************/
 
 
-package org.apache.james.util;
+package org.apache.james.util.sql;
 
 import org.apache.oro.text.perl.MalformedPerl5PatternException;
 import org.apache.oro.text.perl.Perl5Util;

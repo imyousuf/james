@@ -48,7 +48,7 @@ import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.services.BayesianAnalyzerManagementService;
 import org.apache.james.services.FileSystem;
-import org.apache.james.util.JDBCBayesianAnalyzer;
+import org.apache.james.util.bayesian.JDBCBayesianAnalyzer;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;

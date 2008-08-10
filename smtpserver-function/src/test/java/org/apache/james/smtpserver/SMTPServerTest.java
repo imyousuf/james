@@ -38,7 +38,7 @@ import org.apache.james.test.mock.james.MockMailServer;
 import org.apache.james.test.mock.mailet.MockMailContext;
 import org.apache.james.test.util.Util;
 import org.apache.james.userrepository.MockUsersRepository;
-import org.apache.james.util.Base64;
+import org.apache.james.util.codec.Base64;
 import org.apache.james.util.connection.SimpleConnectionManager;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;

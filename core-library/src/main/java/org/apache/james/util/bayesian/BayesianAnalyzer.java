@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.util;
+package org.apache.james.util.bayesian;
 
 import java.util.Map;
 import java.util.Set;

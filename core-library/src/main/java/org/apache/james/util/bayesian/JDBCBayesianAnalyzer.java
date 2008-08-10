@@ -19,7 +19,10 @@
 
 
 
-package org.apache.james.util;
+package org.apache.james.util.bayesian;
+
+import org.apache.james.util.sql.JDBCUtil;
+import org.apache.james.util.sql.SqlResources;
 
 import java.util.HashMap;
 import java.util.Iterator;

@@ -46,7 +46,7 @@ import org.apache.james.mailboxmanager.torque.om.MessageFlagsPeer;
 import org.apache.james.mailboxmanager.torque.om.MessageHeaderPeer;
 import org.apache.james.mailboxmanager.torque.om.MessageRowPeer;
 import org.apache.james.services.FileSystem;
-import org.apache.james.util.SqlResources;
+import org.apache.james.util.sql.SqlResources;
 import org.apache.torque.Torque;
 import org.apache.torque.TorqueException;
 import org.apache.torque.util.BasePeer;
