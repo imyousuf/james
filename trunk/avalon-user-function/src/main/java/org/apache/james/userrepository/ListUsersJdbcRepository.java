@@ -22,6 +22,7 @@
 package org.apache.james.userrepository;
 
 import org.apache.james.api.user.User;
+import org.apache.james.impl.user.DefaultUser;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -38,7 +39,7 @@ public class ListUsersJdbcRepository extends AbstractJdbcUsersRepository
 
     
     /**
-     * @see org.apache.james.userrepository.AbstractUsersRepository#test(java.lang.String, java.lang.String)
+     * @see org.apache.james.impl.jamesuser.AbstractUsersRepository#test(java.lang.String, java.lang.String)
      */
     public boolean test(String name, String password) {
         // list repository does not store passwords so we always return false!

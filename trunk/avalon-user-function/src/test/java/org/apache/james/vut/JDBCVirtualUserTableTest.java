@@ -28,6 +28,7 @@ import org.apache.avalon.framework.service.DefaultServiceManager;
 import org.apache.avalon.framework.service.ServiceException;
 
 import org.apache.james.api.vut.management.InvalidMappingException;
+import org.apache.james.impl.vut.AbstractVirtualUserTable;
 import org.apache.james.services.DNSServer;
 import org.apache.james.services.FileSystem;
 

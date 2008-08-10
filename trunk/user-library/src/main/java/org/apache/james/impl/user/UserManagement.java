@@ -20,7 +20,7 @@
 
 
 
-package org.apache.james.management;
+package org.apache.james.impl.user;
 
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;

@@ -28,7 +28,7 @@ import java.util.Map;
 
 import javax.mail.MessagingException;
 
-import org.apache.james.vut.VirtualUserTableUtil;
+import org.apache.james.impl.vut.VirtualUserTableUtil;
 import org.apache.mailet.MailAddress;
 
 /**

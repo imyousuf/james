@@ -44,6 +44,8 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.api.vut.management.InvalidMappingException;
+import org.apache.james.impl.vut.AbstractVirtualUserTable;
+import org.apache.james.impl.vut.VirtualUserTableUtil;
 import org.apache.james.services.FileSystem;
 import org.apache.james.util.JDBCUtil;
 import org.apache.james.util.SqlResources;
@@ -249,7 +251,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
     }
     
     /**
-     * @see org.apache.james.vut.AbstractVirtualUserTable#mapAddressInternal(java.lang.String, java.lang.String)
+     * @see org.apache.james.impl.vut.AbstractVirtualUserTable#mapAddressInternal(java.lang.String, java.lang.String)
      */
     public String mapAddressInternal(String user, String domain) {
         Connection conn = null;
@@ -281,7 +283,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
     }
     
     /**
-     * @see org.apache.james.vut.AbstractVirtualUserTable#removeMappingInternal(String, String, String)
+     * @see org.apache.james.impl.vut.AbstractVirtualUserTable#removeMappingInternal(String, String, String)
      */
     public boolean removeMappingInternal(String user, String domain, String mapping) throws InvalidMappingException {
         String newUser = getUserString(user);
@@ -298,7 +300,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
 
 
     /**
-     * @see org.apache.james.vut.AbstractVirtualUserTable#addMappingInternal(String, String, String)
+     * @see org.apache.james.impl.vut.AbstractVirtualUserTable#addMappingInternal(String, String, String)
      */
     public boolean addMappingInternal(String user, String domain, String regex) throws InvalidMappingException {
         String newUser = getUserString(user);
@@ -470,7 +472,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
     }
     
     /**
-     * @see org.apache.james.vut.AbstractVirtualUserTable#mapAddress(java.lang.String, java.lang.String)
+     * @see org.apache.james.impl.vut.AbstractVirtualUserTable#mapAddress(java.lang.String, java.lang.String)
      */
     protected Collection getUserDomainMappingsInternal(String user, String domain) {
         Connection conn = null;
@@ -502,7 +504,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
     }
 
     /**
-     * @see org.apache.james.vut.AbstractVirtualUserTable#getDomainsInternal()
+     * @see org.apache.james.impl.vut.AbstractVirtualUserTable#getDomainsInternal()
      */
     protected List getDomainsInternal() {
         List domains = new ArrayList();
@@ -571,7 +573,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
     }
 
     /**
-     * @see org.apache.james.vut.AbstractVirtualUserTable#getAllMappingsInternal()
+     * @see org.apache.james.impl.vut.AbstractVirtualUserTable#getAllMappingsInternal()
      */
     public Map getAllMappingsInternal() {
         Connection conn = null;

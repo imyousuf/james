@@ -31,6 +31,8 @@ import java.util.Map;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.james.impl.vut.AbstractVirtualUserTable;
+import org.apache.james.impl.vut.VirtualUserTableUtil;
 
 public class XMLVirtualUserTable extends AbstractVirtualUserTable implements Configurable {
     /**
@@ -95,7 +97,7 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable implements Con
     }
 
     /**
-     * @see org.apache.james.vut.AbstractVirtualUserTable#mapAddressInternal(java.lang.String, java.lang.String)
+     * @see org.apache.james.impl.vut.AbstractVirtualUserTable#mapAddressInternal(java.lang.String, java.lang.String)
      */
     protected String mapAddressInternal(String user, String domain) {
         if (mappings == null) {
@@ -115,7 +117,7 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable implements Con
     }
 
     /**
-     * @see org.apache.james.vut.AbstractVirtualUserTable#getUserDomainMappingsInternal(java.lang.String, java.lang.String)
+     * @see org.apache.james.impl.vut.AbstractVirtualUserTable#getUserDomainMappingsInternal(java.lang.String, java.lang.String)
      */
     public Collection getUserDomainMappingsInternal(String user, String domain) {
         if (mappings == null) {
@@ -131,7 +133,7 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable implements Con
     }
 
     /**
-     * @see org.apache.james.vut.AbstractVirtualUserTable#getDomainsInternal()
+     * @see org.apache.james.impl.vut.AbstractVirtualUserTable#getDomainsInternal()
      */
     protected List getDomainsInternal() {
         return domains;
@@ -149,7 +151,7 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable implements Con
     }
 
     /**
-     * @see org.apache.james.vut.AbstractVirtualUserTable#getAllMappingsInternal()
+     * @see org.apache.james.impl.vut.AbstractVirtualUserTable#getAllMappingsInternal()
      */
     public Map getAllMappingsInternal() {
         if ( mappings != null && mappings.size() > 0) {

@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.userrepository;
+package org.apache.james.impl.jamesuser;
 
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.vut.VirtualUserTable;

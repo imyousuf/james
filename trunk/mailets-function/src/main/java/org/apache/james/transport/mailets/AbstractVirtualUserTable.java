@@ -23,7 +23,7 @@ package org.apache.james.transport.mailets;
 
 import org.apache.james.Constants;
 import org.apache.james.core.MailImpl;
-import org.apache.james.vut.VirtualUserTableUtil;
+import org.apache.james.impl.vut.VirtualUserTableUtil;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;

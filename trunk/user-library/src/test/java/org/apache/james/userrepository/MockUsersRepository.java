@@ -20,6 +20,10 @@
 package org.apache.james.userrepository;
 
 import org.apache.james.api.user.User;
+import org.apache.james.impl.jamesuser.AbstractUsersRepository;
+import org.apache.james.impl.user.DefaultJamesUser;
+import org.apache.james.impl.user.DefaultUser;
+import org.apache.james.impl.user.DigestUtil;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;

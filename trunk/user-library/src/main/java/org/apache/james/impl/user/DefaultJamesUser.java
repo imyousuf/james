@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.userrepository;
+package org.apache.james.impl.user;
 
 import org.apache.james.api.user.JamesUser;
 import org.apache.mailet.MailAddress;

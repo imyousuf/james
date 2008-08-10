@@ -22,6 +22,7 @@ package org.apache.james.userrepository;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.api.user.User;
 import org.apache.james.api.user.UsersRepository;
+import org.apache.james.impl.user.DefaultJamesUser;
 
 import java.util.ArrayList;
 import java.util.Iterator;
