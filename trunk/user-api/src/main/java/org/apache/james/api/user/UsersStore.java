@@ -35,7 +35,7 @@ public interface UsersStore
     /**
      * The component role used by components implementing this service
      */
-    String ROLE = "org.apache.james.services.UsersStore";
+    String ROLE = "org.apache.james.api.user.UsersStore";
 
     /** 
      * Get the repository, if any, whose name corresponds to
