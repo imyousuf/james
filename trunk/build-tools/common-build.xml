@@ -260,14 +260,14 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
             <path 
                 id='classpath.dependencies.util'
                 description="Convenient way to import all Utils">
-                <!-- TODO Add content when APIs are broken out -->   
+                <!-- TODO Add content when Utilss are broken out -->   
                 <fileset dir="${lib.dir}/${path.lib.james}">
                     <include name="${jars-prefix}*-util-${version}.jar" />
                 </fileset>
             </path>
             <path 
                 id='classpath.dependencies.libraries'
-                description="Convenient way to import all libraries and APIs">
+                description="Convenient way to import all libraries, APIs and Utils">
                 <!-- TODO Add content when libraries are broken out -->   
                 <path refid='classpath.dependencies.api'/>
                 <path refid='classpath.dependencies.util'/>
@@ -277,7 +277,7 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
             </path> 
             <path 
                 id='classpath.dependencies.functions'
-                description="Convenient way to import all functions, libraries and APIs">
+                description="Convenient way to import all functions, libraries, APIs and Utils">
                 <!-- TODO Add content when functions are broken out -->   
                 <path refid='classpath.dependencies.libraries'/>   
                 <fileset dir="${lib.dir}/${path.lib.james}">
@@ -303,7 +303,7 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
             </path>
             <path 
                 id='classpath.test.dependencies.libraries'
-                description="Convenient way to import all library and API tests">
+                description="Convenient way to import all library, API and Util tests">
                 <!-- TODO Add content when libraries are broken out -->   
                 <path refid='classpath.test.dependencies.api'/>
                 <path refid='classpath.test.dependencies.util'/>
@@ -313,7 +313,7 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
             </path> 
             <path 
                 id='classpath.test.dependencies.functions'
-                description="Convenient way to import all function, librarie and API tests">
+                description="Convenient way to import all function, libraries, APIs and Utils tests">
                 <!-- TODO Add content when functions are broken out -->   
                 <path refid='classpath.test.dependencies.libraries'/>   
                 <fileset dir="${lib.dir}/${path.lib.james}">
