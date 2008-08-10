@@ -28,6 +28,10 @@
   <artifactId>james-server-user-api</artifactId>
   <name>Apache JAMES Server User API</name>
   <dependencies>
-  	<!-- no dependencies -->
+    <!-- only used by JamesUser (for MailAddress) -->
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>mailet</artifactId>
+    </dependency>
   </dependencies>
 </project>
