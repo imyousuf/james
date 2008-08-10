@@ -35,7 +35,7 @@ import java.util.Map;
 import javax.mail.internet.ParseException;
 
 import org.apache.james.Constants;
-import org.apache.james.api.vut.VirtualUserTableManagementException;
+import org.apache.james.api.vut.management.VirtualUserTableManagementException;
 import org.apache.james.core.AbstractJamesHandler;
 import org.apache.james.management.BayesianAnalyzerManagementException;
 import org.apache.james.management.DomainListManagementException;

@@ -19,11 +19,11 @@
 
 
 
-package org.apache.james.api.vut;
+package org.apache.james.api.vut.management;
 
 import java.util.Collection;
 
-import org.apache.james.api.vut.VirtualUserTableManagementException;
+import org.apache.james.api.vut.management.VirtualUserTableManagementException;
 
 /**
  * Expose virtualusertable management functionality through JMX.
