@@ -24,7 +24,8 @@ package org.apache.james.transport.matchers;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
 import org.apache.james.api.dnsservice.DNSService;
-import org.apache.james.util.NetMatcher;
+import org.apache.james.util.dnsservice.NetMatcher;
+
 import javax.mail.MessagingException;
 import java.util.StringTokenizer;
 import java.util.Collection;

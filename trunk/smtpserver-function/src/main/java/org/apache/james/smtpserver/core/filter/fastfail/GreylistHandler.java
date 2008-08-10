@@ -49,9 +49,9 @@ import org.apache.james.services.FileSystem;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.JDBCUtil;
-import org.apache.james.util.NetMatcher;
 import org.apache.james.util.SqlResources;
 import org.apache.james.util.TimeConverter;
+import org.apache.james.util.dnsservice.NetMatcher;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.MailAddress;
 
