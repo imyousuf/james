@@ -28,7 +28,6 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.api.user.ErrorMappingException;
 import org.apache.james.api.user.JamesUser;
 import org.apache.james.api.user.User;
-import org.apache.james.services.JamesUsersRepository;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -192,21 +191,21 @@ public abstract class AbstractUsersRepository
     }
 
     /**
-     * @see org.apache.james.services.JamesUsersRepository#setEnableAliases(boolean)
+     * @see org.apache.james.userrepository.JamesUsersRepository#setEnableAliases(boolean)
      */
     public void setEnableAliases(boolean enableAliases) {
         this.enableAliases = enableAliases;
     }
 
     /**
-     * @see org.apache.james.services.JamesUsersRepository#setEnableForwarding(boolean)
+     * @see org.apache.james.userrepository.JamesUsersRepository#setEnableForwarding(boolean)
      */
     public void setEnableForwarding(boolean enableForwarding) {
         this.enableForwarding = enableForwarding;
     }
 
     /**
-     * @see org.apache.james.services.JamesUsersRepository#setIgnoreCase(boolean)
+     * @see org.apache.james.userrepository.JamesUsersRepository#setIgnoreCase(boolean)
      */
     public void setIgnoreCase(boolean ignoreCase) {
         this.ignoreCase = ignoreCase;
