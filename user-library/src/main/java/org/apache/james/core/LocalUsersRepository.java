@@ -23,7 +23,6 @@ import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
-import org.apache.james.JamesMBean;
 import org.apache.james.api.user.User;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.user.UsersStore;
@@ -34,7 +33,7 @@ import java.util.Iterator;
  * Provide access to the default "LocalUsers" UsersRepository.
  * Temporarily implements JamesMBean (formerly implemented by James) to keep backward compatibility. 
  */
-public class LocalUsersRepository implements UsersRepository, Serviceable, Initializable, JamesMBean {
+public class LocalUsersRepository implements UsersRepository, Serviceable, Initializable {
 
     private UsersStore usersStore;
     protected UsersRepository users;
