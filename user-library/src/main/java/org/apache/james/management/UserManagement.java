@@ -25,12 +25,12 @@ package org.apache.james.management;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
+import org.apache.james.api.user.JamesUser;
 import org.apache.james.api.user.User;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.user.UsersStore;
 import org.apache.james.api.user.management.UserManagementException;
 import org.apache.james.api.user.management.UserManagementMBean;
-import org.apache.james.services.JamesUser;
 import org.apache.mailet.MailAddress;
 
 import javax.mail.internet.ParseException;

@@ -21,7 +21,7 @@
 
 package org.apache.james.userrepository;
 
-import org.apache.james.services.JamesUser;
+import org.apache.james.api.user.JamesUser;
 import org.apache.mailet.MailAddress;
 
 /**
@@ -80,21 +80,21 @@ public class DefaultJamesUser
     }
 
     /**
-     * @see org.apache.james.services.JamesUser#setForwarding(boolean)
+     * @see org.apache.james.api.user.JamesUser#setForwarding(boolean)
      */
     public void setForwarding(boolean forward) {
         forwarding = forward;
     }
 
     /**
-     * @see org.apache.james.services.JamesUser#getForwarding()
+     * @see org.apache.james.api.user.JamesUser#getForwarding()
      */
     public boolean getForwarding() {
         return forwarding;
     }
 
     /**
-     * @see org.apache.james.services.JamesUser#setForwardingDestination(org.apache.mailet.MailAddress)
+     * @see org.apache.james.api.user.JamesUser#setForwardingDestination(org.apache.mailet.MailAddress)
      */
     public boolean setForwardingDestination(MailAddress address) {
         /* TODO: Some verification would be good */
@@ -103,28 +103,28 @@ public class DefaultJamesUser
     }
 
     /**
-     * @see org.apache.james.services.JamesUser#getForwardingDestination()
+     * @see org.apache.james.api.user.JamesUser#getForwardingDestination()
      */
     public MailAddress getForwardingDestination() {
         return forwardingDestination;
     }
 
     /**
-     * @see org.apache.james.services.JamesUser#setAliasing(boolean)
+     * @see org.apache.james.api.user.JamesUser#setAliasing(boolean)
      */
     public void setAliasing(boolean alias) {
         aliasing = alias;
     }
 
     /**
-     * @see org.apache.james.services.JamesUser#getAliasing()
+     * @see org.apache.james.api.user.JamesUser#getAliasing()
      */
     public boolean getAliasing() {
         return aliasing;
     }
 
     /**
-     * @see org.apache.james.services.JamesUser#setAlias(java.lang.String)
+     * @see org.apache.james.api.user.JamesUser#setAlias(java.lang.String)
      */
     public boolean setAlias(String address) {
         /* TODO: Some verification would be good */
@@ -133,7 +133,7 @@ public class DefaultJamesUser
     }
 
     /**
-     * @see org.apache.james.services.JamesUser#getAlias()
+     * @see org.apache.james.api.user.JamesUser#getAlias()
      */
     public String getAlias() {
         return alias;
