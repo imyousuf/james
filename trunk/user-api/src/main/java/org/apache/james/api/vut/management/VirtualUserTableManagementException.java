@@ -20,7 +20,7 @@
 
 
 
-package org.apache.james.api.vut;
+package org.apache.james.api.vut.management;
 
 public class VirtualUserTableManagementException extends Exception {
 
