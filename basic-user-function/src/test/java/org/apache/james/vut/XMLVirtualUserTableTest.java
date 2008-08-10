@@ -30,7 +30,7 @@ import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.DefaultServiceManager;
 
-import org.apache.james.api.dnsservice.DNSServer;
+import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.vut.VirtualUserTable;
 import org.apache.james.api.vut.management.InvalidMappingException;
 import org.apache.james.impl.vut.AbstractVirtualUserTable;
@@ -49,7 +49,7 @@ public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
     protected AbstractVirtualUserTable getVirtalUserTable() throws Exception {
         DefaultServiceManager serviceManager = new DefaultServiceManager();
         serviceManager.put(FileSystem.ROLE, new MockFileSystem());
-        serviceManager.put(DNSServer.ROLE, setUpDNSServer());
+        serviceManager.put(DNSService.ROLE, setUpDNSServer());
         XMLVirtualUserTable mr = new XMLVirtualUserTable();
         ContainerUtil.enableLogging(mr, new MockLogger());
 

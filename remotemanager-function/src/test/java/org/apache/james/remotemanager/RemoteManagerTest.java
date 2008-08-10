@@ -26,7 +26,7 @@ import org.apache.avalon.cornerstone.services.threads.ThreadManager;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.commons.net.telnet.TelnetClient;
-import org.apache.james.api.dnsservice.DNSServer;
+import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.user.UsersStore;
 import org.apache.james.api.vut.management.VirtualUserTableManagementService;
@@ -176,7 +176,7 @@ public class RemoteManagerTest extends TestCase {
         serviceManager.put(UsersStore.ROLE, new MockUsersStore(m_mockUsersRepository));
         serviceManager.put(SocketManager.ROLE, new MockSocketManager(m_remoteManagerListenerPort));
         serviceManager.put(ThreadManager.ROLE, new MockThreadManager());
-        serviceManager.put(DNSServer.ROLE, setUpDNSServer());
+        serviceManager.put(DNSService.ROLE, setUpDNSServer());
         
         MockVirtualUserTableStore vutStore = new MockVirtualUserTableStore(); 
         VirtualUserTableManagement vutManagement = new VirtualUserTableManagement();
@@ -195,8 +195,8 @@ public class RemoteManagerTest extends TestCase {
         return serviceManager;
     }
     
-    private DNSServer setUpDNSServer() {
-        DNSServer dns = new AbstractDNSServer() {
+    private DNSService setUpDNSServer() {
+        DNSService dns = new AbstractDNSServer() {
             public String getHostName(InetAddress addr) {
                 return "localhost";
             }

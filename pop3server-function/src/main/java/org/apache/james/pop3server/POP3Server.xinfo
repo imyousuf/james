@@ -46,7 +46,7 @@
       <service name="org.apache.avalon.cornerstone.services.threads.ThreadManager" version="1.0"/>
     </dependency>
      <dependency>
-      <service name="org.apache.james.api.dnsservice.DNSServer" version="1.0"/>
+      <service name="org.apache.james.api.dnsservice.DNSService" version="1.0"/>
     </dependency>
   </dependencies>
 

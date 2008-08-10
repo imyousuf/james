@@ -24,7 +24,7 @@ package org.apache.james;
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.ServiceException;
-import org.apache.james.api.dnsservice.DNSServer;
+import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.domainlist.DomainList;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.user.UsersStore;
@@ -126,12 +126,12 @@ public class JamesTest extends MailServerTestAllImplementations {
         mockMailRepository = new InMemorySpoolRepository();
         mockStore.add(EXISTING_USER_NAME, mockMailRepository);
         serviceManager.put(Store.ROLE, mockStore);
-        serviceManager.put(DNSServer.ROLE, setUpDNSServer());
+        serviceManager.put(DNSService.ROLE, setUpDNSServer());
         return serviceManager;
     }
     
-    private DNSServer setUpDNSServer() {
-        DNSServer dns = new AbstractDNSServer() {
+    private DNSService setUpDNSServer() {
+        DNSService dns = new AbstractDNSServer() {
             public String getHostName(InetAddress addr) {
                 return "localhost";
             }

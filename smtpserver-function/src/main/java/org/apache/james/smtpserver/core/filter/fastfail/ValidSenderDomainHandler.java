@@ -30,7 +30,7 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
-import org.apache.james.api.dnsservice.DNSServer;
+import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.TemporaryResolutionException;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
@@ -43,7 +43,7 @@ public class ValidSenderDomainHandler
     
     private boolean checkAuthClients = false;
     
-    private DNSServer dnsServer = null;
+    private DNSService dnsServer = null;
 
     
     /**
@@ -63,7 +63,7 @@ public class ValidSenderDomainHandler
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
     public void service(ServiceManager serviceMan) throws ServiceException {
-        setDnsServer((DNSServer) serviceMan.lookup(DNSServer.ROLE));
+        setDnsServer((DNSService) serviceMan.lookup(DNSService.ROLE));
     }
     
     /**
@@ -71,7 +71,7 @@ public class ValidSenderDomainHandler
      * 
      * @param dnsServer The DnsServer
      */
-    public void setDnsServer(DNSServer dnsServer) {
+    public void setDnsServer(DNSService dnsServer) {
         this.dnsServer = dnsServer;
     }
     

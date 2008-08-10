@@ -30,7 +30,7 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
-import org.apache.james.api.dnsservice.DNSServer;
+import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.TemporaryResolutionException;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
@@ -45,7 +45,7 @@ import org.apache.mailet.MailAddress;
 public class ValidRcptMX extends AbstractJunkHandler implements CommandHandler,
     Serviceable {
 
-    private DNSServer dnsServer = null;
+    private DNSService dnsServer = null;
 
     private static final String LOCALHOST = "localhost";
 
@@ -86,9 +86,9 @@ public class ValidRcptMX extends AbstractJunkHandler implements CommandHandler,
      * Set the banned networks
      * 
      * @param networks Collection of networks 
-     * @param dnsServer The DNSServer
+     * @param dnsServer The DNSService
      */
-    public void setBannedNetworks(Collection networks, DNSServer dnsServer) {
+    public void setBannedNetworks(Collection networks, DNSService dnsServer) {
         bNetwork = new NetMatcher(networks, dnsServer) {
             protected void log(String s) {
                 getLogger().debug(s);
@@ -101,7 +101,7 @@ public class ValidRcptMX extends AbstractJunkHandler implements CommandHandler,
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
     public void service(ServiceManager arg0) throws ServiceException {
-        setDNSServer((DNSServer) arg0.lookup(DNSServer.ROLE));
+        setDNSServer((DNSService) arg0.lookup(DNSService.ROLE));
     }
 
     /**
@@ -121,12 +121,12 @@ public class ValidRcptMX extends AbstractJunkHandler implements CommandHandler,
     }
 
     /**
-     * Set the DNSServer
+     * Set the DNSService
      * 
      * @param dnsServer
      *                The dnsServer
      */
-    public void setDNSServer(DNSServer dnsServer) {
+    public void setDNSServer(DNSService dnsServer) {
         this.dnsServer = dnsServer;
     }
 

@@ -28,7 +28,7 @@ import javax.mail.MessagingException;
 import javax.mail.Session;
 
 import org.apache.avalon.framework.logger.Logger;
-import org.apache.james.api.dnsservice.DNSServer;
+import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.services.MailServer;
 import org.apache.mailet.MailAddress;
@@ -200,10 +200,10 @@ abstract public class ProcessorAbstract
     }
     
     /**
-     * Returns the DNSServer
-     * @return DNSServer
+     * Returns the DNSService
+     * @return DNSService
      */
-    protected DNSServer getDNSServer()
+    protected DNSService getDNSServer()
     {
         return getConfiguration().getDNSServer();
     }

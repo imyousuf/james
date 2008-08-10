@@ -30,7 +30,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
-import org.apache.james.api.dnsservice.DNSServer;
+import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.domainlist.DomainListUtil;
 import org.apache.james.services.ManageableDomainList;
 
@@ -38,7 +38,7 @@ import org.apache.james.services.ManageableDomainList;
  * All implementations of the DomainList interface should extends this abstract class
  */
 public abstract class AbstractDomainList extends AbstractLogEnabled implements Serviceable, ManageableDomainList {
-    private DNSServer dns;
+    private DNSService dns;
     private boolean autoDetect = true;
     private boolean autoDetectIP = true;
 
@@ -46,7 +46,7 @@ public abstract class AbstractDomainList extends AbstractLogEnabled implements S
      * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
      */
     public void service(ServiceManager arg0) throws ServiceException {
-        dns = (DNSServer) arg0.lookup(DNSServer.ROLE);
+        dns = (DNSService) arg0.lookup(DNSService.ROLE);
     }
     
 
@@ -128,7 +128,7 @@ public abstract class AbstractDomainList extends AbstractLogEnabled implements S
      * 
      * @return dns
      */
-    protected DNSServer getDNSServer() {
+    protected DNSService getDNSServer() {
         return dns;
     }
     

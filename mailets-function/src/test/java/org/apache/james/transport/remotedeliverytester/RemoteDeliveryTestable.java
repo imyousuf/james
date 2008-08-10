@@ -19,7 +19,7 @@
 
 package org.apache.james.transport.remotedeliverytester;
 
-import org.apache.james.api.dnsservice.DNSServer;
+import org.apache.james.api.dnsservice.DNSService;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailetConfig;
 
@@ -34,7 +34,7 @@ import javax.mail.MessagingException;
 public interface RemoteDeliveryTestable {
     
     void setRemoteDeliveryTester(Tester tester);
-    void setDNSServer(DNSServer dnsServer);
+    void setDNSServer(DNSService dnsServer);
     
     void init() throws MessagingException;
     void init(MailetConfig newConfig) throws MessagingException;

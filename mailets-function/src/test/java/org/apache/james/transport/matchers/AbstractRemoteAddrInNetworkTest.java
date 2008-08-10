@@ -37,7 +37,7 @@ import javax.mail.internet.ParseException;
 import junit.framework.TestCase;
 
 import org.apache.james.Constants;
-import org.apache.james.api.dnsservice.DNSServer;
+import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.services.AbstractDNSServer;
 import org.apache.james.test.mock.avalon.MockServiceManager;
 import org.apache.james.test.mock.mailet.MockMailContext;
@@ -53,7 +53,7 @@ public abstract class AbstractRemoteAddrInNetworkTest extends TestCase {
 
     private String remoteAddr;
 
-    private DNSServer dnsServer;
+    private DNSService dnsServer;
 
     private MockServiceManager m_serviceManager;
 
@@ -206,7 +206,7 @@ public abstract class AbstractRemoteAddrInNetworkTest extends TestCase {
 
     protected void setupMatcher() throws MessagingException {
         m_serviceManager = new MockServiceManager();
-        m_serviceManager.put(DNSServer.ROLE, dnsServer);
+        m_serviceManager.put(DNSService.ROLE, dnsServer);
 
         MockMailContext mmc = new MockMailContext();
         mmc.setAttribute(Constants.AVALON_COMPONENT_MANAGER, m_serviceManager);

@@ -27,7 +27,7 @@ import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
-import org.apache.james.api.dnsservice.DNSServer;
+import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.TemporaryResolutionException;
 import org.apache.james.services.SpoolRepository;
 import org.apache.james.util.TimeConverter;
@@ -106,8 +106,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                                             
     private static Pattern PATTERN = null; //the compiled pattern of the above String
     
-    // The DNSServer
-    private DNSServer dnsServer;
+    // The DNSService
+    private DNSService dnsServer;
     
     /*
      * Static initializer.<p>
@@ -343,11 +343,11 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             // Instantiate the a MailRepository for outgoing mails
              try
             {
-                dnsServer = (DNSServer) compMgr.lookup(DNSServer.ROLE);
+                dnsServer = (DNSService) compMgr.lookup(DNSService.ROLE);
             }
             catch (ServiceException e1)
             {
-                log("Failed to retrieve DNSServer" + e1.getMessage());
+                log("Failed to retrieve DNSService" + e1.getMessage());
             }
 
         //Start up a number of threads
@@ -1532,7 +1532,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
      * Setter for the dnsserver service
      * @param dnsServer dns service
      */
-    protected synchronized void setDNSServer(DNSServer dnsServer) {
+    protected synchronized void setDNSServer(DNSService dnsServer) {
         this.dnsServer = dnsServer;
     }
 }

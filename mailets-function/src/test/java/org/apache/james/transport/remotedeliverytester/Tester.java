@@ -20,7 +20,7 @@
 package org.apache.james.transport.remotedeliverytester;
 
 import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.james.api.dnsservice.DNSServer;
+import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.TemporaryResolutionException;
 import org.apache.james.core.MailImpl;
 import org.apache.mailet.HostAddress;
@@ -72,33 +72,33 @@ public class Tester {
 
     private Hashtable hostAddresses = new Hashtable();
     private Hashtable domainsAssociated = new Hashtable();
-    private DNSServer dnsServer = new DNSServer() {
+    private DNSService dnsServer = new DNSService() {
 
         public Collection findMXRecords(String hostname)
                 throws TemporaryResolutionException {
-            throw new UnsupportedOperationException("DNSServer stub");
+            throw new UnsupportedOperationException("DNSService stub");
         }
 
         public Collection findTXTRecords(String hostname) {
-            throw new UnsupportedOperationException("DNSServer stub");
+            throw new UnsupportedOperationException("DNSService stub");
         }
 
         public InetAddress[] getAllByName(String host)
                 throws UnknownHostException {
-            throw new UnsupportedOperationException("DNSServer stub");
+            throw new UnsupportedOperationException("DNSService stub");
         }
 
         public InetAddress getByName(String host)
                 throws UnknownHostException {
-            throw new UnsupportedOperationException("DNSServer stub");
+            throw new UnsupportedOperationException("DNSService stub");
         }
 
         public String getHostName(InetAddress addr) {
-            throw new UnsupportedOperationException("DNSServer stub");
+            throw new UnsupportedOperationException("DNSService stub");
         }
 
         public InetAddress getLocalHost() throws UnknownHostException {
-            throw new UnsupportedOperationException("DNSServer stub");
+            throw new UnsupportedOperationException("DNSService stub");
         }
 
         public Iterator getSMTPHostAddresses(final String domainName)

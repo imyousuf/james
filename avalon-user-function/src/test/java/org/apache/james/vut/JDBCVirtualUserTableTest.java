@@ -27,7 +27,7 @@ import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.service.DefaultServiceManager;
 import org.apache.avalon.framework.service.ServiceException;
 
-import org.apache.james.api.dnsservice.DNSServer;
+import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.vut.management.InvalidMappingException;
 import org.apache.james.impl.vut.AbstractVirtualUserTable;
 import org.apache.james.services.FileSystem;
@@ -47,7 +47,7 @@ public class JDBCVirtualUserTableTest extends AbstractVirtualUserTableTest {
         DefaultServiceManager serviceManager = new DefaultServiceManager();
         serviceManager.put(FileSystem.ROLE, new MockFileSystem());
         serviceManager.put(DataSourceSelector.ROLE, Util.getDataSourceSelector());
-        serviceManager.put(DNSServer.ROLE, setUpDNSServer());
+        serviceManager.put(DNSService.ROLE, setUpDNSServer());
         JDBCVirtualUserTable mr = new JDBCVirtualUserTable();
         
 

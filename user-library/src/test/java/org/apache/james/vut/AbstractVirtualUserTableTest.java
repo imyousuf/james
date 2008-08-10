@@ -28,7 +28,7 @@ import java.util.Map;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.ServiceException;
-import org.apache.james.api.dnsservice.DNSServer;
+import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.TemporaryResolutionException;
 import org.apache.james.api.vut.ErrorMappingException;
 import org.apache.james.api.vut.VirtualUserTable;
@@ -95,8 +95,8 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
     protected abstract boolean removeMapping(String user, String domain, String mapping, int type) throws InvalidMappingException;
     
  
-    protected DNSServer setUpDNSServer() {
-        DNSServer dns = new DNSServer() {
+    protected DNSService setUpDNSServer() {
+        DNSService dns = new DNSService() {
             public String getHostName(InetAddress inet) {
                 return "test";
             }

@@ -24,7 +24,7 @@ package org.apache.james.dnsserver;
 /**
  * An interface to expose James management functionality through JMX.
  * 
- * @phoenix:mx-topic name="DNSServer"
+ * @phoenix:mx-topic name="DNSService"
  */
 public interface DNSServerMBean {
     /**

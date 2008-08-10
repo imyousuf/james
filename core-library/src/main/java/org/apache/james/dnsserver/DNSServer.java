@@ -61,7 +61,7 @@ import java.util.Random;
  */
 public class DNSServer
     extends AbstractLogEnabled
-    implements Configurable, Initializable, org.apache.james.api.dnsservice.DNSServer, DNSServerMBean {
+    implements Configurable, Initializable, org.apache.james.api.dnsservice.DNSService, DNSServerMBean {
 
     /**
      * A resolver instance used to retrieve DNS records.  This
@@ -199,7 +199,7 @@ public class DNSServer
     public void initialize()
         throws Exception {
 
-        getLogger().debug("DNSServer init...");
+        getLogger().debug("DNSService init...");
 
         // If no DNS servers were configured, default to local host
         if (dnsServers.isEmpty()) {
@@ -245,7 +245,7 @@ public class DNSServer
         localHostName = addr.getHostName();
         localAddress = addr.getHostAddress();
         
-        getLogger().debug("DNSServer ...init end");
+        getLogger().debug("DNSService ...init end");
     }
 
     /**
@@ -298,7 +298,7 @@ public class DNSServer
     }
     
     /**
-     * @see org.apache.james.api.dnsservice.DNSServer#findMXRecords(String)
+     * @see org.apache.james.api.dnsservice.DNSService#findMXRecords(String)
      */
     public Collection findMXRecords(String hostname) throws TemporaryResolutionException {
         List servers = new ArrayList();
@@ -357,7 +357,7 @@ public class DNSServer
             try {
                 if (l.getResult() == Lookup.TRY_AGAIN) {
                     throw new TemporaryResolutionException(
-                            "DNSServer is temporary not reachable");
+                            "DNSService is temporary not reachable");
                 } else {
                     return r;
                 }
@@ -366,7 +366,7 @@ public class DNSServer
                 // TODO find out if it's a bug in DNSJava 
                 getLogger().debug("Error determining result ", ise);
                 throw new TemporaryResolutionException(
-                        "DNSServer is temporary not reachable");
+                        "DNSService is temporary not reachable");
             }
             
             // return rawDNSLookup(name, false, type, typeDesc);
@@ -412,7 +412,7 @@ public class DNSServer
     }
 
     /**
-     * @see org.apache.james.api.dnsservice.DNSServer#getSMTPHostAddresses(String)
+     * @see org.apache.james.api.dnsservice.DNSService#getSMTPHostAddresses(String)
      */
     public Iterator getSMTPHostAddresses(final String domainName) throws TemporaryResolutionException {
         return new Iterator() {
@@ -505,7 +505,7 @@ public class DNSServer
     }
 
     /**
-     * @see org.apache.james.api.dnsservice.DNSServer#getByName(String)
+     * @see org.apache.james.api.dnsservice.DNSService#getByName(String)
      */
     public InetAddress getByName(String host) throws UnknownHostException {
         String name = allowIPLiteral(host);
@@ -528,7 +528,7 @@ public class DNSServer
     }
 
     /**
-     * @see org.apache.james.api.dnsservice.DNSServer#getAllByName(String)
+     * @see org.apache.james.api.dnsservice.DNSService#getAllByName(String)
      */
     public InetAddress[] getAllByName(String host) throws UnknownHostException {
         String name = allowIPLiteral(host);
@@ -555,7 +555,7 @@ public class DNSServer
     }
     
     /**
-     * @see org.apache.james.api.dnsservice.DNSServer#findTXTRecords(String)
+     * @see org.apache.james.api.dnsservice.DNSService#findTXTRecords(String)
      */
     public Collection findTXTRecords(String hostname){
         List txtR = new ArrayList();
@@ -572,7 +572,7 @@ public class DNSServer
     }
 
     /**
-     * @see org.apache.james.api.dnsservice.DNSServer#getHostName(java.net.InetAddress)
+     * @see org.apache.james.api.dnsservice.DNSService#getHostName(java.net.InetAddress)
      */
     public String getHostName(InetAddress addr){
         String result = null;
@@ -589,7 +589,7 @@ public class DNSServer
     }
 
     /**
-     * @see org.apache.james.api.dnsservice.DNSServer#getLocalHost()
+     * @see org.apache.james.api.dnsservice.DNSService#getLocalHost()
      */
     public InetAddress getLocalHost() throws UnknownHostException {
         return InetAddress.getLocalHost();

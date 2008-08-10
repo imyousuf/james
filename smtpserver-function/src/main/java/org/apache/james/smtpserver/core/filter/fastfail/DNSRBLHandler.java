@@ -27,7 +27,7 @@ import org.apache.avalon.framework.service.Serviceable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.james.api.dnsservice.DNSServer;
+import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.ConnectHandler;
 import org.apache.james.smtpserver.SMTPSession;
@@ -51,7 +51,7 @@ public class DNSRBLHandler
     private String[] whitelist;
     private String[] blacklist;
     
-    private DNSServer dnsServer = null;
+    private DNSService dnsServer = null;
     
     private boolean getDetail = false;
     
@@ -120,7 +120,7 @@ public class DNSRBLHandler
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
     public void service(ServiceManager serviceMan) throws ServiceException {
-        setDNSServer((DNSServer) serviceMan.lookup(DNSServer.ROLE));
+        setDNSServer((DNSService) serviceMan.lookup(DNSService.ROLE));
     }
     
     /**
@@ -151,11 +151,11 @@ public class DNSRBLHandler
     }
     
     /**
-     * Set the DNSServer
+     * Set the DNSService
      * 
-     * @param dnsServer The DNSServer
+     * @param dnsServer The DNSService
      */
-    public void setDNSServer(DNSServer dnsServer) {
+    public void setDNSServer(DNSService dnsServer) {
         this.dnsServer = dnsServer;
     }
 

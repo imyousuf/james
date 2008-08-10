@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.james.api.dnsservice.DNSServer;
+import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.services.AbstractDNSServer;
 import org.apache.james.services.ManageableDomainList;
 import org.apache.james.test.mock.avalon.MockLogger;
@@ -61,8 +61,8 @@ public class XMLDomainListTest extends TestCase {
         return configuration;
     }
     
-    private DNSServer setUpDNSServer(final String hostName) {
-        DNSServer dns = new AbstractDNSServer() {
+    private DNSService setUpDNSServer(final String hostName) {
+        DNSService dns = new AbstractDNSServer() {
             public String getHostName(InetAddress inet) {
                 return hostName;
             }
@@ -78,9 +78,9 @@ public class XMLDomainListTest extends TestCase {
         return dns;
     }
     
-    private MockServiceManager setUpServiceManager(DNSServer dns) {
+    private MockServiceManager setUpServiceManager(DNSService dns) {
         MockServiceManager service = new MockServiceManager();
-        service.put(DNSServer.ROLE, dns);
+        service.put(DNSService.ROLE, dns);
         return service;
     }
     
