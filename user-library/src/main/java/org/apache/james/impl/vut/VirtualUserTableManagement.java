@@ -33,7 +33,6 @@ import org.apache.james.api.vut.management.InvalidMappingException;
 import org.apache.james.api.vut.management.VirtualUserTableManagementException;
 import org.apache.james.api.vut.management.VirtualUserTableManagementMBean;
 import org.apache.james.api.vut.management.VirtualUserTableManagementService;
-import org.apache.james.impl.user.DefaultVirtualUserTable;
 
 
 /**
