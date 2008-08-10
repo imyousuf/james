@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.core;
+package org.apache.james.userrepository;
 
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.service.ServiceException;
