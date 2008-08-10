@@ -19,45 +19,27 @@
 
 
 
-package org.apache.james.services;
 
-import java.util.Collection;
+package org.apache.james.api.vut;
 
-import org.apache.james.vut.ErrorMappingException;
+public class VirtualUserTableManagementException extends Exception {
 
-/**
- * Interface which should be implemented of classes which map recipients
- *
- */
-public interface VirtualUserTable {
+	private static final long serialVersionUID = 2365387465283746L;
+
+	public VirtualUserTableManagementException() {
+        super();
+    }
+
+    public VirtualUserTableManagementException(String message) {
+        super(message);
+    }
+
+    public VirtualUserTableManagementException(Exception e) {
+        super(e);
+    }
     
-    /**
-     * The component role used by components implementing this service
-     */
-    public static final String ROLE = "org.apache.james.services.VirtualUserTable";
-    
-    /**
-     * The prefix which is used for error mappings
-     */
-    public static final String ERROR_PREFIX = "error:";
-    
-    /**
-     * The prefix which is used for regex mappings
-     */
-    public static final String REGEX_PREFIX = "regex:";
-    
-    /**
-     * The prefix which is used for alias domain mappings
-     */
-    public static final String ALIASDOMAIN_PREFIX = "domain:";
-    
-    /**
-     * Return the mapped MailAddress for the given address. Return null if no 
-     * matched mapping was found
-     * 
-     * @param user the MailAddress
-     * @return the mapped mailAddress
-     * @throws ErrorMappingException get thrown if an error mapping was found
-     */
-    public Collection getMappings(String user, String domain) throws ErrorMappingException;
+    public VirtualUserTableManagementException(String message, Exception e) {
+        super(message, e);
+    }
+
 }

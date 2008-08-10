@@ -19,14 +19,40 @@
 
 
 
-package org.apache.james.vut;
+package org.apache.james.api.vut;
 
-public class InvalidMappingException extends Exception {
+import java.util.Iterator;
 
-	private static final long serialVersionUID = 394857238476523L;
+/**
+ * Interface for Phoenix blocks to access a store of VirtualUserTable. A VirtualUserTableStore
+ * contains one or more VirtualUserTables. Multiple VirtualUserTables may or may
+ * not have overlapping membership. 
+ *
+ * @version 1.0.0, 24/04/1999
+ */
+public interface VirtualUserTableStore 
+{
+    /**
+     * The component role used by components implementing this service
+     */
+    String ROLE = "org.apache.james.services.VirtualUserTableStore";
 
-	public InvalidMappingException(String string) {
-        super(string);
-    }
+    /** 
+     * Get the table, if any, whose name corresponds to
+     * the argument parameter
+     *
+     * @param name the name of the desired repository
+     *
+     * @return the VirtualUserTable corresponding to the name parameter
+     */
+    VirtualUserTable getTable( String name );
 
+    /** 
+     * Yield an <code>Iterator</code> over the set of repository
+     * names managed internally by this store.
+     *
+     * @return an Iterator over the set of repository names
+     *         for this store
+     */
+    Iterator getTableNames();
 }

@@ -27,7 +27,7 @@
 
   <!-- services that are offered by this block -->
   <services>
-    <service name="org.apache.james.services.VirtualUserTableStore" version="1.0" />
+    <service name="org.apache.james.api.vut.VirtualUserTableStore" version="1.0" />
   </services>
 
   <dependencies>

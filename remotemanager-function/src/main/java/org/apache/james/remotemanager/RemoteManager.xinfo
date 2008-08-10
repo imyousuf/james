@@ -64,7 +64,7 @@
       <service name="org.apache.james.services.ProcessorManagementService" version="1.0"/>
     </dependency>
     <dependency>
-      <service name="org.apache.james.services.VirtualUserTableManagementService" version="1.0"/>
+      <service name="org.apache.james.api.vut.VirtualUserTableManagementService" version="1.0"/>
     </dependency>
     <dependency>
       <service name="org.apache.james.services.DomainListManagementService" version="1.0"/>

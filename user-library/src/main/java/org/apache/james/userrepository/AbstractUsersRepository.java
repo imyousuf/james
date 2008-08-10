@@ -25,10 +25,10 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.james.api.user.ErrorMappingException;
 import org.apache.james.services.JamesUser;
 import org.apache.james.services.JamesUsersRepository;
 import org.apache.james.services.User;
-import org.apache.james.vut.ErrorMappingException;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -150,7 +150,7 @@ public abstract class AbstractUsersRepository
     }
 
     /**
-     * @see org.apache.james.services.VirtualUserTable#getMappings(java.lang.String,
+     * @see org.apache.james.api.vut.VirtualUserTable#getMappings(java.lang.String,
      *      java.lang.String)
      */
     public Collection getMappings(String username, String domain)

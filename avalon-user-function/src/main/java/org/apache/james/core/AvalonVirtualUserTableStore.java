@@ -23,8 +23,8 @@ package org.apache.james.core;
 
 import org.apache.avalon.framework.configuration.Configuration;
 
-import org.apache.james.services.VirtualUserTable;
-import org.apache.james.services.VirtualUserTableStore;
+import org.apache.james.api.vut.VirtualUserTable;
+import org.apache.james.api.vut.VirtualUserTableStore;
 
 import java.util.Iterator;
 

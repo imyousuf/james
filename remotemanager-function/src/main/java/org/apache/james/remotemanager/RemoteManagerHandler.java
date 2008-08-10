@@ -35,11 +35,11 @@ import java.util.Map;
 import javax.mail.internet.ParseException;
 
 import org.apache.james.Constants;
+import org.apache.james.api.vut.VirtualUserTableManagementException;
 import org.apache.james.core.AbstractJamesHandler;
 import org.apache.james.management.BayesianAnalyzerManagementException;
 import org.apache.james.management.DomainListManagementException;
 import org.apache.james.management.SpoolFilter;
-import org.apache.james.management.VirtualUserTableManagementException;
 import org.apache.james.services.JamesUser;
 import org.apache.james.services.ProcessorManagementService;
 import org.apache.james.services.User;
