@@ -100,7 +100,7 @@
             <include name="${commons-configuration.jar}"/>
             <include name="${base-mailet.jar}"/>
             <include name="${jsieve.jar}"/>
-			<include name="${mailet.jar}"/>
+            <include name="${mailet.jar}"/>
             <include name="${commons-digester.jar}"/>
             <include name="${mime4j.jar}"/>
             <include name="${commons-io.jar}"/>   
@@ -110,6 +110,7 @@
             <include name="${jcr.jar}"/>
             <!-- TODO: include libraries without wildcards -->
             <include name="${path.lib.james}/${jars-prefix}*-api-${version}.jar"/>
+            <include name="${path.lib.james}/${jars-prefix}*-util-${version}.jar"/>
             <include name="${path.lib.james}/${jars-prefix}*-library-${version}.jar"/>
             <include name="${path.lib.james}/${jars-prefix}*-function-${version}.jar"/>
         </fileset>
@@ -571,6 +572,7 @@
             <!-- TODO this should list exactly the module defined, without wildcards -->
             <lib dir="${lib.dir}/${path.lib.james}">
               <include name="${jars-prefix}*-api-${version}.jar" />
+              <include name="${jars-prefix}*-util-${version}.jar" />
               <include name="${jars-prefix}*-library-${version}.jar" />
               <include name="${jars-prefix}*-function-${version}.jar" />
             </lib>
@@ -932,6 +934,7 @@
             </fileset>
             <fileset dir="${lib.dir}/${path.lib.james}">
                   <include name="${jars-prefix}*-api-test-${version}.jar" />
+                  <include name="${jars-prefix}*-util-test-${version}.jar" />
                   <include name="${jars-prefix}*-library-test-${version}.jar" />
                   <include name="${jars-prefix}*-function-test-${version}.jar" />
             </fileset>   
@@ -1035,10 +1038,13 @@
                 <classpathentry kind="src" output="target/test-classes" path="src/test"/>
                 <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
                 <classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/james"/>
+                <classpathentry combineaccessrules="false" kind='src' path='/common-util'/>
+                <classpathentry combineaccessrules="false" kind='src' path='/mailnotification-util'/>
                 <classpathentry combineaccessrules="false" kind='src' path='/domain-api'/>
                 <classpathentry combineaccessrules="false" kind='src' path='/imap-api'/>
                 <classpathentry combineaccessrules="false" kind="src" path="/user-api"/>
                 <classpathentry combineaccessrules="false" kind="src" path="/core-library"/>
+                <classpathentry combineaccessrules="false" kind='src' path='/avalon-socket-library'/>
                 <classpathentry combineaccessrules="false" kind="src" path="/imap-codec-library"/>
                 <classpathentry combineaccessrules="false" kind="src" path="/imap-command-library"/>
                 <classpathentry combineaccessrules="false" kind="src" path="/imapmailbox-library"/>
