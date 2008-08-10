@@ -31,7 +31,7 @@ import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.core.AbstractJamesService;
 import org.apache.james.services.MailServer;
-import org.apache.james.util.NetMatcher;
+import org.apache.james.util.dnsservice.NetMatcher;
 import org.apache.mailet.MailetContext;
 
 /**
