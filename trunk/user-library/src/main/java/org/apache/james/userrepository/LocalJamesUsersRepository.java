@@ -20,7 +20,6 @@
 package org.apache.james.userrepository;
 
 import org.apache.james.api.user.ErrorMappingException;
-import org.apache.james.services.JamesUsersRepository;
 
 import java.util.Collection;
 
@@ -32,21 +31,21 @@ import java.util.Collection;
 public class LocalJamesUsersRepository extends LocalUsersRepository implements JamesUsersRepository{
 
     /**
-     * @see org.apache.james.services.JamesUsersRepository#setEnableAliases(boolean)
+     * @see org.apache.james.userrepository.JamesUsersRepository#setEnableAliases(boolean)
      */
     public void setEnableAliases(boolean enableAliases) {
         ((JamesUsersRepository) users).setEnableAliases(enableAliases);
     }
 
     /**
-     * @see org.apache.james.services.JamesUsersRepository#setEnableForwarding(boolean)
+     * @see org.apache.james.userrepository.JamesUsersRepository#setEnableForwarding(boolean)
      */
     public void setEnableForwarding(boolean enableForwarding) {
         ((JamesUsersRepository) users).setEnableForwarding(enableForwarding);
     }
 
     /**
-     * @see org.apache.james.services.JamesUsersRepository#setIgnoreCase(boolean)
+     * @see org.apache.james.userrepository.JamesUsersRepository#setIgnoreCase(boolean)
      */
     public void setIgnoreCase(boolean ignoreCase) {
         ((JamesUsersRepository) users).setIgnoreCase(ignoreCase);
