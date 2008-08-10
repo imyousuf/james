@@ -29,11 +29,6 @@
   <services>
     <service name="org.apache.james.api.user.UsersRepository" version="1.0" />
   </services>
-
-  <!-- interfaces that may be exported to manange this block -->
-  <management-access-points>
-    <service name="org.apache.james.JamesMBean"/>
-  </management-access-points>  
   
   <dependencies>
     <dependency>
