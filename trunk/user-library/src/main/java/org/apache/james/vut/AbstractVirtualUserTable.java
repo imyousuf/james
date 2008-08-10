@@ -45,7 +45,6 @@ import org.apache.james.services.DNSServer;
 import org.apache.james.services.DomainList;
 import org.apache.james.services.VirtualUserTableManagement;
 import org.apache.james.util.DomainListUtil;
-import org.apache.james.util.VirtualUserTableUtil;
 import org.apache.mailet.MailAddress;
 import org.apache.oro.text.regex.MalformedPatternException;
 import org.apache.oro.text.regex.Perl5Compiler;

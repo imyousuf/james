@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.util;
+package org.apache.james.vut;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.apache.james.api.vut.VirtualUserTable;
+import org.apache.james.util.XMLResources;
 import org.apache.mailet.MailAddress;
 import org.apache.oro.text.regex.MalformedPatternException;
 import org.apache.oro.text.regex.MatchResult;
