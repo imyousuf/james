@@ -29,12 +29,12 @@ import org.apache.james.Constants;
 import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
-import org.apache.james.core.AbstractJamesHandler;
 import org.apache.james.experimental.imapserver.encode.writer.OutputStreamImapResponseWriter;
 import org.apache.james.imapserver.codec.decode.ImapDecoder;
 import org.apache.james.imapserver.codec.encode.ImapEncoder;
 import org.apache.james.imapserver.codec.encode.ImapResponseComposer;
 import org.apache.james.imapserver.codec.encode.base.ImapResponseComposerImpl;
+import org.apache.james.socket.AbstractJamesHandler;
 
 /**
  * Handles IMAP connections.

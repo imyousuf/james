@@ -104,7 +104,7 @@
     <provide name="sockets"
              role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
     <provide name="connections"
-             role="org.apache.james.services.JamesConnectionManager"/>
+             role="org.apache.james.socket.JamesConnectionManager"/>
     <provide name="James" role="org.apache.james.services.MailServer"/>
     <provide name="thread-manager"
              role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
@@ -136,7 +136,7 @@
     <provide name="sockets"
              role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
     <provide name="imap-connections"
-             role="org.apache.james.services.JamesConnectionManager"/>
+             role="org.apache.james.socket.JamesConnectionManager"/>
     <provide name="James" role="org.apache.james.services.MailServer"/>
     <provide name="thread-manager"
              role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
@@ -151,7 +151,7 @@
     <provide name="sockets"
              role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
     <provide name="connections"
-             role="org.apache.james.services.JamesConnectionManager"/>
+             role="org.apache.james.socket.JamesConnectionManager"/>
     <provide name="James" role="org.apache.james.services.MailServer"/>
     <provide name="thread-manager"
              role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
@@ -166,7 +166,7 @@
     <provide name="sockets"
              role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
     <provide name="connections"
-             role="org.apache.james.services.JamesConnectionManager"/>
+             role="org.apache.james.socket.JamesConnectionManager"/>
     <provide name="James" role="org.apache.james.services.MailServer"/>
     <provide name="thread-manager"
              role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
@@ -183,7 +183,7 @@
     <provide name="sockets"
              role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
     <provide name="connections"
-             role="org.apache.james.services.JamesConnectionManager"/>
+             role="org.apache.james.socket.JamesConnectionManager"/>
     <provide name="nntp-repository"
              role="org.apache.james.nntpserver.repository.NNTPRepository"/>
     <provide name="thread-manager"

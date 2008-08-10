@@ -21,10 +21,10 @@
 
 package org.apache.james.nntpserver;
 
-import org.apache.james.core.AbstractJamesHandler;
 import org.apache.james.core.MailHeaders;
 import org.apache.james.nntpserver.repository.NNTPArticle;
 import org.apache.james.nntpserver.repository.NNTPGroup;
+import org.apache.james.socket.AbstractJamesHandler;
 import org.apache.james.util.stream.CharTerminatedInputStream;
 import org.apache.james.util.stream.DotStuffingInputStream;
 import org.apache.james.util.stream.ExtraDotOutputStream;
@@ -250,7 +250,7 @@ public class NNTPHandler
     boolean isAlreadyAuthenticated = false;
 
     /**
-     * @see org.apache.james.core.AbstractJamesHandler#setConfigurationData(Object)
+     * @see org.apache.james.socket.AbstractJamesHandler#setConfigurationData(Object)
      */
     public void setConfigurationData(Object theData) {
         if (theData instanceof NNTPHandlerConfigurationData) {
@@ -261,7 +261,7 @@ public class NNTPHandler
     }
 
     /**
-     * @see org.apache.james.core.AbstractJamesHandler#handleProtocol()
+     * @see org.apache.james.socket.AbstractJamesHandler#handleProtocol()
      */
     protected void handleProtocol() throws IOException {
         // section 7.1
@@ -291,7 +291,7 @@ public class NNTPHandler
     }
     
     /**
-     * @see org.apache.james.core.AbstractJamesHandler#errorHandler(java.lang.RuntimeException)
+     * @see org.apache.james.socket.AbstractJamesHandler#errorHandler(java.lang.RuntimeException)
      */
     protected void errorHandler(RuntimeException e) {
         super.errorHandler(e);
@@ -307,7 +307,7 @@ public class NNTPHandler
     }
 
     /**
-     * @see org.apache.james.core.AbstractJamesHandler#resetHandler
+     * @see org.apache.james.socket.AbstractJamesHandler#resetHandler
      */
     protected void resetHandler() {
         // Clear the selected group, article info

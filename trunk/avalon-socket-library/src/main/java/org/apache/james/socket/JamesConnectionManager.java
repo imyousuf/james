@@ -20,7 +20,7 @@
 
 
 
-package org.apache.james.services;
+package org.apache.james.socket;
 
 
 import org.apache.avalon.cornerstone.services.connection.ConnectionManager;

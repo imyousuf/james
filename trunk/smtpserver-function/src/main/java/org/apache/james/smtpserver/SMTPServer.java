@@ -29,8 +29,8 @@ import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.user.UsersRepository;
-import org.apache.james.core.AbstractJamesService;
 import org.apache.james.services.MailServer;
+import org.apache.james.socket.AbstractJamesService;
 import org.apache.james.util.dnsservice.NetMatcher;
 import org.apache.mailet.MailetContext;
 
@@ -251,7 +251,7 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
     }
     
     /**
-     * @see org.apache.james.core.AbstractJamesService#initialize()
+     * @see org.apache.james.socket.AbstractJamesService#initialize()
      */
     public void initialize() throws Exception {
         super.initialize();
@@ -259,14 +259,14 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
     }
 
     /**
-     * @see org.apache.james.core.AbstractJamesService#getDefaultPort()
+     * @see org.apache.james.socket.AbstractJamesService#getDefaultPort()
      */
      protected int getDefaultPort() {
         return 25;
      }
 
     /**
-     * @see org.apache.james.core.AbstractJamesService#getServiceType()
+     * @see org.apache.james.socket.AbstractJamesService#getServiceType()
      */
     public String getServiceType() {
         return "SMTP Service";
@@ -403,7 +403,7 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
     }
 
     /**
-     * @see org.apache.james.core.AbstractJamesService#getConfigurationData()
+     * @see org.apache.james.socket.AbstractJamesService#getConfigurationData()
      */
     protected Object getConfigurationData() {
         return theConfigData;

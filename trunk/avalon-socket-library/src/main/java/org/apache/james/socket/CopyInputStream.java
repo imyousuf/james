@@ -18,62 +18,57 @@
  ****************************************************************/
 
 
-package org.apache.james.core;
+package org.apache.james.socket;
 
-import java.io.FilterOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.impl.SimpleLog;
 
-public class SplitOutputStream extends FilterOutputStream {
+public class CopyInputStream extends InputStream
+{
 
-    private OutputStream debugOutputStream;
+    private InputStream is;
 
-    StringBuffer logString = new StringBuffer();
-
-    private boolean DEEP_DEBUG = false;
+    private OutputStream copy;
 
     private Log log;
 
-    public SplitOutputStream(OutputStream out, OutputStream debug) {
-        super(out);
-        debugOutputStream = debug;
+    StringBuffer logString = new StringBuffer();
+    
+    private boolean DEEP_DEBUG = false;
+
+    public CopyInputStream(InputStream is, OutputStream copy)
+    {
+        this.is = is;
+        this.copy = copy;
     }
 
-    public void flush() throws IOException {
-        super.flush();
-        if (debugOutputStream != null) {
-            debugOutputStream.flush();
-        }
-    }
-
-    public void write(int b) throws IOException {
-        super.write(b);
+    public int read() throws IOException {
+        int in = is.read();
+        copy.write(in);
         if (DEEP_DEBUG) {
-            if (b == 10) {
+            if (in == 10) {
                 getLog().debug(logString);
                 logString = new StringBuffer();
-            } else if (b != 13) {
-                logString.append((char) b);
+            } else if (in != 13) {
+                logString.append((char) in);
             }
         }
-        if (debugOutputStream != null) {
-            debugOutputStream.write(b);
-            debugOutputStream.flush();
-        }
+        return in;
     }
-
-    public void setLog(Log log) {
-        this.log = log;
-    }
-
+    
     protected Log getLog() {
-        if (log == null) {
-            log = new SimpleLog("SplitOutputStream");
+        if (log==null) {
+            log=new SimpleLog("CopyInputStream");
         }
         return log;
+    }
+    
+    public void setLog(Log log) {
+        this.log=log;
     }
 
 }

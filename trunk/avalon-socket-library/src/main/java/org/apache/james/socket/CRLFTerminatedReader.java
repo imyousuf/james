@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.core;
+package org.apache.james.socket;
 
 import java.io.InputStream;
 import java.io.Reader;

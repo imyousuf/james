@@ -25,9 +25,9 @@ import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.api.user.UsersRepository;
-import org.apache.james.core.AbstractJamesService;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 import org.apache.james.services.MailServer;
+import org.apache.james.socket.AbstractJamesService;
 
 /**
  * TODO: this is a quick cut-and-paste hack from POP3Server. Should probably be

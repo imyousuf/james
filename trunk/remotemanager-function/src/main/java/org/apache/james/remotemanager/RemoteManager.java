@@ -31,12 +31,12 @@ import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.user.UsersStore;
 import org.apache.james.api.vut.management.VirtualUserTableManagementService;
-import org.apache.james.core.AbstractJamesService;
 import org.apache.james.services.BayesianAnalyzerManagementService;
 import org.apache.james.services.DomainListManagementService;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.ProcessorManagementService;
 import org.apache.james.services.SpoolManagementService;
+import org.apache.james.socket.AbstractJamesService;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -273,14 +273,14 @@ public class RemoteManager
     }
     
     /**
-     * @see org.apache.james.core.AbstractJamesService#getDefaultPort()
+     * @see org.apache.james.socket.AbstractJamesService#getDefaultPort()
      */
      protected int getDefaultPort() {
         return 4555;
      }
 
     /**
-     * @see org.apache.james.core.AbstractJamesService#getServiceType()
+     * @see org.apache.james.socket.AbstractJamesService#getServiceType()
      */
     public String getServiceType() {
         return "Remote Manager Service";
@@ -401,7 +401,7 @@ public class RemoteManager
     }
 
     /**
-     * @see org.apache.james.core.AbstractJamesService#getConfigurationData()
+     * @see org.apache.james.socket.AbstractJamesService#getConfigurationData()
      */
     protected Object getConfigurationData() {
         return theConfigData;
