@@ -29,7 +29,7 @@
 
   <!-- services that are offered by this block -->
   <services>
-    <service name="org.apache.james.services.JamesConnectionManager"/>
+    <service name="org.apache.james.socket.JamesConnectionManager"/>
   </services>
 
   <!-- services that are required by this block -->

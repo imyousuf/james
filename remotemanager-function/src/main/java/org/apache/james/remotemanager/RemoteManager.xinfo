@@ -40,7 +40,7 @@
       <service name="org.apache.avalon.cornerstone.services.store.Store" version="1.0"/>
     </dependency>
     <dependency>
-      <service name="org.apache.james.services.JamesConnectionManager" version="1.0"/>
+      <service name="org.apache.james.socket.JamesConnectionManager" version="1.0"/>
     </dependency>
     <dependency>
       <service name="org.apache.avalon.cornerstone.services.sockets.SocketManager" version="1.0"/>

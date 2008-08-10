@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.core;
+package org.apache.james.socket;
 
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.avalon.excalibur.pool.Poolable;

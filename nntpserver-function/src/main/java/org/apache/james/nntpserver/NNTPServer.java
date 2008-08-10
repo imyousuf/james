@@ -26,9 +26,9 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.api.user.UsersRepository;
-import org.apache.james.core.AbstractJamesService;
 import org.apache.james.nntpserver.repository.NNTPRepository;
 import org.apache.james.services.MailServer;
+import org.apache.james.socket.AbstractJamesService;
 
 /**
  * NNTP Server
@@ -117,14 +117,14 @@ public class NNTPServer extends AbstractJamesService implements NNTPServerMBean 
     }
 
     /**
-     * @see org.apache.james.core.AbstractJamesService#getDefaultPort()
+     * @see org.apache.james.socket.AbstractJamesService#getDefaultPort()
      */
      protected int getDefaultPort() {
         return 119;
      }
 
     /**
-     * @see org.apache.james.core.AbstractJamesService#getServiceType()
+     * @see org.apache.james.socket.AbstractJamesService#getServiceType()
      */
     public String getServiceType() {
         return "NNTP Service";
@@ -187,7 +187,7 @@ public class NNTPServer extends AbstractJamesService implements NNTPServerMBean 
     }
 
     /**
-     * @see org.apache.james.core.AbstractJamesService#getConfigurationData()
+     * @see org.apache.james.socket.AbstractJamesService#getConfigurationData()
      */
     protected Object getConfigurationData() {
         return theConfigData;

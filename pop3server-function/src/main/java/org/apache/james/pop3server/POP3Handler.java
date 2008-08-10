@@ -23,10 +23,10 @@ package org.apache.james.pop3server;
 
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.Constants;
-import org.apache.james.core.AbstractJamesHandler;
-import org.apache.james.core.CRLFTerminatedReader;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailRepository;
+import org.apache.james.socket.AbstractJamesHandler;
+import org.apache.james.socket.CRLFTerminatedReader;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.mailet.Mail;
 
@@ -167,7 +167,7 @@ public class POP3Handler
     }
     
     /**
-     * @see org.apache.james.core.AbstractJamesHandler#handleProtocol()
+     * @see org.apache.james.socket.AbstractJamesHandler#handleProtocol()
      */
     protected void handleProtocol() throws IOException {
         handlerState = AUTHENTICATION_READY;
@@ -264,7 +264,7 @@ public class POP3Handler
     }
     
     /**
-     * @see org.apache.james.core.AbstractJamesHandler#errorHandler(java.lang.RuntimeException)
+     * @see org.apache.james.socket.AbstractJamesHandler#errorHandler(java.lang.RuntimeException)
      */
     protected void errorHandler(RuntimeException e) {
         super.errorHandler(e);

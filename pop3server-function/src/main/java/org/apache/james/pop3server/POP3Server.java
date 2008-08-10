@@ -27,8 +27,8 @@ import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.api.user.UsersRepository;
-import org.apache.james.core.AbstractJamesService;
 import org.apache.james.services.MailServer;
+import org.apache.james.socket.AbstractJamesService;
 
 /**
  * <p>Accepts POP3 connections on a server socket and dispatches them to POP3Handlers.</p>
@@ -121,14 +121,14 @@ public class POP3Server extends AbstractJamesService implements POP3ServerMBean 
     }
 
     /**
-     * @see org.apache.james.core.AbstractJamesService#getDefaultPort()
+     * @see org.apache.james.socket.AbstractJamesService#getDefaultPort()
      */
      protected int getDefaultPort() {
         return 110;
      }
 
     /**
-     * @see org.apache.james.core.AbstractJamesService#getServiceType()
+     * @see org.apache.james.socket.AbstractJamesService#getServiceType()
      */
     public String getServiceType() {
         return "POP3 Service";
@@ -194,7 +194,7 @@ public class POP3Server extends AbstractJamesService implements POP3ServerMBean 
     }
 
     /**
-     * @see org.apache.james.core.AbstractJamesService#getConfigurationData()
+     * @see org.apache.james.socket.AbstractJamesService#getConfigurationData()
      */
     protected Object getConfigurationData() {
         return theConfigData;

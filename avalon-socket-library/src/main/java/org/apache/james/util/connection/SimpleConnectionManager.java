@@ -24,7 +24,7 @@ import java.net.ServerSocket;
 import java.util.HashMap;
 import org.apache.excalibur.thread.ThreadPool;
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandlerFactory;
-import org.apache.james.services.JamesConnectionManager;
+import org.apache.james.socket.JamesConnectionManager;
 import org.apache.avalon.cornerstone.services.threads.ThreadManager;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
@@ -293,7 +293,7 @@ public class SimpleConnectionManager
     
   
     /**
-     * @see org.apache.james.services.JamesConnectionManager#connect(java.lang.String, java.net.ServerSocket, org.apache.avalon.cornerstone.services.connection.ConnectionHandlerFactory, org.apache.excalibur.thread.ThreadPool, int)
+     * @see org.apache.james.socket.JamesConnectionManager#connect(java.lang.String, java.net.ServerSocket, org.apache.avalon.cornerstone.services.connection.ConnectionHandlerFactory, org.apache.excalibur.thread.ThreadPool, int)
      */
     public void connect(String name, ServerSocket socket, ConnectionHandlerFactory handlerFactory, ThreadPool threadPool, int maxOpenConnections) throws Exception {
         connect(name,socket,handlerFactory,threadPool,maxOpenConnections,maxOpenConnPerIP);
@@ -301,7 +301,7 @@ public class SimpleConnectionManager
   
     
     /**
-     * @see org.apache.james.services.JamesConnectionManager#connect(java.lang.String, java.net.ServerSocket, org.apache.avalon.cornerstone.services.connection.ConnectionHandlerFactory, int, int)
+     * @see org.apache.james.socket.JamesConnectionManager#connect(java.lang.String, java.net.ServerSocket, org.apache.avalon.cornerstone.services.connection.ConnectionHandlerFactory, int, int)
      */
     public void connect(String name, ServerSocket socket, ConnectionHandlerFactory handlerFactory, int maxOpenConnections,int maxOpenConnectionsPerIP) throws Exception {
         connect(name,socket,handlerFactory,threadManager.getDefaultThreadPool(),maxOpenConnections,maxOpenConnectionsPerIP);
@@ -320,7 +320,7 @@ public class SimpleConnectionManager
     
     
     /**
-     * @see org.apache.james.services.JamesConnectionManager#getMaximumNumberOfOpenConnectionsPerIP()
+     * @see org.apache.james.socket.JamesConnectionManager#getMaximumNumberOfOpenConnectionsPerIP()
      */
     public int getMaximumNumberOfOpenConnectionsPerIP() {
         return maxOpenConnPerIP;

@@ -39,11 +39,11 @@ import org.apache.james.api.user.JamesUser;
 import org.apache.james.api.user.User;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.vut.management.VirtualUserTableManagementException;
-import org.apache.james.core.AbstractJamesHandler;
 import org.apache.james.management.BayesianAnalyzerManagementException;
 import org.apache.james.management.DomainListManagementException;
 import org.apache.james.management.SpoolFilter;
 import org.apache.james.services.ProcessorManagementService;
+import org.apache.james.socket.AbstractJamesHandler;
 import org.apache.mailet.MailAddress;
 
 
@@ -203,7 +203,7 @@ public class RemoteManagerHandler
     }
 
     /**
-     * @see org.apache.james.core.AbstractJamesHandler#errorHandler(java.lang.RuntimeException)
+     * @see org.apache.james.socket.AbstractJamesHandler#errorHandler(java.lang.RuntimeException)
      */
     protected void errorHandler(RuntimeException e) {
         out.println("Unexpected Error: "+e.getMessage());

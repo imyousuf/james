@@ -26,12 +26,12 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapProcessorFactory;
-import org.apache.james.core.AbstractJamesService;
 import org.apache.james.imapserver.codec.decode.ImapDecoder;
 import org.apache.james.imapserver.codec.decode.ImapDecoderFactory;
 import org.apache.james.imapserver.codec.encode.ImapEncoder;
 import org.apache.james.imapserver.codec.encode.ImapEncoderFactory;
 import org.apache.james.services.MailServer;
+import org.apache.james.socket.AbstractJamesService;
 
 /**
  * TODO: this is a quick cut-and-paste hack from POP3Server. Should probably be

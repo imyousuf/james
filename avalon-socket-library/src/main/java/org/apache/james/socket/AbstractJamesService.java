@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.core;
+package org.apache.james.socket;
 
 import org.apache.avalon.cornerstone.services.connection.AbstractHandlerFactory;
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
@@ -44,7 +44,6 @@ import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.excalibur.thread.ThreadPool;
 import org.apache.james.api.dnsservice.DNSService;
-import org.apache.james.services.JamesConnectionManager;
 import org.apache.james.util.watchdog.ThreadPerWatchdogFactory;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogFactory;
