@@ -19,8 +19,8 @@
 
 package org.apache.james.core;
 
+import org.apache.james.api.user.ErrorMappingException;
 import org.apache.james.services.JamesUsersRepository;
-import org.apache.james.vut.ErrorMappingException;
 
 import java.util.Collection;
 
@@ -53,7 +53,7 @@ public class LocalJamesUsersRepository extends LocalUsersRepository implements J
     }
 
     /**
-     * @see org.apache.james.services.VirtualUserTable#getMappings(java.lang.String, java.lang.String)
+     * @see org.apache.james.api.vut.VirtualUserTable#getMappings(java.lang.String, java.lang.String)
      */
     public Collection getMappings(String user, String domain) throws ErrorMappingException {
         return ((JamesUsersRepository) users).getMappings(user, domain);

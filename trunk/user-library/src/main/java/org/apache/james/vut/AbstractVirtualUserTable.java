@@ -38,9 +38,11 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
+import org.apache.james.api.user.ErrorMappingException;
+import org.apache.james.api.user.InvalidMappingException;
+import org.apache.james.api.vut.VirtualUserTable;
 import org.apache.james.services.DNSServer;
 import org.apache.james.services.DomainList;
-import org.apache.james.services.VirtualUserTable;
 import org.apache.james.services.VirtualUserTableManagement;
 import org.apache.james.util.DomainListUtil;
 import org.apache.james.util.VirtualUserTableUtil;
@@ -109,7 +111,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
     }
     
     /**
-     * @see org.apache.james.services.VirtualUserTable#getMappings(String, String)
+     * @see org.apache.james.api.vut.VirtualUserTable#getMappings(String, String)
      */
     public Collection getMappings(String user,String domain) throws ErrorMappingException {
         return getMappings(user,domain,mappingLimit);

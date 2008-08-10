@@ -19,40 +19,45 @@
 
 
 
-package org.apache.james.services;
+package org.apache.james.api.vut;
 
-import java.util.Iterator;
+import java.util.Collection;
+
+import org.apache.james.api.user.ErrorMappingException;
 
 /**
- * Interface for Phoenix blocks to access a store of VirtualUserTable. A VirtualUserTableStore
- * contains one or more VirtualUserTables. Multiple VirtualUserTables may or may
- * not have overlapping membership. 
+ * Interface which should be implemented of classes which map recipients
  *
- * @version 1.0.0, 24/04/1999
  */
-public interface VirtualUserTableStore 
-{
+public interface VirtualUserTable {
+    
     /**
      * The component role used by components implementing this service
      */
-    String ROLE = "org.apache.james.services.VirtualUserTableStore";
-
-    /** 
-     * Get the table, if any, whose name corresponds to
-     * the argument parameter
-     *
-     * @param name the name of the desired repository
-     *
-     * @return the VirtualUserTable corresponding to the name parameter
+    public static final String ROLE = "org.apache.james.services.VirtualUserTable";
+    
+    /**
+     * The prefix which is used for error mappings
      */
-    VirtualUserTable getTable( String name );
-
-    /** 
-     * Yield an <code>Iterator</code> over the set of repository
-     * names managed internally by this store.
-     *
-     * @return an Iterator over the set of repository names
-     *         for this store
+    public static final String ERROR_PREFIX = "error:";
+    
+    /**
+     * The prefix which is used for regex mappings
      */
-    Iterator getTableNames();
+    public static final String REGEX_PREFIX = "regex:";
+    
+    /**
+     * The prefix which is used for alias domain mappings
+     */
+    public static final String ALIASDOMAIN_PREFIX = "domain:";
+    
+    /**
+     * Return the mapped MailAddress for the given address. Return null if no 
+     * matched mapping was found
+     * 
+     * @param user the MailAddress
+     * @return the mapped mailAddress
+     * @throws ErrorMappingException get thrown if an error mapping was found
+     */
+    public Collection getMappings(String user, String domain) throws ErrorMappingException;
 }

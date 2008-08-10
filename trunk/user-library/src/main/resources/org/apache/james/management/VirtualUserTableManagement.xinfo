@@ -26,17 +26,17 @@
   </block>
 
   <services>
-    <service name="org.apache.james.services.VirtualUserTableManagementService" version="1.0" />
+    <service name="org.apache.james.api.vut.VirtualUserTableManagementService" version="1.0" />
   </services>
   
   <!-- interfaces that may be exported to manange this block -->
   <management-access-points>
-    <service name="org.apache.james.management.VirtualUserTableManagementMBean"/>
+    <service name="org.apache.james.api.vut.VirtualUserTableManagementMBean"/>
   </management-access-points>  
   
   <dependencies>
     <dependency>
-      <service name="org.apache.james.services.VirtualUserTableStore" version="1.0"/>
+      <service name="org.apache.james.api.vut.VirtualUserTableStore" version="1.0"/>
     </dependency>
     <dependency>
       <service name="org.apache.james.services.VirtualUserTableManagement" version="1.0"/>

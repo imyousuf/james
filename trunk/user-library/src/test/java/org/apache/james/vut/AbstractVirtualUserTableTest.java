@@ -28,9 +28,11 @@ import java.util.Map;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.ServiceException;
+import org.apache.james.api.user.ErrorMappingException;
+import org.apache.james.api.user.InvalidMappingException;
+import org.apache.james.api.vut.VirtualUserTable;
 import org.apache.james.dnsserver.TemporaryResolutionException;
 import org.apache.james.services.DNSServer;
-import org.apache.james.services.VirtualUserTable;
 
 import junit.framework.TestCase;
 

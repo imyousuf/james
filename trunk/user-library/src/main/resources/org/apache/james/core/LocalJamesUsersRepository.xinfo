@@ -29,7 +29,7 @@
   <services>
     <service name="org.apache.james.services.UsersRepository" version="1.0" />
     <service name="org.apache.james.services.JamesUsersRepository" version="1.0" />
-    <service name="org.apache.james.services.VirtualUserTable" version="1.0" />
+    <service name="org.apache.james.api.vut.VirtualUserTable" version="1.0" />
   </services>
 
   <!-- interfaces that may be exported to manange this block -->

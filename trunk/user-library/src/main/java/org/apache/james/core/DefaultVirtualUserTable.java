@@ -28,10 +28,10 @@ import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
+import org.apache.james.api.user.ErrorMappingException;
+import org.apache.james.api.user.InvalidMappingException;
+import org.apache.james.api.vut.VirtualUserTableStore;
 import org.apache.james.services.VirtualUserTableManagement;
-import org.apache.james.services.VirtualUserTableStore;
-import org.apache.james.vut.ErrorMappingException;
-import org.apache.james.vut.InvalidMappingException;
 
 /**
  * Default VirtualUserTable
@@ -109,7 +109,7 @@ public class DefaultVirtualUserTable implements VirtualUserTableManagement, Serv
     }
 
     /**
-     * @see org.apache.james.services.VirtualUserTable#getMappings(java.lang.String, java.lang.String)
+     * @see org.apache.james.api.vut.VirtualUserTable#getMappings(java.lang.String, java.lang.String)
      */
     public Collection getMappings(String user, String domain) throws ErrorMappingException {
         return vut.getMappings(user, domain);

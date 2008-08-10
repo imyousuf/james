@@ -28,6 +28,7 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.james.api.vut.VirtualUserTableManagementService;
 import org.apache.james.core.AbstractJamesService;
 import org.apache.james.services.BayesianAnalyzerManagementService;
 import org.apache.james.services.DomainListManagementService;
@@ -36,7 +37,6 @@ import org.apache.james.services.ProcessorManagementService;
 import org.apache.james.services.SpoolManagementService;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
-import org.apache.james.services.VirtualUserTableManagementService;
 
 import java.util.ArrayList;
 import java.util.Collection;
