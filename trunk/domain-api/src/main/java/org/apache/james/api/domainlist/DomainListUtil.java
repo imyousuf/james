@@ -20,7 +20,7 @@
 
 
 
-package org.apache.james.util;
+package org.apache.james.api.domainlist;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.avalon.framework.logger.Logger;
-import org.apache.james.services.DNSServer;
+import org.apache.james.api.dnsserver.DNSServer;
 
 /**
  * 

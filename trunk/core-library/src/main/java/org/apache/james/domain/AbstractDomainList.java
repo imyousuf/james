@@ -30,9 +30,9 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
-import org.apache.james.services.DNSServer;
+import org.apache.james.api.dnsserver.DNSServer;
+import org.apache.james.api.domainlist.DomainListUtil;
 import org.apache.james.services.ManageableDomainList;
-import org.apache.james.util.DomainListUtil;
 
 /**
  * All implementations of the DomainList interface should extends this abstract class
@@ -51,7 +51,7 @@ public abstract class AbstractDomainList extends AbstractLogEnabled implements S
     
 
     /**
-     * @see org.apache.james.services.DomainList#getDomains()
+     * @see org.apache.james.api.domainlist.DomainList#getDomains()
      */
     public List getDomains() {  
         List domains = getDomainListInternal();
@@ -108,7 +108,7 @@ public abstract class AbstractDomainList extends AbstractLogEnabled implements S
     }
     
     /**
-     * @see org.apache.james.services.DomainList#setAutoDetect(boolean)
+     * @see org.apache.james.api.domainlist.DomainList#setAutoDetect(boolean)
      */
     public synchronized void setAutoDetect(boolean autoDetect) {
         getLogger().info("Set autodetect to: " + autoDetect);
@@ -116,7 +116,7 @@ public abstract class AbstractDomainList extends AbstractLogEnabled implements S
     }
     
     /**
-     * @see org.apache.james.services.DomainList#setAutoDetectIP(boolean)
+     * @see org.apache.james.api.domainlist.DomainList#setAutoDetectIP(boolean)
      */
     public synchronized void setAutoDetectIP(boolean autoDetectIP) {
         getLogger().info("Set autodetectIP to: " + autoDetectIP);

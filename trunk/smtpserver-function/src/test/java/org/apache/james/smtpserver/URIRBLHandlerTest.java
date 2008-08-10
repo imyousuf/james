@@ -39,8 +39,8 @@ import javax.mail.internet.MimeMultipart;
 import junit.framework.TestCase;
 
 import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.james.api.dnsserver.DNSServer;
 import org.apache.james.services.AbstractDNSServer;
-import org.apache.james.services.DNSServer;
 import org.apache.james.smtpserver.core.filter.fastfail.URIRBLHandler;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.javaxmail.MockMimeMessage;

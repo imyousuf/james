@@ -18,7 +18,7 @@
  ****************************************************************/
 
 
-package org.apache.james.services;
+package org.apache.james.api.domainlist;
 
 import java.util.List;
 

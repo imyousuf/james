@@ -27,12 +27,12 @@
 
   <services>
     <service name="org.apache.james.services.ManageableDomainList" version="1.0" />
-    <service name="org.apache.james.services.DomainList" version="1.0" />
+    <service name="org.apache.james.api.domainlist.DomainList" version="1.0" />
   </services>
   
   <dependencies>
     <dependency>
-      <service name="org.apache.james.services.DNSServer" version="1.0"/>
+      <service name="org.apache.james.api.dnsserver.DNSServer" version="1.0"/>
     </dependency>
     <dependency>
       <service name="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector" version="1.0"/>

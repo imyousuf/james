@@ -38,13 +38,13 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
+import org.apache.james.api.dnsserver.DNSServer;
+import org.apache.james.api.domainlist.DomainList;
+import org.apache.james.api.domainlist.DomainListUtil;
 import org.apache.james.api.vut.ErrorMappingException;
 import org.apache.james.api.vut.VirtualUserTable;
 import org.apache.james.api.vut.management.InvalidMappingException;
 import org.apache.james.api.vut.management.VirtualUserTableManagement;
-import org.apache.james.services.DNSServer;
-import org.apache.james.services.DomainList;
-import org.apache.james.util.DomainListUtil;
 import org.apache.mailet.MailAddress;
 import org.apache.oro.text.regex.MalformedPatternException;
 import org.apache.oro.text.regex.Perl5Compiler;
@@ -338,7 +338,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
 
  
     /**
-     * @see org.apache.james.services.DomainList#getDomains()
+     * @see org.apache.james.api.domainlist.DomainList#getDomains()
      */
     public List getDomains() {
         List domains = getDomainsInternal();
@@ -387,7 +387,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
     }
     
     /**
-     * @see org.apache.james.services.DomainList#setAutoDetect(boolean)
+     * @see org.apache.james.api.domainlist.DomainList#setAutoDetect(boolean)
      */
     public synchronized void setAutoDetect(boolean autoDetect) {
         getLogger().info("Set autodetect to: " + autoDetect);
@@ -395,7 +395,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
     }
     
     /**
-     * @see org.apache.james.services.DomainList#setAutoDetectIP(boolean)
+     * @see org.apache.james.api.domainlist.DomainList#setAutoDetectIP(boolean)
      */
     public synchronized void setAutoDetectIP(boolean autoDetectIP) {
         getLogger().info("Set autodetectIP to: " + autoDetectIP);

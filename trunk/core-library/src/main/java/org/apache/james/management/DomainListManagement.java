@@ -26,7 +26,7 @@ import java.util.List;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
-import org.apache.james.services.DomainList;
+import org.apache.james.api.domainlist.DomainList;
 import org.apache.james.services.DomainListManagementService;
 import org.apache.james.services.ManageableDomainList;
 

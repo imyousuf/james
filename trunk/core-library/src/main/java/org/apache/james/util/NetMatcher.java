@@ -27,7 +27,7 @@ import java.util.Collection;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.apache.james.services.DNSServer;
+import org.apache.james.api.dnsserver.DNSServer;
 
 /**
  * Class which can be used to check if an ipAddress match a network

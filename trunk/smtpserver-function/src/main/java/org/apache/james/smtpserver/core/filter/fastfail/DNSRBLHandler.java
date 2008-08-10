@@ -27,7 +27,7 @@ import org.apache.avalon.framework.service.Serviceable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.james.services.DNSServer;
+import org.apache.james.api.dnsserver.DNSServer;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.ConnectHandler;
 import org.apache.james.smtpserver.SMTPSession;

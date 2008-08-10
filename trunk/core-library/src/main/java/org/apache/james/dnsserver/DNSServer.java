@@ -26,6 +26,7 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.james.api.dnsserver.TemporaryResolutionException;
 import org.xbill.DNS.ARecord;
 import org.xbill.DNS.Cache;
 import org.xbill.DNS.Credibility;
@@ -60,7 +61,7 @@ import java.util.Random;
  */
 public class DNSServer
     extends AbstractLogEnabled
-    implements Configurable, Initializable, org.apache.james.services.DNSServer, DNSServerMBean {
+    implements Configurable, Initializable, org.apache.james.api.dnsserver.DNSServer, DNSServerMBean {
 
     /**
      * A resolver instance used to retrieve DNS records.  This
@@ -297,7 +298,7 @@ public class DNSServer
     }
     
     /**
-     * @see org.apache.james.services.DNSServer#findMXRecords(String)
+     * @see org.apache.james.api.dnsserver.DNSServer#findMXRecords(String)
      */
     public Collection findMXRecords(String hostname) throws TemporaryResolutionException {
         List servers = new ArrayList();
@@ -411,7 +412,7 @@ public class DNSServer
     }
 
     /**
-     * @see org.apache.james.services.DNSServer#getSMTPHostAddresses(String)
+     * @see org.apache.james.api.dnsserver.DNSServer#getSMTPHostAddresses(String)
      */
     public Iterator getSMTPHostAddresses(final String domainName) throws TemporaryResolutionException {
         return new Iterator() {
@@ -504,7 +505,7 @@ public class DNSServer
     }
 
     /**
-     * @see org.apache.james.services.DNSServer#getByName(String)
+     * @see org.apache.james.api.dnsserver.DNSServer#getByName(String)
      */
     public InetAddress getByName(String host) throws UnknownHostException {
         String name = allowIPLiteral(host);
@@ -527,7 +528,7 @@ public class DNSServer
     }
 
     /**
-     * @see org.apache.james.services.DNSServer#getAllByName(String)
+     * @see org.apache.james.api.dnsserver.DNSServer#getAllByName(String)
      */
     public InetAddress[] getAllByName(String host) throws UnknownHostException {
         String name = allowIPLiteral(host);
@@ -554,7 +555,7 @@ public class DNSServer
     }
     
     /**
-     * @see org.apache.james.services.DNSServer#findTXTRecords(String)
+     * @see org.apache.james.api.dnsserver.DNSServer#findTXTRecords(String)
      */
     public Collection findTXTRecords(String hostname){
         List txtR = new ArrayList();
@@ -571,7 +572,7 @@ public class DNSServer
     }
 
     /**
-     * @see org.apache.james.services.DNSServer#getHostName(java.net.InetAddress)
+     * @see org.apache.james.api.dnsserver.DNSServer#getHostName(java.net.InetAddress)
      */
     public String getHostName(InetAddress addr){
         String result = null;
@@ -588,7 +589,7 @@ public class DNSServer
     }
 
     /**
-     * @see org.apache.james.services.DNSServer#getLocalHost()
+     * @see org.apache.james.api.dnsserver.DNSServer#getLocalHost()
      */
     public InetAddress getLocalHost() throws UnknownHostException {
         return InetAddress.getLocalHost();

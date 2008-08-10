@@ -21,12 +21,12 @@ package org.apache.james.imapserver.util;
 
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.james.api.dnsserver.DNSServer;
 import org.apache.james.imapserver.ImapHandler;
 import org.apache.james.imapserver.TestConstants;
 import org.apache.james.imapserver.mock.MockImapHandlerConfigurationData;
 import org.apache.james.imapserver.mock.MockWatchdog;
 import org.apache.james.mailboxmanager.MailboxManagerException;
-import org.apache.james.services.DNSServer;
 import org.apache.james.test.mock.avalon.MockLogger;
 
 import javax.mail.MessagingException;

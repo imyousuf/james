@@ -20,9 +20,9 @@
 package org.apache.james.transport.remotedeliverytester;
 
 import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.james.api.dnsserver.DNSServer;
+import org.apache.james.api.dnsserver.TemporaryResolutionException;
 import org.apache.james.core.MailImpl;
-import org.apache.james.dnsserver.TemporaryResolutionException;
-import org.apache.james.services.DNSServer;
 import org.apache.mailet.HostAddress;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;

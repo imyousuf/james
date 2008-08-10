@@ -31,8 +31,8 @@ import javax.mail.internet.ParseException;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.james.api.dnsserver.DNSServer;
 import org.apache.james.api.user.UsersRepository;
-import org.apache.james.services.DNSServer;
 import org.apache.james.services.MailServer;
 import org.apache.mailet.MailAddress;
 

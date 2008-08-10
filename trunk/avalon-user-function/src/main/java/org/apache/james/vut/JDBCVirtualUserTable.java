@@ -542,7 +542,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
     }
 
     /**
-     * @see org.apache.james.services.DomainList#containsDomain(java.lang.String)
+     * @see org.apache.james.api.domainlist.DomainList#containsDomain(java.lang.String)
      */
     public boolean containsDomain(String domain) {
         Connection conn = null;

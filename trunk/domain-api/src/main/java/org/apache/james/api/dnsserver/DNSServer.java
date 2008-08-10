@@ -19,14 +19,13 @@
 
 
 
-package org.apache.james.services;
+package org.apache.james.api.dnsserver;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.apache.james.dnsserver.TemporaryResolutionException;
 
 /**
  * Provides abstraction for DNS resolutions. The interface is Mail specific.
