@@ -36,7 +36,7 @@ public interface UsersRepository {
     /**
      * The component role used by components implementing this service
      */
-    String ROLE = "org.apache.james.services.UsersRepository";
+    String ROLE = "org.apache.james.api.user.UsersRepository";
 
     String USER = "USER";
 

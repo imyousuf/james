@@ -35,7 +35,7 @@ public interface VirtualUserTableStore
     /**
      * The component role used by components implementing this service
      */
-    String ROLE = "org.apache.james.services.VirtualUserTableStore";
+    String ROLE = "org.apache.james.api.vut.VirtualUserTableStore";
 
     /** 
      * Get the table, if any, whose name corresponds to
