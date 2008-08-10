@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.util;
+package org.apache.james.util.scheduler;
 
 import org.apache.avalon.cornerstone.services.scheduler.TimeScheduler;
 
