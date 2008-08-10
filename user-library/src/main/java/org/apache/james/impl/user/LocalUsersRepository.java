@@ -31,7 +31,6 @@ import java.util.Iterator;
 
 /**
  * Provide access to the default "LocalUsers" UsersRepository.
- * Temporarily implements JamesMBean (formerly implemented by James) to keep backward compatibility. 
  */
 public class LocalUsersRepository implements UsersRepository, Serviceable, Initializable {
 

@@ -191,8 +191,8 @@
    </imap-connections>      
     
    <imapserver enabled="true">
-      <!-- port 993 is the well-known/IANA registered port for IMAPs ie over SSL/TLS 
-        <port>993</port>
+      <!-- port 993 is the well-known/IANA registered port for IMAPs ie over SSL/TLS -->
+        <!-- <port>993</port> -->
         <!-- JAMES TLS uses JSSE. This means that for many Sun JVMs,
              the sunjce_provider.jar must be copied from $JAVA_HOME/lib/ext
              into $JAMES_HOME/lib. It may also be necessary to download and
@@ -205,7 +205,7 @@
              For example, BouncyCastle JCE (http://www.bouncycastle.org)
         <provider>org.bouncycastle.jce.provider.BouncyCastleProvider</provider> -->
         <!--
-        <handler> 
+        <handler> -->
             <!-- RFC 3501 requires a minimum timeout of 30 minutes -->
             <!-- 
             <connectiontimeout>1800000</connectiontimeout>         
@@ -220,7 +220,6 @@
           <connectiontimeout>1800000</connectiontimeout>         
           <streamdump enabled="true" directory="../apps/james/streamdump" />
         </handler> 
-        -->
       -->
       <!-- Experimental high port -->
       <port>10143</port>
