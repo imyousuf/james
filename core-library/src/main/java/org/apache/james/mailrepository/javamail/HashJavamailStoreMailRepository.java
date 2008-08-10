@@ -40,7 +40,7 @@ import javax.mail.internet.MimeMessage;
 
 import org.apache.james.core.MailImpl;
 import org.apache.james.mailrepository.javamail.HashJavamailStoreMailRepository.KeyToMsgMap.MsgObj;
-import org.apache.james.util.CRLFOutputStream;
+import org.apache.james.util.stream.CRLFOutputStream;
 import org.apache.mailet.Mail;
 
 /**

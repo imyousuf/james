@@ -19,7 +19,7 @@
 
 package org.apache.james.imapserver.util;
 
-import org.apache.james.util.CRLFOutputStream;
+import org.apache.james.util.stream.CRLFOutputStream;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

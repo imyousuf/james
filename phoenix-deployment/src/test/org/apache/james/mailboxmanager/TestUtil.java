@@ -20,7 +20,7 @@
 package org.apache.james.mailboxmanager;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.james.util.CRLFOutputStream;
+import org.apache.james.util.stream.CRLFOutputStream;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

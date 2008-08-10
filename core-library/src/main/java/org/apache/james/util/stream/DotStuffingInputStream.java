@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.util;
+package org.apache.james.util.stream;
 
 import java.io.FilterInputStream;
 import java.io.IOException;

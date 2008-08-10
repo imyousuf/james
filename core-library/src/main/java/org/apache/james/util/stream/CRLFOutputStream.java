@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.util;
+package org.apache.james.util.stream;
 
 import java.io.FilterOutputStream;
 import java.io.IOException;
