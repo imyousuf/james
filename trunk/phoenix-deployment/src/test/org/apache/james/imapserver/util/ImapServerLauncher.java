@@ -21,7 +21,7 @@ package org.apache.james.imapserver.util;
 
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.james.api.dnsserver.DNSServer;
+import org.apache.james.api.dnsservice.DNSServer;
 import org.apache.james.imapserver.ImapHandler;
 import org.apache.james.imapserver.TestConstants;
 import org.apache.james.imapserver.mock.MockImapHandlerConfigurationData;

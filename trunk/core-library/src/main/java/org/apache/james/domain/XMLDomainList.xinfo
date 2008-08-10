@@ -32,7 +32,7 @@
   
   <dependencies>
     <dependency>
-      <service name="org.apache.james.api.dnsserver.DNSServer" version="1.0"/>
+      <service name="org.apache.james.api.dnsservice.DNSServer" version="1.0"/>
     </dependency>
   </dependencies>
 </blockinfo>

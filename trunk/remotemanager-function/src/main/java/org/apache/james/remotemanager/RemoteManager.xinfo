@@ -58,7 +58,7 @@
       <service name="org.apache.james.services.BayesianAnalyzerManagementService" version="1.0"/>
     </dependency>
     <dependency>
-      <service name="org.apache.james.api.dnsserver.DNSServer" version="1.0"/>
+      <service name="org.apache.james.api.dnsservice.DNSServer" version="1.0"/>
     </dependency>
     <dependency>
       <service name="org.apache.james.services.ProcessorManagementService" version="1.0"/>

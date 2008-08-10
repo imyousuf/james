@@ -36,8 +36,8 @@ import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.commons.collections.map.ReferenceMap;
 
-import org.apache.james.api.dnsserver.DNSServer;
-import org.apache.james.api.dnsserver.TemporaryResolutionException;
+import org.apache.james.api.dnsservice.DNSServer;
+import org.apache.james.api.dnsservice.TemporaryResolutionException;
 import org.apache.james.api.domainlist.DomainList;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.user.UsersStore;
@@ -915,7 +915,7 @@ public class James
      * found for domainName, the Iterator returned will be empty and the
      * first call to hasNext() will return false.
      *
-     * @see org.apache.james.api.dnsserver.DNSServer#getSMTPHostAddresses(String)
+     * @see org.apache.james.api.dnsservice.DNSServer#getSMTPHostAddresses(String)
      * @since Mailet API v2.2.0a16-unstable
      * @param domainName - the domain for which to find mail servers
      * @return an Iterator over HostAddress instances, sorted by priority

@@ -20,7 +20,7 @@
 
 
 
-package org.apache.james.api.dnsserver;
+package org.apache.james.api.dnsservice;
 
 import java.io.IOException;
 
