@@ -31,7 +31,7 @@ import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.api.user.ErrorMappingException;
 import org.apache.james.api.user.InvalidMappingException;
 import org.apache.james.api.vut.VirtualUserTableStore;
-import org.apache.james.services.VirtualUserTableManagement;
+import org.apache.james.api.vut.management.VirtualUserTableManagement;
 
 /**
  * Default VirtualUserTable
@@ -60,49 +60,49 @@ public class DefaultVirtualUserTable implements VirtualUserTableManagement, Serv
     }
 
     /**
-     * @see org.apache.james.services.VirtualUserTableManagement#addAddressMapping(java.lang.String, java.lang.String, java.lang.String)
+     * @see org.apache.james.api.vut.management.VirtualUserTableManagement#addAddressMapping(java.lang.String, java.lang.String, java.lang.String)
      */
     public boolean addAddressMapping(String user, String domain, String address) throws InvalidMappingException {
         return vut.addAddressMapping(user, domain, address);
     }
 
     /**
-     * @see org.apache.james.services.VirtualUserTableManagement#addErrorMapping(java.lang.String, java.lang.String, java.lang.String)
+     * @see org.apache.james.api.vut.management.VirtualUserTableManagement#addErrorMapping(java.lang.String, java.lang.String, java.lang.String)
      */
     public boolean addErrorMapping(String user, String domain, String error) throws InvalidMappingException {
         return vut.addErrorMapping(user, domain, error);
     }
 
     /**
-     * @see org.apache.james.services.VirtualUserTableManagement#addRegexMapping(java.lang.String, java.lang.String, java.lang.String)
+     * @see org.apache.james.api.vut.management.VirtualUserTableManagement#addRegexMapping(java.lang.String, java.lang.String, java.lang.String)
      */
     public boolean addRegexMapping(String user, String domain, String regex) throws InvalidMappingException {
         return vut.addRegexMapping(user, domain, regex);
     }
 
     /**
-     * @see org.apache.james.services.VirtualUserTableManagement#getUserDomainMappings(java.lang.String, java.lang.String)
+     * @see org.apache.james.api.vut.management.VirtualUserTableManagement#getUserDomainMappings(java.lang.String, java.lang.String)
      */
     public Collection getUserDomainMappings(String user, String domain) throws InvalidMappingException {
         return vut.getUserDomainMappings(user, domain);
     }
 
     /**
-     * @see org.apache.james.services.VirtualUserTableManagement#removeAddressMapping(java.lang.String, java.lang.String, java.lang.String)
+     * @see org.apache.james.api.vut.management.VirtualUserTableManagement#removeAddressMapping(java.lang.String, java.lang.String, java.lang.String)
      */
     public boolean removeAddressMapping(String user, String domain, String address) throws InvalidMappingException {
         return vut.removeAddressMapping(user, domain, address);
     }
 
     /**
-     * @see org.apache.james.services.VirtualUserTableManagement#removeErrorMapping(java.lang.String, java.lang.String, java.lang.String)
+     * @see org.apache.james.api.vut.management.VirtualUserTableManagement#removeErrorMapping(java.lang.String, java.lang.String, java.lang.String)
      */
     public boolean removeErrorMapping(String user, String domain, String error) throws InvalidMappingException {
         return vut.removeErrorMapping(user, domain, error);
     }
 
     /**
-     * @see org.apache.james.services.VirtualUserTableManagement#removeRegexMapping(java.lang.String, java.lang.String, java.lang.String)
+     * @see org.apache.james.api.vut.management.VirtualUserTableManagement#removeRegexMapping(java.lang.String, java.lang.String, java.lang.String)
      */
     public boolean removeRegexMapping(String user, String domain, String regex) throws InvalidMappingException {
         return vut.removeRegexMapping(user, domain, regex);
@@ -116,35 +116,35 @@ public class DefaultVirtualUserTable implements VirtualUserTableManagement, Serv
     }
 
     /**
-     * @see org.apache.james.services.VirtualUserTableManagement#addMapping(java.lang.String, java.lang.String, java.lang.String)
+     * @see org.apache.james.api.vut.management.VirtualUserTableManagement#addMapping(java.lang.String, java.lang.String, java.lang.String)
      */
     public boolean addMapping(String user, String domain, String mapping) throws InvalidMappingException {
         return vut.addMapping(user, domain, mapping);
     }
 
     /**
-     * @see org.apache.james.services.VirtualUserTableManagement#removeMapping(java.lang.String, java.lang.String, java.lang.String)
+     * @see org.apache.james.api.vut.management.VirtualUserTableManagement#removeMapping(java.lang.String, java.lang.String, java.lang.String)
      */
     public boolean removeMapping(String user, String domain, String mapping) throws InvalidMappingException {
         return vut.removeMapping(user, domain, mapping);
     }
 
     /**
-     * @see org.apache.james.services.VirtualUserTableManagement#getAllMappings()
+     * @see org.apache.james.api.vut.management.VirtualUserTableManagement#getAllMappings()
      */
     public Map getAllMappings() {
         return vut.getAllMappings();
     }
 
     /**
-     * @see org.apache.james.services.VirtualUserTableManagement#addAliasDomainMapping(String, String)
+     * @see org.apache.james.api.vut.management.VirtualUserTableManagement#addAliasDomainMapping(String, String)
      */
     public boolean addAliasDomainMapping(String aliasDomain, String realDomain) throws InvalidMappingException {
         return vut.addAliasDomainMapping(aliasDomain, realDomain);
     }
 
     /**
-     * @see org.apache.james.services.VirtualUserTableManagement#removeAliasDomainMapping(String, String)
+     * @see org.apache.james.api.vut.management.VirtualUserTableManagement#removeAliasDomainMapping(String, String)
      */
     public boolean removeAliasDomainMapping(String aliasDomain, String realDomain) throws InvalidMappingException {
         return vut.removeAliasDomainMapping(aliasDomain, realDomain);
