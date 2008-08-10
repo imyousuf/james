@@ -116,6 +116,7 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
             <mkdir dir='@{bin}'/>
             <mkdir dir='@{src}'/>
             <mkdir dir='@{resources}'/>   
+            <mkdir dir='@{conf}'/>   
             <javac 
                 destdir='@{bin}' 
                 debug='@{debug}' 
@@ -257,10 +258,19 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
                 </fileset>
             </path>
             <path 
+                id='classpath.dependencies.util'
+                description="Convenient way to import all Utils">
+                <!-- TODO Add content when APIs are broken out -->   
+                <fileset dir="${lib.dir}/${path.lib.james}">
+                    <include name="${jars-prefix}*-util-${version}.jar" />
+                </fileset>
+            </path>
+            <path 
                 id='classpath.dependencies.libraries'
                 description="Convenient way to import all libraries and APIs">
                 <!-- TODO Add content when libraries are broken out -->   
                 <path refid='classpath.dependencies.api'/>
+                <path refid='classpath.dependencies.util'/>
                 <fileset dir="${lib.dir}/${path.lib.james}">
                     <include name="${jars-prefix}*-library-${version}.jar" />
                 </fileset>
@@ -284,10 +294,19 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
                 </fileset>
             </path>
             <path 
+                id='classpath.test.dependencies.util'
+                description="Convenient way to import all Utils tests">
+                <!-- TODO Add content when Utils are broken out -->   
+                <fileset dir="${lib.dir}/${path.lib.james}">
+                    <include name="${jars-prefix}*-util-test-${version}.jar" />
+                </fileset>
+            </path>
+            <path 
                 id='classpath.test.dependencies.libraries'
                 description="Convenient way to import all library and API tests">
                 <!-- TODO Add content when libraries are broken out -->   
                 <path refid='classpath.test.dependencies.api'/>
+                <path refid='classpath.test.dependencies.util'/>
                 <fileset dir="${lib.dir}/${path.lib.james}">
                     <include name="${jars-prefix}*-library-test-${version}.jar" />
                 </fileset>

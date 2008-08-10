@@ -30,11 +30,13 @@ Template build for library modules
            <path id='classpath.main'>
                <path refid='classpath.base'/>
                <path refid='classpath.dependencies.api'/>   
+               <path refid='classpath.dependencies.util'/>   
            </path>
            <path id='classpath.test'>
                <path refid='classpath.main'/>   
                <path refid='classpath.base.test'/>   
                <path refid='classpath.test.dependencies.api'/> 
+               <path refid='classpath.test.dependencies.util'/> 
            </path>   
            <path id='classpath.test.runtime'>
                <path refid='classpath.test'/>   
