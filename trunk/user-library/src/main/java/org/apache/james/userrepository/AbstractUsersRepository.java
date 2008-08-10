@@ -25,9 +25,9 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.api.user.ErrorMappingException;
 import org.apache.james.api.user.JamesUser;
 import org.apache.james.api.user.User;
+import org.apache.james.api.vut.ErrorMappingException;
 
 import java.util.ArrayList;
 import java.util.Collection;

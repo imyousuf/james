@@ -19,7 +19,7 @@
 
 package org.apache.james.userrepository;
 
-import org.apache.james.api.user.ErrorMappingException;
+import org.apache.james.api.vut.ErrorMappingException;
 
 import java.util.Collection;
 

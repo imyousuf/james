@@ -28,8 +28,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.james.api.user.ErrorMappingException;
 import org.apache.james.api.user.UsersRepository;
+import org.apache.james.api.vut.ErrorMappingException;
 import org.apache.james.api.vut.VirtualUserTable;
 import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.core.filter.fastfail.ValidRcptHandler;

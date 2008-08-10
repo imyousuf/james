@@ -23,7 +23,6 @@ package org.apache.james.api.vut;
 
 import java.util.Collection;
 
-import org.apache.james.api.user.ErrorMappingException;
 
 /**
  * Interface which should be implemented of classes which map recipients

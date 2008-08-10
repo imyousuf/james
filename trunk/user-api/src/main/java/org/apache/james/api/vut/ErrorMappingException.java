@@ -18,14 +18,13 @@
  ****************************************************************/
 
 
+package org.apache.james.api.vut;
 
-package org.apache.james.api.user;
+public class ErrorMappingException extends Exception {
 
-public class InvalidMappingException extends Exception {
+	private static final long serialVersionUID = 2348752938798L;
 
-	private static final long serialVersionUID = 394857238476523L;
-
-	public InvalidMappingException(String string) {
+	public ErrorMappingException(String string) {
         super(string);
     }
 
