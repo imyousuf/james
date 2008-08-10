@@ -26,7 +26,7 @@ import org.apache.avalon.cornerstone.services.threads.ThreadManager;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.commons.net.telnet.TelnetClient;
-import org.apache.james.api.dnsserver.DNSServer;
+import org.apache.james.api.dnsservice.DNSServer;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.user.UsersStore;
 import org.apache.james.api.vut.management.VirtualUserTableManagementService;

@@ -19,7 +19,7 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.james.api.dnsserver.DNSServer;
+import org.apache.james.api.dnsservice.DNSServer;
 import org.apache.james.transport.remotedeliverytester.RemoteDeliveryTestable;
 import org.apache.james.transport.remotedeliverytester.Tester;
 

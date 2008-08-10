@@ -27,7 +27,7 @@
 
   <!-- services that are offered by this block -->
   <services>
-    <service name="org.apache.james.api.dnsserver.DNSServer" version="1.0"/>
+    <service name="org.apache.james.api.dnsservice.DNSServer" version="1.0"/>
   </services>
 
   <!-- interfaces that may be exported to manange this block -->

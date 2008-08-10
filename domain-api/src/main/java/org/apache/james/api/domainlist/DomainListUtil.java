@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.avalon.framework.logger.Logger;
-import org.apache.james.api.dnsserver.DNSServer;
+import org.apache.james.api.dnsservice.DNSServer;
 
 /**
  * 

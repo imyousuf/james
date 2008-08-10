@@ -44,7 +44,7 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 
-import org.apache.james.api.dnsserver.DNSServer;
+import org.apache.james.api.dnsservice.DNSServer;
 import org.apache.james.services.FileSystem;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
