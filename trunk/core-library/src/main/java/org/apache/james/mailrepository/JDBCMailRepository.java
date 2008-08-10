@@ -33,8 +33,8 @@ import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.services.FileSystem;
-import org.apache.james.util.JDBCUtil;
-import org.apache.james.util.SqlResources;
+import org.apache.james.util.sql.JDBCUtil;
+import org.apache.james.util.sql.SqlResources;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 

@@ -25,8 +25,8 @@ import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.excalibur.datasource.DataSourceComponent;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
-import org.apache.james.util.JDBCBayesianAnalyzer;
-import org.apache.james.util.JDBCUtil;
+import org.apache.james.util.bayesian.JDBCBayesianAnalyzer;
+import org.apache.james.util.sql.JDBCUtil;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.RFC2822Headers;
@@ -101,8 +101,8 @@ import java.util.Iterator;
  * <P>The required tables are automatically created if not already there (see sqlResources.xml).
  * The token field in both the ham and spam tables is <B>case sensitive</B>.</P>
  * @see BayesianAnalysisFeeder
- * @see org.apache.james.util.BayesianAnalyzer
- * @see org.apache.james.util.JDBCBayesianAnalyzer
+ * @see org.apache.james.util.bayesian.BayesianAnalyzer
+ * @see org.apache.james.util.bayesian.JDBCBayesianAnalyzer
  * @version CVS $Revision$ $Date$
  * @since 2.3.0
  */

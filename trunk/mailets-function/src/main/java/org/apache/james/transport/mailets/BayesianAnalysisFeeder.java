@@ -38,9 +38,9 @@ import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
-import org.apache.james.util.JDBCUtil;
 
-import org.apache.james.util.JDBCBayesianAnalyzer;
+import org.apache.james.util.bayesian.JDBCBayesianAnalyzer;
+import org.apache.james.util.sql.JDBCUtil;
 
 /**
  * <P>Feeds ham OR spam messages to train the {@link BayesianAnalysis} mailet.</P>
@@ -101,8 +101,8 @@ import org.apache.james.util.JDBCBayesianAnalyzer;
  * in order to avoid too much database locking,
  * as thousands of rows may be updated just for one message fed.</p>
  * @see BayesianAnalysis
- * @see org.apache.james.util.BayesianAnalyzer
- * @see org.apache.james.util.JDBCBayesianAnalyzer
+ * @see org.apache.james.util.bayesian.BayesianAnalyzer
+ * @see org.apache.james.util.bayesian.JDBCBayesianAnalyzer
  * @version CVS $Revision$ $Date$
  * @since 2.3.0
  */
