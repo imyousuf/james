@@ -28,7 +28,7 @@ import org.apache.james.api.user.ErrorMappingException;
 import org.apache.james.api.user.InvalidMappingException;
 import org.apache.james.api.vut.VirtualUserTable;
 import org.apache.james.services.VirtualUserTableManagement;
-import org.apache.james.util.VirtualUserTableUtil;
+import org.apache.james.vut.VirtualUserTableUtil;
 
 public class MockVirtualUserTableManagementImpl implements VirtualUserTableManagement {
 

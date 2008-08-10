@@ -47,7 +47,6 @@ import org.apache.james.api.user.InvalidMappingException;
 import org.apache.james.services.FileSystem;
 import org.apache.james.util.JDBCUtil;
 import org.apache.james.util.SqlResources;
-import org.apache.james.util.VirtualUserTableUtil;
 
 /**
  * 

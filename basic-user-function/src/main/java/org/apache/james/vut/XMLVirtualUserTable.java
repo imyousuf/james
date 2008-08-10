@@ -31,7 +31,6 @@ import java.util.Map;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.james.util.VirtualUserTableUtil;
 
 public class XMLVirtualUserTable extends AbstractVirtualUserTable implements Configurable {
     /**
