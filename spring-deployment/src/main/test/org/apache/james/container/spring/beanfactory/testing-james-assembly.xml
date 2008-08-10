@@ -252,7 +252,7 @@ It might become outdated. Check for production quality configs outside the test 
   <!-- This is needed to support <usernames> configuraion inside James -->
   <!-- If backward compatibility is not need the LocalUsersRepository implementaion -->
   <!-- could be safely used -->
-  <block name="localusersrepository" class="org.apache.james.core.LocalJamesUsersRepository">
+  <block name="localusersrepository" class="org.apache.james.userrepository.LocalJamesUsersRepository">
     <provide name="users-store"
              role="org.apache.james.api.user.UsersStore"/>
   </block>
