@@ -27,14 +27,14 @@ import java.util.Collection;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.apache.james.api.dnsservice.DNSServer;
+import org.apache.james.api.dnsservice.DNSService;
 
 /**
  * Class which can be used to check if an ipAddress match a network
  */
 public class NetMatcher
 {
-    private DNSServer dnsServer;
+    private DNSService dnsServer;
     
     private ArrayList networks;
 
@@ -134,9 +134,9 @@ public class NetMatcher
      * Create a new instance of Netmatcher
      * 
      * @param nets a String[] which holds all networks
-     * @param dnsServer the DNSServer which will be used in this class
+     * @param dnsServer the DNSService which will be used in this class
      */
-    public NetMatcher(final String[] nets,DNSServer dnsServer)
+    public NetMatcher(final String[] nets,DNSService dnsServer)
     {
         this.dnsServer = dnsServer;
         initInetNetworks(nets);
@@ -146,9 +146,9 @@ public class NetMatcher
      * Create a new instance of Netmatcher
      * 
      * @param nets a Collection which holds all networks
-     * @param dnsServer the DNSServer which will be used in this class
+     * @param dnsServer the DNSService which will be used in this class
      */ 
-    public NetMatcher(final Collection nets,DNSServer dnsServer)
+    public NetMatcher(final Collection nets,DNSService dnsServer)
     {
         this.dnsServer = dnsServer;
         initInetNetworks(nets);
@@ -179,14 +179,14 @@ class InetNetwork
 
     private InetAddress network;
     private InetAddress netmask;
-    private DNSServer dnsServer;
+    private DNSService dnsServer;
     
     /**
      * Constructor
      * 
-     * @param dnsServer the DNSServer to use
+     * @param dnsServer the DNSService to use
      */
-    InetNetwork(DNSServer dnsServer) {
+    InetNetwork(DNSService dnsServer) {
         this.dnsServer = dnsServer;
     }
 

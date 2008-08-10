@@ -27,7 +27,7 @@ import java.util.Map;
 import javax.mail.internet.ParseException;
 
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.james.api.dnsservice.DNSServer;
+import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.services.AbstractDNSServer;
 import org.apache.james.smtpserver.core.filter.fastfail.ValidSenderDomainHandler;
 import org.apache.james.test.mock.avalon.MockLogger;
@@ -45,8 +45,8 @@ public class ValidSenderDomainHandlerTest extends TestCase {
         response = null;
     }
     
-    private DNSServer setupDNSServer() {
-        DNSServer dns = new AbstractDNSServer(){
+    private DNSService setupDNSServer() {
+        DNSService dns = new AbstractDNSServer(){
 
             public Collection findMXRecords(String hostname) {
                 Collection mx = new ArrayList();

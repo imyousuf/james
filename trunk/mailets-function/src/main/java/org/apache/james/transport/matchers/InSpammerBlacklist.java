@@ -30,7 +30,7 @@ import javax.mail.MessagingException;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
-import org.apache.james.api.dnsservice.DNSServer;
+import org.apache.james.api.dnsservice.DNSService;
 import org.apache.mailet.GenericMatcher;
 import org.apache.mailet.Mail;
 
@@ -52,7 +52,7 @@ import org.apache.mailet.Mail;
 public class InSpammerBlacklist extends GenericMatcher {
     private String network = null;
     
-    private DNSServer dnsServer;
+    private DNSService dnsServer;
 
     public void init() throws MessagingException {
         network = getCondition();
@@ -64,7 +64,7 @@ public class InSpammerBlacklist extends GenericMatcher {
         
         try {
             // Instantiate DNSService
-            dnsServer = (DNSServer) compMgr.lookup(DNSServer.ROLE);
+            dnsServer = (DNSService) compMgr.lookup(DNSService.ROLE);
         } catch (ServiceException cnfe) {
             log("Failed to retrieve DNSService" + cnfe.getMessage());
         } catch (Exception e) {

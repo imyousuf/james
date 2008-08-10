@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.avalon.framework.logger.Logger;
-import org.apache.james.api.dnsservice.DNSServer;
+import org.apache.james.api.dnsservice.DNSService;
 
 /**
  * 
@@ -42,7 +42,7 @@ public class DomainListUtil {
      * @param domains List of domains
      * @return domainIP List of ipaddress for domains
      */
-    public static List getDomainsIP(List domains,DNSServer dns,Logger log) {
+    public static List getDomainsIP(List domains,DNSService dns,Logger log) {
         List domainIP = new ArrayList();
         if (domains.size() > 0 ) {
             for (int i = 0; i < domains.size(); i++) {
@@ -59,9 +59,9 @@ public class DomainListUtil {
     }
     
     /**
-     * @see #getDomainsIP(List, DNSServer, Logger)
+     * @see #getDomainsIP(List, DNSService, Logger)
      */
-    public static List getDomainIP(String domain, DNSServer dns, Logger log) {
+    public static List getDomainIP(String domain, DNSService dns, Logger log) {
         List domainIP = new ArrayList();
         try {
             InetAddress[]  addrs = dns.getAllByName(domain);

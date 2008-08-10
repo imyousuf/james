@@ -29,7 +29,7 @@ import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
-import org.apache.james.api.dnsservice.DNSServer;
+import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.util.CRLFTerminatedReader;
 import org.apache.james.util.InternetPrintWriter;
 import org.apache.james.util.watchdog.Watchdog;
@@ -118,9 +118,9 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
     protected String remoteIP = null;
 
     /**
-     * The DNSServer
+     * The DNSService
      */
-    protected DNSServer dnsServer = null;
+    protected DNSService dnsServer = null;
 
     /**
      * Used for debug: if not null enable tcp stream dump.
@@ -132,7 +132,7 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
      * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
      */
     public void service(ServiceManager arg0) throws ServiceException {
-        setDnsServer((DNSServer) arg0.lookup(DNSServer.ROLE));
+        setDnsServer((DNSService) arg0.lookup(DNSService.ROLE));
     }
 
     /**
@@ -455,7 +455,7 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
         }
     }
 
-    public void setDnsServer(DNSServer dnsServer) {
+    public void setDnsServer(DNSService dnsServer) {
         this.dnsServer = dnsServer;
     }
 

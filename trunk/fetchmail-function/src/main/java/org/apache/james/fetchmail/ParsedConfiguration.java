@@ -31,7 +31,7 @@ import javax.mail.internet.ParseException;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Logger;
-import org.apache.james.api.dnsservice.DNSServer;
+import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.services.MailServer;
 import org.apache.mailet.MailAddress;
@@ -304,9 +304,9 @@ class ParsedConfiguration
     
     
     /**
-     * The DNSServer
+     * The DNSService
      */
-    private DNSServer dnsServer;
+    private DNSService dnsServer;
 
 
 
@@ -327,7 +327,7 @@ class ParsedConfiguration
      * @param dnsServer
      * @throws ConfigurationException
      */
-    public ParsedConfiguration(Configuration configuration, Logger logger, MailServer server, UsersRepository localUsers,DNSServer dnsServer) throws ConfigurationException
+    public ParsedConfiguration(Configuration configuration, Logger logger, MailServer server, UsersRepository localUsers,DNSService dnsServer) throws ConfigurationException
     {
         this();
         setLogger(logger);
@@ -623,20 +623,20 @@ protected void setLocalUsers(UsersRepository localUsers)
 
 
 /**
- * Return the DNSServer
- * @return dnsServer The DNSServer
+ * Return the DNSService
+ * @return dnsServer The DNSService
  */
-public DNSServer getDNSServer()
+public DNSService getDNSServer()
 {
     return dnsServer;
 }
 
 
 /**
- * Set the DNSServer
+ * Set the DNSService
  * @param dnsServer The dnsServer to use
  */
-protected void setDNSServer(DNSServer dnsServer)
+protected void setDNSServer(DNSService dnsServer)
 {
     this.dnsServer = dnsServer;
 }

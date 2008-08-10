@@ -41,7 +41,7 @@
     <!-- Specify which components will provide the services required by this
     block. The roles are specified in the code and the .xinfo file. The names
     here must match the names specified for a Block in this xml file.   -->
-    <provide name="dnsserver" role="org.apache.james.api.dnsservice.DNSServer"/>
+    <provide name="dnsserver" role="org.apache.james.api.dnsservice.DNSService"/>
     <provide name="mailstore" role="org.apache.avalon.cornerstone.services.store.Store"/>
     <provide name="users-store" role="org.apache.james.api.user.UsersStore"/>
     <provide name="localusersrepository" role="org.apache.james.api.user.UsersRepository"/>
@@ -112,7 +112,7 @@
              role="org.apache.james.services.SpoolManagementService"/>
     <provide name="bayesiananalyzermanagement"
              role="org.apache.james.services.BayesianAnalyzerManagementService"/>
-    <provide name="dnsserver" role="org.apache.james.api.dnsservice.DNSServer"/>
+    <provide name="dnsserver" role="org.apache.james.api.dnsservice.DNSService"/>
     <provide name="processormanagement" role="org.apache.james.services.ProcessorManagementService"/>
     <provide name="virtualusertablemanagement" role="org.apache.james.api.vut.management.VirtualUserTableManagementService"/>
     <provide name="domainlistmanagement" role="org.apache.james.services.DomainListManagementService"/>
@@ -142,7 +142,7 @@
              role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
     <provide name="mailboxmanager"
              role="org.apache.james.mailboxmanager.manager.MailboxManagerProvider" />    
-    <provide name="dnsserver" role="org.apache.james.api.dnsservice.DNSServer"/>    
+    <provide name="dnsserver" role="org.apache.james.api.dnsservice.DNSService"/>    
   </block>      
     
   <!-- POP3 Server -->
@@ -155,14 +155,14 @@
     <provide name="James" role="org.apache.james.services.MailServer"/>
     <provide name="thread-manager"
              role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
-    <provide name="dnsserver" role="org.apache.james.api.dnsservice.DNSServer"/>
+    <provide name="dnsserver" role="org.apache.james.api.dnsservice.DNSService"/>
   </block>
 
   <!-- SMTP Server -->
   <block name="smtpserver" class="org.apache.james.smtpserver.SMTPServer" >
     <provide name="James" role="org.apache.mailet.MailetContext"/>
     <provide name="localusersrepository" role="org.apache.james.api.user.UsersRepository"/>
-    <provide name="dnsserver" role="org.apache.james.api.dnsservice.DNSServer"/>
+    <provide name="dnsserver" role="org.apache.james.api.dnsservice.DNSService"/>
     <provide name="sockets"
              role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
     <provide name="connections"
@@ -188,7 +188,7 @@
              role="org.apache.james.nntpserver.repository.NNTPRepository"/>
     <provide name="thread-manager"
              role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
-    <provide name="dnsserver" role="org.apache.james.api.dnsservice.DNSServer"/>
+    <provide name="dnsserver" role="org.apache.james.api.dnsservice.DNSService"/>
     <provide name="James" role="org.apache.james.services.MailServer"/>
   </block>
 
@@ -203,7 +203,7 @@
              role="org.apache.avalon.cornerstone.services.scheduler.TimeScheduler"/> 
     <provide name="James" role="org.apache.james.services.MailServer"/>      
     <provide name="localusersrepository" role="org.apache.james.api.user.UsersRepository"/>
-    <provide name="dnsserver" role="org.apache.james.api.dnsservice.DNSServer"/>
+    <provide name="dnsserver" role="org.apache.james.api.dnsservice.DNSService"/>
   </block>
   
   <!-- JMS Service 
@@ -262,7 +262,7 @@
     <provide name="database-connections"
              role="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector"/>
     <provide name="filesystem" role="org.apache.james.services.FileSystem"/>
-    <provide name="dnsserver" role="org.apache.james.api.dnsservice.DNSServer"/>
+    <provide name="dnsserver" role="org.apache.james.api.dnsservice.DNSService"/>
   </block>
   
   <block name="defaultvirtualusertable" class="org.apache.james.impl.vut.DefaultVirtualUserTable">
@@ -274,7 +274,7 @@
   <!-- ######################################################################## -->
   <!-- The context domainlist implementation -->
   <block name="domainlist" class="org.apache.james.domain.XMLDomainList">
-      <provide name="dnsserver" role="org.apache.james.api.dnsservice.DNSServer"/>
+      <provide name="dnsserver" role="org.apache.james.api.dnsservice.DNSService"/>
   </block>
   
   <!--  JDBC implementation of the domainlist service-->
@@ -283,7 +283,7 @@
       <provide name="database-connections"
              role="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector"/>
       <provide name="filesystem" role="org.apache.james.services.FileSystem"/>
-      <provide name="dnsserver" role="org.apache.james.api.dnsservice.DNSServer"/>
+      <provide name="dnsserver" role="org.apache.james.api.dnsservice.DNSService"/>
   </block>
   -->
   
@@ -293,14 +293,14 @@
     <provide name="database-connections"
              role="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector"/>
     <provide name="filesystem" role="org.apache.james.services.FileSystem"/>
-    <provide name="dnsserver" role="org.apache.james.api.dnsservice.DNSServer"/>
+    <provide name="dnsserver" role="org.apache.james.api.dnsservice.DNSService"/>
   </block>
   -->
   
   <!-- XML VirtualUserTable implementation of the domainlist service -->
   <!--
   <block name="domainlist" class="org.apache.james.vut.XMLVirtualUserTable">
-      <provide name="dnsserver" role="org.apache.james.api.dnsservice.DNSServer"/>
+      <provide name="dnsserver" role="org.apache.james.api.dnsservice.DNSService"/>
   </block>
   -->
   <!-- #################################################################### -->

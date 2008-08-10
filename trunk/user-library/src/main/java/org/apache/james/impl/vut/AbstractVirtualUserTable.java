@@ -38,7 +38,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
-import org.apache.james.api.dnsservice.DNSServer;
+import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.domainlist.DomainList;
 import org.apache.james.api.domainlist.DomainListUtil;
 import org.apache.james.api.vut.ErrorMappingException;
@@ -57,7 +57,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
     
     private boolean autoDetect = true;
     private boolean autoDetectIP = true;
-    private DNSServer dns;
+    private DNSService dns;
     
     // The maximum mappings which will process before throwing exception
     private int mappingLimit = 10;
@@ -69,7 +69,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
      * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
      */
     public void service(ServiceManager arg0) throws ServiceException {
-        dns = (DNSServer)arg0.lookup(DNSServer.ROLE); 
+        dns = (DNSService)arg0.lookup(DNSService.ROLE); 
     }
     
     

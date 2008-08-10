@@ -25,7 +25,7 @@ import org.apache.avalon.cornerstone.services.threads.ThreadManager;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.commons.net.smtp.SMTPClient;
 import org.apache.commons.net.smtp.SMTPReply;
-import org.apache.james.api.dnsservice.DNSServer;
+import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.services.JamesConnectionManager;
 import org.apache.james.services.MailServer;
@@ -67,7 +67,7 @@ import junit.framework.TestCase;
  */
 public class SMTPServerTest extends TestCase {
     
-    private final class AlterableDNSServer implements DNSServer {
+    private final class AlterableDNSServer implements DNSService {
         
         private InetAddress localhostByName = null;
         
@@ -206,7 +206,7 @@ public class SMTPServerTest extends TestCase {
         m_serviceManager.put(SocketManager.ROLE, new MockSocketManager(m_smtpListenerPort));
         m_serviceManager.put(ThreadManager.ROLE, new MockThreadManager());
         m_dnsServer = new AlterableDNSServer();
-        m_serviceManager.put(DNSServer.ROLE, m_dnsServer);
+        m_serviceManager.put(DNSService.ROLE, m_dnsServer);
         m_serviceManager.put(Store.ROLE, new MockStore());
         return m_serviceManager;
     }

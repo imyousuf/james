@@ -21,7 +21,7 @@ package org.apache.james.imapserver.util;
 
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.james.api.dnsservice.DNSServer;
+import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.imapserver.ImapHandler;
 import org.apache.james.imapserver.TestConstants;
 import org.apache.james.imapserver.mock.MockImapHandlerConfigurationData;
@@ -39,7 +39,7 @@ public class ImapServerLauncher  implements TestConstants
 {
 
 
-    private DNSServer dnsServer;
+    private DNSService dnsServer;
 
     public void go() throws IOException, MessagingException, MailboxManagerException
     {
@@ -72,7 +72,7 @@ public class ImapServerLauncher  implements TestConstants
 
     }
     
-    public DNSServer getDNSServer() throws Exception {
+    public DNSService getDNSServer() throws Exception {
         dnsServer=new org.apache.james.dnsserver.DNSServer();
         ContainerUtil.enableLogging(dnsServer, new MockLogger());
         ContainerUtil.configure(dnsServer, new DefaultConfiguration("dnsserver"));

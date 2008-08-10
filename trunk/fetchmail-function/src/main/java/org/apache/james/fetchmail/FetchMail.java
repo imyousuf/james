@@ -41,7 +41,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
-import org.apache.james.api.dnsservice.DNSServer;
+import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.services.MailServer;
 
@@ -402,9 +402,9 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
     private UsersRepository fieldLocalUsers;     
     
     /**
-     * The DNSServer
+     * The DNSService
      */
-    private DNSServer dnsServer;
+    private DNSService dnsServer;
     
     /**
      * Constructor for POP3mail.
@@ -606,7 +606,7 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
             throw new ServiceException("", errorBuffer.toString());
         }
         
-        DNSServer dnsServer = (DNSServer) manager.lookup(DNSServer.ROLE);
+        DNSService dnsServer = (DNSService) manager.lookup(DNSService.ROLE);
         setDNSServer(dnsServer);
         
         UsersRepository usersRepository =
@@ -683,19 +683,19 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
     }
     
     /**
-     * Returns the DNSServer.
-     * @return DNSServer 
+     * Returns the DNSService.
+     * @return DNSService 
      */
-    protected DNSServer getDNSServer()
+    protected DNSService getDNSServer()
     {
         return dnsServer;
     }
     
     /**
-     * Sets the DNSServer.
-     * @param dnsServer The DNSServer to set
+     * Sets the DNSService.
+     * @param dnsServer The DNSService to set
      */
-    protected void setDNSServer(DNSServer dnsServer)
+    protected void setDNSServer(DNSService dnsServer)
     {
         this.dnsServer = dnsServer;
     }

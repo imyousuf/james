@@ -41,7 +41,7 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
-import org.apache.james.api.dnsservice.DNSServer;
+import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.smtpserver.MessageHandler;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.mail.dsn.DSNStatus;
@@ -53,7 +53,7 @@ import org.apache.james.util.urirbl.URIScanner;
 public class URIRBLHandler extends AbstractJunkHandler implements MessageHandler,
     Serviceable {
 
-    private DNSServer dnsServer;
+    private DNSService dnsServer;
 
     private Collection uriRbl;
 
@@ -69,7 +69,7 @@ public class URIRBLHandler extends AbstractJunkHandler implements MessageHandler
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
     public void service(ServiceManager serviceMan) throws ServiceException {
-        setDnsServer((DNSServer) serviceMan.lookup(DNSServer.ROLE));
+        setDnsServer((DNSService) serviceMan.lookup(DNSService.ROLE));
     }
 
     /**
@@ -138,12 +138,12 @@ public class URIRBLHandler extends AbstractJunkHandler implements MessageHandler
     }
 
     /**
-     * Set the DNSServer
+     * Set the DNSService
      * 
      * @param dnsServer
-     *            The DNSServer
+     *            The DNSService
      */
-    public void setDnsServer(DNSServer dnsServer) {
+    public void setDnsServer(DNSService dnsServer) {
         this.dnsServer = dnsServer;
     }
 

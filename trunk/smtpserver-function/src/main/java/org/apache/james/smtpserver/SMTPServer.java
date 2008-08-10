@@ -27,7 +27,7 @@ import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
-import org.apache.james.api.dnsservice.DNSServer;
+import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.core.AbstractJamesService;
 import org.apache.james.services.MailServer;
@@ -71,9 +71,9 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
     private MailServer mailServer;
     
     /**
-     * The DNSServer to use for queries
+     * The DNSService to use for queries
      */
-    private DNSServer dnsServer;
+    private DNSService dnsServer;
     
     /**
      * Whether authentication is required to use
@@ -140,7 +140,7 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
         mailetcontext = (MailetContext) manager.lookup("org.apache.mailet.MailetContext");
         mailServer = (MailServer) manager.lookup(MailServer.ROLE);
         users = (UsersRepository) manager.lookup(UsersRepository.ROLE);
-        dnsServer = (DNSServer) manager.lookup(DNSServer.ROLE); 
+        dnsServer = (DNSService) manager.lookup(DNSService.ROLE); 
     }
 
     /**
@@ -397,7 +397,7 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
         return SMTPServer.this.addressBracketsEnforcement;
     }
         
-        //TODO: IF we create here an interface to get DNSServer
+        //TODO: IF we create here an interface to get DNSService
         //      we should access it from the SMTPHandlers
 
     }

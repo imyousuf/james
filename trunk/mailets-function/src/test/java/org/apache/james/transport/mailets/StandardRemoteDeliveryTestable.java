@@ -19,7 +19,7 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.james.api.dnsservice.DNSServer;
+import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.transport.remotedeliverytester.RemoteDeliveryTestable;
 import org.apache.james.transport.remotedeliverytester.Tester;
 
@@ -52,7 +52,7 @@ public class StandardRemoteDeliveryTestable extends RemoteDelivery implements Re
         if (logEnabled) super.log(message);
     }
     
-    public void setDNSServer(DNSServer dnsServer) {
+    public void setDNSServer(DNSService dnsServer) {
         super.setDNSServer(dnsServer);
     }
 

@@ -21,7 +21,7 @@
 package org.apache.james.transport.matchers;
 
 import org.apache.james.Constants;
-import org.apache.james.api.dnsservice.DNSServer;
+import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.services.AbstractDNSServer;
 import org.apache.james.test.mock.avalon.MockServiceManager;
 import org.apache.james.test.mock.mailet.MockMail;
@@ -57,12 +57,12 @@ public class InSpammerBlacklistTest extends TestCase {
 
     private MockServiceManager setUpServiceManager() {
         MockServiceManager sMan = new MockServiceManager();
-        sMan.put(DNSServer.ROLE, setUpDNSServer());
+        sMan.put(DNSService.ROLE, setUpDNSServer());
         return sMan;
     }
     
-    private DNSServer setUpDNSServer() {
-        DNSServer dns = new AbstractDNSServer() {
+    private DNSService setUpDNSServer() {
+        DNSService dns = new AbstractDNSServer() {
             public InetAddress getByName(String name) throws UnknownHostException {
                 if (name.equals(LISTED_HOST.reverse() + "." + BLACKLIST)) {
                     return null;

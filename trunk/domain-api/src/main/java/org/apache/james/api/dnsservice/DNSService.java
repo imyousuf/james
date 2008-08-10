@@ -33,7 +33,7 @@ import java.util.Iterator;
  * commonly needed DNS methods.
  *
  */
-public interface DNSServer {
+public interface DNSService {
 
     /**
      * The component role used by components implementing this service

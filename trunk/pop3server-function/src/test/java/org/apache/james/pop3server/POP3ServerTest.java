@@ -25,7 +25,7 @@ import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.commons.net.pop3.POP3Client;
 import org.apache.commons.net.pop3.POP3MessageInfo;
-import org.apache.james.api.dnsservice.DNSServer;
+import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.AbstractDNSServer;
@@ -106,12 +106,12 @@ public class POP3ServerTest extends TestCase {
         serviceManager.put(SocketManager.ROLE, new MockSocketManager(
                 m_pop3ListenerPort));
         serviceManager.put(ThreadManager.ROLE, new MockThreadManager());
-        serviceManager.put(DNSServer.ROLE, setUpDNSServer());
+        serviceManager.put(DNSService.ROLE, setUpDNSServer());
         return serviceManager;
     }
 
-    private DNSServer setUpDNSServer() {
-        DNSServer dns = new AbstractDNSServer() {
+    private DNSService setUpDNSServer() {
+        DNSService dns = new AbstractDNSServer() {
             public String getHostName(InetAddress addr) {
                 return "localhost";
             }
