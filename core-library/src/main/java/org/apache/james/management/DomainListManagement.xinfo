@@ -36,7 +36,7 @@
   
   <dependencies>
     <dependency>
-      <service name="org.apache.james.services.DomainList" version="1.0"/>
+      <service name="org.apache.james.api.domainlist.DomainList" version="1.0"/>
     </dependency>
   </dependencies>
 </blockinfo>

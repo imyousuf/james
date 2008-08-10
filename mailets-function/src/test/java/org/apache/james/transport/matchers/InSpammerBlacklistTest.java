@@ -21,8 +21,8 @@
 package org.apache.james.transport.matchers;
 
 import org.apache.james.Constants;
+import org.apache.james.api.dnsserver.DNSServer;
 import org.apache.james.services.AbstractDNSServer;
-import org.apache.james.services.DNSServer;
 import org.apache.james.test.mock.avalon.MockServiceManager;
 import org.apache.james.test.mock.mailet.MockMail;
 import org.apache.james.test.mock.mailet.MockMailContext;

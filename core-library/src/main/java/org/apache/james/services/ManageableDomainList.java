@@ -21,6 +21,8 @@
 
 package org.apache.james.services;
 
+import org.apache.james.api.domainlist.DomainList;
+
 /**
  * Services which allow to manage the DomainList should implement this interface
  */

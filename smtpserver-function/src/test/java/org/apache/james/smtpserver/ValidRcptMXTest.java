@@ -29,8 +29,8 @@ import java.util.Map;
 import javax.mail.internet.ParseException;
 
 import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.james.api.dnsserver.DNSServer;
 import org.apache.james.services.AbstractDNSServer;
-import org.apache.james.services.DNSServer;
 import org.apache.james.smtpserver.core.filter.fastfail.ValidRcptMX;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.util.junkscore.JunkScore;

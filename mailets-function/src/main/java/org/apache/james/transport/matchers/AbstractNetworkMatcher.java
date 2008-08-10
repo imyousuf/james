@@ -23,7 +23,7 @@ package org.apache.james.transport.matchers;
 
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
-import org.apache.james.services.DNSServer;
+import org.apache.james.api.dnsserver.DNSServer;
 import org.apache.james.util.NetMatcher;
 import javax.mail.MessagingException;
 import java.util.StringTokenizer;
