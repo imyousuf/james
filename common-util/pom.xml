@@ -28,6 +28,9 @@
   <artifactId>james-common-util</artifactId>
   <name>Apache JAMES Server Common Utilities</name>
   <dependencies>
-  	<!-- no dependencies -->
+    <dependency>
+      <groupId>oro</groupId>
+      <artifactId>oro</artifactId>
+    </dependency>
   </dependencies>
 </project>
