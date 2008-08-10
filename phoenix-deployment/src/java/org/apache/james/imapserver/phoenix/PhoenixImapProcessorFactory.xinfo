@@ -32,7 +32,7 @@
       <service name="org.apache.james.mailboxmanager.manager.MailboxManagerProvider" version="1.0"/>
     </dependency>
     <dependency>
-      <service name="org.apache.james.services.UsersRepository" version="1.0"/>
+      <service name="org.apache.james.api.user.UsersRepository" version="1.0"/>
     </dependency> 
     <dependency>
       <service name="org.apache.james.api.user.UserMetaDataRespository" version="1.0"/>

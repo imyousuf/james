@@ -23,7 +23,7 @@ package org.apache.james.transport.mailets.listservcommands;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.james.services.UsersRepository;
+import org.apache.james.api.user.UsersRepository;
 import org.apache.james.transport.mailets.ICommandListservManager;
 import org.apache.mailet.RFC2822Headers;
 import org.apache.james.util.XMLResources;

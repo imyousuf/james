@@ -21,8 +21,8 @@
 
 package org.apache.james.test.mock.james;
 
-import org.apache.james.services.UsersStore;
-import org.apache.james.services.UsersRepository;
+import org.apache.james.api.user.UsersRepository;
+import org.apache.james.api.user.UsersStore;
 
 import java.util.Iterator;
 import java.util.ArrayList;

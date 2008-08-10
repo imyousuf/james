@@ -22,13 +22,13 @@ package org.apache.james.imapserver.handler.commands;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
+import org.apache.james.api.user.User;
+import org.apache.james.api.user.UsersRepository;
 import org.apache.james.imapserver.ImapRequestHandler;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ImapSessionState;
 import org.apache.james.imapserver.ProtocolException;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
-import org.apache.james.services.User;
-import org.apache.james.services.UsersRepository;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;

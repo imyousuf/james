@@ -27,6 +27,8 @@ import javax.mail.Flags;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.api.imap.message.MessageFlags;
+import org.apache.james.api.user.User;
+import org.apache.james.api.user.UsersRepository;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.MailboxSession;
@@ -34,8 +36,6 @@ import org.apache.james.mailboxmanager.MessageResult;
 import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
-import org.apache.james.services.User;
-import org.apache.james.services.UsersRepository;
 
 /**
  * @version $Revision: 109034 $

@@ -27,7 +27,7 @@
 
   <!-- services that are offered by this block -->
   <services>
-    <service name="org.apache.james.services.UsersRepository" version="1.0" />
+    <service name="org.apache.james.api.user.UsersRepository" version="1.0" />
   </services>
 
   <!-- interfaces that may be exported to manange this block -->
@@ -37,7 +37,7 @@
   
   <dependencies>
     <dependency>
-      <service name="org.apache.james.services.UsersStore" version="1.0"/>
+      <service name="org.apache.james.api.user.UsersStore" version="1.0"/>
     </dependency>
   </dependencies>
 </blockinfo>

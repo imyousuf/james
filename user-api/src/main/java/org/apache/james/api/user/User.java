@@ -19,27 +19,38 @@
 
 
 
+package org.apache.james.api.user;
 
-package org.apache.james.management;
+/**
+ * Interface for objects representing users.
+ *
+ *
+ * @version $Revision$
+ */
 
-public class UserManagementException extends Exception {
+public interface User {
 
-	private static final long serialVersionUID = 34908520632L;
+    /**
+     * Return the user name of this user
+     *
+     * @return the user name for this user
+     */
+    String getUserName();
 
-	public UserManagementException() {
-        super();
-    }
+    /**
+     * Return true if pass matches password of this user.
+     *
+     * @param pass the password to test
+     * @return whether the password being tested is valid
+     */
+    boolean verifyPassword(String pass);
 
-    public UserManagementException(String message) {
-        super(message);
-    }
-
-    public UserManagementException(Exception e) {
-        super(e);
-    }
-    
-    public UserManagementException(String message, Exception e) {
-        super(message, e);
-    }
-
+    /**
+     * Sets new password from String. No checks made on guessability of
+     * password.
+     *
+     * @param newPass the String that is the new password.
+     * @return true if newPass successfully added
+     */
+    boolean setPassword(String newPass);
 }

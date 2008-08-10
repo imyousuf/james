@@ -21,7 +21,7 @@
 
 package org.apache.james.userrepository;
 
-import org.apache.james.services.User;
+import org.apache.james.api.user.User;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -56,7 +56,7 @@ public class ListUsersJdbcRepository extends AbstractJdbcUsersRepository
     }
 
     /**
-     * @see org.apache.james.userrepository.AbstractJdbcUsersRepository#setUserForInsertStatement(org.apache.james.services.User, java.sql.PreparedStatement)
+     * @see org.apache.james.userrepository.AbstractJdbcUsersRepository#setUserForInsertStatement(org.apache.james.api.user.User, java.sql.PreparedStatement)
      */
     protected void setUserForInsertStatement(User user, 
                                              PreparedStatement userInsert) 
@@ -82,7 +82,7 @@ public class ListUsersJdbcRepository extends AbstractJdbcUsersRepository
     }
 
     /**
-     * @see org.apache.james.services.UsersRepository#addUser(java.lang.String, java.lang.String)
+     * @see org.apache.james.api.user.UsersRepository#addUser(java.lang.String, java.lang.String)
      */
     public boolean addUser(String username, String password)  {
         User newbie = new DefaultUser(username, "SHA");

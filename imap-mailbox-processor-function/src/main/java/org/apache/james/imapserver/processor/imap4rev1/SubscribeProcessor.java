@@ -26,10 +26,10 @@ import org.apache.james.api.imap.message.request.ImapRequest;
 import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
+import org.apache.james.api.user.User;
 import org.apache.james.imap.message.request.imap4rev1.SubscribeRequest;
 import org.apache.james.imapserver.processor.base.AbstractImapRequestProcessor;
 import org.apache.james.imapserver.processor.base.ImapSessionUtils;
-import org.apache.james.services.User;
 
 public class SubscribeProcessor extends AbstractImapRequestProcessor {
 

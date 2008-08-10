@@ -26,9 +26,9 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.james.api.user.UsersRepository;
 import org.apache.james.core.AbstractJamesService;
 import org.apache.james.services.MailServer;
-import org.apache.james.services.UsersRepository;
 
 /**
  * <p>Accepts POP3 connections on a server socket and dispatches them to POP3Handlers.</p>

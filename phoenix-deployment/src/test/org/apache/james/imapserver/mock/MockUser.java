@@ -19,8 +19,8 @@
 
 package org.apache.james.imapserver.mock;
 
+import org.apache.james.api.user.User;
 import org.apache.james.imapserver.TestConstants;
-import org.apache.james.services.User;
 
 public class MockUser implements User,TestConstants
 {
