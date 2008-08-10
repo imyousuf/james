@@ -50,6 +50,10 @@
       <artifactId>james-server-user-library</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-avalon-socket-library</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.apache.avalon.cornerstone.store</groupId>
       <artifactId>cornerstone-store-api</artifactId>
     </dependency>
@@ -68,18 +72,6 @@
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-user-library</artifactId>
       <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.excalibur.components</groupId>
-      <artifactId>excalibur-thread-impl</artifactId>
-      <version>2.2.1</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.avalon.cornerstone.sockets</groupId>
-      <artifactId>cornerstone-sockets-impl</artifactId>
-      <version>2.2.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
