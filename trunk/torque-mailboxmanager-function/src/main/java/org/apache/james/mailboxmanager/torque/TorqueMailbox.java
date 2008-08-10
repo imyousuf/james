@@ -62,7 +62,7 @@ import org.apache.james.mailboxmanager.torque.om.MessageRow;
 import org.apache.james.mailboxmanager.torque.om.MessageRowPeer;
 import org.apache.james.mailboxmanager.util.UidChangeTracker;
 import org.apache.james.mailboxmanager.util.UidRange;
-import org.apache.james.util.CRLFOutputStream;
+import org.apache.james.util.stream.CRLFOutputStream;
 import org.apache.torque.NoRowsException;
 import org.apache.torque.TooManyRowsException;
 import org.apache.torque.TorqueException;

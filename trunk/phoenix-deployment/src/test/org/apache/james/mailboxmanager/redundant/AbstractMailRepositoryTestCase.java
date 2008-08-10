@@ -38,7 +38,7 @@ import junit.framework.TestCase;
 import org.apache.james.core.MailImpl;
 import org.apache.james.mailrepository.javamail.HashJavamailStoreMailRepository;
 import org.apache.james.services.MailRepository;
-import org.apache.james.util.CRLFOutputStream;
+import org.apache.james.util.stream.CRLFOutputStream;
 import org.apache.mailet.Mail;
 
 public abstract class AbstractMailRepositoryTestCase extends TestCase {

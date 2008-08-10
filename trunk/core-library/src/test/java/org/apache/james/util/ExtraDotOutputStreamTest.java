@@ -19,6 +19,8 @@
 
 package org.apache.james.util;
 
+import org.apache.james.util.stream.ExtraDotOutputStream;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
