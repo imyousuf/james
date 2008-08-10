@@ -30,7 +30,6 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.api.dnsservice.DNSService;
-import org.apache.james.util.CRLFTerminatedReader;
 import org.apache.james.util.InternetPrintWriter;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogTarget;

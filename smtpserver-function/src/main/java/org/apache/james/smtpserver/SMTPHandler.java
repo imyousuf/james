@@ -24,7 +24,7 @@ package org.apache.james.smtpserver;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.Constants;
 import org.apache.james.core.AbstractJamesHandler;
-import org.apache.james.util.CRLFTerminatedReader;
+import org.apache.james.core.CRLFTerminatedReader;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.mailet.Mail;
 import org.apache.mailet.dates.RFC822DateFormat;

@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.util;
+package org.apache.james.core;
 
 import java.io.InputStream;
 import java.io.Reader;
