@@ -28,6 +28,8 @@
   <artifactId>james-server-imapserver-function</artifactId>
   <name>Apache JAMES Server IMAP function</name>
   <dependencies>
+    <!-- This is used, not needed at runtime because -->
+    <!-- RFC2822Headers constants are inlined        -->
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-mailet-base</artifactId>
@@ -35,6 +37,10 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-library</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-avalon-socket-library</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>

@@ -19,6 +19,10 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
+      <artifactId>james-server-avalon-socket-library</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
       <artifactId>james-server-imap-codec-library</artifactId>
     </dependency>
     <dependency>
