@@ -43,21 +43,21 @@ import org.apache.james.core.DefaultVirtualUserTable;
 public class VirtualUserTableManagement implements Serviceable, VirtualUserTableManagementService, VirtualUserTableManagementMBean {
 
     VirtualUserTableStore store;
-    org.apache.james.services.VirtualUserTableManagement defaultVUT;    
+    org.apache.james.api.vut.management.VirtualUserTableManagement defaultVUT;    
 
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
      */
     public void service(ServiceManager arg0) throws ServiceException {
         setVirtualUserTableStore((VirtualUserTableStore) arg0.lookup(VirtualUserTableStore.ROLE));
-        setDefaultVirtualUserTable((org.apache.james.services.VirtualUserTableManagement) arg0.lookup(DefaultVirtualUserTable.ROLE));
+        setDefaultVirtualUserTable((org.apache.james.api.vut.management.VirtualUserTableManagement) arg0.lookup(DefaultVirtualUserTable.ROLE));
     }
 
     public void setVirtualUserTableStore(VirtualUserTableStore store) {
         this.store = store;
     }
     
-    public void setDefaultVirtualUserTable(org.apache.james.services.VirtualUserTableManagement defaultVUT) {
+    public void setDefaultVirtualUserTable(org.apache.james.api.vut.management.VirtualUserTableManagement defaultVUT) {
         this.defaultVUT = defaultVUT;
     }
     
@@ -68,7 +68,7 @@ public class VirtualUserTableManagement implements Serviceable, VirtualUserTable
      * @return VirtualUserTableManagement object
      * @throws VirtualUserTableManagementException if no VirtualUserTable with the given name exists
      */
-    private org.apache.james.services.VirtualUserTableManagement getTable(String tableName) throws VirtualUserTableManagementException {     
+    private org.apache.james.api.vut.management.VirtualUserTableManagement getTable(String tableName) throws VirtualUserTableManagementException {     
         // if the tableName was null return the DefaultVirtualUserTable
         if (tableName == null) {
             return defaultVUT;
@@ -78,11 +78,11 @@ public class VirtualUserTableManagement implements Serviceable, VirtualUserTable
             // Check if a table with the given name exists, if not throw an Exception
             if (vut == null) {
                 throw new VirtualUserTableManagementException("No VirtualUserTable with such name: " + tableName);
-            } else if (!(vut instanceof org.apache.james.services.VirtualUserTableManagement)){
+            } else if (!(vut instanceof org.apache.james.api.vut.management.VirtualUserTableManagement)){
                 // Used VUT not support management, throw an Exception
                 throw new VirtualUserTableManagementException("Used VirtualUserTable implementation not support management");
             } else {
-                return (org.apache.james.services.VirtualUserTableManagement) vut;
+                return (org.apache.james.api.vut.management.VirtualUserTableManagement) vut;
             }
         }
     }

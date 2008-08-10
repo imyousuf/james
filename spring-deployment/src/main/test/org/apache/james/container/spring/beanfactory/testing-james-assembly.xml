@@ -264,7 +264,7 @@ It might become outdated. Check for production quality configs outside the test 
   <!-- The VirtualUserTable Management block  -->
   <block name="virtualusertablemanagement" class="org.apache.james.management.VirtualUserTableManagement" >
     <provide name="virtualusertable-store" role="org.apache.james.api.vut.VirtualUserTableStore"/>
-    <provide name="defaultvirtualusertable" role="org.apache.james.services.VirtualUserTableManagement" />
+    <provide name="defaultvirtualusertable" role="org.apache.james.api.vut.management.VirtualUserTableManagement" />
   </block>
   
   <!-- VirtualUserTable Store -->

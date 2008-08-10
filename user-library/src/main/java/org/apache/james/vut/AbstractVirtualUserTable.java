@@ -41,9 +41,9 @@ import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.api.user.ErrorMappingException;
 import org.apache.james.api.user.InvalidMappingException;
 import org.apache.james.api.vut.VirtualUserTable;
+import org.apache.james.api.vut.management.VirtualUserTableManagement;
 import org.apache.james.services.DNSServer;
 import org.apache.james.services.DomainList;
-import org.apache.james.services.VirtualUserTableManagement;
 import org.apache.james.util.DomainListUtil;
 import org.apache.mailet.MailAddress;
 import org.apache.oro.text.regex.MalformedPatternException;
@@ -198,7 +198,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
     }
     
     /**
-     * @see org.apache.james.services.VirtualUserTableManagement#addRegexMapping(java.lang.String, java.lang.String, java.lang.String)
+     * @see org.apache.james.api.vut.management.VirtualUserTableManagement#addRegexMapping(java.lang.String, java.lang.String, java.lang.String)
      */
     public synchronized boolean addRegexMapping(String user, String domain, String regex) throws InvalidMappingException {     
         try {
@@ -217,7 +217,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
 
     
     /**
-     * @see org.apache.james.services.VirtualUserTableManagement#removeRegexMapping(java.lang.String, java.lang.String, java.lang.String)
+     * @see org.apache.james.api.vut.management.VirtualUserTableManagement#removeRegexMapping(java.lang.String, java.lang.String, java.lang.String)
      */
     public synchronized boolean removeRegexMapping(String user, String domain, String regex) throws InvalidMappingException {
         getLogger().info("Remove regex mapping => " + regex + " for user: " + user + " domain: " + domain);
@@ -225,7 +225,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
     }
     
     /**
-     * @see org.apache.james.services.VirtualUserTableManagement#addAddressMapping(java.lang.String, java.lang.String, java.lang.String)
+     * @see org.apache.james.api.vut.management.VirtualUserTableManagement#addAddressMapping(java.lang.String, java.lang.String, java.lang.String)
      */
     public synchronized boolean addAddressMapping(String user, String domain, String address) throws InvalidMappingException {
         if (address.indexOf('@') < 0) {
@@ -245,7 +245,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
     }
     
     /**
-     * @see org.apache.james.services.VirtualUserTableManagement#removeAddressMapping(java.lang.String, java.lang.String, java.lang.String)
+     * @see org.apache.james.api.vut.management.VirtualUserTableManagement#removeAddressMapping(java.lang.String, java.lang.String, java.lang.String)
      */
     public synchronized boolean removeAddressMapping(String user, String domain, String address) throws InvalidMappingException {
         if (address.indexOf('@') < 0) {
@@ -256,7 +256,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
     }
     
     /**
-     * @see org.apache.james.services.VirtualUserTableManagement#addErrorMapping(java.lang.String, java.lang.String, java.lang.String)
+     * @see org.apache.james.api.vut.management.VirtualUserTableManagement#addErrorMapping(java.lang.String, java.lang.String, java.lang.String)
      */
     public synchronized boolean addErrorMapping(String user, String domain, String error) throws InvalidMappingException {   
         if (checkMapping(user,domain,error) == true) {          
@@ -268,7 +268,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
     }
     
     /**
-     * @see org.apache.james.services.VirtualUserTableManagement#removeErrorMapping(java.lang.String, java.lang.String, java.lang.String)
+     * @see org.apache.james.api.vut.management.VirtualUserTableManagement#removeErrorMapping(java.lang.String, java.lang.String, java.lang.String)
      */
     public synchronized boolean removeErrorMapping(String user, String domain, String error) throws InvalidMappingException {
         getLogger().info("Remove error mapping => " + error + " for user: " + user + " domain: " + domain);     
@@ -277,7 +277,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
 
 
     /**
-     * @see org.apache.james.services.VirtualUserTableManagement#addMapping(java.lang.String, java.lang.String, java.lang.String)
+     * @see org.apache.james.api.vut.management.VirtualUserTableManagement#addMapping(java.lang.String, java.lang.String, java.lang.String)
      */
     public synchronized boolean addMapping(String user, String domain, String mapping) throws InvalidMappingException {
         String map = mapping.toLowerCase();
@@ -295,7 +295,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
     }
     
     /**
-     * @see org.apache.james.services.VirtualUserTableManagement#removeMapping(java.lang.String, java.lang.String, java.lang.String)
+     * @see org.apache.james.api.vut.management.VirtualUserTableManagement#removeMapping(java.lang.String, java.lang.String, java.lang.String)
      */
     public synchronized boolean removeMapping(String user, String domain, String mapping) throws InvalidMappingException {
         String map = mapping.toLowerCase();
@@ -313,7 +313,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
     }
     
     /**
-     * @see org.apache.james.services.VirtualUserTableManagement#getAllMappings()
+     * @see org.apache.james.api.vut.management.VirtualUserTableManagement#getAllMappings()
      */
     public Map getAllMappings() {
         int count = 0;
@@ -380,7 +380,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
     }
     
     /**
-     * @see org.apache.james.services.VirtualUserTableManagement#getUserDomainMappings(java.lang.String, java.lang.String)
+     * @see org.apache.james.api.vut.management.VirtualUserTableManagement#getUserDomainMappings(java.lang.String, java.lang.String)
      */
     public Collection getUserDomainMappings(String user, String domain) {
         return getUserDomainMappingsInternal(user, domain);
@@ -403,7 +403,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
     }
 
     /**
-     * @see org.apache.james.services.VirtualUserTableManagement#addAliasDomainMapping(java.lang.String, java.lang.String)
+     * @see org.apache.james.api.vut.management.VirtualUserTableManagement#addAliasDomainMapping(java.lang.String, java.lang.String)
      */
     public synchronized boolean addAliasDomainMapping(String aliasDomain, String realDomain) throws InvalidMappingException {
         getLogger().info("Add domain mapping: " + aliasDomain  + " => " + realDomain);
@@ -411,7 +411,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
     }
     
     /**
-     * @see org.apache.james.services.VirtualUserTableManagement#removeAliasDomainMapping(java.lang.String, java.lang.String)
+     * @see org.apache.james.api.vut.management.VirtualUserTableManagement#removeAliasDomainMapping(java.lang.String, java.lang.String)
      */
     public synchronized boolean removeAliasDomainMapping(String aliasDomain, String realDomain) throws InvalidMappingException {
         getLogger().info("Remove domain mapping: " + aliasDomain  + " => " + realDomain);
