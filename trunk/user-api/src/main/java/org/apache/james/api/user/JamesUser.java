@@ -19,9 +19,8 @@
 
 
 
-package org.apache.james.services;
+package org.apache.james.api.user;
 
-import org.apache.james.api.user.User;
 import org.apache.mailet.MailAddress;
 
 /**
