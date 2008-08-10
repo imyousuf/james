@@ -24,7 +24,6 @@ package org.apache.james.api.vut.management;
 import java.util.Collection;
 import java.util.Map;
 
-import org.apache.james.api.user.InvalidMappingException;
 import org.apache.james.api.vut.VirtualUserTable;
 
 public interface VirtualUserTableManagement extends VirtualUserTable{

@@ -30,8 +30,8 @@ import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.DefaultServiceManager;
 
-import org.apache.james.api.user.InvalidMappingException;
 import org.apache.james.api.vut.VirtualUserTable;
+import org.apache.james.api.vut.management.InvalidMappingException;
 import org.apache.james.services.DNSServer;
 import org.apache.james.services.FileSystem;
 

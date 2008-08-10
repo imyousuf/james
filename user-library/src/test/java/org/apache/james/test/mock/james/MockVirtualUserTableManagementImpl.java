@@ -24,9 +24,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.james.api.user.ErrorMappingException;
-import org.apache.james.api.user.InvalidMappingException;
+import org.apache.james.api.vut.ErrorMappingException;
 import org.apache.james.api.vut.VirtualUserTable;
+import org.apache.james.api.vut.management.InvalidMappingException;
 import org.apache.james.api.vut.management.VirtualUserTableManagement;
 import org.apache.james.vut.VirtualUserTableUtil;
 
