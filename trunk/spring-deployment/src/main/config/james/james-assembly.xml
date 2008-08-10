@@ -265,7 +265,7 @@
     <provide name="dnsserver" role="org.apache.james.services.DNSServer"/>
   </block>
   
-  <block name="defaultvirtualusertable" class="org.apache.james.core.DefaultVirtualUserTable">
+  <block name="defaultvirtualusertable" class="org.apache.james.userrepository.DefaultVirtualUserTable">
     <provide name="virtualusertable-store"
              role="org.apache.james.api.vut.VirtualUserTableStore"/>
   </block>

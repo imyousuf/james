@@ -33,7 +33,7 @@ import org.apache.james.api.vut.VirtualUserTableStore;
 import org.apache.james.api.vut.management.VirtualUserTableManagementException;
 import org.apache.james.api.vut.management.VirtualUserTableManagementMBean;
 import org.apache.james.api.vut.management.VirtualUserTableManagementService;
-import org.apache.james.core.DefaultVirtualUserTable;
+import org.apache.james.userrepository.DefaultVirtualUserTable;
 
 
 /**
