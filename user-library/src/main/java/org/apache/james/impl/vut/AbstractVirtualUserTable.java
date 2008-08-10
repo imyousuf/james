@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.vut;
+package org.apache.james.impl.vut;
 
 import java.net.UnknownHostException;
 import java.util.ArrayList;

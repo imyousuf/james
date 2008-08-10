@@ -28,7 +28,7 @@
   <!-- services that are offered by this block -->
   <services>
     <service name="org.apache.james.api.user.UsersRepository" version="1.0" />
-    <service name="org.apache.james.userrepository.JamesUsersRepository" version="1.0" />
+    <service name="org.apache.james.impl.jamesuser.JamesUsersRepository" version="1.0" />
     <service name="org.apache.james.api.vut.VirtualUserTable" version="1.0" />
   </services>
 

@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.userrepository;
+package org.apache.james.impl.user;
 
 import java.util.Collection;
 import java.util.Map;

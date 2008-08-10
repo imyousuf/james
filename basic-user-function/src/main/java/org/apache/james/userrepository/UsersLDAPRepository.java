@@ -26,8 +26,8 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.james.api.user.User;
-import org.apache.james.userrepository.AbstractUsersRepository;
-import org.apache.james.userrepository.DefaultUser;
+import org.apache.james.impl.jamesuser.AbstractUsersRepository;
+import org.apache.james.impl.user.DefaultUser;
 
 import javax.naming.AuthenticationException;
 import javax.naming.NamingEnumeration;

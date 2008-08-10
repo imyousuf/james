@@ -29,6 +29,7 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.api.user.User;
+import org.apache.james.impl.jamesuser.AbstractUsersRepository;
 import org.apache.james.services.FileSystem;
 import org.apache.james.util.JDBCUtil;
 import org.apache.james.util.SqlResources;

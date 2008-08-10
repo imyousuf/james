@@ -32,8 +32,8 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.api.user.User;
-import org.apache.james.userrepository.AbstractUsersRepository;
-import org.apache.james.userrepository.DefaultJamesUser;
+import org.apache.james.impl.jamesuser.AbstractUsersRepository;
+import org.apache.james.impl.user.DefaultJamesUser;
 
 
 import java.util.Iterator;
@@ -147,7 +147,7 @@ public class UsersFileRepository
     }
 
     /**
-     * @see org.apache.james.userrepository.AbstractUsersRepository#doAddUser(org.apache.james.api.user.User)
+     * @see org.apache.james.impl.jamesuser.AbstractUsersRepository#doAddUser(org.apache.james.api.user.User)
      */
     protected void doAddUser(User user) {
         try {
@@ -225,7 +225,7 @@ public class UsersFileRepository
     }
     
     /**
-     * @see org.apache.james.userrepository.AbstractUsersRepository#doUpdateUser(org.apache.james.api.user.User)
+     * @see org.apache.james.impl.jamesuser.AbstractUsersRepository#doUpdateUser(org.apache.james.api.user.User)
      */
     public void doUpdateUser(User user) {
         try {

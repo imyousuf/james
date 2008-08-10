@@ -17,9 +17,10 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.userrepository;
+package org.apache.james.impl.jamesuser;
 
 import org.apache.james.api.vut.ErrorMappingException;
+import org.apache.james.impl.user.LocalUsersRepository;
 
 import java.util.Collection;
 
@@ -31,21 +32,21 @@ import java.util.Collection;
 public class LocalJamesUsersRepository extends LocalUsersRepository implements JamesUsersRepository{
 
     /**
-     * @see org.apache.james.userrepository.JamesUsersRepository#setEnableAliases(boolean)
+     * @see org.apache.james.impl.jamesuser.JamesUsersRepository#setEnableAliases(boolean)
      */
     public void setEnableAliases(boolean enableAliases) {
         ((JamesUsersRepository) users).setEnableAliases(enableAliases);
     }
 
     /**
-     * @see org.apache.james.userrepository.JamesUsersRepository#setEnableForwarding(boolean)
+     * @see org.apache.james.impl.jamesuser.JamesUsersRepository#setEnableForwarding(boolean)
      */
     public void setEnableForwarding(boolean enableForwarding) {
         ((JamesUsersRepository) users).setEnableForwarding(enableForwarding);
     }
 
     /**
-     * @see org.apache.james.userrepository.JamesUsersRepository#setIgnoreCase(boolean)
+     * @see org.apache.james.impl.jamesuser.JamesUsersRepository#setIgnoreCase(boolean)
      */
     public void setIgnoreCase(boolean ignoreCase) {
         ((JamesUsersRepository) users).setIgnoreCase(ignoreCase);

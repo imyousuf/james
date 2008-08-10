@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.management;
+package org.apache.james.impl.vut;
 
 import java.util.Collection;
 import java.util.Map;
@@ -33,7 +33,7 @@ import org.apache.james.api.vut.management.InvalidMappingException;
 import org.apache.james.api.vut.management.VirtualUserTableManagementException;
 import org.apache.james.api.vut.management.VirtualUserTableManagementMBean;
 import org.apache.james.api.vut.management.VirtualUserTableManagementService;
-import org.apache.james.userrepository.DefaultVirtualUserTable;
+import org.apache.james.impl.user.DefaultVirtualUserTable;
 
 
 /**

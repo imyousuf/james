@@ -26,6 +26,7 @@ import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.user.UsersStore;
 import org.apache.james.api.user.management.UserManagementException;
+import org.apache.james.impl.user.UserManagement;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockServiceManager;
 import org.apache.james.test.mock.james.MockUsersStore;

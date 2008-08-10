@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.userrepository;
+package org.apache.james.impl.user;
 
 import org.apache.james.api.user.User;
 
@@ -104,7 +104,7 @@ public class DefaultUser implements User, Serializable {
      *
      * @return the String of the hashed Password
      */
-    protected String getHashedPassword() {
+    public String getHashedPassword() {
         return hashedPassword;
     }
 
@@ -113,7 +113,7 @@ public class DefaultUser implements User, Serializable {
      *
      * @return the name of the hashing algorithm used for this user's password
      */
-    protected String getHashAlgorithm() {
+    public String getHashAlgorithm() {
         return algorithm;
     }
 }

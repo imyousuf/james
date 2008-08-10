@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.vut;
+package org.apache.james.impl.vut;
 
 import java.util.ArrayList;
 import java.util.Collection;
