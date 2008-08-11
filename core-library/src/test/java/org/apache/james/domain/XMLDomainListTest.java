@@ -30,8 +30,8 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.api.dnsservice.DNSService;
+import org.apache.james.api.domainlist.ManageableDomainList;
 import org.apache.james.services.AbstractDNSServer;
-import org.apache.james.services.ManageableDomainList;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockServiceManager;
 

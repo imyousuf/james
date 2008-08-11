@@ -27,7 +27,7 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.api.domainlist.DomainList;
-import org.apache.james.services.ManageableDomainList;
+import org.apache.james.api.domainlist.ManageableDomainList;
 
 /**
  * Provide management class for DomainLists

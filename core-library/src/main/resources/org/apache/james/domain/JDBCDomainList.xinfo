@@ -26,7 +26,7 @@
   </block>
 
   <services>
-    <service name="org.apache.james.services.ManageableDomainList" version="1.0" />
+    <service name="org.apache.james.api.domainlist.ManageableDomainList" version="1.0" />
     <service name="org.apache.james.api.domainlist.DomainList" version="1.0" />
   </services>
   
