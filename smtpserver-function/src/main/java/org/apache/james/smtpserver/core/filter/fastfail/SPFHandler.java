@@ -27,6 +27,7 @@ import java.util.Collection;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.james.dsn.DSNStatus;
 import org.apache.james.jspf.impl.DefaultSPF;
 import org.apache.james.jspf.impl.SPF;
 import org.apache.james.jspf.core.DNSService;
@@ -35,7 +36,6 @@ import org.apache.james.jspf.executor.SPFResult;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.MessageHandler;
 import org.apache.james.smtpserver.SMTPSession;
-import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 

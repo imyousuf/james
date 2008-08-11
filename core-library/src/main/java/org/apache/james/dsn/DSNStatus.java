@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.util.mail.dsn;
+package org.apache.james.dsn;
 
 
 /**

@@ -23,8 +23,8 @@ package org.apache.james.transport.mailets;
 
 import org.apache.james.Constants;
 import org.apache.james.core.MailImpl;
+import org.apache.james.dsn.DSNStatus;
 import org.apache.james.util.mail.MimeMultipartReport;
-import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.RFC2822Headers;

@@ -21,7 +21,7 @@
 
 package org.apache.james.smtpserver.core.filter.fastfail;
 
-import org.apache.james.util.mail.dsn.DSNStatus;
+import org.apache.james.dsn.DSNStatus;
 
 public class JunkHandlerData {
     
