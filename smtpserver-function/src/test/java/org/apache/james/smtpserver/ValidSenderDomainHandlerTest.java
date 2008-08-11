@@ -30,9 +30,9 @@ import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.services.AbstractDNSServer;
 import org.apache.james.smtpserver.core.filter.fastfail.ValidSenderDomainHandler;
+import org.apache.james.smtpserver.junkscore.JunkScore;
+import org.apache.james.smtpserver.junkscore.JunkScoreImpl;
 import org.apache.james.test.mock.avalon.MockLogger;
-import org.apache.james.util.junkscore.JunkScore;
-import org.apache.james.util.junkscore.JunkScoreImpl;
 import org.apache.mailet.MailAddress;
 
 import junit.framework.TestCase;

@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.util.junkscore;
+package org.apache.james.smtpserver.junkscore;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -47,7 +47,7 @@ public class ComposedJunkScore implements JunkScore {
     }
     
     /** 
-     * @see org.apache.james.util.junkscore.JunkScore#getCompleteStoredScores()
+     * @see org.apache.james.smtpserver.junkscore.JunkScore#getCompleteStoredScores()
      */
     public double getCompleteStoredScores() {
         return (score1.getCompleteStoredScores() + score2.getCompleteStoredScores());
@@ -55,14 +55,14 @@ public class ComposedJunkScore implements JunkScore {
 
     
     /**
-     * @see org.apache.james.util.junkscore.JunkScore#getStoredScore(java.lang.String)
+     * @see org.apache.james.smtpserver.junkscore.JunkScore#getStoredScore(java.lang.String)
      */
     public double getStoredScore(String key) {
         return (score1.getStoredScore(key) + score2.getStoredScore(key));
     }
 
     /**
-     * @see org.apache.james.util.junkscore.JunkScore#getStoredScores()
+     * @see org.apache.james.smtpserver.junkscore.JunkScore#getStoredScores()
      */
     public Map getStoredScores() {
         // copy the Map
@@ -72,7 +72,7 @@ public class ComposedJunkScore implements JunkScore {
     }
 
     /**
-     * @see org.apache.james.util.junkscore.JunkScore#resetStoredScores()
+     * @see org.apache.james.smtpserver.junkscore.JunkScore#resetStoredScores()
      */
     public double resetStoredScores() {
         return (score1.resetStoredScores() + score2.resetStoredScores());

@@ -26,8 +26,8 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.smtpserver.SMTPSession;
-import org.apache.james.util.junkscore.JunkScore;
-import org.apache.james.util.junkscore.JunkScoreConfigUtil;
+import org.apache.james.smtpserver.junkscore.JunkScore;
+import org.apache.james.smtpserver.junkscore.JunkScoreConfigUtil;
 
 /**
  * 
