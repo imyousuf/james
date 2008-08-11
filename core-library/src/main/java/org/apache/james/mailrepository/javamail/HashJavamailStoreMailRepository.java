@@ -39,7 +39,6 @@ import javax.mail.Flags.Flag;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.james.core.MailImpl;
-import org.apache.james.mailrepository.javamail.HashJavamailStoreMailRepository.KeyToMsgMap.MsgObj;
 import org.apache.james.util.stream.CRLFOutputStream;
 import org.apache.mailet.Mail;
 
@@ -536,21 +535,22 @@ public class HashJavamailStoreMailRepository extends
             return (MsgObj) keyToMsgObj.get(key);
         }
 
-        /**
-         * used to internal represent a message
-         * 
-         */
-        protected class MsgObj {
-            MimeMessage message;
-
-            int no = -1;
-
-            Object hash;
-
-            String key;
-        }
-
     }
+
+    /**
+     * used to internal represent a message
+     * 
+     */
+    protected static final class MsgObj {
+        MimeMessage message;
+
+        int no = -1;
+
+        Object hash;
+
+        String key;
+    }
+
 
     /**
      * currently uses Arrays.hashCode to build an Integer. Resulting Method
