@@ -68,7 +68,7 @@ public class ImapServer extends AbstractJamesService
     {
         super.service( serviceManager );
         UsersRepository usersRepository = ( UsersRepository ) serviceManager.
-                lookup( "org.apache.james.services.UsersRepository" );
+                lookup( UsersRepository.ROLE );
         setUserRepository(usersRepository);
         MailboxManagerProvider mailboxManagerProvider =(MailboxManagerProvider) serviceManager.lookup("org.apache.james.mailboxmanager.manager.MailboxManagerProvider");
         getLogger().debug("MailboxManagerMailRepository uses service "+mailboxManagerProvider);
