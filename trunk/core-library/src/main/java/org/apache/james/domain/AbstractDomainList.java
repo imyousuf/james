@@ -34,7 +34,7 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.api.dnsservice.DNSService;
-import org.apache.james.services.ManageableDomainList;
+import org.apache.james.api.domainlist.ManageableDomainList;
 
 /**
  * All implementations of the DomainList interface should extends this abstract class
@@ -131,7 +131,7 @@ public abstract class AbstractDomainList extends AbstractLogEnabled implements S
     }
     
     /**
-     * @see org.apache.james.services.ManageableDomainList#addDomain(java.lang.String)
+     * @see org.apache.james.api.domainlist.ManageableDomainList#addDomain(java.lang.String)
      */
     public synchronized boolean addDomain(String domain) {
         getLogger().info("Add domain " + domain + " to DomainList");
@@ -141,7 +141,7 @@ public abstract class AbstractDomainList extends AbstractLogEnabled implements S
     }
     
     /**
-     * @see org.apache.james.services.ManageableDomainList#removeDomain(java.lang.String)
+     * @see org.apache.james.api.domainlist.ManageableDomainList#removeDomain(java.lang.String)
      */
     public synchronized boolean removeDomain(String domain) {
         getLogger().info("Remove domain " + domain + " from DomainList");
