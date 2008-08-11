@@ -20,6 +20,7 @@
 package org.apache.james.test.util;
 
 import org.apache.avalon.cornerstone.blocks.datasources.DefaultDataSourceSelector;
+import org.apache.avalon.excalibur.datasource.JdbcDataSource;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.derby.jdbc.EmbeddedDriver;
@@ -98,7 +99,7 @@ public class Util {
         DefaultConfiguration dc = new DefaultConfiguration("database-connections");
         DefaultConfiguration ds = new DefaultConfiguration("data-source");
         ds.setAttribute("name","maildb");
-        ds.setAttribute("class",org.apache.james.util.dbcp.JdbcDataSource.class.getName());
+        ds.setAttribute("class",JdbcDataSource.class.getName());
         
         ds.addChild(new AttrValConfiguration("driver",EmbeddedDriver.class.getName()));
         ds.addChild(new AttrValConfiguration("dburl","jdbc:derby:target/testdb;create=true"));
