@@ -31,13 +31,7 @@
   
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>mailet</artifactId>
-    </dependency>
-    <!-- Probably used for RFC2822Headers                             -->
-    <!-- Not needed at runtime because of compiler inlining constants -->
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>apache-james-mailet-base</artifactId>
+      <artifactId>apache-james-core-library</artifactId>
     </dependency>
 
     <dependency>
