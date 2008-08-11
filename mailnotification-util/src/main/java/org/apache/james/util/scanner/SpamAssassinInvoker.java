@@ -18,7 +18,7 @@
  ****************************************************************/
 
 
-package org.apache.james.util;
+package org.apache.james.util.scanner;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
