@@ -24,7 +24,7 @@ package org.apache.james.management;
 
 public interface BayesianAnalyzerManagementService {
 
-    public static final String ROLE = "org.apache.james.services.BayesianAnalyzerManagementService";
+    public static final String ROLE = "org.apache.james.management.BayesianAnalyzerManagementService";
     
     /**
      * Feed the BayesianAnalyter with spam. The given directory  contain the mail files
