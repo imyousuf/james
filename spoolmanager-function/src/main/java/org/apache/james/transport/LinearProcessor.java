@@ -31,7 +31,6 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.core.MailImpl;
-import org.apache.james.services.MailProcessor;
 import org.apache.james.services.SpoolRepository;
 import org.apache.james.util.mailet.MatcherInverter;
 import org.apache.mailet.GenericMailet;
@@ -279,7 +278,7 @@ public class LinearProcessor
      * @throws IllegalStateException when this method is called before the processor lists have been closed
      *                                  or the spool has been initialized
      *
-     * @see org.apache.james.services.MailProcessor#service(org.apache.mailet.Mail)
+     * @see org.apache.james.transport.MailProcessor#service(org.apache.mailet.Mail)
      */
     public void service(Mail mail) throws MessagingException {
         if (spool == null) {

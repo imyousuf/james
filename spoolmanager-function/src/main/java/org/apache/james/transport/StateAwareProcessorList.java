@@ -31,7 +31,6 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
-import org.apache.james.services.MailProcessor;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailetException;
 import javax.mail.MessagingException;
@@ -130,7 +129,7 @@ public class StateAwareProcessorList
      *
      * @param mail the mail message to be processed
      *
-     * @see org.apache.james.services.MailProcessor#service(org.apache.mailet.Mail)
+     * @see org.apache.james.transport.MailProcessor#service(org.apache.mailet.Mail)
      */
     public void service(Mail mail) {
         while (true) {

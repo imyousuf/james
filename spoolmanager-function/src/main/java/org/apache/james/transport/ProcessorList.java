@@ -18,7 +18,6 @@
  ****************************************************************/
 package org.apache.james.transport;
 
-import org.apache.james.services.MailProcessor;
 
 /**
  * provide access on child processor

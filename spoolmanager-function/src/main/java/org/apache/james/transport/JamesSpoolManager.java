@@ -31,7 +31,6 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
-import org.apache.james.services.MailProcessor;
 import org.apache.james.services.SpoolRepository;
 import org.apache.james.services.SpoolManager;
 import org.apache.mailet.Mail;
