@@ -18,7 +18,7 @@
  ****************************************************************/
 
 
-package org.apache.james.util.junkscore;
+package org.apache.james.smtpserver.junkscore;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -36,7 +36,7 @@ public class JunkScoreImpl implements JunkScore {
     private Map scoreMap = new HashMap();
     
     /**
-     * @see org.apache.james.util.junkscore.JunkScore#getCompleteStoredScores()
+     * @see org.apache.james.smtpserver.junkscore.JunkScore#getCompleteStoredScores()
      */
     public double getCompleteStoredScores() {
         double count = 0;
@@ -50,7 +50,7 @@ public class JunkScoreImpl implements JunkScore {
     
     
     /**
-     * @see org.apache.james.util.junkscore.JunkScore#getStoredScores()
+     * @see org.apache.james.smtpserver.junkscore.JunkScore#getStoredScores()
      */
     public Map getStoredScores() {
         // Get sure we return a copy of the Map so it can not get wrong objects added
@@ -59,7 +59,7 @@ public class JunkScoreImpl implements JunkScore {
     
 
     /**
-     * @see org.apache.james.util.junkscore.JunkScore#getStoredScore(java.lang.String)
+     * @see org.apache.james.smtpserver.junkscore.JunkScore#getStoredScore(java.lang.String)
      */
     public double getStoredScore(String key) {
         Double s = (Double) scoreMap.get(key);
@@ -71,7 +71,7 @@ public class JunkScoreImpl implements JunkScore {
     }
     
     /**
-     * @see org.apache.james.util.junkscore.JunkScore#setStoredScore(java.lang.String, double)
+     * @see org.apache.james.smtpserver.junkscore.JunkScore#setStoredScore(java.lang.String, double)
      */
     public double setStoredScore(String key, double score) {
         Double s = (Double) scoreMap.put(key, new Double(score));
@@ -83,7 +83,7 @@ public class JunkScoreImpl implements JunkScore {
     }
 
     /**
-     * @see org.apache.james.util.junkscore.JunkScore#resetStoredScores()
+     * @see org.apache.james.smtpserver.junkscore.JunkScore#resetStoredScores()
      */
     public double resetStoredScores() {
         double oldSum = getCompleteStoredScores();

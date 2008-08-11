@@ -29,10 +29,10 @@ import javax.mail.internet.MimeMessage;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.smtpserver.core.filter.fastfail.JunkScoreHandler;
+import org.apache.james.smtpserver.junkscore.JunkScore;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.javaxmail.MockMimeMessage;
 import org.apache.james.test.mock.mailet.MockMail;
-import org.apache.james.util.junkscore.JunkScore;
 import org.apache.mailet.Mail;
 
 import junit.framework.TestCase;

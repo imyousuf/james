@@ -20,7 +20,7 @@
 
 
 
-package org.apache.james.util.urirbl;
+package org.apache.james.smtpserver.urirbl;
 
 import java.util.HashSet;
 import java.util.Iterator;

@@ -20,7 +20,9 @@
 
 
 
-package org.apache.james.util.junkscore;
+package org.apache.james.smtpserver.junkscore;
+
+import org.apache.james.smtpserver.junkscore.JunkScoreConfigUtil;
 
 import junit.framework.TestCase;
 

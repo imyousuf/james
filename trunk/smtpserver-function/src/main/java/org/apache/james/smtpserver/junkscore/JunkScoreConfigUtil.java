@@ -20,7 +20,7 @@
 
 
 
-package org.apache.james.util.junkscore;
+package org.apache.james.smtpserver.junkscore;
 
 /**
  * Utility class for providing static method for JunkScore configuration

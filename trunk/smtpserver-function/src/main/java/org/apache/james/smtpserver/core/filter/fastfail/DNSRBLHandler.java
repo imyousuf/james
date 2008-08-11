@@ -31,7 +31,7 @@ import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.ConnectHandler;
 import org.apache.james.smtpserver.SMTPSession;
-import org.apache.james.util.junkscore.JunkScore;
+import org.apache.james.smtpserver.junkscore.JunkScore;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.MailAddress;
 

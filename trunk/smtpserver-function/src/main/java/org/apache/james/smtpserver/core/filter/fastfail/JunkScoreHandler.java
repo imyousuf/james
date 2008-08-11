@@ -35,9 +35,9 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.smtpserver.ConnectHandler;
 import org.apache.james.smtpserver.MessageHandler;
 import org.apache.james.smtpserver.SMTPSession;
-import org.apache.james.util.junkscore.ComposedJunkScore;
-import org.apache.james.util.junkscore.JunkScore;
-import org.apache.james.util.junkscore.JunkScoreImpl;
+import org.apache.james.smtpserver.junkscore.ComposedJunkScore;
+import org.apache.james.smtpserver.junkscore.JunkScore;
+import org.apache.james.smtpserver.junkscore.JunkScoreImpl;
 import org.apache.james.util.mail.dsn.DSNStatus;
 
 /**
