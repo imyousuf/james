@@ -32,7 +32,7 @@ public interface DomainList {
     /**
      * The component role used by components implementing this service
      */
-    public final static String ROLE ="org.apache.james.services.DomainList";
+    public final static String ROLE ="org.apache.james.api.domainlist.DomainList";
     
     /**
      * Return List of domains which should be used as localdomains. Return null if no
