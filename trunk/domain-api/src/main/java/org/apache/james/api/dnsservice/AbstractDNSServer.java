@@ -19,9 +19,8 @@
 
 
 
-package org.apache.james.services;
+package org.apache.james.api.dnsservice;
 
-import org.apache.james.api.dnsservice.DNSService;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
