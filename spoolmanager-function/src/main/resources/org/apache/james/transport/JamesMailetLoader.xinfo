@@ -26,7 +26,7 @@
 
   <!-- services that are offered by this block -->
   <services>
-    <service name="org.apache.james.services.MailetLoader" version="1.0" />
+    <service name="org.apache.james.transport.MailetLoader" version="1.0" />
   </services>
 
   <dependencies>

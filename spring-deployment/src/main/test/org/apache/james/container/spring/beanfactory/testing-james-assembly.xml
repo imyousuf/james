@@ -81,8 +81,8 @@ It might become outdated. Check for production quality configs outside the test 
   <!-- The James Spool Manager block  -->
   <block name="spoolmanager" class="org.apache.james.transport.JamesSpoolManager" >
     <provide name="spoolrepository" role="org.apache.james.services.SpoolRepository"/>
-    <provide name="matcherpackages" role="org.apache.james.services.MatcherLoader"/>
-    <provide name="mailetpackages" role="org.apache.james.services.MailetLoader"/>
+    <provide name="matcherpackages" role="org.apache.james.transport.MatcherLoader"/>
+    <provide name="mailetpackages" role="org.apache.james.transport.MailetLoader"/>
   </block>
 
   <block name="matcherpackages" class="org.apache.james.transport.JamesMatcherLoader" >
