@@ -69,11 +69,13 @@
       <artifactId>mail</artifactId>
       <scope>provided</scope>
     </dependency>
+    <!-- 
     <dependency>
       <groupId>javax.activation</groupId>
       <artifactId>activation</artifactId>
       <scope>provided</scope>
     </dependency>
+     -->
     <dependency>
       <groupId>org.apache.avalon.framework</groupId>
       <artifactId>avalon-framework-api</artifactId>
@@ -109,11 +111,11 @@
       <groupId>org.apache.avalon.cornerstone.connection</groupId>
       <artifactId>cornerstone-connection-impl</artifactId>
     </dependency>
-     -->
     <dependency>
       <groupId>org.apache.avalon.cornerstone.sockets</groupId>
       <artifactId>cornerstone-sockets-api</artifactId>
     </dependency>
+     -->
     <dependency>
       <groupId>org.apache.avalon.cornerstone.datasources</groupId>
       <artifactId>cornerstone-datasources-api</artifactId>
@@ -122,10 +124,12 @@
       <groupId>org.apache.excalibur.components</groupId>
       <artifactId>excalibur-datasource</artifactId>
     </dependency>
+    <!-- 
     <dependency>
       <groupId>org.apache.avalon.cornerstone.scheduler</groupId>
       <artifactId>cornerstone-scheduler-api</artifactId>
     </dependency>
+     -->
     <dependency>
       <groupId>org.apache.avalon.cornerstone.store</groupId>
       <artifactId>cornerstone-store-api</artifactId>
@@ -148,14 +152,17 @@
       <groupId>org.apache.avalon.cornerstone.threads</groupId>
       <artifactId>cornerstone-threads-api</artifactId>
     </dependency>
+    <!-- 
     <dependency>
       <groupId>org.apache.excalibur.components</groupId>
       <artifactId>excalibur-thread-api</artifactId>
     </dependency>
+     -->
     <dependency>
       <groupId>oro</groupId>
       <artifactId>oro</artifactId>
     </dependency>
+    <!-- 
     <dependency>
       <groupId>mstor</groupId>
       <artifactId>mstor</artifactId>
@@ -173,6 +180,7 @@
       <groupId>mx4j</groupId>
       <artifactId>mx4j-jmx</artifactId>
     </dependency>
+     -->
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-mailet-base</artifactId>
