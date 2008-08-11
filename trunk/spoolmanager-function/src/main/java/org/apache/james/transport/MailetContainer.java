@@ -20,8 +20,6 @@ package org.apache.james.transport;
 
 import java.util.List;
 
-import org.apache.james.services.MailetLoader;
-import org.apache.james.services.MatcherLoader;
 
 /**
  * interface for mailet/matcher-containing processors.

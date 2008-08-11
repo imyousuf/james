@@ -23,7 +23,6 @@ import javax.mail.MessagingException;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.james.services.MailetLoader;
 import org.apache.mailet.Mailet;
 import org.apache.mailet.MailetException;
 /**
@@ -39,7 +38,7 @@ public class JamesMailetLoader extends Loader implements MailetLoader {
     }
 
     /**
-     * @see org.apache.james.services.MailetLoader#getMailet(java.lang.String, org.apache.avalon.framework.configuration.Configuration)
+     * @see org.apache.james.transport.MailetLoader#getMailet(java.lang.String, org.apache.avalon.framework.configuration.Configuration)
      */
     public Mailet getMailet(String mailetName, Configuration configuration)
         throws MessagingException {

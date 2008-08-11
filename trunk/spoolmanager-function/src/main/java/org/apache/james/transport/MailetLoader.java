@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.services;
+package org.apache.james.transport;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.mailet.Mailet;

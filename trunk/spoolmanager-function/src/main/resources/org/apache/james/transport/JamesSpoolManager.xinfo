@@ -33,10 +33,10 @@
       <service name="org.apache.james.services.SpoolRepository" version="1.0"/>
     </dependency>
     <dependency>
-      <service name="org.apache.james.services.MailetLoader" version="1.0"/>
+      <service name="org.apache.james.transport.MailetLoader" version="1.0"/>
     </dependency>
     <dependency>
-      <service name="org.apache.james.services.MatcherLoader" version="1.0"/>
+      <service name="org.apache.james.transport.MatcherLoader" version="1.0"/>
     </dependency>
   </dependencies>  
 
