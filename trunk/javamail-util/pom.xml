@@ -25,8 +25,8 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.james</groupId>
-  <artifactId>james-mailnotification-util</artifactId>
-  <name>Apache JAMES Server Mail Notification Utilities</name>
+  <artifactId>james-javamail-util</artifactId>
+  <name>Apache JAMES Javamail Utilities</name>
   <dependencies>
     <dependency>
       <groupId>javax.mail</groupId>

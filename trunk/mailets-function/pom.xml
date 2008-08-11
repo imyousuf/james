@@ -44,7 +44,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-mailnotification-util</artifactId>
+      <artifactId>james-javamail-util</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
