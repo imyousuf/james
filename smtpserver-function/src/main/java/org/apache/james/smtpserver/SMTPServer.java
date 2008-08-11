@@ -28,10 +28,10 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
 import org.apache.james.api.dnsservice.DNSService;
+import org.apache.james.api.dnsservice.util.NetMatcher;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.services.MailServer;
 import org.apache.james.socket.AbstractJamesService;
-import org.apache.james.util.dnsservice.NetMatcher;
 import org.apache.mailet.MailetContext;
 
 /**
