@@ -21,6 +21,7 @@
 
 package org.apache.james.impl.vut;
 
+import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,12 +36,12 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.domainlist.DomainList;
-import org.apache.james.api.domainlist.DomainListUtil;
 import org.apache.james.api.vut.ErrorMappingException;
 import org.apache.james.api.vut.VirtualUserTable;
 import org.apache.james.api.vut.management.InvalidMappingException;
@@ -360,7 +361,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
             }
            
             if (autoDetectIP == true) {
-                List ipList = DomainListUtil.getDomainsIP(domains,dns,getLogger());
+                List ipList = getDomainsIP(domains,dns,getLogger());
                 for(int i = 0; i < ipList.size(); i++) {
                     if (domains.contains(ipList.get(i)) == false) {
                         domains.add(ipList.get(i));
@@ -378,7 +379,48 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
             return null;
         }
     }
+
+    /**
+     * Return a List which holds all ipAddress of the domains in the given List
+     * 
+     * @param domains List of domains
+     * @return domainIP List of ipaddress for domains
+     */
+    private static List getDomainsIP(List domains,DNSService dns,Logger log) {
+        List domainIP = new ArrayList();
+        if (domains.size() > 0 ) {
+            for (int i = 0; i < domains.size(); i++) {
+                List domList = getDomainIP(domains.get(i).toString(),dns,log);
+                
+                for(int i2 = 0; i2 < domList.size();i2++) {
+                    if(domainIP.contains(domList.get(i2)) == false) {
+                        domainIP.add(domList.get(i2));
+                    }
+                }
+            }
+        }
+        return domainIP;    
+    }
     
+    /**
+     * @see #getDomainsIP(List, DNSService, Logger)
+     */
+    private static List getDomainIP(String domain, DNSService dns, Logger log) {
+        List domainIP = new ArrayList();
+        try {
+            InetAddress[]  addrs = dns.getAllByName(domain);
+            for (int j = 0; j < addrs.length ; j++) {
+                String ip = addrs[j].getHostAddress();
+                if (domainIP.contains(ip) == false) {
+                    domainIP.add(ip);
+                }
+            }
+        } catch (UnknownHostException e) {
+            log.error("Cannot get IP address(es) for " + domain);
+        }
+        return domainIP;
+    }
+
     /**
      * @see org.apache.james.api.vut.management.VirtualUserTableManagement#getUserDomainMappings(java.lang.String, java.lang.String)
      */

@@ -21,17 +21,19 @@
 
 package org.apache.james.domain;
 
+import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.api.dnsservice.DNSService;
-import org.apache.james.api.domainlist.DomainListUtil;
 import org.apache.james.services.ManageableDomainList;
 
 /**
@@ -72,7 +74,7 @@ public abstract class AbstractDomainList extends AbstractLogEnabled implements S
 
             
             if (autoDetectIP == true) {
-                domains.addAll(DomainListUtil.getDomainsIP(domains,dns,getLogger()));
+                domains.addAll(getDomainsIP(domains,dns,getLogger()));
             }
        
             if (getLogger().isInfoEnabled()) {
@@ -84,6 +86,48 @@ public abstract class AbstractDomainList extends AbstractLogEnabled implements S
         } else {
             return null;
         }
+    }
+    
+    
+    /**
+     * Return a List which holds all ipAddress of the domains in the given List
+     * 
+     * @param domains List of domains
+     * @return domainIP List of ipaddress for domains
+     */
+    private static List getDomainsIP(List domains,DNSService dns,Logger log) {
+        List domainIP = new ArrayList();
+        if (domains.size() > 0 ) {
+            for (int i = 0; i < domains.size(); i++) {
+                List domList = getDomainIP(domains.get(i).toString(),dns,log);
+                
+                for(int i2 = 0; i2 < domList.size();i2++) {
+                    if(domainIP.contains(domList.get(i2)) == false) {
+                        domainIP.add(domList.get(i2));
+                    }
+                }
+            }
+        }
+        return domainIP;    
+    }
+    
+    /**
+     * @see #getDomainsIP(List, DNSService, Logger)
+     */
+    private static List getDomainIP(String domain, DNSService dns, Logger log) {
+        List domainIP = new ArrayList();
+        try {
+            InetAddress[]  addrs = dns.getAllByName(domain);
+            for (int j = 0; j < addrs.length ; j++) {
+                String ip = addrs[j].getHostAddress();
+                if (domainIP.contains(ip) == false) {
+                    domainIP.add(ip);
+                }
+            }
+        } catch (UnknownHostException e) {
+            log.error("Cannot get IP address(es) for " + domain);
+        }
+        return domainIP;
     }
     
     /**
