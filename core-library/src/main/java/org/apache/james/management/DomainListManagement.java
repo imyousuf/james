@@ -27,7 +27,6 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.api.domainlist.DomainList;
-import org.apache.james.services.DomainListManagementService;
 import org.apache.james.services.ManageableDomainList;
 
 /**
@@ -48,7 +47,7 @@ public class DomainListManagement implements DomainListManagementService,DomainL
     }
     
     /**
-     * @see org.apache.james.services.DomainListManagementService#addDomain(java.lang.String)
+     * @see org.apache.james.management.DomainListManagementService#addDomain(java.lang.String)
      */
     public boolean addDomain(String domain) throws DomainListManagementException {
         if (domList instanceof ManageableDomainList) {
@@ -64,7 +63,7 @@ public class DomainListManagement implements DomainListManagementService,DomainL
     }
 
     /**
-     * @see org.apache.james.services.DomainListManagementService#removeDomain(java.lang.String)
+     * @see org.apache.james.management.DomainListManagementService#removeDomain(java.lang.String)
      */
     public boolean removeDomain(String domain) throws DomainListManagementException {
         if (domList instanceof ManageableDomainList) {
@@ -80,14 +79,14 @@ public class DomainListManagement implements DomainListManagementService,DomainL
     }
 
     /**
-     * @see org.apache.james.services.DomainListManagementService#containsDomain(java.lang.String)
+     * @see org.apache.james.management.DomainListManagementService#containsDomain(java.lang.String)
      */
     public boolean containsDomain(String domain) {
         return domList.containsDomain(domain);
     }
 
     /**
-     * @see org.apache.james.services.DomainListManagementService#getDomains()
+     * @see org.apache.james.management.DomainListManagementService#getDomains()
      */
     public List getDomains() {
         return domList.getDomains();

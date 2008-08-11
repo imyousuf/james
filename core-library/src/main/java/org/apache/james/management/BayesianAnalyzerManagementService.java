@@ -19,9 +19,8 @@
 
 
 
-package org.apache.james.services;
+package org.apache.james.management;
 
-import org.apache.james.management.BayesianAnalyzerManagementException;
 
 public interface BayesianAnalyzerManagementService {
 

@@ -52,22 +52,22 @@
       <service name="org.apache.avalon.cornerstone.services.threads.ThreadManager" version="1.0"/>
     </dependency>
     <dependency>
-      <service name="org.apache.james.services.SpoolManagementService" version="1.0"/>
+      <service name="org.apache.james.management.SpoolManagementService" version="1.0"/>
     </dependency>
     <dependency>
-      <service name="org.apache.james.services.BayesianAnalyzerManagementService" version="1.0"/>
+      <service name="org.apache.james.management.BayesianAnalyzerManagementService" version="1.0"/>
     </dependency>
     <dependency>
       <service name="org.apache.james.api.dnsservice.DNSService" version="1.0"/>
     </dependency>
     <dependency>
-      <service name="org.apache.james.services.ProcessorManagementService" version="1.0"/>
+      <service name="org.apache.james.management.ProcessorManagementService" version="1.0"/>
     </dependency>
     <dependency>
       <service name="org.apache.james.api.vut.management.VirtualUserTableManagementService" version="1.0"/>
     </dependency>
     <dependency>
-      <service name="org.apache.james.services.DomainListManagementService" version="1.0"/>
+      <service name="org.apache.james.management.DomainListManagementService" version="1.0"/>
     </dependency>
   </dependencies>
 </blockinfo>

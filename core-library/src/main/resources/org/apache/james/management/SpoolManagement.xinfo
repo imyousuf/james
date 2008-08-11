@@ -26,7 +26,7 @@
   </block>
 
   <services>
-    <service name="org.apache.james.services.SpoolManagementService" version="1.0" />
+    <service name="org.apache.james.management.SpoolManagementService" version="1.0" />
   </services>
     
   <!-- interfaces that may be exported to manange this block -->

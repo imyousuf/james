@@ -16,50 +16,41 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
+package org.apache.james.management;
 
 
+public interface ProcessorManagementService extends ProcessorManagementMBean {
 
-package org.apache.james.services;
-
-import java.util.List;
-
-import org.apache.james.management.DomainListManagementException;
-
-public interface DomainListManagementService {
-
-    public final static String ROLE = "org.apache.james.services.DomainListManagementService";
+    public static final String ROLE = "org.apache.james.services.ProcessorManagementService";
     
     /**
-     * Add domain to the service
-     * 
-     * @param domain domain to add
-     * @return true if successfully
-     * @throws DomainListManagementException 
+     * retrieves the list of all mailets for one processor
+     * @param processorName
+     * @return array of names
      */
-    public boolean addDomain(String domain) throws DomainListManagementException;
+    String[] getMailetNames(String processorName);
+
     
     /**
-     * Remove domain from the service
-     *  
-     * @param domain domain to remove
-     * @return true if succesfully
-     * @throws DomainListManagementException 
+     * retrieves the list of all matchers for one processor
+     * @param processorName
+     * @return array of names
      */
-    public boolean removeDomain(String domain) throws DomainListManagementException;
-    
+    String[] getMatcherNames(String processorName);
+
     /**
-     * Return List of domains which should be used as localdomains. Return null if no
-     * domains were found
-     * 
-     * @return domains
+     * retrieves the list of parameters belonging to the specified matcher
+     * @param processorName
+     * @param matcherIndex
+     * @return array of Strings, each String an assembled parameter key/value pair
      */
-    public List getDomains();
-    
+    String[] getMatcherParameters(String processorName, int matcherIndex);
+
     /**
-     * Return true if the domain exists in the service 
-     * 
-     * @param domain the domain
-     * @return true if the given domain exists in the service
+     * retrieves the list of parameters belonging to the specified mailet
+     * @param processorName
+     * @param mailetIndex
+     * @return array of Strings, each String an assembled parameter key/value pair
      */
-    public boolean containsDomain(String domain);
+    String[] getMailetParameters(String processorName, int mailetIndex);
 }

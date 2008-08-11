@@ -28,7 +28,6 @@ import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
-import org.apache.james.services.SpoolManagementService;
 import org.apache.james.services.SpoolRepository;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
@@ -258,7 +257,7 @@ public class SpoolManagement implements Serviceable, SpoolManagementService, Spo
     }
 
     /**
-     * @see org.apache.james.services.SpoolManagementService#getSpoolItems(String, SpoolFilter)
+     * @see org.apache.james.management.SpoolManagementService#getSpoolItems(String, SpoolFilter)
      */
     public List getSpoolItems(String spoolRepositoryURL, SpoolFilter filter)
             throws ServiceException, MessagingException, SpoolManagementException {
@@ -314,7 +313,7 @@ public class SpoolManagement implements Serviceable, SpoolManagementService, Spo
 
 
     /**
-     * @see org.apache.james.services.SpoolManagementService#removeSpoolItems(String, String, List, SpoolFilter)
+     * @see org.apache.james.management.SpoolManagementService#removeSpoolItems(String, String, List, SpoolFilter)
      */
     public int removeSpoolItems(String spoolRepositoryURL, String key, List lockingFailures, SpoolFilter filter) throws ServiceException, MessagingException {
         int count = 0;
@@ -377,7 +376,7 @@ public class SpoolManagement implements Serviceable, SpoolManagementService, Spo
 
 
     /**
-     * @see org.apache.james.services.SpoolManagementService#resendSpoolItems(String, String, List, SpoolFilter)
+     * @see org.apache.james.management.SpoolManagementService#resendSpoolItems(String, String, List, SpoolFilter)
      */
     public int resendSpoolItems(String spoolRepositoryURL, String key, List lockingFailures, SpoolFilter filter)
             throws ServiceException, MessagingException, SpoolManagementException {
