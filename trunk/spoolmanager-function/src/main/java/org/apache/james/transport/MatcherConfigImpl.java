@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.core;
+package org.apache.james.transport;
 
 import org.apache.mailet.MailetContext;
 import org.apache.mailet.MatcherConfig;

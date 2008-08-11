@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.core;
+package org.apache.james.transport;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;

@@ -31,8 +31,6 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.core.MailImpl;
-import org.apache.james.core.MailetConfigImpl;
-import org.apache.james.core.MatcherConfigImpl;
 import org.apache.james.services.MailProcessor;
 import org.apache.james.services.MailetLoader;
 import org.apache.james.services.MatcherLoader;

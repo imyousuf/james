@@ -24,7 +24,6 @@ import javax.mail.MessagingException;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.james.core.MatcherConfigImpl;
 import org.apache.james.services.MatcherLoader;
 import org.apache.mailet.MailetException;
 import org.apache.mailet.Matcher;
