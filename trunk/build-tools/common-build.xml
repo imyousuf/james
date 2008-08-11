@@ -131,12 +131,15 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
                 -->
             </javac>
             <copy todir='@{bin}'>
+                <!-- We should not have resources in the java src tree -->
+                <!-- 
                 <fileset dir='@{src}'>
                     <include name='**/*.properties'/>
                     <include name='**/*.xinfo'/>
                     <include name='**/*.xml'/>
                     <include name='**/*.mxinfo'/>
                 </fileset>
+                 -->
                 <fileset dir='@{resources}'>
                     <include name='**/*'/>
                 </fileset>   
