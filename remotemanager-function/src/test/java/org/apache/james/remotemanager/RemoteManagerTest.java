@@ -28,10 +28,11 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.commons.net.telnet.TelnetClient;
 import org.apache.james.api.dnsservice.AbstractDNSServer;
 import org.apache.james.api.dnsservice.DNSService;
+import org.apache.james.api.domainlist.DomainList;
+import org.apache.james.api.domainlist.SimpleDomainList;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.user.UsersStore;
 import org.apache.james.api.vut.management.VirtualUserTableManagementService;
-import org.apache.james.domain.XMLDomainList;
 import org.apache.james.impl.vut.VirtualUserTableManagement;
 import org.apache.james.management.DomainListManagement;
 import org.apache.james.management.DomainListManagementService;
@@ -184,9 +185,7 @@ public class RemoteManagerTest extends TestCase {
         vutManagement.setDefaultVirtualUserTable(new MockVirtualUserTableManagementImpl());
         serviceManager.put(VirtualUserTableManagementService.ROLE, vutManagement);
         
-        XMLDomainList xml = new XMLDomainList();
-        ContainerUtil.enableLogging(xml, new MockLogger());
-        ContainerUtil.service(xml, serviceManager);
+        DomainList xml = new SimpleDomainList();
         
         DomainListManagement domManagement = new DomainListManagement();
         domManagement.setDomainList(xml);
