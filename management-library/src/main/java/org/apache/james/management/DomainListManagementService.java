@@ -26,7 +26,7 @@ import java.util.List;
 
 public interface DomainListManagementService {
 
-    public final static String ROLE = "org.apache.james.services.DomainListManagementService";
+    public final static String ROLE = "org.apache.james.management.DomainListManagementService";
     
     /**
      * Add domain to the service

@@ -21,7 +21,7 @@ package org.apache.james.management;
 
 public interface ProcessorManagementService extends ProcessorManagementMBean {
 
-    public static final String ROLE = "org.apache.james.services.ProcessorManagementService";
+    public static final String ROLE = "org.apache.james.management.ProcessorManagementService";
     
     /**
      * retrieves the list of all mailets for one processor
