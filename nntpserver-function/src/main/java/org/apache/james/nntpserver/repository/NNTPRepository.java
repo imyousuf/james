@@ -30,7 +30,7 @@ import java.util.Iterator;
  */
 public interface NNTPRepository {
     
-    public final String ROLE = "org.apache.james.nttpserver.repository.NNTPRepository"; 
+    public final String ROLE = "org.apache.james.nntpserver.repository.NNTPRepository"; 
 
     /**
      * Gets the group with the specified name from within the repository.
