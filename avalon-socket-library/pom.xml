@@ -28,40 +28,15 @@
   <artifactId>james-server-avalon-socket-library</artifactId>
   <name>Apache JAMES Server Avalon Socket Library</name>
   <dependencies>
-  
-    <!-- 
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>mailet</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>apache-james-mailet-base</artifactId>
-    </dependency>
-     -->
-    
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-common-util</artifactId>
     </dependency>
-
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-domain-api</artifactId>
     </dependency>
 
-    <!-- 
-    <dependency>
-      <groupId>javax.mail</groupId>
-      <artifactId>mail</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>javax.activation</groupId>
-      <artifactId>activation</artifactId>
-      <scope>provided</scope>
-    </dependency>
-     -->
     <dependency>
       <groupId>org.apache.avalon.framework</groupId>
       <artifactId>avalon-framework-api</artifactId>
@@ -70,26 +45,10 @@
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
     </dependency>
-    <!-- 
-    <dependency>
-      <groupId>commons-pool</groupId>
-      <artifactId>commons-pool</artifactId>
-    </dependency>
-     -->
     <dependency>
       <groupId>org.apache.avalon.framework</groupId>
       <artifactId>avalon-framework-impl</artifactId>
     </dependency>
-    <!-- 
-    <dependency>
-      <groupId>commons-dbcp</groupId>
-      <artifactId>commons-dbcp</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-collections</groupId>
-      <artifactId>commons-collections</artifactId>
-    </dependency>
-     -->
     <dependency>
       <groupId>org.apache.avalon.cornerstone.connection</groupId>
       <artifactId>cornerstone-connection-api</artifactId>
@@ -102,30 +61,10 @@
       <groupId>org.apache.avalon.cornerstone.sockets</groupId>
       <artifactId>cornerstone-sockets-api</artifactId>
     </dependency>
-    <!-- 
-    <dependency>
-      <groupId>org.apache.avalon.cornerstone.datasources</groupId>
-      <artifactId>cornerstone-datasources-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.excalibur.components</groupId>
-      <artifactId>excalibur-datasource</artifactId>
-    </dependency>
-     -->
     <dependency>
       <groupId>org.apache.avalon.cornerstone.scheduler</groupId>
       <artifactId>cornerstone-scheduler-api</artifactId>
     </dependency>
-    <!-- 
-    <dependency>
-      <groupId>org.apache.avalon.cornerstone.store</groupId>
-      <artifactId>cornerstone-store-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>dnsjava</groupId>
-      <artifactId>dnsjava</artifactId>
-    </dependency>
-     -->
     <dependency>
       <groupId>org.apache.excalibur.components</groupId>
       <artifactId>excalibur-pool-api</artifactId>
@@ -142,69 +81,18 @@
       <groupId>org.apache.excalibur.components</groupId>
       <artifactId>excalibur-thread-api</artifactId>
     </dependency>
-    <!-- 
-    <dependency>
-      <groupId>oro</groupId>
-      <artifactId>oro</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>mstor</groupId>
-      <artifactId>mstor</artifactId>
-    </dependency>
-    <dependency>
-    	<groupId>xml-apis</groupId>
-    	<artifactId>xml-apis</artifactId>
-    	<scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.thoughtworks.xstream</groupId>
-      <artifactId>xstream</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>mx4j</groupId>
-      <artifactId>mx4j-jmx</artifactId>
-    </dependency>
-     -->
+
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-mailet-base</artifactId>
       <classifier>tests</classifier>
       <scope>test</scope>
     </dependency>
-    <!-- 
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.excalibur.components</groupId>
-      <artifactId>excalibur-thread-impl</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.avalon.cornerstone.sockets</groupId>
-      <artifactId>cornerstone-sockets-impl</artifactId>
-      <scope>test</scope>
-    </dependency>
-     -->
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-user-api</artifactId>
       <scope>test</scope>
     </dependency>
-    <!-- 
-    <dependency>
-      <groupId>org.apache.avalon.cornerstone.datasources</groupId>
-      <artifactId>cornerstone-datasources-impl</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.derby</groupId>
-      <artifactId>derby</artifactId>
-      <scope>test</scope>
-    </dependency>
-     -->
     <dependency>
       <groupId>org.apache.excalibur.components</groupId>
       <artifactId>excalibur-thread-impl</artifactId>
