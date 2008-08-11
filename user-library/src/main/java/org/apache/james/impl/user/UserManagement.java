@@ -40,7 +40,7 @@ import java.util.List;
 
 public class UserManagement implements UserManagementMBean, Serviceable {
 
-    String ROLE = "org.apache.james.management.UserManagement";
+    String ROLE = "org.apache.james.impl.user.UserManagement";
     
     /**
      * The administered UsersRepository
