@@ -27,10 +27,10 @@ import java.util.Collection;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
 
-import org.apache.james.util.mail.dsn.DSNStatus;
 
 public class MaxRcptHandler extends AbstractJunkHandler implements
         CommandHandler, Configurable {

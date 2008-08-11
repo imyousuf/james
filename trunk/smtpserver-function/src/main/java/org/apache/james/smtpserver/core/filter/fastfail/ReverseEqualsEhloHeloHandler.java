@@ -19,8 +19,8 @@
 
 package org.apache.james.smtpserver.core.filter.fastfail;
 
+import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.SMTPSession;
-import org.apache.james.util.mail.dsn.DSNStatus;
 
 
 import java.net.UnknownHostException;

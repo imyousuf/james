@@ -42,10 +42,10 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.api.dnsservice.DNSService;
+import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.MessageHandler;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.urirbl.URIScanner;
-import org.apache.james.util.mail.dsn.DSNStatus;
 
 /**
  * Extract domains from message and check against URIRBLServer. For more informations see http://www.surbl.org
