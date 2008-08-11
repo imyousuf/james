@@ -36,7 +36,7 @@ import org.apache.james.test.mock.javaxmail.MockMimeMessage;
 import org.apache.james.test.mock.mailet.MockMail;
 import org.apache.james.test.mock.util.MockSpamd;
 import org.apache.james.test.util.Util;
-import org.apache.james.util.SpamAssassinInvoker;
+import org.apache.james.util.scanner.SpamAssassinInvoker;
 import org.apache.mailet.Mail;
 
 public class SpamAssassinHandlerTest extends TestCase {
