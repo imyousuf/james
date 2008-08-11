@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.core;
+package org.apache.james.mailrepository;
 
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.framework.activity.Initializable;

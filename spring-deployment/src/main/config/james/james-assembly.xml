@@ -215,7 +215,7 @@
 
   <!-- The High Level Storage block -->
     
-  <block name="mailstore" class="org.apache.james.core.AvalonMailStore" >
+  <block name="mailstore" class="org.apache.james.mailrepository.AvalonMailStore" >
     <provide name="database-connections"
              role="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector" />
     <provide name="filesystem" role="org.apache.james.services.FileSystem" />     
