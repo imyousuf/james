@@ -26,7 +26,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.james</groupId>
   <artifactId>james-server-management-library</artifactId>
-  <name>Apache JAMES Server Core</name>
+  <name>Apache JAMES Server Management Library</name>
   <dependencies>
   
     <dependency>
@@ -35,10 +35,12 @@
     </dependency>
     <!-- Probably used for RFC2822Headers                             -->
     <!-- Not needed at runtime because of compiler inlining constants -->
+    <!-- 
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-mailet-base</artifactId>
     </dependency>
+     -->
 
     <dependency>
       <groupId>org.apache.james</groupId>
@@ -72,15 +74,16 @@
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
     </dependency>
-     -->
     <dependency>
       <groupId>commons-pool</groupId>
       <artifactId>commons-pool</artifactId>
     </dependency>
+     -->
     <dependency>
       <groupId>org.apache.avalon.framework</groupId>
       <artifactId>avalon-framework-impl</artifactId>
     </dependency>
+    <!-- 
     <dependency>
       <groupId>commons-dbcp</groupId>
       <artifactId>commons-dbcp</artifactId>
@@ -89,7 +92,6 @@
       <groupId>commons-collections</groupId>
       <artifactId>commons-collections</artifactId>
     </dependency>
-    <!-- 
     <dependency>
       <groupId>org.apache.avalon.cornerstone.connection</groupId>
       <artifactId>cornerstone-connection-api</artifactId>
@@ -98,11 +100,11 @@
       <groupId>org.apache.avalon.cornerstone.connection</groupId>
       <artifactId>cornerstone-connection-impl</artifactId>
     </dependency>
-     -->
     <dependency>
       <groupId>org.apache.avalon.cornerstone.sockets</groupId>
       <artifactId>cornerstone-sockets-api</artifactId>
     </dependency>
+     -->
     <dependency>
       <groupId>org.apache.avalon.cornerstone.datasources</groupId>
       <artifactId>cornerstone-datasources-api</artifactId>
@@ -111,19 +113,21 @@
       <groupId>org.apache.excalibur.components</groupId>
       <artifactId>excalibur-datasource</artifactId>
     </dependency>
+    <!-- 
     <dependency>
       <groupId>org.apache.avalon.cornerstone.scheduler</groupId>
       <artifactId>cornerstone-scheduler-api</artifactId>
     </dependency>
+     -->
     <dependency>
       <groupId>org.apache.avalon.cornerstone.store</groupId>
       <artifactId>cornerstone-store-api</artifactId>
     </dependency>
+    <!-- 
     <dependency>
       <groupId>dnsjava</groupId>
       <artifactId>dnsjava</artifactId>
     </dependency>
-    <!-- 
     <dependency>
       <groupId>org.apache.excalibur.components</groupId>
       <artifactId>excalibur-pool-api</artifactId>
@@ -132,7 +136,6 @@
       <groupId>org.apache.excalibur.components</groupId>
       <artifactId>excalibur-pool-impl</artifactId>
     </dependency>
-     -->
     <dependency>
       <groupId>org.apache.avalon.cornerstone.threads</groupId>
       <artifactId>cornerstone-threads-api</artifactId>
@@ -141,6 +144,7 @@
       <groupId>org.apache.excalibur.components</groupId>
       <artifactId>excalibur-thread-api</artifactId>
     </dependency>
+     -->
     <dependency>
       <groupId>oro</groupId>
       <artifactId>oro</artifactId>
@@ -149,11 +153,13 @@
       <groupId>mstor</groupId>
       <artifactId>mstor</artifactId>
     </dependency>
+    <!-- 
     <dependency>
     	<groupId>xml-apis</groupId>
     	<artifactId>xml-apis</artifactId>
     	<scope>provided</scope>
     </dependency>
+     -->
     <dependency>
       <groupId>com.thoughtworks.xstream</groupId>
       <artifactId>xstream</artifactId>
@@ -162,6 +168,7 @@
       <groupId>mx4j</groupId>
       <artifactId>mx4j-jmx</artifactId>
     </dependency>
+    <!-- 
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-mailet-base</artifactId>
@@ -198,5 +205,6 @@
       <artifactId>derby</artifactId>
       <scope>test</scope>
     </dependency>
+    -->
   </dependencies>
 </project>
