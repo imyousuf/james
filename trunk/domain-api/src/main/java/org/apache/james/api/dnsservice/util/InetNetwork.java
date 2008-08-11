@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.util.dnsservice;
+package org.apache.james.api.dnsservice.util;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
