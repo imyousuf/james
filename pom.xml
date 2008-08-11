@@ -37,15 +37,18 @@
     <module>stage</module>
     <module>javamail-util</module>
     <module>common-util</module>
+    <module>core-api</module>
     <module>user-api</module>
     <module>domain-api</module>
     <module>imap-api</module>
     <module>imap-codec-library</module>
     <module>user-library</module>
     <module>core-library</module>
+    <module>management-library</module>
     <module>avalon-spring-bridge-library</module>
     <module>avalon-socket-library</module>
     <module>mailbox-library</module>
+    <module>core-function</module>
     <module>smtpserver-function</module>
     <module>pop3server-function</module>
     <module>nntpserver-function</module>
@@ -269,12 +272,22 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
+      <artifactId>james-server-core-api</artifactId>
+      <version>3.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
       <artifactId>james-server-domain-api</artifactId>
       <version>3.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-library</artifactId>
+      <version>3.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-management-library</artifactId>
       <version>3.0-SNAPSHOT</version>
     </dependency>
     <dependency>
@@ -315,6 +328,11 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-smtpserver-function</artifactId>
+      <version>3.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-core-function</artifactId>
       <version>3.0-SNAPSHOT</version>
     </dependency>
     <dependency>
