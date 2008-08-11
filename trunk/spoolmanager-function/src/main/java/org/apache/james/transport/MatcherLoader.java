@@ -30,7 +30,7 @@ public interface MatcherLoader {
     /**
      * The component role used by components implementing this service
      */
-    String ROLE = "org.apache.james.services.MatcherLoader";
+    String ROLE = "org.apache.james.transport.MatcherLoader";
 
     /**
      * Get a new Matcher with the specified name acting

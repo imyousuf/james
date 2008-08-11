@@ -28,7 +28,7 @@ import javax.mail.MessagingException;
 import java.util.List;
 
 public interface SpoolManagementService {
-    String ROLE = "org.apache.james.services.SpoolManagementService";
+    String ROLE = "org.apache.james.management.SpoolManagementService";
 
     /**
      * Move all mails from the given repository to another repository matching the given filter criteria

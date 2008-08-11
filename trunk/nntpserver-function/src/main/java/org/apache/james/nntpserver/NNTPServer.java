@@ -91,7 +91,7 @@ public class NNTPServer extends AbstractJamesService implements NNTPServerMBean 
         setUserRepository(userRepository);
 
         NNTPRepository repo = (NNTPRepository)componentManager
-            .lookup("org.apache.james.nntpserver.repository.NNTPRepository");
+            .lookup(NNTPRepository.ROLE);
         setRepository(repo);
         
         setMailServer((MailServer) componentManager.lookup(MailServer.ROLE));

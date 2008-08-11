@@ -29,6 +29,8 @@ import java.util.Iterator;
  * Abstraction of entire NNTP Repository.
  */
 public interface NNTPRepository {
+    
+    public final String ROLE = "org.apache.james.nttpserver.repository.NNTPRepository"; 
 
     /**
      * Gets the group with the specified name from within the repository.

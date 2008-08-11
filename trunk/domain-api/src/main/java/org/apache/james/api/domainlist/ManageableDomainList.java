@@ -27,7 +27,7 @@ package org.apache.james.api.domainlist;
  */
 public interface ManageableDomainList extends DomainList {
 
-    public final static String ROLE = "org.apache.james.services.ManageableDomainList";
+    public final static String ROLE = "org.apache.james.api.domainlist.ManageableDomainList";
     
     /**
      * Add domain to the service

@@ -44,6 +44,7 @@ import org.apache.james.userrepository.MockUsersRepository;
 import org.apache.james.util.connection.SimpleConnectionManager;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
+import org.apache.mailet.MailetContext;
 
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -198,7 +199,7 @@ public class SMTPServerRemoteDeliveryIntegrationTest extends TestCase {
         SimpleConnectionManager connectionManager = new SimpleConnectionManager();
         ContainerUtil.enableLogging(connectionManager, new MockLogger());
         m_serviceManager.put(JamesConnectionManager.ROLE, connectionManager);
-        m_serviceManager.put("org.apache.mailet.MailetContext", new MockMailContext());
+        m_serviceManager.put(MailetContext.class.getName(), new MockMailContext());
         m_mailServer = new MockMailServer(new MockUsersRepository());
         m_serviceManager.put(MailServer.ROLE, m_mailServer);
         m_serviceManager.put(UsersRepository.ROLE, m_usersRepository);

@@ -123,7 +123,7 @@ public class TesterMailetConfig implements MailetConfig {
         }
 
         public Object lookup(String arg0) throws ServiceException {
-            if (arg0.equals("org.apache.avalon.cornerstone.services.store.Store")) {
+            if (arg0.equals(Store.ROLE)) {
                 if (wrappedStore == null) wrappedStore = new StoreWrapper(owner, (Store) wrapped.lookup("org.apache.avalon.cornerstone.services.store.Store"));
                 return wrappedStore;
             }

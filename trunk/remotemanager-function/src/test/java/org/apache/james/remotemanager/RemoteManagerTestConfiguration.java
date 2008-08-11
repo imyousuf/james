@@ -30,7 +30,7 @@ public class RemoteManagerTestConfiguration extends DefaultConfiguration {
     private Integer m_connectionLimit = null;
     private String m_loginName = "testLogin";
     private String m_loginPassword = "testPassword";
-    private String commandClassName = "org.apache.james.remotemanager.EchoCommand";
+    private String commandClassName = EchoCommand.class.getName();
     
     public RemoteManagerTestConfiguration(int smtpListenerPort) {
         super("smptserver");

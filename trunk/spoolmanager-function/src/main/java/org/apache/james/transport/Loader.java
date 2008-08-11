@@ -109,7 +109,7 @@ public abstract class Loader extends AbstractLogEnabled implements Serviceable, 
      * @see org.apache.avalon.framework.activity.Initializable#initialize()
      */
     public void initialize() throws Exception {
-        setMailetContext((MailetContext) serviceManager.lookup("org.apache.mailet.MailetContext"));
+        setMailetContext((MailetContext) serviceManager.lookup(MailetContext.class.getName()));
     }
         
     /**

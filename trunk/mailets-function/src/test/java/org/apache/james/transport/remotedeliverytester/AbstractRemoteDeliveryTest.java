@@ -19,6 +19,7 @@
 
 package org.apache.james.transport.remotedeliverytester;
 
+import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.james.test.mock.avalon.MockServiceManager;
 import org.apache.james.test.mock.avalon.MockStore;
 import org.apache.james.test.mock.james.InMemorySpoolRepository;
@@ -107,7 +108,7 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
         outgoingSpool = new InMemorySpoolRepository();
         // new AvalonSpoolRepository();
         mockStore.add("outgoing", outgoingSpool);
-        serviceManager.put("org.apache.avalon.cornerstone.services.store.Store", mockStore);
+        serviceManager.put(Store.ROLE, mockStore);
     }
     
     protected Properties getStandardParameters() {
