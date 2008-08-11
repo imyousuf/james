@@ -63,7 +63,7 @@ public class SpoolManagement implements Serviceable, SpoolManagementService, Spo
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
     public void service(ServiceManager serviceManager) throws ServiceException {
-        Store mailStore = (Store)serviceManager.lookup("org.apache.avalon.cornerstone.services.store.Store" );
+        Store mailStore = (Store)serviceManager.lookup(Store.ROLE);
         setStore(mailStore);
     }
 

@@ -466,7 +466,7 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
      */
     private NNTPSpooler createSpooler() 
             throws ConfigurationException {
-        String className = "org.apache.james.nntpserver.repository.NNTPSpooler";
+        String className = NNTPSpooler.class.getName();
         Configuration spoolerConfiguration = configuration.getChild("spool");
         try {
             // Must be a subclass of org.apache.james.nntpserver.repository.NNTPSpooler

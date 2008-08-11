@@ -31,7 +31,7 @@ public interface MailetLoader {
     /**
      * The component role used by components implementing this service
      */
-    String ROLE = "org.apache.james.services.MailetLoader";
+    String ROLE = "org.apache.james.transport.MailetLoader";
 
     /**
      * Get a new Mailet with the specified name acting

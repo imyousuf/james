@@ -137,7 +137,7 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
     public void service( final ServiceManager manager ) throws ServiceException {
         super.service( manager );
         serviceManager = manager;
-        mailetcontext = (MailetContext) manager.lookup("org.apache.mailet.MailetContext");
+        mailetcontext = (MailetContext) manager.lookup(MailetContext.class.getName());
         mailServer = (MailServer) manager.lookup(MailServer.ROLE);
         users = (UsersRepository) manager.lookup(UsersRepository.ROLE);
         dnsServer = (DNSService) manager.lookup(DNSService.ROLE); 

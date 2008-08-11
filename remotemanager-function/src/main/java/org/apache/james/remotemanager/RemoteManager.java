@@ -200,7 +200,7 @@ public class RemoteManager
         MailServer mailServer = (MailServer)componentManager.lookup(MailServer.ROLE );
         setMailServer(mailServer);
         Store store = (Store)componentManager.
-            lookup( "org.apache.avalon.cornerstone.services.store.Store" );
+            lookup( Store.ROLE );
         setStore(store);
         UsersStore usersStore = (UsersStore)componentManager. lookup(UsersStore.ROLE );
         setUsersStore(usersStore);
