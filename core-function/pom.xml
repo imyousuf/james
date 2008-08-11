@@ -124,12 +124,10 @@
       <groupId>org.apache.excalibur.components</groupId>
       <artifactId>excalibur-datasource</artifactId>
     </dependency>
-    <!-- 
     <dependency>
       <groupId>org.apache.avalon.cornerstone.scheduler</groupId>
       <artifactId>cornerstone-scheduler-api</artifactId>
     </dependency>
-     -->
     <dependency>
       <groupId>org.apache.avalon.cornerstone.store</groupId>
       <artifactId>cornerstone-store-api</artifactId>
