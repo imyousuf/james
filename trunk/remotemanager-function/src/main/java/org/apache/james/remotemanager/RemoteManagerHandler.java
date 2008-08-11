@@ -41,8 +41,8 @@ import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.vut.management.VirtualUserTableManagementException;
 import org.apache.james.management.BayesianAnalyzerManagementException;
 import org.apache.james.management.DomainListManagementException;
+import org.apache.james.management.ProcessorManagementService;
 import org.apache.james.management.SpoolFilter;
-import org.apache.james.services.ProcessorManagementService;
 import org.apache.james.socket.AbstractJamesHandler;
 import org.apache.mailet.MailAddress;
 

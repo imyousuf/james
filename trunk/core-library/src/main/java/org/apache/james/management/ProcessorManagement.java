@@ -21,7 +21,6 @@ package org.apache.james.management;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
-import org.apache.james.services.ProcessorManagementService;
 import org.apache.james.services.SpoolManager;
 import org.apache.james.management.mbean.MatcherManagement;
 import org.apache.james.management.mbean.ProcessorDetail;

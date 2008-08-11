@@ -124,13 +124,13 @@ It might become outdated. Check for production quality configs outside the test 
     <provide name="thread-manager"
              role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
     <provide name="spoolmanagement" 
-             role="org.apache.james.services.SpoolManagementService"/>
+             role="org.apache.james.management.SpoolManagementService"/>
     <provide name="bayesiananalyzermanagement"
-             role="org.apache.james.services.BayesianAnalyzerManagementService"/>
+             role="org.apache.james.management.BayesianAnalyzerManagementService"/>
     <provide name="dnsserver" role="org.apache.james.api.dnsservice.DNSService"/>
-    <provide name="processormanagement" role="org.apache.james.services.ProcessorManagementService"/>
+    <provide name="processormanagement" role="org.apache.james.management.ProcessorManagementService"/>
     <provide name="virtualusertablemanagement" role="org.apache.james.api.vut.management.VirtualUserTableManagementService"/>
-    <provide name="domainlistmanagement" role="org.apache.james.services.DomainListManagementService"/>
+    <provide name="domainlistmanagement" role="org.apache.james.management.DomainListManagementService"/>
 </block>
 
   <!-- The User Management block  -->

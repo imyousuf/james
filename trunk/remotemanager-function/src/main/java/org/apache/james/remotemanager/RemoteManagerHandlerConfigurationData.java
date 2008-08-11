@@ -25,11 +25,11 @@ import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.user.UsersStore;
 import org.apache.james.api.vut.management.VirtualUserTableManagementService;
-import org.apache.james.services.BayesianAnalyzerManagementService;
-import org.apache.james.services.DomainListManagementService;
+import org.apache.james.management.BayesianAnalyzerManagementService;
+import org.apache.james.management.DomainListManagementService;
+import org.apache.james.management.ProcessorManagementService;
+import org.apache.james.management.SpoolManagementService;
 import org.apache.james.services.MailServer;
-import org.apache.james.services.ProcessorManagementService;
-import org.apache.james.services.SpoolManagementService;
 
 import java.util.HashMap;
 

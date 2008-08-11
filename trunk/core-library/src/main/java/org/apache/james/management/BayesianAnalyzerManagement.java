@@ -46,7 +46,6 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
-import org.apache.james.services.BayesianAnalyzerManagementService;
 import org.apache.james.services.FileSystem;
 import org.apache.james.util.bayesian.JDBCBayesianAnalyzer;
 
@@ -135,7 +134,7 @@ public class BayesianAnalyzerManagement implements BayesianAnalyzerManagementSer
     }
     
     /**
-     * @see org.apache.james.services.BayesianAnalyzerManagementService#addHamFromDir(String)
+     * @see org.apache.james.management.BayesianAnalyzerManagementService#addHamFromDir(String)
      */
     public int addHamFromDir(String dir) throws BayesianAnalyzerManagementException {
         if (repos == null) throw new BayesianAnalyzerManagementException("RepositoryPath not configured");
@@ -144,7 +143,7 @@ public class BayesianAnalyzerManagement implements BayesianAnalyzerManagementSer
     }
 
     /**
-     * @see org.apache.james.services.BayesianAnalyzerManagementService#addSpamFromDir(String)
+     * @see org.apache.james.management.BayesianAnalyzerManagementService#addSpamFromDir(String)
      */
     public int addSpamFromDir(String dir) throws BayesianAnalyzerManagementException {
         if (repos == null) throw new BayesianAnalyzerManagementException("RepositoryPath not configured");
@@ -153,7 +152,7 @@ public class BayesianAnalyzerManagement implements BayesianAnalyzerManagementSer
     }
     
     /**
-     * @see org.apache.james.services.BayesianAnalyzerManagementService#addHamFromMbox(String)
+     * @see org.apache.james.management.BayesianAnalyzerManagementService#addHamFromMbox(String)
      */
     public int addHamFromMbox(String file) throws BayesianAnalyzerManagementException {
         if (repos == null) throw new BayesianAnalyzerManagementException("RepositoryPath not configured");
@@ -161,7 +160,7 @@ public class BayesianAnalyzerManagement implements BayesianAnalyzerManagementSer
     }
 
     /**
-     * @see org.apache.james.services.BayesianAnalyzerManagementService#addSpamFromMbox(String)
+     * @see org.apache.james.management.BayesianAnalyzerManagementService#addSpamFromMbox(String)
      */
     public int addSpamFromMbox(String file) throws BayesianAnalyzerManagementException {
         if (repos == null) throw new BayesianAnalyzerManagementException("RepositoryPath not configured");
@@ -301,7 +300,7 @@ public class BayesianAnalyzerManagement implements BayesianAnalyzerManagementSer
     }
     
     /**
-     * @see org.apache.james.services.BayesianAnalyzerManagementService#exportData(String)
+     * @see org.apache.james.management.BayesianAnalyzerManagementService#exportData(String)
      */
     public void exportData(String file) throws BayesianAnalyzerManagementException {
         if (repos == null) throw new BayesianAnalyzerManagementException("RepositoryPath not configured");
@@ -333,7 +332,7 @@ public class BayesianAnalyzerManagement implements BayesianAnalyzerManagementSer
     }
     
     /**
-     * @see org.apache.james.services.BayesianAnalyzerManagementService#importData(String)
+     * @see org.apache.james.management.BayesianAnalyzerManagementService#importData(String)
      */
     public void importData(String file) throws BayesianAnalyzerManagementException {
         if (repos == null) throw new BayesianAnalyzerManagementException("RepositoryPath not configured");
@@ -374,7 +373,7 @@ public class BayesianAnalyzerManagement implements BayesianAnalyzerManagementSer
     
 
     /**
-     * @see org.apache.james.services.BayesianAnalyzerManagementService#resetData()
+     * @see org.apache.james.management.BayesianAnalyzerManagementService#resetData()
      */
     public void resetData() throws BayesianAnalyzerManagementException {
         synchronized(JDBCBayesianAnalyzer.DATABASE_LOCK) {

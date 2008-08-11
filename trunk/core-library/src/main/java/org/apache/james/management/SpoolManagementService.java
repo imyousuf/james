@@ -20,11 +20,9 @@
 
 
 
-package org.apache.james.services;
+package org.apache.james.management;
 
 import org.apache.avalon.framework.service.ServiceException;
-import org.apache.james.management.SpoolManagementException;
-import org.apache.james.management.SpoolFilter;
 
 import javax.mail.MessagingException;
 import java.util.List;
