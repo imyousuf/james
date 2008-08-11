@@ -37,7 +37,7 @@ public interface JamesConnectionManager extends ConnectionManager
     /**
      * The component role used by components implementing this service
      */
-    String ROLE = "org.apache.james.services.JamesConnectionManager";
+    String ROLE = "org.apache.james.socket.JamesConnectionManager";
 
     /**
      * Returns the default maximum number of open connections supported by this
