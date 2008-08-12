@@ -257,12 +257,12 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-javamail-util</artifactId>
+      <artifactId>james-server-javamail-util</artifactId>
       <version>3.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-common-util</artifactId>
+      <artifactId>james-server-common-util</artifactId>
       <version>3.0-SNAPSHOT</version>
     </dependency>
     <dependency>

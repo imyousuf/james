@@ -25,7 +25,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.james</groupId>
-  <artifactId>james-common-util</artifactId>
+  <artifactId>james-server-common-util</artifactId>
   <name>Apache JAMES Server Common Utilities</name>
   <dependencies>
     <dependency>
