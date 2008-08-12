@@ -39,7 +39,19 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
+      <artifactId>james-common-util</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
       <artifactId>james-server-user-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-core-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-domain-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
@@ -62,7 +74,15 @@
       <groupId>commons-collections</groupId>
       <artifactId>commons-collections</artifactId>
     </dependency>
-
+    
+    <dependency>
+      <groupId>org.apache.avalon.cornerstone.threads</groupId>
+      <artifactId>cornerstone-threads-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.avalon.cornerstone.sockets</groupId>
+      <artifactId>cornerstone-sockets-api</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>org.apache.james</groupId>
