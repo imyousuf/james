@@ -59,7 +59,7 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
     /**
      * The thread executing this handler
      */
-    protected Thread handlerThread;
+    private Thread handlerThread;
 
     /**
      * The TCP/IP socket over which the service interaction
@@ -402,7 +402,7 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
      *
      * @param responseString the response string sent to the client
      */
-    protected final void writeLoggedFlushedResponse(String responseString) {
+    public final void writeLoggedFlushedResponse(String responseString) {
         out.println(responseString);
         out.flush();
         logResponseString(responseString);
@@ -414,7 +414,7 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
      *
      * @param responseString the response string sent to the client
      */
-    protected final void writeLoggedResponse(String responseString) {
+    public final void writeLoggedResponse(String responseString) {
         out.println(responseString);
         logResponseString(responseString);
     }
