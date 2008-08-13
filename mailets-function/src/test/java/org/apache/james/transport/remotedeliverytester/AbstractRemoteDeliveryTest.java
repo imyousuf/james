@@ -680,17 +680,23 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
         };
     }
     
+    /**
+     * "OK" : we expect the mail to this recipient to be delivered
+     * "KO" : we expect the mail to this recipient to fail
+     * "NA" : the result is not predictable because of random behaviour, but we expect attempts.
+     * "ID" : we expect no attempt because of early failures.
+     */
     protected String[][] getTestMultiEmails() {
         return new String[][] {
-            { "a.it", "a@a.it", "1", "b@a.it", "1", "c@a.it", "1"},
-            { "b.it", "a@b.it", "1", "b@b.it", "1", "c@b.it", "1"},
-            { "c.it", "a@c.it", "0", "b@c.it", "0", "c@c.it", "0"},
-            { "d.it", "a@d.it", "1", "b@d.it", "1", "c@d.it", "1"},
-            { "e.it", "a@e.it", "0", "b@e.it", "1", "c@e.it", "1"},
-            { "f.it", "a@f.it", "1", "b@f.it", "1", "c@f.it", "1"},
-            { "g.it", "a@g.it", "0", "b@g.it", "0", "c@g.it", "1"},
-            { "h.it", "a@h.it", "0", "b@h.it", "0", "c@h.it", "0"},
-            { "i.it", "a@i.it", "1", "b@i.it", "1", "c@i.it", "1"},
+            { "a.it", "a@a.it", "OK", "b@a.it", "OK", "c@a.it", "OK"},
+            { "b.it", "a@b.it", "OK", "b@b.it", "OK", "c@b.it", "OK"},
+            { "c.it", "a@c.it", "KO", "b@c.it", "KO", "c@c.it", "KO"},
+            { "d.it", "a@d.it", "NA", "b@d.it", "NA", "c@d.it", "NA"},
+            { "e.it", "a@e.it", "KO", "b@e.it", "OK", "c@e.it", "OK"},
+            { "f.it", "a@f.it", "OK", "b@f.it", "OK", "c@f.it", "OK"},
+            { "g.it", "a@g.it", "KO", "b@g.it", "KO", "c@g.it", "NA"},
+            { "h.it", "a@h.it", "ID", "b@h.it", "ID", "c@h.it", "ID"},
+            { "i.it", "a@i.it", "OK", "b@i.it", "OK", "c@i.it", "OK"},
         };
     }
     
@@ -780,10 +786,29 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
                     ProcMail pmail = results[i].get(j);
                     System.out.print(pmail.getKey() + " status:" + (pmail.getState() == ProcMail.STATE_SENT ? "SENT" : pmail.getState() == ProcMail.STATE_SENT_ERROR ? "ERR" : "" + pmail.getState() ) + " sends:" + pmail.getSendCount());
                     String res = (String) emailsRes.get(pmail.getRecipient().toString());
-                    if (pmail.getState() == ProcMail.STATE_IDLE) pmail.setState(ProcMail.STATE_SENT_ERROR);
-                    if (pmail.getState() != (res.equals("0") ? ProcMail.STATE_SENT_ERROR: ProcMail.STATE_SENT)) {
-                        System.out.print(" <<< ERROR");
-                        error = true;
+                    // if (pmail.getState() == ProcMail.STATE_IDLE) pmail.setState(ProcMail.STATE_SENT_ERROR);
+                    if ("ID".equals(res)) {
+                        if (pmail.getState() != ProcMail.STATE_IDLE) {
+                            error = true;
+                            System.out.print(" <<< ERROR, expected STATE_IDLE");
+                        }
+                    } else if ("KO".equals(res)) {
+                        if (pmail.getState() != ProcMail.STATE_SENT_ERROR) {
+                            error = true;
+                            System.out.print(" <<< ERROR, expected STATE_SENT_ERROR");
+                        }
+                    } else if ("OK".equals(res)) {
+                        if (pmail.getState() != ProcMail.STATE_SENT) {
+                            error = true;
+                            System.out.print(" <<< ERROR, expected STATE_SENT");
+                        }
+                    } else if ("NA".equals(res)) {
+                        if (pmail.getState() != ProcMail.STATE_SENT && pmail.getState() != ProcMail.STATE_SENT_ERROR) {
+                            error = true;
+                            System.out.print(" <<< ERROR, expected STATE_SENT or STATE_SENT_ERROR");
+                        }
+                    } else {
+                        throw new IllegalStateException("wrong expectation: "+res+". Check the test code!");
                     }
                     System.out.print("\n");
                 }
