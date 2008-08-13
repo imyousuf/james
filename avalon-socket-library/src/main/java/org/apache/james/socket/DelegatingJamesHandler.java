@@ -35,6 +35,7 @@ public class DelegatingJamesHandler extends AbstractJamesHandler implements Prot
     
     public DelegatingJamesHandler(ProtocolHandler delegated) {
         this.protocolHandler = delegated;
+        this.protocolHandler.setProtocolHandlerHelper(this);
     }
     
     /**
