@@ -22,8 +22,6 @@
 
 package org.apache.james.management;
 
-import org.apache.avalon.framework.service.ServiceException;
-
 import javax.mail.MessagingException;
 import java.util.List;
 
@@ -38,12 +36,11 @@ public interface SpoolManagementService {
      * @param dstState if not NULL, the state will be changed before storing the message to the new repository.
      * @param filter the filter to select messages from the source repository
      * @return a counter of moved mails
-     * @throws ServiceException 
      * @throws MessagingException 
      * @throws SpoolManagementException
      */
     public int moveSpoolItems(String srcSpoolRepositoryURL, String dstSpoolRepositoryURL, String dstState, SpoolFilter filter)
-            throws ServiceException, MessagingException, SpoolManagementException;
+            throws MessagingException, SpoolManagementException;
 
     /**
      * Removes all mails from the given repository matching the filter
@@ -54,11 +51,11 @@ public interface SpoolManagementService {
      * a lock could not be obtained
      * @param filter the criteria against which all mails are matched. only applied if key is NULL.
      * @return number of removed mails
-     * @throws ServiceException
-     * @throws MessagingException
+     * @throws MessagingException 
+     * @throws SpoolManagementException
      */
     public int removeSpoolItems(String spoolRepositoryURL, String key, List lockingFailures, SpoolFilter filter) 
-            throws ServiceException, MessagingException;
+            throws MessagingException, SpoolManagementException;
     
     /**
      * Tries to resend all mails from the given repository matching the given filter criteria 
@@ -69,12 +66,11 @@ public interface SpoolManagementService {
      *                        a lock could not be obtained
      * @param filter the criteria against which all mails are matched. only applied if key is NULL.
      * @return int number of resent mails 
-     * @throws ServiceException
      * @throws MessagingException
      * @throws SpoolManagementException
      */
     public int resendSpoolItems(String spoolRepositoryURL, String key, List lockingFailures, SpoolFilter filter) 
-            throws ServiceException, MessagingException, SpoolManagementException;
+            throws MessagingException, SpoolManagementException;
 
     /**
      * Return a List which contains all mails which can accessed by given spoolRepositoryUrl and matched
@@ -83,10 +79,9 @@ public interface SpoolManagementService {
      * @param spoolRepositoryURL the url under which a spool can be accessed
      * @param filter the SpoolFilter to use
      * @return List<Mail> all matching mails from the given spool
-     * @throws ServiceException
      * @throws MessagingException
      * @throws SpoolManagementException
      */
     public List getSpoolItems(String spoolRepositoryURL, SpoolFilter filter) 
-            throws ServiceException, MessagingException, SpoolManagementException;
+            throws MessagingException, SpoolManagementException;
 }
