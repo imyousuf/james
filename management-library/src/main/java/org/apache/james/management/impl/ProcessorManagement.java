@@ -16,12 +16,14 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.management;
+package org.apache.james.management.impl;
 
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.services.SpoolManager;
+import org.apache.james.management.ProcessorManagementMBean;
+import org.apache.james.management.ProcessorManagementService;
 import org.apache.james.management.mbean.MatcherManagement;
 import org.apache.james.management.mbean.ProcessorDetail;
 import org.apache.james.management.mbean.MailetManagement;

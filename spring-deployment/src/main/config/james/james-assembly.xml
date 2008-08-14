@@ -83,15 +83,15 @@
   <block name="dnsserver" class="org.apache.james.dnsserver.DNSServer" />
 
   <!-- The Spool Management block  -->
-  <block name="spoolmanagement" class="org.apache.james.management.SpoolManagement" >
+  <block name="spoolmanagement" class="org.apache.james.management.impl.SpoolManagement" >
       <provide name="mailstore" role="org.apache.avalon.cornerstone.services.store.Store"/>
   </block>
   
-  <block name="processormanagement" class="org.apache.james.management.ProcessorManagement" >
+  <block name="processormanagement" class="org.apache.james.management.impl.ProcessorManagement" >
       <provide name="spoolmanager" role="org.apache.james.services.SpoolManager"/>
   </block>
 
-  <block name="bayesiananalyzermanagement" class="org.apache.james.management.BayesianAnalyzerManagement" >
+  <block name="bayesiananalyzermanagement" class="org.apache.james.management.impl.BayesianAnalyzerManagement" >
       <provide name="database-connections"
              role="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector" />
     <provide name="filesystem" role="org.apache.james.services.FileSystem" />
@@ -305,7 +305,7 @@
   -->
   <!-- #################################################################### -->
   
-  <block name="domainlistmanagement" class="org.apache.james.management.DomainListManagement">
+  <block name="domainlistmanagement" class="org.apache.james.management.impl.DomainListManagement">
     <provide name="domainlist"
              role="org.apache.james.api.domainlist.DomainList"/>
   </block>

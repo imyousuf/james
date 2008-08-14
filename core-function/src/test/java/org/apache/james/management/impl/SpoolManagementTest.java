@@ -19,10 +19,13 @@
 
 
 
-package org.apache.james.management;
+package org.apache.james.management.impl;
 
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.james.management.SpoolFilter;
+import org.apache.james.management.SpoolManagementException;
+import org.apache.james.management.impl.SpoolManagement;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockServiceManager;
 import org.apache.james.test.mock.avalon.MockStore;

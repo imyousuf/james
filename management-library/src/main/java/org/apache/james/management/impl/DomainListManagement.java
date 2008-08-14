@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.management;
+package org.apache.james.management.impl;
 
 import java.util.List;
 
@@ -28,6 +28,9 @@ import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.api.domainlist.DomainList;
 import org.apache.james.api.domainlist.ManageableDomainList;
+import org.apache.james.management.DomainListManagementException;
+import org.apache.james.management.DomainListManagementMBean;
+import org.apache.james.management.DomainListManagementService;
 
 /**
  * Provide management class for DomainLists
