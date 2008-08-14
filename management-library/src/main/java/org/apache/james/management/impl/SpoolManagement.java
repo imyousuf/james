@@ -106,7 +106,7 @@ public class SpoolManagement implements Serviceable, SpoolManagementService, Spo
      * @throws SpoolManagementException
      */
     public int moveSpoolItems(String srcSpoolRepositoryURL, String dstSpoolRepositoryURL, String dstState, SpoolFilter filter)
-            throws ServiceException, MessagingException, SpoolManagementException {
+            throws MessagingException, SpoolManagementException {
         
         SpoolRepository srcSpoolRepository;
         SpoolRepository dstSpoolRepository;
@@ -264,7 +264,7 @@ public class SpoolManagement implements Serviceable, SpoolManagementService, Spo
      * @see org.apache.james.management.SpoolManagementService#getSpoolItems(String, SpoolFilter)
      */
     public List getSpoolItems(String spoolRepositoryURL, SpoolFilter filter)
-            throws ServiceException, MessagingException, SpoolManagementException {
+            throws MessagingException, SpoolManagementException {
         SpoolRepository spoolRepository = getSpoolRepository(spoolRepositoryURL);
 
         List items = new ArrayList();
@@ -319,7 +319,7 @@ public class SpoolManagement implements Serviceable, SpoolManagementService, Spo
     /**
      * @see org.apache.james.management.SpoolManagementService#removeSpoolItems(String, String, List, SpoolFilter)
      */
-    public int removeSpoolItems(String spoolRepositoryURL, String key, List lockingFailures, SpoolFilter filter) throws ServiceException, MessagingException {
+    public int removeSpoolItems(String spoolRepositoryURL, String key, List lockingFailures, SpoolFilter filter) throws SpoolManagementException, MessagingException, SpoolManagementException {
         int count = 0;
         SpoolRepository spoolRepository = getSpoolRepository(spoolRepositoryURL);
 
@@ -383,7 +383,7 @@ public class SpoolManagement implements Serviceable, SpoolManagementService, Spo
      * @see org.apache.james.management.SpoolManagementService#resendSpoolItems(String, String, List, SpoolFilter)
      */
     public int resendSpoolItems(String spoolRepositoryURL, String key, List lockingFailures, SpoolFilter filter)
-            throws ServiceException, MessagingException, SpoolManagementException {
+            throws MessagingException, SpoolManagementException {
         int count = 0;
         SpoolRepository spoolRepository = getSpoolRepository(spoolRepositoryURL);
 
@@ -474,14 +474,18 @@ public class SpoolManagement implements Serviceable, SpoolManagementService, Spo
      * @throws ServiceException Get thrown if the spoolRepository can not retrieved
      */
     private SpoolRepository getSpoolRepository(String url)
-            throws ServiceException {
+            throws SpoolManagementException {
         // Setup all needed data
         DefaultConfiguration spoolConf = new DefaultConfiguration("spool",
                 "generated:RemoteManager.java");
         spoolConf.setAttribute("destinationURL", url);
         spoolConf.setAttribute("type", "SPOOL");
 
-        return (SpoolRepository) mailStore.select(spoolConf);
+        try {
+            return (SpoolRepository) mailStore.select(spoolConf);
+        } catch (ServiceException e) {
+            throw new SpoolManagementException("Exception while looking up for the repository", e);
+        }
     }
 
 
