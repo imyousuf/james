@@ -20,7 +20,7 @@
 
 
 
-package org.apache.james.management;
+package org.apache.james.management.impl;
 
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
@@ -28,6 +28,10 @@ import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
+import org.apache.james.management.SpoolFilter;
+import org.apache.james.management.SpoolManagementException;
+import org.apache.james.management.SpoolManagementMBean;
+import org.apache.james.management.SpoolManagementService;
 import org.apache.james.services.SpoolRepository;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;

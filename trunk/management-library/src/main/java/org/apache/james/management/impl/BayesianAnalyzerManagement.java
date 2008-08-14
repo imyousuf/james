@@ -20,7 +20,7 @@
 
 
 
-package org.apache.james.management;
+package org.apache.james.management.impl;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -46,6 +46,9 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
+import org.apache.james.management.BayesianAnalyzerManagementException;
+import org.apache.james.management.BayesianAnalyzerManagementMBean;
+import org.apache.james.management.BayesianAnalyzerManagementService;
 import org.apache.james.services.FileSystem;
 import org.apache.james.util.bayesian.JDBCBayesianAnalyzer;
 
