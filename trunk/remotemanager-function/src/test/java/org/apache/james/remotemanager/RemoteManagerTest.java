@@ -28,14 +28,14 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.commons.net.telnet.TelnetClient;
 import org.apache.james.api.dnsservice.AbstractDNSServer;
 import org.apache.james.api.dnsservice.DNSService;
-import org.apache.james.api.domainlist.DomainList;
+import org.apache.james.api.domainlist.ManageableDomainList;
 import org.apache.james.api.domainlist.SimpleDomainList;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.user.UsersStore;
 import org.apache.james.api.vut.management.VirtualUserTableManagementService;
 import org.apache.james.impl.vut.VirtualUserTableManagement;
+import org.apache.james.management.DomainListManagementException;
 import org.apache.james.management.DomainListManagementService;
-import org.apache.james.management.impl.DomainListManagement;
 import org.apache.james.services.MailServer;
 import org.apache.james.socket.JamesConnectionManager;
 import org.apache.james.test.mock.avalon.MockLogger;
@@ -185,10 +185,36 @@ public class RemoteManagerTest extends TestCase {
         vutManagement.setDefaultVirtualUserTable(new MockVirtualUserTableManagementImpl());
         serviceManager.put(VirtualUserTableManagementService.ROLE, vutManagement);
         
-        DomainList xml = new SimpleDomainList();
+        ManageableDomainList xml = new SimpleDomainList();
         
-        DomainListManagement domManagement = new DomainListManagement();
-        domManagement.setDomainList(xml);
+        DomainListManagementService domManagement = new DomainListManagementService() {
+
+            private ManageableDomainList domainList;
+
+            public boolean addDomain(String domain)
+                    throws DomainListManagementException {
+                return domainList.addDomain(domain);
+            }
+
+            public DomainListManagementService setDomainList(ManageableDomainList xml) {
+                this.domainList = xml;
+                return this;
+            }
+
+            public boolean containsDomain(String domain) {
+                return domainList.containsDomain(domain);
+            }
+
+            public List getDomains() {
+                return domainList.getDomains();
+            }
+
+            public boolean removeDomain(String domain)
+                    throws DomainListManagementException {
+                return domainList.removeDomain(domain);
+            }
+            
+        }.setDomainList(xml);
         
         serviceManager.put(DomainListManagementService.ROLE, domManagement);
         return serviceManager;
