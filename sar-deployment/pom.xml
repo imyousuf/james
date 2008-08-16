@@ -28,24 +28,6 @@
   <artifactId>james-server-sar-deployment</artifactId>
   <name>Apache JAMES Server SAR Deployment</name>
   <build>
-    <sourceDirectory>src/java</sourceDirectory>
-    <testSourceDirectory>src/test</testSourceDirectory>
-    <testResources>
-      <testResource>
-        <directory>src/test</directory>
-        <includes>
-          <include>**/*.zone</include>
-          <include>**/*.xml</include>
-          <include>**/Inbox</include>
-        </includes>
-      </testResource>
-      <testResource>
-        <directory>src/conf</directory>
-        <includes>
-          <include>**/*.xml</include>
-        </includes>
-      </testResource>
-    </testResources>
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>

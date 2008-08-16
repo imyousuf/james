@@ -64,6 +64,7 @@
     <module>experimental-seda-imap-function</module>
     <module>experimental-activemq-function</module>
     <module>jcr-backend-function</module>
+    <module>sar-deployment</module>
     <module>phoenix-deployment</module>
     <module>spring-deployment</module>
   </modules>
