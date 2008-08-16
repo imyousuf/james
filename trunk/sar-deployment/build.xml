@@ -706,7 +706,7 @@
                 <include name="*/build.*"/>   
                 <include name="lib/**"/>
                 <include name="*/lib/**"/>   
-                <include name="phoenix-deployment/${phoenix.dir}/**"/>
+                <include name="sar-deployment/${phoenix.dir}/**"/>
                 <include name="src/**"/>
                 <include name="*/src/**"/>   
                 <include name="tools/**"/>
@@ -730,7 +730,7 @@
                 <include name="*/build.*"/>   
                 <include name="lib/**"/>
                 <include name="*/lib/**"/>   
-                <include name="phoenix-deployment/${phoenix.dir}/**"/>
+                <include name="sar-deployment/${phoenix.dir}/**"/>
                 <include name="src/**"/>
                 <include name="*/src/**"/>   
                 <include name="tools/**"/>
@@ -1016,7 +1016,7 @@
 		depends=''>
 		<echoxml file=".project">
             <projectDescription>
-                <name>phoenix-deployment</name>
+                <name>sar-deployment</name>
                 <comment></comment>
                 <projects>
                 </projects>
@@ -1061,7 +1061,7 @@
                 <classpathentry combineaccessrules="false" kind="src" path="/imapserver-function"/>
                 <classpathentry combineaccessrules="false" kind="src" path="/jcr-backend-function"/>
                 <classpathentry combineaccessrules="false" kind="src" path="/nntpserver-function"/>
-                <classpathentry combineaccessrules="false" kind="src" path="/phoenix-deployment"/>
+                <classpathentry combineaccessrules="false" kind="src" path="/sar-deployment"/>
                 <classpathentry combineaccessrules="false" kind="src" path="/pop3server-function"/>
                 <classpathentry combineaccessrules="false" kind="src" path="/remotemanager-function"/>
                 <classpathentry combineaccessrules="false" kind="src" path="/core-function"/>
