@@ -21,4 +21,7 @@
   <description>Builds sar-deployment module. This is an deployment module.</description>
   <property name="name.module" value="sar-deployment" />
   <import file="../build-tools/deployment-build.xml" optional="no" />
+
+  <target name="everything" depends="dist" description="build all" /> 
+	
 </project>
