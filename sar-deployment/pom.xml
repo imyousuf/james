@@ -37,6 +37,28 @@
           <target>1.4</target>
         </configuration>
       </plugin>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.2-beta-2</version>
+        <configuration>
+          <skipAssembly>false</skipAssembly>
+          <ignoreMissingDescriptor>true</ignoreMissingDescriptor>
+          <descriptorSourceDirectory>${basedir}/src/assemble/</descriptorSourceDirectory>
+          <appendAssemblyId>false</appendAssemblyId> -->
+          <descriptorRefs>
+            <descriptorRef>sar</descriptorRef>
+          </descriptorRefs> 
+        </configuration>
+        <executions>
+          <execution>
+            <id>make-my-assembly</id> <!-- this is used for inheritance merges -->
+            <phase>package</phase> <!-- append to the packaging phase. -->
+            <goals>
+              <goal>attached</goal> <!-- goals == mojos -->
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
   <dependencies>
