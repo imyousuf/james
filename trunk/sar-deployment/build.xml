@@ -62,8 +62,8 @@
       <echo message="Making James Sarfile (james.sar)"/>
 
       <!-- Make sar file-->
-      <sar sarfile="${dir.stage.james}/${jars-prefix}${name.module}-${version}.sar" config="${dir.src.conf}/james-config.xml"
-             environment="${dir.src.conf}/james-server.xml" assembly="${dir.src.conf}/james-assembly.xml">
+      <sar sarfile="${dir.stage.james}/${jars-prefix}${name.module}-${version}.sar" config="${dir.src.conf}/config.xml"
+             environment="${dir.src.conf}/environment.xml" assembly="${dir.src.conf}/assembly.xml">
           <lib dir='${lib.dir}/${path.lib.activeio}' includes='${jarname.activeio}'/>
           <lib dir='${lib.dir}/${path.lib.geronimo}'>
               <include name='${jarname.j2ee-management-spec}'/>
