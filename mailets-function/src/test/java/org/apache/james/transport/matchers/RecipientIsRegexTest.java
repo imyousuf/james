@@ -112,7 +112,7 @@ public class RecipientIsRegexTest extends AbstractRecipientIsTest {
         } catch (AssertionFailedError e) {
             // NOTE the expected exception changes when the project is built/run
             // against non java 1.4 jvm. 
-            assertEquals(exception+" (org.apache.oro.text.regex.MalformedPatternException: Unmatched parentheses.", regexException);
+            assertEquals(exception+" (org.apache.oro.text.regex.MalformedPatternException: Unmatched parentheses.)", regexException);
         }
 
     }
