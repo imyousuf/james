@@ -25,6 +25,8 @@ import org.apache.mailet.GenericMatcher;
 import javax.mail.MessagingException;
 import java.util.Collection;
 
+import junit.framework.AssertionFailedError;
+
 public class HasMailAttributeWithValueRegexTest extends
         AbstractHasMailAttributeTest {
 
@@ -74,8 +76,6 @@ public class HasMailAttributeWithValueRegexTest extends
 
         String invalidRegex = "(!(";
         String regexException = null;
-        // NOTE the expected exception changes when the project is built/run
-        // against non java 1.4 jvm. 
         String exception = "Malformed pattern: " + invalidRegex;
 
         setRegex(invalidRegex);
@@ -90,8 +90,14 @@ public class HasMailAttributeWithValueRegexTest extends
         Collection matchedRecipients = matcher.match(mockedMail);
 
         assertNull(matchedRecipients);
-        assertEquals(regexException, exception);
-
+        
+        try {
+            assertEquals(exception, regexException);
+        } catch (AssertionFailedError e) {
+            // NOTE the expected exception changes when the project is built/run
+            // against non java 1.4 jvm. 
+            assertEquals(exception+" (org.apache.oro.text.regex.MalformedPatternException: Unmatched parentheses.", regexException);
+        }
     }
 
     protected String getConfigOption() {
