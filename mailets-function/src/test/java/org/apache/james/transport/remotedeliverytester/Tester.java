@@ -39,6 +39,7 @@ import javax.mail.URLName;
 import javax.mail.Provider.Type;
 import javax.mail.internet.MimeMessage;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -155,6 +156,14 @@ public class Tester {
         props.put("mail.smtp.class", SMTPTransport.class.getName());
         props.put("Tester", this);
         Session s = Session.getInstance(props);
+
+        // debug
+        try {
+            s.getProperties().store(System.out, "Tester Session properties");
+        } catch (IOException e2) {
+            e2.printStackTrace();
+        }
+        
         // Session s = Session.getDefaultInstance(props);
         try {
             if (!((s.getTransport("smtp")) instanceof SMTPTransport))
