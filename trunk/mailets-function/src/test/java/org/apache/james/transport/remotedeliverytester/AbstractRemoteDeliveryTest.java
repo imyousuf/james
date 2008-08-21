@@ -309,7 +309,7 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
             tester.init(serviceManager, params);
             
             String[][] servers = addServers(tester, new String[][] {
-                    { "test.it", "smtp://mail-me-1-ok.*-me-1-ok.test.it:25" }
+                    { "test.it", "smtp://mail-me-1-ok.ANY-me-1-ok.test.it:25" }
             }, true);
             
     
@@ -346,7 +346,7 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
             tester.init(serviceManager, params);
             
             String[][] servers = addServers(tester, new String[][] {
-                    { "test.it", "smtp://s1-ok.a*-smtpafe400.test.it:25" }
+                    { "test.it", "smtp://s1-ok.aANY-smtpafe400.test.it:25" }
             }, true);
             
             ProcMail.Listing mails = tester.service("mail", "from@test.it", new String[] {"a@test.it", "b@test.it"}, "Subject: test\r\nContent-Transfer-Encoding: plain\r\n\r\nbody");
@@ -383,7 +383,7 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
             tester.init(serviceManager, params);
             
             String[][] servers = addServers(tester, new String[][] {
-                    { "test.it", "smtp://s1-ok.a*-smtpafe400V.test.it:25" }
+                    { "test.it", "smtp://s1-ok.aANY-smtpafe400V.test.it:25" }
             }, true);
             
             ProcMail.Listing mails = tester.service("mail", "from@test.it", new String[] {"a@test.it", "b@test.it"}, "Subject: test\r\nContent-Transfer-Encoding: plain\r\n\r\nbody");
@@ -419,7 +419,7 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
             tester.init(serviceManager, params);
             
             String[][] servers = addServers(tester, new String[][] {
-                    { "test.it", "smtp://s1-ok.a*-smtpafe411V.b*-smtpafe500.test.it:25" }
+                    { "test.it", "smtp://s1-ok.aANY-smtpafe411V.bANY-smtpafe500.test.it:25" }
             }, true);
             
             ProcMail.Listing mails = tester.service("mail", "from@test.it", new String[] {"a@test.it", "b@test.it"}, "Subject: test\r\nContent-Transfer-Encoding: plain\r\n\r\nbody");
@@ -477,8 +477,8 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
             tester.init(serviceManager, params);
             
             String[][] servers = addServers(tester, new String[][] {
-                    { "test.it", "smtp://s1-ok.a*-smtpafe400V.b*-smtpafe500.test.it:25" },
-                    { "test2.it", "smtp://s1-ok.a*-smtpafe400V.b*-smtpafe500.test2.it:25" }
+                    { "test.it", "smtp://s1-ok.aANY-smtpafe400V.bANY-smtpafe500.test.it:25" },
+                    { "test2.it", "smtp://s1-ok.aANY-smtpafe400V.bANY-smtpafe500.test2.it:25" }
             }, true);
             
             ProcMail.Listing mails1 = tester.service("mail1", "from1@test.it", new String[] {"a@test.it", "b@test.it"}, "Subject: test1\r\nContent-Transfer-Encoding: plain\r\n\r\nbody");
@@ -524,7 +524,7 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
             tester.init(serviceManager, params);
             
             String[][] servers = addServers(tester, new String[][] {
-                    { "test.it", "smtp://s1-ok.a*-null.test.it:25" },
+                    { "test.it", "smtp://s1-ok.aANY-null.test.it:25" },
             }, true);
             
             ProcMail.Listing mails1 = tester.service("M0", "from0@test.it", new String[] {"a@test.it", "b@test.it"}, "Subject: test1\r\nContent-Transfer-Encoding: plain\r\n\r\nbody");
@@ -555,7 +555,7 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
             tester.init(serviceManager, params);
             
             String[][] servers = addServers(tester, new String[][] {
-                    { "test.it", "smtp://s1-null.**-ok.test.it:25" },
+                    { "test.it", "smtp://s1-null.ANYANY-ok.test.it:25" },
             }, true);
             
             ProcMail.Listing mails1 = tester.service("M0", "from0@test.it", new String[] {"a@test.it", "b@test.it"}, "Subject: test1\r\nContent-Transfer-Encoding: plain\r\n\r\nbody");
@@ -595,7 +595,7 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
                 { "a.it", "smtp://s1-ok.a.it:25", "smtp://s2-ok.a.it:25" },
                 
                 // b.it: one server always reply smtpafe400V, the other works.
-                { "b.it", "smtp://s1-ok.**-smtpafe400V.b.it:25", "smtp://s2-ok.b.it:25" },
+                { "b.it", "smtp://s1-ok.ANYANY-smtpafe400V.b.it:25", "smtp://s2-ok.b.it:25" },
             }, true);
             
             ProcMail.Listing mails = tester.service("M0", "o@test.it", new String[] {"a@a.it", "b@b.it"}, "Subject: test0\r\nContent-Transfer-Encoding: plain\r\n\r\nbody");
@@ -670,7 +670,7 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
             
             String[][] servers = addServers(tester, new String[][] {
                 // i.it: ioexception (during connect or send for "a", depending on the server) 
-                { "i.it", "smtp://s1-io.i.it:25",  "smtp://s2-ok.a*-io.i.it:25"},
+                { "i.it", "smtp://s1-io.i.it:25",  "smtp://s2-ok.aANY-io.i.it:25"},
             }, true);
             
             //ProcMail.Listing mails = tester.service("M0", "o@test.it", new String[] {"a@i.it", "b@i.it"}, "Subject: test0\r\nContent-Transfer-Encoding: plain\r\n\r\nbody");
@@ -701,27 +701,27 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
             { "a.it", "smtp://s1-ok.a.it:25", "smtp://s2-ok.a.it:25" },
             
             // b.it: one server throws ME on every call, the other works.
-            //{ "b.it", "smtp://s1-ok.**-smtpafe400V.b.it:25", "smtp://s2-ok.b.it:25" },  <- Questo su MailSender non lo puo' fare
+            //{ "b.it", "smtp://s1-ok.ANYANY-smtpafe400V.b.it:25", "smtp://s2-ok.b.it:25" },  <- Questo su MailSender non lo puo' fare
             { "b.it", "smtp://s1-me.b.it:25", "smtp://s2-ok.b.it:25" },
             
             // c.it: both servers replies smtpafe400V.
-            { "c.it", "smtp://s1-ok.**-smtpafe400V.c.it:25", "smtp://s2-ok.**-smtpafe400V.c.it:25" },
+            { "c.it", "smtp://s1-ok.ANYANY-smtpafe400V.c.it:25", "smtp://s2-ok.ANYANY-smtpafe400V.c.it:25" },
 
             // d.it: Messaging exception once every 2 attempts.
-            { "d.it", "smtp://s1-me-1-ok-1-rpt.*-me-1-ok-1-rpt.d.it:25" }, 
+            { "d.it", "smtp://s1-me-1-ok-1-rpt.ANY-me-1-ok-1-rpt.d.it:25" }, 
             
             // e.it: addresses starting with "a" are rejected with a smtpafe400
-            { "e.it", "smtp://s1-ok.a*-smtpafe400.e.it:25" },
+            { "e.it", "smtp://s1-ok.aANY-smtpafe400.e.it:25" },
             
             // f.it: addresses starting with "a" are rejected with a smtpafe400V from the first server
             //       the second server do the same with "b" addresses.
-            { "f.it", "smtp://s1-ok.a*-smtpafe400V.f.it:25", "smtp://s2-ok.b*-smtpafe400V.f.it:25" },
+            { "f.it", "smtp://s1-ok.aANY-smtpafe400V.f.it:25", "smtp://s2-ok.bANY-smtpafe400V.f.it:25" },
             
             // g.it: "a" not accepted (temporary), "b" not accepted (permanent), "c" half temporary exceptions
-            { "g.it", "smtp://s1-ok.a*-smtpafe411V.b*-smtpafe500.test.c*-smtpafe411V-1-ok-1-rpt.g.it:25" },
+            { "g.it", "smtp://s1-ok.aANY-smtpafe411V.bANY-smtpafe500.test.cANY-smtpafe411V-1-ok-1-rpt.g.it:25" },
             
             // h.it: null pointer exception (during connect for one server and during send for the other) 
-            { "h.it", "smtp://s1-null.h.it:25",  "smtp://s2-ok.**-null.h.it:25"},
+            { "h.it", "smtp://s1-null.h.it:25",  "smtp://s2-ok.ANYANY-null.h.it:25"},
 
             // i.it: ioexception during connect on one server, the other works. 
             { "i.it", "smtp://s1-io.i.it:25",  "smtp://s2-ok.i.it:25"},

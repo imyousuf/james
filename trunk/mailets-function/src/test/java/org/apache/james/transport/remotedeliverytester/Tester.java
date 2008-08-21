@@ -163,13 +163,14 @@ public class Tester {
             if (!((s.getTransport("smtp")) instanceof SMTPTransport))
                 s.setProvider(new Provider(Type.TRANSPORT, "smtp", SMTPTransport.class.getName(), "test", "0"));
         } catch (NoSuchProviderException e) {
-          // Let's do it twice, don't remember why.
-          try {
-                        s.setProvider(new Provider(Type.TRANSPORT, "smtp", SMTPTransport.class.getName(), "test", "0"));
-                    } catch (NoSuchProviderException e1) {
-                        e1.printStackTrace();
-                    }
-            e.printStackTrace();
+            // Let's do it twice, don't remember why.
+            System.out.println("WARN: "+e.getMessage());
+            try {
+                s.setProvider(new Provider(Type.TRANSPORT, "smtp", SMTPTransport.class.getName(), "test", "0"));
+            } catch (NoSuchProviderException e1) {
+                System.out.println("ERROR: "+e.getMessage());
+                e1.printStackTrace();
+            }
         }
         return s;
     }
@@ -278,7 +279,8 @@ public class Tester {
     }
 
     public Iterator onMailetContextGetSMTPHostAddresses(String domainName) {
-        return ((List)hostAddresses.get(domainName)).iterator();
+        List list = (List)hostAddresses.get(domainName);
+        return (list).iterator();
     }
     
     public synchronized void onTransportConnect(SMTPTransport tester) throws MessagingException {

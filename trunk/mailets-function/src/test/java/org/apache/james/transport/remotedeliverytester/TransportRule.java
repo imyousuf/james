@@ -75,6 +75,8 @@ public interface TransportRule {
      */
     public class NameExpression extends Default {
         
+        private static final String STAR_MATCHER = "ANY";
+        
         // Se false ai recipient validi non vengono effettivamente fatti invii 
         private boolean propSendValid = true;
         
@@ -89,7 +91,7 @@ public interface TransportRule {
          * @return
          */
         private String[] getRules(String data) {
-            String[] pieces = data.toLowerCase().split("-");
+            String[] pieces = data.split("-");
             Vector actions = new Vector();
             actions.add(pieces[0]);
             for (int i = 1; i < pieces.length; i += 2) {
@@ -298,9 +300,13 @@ public interface TransportRule {
             
             for (int i = 1; i < serverPieces.length - 1; i++) {
                 String[] actions = getRules(serverPieces[i]);
-                if (actions[0].endsWith("*") && actions[0].length() > 1) {
-                    String match = actions[0].substring(0, actions[0].length() - 1);
-                    for (int j = 0; j < pmails.size(); j++) if (pmails.get(j).getRecipient().toString().startsWith(match) || match.equals("*")) {
+                System.out.println("Actions1!");
+                for (int k = 0; k < actions.length; k++) System.out.println(actions[k]);
+                if (actions[0].endsWith(STAR_MATCHER) && actions[0].length() > 1) {
+                    String match = actions[0].substring(0, actions[0].length() - STAR_MATCHER.length());
+                    System.out.println("Match!");
+                    System.out.println(match);
+                    for (int j = 0; j < pmails.size(); j++) if (pmails.get(j).getRecipient().toString().startsWith(match) || match.equals(STAR_MATCHER)) {
                         MessagingException ex = getException(actions, idx, pmails.get(j), server);
                         addException(exceptionMap, ex, pmails.get(j).getRecipient().toInternetAddress());
                     } else addException(exceptionMap, null, pmails.get(j).getRecipient().toInternetAddress());
@@ -309,7 +315,9 @@ public interface TransportRule {
             
             for (int i = 1; i < serverPieces.length - 1; i++) {
                 String[] actions = getRules(serverPieces[i]);
-                if (actions[0].equals("*")) {
+                System.out.println("Actions2!");
+                for (int k = 0; k < actions.length; k++) System.out.println(actions[k]);
+                if (actions[0].equals(STAR_MATCHER)) {
                     MessagingException ex = getException(actions, idx, null, server);
                     addException(exceptionMap, ex, null);
                 }
