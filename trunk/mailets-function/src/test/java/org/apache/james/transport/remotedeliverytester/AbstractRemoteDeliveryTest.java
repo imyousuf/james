@@ -250,10 +250,14 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
             assertEquals(0, waitEmptySpool(5000));
             
             // checks
-            assertWhole(tester.getTestStatus(), 1, 1);
-            assertServer(tester.getTestStatus(), "smtp://mail.test.it:25", 1, 1);
-            assertEquals(1, tester.getProcMails().size());
-            assertProcMail(mails.get("to@test.it"), ProcMail.STATE_SENT, 1, 0, "smtp://mail.test.it:25");
+            try {
+                assertWhole(tester.getTestStatus(), 1, 1);
+                assertServer(tester.getTestStatus(), "smtp://mail.test.it:25", 1, 1);
+                assertEquals(1, tester.getProcMails().size());
+                assertProcMail(mails.get("to@test.it"), ProcMail.STATE_SENT, 1, 0, "smtp://mail.test.it:25");
+            } catch (AssertionFailedError e) {
+                stackDump(e);
+            }
         } finally {
             tester.destroy();
         }
@@ -284,11 +288,15 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
             assertEquals(0, waitEmptySpool(5000));
             
             // checks
-            assertWhole(tester.getTestStatus(), 4, 3);
-            assertServer(tester.getTestStatus(), "smtp://mail.test.it:25", 4, 3);
-            assertEquals(2, tester.getProcMails().size());
-            assertProcMail(mails.get("to@test.it"), ProcMail.STATE_SENT, 2, 0, "smtp://mail.test.it:25");
-            assertProcMail(mails.get("other@test.it"), ProcMail.STATE_SENT, 2, 0, "smtp://mail.test.it:25");
+            try {
+                assertWhole(tester.getTestStatus(), 4, 3);
+                assertServer(tester.getTestStatus(), "smtp://mail.test.it:25", 4, 3);
+                assertEquals(2, tester.getProcMails().size());
+                assertProcMail(mails.get("to@test.it"), ProcMail.STATE_SENT, 2, 0, "smtp://mail.test.it:25");
+                assertProcMail(mails.get("other@test.it"), ProcMail.STATE_SENT, 2, 0, "smtp://mail.test.it:25");
+            } catch (AssertionFailedError e) {
+                stackDump(e);
+            }
         } finally {
             tester.destroy();
         }
@@ -311,11 +319,15 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
             assertEquals(0, waitEmptySpool(5000));
             
             // Checks
-            assertWhole(tester.getTestStatus(), 4, 3);
-            assertServer(tester.getTestStatus(), servers[0][1], 4, 3);
-            assertEquals(2, tester.getProcMails().size());
-            assertProcMail(mails.get("to@test.it"), ProcMail.STATE_SENT, 2, 0, servers[0][1]);
-            assertProcMail(mails.get("other@test.it"), ProcMail.STATE_SENT, 2, 0, servers[0][1]);
+            try {
+                assertWhole(tester.getTestStatus(), 4, 3);
+                assertServer(tester.getTestStatus(), servers[0][1], 4, 3);
+                assertEquals(2, tester.getProcMails().size());
+                assertProcMail(mails.get("to@test.it"), ProcMail.STATE_SENT, 2, 0, servers[0][1]);
+                assertProcMail(mails.get("other@test.it"), ProcMail.STATE_SENT, 2, 0, servers[0][1]);
+            } catch (AssertionFailedError e) {
+                stackDump(e);
+            }
         } finally {
             tester.destroy();
         }
@@ -343,11 +355,16 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
             assertEquals(0, waitEmptySpool(5000));
             
             // Checks
-            assertWhole(tester.getTestStatus(), 2, 1);
-            assertServer(tester.getTestStatus(), servers[0][1], 2, 1);
-            assertEquals(2, tester.getProcMails().size());
-            assertProcMail(mails.get("a@test.it"), ProcMail.STATE_SENT_ERROR, 1, 1, servers[0][1]);
-            assertProcMail(mails.get("b@test.it"), ProcMail.STATE_SENT, 1, 0, servers[0][1]);
+            try {
+                assertWhole(tester.getTestStatus(), 2, 1);
+                assertServer(tester.getTestStatus(), servers[0][1], 2, 1);
+                assertEquals(2, tester.getProcMails().size());
+                assertProcMail(mails.get("a@test.it"), ProcMail.STATE_SENT_ERROR, 1, 1, servers[0][1]);
+                assertProcMail(mails.get("b@test.it"), ProcMail.STATE_SENT, 1, 0, servers[0][1]);
+            } catch (AssertionFailedError e) {
+                stackDump(e);
+            }
+        
         } finally {
             tester.destroy();
         }
@@ -375,11 +392,15 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
             assertEquals(0, waitEmptySpool(10000));
             
             // Checks
-            assertWhole(tester.getTestStatus(), 5, 4);
-            assertServer(tester.getTestStatus(), servers[0][1], 5, 4);
-            assertEquals(2, tester.getProcMails().size());
-            assertProcMail(mails.get("a@test.it"), ProcMail.STATE_SENT_ERROR, 4, 1, servers[0][1]);
-            assertProcMail(mails.get("b@test.it"), ProcMail.STATE_SENT, 1, 0, servers[0][1]);
+            try {
+                assertWhole(tester.getTestStatus(), 5, 4);
+                assertServer(tester.getTestStatus(), servers[0][1], 5, 4);
+                assertEquals(2, tester.getProcMails().size());
+                assertProcMail(mails.get("a@test.it"), ProcMail.STATE_SENT_ERROR, 4, 1, servers[0][1]);
+                assertProcMail(mails.get("b@test.it"), ProcMail.STATE_SENT, 1, 0, servers[0][1]);
+            } catch (AssertionFailedError e) {
+                stackDump(e);
+            }
         } finally {
             tester.destroy();
         }
@@ -414,30 +435,33 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
                 assertProcMail(mails.get("a@test.it"), ProcMail.STATE_SENT_ERROR, 4, 1, servers[0][1]);
                 assertProcMail(mails.get("b@test.it"), ProcMail.STATE_SENT_ERROR, 1, 1, servers[0][1]);
             } catch (AssertionFailedError e) {
-                // TEMPORARILY add a dump stack on failure to 
-                // see if we have a deadlock (unlikely) or simply the
-                // notification is not working properly. (see JAMES-850)
-                
-                // Use reflection to invoke java 1.5 stack functions.
-                try {
-                    Method m = Thread.class.getMethod("getAllStackTraces", null);
-                    Map stackDump = (Map) m.invoke(null, null);
-                    Set threads = stackDump.keySet();
-                    for (Iterator i = threads.iterator(); i.hasNext(); ) {
-                        Thread th = (Thread) i.next();
-                        System.out.println("Thread "+th);
-                        StackTraceElement[] stack = (StackTraceElement[]) stackDump.get(th);
-                        for (int k = 0; k < stack.length; k++) {
-                            System.out.println("  - "+stack[k]);
-                        }
-                    }
-                } catch (Exception reflectException) {
-                }
-                throw e;
+                stackDump(e);
             }
         } finally {
             tester.destroy();
         }
+    }
+    private void stackDump(AssertionFailedError e) throws AssertionFailedError {
+        // TEMPORARILY add a dump stack on failure to 
+        // see if we have a deadlock (unlikely) or simply the
+        // notification is not working properly. (see JAMES-850)
+        
+        // Use reflection to invoke java 1.5 stack functions.
+        try {
+            Method m = Thread.class.getMethod("getAllStackTraces", null);
+            Map stackDump = (Map) m.invoke(null, null);
+            Set threads = stackDump.keySet();
+            for (Iterator i = threads.iterator(); i.hasNext(); ) {
+                Thread th = (Thread) i.next();
+                System.out.println("Thread "+th);
+                StackTraceElement[] stack = (StackTraceElement[]) stackDump.get(th);
+                for (int k = 0; k < stack.length; k++) {
+                    System.out.println("  - "+stack[k]);
+                }
+            }
+        } catch (Exception reflectException) {
+        }
+        throw e;
     }
 
     /**
@@ -466,18 +490,22 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
             assertEquals(0, waitEmptySpool(5000));
             
             // Checks
-            assertWhole(tester.getTestStatus(), 14, 10);
-            assertServer(tester.getTestStatus(), servers[0][1], 10, 8);
-            assertServer(tester.getTestStatus(), servers[1][1], 4, 2);
-            assertEquals(8, tester.getProcMails().size());
-            assertProcMail(mails1.get("a@test.it"), ProcMail.STATE_SENT_ERROR, 4, 1, servers[0][1]);
-            assertProcMail(mails1.get("b@test.it"), ProcMail.STATE_SENT_ERROR, 1, 1, servers[0][1]);
-            assertProcMail(mails2.get("b@test2.it"), ProcMail.STATE_SENT_ERROR, 1, 1, servers[1][1]);
-            assertProcMail(mails2.get("c@test2.it"), ProcMail.STATE_SENT, 1, 0, servers[1][1]);
-            assertProcMail(mails3.get("a@test.it"), ProcMail.STATE_SENT_ERROR, 4, 1, servers[0][1]);
-            assertProcMail(mails3.get("b@test.it"), ProcMail.STATE_SENT_ERROR, 1, 1, servers[0][1]);
-            assertProcMail(mails4.get("b@test2.it"), ProcMail.STATE_SENT_ERROR, 1, 1, servers[1][1]);
-            assertProcMail(mails4.get("c@test2.it"), ProcMail.STATE_SENT, 1, 0, servers[1][1]);
+            try {
+                assertWhole(tester.getTestStatus(), 14, 10);
+                assertServer(tester.getTestStatus(), servers[0][1], 10, 8);
+                assertServer(tester.getTestStatus(), servers[1][1], 4, 2);
+                assertEquals(8, tester.getProcMails().size());
+                assertProcMail(mails1.get("a@test.it"), ProcMail.STATE_SENT_ERROR, 4, 1, servers[0][1]);
+                assertProcMail(mails1.get("b@test.it"), ProcMail.STATE_SENT_ERROR, 1, 1, servers[0][1]);
+                assertProcMail(mails2.get("b@test2.it"), ProcMail.STATE_SENT_ERROR, 1, 1, servers[1][1]);
+                assertProcMail(mails2.get("c@test2.it"), ProcMail.STATE_SENT, 1, 0, servers[1][1]);
+                assertProcMail(mails3.get("a@test.it"), ProcMail.STATE_SENT_ERROR, 4, 1, servers[0][1]);
+                assertProcMail(mails3.get("b@test.it"), ProcMail.STATE_SENT_ERROR, 1, 1, servers[0][1]);
+                assertProcMail(mails4.get("b@test2.it"), ProcMail.STATE_SENT_ERROR, 1, 1, servers[1][1]);
+                assertProcMail(mails4.get("c@test2.it"), ProcMail.STATE_SENT, 1, 0, servers[1][1]);
+            } catch (AssertionFailedError e) {
+                stackDump(e);
+            }
         } finally {
             tester.destroy();
         }
@@ -506,11 +534,15 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
             assertEquals(0, waitEmptySpool(0));
             
             // Checks
-            assertWhole(tester.getTestStatus(), 2, 1);
-            assertServer(tester.getTestStatus(), servers[0][1], 2, 1);
-            assertEquals(2, tester.getProcMails().size());
-            assertProcMail(mails1.get("a@test.it"), ProcMail.STATE_SENT_ERROR, 1, 1, servers[0][1]);
-            assertProcMail(mails1.get("b@test.it"), ProcMail.STATE_SENT_ERROR, 1, 1, servers[0][1]);
+            try {
+                assertWhole(tester.getTestStatus(), 2, 1);
+                assertServer(tester.getTestStatus(), servers[0][1], 2, 1);
+                assertEquals(2, tester.getProcMails().size());
+                assertProcMail(mails1.get("a@test.it"), ProcMail.STATE_SENT_ERROR, 1, 1, servers[0][1]);
+                assertProcMail(mails1.get("b@test.it"), ProcMail.STATE_SENT_ERROR, 1, 1, servers[0][1]);
+            } catch (AssertionFailedError e) {
+                stackDump(e);
+            }
         } finally {
             tester.destroy();
         }
@@ -532,11 +564,15 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
             assertEquals(0, waitEmptySpool(5000));
             
             // Controlli
-            assertWhole(tester.getTestStatus(), 0, 1);
-            assertServer(tester.getTestStatus(), servers[0][1], 0, 1);
-            assertEquals(2, tester.getProcMails().size());
-            assertProcMail(mails1.get("a@test.it"), ProcMail.STATE_IDLE, 0, 1, null);
-            assertProcMail(mails1.get("b@test.it"), ProcMail.STATE_IDLE, 0, 1, null);
+            try {
+                assertWhole(tester.getTestStatus(), 0, 1);
+                assertServer(tester.getTestStatus(), servers[0][1], 0, 1);
+                assertEquals(2, tester.getProcMails().size());
+                assertProcMail(mails1.get("a@test.it"), ProcMail.STATE_IDLE, 0, 1, null);
+                assertProcMail(mails1.get("b@test.it"), ProcMail.STATE_IDLE, 0, 1, null);
+            } catch (AssertionFailedError e) {
+                stackDump(e);
+            }
         } finally {
             tester.destroy();
         }
@@ -568,12 +604,16 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
             assertEquals(0, waitEmptySpool(5000));
             
             // Checks
-            assertWhole(tester.getTestStatus(), -2, -2); // Almeno 2 connessioni deve averle fatte
-            assertServer(tester.getTestStatus(), servers[0][1], 1, 1);
-            assertServer(tester.getTestStatus(), servers[1][1], -1, -1);
-            assertEquals(2, tester.getProcMails().size());
-            assertProcMail(mails.get("a@a.it"), ProcMail.STATE_SENT, 1, 0, servers[0][1]);
-            assertProcMail(mails.get("b@b.it"), ProcMail.STATE_SENT, -1, 0, servers[1][2]);
+            try {
+                assertWhole(tester.getTestStatus(), -2, -2); // Almeno 2 connessioni deve averle fatte
+                assertServer(tester.getTestStatus(), servers[0][1], 1, 1);
+                assertServer(tester.getTestStatus(), servers[1][1], -1, -1);
+                assertEquals(2, tester.getProcMails().size());
+                assertProcMail(mails.get("a@a.it"), ProcMail.STATE_SENT, 1, 0, servers[0][1]);
+                assertProcMail(mails.get("b@b.it"), ProcMail.STATE_SENT, -1, 0, servers[1][2]);
+            } catch (AssertionFailedError e) {
+                stackDump(e);
+            }
         } finally {
             tester.destroy();
         }
@@ -602,13 +642,17 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
             assertEquals(0, waitEmptySpool(5000));
             
             // Checks
-            assertWhole(tester.getTestStatus(), -2, -3); // Almeno 2 connessioni deve averle fatte
-            assertServer(tester.getTestStatus(), servers[0][1], 1, 1);
-            assertServer(tester.getTestStatus(), servers[1][1], 0, 1);
-            assertServer(tester.getTestStatus(), servers[1][2], 1, 1);
-            assertEquals(2, tester.getProcMails().size());
-            assertProcMail(mails.get("a@a.it"), ProcMail.STATE_SENT, 1, 0, servers[0][1]);
-            assertProcMail(mails.get("b@b.it"), ProcMail.STATE_SENT, 1, 0, servers[1][2]);
+            try {
+                assertWhole(tester.getTestStatus(), -2, -3); // Almeno 2 connessioni deve averle fatte
+                assertServer(tester.getTestStatus(), servers[0][1], 1, 1);
+                assertServer(tester.getTestStatus(), servers[1][1], 0, 1);
+                assertServer(tester.getTestStatus(), servers[1][2], 1, 1);
+                assertEquals(2, tester.getProcMails().size());
+                assertProcMail(mails.get("a@a.it"), ProcMail.STATE_SENT, 1, 0, servers[0][1]);
+                assertProcMail(mails.get("b@b.it"), ProcMail.STATE_SENT, 1, 0, servers[1][2]);
+            } catch (AssertionFailedError e) {
+                stackDump(e);
+            }
         } finally {
             tester.destroy();
         }
@@ -636,12 +680,16 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
             assertEquals(0, waitEmptySpool(5000));
             
             // Checks
-            assertWhole(tester.getTestStatus(), 1, 2); 
-            assertServer(tester.getTestStatus(), servers[0][1], 0, 1);
-            assertServer(tester.getTestStatus(), servers[0][2], 1, 1);
-            assertEquals(1, tester.getProcMails().size());
-            //assertProcMail(mails.get("a@i.it"), ProcMail.STATE_SENT_ERROR, 1, 0, servers[0][1]);
-            assertProcMail(mails.get("b@i.it"), ProcMail.STATE_SENT, -1, 0, servers[0][2]);
+            try {
+                assertWhole(tester.getTestStatus(), 1, 2); 
+                assertServer(tester.getTestStatus(), servers[0][1], 0, 1);
+                assertServer(tester.getTestStatus(), servers[0][2], 1, 1);
+                assertEquals(1, tester.getProcMails().size());
+                //assertProcMail(mails.get("a@i.it"), ProcMail.STATE_SENT_ERROR, 1, 0, servers[0][1]);
+                assertProcMail(mails.get("b@i.it"), ProcMail.STATE_SENT, -1, 0, servers[0][2]);
+            } catch (AssertionFailedError e) {
+                stackDump(e);
+            }
         } finally {
             tester.destroy();
         }
