@@ -151,8 +151,10 @@ public class Tester {
         /**
          * Javamail1.4 allows for providers to be specified
          */
-        
         props.put("mail.smtp.class", SMTPTransport.class.getName());
+        
+        // WARN "this" is not a String and some JavaMail implementation could ignore it.
+        // We fall back to Tester.getInstance when this property is not returned (geronimo doesn't return it).
         props.put("Tester", this);
         Session s = Session.getInstance(props);
 

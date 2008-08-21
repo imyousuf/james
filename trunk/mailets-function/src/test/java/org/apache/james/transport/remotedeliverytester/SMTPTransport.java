@@ -40,7 +40,10 @@ public class SMTPTransport extends Transport {
         super(session, urlname);
         owner = (Tester) session.getProperties().get("Tester");
         connected = false;
-        if (owner == null) throw new IllegalStateException("Can only be used by a Tester: "+session.getProperty("Tester")+"|"+session.getProperties().get("mail.smtp.class"));
+        if (owner == null) {
+            owner = Tester.getInstance();
+            // throw new IllegalStateException("Can only be used by a Tester: "+session.getProperty("Tester")+"|"+session.getProperties().get("mail.smtp.class"));
+        }
     }
     
     protected SMTPTransport(Session session, URLName urlname, String s, int i, boolean flag) {
