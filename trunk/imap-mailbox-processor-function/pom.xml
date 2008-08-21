@@ -29,6 +29,20 @@
     james-server-imap-mailbox-processor-function
   </artifactId>
   <name>Apache JAMES Server IMAP Mailbox Processor function</name>
+  
+  <profiles>
+    <profile>
+      <!-- Geronimo Mail module do not declare runtime dependency on Activation -->
+      <id>geronimo</id>
+      <dependencies>
+        <dependency>
+          <groupId>${javax.activation.groupId}</groupId>
+          <artifactId>${javax.activation.artifactId}</artifactId>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
+  
   <dependencies>
     <dependency>
       <groupId>${javax.mail.groupId}</groupId>

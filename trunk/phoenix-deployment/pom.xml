@@ -57,6 +57,20 @@
       </plugin>
     </plugins>
   </build>
+  
+  <profiles>
+    <profile>
+      <!-- Geronimo Mail module do not declare runtime dependency on Activation -->
+      <id>geronimo</id>
+      <dependencies>
+        <dependency>
+          <groupId>${javax.activation.groupId}</groupId>
+          <artifactId>${javax.activation.artifactId}</artifactId>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
+  
   <dependencies>
     <dependency>
       <groupId>org.apache.james</groupId>
