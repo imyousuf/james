@@ -27,19 +27,6 @@
   <groupId>org.apache.james</groupId>
   <artifactId>james-server-mailets-function</artifactId>
   <name>Apache JAMES Server Mailets function</name>
-  
-  <profiles>
-    <profile>
-      <!-- Geronimo Mail module do not declare runtime dependency on Activation -->
-      <id>geronimo</id>
-      <dependencies>
-        <dependency>
-          <groupId>${javax.activation.groupId}</groupId>
-          <artifactId>${javax.activation.artifactId}</artifactId>
-        </dependency>
-      </dependencies>
-    </profile>
-  </profiles>
 
   <dependencies>
     <dependency>
