@@ -159,6 +159,7 @@ public class Tester {
         // debug
         System.out.println("RemoteDelivery Tester DEBUG: "+s.getProperty("mail.smtp.class"));
         System.out.println("RemoteDelivery Tester DEBUG: "+s.getProperty("Tester"));
+        System.out.println("RemoteDelivery Tester DEBUG: "+s.getProperties().get("Tester"));
         
         // Session s = Session.getDefaultInstance(props);
         try {
