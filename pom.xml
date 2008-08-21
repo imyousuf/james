@@ -230,11 +230,23 @@
       <groupId>org.apache.james</groupId>
       <artifactId>mailet</artifactId>
       <version>2.4-SNAPSHOT</version>
+      <exclusions>
+        <exclusion>
+          <groupId>javax.mail</groupId>
+          <artifactId>mail</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-mailet-base</artifactId>
       <version>1.0-SNAPSHOT</version>
+      <exclusions>
+        <exclusion>
+          <groupId>javax.mail</groupId>
+          <artifactId>mail</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
@@ -242,11 +254,23 @@
       <version>1.0-SNAPSHOT</version>
       <classifier>tests</classifier>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>javax.mail</groupId>
+          <artifactId>mail</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>standard-mailets</artifactId>
       <version>1.0-SNAPSHOT</version>
+      <exclusions>
+        <exclusion>
+          <groupId>javax.mail</groupId>
+          <artifactId>mail</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
@@ -254,6 +278,12 @@
       <version>1.0-SNAPSHOT</version>
       <classifier>tests</classifier>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>javax.mail</groupId>
+          <artifactId>mail</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
@@ -495,13 +525,21 @@
       <groupId>javax.mail</groupId>
       <artifactId>mail</artifactId>
       <version>1.4.1</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>javax.activation</groupId>
       <artifactId>activation</artifactId>
       <version>1.1.1</version>
-      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-activation_1.1_spec</artifactId>
+      <version>1.0.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.geronimo.javamail</groupId>
+      <artifactId>geronimo-javamail_1.4_mail</artifactId>
+      <version>1.5</version>
     </dependency>
     <dependency>
       <groupId>org.apache.avalon.framework</groupId>
@@ -973,32 +1011,23 @@
     </dependency>
     </dependencies>
   </dependencyManagement>
-  <dependencies>
-    <!-- To build JAMES against geronimo this should be uncommented -->
-    <!-- and the second block commented. -->
-    <!--
-    <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-activation_1.1_spec</artifactId>
-      <version>1.0.3-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.geronimo.javamail</groupId>
-      <artifactId>geronimo-javamail_1.4_mail</artifactId>
-      <version>1.5-SNAPSHOT</version>
-    </dependency>
-    -->
-    <!--
-    <dependency>
-      <groupId>javax.mail</groupId>
-      <artifactId>mail</artifactId>
-      <version>1.4.1</version>
-    </dependency>
-    <dependency>
-      <groupId>javax.activation</groupId>
-      <artifactId>activation</artifactId>
-      <version>1.1.1</version>
-    </dependency>
-    -->
-  </dependencies>
+
+  <profiles>
+    <profile>
+      <id>geronimo</id>
+      <properties>
+		    <javax.mail.groupId>org.apache.geronimo.javamail</javax.mail.groupId>
+		    <javax.mail.artifactId>geronimo-javamail_1.4_mail</javax.mail.artifactId>
+		    <javax.activation.groupId>org.apache.geronimo.specs</javax.activation.groupId>
+		    <javax.activation.artifactId>geronimo-activation_1.1_spec</javax.activation.artifactId>
+      </properties>
+    </profile>
+  </profiles>
+  <properties>
+    <javax.activation.groupId>javax.activation</javax.activation.groupId>
+    <javax.activation.artifactId>activation</javax.activation.artifactId>
+    <javax.mail.groupId>javax.mail</javax.mail.groupId>
+    <javax.mail.artifactId>mail</javax.mail.artifactId>
+  </properties>
+
 </project>
