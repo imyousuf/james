@@ -155,14 +155,9 @@ public class Tester {
         
         // WARN "this" is not a String and some JavaMail implementation could ignore it.
         // We fall back to Tester.getInstance when this property is not returned (geronimo doesn't return it).
-        props.put("Tester", this);
+        props.put("TesterID", "Tester@"+System.identityHashCode(this));
         Session s = Session.getInstance(props);
 
-        // debug
-        System.out.println("RemoteDelivery Tester DEBUG: "+s.getProperty("mail.smtp.class"));
-        System.out.println("RemoteDelivery Tester DEBUG: "+s.getProperty("Tester"));
-        System.out.println("RemoteDelivery Tester DEBUG: "+s.getProperties().get("Tester"));
-        
         // Session s = Session.getDefaultInstance(props);
         try {
             if (!((s.getTransport("smtp")) instanceof SMTPTransport))
