@@ -25,6 +25,8 @@ import java.util.Collection;
 
 import javax.mail.MessagingException;
 
+import junit.framework.AssertionFailedError;
+
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.Matcher;
 
@@ -90,8 +92,6 @@ public class RecipientIsRegexTest extends AbstractRecipientIsTest {
         Collection matchedRecipients = null;
         String invalidRegex = "(!(";
         String regexException = null;
-        // NOTE the expected exception changes when the project is built/run
-        // against non java 1.4 jvm. 
         String exception = "Malformed pattern: " + invalidRegex;
 
         setRecipients(new MailAddress[] {
@@ -107,7 +107,13 @@ public class RecipientIsRegexTest extends AbstractRecipientIsTest {
         }
 
         assertNull(matchedRecipients);
-        assertEquals(regexException, exception);
+        try {
+            assertEquals(exception, regexException);
+        } catch (AssertionFailedError e) {
+            // NOTE the expected exception changes when the project is built/run
+            // against non java 1.4 jvm. 
+            assertEquals(exception+" (org.apache.oro.text.regex.MalformedPatternException: Unmatched parentheses.", regexException);
+        }
 
     }
 
