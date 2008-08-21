@@ -39,7 +39,6 @@ import javax.mail.URLName;
 import javax.mail.Provider.Type;
 import javax.mail.internet.MimeMessage;
 
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -158,11 +157,8 @@ public class Tester {
         Session s = Session.getInstance(props);
 
         // debug
-        try {
-            s.getProperties().store(System.out, "Tester Session properties");
-        } catch (IOException e2) {
-            e2.printStackTrace();
-        }
+        System.out.println("RemoteDelivery Tester DEBUG: "+s.getProperty("mail.smtp.class"));
+        System.out.println("RemoteDelivery Tester DEBUG: "+s.getProperty("Tester"));
         
         // Session s = Session.getDefaultInstance(props);
         try {
