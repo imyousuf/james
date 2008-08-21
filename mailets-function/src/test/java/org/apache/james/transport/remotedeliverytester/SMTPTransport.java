@@ -38,11 +38,11 @@ public class SMTPTransport extends Transport {
     
     public SMTPTransport(Session session, URLName urlname) {
         super(session, urlname);
-        owner = (Tester) session.getProperties().get("Tester");
+        String ownerId = session.getProperty("TesterID");
         connected = false;
-        if (owner == null) {
-            owner = Tester.getInstance();
-            // throw new IllegalStateException("Can only be used by a Tester: "+session.getProperty("Tester")+"|"+session.getProperties().get("mail.smtp.class"));
+        owner = Tester.getInstance();
+        if (!("Tester@"+System.identityHashCode(owner)).equals(ownerId)) {
+            throw new IllegalStateException("The singleton tester is not the one declared in the session");
         }
     }
     
