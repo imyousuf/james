@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project default="main" name="imap-mailets-function">
+  <description>Builds imap-mailets-function module. This is an function module.</description>
+  <property name="name.module" value="imap-mailets-function" />
+  <import file="../build-tools/function-build.xml" optional="no" />
+</project>
