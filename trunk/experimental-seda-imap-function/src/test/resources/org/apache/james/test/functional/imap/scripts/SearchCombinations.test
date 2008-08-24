@@ -270,8 +270,7 @@ C: Rhubarb!
 S: \* 9 EXISTS
 S: \* 9 RECENT
 S: A12 OK APPEND completed\.
-C: A13 APPEND testmailbox {12272+}
-C:                                                                                                                                                                                                                                                                                                        
+C: A13 APPEND testmailbox {11976+}
 C: Received: by 10.114.126.16 with HTTP; Tue, 11 Mar 2008 11:53:38 -0700 (PDT)
 C: Message-ID: <f470f68e0803111153w2262a775sdefc8c423c5d5c95@mail.gmail.com>
 C: Date: Tue, 11 Mar 2008 18:53:38 +0000
@@ -482,8 +481,7 @@ C:
 S: \* 10 EXISTS
 S: \* 10 RECENT
 S: A13 OK APPEND completed\.
-C: A14 APPEND testmailbox {3661+}
-C:                                                                                                                                                                                                                                                                                                      
+C: A14 APPEND testmailbox {3367+}
 C: Delivered-To: robertburrelldonkin@gmail.com
 C: Received: by 10.114.126.16 with SMTP id y16cs68962wac;
 C:         Tue, 11 Mar 2008 11:41:47 -0700 (PDT)
@@ -577,8 +575,7 @@ C:
 S: \* 11 EXISTS
 S: \* 11 RECENT
 S: A14 OK APPEND completed\.
-C: A15 APPEND testmailbox {4387+}
-C:                                                                                                                                                                                                                     
+C: A15 APPEND testmailbox {4173+}
 C: Delivered-To: robertburrelldonkin@gmail.com
 C: Received: by 10.114.126.16 with SMTP id y16cs69319wac;
 C:         Tue, 11 Mar 2008 11:45:12 -0700 (PDT)

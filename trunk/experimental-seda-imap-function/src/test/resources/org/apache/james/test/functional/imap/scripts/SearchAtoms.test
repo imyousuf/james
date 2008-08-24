@@ -270,9 +270,8 @@ C: Rhubarb!
 S: \* 9 EXISTS
 S: \* 9 RECENT
 S: A12 OK APPEND completed\.
-C: A13 APPEND testmailbox {12272+}
-C:                                                                                                                                                                                                                                                                                                        
-C: Received: by 10.114.126.16 with HTTP; Tue, 11 Mar 2008 11:53:38 -0700 (PDT)
+C: A13 APPEND testmailbox {11976+}
+C: Received: by 11.114.126.16 with HTTP; Tue, 11 Mar 2008 11:53:38 -0700 (PDT)
 C: Message-ID: <f470f68e0803111153w2262a775sdefc8c423c5d5c95@mail.gmail.com>
 C: Date: Tue, 11 Mar 2008 18:53:38 +0000
 C: From: "Robert Burrell Donkin" <robertburrelldonkin@gmail.com>
@@ -482,8 +481,7 @@ C:
 S: \* 10 EXISTS
 S: \* 10 RECENT
 S: A13 OK APPEND completed\.
-C: A14 APPEND testmailbox {3661+}
-C:                                                                                                                                                                                                                                                                                                      
+C: A14 APPEND testmailbox {3367+}
 C: Delivered-To: robertburrelldonkin@gmail.com
 C: Received: by 10.114.126.16 with SMTP id y16cs68962wac;
 C:         Tue, 11 Mar 2008 11:41:47 -0700 (PDT)
@@ -577,8 +575,7 @@ C:
 S: \* 11 EXISTS
 S: \* 11 RECENT
 S: A14 OK APPEND completed\.
-C: A15 APPEND testmailbox {4387+}
-C:                                                                                                                                                                                                                     
+C: A15 APPEND testmailbox {4174+}
 C: Delivered-To: robertburrelldonkin@gmail.com
 C: Received: by 10.114.126.16 with SMTP id y16cs69319wac;
 C:         Tue, 11 Mar 2008 11:45:12 -0700 (PDT)
@@ -736,7 +733,7 @@ C:
 S: \* 16 EXISTS
 S: \* 16 RECENT
 S: A19 OK APPEND completed\.
-C: A20 APPEND testmailbox {14862+}
+C: A20 APPEND testmailbox {14853+}
 C: Return-Path: <robertburrelldonkin@gmail.com>
 C: Received: (qmail 16059 invoked from network); 11 Mar 2008 18:54:16 -0000
 C: Received: from unknown (HELO pre-smtp34-01.prod.mesa1.secureserver.net)
@@ -785,8 +782,7 @@ C: Reply-To: Robert Burrell Donkin <robertburrelldonkin@gmail.com>
 C: Sender: Google Calendar <calendar-notification@google.com>
 C: Received: by 10.35.108.12 with SMTP id k12mr18969364pym.3.1205261618449;
 C:         Tue,  11 Mar 2008 11:53:38 -0700 (PDT)
-C: Subject:
-C:         =?windows-1256?Q?=5BInvitation=5D_ApacheCon_Europe_2008=21_=40_Mon_7_Apr_=96_?=
+C: Subject: =?windows-1256?Q?=5BInvitation=5D_ApacheCon_Europe_2008=21_=40_Mon_7_Apr_=96_?=
 C:         =?windows-1256?Q?Fri_11_Apr_2008_=28=29?=
 C: From: Robert Burrell Donkin <robertburrelldonkin@gmail.com>
 C: To: rdonkin@apache.org
@@ -1843,8 +1839,8 @@ S: \* SEARCH 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
 S: A124 OK SEARCH completed\.
 C: A125 SEARCH SUBJECT o
 # TODO: JavaMail's parsing is buggy. Replace with Mime4J.
-# S: \* SEARCH 6 7 10 12 17 18 19
-S: \* SEARCH 6 7 10 12 18 19
+S: \* SEARCH 6 7 10 12 17 18 19
+# S: \* SEARCH 6 7 10 12 18 19
 S: A125 OK SEARCH completed\.
 C: A126 SEARCH SUBJECT the
 S: \* SEARCH
