@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project default="main" name="mailbox-library">
+  <description>Builds mailbox-library module. This is an library module.</description>
+  <property name="name.module" value="mailbox-library" />
+  <import file="../build-tools/library-build.xml" optional="no" />
+</project>

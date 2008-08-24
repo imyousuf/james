@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<project default="main" name="core-api">
+  <description>Builds core-api module. This is an api module.</description>
+  <property name="name.module" value="core-api" />
+  <import file="../build-tools/api-build.xml" optional="no" />
+</project>

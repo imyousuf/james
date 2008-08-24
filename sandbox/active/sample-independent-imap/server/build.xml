@@ -1,0 +1,179 @@
+<?xml version="1.0"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.    
+-->
+
+<project default="full" basedir=".">
+
+<description>
+Master build file for JAMES server.
+</description>
+
+ <!--
+ =========================================================================
+ MACRO DEFINITIONS
+ =========================================================================
+ -->   
+ 
+    <macrodef 
+            name='fordo'
+            description='Executes a target for modules of a particular type'>
+        <attribute name='do'/>   
+        <attribute name='dir' default='.'/>
+        <attribute name='type'/>   
+        <sequential>
+            <subant target='@{do}'>
+                <fileset dir='@{dir}' includes='*@{type}/build.xml'/>   
+            </subant>   
+        </sequential>   
+    </macrodef>
+
+    <macrodef 
+            name='forbasedo'
+            description='Executes a target for all deployment modules'>
+        <attribute name='do'/>   
+        <attribute name='dir' default='.'/>   
+        <sequential>
+            <fordo do='@{do}' dir='@{dir}' type='api'/>
+            <fordo do='@{do}' dir='@{dir}' type='util'/>
+        </sequential>   
+    </macrodef>  
+ 
+    <macrodef 
+            name='forlibrariesdo'
+            description='Executes a target for all library modules'>
+        <attribute name='do'/>   
+        <attribute name='dir' default='.'/>   
+        <sequential>
+            <fordo do='@{do}' dir='@{dir}' type='library'/>
+        </sequential>   
+    </macrodef>    
+    
+    <macrodef 
+            name='forfunctionsdo'
+            description='Executes a target for all function modules'>
+        <attribute name='do'/>   
+        <attribute name='dir' default='.'/>   
+        <sequential>
+            <fordo do='@{do}' dir='@{dir}' type='function'/>
+        </sequential>   
+    </macrodef>    
+    
+    <macrodef 
+            name='fordeploymentsdo' 
+            description='Executes a target for all deployment modules' >
+        <attribute name='do'/>   
+        <attribute name='dir' default='.'/>   
+        <sequential>
+            <fordo do='@{do}' dir='@{dir}' type='deployment'/>
+        </sequential>   
+    </macrodef>  
+    
+    <macrodef 
+           name='foralldo'
+           description='Executes a target for all modules'>
+        <attribute name='do'/>   
+        <sequential>
+            <forbasedo do='@{do}'/>
+            <forlibrariesdo do='@{do}'/>
+            <forfunctionsdo do='@{do}'/>   
+            <fordeploymentsdo do='@{do}'/> 
+        </sequential>   
+    </macrodef>   
+    
+<!--
+ =========================================================================
+ INTERNAL 
+ =========================================================================
+-->  
+
+    <target name='clean-dist' description='Cleans master distribution directory'>
+        <delete dir='dist'/>
+        <mkdir dir='dist'/>
+    </target>
+
+<!--
+ =========================================================================
+ USER TARGETS
+ =========================================================================
+-->     
+
+    <target 
+        name='clean'
+        description='Cleans all modules'
+        depends='clean-dist'>
+        <echo>Cleaning all modules</echo>   
+        <foralldo do='clean'/>
+    </target> 
+    
+    <target 
+        name='eclipse'
+        description='Cleans all modules'
+        depends='clean'>
+        <echo>Generating project files</echo>   
+        <foralldo do='eclipse'/>
+    </target> 
+
+    <target 
+        name='lite'
+        description='Builds modules and performs lightweight deployment'>
+        <echo>Building modules and performing lightweight deployments</echo>   
+        <fordeploymentsdo do='dist-lite'/>
+    </target>   
+    
+    <target 
+        name='dist'
+        description='Builds modules, performs standard deployment and creates standard distributions'
+        depends='clean'>
+        <echo>Building modules, performing standard deployments and creating standard distributions</echo>    
+        <foralldo do='dist'/>
+    </target>   
+    
+    <target 
+        name='full'
+        description='Complete clean build, deployment and creates full distributions' 
+        depends='clean, clean-dist'>
+        <echo>Building, deploying and creating full distributions for everything</echo> 
+        <forbasedo do='dist'/>
+        <forlibrariesdo do='dist'/>
+        <forfunctionsdo do='dist'/>      
+        <fordeploymentsdo do='everything'/>
+    </target>   
+
+    <target 
+        name="usage"
+        description='Prints details of recommended targets'>
+        <echo message=""/>
+        <echo message=""/>
+        <echo message="JAMES Server, Master Build"/>
+        <echo message="-------------------------------------------------------------"/>
+        <echo message=""/>
+        <echo message=" available targets are:"/>
+        <echo message=""/>
+        <echo message="   lite  --> Builds modules and performs lightweight deployment."/>
+        <echo message="   dist  --> Builds modules, performs standard deployment and creates standard distributions"/>
+        <echo message="   clean --> Cleans all modules"/>
+        <echo message="   full  --> Complete clean build, deployment and creates full distributions"/>
+        <echo message=""/>
+        <echo message=" See the comments inside the build.xml file for more details."/>
+        <echo message="-------------------------------------------------------------"/>
+        <echo message=""/>
+        <echo message=""/>
+    </target>
+
+</project>
