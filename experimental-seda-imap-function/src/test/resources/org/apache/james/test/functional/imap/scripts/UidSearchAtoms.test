@@ -630,8 +630,7 @@ C: Rhubarb!
 S: \* 9 EXISTS
 S: \* 9 RECENT
 S: A72 OK APPEND completed\.
-C: A73 APPEND testmailbox {12272+}
-C:                                                                                                                                                                                                                                                                                                        
+C: A73 APPEND testmailbox {11976+}
 C: Received: by 10.114.126.16 with HTTP; Tue, 11 Mar 2008 11:53:38 -0700 (PDT)
 C: Message-ID: <f470f68e0803111153w2262a775sdefc8c423c5d5c95@mail.gmail.com>
 C: Date: Tue, 11 Mar 2008 18:53:38 +0000
@@ -842,8 +841,7 @@ C:
 S: \* 10 EXISTS
 S: \* 10 RECENT
 S: A73 OK APPEND completed\.
-C: A74 APPEND testmailbox {3661+}
-C:                                                                                                                                                                                                                                                                                                      
+C: A74 APPEND testmailbox {3367+}
 C: Delivered-To: robertburrelldonkin@gmail.com
 C: Received: by 10.114.126.16 with SMTP id y16cs68962wac;
 C:         Tue, 11 Mar 2008 11:41:47 -0700 (PDT)
@@ -937,8 +935,7 @@ C:
 S: \* 11 EXISTS
 S: \* 11 RECENT
 S: A74 OK APPEND completed\.
-C: A75 APPEND testmailbox {4387+}
-C:                                                                                                                                                                                                                     
+C: A75 APPEND testmailbox {4174+}
 C: Delivered-To: robertburrelldonkin@gmail.com
 C: Received: by 10.114.126.16 with SMTP id y16cs69319wac;
 C:         Tue, 11 Mar 2008 11:45:12 -0700 (PDT)
@@ -1096,7 +1093,7 @@ C:
 S: \* 16 EXISTS
 S: \* 16 RECENT
 S: A79 OK APPEND completed\.
-C: A80 APPEND testmailbox {14862+}
+C: A80 APPEND testmailbox {14863+}
 C: Return-Path: <robertburrelldonkin@gmail.com>
 C: Received: (qmail 16059 invoked from network); 11 Mar 2008 18:54:16 -0000
 C: Received: from unknown (HELO pre-smtp34-01.prod.mesa1.secureserver.net)
@@ -1145,7 +1142,7 @@ C: Reply-To: Robert Burrell Donkin <robertburrelldonkin@gmail.com>
 C: Sender: Google Calendar <calendar-notification@google.com>
 C: Received: by 10.35.108.12 with SMTP id k12mr18969364pym.3.1205261618449;
 C:         Tue,  11 Mar 2008 11:53:38 -0700 (PDT)
-C: Subject:
+C: Subject: 
 C:         =?windows-1256?Q?=5BInvitation=5D_ApacheCon_Europe_2008=21_=40_Mon_7_Apr_=96_?=
 C:         =?windows-1256?Q?Fri_11_Apr_2008_=28=29?=
 C: From: Robert Burrell Donkin <robertburrelldonkin@gmail.com>
@@ -2203,9 +2200,7 @@ C: A184 UID SEARCH SMALLER 20000
 S: \* SEARCH 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39
 S: A184 OK SEARCH completed\.
 C: A185 UID SEARCH SUBJECT o
-# TODO: JavaMail's parsing is buggy. Replace with Mime4J.
-# S: \* SEARCH 26 27 30 32 37 38 39
-S: \* SEARCH 26 27 30 32 38 39
+S: \* SEARCH 26 27 30 32 37 38 39
 S: A185 OK SEARCH completed\.
 C: A186 UID SEARCH SUBJECT the
 S: \* SEARCH
