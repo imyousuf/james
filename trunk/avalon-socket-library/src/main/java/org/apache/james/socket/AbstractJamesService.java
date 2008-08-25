@@ -571,14 +571,14 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
         getLogger().info(logString);
 
         if (connectionLimit != null) {
-            theHandlerPool = new HardResourceLimitingPool((ObjectFactory) this, 5, connectionLimit.intValue());
+            theHandlerPool = new HardResourceLimitingPool(this, 5, connectionLimit.intValue());
             if (getLogger().isDebugEnabled()) {
                 getLogger().debug("Using a bounded pool for "+getServiceType()+" handlers with upper limit " + connectionLimit.intValue());
             }
         } else {
             // NOTE: The maximum here is not a real maximum.  The handler pool will continue to
             //       provide handlers beyond this value.
-            theHandlerPool = new DefaultPool((ObjectFactory) this, null, 5, 30);
+            theHandlerPool = new DefaultPool(this, null, 5, 30);
             getLogger().debug("Using an unbounded pool for "+getServiceType()+" handlers.");
         }
     }
@@ -783,5 +783,22 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
         ContainerUtil.service(conn, componentManager);
         return conn;
     }
+    
+    /**
+     * @see org.apache.avalon.excalibur.pool.ObjectFactory#newInstance()
+     */
+    public Object newInstance() throws Exception {
+        return new DelegatingJamesHandler(newProtocolHandlerInstance());
+    }
+    
+    protected abstract ProtocolHandler newProtocolHandlerInstance();
+
+		/**
+     * @see org.apache.avalon.excalibur.pool.ObjectFactory#getCreatedClass()
+     */
+    public Class getCreatedClass() {
+        return DelegatingJamesHandler.class;
+    }
+
 }
 

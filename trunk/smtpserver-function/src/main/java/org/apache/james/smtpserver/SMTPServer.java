@@ -32,6 +32,7 @@ import org.apache.james.api.dnsservice.util.NetMatcher;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.services.MailServer;
 import org.apache.james.socket.AbstractJamesService;
+import org.apache.james.socket.ProtocolHandler;
 import org.apache.mailet.MailetContext;
 
 /**
@@ -273,24 +274,14 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
     }
 
     /**
-     * @see org.apache.avalon.excalibur.pool.ObjectFactory#newInstance()
+     * @see org.apache.james.socket.AbstractJamesService#newProtocolHandlerInstance()
      */
-    public Object newInstance() throws Exception {
+    public ProtocolHandler newProtocolHandlerInstance() {
         SMTPHandler theHandler = new SMTPHandler();
         //pass the handler chain to every SMTPhandler
         theHandler.setHandlerChain(handlerChain);
-        
         return theHandler;
     }
-    
-    /**
-     * @see org.apache.avalon.excalibur.pool.ObjectFactory#getCreatedClass()
-     */
-    public Class getCreatedClass() {
-        return SMTPHandler.class;
-    }
-
-
 
     /**
      * A class to provide SMTP handler configuration to the handlers

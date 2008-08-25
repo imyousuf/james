@@ -23,8 +23,9 @@ package org.apache.james.smtpserver;
 
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.Constants;
-import org.apache.james.socket.AbstractJamesHandler;
 import org.apache.james.socket.CRLFTerminatedReader;
+import org.apache.james.socket.ProtocolHandler;
+import org.apache.james.socket.ProtocolHandlerHelper;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.mailet.Mail;
 import org.apache.mailet.dates.RFC822DateFormat;
@@ -46,9 +47,9 @@ import java.util.Random;
  *
  * @version CVS $Revision$ $Date$
  */
-public class SMTPHandler
-    extends AbstractJamesHandler
-    implements SMTPSession {
+public class SMTPHandler implements ProtocolHandler, SMTPSession {
+
+    private ProtocolHandlerHelper helper;
 
     /**
      * The constants to indicate the current processing mode of the session
@@ -178,10 +179,10 @@ public class SMTPHandler
     /**
      * @see org.apache.james.socket.AbstractJamesHandler#handleProtocol()
      */
-    protected void handleProtocol() throws IOException {
+    public void handleProtocol() throws IOException {
         smtpID = random.nextInt(1024) + "";
-        relayingAllowed = theConfigData.isRelayingAllowed(remoteIP);
-        authRequired = theConfigData.isAuthRequired(remoteIP);
+        relayingAllowed = theConfigData.isRelayingAllowed(helper.getRemoteIP());
+        authRequired = theConfigData.isAuthRequired(helper.getRemoteIP());
         heloEhloEnforcement = theConfigData.useHeloEhloEnforcement();
         sessionEnded = false;
         smtpGreeting = theConfigData.getSMTPGreeting();
@@ -204,7 +205,7 @@ public class SMTPHandler
                           .append(smtpGreeting);
         }
         String responseString = clearResponseBuffer();
-        writeLoggedFlushedResponse(responseString);
+        helper.writeLoggedFlushedResponse(responseString);
 
         //the core in-protocol handling logic
         //run all the connection handlers, if it fast fails, end the session
@@ -243,7 +244,7 @@ public class SMTPHandler
             }
         }
 
-        theWatchdog.start();
+        helper.getWatchdog().start();
         while(!sessionEnded) {
           //Reset the current command values
           curCommandName = null;
@@ -275,7 +276,7 @@ public class SMTPHandler
                   setStopHandlerProcessing(false);
                   ((CommandHandler)commandHandlers.get(i)).onCommand(this);
                   
-                  theWatchdog.reset();
+                  helper.getWatchdog().reset();
                   
                   //if the response is received, stop processing of command handlers
                   if(mode != COMMAND_MODE || getStopHandlerProcessing()) {
@@ -288,7 +289,7 @@ public class SMTPHandler
           //handle messages
           if(mode == MESSAGE_RECEIVED_MODE) {
               try {
-                  getLogger().debug("executing message handlers");
+                  helper.getAvalonLogger().debug("executing message handlers");
                   List messageHandlers = handlerChain.getMessageHandlers();
                   int count = messageHandlers.size();
                   for(int i =0; i < count; i++) {
@@ -317,21 +318,19 @@ public class SMTPHandler
               }
           }
         }
-        theWatchdog.stop();
-        getLogger().debug("Closing socket.");
+        helper.getWatchdog().stop();
+        helper.getAvalonLogger().debug("Closing socket.");
     }
 
     /**
      * Resets the handler data to a basic state.
      */
-    protected void resetHandler() {
+    public void resetHandler() {
         resetState();
         resetConnectionState();
 
         clearResponseBuffer();
 
-        remoteHost = null;
-        remoteIP = null;
         authenticatedUser = null;
         smtpID = null;
     }
@@ -349,7 +348,7 @@ public class SMTPHandler
      * @see org.apache.james.smtpserver.SMTPSession#writeResponse(String)
      */
     public void writeResponse(String respString) {
-        writeLoggedFlushedResponse(respString);
+        helper.writeLoggedFlushedResponse(respString);
         //TODO Explain this well
         if(mode == COMMAND_MODE) {
             mode = RESPONSE_MODE;
@@ -389,14 +388,14 @@ public class SMTPHandler
      * @see org.apache.james.smtpserver.SMTPSession#getRemoteHost()
      */
     public String getRemoteHost() {
-        return remoteHost;
+        return helper.getRemoteHost();
     }
 
     /**
      * @see org.apache.james.smtpserver.SMTPSession#getRemoteIPAddress()
      */
     public String getRemoteIPAddress() {
-        return remoteIP;
+        return helper.getRemoteIP();
     }
 
     /**
@@ -500,15 +499,15 @@ public class SMTPHandler
      */
     public final String readCommandLine() throws IOException {
         for (;;) try {
-            String commandLine = inReader.readLine();
+            String commandLine = helper.getInputReader().readLine();
             if (commandLine != null) {
                 commandLine = commandLine.trim();
             }
             return commandLine;
         } catch (CRLFTerminatedReader.TerminationException te) {
-            writeLoggedFlushedResponse("501 Syntax error at character position " + te.position() + ". CR and LF must be CRLF paired.  See RFC 2821 #2.7.1.");
+            helper.writeLoggedFlushedResponse("501 Syntax error at character position " + te.position() + ". CR and LF must be CRLF paired.  See RFC 2821 #2.7.1.");
         } catch (CRLFTerminatedReader.LineLengthExceededException llee) {
-            writeLoggedFlushedResponse("500 Line length exceeded. See RFC 2821 #4.5.3.1.");
+            helper.writeLoggedFlushedResponse("500 Line length exceeded. See RFC 2821 #4.5.3.1.");
         }
     }
 
@@ -516,14 +515,14 @@ public class SMTPHandler
      * @see org.apache.james.smtpserver.SMTPSession#getWatchdog()
      */
     public Watchdog getWatchdog() {
-        return theWatchdog;
+        return helper.getWatchdog();
     }
 
     /**
      * @see org.apache.james.smtpserver.SMTPSession#getInputStream()
      */
     public InputStream getInputStream() {
-        return in;
+        return helper.getInputStream();
     }
 
     /**
@@ -574,6 +573,14 @@ public class SMTPHandler
     
     public Map getConnectionState() {
         return connectionState;
+    }
+
+    public void setProtocolHandlerHelper(ProtocolHandlerHelper phh) {
+        this.helper = phh;
+    }
+
+    public void errorHandler(RuntimeException e) {
+        helper.defaultErrorHandler(e);
     }
 
 }

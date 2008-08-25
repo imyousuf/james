@@ -25,8 +25,9 @@ import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.Constants;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailRepository;
-import org.apache.james.socket.AbstractJamesHandler;
 import org.apache.james.socket.CRLFTerminatedReader;
+import org.apache.james.socket.ProtocolHandler;
+import org.apache.james.socket.ProtocolHandlerHelper;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.mailet.Mail;
 
@@ -42,9 +43,10 @@ import java.util.Locale;
  * The handler class for POP3 connections.
  *
  */
-public class POP3Handler
-    extends AbstractJamesHandler implements POP3Session {
+public class POP3Handler implements POP3Session, ProtocolHandler {
 
+    private ProtocolHandlerHelper helper;
+    
     private final static byte COMMAND_MODE = 1;
     private final static byte RESPONSE_MODE = 2;
 
@@ -169,7 +171,7 @@ public class POP3Handler
     /**
      * @see org.apache.james.socket.AbstractJamesHandler#handleProtocol()
      */
-    protected void handleProtocol() throws IOException {
+    public void handleProtocol() throws IOException {
         handlerState = AUTHENTICATION_READY;
         authenticatedUser = "unknown";
 
@@ -185,7 +187,7 @@ public class POP3Handler
                     .append(POP3Handler.softwaretype)
                     .append(") ready ");
         String responseString = clearResponseBuffer();
-        writeLoggedFlushedResponse(responseString);
+        helper.writeLoggedFlushedResponse(responseString);
 
         //Session started - RUN all connect handlers
         List connectHandlers = handlerChain.getConnectHandlers();
@@ -200,7 +202,7 @@ public class POP3Handler
         }
 
         
-        theWatchdog.start();
+        helper.getWatchdog().start();
         while(!sessionEnded) {
           //Reset the current command values
           curCommandName = null;
@@ -221,12 +223,12 @@ public class POP3Handler
           }
           curCommandName = curCommandName.toUpperCase(Locale.US);
 
-          if (getLogger().isDebugEnabled()) {
+          if (helper.getAvalonLogger().isDebugEnabled()) {
               // Don't display password in logger
               if (!curCommandName.equals("PASS")) {
-                  getLogger().debug("Command received: " + cmdString);
+                  helper.getAvalonLogger().debug("Command received: " + cmdString);
               } else {
-                  getLogger().debug("Command received: PASS <password omitted>");
+                  helper.getAvalonLogger().debug("Command received: PASS <password omitted>");
               }
           }
 
@@ -239,7 +241,7 @@ public class POP3Handler
               int count = commandHandlers.size();
               for(int i = 0; i < count; i++) {
                   ((CommandHandler)commandHandlers.get(i)).onCommand(this);
-                  theWatchdog.reset();
+                  helper.getWatchdog().reset();
                   //if the response is received, stop processing of command handlers
                   if(mode != COMMAND_MODE) {
                       break;
@@ -248,29 +250,29 @@ public class POP3Handler
 
           }
         }
-        theWatchdog.stop();
-        if (getLogger().isInfoEnabled()) {
+        helper.getWatchdog().stop();
+        if (helper.getAvalonLogger().isInfoEnabled()) {
             StringBuffer logBuffer =
                 new StringBuffer(128)
                     .append("Connection for ")
                     .append(getUser())
                     .append(" from ")
-                    .append(remoteHost)
+                    .append(helper.getRemoteHost())
                     .append(" (")
-                    .append(remoteIP)
+                    .append(helper.getRemoteIP())
                     .append(") closed.");
-            getLogger().info(logBuffer.toString());
+            helper.getAvalonLogger().info(logBuffer.toString());
         }
     }
     
     /**
      * @see org.apache.james.socket.AbstractJamesHandler#errorHandler(java.lang.RuntimeException)
      */
-    protected void errorHandler(RuntimeException e) {
-        super.errorHandler(e);
+    public void errorHandler(RuntimeException e) {
+        helper.defaultErrorHandler(e);
         try {
-            out.println(ERR_RESPONSE + " Error closing connection.");
-            out.flush();
+            helper.getOutputWriter().println(ERR_RESPONSE + " Error closing connection.");
+            helper.getOutputWriter().flush();
         } catch (Throwable t) {
             
         }
@@ -279,7 +281,7 @@ public class POP3Handler
     /**
      * Resets the handler data to a basic state.
      */
-    protected void resetHandler() {
+    public void resetHandler() {
         // Clear user data
         authenticatedUser = null;
         userInbox = null;
@@ -313,13 +315,13 @@ public class POP3Handler
      */
     public final String readCommandLine() throws IOException {
         for (;;) try {
-            String commandLine = inReader.readLine();
+            String commandLine = helper.getInputReader().readLine();
             if (commandLine != null) {
                 commandLine = commandLine.trim();
             }
             return commandLine;
         } catch (CRLFTerminatedReader.TerminationException te) {
-            writeLoggedFlushedResponse("-ERR Syntax error at character position " + te.position() + ". CR and LF must be CRLF paired.  See RFC 1939 #3.");
+            helper.writeLoggedFlushedResponse("-ERR Syntax error at character position " + te.position() + ". CR and LF must be CRLF paired.  See RFC 1939 #3.");
         }
     }
 
@@ -336,14 +338,14 @@ public class POP3Handler
      * @see org.apache.james.pop3server.POP3Session#getRemoteHost()
      */
     public String getRemoteHost() {
-        return remoteHost;
+        return helper.getRemoteHost();
     }
 
     /**
      * @see org.apache.james.pop3server.POP3Session#getRemoteIPAddress()
      */
     public String getRemoteIPAddress() {
-        return remoteIP;
+        return helper.getRemoteIP();
     }
 
     /**
@@ -408,7 +410,7 @@ public class POP3Handler
      * @see org.apache.james.pop3server.POP3Session#getWatchdog()
      */
     public Watchdog getWatchdog() {
-        return theWatchdog;
+        return helper.getWatchdog();
     }
 
     /**
@@ -424,7 +426,7 @@ public class POP3Handler
      * @see org.apache.james.pop3server.POP3Session#writeResponse(java.lang.String)
      */
     public void writeResponse(String respString) {
-        writeLoggedFlushedResponse(respString);
+        helper.writeLoggedFlushedResponse(respString);
         //TODO Explain this well
         if(mode == COMMAND_MODE) {
             mode = RESPONSE_MODE;
@@ -513,7 +515,14 @@ public class POP3Handler
      * @see org.apache.james.pop3server.POP3Session#getOutputStream()
      */
     public OutputStream getOutputStream() {
-        return outs;
+        return helper.getOutputStream();
+    }
+
+    /**
+     * @see org.apache.james.socket.ProtocolHandler#setProtocolHandlerHelper(org.apache.james.socket.ProtocolHandlerHelper)
+     */
+    public void setProtocolHandlerHelper(ProtocolHandlerHelper phh) {
+        this.helper = phh;
     }
 
 }

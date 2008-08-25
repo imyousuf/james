@@ -19,11 +19,8 @@
 
 package org.apache.james.experimental.imapserver;
 
-import java.io.IOException;
-import java.net.Socket;
-
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
-import org.apache.avalon.excalibur.pool.Poolable;
+import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.Constants;
 import org.apache.james.api.imap.ImapConstants;
@@ -34,15 +31,20 @@ import org.apache.james.imapserver.codec.decode.ImapDecoder;
 import org.apache.james.imapserver.codec.encode.ImapEncoder;
 import org.apache.james.imapserver.codec.encode.ImapResponseComposer;
 import org.apache.james.imapserver.codec.encode.base.ImapResponseComposerImpl;
-import org.apache.james.socket.AbstractJamesHandler;
+import org.apache.james.socket.ProtocolHandler;
+import org.apache.james.socket.ProtocolHandlerHelper;
+
+import java.io.IOException;
+import java.net.Socket;
 
 /**
  * Handles IMAP connections.
  */
-public class ImapHandler
-        extends AbstractJamesHandler
-        implements ConnectionHandler, Poolable, ImapConstants
+public class ImapHandler implements ProtocolHandler, ImapConstants
 {
+	
+    private ProtocolHandlerHelper helper;
+
     private static final byte[] EMERGENCY_SIGNOFF = {'*',' ', 'B', 'Y', 'E', ' ', 
         'S', 'e', 'r', 'v', 'e', 'r', ' ', 'f', 'a', 'u', 'l', 't', '\r', '\n'};
 
@@ -94,8 +96,8 @@ public class ImapHandler
     /**
      * @see ConnectionHandler#handleConnection(Socket)
      */
-    protected void handleProtocol() throws IOException {
-            final OutputStreamImapResponseWriter writer = new OutputStreamImapResponseWriter( outs );
+    public void handleProtocol() throws IOException {
+            final OutputStreamImapResponseWriter writer = new OutputStreamImapResponseWriter( helper.getOutputStream() );
             ImapResponseComposer response = new ImapResponseComposerImpl( writer);
 
             // Write welcome message
@@ -104,21 +106,22 @@ public class ImapHandler
                     + theConfigData.getHelloName() + " is ready.");
 
             session = new ImapSessionImpl();
-            setupLogger(session);
+            
+            ContainerUtil.enableLogging(session, getLogger());
 
-            theWatchdog.start();
+            helper.getWatchdog().start();
             while ( handleRequest() ) {
-                theWatchdog.reset();
+                helper.getWatchdog().reset();
             }
-            theWatchdog.stop();
+            helper.getWatchdog().stop();
             
             getLogger().info(
-                    "Connection from " + remoteHost + " (" + remoteIP
+                    "Connection from " + helper.getRemoteHost() + " (" + helper.getRemoteIP()
                             + ") closed.");
     }
 
     private boolean handleRequest() {
-        final boolean result = requestHandler.handleRequest( in, outs, session );
+        final boolean result = requestHandler.handleRequest( helper.getInputStream(), helper.getOutputStream(), session );
         return result;
     }
     
@@ -127,18 +130,22 @@ public class ImapHandler
      *  
      * @param e the RuntimeException
      */
-    protected void errorHandler(RuntimeException e) {
+    public void errorHandler(RuntimeException e) {
         try {
-            outs.write(EMERGENCY_SIGNOFF);
+            helper.getOutputStream().write(EMERGENCY_SIGNOFF);
         } catch (Throwable t) {
             getLogger().debug("Write emergency signoff failed.", t);
         }
-        super.errorHandler(e);
+        helper.defaultErrorHandler(e);
+    }
+    
+    public Logger getLogger() {
+        return helper.getAvalonLogger();
     }
 
-    public void enableLogging(Logger logger) {
-        super.enableLogging(logger);
-        setupLogger(requestHandler);
+    public void setProtocolHandlerHelper(ProtocolHandlerHelper phh) {
+        this.helper = phh;
     }
+
 }
 

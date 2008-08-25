@@ -43,7 +43,8 @@ import org.apache.james.management.BayesianAnalyzerManagementException;
 import org.apache.james.management.DomainListManagementException;
 import org.apache.james.management.ProcessorManagementService;
 import org.apache.james.management.SpoolFilter;
-import org.apache.james.socket.AbstractJamesHandler;
+import org.apache.james.socket.ProtocolHandler;
+import org.apache.james.socket.ProtocolHandlerHelper;
 import org.apache.mailet.MailAddress;
 
 
@@ -57,9 +58,10 @@ import org.apache.mailet.MailAddress;
  * @version $Revision$
  *
  */
-public class RemoteManagerHandler
-    extends AbstractJamesHandler {
+public class RemoteManagerHandler implements ProtocolHandler {
 
+    private ProtocolHandlerHelper helper;
+    
     private static final Class[] WORKER_METHOD_PARAMETERSET = new Class[] {String.class};
 
     private static final List COMMANDLIST = Arrays.asList(new String[] { 
@@ -145,20 +147,20 @@ public class RemoteManagerHandler
     /**
      * @see org.apache.avalon.cornerstone.services.connection.ConnectionHandler#handleConnection(Socket)
      */
-    protected void handleProtocol() throws IOException {
-        writeLoggedResponse("JAMES Remote Administration Tool " + Constants.SOFTWARE_VERSION );
-        writeLoggedResponse("Please enter your login and password");
+    public void handleProtocol() throws IOException {
+        helper.writeLoggedResponse("JAMES Remote Administration Tool " + Constants.SOFTWARE_VERSION );
+        helper.writeLoggedResponse("Please enter your login and password");
         String login = null;
         String password = null;
         do {
             if (login != null) {
                 final String message = "Login failed for " + login;
-                writeLoggedFlushedResponse(message);
+                helper.writeLoggedFlushedResponse(message);
             }
-            writeLoggedFlushedResponse("Login id:");
-            login = inReader.readLine().trim();
-            writeLoggedFlushedResponse("Password:");
-            password = inReader.readLine().trim();
+            helper.writeLoggedFlushedResponse("Login id:");
+            login = helper.getInputReader().readLine().trim();
+            helper.writeLoggedFlushedResponse("Password:");
+            password = helper.getInputReader().readLine().trim();
         } while (!password.equals(theConfigData.getAdministrativeAccountData().get(login)) || password.length() == 0);
 
         StringBuffer messageBuffer =
@@ -166,65 +168,65 @@ public class RemoteManagerHandler
                     .append("Welcome ")
                     .append(login)
                     .append(". HELP for a list of commands");
-        out.println( messageBuffer.toString() );
-        out.flush();
-        if (getLogger().isInfoEnabled()) {
+        helper.getOutputWriter().println( messageBuffer.toString() );
+        helper.getOutputWriter().flush();
+        if (helper.getAvalonLogger().isInfoEnabled()) {
             StringBuffer infoBuffer =
                 new StringBuffer(128)
                         .append("Login for ")
                         .append(login)
                         .append(" successful");
-            getLogger().info(infoBuffer.toString());
+            helper.getAvalonLogger().info(infoBuffer.toString());
         }
 
         try {
-            out.print(theConfigData.getPrompt());
-            out.flush();
-            theWatchdog.start();
-            while (parseCommand(inReader.readLine())) {
-                theWatchdog.reset();
-                out.print(theConfigData.getPrompt());
-                out.flush();
+            helper.getOutputWriter().print(theConfigData.getPrompt());
+            helper.getOutputWriter().flush();
+            helper.getWatchdog().start();
+            while (parseCommand(helper.getInputReader().readLine())) {
+                helper.getWatchdog().reset();
+                helper.getOutputWriter().print(theConfigData.getPrompt());
+                helper.getOutputWriter().flush();
             }
-            theWatchdog.stop();
+            helper.getWatchdog().stop();
         } catch (IOException ioe) {
             //We can cleanly ignore this as it's probably a socket timeout
         } catch (Throwable thr) {
             System.out.println("Exception: " + thr.getMessage());
-            getLogger().error("Encountered exception in handling the remote manager connection.", thr);
+            helper.getAvalonLogger().error("Encountered exception in handling the remote manager connection.", thr);
         }
         StringBuffer infoBuffer =
             new StringBuffer(64)
                     .append("Logout for ")
                     .append(login)
                     .append(".");
-        getLogger().info(infoBuffer.toString());
+        helper.getAvalonLogger().info(infoBuffer.toString());
 
     }
 
     /**
      * @see org.apache.james.socket.AbstractJamesHandler#errorHandler(java.lang.RuntimeException)
      */
-    protected void errorHandler(RuntimeException e) {
-        out.println("Unexpected Error: "+e.getMessage());
-        out.flush();
-        if (getLogger().isErrorEnabled()) {
+    public void errorHandler(RuntimeException e) {
+        helper.getOutputWriter().println("Unexpected Error: "+e.getMessage());
+        helper.getOutputWriter().flush();
+        if (helper.getAvalonLogger().isErrorEnabled()) {
             StringBuffer exceptionBuffer =
                 new StringBuffer(128)
                         .append("Exception during connection from ")
-                        .append(remoteHost)
+                        .append(helper.getRemoteHost())
                         .append(" (")
-                        .append(remoteIP)
+                        .append(helper.getRemoteIP())
                         .append("): ")
                         .append(e.getMessage());
-            getLogger().error(exceptionBuffer.toString(),e);
+            helper.getAvalonLogger().error(exceptionBuffer.toString(),e);
         }
     }
 
     /**
      * Resets the handler data to a basic state.
      */
-    protected void resetHandler() {
+    public void resetHandler() {
         // Reset user repository
         users = theConfigData.getUsersRepository();
 
@@ -255,8 +257,8 @@ public class RemoteManagerHandler
         command = command.toUpperCase(Locale.US);
         
         if (!COMMANDLIST.contains(command)) {
-            final boolean result = commandRegistry.execute(command, argument, out);
-            out.flush();
+            final boolean result = commandRegistry.execute(command, argument, helper.getOutputWriter());
+            helper.getOutputWriter().flush();
             return result;
         }
         
@@ -265,12 +267,12 @@ public class RemoteManagerHandler
             Boolean returnFlag = (Boolean)method.invoke(this, new Object[] {argument});
             return returnFlag.booleanValue();
         } catch (SecurityException e) {
-            writeLoggedFlushedResponse("could not determine executioner of command " + command);
+            helper.writeLoggedFlushedResponse("could not determine executioner of command " + command);
         } catch (NoSuchMethodException e) {
             return doUnknownCommand(rawCommand);
         } catch (Exception e) {
             e.printStackTrace();
-            writeLoggedFlushedResponse("could not execute command " + command);
+            helper.writeLoggedFlushedResponse("could not execute command " + command);
         }
         return false;
    }
@@ -282,17 +284,17 @@ public class RemoteManagerHandler
      * @param argument the argument passed in with the command
      */
     private boolean doMEMSTAT(String argument) {
-        writeLoggedFlushedResponse("Current memory statistics:");
-        writeLoggedFlushedResponse("\tFree Memory: " + Runtime.getRuntime().freeMemory());
-        writeLoggedFlushedResponse("\tTotal Memory: " + Runtime.getRuntime().totalMemory());
-        writeLoggedFlushedResponse("\tMax Memory: " + Runtime.getRuntime().maxMemory());
+        helper.writeLoggedFlushedResponse("Current memory statistics:");
+        helper.writeLoggedFlushedResponse("\tFree Memory: " + Runtime.getRuntime().freeMemory());
+        helper.writeLoggedFlushedResponse("\tTotal Memory: " + Runtime.getRuntime().totalMemory());
+        helper.writeLoggedFlushedResponse("\tMax Memory: " + Runtime.getRuntime().maxMemory());
 
         if ("-gc".equalsIgnoreCase(argument)) {
             System.gc();
-            writeLoggedFlushedResponse("And after System.gc():");
-            writeLoggedFlushedResponse("\tFree Memory: " + Runtime.getRuntime().freeMemory());
-            writeLoggedFlushedResponse("\tTotal Memory: " + Runtime.getRuntime().totalMemory());
-            writeLoggedFlushedResponse("\tMax Memory: " + Runtime.getRuntime().maxMemory());
+            helper.writeLoggedFlushedResponse("And after System.gc():");
+            helper.writeLoggedFlushedResponse("\tFree Memory: " + Runtime.getRuntime().freeMemory());
+            helper.writeLoggedFlushedResponse("\tTotal Memory: " + Runtime.getRuntime().totalMemory());
+            helper.writeLoggedFlushedResponse("\tMax Memory: " + Runtime.getRuntime().maxMemory());
         }
 
         return true;
@@ -309,13 +311,13 @@ public class RemoteManagerHandler
         if ((argument == null) ||
             (argument.equals("")) ||
             ((breakIndex = argument.indexOf(" ")) < 0)) {
-            writeLoggedFlushedResponse("Usage: adduser [username] [password]");
+            helper.writeLoggedFlushedResponse("Usage: adduser [username] [password]");
             return true;
         }
         String username = argument.substring(0,breakIndex);
         String passwd = argument.substring(breakIndex + 1);
         if (username.equals("") || passwd.equals("")) {
-            writeLoggedFlushedResponse("Usage: adduser [username] [password]");
+            helper.writeLoggedFlushedResponse("Usage: adduser [username] [password]");
             return true;
         }
 
@@ -327,18 +329,18 @@ public class RemoteManagerHandler
                         .append(username)
                         .append(" already exists");
             String response = responseBuffer.toString();
-            writeLoggedResponse(response);
+            helper.writeLoggedResponse(response);
         } else {
             if((username.indexOf("@") < 0) == false) {
                 if(theConfigData.getMailServer().supportVirtualHosting() == false) {
-                    out.println("Virtualhosting not supported");
-                    out.flush();
+                    helper.getOutputWriter().println("Virtualhosting not supported");
+                    helper.getOutputWriter().flush();
                     return true;
                 }
                 String domain = username.split("@")[1];
                 if (theConfigData.getDomainListManagement().containsDomain(domain) == false) {
-                    out.println("Domain not exists: " + domain);
-                    out.flush();
+                    helper.getOutputWriter().println("Domain not exists: " + domain);
+                    helper.getOutputWriter().flush();
                     return true;
                 }
             }
@@ -351,13 +353,13 @@ public class RemoteManagerHandler
                         .append(username)
                         .append(" added");
             String response = responseBuffer.toString();
-            out.println(response);
-            getLogger().info(response);
+            helper.getOutputWriter().println(response);
+            helper.getAvalonLogger().info(response);
         } else {
-            out.println("Error adding user " + username);
-            getLogger().error("Error adding user " + username);
+            helper.getOutputWriter().println("Error adding user " + username);
+            helper.getAvalonLogger().error("Error adding user " + username);
         }
-        out.flush();
+        helper.getOutputWriter().flush();
         return true;
     }
 
@@ -373,19 +375,19 @@ public class RemoteManagerHandler
         if ((argument == null) ||
             (argument.equals("")) ||
             ((breakIndex = argument.indexOf(" ")) < 0)) {
-            writeLoggedFlushedResponse("Usage: setpassword [username] [password]");
+            helper.writeLoggedFlushedResponse("Usage: setpassword [username] [password]");
             return true;
         }
         String username = argument.substring(0,breakIndex);
         String passwd = argument.substring(breakIndex + 1);
 
         if (username.equals("") || passwd.equals("")) {
-            writeLoggedFlushedResponse("Usage: adduser [username] [password]");
+            helper.writeLoggedFlushedResponse("Usage: adduser [username] [password]");
             return true;
         }
         User user = users.getUserByName(username);
         if (user == null) {
-            writeLoggedFlushedResponse("No such user " + username);
+            helper.writeLoggedFlushedResponse("No such user " + username);
             return true;
         }
         boolean success = user.setPassword(passwd);
@@ -397,13 +399,13 @@ public class RemoteManagerHandler
                         .append(username)
                         .append(" reset");
             String response = responseBuffer.toString();
-            out.println(response);
-            getLogger().info(response);
+            helper.getOutputWriter().println(response);
+            helper.getAvalonLogger().info(response);
         } else {
-            out.println("Error resetting password");
-            getLogger().error("Error resetting password");
+            helper.getOutputWriter().println("Error resetting password");
+            helper.getAvalonLogger().error("Error resetting password");
         }
-        out.flush();
+        helper.getOutputWriter().flush();
         return true;
     }
 
@@ -416,7 +418,7 @@ public class RemoteManagerHandler
     private boolean doDELUSER(String argument) {
         String user = argument;
         if ((user == null) || (user.equals(""))) {
-            writeLoggedFlushedResponse("Usage: deluser [username]");
+            helper.writeLoggedFlushedResponse("Usage: deluser [username]");
             return true;
         }
         if (users.contains(user)) {
@@ -428,8 +430,8 @@ public class RemoteManagerHandler
                                              .append(user)
                                              .append(" deleted");
                 String response = responseBuffer.toString();
-                out.println(response);
-                getLogger().info(response);
+                helper.getOutputWriter().println(response);
+                helper.getAvalonLogger().info(response);
             } catch (Exception e) {
                 StringBuffer exceptionBuffer =
                                               new StringBuffer(128)
@@ -438,8 +440,8 @@ public class RemoteManagerHandler
                                               .append(" : ")
                                               .append(e.getMessage());
                 String exception = exceptionBuffer.toString();
-                out.println(exception);
-                getLogger().error(exception);
+                helper.getOutputWriter().println(exception);
+                helper.getAvalonLogger().error(exception);
             }
         } else {
             StringBuffer responseBuffer =
@@ -448,9 +450,9 @@ public class RemoteManagerHandler
                                          .append(user)
                                          .append(" doesn't exist");
             String response = responseBuffer.toString();
-            out.println(response);
+            helper.getOutputWriter().println(response);
         }
-        out.flush();
+        helper.getOutputWriter().flush();
         return true;
     }
 
@@ -462,25 +464,25 @@ public class RemoteManagerHandler
      */
     private boolean doLISTUSERS(String argument) {
         if (argument == null) {
-            writeLoggedResponse("Existing accounts " + users.countUsers());
+            helper.writeLoggedResponse("Existing accounts " + users.countUsers());
             for (Iterator it = users.list(); it.hasNext();) {
-               writeLoggedResponse("user: " + (String) it.next());
+               helper.writeLoggedResponse("user: " + (String) it.next());
             }
-            out.flush();
+            helper.getOutputWriter().flush();
             return true;
         } else {
             if(theConfigData.getMailServer().supportVirtualHosting() == false) {
-                out.println("Virtualhosting not supported");
-                out.flush();
+                helper.getOutputWriter().println("Virtualhosting not supported");
+                helper.getOutputWriter().flush();
                 return true;
             }
         
             ArrayList userList = getDomainUserList(argument);
-            writeLoggedResponse("Existing accounts from domain " + argument + " " + userList.size());
+            helper.writeLoggedResponse("Existing accounts from domain " + argument + " " + userList.size());
             for (int i = 0; i <userList.size(); i++) {
-                writeLoggedResponse("user: " + userList.get(i));
+                helper.writeLoggedResponse("user: " + userList.get(i));
             }
-            out.flush();
+            helper.getOutputWriter().flush();
             return true;
         }
     }
@@ -493,16 +495,16 @@ public class RemoteManagerHandler
      */
     private boolean doCOUNTUSERS(String argument) {
         if (argument == null) {
-            writeLoggedFlushedResponse("Existing accounts " + users.countUsers());
+            helper.writeLoggedFlushedResponse("Existing accounts " + users.countUsers());
             return true;
         } else {
             if(theConfigData.getMailServer().supportVirtualHosting() == false) {
-                out.println("Virtualhosting not supported");
-                out.flush();
+                helper.getOutputWriter().println("Virtualhosting not supported");
+                helper.getOutputWriter().flush();
                 return true;
            }
             
-           writeLoggedFlushedResponse("Existing accounts for domain " + argument + " " + getDomainUserList(argument).size());
+           helper.writeLoggedFlushedResponse("Existing accounts for domain " + argument + " " + getDomainUserList(argument).size());
            return true;
         }
     }
@@ -516,7 +518,7 @@ public class RemoteManagerHandler
     private boolean doVERIFY(String argument) {
         String user = argument;
         if (user == null || user.equals("")) {
-            writeLoggedFlushedResponse("Usage: verify [username]");
+            helper.writeLoggedFlushedResponse("Usage: verify [username]");
             return true;
         }
         if (users.contains(user)) {
@@ -526,7 +528,7 @@ public class RemoteManagerHandler
                         .append(user)
                         .append(" exists");
             String response = responseBuffer.toString();
-            writeLoggedResponse(response);
+            helper.writeLoggedResponse(response);
         } else {
             StringBuffer responseBuffer =
                 new StringBuffer(64)
@@ -534,9 +536,9 @@ public class RemoteManagerHandler
                         .append(user)
                         .append(" does not exist");
             String response = responseBuffer.toString();
-            writeLoggedResponse(response);
+            helper.writeLoggedResponse(response);
         }
-        out.flush();
+        helper.getOutputWriter().flush();
         return true;
     }
 
@@ -547,46 +549,46 @@ public class RemoteManagerHandler
      * @param argument the argument passed in with the command
      */
     private boolean doHELP(String argument) {
-        out.println("Currently implemented commands:");
-        out.println("help                                                                    display this help");
-        out.println("listusers                                                               display existing accounts");
-        out.println("countusers                                                              display the number of existing accounts");
-        out.println("adduser [username] [password]                                           add a new user");
-        out.println("verify [username]                                                       verify if specified user exist");
-        out.println("deluser [username]                                                      delete existing user");
-        out.println("setpassword [username] [password]                                       sets a user's password");
-        out.println("setalias [user] [alias]                                                 locally forwards all email for 'user' to 'alias'");
-        out.println("showalias [username]                                                    shows a user's current email alias");
-        out.println("unsetalias [user]                                                       unsets an alias for 'user'");
-        out.println("setforwarding [username] [emailaddress]                                 forwards a user's email to another email address");
-        out.println("showforwarding [username]                                               shows a user's current email forwarding");
-        out.println("unsetforwarding [username]                                              removes a forward");
-        out.println("user [repositoryname]                                                   change to another user repository");
-        out.println("addmapping ([table=virtualusertablename]) [user@domain] [mapping]       add mapping for the given emailaddress");
-        out.println("removemapping ([table=virtualusertablename]) [user@domain] [mapping]    remove mapping for the given emailaddress");
-        out.println("listmapping ([table=virtualusertablename]) [user@domain]                list all mappings for the given emailaddress");
-        out.println("listallmappings ([table=virtualusertablename])                          list all mappings");
-        out.println("adddomain [domainname]                                                  add domain to local domains");
-        out.println("removedomain [domainname]                                               remove domain from local domains");
-        out.println("listdomains                                                             list local domains");
-        out.println("listspool [spoolrepositoryname] ([header=name] [regex=value])           list all mails which reside in the spool and have an error state");
-        out.println("flushspool [spoolrepositoryname] ([key] | [header=name] [regex=value])  try to resend the mail assing to the given key. If no key is given all mails get resend");
-        out.println("deletespool [spoolrepositoryname] ([key] | [header=name] [regex=value]) delete the mail assigned to the given key. If no key is given all mails get deleted");
-        out.println("movemails [srcSpoolrepositoryname] [dstSpoolrepositoryname] ([header=headername] [regex=regexValue])");
-        out.println("    [srcstate=sourcestate] [dststate=destinationstate]                  move mails from the source repository to the destination repository.");
-        out.println("listprocessors [processorname]                                          list names of all processors");
-        out.println("listmailets [processorname]                                             list names of all mailets for specified processor");
-        out.println("listmatchers [processorname]                                            list names of all mailets for specified processor");
-        out.println("showmailetinfo [processorname] [#index]                                 shows configuration for mailet of specified processor at given index");
-        out.println("showmatcherinfo [processorname] [#index]                                shows configuration for matcher of specified processor at given index");
-        out.println("addham dir/mbox [directory/mbox]                                        feed the BayesianAnalysisFeeder with the content of the directory or mbox file as HAM");
-        out.println("addspam dir/mbox [directory/mbox]                                       feed the BayesianAnalysisFeeder with the content of the directory or mbox file as SPAM");
-        out.println("exportbayesiandata [file]                                               export the BayesianAnalysis data to a xml file");
-        out.println("resetbayesiandata                                                       reset trained BayesianAnalysis data");
-        out.println("memstat ([-gc])                                                         shows memory usage. When called with -gc the garbage collector get called");
-        out.println("shutdown                                                                kills the current JVM (convenient when James is run as a daemon)");
-        out.println("quit                                                                    close connection");
-        out.flush();
+        helper.getOutputWriter().println("Currently implemented commands:");
+        helper.getOutputWriter().println("help                                                                    display this help");
+        helper.getOutputWriter().println("listusers                                                               display existing accounts");
+        helper.getOutputWriter().println("countusers                                                              display the number of existing accounts");
+        helper.getOutputWriter().println("adduser [username] [password]                                           add a new user");
+        helper.getOutputWriter().println("verify [username]                                                       verify if specified user exist");
+        helper.getOutputWriter().println("deluser [username]                                                      delete existing user");
+        helper.getOutputWriter().println("setpassword [username] [password]                                       sets a user's password");
+        helper.getOutputWriter().println("setalias [user] [alias]                                                 locally forwards all email for 'user' to 'alias'");
+        helper.getOutputWriter().println("showalias [username]                                                    shows a user's current email alias");
+        helper.getOutputWriter().println("unsetalias [user]                                                       unsets an alias for 'user'");
+        helper.getOutputWriter().println("setforwarding [username] [emailaddress]                                 forwards a user's email to another email address");
+        helper.getOutputWriter().println("showforwarding [username]                                               shows a user's current email forwarding");
+        helper.getOutputWriter().println("unsetforwarding [username]                                              removes a forward");
+        helper.getOutputWriter().println("user [repositoryname]                                                   change to another user repository");
+        helper.getOutputWriter().println("addmapping ([table=virtualusertablename]) [user@domain] [mapping]       add mapping for the given emailaddress");
+        helper.getOutputWriter().println("removemapping ([table=virtualusertablename]) [user@domain] [mapping]    remove mapping for the given emailaddress");
+        helper.getOutputWriter().println("listmapping ([table=virtualusertablename]) [user@domain]                list all mappings for the given emailaddress");
+        helper.getOutputWriter().println("listallmappings ([table=virtualusertablename])                          list all mappings");
+        helper.getOutputWriter().println("adddomain [domainname]                                                  add domain to local domains");
+        helper.getOutputWriter().println("removedomain [domainname]                                               remove domain from local domains");
+        helper.getOutputWriter().println("listdomains                                                             list local domains");
+        helper.getOutputWriter().println("listspool [spoolrepositoryname] ([header=name] [regex=value])           list all mails which reside in the spool and have an error state");
+        helper.getOutputWriter().println("flushspool [spoolrepositoryname] ([key] | [header=name] [regex=value])  try to resend the mail assing to the given key. If no key is given all mails get resend");
+        helper.getOutputWriter().println("deletespool [spoolrepositoryname] ([key] | [header=name] [regex=value]) delete the mail assigned to the given key. If no key is given all mails get deleted");
+        helper.getOutputWriter().println("movemails [srcSpoolrepositoryname] [dstSpoolrepositoryname] ([header=headername] [regex=regexValue])");
+        helper.getOutputWriter().println("    [srcstate=sourcestate] [dststate=destinationstate]                  move mails from the source repository to the destination repository.");
+        helper.getOutputWriter().println("listprocessors [processorname]                                          list names of all processors");
+        helper.getOutputWriter().println("listmailets [processorname]                                             list names of all mailets for specified processor");
+        helper.getOutputWriter().println("listmatchers [processorname]                                            list names of all mailets for specified processor");
+        helper.getOutputWriter().println("showmailetinfo [processorname] [#index]                                 shows configuration for mailet of specified processor at given index");
+        helper.getOutputWriter().println("showmatcherinfo [processorname] [#index]                                shows configuration for matcher of specified processor at given index");
+        helper.getOutputWriter().println("addham dir/mbox [directory/mbox]                                        feed the BayesianAnalysisFeeder with the content of the directory or mbox file as HAM");
+        helper.getOutputWriter().println("addspam dir/mbox [directory/mbox]                                       feed the BayesianAnalysisFeeder with the content of the directory or mbox file as SPAM");
+        helper.getOutputWriter().println("exportbayesiandata [file]                                               export the BayesianAnalysis data to a xml file");
+        helper.getOutputWriter().println("resetbayesiandata                                                       reset trained BayesianAnalysis data");
+        helper.getOutputWriter().println("memstat ([-gc])                                                         shows memory usage. When called with -gc the garbage collector get called");
+        helper.getOutputWriter().println("shutdown                                                                kills the current JVM (convenient when James is run as a daemon)");
+        helper.getOutputWriter().println("quit                                                                    close connection");
+        helper.getOutputWriter().flush();
         return true;
 
     }
@@ -602,30 +604,30 @@ public class RemoteManagerHandler
         if ((argument == null) ||
             (argument.equals("")) ||
             ((breakIndex = argument.indexOf(" ")) < 0)) {
-            writeLoggedFlushedResponse("Usage: setalias [username] [emailaddress]");
+            helper.writeLoggedFlushedResponse("Usage: setalias [username] [emailaddress]");
             return true;
         }
         String username = argument.substring(0,breakIndex);
         String alias = argument.substring(breakIndex + 1);
         if (username.equals("") || alias.equals("")) {
-            writeLoggedFlushedResponse("Usage: setalias [username] [alias]");
+            helper.writeLoggedFlushedResponse("Usage: setalias [username] [alias]");
             return true;
         }
 
         User baseuser = users.getUserByName(username);
         if (baseuser == null) {
-            writeLoggedFlushedResponse("No such user " + username);
+            helper.writeLoggedFlushedResponse("No such user " + username);
             return true;
         }
         if (! (baseuser instanceof JamesUser ) ) {
-            writeLoggedFlushedResponse("Can't set alias for this user type.");
+            helper.writeLoggedFlushedResponse("Can't set alias for this user type.");
             return true;
         }
 
         JamesUser user = (JamesUser) baseuser;
         JamesUser aliasUser = (JamesUser) users.getUserByName(alias);
         if (aliasUser == null) {
-            writeLoggedFlushedResponse("Alias unknown to server - create that user first.");
+            helper.writeLoggedFlushedResponse("Alias unknown to server - create that user first.");
             return true;
         }
 
@@ -640,13 +642,13 @@ public class RemoteManagerHandler
                         .append(" set to:")
                         .append(alias);
             String response = responseBuffer.toString();
-            out.println(response);
-            getLogger().info(response);
+            helper.getOutputWriter().println(response);
+            helper.getAvalonLogger().info(response);
         } else {
-            out.println("Error setting alias");
-            getLogger().error("Error setting alias");
+            helper.getOutputWriter().println("Error setting alias");
+            helper.getAvalonLogger().error("Error setting alias");
         }
-        out.flush();
+        helper.getOutputWriter().flush();
         return true;
     }
 
@@ -661,22 +663,22 @@ public class RemoteManagerHandler
         if ((argument == null) ||
             (argument.equals("")) ||
             ((breakIndex = argument.indexOf(" ")) < 0)) {
-            writeLoggedFlushedResponse("Usage: setforwarding [username] [emailaddress]");
+            helper.writeLoggedFlushedResponse("Usage: setforwarding [username] [emailaddress]");
             return true;
         }
         String username = argument.substring(0,breakIndex);
         String forward = argument.substring(breakIndex + 1);
         if (username.equals("") || forward.equals("")) {
-           writeLoggedFlushedResponse("Usage: setforwarding [username] [emailaddress]");
+           helper.writeLoggedFlushedResponse("Usage: setforwarding [username] [emailaddress]");
            return true;
         }
         // Verify user exists
         User baseuser = users.getUserByName(username);
         if (baseuser == null) {
-            writeLoggedFlushedResponse("No such user " + username);
+            helper.writeLoggedFlushedResponse("No such user " + username);
             return true;
         } else if (! (baseuser instanceof JamesUser ) ) {
-            writeLoggedFlushedResponse("Can't set forwarding for this user type.");
+            helper.writeLoggedFlushedResponse("Can't set forwarding for this user type.");
             return true;
         }
         JamesUser user = (JamesUser)baseuser;
@@ -685,8 +687,8 @@ public class RemoteManagerHandler
         try {
              forwardAddr = new MailAddress(forward);
         } catch(ParseException pe) {
-            writeLoggedResponse("Parse exception with that email address: " + pe.getMessage());
-            writeLoggedFlushedResponse("Forwarding address not added for " + username);
+            helper.writeLoggedResponse("Parse exception with that email address: " + pe.getMessage());
+            helper.writeLoggedFlushedResponse("Forwarding address not added for " + username);
             return true;
         }
 
@@ -701,13 +703,13 @@ public class RemoteManagerHandler
                         .append(" set to:")
                         .append(forwardAddr.toString());
             String response = responseBuffer.toString();
-            out.println(response);
-            getLogger().info(response);
+            helper.getOutputWriter().println(response);
+            helper.getAvalonLogger().info(response);
         } else {
-            out.println("Error setting forwarding");
-            getLogger().error("Error setting forwarding");
+            helper.getOutputWriter().println("Error setting forwarding");
+            helper.getAvalonLogger().error("Error setting forwarding");
         }
-        out.flush();
+        helper.getOutputWriter().flush();
         return true;
     }
 
@@ -719,28 +721,28 @@ public class RemoteManagerHandler
      */
     private boolean doSHOWALIAS(String username) {
         if ( username == null || username.equals("") ) {
-            writeLoggedFlushedResponse("Usage: showalias [username]");
+            helper.writeLoggedFlushedResponse("Usage: showalias [username]");
             return true;
         }
 
 
         User baseuser = users.getUserByName(username);
         if (baseuser == null) {
-            writeLoggedFlushedResponse("No such user " + username);
+            helper.writeLoggedFlushedResponse("No such user " + username);
             return true;
         } else if (! (baseuser instanceof JamesUser ) ) {
-            writeLoggedFlushedResponse("Can't show aliases for this user type.");
+            helper.writeLoggedFlushedResponse("Can't show aliases for this user type.");
             return true;
         }
 
         JamesUser user = (JamesUser)baseuser;
         if ( user == null ) {
-            writeLoggedFlushedResponse("No such user " + username);
+            helper.writeLoggedFlushedResponse("No such user " + username);
             return true;
         }
 
         if ( !user.getAliasing() ) {
-            writeLoggedFlushedResponse("User " + username + " does not currently have an alias");
+            helper.writeLoggedFlushedResponse("User " + username + " does not currently have an alias");
             return true;
         }
 
@@ -748,12 +750,12 @@ public class RemoteManagerHandler
 
         if ( alias == null || alias.equals("") ) {    //  defensive programming -- neither should occur
             String errmsg = "For user " + username + ", the system indicates that aliasing is set but no alias was found";
-            out.println(errmsg);
-            getLogger().error(errmsg);
+            helper.getOutputWriter().println(errmsg);
+            helper.getAvalonLogger().error(errmsg);
             return true;
         }
 
-        writeLoggedFlushedResponse("Current alias for " + username + " is: " + alias);
+        helper.writeLoggedFlushedResponse("Current alias for " + username + " is: " + alias);
         return true;
     }
 
@@ -765,27 +767,27 @@ public class RemoteManagerHandler
      */
     private boolean doSHOWFORWARDING(String username) {
         if ( username == null || username.equals("") ) {
-            writeLoggedFlushedResponse("Usage: showforwarding [username]");
+            helper.writeLoggedFlushedResponse("Usage: showforwarding [username]");
             return true;
         }
 
         // Verify user exists
         User baseuser = users.getUserByName(username);
         if (baseuser == null) {
-            writeLoggedFlushedResponse("No such user " + username);
+            helper.writeLoggedFlushedResponse("No such user " + username);
             return true;
         } else if (! (baseuser instanceof JamesUser ) ) {
-            writeLoggedFlushedResponse("Can't set forwarding for this user type.");
+            helper.writeLoggedFlushedResponse("Can't set forwarding for this user type.");
             return true;
         }
         JamesUser user = (JamesUser)baseuser;
         if ( user == null ) {
-            writeLoggedFlushedResponse("No such user " + username);
+            helper.writeLoggedFlushedResponse("No such user " + username);
             return true;
         }
 
         if ( !user.getForwarding() ) {
-            writeLoggedFlushedResponse("User " + username + " is not currently being forwarded");
+            helper.writeLoggedFlushedResponse("User " + username + " is not currently being forwarded");
             return true;
         }
 
@@ -793,12 +795,12 @@ public class RemoteManagerHandler
 
         if ( fwdAddr == null ) {    //  defensive programming -- should not occur
             String errmsg = "For user " + username + ", the system indicates that forwarding is set but no forwarding destination was found";
-            out.println(errmsg);
-            getLogger().error(errmsg);
+            helper.getOutputWriter().println(errmsg);
+            helper.getAvalonLogger().error(errmsg);
             return true;
         }
 
-        writeLoggedFlushedResponse("Current forwarding destination for " + username + " is: " + fwdAddr);
+        helper.writeLoggedFlushedResponse("Current forwarding destination for " + username + " is: " + fwdAddr);
         return true;
     }
 
@@ -810,13 +812,13 @@ public class RemoteManagerHandler
      */
     private boolean doUNSETALIAS(String argument) {
         if ((argument == null) || (argument.equals(""))) {
-            writeLoggedFlushedResponse("Usage: unsetalias [username]");
+            helper.writeLoggedFlushedResponse("Usage: unsetalias [username]");
             return true;
         }
         String username = argument;
         JamesUser user = (JamesUser) users.getUserByName(username);
         if (user == null) {
-            writeLoggedResponse("No such user " + username);
+            helper.writeLoggedResponse("No such user " + username);
         } else if (user.getAliasing()){
             user.setAliasing(false);
             users.updateUser(user);
@@ -826,12 +828,12 @@ public class RemoteManagerHandler
                         .append(username)
                         .append(" unset");
             String response = responseBuffer.toString();
-            out.println(response);
-            getLogger().info(response);
+            helper.getOutputWriter().println(response);
+            helper.getAvalonLogger().info(response);
         } else {
-            writeLoggedResponse("Aliasing not active for" + username);
+            helper.writeLoggedResponse("Aliasing not active for" + username);
         }
-        out.flush();
+        helper.getOutputWriter().flush();
         return true;
     }
 
@@ -843,13 +845,13 @@ public class RemoteManagerHandler
      */
     private boolean doUNSETFORWARDING(String argument) {
         if ((argument == null) || (argument.equals(""))) {
-            writeLoggedFlushedResponse("Usage: unsetforwarding [username]");
+            helper.writeLoggedFlushedResponse("Usage: unsetforwarding [username]");
             return true;
         }
         String username = argument;
         JamesUser user = (JamesUser) users.getUserByName(username);
         if (user == null) {
-            writeLoggedFlushedResponse("No such user " + username);
+            helper.writeLoggedFlushedResponse("No such user " + username);
         } else if (user.getForwarding()){
             user.setForwarding(false);
             users.updateUser(user);
@@ -859,11 +861,11 @@ public class RemoteManagerHandler
                         .append(username)
                         .append(" unset");
             String response = responseBuffer.toString();
-            out.println(response);
-            out.flush();
-            getLogger().info(response);
+            helper.getOutputWriter().println(response);
+            helper.getOutputWriter().flush();
+            helper.getAvalonLogger().info(response);
         } else {
-            writeLoggedFlushedResponse("Forwarding not active for" + username);
+            helper.writeLoggedFlushedResponse("Forwarding not active for" + username);
         }
         return true;
     }
@@ -876,13 +878,13 @@ public class RemoteManagerHandler
      */
     private boolean doUSER(String argument) {
         if (argument == null || argument.equals("")) {
-            writeLoggedFlushedResponse("Usage: user [repositoryName]");
+            helper.writeLoggedFlushedResponse("Usage: user [repositoryName]");
             return true;
         }
         String repositoryName = argument.toLowerCase(Locale.US);
         UsersRepository repos = theConfigData.getUserStore().getRepository(repositoryName);
         if ( repos == null ) {
-            writeLoggedFlushedResponse("No such repository: " + repositoryName);
+            helper.writeLoggedFlushedResponse("No such repository: " + repositoryName);
         } else {
             users = repos;
             StringBuffer responseBuffer =
@@ -890,7 +892,7 @@ public class RemoteManagerHandler
                         .append("Changed to repository '")
                         .append(repositoryName)
                         .append("'.");
-            writeLoggedFlushedResponse(responseBuffer.toString());
+            helper.writeLoggedFlushedResponse(responseBuffer.toString());
         }
         return true;
     }
@@ -913,7 +915,7 @@ public class RemoteManagerHandler
 
         // check if the command was called correct
         if ((argument == null) || (argument.trim().equals("")) || args.length < 1 || args.length > 3 || (args.length > 1 && !args[1].startsWith(HEADER_IDENTIFIER)) || (args.length > 2 && !args[2].startsWith(REGEX_IDENTIFIER))) {
-            writeLoggedFlushedResponse("Usage: LISTSPOOL [spoolrepositoryname] ([header=headername] [regex=regexValue])");
+            helper.writeLoggedFlushedResponse("Usage: LISTSPOOL [spoolrepositoryname] ([header=headername] [regex=regexValue])");
             return true;
         }
 
@@ -934,18 +936,18 @@ public class RemoteManagerHandler
             }
             
             count = spoolItems.size();
-            if (count > 0) out.println("Messages in spool:");
+            if (count > 0) helper.getOutputWriter().println("Messages in spool:");
             for (Iterator iterator = spoolItems.iterator(); iterator.hasNext();) {
                 String item = (String) iterator.next();
-                out.println(item);
-                out.flush();
+                helper.getOutputWriter().println(item);
+                helper.getOutputWriter().flush();
             }
-            out.println("Number of spooled mails: " + count);
-            out.flush();
+            helper.getOutputWriter().println("Number of spooled mails: " + count);
+            helper.getOutputWriter().flush();
         } catch (Exception e) {
-            out.println("Error opening the spoolrepository " + e.getMessage());
-            out.flush();
-            getLogger().error(
+            helper.getOutputWriter().println("Error opening the spoolrepository " + e.getMessage());
+            helper.getOutputWriter().flush();
+            helper.getAvalonLogger().error(
                     "Error opening the spoolrepository " + e.getMessage());
         }
         return true;
@@ -968,7 +970,7 @@ public class RemoteManagerHandler
         if ((argument == null || argument.trim().equals(""))
                 || (args.length < 1 || args.length > 3 || (!args[1].startsWith(KEY_IDENTIFIER) && (args.length > 1  
                 && !args[1].startsWith(HEADER_IDENTIFIER))) || (args.length == 3 && !args[2].startsWith(REGEX_IDENTIFIER)))) {
-            writeLoggedFlushedResponse("Usage: FLUSHSPOOL [spoolrepositoryname] ([key=mKey] | [header=headername] [regex=regexValue] )");
+            helper.writeLoggedFlushedResponse("Usage: FLUSHSPOOL [spoolrepositoryname] ([key=mKey] | [header=headername] [regex=regexValue] )");
             return true;
         }
 
@@ -990,15 +992,15 @@ public class RemoteManagerHandler
             } else {
                 count = theConfigData.getSpoolManagement().resendSpoolItems(url, key, null, new SpoolFilter(SpoolFilter.ERROR_STATE,header,regex));
             }
-            out.println("Number of flushed mails: " + count);
-            out.flush();
+            helper.getOutputWriter().println("Number of flushed mails: " + count);
+            helper.getOutputWriter().flush();
 
         } catch (Exception e) {
-            out
+            helper.getOutputWriter()
                     .println("Error accessing the spoolrepository "
                             + e.getMessage());
-            out.flush();
-            getLogger().error(
+            helper.getOutputWriter().flush();
+            helper.getAvalonLogger().error(
                     "Error accessing the spoolrepository " + e.getMessage());
         }
         return true;
@@ -1021,7 +1023,7 @@ public class RemoteManagerHandler
         if ((argument == null || argument.trim().equals(""))
                 || (args.length < 1 || args.length > 3 || (args.length > 1 && (!args[1].startsWith(KEY_IDENTIFIER) 
                 && !args[1].startsWith(HEADER_IDENTIFIER))) || (args.length == 3 && !args[2].startsWith(REGEX_IDENTIFIER)))) {
-            writeLoggedFlushedResponse("Usage: DELETESPOOL [spoolrepositoryname] ([key=mKey] | [header=headername] [regex=regexValue])");
+            helper.writeLoggedFlushedResponse("Usage: DELETESPOOL [spoolrepositoryname] ([key=mKey] | [header=headername] [regex=regexValue])");
             return true;
         }
 
@@ -1049,17 +1051,17 @@ public class RemoteManagerHandler
             
             for (Iterator iterator = lockingFailures.iterator(); iterator.hasNext();) {
                 String lockFailureKey = (String) iterator.next();
-                out.println("Error locking the mail with key:  " + lockFailureKey);
+                helper.getOutputWriter().println("Error locking the mail with key:  " + lockFailureKey);
             }
-            out.flush();
+            helper.getOutputWriter().flush();
 
-            out.println("Number of deleted mails: " + count);
-            out.flush();
+            helper.getOutputWriter().println("Number of deleted mails: " + count);
+            helper.getOutputWriter().flush();
 
         } catch (Exception e) {
-            out.println("Error opening the spoolrepository " + e.getMessage());
-            out.flush();
-            getLogger().error("Error opeing the spoolrepository " + e.getMessage());
+            helper.getOutputWriter().println("Error opening the spoolrepository " + e.getMessage());
+            helper.getOutputWriter().flush();
+            helper.getAvalonLogger().error("Error opeing the spoolrepository " + e.getMessage());
         }
         return true;
     }
@@ -1081,7 +1083,7 @@ public class RemoteManagerHandler
         // check if the command was called correct
         if ((argument == null || argument.trim().equals(""))
                 || (args.length < 2 || args.length > 6)) {
-            writeLoggedFlushedResponse("Usage: MOVEMAILS [srcSpoolrepositoryname] [dstSpoolrepositoryname] ([header=headername] [regex=regexValue]) [srcstate=sourcestate] [dststate=destinationstate]");
+            helper.writeLoggedFlushedResponse("Usage: MOVEMAILS [srcSpoolrepositoryname] [dstSpoolrepositoryname] ([header=headername] [regex=regexValue]) [srcstate=sourcestate] [dststate=destinationstate]");
             return true;
         }
 
@@ -1103,32 +1105,32 @@ public class RemoteManagerHandler
             } else if (args[i].startsWith("dststate=")) {
                 header = args[i].substring("dststate=".length());
             } else {
-                writeLoggedResponse("Unexpected parameter "+args[i]);
-                writeLoggedFlushedResponse("Usage: MOVEMAILS [srcSpoolrepositoryname] [dstSpoolrepositoryname] ([header=headername] [regex=regexValue]) [srcstate=sourcestate] [dststate=destinationstate]");
+                helper.writeLoggedResponse("Unexpected parameter "+args[i]);
+                helper.writeLoggedFlushedResponse("Usage: MOVEMAILS [srcSpoolrepositoryname] [dstSpoolrepositoryname] ([header=headername] [regex=regexValue]) [srcstate=sourcestate] [dststate=destinationstate]");
                 return true;
             }
         }
         
         if ((header != null && regex == null) || (header == null && regex != null)) {
             if (regex == null) {
-                writeLoggedResponse("Bad parameters: used header without regex");
+                helper.writeLoggedResponse("Bad parameters: used header without regex");
             } else {
-                writeLoggedResponse("Bad parameters: used regex without header");
+                helper.writeLoggedResponse("Bad parameters: used regex without header");
             }
-            writeLoggedFlushedResponse("Usage: MOVEMAILS [srcSpoolrepositoryname] [dstSpoolrepositoryname] ([header=headername] [regex=regexValue]) [srcstate=sourcestate] [dststate=destinationstate]");
+            helper.writeLoggedFlushedResponse("Usage: MOVEMAILS [srcSpoolrepositoryname] [dstSpoolrepositoryname] ([header=headername] [regex=regexValue]) [srcstate=sourcestate] [dststate=destinationstate]");
             return true;
         }
 
         try {
             int count = theConfigData.getSpoolManagement().moveSpoolItems(srcUrl, dstUrl, dstState, new SpoolFilter(srcState,header,regex));
             
-            out.println("Number of moved mails: " + count);
-            out.flush();
+            helper.getOutputWriter().println("Number of moved mails: " + count);
+            helper.getOutputWriter().flush();
 
         } catch (Exception e) {
-            out.println("Error opening the spoolrepository " + e.getMessage());
-            out.flush();
-            getLogger().error("Error opeing the spoolrepository " + e.getMessage());
+            helper.getOutputWriter().println("Error opening the spoolrepository " + e.getMessage());
+            helper.getOutputWriter().flush();
+            helper.getAvalonLogger().error("Error opeing the spoolrepository " + e.getMessage());
         }
         return true;
     }
@@ -1141,7 +1143,7 @@ public class RemoteManagerHandler
      *            the argument passed in with the command
      */
     private boolean doQUIT(String argument) {
-        writeLoggedFlushedResponse("Bye");
+        helper.writeLoggedFlushedResponse("Bye");
         return false;
     }
 
@@ -1153,7 +1155,7 @@ public class RemoteManagerHandler
      *            the argument passed in with the command
      */
     private boolean doSHUTDOWN(String argument) {
-        writeLoggedFlushedResponse("Shutting down, bye bye");
+        helper.writeLoggedFlushedResponse("Shutting down, bye bye");
         System.exit(0);
         return false;
     }
@@ -1166,7 +1168,7 @@ public class RemoteManagerHandler
      *            the unknown command
      */
     private boolean doUnknownCommand(String argument) {
-        writeLoggedFlushedResponse("Unknown command " + argument);
+        helper.writeLoggedFlushedResponse("Unknown command " + argument);
         return true;
     }
     
@@ -1187,33 +1189,33 @@ public class RemoteManagerHandler
         
         // check if the command was called correct
         if (argument == null || argument.trim().equals("") || (args != null && args.length != 2)) {
-            writeLoggedFlushedResponse("Usage: ADDHAM DIR/MBOX [dir/mbox]");
+            helper.writeLoggedFlushedResponse("Usage: ADDHAM DIR/MBOX [dir/mbox]");
             return true;
         }
 
         try {
             
             // stop watchdog cause feeding can take some time
-            theWatchdog.stop();  
+            helper.getWatchdog().stop();  
             
             if (args[0].equalsIgnoreCase("DIR")) {
                 count = theConfigData.getBayesianAnalyzerManagement().addHamFromDir(args[1]);
             } else if (args[0].equalsIgnoreCase("MBOX")) {
                 count = theConfigData.getBayesianAnalyzerManagement().addHamFromMbox(args[1]);
             } else {
-                writeLoggedFlushedResponse("Usage: ADDHAM DIR/MBOX [dir/mbox]");
+                helper.writeLoggedFlushedResponse("Usage: ADDHAM DIR/MBOX [dir/mbox]");
                 return true;
             }
-            out.println("Feed the BayesianAnalysis with " + count + " HAM");
-            out.flush();
+            helper.getOutputWriter().println("Feed the BayesianAnalysis with " + count + " HAM");
+            helper.getOutputWriter().flush();
         
         } catch (BayesianAnalyzerManagementException e) {
-            getLogger().error("Error on feeding BayesianAnalysis: " + e);
-            out.println("Error on feeding BayesianAnalysis: " + e);
-            out.flush();
+            helper.getAvalonLogger().error("Error on feeding BayesianAnalysis: " + e);
+            helper.getOutputWriter().println("Error on feeding BayesianAnalysis: " + e);
+            helper.getOutputWriter().flush();
             return true;
         } finally {
-            theWatchdog.start();
+            helper.getWatchdog().start();
         }
     
         return true;
@@ -1235,33 +1237,33 @@ public class RemoteManagerHandler
         }
         // check if the command was called correct
         if (argument == null || argument.trim().equals("") || (args != null && args.length != 2)) {
-            writeLoggedFlushedResponse("Usage: ADDSPAM DIR/MBOX [dir/mbox]");
+            helper.writeLoggedFlushedResponse("Usage: ADDSPAM DIR/MBOX [dir/mbox]");
             return true;
         }
 
         try {
             
             // stop watchdog cause feeding can take some time
-            theWatchdog.stop();
+            helper.getWatchdog().stop();
             
             if (args[0].equalsIgnoreCase("DIR")) {
                 count = theConfigData.getBayesianAnalyzerManagement().addSpamFromDir(args[1]);
             } else if (args[0].equalsIgnoreCase("MBOX")) {
                 count = theConfigData.getBayesianAnalyzerManagement().addSpamFromMbox(args[1]);
             } else {
-                writeLoggedFlushedResponse("Usage: ADDHAM DIR/MBOX [dir/mbox]");
+                helper.writeLoggedFlushedResponse("Usage: ADDHAM DIR/MBOX [dir/mbox]");
                 return true;
             }
-            out.println("Feed the BayesianAnalysis with " + count + " SPAM");
-            out.flush();
+            helper.getOutputWriter().println("Feed the BayesianAnalysis with " + count + " SPAM");
+            helper.getOutputWriter().flush();
             
         } catch (BayesianAnalyzerManagementException e) {
-            getLogger().error("Error on feeding BayesianAnalysis: " + e);
-            out.println("Error on feeding BayesianAnalysis: " + e);
-            out.flush();
+            helper.getAvalonLogger().error("Error on feeding BayesianAnalysis: " + e);
+            helper.getOutputWriter().println("Error on feeding BayesianAnalysis: " + e);
+            helper.getOutputWriter().flush();
             return true;
         } finally {
-            theWatchdog.start();
+            helper.getWatchdog().start();
         }
     
         return true;
@@ -1272,26 +1274,26 @@ public class RemoteManagerHandler
     private boolean doEXPORTBAYESIANDATA(String argument) {
         // check if the command was called correct
         if (argument == null || argument.trim().equals("")) {
-            writeLoggedFlushedResponse("Usage: EXPORTBAYESIANALYZERDATA [dir]");
+            helper.writeLoggedFlushedResponse("Usage: EXPORTBAYESIANALYZERDATA [dir]");
             return true;
         }
 
         try {
             
             // stop watchdog cause feeding can take some time
-            theWatchdog.stop();
+            helper.getWatchdog().stop();
             
             theConfigData.getBayesianAnalyzerManagement().exportData(argument);
-            out.println("Exported the BayesianAnalysis data");
-            out.flush();
+            helper.getOutputWriter().println("Exported the BayesianAnalysis data");
+            helper.getOutputWriter().flush();
 
         } catch (BayesianAnalyzerManagementException e) {
-            getLogger().error("Error on exporting BayesianAnalysis data: " + e);
-            out.println("Error on exporting BayesianAnalysis data: " + e);
-            out.flush();
+            helper.getAvalonLogger().error("Error on exporting BayesianAnalysis data: " + e);
+            helper.getOutputWriter().println("Error on exporting BayesianAnalysis data: " + e);
+            helper.getOutputWriter().flush();
             return true;
         } finally {
-            theWatchdog.start();
+            helper.getWatchdog().start();
         }
     
         // check if any exception was thrown
@@ -1301,26 +1303,26 @@ public class RemoteManagerHandler
     private boolean doIMPORTBAYESIANDATA(String argument) {
         // check if the command was called correct
         if (argument == null || argument.trim().equals("")) {
-            writeLoggedFlushedResponse("Usage: IMPORTBAYESIANALYZERDATA [dir]");
+            helper.writeLoggedFlushedResponse("Usage: IMPORTBAYESIANALYZERDATA [dir]");
             return true;
         }
 
         try {
             
             // stop watchdog cause feeding can take some time
-            theWatchdog.stop();
+            helper.getWatchdog().stop();
             
             theConfigData.getBayesianAnalyzerManagement().importData(argument);
-            out.println("Imported the BayesianAnalysis data");
-            out.flush();
+            helper.getOutputWriter().println("Imported the BayesianAnalysis data");
+            helper.getOutputWriter().flush();
 
         } catch (BayesianAnalyzerManagementException e) {
-            getLogger().error("Error on importing BayesianAnalysis data: " + e);
-            out.println("Error on importing BayesianAnalysis data: " + e);
-            out.flush();
+            helper.getAvalonLogger().error("Error on importing BayesianAnalysis data: " + e);
+            helper.getOutputWriter().println("Error on importing BayesianAnalysis data: " + e);
+            helper.getOutputWriter().flush();
             return true;
         } finally {
-            theWatchdog.start();
+            helper.getWatchdog().start();
         }
     
         return true;
@@ -1330,19 +1332,19 @@ public class RemoteManagerHandler
 
         try {           
             // stop watchdog cause feeding can take some time
-            theWatchdog.stop();
+            helper.getWatchdog().stop();
             
             theConfigData.getBayesianAnalyzerManagement().resetData();
-            out.println("Reseted the BayesianAnalysis data");
-            out.flush();
+            helper.getOutputWriter().println("Reseted the BayesianAnalysis data");
+            helper.getOutputWriter().flush();
 
         } catch (BayesianAnalyzerManagementException e) {
-            getLogger().error("Error on reseting BayesianAnalysis data: " + e);
-            out.println("Error on reseting BayesianAnalysis data: " + e);
-            out.flush();
+            helper.getAvalonLogger().error("Error on reseting BayesianAnalysis data: " + e);
+            helper.getOutputWriter().println("Error on reseting BayesianAnalysis data: " + e);
+            helper.getOutputWriter().flush();
             return true;
         } finally {
-            theWatchdog.start();
+            helper.getWatchdog().start();
         }
     
         return true;
@@ -1350,9 +1352,9 @@ public class RemoteManagerHandler
 
     private boolean doLISTPROCESSORS(String argument) {
         String[] processorNames = theConfigData.getProcessorManagement().getProcessorNames();
-        writeLoggedResponse("Existing processors: " + processorNames.length);
+        helper.writeLoggedResponse("Existing processors: " + processorNames.length);
         for (int i = 0; i < processorNames.length; i++) {
-            writeLoggedResponse("\t" + processorNames[i]);
+            helper.writeLoggedResponse("\t" + processorNames[i]);
          }
         return true;
     }
@@ -1366,14 +1368,14 @@ public class RemoteManagerHandler
     private boolean doLISTMAILETS(String argument) {
         ProcessorManagementService processorManagement = theConfigData.getProcessorManagement();
         if (argument == null || !processorExists(argument)) {
-            writeLoggedFlushedResponse("Usage: LISTMAILETS [processor]");
-            writeLoggedFlushedResponse("The list of valid processor names can be retrieved using command LISTPROCESSORS");
+            helper.writeLoggedFlushedResponse("Usage: LISTMAILETS [processor]");
+            helper.writeLoggedFlushedResponse("The list of valid processor names can be retrieved using command LISTPROCESSORS");
             return true;
         }
         String[] mailetNames = processorManagement.getMailetNames(argument);
-        writeLoggedResponse("Existing mailets in processor: " + mailetNames.length);
+        helper.writeLoggedResponse("Existing mailets in processor: " + mailetNames.length);
         for (int i = 0; i < mailetNames.length; i++) {
-            writeLoggedResponse((i+1) + ". " + mailetNames[i]);
+            helper.writeLoggedResponse((i+1) + ". " + mailetNames[i]);
          }
         return true;
     }
@@ -1381,14 +1383,14 @@ public class RemoteManagerHandler
     private boolean doLISTMATCHERS(String argument) {
         ProcessorManagementService processorManagement = theConfigData.getProcessorManagement();
         if (argument == null || !processorExists(argument)) {
-            writeLoggedFlushedResponse("Usage: LISTMATCHERS [processor]");
-            writeLoggedFlushedResponse("The list of valid processor names can be retrieved using command LISTPROCESSORS");
+            helper.writeLoggedFlushedResponse("Usage: LISTMATCHERS [processor]");
+            helper.writeLoggedFlushedResponse("The list of valid processor names can be retrieved using command LISTPROCESSORS");
             return true;
         }
         String[] matcherNames = processorManagement.getMatcherNames(argument);
-        writeLoggedResponse("Existing matchers in processor: " + matcherNames.length);
+        helper.writeLoggedResponse("Existing matchers in processor: " + matcherNames.length);
         for (int i = 0; i < matcherNames.length; i++) {
-            writeLoggedResponse((i+1) + ". " + matcherNames[i]);
+            helper.writeLoggedResponse((i+1) + ". " + matcherNames[i]);
          }
         return true;
     }
@@ -1397,12 +1399,12 @@ public class RemoteManagerHandler
         String[] argList = argument.split(" ");
         boolean argListOK = argument != null && argList != null && argList.length == 2;
         if (!argListOK) {
-            writeLoggedFlushedResponse("Usage: SHOW" + commandHelp + "INFO [processor] [#index]");
+            helper.writeLoggedFlushedResponse("Usage: SHOW" + commandHelp + "INFO [processor] [#index]");
             return null;
         }
         String processorName = argList[0];
         if (!processorExists(processorName)) {
-            writeLoggedFlushedResponse("The list of valid processor names can be retrieved using command LISTPROCESSORS");
+            helper.writeLoggedFlushedResponse("The list of valid processor names can be retrieved using command LISTPROCESSORS");
             return null;
         }
         int index = -1;
@@ -1412,7 +1414,7 @@ public class RemoteManagerHandler
             // fall thru with -1
         }
         if (index < 0) {
-            writeLoggedFlushedResponse("The index parameter must be a positive number");
+            helper.writeLoggedFlushedResponse("The index parameter must be a positive number");
             return null;
         }
         
@@ -1435,13 +1437,13 @@ public class RemoteManagerHandler
             // fall thru with NULL
         }
         if (mailetParameters == null) {
-            writeLoggedFlushedResponse("The index is not referring to an existing mailet");
+            helper.writeLoggedFlushedResponse("The index is not referring to an existing mailet");
             return true;
         }
-        writeLoggedResponse("Mailet parameters: " + mailetParameters.length);
+        helper.writeLoggedResponse("Mailet parameters: " + mailetParameters.length);
         for (int i = 0; i < mailetParameters.length; i++) {
             String parameter = (String) mailetParameters[i];
-            writeLoggedResponse("\t" + parameter);
+            helper.writeLoggedResponse("\t" + parameter);
          }
         return true;
     }
@@ -1462,13 +1464,13 @@ public class RemoteManagerHandler
             // fall thru with NULL
         }
         if (matcherParameters == null) {
-            writeLoggedFlushedResponse("The index is not referring to an existing matcher");
+            helper.writeLoggedFlushedResponse("The index is not referring to an existing matcher");
             return true;
         }
-        writeLoggedResponse("Matcher parameters: " + matcherParameters.length);
+        helper.writeLoggedResponse("Matcher parameters: " + matcherParameters.length);
         for (int i = 0; i < matcherParameters.length; i++) {
             String parameter = (String) matcherParameters[i];
-            writeLoggedResponse("\t" + parameter);
+            helper.writeLoggedResponse("\t" + parameter);
          }
         return true;
     }
@@ -1481,20 +1483,20 @@ public class RemoteManagerHandler
 
         // check if the command was called correct
         if (argument == null || argument.trim().equals("") || args.length < 2 || args.length > 3) {
-            writeLoggedFlushedResponse("Usage: ADDMAPPING [table=table] user@domain mapping");
+            helper.writeLoggedFlushedResponse("Usage: ADDMAPPING [table=table] user@domain mapping");
             return true;
         }
         try {
-            out.println("Adding mapping successfull: " + mappingAction(args,ADD_MAPPING_ACTION));
-            out.flush();
+            helper.getOutputWriter().println("Adding mapping successfull: " + mappingAction(args,ADD_MAPPING_ACTION));
+            helper.getOutputWriter().flush();
         } catch (VirtualUserTableManagementException e) {
-            getLogger().error("Error on adding mapping: " + e);
-            out.println("Error on adding mapping: " + e);
-            out.flush();
+            helper.getAvalonLogger().error("Error on adding mapping: " + e);
+            helper.getOutputWriter().println("Error on adding mapping: " + e);
+            helper.getOutputWriter().flush();
         } catch (IllegalArgumentException e) {
-            getLogger().error("Error on adding mapping: " + e);
-            out.println("Error on adding mapping: " + e);
-            out.flush();
+            helper.getAvalonLogger().error("Error on adding mapping: " + e);
+            helper.getOutputWriter().println("Error on adding mapping: " + e);
+            helper.getOutputWriter().flush();
         }
         return true;
     }
@@ -1507,20 +1509,20 @@ public class RemoteManagerHandler
 
         // check if the command was called correct
         if (argument == null || argument.trim().equals("") || args.length < 2 || args.length > 3) {
-            writeLoggedFlushedResponse("Usage: REMOVEMAPPING [table=table] user@domain mapping");
+            helper.writeLoggedFlushedResponse("Usage: REMOVEMAPPING [table=table] user@domain mapping");
             return true;
         }
         try {
-            out.println("Removing mapping successfull: " + mappingAction(args,REMOVE_MAPPING_ACTION));
-            out.flush();
+            helper.getOutputWriter().println("Removing mapping successfull: " + mappingAction(args,REMOVE_MAPPING_ACTION));
+            helper.getOutputWriter().flush();
         } catch (VirtualUserTableManagementException e) {
-            getLogger().error("Error on  removing mapping: " + e);
-            out.println("Error on removing mapping: " + e);
-            out.flush();
+            helper.getAvalonLogger().error("Error on  removing mapping: " + e);
+            helper.getOutputWriter().println("Error on removing mapping: " + e);
+            helper.getOutputWriter().flush();
         } catch (IllegalArgumentException e) {
-            getLogger().error("Error on removing mapping: " + e);
-            out.println("Error on removing mapping: " + e);
-            out.flush();
+            helper.getAvalonLogger().error("Error on removing mapping: " + e);
+            helper.getOutputWriter().println("Error on removing mapping: " + e);
+            helper.getOutputWriter().flush();
         }
         return true;
     }
@@ -1536,7 +1538,7 @@ public class RemoteManagerHandler
 
         // check if the command was called correct
         if (argument == null || argument.trim().equals("") || args.length < 1 || args.length > 2) {
-            writeLoggedFlushedResponse("Usage: LISTMAPPING [table=table] user@domain");
+            helper.writeLoggedFlushedResponse("Usage: LISTMAPPING [table=table] user@domain");
             return true;
         }
 
@@ -1546,7 +1548,7 @@ public class RemoteManagerHandler
                 user = getMappingValue(args[1].split("@")[0]);
                 domain = getMappingValue(args[1].split("@")[1]);
             } else {
-            writeLoggedFlushedResponse("Usage: LISTMAPPING [table=table] user@domain");
+            helper.writeLoggedFlushedResponse("Usage: LISTMAPPING [table=table] user@domain");
                 return true;
             }
         } else {
@@ -1554,7 +1556,7 @@ public class RemoteManagerHandler
                 user = getMappingValue(args[0].split("@")[0]);
                 domain = getMappingValue(args[0].split("@")[1]);
             } else {
-            writeLoggedFlushedResponse("Usage: LISTMAPPING [table=table] user@domain");
+            helper.writeLoggedFlushedResponse("Usage: LISTMAPPING [table=table] user@domain");
                 return true;
             }
         }
@@ -1562,25 +1564,25 @@ public class RemoteManagerHandler
         try {
             Collection mappings = theConfigData.getVirtualUserTableManagement().getUserDomainMappings(table, user, domain);
             if (mappings == null) {
-                out.println("No mappings found");
-                out.flush();
+                helper.getOutputWriter().println("No mappings found");
+                helper.getOutputWriter().flush();
             } else {
-                out.println("Mappings:");
+                helper.getOutputWriter().println("Mappings:");
                 
                 Iterator m = mappings.iterator();
                 while(m.hasNext()) {
-                    out.println(m.next());
+                    helper.getOutputWriter().println(m.next());
                 }
-                out.flush();
+                helper.getOutputWriter().flush();
             }
         } catch (VirtualUserTableManagementException e) {
-            getLogger().error("Error on listing mapping: " + e);
-            out.println("Error on listing mapping: " + e);
-            out.flush();
+            helper.getAvalonLogger().error("Error on listing mapping: " + e);
+            helper.getOutputWriter().println("Error on listing mapping: " + e);
+            helper.getOutputWriter().flush();
         } catch (IllegalArgumentException e) {
-            getLogger().error("Error on listing mapping: " + e);
-            out.println("Error on listing mapping: " + e);
-            out.flush();
+            helper.getAvalonLogger().error("Error on listing mapping: " + e);
+            helper.getOutputWriter().println("Error on listing mapping: " + e);
+            helper.getOutputWriter().flush();
         }
         return true;
     }
@@ -1594,7 +1596,7 @@ public class RemoteManagerHandler
 
         // check if the command was called correct
         if (args != null && args.length > 1) {
-            writeLoggedFlushedResponse("Usage: LISTALLMAPPINGS [table=table]");
+            helper.writeLoggedFlushedResponse("Usage: LISTALLMAPPINGS [table=table]");
             return true;
         }
 
@@ -1606,26 +1608,26 @@ public class RemoteManagerHandler
         try {
             Map mappings = theConfigData.getVirtualUserTableManagement().getAllMappings(table);
             if (mappings == null) {
-                out.println("No mappings found");
-                out.flush();
+                helper.getOutputWriter().println("No mappings found");
+                helper.getOutputWriter().flush();
             } else {
-                out.println("Mappings:");
+                helper.getOutputWriter().println("Mappings:");
                 
                 Iterator m = mappings.keySet().iterator();
                 while(m.hasNext()) {
                     String key = m.next().toString();
-                    out.println(key + "  -> " + mappings.get(key));
+                    helper.getOutputWriter().println(key + "  -> " + mappings.get(key));
                 }
-                out.flush();
+                helper.getOutputWriter().flush();
             }
         } catch (VirtualUserTableManagementException e) {
-            getLogger().error("Error on listing all mapping: " + e);
-            out.println("Error on listing all mapping: " + e);
-            out.flush();
+            helper.getAvalonLogger().error("Error on listing all mapping: " + e);
+            helper.getOutputWriter().println("Error on listing all mapping: " + e);
+            helper.getOutputWriter().flush();
         } catch (IllegalArgumentException e) {
-            getLogger().error("Error on listing all mapping: " + e);
-            out.println("Error on listing all mapping: " + e);
-            out.flush();
+            helper.getAvalonLogger().error("Error on listing all mapping: " + e);
+            helper.getOutputWriter().println("Error on listing all mapping: " + e);
+            helper.getOutputWriter().flush();
         }
         return true;
     }
@@ -1675,16 +1677,16 @@ public class RemoteManagerHandler
     private boolean doLISTDOMAINS(String argument) {
         Collection domains = theConfigData.getDomainListManagement().getDomains();
         if (domains == null) {
-            out.println("No domains found");
-            out.flush();
+            helper.getOutputWriter().println("No domains found");
+            helper.getOutputWriter().flush();
         } else {
-            out.println("Domains:");
+            helper.getOutputWriter().println("Domains:");
                 
             Iterator d = domains.iterator();
             while(d.hasNext()) {
-                out.println(d.next());
+                helper.getOutputWriter().println(d.next());
             }
-            out.flush();
+            helper.getOutputWriter().flush();
         }   
         return true;
     }
@@ -1693,22 +1695,22 @@ public class RemoteManagerHandler
 
         // check if the command was called correct
         if (argument == null) {
-            writeLoggedFlushedResponse("Usage: ADDDOMAIN domain");
+            helper.writeLoggedFlushedResponse("Usage: ADDDOMAIN domain");
             return true;
         }
         
         try {
             if(theConfigData.getDomainListManagement().addDomain(argument)) {
-                out.println("Adding domain " + argument + " successful");
-                out.flush();
+                helper.getOutputWriter().println("Adding domain " + argument + " successful");
+                helper.getOutputWriter().flush();
             } else {
-                out.println("Adding domain " + argument + " fail");
-                out.flush();
+                helper.getOutputWriter().println("Adding domain " + argument + " fail");
+                helper.getOutputWriter().flush();
             }
         } catch (DomainListManagementException e) {
-            getLogger().error("Error on adding domain: " + e);
-            out.println("Error on adding domain: " + e);
-            out.flush();
+            helper.getAvalonLogger().error("Error on adding domain: " + e);
+            helper.getOutputWriter().println("Error on adding domain: " + e);
+            helper.getOutputWriter().flush();
         }
         return true;
     }
@@ -1716,22 +1718,22 @@ public class RemoteManagerHandler
     private boolean doREMOVEDOMAIN(String argument) {
         // check if the command was called correct
         if (argument == null) {
-            writeLoggedFlushedResponse("Usage: REMOVEDOMAIN domain");
+            helper.writeLoggedFlushedResponse("Usage: REMOVEDOMAIN domain");
             return true;
         }
         
         try {
             if(theConfigData.getDomainListManagement().removeDomain(argument)) {
-                out.println("Removing domain " + argument + " successful");
-                out.flush();
+                helper.getOutputWriter().println("Removing domain " + argument + " successful");
+                helper.getOutputWriter().flush();
             } else {
-                out.println("Removing domain " + argument + " fail");
-                out.flush();
+                helper.getOutputWriter().println("Removing domain " + argument + " fail");
+                helper.getOutputWriter().flush();
             }
         } catch (DomainListManagementException e) {
-            getLogger().error("Error on removing domain: " + e);
-            out.println("Error on removing domain: " + e);
-            out.flush();
+            helper.getAvalonLogger().error("Error on removing domain: " + e);
+            helper.getOutputWriter().println("Error on removing domain: " + e);
+            helper.getOutputWriter().flush();
         }
         return true;
     }
@@ -1753,5 +1755,10 @@ public class RemoteManagerHandler
         }
         
         return userList;
+    }
+
+
+    public void setProtocolHandlerHelper(ProtocolHandlerHelper phh) {
+        this.helper = phh;
     }
 }

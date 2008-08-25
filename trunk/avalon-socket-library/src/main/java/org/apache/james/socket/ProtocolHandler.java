@@ -44,6 +44,16 @@ public interface ProtocolHandler {
     public abstract void resetHandler();
     
     
+    /**
+     * Injects the ProtocolHandlerHelper service
+     * @param phh service
+     */
     public void setProtocolHandlerHelper(ProtocolHandlerHelper phh);
+
+    /**
+     * Provides errorHandling
+     * @param e exception
+     */
+    public abstract void errorHandler(RuntimeException e);
 
 }
