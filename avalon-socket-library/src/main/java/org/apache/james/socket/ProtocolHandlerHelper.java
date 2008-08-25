@@ -24,27 +24,86 @@ import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.util.watchdog.Watchdog;
 
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.net.Socket;
 
+/**
+ * This is the helper interface provided to ProtocolHandlers to let them
+ * communicate with the outside world.
+ */
 public interface ProtocolHandlerHelper {
 
+    /**
+     * Writes a response to the client and flush it.
+     * @param responseString the response string
+     */
     public void writeLoggedFlushedResponse(String responseString);
     
+    /**
+     * Writes a response to the client without flushing.
+     * @param responseString the response string
+     */
     public void writeLoggedResponse(String responseString);
     
+    /**
+     * The watchdog is used to deal with timeouts.
+     * @return the watchdog instance
+     */
     public Watchdog getWatchdog();
     
+    /**
+     * Provides logging facility to the handler.
+     * @return logger instance
+     */
     public Logger getAvalonLogger();
 
-    public void setRemoteHost(String host);
-    
-    public void setRemoteIP(String ip);
-
+    /**
+     * getter for the remote hostname
+     * @return remote hostname 
+     */
     public String getRemoteHost();
     
+    /**
+     * getter for the remote ip
+     * @return remote ip 
+     */
     public String getRemoteIP();
     
+    /**
+     * Returns a CRLF terminated line reader
+     * @return line reader
+     */
     public CRLFTerminatedReader getInputReader();
     
+    /**
+     * Returns the raw input stream
+     * @return the raw inputstream
+     */
     public InputStream getInputStream();
+    
+    /**
+     * Returns the raw outputstream
+     * @return outputstream
+     */
+    public OutputStream getOutputStream();
+    
+    /**
+     * Returns the printwriter.
+     * @return the output printwriter
+     */
+    public PrintWriter getOutputWriter();
+    
+    /**
+     * Provides basic errorhandling cleanup.
+     * @param e the runtimeexception
+     */
+    public void defaultErrorHandler(RuntimeException e);
+    
+    /**
+     * Provides access to the socket
+     * @return socket
+     */
+    public Socket getSocket();
 
 }

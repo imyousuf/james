@@ -24,6 +24,9 @@ import org.apache.james.util.watchdog.Watchdog;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.net.Socket;
 
 /**
  * Common Handler code
@@ -62,6 +65,22 @@ public class DelegatingJamesHandler extends AbstractJamesHandler implements Prot
     */
     public void resetHandler() {
         protocolHandler.resetHandler();
+        remoteHost = null;
+        remoteIP = null;
+    }
+
+    /**
+     * @see org.apache.james.socket.AbstractJamesHandler#errorHandler(java.lang.RuntimeException)
+     */
+    protected void errorHandler(RuntimeException e) {
+       protocolHandler.errorHandler(e);
+    }
+    
+    /**
+     * @see org.apache.james.socket.ProtocolHandlerHelper#defaultErrorHandler(java.lang.RuntimeException)
+     */
+    public void defaultErrorHandler(RuntimeException e) {
+        super.errorHandler(e);
     }
     
     /**
@@ -71,32 +90,60 @@ public class DelegatingJamesHandler extends AbstractJamesHandler implements Prot
         return remoteIP;
     }
 
+    /**
+     * @see org.apache.james.socket.ProtocolHandlerHelper#getInputReader()
+     */
     public CRLFTerminatedReader getInputReader() {
         return inReader;
     }
 
+    /**
+     * @see org.apache.james.socket.ProtocolHandlerHelper#getInputStream()
+     */
     public InputStream getInputStream() {
         return in;
     }
 
+    /**
+     * @see org.apache.james.socket.ProtocolHandlerHelper#getOutputStream()
+     */
+    public OutputStream getOutputStream() {
+        return outs;
+    }
+
+    /**
+     * @see org.apache.james.socket.ProtocolHandlerHelper#getOutputWriter()
+     */
+    public PrintWriter getOutputWriter() {
+        return out;
+    }
+
+    /**
+     * @see org.apache.james.socket.ProtocolHandlerHelper#getRemoteHost()
+     */
     public String getRemoteHost() {
         return remoteHost;
     }
-
-    public Watchdog getWatchdog() {
-        return getWatchdog();
-    }
-
-    public void setRemoteHost(String host) {
-        remoteHost = host;
-    }
-
-    public void setRemoteIP(String ip) {
-        remoteIP = ip;
-    }
     
+    /**
+     * @see org.apache.james.socket.ProtocolHandlerHelper#getAvalonLogger()
+     */
     public Logger getAvalonLogger() {
         return getLogger();
     }
+
+    /**
+     * @see org.apache.james.socket.ProtocolHandlerHelper#getWatchdog()
+     */
+    public Watchdog getWatchdog() {
+        return theWatchdog;
+    }
+
+		/**
+		 * @see org.apache.james.socket.ProtocolHandlerHelper#getSocket()
+		 */
+		public Socket getSocket() {
+			return socket;
+		}
 
 }

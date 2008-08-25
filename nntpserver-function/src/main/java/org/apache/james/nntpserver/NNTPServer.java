@@ -29,6 +29,7 @@ import org.apache.james.api.user.UsersRepository;
 import org.apache.james.nntpserver.repository.NNTPRepository;
 import org.apache.james.services.MailServer;
 import org.apache.james.socket.AbstractJamesService;
+import org.apache.james.socket.ProtocolHandler;
 
 /**
  * NNTP Server
@@ -130,21 +131,12 @@ public class NNTPServer extends AbstractJamesService implements NNTPServerMBean 
         return "NNTP Service";
     }
 
-
     /**
-     * @see org.apache.avalon.excalibur.pool.ObjectFactory#newInstance()
+     * @see org.apache.james.socket.AbstractJamesService#newProtocolHandlerInstance()
      */
-    public Object newInstance() throws Exception {
+    public ProtocolHandler newProtocolHandlerInstance() {
         return new NNTPHandler();
     }
-
-    /**
-     * @see org.apache.avalon.excalibur.pool.ObjectFactory#getCreatedClass()
-     */
-    public Class getCreatedClass() {
-        return NNTPHandler.class;
-    }
-          
 
     /**
      * A class to provide NNTP handler configuration to the handlers

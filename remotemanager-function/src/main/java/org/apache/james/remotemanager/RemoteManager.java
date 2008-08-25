@@ -37,6 +37,7 @@ import org.apache.james.management.ProcessorManagementService;
 import org.apache.james.management.SpoolManagementService;
 import org.apache.james.services.MailServer;
 import org.apache.james.socket.AbstractJamesService;
+import org.apache.james.socket.ProtocolHandler;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -287,17 +288,10 @@ public class RemoteManager
     }
     
     /**
-     * @see org.apache.avalon.excalibur.pool.ObjectFactory#newInstance()
+     * @see org.apache.james.socket.AbstractJamesService#newProtocolHandlerInstance()
      */
-    public Object newInstance() throws Exception {
+    public ProtocolHandler newProtocolHandlerInstance() {
         return new RemoteManagerHandler();
-    }
-    
-    /**
-    * @see org.apache.avalon.excalibur.pool.ObjectFactory#getCreatedClass()
-    */
-    public Class getCreatedClass() {
-        return RemoteManagerHandler.class;
     }
 
     /**

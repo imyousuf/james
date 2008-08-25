@@ -29,6 +29,7 @@ import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.services.MailServer;
 import org.apache.james.socket.AbstractJamesService;
+import org.apache.james.socket.ProtocolHandler;
 
 /**
  * <p>Accepts POP3 connections on a server socket and dispatches them to POP3Handlers.</p>
@@ -136,23 +137,14 @@ public class POP3Server extends AbstractJamesService implements POP3ServerMBean 
 
 
     /**
-     * @see org.apache.avalon.excalibur.pool.ObjectFactory#newInstance()
+     * @see org.apache.james.socket.AbstractJamesService#newProtocolHandlerInstance()
      */
-     public Object newInstance() throws Exception {
-        POP3Handler theHandler = new POP3Handler();
-        
+    public ProtocolHandler newProtocolHandlerInstance() {
+        POP3Handler protocolHandler = new POP3Handler();
         //pass the handler chain to every POP3handler
-        theHandler.setHandlerChain(handlerChain);
-
-        return theHandler;
+        protocolHandler.setHandlerChain(handlerChain);
+        return protocolHandler;
     }
-
-    /**
-     * @see org.apache.avalon.excalibur.pool.ObjectFactory#getCreatedClass()
-     */
-     public Class getCreatedClass() {
-         return POP3Handler.class;
-     }
 
     /**
      * A class to provide POP3 handler configuration to the handlers

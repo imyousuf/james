@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.smtpserver;
 
 import org.apache.avalon.framework.activity.Initializable;
@@ -208,7 +206,7 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
 
             // if it is a connect handler add it to list of connect handlers
             if (handler instanceof ConnectHandler) {
-                connectHandlers.add((ConnectHandler) handler);
+                connectHandlers.add(handler);
                 if (getLogger().isInfoEnabled()) {
                     getLogger().info("Added ConnectHandler: " + className);
                 }
@@ -265,7 +263,7 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
 
             // if it is a message handler add it to list of message handlers
             if (handler instanceof MessageHandler) {
-                messageHandlers.add((MessageHandler) handler);
+                messageHandlers.add(handler);
                 if (getLogger().isInfoEnabled()) {
                     getLogger().info("Added MessageHandler: " + className);
                 }

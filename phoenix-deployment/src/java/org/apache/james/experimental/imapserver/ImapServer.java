@@ -21,7 +21,6 @@ package org.apache.james.experimental.imapserver;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.api.imap.process.ImapProcessor;
@@ -32,6 +31,7 @@ import org.apache.james.imapserver.codec.encode.ImapEncoder;
 import org.apache.james.imapserver.codec.encode.ImapEncoderFactory;
 import org.apache.james.services.MailServer;
 import org.apache.james.socket.AbstractJamesService;
+import org.apache.james.socket.ProtocolHandler;
 
 /**
  * TODO: this is a quick cut-and-paste hack from POP3Server. Should probably be
@@ -114,21 +114,11 @@ public class ImapServer extends AbstractJamesService
      * Producing handlers.
      * @see org.apache.avalon.excalibur.pool.ObjectFactory#newInstance()
      */
-    public Object newInstance() throws Exception
+    public ProtocolHandler newProtocolHandlerInstance()
     {
         final ImapHandler imapHandler = new ImapHandler(); 
-        final Logger logger = getLogger(); 
-        logger.debug("Create handler instance"); 
-        setupLogger(imapHandler); 
-        return imapHandler; 
-    }
-
-    /**
-     * @see org.apache.avalon.excalibur.pool.ObjectFactory#getCreatedClass()
-     */
-    public Class getCreatedClass()
-    {
-        return ImapHandler.class;
+        getLogger().debug("Create handler instance");
+        return imapHandler;
     }
 
     /**
