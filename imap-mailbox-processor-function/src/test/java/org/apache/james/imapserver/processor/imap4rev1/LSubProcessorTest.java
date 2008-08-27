@@ -29,11 +29,11 @@ import org.apache.james.api.imap.message.response.imap4rev1.StatusResponse;
 import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
-import org.apache.james.api.user.User;
 import org.apache.james.imap.message.request.imap4rev1.LsubRequest;
 import org.apache.james.imap.message.response.imap4rev1.server.LSubResponse;
 import org.apache.james.imapserver.processor.base.ImapSessionUtils;
 import org.apache.james.mailboxmanager.ListResult;
+import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
@@ -52,13 +52,12 @@ public class LSubProcessorTest extends MockObjectTestCase {
     LSubProcessor processor;
     Mock next;
     Mock provider;
+    Mock manager;
     Mock responder;
     Mock result;
     Mock session;
     Mock command;
     Mock serverResponseFactory;
-    Mock subscriber;
-    Mock user;
     Mock statusResponse;
     Collection subscriptions;
     ImapCommand imapCommand;
@@ -66,7 +65,6 @@ public class LSubProcessorTest extends MockObjectTestCase {
     
     protected void setUp() throws Exception {
         subscriptions = new ArrayList();
-        user = mock(User.class);
         serverResponseFactory = mock(StatusResponseFactory.class);
         session = mock(ImapSession.class);
         command = mock(ImapCommand.class);
@@ -74,12 +72,12 @@ public class LSubProcessorTest extends MockObjectTestCase {
         next = mock(ImapProcessor.class);
         responder = mock(ImapProcessor.Responder.class);
         result = mock(ListResult.class);
-        subscriber = mock(IMAPSubscriber.class);
         provider = mock(MailboxManagerProvider.class);
         statusResponse = mock(StatusResponse.class);
         responderImpl = (ImapProcessor.Responder) responder.proxy();
+        manager = mock(MailboxManager.class);
         processor = new LSubProcessor((ImapProcessor) next.proxy(), (MailboxManagerProvider) provider.proxy(), 
-                (StatusResponseFactory) serverResponseFactory.proxy(), (IMAPSubscriber) subscriber.proxy());
+                (StatusResponseFactory) serverResponseFactory.proxy());
     }
 
     protected void tearDown() throws Exception {
@@ -192,12 +190,14 @@ public class LSubProcessorTest extends MockObjectTestCase {
     }
     
     private void expectSubscriptions() {
-        user.expects(once()).method("getUserName").will(returnValue(USER));
+        session.expects(once()).method("getAttribute")
+        .with(eq(ImapSessionUtils.MAILBOX_MANAGER_ATTRIBUTE_SESSION_KEY))
+            .will(returnValue(manager.proxy()));
         session.expects(once()).method("getAttribute")
             .with(eq(ImapSessionUtils.MAILBOX_USER_ATTRIBUTE_SESSION_KEY))
-                .will(returnValue((User) user.proxy()));
+                .will(returnValue(USER));
         
-        subscriber.expects(once()).method("subscriptions")
+        manager.expects(once()).method("subscriptions")
             .with(eq(USER))
                 .will(returnValue(subscriptions));
     }

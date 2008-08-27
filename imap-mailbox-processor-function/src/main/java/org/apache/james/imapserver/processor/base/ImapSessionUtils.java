@@ -25,7 +25,6 @@ import java.util.List;
 import org.apache.james.api.imap.message.response.ImapResponseMessage;
 import org.apache.james.api.imap.process.ImapSession;
 import org.apache.james.api.imap.process.ImapProcessor.Responder;
-import org.apache.james.api.user.User;
 import org.apache.james.imap.message.response.base.AbstractImapResponse;
 import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.mailbox.Mailbox;
@@ -69,12 +68,12 @@ public class ImapSessionUtils {
         session.setAttribute(ImapSessionUtils.MAILBOX_SESSION_ATTRIBUTE_SESSION_KEY, mailboxSession);
     }
     
-    public static User getUser( final ImapSession session ) {
-        final User result = (User) session.getAttribute(MAILBOX_USER_ATTRIBUTE_SESSION_KEY);
+    public static String getUserName( final ImapSession session ) {
+        final String result = (String) session.getAttribute(MAILBOX_USER_ATTRIBUTE_SESSION_KEY);
         return result;
     }
     
-    public static void setUser( final ImapSession session, final User user) {
+    public static void setUserName( final ImapSession session, final String user) {
         session.setAttribute(MAILBOX_USER_ATTRIBUTE_SESSION_KEY, user);
     }
 

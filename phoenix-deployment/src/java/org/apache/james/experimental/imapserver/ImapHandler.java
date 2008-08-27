@@ -42,7 +42,7 @@ import java.net.Socket;
  */
 public class ImapHandler implements ProtocolHandler, ImapConstants
 {
-	
+    
     private ProtocolHandlerHelper helper;
 
     private static final byte[] EMERGENCY_SIGNOFF = {'*',' ', 'B', 'Y', 'E', ' ', 

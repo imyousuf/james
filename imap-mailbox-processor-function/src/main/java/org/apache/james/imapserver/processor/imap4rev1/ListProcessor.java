@@ -27,7 +27,6 @@ import org.apache.james.api.imap.message.response.ImapResponseMessage;
 import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
-import org.apache.james.api.user.User;
 import org.apache.james.imap.message.request.imap4rev1.ListRequest;
 import org.apache.james.imap.message.response.imap4rev1.server.ListResponse;
 import org.apache.james.imapserver.processor.base.AbstractMailboxAwareProcessor;
@@ -78,9 +77,9 @@ public class ListProcessor extends AbstractMailboxAwareProcessor {
 
             final ListResult[] listResults;
 
-            final User user = ImapSessionUtils.getUser(session);
+            final String user = ImapSessionUtils.getUserName(session);
             final String personalNamespace = ImapConstants.USER_NAMESPACE
-            + ImapConstants.HIERARCHY_DELIMITER_CHAR + user.getUserName();
+            + ImapConstants.HIERARCHY_DELIMITER_CHAR + user;
 
             if (mailboxPattern.length() == 0) {
                 // An empty mailboxPattern signifies a request for the hierarchy

@@ -31,22 +31,21 @@ import org.apache.james.api.imap.message.request.ImapRequest;
 import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
-import org.apache.james.api.user.User;
 import org.apache.james.imap.message.request.imap4rev1.LsubRequest;
 import org.apache.james.imap.message.response.imap4rev1.server.LSubResponse;
 import org.apache.james.imapserver.processor.base.AbstractMailboxAwareProcessor;
 import org.apache.james.imapserver.processor.base.ImapSessionUtils;
+import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.manager.MailboxExpression;
+import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
+import org.apache.james.mailboxmanager.manager.SubscriptionException;
 
 public class LSubProcessor extends AbstractMailboxAwareProcessor {
-
-    final IMAPSubscriber subscriber;
     
     public LSubProcessor(final ImapProcessor next, final MailboxManagerProvider mailboxManagerProvider, 
-            final StatusResponseFactory factory, final IMAPSubscriber subscriber) {
+            final StatusResponseFactory factory) {
         super(next, mailboxManagerProvider, factory);
-        this.subscriber = subscriber;
     }
 
     protected boolean isAcceptable(ImapMessage message) {
@@ -79,13 +78,17 @@ public class LSubProcessor extends AbstractMailboxAwareProcessor {
                 displayTextKey = exceptionKey;
             }
             no(command, tag, responder, displayTextKey);
-        }
+        } catch (MailboxManagerException e) {
+            getLogger().debug("Subscription failed", e);
+            final HumanReadableTextKey displayTextKey = HumanReadableTextKey.GENERIC_LSUB_FAILURE;
+            no(command, tag, responder, displayTextKey);
+        } 
     }
 
-    private void listSubscriptions(ImapSession session, Responder responder, final String referenceName, final String mailboxPattern) throws SubscriptionException {
-        final User user = ImapSessionUtils.getUser(session);
-        final String userName = user.getUserName();
-        final Collection mailboxes = subscriber.subscriptions(userName);
+    private void listSubscriptions(ImapSession session, Responder responder, final String referenceName, final String mailboxPattern) throws SubscriptionException, MailboxManagerException {
+        final String userName = ImapSessionUtils.getUserName(session);
+        final MailboxManager manager = getMailboxManager(session);
+        final Collection mailboxes = manager.subscriptions(userName);
         final MailboxExpression expression 
             = new MailboxExpression(referenceName, mailboxPattern, '*', '%');
         final Collection mailboxResponses = new ArrayList();

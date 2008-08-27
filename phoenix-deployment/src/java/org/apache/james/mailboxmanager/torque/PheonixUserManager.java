@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.imapserver.processor.imap4rev1;
+package org.apache.james.mailboxmanager.torque;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -28,24 +28,29 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.user.UserMetaDataRespository;
 import org.apache.james.api.user.UserRepositoryException;
+import org.apache.james.api.user.UsersRepository;
+import org.apache.james.mailboxmanager.manager.SubscriptionException;
 
 /**
  * Stores subscription data in the user meta-data repository.
  */
-public class UserMetaDataIMAPSubscriber implements IMAPSubscriber {
+public class PheonixUserManager implements UserManager {
 
     public static final String META_DATA_KEY
         ="org.apache.james.IMAP_SUBSCRIPTIONS";
     
-    private Log log = LogFactory.getLog(UserMetaDataIMAPSubscriber.class);
+    private Log log = LogFactory.getLog(PheonixUserManager.class);
     
     private final UserMetaDataRespository repository;
     private final Map userSubscriptionsByUser;
     
-    public UserMetaDataIMAPSubscriber(final UserMetaDataRespository repository) {
+    private final UsersRepository usersRepository;
+    
+    public PheonixUserManager(final UserMetaDataRespository repository, final UsersRepository usersRepository) {
         super();
         this.repository = repository;
         userSubscriptionsByUser = new HashMap();
+        this.usersRepository = usersRepository;
     }
 
     public void subscribe(String user, String mailbox)
@@ -141,5 +146,9 @@ public class UserMetaDataIMAPSubscriber implements IMAPSubscriber {
             }
             
         }
+    }
+
+    public boolean isAuthentic(String userid, String passwd) {
+        return usersRepository.test(userid, passwd);
     }
 }

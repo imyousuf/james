@@ -26,19 +26,19 @@ import org.apache.james.api.imap.message.request.ImapRequest;
 import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
-import org.apache.james.api.user.User;
 import org.apache.james.imap.message.request.imap4rev1.UnsubscribeRequest;
-import org.apache.james.imapserver.processor.base.AbstractImapRequestProcessor;
+import org.apache.james.imapserver.processor.base.AbstractMailboxAwareProcessor;
 import org.apache.james.imapserver.processor.base.ImapSessionUtils;
+import org.apache.james.mailboxmanager.MailboxManagerException;
+import org.apache.james.mailboxmanager.manager.MailboxManager;
+import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
+import org.apache.james.mailboxmanager.manager.SubscriptionException;
 
-public class UnsubscribeProcessor extends AbstractImapRequestProcessor {
-
-    private final IMAPSubscriber subscriber;
+public class UnsubscribeProcessor extends AbstractMailboxAwareProcessor {
     
-    public UnsubscribeProcessor(final ImapProcessor next, final StatusResponseFactory factory,
-            final IMAPSubscriber subscriber) {
-        super(next, factory);
-        this.subscriber = subscriber;
+    public UnsubscribeProcessor(final ImapProcessor next, final MailboxManagerProvider mailboxManagerProvider,
+            final StatusResponseFactory factory) {
+        super(next, mailboxManagerProvider, factory);
     }
 
     protected boolean isAcceptable(ImapMessage message) {
@@ -49,10 +49,10 @@ public class UnsubscribeProcessor extends AbstractImapRequestProcessor {
             ImapSession session, String tag, ImapCommand command, Responder responder) {
         final UnsubscribeRequest request = (UnsubscribeRequest) message;
         final String mailboxName = request.getMailboxName();
-        final User user = ImapSessionUtils.getUser(session);
-        final String userName = user.getUserName();
+        final String userName = ImapSessionUtils.getUserName(session);
         try {
-            subscriber.unsubscribe(userName, mailboxName);
+            final MailboxManager mailboxManager = getMailboxManager(session);
+            mailboxManager.unsubscribe(userName, mailboxName);
             
             unsolicitedResponses(session, responder, false);
             okComplete(command, tag, responder);
@@ -68,6 +68,12 @@ public class UnsubscribeProcessor extends AbstractImapRequestProcessor {
             } else {
                 displayTextKey = exceptionKey;
             }
+            no(command, tag, responder, displayTextKey);
+        } catch (MailboxManagerException e) {
+            getLogger().debug("Subscription failed", e);
+            unsolicitedResponses(session, responder, false);
+            
+            final HumanReadableTextKey displayTextKey = HumanReadableTextKey.GENERIC_SUBSCRIPTION_FAILURE;
             no(command, tag, responder, displayTextKey);
         }
     }
