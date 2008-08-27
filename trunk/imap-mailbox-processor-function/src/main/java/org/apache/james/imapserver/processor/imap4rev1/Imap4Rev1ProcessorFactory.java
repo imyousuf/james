@@ -21,7 +21,6 @@ package org.apache.james.imapserver.processor.imap4rev1;
 
 import org.apache.james.api.imap.message.response.imap4rev1.StatusResponseFactory;
 import org.apache.james.api.imap.process.ImapProcessor;
-import org.apache.james.api.user.UsersRepository;
 import org.apache.james.imapserver.processor.imap4rev1.fetch.FetchProcessor;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 
@@ -31,10 +30,9 @@ import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 public class Imap4Rev1ProcessorFactory {
 
     public static final ImapProcessor createDefaultChain(
-            final ImapProcessor chainEndProcessor, final UsersRepository users,
+            final ImapProcessor chainEndProcessor,
             final MailboxManagerProvider mailboxManagerProvider, 
-            final StatusResponseFactory statusResponseFactory,
-            final IMAPSubscriber subscriber) {
+            final StatusResponseFactory statusResponseFactory) {
         
         final LogoutProcessor logoutProcessor = new LogoutProcessor(
                 chainEndProcessor, statusResponseFactory);
@@ -43,7 +41,7 @@ public class Imap4Rev1ProcessorFactory {
         final CheckProcessor checkProcessor = new CheckProcessor(
                 capabilityProcessor, statusResponseFactory);
         final LoginProcessor loginProcessor = new LoginProcessor(
-                checkProcessor, users, statusResponseFactory);
+                checkProcessor, mailboxManagerProvider, statusResponseFactory);
         final RenameProcessor renameProcessor = new RenameProcessor(
                 loginProcessor, mailboxManagerProvider, statusResponseFactory);
         final DeleteProcessor deleteProcessor = new DeleteProcessor(
@@ -53,9 +51,9 @@ public class Imap4Rev1ProcessorFactory {
         final CloseProcessor closeProcessor = new CloseProcessor(
                 createProcessor,statusResponseFactory);
         final UnsubscribeProcessor unsubscribeProcessor = new UnsubscribeProcessor(
-                closeProcessor, statusResponseFactory, subscriber);
+                closeProcessor, mailboxManagerProvider, statusResponseFactory);
         final SubscribeProcessor subscribeProcessor = new SubscribeProcessor(
-                unsubscribeProcessor, statusResponseFactory, subscriber);
+                unsubscribeProcessor, mailboxManagerProvider, statusResponseFactory);
         final CopyProcessor copyProcessor = new CopyProcessor(
                 subscribeProcessor, mailboxManagerProvider, statusResponseFactory);
         final AuthenticateProcessor authenticateProcessor = new AuthenticateProcessor(
@@ -72,7 +70,7 @@ public class Imap4Rev1ProcessorFactory {
         final StatusProcessor statusProcessor = new StatusProcessor(
                 noopProcessor, mailboxManagerProvider, statusResponseFactory);
         final LSubProcessor lsubProcessor = new LSubProcessor(statusProcessor,
-                mailboxManagerProvider, statusResponseFactory, subscriber);
+                mailboxManagerProvider, statusResponseFactory);
         final ListProcessor listProcessor = new ListProcessor(lsubProcessor,
                 mailboxManagerProvider, statusResponseFactory);
         final SearchProcessor searchProcessor = new SearchProcessor(

@@ -19,6 +19,8 @@
 
 package org.apache.james.mailboxmanager.manager;
 
+import java.util.Collection;
+
 import org.apache.james.mailboxmanager.MessageRange;
 import org.apache.james.mailboxmanager.ListResult;
 import org.apache.james.mailboxmanager.MailboxExistsException;
@@ -126,19 +128,7 @@ public interface MailboxManager {
      * to be returned
      * @throws MailboxManagerException 
      */
-
     ListResult[] list(MailboxExpression expression) throws MailboxManagerException;
-
-    /**
-     * could be implemented later. There could be enviroments where
-     * subscribtions are stored in the mailbox database. Another possibility is
-     * to manage subscribtions in the user repository, e.g. a ldap attribute,
-     * 
-     * @param mailboxName
-     * @param value
-     */
-
-    void setSubscription(String mailboxName, boolean value) throws MailboxManagerException;
 
     boolean existsMailbox(String mailboxName) throws MailboxManagerException;
     
@@ -147,5 +137,34 @@ public interface MailboxManager {
      * @return <code>MailboxSession</code>, not null
      */
     public MailboxSession createSession();
+
+    /**
+     * Autenticates the given user against the given password.
+     * @param userid user name
+     * @param passwd password supplied
+     * @return true if the user is authenticated
+     */
+    boolean isAuthentic(String userid, String passwd);
+    
+    /**
+     * Subscribes the user to the given mailbox.
+     * @param user the user name, not null
+     * @param mailbox the mailbox name, not null
+     */
+    public void subscribe(String user, String mailbox) throws SubscriptionException;
+    
+    /**
+     * Unsubscribes the user from the given mailbox.
+     * @param user the user name, not null
+     * @param mailbox the mailbox name, not null
+     */
+    public void unsubscribe(String user, String mailbox) throws SubscriptionException;
+    
+    /**
+     * Lists current subscriptions for the given user.
+     * @param user the user name, not null
+     * @return a <code>Collection<String></code> of mailbox names
+     */
+    public Collection subscriptions(String user) throws SubscriptionException;
 }
 

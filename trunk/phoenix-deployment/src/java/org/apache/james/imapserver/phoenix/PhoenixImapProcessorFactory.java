@@ -22,21 +22,15 @@ package org.apache.james.imapserver.phoenix;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
-import org.apache.james.api.user.UserMetaDataRespository;
-import org.apache.james.api.user.UsersRepository;
 import org.apache.james.imapserver.processor.main.DefaultImapProcessorFactory;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 
 public class PhoenixImapProcessorFactory extends DefaultImapProcessorFactory implements Serviceable {
 
     public void service(ServiceManager serviceManager) throws ServiceException {
-        UsersRepository usersRepository = ( UsersRepository ) serviceManager.
-            lookup( UsersRepository.ROLE );
         MailboxManagerProvider mailboxManagerProvider = 
             (MailboxManagerProvider) serviceManager.lookup( MailboxManagerProvider.ROLE );
-        UserMetaDataRespository userMetaDataRepository =
-            (UserMetaDataRespository) serviceManager.lookup( UserMetaDataRespository.ROLE );
-        configure(usersRepository, mailboxManagerProvider, userMetaDataRepository);
+        configure(mailboxManagerProvider);
     }
 
 }

@@ -17,33 +17,41 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.imapserver.processor.imap4rev1;
+package org.apache.james.mailboxmanager.manager;
 
-import java.util.Collection;
+import org.apache.james.api.imap.display.HumanReadableTextKey;
 
 /**
- * Processes IMAP subscriptions.
+ * Indicates exception during subscription processing.
  */
-public interface IMAPSubscriber {
+public class SubscriptionException extends Exception {
+
+    private static final long serialVersionUID = -2057022968413471837L;
+
+    private final HumanReadableTextKey key;
+    
+    public SubscriptionException(HumanReadableTextKey key, Throwable cause) {
+        super(key.toString(), cause);
+        this.key = key;
+    }
+
+    public SubscriptionException(HumanReadableTextKey key) {
+        super(key.toString());
+        this.key = key;
+    }
+
+    public SubscriptionException(Throwable cause) {
+        super(cause);
+        key = null;
+    }
 
     /**
-     * Subscribes the user to the given mailbox.
-     * @param user the user name, not null
-     * @param mailbox the mailbox name, not null
+     * Gets the message key.
+     * @return the key, possibly null
      */
-    public void subscribe(String user, String mailbox) throws SubscriptionException;
+    public final HumanReadableTextKey getKey() {
+        return key;
+    }
     
-    /**
-     * Unsubscribes the user from the given mailbox.
-     * @param user the user name, not null
-     * @param mailbox the mailbox name, not null
-     */
-    public void unsubscribe(String user, String mailbox) throws SubscriptionException;
     
-    /**
-     * Lists current subscriptions for the given user.
-     * @param user the user name, not null
-     * @return a <code>Collection<String></code> of mailbox names
-     */
-    public Collection subscriptions(String user) throws SubscriptionException;
 }

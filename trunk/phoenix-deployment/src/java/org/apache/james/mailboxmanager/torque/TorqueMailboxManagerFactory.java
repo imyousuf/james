@@ -38,8 +38,11 @@ import org.apache.avalon.framework.service.Serviceable;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.logging.impl.AvalonLogger;
+import org.apache.james.api.user.UserMetaDataRespository;
+import org.apache.james.api.user.UsersRepository;
 import org.apache.james.mailboxmanager.MailboxManagerException;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
+import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 import org.apache.james.mailboxmanager.torque.om.MailboxRowPeer;
 import org.apache.james.mailboxmanager.torque.om.MessageBodyPeer;
 import org.apache.james.mailboxmanager.torque.om.MessageFlagsPeer;
@@ -54,6 +57,10 @@ import org.apache.torque.util.Transaction;
 
 public class TorqueMailboxManagerFactory extends TorqueMailboxManager implements MailboxManager, 
         Configurable, Initializable, Serviceable, LogEnabled {
+
+    public TorqueMailboxManagerFactory(UserManager userManager) {
+        super(userManager);
+    }
 
     private BaseConfiguration torqueConf;
 
@@ -198,6 +205,10 @@ public class TorqueMailboxManagerFactory extends TorqueMailboxManager implements
 
     public void service(ServiceManager serviceManager) throws ServiceException {
         setFileSystem((FileSystem) serviceManager.lookup(FileSystem.ROLE));
+//        UsersRepository usersRepository = ( UsersRepository ) serviceManager.
+//        lookup( UsersRepository.ROLE );
+//    UserMetaDataRespository userMetaDataRepository =
+//        (UserMetaDataRespository) serviceManager.lookup( UserMetaDataRespository.ROLE );
     }
 
     protected void setFileSystem(FileSystem system) {

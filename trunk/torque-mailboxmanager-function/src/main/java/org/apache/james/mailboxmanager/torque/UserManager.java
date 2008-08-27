@@ -17,41 +17,19 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.imapserver.processor.imap4rev1;
+package org.apache.james.mailboxmanager.torque;
 
-import org.apache.james.api.imap.display.HumanReadableTextKey;
+import java.util.Collection;
 
-/**
- * Indicates exception during subscription processing.
- */
-public class SubscriptionException extends Exception {
+import org.apache.james.mailboxmanager.manager.SubscriptionException;
 
-    private static final long serialVersionUID = -2057022968413471837L;
+public interface UserManager {
 
-    private final HumanReadableTextKey key;
-    
-    public SubscriptionException(HumanReadableTextKey key, Throwable cause) {
-        super(key.toString(), cause);
-        this.key = key;
-    }
+    public boolean isAuthentic(String userid, String passwd);
 
-    public SubscriptionException(HumanReadableTextKey key) {
-        super(key.toString());
-        this.key = key;
-    }
+    public void subscribe(String user, String mailbox) throws SubscriptionException;
 
-    public SubscriptionException(Throwable cause) {
-        super(cause);
-        key = null;
-    }
+    public Collection subscriptions(String user) throws SubscriptionException;
 
-    /**
-     * Gets the message key.
-     * @return the key, possibly null
-     */
-    public final HumanReadableTextKey getKey() {
-        return key;
-    }
-    
-    
+    public void unsubscribe(String user, String mailbox) throws SubscriptionException;
 }

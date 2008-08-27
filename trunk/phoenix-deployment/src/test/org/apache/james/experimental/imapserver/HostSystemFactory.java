@@ -25,12 +25,12 @@ import org.apache.commons.io.FileUtils;
 import org.apache.james.imapserver.codec.encode.main.DefaultImapEncoderFactory;
 import org.apache.james.imapserver.mock.MailboxManagerProviderSingleton;
 import org.apache.james.imapserver.processor.main.DefaultImapProcessorFactory;
+import org.apache.james.mailboxmanager.mock.TorqueMailboxManagerProviderSingleton;
 import org.apache.james.test.functional.imap.HostSystem;
-import org.apache.james.user.impl.file.FileUserMetaDataRepository;
 
 public class HostSystemFactory {
     
-    private static final String META_DATA_DIRECTORY = "target/user-meta-data";
+    public static final String META_DATA_DIRECTORY = "target/user-meta-data";
     
     public static void resetUserMetaData() throws Exception {
         
@@ -43,13 +43,12 @@ public class HostSystemFactory {
     
     public static HostSystem createStandardImap() throws Exception {
         
-        ExperimentalHostSystem result = new ExperimentalHostSystem();
+        ExperimentalHostSystem host = TorqueMailboxManagerProviderSingleton.host;
         final DefaultImapProcessorFactory defaultImapProcessorFactory = new DefaultImapProcessorFactory();
         resetUserMetaData();
-        defaultImapProcessorFactory.configure(result, 
-                MailboxManagerProviderSingleton.getMailboxManagerProviderInstance(),
-                new FileUserMetaDataRepository(META_DATA_DIRECTORY));
-        result.configure(new DefaultImapDecoderFactory().buildImapDecoder(), 
+        defaultImapProcessorFactory.configure(
+                MailboxManagerProviderSingleton.getMailboxManagerProviderInstance());
+        host.configure(new DefaultImapDecoderFactory().buildImapDecoder(), 
                 new DefaultImapEncoderFactory().buildImapEncoder(), 
                 defaultImapProcessorFactory.buildImapProcessor(), new ExperimentalHostSystem.Resetable() {
 
@@ -59,6 +58,6 @@ public class HostSystemFactory {
                     }
             
         });
-        return result;
+        return host;
     }
 }
