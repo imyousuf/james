@@ -18,6 +18,7 @@
  ****************************************************************/
 
 package org.apache.james.transport.mailets.sieve;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,7 +33,13 @@ import java.util.Set;
 import javax.mail.Header;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-import org.apache.jsieve.SieveException;
+
+import org.apache.james.mime4j.field.address.AddressList;
+import org.apache.james.mime4j.field.address.Mailbox;
+import org.apache.james.mime4j.field.address.MailboxList;
+import org.apache.james.mime4j.field.address.parser.ParseException;
+import org.apache.jsieve.exception.InternetAddressException;
+import org.apache.jsieve.exception.SieveException;
 import org.apache.jsieve.mail.Action;
 import org.apache.jsieve.mail.MailAdapter;
 import org.apache.jsieve.mail.MailUtils;
@@ -370,5 +377,73 @@ public class SieveMailAdapter implements MailAdapter, EnvelopeAccessors
                 + " Envelope To: "
                 + (null == getEnvelopeTo() ? "null" : getEnvelopeTo())
                 + " Message ID: " + (null == messageID ? "null" : messageID);
+    }
+    
+    public Object getContent() throws SieveMailException {
+        try {
+            return getMessage().getContent();
+        } catch (MessagingException e) {
+            throw new SieveMailException(e);
+        } catch (IOException e) {
+            throw new SieveMailException(e);
+        }
+    }
+    public String getContentType() throws SieveMailException {
+        try {
+            return getMessage().getContentType();
+        } catch (MessagingException e) {
+            throw new SieveMailException(e);
+        }
+    }
+    
+    public Address[] parseAddresses(String arg) throws SieveMailException, InternetAddressException {
+        try {
+            final MailboxList list = AddressList.parse(arg).flatten();
+            final int size = list.size();
+            final Address[] results = new Address[size];
+            for (int i=0;i<size;i++) {
+                final Mailbox mailbox = list.get(i);
+                results[i] = new AddressImpl(mailbox.getLocalPart(), mailbox.getDomain());
+            }
+            return null;
+        } catch (ParseException e) {
+            throw new InternetAddressException(e);
+        }
+    }
+    
+    /**
+     * Simple immutable address implementation.
+     * TODO: replace this with JSieve version
+     */
+    private static final class AddressImpl implements MailAdapter.Address {
+
+        private final String localPart;
+        private final String domain;
+        
+        /**
+         * Constructs an address.
+         * @param localPart the local part of the address
+         * @param domain the domain part of the address
+         */
+        public AddressImpl(final String localPart, final String domain) {
+            super();
+            this.localPart = localPart;
+            this.domain = domain;
+        }
+
+        /**
+         * Gets the domain of the address.
+         * @return domain
+         */
+        public String getDomain() {
+            return domain;
+        }
+
+        /**
+         * Gets the local part of the address.
+         */
+        public String getLocalPart() {
+            return localPart;
+        }
     }
 }
