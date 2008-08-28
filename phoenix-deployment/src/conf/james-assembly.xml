@@ -53,15 +53,8 @@
     <provide name="scheduler"
              role="org.apache.avalon.cornerstone.services.scheduler.TimeScheduler"/>
     <provide name="database-connections"
-             role="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector" />
-    <provide name="mailboxmanager"
-             role="org.apache.james.mailboxmanager.manager.MailboxManagerProvider" />         
+             role="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector" />        
   </block>
-
-    
-  <block name="mailboxmanager" class="org.apache.james.mailboxmanager.impl.DefaultMailboxManagerProvider">
-      <provide name="filesystem" role="org.apache.james.services.FileSystem" />    
-  </block>  
    
   <!-- The James Spool Manager block  -->
   <block name="spoolmanager" class="org.apache.james.transport.JamesSpoolManager" >
@@ -123,28 +116,7 @@
     <provide name="localusersrepository" role="org.apache.james.api.user.UsersRepository"/>
     <provide name="users-store" role="org.apache.james.api.user.UsersStore"/>
   </block>
-    
-    <!-- IMAP Server -->
-  <block name="imap-connections"
-         class="org.apache.james.util.connection.SimpleConnectionManager" >
-    <provide name="thread-manager"
-             role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
-  </block>  
-    
-  <block name="imapserver" class="org.apache.james.imapserver.ImapServer" >
-    <provide name="localusersrepository" role="org.apache.james.api.user.UsersRepository"/>
-    <provide name="sockets"
-             role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
-    <provide name="imap-connections"
-             role="org.apache.james.socket.JamesConnectionManager"/>
-    <provide name="James" role="org.apache.james.services.MailServer"/>
-    <provide name="thread-manager"
-             role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
-    <provide name="mailboxmanager"
-             role="org.apache.james.mailboxmanager.manager.MailboxManagerProvider" />    
-    <provide name="dnsserver" role="org.apache.james.api.dnsservice.DNSService"/>    
-  </block>      
-    
+        
   <!-- POP3 Server -->
   <block name="pop3server" class="org.apache.james.pop3server.POP3Server" >
     <provide name="localusersrepository" role="org.apache.james.api.user.UsersRepository"/>
