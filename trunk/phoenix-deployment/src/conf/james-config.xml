@@ -140,7 +140,7 @@
     <!--
         Don't forget to activate mailboxmanager inboxRepository in the 
         James block, if you want to receive mail in your IMAP mailbox
-    --> 
+    --><!-- 
     <mailboxmanager>
         <namespaces>
             <usernamespace name="#mail" delimiter="."/>
@@ -174,23 +174,23 @@
                            value="100"/>
                    </torque-properties>
         </factory>
-    </mailboxmanager>
+    </mailboxmanager>-->
     
   <!-- Experimental IMAP support 
       
         Don't forget to activate mailboxmanager inboxRepository in the 
         James block, if you want to receive mail in your IMAP mailbox
-    -->     
-   <imap-connections>
+   
+   <imap-connections>-->
       <!-- RFC 3501 requires a minimum timeout of 30 minutes -->
-      <idle-timeout>1800000</idle-timeout>
+<!--       <idle-timeout>1800000</idle-timeout>
       <max-connections>100</max-connections>
-      <!--
+-->      <!--
       <max-connections-per-ip>0</max-connections-per-ip>
       -->
-   </imap-connections>      
+<!--    </imap-connections>   -->   
     
-   <imapserver enabled="true">
+<!--  <imapserver enabled="true"> -->
       <!-- port 993 is the well-known/IANA registered port for IMAPs ie over SSL/TLS -->
         <!-- <port>993</port> -->
         <!-- JAMES TLS uses JSSE. This means that for many Sun JVMs,
@@ -222,13 +222,12 @@
         </handler> 
       -->
       <!-- Experimental high port -->
-      <port>10143</port>
-      <handler>
+      <!-- <port>10143</port> 
+      <handler>-->
        <!-- RFC 3501 requires a minimum timeout of 30 minutes -->
-       <connectiontimeout>1800000</connectiontimeout>         
+<!--         <connectiontimeout>1800000</connectiontimeout>         
        <streamdump enabled="true" directory="../apps/james/streamdump" />
-      </handler>      
-   </imapserver>
+      </handler>      -->
     
    <!-- This is an example configuration for FetchMail, a JavaMail based gateway  -->
    <!-- service that pulls messages from other sources, and inserts them into the -->
