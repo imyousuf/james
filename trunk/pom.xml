@@ -505,7 +505,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>jsieve</artifactId>
+      <artifactId>apache-jsieve</artifactId>
       <version>0.2</version>
     </dependency>
     <dependency>
