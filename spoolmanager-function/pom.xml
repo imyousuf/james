@@ -88,7 +88,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>jsieve</artifactId>
+      <artifactId>apache-jsieve</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
