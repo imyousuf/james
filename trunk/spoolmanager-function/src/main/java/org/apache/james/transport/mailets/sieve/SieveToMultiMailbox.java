@@ -22,7 +22,6 @@ package org.apache.james.transport.mailets.sieve;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.Collection;
-import java.util.Date;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Vector;
@@ -32,19 +31,12 @@ import javax.mail.MessagingException;
 import javax.mail.internet.InternetHeaders;
 import javax.mail.internet.MimeMessage;
 
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.james.Constants;
-import org.apache.james.impl.user.DefaultUser;
-import org.apache.james.mailboxmanager.MailboxSession;
-import org.apache.james.mailboxmanager.mailbox.Mailbox;
-import org.apache.james.mailboxmanager.manager.MailboxManager;
-import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 import org.apache.jsieve.SieveFactory;
 import org.apache.jsieve.mail.MailAdapter;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
+import org.apache.mailet.MailetException;
 import org.apache.mailet.RFC2822Headers;
 
 /**
@@ -78,8 +70,34 @@ public class SieveToMultiMailbox extends GenericMailet {
      * resetReturnPath
      */
     private boolean resetReturnPath;
+    /** Experimental */
+    private Poster poster;
 
-    private MailboxManagerProvider mailboxManagerProvider;
+    /**
+     * For SDI
+     */
+    public SieveToMultiMailbox() {}
+    
+    /**
+     * CDI
+     * @param poster not null
+     */
+    public SieveToMultiMailbox(Poster poster) {
+        super();
+        this.poster = poster;
+    }
+
+    public final Poster getPoster() {
+        return poster;
+    }
+    
+    /**
+     * For SDI
+     * @param poster not null
+     */
+    public final void setPoster(Poster poster) {
+        this.poster = poster;
+    }
 
     /**
      * Delivers a mail to a local mailbox.
@@ -206,7 +224,7 @@ public class SieveToMultiMailbox extends GenericMailet {
             storeMessageSieve(sieveFileName, username, mail);
         } else {
             getMailetContext().log(new File(sieveFileName).getAbsolutePath()+ " does not exists");
-            storeMessageInbox(username, mail.getMessage());
+            storeMessageInbox(username, mail);
         }
     }
     
@@ -230,25 +248,13 @@ public class SieveToMultiMailbox extends GenericMailet {
             // So just log and store in INBOX.
             //
             log("Cannot evaluate Sieve script. Storing mail in user INBOX.", ex);
-            storeMessageInbox(username, aMail.getMessage());
+            storeMessageInbox(username, aMail);
         }
     }
     
-    void storeMessageInbox(String username, MimeMessage message) throws MessagingException {
-        final MailboxManagerProvider mailboxManagerProvider = getMailboxManagerProvider();
-        final String inboxName = mailboxManagerProvider.getMailboxManager().resolve(username, "INBOX");
-        
-        final MailboxManager mailboxManager = mailboxManagerProvider.getMailboxManager();
-        final MailboxSession session = mailboxManager.createSession();
-        Mailbox inbox = mailboxManager.getMailbox(inboxName, true);
-        
-        if (inbox == null) {
-            String error = "Mailbox for user " + username
-                    + " was not found on this server.";
-            throw new MessagingException(error);
-        }
-        inbox.appendMessage(message, new Date(), null, session);
-        session.close();
+    void storeMessageInbox(String username, Mail mail) throws MessagingException {
+        String url = "mailbox://" + username + "@localhost/";
+        poster.post(url, mail);
     }
 
     /**
@@ -256,30 +262,13 @@ public class SieveToMultiMailbox extends GenericMailet {
      */
     public void init() throws MessagingException {
         super.init();
-        ServiceManager compMgr = (ServiceManager) getMailetContext()
-                .getAttribute(Constants.AVALON_COMPONENT_MANAGER);
-
-        try {
-            setMailboxManagerProvider((MailboxManagerProvider) compMgr
-                    .lookup(MailboxManagerProvider.class.getName()));
-        } catch (ServiceException cnfe) {
-            log("Failed to retrieve Store component:" + cnfe.getMessage());
-        } catch (Exception e) {
-            log("Failed to retrieve Store component:" + e.getMessage());
+        if (poster == null) {
+            throw new MailetException("Not initialised. Please ensure that the mailet container supports either" +
+                    " setter or constructor injection");
         }
-
+        
         deliveryHeader = getInitParameter("addDeliveryHeader");
         String resetReturnPathString = getInitParameter("resetReturnPath");
         resetReturnPath = "true".equalsIgnoreCase(resetReturnPathString);
     }
-
-    public void setMailboxManagerProvider(
-            MailboxManagerProvider mailboxManagerProvider) {
-        this.mailboxManagerProvider = mailboxManagerProvider;
-    }
-
-    MailboxManagerProvider getMailboxManagerProvider() {
-        return mailboxManagerProvider;
-    }
-
 }
