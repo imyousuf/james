@@ -23,7 +23,6 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 
 import javax.mail.Address;
 import javax.mail.MessagingException;
@@ -31,13 +30,9 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
-import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
-import org.apache.james.mailboxmanager.MailboxSession;
-import org.apache.james.mailboxmanager.mailbox.Mailbox;
-import org.apache.james.mailboxmanager.manager.MailboxManager;
-import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
+import org.apache.james.core.MailImpl;
 import org.apache.james.util.mail.mdn.ActionModeAutomatic;
 import org.apache.james.util.mail.mdn.Disposition;
 import org.apache.james.util.mail.mdn.DispositionModifier;
@@ -60,6 +55,7 @@ import org.apache.mailet.MailetContext;
 public class Actions
 {
     private static final String INBOX = "INBOX";
+    private static final char HIERARCHY_DELIMITER = '.';
     static private String fieldAttributePrefix;
 
     /**
@@ -93,43 +89,39 @@ public class Actions
      * @param anAction
      * @param aMail
      * @param aMailetContext
+     * @param poster TODO
      * @throws MessagingException
      */
     static public void execute(ActionFileInto anAction, Mail aMail,
-            MailetContext aMailetContext) throws MessagingException
+            MailetContext aMailetContext, Poster poster) throws MessagingException
     {
         ServiceManager compMgr = (ServiceManager)aMailetContext
             .getAttribute(Constants.AVALON_COMPONENT_MANAGER);
         String destinationMailbox = anAction.getDestination();
         MailAddress recipient;
-        MailboxManagerProvider mailboxManagerProvider;
         boolean delivered = false;
         try
         {
-            mailboxManagerProvider = (MailboxManagerProvider) compMgr
-            .lookup(MailboxManagerProvider.class.getName());
             recipient = getSoleRecipient(aMail);
             MimeMessage localMessage = createMimeMessage(aMail, recipient);
             
             if (!(destinationMailbox.length() > 0 
-                    && destinationMailbox.charAt(0) == MailboxManager.HIERARCHY_DELIMITER)) {
-                destinationMailbox =  MailboxManager.HIERARCHY_DELIMITER + destinationMailbox;
+                    && destinationMailbox.charAt(0) == HIERARCHY_DELIMITER)) {
+                destinationMailbox =  HIERARCHY_DELIMITER + destinationMailbox;
             }
-            final String mailboxName = 
-                mailboxManagerProvider.getMailboxManager().resolve(recipient.getUser(), destinationMailbox);
-            final MailboxManager mailboxManager = mailboxManagerProvider.getMailboxManager();
-            Mailbox mailbox=mailboxManager.getMailbox(mailboxName, true);
-            final MailboxSession session = mailboxManager.createSession();
-            mailbox.appendMessage(localMessage, new Date(), null, session);
-            session.close();
+            
+            final String url = "mailbox://" + recipient.getUser() + "@localhost/" + 
+                destinationMailbox.replace(HIERARCHY_DELIMITER, '/');
+            //TODO: copying this message so many times seems a waste
+            Mail mail = new MailImpl();
+            mail.setMessage(localMessage);
+            poster.post(url, mail);
             delivered = true;
         }
         catch (MessagingException ex)
         {
             aMailetContext.log("Error while storing mail into. "+destinationMailbox, ex);
             throw ex;
-        } catch (ServiceException e) {
-            aMailetContext.log("Error while storing mail into. "+destinationMailbox, e);
         }
         finally
         {
@@ -180,10 +172,10 @@ public class Actions
      * @throws MessagingException
      */
     public static void execute(ActionKeep anAction, Mail aMail,
-            MailetContext aMailetContext) throws MessagingException
+            MailetContext aMailetContext, Poster poster) throws MessagingException
     {
         final ActionFileInto action = new ActionFileInto(INBOX);
-        execute(action, aMail, aMailetContext);
+        execute(action, aMail, aMailetContext, poster);
     }
 
     /**
