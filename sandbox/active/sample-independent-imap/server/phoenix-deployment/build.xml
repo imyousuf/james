@@ -62,6 +62,9 @@
     -->
 
     <path id="project.class.path">
+        <fileset dir='lib'>
+             <include name='${jars-prefix}*.jar'/>
+        </fileset>
         <fileset dir="${lib.dir}">
             <include name='${jms-spec.jar}'/>
             <include name='${activemq-core.jar}'/>    
