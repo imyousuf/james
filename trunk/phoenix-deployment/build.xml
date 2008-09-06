@@ -62,6 +62,11 @@
     -->
 
     <path id="project.class.path">
+        <!-- TODO Discuss whether this is the best approach -->
+        <!-- TODO Discuss whether a stage directory would be better -->
+        <fileset dir='lib-components'>
+            <include name='*.jar'/>
+        </fileset>
         <fileset dir="${lib.dir}">
             <include name='${jms-spec.jar}'/>
             <include name='${activemq-core.jar}'/>    
