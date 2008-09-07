@@ -330,12 +330,12 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-mailbox-library</artifactId>
+      <artifactId>james-imap-mailbox</artifactId>
       <version>3.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-imap-codec-library</artifactId>
+      <artifactId>james-imap-codec</artifactId>
       <version>3.0-SNAPSHOT</version>
     </dependency>
     <dependency>
@@ -390,12 +390,17 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-torque-mailboxmanager-function</artifactId>
+      <artifactId>james-imap-torque</artifactId>
       <version>3.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-imap-mailbox-processor-function</artifactId>
+      <artifactId>james-imap-deployment</artifactId>
+      <version>3.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-imap-processor</artifactId>
       <version>3.0-SNAPSHOT</version>
     </dependency>
     <dependency>
@@ -405,15 +410,8 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-experimental-seda-imap-function</artifactId>
+      <artifactId>james-imap-seda</artifactId>
       <version>3.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-experimental-seda-imap-function</artifactId>
-      <version>3.0-SNAPSHOT</version>
-      <type>test-jar</type>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
@@ -429,15 +427,8 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-imap-api</artifactId>
+      <artifactId>james-imap-api</artifactId>
       <version>3.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-imap-api</artifactId>
-      <version>3.0-SNAPSHOT</version>
-      <type>test-jar</type>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
