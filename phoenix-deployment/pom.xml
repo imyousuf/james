@@ -242,7 +242,7 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-mailet-base</artifactId>
-      <type>test-jar</type>
+      <classifier>tests</classifier>
       <scope>test</scope>
     </dependency>
     <dependency>
