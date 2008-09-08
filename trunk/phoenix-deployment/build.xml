@@ -114,7 +114,7 @@
             <include name="${path.lib.james}/${jars-prefix}*-library-${version}.jar"/>
             <include name="${path.lib.james}/${jars-prefix}*-function-${version}.jar"/>
             <!-- Protocols should be coupled by deployment only -->
-            <include name='${path.lib.james}/james-imap*.jar'/>
+            <include name='${path.lib.james}/apache-james-imap*.jar'/>
         </fileset>
         <pathelement path="${java.class.path}" />
         <pathelement path="${build.classes}" />
