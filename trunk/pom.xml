@@ -330,13 +330,13 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-imap-mailbox</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <artifactId>apache-james-imap-mailbox</artifactId>
+      <version>0.1-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-imap-codec</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <artifactId>apache-james-imap-codec</artifactId>
+      <version>0.1-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
@@ -390,18 +390,13 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-imap-torque</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <artifactId>apache-james-imap-torque</artifactId>
+      <version>0.1-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-imap-deployment</artifactId>
-      <version>3.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-imap-processor</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <artifactId>apache-james-imap-processor</artifactId>
+      <version>0.1-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
@@ -410,8 +405,8 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-imap-seda</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <artifactId>apache-james-imap-seda</artifactId>
+      <version>0.1-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
@@ -427,8 +422,8 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-imap-api</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <artifactId>apache-james-imap-api</artifactId>
+      <version>0.1-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>

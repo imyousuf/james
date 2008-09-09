@@ -90,7 +90,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-imap-api</artifactId>
+      <artifactId>apache-james-imap-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
@@ -102,11 +102,11 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-imap-codec</artifactId>
+      <artifactId>apache-james-imap-codec</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-imap-mailbox</artifactId>
+      <artifactId>apache-james-imap-mailbox</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
@@ -132,15 +132,15 @@
 
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-imap-torque</artifactId>
+      <artifactId>apache-james-imap-torque</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-imap-processor</artifactId>
+      <artifactId>apache-james-imap-processor</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-imap-seda</artifactId>
+      <artifactId>apache-james-imap-seda</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
