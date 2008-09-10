@@ -33,8 +33,10 @@ import org.apache.mailet.Mail;
  * This is just an experimental example. 
  * This is probably not working ATM but it's often easier 
  * to illustrate using code.
+ * 
+ * Temporarily removed "Poster" to avoid function-to-function dependency.
  */
-public class PosterMailboxAdapter implements Poster {
+public class PosterMailboxAdapter { // implements Poster {
 
     private final MailboxManagerProvider mailboxManagerProvider;
     
