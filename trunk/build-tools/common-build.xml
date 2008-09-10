@@ -233,6 +233,7 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
                     <include name="${spring.jar}"/>     
                     <include name="${log4j.jar}"/>     
                     <include name="${avalon-phoenix.jar}"/>     
+                    <include name='${path.lib.james}/apache-james-imap*.jar'/>
                 </fileset>   
             </path>   
             <path id='classpath.base.test'>  
@@ -369,6 +370,7 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
             <delete dir='@{reports}'/>
             <mkdir dir='@{reports}'/>
             <mkdir dir='@{bin}'/>
+        	
             <junit 
                     printsummary="yes" 
                     haltonfailure="yes"  
