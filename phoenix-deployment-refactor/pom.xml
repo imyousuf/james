@@ -22,6 +22,7 @@
     <artifactId>james-server</artifactId>
     <groupId>org.apache.james</groupId>
     <version>3.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.james</groupId>
@@ -39,12 +40,18 @@
       </plugin>
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
-        <version>2.2-beta-3-SNAPSHOT</version>
+        <version>2.2-beta-2</version>
+        <dependencies>
+          <dependency>
+            <groupId>org.apache.james</groupId>
+            <artifactId>plexus-archiver-sar-support</artifactId>
+            <version>1.0</version>
+          </dependency>
+        </dependencies>
         <configuration>
-          <skipAssembly>false</skipAssembly>
           <ignoreMissingDescriptor>true</ignoreMissingDescriptor>
           <descriptorSourceDirectory>${basedir}/src/assemble/</descriptorSourceDirectory>
-          <appendAssemblyId>false</appendAssemblyId> -->
+          <appendAssemblyId>false</appendAssemblyId>
           <descriptorRefs>
             <descriptorRef>sar</descriptorRef>
           </descriptorRefs> 
@@ -61,14 +68,24 @@
       </plugin>
     </plugins>
   </build>
+  
+  <profiles>
+    <profile>
+      <!-- Geronimo Mail module do not declare runtime dependency on Activation -->
+      <id>geronimo</id>
+      <dependencies>
+        <dependency>
+          <groupId>${javax.activation.groupId}</groupId>
+          <artifactId>${javax.activation.artifactId}</artifactId>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
+  
   <dependencies>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>mailet</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>apache-james-mailet-base</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
@@ -113,15 +130,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-core-function</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
       <artifactId>james-server-spoolmanager-function</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-avalon-user-function</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
@@ -175,24 +184,8 @@
       <artifactId>cornerstone-threads-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-    </dependency>
-    <dependency>
       <groupId>commons-configuration</groupId>
       <artifactId>commons-configuration</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-collections</groupId>
-      <artifactId>commons-collections</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.avalon.cornerstone.datasources</groupId>
-      <artifactId>cornerstone-datasources-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.avalon.cornerstone.sockets</groupId>
@@ -209,10 +202,6 @@
     <dependency>
       <groupId>${javax.mail.groupId}</groupId>
       <artifactId>${javax.mail.artifactId}</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.avalon.cornerstone.datasources</groupId>
-      <artifactId>cornerstone-datasources-impl</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.avalon.cornerstone.store</groupId>
@@ -240,10 +229,6 @@
       <version>1.3</version>
     </dependency>
     <dependency>
-    	<groupId>concurrent</groupId>
-    	<artifactId>concurrent</artifactId>
-    </dependency>
-    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>test</scope>
@@ -251,17 +236,6 @@
     <dependency>
       <groupId>commons-net</groupId>
       <artifactId>commons-net</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>jmock</groupId>
-      <artifactId>jmock</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>apache-james-imap-seda</artifactId>
-      <type>test-jar</type>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -278,20 +252,14 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-smtpserver-function</artifactId>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
       <artifactId>apache-james-mailet-base</artifactId>
       <classifier>tests</classifier>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>standard-mailets</artifactId>
-      <classifier>tests</classifier>
+      <artifactId>james-server-smtpserver-function</artifactId>
+      <type>test-jar</type>
       <scope>test</scope>
     </dependency>
     <dependency>
