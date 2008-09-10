@@ -417,5 +417,22 @@ public class MimeMessageTest extends TestCase {
         assertEquals(h.nextElement(),"Return-Path: <test@test.de>");
         ContainerUtil.dispose(message);
     }
+    
+    
+    /**
+     * http://issues.apache.org/jira/browse/GERONIMO-4261
+     */
+    /*
+    public void testGeronimoIndexOutOfBounds() throws Exception {
+        String message = "                  \r\n"+
+            "Subject: test\r\n"+
+            "\r\n"+
+            "Body\r\n";
+
+        byte[] messageBytes = message.getBytes("US-ASCII");
+        new MimeMessage(null, new ByteArrayInputStream(
+                messageBytes));
+    }
+    */
 
 }
