@@ -34,19 +34,19 @@ import org.apache.james.mailboxmanager.manager.SubscriptionException;
 /**
  * Stores subscription data in the user meta-data repository.
  */
-public class PheonixUserManager implements UserManager {
+public class DefaultUserManager implements UserManager {
 
     public static final String META_DATA_KEY
         ="org.apache.james.IMAP_SUBSCRIPTIONS";
     
-    private Log log = LogFactory.getLog(PheonixUserManager.class);
+    private Log log = LogFactory.getLog(DefaultUserManager.class);
     
     private final UserMetaDataRespository repository;
     private final Map userSubscriptionsByUser;
     
     private final UsersRepository usersRepository;
     
-    public PheonixUserManager(final UserMetaDataRespository repository, final UsersRepository usersRepository) {
+    public DefaultUserManager(final UserMetaDataRespository repository, final UsersRepository usersRepository) {
         super();
         this.repository = repository;
         userSubscriptionsByUser = new HashMap();
