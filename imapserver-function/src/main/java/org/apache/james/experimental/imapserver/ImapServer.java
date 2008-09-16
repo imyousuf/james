@@ -23,13 +23,11 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.james.api.imap.process.ImapProcessor;
-import org.apache.james.api.imap.process.ImapProcessorFactory;
-import org.apache.james.imapserver.codec.decode.ImapDecoder;
-import org.apache.james.imapserver.codec.decode.ImapDecoderFactory;
-import org.apache.james.imapserver.codec.encode.ImapEncoder;
-import org.apache.james.imapserver.codec.encode.ImapEncoderFactory;
-import org.apache.james.services.MailServer;
+import org.apache.james.Constants;
+import org.apache.james.api.imap.ImapConstants;
+import org.apache.james.api.user.UsersRepository;
+import org.apache.james.imapserver.DefaultImapFactory;
+import org.apache.james.services.FileSystem;
 import org.apache.james.socket.AbstractJamesService;
 import org.apache.james.socket.ProtocolHandler;
 
@@ -41,57 +39,35 @@ import org.apache.james.socket.ProtocolHandler;
  *
  * <p>Also responsible for loading and parsing IMAP specific configuration.</p>
  */
-public class ImapServer extends AbstractJamesService
+public class ImapServer extends AbstractJamesService implements ImapConstants
 {
-    /**
-     * The number of bytes to read before resetting
-     * the connection timeout timer.  Defaults to
-     * 20 KB.
-     */
-    private int lengthReset = 20 * 1024;
-
-    /**
-     * The configuration data to be passed to the handler
-     */
-    private ImapHandlerConfigurationDataImpl theConfigData = new ImapHandlerConfigurationDataImpl();
-
-    private MailServer mailServer;
-    private ImapDecoderFactory decoderFactory;
-    private ImapEncoderFactory encoderFactory;
-    private ImapProcessorFactory processorFactory;
+    private static final String softwaretype = "JAMES "+VERSION+" Server " + Constants.SOFTWARE_VERSION;
+     
+    private DefaultImapFactory factory;
     
-    private ImapProcessor imapProcessor;
-    private ImapDecoder imapDecoder;
-    private ImapEncoder imapEncoder;
-    
-    public void service( ServiceManager serviceManager ) throws ServiceException
+    private String hello = softwaretype;
+
+    public ImapServer()
     {
-        super.service( serviceManager );
-        setMailServer((MailServer) serviceManager.lookup(MailServer.ROLE));
-        processorFactory = (ImapProcessorFactory) serviceManager.lookup(ImapProcessorFactory.class.getName());
-        decoderFactory = (ImapDecoderFactory) serviceManager.lookup(ImapDecoderFactory.class.getName());
-        encoderFactory = (ImapEncoderFactory) serviceManager.lookup(ImapEncoderFactory.class.getName());
-    }
-
-    void setMailServer(MailServer mailServer) {
-        this.mailServer = mailServer;
     }
     
+    
+    
+    public void service(ServiceManager comp) throws ServiceException {
+        super.service(comp);
+        factory = new DefaultImapFactory((FileSystem) comp.lookup(FileSystem.ROLE), 
+                (UsersRepository) comp.lookup(UsersRepository.ROLE), getLogger());
+    }
+
+
+
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
     public void configure( final Configuration configuration ) throws ConfigurationException
     {
         super.configure( configuration );
-        if ( isEnabled() ) {
-            Configuration handlerConfiguration = configuration.getChild( "handler" );
-            lengthReset = handlerConfiguration.getChild( "lengthReset" ).getValueAsInteger( lengthReset );
-            getLogger().info( "The idle timeout will be reset every " + lengthReset + " bytes." );
-            
-            imapProcessor = processorFactory.buildImapProcessor();
-            imapDecoder = decoderFactory.buildImapDecoder();
-            imapEncoder = encoderFactory.buildImapEncoder();
-        }
+        hello  = softwaretype + " Server " + helloName + " is ready.";
     }
     
     /**
@@ -116,52 +92,14 @@ public class ImapServer extends AbstractJamesService
      */
     public ProtocolHandler newProtocolHandlerInstance()
     {
-        final ImapHandler imapHandler = new ImapHandler(); 
+        final ImapRequestHandler handler = factory.createHandler();
+        final ImapHandler imapHandler = new ImapHandler(handler, hello); 
         getLogger().debug("Create handler instance");
         return imapHandler;
     }
 
-    /**
-     * Provides configuration to the handlers.
-     */
-    private class ImapHandlerConfigurationDataImpl implements ImapHandlerConfigurationData
-    {
-
-        /**
-         * @see ImapHandlerConfigurationData#getHelloName()
-         */
-        public String getHelloName()
-        {
-            if (ImapServer.this.helloName == null) {
-                return ImapServer.this.mailServer.getHelloName();
-            } else {
-                return ImapServer.this.helloName;
-            }
-        }
-
-        /**
-         * @see ImapHandlerConfigurationData#getResetLength()
-         */
-        public int getResetLength()
-        {
-            return ImapServer.this.lengthReset;
-        }
-
-        public ImapDecoder getImapDecoder() {
-            return imapDecoder;
-        }
-
-        public ImapEncoder getImapEncoder() {
-            return imapEncoder;
-        }
-
-        public ImapProcessor getImapProcessor() {
-            return imapProcessor;
-        }
-    }
-
+    // TODO: 
     protected Object getConfigurationData() {
-        return theConfigData;
+        return null;
     }
-
 }

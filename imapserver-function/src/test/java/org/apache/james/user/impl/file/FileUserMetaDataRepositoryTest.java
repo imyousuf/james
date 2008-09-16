@@ -21,9 +21,9 @@ package org.apache.james.user.impl.file;
 
 import java.io.File;
 
-import org.apache.commons.io.FileUtils;
-
 import junit.framework.TestCase;
+
+import org.apache.commons.io.FileUtils;
 
 public class FileUserMetaDataRepositoryTest extends TestCase {
 

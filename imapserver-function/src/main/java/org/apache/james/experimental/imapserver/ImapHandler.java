@@ -19,28 +19,23 @@
 
 package org.apache.james.experimental.imapserver;
 
+import java.io.IOException;
+import java.net.Socket;
+
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.logger.Logger;
-import org.apache.james.Constants;
-import org.apache.james.api.imap.ImapConstants;
-import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.imap.process.ImapSession;
 import org.apache.james.experimental.imapserver.encode.writer.OutputStreamImapResponseWriter;
-import org.apache.james.imapserver.codec.decode.ImapDecoder;
-import org.apache.james.imapserver.codec.encode.ImapEncoder;
 import org.apache.james.imapserver.codec.encode.ImapResponseComposer;
 import org.apache.james.imapserver.codec.encode.base.ImapResponseComposerImpl;
 import org.apache.james.socket.ProtocolHandler;
 import org.apache.james.socket.ProtocolHandlerHelper;
 
-import java.io.IOException;
-import java.net.Socket;
-
 /**
  * Handles IMAP connections.
  */
-public class ImapHandler implements ProtocolHandler, ImapConstants
+public class ImapHandler implements ProtocolHandler
 {
     
     private ProtocolHandlerHelper helper;
@@ -48,32 +43,19 @@ public class ImapHandler implements ProtocolHandler, ImapConstants
     private static final byte[] EMERGENCY_SIGNOFF = {'*',' ', 'B', 'Y', 'E', ' ', 
         'S', 'e', 'r', 'v', 'e', 'r', ' ', 'f', 'a', 'u', 'l', 't', '\r', '\n'};
 
-    // TODO: inject dependency
-    private String softwaretype = "JAMES "+VERSION+" Server " + Constants.SOFTWARE_VERSION;
-    private ImapRequestHandler requestHandler;
+    private final String hello;
+    private final ImapRequestHandler requestHandler;
     private ImapSession session;
 
-    /**
-     * The per-service configuration data that applies to all handlers
-     */
-    private ImapHandlerConfigurationData theConfigData;
-
-    /**
-     * Set the configuration data for the handler.
-     *
-     * @param theData the configuration data
-     */
+    public ImapHandler(final ImapRequestHandler requestHandler, final String hello) {
+        super();
+        this.requestHandler = requestHandler;
+        this.hello = hello;
+    }
+    
+    // TODO: this shouldn't be necessary
     public void setConfigurationData( Object theData )
     {
-        if (theData instanceof ImapHandlerConfigurationData) {
-            theConfigData = (ImapHandlerConfigurationData) theData;
-            final ImapEncoder imapEncoder = theConfigData.getImapEncoder();
-            final ImapProcessor imapProcessor = theConfigData.getImapProcessor();
-            final ImapDecoder imapDecoder = theConfigData.getImapDecoder();
-            requestHandler = new ImapRequestHandler(imapDecoder, imapProcessor, imapEncoder);
-        } else {
-            throw new IllegalArgumentException("Configuration object does not implement POP3HandlerConfigurationData");
-        }
     }
 
     /**
@@ -102,8 +84,7 @@ public class ImapHandler implements ProtocolHandler, ImapConstants
 
             // Write welcome message
                  
-            response.okResponse(null, softwaretype + " Server "
-                    + theConfigData.getHelloName() + " is ready.");
+            response.okResponse(null, hello);
 
             session = new ImapSessionImpl();
             

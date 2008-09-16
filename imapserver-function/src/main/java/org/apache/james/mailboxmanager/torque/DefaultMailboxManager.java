@@ -27,22 +27,12 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Locale;
 
-import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.LogEnabled;
 import org.apache.avalon.framework.logger.Logger;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.logging.impl.AvalonLogger;
-import org.apache.james.api.user.UserMetaDataRespository;
-import org.apache.james.api.user.UsersRepository;
 import org.apache.james.mailboxmanager.MailboxManagerException;
-import org.apache.james.mailboxmanager.manager.MailboxManager;
-import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 import org.apache.james.mailboxmanager.torque.om.MailboxRowPeer;
 import org.apache.james.mailboxmanager.torque.om.MessageBodyPeer;
 import org.apache.james.mailboxmanager.torque.om.MessageFlagsPeer;
@@ -55,24 +45,26 @@ import org.apache.torque.TorqueException;
 import org.apache.torque.util.BasePeer;
 import org.apache.torque.util.Transaction;
 
-public class TorqueMailboxManagerFactory extends TorqueMailboxManager implements MailboxManager, 
-        Configurable, Initializable, Serviceable, LogEnabled {
+public class DefaultMailboxManager extends TorqueMailboxManager {
 
-    public TorqueMailboxManagerFactory(UserManager userManager) {
-        super(userManager);
-    }
-
+    private static final String[] tableNames = new String[] {
+        MailboxRowPeer.TABLE_NAME, MessageRowPeer.TABLE_NAME,
+        MessageHeaderPeer.TABLE_NAME, MessageBodyPeer.TABLE_NAME,
+        MessageFlagsPeer.TABLE_NAME };
+    
     private BaseConfiguration torqueConf;
 
     private boolean initialized;
 
-    private FileSystem fileSystem;
+    private final FileSystem fileSystem;
     private String configFile;
+    
+    public DefaultMailboxManager(UserManager userManager, FileSystem fileSystem, Logger logger) {
+        super(userManager);
+        this.fileSystem = fileSystem;
+        log = new AvalonLogger(logger);
+    }
 
-    private static final String[] tableNames = new String[] {
-            MailboxRowPeer.TABLE_NAME, MessageRowPeer.TABLE_NAME,
-            MessageHeaderPeer.TABLE_NAME, MessageBodyPeer.TABLE_NAME,
-            MessageFlagsPeer.TABLE_NAME };
     
     public void initialize() throws Exception {
         if (!initialized) {
@@ -89,7 +81,7 @@ public class TorqueMailboxManagerFactory extends TorqueMailboxManager implements
                 SqlResources sqlResources = new SqlResources();
                 sqlResources.init(fileSystem
                         .getResource(configFile),
-                        TorqueMailboxManagerFactory.class.getName(), conn,
+                        DefaultMailboxManager.class.getName(), conn,
                         new HashMap());
 
                 DatabaseMetaData dbMetaData = conn.getMetaData();
@@ -188,30 +180,5 @@ public class TorqueMailboxManagerFactory extends TorqueMailboxManager implements
                 rsTables.close();
             }
         }
-    }
-
-    public boolean isInitialized() {
-        return initialized;
-    }
-
-    public String toString() {
-        return "TorqueMailboxManagerFactory";
-    }
-
-    public void enableLogging(Logger logger) {
-        log = new AvalonLogger(logger);
-
-    }
-
-    public void service(ServiceManager serviceManager) throws ServiceException {
-        setFileSystem((FileSystem) serviceManager.lookup(FileSystem.ROLE));
-//        UsersRepository usersRepository = ( UsersRepository ) serviceManager.
-//        lookup( UsersRepository.ROLE );
-//    UserMetaDataRespository userMetaDataRepository =
-//        (UserMetaDataRespository) serviceManager.lookup( UserMetaDataRespository.ROLE );
-    }
-
-    protected void setFileSystem(FileSystem system) {
-        this.fileSystem = system;
     }
 }
