@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.experimental.imapserver;
+package org.apache.james.imapserver;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -26,6 +26,8 @@ import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.api.imap.process.ImapSession;
+import org.apache.james.experimental.imapserver.ImapRequestHandler;
+import org.apache.james.experimental.imapserver.ImapSessionImpl;
 import org.apache.james.experimental.imapserver.encode.writer.OutputStreamImapResponseWriter;
 import org.apache.james.imapserver.codec.encode.ImapResponseComposer;
 import org.apache.james.imapserver.codec.encode.base.ImapResponseComposerImpl;

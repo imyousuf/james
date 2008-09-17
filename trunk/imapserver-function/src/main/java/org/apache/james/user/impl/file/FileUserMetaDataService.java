@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.phoenix.user;
+package org.apache.james.user.impl.file;
 
 import java.io.Serializable;
 

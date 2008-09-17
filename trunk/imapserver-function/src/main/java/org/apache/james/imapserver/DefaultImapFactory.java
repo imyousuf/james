@@ -29,7 +29,7 @@ import org.apache.james.imapserver.codec.decode.ImapDecoder;
 import org.apache.james.imapserver.codec.encode.ImapEncoder;
 import org.apache.james.imapserver.codec.encode.main.DefaultImapEncoderFactory;
 import org.apache.james.imapserver.processor.main.DefaultImapProcessorFactory;
-import org.apache.james.mailboxmanager.impl.DefaultMailboxManagerProvider;
+import org.apache.james.mailboxmanager.torque.DefaultMailboxManagerProvider;
 import org.apache.james.mailboxmanager.torque.DefaultMailboxManager;
 import org.apache.james.mailboxmanager.torque.DefaultUserManager;
 import org.apache.james.services.FileSystem;
