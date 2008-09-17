@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.experimental.imapserver;
+package org.apache.james.imapserver;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -26,6 +26,7 @@ import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
 import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.api.user.UsersRepository;
+import org.apache.james.experimental.imapserver.ImapRequestHandler;
 import org.apache.james.imapserver.DefaultImapFactory;
 import org.apache.james.services.FileSystem;
 import org.apache.james.socket.AbstractJamesService;
