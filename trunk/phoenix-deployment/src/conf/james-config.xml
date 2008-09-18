@@ -1124,6 +1124,46 @@ Regards, Postmaster XXX.YYY
             
       </handler>
    </smtpserver>
+   
+      <!-- The SMTP server is enabled by default -->
+    <!-- Disabling blocks will stop them from listening, -->
+    <!-- but does not free as many resources as removing them would -->
+   <imapserver enabled="true">
+      <!-- port 25 is the well-known/IANA registered port for SMTP -->
+      <port>143</port>
+
+      <!-- Uncomment this if you want to bind to a specific inetaddress -->
+      <!-- Please NOTE: you should add this IP also to your RemoteAddrNotInNetwork -->
+      <!-- in order to avoid relay check for locallly generated bounces -->
+      <!--
+      <bind> </bind>
+      -->
+      <!-- JAMES TLS uses JSSE. This means that for many Sun JVMs,
+           the sunjce_provider.jar must be copied from $JAVA_HOME/lib/ext
+           into $JAMES_HOME/lib. It may also be necessary to download and
+           install unlimited strength policies. -->
+      <!--
+      <useTLS>true</useTLS>
+      -->
+      <!-- Use provider elements to specify additional JCE providers.
+         The jars should be put into $JAMES_HOME/lib.
+           For example, Uncomment this if you want to use 
+           BouncyCastle JCE (http://www.bouncycastle.org)
+      <provider>org.bouncycastle.jce.provider.BouncyCastleProvider</provider> -->
+
+      <handler>
+         <!-- This is the name used by the server to identify itself in the SMTP -->
+         <!-- protocol.  If autodetect is TRUE, the server will discover its -->
+         <!-- own host name and use that in the protocol.  If discovery fails, -->
+         <!-- the value of 'localhost' is used.  If autodetect is FALSE, James -->
+         <!-- will use the specified value. -->
+         <!--
+         <helloName autodetect="true">myMailServer</helloName>
+         -->
+         <connectiontimeout>360000</connectiontimeout>
+            
+      </handler>
+   </imapserver>
 
     <!-- The NNTP server is enabled by default -->
     <!-- Disabling blocks will stop them from listening, -->

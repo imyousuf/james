@@ -18,9 +18,6 @@
   under the License.                                           
  -->
 
-<!--
-TODO: relocate
---> 
 <blockinfo>
 
   <!-- section to describe block -->
@@ -48,13 +45,10 @@ TODO: relocate
       <service name="org.apache.james.services.MailServer" version="1.0"/>
     </dependency>
     <dependency>
-      <service name="org.apache.james.imapserver.codec.decode.ImapDecoderFactory" version="1.0"/>
-    </dependency>
+      <service name="org.apache.james.api.user.UsersRepository" version="1.0"/>
+    </dependency> 
     <dependency>
-      <service name="org.apache.james.imapserver.codec.encode.ImapEncoderFactory" version="1.0"/>
-    </dependency>
-    <dependency>
-      <service name="org.apache.james.api.imap.process.ImapProcessorFactory" version="1.0"/>
+      <service name="org.apache.james.services.FileSystem" version="1.0"/>
     </dependency>
   </dependencies>
 </blockinfo>
