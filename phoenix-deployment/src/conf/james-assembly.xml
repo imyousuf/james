@@ -275,6 +275,22 @@
       <provide name="dnsserver" role="org.apache.james.api.dnsservice.DNSService"/>
   </block>
   -->
+  
+    
+  <!-- IMAP server -->
+  <block name="imapserver" class="org.apache.james.imapserver.ImapServer">
+    <provide name="localusersrepository" role="org.apache.james.api.user.UsersRepository"/>
+    <provide name="sockets"
+             role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
+    <provide name="connections"
+             role="org.apache.james.socket.JamesConnectionManager"/>
+    <provide name="thread-manager"
+             role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
+    <provide name="dnsserver" role="org.apache.james.api.dnsservice.DNSService"/>
+    <provide name="James" role="org.apache.james.services.MailServer"/>
+    <provide name="filesystem" role="org.apache.james.services.FileSystem" />
+  </block>
+  
   <!-- #################################################################### -->
   
   <block name="domainlistmanagement" class="org.apache.james.management.impl.DomainListManagement">
