@@ -35,14 +35,16 @@ import org.apache.oro.text.regex.Pattern;
 import org.apache.oro.text.regex.Perl5Compiler;
 import org.apache.oro.text.regex.Perl5Matcher;
 
+import javax.mail.MessagingException;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Locale;
+import java.util.StringTokenizer;
 import java.util.Vector;
-
-import javax.mail.MessagingException;
 
 /**
  * This Mailet retries delivery of a mail based on schedule specified in the
@@ -192,11 +194,11 @@ public class Retry extends GenericMailet implements Runnable {
         }
     }
     
-    // Flag used by James for logging messages.
+    // Flag to define verbose logging messages.
     private boolean isDebug = false;
 
     // Repository used to store messages that will be retried.
-    private SpoolRepository retryRepository;
+    private SpoolRepository workRepository;
 
     // List of Delay Times. Controls frequency of retry attempts.
     private long[] delayTimes;
@@ -205,10 +207,10 @@ public class Retry extends GenericMailet implements Runnable {
     private int maxRetries = 5;
 
     // No. of threads used to process messages that should be retried.
-    private int retryThreadCount = 1;
+    private int workersThreadCount = 1;
 
-    // Collection that stores all Retry threads.
-    private Collection retryThreads = new Vector();
+    // Collection that stores all worker threads.
+    private Collection workersThreads = new Vector();
 
     // Processor that will be called for retrying. Defaults to "root" processor.
     private String retryProcessor = Mail.DEFAULT;
@@ -229,7 +231,7 @@ public class Retry extends GenericMailet implements Runnable {
     private MultipleDelayFilter delayFilter = new MultipleDelayFilter();
 
     // Path of the retry repository
-    private String retryRepositoryPath = null;
+    private String workRepositoryPath = null;
 
     /**
      * Initializes all arguments based on configuration values specified in the
@@ -240,68 +242,75 @@ public class Retry extends GenericMailet implements Runnable {
      */
     public void init() throws MessagingException {
         // Set isDebug flag.
-        String debug = getInitParameter("debug");
-        isDebug = (debug == null || debug.equalsIgnoreCase("false")) ? false
-                : true;
+        isDebug = (getInitParameter("debug") == null) ? false : new Boolean(getInitParameter("debug")).booleanValue();
 
         // Create list of Delay Times.
         ArrayList delayTimesList = new ArrayList();
-        if (getInitParameter("delayTime") != null) {
-            delayTimeMatcher = new Perl5Matcher();
-            String delayTimesParm = getInitParameter("delayTime");
+        try {
+            if (getInitParameter("delayTime") != null) {
+                delayTimeMatcher = new Perl5Matcher();
+                String delayTimesParm = getInitParameter("delayTime");
 
-            // Split on commas
-            String[] tokens = delayTimesParm.split(",");
-            for (int i = 0; i < tokens.length; i++) {
-                delayTimesList.add(new Delay(tokens[i]));
+                // Split on commas
+                StringTokenizer st = new StringTokenizer (delayTimesParm,",");
+                while (st.hasMoreTokens()) {
+                    String delayTime = st.nextToken();
+                    delayTimesList.add (new Delay(delayTime));
+                }
+            } else {
+                // Use default delayTime.
+                delayTimesList.add(new Delay());
             }
-        } else {
-            // Use default delayTime.
-            delayTimesList.add(new Delay());
+        } catch (Exception e) {
+            log("Invalid delayTime setting: " + getInitParameter("delayTime"));
         }
 
-        // Get No. of Max Retries.
-        if (getInitParameter("maxRetries") != null) {
-            maxRetries = Integer.parseInt(getInitParameter("maxRetries"));
-        }
-
-        // Check consistency of 'maxRetries' with delay_times_list attempts.
-        int totalAttempts = calcTotalAttempts(delayTimesList);
-
-        // If inconsistency found, fix it.
-        if (totalAttempts > maxRetries) {
-            log("Total number of delayTime attempts exceeds maxRetries specified. "
-                    + " Increasing maxRetries from "
-                    + maxRetries
-                    + " to "
-                    + totalAttempts);
-            maxRetries = totalAttempts;
-        } else {
-            int extra = maxRetries - totalAttempts;
-            if (extra != 0) {
-                log("maxRetries is larger than total number of attempts specified.  "
-                        + "Increasing last delayTime with "
-                        + extra
-                        + " attempts ");
-
-                // Add extra attempts to the last delayTime.
-                if (delayTimesList.size() != 0) {
-                    // Get the last delayTime.
-                    Delay delay = (Delay) delayTimesList.get(delayTimesList
-                            .size() - 1);
-
-                    // Increase no. of attempts.
-                    delay.setAttempts(delay.getAttempts() + extra);
-                    log("Delay of " + delay.getDelayTime()
-                            + " msecs is now attempted: " + delay.getAttempts()
-                            + " times");
-                } else {
-                    throw new MessagingException(
-                            "No delaytimes, cannot continue");
+        try {
+            // Get No. of Max Retries.
+            if (getInitParameter("maxRetries") != null) {
+                maxRetries = Integer.parseInt(getInitParameter("maxRetries"));
+            }
+    
+            // Check consistency of 'maxRetries' with delayTimesList attempts.
+            int totalAttempts = calcTotalAttempts(delayTimesList);
+    
+            // If inconsistency found, fix it.
+            if (totalAttempts > maxRetries) {
+                log("Total number of delayTime attempts exceeds maxRetries specified. "
+                        + " Increasing maxRetries from "
+                        + maxRetries
+                        + " to "
+                        + totalAttempts);
+                maxRetries = totalAttempts;
+            } else {
+                int extra = maxRetries - totalAttempts;
+                if (extra != 0) {
+                    log("maxRetries is larger than total number of attempts specified.  "
+                            + "Increasing last delayTime with "
+                            + extra
+                            + " attempts ");
+    
+                    // Add extra attempts to the last delayTime.
+                    if (delayTimesList.size() != 0) {
+                        // Get the last delayTime.
+                        Delay delay = (Delay) delayTimesList.get(delayTimesList
+                                .size() - 1);
+    
+                        // Increase no. of attempts.
+                        delay.setAttempts(delay.getAttempts() + extra);
+                        log("Delay of " + delay.getDelayTime()
+                                + " msecs is now attempted: " + delay.getAttempts()
+                                + " times");
+                    } else {
+                        throw new MessagingException(
+                                "No delaytimes, cannot continue");
+                    }
                 }
             }
+            delayTimes = expandDelays(delayTimesList);
+        } catch (Exception e) {
+            log("Invalid maxRetries setting: " + getInitParameter("maxRetries"));
         }
-        delayTimes = expandDelays(delayTimesList);
 
         ServiceManager compMgr = (ServiceManager) getMailetContext()
                 .getAttribute(Constants.AVALON_COMPONENT_MANAGER);
@@ -310,9 +319,9 @@ public class Retry extends GenericMailet implements Runnable {
         // file system where Mail objects will be saved during the 'retry'
         // processing. This can be changed to a repository on a database (e.g.
         // db://maildb/spool/retry).
-        retryRepositoryPath = getInitParameter("retryRepository");
-        if (retryRepositoryPath == null) {
-            retryRepositoryPath = "file://var/mail/retry/";
+        workRepositoryPath = getInitParameter("retryRepository");
+        if (workRepositoryPath == null) {
+            workRepositoryPath = "file://var/mail/retry/";
         }
 
         try {
@@ -321,22 +330,22 @@ public class Retry extends GenericMailet implements Runnable {
 
             DefaultConfiguration spoolConf = new DefaultConfiguration(
                     "repository", "generated:Retry");
-            spoolConf.setAttribute("destinationURL", retryRepositoryPath);
+            spoolConf.setAttribute("destinationURL", workRepositoryPath);
             spoolConf.setAttribute("type", "SPOOL");
-            retryRepository = (SpoolRepository) mailstore.select(spoolConf);
+            workRepository = (SpoolRepository) mailstore.select(spoolConf);
         } catch (ServiceException cnfe) {
             log("Failed to retrieve Store component:" + cnfe.getMessage());
             throw new MessagingException("Failed to retrieve Store component",
                     cnfe);
         }
 
-        // Start Retry Threads.
-        retryThreadCount = Integer.parseInt(getInitParameter("retryThreads"));
-        for (int i = 0; i < retryThreadCount; i++) {
+        // Start Workers Threads.
+        workersThreadCount = Integer.parseInt(getInitParameter("retryThreads"));
+        for (int i = 0; i < workersThreadCount; i++) {
             String threadName = "Retry thread (" + i + ")";
             Thread t = new Thread(this, threadName);
             t.start();
-            retryThreads.add(t);
+            workersThreads.add(t);
         }
 
         // Get Retry Processor
@@ -355,12 +364,13 @@ public class Retry extends GenericMailet implements Runnable {
      *            list of 'Delay' objects
      * @return total no. of retry attempts
      */
-    private int calcTotalAttempts(ArrayList delayList) {
+    private int calcTotalAttempts (ArrayList delayList) {
         int sum = 0;
-        if (delayList != null)
-            for (int i = 0; i < delayList.size(); i++) {
-                sum += ((Delay) delayList.get(i)).getAttempts();
-            }
+        Iterator i = delayList.iterator();
+        while (i.hasNext()) {
+            Delay delay = (Delay)i.next();
+            sum += delay.getAttempts();
+        }
         return sum;
     }
 
@@ -411,226 +421,6 @@ public class Retry extends GenericMailet implements Runnable {
         return delayTimes[retryCount];
     }
 
-    public String getMailetInfo() {
-        return "Retry Mailet";
-    }
-
-    /**
-     * Checks if maximum retry count has been reached. If it is, then it
-     * forwards the message to the error processor; otherwise writes it to the
-     * retry repository.
-     * 
-     * @param mail
-     *            the mail to be retried.
-     * @throws MessagingException
-     *             on failure to send it to the error processor.
-     * 
-     * @see org.apache.mailet.Mailet#service(org.apache.mailet.Mail)
-     */
-    public void service(Mail mail) throws MessagingException {
-        if (isDebug) {
-            log("Retrying mail " + mail.getName());
-        }
-
-        // Save the original error message.
-        mail.setAttribute(ORIGINAL_ERROR, mail.getErrorMessage());
-
-        // Get retry count and put it in the error message.
-        // Note: 'errorMessage' is the only argument of 'accept' method in
-        // SpoolRepository.AcceptFilter that can be used to pass the retry
-        // count.
-        String retryCount = (String) mail.getAttribute(RETRY_COUNT);
-        if (retryCount == null) {
-            retryCount = "0";
-        }
-        mail.setErrorMessage(retryCount);
-
-        int retries = Integer.parseInt(retryCount);
-        String message = "";
-
-        // If maximum retries number hasn't reached, store message in retrying
-        // repository.
-        if (retries < maxRetries) {
-            message = "Storing " + mail.getMessage().getMessageID()
-                    + " to retry repository " + retryRepositoryPath
-                    + ", retry " + retries;
-            log(message);
-
-            mail.setAttribute(RETRY_COUNT, retryCount);
-            retryRepository.store(mail);
-            mail.setState(Mail.GHOST);
-        } else {
-            // Forward message to 'errorProcessor'.
-            message = "Sending " + mail.getMessage().getMessageID()
-                    + " to error processor after retrying " + retries
-                    + " times.";
-            log(message);
-            mail.setState(errorProcessor);
-            MailetContext mc = getMailetContext();
-            try {
-                message = "Message failed after " + retries
-                        + " retries with error " + "message: "
-                        + mail.getAttribute(ORIGINAL_ERROR);
-                mail.setErrorMessage(message);
-                mc.sendMail(mail);
-            } catch (MessagingException e) {
-                // We shouldn't get an exception, because the mail was already
-                // processed.
-                log("Exception re-inserting failed mail: ", e);
-                throw new MessagingException(
-                        "Exception encountered while bouncing "
-                                + "mail in Retry process.", e);
-            }
-        }
-    }
-
-    /**
-     * Stops all the retry threads that are waiting for messages. This method is
-     * called by the Mailet container before taking this Mailet out of service.
-     */
-    public synchronized void destroy() {
-        // Mark flag so threads from this Mailet stop themselves
-        destroyed = true;
-
-        // Wake up all threads from waiting for an accept
-        for (int i = 0; i < retryThreads.size(); i++) {
-            ((Thread) ((ArrayList) retryThreads).get(i)).interrupt();
-        }
-        notifyAll();
-    }
-
-    /**
-     * Handles checking the retrying spool for new mail and retrying them if
-     * there are ready for retrying.
-     */
-    public void run() {
-        try {
-            while (!Thread.interrupted() && !destroyed) {
-                try {
-                    // Get the 'mail' object that is ready for retrying. If no
-                    // message is
-                    // ready, the 'accept' will block until message is ready.
-                    // The amount
-                    // of time to block is determined by the 'getWaitTime'
-                    // method of the
-                    // MultipleDelayFilter.
-                    Mail mail = retryRepository.accept(delayFilter);
-                    String key = mail.getName();
-                    try {
-                        if (isDebug) {
-                            String message = Thread.currentThread().getName()
-                                    + " will " + "process mail " + key;
-                            log(message);
-                        }
-
-                        // Retry message
-                        if (retry(mail)) {
-                            // If retry attempt was successful, remove message.
-                            // ContainerUtil.dispose(mail);
-                            retryRepository.remove(key);
-                        } else {
-                            // Something happened that will delay delivery.
-                            // Store it back in
-                            // the retry repository.
-                            retryRepository.store(mail);
-
-                            // This is an update, so we have to unlock and
-                            // notify or this mail
-                            // is kept locked by this thread.
-                            // Note: We do not notify because we updated an
-                            // already existing
-                            // mail and we are now free to handle more mails.
-                            // Furthermore this mail should not be processed now
-                            // because we
-                            // have a retry time scheduling.
-                            retryRepository.unlock(key);
-
-                            // Clear the object handle to make sure it recycles
-                            // this object.
-                            ContainerUtil.dispose(mail);
-                            mail = null;
-                        }
-                    } catch (Exception e) {
-                        // Prevent unexpected exceptions from causing looping by
-                        // removing
-                        // message from outgoing.
-                        // DO NOT CHANGE THIS to catch Error! For example, if
-                        // there were an
-                        // OutOfMemory condition caused because something else
-                        // in the server
-                        // was abusing memory, we would not want to start
-                        // purging the
-                        // retrying spool!
-                        ContainerUtil.dispose(mail);
-                        retryRepository.remove(key);
-                        throw e;
-                    }
-                } catch (Throwable e) {
-                    if (!destroyed) {
-                        log("Exception caught in Retry.run()", e);
-                    }
-                }
-            }
-        } finally {
-            // Restore the thread state to non-interrupted.
-            Thread.interrupted();
-        }
-    }
-
-    /**
-     * Retries delivery of a {@link Mail}.
-     * 
-     * @param mail
-     *            mail to be retried.
-     * @return {@code true} if message was resent successfully else {@code
-     *         false}
-     */
-    private boolean retry(Mail mail) {
-        if (isDebug) {
-            log("Attempting to deliver " + mail.getName());
-        }
-
-        // Update retry count
-        int retries = Integer.parseInt((String) mail.getAttribute(RETRY_COUNT));
-        ++retries;
-        mail.setErrorMessage(retries + "");
-        mail.setAttribute(RETRY_COUNT, String.valueOf(retries));
-        mail.setLastUpdated(new Date());
-
-        // Call preprocessor
-        preprocess(mail);
-
-        // Send it to 'retry' processor
-        mail.setState(retryProcessor);
-        MailetContext mc = getMailetContext();
-        try {
-            String message = "Retrying message "
-                    + mail.getMessage().getMessageID() + ".  Attempt #: "
-                    + retries;
-            log(message);
-            mc.sendMail(mail);
-        } catch (MessagingException e) {
-            // We shouldn't get an exception, because the mail was already
-            // processed
-            log("Exception while retrying message. ", e);
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * Pre-processes the {@link Mail} object before resending.
-     * <p>
-     * This method can be used by subclasses to perform application specific
-     * processing on the Mail object, such as, adding and/or removing
-     * application specific Mail attributes etc. The default implementation
-     * leaves the Mail object intact.
-     * 
-     * @param mail
-     *            mail object that can be customized before resending.
-     */
-    protected void preprocess(Mail mail) {
-    }
 
     /**
      * This class is used to hold a delay time and its corresponding number of
@@ -731,5 +521,221 @@ public class Retry extends GenericMailet implements Runnable {
             String message = getAttempts() + "*" + getDelayTime() + "msecs";
             return message;
         }
+    }
+
+    public String getMailetInfo() {
+        return "Retry Mailet";
+    }
+
+    /**
+     * Checks if maximum retry count has been reached. If it is, then it
+     * forwards the message to the error processor; otherwise writes it to the
+     * retry repository.
+     * 
+     * @param mail
+     *            the mail to be retried.
+     * @throws MessagingException
+     *             on failure to send it to the error processor.
+     * 
+     * @see org.apache.mailet.Mailet#service(org.apache.mailet.Mail)
+     */
+    public void service(Mail mail) throws MessagingException {
+        if (isDebug) {
+            log("Retrying mail " + mail.getName());
+        }
+
+        // Save the original error message.
+        mail.setAttribute(ORIGINAL_ERROR, mail.getErrorMessage());
+
+        // Get retry count and put it in the error message.
+        // Note: 'errorMessage' is the only argument of 'accept' method in
+        // SpoolRepository.AcceptFilter that can be used to pass the retry
+        // count.
+        String retryCount = (String) mail.getAttribute(RETRY_COUNT);
+        if (retryCount == null) {
+            retryCount = "0";
+        }
+        mail.setErrorMessage(retryCount);
+
+        int retries = Integer.parseInt(retryCount);
+        String message = "";
+
+        // If maximum retries number hasn't reached, store message in retrying
+        // repository.
+        if (retries < maxRetries) {
+            message = "Storing " + mail.getMessage().getMessageID()
+                    + " to retry repository " + workRepositoryPath
+                    + ", retry " + retries;
+            log(message);
+
+            mail.setAttribute(RETRY_COUNT, retryCount);
+            workRepository.store(mail);
+            mail.setState(Mail.GHOST);
+        } else {
+            // Forward message to 'errorProcessor'.
+            message = "Sending " + mail.getMessage().getMessageID()
+                    + " to error processor after retrying " + retries
+                    + " times.";
+            log(message);
+            mail.setState(errorProcessor);
+            MailetContext mc = getMailetContext();
+            try {
+                message = "Message failed after " + retries
+                        + " retries with error " + "message: "
+                        + mail.getAttribute(ORIGINAL_ERROR);
+                mail.setErrorMessage(message);
+                mc.sendMail(mail);
+            } catch (MessagingException e) {
+                // We shouldn't get an exception, because the mail was already
+                // processed.
+                log("Exception re-inserting failed mail: ", e);
+                throw new MessagingException(
+                        "Exception encountered while bouncing "
+                                + "mail in Retry process.", e);
+            }
+        }
+    }
+    
+    /**
+     * Stops all the worker threads that are waiting for messages. This method is
+     * called by the Mailet container before taking this Mailet out of service.
+     */
+    public synchronized void destroy() {
+        // Mark flag so threads from this Mailet stop themselves
+        destroyed = true;
+
+        // Wake up all threads from waiting for an accept
+        for (Iterator i = workersThreads.iterator(); i.hasNext(); ) {
+            Thread t = (Thread)i.next();
+            t.interrupt();
+        }
+        notifyAll();
+    }
+
+    /**
+     * Handles checking the retrying spool for new mail and retrying them if
+     * there are ready for retrying.
+     */
+    public void run() {
+        try {
+            while (!Thread.interrupted() && !destroyed) {
+                try {
+                    // Get the 'mail' object that is ready for retrying. If no
+                    // message is
+                    // ready, the 'accept' will block until message is ready.
+                    // The amount
+                    // of time to block is determined by the 'getWaitTime'
+                    // method of the
+                    // MultipleDelayFilter.
+                    Mail mail = workRepository.accept(delayFilter);
+                    String key = mail.getName();
+                    try {
+                        if (isDebug) {
+                            String message = Thread.currentThread().getName()
+                                    + " will process mail " + key;
+                            log(message);
+                        }
+
+                        // Retry message
+                        if (retry(mail)) {
+                            // If retry attempt was successful, remove message.
+                            // ContainerUtil.dispose(mail);
+                            workRepository.remove(key);
+                        } else {
+                            // Something happened that will delay delivery.
+                            // Store it back in the retry repository.
+                            workRepository.store(mail);
+                            ContainerUtil.dispose(mail);
+
+                            // This is an update, so we have to unlock and
+                            // notify or this mail is kept locked by this thread.
+                            workRepository.unlock(key);
+                            
+                            // Note: We do not notify because we updated an
+                            // already existing mail and we are now free to handle 
+                            // more mails.
+                            // Furthermore this mail should not be processed now
+                            // because we have a retry time scheduling.
+                        }
+                        
+                        // Clear the object handle to make sure it recycles
+                        // this object.
+                        mail = null;
+                    } catch (Exception e) {
+                        // Prevent unexpected exceptions from causing looping by
+                        // removing message from outgoing.
+                        // DO NOT CHANGE THIS to catch Error! For example, if
+                        // there were an OutOfMemory condition caused because 
+                        // something else in the server was abusing memory, we would 
+                        // not want to start purging the retrying spool!
+                        ContainerUtil.dispose(mail);
+                        workRepository.remove(key);
+                        throw e;
+                    }
+                } catch (Throwable e) {
+                    if (!destroyed) {
+                        log("Exception caught in Retry.run()", e);
+                    }
+                }
+            }
+        } finally {
+            // Restore the thread state to non-interrupted.
+            Thread.interrupted();
+        }
+    }
+
+    /**
+     * Retries delivery of a {@link Mail}.
+     * 
+     * @param mail
+     *            mail to be retried.
+     * @return {@code true} if message was resent successfully else {@code
+     *         false}
+     */
+    private boolean retry(Mail mail) {
+        if (isDebug) {
+            log("Attempting to deliver " + mail.getName());
+        }
+
+        // Update retry count
+        int retries = Integer.parseInt((String) mail.getAttribute(RETRY_COUNT));
+        ++retries;
+        mail.setErrorMessage(retries + "");
+        mail.setAttribute(RETRY_COUNT, String.valueOf(retries));
+        mail.setLastUpdated(new Date());
+
+        // Call preprocessor
+        preprocess(mail);
+
+        // Send it to 'retry' processor
+        mail.setState(retryProcessor);
+        MailetContext mc = getMailetContext();
+        try {
+            String message = "Retrying message "
+                    + mail.getMessage().getMessageID() + ".  Attempt #: "
+                    + retries;
+            log(message);
+            mc.sendMail(mail);
+        } catch (MessagingException e) {
+            // We shouldn't get an exception, because the mail was already
+            // processed
+            log("Exception while retrying message. ", e);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Pre-processes the {@link Mail} object before resending.
+     * <p>
+     * This method can be used by subclasses to perform application specific
+     * processing on the Mail object, such as, adding and/or removing
+     * application specific Mail attributes etc. The default implementation
+     * leaves the Mail object intact.
+     * 
+     * @param mail
+     *            mail object that can be customized before resending.
+     */
+    protected void preprocess(Mail mail) {
     }
 }
