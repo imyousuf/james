@@ -421,8 +421,10 @@ public class MimeMessageTest extends TestCase {
     
     /**
      * http://issues.apache.org/jira/browse/GERONIMO-4261
+     * 
+     * This bug was in   geronimo-javamail_1.4-1.5
+     * Has been fixed in geronimo-javamail_1.4-1.6
      */
-    /*
     public void testGeronimoIndexOutOfBounds() throws Exception {
         String message = "                  \r\n"+
             "Subject: test\r\n"+
@@ -433,6 +435,5 @@ public class MimeMessageTest extends TestCase {
         new MimeMessage(null, new ByteArrayInputStream(
                 messageBytes));
     }
-    */
 
 }
