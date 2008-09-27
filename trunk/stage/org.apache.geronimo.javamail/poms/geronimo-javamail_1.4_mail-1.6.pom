@@ -3,12 +3,12 @@
   <parent>
     <artifactId>geronimo-javamail_1.4</artifactId>
     <groupId>org.apache.geronimo.javamail</groupId>
-    <version>1.5</version>
+    <version>1.6</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>geronimo-javamail_1.4_mail</artifactId>
   <name>Geronimo JavaMail 1.4 :: Mail</name>
-  <version>1.5</version>
+  <version>1.6</version>
   <build>
     <plugins>
       <plugin>
