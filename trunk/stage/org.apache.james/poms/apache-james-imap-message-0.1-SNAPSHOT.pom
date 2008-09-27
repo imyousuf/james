@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="ISO-8859-15"?>
 <!--
   Licensed to the Apache Software Foundation (ASF) under one
   or more contributor license agreements.  See the NOTICE file
@@ -25,36 +25,54 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.james</groupId>
-  <artifactId>apache-james-imap-seda</artifactId>
-  <name>Apache JAMES IMAP function</name>
+  <artifactId>apache-james-imap-message</artifactId>
+  <name>Apache JAMES IMAP Message Library</name>
+  
+  <profiles>
+    <profile>
+      <!-- Geronimo Mail module do not declare runtime dependency on Activation -->
+      <id>geronimo</id>
+      <dependencies>
+        <dependency>
+          <groupId>${javax.activation.groupId}</groupId>
+          <artifactId>${javax.activation.artifactId}</artifactId>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
+  
   <dependencies>
+    <dependency>
+      <groupId>${javax.mail.groupId}</groupId>
+      <artifactId>${javax.mail.artifactId}</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-imap-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>apache-james-imap-message</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>apache-james-imap-decode</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>concurrent</groupId>
-      <artifactId>concurrent</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
     </dependency>
     <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>apache-james-imap-api</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>jmock</groupId>
+      <artifactId>jmock</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
