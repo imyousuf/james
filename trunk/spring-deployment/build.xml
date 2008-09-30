@@ -119,9 +119,12 @@
 			<include name="${mailet.jar}"/>
             <include name="${commons-digester.jar}"/>
             <!-- TODO: include libraries without wildcards -->
+            <include name="${path.lib.james}/${jars-prefix}*-util-${version}.jar"/>   
             <include name="${path.lib.james}/${jars-prefix}*-api-${version}.jar"/>
             <include name="${path.lib.james}/${jars-prefix}*-library-${version}.jar"/>
             <include name="${path.lib.james}/${jars-prefix}*-function-${version}.jar"/>
+            <!-- Protocols should be coupled by deployment only -->
+            <include name='${path.lib.james}/apache-james-imap*.jar'/>   
         </fileset>
         <!--<pathelement path="${java.class.path}" />-->
         <!--<pathelement path="${build.classes}" />-->
