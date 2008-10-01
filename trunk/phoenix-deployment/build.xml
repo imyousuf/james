@@ -23,7 +23,7 @@
   under the License.
 -->
 
-<project default="main" basedir=".">
+<project default="main" basedir="." name="pheonix-deployment-build">
     <!--
     Give user a chance to override without editing this file
     (and without typing -D each time he compiles it)
@@ -60,7 +60,16 @@
     Set the classpath
     ===================================================================
     -->
+    
+    <fileset id='james.jars' dir='${lib.dir}'>
+        <!-- TODO: include libraries without wildcards -->
+        <include name="${path.lib.james}/${jars-prefix}*-api-${version}.jar"/>
+        <include name="${path.lib.james}/${jars-prefix}*-util-${version}.jar"/>
+        <include name="${path.lib.james}/${jars-prefix}*-library-${version}.jar"/>
+        <include name="${path.lib.james}/${jars-prefix}*-function-${version}.jar"/>
+    </fileset>   
 
+    &check-targets;   
     <path id="project.class.path">
         <fileset dir="${lib.dir}">
             <include name='${jms-spec.jar}'/>
@@ -108,14 +117,10 @@
             <include name="${jackrabbit-commons.jar}"/>
             <include name="${jackrabbit-rmi.jar}"/>
             <include name="${jcr.jar}"/>
-            <!-- TODO: include libraries without wildcards -->
-            <include name="${path.lib.james}/${jars-prefix}*-api-${version}.jar"/>
-            <include name="${path.lib.james}/${jars-prefix}*-util-${version}.jar"/>
-            <include name="${path.lib.james}/${jars-prefix}*-library-${version}.jar"/>
-            <include name="${path.lib.james}/${jars-prefix}*-function-${version}.jar"/>
             <!-- Protocols should be coupled by deployment only -->
             <include name='${path.lib.james}/apache-james-imap*.jar'/>
         </fileset>
+        <fileset refid="james.jars"/>   
         <pathelement path="${java.class.path}" />
         <pathelement path="${build.classes}" />
     </path>
@@ -139,8 +144,17 @@
     ===================================================================
     -->
 
-    &check-targets;
-    <target name="check-dependencies" depends="javamail-check,activation-check"/>
+    <target name='james-check'>
+        <condition property="is.james.compiled">   
+            <resourcecount refid="james.jars" when="greater" count="0" />   
+        </condition>
+        <fail unless="is.james.compiled">Please ensure that James server is compiled
+ before trying to build the spring deployment. Please note that 'dist' must be 
+ run at least once before 'lite' can be run.
+        </fail>
+    </target>   
+    
+    <target name="check-dependencies" depends="javamail-check,activation-check,james-check"/>
 
     <!--
     ===================================================================

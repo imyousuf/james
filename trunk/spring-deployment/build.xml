@@ -77,6 +77,14 @@
         <!-- Paths to be included in compilation bootclasspath -->
     </path>
 
+    <fileset id='james.jars' dir='${lib.dir}'>
+        <!-- TODO: include libraries without wildcards -->
+        <include name="${path.lib.james}/${jars-prefix}*-api-${version}.jar"/>
+        <include name="${path.lib.james}/${jars-prefix}*-util-${version}.jar"/>
+        <include name="${path.lib.james}/${jars-prefix}*-library-${version}.jar"/>
+        <include name="${path.lib.james}/${jars-prefix}*-function-${version}.jar"/>
+    </fileset>   
+    
     <!-- from phoenix-deployment build.xml -->
     <path id="classpath.james.target">
         <fileset dir="${lib.dir}">
@@ -126,14 +134,10 @@
             <include name="${jackrabbit-commons.jar}"/>
             <include name="${jackrabbit-rmi.jar}"/>
             <include name="${jcr.jar}"/>
-            <!-- TODO: include libraries without wildcards -->
-            <include name="${path.lib.james}/${jars-prefix}*-util-${version}.jar"/>   
-            <include name="${path.lib.james}/${jars-prefix}*-api-${version}.jar"/>
-            <include name="${path.lib.james}/${jars-prefix}*-library-${version}.jar"/>
-            <include name="${path.lib.james}/${jars-prefix}*-function-${version}.jar"/>
             <!-- Protocols should be coupled by deployment only -->
-            <include name='${path.lib.james}/apache-james-imap*.jar'/>   
+            <include name='${path.lib.james}/apache-james-imap*.jar'/>
         </fileset>
+        <fileset refid="james.jars"/> 
         <!--<pathelement path="${java.class.path}" />-->
         <!--<pathelement path="${build.classes}" />-->
     </path>
@@ -238,6 +242,13 @@
 
     <target name="init" description="Build initialization">
         <!-- Perform any build initialization in this target -->
+            <condition property="is.james.compiled">   
+                <resourcecount refid="james.jars" when="greater" count="0" />   
+            </condition>   
+            <fail unless="is.james.compiled">Please ensure that James server is compiled
+     before trying to build the spring deployment. Please note that 'dist' must be 
+     run at least once before 'lite' can be run.
+            </fail>
     </target>
 
     <target name="dist-lite" depends="everything" description="forwards to everything - exists for compatibility with parent build.xml"/>
