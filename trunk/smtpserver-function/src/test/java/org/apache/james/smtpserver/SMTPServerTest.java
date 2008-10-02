@@ -380,37 +380,43 @@ public class SMTPServerTest extends TestCase {
         m_testConfiguration.setAuthorizedAddresses("192.168.0.1");
         finishSetUp(m_testConfiguration);
 
+        doTestHeloEhloResolv("helo");
+    }
 
-        SMTPClient smtpProtocol1 = new SMTPClient();
-        smtpProtocol1.connect("127.0.0.1", m_smtpListenerPort);
+    private void doTestHeloEhloResolv(String heloCommand) throws IOException {
+        SMTPClient smtpProtocol = new SMTPClient();
+        smtpProtocol.connect("127.0.0.1", m_smtpListenerPort);
 
-        assertTrue("first connection taken", smtpProtocol1.isConnected());
+        assertTrue("first connection taken", smtpProtocol.isConnected());
 
         // no message there, yet
         assertNull("no mail received by mail server", m_mailServer.getLastMail());
 
-        String helo1 = "abgsfe3rsf.de";
-        String helo2 = "james.apache.org";
+        String fictionalDomain = "abgsfe3rsf.de";
+        String existingDomain = "james.apache.org";
         String mail = "sender@james.apache.org";
         String rcpt = "rcpt@localhost";
-        
-        smtpProtocol1.sendCommand("helo",helo1);
-        smtpProtocol1.setSender(mail);
-        smtpProtocol1.addRecipient(rcpt);
-        
-        // this should give a 501 code cause the helo could not resolved
-        assertEquals("expected error: helo could not resolved", 501, smtpProtocol1.getReplyCode());
-            
-        smtpProtocol1.sendCommand("helo", helo2);
-        smtpProtocol1.setSender(mail);
-        smtpProtocol1.addRecipient(rcpt);
-        
-        // helo is resolvable. so this should give a 250 code
-        assertEquals("Helo accepted", 250, smtpProtocol1.getReplyCode());
 
-        smtpProtocol1.quit();
+        smtpProtocol.sendCommand(heloCommand, fictionalDomain);
+        smtpProtocol.setSender(mail);
+        smtpProtocol.addRecipient(rcpt);
+
+        // this should give a 501 code cause the helo/ehlo could not resolved
+        assertEquals("expected error: " + heloCommand + " could not resolved", 501, smtpProtocol.getReplyCode());
+
+        smtpProtocol.sendCommand(heloCommand, existingDomain);
+        smtpProtocol.setSender(mail);
+        smtpProtocol.addRecipient(rcpt);
+
+        if (smtpProtocol.getReplyCode() == 501) {
+            fail(existingDomain + " domain currently cannot be resolved (check your DNS/internet connection/proxy settings to make test pass)");
+        }
+        // helo/ehlo is resolvable. so this should give a 250 code
+        assertEquals(heloCommand + " accepted", 250, smtpProtocol.getReplyCode());
+
+        smtpProtocol.quit();
     }
-    
+
     public void testHeloResolvDefault() throws Exception {
         finishSetUp(m_testConfiguration);
 
@@ -434,18 +440,18 @@ public class SMTPServerTest extends TestCase {
     
             SMTPClient smtpProtocol1 = new SMTPClient();
             smtpProtocol1.connect("127.0.0.1", m_smtpListenerPort);
-    
+
             assertTrue("first connection taken", smtpProtocol1.isConnected());
-    
+
             // no message there, yet
             assertNull("no mail received by mail server", m_mailServer
                     .getLastMail());
-    
+
             String helo1 = "abgsfe3rsf.de";
             String helo2 = "james.apache.org";
             String mail = "sender";
             String rcpt = "recipient";
-    
+
             smtpProtocol1.sendCommand("helo", helo1);
             smtpProtocol1.setSender(mail);
             smtpProtocol1.addRecipient(rcpt);
@@ -625,35 +631,7 @@ public class SMTPServerTest extends TestCase {
         m_testConfiguration.setAuthorizedAddresses("192.168.0.1");
         finishSetUp(m_testConfiguration);
 
-
-        SMTPClient smtpProtocol1 = new SMTPClient();
-        smtpProtocol1.connect("127.0.0.1", m_smtpListenerPort);
-
-        assertTrue("first connection taken", smtpProtocol1.isConnected());
-
-        // no message there, yet
-        assertNull("no mail received by mail server", m_mailServer.getLastMail());
-
-        String ehlo1 = "abgsfe3rsf.de";
-        String ehlo2 = "james.apache.org";
-        String mail = "test@account";
-        String rcpt = "test";
-        
-        smtpProtocol1.sendCommand("ehlo", ehlo1);
-        smtpProtocol1.setSender(mail);
-        smtpProtocol1.addRecipient(rcpt);
-        
-        // this should give a 501 code cause the ehlo could not resolved
-        assertEquals("expected error: ehlo could not resolved", 501, smtpProtocol1.getReplyCode());
-            
-        smtpProtocol1.sendCommand("ehlo", ehlo2);
-        smtpProtocol1.setSender(mail);
-        smtpProtocol1.addRecipient(rcpt);
-        
-        // ehlo is resolvable. so this should give a 250 code
-        assertEquals("ehlo accepted", 250, smtpProtocol1.getReplyCode());
-
-        smtpProtocol1.quit();
+        doTestHeloEhloResolv("ehlo");
     }
     
     public void testEhloResolvDefault() throws Exception {
@@ -674,34 +652,7 @@ public class SMTPServerTest extends TestCase {
         m_testConfiguration.setCheckAuthNetworks(true);
         finishSetUp(m_testConfiguration);
 
-
-        SMTPClient smtpProtocol1 = new SMTPClient();
-        smtpProtocol1.connect("127.0.0.1", m_smtpListenerPort);
-
-        assertTrue("first connection taken", smtpProtocol1.isConnected());
-
-        // no message there, yet
-        assertNull("no mail received by mail server", m_mailServer.getLastMail());
-
-        String ehlo1 = "abgsfe3rsf.de";
-        String ehlo2 = "james.apache.org";
-        String mail = "sender@localhost";
-        String rcpt = "test";
-        
-        smtpProtocol1.sendCommand("ehlo", ehlo1);
-        smtpProtocol1.setSender(mail);
-        smtpProtocol1.addRecipient(rcpt);
-        
-        // this should give a 501 code cause the ehlo could not resolved
-        assertEquals("expected error: ehlo could not resolved", 501, smtpProtocol1.getReplyCode());
-            
-        smtpProtocol1.sendCommand("ehlo", ehlo2);
-        smtpProtocol1.setSender(mail);
-        smtpProtocol1.addRecipient(rcpt);
-        // ehlo is resolvable. so this should give a 250 code
-        assertEquals("ehlo accepted", 250, smtpProtocol1.getReplyCode());
-
-        smtpProtocol1.quit();
+        doTestHeloEhloResolv("ehlo");
     }
     
     public void testReverseEqualsEhlo() throws Exception {
