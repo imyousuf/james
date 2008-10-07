@@ -434,7 +434,11 @@ public class SMTPServerTest extends TestCase {
         m_testConfiguration.setReverseEqualsHelo();
         m_testConfiguration.setAuthorizedAddresses("192.168.0.1");
         // temporary alter the loopback resolution
-        m_dnsServer.setLocalhostByName(InetAddress.getByName("james.apache.org"));
+        try {
+            m_dnsServer.setLocalhostByName(InetAddress.getByName("james.apache.org"));
+        } catch (UnknownHostException e) {
+            fail("james.apache.org currently cannot be resolved (check your DNS/internet connection/proxy settings to make test pass)");
+        }
         try {
             finishSetUp(m_testConfiguration);
     
@@ -659,7 +663,13 @@ public class SMTPServerTest extends TestCase {
         m_testConfiguration.setReverseEqualsEhlo();
         m_testConfiguration.setAuthorizedAddresses("192.168.0.1");
         // temporary alter the loopback resolution
-        m_dnsServer.setLocalhostByName(m_dnsServer.getByName("james.apache.org"));
+        InetAddress jamesDomain = null;
+        try {
+            jamesDomain = m_dnsServer.getByName("james.apache.org");
+        } catch (UnknownHostException e) {
+            fail("james.apache.org currently cannot be resolved (check your DNS/internet connection/proxy settings to make test pass)");
+        }
+        m_dnsServer.setLocalhostByName(jamesDomain);
         try {
             finishSetUp(m_testConfiguration);
     
