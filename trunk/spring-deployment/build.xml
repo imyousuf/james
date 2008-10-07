@@ -363,10 +363,13 @@ java -cp ${exe-classpath}:../conf org.apache.james.container.spring.Main
         <chmod file="${spring-deployment.target.bin.dir}/run.sh" perm="a+rx" />
 
         <!-- create windows startup script-->
+		<pathconvert property="spring-deployment.target.lib.dir.windows" targetos="windows">
+		  <path><pathelement location="${spring-deployment.target.lib.dir}" /></path>
+		</pathconvert>
         <echo file="${spring-deployment.target.bin.dir}/run.bat" append="false">
 java -cp ${exe-classpath};../conf org.apache.james.container.spring.Main             
         </echo>
-        <replace file="${spring-deployment.target.bin.dir}/run.bat" token="${spring-deployment.target.lib.dir}" value="../lib" />
+        <replace file="${spring-deployment.target.bin.dir}/run.bat" token="${spring-deployment.target.lib.dir.windows}" value="../lib" />
         <replace file="${spring-deployment.target.bin.dir}/run.bat" token=":" value=";" />
     </target>
     
