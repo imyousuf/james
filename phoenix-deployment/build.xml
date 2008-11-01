@@ -1101,7 +1101,14 @@
  
     
     <target name='smoke' depends='dist-properties'>
-        <Smoke build-dir='${build.dir}' zip='${dist.binary.file.zip}' package='${name}-${version}'/>   
+        <Smoke 
+            build-dir='${build.dir}' 
+            zip='${dist.binary.file.zip}' 
+            package='${name}-${version}'
+            app-path='apps'
+            conf-path='apps/james/SAR-INF'
+            conf-file-name='config.xml'
+            cmd='phoenix'/>   
     </target>   
     
     <!--
