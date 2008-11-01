@@ -34,6 +34,8 @@
     <property file="check-targets.properties"/>
     <property file="../include.properties"/>
     <property file="../default.properties"/>
+ 
+    <import file="../build-tools/smoke.xml"/>   
 
     <!--
     ===================================================================
@@ -592,6 +594,9 @@
               <include name="${jars-prefix}*-library-${version}.jar" />
               <include name="${jars-prefix}*-function-${version}.jar" />
             </lib>
+            <lib dir='${lib.dir}/${path.lib.james}'>   
+                <include name='apache-james-imap*.jar'/>    
+            </lib>   
             <zipfileset dir="${conf.dir}" fullpath="conf/sqlResources.xml">
                 <include name="sqlResources.xml"/>
             </zipfileset>
@@ -646,16 +651,24 @@
                                   binary distributions
     ===================================================================
     -->
-
-    <target name="dist-bin-phoenix-warn" depends="dist-bin-common, prepare-master-dist" unless="phoenix.bin.present">
+    <target name='dist-properties'>
+        <property name="dist.binary.dir" value="${dist.dir}/downloads/bin"/>   
+        <property
+            name='dist.binary.file.tgz'
+            value='${dist.binary.dir}/${name}-binary-${version}.tar.gz'/>   
+        <property
+            name='dist.binary.file.zip'
+            value='${dist.binary.dir}/${name}-binary-${version}.zip'/>   
+    </target>   
+    
+    <target name="dist-bin-phoenix-warn" 
+            depends="dist-bin-common, prepare-master-dist, dist-properties" 
+            unless="phoenix.bin.present">
         <echo message ="The Phoenix distribution is not present - the James w/Phoenix binary distribution will not be built."/>
     </target>
 
     <target name="dist-bin-phoenix" depends="dist-bin-common" if="phoenix.bin.present">
         <echo message ="Building binary w/Phoenix distributions"/>
-        <property
-            name='dist.binary.file.zip'
-            value='${dist.binary.dir}/${name}-binary-${version}.zip'/>
         <zip zipfile="${dist.binary.file.zip}">
             <fileset dir="dist">
                 <include name="${name}-${version}/**"/>
@@ -667,9 +680,6 @@
             </fileset>
         </zip>
         <copy todir='${dir.master.dist}/bin' file='${dist.binary.file.zip}'/>
-        <property
-            name='dist.binary.file.tgz'
-            value='${dist.binary.dir}/${name}-binary-${version}.tar.gz'/>
         <tar longfile="gnu" tarfile="${dist.binary.dir}/${name}-binary-${version}.tar">
             <tarfileset dir="dist" username="${name}" group="${name}">
                 <include name="${name}-${version}/**"/>
@@ -688,9 +698,8 @@
 
     <!-- removed xdocs from depends list -->
     <!-- target name="dist-bin-common" depends="dist-lite,javadocs" -->
-    <target name="dist-bin-common" depends="dist-lite">
+    <target name="dist-bin-common" depends="dist-lite, dist-properties">
         <echo message ="Building binary distributions"/>
-        <property name="dist.binary.dir" value="${dist.dir}/downloads/bin"/>
         <mkdir dir="${dist.binary.dir}"/>
         <!-- Sar only-->
         <copy file="${dist.dir}/apps/${sar-name}.sar" todir="${dist.binary.dir}"/>
@@ -1089,7 +1098,12 @@
             </classpath>
         </echoxml>
     </target>
-
+ 
+    
+    <target name='smoke' depends='dist-properties'>
+        <Smoke build-dir='${build.dir}' zip='${dist.binary.file.zip}' package='${name}-${version}'/>   
+    </target>   
+    
     <!--
     ===================================================================
                                    Help on usage

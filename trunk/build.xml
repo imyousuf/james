@@ -129,6 +129,13 @@ Master build file for JAMES server.
         <foralldo do='eclipse'/>
     </target> 
 
+    <target
+        name='smoke'
+        description='Smoke tests deployment'>
+        <echo>Smoke testing deployments</echo>
+        <fordeploymentsdo do='smoke'/>
+    </target>
+
     <target 
         name='lite'
         description='Builds modules and performs lightweight deployment'>
