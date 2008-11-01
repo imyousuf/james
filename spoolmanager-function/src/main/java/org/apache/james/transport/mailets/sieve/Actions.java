@@ -30,8 +30,6 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.james.Constants;
 import org.apache.james.core.MailImpl;
 import org.apache.james.util.mail.mdn.ActionModeAutomatic;
 import org.apache.james.util.mail.mdn.Disposition;
@@ -95,8 +93,6 @@ public class Actions
     static public void execute(ActionFileInto anAction, Mail aMail,
             MailetContext aMailetContext, Poster poster) throws MessagingException
     {
-        ServiceManager compMgr = (ServiceManager)aMailetContext
-            .getAttribute(Constants.AVALON_COMPONENT_MANAGER);
         String destinationMailbox = anAction.getDestination();
         MailAddress recipient;
         boolean delivered = false;
