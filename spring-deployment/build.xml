@@ -459,4 +459,8 @@ java -cp ${exe-classpath};../conf org.apache.james.container.spring.Main
 		</GenerateEclipseProject>
 	</target>
 
+ 
+    <target name='smoke'>
+        <echo>TODO: Implementation</echo>
+    </target>   
 </project>
