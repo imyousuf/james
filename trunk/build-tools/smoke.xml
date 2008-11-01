@@ -32,6 +32,10 @@
         <attribute name='build-dir'/> 
         <attribute name='zip'/>    
         <attribute name='package'/>
+        <attribute name='app-path'/>
+        <attribute name='conf-path'/>
+        <attribute name='conf-file-name'/> 
+        <attribute name='cmd'/>
         <sequential>
     
             <VerifySmokePrerequisites zip='@{zip}'/>
@@ -40,9 +44,13 @@
             <UnpackDistribution zip='@{zip}' dir='${smoke.dir}'/>
             
             <property name='smoke.james.dir' location='${smoke.dir}/@{package}'/>               
-            <ConfigureJames dir='${smoke.james.dir}'/>   
-            <BootJames dir='${smoke.james.dir}'/>   
-            <StopJames dir='${smoke.james.dir}'/>       
+            <ConfigureJames 
+            	dir='${smoke.james.dir}' 
+            	app-path='@{app-path}' 
+            	conf-path='@{conf-path}'
+            	conf-file-name='@{conf-file-name}'/>   
+            <BootJames dir='${smoke.james.dir}' cmd='@{cmd}'/>   
+            <StopJames dir='${smoke.james.dir}' cmd='@{cmd}'/>       
     
         </sequential>   
     </macrodef> 
@@ -50,36 +58,41 @@
     <macrodef name="ControlJames">
         <attribute name='action'/>
         <attribute name='dir'/>   
+        <attribute name='cmd'/>
         <sequential>
             <chmod 
                 perm="ugo+rx" 
-                file="@{dir}/bin/phoenix.sh"/>   
+                file="@{dir}/bin/@{cmd}.sh"/>   
             <exec 
-               dir="@{dir}" 
-               executable="@{dir}/bin/phoenix.sh" >
+               dir="@{dir}/bin" 
+               executable="@{dir}/bin/@{cmd}.sh" 
+               failonerror='true'>
                 <arg line="@{action}"/>
             </exec> 
         </sequential>   
     </macrodef>  
  
     <macrodef name="StartJames">
-        <attribute name='dir'/>   
+        <attribute name='dir'/> 
+        <attribute name='cmd'/>  
         <sequential>
-            <ControlJames dir='@{dir}' action='start'/>
+            <ControlJames dir='@{dir}' action='start' cmd='@{cmd}'/>
         </sequential>   
     </macrodef>  
  
     <macrodef name="StopJames">
-        <attribute name='dir'/>   
+        <attribute name='dir'/>
+        <attribute name='cmd'/>    
         <sequential>
-            <ControlJames dir='@{dir}' action='stop'/>
+            <ControlJames dir='@{dir}' action='stop' cmd='@{cmd}'/>
         </sequential>   
     </macrodef>    
     
     <macrodef name='BootJames'>
-        <attribute name='dir'/>   
+        <attribute name='dir'/> 
+        <attribute name='cmd'/>   
         <sequential>
-            <StartJames dir='@{dir}'/>
+            <StartJames dir='@{dir}' cmd='@{cmd}'/>
             <echo>Waiting for James to boot...</echo>   
             <waitfor maxwait='20' maxwaitunit='second' timeoutproperty='smoke.boot.failed'>
                 <and>   
@@ -98,14 +111,23 @@ Failed to boot James server. See @{dir}/temp/phoenix.console for details.
     </macrodef>   
  
     <macrodef name='ConfigureJames'>
-        <attribute name='dir'/>   
+    	<attribute name='dir'/>
+        <attribute name='app-path'/>
+        <attribute name='conf-path'/>
+        <attribute name='conf-file-name'/>  
         <sequential>
-            <unzip dest="@{dir}/apps/james" src="@{dir}/apps/james.sar"/>
-            <xslt style="../build-tools/smoke.xsl" 
-                in='@{dir}/apps/james/SAR-INF/config.xml' 
-                out='@{dir}/apps/james/SAR-INF/config-smoke.xml'></xslt>
-            <move   file='@{dir}/apps/james/SAR-INF/config-smoke.xml' 
-                tofile="@{dir}/apps/james/SAR-INF/config.xml"/>
+            <unzip dest="@{dir}/@{app-path}/james">
+            	<fileset dir='@{dir}/@{app-path}'>
+            		<include name='james.sar'/>
+            	</fileset>
+            </unzip>
+            <xslt 
+            	style="../build-tools/smoke.xsl" 
+                in='@{dir}/@{conf-path}/@{conf-file-name}' 
+                out='@{dir}/@{conf-path}/config-smoke.xml'></xslt>
+            <move   
+                file='@{dir}/@{conf-path}/config-smoke.xml' 
+                tofile="@{dir}/@{conf-path}/@{conf-file-name}"/>
         </sequential>   
     </macrodef>   
 
@@ -120,8 +142,8 @@ Smoke is not supported on Windows ATM.
 To support smoke on Windows, a reliable method of shutting down
 James from the command line is required on Windows.   
             </fail>   
-                <available file='@{zip}' property="is.packaged"/>
-                <fail unless='is.packaged'>
+            <available file='@{zip}' property="is.packaged"/>
+            <fail unless='is.packaged'>
 @{zip} not found. Try 'ant dist'.
             </fail>  
         </sequential>

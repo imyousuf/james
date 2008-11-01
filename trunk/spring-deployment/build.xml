@@ -20,6 +20,8 @@
 -->
 <project name="spring_integration" default="everything">
 
+    <import file="../build-tools/smoke.xml"/>
+    
     <property file="../include.properties"/>
     <property file="../default.properties"/>
     
@@ -355,11 +357,79 @@
         <mkdir dir="${spring-deployment.target.bin.dir}" />
 
         <!-- create unix startup script-->
-        <echo file="${spring-deployment.target.bin.dir}/run.sh" append="false">#! /bin/sh
-java -cp ${exe-classpath}:../conf org.apache.james.container.spring.Main             
-        </echo>
+        <echo file="${spring-deployment.target.bin.dir}/run.sh" append="false"><![CDATA[#! /bin/sh
+################################################################
+# Licensed to the Apache Software Foundation (ASF) under one   #
+# or more contributor license agreements.  See the NOTICE file #
+# distributed with this work for additional information        #
+# regarding copyright ownership.  The ASF licenses this file   #
+# to you under the Apache License, Version 2.0 (the            #
+# "License"); you may not use this file except in compliance   #
+# with the License.  You may obtain a copy of the License at   #
+#                                                              #
+#   http://www.apache.org/licenses/LICENSE-2.0                 #
+#                                                              #
+# Unless required by applicable law or agreed to in writing,   #
+# software distributed under the License is distributed on an  #
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY       #
+# KIND, either express or implied.  See the License for the    #
+# specific language governing permissions and limitations      #
+# under the License.                                           #
+################################################################
+
+JAMES_CONSOLE=james.console
+JAMES_PID=james.pid
+JAMES_CMD="java -cp ${exe-classpath}:../conf org.apache.james.container.spring.Main"             
+
+case $1 in
+ start)
+  echo 'Booting James'
+  if [ -f $JAMES_PID ]
+  then
+    if ps -p `cat $JAMES_PID ` >/dev/null 2>/dev/null
+      then
+        echo "Already Running!!"
+        exit 1
+    fi
+  fi
+   
+  echo "START `date`" >> $JAMES_CONSOLE
+  nohup sh -c "exec $JAMES_CMD >>$JAMES_CONSOLE 2>&1" >/dev/null &
+  echo $! > $JAMES_PID
+  echo "James pid="`cat $JAMES_PID`
+  @@SEMI_COLON@@@@SEMI_COLON@@
+  
+ restart)
+  $0 stop $*
+  sleep 5
+  $0 start $*
+  @@SEMI_COLON@@@@SEMI_COLON@@
+
+ stop)
+  PID=`cat $JAMES_PID 2>/dev/null`
+  echo "Shutting down James: $PID"
+  kill $PID 2>/dev/null
+  sleep 5
+  kill -9 $PID 2>/dev/null
+  rm -f $JAMES_PID
+  echo "STOPPED `date`" >>$JAMES_CONSOLE
+  @@SEMI_COLON@@@@SEMI_COLON@@
+
+ *)
+  echo 'Booting James'
+  if [ -f $JAMES_PID ]
+  then
+    echo "James is already running"
+      exit 1
+  fi
+  exec $JAMES_CMD
+  @@SEMI_COLON@@@@SEMI_COLON@@
+
+esac   
+]]></echo>
         <replace file="${spring-deployment.target.bin.dir}/run.sh" token="${spring-deployment.target.lib.dir}" value="../lib" />
         <replace file="${spring-deployment.target.bin.dir}/run.sh" token=";" value=":" />
+        <replace file="${spring-deployment.target.bin.dir}/run.sh" token="@@SEMI_COLON@@" value=';'/>  
         <chmod file="${spring-deployment.target.bin.dir}/run.sh" perm="a+rx" />
 
         <!-- create windows startup script-->
@@ -461,6 +531,13 @@ java -cp ${exe-classpath};../conf org.apache.james.container.spring.Main
 
  
     <target name='smoke'>
-        <echo>TODO: Implementation</echo>
+        <Smoke 
+           zip='${spring-deployment.dist.bin.zip}' 
+           build-dir='${build.dir}' 
+           package='${spring-deployment.artefact.name}'
+           app-path='conf'
+           conf-path='conf'
+           conf-file-name='james-config.xml'
+           cmd='run'/>     
     </target>   
 </project>
