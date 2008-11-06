@@ -32,7 +32,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Properties;
-import java.util.logging.Logger;
 
 import javax.jcr.Credentials;
 import javax.jcr.Node;
@@ -50,6 +49,8 @@ import javax.jcr.query.QueryManager;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.util.ISO9075;
 import org.apache.jackrabbit.util.Text;
 import org.apache.james.core.MailImpl;
@@ -60,119 +61,48 @@ import org.apache.mailet.MailAddress;
 /**
  * Mail repository that is backed by a JCR content repository.
  */
-public class JCRMailRepository implements MailRepository {
+public class JCRMailRepository extends AbstractJCRRepository implements MailRepository {
 
     /**
      * Logger instance.
      */
-    private static final Logger logger =
-        Logger.getLogger(JCRMailRepository.class.getName());
+    private static final Log LOGGER = LogFactory.getLog(JCRMailRepository.class.getName());
 
     /**
-     * JCR content repository used as the mail repository.
-     * Must be set before the any mail operations are performed.
+     * For setter injection.
      */
-    private Repository repository;
-
+    public JCRMailRepository() {
+        super(LOGGER);
+        this.path = "james/mail";
+    }
+    
     /**
-     * Login credentials for accessing the repository.
-     * Set to <code>null</code> (the default) to use default credentials.
+     * Maximal constructor for injection.
+     * @param repository not null
+     * @param credentials login credentials for accessing the repository
+     * or null to use default credentials
+     * @param workspace name of the workspace used as the mail repository.
+     * or null to use default workspace
+     * @param path path (relative to root) of the user node within the workspace,
+     * or null to use default.
      */
-    private Credentials credentials;
-
-    /**
-     * Name of the workspace used as the mail repository.
-     * Set to <code>null</code> (the default) to use the default workspace.
-     */
-    private String workspace;
-
-    /**
-     * Path (relative to root) of the mail repository within the workspace.
-     */
-    private String path = "james:repository";
-
-    /**
-     * Retuns the JCR content repository used as the mail repository.
-     *
-     * @return JCR content repository
-     */
-    public Repository getRepository() {
-        return repository;
+    public JCRMailRepository(Repository repository, Credentials credentials, String workspace, String path, Log logger) {
+        super(repository, credentials, workspace, path, logger);
     }
 
     /**
-     * Sets the JCR content repository to be used as the mail repository.
-     *
-     * @param repository JCR content repository
+     * Minimal constructor for injection.
+     * @param repository not null
      */
-    public void setRepository(Repository repository) {
-        this.repository = repository;
+    public JCRMailRepository(Repository repository, Log logger) {
+        super(repository, logger);
     }
 
-    /**
-     * Returns the login credentials for accessing the repository.
-     *
-     * @return login credentials,
-     *         or <code>null</code> if using the default credentials
-     */
-    public Credentials getCredentials() {
-        return credentials;
-    }
 
-    /**
-     * Sets the login credentials for accessing the repository.
-     *
-     * @param credentials login credentials,
-     *                    or <code>null</code> to use the default credentials
-     */
-    public void setCredentials(Credentials credentials) {
-        this.credentials = credentials;
-    }
-
-    /**
-     * Returns the name of the workspace used as the mail repository.
-     *
-     * @return workspace name,
-     *         or <code>null</code> if using the default workspace
-     */
-    public String getWorkspace() {
-        return workspace;
-    }
-
-    /**
-     * Sets the name of the workspace used as the mail repository.
-     *
-     * @param workspace workspace name,
-     *                  or <code>null</code> to use the default workspace
-     */
-    public void setWorkspace(String workspace) {
-        this.workspace = workspace;
-    }
-
-    /**
-     * Returns the path of the mail repository within the workspace.
-     *
-     * @return repository path
-     */
-    public String getPath() {
-        return path;
-    }
-
-    /**
-     * Sets the path of the mail repository within the workspace.
-     *
-     * @param path repository path
-     */
-    public void setPath(String path) {
-        this.path = path;
-    }
-
-    //------------------------------------------------------< MailRepository >
 
     public Iterator list() throws MessagingException {
-        logger.entering(getClass().getName(), "list()");
         try {
-            Session session = repository.login(credentials, workspace);
+            Session session = login();
             try {
                 Collection keys = new ArrayList();
                 QueryManager manager = session.getWorkspace().getQueryManager();
@@ -190,17 +120,14 @@ public class JCRMailRepository implements MailRepository {
             }
         } catch (RepositoryException e) {
             throw new MessagingException("Unable to list messages", e);
-        } finally {
-            logger.exiting(getClass().getName(), "list()");
         }
     }
 
     public Mail retrieve(String key) throws MessagingException {
-        logger.entering(getClass().getName(), "retrieve(" + key + ")");
         try {
-            Session session = repository.login(credentials, workspace);
+            Session session = login();
             try {
-                String name = ISO9075.encode(Text.escapeIllegalJcrChars(key));
+                String name = toSafeName(key);
                 QueryManager manager = session.getWorkspace().getQueryManager();
                 Query query = manager.createQuery(
                         "/jcr:root/" + path + "//element(" + name + ",james:mail)",
@@ -220,22 +147,16 @@ public class JCRMailRepository implements MailRepository {
         } catch (RepositoryException e) {
             throw new MessagingException(
                     "Unable to retrieve message: " + key, e);
-        } finally {
-            logger.exiting(getClass().getName(), "retrieve(" + key + ")");
-        }
+        } 
     }
 
     public void store(Mail mail) throws MessagingException {
-        logger.entering(getClass().getName(), "store(" + mail.getName() + ")");
         try {
-            Session session = repository.login(credentials, workspace);
+            Session session = login();
             try {
                 String name = Text.escapeIllegalJcrChars(mail.getName());
-                QueryManager manager = session.getWorkspace().getQueryManager();
-                Query query = manager.createQuery(
-                        "/jcr:root/" + path + "//element(" + name + ",james:mail)",
-                        Query.XPATH);
-                NodeIterator iterator = query.execute().getNodes();
+                final String xpath = "/jcr:root/" + path + "//element(" + name + ",james:mail)";
+                NodeIterator iterator = query(session, xpath);
                 if (iterator.hasNext()) {
                     while (iterator.hasNext()) {
                         setMail(iterator.nextNode(), mail);
@@ -258,15 +179,12 @@ public class JCRMailRepository implements MailRepository {
         } catch (RepositoryException e) {
             throw new MessagingException(
                     "Unable to store message: " + mail.getName(), e);
-        } finally {
-            logger.exiting(getClass().getName(), "store(" + mail.getName() + ")");
         }
     }
 
     public void remove(String key) throws MessagingException {
-        logger.entering(getClass().getName(), "remove(" + key + ")");
         try {
-            Session session = repository.login(credentials, workspace);
+            Session session = login();
             try {
                 String name = ISO9075.encode(Text.escapeIllegalJcrChars(key));
                 QueryManager manager = session.getWorkspace().getQueryManager();
@@ -281,15 +199,13 @@ public class JCRMailRepository implements MailRepository {
                     session.save();
                     logger.info("Mail " + key + " removed from repository");
                 } else {
-                    logger.warning("Mail " + key + " not found");
+                    logger.warn("Mail " + key + " not found");
                 }
             } finally {
                 session.logout();
             }
         } catch (RepositoryException e) {
             throw new MessagingException("Unable to remove message: " + key, e);
-        } finally {
-            logger.exiting(getClass().getName(), "remove(" + key + ")");
         }
     }
 
@@ -298,9 +214,8 @@ public class JCRMailRepository implements MailRepository {
     }
 
     public void remove(Collection mails) throws MessagingException {
-        logger.entering(getClass().getName(), "remove(collection)");
         try {
-            Session session = repository.login(credentials, workspace);
+            Session session = login();
             try {
                 QueryManager manager = session.getWorkspace().getQueryManager();
                 Iterator iterator = mails.iterator();
@@ -317,7 +232,7 @@ public class JCRMailRepository implements MailRepository {
                             nodes.nextNode().remove();
                         }
                     } catch (PathNotFoundException e) {
-                        logger.warning("Mail " + mail.getName() + " not found");
+                        logger.warn("Mail " + mail.getName() + " not found");
                     }
                 }
                 session.save();
@@ -327,8 +242,6 @@ public class JCRMailRepository implements MailRepository {
             }
         } catch (RepositoryException e) {
             throw new MessagingException("Unable to remove messages", e);
-        } finally {
-            logger.exiting(getClass().getName(), "remove(collection)");
         }
     }
 
