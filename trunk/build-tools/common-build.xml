@@ -236,6 +236,19 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
                     <include name='${path.lib.james}/apache-james-imap*.jar'/>
                 </fileset>   
             </path>   
+            <path id='classpath.jackrabbit.repo'>  
+                <fileset dir="${lib.dir}">   
+                    <include name="${h2.jar}"/>
+                    <include name="${jackrabbit-text-extractors.jar}"/>   
+                    <include name="${jackrabbit-jcr-commons.jar}"/>
+                    <include name="${jackrabbit-spi.jar}"/>
+                    <include name="${jackrabbit-core.jar}"/>
+                    <include name="${jackrabbit-spi-commons.jar}"/>   
+                    <include name="${lucene.jar}"/>
+                    <include name="${slf4j-api.jar}"/>
+                    <include name="${slf4j-log4j.jar}"/>   
+                </fileset>   
+            </path>   
             <path id='classpath.base.test'>  
                 <path refid='classpath.base'/>
                 <pathelement location="${dir.build.bin}"/>
@@ -250,7 +263,8 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
                     <include name="${cornerstone-sockets-impl.jar}"/>
                     <include name="${excalibur-thread-impl.jar}"/>
                     <include name="${derby.jar}"/>    
-                </fileset>   
+                </fileset>  
+                <path refid='classpath.jackrabbit.repo'/>   
             </path>   
     
             <path 
