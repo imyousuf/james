@@ -71,6 +71,7 @@ Master build file for JAMES server.
         <attribute name='dir' default='.'/>   
         <sequential>
             <fordo do='@{do}' dir='@{dir}' type='function'/>
+            <fordo do='@{do}' dir='@{dir}' type='store'/>
         </sequential>   
     </macrodef>    
     
