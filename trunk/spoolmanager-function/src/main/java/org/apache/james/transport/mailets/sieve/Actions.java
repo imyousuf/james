@@ -30,7 +30,6 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
-import org.apache.james.core.MailImpl;
 import org.apache.james.util.mail.mdn.ActionModeAutomatic;
 import org.apache.james.util.mail.mdn.Disposition;
 import org.apache.james.util.mail.mdn.DispositionModifier;
@@ -109,9 +108,7 @@ public class Actions
             final String url = "mailbox://" + recipient.getUser() + "@localhost/" + 
                 destinationMailbox.replace(HIERARCHY_DELIMITER, '/');
             //TODO: copying this message so many times seems a waste
-            Mail mail = new MailImpl();
-            mail.setMessage(localMessage);
-            poster.post(url, mail);
+            poster.post(url, localMessage);
             delivered = true;
         }
         catch (MessagingException ex)
