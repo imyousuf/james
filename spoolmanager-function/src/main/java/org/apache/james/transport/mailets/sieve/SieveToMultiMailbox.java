@@ -254,7 +254,7 @@ public class SieveToMultiMailbox extends GenericMailet {
     
     void storeMessageInbox(String username, Mail mail) throws MessagingException {
         String url = "mailbox://" + username + "@localhost/";
-        poster.post(url, mail);
+        poster.post(url, mail.getMessage());
     }
 
     /**

@@ -20,8 +20,7 @@
 package org.apache.james.transport.mailets.sieve;
 
 import javax.mail.MessagingException;
-
-import org.apache.mailet.Mail;
+import javax.mail.internet.MimeMessage;
 
 /**
  * Experimental interface.
@@ -36,5 +35,5 @@ public interface Poster {
      * the value should be mailbox://<user>@localhost/<mailbox-path>
      * @param mail not null
      */
-    public void post(String url, Mail mail) throws MessagingException;
+    public void post(String url, MimeMessage mail) throws MessagingException;
 }
