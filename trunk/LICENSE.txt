@@ -231,5 +231,8 @@
      (see stage/com.thoughtworks.xstream/jars/xstream.LICENSE)
 
    H2, Dual H2 License (modified MPL1.1) or EPL1.0
-     (see stage/com/h2database/jars/h2.LICENSE.html) 
+     (see stage/com/h2database/jars/h2.LICENSE.html)
+ 
+   Serp, BSD License
+     (see stage/net.sourceforge.serp/jars/serp-1.13.1.LICENSE) 
      
