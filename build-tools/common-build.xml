@@ -185,6 +185,8 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
             <path id='classpath.base'>  
                 <fileset dir="${lib.dir}">
                     <include name='${jms-spec.jar}'/>
+                    <include name='${jta-spec.jar}'/>
+                    <include name='${jpa-spec.jar}'/>   
                     <include name='${activemq-core.jar}'/> 
                     <include name="${avalon-framework.jar}"/>
                     <include name="${avalon-framework-impl.jar}"/>
@@ -249,6 +251,12 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
                     <include name="${slf4j-log4j.jar}"/>   
                 </fileset>   
             </path>   
+            <path id='classpath.openjpa.repo'>  
+                <fileset dir="${lib.dir}">   
+                    <include name="${serp.jar}"/>  
+                    <include name="${openjpa.jar}"/>     
+                </fileset>   
+            </path>   
             <path id='classpath.base.test'>  
                 <path refid='classpath.base'/>
                 <pathelement location="${dir.build.bin}"/>
@@ -265,6 +273,7 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
                     <include name="${derby.jar}"/>    
                 </fileset>  
                 <path refid='classpath.jackrabbit.repo'/>   
+                <path refid='classpath.openjpa.repo'/>    
             </path>   
     
             <path 
