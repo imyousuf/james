@@ -92,9 +92,10 @@
         <attribute name='dir'/> 
         <attribute name='cmd'/>   
         <sequential>
+            <StopJames dir='@{dir}' cmd='@{cmd}'/>   
             <StartJames dir='@{dir}' cmd='@{cmd}'/>
             <echo>Waiting for James to boot...</echo>   
-            <waitfor maxwait='20' maxwaitunit='second' timeoutproperty='smoke.boot.failed'>
+            <waitfor maxwait='45' maxwaitunit='second' timeoutproperty='smoke.boot.failed'>
                 <and>   
                     <socket server='localhost' port='10025'/>   
                     <socket server='localhost' port='10110'/>
