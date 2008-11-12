@@ -19,12 +19,79 @@
 
 package org.apache.james.server.jpa;
 
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
+import javax.persistence.PersistenceException;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.user.User;
 import org.apache.james.api.user.UsersRepository;
 
+/**
+ * Proof-of-concept repository using JPA.
+ * TODO: Support managed contexts.
+ * TODO: Use factory and support pooled contexts
+ */
 public class JPAUsersRepository implements UsersRepository {
+
+    private static final Log LOGGER = LogFactory.getLog(JPAUsersRepository.class);
+
+    private Log logger = LOGGER;
+
+    private EntityManager entityManager;
+
+    /**
+     * Constructs repository with injection.
+     * @param entityManager not null
+     */
+    public JPAUsersRepository(EntityManager entityManager) {
+        super();
+        this.entityManager = entityManager;
+    }
+
+    /**
+     * Constructor for setting injection.
+     */
+    public JPAUsersRepository() {
+        this(null);
+    }
+
+    /**
+     * Gets current logger.
+     * @return the logger
+     */
+    public final Log getLogger() {
+        return logger;
+    }
+
+    /**
+     * Setter injection for logging.
+     * @param logger the logger to set
+     */
+    public final void setLogger(Log logger) {
+        this.logger = logger;
+    }
+
+    /**
+     * Gets entity manager.
+     * @return the entityManager
+     */
+    public final EntityManager getEntityManager() {
+        return entityManager;
+    }
+
+    /**
+     * Sets entity manager.
+     * @param entityManager the entityManager to set
+     */
+    public final void setEntityManager(EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
 
     /**
      * Adds a user to the repository with the specified User object.
@@ -39,7 +106,7 @@ public class JPAUsersRepository implements UsersRepository {
      * implementations of users object.
      */
     public boolean addUser(User user) {
-        return false;
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -53,9 +120,9 @@ public class JPAUsersRepository implements UsersRepository {
      * eventually modified by retrieving it later.
      */
     public void addUser(String name, Object attributes) {
-        
+        throw new UnsupportedOperationException();
     }
-    
+
     /**
      * Adds a user to the repository with the specified password
      * 
@@ -66,6 +133,19 @@ public class JPAUsersRepository implements UsersRepository {
      * @since James 2.3.0
      */
     public boolean addUser(String username, String password) {
+        final EntityTransaction transaction = entityManager.getTransaction();
+        try {
+            transaction.begin();
+            JPAUser user = new JPAUser(username, password);
+            entityManager.persist(user);
+            transaction.commit();
+            return true;
+        } catch (PersistenceException e) {
+            logger.debug("Failed to save user", e);
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+        }
         return false;
     }
 
@@ -79,7 +159,19 @@ public class JPAUsersRepository implements UsersRepository {
      * @since James 1.2.2
      */
     public User getUserByName(String name) {
-        return new JPAUser();
+        return getJPAUserByName(name);
+    }
+
+    private JPAUser getJPAUserByName(String name) {
+        try
+        {
+            return (JPAUser) entityManager.createQuery("SELECT user FROM User user WHERE user.name=?1")
+                            .setParameter(1, name)
+                            .getSingleResult();
+        } catch (PersistenceException e) {
+            logger.debug("Failed to find user", e);
+            return null;
+        }
     }
 
     /**
@@ -94,7 +186,7 @@ public class JPAUsersRepository implements UsersRepository {
      * implementations and the getUserByName will search according to this property.
      */
     public User getUserByNameCaseInsensitive(String name) {
-        return new JPAUser();
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -115,6 +207,23 @@ public class JPAUsersRepository implements UsersRepository {
      * @return true if successful.
      */
     public boolean updateUser(User user) {
+        final EntityTransaction transaction = entityManager.getTransaction();
+        try {
+            if (contains(user.getUserName())) {
+                transaction.begin();
+                entityManager.merge(user);
+                transaction.commit();
+            } else {
+                logger.debug("User not found");
+                return false;
+            }
+        } catch (PersistenceException e) {
+            logger.debug("Failed to update user", e);
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+            return false;
+        }
         return true;
     }
 
@@ -124,7 +233,18 @@ public class JPAUsersRepository implements UsersRepository {
      * @param name the user to remove from the repository
      */
     public void removeUser(String name) {
-        
+        final EntityTransaction transaction = entityManager.getTransaction();
+        try {
+            transaction.begin();
+            JPAUser user = getJPAUserByName(name);
+            entityManager.remove(user);
+            transaction.commit();
+        } catch (PersistenceException e) {
+            logger.debug("Failed to save user", e);
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+        }
     }
 
     /**
@@ -134,7 +254,15 @@ public class JPAUsersRepository implements UsersRepository {
      * @return whether the user is in the repository
      */
     public boolean contains(String name) {
-        return false;
+        try
+        {
+            return ((Long) entityManager.createQuery("SELECT COUNT(user) FROM User user WHERE user.name=?1")
+                            .setParameter(1, name)
+                            .getSingleResult()).longValue() > 0;
+        } catch (PersistenceException e) {
+            logger.debug("Failed to find user", e);
+            return false;
+        }
     }
 
     /**
@@ -148,7 +276,7 @@ public class JPAUsersRepository implements UsersRepository {
      * implementations and the contains will search according to this property.
      */
     public boolean containsCaseInsensitive(String name) {
-        return false;
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -163,7 +291,17 @@ public class JPAUsersRepository implements UsersRepository {
      * @since James 1.2.2
      */
     public boolean test(String name, String password) {
-        return false;
+        final JPAUser user = getJPAUserByName(name);
+        final boolean result;
+        if (user == null)
+        {
+            result = false;
+        }
+        else
+        {
+            result = user.verifyPassword(password);
+        }
+        return result;
     }
 
     /**
@@ -172,7 +310,14 @@ public class JPAUsersRepository implements UsersRepository {
      * @return the number of users in the repository
      */
     public int countUsers() {
-        return 0;
+        try
+        {
+            return ((Long) entityManager.createQuery("SELECT COUNT(user) FROM User user")
+                            .getSingleResult()).intValue();
+        } catch (PersistenceException e) {
+            logger.debug("Failed to find user", e);
+            return 0;
+        }
     }
 
     /**
@@ -181,8 +326,28 @@ public class JPAUsersRepository implements UsersRepository {
      * @return Iterator over a collection of Strings, each being one user in the repository.
      */
     public Iterator list() {
-        return null;
+        try
+        {
+            final List results = entityManager.createQuery("SELECT user FROM User user").getResultList();
+            return new Iterator() {
+                private final Iterator it = results.iterator();
+                public boolean hasNext() {
+                    return it.hasNext();
+                }
+
+                public Object next() {
+                    return ((JPAUser)it.next()).getUserName();
+                }
+
+                public void remove() {
+                    throw new UnsupportedOperationException();
+                }
+            };
+        } catch (PersistenceException e) {
+            logger.debug("Failed to find user", e);
+            return Collections.EMPTY_LIST.iterator();
+        }
     }
-    
+
 
 }

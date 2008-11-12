@@ -19,22 +19,89 @@
 
 package org.apache.james.server.jpa;
 
+import javax.persistence.Basic;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Version;
+
+import org.apache.jackrabbit.util.Text;
 import org.apache.james.api.user.User;
 
+@Entity(name="User")
 public class JPAUser implements User {
 
+    /** 
+     * Static salt for hashing password.
+     * Modifying this value will render all passwords unrecognizable.
+     */
+    public static final String SALT = "JPAUsersRepository";
     
+    /**
+     * Hashes salted password.
+     * @param username not null
+     * @param password not null
+     * @return not null
+     */
+    public static String hashPassword(String username, String password) {
+        // Combine dynamic and static salt
+        final String hashedSaltedPassword = Text.md5(Text.md5(username + password) + SALT);
+        return hashedSaltedPassword;
+    }
     
+    /** Prevents concurrent modification */
+    @SuppressWarnings("unused")
+    @Version
+    private int version;
+    
+    /** Key by user name */
+    @Id
+    private String name;
+    /** Hashed password */
+    @Basic
+    private String password;
+    
+    protected JPAUser() {}
+    
+    public JPAUser(final String userName, String password) {
+        super();
+        this.name = userName;
+        this.password = hashPassword(userName, password);
+    }
+
     public String getUserName() {
-        return null;
+        return name;
+    }
+    
+    /**
+     * Gets salted, hashed password.
+     * @return the hashedSaltedPassword
+     */
+    public final String getHashedSaltedPassword() {
+        return password;
     }
 
     public boolean setPassword(String newPass) {
-        return false;
+        final boolean result;
+        if (newPass == null) {
+            result = false;
+        } else {
+            password = hashPassword(name, newPass);
+            result = true;
+        }
+        return result;
     }
 
     public boolean verifyPassword(String pass) {
-        return false;
+        final boolean result;
+        if (pass == null) {
+            result = password == null;
+        } else if (password == null) {
+            result = false;
+        } else {
+            result = password.equals(hashPassword(name, pass));
+        }
+        return result;
     }
-
+    
+    
 }
