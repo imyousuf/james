@@ -23,7 +23,7 @@ package org.apache.james.transport.mailets;
 import java.util.Iterator;
 
 import org.apache.james.util.scanner.SpamAssassinInvoker;
-import org.apache.mailet.GenericMailet;
+import org.apache.mailet.base.GenericMailet;
 import org.apache.mailet.Mail;
 
 import javax.mail.MessagingException;

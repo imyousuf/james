@@ -30,9 +30,9 @@ import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockServiceManager;
 import org.apache.james.test.mock.avalon.MockStore;
 import org.apache.james.test.mock.james.InMemorySpoolRepository;
-import org.apache.james.test.mock.javaxmail.MockMimeMessage;
-import org.apache.james.test.mock.mailet.MockMail;
-import org.apache.james.test.mock.util.MailUtil;
+import org.apache.mailet.base.test.MockMimeMessage;
+import org.apache.mailet.base.test.MockMail;
+import org.apache.mailet.base.test.MailUtil;
 import org.apache.mailet.Mail;
 
 import javax.mail.MessagingException;

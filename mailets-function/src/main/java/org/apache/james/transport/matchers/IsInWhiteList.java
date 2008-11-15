@@ -30,7 +30,7 @@ import org.apache.james.api.user.UsersRepository;
 import org.apache.james.transport.mailets.WhiteListManager;
 import org.apache.james.util.sql.JDBCUtil;
 import org.apache.james.util.sql.SqlResources;
-import org.apache.mailet.GenericMatcher;
+import org.apache.mailet.base.GenericMatcher;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 

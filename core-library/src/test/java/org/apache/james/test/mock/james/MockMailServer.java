@@ -25,7 +25,7 @@ import org.apache.james.api.user.UsersRepository;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
-import org.apache.james.test.mock.util.MailUtil;
+import org.apache.mailet.base.test.MailUtil;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 

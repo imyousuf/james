@@ -21,7 +21,7 @@
 
 package org.apache.james.transport.matchers;
 
-import org.apache.mailet.GenericRecipientMatcher;
+import org.apache.mailet.base.GenericRecipientMatcher;
 import org.apache.mailet.MailAddress;
 import org.apache.oro.text.regex.MalformedPatternException;
 import org.apache.oro.text.regex.Pattern;

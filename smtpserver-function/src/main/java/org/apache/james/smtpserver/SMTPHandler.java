@@ -28,7 +28,7 @@ import org.apache.james.socket.ProtocolHandler;
 import org.apache.james.socket.ProtocolHandlerHelper;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.mailet.Mail;
-import org.apache.mailet.dates.RFC822DateFormat;
+import org.apache.mailet.base.RFC822DateFormat;
 
 import java.io.IOException;
 import java.io.InputStream;

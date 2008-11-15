@@ -21,9 +21,9 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.james.util.mailet.MailetUtil;
-import org.apache.mailet.RFC2822Headers;
-import org.apache.mailet.GenericMailet;
+import org.apache.mailet.base.MailetUtil;
+import org.apache.mailet.base.RFC2822Headers;
+import org.apache.mailet.base.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetException;

@@ -27,9 +27,9 @@ import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
 import org.apache.james.util.bayesian.JDBCBayesianAnalyzer;
 import org.apache.james.util.sql.JDBCUtil;
-import org.apache.mailet.GenericMailet;
+import org.apache.mailet.base.GenericMailet;
 import org.apache.mailet.Mail;
-import org.apache.mailet.RFC2822Headers;
+import org.apache.mailet.base.RFC2822Headers;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;

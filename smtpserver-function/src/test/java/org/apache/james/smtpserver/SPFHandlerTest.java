@@ -33,7 +33,7 @@ import org.apache.james.smtpserver.core.filter.fastfail.SPFHandler;
 import org.apache.james.smtpserver.junkscore.JunkScore;
 import org.apache.james.smtpserver.junkscore.JunkScoreImpl;
 import org.apache.james.test.mock.avalon.MockLogger;
-import org.apache.james.test.mock.mailet.MockMail;
+import org.apache.mailet.base.test.MockMail;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 

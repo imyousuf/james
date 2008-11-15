@@ -50,7 +50,7 @@ import java.util.Collection;
   * 
   * @version $ID$
   */
-public abstract class AbstractNetworkMatcher extends org.apache.mailet.GenericMatcher {
+public abstract class AbstractNetworkMatcher extends org.apache.mailet.base.GenericMatcher {
 
     /**
      * This is a Network Matcher that should be configured to contain

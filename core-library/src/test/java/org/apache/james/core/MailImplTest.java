@@ -21,8 +21,8 @@
 
 package org.apache.james.core;
 
-import org.apache.james.test.mock.javaxmail.MockMimeMessage;
-import org.apache.james.test.mock.util.MailUtil;
+import org.apache.mailet.base.test.MockMimeMessage;
+import org.apache.mailet.base.test.MailUtil;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.Mail;
 
