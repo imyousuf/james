@@ -45,8 +45,8 @@ import org.apache.james.smtpserver.core.filter.fastfail.URIRBLHandler;
 import org.apache.james.smtpserver.junkscore.JunkScore;
 import org.apache.james.smtpserver.junkscore.JunkScoreImpl;
 import org.apache.james.test.mock.avalon.MockLogger;
-import org.apache.james.test.mock.javaxmail.MockMimeMessage;
-import org.apache.james.test.mock.mailet.MockMail;
+import org.apache.mailet.base.test.MockMimeMessage;
+import org.apache.mailet.base.test.MockMail;
 import org.apache.mailet.Mail;
 
 public class URIRBLHandlerTest extends TestCase {

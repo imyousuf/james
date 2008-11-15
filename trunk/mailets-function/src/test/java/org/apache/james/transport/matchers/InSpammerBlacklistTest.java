@@ -24,9 +24,9 @@ import org.apache.james.Constants;
 import org.apache.james.api.dnsservice.AbstractDNSServer;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.test.mock.avalon.MockServiceManager;
-import org.apache.james.test.mock.mailet.MockMail;
-import org.apache.james.test.mock.mailet.MockMailContext;
-import org.apache.james.test.mock.mailet.MockMatcherConfig;
+import org.apache.mailet.base.test.MockMail;
+import org.apache.mailet.base.test.MockMailContext;
+import org.apache.mailet.base.test.MockMatcherConfig;
 
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.Matcher;

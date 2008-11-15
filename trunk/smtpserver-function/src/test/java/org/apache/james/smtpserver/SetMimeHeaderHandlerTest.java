@@ -24,7 +24,7 @@ import junit.framework.TestCase;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.smtpserver.core.SetMimeHeaderHandler;
 import org.apache.james.test.mock.avalon.MockLogger;
-import org.apache.james.test.mock.util.MailUtil;
+import org.apache.mailet.base.test.MailUtil;
 import org.apache.mailet.Mail;
 
 import javax.mail.MessagingException;

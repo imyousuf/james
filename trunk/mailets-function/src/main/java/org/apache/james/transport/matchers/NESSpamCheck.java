@@ -23,7 +23,7 @@ package org.apache.james.transport.matchers;
 
 import javax.mail.MessagingException;
 
-import org.apache.mailet.RFC2822Headers;
+import org.apache.mailet.base.RFC2822Headers;
 import org.apache.oro.text.regex.MalformedPatternException;
 
 /**

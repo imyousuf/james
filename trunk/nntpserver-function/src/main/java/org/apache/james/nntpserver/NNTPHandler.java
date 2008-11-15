@@ -29,9 +29,9 @@ import org.apache.james.socket.ProtocolHandlerHelper;
 import org.apache.james.util.stream.CharTerminatedInputStream;
 import org.apache.james.util.stream.DotStuffingInputStream;
 import org.apache.james.util.stream.ExtraDotOutputStream;
-import org.apache.mailet.dates.RFC2980DateFormat;
-import org.apache.mailet.dates.RFC977DateFormat;
-import org.apache.mailet.dates.SimplifiedDateFormat;
+import org.apache.mailet.base.RFC2980DateFormat;
+import org.apache.mailet.base.RFC977DateFormat;
+import org.apache.mailet.base.SimplifiedDateFormat;
 
 import javax.mail.MessagingException;
 

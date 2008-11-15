@@ -20,7 +20,7 @@
 
 package org.apache.james.core;
 
-import org.apache.mailet.RFC2822Headers;
+import org.apache.mailet.base.RFC2822Headers;
 
 import javax.mail.MessagingException;
 

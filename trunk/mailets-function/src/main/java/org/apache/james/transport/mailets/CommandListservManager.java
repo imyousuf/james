@@ -30,7 +30,7 @@ import org.apache.james.api.user.UsersStore;
 import org.apache.james.transport.mailets.listservcommands.ErrorCommand;
 import org.apache.james.transport.mailets.listservcommands.IListServCommand;
 import org.apache.james.util.XMLResources;
-import org.apache.mailet.GenericMailet;
+import org.apache.mailet.base.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 

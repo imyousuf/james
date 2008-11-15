@@ -31,7 +31,7 @@ import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.Enumeration;
 
-import org.apache.mailet.RFC2822Headers;
+import org.apache.mailet.base.RFC2822Headers;
 
 /**
  * This interface defines a container for mail headers. Each header must use

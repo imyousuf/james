@@ -22,7 +22,7 @@
 package org.apache.james.transport.matchers;
 
 
-import org.apache.mailet.GenericMatcher;
+import org.apache.mailet.base.GenericMatcher;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MatcherConfig;
 import java.util.Collection;

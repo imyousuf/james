@@ -35,8 +35,8 @@ import org.apache.james.util.stream.CharTerminatedInputStream;
 import org.apache.james.util.stream.DotStuffingInputStream;
 import org.apache.james.util.watchdog.BytesReadResetInputStream;
 import org.apache.mailet.MailAddress;
-import org.apache.mailet.RFC2822Headers;
-import org.apache.mailet.dates.RFC822DateFormat;
+import org.apache.mailet.base.RFC2822Headers;
+import org.apache.mailet.base.RFC822DateFormat;
 
 import javax.mail.MessagingException;
 

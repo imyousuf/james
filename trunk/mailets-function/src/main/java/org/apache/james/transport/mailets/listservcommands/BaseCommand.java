@@ -25,7 +25,7 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.transport.mailets.ICommandListservManager;
-import org.apache.mailet.RFC2822Headers;
+import org.apache.mailet.base.RFC2822Headers;
 import org.apache.james.util.XMLResources;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;

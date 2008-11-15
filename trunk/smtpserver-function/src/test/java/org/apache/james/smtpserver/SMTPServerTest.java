@@ -35,7 +35,7 @@ import org.apache.james.test.mock.avalon.MockSocketManager;
 import org.apache.james.test.mock.avalon.MockStore;
 import org.apache.james.test.mock.avalon.MockThreadManager;
 import org.apache.james.test.mock.james.MockMailServer;
-import org.apache.james.test.mock.mailet.MockMailContext;
+import org.apache.mailet.base.test.MockMailContext;
 import org.apache.james.test.util.Util;
 import org.apache.james.userrepository.MockUsersRepository;
 import org.apache.james.util.codec.Base64;
