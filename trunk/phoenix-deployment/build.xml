@@ -69,6 +69,7 @@
         <include name="${path.lib.james}/${jars-prefix}*-util-${version}.jar"/>
         <include name="${path.lib.james}/${jars-prefix}*-library-${version}.jar"/>
         <include name="${path.lib.james}/${jars-prefix}*-function-${version}.jar"/>
+        <include name="${path.lib.james}/${jars-prefix}*-store-${version}.jar"/>
     </fileset>   
 
     &check-targets;   
@@ -593,6 +594,7 @@
               <include name="${jars-prefix}*-util-${version}.jar" />
               <include name="${jars-prefix}*-library-${version}.jar" />
               <include name="${jars-prefix}*-function-${version}.jar" />
+              <include name="${jars-prefix}*-store-${version}.jar" />
             </lib>
             <lib dir='${lib.dir}/${path.lib.james}'>   
                 <include name='apache-james-imap*.jar'/>    
@@ -1084,7 +1086,7 @@
                 <classpathentry combineaccessrules="false" kind="src" path="/fetchmail-function"/>
                 <classpathentry combineaccessrules="false" kind="src" path="/imap-mailbox-processor-function"/>
                 <classpathentry combineaccessrules="false" kind="src" path="/imapserver-function"/>
-                <classpathentry combineaccessrules="false" kind="src" path="/jcr-backend-function"/>
+                <classpathentry combineaccessrules="false" kind="src" path="/jcr-store"/>
                 <classpathentry combineaccessrules="false" kind="src" path="/nntpserver-function"/>
                 <classpathentry combineaccessrules="false" kind="src" path="/phoenix-deployment"/>
                 <classpathentry combineaccessrules="false" kind="src" path="/pop3server-function"/>

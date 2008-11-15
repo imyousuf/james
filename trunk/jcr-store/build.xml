@@ -17,8 +17,8 @@
   specific language governing permissions and limitations
   under the License.    
 -->
-<project default="main" name="jcr-backend-function">
-  <description>Builds jcr-backend-function module. This is an function module.</description>
-  <property name="name.module" value="jcr-backend-function" />
+<project default="main" name="jcr-store">
+  <description>Builds jcr-backend-function module. This is a data store module.</description>
+  <property name="name.module" value="jcr-store" />
   <import file="../build-tools/function-build.xml" optional="no" />
 </project>
