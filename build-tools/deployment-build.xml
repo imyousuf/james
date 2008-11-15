@@ -64,7 +64,7 @@ Template build for deployment modules
 				<classpathentry combineaccessrules="false" kind="src" path="/fetchmail-function"/> 
 				<classpathentry combineaccessrules="false" kind="src" path="/imap-mailbox-processor-function"/> 
 				<classpathentry combineaccessrules="false" kind="src" path="/imapserver-function"/> 
-				<classpathentry combineaccessrules="false" kind="src" path="/jcr-backend-function"/> 
+				<classpathentry combineaccessrules="false" kind="src" path="/jcr-store"/> 
 				<classpathentry combineaccessrules="false" kind="src" path="/nntpserver-function"/> 
 				<classpathentry combineaccessrules="false" kind="src" path="/phoenix-deployment"/> 
 				<classpathentry combineaccessrules="false" kind="src" path="/pop3server-function"/> 
