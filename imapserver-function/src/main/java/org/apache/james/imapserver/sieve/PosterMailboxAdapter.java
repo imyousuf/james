@@ -22,12 +22,13 @@ package org.apache.james.imapserver.sieve;
 import java.util.Date;
 
 import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 
 import org.apache.james.mailboxmanager.MailboxSession;
 import org.apache.james.mailboxmanager.mailbox.Mailbox;
 import org.apache.james.mailboxmanager.manager.MailboxManager;
 import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
-import org.apache.mailet.Mail;
+import org.apache.jsieve.mailet.Poster;
 
 /**
  * This is just an experimental example. 
@@ -36,7 +37,7 @@ import org.apache.mailet.Mail;
  * 
  * Temporarily removed "Poster" to avoid function-to-function dependency.
  */
-public class PosterMailboxAdapter { // implements Poster {
+public class PosterMailboxAdapter implements Poster {
 
     private final MailboxManagerProvider mailboxManagerProvider;
     
@@ -48,7 +49,7 @@ public class PosterMailboxAdapter { // implements Poster {
         this.mailboxManagerProvider = mailboxManagerProvider;
     }
     
-    public void post(String url, Mail mail)throws MessagingException {
+    public void post(String url, MimeMessage mail)throws MessagingException {
         final int endOfScheme = url.indexOf(':');
         if (endOfScheme < 0) {
             throw new MessagingException("Malformed URI");
@@ -91,7 +92,7 @@ public class PosterMailboxAdapter { // implements Poster {
     }
     
     
-    public void postToMailbox(String username, Mail mail, String destination) throws MessagingException {
+    public void postToMailbox(String username, MimeMessage mail, String destination) throws MessagingException {
         final String name = mailboxManagerProvider.getMailboxManager().resolve(username, "INBOX");
         final MailboxManager mailboxManager = mailboxManagerProvider.getMailboxManager();
         final MailboxSession session = mailboxManager.createSession();
@@ -104,7 +105,7 @@ public class PosterMailboxAdapter { // implements Poster {
                         + " was not found on this server.";
                 throw new MessagingException(error);
             }
-            mailbox.appendMessage(mail.getMessage(), new Date(), null, session);
+            mailbox.appendMessage(mail, new Date(), null, session);
         }
         finally 
         {
