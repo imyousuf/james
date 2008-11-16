@@ -31,7 +31,8 @@ import java.io.InputStreamReader;
 
 
 /**
- * Simple Base64 string decoding and encoding function
+ * Performs simple Base64 encoding and decode suitable for authentication.
+ * Note that this is not a general purpose codec.
  *
  * @version This is $Revision$
  */
