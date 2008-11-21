@@ -24,6 +24,10 @@
   <block>
     <version>1.0</version>
   </block>
+  
+  <services>
+    <service name="org.apache.jsieve.mailet.Poster" version="1.0" />
+  </services>
 
   <dependencies>
     <dependency>

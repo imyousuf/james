@@ -597,7 +597,8 @@
               <include name="${jars-prefix}*-store-${version}.jar" />
             </lib>
             <lib dir='${lib.dir}/${path.lib.james}'>   
-                <include name='apache-james-imap*.jar'/>    
+                <include name='apache-james-imap*.jar'/> 
+                <include name='apache-jsieve*.jar'/> 
             </lib>   
             <zipfileset dir="${conf.dir}" fullpath="conf/sqlResources.xml">
                 <include name="sqlResources.xml"/>

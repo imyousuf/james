@@ -32,6 +32,7 @@ import org.apache.james.imap.processor.main.DefaultImapProcessorFactory;
 import org.apache.james.mailboxmanager.torque.DefaultMailboxManagerProvider;
 import org.apache.james.mailboxmanager.torque.DefaultMailboxManager;
 import org.apache.james.mailboxmanager.torque.DefaultUserManager;
+import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
 import org.apache.james.services.FileSystem;
 import org.apache.james.user.impl.file.FileUserMetaDataRepository;
 
@@ -40,15 +41,16 @@ public class DefaultImapFactory {
     private final ImapEncoder encoder;
     private final ImapDecoder decoder;
     private final ImapProcessor processor;
+    private final MailboxManagerProvider mailbox;
     
     public DefaultImapFactory(FileSystem fileSystem, UsersRepository users, Logger logger) {
         super();
         decoder = new DefaultImapDecoderFactory().buildImapDecoder();
         encoder = new DefaultImapEncoderFactory().buildImapEncoder();
-        processor = DefaultImapProcessorFactory.createDefaultProcessor(
-                new DefaultMailboxManagerProvider(
-                        new DefaultMailboxManager(new DefaultUserManager(
-                                new FileUserMetaDataRepository("var/users"), users), fileSystem, logger)));
+        mailbox = new DefaultMailboxManagerProvider(
+                new DefaultMailboxManager(new DefaultUserManager(
+                        new FileUserMetaDataRepository("var/users"), users), fileSystem, logger));
+        processor = DefaultImapProcessorFactory.createDefaultProcessor(mailbox);
     }
 
 
@@ -57,4 +59,12 @@ public class DefaultImapFactory {
     { 
         return new ImapRequestHandler(decoder, processor, encoder);
     }
+
+    /**
+     * This is required until James supports IoC assembly.
+     * @return the mailbox
+     */
+    public final MailboxManagerProvider getMailbox() {
+        return mailbox;
+    }    
 }
