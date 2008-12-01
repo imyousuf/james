@@ -18,7 +18,8 @@
   under the License.
 -->
 
-<project default="help" basedir="." name="smoke-test">
+<project default="help" basedir="." name="smoke-test" 
+    xmlns:mpt="antlib:org.apache.james.mpt.ant"> 
 
 	<description>
 	Contains smoke test macros. These allow basic sanity testing of the packaged distribution
@@ -27,6 +28,32 @@
 	<target name='help'>
 		<echo>This is a library containing macros required for smoke tests.</echo>
 	</target>
+ 
+    <macrodef name='RunSmokeTests'>
+        <sequential>   
+            <taskdef 
+                uri="antlib:org.apache.james.mpt.ant" 
+                resource="org/apache/james/mpt/ant/antlib.xml">
+                <classpath>
+                    <pathelement location="${lib.dir}/${mpt.jar}" />
+                    <pathelement location='${lib.dir}/${mpt-antlib.jar}' />
+                </classpath>
+            </taskdef>  
+            
+            <mpt:mpt port='10043' script='../build-tools/imap.mpt'>
+                <addUser port='10445' user='user' passwd='passwd'>S: JAMES Remote Administration Tool 3.0-SNAPSHOT
+S: Please enter your login and password
+S: Login id:
+C: root
+S: Password:
+C: root
+S: Welcome root. HELP for a list of commands
+C: adduser user passwd
+S: User user added
+</addUser>
+            </mpt:mpt>
+        </sequential>   
+    </macrodef>   
         
     <macrodef name='Smoke'>
         <attribute name='build-dir'/> 
@@ -49,7 +76,8 @@
             	app-path='@{app-path}' 
             	conf-path='@{conf-path}'
             	conf-file-name='@{conf-file-name}'/>   
-            <BootJames dir='${smoke.james.dir}' cmd='@{cmd}'/>   
+            <BootJames dir='${smoke.james.dir}' cmd='@{cmd}'/>  
+            <RunSmokeTests/>   
             <StopJames dir='${smoke.james.dir}' cmd='@{cmd}'/>       
     
         </sequential>   
