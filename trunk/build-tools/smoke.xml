@@ -29,6 +29,25 @@
 		<echo>This is a library containing macros required for smoke tests.</echo>
 	</target>
  
+    <macrodef name='TestProtocol'>
+        <attribute name='port'/>
+        <attribute name='name'/>
+        <sequential>
+            <mpt:mpt port='@{port}' script='../build-tools/@{name}.mpt'>
+                <addUser port='10445' user='user' passwd='passwd'>S: JAMES Remote Administration Tool 3.0-SNAPSHOT
+S: Please enter your login and password
+S: Login id:
+C: root
+S: Password:
+C: root
+S: Welcome root. HELP for a list of commands
+C: adduser user passwd
+S: User user added
+</addUser>
+            </mpt:mpt>               
+        </sequential>   
+    </macrodef>   
+    
     <macrodef name='RunSmokeTests'>
         <sequential>   
             <taskdef 
@@ -40,18 +59,7 @@
                 </classpath>
             </taskdef>  
             
-            <mpt:mpt port='10043' script='../build-tools/imap.mpt'>
-                <addUser port='10445' user='user' passwd='passwd'>S: JAMES Remote Administration Tool 3.0-SNAPSHOT
-S: Please enter your login and password
-S: Login id:
-C: root
-S: Password:
-C: root
-S: Welcome root. HELP for a list of commands
-C: adduser user passwd
-S: User user added
-</addUser>
-            </mpt:mpt>
+            <TestProtocol port='10043' name='imap'/>
         </sequential>   
     </macrodef>   
         
