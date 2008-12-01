@@ -29,8 +29,9 @@
 		<echo>This is a library containing macros required for smoke tests.</echo>
 	</target>
  
-    <macrodef name='TestProtocol'>
+    <macrodef name='TestProtocol'>   
         <attribute name='port'/>
+        <!-- Use simple convention that script is named from protocol -->   
         <attribute name='name'/>
         <sequential>
             <mpt:mpt port='@{port}' script='../build-tools/@{name}.mpt'>
@@ -42,7 +43,7 @@ S: Password:
 C: root
 S: Welcome root. HELP for a list of commands
 C: adduser user passwd
-S: User user added
+S: User user a.*
 </addUser>
             </mpt:mpt>               
         </sequential>   
@@ -60,6 +61,7 @@ S: User user added
             </taskdef>  
             
             <TestProtocol port='10043' name='imap'/>
+            <TestProtocol port='10025' name='smtp'/>   
         </sequential>   
     </macrodef>   
         
