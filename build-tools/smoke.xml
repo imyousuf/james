@@ -61,7 +61,8 @@ S: User user a.*
             </taskdef>  
             
             <TestProtocol port='10043' name='imap'/>
-            <TestProtocol port='10025' name='smtp'/>   
+            <TestProtocol port='10025' name='smtp'/>
+            <TestProtocol port='10110' name='pop3'/>    
         </sequential>   
     </macrodef>   
         
