@@ -94,6 +94,35 @@ S: User user a.*
     
         </sequential>   
     </macrodef> 
+ 
+    <macrodef name='SieveSmoke'>
+        <attribute name='build-dir'/> 
+        <attribute name='zip'/>    
+        <attribute name='package'/>
+        <attribute name='app-path'/>
+        <attribute name='conf-path'/>
+        <attribute name='conf-file-name'/> 
+        <attribute name='cmd'/>
+        <sequential>
+    
+            <VerifySmokePrerequisites zip='@{zip}'/>
+        
+            <property name='smoke.sieve.dir' location='@{build-dir}/sieve-smoke'/>
+            <UnpackDistribution zip='@{zip}' dir='${smoke.sieve.dir}'/>
+            
+            <property name='smoke.sieve.james.dir' location='${smoke.sieve.dir}/@{package}'/>               
+            <ConfigureJames 
+                dir='${smoke.sieve.james.dir}' 
+                app-path='@{app-path}' 
+                conf-path='@{conf-path}'
+                conf-file-name='@{conf-file-name}'
+                style='sieve'/>   
+
+            <BootJames dir='${smoke.sieve.james.dir}' cmd='@{cmd}'/>  
+            <!--<RunSmokeTests/> -->
+            <StopJames dir='${smoke.sieve.james.dir}' cmd='@{cmd}'/>       
+        </sequential>   
+    </macrodef>    
     
     <macrodef name="ControlJames">
         <attribute name='action'/>
@@ -155,7 +184,8 @@ Failed to boot James server. See @{dir}/temp/phoenix.console for details.
     	<attribute name='dir'/>
         <attribute name='app-path'/>
         <attribute name='conf-path'/>
-        <attribute name='conf-file-name'/>  
+        <attribute name='conf-file-name'/>
+        <attribute name='style' default="smoke"/>   
         <sequential>
             <unzip dest="@{dir}/@{app-path}/james">
             	<fileset dir='@{dir}/@{app-path}'>
@@ -163,7 +193,7 @@ Failed to boot James server. See @{dir}/temp/phoenix.console for details.
             	</fileset>
             </unzip>
             <xslt 
-            	style="../build-tools/smoke.xsl" 
+            	style="../build-tools/@{style}.xsl" 
                 in='@{dir}/@{conf-path}/@{conf-file-name}' 
                 out='@{dir}/@{conf-path}/config-smoke.xml'></xslt>
             <move   

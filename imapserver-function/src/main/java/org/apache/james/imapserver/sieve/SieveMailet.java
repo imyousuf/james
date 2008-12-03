@@ -26,7 +26,6 @@ import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
 import org.apache.jsieve.mailet.Poster;
 import org.apache.jsieve.mailet.SieveMailboxMailet;
-import org.apache.mailet.MailetConfig;
 
 /**
  * Contains avalon bindings.
@@ -34,7 +33,8 @@ import org.apache.mailet.MailetConfig;
 public class SieveMailet extends SieveMailboxMailet {
 
     @Override
-    public void init(MailetConfig config) throws MessagingException {
+    public void init() throws MessagingException {
+        
         ServiceManager compMgr = (ServiceManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
         try {
             Poster poster = (Poster) compMgr.lookup("org.apache.jsieve.mailet.Poster");
@@ -42,6 +42,7 @@ public class SieveMailet extends SieveMailboxMailet {
         } catch (ServiceException e) {
             throw new MessagingException("IMAP not installed", e);
         }
-        super.init(config);
+        
+        super.init();
     }    
 }
