@@ -19,29 +19,24 @@
 
 package org.apache.james.imapserver.sieve;
 
-import javax.mail.MessagingException;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.james.Constants;
-import org.apache.jsieve.mailet.Poster;
-import org.apache.jsieve.mailet.SieveMailboxMailet;
-import org.apache.mailet.MailetConfig;
+import org.apache.jsieve.mailet.ResourceLocator;
 
 /**
- * Contains avalon bindings.
+ * To maintain backwards compatibility with existing
+ * installations, this uses the old file based scheme.
+ * TODO: replace with <code>FileSystem</code> based implementation.
  */
-public class SieveMailet extends SieveMailboxMailet {
+public class ResourceLocatorImpl implements ResourceLocator {
 
-    @Override
-    public void init(MailetConfig config) throws MessagingException {
-        ServiceManager compMgr = (ServiceManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
-        try {
-            Poster poster = (Poster) compMgr.lookup("org.apache.jsieve.mailet.Poster");
-            setPoster(poster);
-        } catch (ServiceException e) {
-            throw new MessagingException("IMAP not installed", e);
-        }
-        super.init(config);
-    }    
+    public InputStream get(String uri) throws IOException {
+        // This is a toy implementation
+        String username = uri.substring(3, uri.indexOf('@'));
+        String sieveFileName = "../apps/james/var/sieve/"+username+".sieve";
+        return new FileInputStream(sieveFileName);
+    }
+
 }
