@@ -137,7 +137,6 @@
       <configuration-directory>file://conf</configuration-directory>
    </James>
 
-    
    <!-- This is an example configuration for FetchMail, a JavaMail based gateway  -->
    <!-- service that pulls messages from other sources, and inserts them into the -->
    <!-- spool.  They are then processed normally, although FetchMail generally    -->
@@ -1072,6 +1071,33 @@ Regards, Postmaster XXX.YYY
          <connectiontimeout>360000</connectiontimeout>
             
       </handler>
+      <configFile>file://conf/mailboxManagerSqlResources.xml</configFile>
+      
+      <torque-properties>
+        <property name="torque.database.default"
+                  value="mailboxmanager"/>
+        <property
+                  name="torque.database.mailboxmanager.adapter"
+                  value="derby"/>
+        <property
+                  name="torque.dsfactory.mailboxmanager.factory"
+                  value="org.apache.torque.dsfactory.SharedPoolDataSourceFactory"/>
+        <property
+                  name="torque.dsfactory.mailboxmanager.connection.driver"
+                  value="org.apache.derby.jdbc.EmbeddedDriver"/>
+        <property
+                  name="torque.dsfactory.mailboxmanager.connection.url"
+                  value="jdbc:derby:../apps/james/var/mailboxmanager-derbydb;create=true"/>
+        <property
+                  name="torque.dsfactory.mailboxmanager.connection.user"
+                  value="app"/>
+        <property
+                  name="torque.dsfactory.mailboxmanager.connection.password"
+                  value="app"/>
+        <property
+                  name="torque.dsfactory.mailboxmanager.pool.maxActive"
+                  value="100"/>
+      </torque-properties>
    </imapserver>
 
     <!-- The NNTP server is enabled by default -->

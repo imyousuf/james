@@ -164,7 +164,7 @@ S: User user a.*
             <StopJames dir='@{dir}' cmd='@{cmd}'/>   
             <StartJames dir='@{dir}' cmd='@{cmd}'/>
             <echo>Waiting for James to boot...</echo>   
-            <waitfor maxwait='45' maxwaitunit='second' timeoutproperty='smoke.boot.failed'>
+            <waitfor maxwait='60' maxwaitunit='second' timeoutproperty='smoke.boot.failed'>
                 <and>   
                     <socket server='localhost' port='10025'/>   
                     <socket server='localhost' port='10110'/>

@@ -81,6 +81,9 @@ public class ImapHandler implements ProtocolHandler
      * @see ConnectionHandler#handleConnection(Socket)
      */
     public void handleProtocol() throws IOException {
+            getLogger().debug(
+                "Connection from " + helper.getRemoteHost() + " (" + helper.getRemoteIP()
+                        + ") opened.");
             final OutputStreamImapResponseWriter writer = new OutputStreamImapResponseWriter( helper.getOutputStream() );
             ImapResponseComposer response = new ImapResponseComposerImpl( writer);
 

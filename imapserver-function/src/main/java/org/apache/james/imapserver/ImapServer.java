@@ -20,6 +20,8 @@
 package org.apache.james.imapserver;
 
 import java.util.Date;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -57,11 +59,6 @@ public class ImapServer extends AbstractJamesService implements ImapConstants, P
     private DefaultImapFactory factory;
     
     private String hello = softwaretype;
-
-    public ImapServer()
-    {
-    }
-    
     
     
     public void service(ServiceManager comp) throws ServiceException {
@@ -71,29 +68,42 @@ public class ImapServer extends AbstractJamesService implements ImapConstants, P
     }
 
 
+    @Override
+    public void dispose() {
+        super.dispose();
+    }
+
+
+
+    @Override
+    public void initialize() throws Exception {
+        getLogger().debug("Initialising...");
+        factory.initialize();
+        super.initialize();
+    }
+
+
 
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
-    public void configure( final Configuration configuration ) throws ConfigurationException
-    {
+    public void configure( final Configuration configuration ) throws ConfigurationException {
         super.configure( configuration );
+        factory.configure(configuration);
         hello  = softwaretype + " Server " + helloName + " is ready.";
     }
     
     /**
      * @see AbstractJamesService#getDefaultPort()
      */
-    protected int getDefaultPort()
-    {
+    protected int getDefaultPort() {
         return 143;
     }
 
     /**
      * @see AbstractJamesService#getServiceType()
      */
-    public String getServiceType()
-    {
+    public String getServiceType() {
         return "IMAP Service";
     }
 
@@ -102,7 +112,7 @@ public class ImapServer extends AbstractJamesService implements ImapConstants, P
      * @see org.apache.avalon.excalibur.pool.ObjectFactory#newInstance()
      */
     public ProtocolHandler newProtocolHandlerInstance()
-    {
+    {  
         final ImapRequestHandler handler = factory.createHandler();
         final ImapHandler imapHandler = new ImapHandler(handler, hello); 
         getLogger().debug("Create handler instance");
