@@ -137,97 +137,6 @@
       <configuration-directory>file://conf</configuration-directory>
    </James>
 
-    <!--
-        Don't forget to activate mailboxmanager inboxRepository in the 
-        James block, if you want to receive mail in your IMAP mailbox
-    --><!-- 
-    <mailboxmanager>
-        <namespaces>
-            <usernamespace name="#mail" delimiter="."/>
-        </namespaces>
-        <factory
-            class="org.apache.james.mailboxmanager.torque.TorqueMailboxManagerFactory">
-                   <configFile>file://conf/mailboxManagerSqlResources.xml</configFile>
-                   <torque-properties>
-                       <property name="torque.database.default"
-                           value="mailboxmanager"/>
-                       <property
-                           name="torque.database.mailboxmanager.adapter"
-                           value="derby"/>
-                       <property
-                           name="torque.dsfactory.mailboxmanager.factory"
-                           value="org.apache.torque.dsfactory.SharedPoolDataSourceFactory"/>
-                       <property
-                           name="torque.dsfactory.mailboxmanager.connection.driver"
-                           value="org.apache.derby.jdbc.EmbeddedDriver"/>
-                       <property
-                           name="torque.dsfactory.mailboxmanager.connection.url"
-                           value="jdbc:derby:../apps/james/var/mailboxmanager-derbydb;create=true"/>
-                       <property
-                           name="torque.dsfactory.mailboxmanager.connection.user"
-                           value="app"/>
-                       <property
-                           name="torque.dsfactory.mailboxmanager.connection.password"
-                           value="app"/>
-                       <property
-                           name="torque.dsfactory.mailboxmanager.pool.maxActive"
-                           value="100"/>
-                   </torque-properties>
-        </factory>
-    </mailboxmanager>-->
-    
-  <!-- Experimental IMAP support 
-      
-        Don't forget to activate mailboxmanager inboxRepository in the 
-        James block, if you want to receive mail in your IMAP mailbox
-   
-   <imap-connections>-->
-      <!-- RFC 3501 requires a minimum timeout of 30 minutes -->
-<!--       <idle-timeout>1800000</idle-timeout>
-      <max-connections>100</max-connections>
--->      <!--
-      <max-connections-per-ip>0</max-connections-per-ip>
-      -->
-<!--    </imap-connections>   -->   
-    
-<!--  <imapserver enabled="true"> -->
-      <!-- port 993 is the well-known/IANA registered port for IMAPs ie over SSL/TLS -->
-        <!-- <port>993</port> -->
-        <!-- JAMES TLS uses JSSE. This means that for many Sun JVMs,
-             the sunjce_provider.jar must be copied from $JAVA_HOME/lib/ext
-             into $JAMES_HOME/lib. It may also be necessary to download and
-             install unlimited strength policies. -->
-        <!--
-        <useTLS>true</useTLS>
-        -->
-        <!-- Use provider elements to specify additional JCE providers.
-             The jars should be put into $JAMES_HOME/lib.
-             For example, BouncyCastle JCE (http://www.bouncycastle.org)
-        <provider>org.bouncycastle.jce.provider.BouncyCastleProvider</provider> -->
-        <!--
-        <handler> -->
-            <!-- RFC 3501 requires a minimum timeout of 30 minutes -->
-            <!-- 
-            <connectiontimeout>1800000</connectiontimeout>         
-            <streamdump enabled="true" directory="../apps/james/streamdump" />
-        </handler> 
-      -->
-      <!-- port 143 is the well-known/IANA registered port for Standard IMAP4 
-        <port>143</port>
-        <handler>-->
-          <!-- RFC 3501 requires a minimum timeout of 30 minutes -->
-          <!-- 
-          <connectiontimeout>1800000</connectiontimeout>         
-          <streamdump enabled="true" directory="../apps/james/streamdump" />
-        </handler> 
-      -->
-      <!-- Experimental high port -->
-      <!-- <port>10143</port> 
-      <handler>-->
-       <!-- RFC 3501 requires a minimum timeout of 30 minutes -->
-<!--         <connectiontimeout>1800000</connectiontimeout>         
-       <streamdump enabled="true" directory="../apps/james/streamdump" />
-      </handler>      -->
     
    <!-- This is an example configuration for FetchMail, a JavaMail based gateway  -->
    <!-- service that pulls messages from other sources, and inserts them into the -->
@@ -1125,11 +1034,11 @@ Regards, Postmaster XXX.YYY
       </handler>
    </smtpserver>
    
-      <!-- The SMTP server is enabled by default -->
+    <!-- IMAP server is enabled by default -->
     <!-- Disabling blocks will stop them from listening, -->
     <!-- but does not free as many resources as removing them would -->
    <imapserver enabled="true">
-      <!-- port 25 is the well-known/IANA registered port for SMTP -->
+      <!-- port 143 is the well-known/IANA registered port for IMAP -->
       <port>143</port>
 
       <!-- Uncomment this if you want to bind to a specific inetaddress -->
