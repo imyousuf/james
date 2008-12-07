@@ -16,8 +16,8 @@
 # specific language governing permissions and limitations      #
 # under the License.                                           #
 ################################################################
-S: 220 localhost. SMTP Server \(JAMES SMTP Server .*
+S: 220 .* SMTP Server \(JAMES SMTP Server .*
 C: HELO example.org
-S: 250 localhost. Hello example.org .*
+S: 250 .* Hello example.org .*
 C: QUIT
-S: 221 2.0.0 localhost. Service closing transmission channel
+S: 221 2.0.0 .* Service closing transmission channel
