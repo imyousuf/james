@@ -20,6 +20,8 @@
 package org.apache.james.imapserver;
 
 
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.api.imap.process.ImapProcessor;
 import org.apache.james.api.user.UsersRepository;
@@ -42,19 +44,29 @@ public class DefaultImapFactory {
     private final ImapDecoder decoder;
     private final ImapProcessor processor;
     private final MailboxManagerProvider mailbox;
+    private final DefaultMailboxManager mailboxManager;
     
     public DefaultImapFactory(FileSystem fileSystem, UsersRepository users, Logger logger) {
         super();
         decoder = new DefaultImapDecoderFactory().buildImapDecoder();
         encoder = new DefaultImapEncoderFactory().buildImapEncoder();
-        mailbox = new DefaultMailboxManagerProvider(
-                new DefaultMailboxManager(new DefaultUserManager(
-                        new FileUserMetaDataRepository("var/users"), users), fileSystem, logger));
+        mailboxManager = new DefaultMailboxManager(new DefaultUserManager(
+                new FileUserMetaDataRepository("var/users"), users), fileSystem, logger);
+        mailbox = new DefaultMailboxManagerProvider(mailboxManager);
         processor = DefaultImapProcessorFactory.createDefaultProcessor(mailbox);
     }
 
+    /**
+     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
+     */
+    public void configure( final Configuration configuration ) throws ConfigurationException {
+        mailboxManager.configure(configuration);
+    }
 
-
+    public void initialize() throws Exception {
+        mailboxManager.initialize();
+    }
+    
     public ImapRequestHandler createHandler()
     { 
         return new ImapRequestHandler(decoder, processor, encoder);

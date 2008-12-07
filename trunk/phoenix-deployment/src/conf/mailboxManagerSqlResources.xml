@@ -40,7 +40,7 @@
 
   <dbOptions>
   </dbOptions>
-  <sqlDefs name="org.apache.james.mailboxmanager.torque.TorqueMailboxManagerFactory">
+  <sqlDefs name="org.apache.james.mailboxmanager.torque.DefaultMailboxManager">
 
     <sql name="tableName">${table}</sql>
 

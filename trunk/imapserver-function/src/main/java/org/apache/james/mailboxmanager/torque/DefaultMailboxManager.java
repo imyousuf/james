@@ -79,8 +79,7 @@ public class DefaultMailboxManager extends TorqueMailboxManager {
                 Torque.init(torqueConf);
                 conn = Transaction.begin(MailboxRowPeer.DATABASE_NAME);
                 SqlResources sqlResources = new SqlResources();
-                sqlResources.init(fileSystem
-                        .getResource(configFile),
+                sqlResources.init(fileSystem.getResource(configFile),
                         DefaultMailboxManager.class.getName(), conn,
                         new HashMap());
 
