@@ -16,6 +16,6 @@
 # specific language governing permissions and limitations      #
 # under the License.                                           #
 ################################################################
-S: \+OK localhost. POP3 server \(JAMES POP3 Server .*
+S: \+OK .* POP3 server \(JAMES POP3 Server .*
 C: QUIT
 S: \+OK Apache James POP3 Server signing off.

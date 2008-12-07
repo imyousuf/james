@@ -16,7 +16,7 @@
 # specific language governing permissions and limitations      #
 # under the License.                                           #
 ################################################################
-S: 200 localhost. NNTP Service Ready, posting permitted
+S: 200 .* NNTP Service Ready, posting permitted
 C: POST
 S: 340 send article to be posted. End with <CR-LF>.<CR-LF>
 C: From: me@example.org
