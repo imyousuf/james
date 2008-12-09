@@ -75,6 +75,7 @@ S: User user a.*
         <attribute name='conf-path'/>
         <attribute name='conf-file-name'/> 
         <attribute name='cmd'/>
+        <attribute name='log'/>   
         <sequential>
     
             <VerifySmokePrerequisites zip='@{zip}'/>
@@ -88,7 +89,7 @@ S: User user a.*
             	app-path='@{app-path}' 
             	conf-path='@{conf-path}'
             	conf-file-name='@{conf-file-name}'/>   
-            <BootJames dir='${smoke.james.dir}' cmd='@{cmd}'/>  
+            <BootJames dir='${smoke.james.dir}' cmd='@{cmd}' log='@{log}'/>  
             <RunSmokeTests/>   
             <StopJames dir='${smoke.james.dir}' cmd='@{cmd}'/>       
     
@@ -103,6 +104,7 @@ S: User user a.*
         <attribute name='conf-path'/>
         <attribute name='conf-file-name'/> 
         <attribute name='cmd'/>
+        <attribute name='log'/>   
         <sequential>
     
             <VerifySmokePrerequisites zip='@{zip}'/>
@@ -118,7 +120,7 @@ S: User user a.*
                 conf-file-name='@{conf-file-name}'
                 style='sieve'/>   
 
-            <BootJames dir='${smoke.sieve.james.dir}' cmd='@{cmd}'/>  
+            <BootJames dir='${smoke.sieve.james.dir}' cmd='@{cmd}' log='@{log}'/>  
             <RunSmokeTests/>
             <StopJames dir='${smoke.sieve.james.dir}' cmd='@{cmd}'/>       
         </sequential>   
@@ -160,6 +162,7 @@ S: User user a.*
     <macrodef name='BootJames'>
         <attribute name='dir'/> 
         <attribute name='cmd'/>   
+        <attribute name='log'/>     
         <sequential>
             <StopJames dir='@{dir}' cmd='@{cmd}'/>   
             <StartJames dir='@{dir}' cmd='@{cmd}'/>
@@ -174,7 +177,7 @@ S: User user a.*
                 </and>   
             </waitfor>   
             <fail if='smoke.boot.failed'>
-Failed to boot James server. See @{dir}/temp/phoenix.console for details.   
+Failed to boot James server. See @{dir}/@{log} for details.   
             </fail>   
                 <echo>James booted.</echo>      
         </sequential>   
