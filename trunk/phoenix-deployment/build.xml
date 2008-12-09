@@ -1111,7 +1111,8 @@
             app-path='apps'
             conf-path='apps/james/SAR-INF'
             conf-file-name='config.xml'
-            cmd='phoenix'/>   
+            cmd='phoenix'
+            log='temp/phoenix.console'/>   
     </target>      
     
     <target name='smoke' depends='dist-properties'>
@@ -1122,7 +1123,8 @@
             app-path='apps'
             conf-path='apps/james/SAR-INF'
             conf-file-name='config.xml'
-            cmd='phoenix'/>   
+            cmd='phoenix'
+            log='temp/phoenix.console'/>   
     </target>   
     
     <!--

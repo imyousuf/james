@@ -529,6 +529,17 @@ java -cp ${exe-classpath};../conf org.apache.james.container.spring.Main
 		</GenerateEclipseProject>
 	</target>
 
+    <target name='sieve-smoke'>
+        <SieveSmoke 
+            build-dir='${build.dir}' 
+            zip='${spring-deployment.dist.bin.zip}' 
+            package='${spring-deployment.artefact.name}'
+            app-path='conf'
+            conf-path='conf'
+            conf-file-name='james-config.xml'
+            cmd='run'
+            log='bin/james.console'/>   
+    </target>     
  
     <target name='smoke'>
         <Smoke 
@@ -538,6 +549,7 @@ java -cp ${exe-classpath};../conf org.apache.james.container.spring.Main
            app-path='conf'
            conf-path='conf'
            conf-file-name='james-config.xml'
-           cmd='run'/>     
+           cmd='run'
+           log='bin/james.console'/>     
     </target>   
 </project>
