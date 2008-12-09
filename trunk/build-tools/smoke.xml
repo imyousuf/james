@@ -119,7 +119,7 @@ S: User user a.*
                 style='sieve'/>   
 
             <BootJames dir='${smoke.sieve.james.dir}' cmd='@{cmd}'/>  
-            <!--<RunSmokeTests/> -->
+            <RunSmokeTests/>
             <StopJames dir='${smoke.sieve.james.dir}' cmd='@{cmd}'/>       
         </sequential>   
     </macrodef>    
