@@ -136,6 +136,7 @@
             <include name="${jackrabbit-commons.jar}"/>
             <include name="${jackrabbit-rmi.jar}"/>
             <include name="${jcr.jar}"/>
+            <include name="${jsr250.jar}"/>
             <!-- Protocols should be coupled by deployment only -->
             <include name='${path.lib.james}/apache-james-imap*.jar'/>
         </fileset>

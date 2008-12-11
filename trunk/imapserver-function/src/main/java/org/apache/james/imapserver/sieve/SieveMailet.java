@@ -19,30 +19,19 @@
 
 package org.apache.james.imapserver.sieve;
 
-import javax.mail.MessagingException;
+import javax.annotation.Resource;
 
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.james.Constants;
 import org.apache.jsieve.mailet.Poster;
 import org.apache.jsieve.mailet.SieveMailboxMailet;
 
 /**
- * Contains avalon bindings.
+ * Contains resource bindings.
  */
 public class SieveMailet extends SieveMailboxMailet {
 
+    @Resource(name="imapserver")
     @Override
-    public void init() throws MessagingException {
-        
-        ServiceManager compMgr = (ServiceManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
-        try {
-            Poster poster = (Poster) compMgr.lookup("org.apache.jsieve.mailet.Poster");
-            setPoster(poster);
-        } catch (ServiceException e) {
-            throw new MessagingException("IMAP not installed", e);
-        }
-        
-        super.init();
-    }    
+    public void setPoster(Poster poster) {
+        super.setPoster(poster);
+    }
 }
