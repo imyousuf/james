@@ -236,6 +236,7 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
                     <include name="${spring.jar}"/>     
                     <include name="${log4j.jar}"/>     
                     <include name="${avalon-phoenix.jar}"/>     
+                    <include name="${jsr250.jar}"/>
                     <include name='${path.lib.james}/apache-james-imap*.jar'/>
                 </fileset>   
             </path>   

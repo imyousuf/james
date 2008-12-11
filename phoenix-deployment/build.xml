@@ -120,6 +120,7 @@
             <include name="${jackrabbit-commons.jar}"/>
             <include name="${jackrabbit-rmi.jar}"/>
             <include name="${jcr.jar}"/>
+            <include name="${jsr250.jar}"/>   
             <!-- Protocols should be coupled by deployment only -->
             <include name='${path.lib.james}/apache-james-imap*.jar'/>
         </fileset>
@@ -529,6 +530,7 @@
             <lib dir='${lib.dir}/${path.lib.geronimo}'>
                 <include name='${jarname.j2ee-management-spec}'/>
                 <include name='${jarname.jms-spec}'/>
+                <include name='${jarname.geronimo.annotations}'/>   
             </lib>   
             <lib dir='${lib.dir}/${path.lib.activemq}'>
                 <include name='${jarname.activemq-web}'/>
