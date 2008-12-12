@@ -153,10 +153,14 @@
    <!-- Set the Java packages from which to load mailets and matchers -->
    <mailetpackages>
       <mailetpackage>org.apache.james.transport.mailets</mailetpackage>
+      <!-- Cryptography Mailets -->
       <mailetpackage>org.apache.james.transport.mailets.smime</mailetpackage>
+      <!-- Sieve Mail Scripting -->
+      <mailetpackage>org.apache.james.imapserver.sieve</mailetpackage>      
    </mailetpackages>
    <matcherpackages>
       <matcherpackage>org.apache.james.transport.matchers</matcherpackage>
+      <!-- Crytographic mailets -->
       <matcherpackage>org.apache.james.transport.matchers.smime</matcherpackage>
    </matcherpackages>
 
@@ -343,6 +347,10 @@ Regards, Postmaster XXX.YYY
             </mapping>
          </mailet>
          -->
+         
+        <!-- Deliver To IMAP mailboxes, applying a Sieve script if the user has one
+        <mailet match="All" class="SieveMailet"/>
+        -->
 
          <!-- Anti-spam processing -->
          <!-- The following two entries avoid double anti-spam analysis -->
