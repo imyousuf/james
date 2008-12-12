@@ -127,6 +127,9 @@
         <fileset refid="james.jars"/>   
         <pathelement path="${java.class.path}" />
         <pathelement path="${build.classes}" />
+        <fileset dir='../phoenix-deployment/phoenix-bin/lib'>
+            <include name='phoenix-client.jar'/>   
+        </fileset>   
     </path>
 
     <path id="tools.class.path">

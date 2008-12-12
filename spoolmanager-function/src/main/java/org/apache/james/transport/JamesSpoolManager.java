@@ -40,6 +40,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 
+import javax.annotation.PostConstruct;
+
 /**
  * Manages the mail spool.  This class is responsible for retrieving
  * messages from the spool, directing messages to the appropriate
@@ -50,7 +52,7 @@ import java.util.ArrayList;
  */
 public class JamesSpoolManager
     extends AbstractLogEnabled
-    implements Serviceable, Configurable, Initializable, Runnable, Disposable, SpoolManager {
+    implements Serviceable, Configurable, Runnable, Disposable, SpoolManager {
 
     /**
      * System component manager
@@ -147,8 +149,9 @@ public class JamesSpoolManager
     }
 
     /**
-     * @see org.apache.avalon.framework.activity.Initializable#initialize()
+     * Initialises the spool manager.
      */
+    @PostConstruct
     public void initialize() throws Exception {
 
         getLogger().info("JamesSpoolManager init...");
