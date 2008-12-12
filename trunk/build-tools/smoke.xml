@@ -42,8 +42,14 @@ C: root
 S: Password:
 C: root
 S: Welcome root. HELP for a list of commands
+C: deluser user
+S: User user .*
+C: deluser john.smith
+S: User john.smith .*
 C: adduser user passwd
 S: User user a.*
+C: adduser john.smith passwd
+S: User john.smith a.*
 </addUser>
             </mpt:mpt>               
         </sequential>   
