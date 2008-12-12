@@ -19,5 +19,20 @@
 S: 220 .* SMTP Server \(JAMES SMTP Server .*
 C: HELO example.org
 S: 250 .* Hello example.org .*
+C: MAIL FROM:<joe@example.org>
+S: 250 2.1.0 Sender <joe@example.org> OK
+C: RCPT TO:<user@localhost>
+S: 250 2.1.5 Recipient <user@localhost> OK
+C: DATA
+S: 354 Ok Send data ending with <CRLF>.<CRLF>
+C: Date: 12 Dec 2008 GMT
+C: From: <joe@example.org>
+C: To: <user@localhost>
+C: Subject: A Test Message
+C:
+C: Simple plain mail content
+C:
+C: .
+S: 250 2.6.0 Message received
 C: QUIT
 S: 221 2.0.0 .* Service closing transmission channel
