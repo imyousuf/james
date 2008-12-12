@@ -35,7 +35,7 @@
         <attribute name='name'/>
         <sequential>
             <mpt:mpt port='@{port}' script='../build-tools/@{name}.mpt'>
-                <addUser port='10445' user='user' passwd='passwd'>S: JAMES Remote Administration Tool 3.0-SNAPSHOT
+                <addUser port='${org.apache.james.smoke.port.RemoteManager}' user='user' passwd='passwd'>S: JAMES Remote Administration Tool 3.0-SNAPSHOT
 S: Please enter your login and password
 S: Login id:
 C: root
@@ -66,10 +66,10 @@ S: User john.smith a.*
                 </classpath>
             </taskdef>  
             
-            <TestProtocol port='10043' name='imap'/>
-            <TestProtocol port='10025' name='smtp'/>
-            <TestProtocol port='10110' name='pop3'/>  
-            <TestProtocol port='10119' name='nntp'/>   
+            <TestProtocol port='${org.apache.james.smoke.port.IMAP}' name='imap'/>
+            <TestProtocol port='${org.apache.james.smoke.port.SMTP}' name='smtp'/>
+            <TestProtocol port='${org.apache.james.smoke.port.POP3}' name='pop3'/>  
+            <TestProtocol port='${org.apache.james.smoke.port.NNTP}' name='nntp'/>   
         </sequential>   
     </macrodef>   
         
@@ -175,11 +175,11 @@ S: User john.smith a.*
             <echo>Waiting for James to boot...</echo>   
             <waitfor maxwait='60' maxwaitunit='second' timeoutproperty='smoke.boot.failed'>
                 <and>   
-                    <socket server='localhost' port='10025'/>   
-                    <socket server='localhost' port='10110'/>
-                    <socket server='localhost' port='10043'/>
-                    <socket server='localhost' port='10119'/>   
-                    <socket server='localhost' port='10445'/>   
+                    <socket server='localhost' port='${org.apache.james.smoke.port.SMTP}'/>   
+                    <socket server='localhost' port='${org.apache.james.smoke.port.POP3}'/>
+                    <socket server='localhost' port='${org.apache.james.smoke.port.IMAP}'/>
+                    <socket server='localhost' port='${org.apache.james.smoke.port.NNTP}'/>   
+                    <socket server='localhost' port='${org.apache.james.smoke.port.RemoteManager}'/>   
                 </and>   
             </waitfor>   
             <fail if='smoke.boot.failed'>
@@ -225,7 +225,12 @@ James from the command line is required on Windows.
             <available file='@{zip}' property="is.packaged"/>
             <fail unless='is.packaged'>
 @{zip} not found. Try 'ant dist'.
-            </fail>  
+            </fail>        
+            <property name='org.apache.james.smoke.port.IMAP' value='10043'/>
+            <property name='org.apache.james.smoke.port.SMTP' value='10025'/>
+            <property name='org.apache.james.smoke.port.POP3' value='10110'/>
+            <property name='org.apache.james.smoke.port.NNTP' value='10119'/>   
+            <property name='org.apache.james.smoke.port.RemoteManager' value='10445'/>
         </sequential>
     </macrodef>   
  
