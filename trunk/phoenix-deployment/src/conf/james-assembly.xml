@@ -360,4 +360,5 @@
          <proxy disable='true'/>
   </block>
 
+  <listener name="JamesLoader" class="org.apache.james.phoenix.PhoenixLoader"/>
 </assembly>

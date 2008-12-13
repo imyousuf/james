@@ -17,5 +17,11 @@
 # under the License.                                           #
 ################################################################
 S: \+OK .* POP3 server \(JAMES POP3 Server .*
+C: USER user
+S: \+OK
+C: PASS passwd
+S: \+OK Welcome user
+C: STAT
+S: \+OK 0 0
 C: QUIT
 S: \+OK Apache James POP3 Server signing off.
