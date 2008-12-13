@@ -532,9 +532,11 @@
             <lib dir='${lib.dir}/${path.lib.activeio}' includes='${jarname.activeio}'/>
             <lib dir='${lib.dir}/${path.lib.geronimo}'>
                 <include name='${jarname.j2ee-management-spec}'/>
-                <include name='${jarname.jms-spec}'/>
-                <include name='${jarname.geronimo.annotations}'/>   
+                <include name='${jarname.jms-spec}'/> 
             </lib>   
+            <lib dir='${lib.dir}/${path.lib.geronimo.specs}'>
+                <include name='${jarname.geronimo.annotations}'/>   
+            </lib>      
             <lib dir='${lib.dir}/${path.lib.activemq}'>
                 <include name='${jarname.activemq-web}'/>
                 <include name='${jarname.activemq-console}'/>
