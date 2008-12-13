@@ -18,6 +18,10 @@
  ****************************************************************/
 package org.apache.james.container.spring.lifecycle;
 
+import java.lang.reflect.Method;
+
+import javax.annotation.PostConstruct;
+
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -36,6 +40,14 @@ public class InitializationPropagator extends AbstractPropagator implements Bean
     protected void invokeLifecycleWorker(String beanName, Object bean, BeanDefinition beanDefinition) {
         try {
             ContainerUtil.initialize(bean);
+            Method[] methods = bean.getClass().getMethods();
+            for (Method method : methods) {
+                PostConstruct postConstructAnnotation = method.getAnnotation(PostConstruct.class);
+                if (postConstructAnnotation != null) {
+                    Object[] args = {};
+                    method.invoke(bean, args);
+                }
+            }
         } catch (Exception e) {
             throw new RuntimeException("could not initialize component of type " + bean.getClass(), e);
         }
