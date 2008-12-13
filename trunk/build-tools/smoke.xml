@@ -29,6 +29,17 @@
 		<echo>This is a library containing macros required for smoke tests.</echo>
 	</target>
  
+    <macrodef name='TestDelivery'>   
+        <attribute name='smtp' default='delivery-smtp'/>
+        <attribute name='pop3' default='pop3-after-smtp'/>   
+        <sequential>
+            <TestProtocol port='${org.apache.james.smoke.port.SMTP}' name='@{smtp}'/>
+            <echo>Allow spool to delivery message...</echo>
+            <sleep seconds="10"/>
+            <mpt:mpt port='${org.apache.james.smoke.port.POP3}' script='../build-tools/@{pop3}.mpt'/>
+        </sequential>   
+    </macrodef> 
+    
     <macrodef name='TestProtocol'>   
         <attribute name='port'/>
         <!-- Use simple convention that script is named from protocol -->   
@@ -66,10 +77,12 @@ S: User john.smith a.*
                 </classpath>
             </taskdef>  
             
+            <TestProtocol port='${org.apache.james.smoke.port.POP3}' name='pop3'/>    
             <TestProtocol port='${org.apache.james.smoke.port.IMAP}' name='imap'/>
             <TestProtocol port='${org.apache.james.smoke.port.SMTP}' name='smtp'/>
-            <TestProtocol port='${org.apache.james.smoke.port.POP3}' name='pop3'/>  
-            <TestProtocol port='${org.apache.james.smoke.port.NNTP}' name='nntp'/>   
+            <TestProtocol port='${org.apache.james.smoke.port.NNTP}' name='nntp'/> 
+            
+            <TestDelivery/>   
         </sequential>   
     </macrodef>   
         
@@ -204,7 +217,7 @@ Failed to boot James server. See @{dir}/@{log} for details.
             <xslt 
             	style="../build-tools/@{style}.xsl" 
                 in='@{dir}/@{conf-path}/@{conf-file-name}' 
-                out='@{dir}/@{conf-path}/config-smoke.xml'></xslt>
+                out='@{dir}/@{conf-path}/config-smoke.xml'></xslt>   
             <move   
                 file='@{dir}/@{conf-path}/config-smoke.xml' 
                 tofile="@{dir}/@{conf-path}/@{conf-file-name}"/>
