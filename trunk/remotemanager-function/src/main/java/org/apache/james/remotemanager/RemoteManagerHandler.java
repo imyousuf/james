@@ -1487,7 +1487,7 @@ public class RemoteManagerHandler implements ProtocolHandler {
             return true;
         }
         try {
-            helper.getOutputWriter().println("Adding mapping successfull: " + mappingAction(args,ADD_MAPPING_ACTION));
+            helper.getOutputWriter().println("Adding mapping successful: " + mappingAction(args,ADD_MAPPING_ACTION));
             helper.getOutputWriter().flush();
         } catch (VirtualUserTableManagementException e) {
             helper.getAvalonLogger().error("Error on adding mapping: " + e);
@@ -1513,7 +1513,7 @@ public class RemoteManagerHandler implements ProtocolHandler {
             return true;
         }
         try {
-            helper.getOutputWriter().println("Removing mapping successfull: " + mappingAction(args,REMOVE_MAPPING_ACTION));
+            helper.getOutputWriter().println("Removing mapping successful: " + mappingAction(args,REMOVE_MAPPING_ACTION));
             helper.getOutputWriter().flush();
         } catch (VirtualUserTableManagementException e) {
             helper.getAvalonLogger().error("Error on  removing mapping: " + e);
