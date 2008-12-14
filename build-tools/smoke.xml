@@ -64,7 +64,7 @@ S: User john.smith a.*
 C: removemapping john.smith@localhost support@example.org
 S: .*
 C: addmapping john.smith@localhost support@example.org
-S: Adding mapping successfull: true
+S: Adding mapping successful: true
 </addUser>
             </mpt:mpt>               
         </sequential>   
