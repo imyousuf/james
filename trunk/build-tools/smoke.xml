@@ -61,6 +61,10 @@ C: adduser user passwd
 S: User user a.*
 C: adduser john.smith passwd
 S: User john.smith a.*
+C: removemapping john.smith@localhost support@example.org
+S: .*
+C: addmapping john.smith@localhost support@example.org
+S: Adding mapping successfull: true
 </addUser>
             </mpt:mpt>               
         </sequential>   
