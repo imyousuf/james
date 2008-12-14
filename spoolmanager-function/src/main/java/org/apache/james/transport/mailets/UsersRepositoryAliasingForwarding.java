@@ -57,83 +57,13 @@ import java.util.Vector;
  * <usersRepository>LocalAdmins</usersRepository>: specific users repository
  * name. Default to empty. If empty does lookup the default userRepository.
  */
-public class UsersRepositoryAliasingForwarding extends GenericMailet {
+public class UsersRepositoryAliasingForwarding extends AbstractVirtualUserTable {
 
     /**
      * The user repository for this mail server. Contains all the users with
      * inboxes on this server.
      */
     private UsersRepository usersRepository;
-
-    /**
-     * Delivers a mail to a local mailbox.
-     * 
-     * @param mail
-     *            the mail being processed
-     * 
-     * @throws MessagingException
-     *             if an error occurs while storing the mail
-     */
-    public void service(Mail mail) throws MessagingException {
-        Collection recipients = mail.getRecipients();
-        Collection errors = new Vector();
-
-        MimeMessage message = mail.getMessage();
-
-        // Set Return-Path and remove all other Return-Path headers from the
-        // message
-        // This only works because there is a placeholder inserted by
-        // MimeMessageWrapper
-        message
-                .setHeader(RFC2822Headers.RETURN_PATH,
-                        (mail.getSender() == null ? "<>" : "<"
-                                + mail.getSender() + ">"));
-
-        Collection newRecipients = new LinkedList();
-        for (Iterator i = recipients.iterator(); i.hasNext();) {
-            MailAddress recipient = (MailAddress) i.next();
-            try {
-                Collection usernames = processMail(mail.getSender(), recipient,
-                        message);
-
-                // if the username is null or changed we remove it from the
-                // remaining recipients
-                if (usernames == null) {
-                    i.remove();
-                } else {
-                    i.remove();
-                    // if the username has been changed we add a new recipient
-                    // with the new name.
-                    newRecipients.addAll(usernames);
-                }
-
-            } catch (Exception ex) {
-                getMailetContext().log("Error while storing mail.", ex);
-                errors.add(recipient);
-            }
-        }
-
-        if (newRecipients.size() > 0) {
-            recipients.addAll(newRecipients);
-        }
-
-        if (!errors.isEmpty()) {
-            // If there were errors, we redirect the email to the ERROR
-            // processor.
-            // In order for this server to meet the requirements of the SMTP
-            // specification, mails on the ERROR processor must be returned to
-            // the sender. Note that this email doesn't include any details
-            // regarding the details of the failure(s).
-            // In the future we may wish to address this.
-            getMailetContext().sendMail(mail.getSender(), errors, message,
-                    Mail.ERROR);
-        }
-
-        if (recipients.size() == 0) {
-            // We always consume this message
-            mail.setState(Mail.GHOST);
-        }
-    }
 
     /**
      * Return a string describing this mailet.
@@ -178,56 +108,7 @@ public class UsersRepositoryAliasingForwarding extends GenericMailet {
             }
             
             if (mappings != null) {
-                Iterator i = mappings.iterator();
-                Collection remoteRecipients = new ArrayList();
-                Collection localRecipients = new ArrayList();
-                while (i.hasNext()) {
-                    String rcpt = (String) i.next();
-                    
-                    if (rcpt.indexOf("@") < 0) {
-                        // the mapping contains no domain name, use the default domain
-                        rcpt = rcpt + "@" + getMailetContext().getAttribute(Constants.DEFAULT_DOMAIN);
-                    }
-                    
-                    MailAddress nextMap = new MailAddress(rcpt);
-                    if (getMailetContext().isLocalServer(nextMap.getHost())) {
-                        localRecipients.add(nextMap);
-                    } else {
-                        remoteRecipients.add(nextMap);
-                    }
-                }
-                
-                if (remoteRecipients.size() > 0) {
-                    try {
-                        getMailetContext().sendMail(sender, remoteRecipients, message);
-                        StringBuffer logBuffer = new StringBuffer(128).append(
-                                "Mail for ").append(recipient).append(
-                                " forwarded to ");
-                        for (Iterator j = remoteRecipients.iterator(); j.hasNext(); ) {
-                            logBuffer.append(j.next());
-                            if (j.hasNext()) logBuffer.append(", ");
-                        }
-                        getMailetContext().log(logBuffer.toString());
-                        return null;
-                    } catch (MessagingException me) {
-                        StringBuffer logBuffer = new StringBuffer(128).append(
-                                "Error forwarding mail to ");
-                        for (Iterator j = remoteRecipients.iterator(); j.hasNext(); ) {
-                            logBuffer.append(j.next());
-                            if (j.hasNext()) logBuffer.append(", ");
-                        }
-                        logBuffer.append("attempting local delivery");
-                        
-                        getMailetContext().log(logBuffer.toString());
-                        throw me;
-                    }
-                }
-                
-                if (localRecipients.size() > 0) {
-                    return localRecipients;
-                } else {
-                    return null;
-                }
+                return handleMappings(mappings, sender, recipient, message);
             }
         } else {
             StringBuffer errorBuffer = new StringBuffer(128)
