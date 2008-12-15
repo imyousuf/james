@@ -131,7 +131,7 @@ public class ImapServer extends AbstractJamesService implements ImapConstants, P
         } else {
             final String scheme = url.substring(0, endOfScheme);
             if ("mailbox".equals(scheme)) {
-                final int startOfUser = endOfScheme + 2;
+                final int startOfUser = endOfScheme + 3;
                 final int endOfUser = url.indexOf('@', startOfUser);
                 if (endOfUser < 0) {
                     // TODO: when user missing, append to a default location
@@ -147,7 +147,7 @@ public class ImapServer extends AbstractJamesService implements ImapConstants, P
                     } else {
                         final String urlPath;
                         final int length = url.length();
-                        if (endOfHost == length) {
+                        if (endOfHost + 1 == length) {
                             urlPath = "INBOX";
                         } else {
                             urlPath = url.substring(endOfHost, length);
