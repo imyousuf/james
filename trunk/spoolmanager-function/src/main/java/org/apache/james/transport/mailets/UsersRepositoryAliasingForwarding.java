@@ -21,6 +21,12 @@
 
 package org.apache.james.transport.mailets;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
@@ -28,19 +34,7 @@ import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.user.UsersStore;
 import org.apache.james.api.vut.ErrorMappingException;
 import org.apache.james.api.vut.VirtualUserTable;
-import org.apache.mailet.base.GenericMailet;
-import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
-import org.apache.mailet.base.RFC2822Headers;
-
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Vector;
 
 /**
  * Receives a Mail from JamesSpoolManager and takes care of delivery of the
@@ -57,7 +51,7 @@ import java.util.Vector;
  * <usersRepository>LocalAdmins</usersRepository>: specific users repository
  * name. Default to empty. If empty does lookup the default userRepository.
  */
-public class UsersRepositoryAliasingForwarding extends AbstractVirtualUserTable {
+public class UsersRepositoryAliasingForwarding extends AbstractVirtualUserTableMailet {
 
     /**
      * The user repository for this mail server. Contains all the users with
