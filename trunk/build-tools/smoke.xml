@@ -29,6 +29,13 @@
 		<echo>This is a library containing macros required for smoke tests.</echo>
 	</target>
  
+    <macrodef name='Imap'>
+        <attribute name='script' default='imap'/>
+        <sequential>
+            <mpt:mpt port='${org.apache.james.smoke.port.IMAP}' script='../build-tools/@{script}.mpt'/>   
+        </sequential>   
+    </macrodef>   
+    
     <macrodef name='TestDelivery'>   
         <attribute name='smtp' default='delivery-smtp'/>
         <attribute name='pop3' default='pop3-after-smtp'/>   
@@ -61,17 +68,17 @@ C: adduser user passwd
 S: User user a.*
 C: adduser john.smith passwd
 S: User john.smith a.*
-C: removemapping john.smith@localhost support@example.org
+C: removemapping support@example.org john.smith@localhost
 S: .*
-C: addmapping john.smith@localhost support@example.org
+C: addmapping support@example.org john.smith@localhost
 S: Adding mapping successful: true
 </addUser>
             </mpt:mpt>               
         </sequential>   
     </macrodef>   
     
-    <macrodef name='RunSmokeTests'>
-        <sequential>   
+    <macrodef name='InitMPT'>
+        <sequential>
             <taskdef 
                 uri="antlib:org.apache.james.mpt.ant" 
                 resource="org/apache/james/mpt/ant/antlib.xml">
@@ -79,7 +86,13 @@ S: Adding mapping successful: true
                     <pathelement location="${lib.dir}/${mpt.jar}" />
                     <pathelement location='${lib.dir}/${mpt-antlib.jar}' />
                 </classpath>
-            </taskdef>  
+            </taskdef>     
+        </sequential>   
+    </macrodef>   
+    
+    <macrodef name='RunSmokeTests'>
+        <sequential>   
+            <InitMPT/>
             
             <TestProtocol port='${org.apache.james.smoke.port.POP3}' name='pop3'/>    
             <TestProtocol port='${org.apache.james.smoke.port.IMAP}' name='imap'/>
@@ -118,7 +131,38 @@ S: Adding mapping successful: true
     
         </sequential>   
     </macrodef> 
- 
+    
+    <macrodef name='VUTSmoke'>
+        <attribute name='build-dir'/> 
+        <attribute name='zip'/>    
+        <attribute name='package'/>
+        <attribute name='app-path'/>
+        <attribute name='conf-path'/>
+        <attribute name='conf-file-name'/> 
+        <attribute name='cmd'/>
+        <attribute name='log'/>   
+        <sequential>
+    
+            <VerifySmokePrerequisites zip='@{zip}'/>
+        
+            <property name='smoke.sieve.dir' location='@{build-dir}/vut-smoke'/>
+            <UnpackDistribution zip='@{zip}' dir='${smoke.sieve.dir}'/>
+            
+            <property name='smoke.sieve.james.dir' location='${smoke.sieve.dir}/@{package}'/>               
+            <ConfigureJames 
+                dir='${smoke.sieve.james.dir}' 
+                app-path='@{app-path}' 
+                conf-path='@{conf-path}'
+                conf-file-name='@{conf-file-name}'
+                style='vut'/>   
+
+            <BootJames dir='${smoke.sieve.james.dir}' cmd='@{cmd}' log='@{log}'/>  
+            <InitMPT/>   
+            <TestDelivery pop3="vut-pop3" smtp="vut-smtp"/>
+            <StopJames dir='${smoke.sieve.james.dir}' cmd='@{cmd}'/>       
+        </sequential>   
+    </macrodef>    
+    
     <macrodef name='SieveSmoke'>
         <attribute name='build-dir'/> 
         <attribute name='zip'/>    
@@ -144,7 +188,9 @@ S: Adding mapping successful: true
                 style='sieve'/>   
 
             <BootJames dir='${smoke.sieve.james.dir}' cmd='@{cmd}' log='@{log}'/>  
-            <RunSmokeTests/>
+            <InitMPT/>   
+            <TestDelivery pop3="pop3" smtp="smtp"/>
+            <Imap script='imap-sieve'/>   
             <StopJames dir='${smoke.sieve.james.dir}' cmd='@{cmd}'/>       
         </sequential>   
     </macrodef>    
