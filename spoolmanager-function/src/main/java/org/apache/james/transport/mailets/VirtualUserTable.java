@@ -42,7 +42,7 @@ import org.apache.mailet.MailAddress;
  * eg. <virtualusertable>DefaultVirtualUserTable</virtualusertable>
  *
  */
-public class VirtualUserTable extends AbstractVirtualUserTable {
+public class VirtualUserTable extends AbstractVirtualUserTableMailet {
     private org.apache.james.api.vut.VirtualUserTable vut;
 
     /*
