@@ -1109,6 +1109,17 @@
         </echoxml>
     </target>
  
+    <target name='vut-smoke' depends='dist-properties'>
+        <VUTSmoke 
+            build-dir='${build.dir}' 
+            zip='${dist.binary.file.zip}' 
+            package='${name}-${version}'
+            app-path='apps'
+            conf-path='apps/james/SAR-INF'
+            conf-file-name='config.xml'
+            cmd='phoenix'
+            log='temp/phoenix.console'/>   
+    </target>    
     
     <target name='sieve-smoke' depends='dist-properties'>
         <SieveSmoke 
