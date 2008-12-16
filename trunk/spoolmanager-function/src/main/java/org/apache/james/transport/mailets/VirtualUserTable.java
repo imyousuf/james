@@ -57,16 +57,16 @@ public class VirtualUserTable extends AbstractVirtualUserTableMailet {
             String vutName = getInitParameter("virtualusertable");
             if (vutName == null || vutName.length() == 0) {
                 try {
-                    vut = ((VirtualUserTableStore) compMgr.lookup(VirtualUserTableStore.ROLE)).getTable(vutName);
+                    vut = (org.apache.james.api.vut.VirtualUserTable) compMgr.lookup(org.apache.james.api.vut.VirtualUserTable.ROLE); 
                 } catch (ServiceException e) {
                     log("Failed to retrieve VirtualUserTable component:" + e.getMessage());
                 }
             } else {
-                vut = ((VirtualUserTableStore) compMgr.lookup(VirtualUserTableStore.ROLE)).getTable("DefaultVirtualUserTable");
+                vut = ((VirtualUserTableStore) compMgr.lookup(VirtualUserTableStore.ROLE)).getTable(vutName);
             }
 
         } catch (ServiceException cnfe) {
-            log("Failed to retrieve UsersStore component:" + cnfe.getMessage());
+            log("Failed to retrieve VirtualUserTableStore component:" + cnfe.getMessage());
         }
     }
 
