@@ -61,7 +61,10 @@
     </dependency>
     <dependency>
       <service name="org.apache.james.api.domainlist.DomainList" version="1.0"/>
-    </dependency>   
+    </dependency>  
+    <dependency>
+      <service name="org.apache.james.api.vut.VirtualUserTable" version="1.0"/>
+    </dependency>
   </dependencies>
 
 

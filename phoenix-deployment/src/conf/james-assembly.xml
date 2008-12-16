@@ -53,7 +53,9 @@
     <provide name="scheduler"
              role="org.apache.avalon.cornerstone.services.scheduler.TimeScheduler"/>
     <provide name="database-connections"
-             role="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector" />        
+             role="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector" />   
+    <provide name="defaultvirtualusertable"
+             role="org.apache.james.api.vut.VirtualUserTable" />     
     <proxy disable='true'/>
   </block>
    
