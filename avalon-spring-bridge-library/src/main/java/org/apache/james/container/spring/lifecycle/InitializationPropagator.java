@@ -18,12 +18,15 @@
  ****************************************************************/
 package org.apache.james.container.spring.lifecycle;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.james.api.kernel.ServiceLocator;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.core.Ordered;
@@ -31,16 +34,43 @@ import org.springframework.core.Ordered;
 /**
  * calls initialize() for all avalon components
  */
-public class InitializationPropagator extends AbstractPropagator implements BeanPostProcessor, Ordered {
+public class InitializationPropagator extends AbstractPropagator implements BeanPostProcessor, Ordered, ServiceLocator {
 
     protected Class getLifecycleInterface() {
         return Initializable.class;
     }
 
     protected void invokeLifecycleWorker(String beanName, Object bean, BeanDefinition beanDefinition) {
+        // TODO: share reflection code
+        Method[] methods = bean.getClass().getMethods();
+        for (Method method : methods) {
+            Resource resourceAnnotation = method.getAnnotation(Resource.class);
+            if (resourceAnnotation != null) {
+                final String name = resourceAnnotation.name();
+                final Object service;
+                if ("org.apache.james.ServiceLocator".equals(name)) {
+                    service = this;
+                } else {
+                    service = get(name);
+                }
+                
+                if (bean == null) {
+               } else {
+                    try {
+                        Object[] args = {service};
+                        method.invoke(bean, args);
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException("Injection failed", e);
+                    } catch (IllegalArgumentException e) {
+                        throw new RuntimeException("Injection failed", e);
+                    } catch (InvocationTargetException e) {
+                        throw new RuntimeException("Injection failed", e);
+                    }
+                }
+            }
+        }
         try {
-            ContainerUtil.initialize(bean);
-            Method[] methods = bean.getClass().getMethods();
+            ContainerUtil.initialize(bean);;
             for (Method method : methods) {
                 PostConstruct postConstructAnnotation = method.getAnnotation(PostConstruct.class);
                 if (postConstructAnnotation != null) {
@@ -55,6 +85,10 @@ public class InitializationPropagator extends AbstractPropagator implements Bean
 
     public int getOrder() {
         return 4;
+    }
+
+    public Object get(String name) {
+        return getBeanFactory().getBean(name);
     }
 
 }

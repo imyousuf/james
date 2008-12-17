@@ -34,6 +34,15 @@ public abstract class AbstractPropagator implements BeanFactoryAware {
     private Collection excludeBeans;
     private BeanFactory beanFactory;
 
+    
+    /**
+     * Gets the bean factory
+     * @return the beanFactory not null
+     */
+    public final BeanFactory getBeanFactory() {
+        return beanFactory;
+    }
+
     public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
         this.beanFactory = beanFactory;
     }
