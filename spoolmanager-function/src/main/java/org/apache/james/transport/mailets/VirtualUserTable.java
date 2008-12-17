@@ -22,15 +22,14 @@ package org.apache.james.transport.mailets;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.james.Constants;
 import org.apache.james.api.vut.ErrorMappingException;
 import org.apache.james.api.vut.VirtualUserTableStore;
 import org.apache.mailet.MailAddress;
+import org.apache.mailet.MailetException;
 
 /**
  * Mailet which should get used when using VirtualUserTable-Store to implementations
@@ -45,33 +44,69 @@ import org.apache.mailet.MailAddress;
 public class VirtualUserTable extends AbstractVirtualUserTableMailet {
     private org.apache.james.api.vut.VirtualUserTable vut;
 
-    /*
-     * (non-Javadoc)
+    private VirtualUserTableStore vutStore;
+    
+       
+    /**
+     * Gets the virtual user table.
+     * @return the vut
+     */
+    public final org.apache.james.api.vut.VirtualUserTable getVut() {
+        return vut;
+    }
+
+    /**
+     * Sets the virtual user table.
+     * @param vut the vut to set
+     */
+    @Resource(name=org.apache.james.api.vut.VirtualUserTable.ROLE)
+    public final void setVut(org.apache.james.api.vut.VirtualUserTable vut) {
+        this.vut = vut;
+    }
+
+    /**
+     * Gets the virtual user table store.
+     * @return the vutStore, possibly null
+     */
+    public final VirtualUserTableStore getVutStore() {
+        return vutStore;
+    }
+
+    /**
+     * Sets the virtual table store.
+     * @param vutStore the vutStore to set, possibly null
+     */
+    @Resource(name=VirtualUserTableStore.ROLE)
+    public final void setVutStore(VirtualUserTableStore vutStore) {
+        this.vutStore = vutStore;
+    }
+
+    /**
      * @see org.apache.mailet.base.GenericMailet#init()
      */
     public void init() throws MessagingException {
         super.init();
-        ServiceManager compMgr = (ServiceManager) getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
-
-        try {
-            String vutName = getInitParameter("virtualusertable");
-            if (vutName == null || vutName.length() == 0) {
-                try {
-                    vut = (org.apache.james.api.vut.VirtualUserTable) compMgr.lookup(org.apache.james.api.vut.VirtualUserTable.ROLE); 
-                } catch (ServiceException e) {
-                    log("Failed to retrieve VirtualUserTable component:" + e.getMessage());
-                }
-            } else {
-                vut = ((VirtualUserTableStore) compMgr.lookup(VirtualUserTableStore.ROLE)).getTable(vutName);
+        
+        if (vut == null && vutStore == null) {
+            throw new MailetException("Not initialised. Please ensure that the mailet container supports either" +
+            " setter or constructor injection. ");
+        }
+        
+        String vutName = getInitParameter("virtualusertable");
+        if (vutName == null || vutName.length() == 0) {
+            if (vut == null) {
+                throw new MailetException("When 'virtualusertable' is unset, a virtual user table must be " +
+                "provided by the container.");
             }
-
-        } catch (ServiceException cnfe) {
-            log("Failed to retrieve VirtualUserTableStore component:" + cnfe.getMessage());
+        } else if (vutStore == null) {
+            throw new MailetException("When 'virtualusertable' is set, a virtual user table store must be " +
+                    "provided by the container.");
+        } else {
+            vut = vutStore.getTable(vutName);
         }
     }
 
-    /*
-     * (non-Javadoc)
+    /**
      * @see org.apache.james.transport.mailets.AbstractVirtualUserTable#processMail(org.apache.mailet.MailAddress, org.apache.mailet.MailAddress, javax.mail.internet.MimeMessage)
      */
     public Collection processMail(MailAddress sender, MailAddress recipient, MimeMessage message) throws MessagingException {
@@ -95,8 +130,7 @@ public class VirtualUserTable extends AbstractVirtualUserTableMailet {
         return rcpts;
     }
 
-    /*
-     * (non-Javadoc)
+    /**
      * @see org.apache.mailet.base.GenericMailet#getMailetInfo()
      */
     public String getMailetInfo() {
