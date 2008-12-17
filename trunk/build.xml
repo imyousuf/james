@@ -135,6 +135,7 @@ Master build file for JAMES server.
         description='Smoke tests deployment'>
         <echo>Smoke testing deployments</echo>
         <fordeploymentsdo do='smoke'/>
+        <fordeploymentsdo do='sieve-smoke'/> 
     </target>
 
     <target 
