@@ -94,6 +94,9 @@ S: Adding mapping successful: true
         <sequential>   
             <InitMPT/>
             
+            <echo>Giving server time to complete boot...</echo>   
+            <sleep seconds="5"/>
+            
             <TestProtocol port='${org.apache.james.smoke.port.POP3}' name='pop3'/>    
             <TestProtocol port='${org.apache.james.smoke.port.IMAP}' name='imap'/>
             <TestProtocol port='${org.apache.james.smoke.port.SMTP}' name='smtp'/>
