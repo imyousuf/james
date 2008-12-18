@@ -40,7 +40,7 @@ import org.apache.mailet.base.RFC2822Headers;
  * 
  *
  */
-public abstract class AbstractVirtualUserTableMailet extends GenericMailet{
+public abstract class AbstractVirtualUserTableMailet extends GenericMailet {
     
     /*
      * (non-Javadoc)
