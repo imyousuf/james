@@ -553,6 +553,10 @@ Regards, Postmaster XXX.YYY
          <!-- Is the recipient is for a local account, deliver it locally -->
          <mailet match="RecipientIsLocal" class="LocalDelivery"/>
 
+         <mailet match='All' class='VirtualUserTable'>
+         
+         </mailet>
+
          <!-- If the host is handled by this server and it did not get -->
          <!-- locally delivered, this is an invalid recipient -->
          <mailet match="HostIsLocal" class="ToProcessor">
