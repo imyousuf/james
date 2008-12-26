@@ -29,9 +29,16 @@ import org.apache.jsieve.mailet.SieveMailboxMailet;
  */
 public class SieveMailet extends SieveMailboxMailet {
 
+    public SieveMailet() {
+        super();
+        // ATM Fixed implementation
+        setLocator(new ResourceLocatorImpl());
+    }
+
     @Resource(name="imapserver")
     @Override
     public void setPoster(Poster poster) {
         super.setPoster(poster);
     }
+    
 }
