@@ -34,7 +34,7 @@ public class ResourceLocatorImpl implements ResourceLocator {
 
     public InputStream get(String uri) throws IOException {
         // This is a toy implementation
-        String username = uri.substring(3, uri.indexOf('@'));
+        String username = uri.substring(2, uri.indexOf('@'));
         String sieveFileName = "../apps/james/var/sieve/"+username+".sieve";
         return new FileInputStream(sieveFileName);
     }

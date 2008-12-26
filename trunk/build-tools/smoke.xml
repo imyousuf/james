@@ -36,6 +36,13 @@
         </sequential>   
     </macrodef>   
     
+    <macrodef name='Smtp'>
+        <attribute name='script' default='smtp'/>
+        <sequential>
+            <mpt:mpt port='${org.apache.james.smoke.port.SMTP}' script='../build-tools/@{script}.mpt'/>   
+        </sequential>   
+    </macrodef>
+    
     <macrodef name='TestDelivery'>   
         <attribute name='smtp' default='delivery-smtp'/>
         <attribute name='pop3' default='pop3-after-smtp'/>   
@@ -188,12 +195,19 @@ S: Adding mapping successful: true
                 app-path='@{app-path}' 
                 conf-path='@{conf-path}'
                 conf-file-name='@{conf-file-name}'
-                style='sieve'/>   
-
+                style='sieve'/>  
+               
             <BootJames dir='${smoke.sieve.james.dir}' cmd='@{cmd}' log='@{log}'/>  
+            
+            <mkdir dir="${smoke.sieve.james.dir}/apps/james/var/sieve/"/>
+            <copy todir="${smoke.sieve.james.dir}/apps/james/var/sieve/" file="../build-tools/john.smith.sieve"/>
+               
             <InitMPT/>   
             <TestDelivery pop3="pop3" smtp="smtp"/>
-            <Imap script='imap-sieve'/>   
+            <Imap script='imap-sieve'/> 
+            <Imap script='imap-prep-john-sieve'/> 
+            <Smtp script='sieve-smtp'/>    
+            <Imap script='imap-post-john-sieve'/>    
             <StopJames dir='${smoke.sieve.james.dir}' cmd='@{cmd}'/>       
         </sequential>   
     </macrodef>    
