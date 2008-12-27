@@ -37,6 +37,7 @@ import javax.mail.MessagingException;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 /**
  * This class is responsible for creating a set of named processors and
@@ -61,13 +62,17 @@ public class StateAwareProcessorList
     /**
      * The map of processor names to processors
      */
-    private HashMap processors;
+    private final Map<String, MailProcessor> processors;
+    
+    public StateAwareProcessorList() {
+        super();
+        this.processors = new HashMap<String, MailProcessor>();
+    }
 
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
     public void service(ServiceManager comp) throws ServiceException {
-        // threadManager = (ThreadManager) comp.lookup(ThreadManager.ROLE);
         compMgr = comp;
     }
 
@@ -82,8 +87,6 @@ public class StateAwareProcessorList
      * @see org.apache.avalon.framework.activity.Initializable#initialize()
      */
     public void initialize() throws Exception {
-        //A processor is a Collection of
-        processors = new HashMap();
 
         final Configuration[] processorConfs = conf.getChildren( "processor" );
         for ( int i = 0; i < processorConfs.length; i++ )

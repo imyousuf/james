@@ -30,6 +30,7 @@ import org.apache.james.management.mbean.MailetManagement;
 import org.apache.mailet.MailetConfig;
 import org.apache.mailet.MatcherConfig;
 
+import javax.annotation.PostConstruct;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import javax.management.MalformedObjectNameException;
@@ -48,9 +49,13 @@ public class ProcessorManagement implements Serviceable, ProcessorManagementServ
     public void service(ServiceManager serviceManager) throws ServiceException {
         SpoolManager processorManager = (SpoolManager)serviceManager.lookup(SpoolManager.ROLE);
         setProcessorManager(processorManager);
-        registerMBeans(); // move to appropriate place! to initialize()?
     }
 
+    @PostConstruct
+    public void init() {
+        registerMBeans();
+    }
+    
     private void registerMBeans() {
         ArrayList mBeanServers = MBeanServerFactory.findMBeanServer(null);
         if (mBeanServers == null || mBeanServers.size() == 0) return; // no server to publish MBeans
