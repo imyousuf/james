@@ -20,7 +20,7 @@ Virtual hosting
     <!-- Enable -->
  	<xsl:template match="config/James/enableVirtualHosting">
 		<xsl:element name='enableVirtualHosting'>
-			<xsl:text>true</xsl:text>
+			<xsl:text>false</xsl:text>
 	    </xsl:element>
 	</xsl:template>
 	<xsl:template match="config/domainlist/domainnames">

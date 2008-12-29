@@ -43,7 +43,7 @@ S:
 S: Simple plain mail content
 S:
 S: .
-C: RETR 1
+C: RETR 2
 S: \+OK Message follows
 S: Message-ID: .*
 S: MIME-Version: 1.0
@@ -53,7 +53,7 @@ S: Content-Transfer-Encoding: 7bit
 S: Delivered-To: john.smith@localhost
 S: Received: from localhost.*
 S: .*by localhost.*
-S: .*for <john.smith@localhost>;
+S: .*for <support@example.org>;
 S: .*
 S: Date: 13 Dec 2008 GMT
 S: From: <alex@example.org>
