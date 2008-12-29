@@ -532,6 +532,18 @@ java -cp ${exe-classpath};../conf org.apache.james.container.spring.Main
 		</GenerateEclipseProject>
 	</target>
 
+    <target name='vut-smoke'>
+        <VUTSmoke 
+            build-dir='${build.dir}' 
+            zip='${spring-deployment.dist.bin.zip}' 
+            package='${spring-deployment.artefact.name}'
+            app-path='conf'
+            conf-path='conf'
+            conf-file-name='james-config.xml'
+            cmd='run'
+            log='bin/james.console'/>   
+    </target>     
+    
     <target name='sieve-smoke'>
         <SieveSmoke 
             build-dir='${build.dir}' 
