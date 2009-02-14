@@ -21,8 +21,8 @@
   <parent>
     <artifactId>james-server-root</artifactId>
     <groupId>org.apache.james</groupId>
-    <version>1.0</version>
-    <relativePath>../james-project/project/server/pom.xml</relativePath>
+    <version>1.2</version>
+    <relativePath>stage/org.apache.org/poms/james-server-root-1.2.pom</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.james</groupId>
