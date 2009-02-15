@@ -31,8 +31,8 @@ import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.smtpserver.core.filter.fastfail.JunkScoreHandler;
 import org.apache.james.smtpserver.junkscore.JunkScore;
 import org.apache.james.test.mock.avalon.MockLogger;
-import org.apache.mailet.base.test.MockMimeMessage;
-import org.apache.mailet.base.test.MockMail;
+import org.apache.mailet.base.test.FakeMimeMessage;
+import org.apache.mailet.base.test.FakeMail;
 import org.apache.mailet.Mail;
 
 import junit.framework.TestCase;
@@ -96,9 +96,9 @@ public class JunkScoreHandlerTest extends TestCase {
     }
     
     private Mail getMockMail(){
-        Mail m = new MockMail();
+        Mail m = new FakeMail();
         try {
-            m.setMessage(new MockMimeMessage());
+            m.setMessage(new FakeMimeMessage());
         } catch (MessagingException e) {
             e.printStackTrace();
         }

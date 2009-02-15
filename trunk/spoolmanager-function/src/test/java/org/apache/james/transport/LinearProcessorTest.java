@@ -26,8 +26,8 @@ import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageInputStreamSource;
 import org.apache.james.test.mock.james.InMemorySpoolRepository;
-import org.apache.mailet.base.test.MockMailContext;
-import org.apache.mailet.base.test.MockMailetConfig;
+import org.apache.mailet.base.test.FakeMailContext;
+import org.apache.mailet.base.test.FakeMailetConfig;
 import org.apache.james.transport.mailets.debug.DumpSystemErr;
 import org.apache.james.transport.matchers.All;
 import org.apache.james.transport.matchers.RecipientIs;
@@ -64,7 +64,7 @@ public class LinearProcessorTest extends TestCase {
 
     String body = "original body LinearProcessorTest\r\n.\r\n";
 
-    MailetContext mockContext = new MockMailContext();
+    MailetContext mockContext = new FakeMailContext();
 
     public static int counter = 0;
 
@@ -80,7 +80,7 @@ public class LinearProcessorTest extends TestCase {
 
     }
 
-    private MailetConfig mockMailetConfig = new MockMailetConfig("Dummy",
+    private MailetConfig mockMailetConfig = new FakeMailetConfig("Dummy",
             mockContext);
 
     private CheckerMailet checkerMailet;

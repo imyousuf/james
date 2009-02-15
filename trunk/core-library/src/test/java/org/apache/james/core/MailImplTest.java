@@ -21,7 +21,7 @@
 
 package org.apache.james.core;
 
-import org.apache.mailet.base.test.MockMimeMessage;
+import org.apache.mailet.base.test.FakeMimeMessage;
 import org.apache.mailet.base.test.MailUtil;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.Mail;
@@ -58,7 +58,7 @@ public class MailImplTest extends MailTestAllImplementations {
         assertEquals("sender", sender, mail.getSender().toString());
         assertEquals("name", name, mail.getName());
 
-        mail.setMessage(new MockMimeMessage());
+        mail.setMessage(new FakeMimeMessage());
         assertNotNull("message", mail.getMessage());
     }
 
@@ -67,7 +67,7 @@ public class MailImplTest extends MailTestAllImplementations {
         String name = MailUtil.newId();
         String sender = "sender@localhost";
         MailAddress senderMailAddress = new MailAddress(sender);
-        MockMimeMessage mimeMessage = new MockMimeMessage();
+        FakeMimeMessage mimeMessage = new FakeMimeMessage();
         MailImpl mail = new MailImpl(name, senderMailAddress, recepients, mimeMessage);
 
         helperTestInitialState(mail); 

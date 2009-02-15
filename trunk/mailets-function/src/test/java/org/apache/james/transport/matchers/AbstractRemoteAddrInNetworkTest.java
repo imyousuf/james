@@ -40,8 +40,8 @@ import org.apache.james.Constants;
 import org.apache.james.api.dnsservice.AbstractDNSServer;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.test.mock.avalon.MockServiceManager;
-import org.apache.mailet.base.test.MockMailContext;
-import org.apache.mailet.base.test.MockMatcherConfig;
+import org.apache.mailet.base.test.FakeMailContext;
+import org.apache.mailet.base.test.FakeMatcherConfig;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
@@ -208,10 +208,10 @@ public abstract class AbstractRemoteAddrInNetworkTest extends TestCase {
         m_serviceManager = new MockServiceManager();
         m_serviceManager.put(DNSService.ROLE, dnsServer);
 
-        MockMailContext mmc = new MockMailContext();
+        FakeMailContext mmc = new FakeMailContext();
         mmc.setAttribute(Constants.AVALON_COMPONENT_MANAGER, m_serviceManager);
         matcher = createMatcher();
-        MockMatcherConfig mci = new MockMatcherConfig(getConfigOption()
+        FakeMatcherConfig mci = new FakeMatcherConfig(getConfigOption()
                 + getAllowedNetworks(), mmc);
         matcher.init(mci);
     }

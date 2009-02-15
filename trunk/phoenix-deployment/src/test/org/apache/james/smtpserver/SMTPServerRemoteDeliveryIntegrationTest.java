@@ -36,8 +36,8 @@ import org.apache.james.test.mock.avalon.MockStore;
 import org.apache.james.test.mock.avalon.MockThreadManager;
 import org.apache.james.test.mock.james.InMemorySpoolRepository;
 import org.apache.james.test.mock.james.MockMailServer;
-import org.apache.mailet.base.test.MockMailContext;
-import org.apache.mailet.base.test.MockMailetConfig;
+import org.apache.mailet.base.test.FakeMailContext;
+import org.apache.mailet.base.test.FakeMailetConfig;
 import org.apache.james.test.util.Util;
 import org.apache.james.transport.mailets.RemoteDelivery;
 import org.apache.james.userrepository.MockUsersRepository;
@@ -199,7 +199,7 @@ public class SMTPServerRemoteDeliveryIntegrationTest extends TestCase {
         SimpleConnectionManager connectionManager = new SimpleConnectionManager();
         ContainerUtil.enableLogging(connectionManager, new MockLogger());
         m_serviceManager.put(JamesConnectionManager.ROLE, connectionManager);
-        m_serviceManager.put(MailetContext.class.getName(), new MockMailContext());
+        m_serviceManager.put(MailetContext.class.getName(), new FakeMailContext());
         m_mailServer = new MockMailServer(new MockUsersRepository());
         m_serviceManager.put(MailServer.ROLE, m_mailServer);
         m_serviceManager.put(UsersRepository.ROLE, m_usersRepository);
@@ -240,10 +240,10 @@ public class SMTPServerRemoteDeliveryIntegrationTest extends TestCase {
         
         RemoteDelivery rd = new RemoteDelivery();
         
-        MockMailContext mmc = new MockMailContext();
+        FakeMailContext mmc = new FakeMailContext();
         mmc.setAttribute(Constants.AVALON_COMPONENT_MANAGER,m_serviceManager);
         mmc.setAttribute(Constants.HELLO_NAME,"localhost");
-        MockMailetConfig mci = new MockMailetConfig("Test",mmc,getStandardParameters());
+        FakeMailetConfig mci = new FakeMailetConfig("Test",mmc,getStandardParameters());
         mci.setProperty("bind", "127.0.0.1");
         mci.setProperty("gateway","127.0.0.1");
         mci.setProperty("gatewayPort",""+m_smtpListenerPort);
@@ -282,10 +282,10 @@ public class SMTPServerRemoteDeliveryIntegrationTest extends TestCase {
         
         RemoteDelivery rd = new RemoteDelivery();
         
-        MockMailContext mmc = new MockMailContext();
+        FakeMailContext mmc = new FakeMailContext();
         mmc.setAttribute(Constants.AVALON_COMPONENT_MANAGER,m_serviceManager);
         mmc.setAttribute(Constants.HELLO_NAME,"localhost");
-        MockMailetConfig mci = new MockMailetConfig("Test",mmc,getStandardParameters());
+        FakeMailetConfig mci = new FakeMailetConfig("Test",mmc,getStandardParameters());
         mci.setProperty("gateway","127.0.0.1");
         mci.setProperty("gatewayPort",""+m_smtpListenerPort);
         rd.init(mci);
@@ -327,10 +327,10 @@ public class SMTPServerRemoteDeliveryIntegrationTest extends TestCase {
         
         RemoteDelivery rd = new RemoteDelivery();
         
-        MockMailContext mmc = new MockMailContext();
+        FakeMailContext mmc = new FakeMailContext();
         mmc.setAttribute(Constants.AVALON_COMPONENT_MANAGER,m_serviceManager);
         mmc.setAttribute(Constants.HELLO_NAME,"localhost");
-        MockMailetConfig mci = new MockMailetConfig("Test",mmc,getStandardParameters());
+        FakeMailetConfig mci = new FakeMailetConfig("Test",mmc,getStandardParameters());
         mci.setProperty("gateway","127.0.0.1");
         mci.setProperty("gatewayPort",""+m_smtpListenerPort);
         rd.init(mci);
@@ -372,10 +372,10 @@ public class SMTPServerRemoteDeliveryIntegrationTest extends TestCase {
         
         RemoteDelivery rd = new RemoteDelivery();
         
-        MockMailContext mmc = new MockMailContext();
+        FakeMailContext mmc = new FakeMailContext();
         mmc.setAttribute(Constants.AVALON_COMPONENT_MANAGER,m_serviceManager);
         mmc.setAttribute(Constants.HELLO_NAME,"localhost");
-        MockMailetConfig mci = new MockMailetConfig("Test",mmc,getStandardParameters());
+        FakeMailetConfig mci = new FakeMailetConfig("Test",mmc,getStandardParameters());
         mci.setProperty("gateway","127.0.0.1");
         mci.setProperty("gatewayPort",""+m_smtpListenerPort);
         rd.init(mci);
@@ -417,10 +417,10 @@ public class SMTPServerRemoteDeliveryIntegrationTest extends TestCase {
         
         RemoteDelivery rd = new RemoteDelivery();
         
-        MockMailContext mmc = new MockMailContext();
+        FakeMailContext mmc = new FakeMailContext();
         mmc.setAttribute(Constants.AVALON_COMPONENT_MANAGER,m_serviceManager);
         mmc.setAttribute(Constants.HELLO_NAME,"localhost");
-        MockMailetConfig mci = new MockMailetConfig("Test",mmc,getStandardParameters());
+        FakeMailetConfig mci = new FakeMailetConfig("Test",mmc,getStandardParameters());
         mci.setProperty("gateway","127.0.0.1");
         mci.setProperty("gatewayPort",""+m_smtpListenerPort);
         rd.init(mci);
@@ -462,10 +462,10 @@ public class SMTPServerRemoteDeliveryIntegrationTest extends TestCase {
         
         RemoteDelivery rd = new RemoteDelivery();
         
-        MockMailContext mmc = new MockMailContext();
+        FakeMailContext mmc = new FakeMailContext();
         mmc.setAttribute(Constants.AVALON_COMPONENT_MANAGER,m_serviceManager);
         mmc.setAttribute(Constants.HELLO_NAME,"localhost");
-        MockMailetConfig mci = new MockMailetConfig("Test",mmc,getStandardParameters());
+        FakeMailetConfig mci = new FakeMailetConfig("Test",mmc,getStandardParameters());
         mci.setProperty("gateway","127.0.0.1");
         mci.setProperty("gatewayPort",""+m_smtpListenerPort);
         mci.setProperty("mail.smtp.allow8bitmime", "false");

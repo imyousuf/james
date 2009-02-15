@@ -30,8 +30,8 @@ import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockServiceManager;
 import org.apache.james.test.mock.avalon.MockStore;
 import org.apache.james.test.mock.james.InMemorySpoolRepository;
-import org.apache.mailet.base.test.MockMimeMessage;
-import org.apache.mailet.base.test.MockMail;
+import org.apache.mailet.base.test.FakeMimeMessage;
+import org.apache.mailet.base.test.FakeMail;
 import org.apache.mailet.base.test.MailUtil;
 import org.apache.mailet.Mail;
 
@@ -86,13 +86,13 @@ public class SpoolManagementTest extends TestCase {
     }
 
     public void testListSpoolItemsFilterByState() throws SpoolManagementException, MessagingException {
-        MockMail mockMail1 = createSpoolMail(Mail.DEFAULT, "subj1", 1);
+        FakeMail mockMail1 = createSpoolMail(Mail.DEFAULT, "subj1", 1);
         String messageID1 = mockMail1.getName();
 
         String[] mailList = m_spoolManagement.listSpoolItems(OUTGOING_SPOOL, SpoolFilter.ERRORMAIL_FILTER);
         assertEquals("no error mail in spool", 0, mailList.length);
 
-        MockMail mockMail2 = createSpoolMail(Mail.ERROR, "subj2", 2);
+        FakeMail mockMail2 = createSpoolMail(Mail.ERROR, "subj2", 2);
         String messageID2 = mockMail2.getName();
 
         mailList = m_spoolManagement.listSpoolItems(OUTGOING_SPOOL, SpoolFilter.ERRORMAIL_FILTER);
@@ -109,7 +109,7 @@ public class SpoolManagementTest extends TestCase {
 
     public void testListSpoolItemsFilterByHeader() throws SpoolManagementException, MessagingException {
 
-        MockMail mockMail1 = createSpoolMail(Mail.DEFAULT, "TestHeader", "value1", 1);
+        FakeMail mockMail1 = createSpoolMail(Mail.DEFAULT, "TestHeader", "value1", 1);
         String messageID1 = mockMail1.getName();
 
         createSpoolMail(Mail.ERROR, "TestHeader", "value2", 2);
@@ -151,9 +151,9 @@ public class SpoolManagementTest extends TestCase {
 
     public void testRemoveErrorDedicatedMail() throws SpoolManagementException, MessagingException {
         createSpoolMail(Mail.DEFAULT, "subj1", 1);
-        MockMail mockMail2 = createSpoolMail(Mail.ERROR, "subj2", 2);
+        FakeMail mockMail2 = createSpoolMail(Mail.ERROR, "subj2", 2);
         String messageID2 = mockMail2.getName();
-        MockMail mockMail3 = createSpoolMail(Mail.ERROR, "subj3", 3);
+        FakeMail mockMail3 = createSpoolMail(Mail.ERROR, "subj3", 3);
         String messageID3 = mockMail3.getName();
 
         assertEquals("one mail removed", 1, m_spoolManagement.removeSpoolItems(OUTGOING_SPOOL, messageID3, SpoolFilter.ERRORMAIL_FILTER));
@@ -162,17 +162,17 @@ public class SpoolManagementTest extends TestCase {
         assertTrue("still finds error mail", mailList[0].indexOf(messageID2) >= 0);
     }
 
-    private MockMail createSpoolMail(String state, String subject, int number) throws MessagingException {
-        MockMimeMessage mimeMessage = MailUtil.createMimeMessage(subject, number);
-        MockMail mockMail = MailUtil.createMockMail2Recipients(mimeMessage);
+    private FakeMail createSpoolMail(String state, String subject, int number) throws MessagingException {
+        FakeMimeMessage mimeMessage = MailUtil.createMimeMessage(subject, number);
+        FakeMail mockMail = MailUtil.createMockMail2Recipients(mimeMessage);
         mockMail.setState(state);
         m_mockSpoolRepository.store(mockMail);
         return mockMail;
     }
 
-    private MockMail createSpoolMail(String state, String headerName, String headerRegex, int number) throws MessagingException {
-        MockMimeMessage mimeMessage = MailUtil.createMimeMessage(headerName, headerRegex, "test", number);
-        MockMail mockMail = MailUtil.createMockMail2Recipients(mimeMessage);
+    private FakeMail createSpoolMail(String state, String headerName, String headerRegex, int number) throws MessagingException {
+        FakeMimeMessage mimeMessage = MailUtil.createMimeMessage(headerName, headerRegex, "test", number);
+        FakeMail mockMail = MailUtil.createMockMail2Recipients(mimeMessage);
         mockMail.setState(state);
         m_mockSpoolRepository.store(mockMail);
         return mockMail;

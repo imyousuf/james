@@ -32,8 +32,8 @@ import junit.framework.TestCase;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.smtpserver.core.filter.fastfail.SpamAssassinHandler;
 import org.apache.james.test.mock.avalon.MockLogger;
-import org.apache.mailet.base.test.MockMimeMessage;
-import org.apache.mailet.base.test.MockMail;
+import org.apache.mailet.base.test.FakeMimeMessage;
+import org.apache.mailet.base.test.FakeMail;
 import org.apache.james.test.mock.util.MockSpamd;
 import org.apache.james.test.util.Util;
 import org.apache.james.util.scanner.SpamAssassinInvoker;
@@ -104,14 +104,14 @@ public class SpamAssassinHandlerTest extends TestCase {
     }
 
     private Mail setupMockedMail(MimeMessage message) {
-        MockMail mail = new MockMail();
+        FakeMail mail = new FakeMail();
         mail.setMessage(message);
         return mail;
     }
 
     public MimeMessage setupMockedMimeMessage(String text)
             throws MessagingException {
-        MimeMessage message = new MimeMessage(new MockMimeMessage());
+        MimeMessage message = new MimeMessage(new FakeMimeMessage());
         message.setText(text);
         message.saveChanges();
 

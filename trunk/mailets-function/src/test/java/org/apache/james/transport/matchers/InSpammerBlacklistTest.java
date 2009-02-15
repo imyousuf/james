@@ -24,9 +24,9 @@ import org.apache.james.Constants;
 import org.apache.james.api.dnsservice.AbstractDNSServer;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.test.mock.avalon.MockServiceManager;
-import org.apache.mailet.base.test.MockMail;
-import org.apache.mailet.base.test.MockMailContext;
-import org.apache.mailet.base.test.MockMatcherConfig;
+import org.apache.mailet.base.test.FakeMail;
+import org.apache.mailet.base.test.FakeMailContext;
+import org.apache.mailet.base.test.FakeMatcherConfig;
 
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.Matcher;
@@ -44,7 +44,7 @@ import junit.framework.TestCase;
 
 public class InSpammerBlacklistTest extends TestCase {
 
-    private MockMail mockedMail;
+    private FakeMail mockedMail;
 
     private Matcher matcher;
     
@@ -74,7 +74,7 @@ public class InSpammerBlacklistTest extends TestCase {
         return dns;
     }
     private void setupMockedMail(String remoteAddr) throws ParseException {
-        mockedMail = new MockMail();
+        mockedMail = new FakeMail();
         mockedMail.setRemoteAddr(remoteAddr);
         mockedMail.setRecipients(Arrays.asList(new MailAddress[] {new MailAddress("test@email")}));
 
@@ -82,9 +82,9 @@ public class InSpammerBlacklistTest extends TestCase {
 
     private void setupMatcher(String blacklist) throws MessagingException {
         matcher = new InSpammerBlacklist();
-        MockMailContext context = new MockMailContext();
+        FakeMailContext context = new FakeMailContext();
         context.setAttribute(Constants.AVALON_COMPONENT_MANAGER, setUpServiceManager());
-        MockMatcherConfig mci = new MockMatcherConfig("InSpammerBlacklist=" + blacklist,context);
+        FakeMatcherConfig mci = new FakeMatcherConfig("InSpammerBlacklist=" + blacklist,context);
         matcher.init(mci);
     }
 

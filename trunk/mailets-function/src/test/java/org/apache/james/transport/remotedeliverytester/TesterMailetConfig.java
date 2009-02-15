@@ -25,7 +25,7 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
 import org.apache.james.services.SpoolRepository;
-import org.apache.mailet.base.test.MockMailContext;
+import org.apache.mailet.base.test.FakeMailContext;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetConfig;
@@ -40,7 +40,7 @@ import java.util.Properties;
 
 public class TesterMailetConfig implements MailetConfig {
 
-    private class MailetContextTester extends MockMailContext {
+    private class MailetContextTester extends FakeMailContext {
         private TesterMailetConfig owner;
         private ServiceManager serviceManager;
         private ServiceManager wrappedServiceManager;
