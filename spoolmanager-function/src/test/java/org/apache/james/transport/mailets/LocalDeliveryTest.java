@@ -29,10 +29,10 @@ import org.apache.james.services.MailServer;
 import org.apache.james.test.mock.avalon.MockServiceManager;
 import org.apache.james.test.mock.james.InMemorySpoolRepository;
 import org.apache.james.test.mock.james.MockMailServer;
-import org.apache.mailet.base.test.MockMimeMessage;
-import org.apache.mailet.base.test.MockMail;
-import org.apache.mailet.base.test.MockMailContext;
-import org.apache.mailet.base.test.MockMailetConfig;
+import org.apache.mailet.base.test.FakeMimeMessage;
+import org.apache.mailet.base.test.FakeMail;
+import org.apache.mailet.base.test.FakeMailContext;
+import org.apache.mailet.base.test.FakeMailetConfig;
 import org.apache.mailet.base.test.MailUtil;
 import org.apache.james.userrepository.MockUsersRepository;
 import org.apache.mailet.Mail;
@@ -59,7 +59,7 @@ import junit.framework.TestCase;
 public class LocalDeliveryTest extends TestCase {
 
     private HashMap mailboxes;
-    private MockMailContext mockMailetContext;
+    private FakeMailContext mockMailetContext;
     private MockServiceManager mockServiceManager;
     private MockMailServer mockMailServer;
     private MockUsersRepository mockUsersRepository;
@@ -281,7 +281,7 @@ public class LocalDeliveryTest extends TestCase {
         }
         mockServiceManager.put(MailServer.ROLE, mockMailServer);
 
-        mockMailetContext = new MockMailContext() {
+        mockMailetContext = new FakeMailContext() {
 
             public void sendMail(MailAddress sender, Collection recipients, MimeMessage msg) throws MessagingException {
                 mockMailServer.sendMail(sender, recipients, msg);
@@ -388,18 +388,18 @@ public class LocalDeliveryTest extends TestCase {
      * @throws MessagingException 
      */
     private Mail createMail(String[] recipients) throws MessagingException {
-        Mail mail = new MockMail();
+        Mail mail = new FakeMail();
         ArrayList a = new ArrayList(recipients.length);
         for (int i = 0; i < recipients.length; i++) {
             a.add(new MailAddress(recipients[i]));
         }
         mail.setRecipients(a);
-        mail.setMessage(new MockMimeMessage());
+        mail.setMessage(new FakeMimeMessage());
         return mail;
     }
     
     public Mailet getMailet(Properties p) throws MessagingException {
-        MockMailetConfig mockMailetConfig = new MockMailetConfig("TestedLocalDelivery", mockMailetContext, p);
+        FakeMailetConfig mockMailetConfig = new FakeMailetConfig("TestedLocalDelivery", mockMailetContext, p);
         Mailet m = new LocalDelivery();
         m.init(mockMailetConfig);
         return m;

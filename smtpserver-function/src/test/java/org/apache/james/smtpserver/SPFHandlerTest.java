@@ -33,7 +33,7 @@ import org.apache.james.smtpserver.core.filter.fastfail.SPFHandler;
 import org.apache.james.smtpserver.junkscore.JunkScore;
 import org.apache.james.smtpserver.junkscore.JunkScoreImpl;
 import org.apache.james.test.mock.avalon.MockLogger;
-import org.apache.mailet.base.test.MockMail;
+import org.apache.mailet.base.test.FakeMail;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
@@ -140,7 +140,7 @@ public class SPFHandlerTest extends TestCase {
 
             HashMap connectionState = new HashMap();
 
-            Mail mail = new MockMail();
+            Mail mail = new FakeMail();
 
             boolean stopHandler = false;
 

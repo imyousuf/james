@@ -35,7 +35,7 @@ import org.apache.james.test.mock.avalon.MockSocketManager;
 import org.apache.james.test.mock.avalon.MockStore;
 import org.apache.james.test.mock.avalon.MockThreadManager;
 import org.apache.james.test.mock.james.MockMailServer;
-import org.apache.mailet.base.test.MockMailContext;
+import org.apache.mailet.base.test.FakeMailContext;
 import org.apache.james.test.util.Util;
 import org.apache.james.userrepository.MockUsersRepository;
 import org.apache.james.util.codec.Base64;
@@ -200,7 +200,7 @@ public class SMTPServerTest extends TestCase {
         SimpleConnectionManager connectionManager = new SimpleConnectionManager();
         ContainerUtil.enableLogging(connectionManager, new MockLogger());
         m_serviceManager.put(JamesConnectionManager.ROLE, connectionManager);
-        m_serviceManager.put(MailetContext.class.getName(), new MockMailContext());
+        m_serviceManager.put(MailetContext.class.getName(), new FakeMailContext());
         m_mailServer = new MockMailServer(new MockUsersRepository());
         m_serviceManager.put(MailServer.ROLE, m_mailServer);
         m_serviceManager.put(UsersRepository.ROLE, m_usersRepository);

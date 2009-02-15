@@ -45,8 +45,8 @@ import org.apache.james.smtpserver.core.filter.fastfail.URIRBLHandler;
 import org.apache.james.smtpserver.junkscore.JunkScore;
 import org.apache.james.smtpserver.junkscore.JunkScoreImpl;
 import org.apache.james.test.mock.avalon.MockLogger;
-import org.apache.mailet.base.test.MockMimeMessage;
-import org.apache.mailet.base.test.MockMail;
+import org.apache.mailet.base.test.FakeMimeMessage;
+import org.apache.mailet.base.test.FakeMail;
 import org.apache.mailet.Mail;
 
 public class URIRBLHandlerTest extends TestCase {
@@ -126,14 +126,14 @@ public class URIRBLHandlerTest extends TestCase {
     }
 
     private Mail setupMockedMail(MimeMessage message) {
-        MockMail mail = new MockMail();
+        FakeMail mail = new FakeMail();
         mail.setMessage(message);
         return mail;
     }
 
     public MimeMessage setupMockedMimeMessage(String text)
             throws MessagingException {
-        MimeMessage message = new MimeMessage(new MockMimeMessage());
+        MimeMessage message = new MimeMessage(new FakeMimeMessage());
         message.setText(text);
         message.saveChanges();
 
@@ -141,7 +141,7 @@ public class URIRBLHandlerTest extends TestCase {
     }
     
     public MimeMessage setupMockedMimeMessageMP(String text) throws MessagingException {
-        MimeMessage message = new MimeMessage(new MockMimeMessage());
+        MimeMessage message = new MimeMessage(new FakeMimeMessage());
         
 //      Create the message part 
         BodyPart messageBodyPart = new MimeBodyPart();

@@ -21,9 +21,9 @@
 package org.apache.james.transport.matchers;
 
 import junit.framework.TestCase;
-import org.apache.mailet.base.test.MockMail;
-import org.apache.mailet.base.test.MockMailContext;
-import org.apache.mailet.base.test.MockMatcherConfig;
+import org.apache.mailet.base.test.FakeMail;
+import org.apache.mailet.base.test.FakeMailContext;
+import org.apache.mailet.base.test.FakeMatcherConfig;
 import org.apache.mailet.base.test.MailUtil;
 import org.apache.mailet.Matcher;
 import org.apache.mailet.base.RFC2822Headers;
@@ -37,7 +37,7 @@ public class NESSpamCheckTest extends TestCase {
 
     private MimeMessage mockedMimeMessage;
 
-    private MockMail mockedMail;
+    private FakeMail mockedMail;
 
     private Matcher matcher;
 
@@ -64,7 +64,7 @@ public class NESSpamCheckTest extends TestCase {
     private void setupMatcher() throws MessagingException {
         setupMockedMimeMessage();
         matcher = new NESSpamCheck();
-        MockMatcherConfig mci = new MockMatcherConfig("NESSpamCheck", new MockMailContext());
+        FakeMatcherConfig mci = new FakeMatcherConfig("NESSpamCheck", new FakeMailContext());
         matcher.init(mci);
     }
 
