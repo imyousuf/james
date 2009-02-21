@@ -92,7 +92,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>standard-mailets</artifactId>
+      <artifactId>apache-standard-mailets</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

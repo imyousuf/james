@@ -234,7 +234,7 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-mailet-base</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>1.0RC1</version>
       <exclusions>
         <exclusion>
           <groupId>javax.mail</groupId>
@@ -245,7 +245,7 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-mailet-base</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>1.0RC1</version>
       <classifier>tests</classifier>
       <scope>test</scope>
       <exclusions>
@@ -257,7 +257,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>standard-mailets</artifactId>
+      <artifactId>apache-standard-mailets</artifactId>
       <version>1.0-SNAPSHOT</version>
       <exclusions>
         <exclusion>
@@ -268,7 +268,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>standard-mailets</artifactId>
+      <artifactId>apache-standard-mailets</artifactId>
       <version>1.0-SNAPSHOT</version>
       <classifier>tests</classifier>
       <scope>test</scope>
