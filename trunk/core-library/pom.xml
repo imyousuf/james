@@ -37,7 +37,7 @@
     <!-- Not needed at runtime because of compiler inlining constants -->
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>apache-james-mailet-base</artifactId>
+      <artifactId>apache-mailet-base</artifactId>
     </dependency>
 
     <dependency>
@@ -95,7 +95,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>apache-james-mailet-base</artifactId>
+      <artifactId>apache-mailet-base</artifactId>
       <classifier>tests</classifier>
       <scope>test</scope>
     </dependency>
