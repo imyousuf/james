@@ -57,24 +57,6 @@
       <groupId>org.apache.james</groupId>
       <artifactId>apache-standard-mailets</artifactId>
     </dependency>
-<!--
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-user-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-domain-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-core-library</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-user-library</artifactId>
-    </dependency>
--->
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-imap-api</artifactId>
@@ -103,89 +85,6 @@
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-imap-torque</artifactId>
     </dependency>
-<!--
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-imap-codec-library</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-avalon-user-function</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-basic-user-function</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-smtpserver-function</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-pop3server-function</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-imapserver-function</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-nntpserver-function</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-fetchmail-function</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-spoolmanager-function</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-mailets-function</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-remotemanager-function</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-torque-mailboxmanager-function</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-imap-mailbox-processor-function</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-experimental-activemq-function</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-experimental-seda-imap-function</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-experimental-seda-imap-function</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-jcr-backend-function</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-imap-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.bouncycastle</groupId>
-      <artifactId>bcmail-jdk14</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.bouncycastle</groupId>
-      <artifactId>bcmail-jdk14-workaround</artifactId>
-    </dependency>
--->
     <!-- TODO test the updated version
     <dependency>
       <groupId>bouncycastle</groupId>
@@ -376,12 +275,6 @@
       <groupId>xml-apis</groupId>
       <artifactId>xml-apis</artifactId>
     </dependency>
-    <!-- 
-    <dependency>
-      <groupId>xerces</groupId>
-      <artifactId>xercesImpl</artifactId>
-    </dependency>
-     -->
     <dependency>
       <groupId>com.thoughtworks.xstream</groupId>
       <artifactId>xstream</artifactId>
