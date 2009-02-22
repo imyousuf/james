@@ -38,6 +38,11 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
+      <artifactId>james-server-user-library</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
       <artifactId>james-server-javamail-util</artifactId>
     </dependency>
     <dependency>
@@ -52,18 +57,19 @@
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-domain-api</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-user-library</artifactId>
-    </dependency>
+
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-library</artifactId>
     </dependency>
-
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-mailet-base</artifactId>
+    </dependency>
+
+    <dependency>
+       <groupId>org.apache.geronimo.specs</groupId>
+       <artifactId>geronimo-annotation_1.0_spec</artifactId>
     </dependency>
 
     <dependency>
@@ -108,14 +114,14 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-user-library</artifactId>
-      <type>test-jar</type>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-user-library</artifactId>
+      <type>test-jar</type>
       <scope>test</scope>
     </dependency>
   </dependencies>

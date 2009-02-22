@@ -74,10 +74,6 @@
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-user-library</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-mailbox-library</artifactId>
-    </dependency>
 -->
     <dependency>
       <groupId>org.apache.james</groupId>
@@ -203,6 +199,12 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-jsieve</artifactId>
+      <version>0.3-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>apache-jsieve-mailet</artifactId>
+      <version>0.3-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
@@ -231,6 +233,10 @@
     <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
+    </dependency>
+    <dependency>
+       <groupId>org.apache.geronimo.specs</groupId>
+       <artifactId>geronimo-annotation_1.0_spec</artifactId>
     </dependency>
     <!-- used by torque -->
     <dependency>
@@ -435,6 +441,19 @@
       <groupId>org.apache.james</groupId>
       <artifactId>apache-standard-mailets</artifactId>
       <classifier>tests</classifier>
+    </dependency>
+    
+    <dependency>
+        <groupId>com.h2database</groupId>
+        <artifactId>h2</artifactId>
+        <version>1.1.102</version>
+        <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <scope>test</scope>
     </dependency>
 
   </dependencies>
