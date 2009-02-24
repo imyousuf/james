@@ -61,6 +61,15 @@
     <module>phoenix-deployment</module>
     <module>spring-deployment</module>
   </modules>
+  <ciManagement>
+    <system>hudson</system>
+    <url>http://hudson.zones.apache.org/hudson/view/James/job/james-server-trunk/</url>
+    <notifiers>
+      <notifier>
+        <type>mail</type>
+      </notifier>
+    </notifiers>
+  </ciManagement>
   <scm>
     <connection>scm:svn:http://svn.apache.org/repos/asf/james/server/trunk</connection>
     <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/james/server/trunk</developerConnection>
