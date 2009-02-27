@@ -75,7 +75,8 @@
     </menu>
     
     <menu name="Project">
-      <item name="Changelog" href="/changelog.html" />
+      <item name='Changes' href='/jira-report.html'/>
+      <item name='Release Notes' href="/changelog.html" />
     </menu>
 
     ${reports}
