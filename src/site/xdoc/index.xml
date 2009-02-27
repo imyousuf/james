@@ -20,11 +20,22 @@
 <document>
 
  <properties>
-  <title>James 2.3 - Table of Contents</title>
+  <title>James 3 - Table of Contents</title>
  </properties>
 
 <body>
-<section name="James 2.3">
+<section name="James 3 (Development)">
+<subection name='Note'>
+<p>
+James 3 represents the leading edge of development. This codestream has many more
+features than the 2.x code, but is not as well tested in production. The internal APIs
+are under current development and are expected to be subject to change. Reasonable
+configuration compability has been retained with 2.3.
+</p>
+<p>
+James 3 requires Java 1.5 but Java 1.6 is recommended.
+</p>
+</subection>
 <p>
 The Java Apache Mail Enterprise Server (a.k.a. Apache James) is a 100% pure Java SMTP and POP3 Mail 
 server and NNTP News server designed to be a complete and portable enterprise mail engine 
