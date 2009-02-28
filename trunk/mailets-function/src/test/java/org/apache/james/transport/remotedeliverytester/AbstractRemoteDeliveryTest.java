@@ -164,6 +164,10 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
             }
         
         }
+ 
+        try {
+            Thread.currentThread().sleep(3000);
+        } catch (InterruptedException e) {}
 
         return outgoingSpool.size();
     }
