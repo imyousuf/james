@@ -75,43 +75,44 @@ import java.util.Vector;
 
 
 /**
- * Receives a MessageContainer from JamesSpoolManager and takes care of delivery
+ * <p>Receives a MessageContainer from JamesSpoolManager and takes care of delivery
  * the message to remote hosts. If for some reason mail can't be delivered
  * store it in the "outgoing" Repository and set an Alarm. After the next "delayTime" the
  * Alarm will wake the servlet that will try to send it again. After "maxRetries"
  * the mail will be considered undeliverable and will be returned to sender.
- *
+ * </p><p>
  * TO DO (in priority):
- * 1. Support a gateway (a single server where all mail will be delivered) (DONE)
- * 2. Provide better failure messages (DONE)
- * 3. More efficiently handle numerous recipients
- * 4. Migrate to use Phoenix for the delivery threads
- *
+ * </p>
+ * <ol>
+ * <li>Support a gateway (a single server where all mail will be delivered) (DONE)</li>
+ * <li>Provide better failure messages (DONE)</li>
+ * <li>More efficiently handle numerous recipients</li>
+ * <li>Migrate to use Phoenix for the delivery threads</li>
+ * </ol>
+ * <p>
  * You really want to read the JavaMail documentation if you are
  * working in here, and you will want to view the list of JavaMail
- * attributes, which are documented here:
- *
- * http://java.sun.com/products/javamail/1.3/docs/javadocs/com/sun/mail/smtp/package-summary.html
- *
- * as well as other places.
+ * attributes, which are documented 
+ * <a href='http://java.sun.com/products/javamail/1.3/docs/javadocs/com/sun/mail/smtp/package-summary.html'>here</a>
+ * as well as other places.</p>
  *
  * @version CVS $Revision$ $Date$
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
-    // Default Delay Time (Default is 6*60*60*1000 Milliseconds (6 hours)).
+    /** Default Delay Time (Default is 6*60*60*1000 Milliseconds (6 hours)). */
     private static final long DEFAULT_DELAY_TIME = 21600000;
     
-    // Pattern to match [attempts*]delay[units].
+    /** Pattern to match [attempts*]delay[units]. */
     private static final String PATTERN_STRING = "\\s*([0-9]*\\s*[\\*])?\\s*([0-9]+)\\s*([a-z,A-Z]*)\\s*";
 
-    // Compiled pattern of the above String.
+    /** Compiled pattern of the above String. */
     private static Pattern PATTERN = null;
     
-    // The DNSService
+    /** The DNSService */
     private DNSService dnsServer;
     
-    /*
+    /**
      * Static initializer.<p>
      * Compiles pattern for processing delaytime entries.<p>
      * Initializes MULTIPLIERS with the supported unit quantifiers
@@ -196,66 +197,75 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         }
     }
 
-    // Flag to define verbose logging messages.
+    /** Flag to define verbose logging messages. */
     private boolean isDebug = false;
 
-    // Repository used to store messages that will be delivered.
+    /** Repository used to store messages that will be delivered. */
     private SpoolRepository workRepository;
 
-    // List of Delay Times. Controls frequency of retry attempts.
+    /** List of Delay Times. Controls frequency of retry attempts. */
     private long[] delayTimes;
     
-    // Maximum no. of retries (Defaults to 5).
+    /** Maximum no. of retries (Defaults to 5). */
     private int maxRetries = 5;
     
-    //default number of ms to timeout on smtp delivery
+    /** Default number of ms to timeout on smtp delivery */
     private long smtpTimeout = 180000;  
     
-    // If false then ANY address errors will cause the transmission to fail
+    /** If false then ANY address errors will cause the transmission to fail */
     private boolean sendPartial = false;
     
-   // The amount of time JavaMail will wait before giving up on a socket connect()
+    /** The amount of time JavaMail will wait before giving up on a socket connect() */
     private int connectionTimeout = 60000;
     
-    // No. of threads used to process messages that should be retried.
+    /** No. of threads used to process messages that should be retried. */
     private int workersThreadCount = 1;
     
-    // the server(s) to send all email to
+    /** The server(s) to send all email to */
     private Collection gatewayServer = null;
     
-    // auth for gateway server
+    /** Auth for gateway server */
     private String authUser = null;
     
-    // password for gateway server
+    /** Password for gateway server */
     private String authPass = null;
     
-    // JavaMail delivery socket binds to this local address. If null the JavaMail default will be used.
+    /** 
+     * JavaMail delivery socket binds to this local address. 
+     * If null the JavaMail default will be used.
+     */
     private String bindAddress = null;
     
-    // true, if the bind configuration parameter is supplied, RemoteDeliverySocketFactory
-    // will be used in this case
+    /** 
+     * True, if the bind configuration parameter is supplied, RemoteDeliverySocketFactory
+     * will be used in this case.
+     */
     private boolean isBindUsed = false; 
 
-    // Collection that stores all worker threads.
+    /** Collection that stores all worker threads.*/
     private Collection workersThreads = new Vector();
     
-    // Flag used by 'run' method to end itself.
+    /** Flag used by 'run' method to end itself. */
     private volatile boolean destroyed = false;
     
-    // the processor for creating Bounces
+    /** the processor for creating Bounces */
     private String bounceProcessor = null; 
 
-    // Matcher used in 'init' method to parse delayTimes specified in config
-    // file.
+    /**
+     * Matcher used in 'init' method to parse delayTimes specified in config
+     * file.
+     */
     private Perl5Matcher delayTimeMatcher;
 
-    // Filter used by 'accept' to check if message is ready for retrying.
+    /**
+     * Filter used by 'accept' to check if message is ready for retrying.
+     */
     private MultipleDelayFilter delayFilter = new MultipleDelayFilter();
     
-    // default properties for the javamail Session
+    /** Default properties for the JavaMail Session */
     private Properties defprops = new Properties(); 
     
-    // The retry count dnsProblemErrors
+    /** The retry count dnsProblemErrors */
     private int dnsProblemRetry = 0;
     
     /**
@@ -1543,7 +1553,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         return Session.getInstance(props);
     }
     
-    /*
+    /**
      * Returns an Iterator over org.apache.mailet.HostAddress, a
      * specialized subclass of javax.mail.URLName, which provides
      * location information for servers that are specified as mail
