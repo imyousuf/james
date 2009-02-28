@@ -93,7 +93,7 @@ import java.util.Vector;
  * You really want to read the JavaMail documentation if you are
  * working in here, and you will want to view the list of JavaMail
  * attributes, which are documented 
- * <a href='http://java.sun.com/products/javamail/1.3/docs/javadocs/com/sun/mail/smtp/package-summary.html'>here</a>
+ * <a href='http://java.sun.com/products/javamail/javadocs/com/sun/mail/smtp/package-summary.html''>here</a>
  * as well as other places.</p>
  *
  * @version CVS $Revision$ $Date$
