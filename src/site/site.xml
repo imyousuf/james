@@ -45,6 +45,17 @@
       <item name="Install James" href="/installation_instructions.html" />
     </menu>
     
+    <menu name='Mailets'>
+       <item name='Overview' href='http://james.apache.org/mailet/index.html'/>
+       <item name='API' href='http://james.apache.org/mailet/api/index.html'/>
+       <item name='Basic Toolkit' href='http://james.apache.org/mailet/base/index.html'/>
+       <item name='Crypto' href='http://james.apache.org/mailet/crypto/index.html'/>
+       <item name='Sieve' href='http://james.apache.org/mailet/standard/index.html'/>
+       <item name='MailetDocs' href='http://james.apache.org/mailet/maven-mailetdocs-plugin/index.html'/>
+       <item name='Server' href='/james-server-mailets-function/mailet-report.html'/>
+       <item name='Standard' href='http://james.apache.org/mailet/standard/index.html'/>
+    </menu>
+    
     <menu name="Configuration">
       <item name="DNS Server" href="/dns_configuration.html" />
       <item name="POP3 Server" href="/pop3_configuration.html" />
