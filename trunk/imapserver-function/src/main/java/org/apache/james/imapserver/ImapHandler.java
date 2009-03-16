@@ -89,7 +89,7 @@ public class ImapHandler implements ProtocolHandler
 
             // Write welcome message
                  
-            response.okResponse(null, hello);
+            response.hello(hello);
 
             session = new ImapSessionImpl();
             
@@ -100,6 +100,9 @@ public class ImapHandler implements ProtocolHandler
                 helper.getWatchdog().reset();
             }
             helper.getWatchdog().stop();
+            if (session != null) {
+                session.logout();
+            }
             
             getLogger().info(
                     "Connection from " + helper.getRemoteHost() + " (" + helper.getRemoteIP()

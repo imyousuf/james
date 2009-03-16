@@ -29,7 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.user.UserMetaDataRespository;
 import org.apache.james.api.user.UserRepositoryException;
 import org.apache.james.api.user.UsersRepository;
-import org.apache.james.mailboxmanager.manager.SubscriptionException;
+import org.apache.james.imap.mailbox.SubscriptionException;
 
 /**
  * Stores subscription data in the user meta-data repository.

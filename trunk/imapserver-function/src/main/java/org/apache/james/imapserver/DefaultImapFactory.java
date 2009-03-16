@@ -34,7 +34,7 @@ import org.apache.james.imap.processor.main.DefaultImapProcessorFactory;
 import org.apache.james.mailboxmanager.torque.DefaultMailboxManagerProvider;
 import org.apache.james.mailboxmanager.torque.DefaultMailboxManager;
 import org.apache.james.mailboxmanager.torque.DefaultUserManager;
-import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
+import org.apache.james.imap.mailbox.MailboxManagerProvider;
 import org.apache.james.services.FileSystem;
 import org.apache.james.user.impl.file.FileUserMetaDataRepository;
 
