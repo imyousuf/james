@@ -19,6 +19,9 @@
 
 package org.apache.james.imapserver;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
 import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -35,10 +38,10 @@ import org.apache.james.api.imap.ImapConstants;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.imap.main.ImapRequestHandler;
 import org.apache.james.imapserver.DefaultImapFactory;
-import org.apache.james.mailboxmanager.MailboxSession;
-import org.apache.james.mailboxmanager.mailbox.Mailbox;
-import org.apache.james.mailboxmanager.manager.MailboxManager;
-import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
+import org.apache.james.imap.mailbox.MailboxSession;
+import org.apache.james.imap.mailbox.Mailbox;
+import org.apache.james.imap.mailbox.MailboxManager;
+import org.apache.james.imap.mailbox.MailboxManagerProvider;
 import org.apache.james.services.FileSystem;
 import org.apache.james.socket.AbstractJamesService;
 import org.apache.james.socket.ProtocolHandler;
@@ -176,14 +179,21 @@ public class ImapServer extends AbstractJamesService implements ImapConstants, P
         final MailboxSession session = mailboxManager.createSession();
         try
         {
-            final Mailbox mailbox = mailboxManager.getMailbox(name, true);
+            final Mailbox mailbox = mailboxManager.getMailbox(name);
             
             if (mailbox == null) {
                 final String error = "Mailbox for user " + username
                         + " was not found on this server.";
                 throw new MessagingException(error);
             }
-            mailbox.appendMessage(mail, new Date(), null, session);
+
+            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            mail.writeTo(baos);
+            mailbox.appendMessage(baos.toByteArray() , new Date(), session, true);
+        }
+        catch (IOException e)
+        {
+            throw new MessagingException("Failed to write mail message", e);
         }
         finally 
         {

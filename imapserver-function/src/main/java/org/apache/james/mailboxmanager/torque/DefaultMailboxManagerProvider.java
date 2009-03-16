@@ -19,9 +19,9 @@
 
 package org.apache.james.mailboxmanager.torque;
 
-import org.apache.james.mailboxmanager.MailboxManagerException;
-import org.apache.james.mailboxmanager.manager.MailboxManager;
-import org.apache.james.mailboxmanager.manager.MailboxManagerProvider;
+import org.apache.james.imap.mailbox.MailboxException;
+import org.apache.james.imap.mailbox.MailboxManager;
+import org.apache.james.imap.mailbox.MailboxManagerProvider;
 
 public class DefaultMailboxManagerProvider implements MailboxManagerProvider {
 
@@ -33,7 +33,7 @@ public class DefaultMailboxManagerProvider implements MailboxManagerProvider {
     }
 
     public MailboxManager getMailboxManager()
-            throws MailboxManagerException {
+            throws MailboxException {
         return mailboxManager;
     }
 }

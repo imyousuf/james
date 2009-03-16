@@ -32,7 +32,7 @@ import org.apache.avalon.framework.logger.Logger;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.logging.impl.AvalonLogger;
-import org.apache.james.mailboxmanager.MailboxManagerException;
+import org.apache.james.imap.mailbox.MailboxException;
 import org.apache.james.mailboxmanager.torque.om.MailboxRowPeer;
 import org.apache.james.mailboxmanager.torque.om.MessageBodyPeer;
 import org.apache.james.mailboxmanager.torque.om.MessageFlagsPeer;
@@ -111,7 +111,7 @@ public class DefaultMailboxManager extends TorqueMailboxManager {
                 } catch (TorqueException e1) {
 
                 }
-                throw new MailboxManagerException(e);
+                throw new MailboxException(e);
             }
         }
     }
