@@ -34,7 +34,7 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
-import org.apache.james.api.imap.ImapConstants;
+import org.apache.james.imap.api.ImapConstants;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.imap.main.ImapRequestHandler;
 import org.apache.james.imapserver.DefaultImapFactory;
