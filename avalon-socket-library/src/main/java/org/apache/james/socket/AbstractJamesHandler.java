@@ -56,6 +56,9 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
 
     private static final int DEFAULT_INPUT_BUFFER_SIZE = 1024;
 
+    /** Name used by default */
+    private static final String DEFAULT_NAME = "Handler-ANON";
+
     /**
      * The thread executing this handler
      */
@@ -125,13 +128,19 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
      * Used for debug: if not null enable tcp stream dump.
      */
     private String tcplogprefix = null;
+
+    /**
+     * Names the handler.
+     * This name is used for contextual logging.
+     */
+    private String name = DEFAULT_NAME;
     
 
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
      */
-    public void service(ServiceManager manager) throws ServiceException {
-        setDnsServer((DNSService) manager.lookup(DNSService.ROLE));
+    public void service(ServiceManager arg0) throws ServiceException {
+        setDnsServer((DNSService) arg0.lookup(DNSService.ROLE));
     }
 
     /**
@@ -451,7 +460,7 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
     public void setStreamDumpDir(String streamDumpDir) {
         if (streamDumpDir != null) {
             String streamdumpDir=streamDumpDir;
-            this.tcplogprefix = streamdumpDir+"/TCP-DUMP."+System.currentTimeMillis()+".";
+            this.tcplogprefix = streamdumpDir+"/" + getName() + "_TCP-DUMP."+System.currentTimeMillis()+".";
             File logdir = new File(streamdumpDir);
             if (!logdir.exists()) {
                 logdir.mkdir();
@@ -465,4 +474,35 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
         this.dnsServer = dnsServer;
     }
 
+    /**
+     * The name of this handler.
+     * Used for context sensitive logging.
+     * @return the name, not null
+     */
+    public final String getName() {
+        return name;
+    }
+
+    /**
+     * The name of this handler.
+     * Note that this name should be file-system safe.
+     * Used for context sensitive logging.
+     * @param name the name to set
+     */
+    public final void setName(final String name) {
+        if (name == null) {
+            this.name = DEFAULT_NAME;
+        } else {
+            this.name = name;
+        }
+    }
+
+    /**
+     * Use for context sensitive logging.
+     * @return the name of the handler
+     */
+    @Override
+    public String toString() {
+        return name;
+    }
 }
