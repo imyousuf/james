@@ -167,7 +167,7 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
         } catch (RuntimeException e) {
             StringBuffer exceptionBuffer = 
                 new StringBuffer(256)
-                    .append("Unexpected exception opening from ")
+                    .append("[" + toString() + "] Unexpected exception opening from ")
                     .append(remoteHost)
                     .append(" (")
                     .append(remoteIP)
@@ -179,7 +179,7 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
         } catch (IOException e) {
             StringBuffer exceptionBuffer = 
                 new StringBuffer(256)
-                    .append("Cannot open connection from ")
+                    .append("[" + toString() + "] Cannot open connection from ")
                     .append(remoteHost)
                     .append(" (")
                     .append(remoteIP)
@@ -193,7 +193,7 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
         if (getLogger().isInfoEnabled()) {
             StringBuffer infoBuffer =
                 new StringBuffer(128)
-                        .append("Connection from ")
+                        .append("[" + toString() + "]Connection from ")
                         .append(remoteHost)
                         .append(" (")
                         .append(remoteIP)
@@ -218,7 +218,7 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
                 inReader.close();
             }
         } catch (IOException ioe) {
-            getLogger().warn("Handler: Unexpected exception occurred while closing reader: " + ioe);
+            getLogger().warn("[" + toString() + "] Unexpected exception occurred while closing reader: " + ioe);
         } finally {
             inReader = null;
         }
@@ -236,7 +236,7 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
                 socket.close();
             }
         } catch (IOException ioe) {
-            getLogger().warn("Handler: Unexpected exception occurred while closing socket: " + ioe);
+            getLogger().warn("[" + toString() + "] Unexpected exception occurred while closing socket: " + ioe);
         } finally {
             socket = null;
         }
@@ -261,13 +261,13 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
             // Do something:
             handleProtocol();
             
-            logger.debug("Closing socket.");
+            logger.debug("[" + toString() + "] Closing socket");
         } catch (SocketException se) {
             // Indicates a problem at the underlying protocol level
             if (logger.isWarnEnabled()) {
                 String message =
                     new StringBuffer(64)
-                        .append("Socket to ")
+                        .append("[" + toString() + "]Socket to ")
                         .append(remoteHost)
                         .append(" (")
                         .append(remoteIP)
@@ -280,7 +280,7 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
             if (logger.isErrorEnabled()) {
                 StringBuffer errorBuffer =
                     new StringBuffer(64)
-                        .append("Socket to ")
+                        .append("[" + toString() + "] Socket to ")
                         .append(remoteHost)
                         .append(" (")
                         .append(remoteIP)
@@ -291,7 +291,7 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
             if (logger.isWarnEnabled()) {
                 String message =
                     new StringBuffer(256)
-                            .append("Exception handling socket to ")
+                            .append("[" + toString() + "] Exception handling socket to ")
                             .append(remoteHost)
                             .append(" (")
                             .append(remoteIP)
@@ -316,7 +316,7 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
      */
     protected void errorHandler(RuntimeException e) {
         if (getLogger().isErrorEnabled()) {
-            getLogger().error( "Unexpected runtime exception: "
+            getLogger().error( "[" + toString() + "] Unexpected runtime exception: "
                                + e.getMessage(), e );
         }
     }
@@ -359,7 +359,7 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
      */
     void idleClose() {
         if (getLogger() != null) {
-            getLogger().error("Service Connection has idled out.");
+            getLogger().error("[" + toString() + "] Service Connection has idled out.");
         }
         try {
             if (socket != null) {
@@ -391,7 +391,7 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
      */
     private final void logResponseString(String responseString) {
         if (getLogger().isDebugEnabled()) {
-            getLogger().debug("Sent: " + responseString);
+            getLogger().debug("[" + toString() + "] Sent: " + responseString);
         }
     }
 
