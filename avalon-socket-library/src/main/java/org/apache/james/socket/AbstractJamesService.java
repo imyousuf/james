@@ -672,7 +672,7 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
         AbstractJamesHandler theHandler = (AbstractJamesHandler)theHandlerPool.get();
         
         if (getLogger().isDebugEnabled()) {
-            getLogger().debug("Getting Handler from pool.");
+            getLogger().debug("Handler [" +  theHandler + "] obtained from pool.");
         }
 
         Watchdog theWatchdog = theWatchdogFactory.getWatchdog(theHandler.getWatchdogTarget());
@@ -690,7 +690,7 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
      */
     public void releaseConnectionHandler( ConnectionHandler connectionHandler ) {
         if (getLogger().isDebugEnabled()) {
-            getLogger().debug("Returning Handler to pool.");
+            getLogger().debug("Returning Handler [" +  connectionHandler + "] to pool.");
         }
         theHandlerPool.put((Poolable)connectionHandler);
     }
