@@ -99,7 +99,9 @@ public class InaccurateTimeoutWatchdog
      * Start this Watchdog, causing it to begin checking.
      */
     public void start() {
-        getLogger().debug("Calling start()");
+        if (getLogger().isDebugEnabled()) {
+            getLogger().debug("[" + triggerTarget + "] Calling start()" );
+        }
         lastReset = System.currentTimeMillis();
         isChecking = true;
         synchronized(this) {
@@ -115,9 +117,9 @@ public class InaccurateTimeoutWatchdog
      */
     public void reset() {
         if (watchdogThread != null) {
-            getLogger().debug("Calling reset() " + watchdogThread.getName());
+            getLogger().debug("[" + triggerTarget + "] Calling reset() on thread '" + watchdogThread.getName() + "'");
         } else {
-            getLogger().debug("Calling reset() for inactive watchdog");
+            getLogger().debug("[" + triggerTarget + "] Calling reset() for inactive watchdog");
         }
         isReset = true;
     }
@@ -128,9 +130,9 @@ public class InaccurateTimeoutWatchdog
      */
     public void stop() {
         if (watchdogThread != null) {
-            getLogger().debug("Calling stop() " + watchdogThread.getName());
+            getLogger().debug("[" + triggerTarget + "] Calling stop() on thread '" + watchdogThread.getName() + "'");
         } else {
-            getLogger().debug("Calling stop() for inactive watchdog");
+            getLogger().debug("[" + triggerTarget + "] Calling stop() for inactive watchdog");
         }
         isChecking = false;
     }
@@ -147,7 +149,7 @@ public class InaccurateTimeoutWatchdog
                 try {
                     if (!isChecking) {
                         if (getLogger().isDebugEnabled()) {
-                            getLogger().debug("Watchdog " + Thread.currentThread().getName() + " is not active - going to exit.");
+                            getLogger().debug("[" + triggerTarget + "] Watchdog on thread '" + Thread.currentThread().getName() + "' is not active - going to exit.");
                         }
                         synchronized (this) {
                             if (!isChecking) {
@@ -163,9 +165,9 @@ public class InaccurateTimeoutWatchdog
                         }
                         long timeToSleep = lastReset + timeout - currentTime;
                         if (watchdogThread != null) {
-                            getLogger().debug("Watchdog " + watchdogThread.getName() + " has time to sleep " + timeToSleep);
+                            getLogger().debug("[" + triggerTarget + "] Watchdog on thread '" + watchdogThread.getName() + "' has time to sleep " + timeToSleep);
                         } else {
-                            getLogger().debug("Watchdog has time to sleep " + timeToSleep);
+                            getLogger().debug("[" + triggerTarget + "] Watchdog has time to sleep " + timeToSleep);
                         }
                         if (timeToSleep <= 0) {
                             try {
@@ -176,7 +178,7 @@ public class InaccurateTimeoutWatchdog
                                     watchdogThread = null;
                                 }
                             } catch (Throwable t) {
-                                getLogger().error("Encountered error while executing Watchdog target.", t);
+                                getLogger().error("[" + triggerTarget + "] Encountered error while executing Watchdog target.", t);
                             }
                             isChecking = false;
                             continue;
@@ -198,7 +200,9 @@ public class InaccurateTimeoutWatchdog
             // to the pool.
             Thread.interrupted();
         }
-        getLogger().debug("Watchdog " + Thread.currentThread().getName() + " is exiting run().");
+        if (getLogger().isDebugEnabled()) {
+            getLogger().debug("[" + triggerTarget + "] Watchdog on thread '" + Thread.currentThread().getName() + "' is exiting run().");
+        }
     }
 
     /**
@@ -207,10 +211,12 @@ public class InaccurateTimeoutWatchdog
     public void dispose() {
         synchronized(this) {
             isChecking = false;
-            if (watchdogThread != null) {
-                getLogger().debug("Calling disposeWatchdog() " + watchdogThread.getName());
-            } else {
-                getLogger().debug("Calling disposeWatchdog() for inactive watchdog");
+            if (getLogger().isDebugEnabled()) {
+                if (watchdogThread != null) {
+                    getLogger().debug("[" + triggerTarget + "] Calling disposeWatchdog() on thread '" + watchdogThread.getName() + "'");
+                } else {
+                    getLogger().debug("[" + triggerTarget + "] Calling disposeWatchdog() for inactive watchdog");
+                }
             }
             if (watchdogThread != null) {
                 watchdogThread = null;
