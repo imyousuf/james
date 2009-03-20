@@ -130,8 +130,8 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
      */
-    public void service(ServiceManager arg0) throws ServiceException {
-        setDnsServer((DNSService) arg0.lookup(DNSService.ROLE));
+    public void service(ServiceManager manager) throws ServiceException {
+        setDnsServer((DNSService) manager.lookup(DNSService.ROLE));
     }
 
     /**
@@ -434,6 +434,13 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
             AbstractJamesHandler.this.idleClose();
         }
 
+        /**
+         * Used for context sensitive logging
+         */
+        @Override
+        public String toString() {
+            return AbstractJamesHandler.this.toString();
+        }
     }
 
     /**
