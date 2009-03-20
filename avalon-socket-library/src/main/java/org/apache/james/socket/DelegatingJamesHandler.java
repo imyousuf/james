@@ -139,11 +139,10 @@ public class DelegatingJamesHandler extends AbstractJamesHandler implements Prot
         return theWatchdog;
     }
 
-		/**
-		 * @see org.apache.james.socket.ProtocolHandlerHelper#getSocket()
-		 */
-		public Socket getSocket() {
-			return socket;
-		}
-
+    /**
+     * @see org.apache.james.socket.ProtocolHandlerHelper#getSocket()
+     */
+    public Socket getSocket() {
+        return socket;
+    }
 }
