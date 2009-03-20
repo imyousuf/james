@@ -54,6 +54,7 @@ import java.net.ServerSocket;
 import java.net.UnknownHostException;
 import java.security.Provider;
 import java.security.Security;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Server which creates connection handlers. All new James service must
@@ -121,7 +122,7 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
      */
     protected InetAddress bindTo = null;
 
-    /*
+    /**
      * The server socket associated with this service
      */
     protected ServerSocket serverSocket;
@@ -184,6 +185,13 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
      * The DNSService
      */
     private DNSService dnsServer = null;
+    
+    /**
+     * Counts the number of handler instances created.
+     * This allows a unique identity to be assigned to each for
+     * context sensitive logging.
+     */
+    private AtomicLong handlerCount = new AtomicLong(0);
     
     private boolean connPerIPConfigured = false;
     private int connPerIP = 0;
@@ -788,7 +796,9 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
      * @see org.apache.avalon.excalibur.pool.ObjectFactory#newInstance()
      */
     public Object newInstance() throws Exception {
-        return new DelegatingJamesHandler(newProtocolHandlerInstance());
+        final AbstractJamesHandler delegatingJamesHandler = new DelegatingJamesHandler(newProtocolHandlerInstance());
+        delegatingJamesHandler.setName("Handler-" + handlerCount.getAndAdd(1));
+        return delegatingJamesHandler;
     }
     
     protected abstract ProtocolHandler newProtocolHandlerInstance();
