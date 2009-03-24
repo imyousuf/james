@@ -180,6 +180,9 @@ public class ImapServer extends AbstractJamesService implements ImapConstants, P
         final MailboxSession session = mailboxManager.createSession(new AvalonLogger(getLogger()));
         try
         {
+            if ("INBOX".equalsIgnoreCase(destination) && !(mailboxManager.mailboxExists(name))) {
+                mailboxManager.createMailbox(name);
+            }
             final Mailbox mailbox = mailboxManager.getMailbox(name);
             
             if (mailbox == null) {
