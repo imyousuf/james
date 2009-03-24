@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
+import org.apache.commons.logging.impl.AvalonLogger;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.service.ServiceException;
@@ -176,7 +177,7 @@ public class ImapServer extends AbstractJamesService implements ImapConstants, P
         }
         final String name = mailboxManagerProvider.getMailboxManager().resolve(username, destination);
         final MailboxManager mailboxManager = mailboxManagerProvider.getMailboxManager();
-        final MailboxSession session = mailboxManager.createSession();
+        final MailboxSession session = mailboxManager.createSession(new AvalonLogger(getLogger()));
         try
         {
             final Mailbox mailbox = mailboxManager.getMailbox(name);
