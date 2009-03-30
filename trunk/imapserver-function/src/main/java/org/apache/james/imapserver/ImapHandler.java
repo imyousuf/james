@@ -114,7 +114,7 @@ public class ImapHandler implements ProtocolHandler
      */
     private void setUpSession() {
         final ImapSessionImpl session = new ImapSessionImpl();
-        session.setLog(new ContextualLog(helper.getName(), new AvalonLogger(getLogger())));
+        session.setLog(new ContextualLog("[" + helper.getName() + "]", new AvalonLogger(getLogger())));
         this.session = session;
     }
 
