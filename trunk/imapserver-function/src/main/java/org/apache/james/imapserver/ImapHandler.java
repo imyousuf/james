@@ -26,6 +26,7 @@ import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.imap.api.process.ImapSession;
+import org.apache.james.imap.main.ContextualLog;
 import org.apache.james.imap.main.ImapRequestHandler;
 import org.apache.james.imap.main.ImapSessionImpl;
 import org.apache.james.imap.main.OutputStreamImapResponseWriter;
@@ -33,6 +34,7 @@ import org.apache.james.imap.encode.ImapResponseComposer;
 import org.apache.james.imap.encode.base.ImapResponseComposerImpl;
 import org.apache.james.socket.ProtocolHandler;
 import org.apache.james.socket.ProtocolHandlerHelper;
+import org.apache.commons.logging.impl.AvalonLogger;
 
 /**
  * Handles IMAP connections.
@@ -91,10 +93,8 @@ public class ImapHandler implements ProtocolHandler
                  
             response.hello(hello);
 
-            session = new ImapSessionImpl();
+            setUpSession();
             
-            ContainerUtil.enableLogging(session, getLogger());
-
             helper.getWatchdog().start();
             while ( handleRequest() ) {
                 helper.getWatchdog().reset();
@@ -107,6 +107,15 @@ public class ImapHandler implements ProtocolHandler
             getLogger().info(
                     "Connection from " + helper.getRemoteHost() + " (" + helper.getRemoteIP()
                             + ") closed.");
+    }
+
+    /**
+     * Sets up a session.
+     */
+    private void setUpSession() {
+        final ImapSessionImpl session = new ImapSessionImpl();
+        session.setLog(new ContextualLog(helper.getName(), new AvalonLogger(getLogger())));
+        this.session = session;
     }
 
     private boolean handleRequest() {

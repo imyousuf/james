@@ -106,4 +106,10 @@ public interface ProtocolHandlerHelper {
      */
     public Socket getSocket();
 
+    /**
+     * The name of this handler.
+     * Used for context sensitive logging.
+     * @return the name, not null
+     */
+    public String getName();
 }
