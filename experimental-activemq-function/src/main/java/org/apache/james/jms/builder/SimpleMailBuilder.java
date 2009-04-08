@@ -31,8 +31,9 @@ import javax.mail.internet.ParseException;
 import org.apache.commons.io.IOUtils;
 import org.apache.james.api.jms.MailBuilder;
 import org.apache.james.core.MailImpl;
+import org.apache.james.mime4j.field.ParsedField;
 import org.apache.james.mime4j.field.AddressListField;
-import org.apache.james.mime4j.field.Field;
+import org.apache.james.mime4j.field.DefaultFieldParser;
 import org.apache.james.mime4j.field.MailboxListField;
 import org.apache.james.mime4j.field.address.Mailbox;
 import org.apache.james.mime4j.field.address.MailboxList;
@@ -113,9 +114,14 @@ public class SimpleMailBuilder implements MailBuilder {
 		if (eol == -1) {
 			eol = length;
 		}
-		final String line = text.substring(position, eol);
-		final Field parsedField = Field.parse(line);
-		if (parsedField.isFrom()) {
+        int nameEnds = text.indexOf(':', position);
+        if (nameEnds == -1) {
+        	nameEnds = length;
+        }
+		final String name = text.substring(position, nameEnds);
+        final String body = text.substring(nameEnds+1, eol);
+		final ParsedField parsedField = new DefaultFieldParser().parse(name, body, null);
+		if ("from".equalsIgnoreCase(parsedField.getName())) {
 			if (parsedField instanceof AddressListField) {
 				final AddressListField field = (AddressListField) parsedField;	
 				final MailboxList mailboxes = field.getAddressList().flatten();
@@ -134,9 +140,14 @@ public class SimpleMailBuilder implements MailBuilder {
 		if (eol == -1) {
 			eol = length;
 		}
-		final String line = text.substring(position, eol);
-		final Field parsedField = Field.parse(line);
-		if (parsedField.isTo()) {
+        int nameEnds = text.indexOf(':', position);
+        if (nameEnds == -1) {
+        	nameEnds = length;
+        }
+        final String name = text.substring(position, nameEnds);
+        final String body = text.substring(nameEnds+1, eol);
+        final ParsedField parsedField = new DefaultFieldParser().parse(name, body, null);
+		if ("to".equalsIgnoreCase(parsedField.getName())) {
 			if (parsedField instanceof AddressListField) {
 				final AddressListField field = (AddressListField) parsedField;	
 				final MailboxList mailboxes = field.getAddressList().flatten();
