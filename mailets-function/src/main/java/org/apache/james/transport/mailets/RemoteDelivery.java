@@ -1015,7 +1015,21 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                         transport.sendMessage(message, addr);
                     } finally {
                         if (transport != null) {
-                            transport.close();
+                            try
+                            {
+                              // James-899: transport.close() sends QUIT to the server; if that fails
+                              // (e.g. because the server has already closed the connection) the message
+                              // should be considered to be delivered because the error happened outside
+                              // of the mail transaction (MAIL, RCPT, DATA).
+                              transport.close();
+                            }
+                            catch (MessagingException e)
+                            {
+                              log("Warning: could not close the SMTP transport after sending mail (" + mail.getName()
+                                  + ") to " + outgoingMailServer.getHostName() + " at " + outgoingMailServer.getHost()
+                                  + " for " + mail.getRecipients() + "; probably the server has already closed the "
+                                  + "connection. Message is considered to be delivered. Exception: " + e.getMessage());
+                            }
                             transport = null;
                         }
                     }
