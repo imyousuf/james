@@ -124,7 +124,7 @@ Master build file for JAMES server.
     
     <target 
         name='eclipse'
-        description='Cleans all modules'
+        description='Generates Eclipse project files'
         depends='clean'>
         <echo>Generating project files</echo>   
         <foralldo do='eclipse'/>
