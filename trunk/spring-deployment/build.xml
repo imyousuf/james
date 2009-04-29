@@ -234,7 +234,7 @@
         </dirset>
     </path>
 
-    <property name='name.module' value='phoenix-deployment'/>
+    <property name='name.module' value='spring-deployment'/>
     <import file='../build-tools/module-build.xml' optional='no'/>
 
     <target name="clean">
