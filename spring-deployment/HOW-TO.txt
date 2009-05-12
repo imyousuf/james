@@ -16,9 +16,9 @@ if you are not root/Administrator on your machine or have a mail server already 
 it is recommended to change in file
     spring-deployment/src/main/config/james/spring-beans.xml
 line
-                <!--<ref bean="exampleConfigurationInterceptor" />-->
+                <!--<ref bean="privilegedPortsConfigurationInterceptor" />-->
 into 
-                <ref bean="exampleConfigurationInterceptor" />
+                <ref bean="privilegedPortsConfigurationInterceptor" />
 this will start all services at non-privileged ports. This is for testing only, as it makes your server instance
 more or less incompatible with the rest of the emailing universe.
 
