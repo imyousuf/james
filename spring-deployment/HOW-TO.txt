@@ -14,7 +14,7 @@ ant dist
 
 if you are not root/Administrator on your machine or have a mail server already running on some privileged port,
 it is recommended to change in file
-    spring-deployment/src/main/config/spring-beans.xml
+    spring-deployment/src/main/config/james/spring-beans.xml
 line
                 <!--<ref bean="exampleConfigurationInterceptor" />-->
 into 
@@ -52,4 +52,4 @@ To update spring-deployment to latest from phoenix-deployment, copy files
 from 
   trunk/phoenix-deployment/src/conf
 to 
-  spring-deployment/src/main/config/
+  spring-deployment/src/main/config/james
