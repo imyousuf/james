@@ -157,29 +157,6 @@
         </fileset>
     </path>
     
-    <path id="classpath.phoenix.runtime">
-        <fileset dir="${basedir}/lib/phoenix-runtime">
-            <include name="avalon-logkit-2.1.jar"/>
-            <include name="concurrent-1.3.4.jar"/>
-            <!-- TODO shouldn't cornerstone-store-impl.jar be available from stage dir? -->
-            <include name="cornerstone-store-impl-2.1.jar"/>
-            <include name="excalibur-cli-1.0.jar"/>
-            <include name="excalibur-extension-1.0a.jar"/>
-            <include name="excalibur-instrument-api-2.1.jar"/>
-            <include name="excalibur-instrument-manager-1.0.jar"/>
-            <include name="excalibur-io-1.1.jar"/>
-            <include name="excalibur-logger-2.1.jar"/>
-            <include name="excalibur-monitor-2.1.jar"/>
-            <include name="phoenix-client.jar"/>
-            <include name="phoenix-engine.jar"/>
-            <include name="spice-classman-1.0.jar"/>
-            <include name="spice-configkit-1.1.2.jar"/>
-            <include name="spice-loggerstore-0.5.jar"/>
-            <include name="spice-salt-0.8.jar"/>
-            <include name="spice-xmlpolicy-1.0.jar"/>
-        </fileset> 
-    </path>
-
     <path id="classpath.spring">
         <fileset dir="${basedir}/lib/spring">
         <!-- TODO: remove from commons lists non-spring required libs --> 
@@ -207,7 +184,6 @@
     </path>
 
     <path id="classpath.all.libs">
-        <path refid="classpath.phoenix.runtime" />
         <path refid="classpath.phoenix.implementations" />
         <path refid="classpath.james.target" />
         <path refid="classpath.spring" />

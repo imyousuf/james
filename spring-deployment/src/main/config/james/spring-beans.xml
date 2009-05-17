@@ -82,7 +82,7 @@
         <property name="configurationInterceptors">
             <list>
                 <ref bean="stringRemapperConfigurationInterceptor" />
-                <!--<ref bean="privilegedPortsConfigurationInterceptor" />-->
+                <ref bean="privilegedPortsConfigurationInterceptor" />
             </list>
         </property>
     </bean>
