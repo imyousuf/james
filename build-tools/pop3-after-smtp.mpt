@@ -31,8 +31,8 @@ S: Return-Path: <joe@example.org>
 S: Content-Type: text/plain; charset=us-ascii
 S: Content-Transfer-Encoding: 7bit
 S: Delivered-To: john.smith@localhost
-S: Received: from localhost.*
-S: .*by localhost.*
+S: Received: from .*
+S: .*by .*
 S: .*for <john.smith@localhost>;
 S: .*
 S: Date: .*
