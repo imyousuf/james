@@ -87,100 +87,108 @@
         <include name="${path.lib.james}/${jars-prefix}*-function-${version}.jar"/>
     </fileset>   
     
+    <fileset id='main.jars' dir="${lib.dir}">
+        <include name='${jms-spec.jar}'/>
+        <include name='${activemq-core.jar}'/>    
+        <include name="${avalon-framework.jar}"/>
+        <include name="${avalon-framework-impl.jar}"/>
+        <include name="${dns.jar}"/>
+        <include name="${commons-collections.jar}"/>
+        <include name="${commons-dbcp.jar}"/>
+        <include name="${commons-pool.jar}"/>
+        <include name="${jakarta-oro.jar}"/>
+        <include name="${excalibur-pool-api.jar}"/>
+        <include name="${excalibur-pool-impl.jar}"/>
+        <include name="${excalibur-thread-api.jar}"/>
+        <include name="${excalibur-datasource.jar}"/>
+        <include name="${cornerstone-threads-api.jar}"/>
+        <include name="${cornerstone-connection-api.jar}"/>
+        <include name="${cornerstone-connection-impl.jar}"/>
+        <include name="${cornerstone-store-api.jar}"/>
+        <include name="${cornerstone-scheduler-api.jar}"/>
+        <include name="${cornerstone-sockets-api.jar}"/>
+        <include name="${cornerstone-datasources-api.jar}"/>
+        <include name="${derby.jar}"/>   
+        <include name="${javax-mail.jar}"/>
+        <include name="${javax-activation.jar}"/>
+        <include name="${bcmail.jar}"/>
+        <include name="${bcmail-workaround.jar}"/>
+        <include name="${javax.management}"/>
+        <include name="${jspf.jar}"/>
+        <include name="${mstor.jar}"/>
+        <include name="${commons-logging.jar}"/>
+        <include name="${jdom.jar}"/>
+        <include name="${xstream.jar}"/>
+        <include name="${std-mailet.jar}"/>
+        <include name="${torque.jar}"/>
+        <include name="${village.jar}"/>
+        <include name="${commons-lang.jar}"/>
+        <include name="${commons-configuration.jar}"/>
+        <include name="${base-mailet.jar}"/>
+        <include name="${jsieve.jar}"/>
+        <include name="${mailet.jar}"/>
+        <include name="${commons-digester.jar}"/>
+        <include name="${mime4j.jar}"/>
+        <include name="${commons-io.jar}"/>   
+        <include name="${jackrabbit-api.jar}"/>
+        <include name="${jackrabbit-commons.jar}"/>
+        <include name="${jackrabbit-rmi.jar}"/>
+        <include name="${jcr.jar}"/>
+        <include name="${jsr250.jar}"/>
+        <!-- Protocols should be coupled by deployment only -->
+        <include name='${path.lib.james}/apache-james-imap*.jar'/>
+    </fileset>
+	
     <!-- from phoenix-deployment build.xml -->
     <path id="classpath.james.target">
-        <fileset dir="${lib.dir}">
-            <include name='${jms-spec.jar}'/>
-            <include name='${activemq-core.jar}'/>    
-            <include name="${avalon-framework.jar}"/>
-            <include name="${avalon-framework-impl.jar}"/>
-            <include name="${dns.jar}"/>
-            <include name="${commons-collections.jar}"/>
-            <include name="${commons-dbcp.jar}"/>
-            <include name="${commons-pool.jar}"/>
-            <include name="${jakarta-oro.jar}"/>
-            <include name="${excalibur-pool-api.jar}"/>
-            <include name="${excalibur-pool-impl.jar}"/>
-            <include name="${excalibur-thread-api.jar}"/>
-            <include name="${excalibur-datasource.jar}"/>
-            <include name="${cornerstone-threads-api.jar}"/>
-            <include name="${cornerstone-connection-api.jar}"/>
-            <include name="${cornerstone-connection-impl.jar}"/>
-            <include name="${cornerstone-store-api.jar}"/>
-            <include name="${cornerstone-scheduler-api.jar}"/>
-            <include name="${cornerstone-sockets-api.jar}"/>
-            <include name="${cornerstone-datasources-api.jar}"/>
-            <include name="${derby.jar}"/>   
-            <include name="${javax-mail.jar}"/>
-            <include name="${javax-activation.jar}"/>
-            <include name="${bcmail.jar}"/>
-            <include name="${bcmail-workaround.jar}"/>
-            <include name="${javax.management}"/>
-            <include name="${jspf.jar}"/>
-            <include name="${mstor.jar}"/>
-            <include name="${commons-logging.jar}"/>
-            <include name="${jdom.jar}"/>
-            <include name="${xstream.jar}"/>
-            <include name="${std-mailet.jar}"/>
-            <include name="${torque.jar}"/>
-            <include name="${village.jar}"/>
-            <include name="${commons-lang.jar}"/>
-            <include name="${commons-configuration.jar}"/>
-            <include name="${base-mailet.jar}"/>
-            <include name="${jsieve.jar}"/>
-            <include name="${mailet.jar}"/>
-            <include name="${commons-digester.jar}"/>
-            <include name="${mime4j.jar}"/>
-            <include name="${commons-io.jar}"/>   
-            <include name="${jackrabbit-api.jar}"/>
-            <include name="${jackrabbit-commons.jar}"/>
-            <include name="${jackrabbit-rmi.jar}"/>
-            <include name="${jcr.jar}"/>
-            <include name="${jsr250.jar}"/>
-            <!-- Protocols should be coupled by deployment only -->
-            <include name='${path.lib.james}/apache-james-imap*.jar'/>
-        </fileset>
+        <fileset refid='main.jars'/>
         <fileset refid="james.jars"/> 
         <!--<pathelement path="${java.class.path}" />-->
         <!--<pathelement path="${build.classes}" />-->
     </path>
 
+    <fileset id='excalibur.jars' dir="${lib.dir}">
+        <include name="${cornerstone-threads-impl.jar}"/>
+        <include name="${cornerstone-connection-impl.jar}"/>
+        <!-- TODO MISSING FROM STAGE <include name="${cornerstone-store-impl.jar}"/>-->
+        <include name="${cornerstone-scheduler-impl.jar}"/>
+        <include name="${cornerstone-sockets-impl.jar}"/>
+        <include name="${cornerstone-datasources-impl.jar}"/>
+        <include name="${excalibur-thread-impl.jar}"/>
+    </fileset>
+	
     <path id="classpath.phoenix.implementations">
-        <fileset dir="${lib.dir}">
-            <include name="${cornerstone-threads-impl.jar}"/>
-            <include name="${cornerstone-connection-impl.jar}"/>
-            <!-- TODO MISSING FROM STAGE <include name="${cornerstone-store-impl.jar}"/>-->
-            <include name="${cornerstone-scheduler-impl.jar}"/>
-            <include name="${cornerstone-sockets-impl.jar}"/>
-            <include name="${cornerstone-datasources-impl.jar}"/>
-            <include name="${excalibur-thread-impl.jar}"/>
-        </fileset>
+        <fileset refid='excalibur.jars'/>
     </path>
     
-    <path id="classpath.spring">
-        <fileset dir="${basedir}/lib/spring">
-        <!-- TODO: remove from commons lists non-spring required libs --> 
-            <include name="commons-attributes-api.jar"/>
-            <include name="commons-attributes-compiler.jar"/>
-            <include name="commons-beanutils.jar"/>
-            <include name="commons-codec.jar"/>
+    <fileset id='spring.jars' dir="${basedir}/lib/spring">
+    <!-- TODO: remove from commons lists non-spring required libs --> 
+        <include name="commons-attributes-api.jar"/>
+        <include name="commons-attributes-compiler.jar"/>
+        <include name="commons-beanutils.jar"/>
+        <include name="commons-codec.jar"/>
 <!--            <include name="${basedir}/lib/commons-digester.jar"/>
-            <include name="${basedir}/lib/commons-lang.jar"/>
-            <include name="${basedir}/lib/commons-logging.jar"/>-->
-            <include name="commons-discovery.jar"/>
-            <include name="commons-fileupload.jar"/>
-            <include name="commons-httpclient.jar"/>
-            <include name="commons-io.jar"/>
-            <include name="commons-javaflow.jar"/>
-            <include name="commons-validator.jar"/>
-            <include name="spring.jar"/>
-        </fileset>
+        <include name="${basedir}/lib/commons-lang.jar"/>
+        <include name="${basedir}/lib/commons-logging.jar"/>-->
+        <include name="commons-discovery.jar"/>
+        <include name="commons-fileupload.jar"/>
+        <include name="commons-httpclient.jar"/>
+        <include name="commons-io.jar"/>
+        <include name="commons-javaflow.jar"/>
+        <include name="commons-validator.jar"/>
+        <include name="spring.jar"/>
+    </fileset>
+	
+    <path id="classpath.spring">
+        <fileset refid='spring.jars'/>
     </path>
 
+    <fileset id='misc.jars' dir="${basedir}/lib/log4j">
+        <include name="log4j-1.2.15.jar"/>
+    </fileset>
+	
     <path id="classpath.misc">
-        <fileset dir="${basedir}/lib/log4j">
-            <include name="log4j-1.2.15.jar"/>
-        </fileset>
+        <fileset refid='misc.jars'/>
     </path>
 
     <path id="classpath.all.libs">
