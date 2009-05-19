@@ -29,6 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.user.UserMetaDataRespository;
 import org.apache.james.api.user.UserRepositoryException;
 import org.apache.james.api.user.UsersRepository;
+import org.apache.james.imap.api.display.HumanReadableText;
 import org.apache.james.imap.mailbox.SubscriptionException;
 
 /**
@@ -59,17 +60,18 @@ public class DefaultUserManager implements UserManager {
             final UserSubscription subscription = getUserSubscription(user);
             subscription.subscribe(mailbox);
         } catch (UserRepositoryException e) {
-            throw new SubscriptionException(e);
+            throw new SubscriptionException(HumanReadableText.GENERIC_SUBSCRIPTION_FAILURE, e);
         }
     }
 
-    public Collection subscriptions(String user) throws SubscriptionException {
+    @SuppressWarnings("unchecked")
+    public Collection<String> subscriptions(String user) throws SubscriptionException {
         try {
             final UserSubscription subscription = getUserSubscription(user);
-            final Collection results = (Collection) subscription.subscriptions().clone();
+            final Collection<String> results = (Collection) subscription.subscriptions().clone();
             return results;
         } catch (UserRepositoryException e) {
-            throw new SubscriptionException(e);
+            throw new SubscriptionException(HumanReadableText.GENERIC_SUBSCRIPTION_FAILURE, e);
         }
     }
 
@@ -78,7 +80,7 @@ public class DefaultUserManager implements UserManager {
             final UserSubscription subscription = getUserSubscription(user);
             subscription.unsubscribe(mailbox);   
         } catch (UserRepositoryException e) {
-            throw new SubscriptionException(e);
+            throw new SubscriptionException(HumanReadableText.GENERIC_UNSUBSCRIPTION_FAILURE, e);
         }
     }
     
@@ -109,7 +111,7 @@ public class DefaultUserManager implements UserManager {
         }
 
         public synchronized void subscribe(String mailbox) throws UserRepositoryException {
-            final HashSet existingSubscriptions = subscriptions();
+            final HashSet<String> existingSubscriptions = subscriptions();
             if (!existingSubscriptions.contains(mailbox)) {
                 final HashSet newSubscriptions;
                 if (existingSubscriptions == null) {
@@ -129,12 +131,12 @@ public class DefaultUserManager implements UserManager {
             }
         }
         
-        public HashSet subscriptions() throws UserRepositoryException {
+        public HashSet<String> subscriptions() throws UserRepositoryException {
             try {
-                final HashSet storedSubscriptions = (HashSet) repository.getAttribute(user, META_DATA_KEY);
-                final HashSet results;
+                final HashSet<String> storedSubscriptions = (HashSet<String>) repository.getAttribute(user, META_DATA_KEY);
+                final HashSet<String> results;
                 if (storedSubscriptions == null) {
-                    results = new HashSet();
+                    results = new HashSet<String>();
                 } else {
                     results = storedSubscriptions;
                 }
@@ -142,7 +144,7 @@ public class DefaultUserManager implements UserManager {
             } catch (ClassCastException e) {
                 log.error("ClassCastException during retrieval. Reseting subscriptions for user " + user);
                 log.debug("HashSet expected but not retrieved.", e);
-                return new HashSet();
+                return new HashSet<String>();
             }
             
         }

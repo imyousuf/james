@@ -21,28 +21,23 @@ package org.apache.james.imapserver;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-
 import java.util.Date;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
-import org.apache.commons.logging.impl.AvalonLogger;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.commons.logging.impl.AvalonLogger;
 import org.apache.james.Constants;
-import org.apache.james.imap.api.ImapConstants;
 import org.apache.james.api.user.UsersRepository;
-import org.apache.james.imap.main.ImapRequestHandler;
-import org.apache.james.imapserver.DefaultImapFactory;
-import org.apache.james.imap.mailbox.MailboxSession;
+import org.apache.james.imap.api.ImapConstants;
 import org.apache.james.imap.mailbox.Mailbox;
 import org.apache.james.imap.mailbox.MailboxManager;
-import org.apache.james.imap.mailbox.MailboxManagerProvider;
+import org.apache.james.imap.mailbox.MailboxSession;
+import org.apache.james.imap.main.ImapRequestHandler;
 import org.apache.james.services.FileSystem;
 import org.apache.james.socket.AbstractJamesService;
 import org.apache.james.socket.ProtocolHandler;
@@ -156,9 +151,11 @@ public class ImapServer extends AbstractJamesService implements ImapConstants, P
                         } else {
                             urlPath = url.substring(endOfHost, length);
                         }
+                        final MailboxManager mailboxManager = factory.getMailbox();
+                        final MailboxSession session = mailboxManager.createSystemSession(user, new AvalonLogger(getLogger()));
                         // This allows Sieve scripts to use a standard delimiter regardless of mailbox implementation
-                        final String mailbox = urlPath.replace('/', MailboxManager.HIERARCHY_DELIMITER);
-                        postToMailbox(user, mail, mailbox);
+                        final String mailbox = urlPath.replace('/', session.getPersonalSpace().getDeliminator());
+                        postToMailbox(user, mail, mailbox, session, mailboxManager);
                     }
                 }
             } else {
@@ -170,20 +167,17 @@ public class ImapServer extends AbstractJamesService implements ImapConstants, P
         }
     }
     
-    public void postToMailbox(String username, MimeMessage mail, String destination) throws MessagingException {
-        final MailboxManagerProvider mailboxManagerProvider = factory.getMailbox();
+    public void postToMailbox(String username, MimeMessage mail, String destination, final MailboxSession session, final MailboxManager mailboxManager) throws MessagingException {
         if (destination == null || "".equals(destination)) {
             destination = "INBOX";
         }
-        final String name = mailboxManagerProvider.getMailboxManager().resolve(username, destination);
-        final MailboxManager mailboxManager = mailboxManagerProvider.getMailboxManager();
-        final MailboxSession session = mailboxManager.createSession(new AvalonLogger(getLogger()));
+        final String name = mailboxManager.resolve(username, destination);
         try
         {
-            if ("INBOX".equalsIgnoreCase(destination) && !(mailboxManager.mailboxExists(name))) {
-                mailboxManager.createMailbox(name);
+            if ("INBOX".equalsIgnoreCase(destination) && !(mailboxManager.mailboxExists(name, session))) {
+                mailboxManager.createMailbox(name, session);
             }
-            final Mailbox mailbox = mailboxManager.getMailbox(name);
+            final Mailbox mailbox = mailboxManager.getMailbox(name, session);
             
             if (mailbox == null) {
                 final String error = "Mailbox for user " + username
@@ -193,7 +187,7 @@ public class ImapServer extends AbstractJamesService implements ImapConstants, P
 
             final ByteArrayOutputStream baos = new ByteArrayOutputStream();
             mail.writeTo(baos);
-            mailbox.appendMessage(baos.toByteArray() , new Date(), session, true);
+            mailbox.appendMessage(baos.toByteArray() , new Date(), session, true, null);
         }
         catch (IOException e)
         {
@@ -202,6 +196,7 @@ public class ImapServer extends AbstractJamesService implements ImapConstants, P
         finally 
         {
             session.close();   
+            mailboxManager.logout(session, true);
         }
     }
 }
