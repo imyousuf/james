@@ -25,16 +25,15 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.imap.api.process.ImapProcessor;
 import org.apache.james.api.user.UsersRepository;
+import org.apache.james.imap.mailbox.MailboxManager;
 import org.apache.james.imap.main.DefaultImapDecoderFactory;
 import org.apache.james.imap.main.ImapRequestHandler;
 import org.apache.james.imap.decode.ImapDecoder;
 import org.apache.james.imap.encode.ImapEncoder;
 import org.apache.james.imap.encode.main.DefaultImapEncoderFactory;
 import org.apache.james.imap.processor.main.DefaultImapProcessorFactory;
-import org.apache.james.mailboxmanager.torque.DefaultMailboxManagerProvider;
 import org.apache.james.mailboxmanager.torque.DefaultMailboxManager;
 import org.apache.james.mailboxmanager.torque.DefaultUserManager;
-import org.apache.james.imap.mailbox.MailboxManagerProvider;
 import org.apache.james.services.FileSystem;
 import org.apache.james.user.impl.file.FileUserMetaDataRepository;
 
@@ -43,7 +42,6 @@ public class DefaultImapFactory {
     private final ImapEncoder encoder;
     private final ImapDecoder decoder;
     private final ImapProcessor processor;
-    private final MailboxManagerProvider mailbox;
     private final DefaultMailboxManager mailboxManager;
     
     public DefaultImapFactory(FileSystem fileSystem, UsersRepository users, Logger logger) {
@@ -52,8 +50,7 @@ public class DefaultImapFactory {
         encoder = new DefaultImapEncoderFactory().buildImapEncoder();
         mailboxManager = new DefaultMailboxManager(new DefaultUserManager(
                 new FileUserMetaDataRepository("var/users"), users), fileSystem, logger);
-        mailbox = new DefaultMailboxManagerProvider(mailboxManager);
-        processor = DefaultImapProcessorFactory.createDefaultProcessor(mailbox);
+        processor = DefaultImapProcessorFactory.createDefaultProcessor(mailboxManager);
     }
 
     /**
@@ -76,7 +73,7 @@ public class DefaultImapFactory {
      * This is required until James supports IoC assembly.
      * @return the mailbox
      */
-    public final MailboxManagerProvider getMailbox() {
-        return mailbox;
+    public final MailboxManager getMailbox() {
+        return mailboxManager;
     }    
 }

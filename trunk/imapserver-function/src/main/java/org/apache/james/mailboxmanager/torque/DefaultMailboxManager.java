@@ -32,6 +32,7 @@ import org.apache.avalon.framework.logger.Logger;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.logging.impl.AvalonLogger;
+import org.apache.james.imap.api.display.HumanReadableText;
 import org.apache.james.imap.mailbox.MailboxException;
 import org.apache.james.mailboxmanager.torque.om.MailboxRowPeer;
 import org.apache.james.mailboxmanager.torque.om.MessageBodyPeer;
@@ -111,7 +112,7 @@ public class DefaultMailboxManager extends TorqueMailboxManager {
                 } catch (TorqueException e1) {
 
                 }
-                throw new MailboxException(e);
+                throw new MailboxException(new HumanReadableText("org.apache.james.imap.INIT_FAILED", "Initialisation failed"), e);
             }
         }
     }
