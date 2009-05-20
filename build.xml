@@ -804,7 +804,7 @@ Legal:
         
             <formatter type="plain"/>
         
-            <batchtest fork="yes" todir="${build.test.reports}">
+            <batchtest todir="${build.test.reports}">
               <fileset dir="${junitjava.dir}">
                 <include name="**/*Test.java"/>
                 <exclude name="**/AllTests.java"/>
