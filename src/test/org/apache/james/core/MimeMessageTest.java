@@ -94,7 +94,7 @@ public class MimeMessageTest extends TestCase {
         MimeMessage mmCreated = new MimeMessage(Session.getDefaultInstance(new Properties()));
         mmCreated.setSubject("test");
         MimeMultipart mm = new MimeMultipart("alternative");
-        mm.addBodyPart(new MimeBodyPart(new InternetHeaders(new ByteArrayInputStream("X-header: test1\r\nContent-Type: text/plain; charset=Cp1252\r\n".getBytes())),"first part тащ".getBytes()));
+        mm.addBodyPart(new MimeBodyPart(new InternetHeaders(new ByteArrayInputStream("X-header: test1\r\nContent-Type: text/plain; charset=Cp1252\r\n".getBytes())),"first part ???".getBytes()));
         mm.addBodyPart(new MimeBodyPart(new InternetHeaders(new ByteArrayInputStream("X-header: test2\r\nContent-Type: text/plain; charset=Cp1252\r\nContent-Transfer-Encoding: quoted-printable\r\n".getBytes())),"second part =E8=E8".getBytes()));
         mmCreated.setContent(mm);
         mmCreated.saveChanges();
