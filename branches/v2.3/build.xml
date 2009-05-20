@@ -795,7 +795,7 @@ Legal:
         <echo message="Running James Unit Tests"/>
         <mkdir dir="${build.test}"/>
         <mkdir dir="${build.test.reports}"/>
-        <junit printsummary="yes" haltonfailure="no"  >
+        <junit printsummary="yes" haltonfailure="no" failureproperty='tests.failed'>
             <classpath refid="unittest.class.path"/>
             <classpath refid="project.class.path"/>
             <classpath>
@@ -811,6 +811,7 @@ Legal:
               </fileset>
             </batchtest>
         </junit>
+        <fail if="tests.failed">Unit tests failed</fail>   
     </target>
 
     <!--
