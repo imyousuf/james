@@ -178,10 +178,8 @@
    
    
 
-   THIS PRODUCT ALSO INCLUDES THIRD PARTY SOFTWARE REDISTRIBUTED UNDER THE
-   FOLLOWING LICENSES:
-   
-   
+THIS PRODUCT ALSO INCLUDES THIRD PARTY SOFTWARE REDISTRIBUTED UNDER THE
+FOLLOWING LICENSES:   
    
    Concurrent, Public Domain (see lib/concurrent.LICENSE)
    
@@ -215,4 +213,10 @@
    RelaxNG-Datatype, BSD License (see phoenix-bin/tools/lib/relaxngDatatype.LICENSE)
    
    XSDLib, BSD License (see phoenix-bin/tools/lib/xsdlib.LICENSE)
+   
+   
+THIS PRODUCT ALSO INCLUDES
+  
+  Apache Phoenix licensed under the Apache Software License, Version 1.1
+   
    
