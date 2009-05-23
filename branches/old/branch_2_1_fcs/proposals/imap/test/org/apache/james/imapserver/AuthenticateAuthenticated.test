@@ -1,2 +1,0 @@
-C: abcd AUTHENTICATE KERBEROS_V4
-S: abcd BAD AUTHENTICATE not valid in this state
