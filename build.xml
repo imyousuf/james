@@ -550,6 +550,11 @@ Legal:
         <zipfileset dir="${conf.dir}/samples/fetchmail" prefix="conf/samples/fetchmail">
           <include name="*.xml"/>
         </zipfileset>
+        <zipfileset dir="." prefix="META-INF">
+          <include name="LICENSE.txt"/>
+          <include name="NOTICE.txt"/>   
+          <include name="README.txt"/>      
+        </zipfileset> 
       </sar>
     </target>
 
