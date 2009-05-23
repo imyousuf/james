@@ -143,6 +143,7 @@ Legal:
           <include name="NOTICE.txt"/>
           <include name="README"/>
           <include name="UPGRADE.txt"/>
+          <include name="RELEASE_NOTES.txt"/>   
         </fileset>
       </copy>
       <fixcrlf srcdir="${java.dir}" includes="**/*.java" eol="lf" tab="remove" tablength="4" />
