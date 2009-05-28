@@ -33,6 +33,12 @@
   
   <body>
   
+    <menu name="Overview">
+      <item name='Introduction' href='/index.html'/>
+      <item name='Release Notes' href='release-notes.html'/>
+      <item name='Changes' href='/jira-report.html'/>
+    </menu>
+  
     <menu name="Concepts">
       <item name="Summary" href="/summary.html" />
       <item name="SpoolManager" href="/spoolmanager.html" />
@@ -83,11 +89,6 @@
     <menu name="Customization">
       <item name="How to write a custom Matcher" href="/custom_matcher.html" />
       <item name="How to write a custom Mailet" href="/custom_mailet.html" />
-    </menu>
-    
-    <menu name="Project">
-      <item name='Changes' href='/jira-report.html'/>
-      <item name='Release Notes' href="/changelog.html" />
     </menu>
 
     ${reports}
