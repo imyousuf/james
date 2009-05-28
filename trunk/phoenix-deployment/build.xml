@@ -599,7 +599,12 @@
 			<lib dir='${lib.dir}/${path.lib.james}'>
 				<include name='apache-james-imap*.jar' />
 				<include name='apache-jsieve*.jar' />
+                <include name='${jarname.mailet.crypto}'/>            
 			</lib>
+            <lib dir='${lib.dir}/${path.lib.bc}'>
+                <include name='${jarname.bc.mail}' />
+                <include name='${jarname.bc.prov}'/>            
+            </lib>    
 			<zipfileset dir="${conf.dir}" fullpath="conf/sqlResources.xml">
 				<include name="sqlResources.xml" />
 			</zipfileset>

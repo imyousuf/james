@@ -154,14 +154,14 @@
    <mailetpackages>
       <mailetpackage>org.apache.james.transport.mailets</mailetpackage>
       <!-- Cryptography Mailets -->
-      <mailetpackage>org.apache.james.transport.mailets.smime</mailetpackage>
+      <mailetpackage>org.apache.james.mailet.crypto.mailet</mailetpackage>
       <!-- Sieve Mail Scripting -->
       <mailetpackage>org.apache.james.imapserver.sieve</mailetpackage>      
    </mailetpackages>
    <matcherpackages>
       <matcherpackage>org.apache.james.transport.matchers</matcherpackage>
       <!-- Crytographic mailets -->
-      <matcherpackage>org.apache.james.transport.matchers.smime</matcherpackage>
+      <matcherpackage>org.apache.james.mailet.crypto.matchers</matcherpackage>
    </matcherpackages>
 
    <!-- The James Spool Manager block  -->
@@ -308,9 +308,6 @@ Regards, Postmaster XXX.YYY
          -->
 
          <!-- sample SMIME mailets configuration -->
-         <!-- In order to use SMIME capabilities you need to install the bouncycastle JCE -->
-         <!-- provider in your environment (james/lib) -->
-         <!-- e.g: bcprov-jdk14-129.jar from http://www.bouncycastle.org/latest_releases.html -->
          <!-- 
          <mailet match="IsSMIMEEncrypted" class="SMIMEDecrypt">
             <keyStoreType>pkcs12</keyStoreType>
@@ -510,9 +507,6 @@ Regards, Postmaster XXX.YYY
          </mailet>
 
          <!-- Add a server-side signature -->
-         <!-- In order to use SMIME capabilities you need to install the bouncycastle JCE -->
-         <!-- provider in your environment (james/lib) -->
-         <!-- e.g: bcprov-jdk14-129.jar from http://www.bouncycastle.org/latest_releases.html -->
          <!--
          <mailet match="All" class="SMIMESign" onMailetException="ignore">
             <keyStoreType>jks</keyStoreType>
