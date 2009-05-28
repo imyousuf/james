@@ -137,6 +137,9 @@
         <include name="${jsr250.jar}"/>
         <!-- Protocols should be coupled by deployment only -->
         <include name='${path.lib.james}/apache-james-imap*.jar'/>
+        <include name='${path.lib.james}/${jarname.mailet.crypto}'/>  
+        <include name='${path.lib.bc}/{${jarname.bc.mail}'/>
+        <include name='${path.lib.bc}/{${jarname.bc.prov}'/>
     </fileset>
 	
     <!-- from phoenix-deployment build.xml -->
