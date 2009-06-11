@@ -19,47 +19,53 @@
 
 package org.apache.james.imapserver;
 
-
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.api.user.UsersRepository;
+import org.apache.james.imap.api.process.ImapProcessor;
+import org.apache.james.imap.decode.ImapDecoder;
+import org.apache.james.imap.encode.ImapEncoder;
+import org.apache.james.imap.encode.main.DefaultImapEncoderFactory;
 import org.apache.james.imap.mailbox.MailboxManager;
-import org.apache.james.mailboxmanager.torque.DefaultMailboxManager;
-import org.apache.james.mailboxmanager.torque.DefaultUserManager;
+import org.apache.james.imap.main.DefaultImapDecoderFactory;
+import org.apache.james.imap.main.ImapRequestHandler;
+import org.apache.james.imap.processor.main.DefaultImapProcessorFactory;
 import org.apache.james.services.FileSystem;
-import org.apache.james.user.impl.file.FileUserMetaDataRepository;
 
-public class DefaultImapFactory extends ImapFactory {
+public abstract class ImapFactory {
 
+    private final ImapEncoder encoder;
+    private final ImapDecoder decoder;
+    private final ImapProcessor processor;
+    private final MailboxManager mailboxManager;
+
+    public ImapFactory (FileSystem fileSystem, UsersRepository users, Logger logger,
+            final MailboxManager mailboxManager) {
+        super();
+        decoder = new DefaultImapDecoderFactory().buildImapDecoder();
+        encoder = new DefaultImapEncoderFactory().buildImapEncoder();
+        processor = DefaultImapProcessorFactory.createDefaultProcessor(mailboxManager);
+        this.mailboxManager = mailboxManager;
+    } 
     
-    public DefaultImapFactory(FileSystem fileSystem, UsersRepository users, Logger logger) {
-        super(fileSystem, users, logger, new DefaultMailboxManager(new DefaultUserManager(
-                new FileUserMetaDataRepository("var/users"), users), fileSystem, logger));
+    public ImapRequestHandler createHandler() { 
+        return new ImapRequestHandler(decoder, processor, encoder);
     }
 
     /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
+     * This is required until James supports IoC assembly.
+     * @return the mailbox
      */
-    @Override
-    public void configure( final Configuration configuration ) throws ConfigurationException {
-        super.configure(configuration);
-        final MailboxManager mailbox = getMailbox();
-        if (mailbox instanceof DefaultMailboxManager) {
-            final DefaultMailboxManager manager = (DefaultMailboxManager) mailbox;
-            manager.configure(configuration);
-        }
+    public final MailboxManager getMailbox() {
+        return mailboxManager;
     }
 
-    @Override
     public void initialize() throws Exception {
-        super.initialize();
-        final MailboxManager mailbox = getMailbox();
-        if (mailbox instanceof DefaultMailboxManager) {
-            final DefaultMailboxManager manager = (DefaultMailboxManager) mailbox;
-            manager.initialize();
-        }
+        // Do nothing
     }
-    
-  
+
+    public void configure(final Configuration configuration) throws ConfigurationException {
+        // Do nothing
+    }
 }

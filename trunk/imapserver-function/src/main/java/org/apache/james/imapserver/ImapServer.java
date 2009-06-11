@@ -55,7 +55,7 @@ public class ImapServer extends AbstractJamesService implements ImapConstants, P
 {
     private static final String softwaretype = "JAMES "+VERSION+" Server " + Constants.SOFTWARE_VERSION;
      
-    private DefaultImapFactory factory;
+    private ImapFactory factory;
     
     private String hello = softwaretype;
     
