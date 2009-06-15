@@ -13,7 +13,15 @@ applications surprisingly easily.
 
 Version 3.2.2
 =============
-Is a compatible, point release
+Is a point release which is (almost) compatible with 3.2.1.
+
+Known Incompatibility
+-----------------------
+The management of the MessageID header has been altered to improve
+compliance with the specification. Previously, the MessageID was 
+frequently altered by mailets. Now, MessageIDs must be explicitly
+updated. In particular, when cloning a MimeMessage to create a new,
+different message the MessageID must be programmatically updated. 
 
 Notes
 -----
