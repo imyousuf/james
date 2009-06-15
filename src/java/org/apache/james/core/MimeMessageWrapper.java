@@ -544,6 +544,15 @@ public class MimeMessageWrapper
         } else return super.getRawInputStream();
     }
 
-    
-    
+    /**
+     * <p>Overrides standard implementation to ensure JavaMail works 
+     * appropriately for an email server.
+     * Note that MessageID now needs to be explicitly set on 
+     * different cloned instances.</p>
+     * <p>See <a href='https://issues.apache.org/jira/browse/JAMES-875'>JAMES-875</a></p>
+     * @see javax.mail.internet.MimeMessage#updateMessageID()
+     */
+    protected void updateMessageID() throws MessagingException {
+        if (getMessageID() == null) super.updateMessageID();
+    }
 }
