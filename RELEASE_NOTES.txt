@@ -11,9 +11,9 @@ applications for mail processing. This modularity and ease of customization
 is one of James' strengths, and can allow administrators to produce powerful 
 applications surprisingly easily. 
 
-Version 3.2.2
+Version 2.3.2
 =============
-Is a point release which is (almost) compatible with 3.2.1.
+Is a point release which is (almost) compatible with 2.3.1.
 
 Known Incompatibility
 -----------------------
@@ -32,7 +32,7 @@ Notes
     will be replaced by this library in a future minor release. Users
     should upgrade to the library versions.
  
-Since 3.2.1
+Since 2.3.1
 -----------        
 Bug Fixes
  * JAMES-435 - James Service Wrapper displays wrong James version
@@ -62,9 +62,9 @@ Tasks Completed
  * JAMES-903 - Subversion Caretaking
  * JAMES-907 - Run RAT
  
-Version 3.2.1
+Version 2.3.1
 =============
-Since 3.2.0
+Since 2.3.0
 -----------    
 Sub-tasks Completed
  * JAMES-718 - Add warning to config.xml to explain the problems which can happen 
