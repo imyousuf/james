@@ -21,14 +21,14 @@
   <parent>
     <artifactId>jsieve-project</artifactId>
     <groupId>org.apache.james</groupId>
-    <version>0.3-SNAPSHOT</version>
+    <version>0.3</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.james</groupId>
   <artifactId>apache-jsieve-mailet</artifactId>
   <name>Apache JAMES jSieve Mailet</name>
-  <version>0.3-SNAPSHOT</version>
+  <version>0.3</version>
   <packaging>jar</packaging>
   <description>
 Apache jSieve is a server side mail filtering system 
@@ -38,12 +38,39 @@ JAMES project.
   <url>http://james.apache.org/jsieve</url>
   <inceptionYear>2004</inceptionYear>
 
+  <properties>
+    <!--
+    The website is committed to subversion. This property can be overriden
+    to upload the site to a local staging location.
+    For example, adding the following to ~/.m2/settings.xml will upload
+    to localhost:
+    
+      <profiles>
+        <profile>
+           <id>main</id>
+           <activation>
+              <activeByDefault>true</activeByDefault>
+           </activation>
+           <properties>
+              <james.www>scp://localhost/www</james.www>
+              <james.www.id>localhost</james.www.id>
+      ...
+    -->
+    <!-- General location for site stage -->
+    <james.www>scp://people.apache.org/www/james.apache.org/</james.www>
+    <!-- Project specific location, allowing specific override -->
+    <james.jsieve.www>${james.www}/jsieve/</james.jsieve.www>
+    <!-- Overridding this value allows single set of loopback settings to be maintained -->
+    <james.www.id>jsieve-website</james.www.id>
+  </properties>
+
   <distributionManagement>
     <site>
-      <id>jsieve-website</id>
-      <url>scp://people.apache.org/www/james.apache.org/jsieve/</url>
+      <id>${james.www.id}</id>
+      <url>${james.jsieve.www}</url>
     </site>
   </distributionManagement>
+
 
   <issueManagement>
     <system>JIRA</system>
@@ -51,9 +78,9 @@ JAMES project.
   </issueManagement>
 
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/james/jsieve/trunk</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/james/jsieve/trunk</developerConnection>
-    <url>http://svn.apache.org/viewvc/james/jsieve/trunk/</url>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/james/jsieve/tags/jsieve-project-0.3</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/james/jsieve/tags/jsieve-project-0.3</developerConnection>
+    <url>http://svn.apache.org/viewvc/james/jsieve/tags/jsieve-project-0.3</url>
   </scm>
   
   <repositories>
@@ -71,84 +98,55 @@ JAMES project.
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-jsieve</artifactId>
-      <version>${project.version}</version>
     </dependency>
     
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-mailet</artifactId>
-      <version>2.4</version>
     </dependency>
     
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-mailet-base</artifactId>
-      <version>1.0RC3</version>
     </dependency>
       
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-mime4j</artifactId>
-      <version>0.5</version>
     </dependency>
     
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
-      <version>1.1.1</version>
-      <exclusions>
-          <exclusion>
-            <groupId>avalon-framework</groupId>
-            <artifactId>avalon-framework</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>logkit</groupId>
-            <artifactId>logkit</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-          </exclusion>
-       </exclusions>
     </dependency>
 
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>3.8.1</version>
       <scope>test</scope>
     </dependency>
     
     <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
-      <version>1.2.14</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>javax.mail</groupId>
       <artifactId>mail</artifactId>
-      <version>1.4</version>
     </dependency>
     
     <dependency>
       <groupId>javax.activation</groupId>
       <artifactId>activation</artifactId>
-      <version>1.1</version>
     </dependency>
 
     <dependency>
       <groupId>jmock</groupId>
       <artifactId>jmock</artifactId>
-      <version>1.1.0</version>
       <scope>test</scope>
     </dependency>
-
   </dependencies>
 
   <build>
@@ -158,17 +156,7 @@ JAMES project.
       </resource>
     </resources>
     
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>2.0.2</version>
-        <configuration>
-          <source>1.4</source>
-          <target>1.4</target>
-          <encoding>iso8859-1</encoding>
-        </configuration>
-      </plugin>      
+    <plugins>     
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
@@ -188,20 +176,6 @@ JAMES project.
             </manifestEntries>
           </archive>
         </configuration>
-      </plugin>
-      <plugin>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.4</version>
-        <executions>
-          <execution>
-            <id>create-javadocs</id> <!-- this is used for inheritance merges -->
-            <phase>package</phase> <!-- append to the packaging phase. -->
-            <goals>
-              <goal>javadoc</goal> <!-- goals == mojos -->
-              <goal>jar</goal> <!-- goals == mojos -->
-            </goals>
-          </execution>
-        </executions>
       </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -305,7 +279,7 @@ JAMES project.
       <plugin>
         <groupId>org.apache.james</groupId>
         <artifactId>maven-mailetdocs-plugin</artifactId>
-        <version>0.1-SNAPSHOT</version>
+        <version>0.1</version>
       </plugin>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>

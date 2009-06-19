@@ -550,12 +550,12 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-jsieve</artifactId>
-      <version>0.3RC5</version>
+      <version>0.3</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-jsieve-mailet</artifactId>
-      <version>0.3RC5</version>
+      <version>0.3</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
