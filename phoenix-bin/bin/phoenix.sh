@@ -51,13 +51,14 @@ case "`uname`" in
 CYGWIN*) cygwin=true;;
 esac
 
-# resolve links - $0 may be a softlink
-THIS_PROG="$0"
+# resolve links - $0 may be a softlink (including relative links)
+PRGDIR=`dirname "$0"`
+THIS_PROG=`cd "$PRGDIR" ; pwd`/`basename "$0"`
 
 while [ -h "$THIS_PROG" ]; do
   ls=`ls -ld "$THIS_PROG"`
   link=`expr "$ls" : '.*-> \(.*\)$'`
-  if expr "$link" : '.*/.*' > /dev/null; then
+  if expr "$link" : '^/.*' > /dev/null; then
     THIS_PROG="$link"
   else
     THIS_PROG=`dirname "$THIS_PROG"`/"$link"
