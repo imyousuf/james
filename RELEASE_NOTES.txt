@@ -48,6 +48,7 @@ Bug Fixes
  * JAMES-875 - Message-ID changed by mailets (MSGID_FROM_MTA_HEADER changed)
  * JAMES-899 - RemoteDelivery sends a message again and again if 
                transport.close() throws a MessagingException
+ * JAMES-912 - phoenix.sh script misdetects PHOENIX_HOME
  
 New Features
  * JAMES-849 - Support PostgreSQL for BayesianAnalysis
