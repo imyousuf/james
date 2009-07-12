@@ -1,0 +1,86 @@
+# 
+# Licensed to the Apache Software Foundation (ASF) under one   
+# or more contributor license agreements.  See the NOTICE file 
+# distributed with this work for additional information        
+# regarding copyright ownership.  The ASF licenses this file   
+# to you under the Apache License, Version 2.0 (the            
+# "License"); you may not use this file except in compliance   
+# with the License.  You may obtain a copy of the License at   
+#                                                               
+#   http://www.apache.org/licenses/LICENSE-2.0                 
+#                                                               
+#  Unless required by applicable law or agreed to in writing,   
+# software distributed under the License is distributed on an  
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY       
+# KIND, either express or implied.  See the License for the    
+# specific language governing permissions and limitations      
+# under the License.
+#  
+Proposal:
+    To add a pluggable command-based list serv manager to the James Mail Server project.
+
+Quick Note:
+    I leveraged the code and structure of the default list serv manager, but didn't extend that code.
+    I however want to acknowledge the developer of that code as providing a very nice reference implementation.
+
+Features:
+    A list serv manager that can be configured to accept plugin commands handlers.
+    Text-based resources that allow standard list serv mail responses to be customized without recompilation.
+    2 stage subscription and unsubscription
+    An implementation of some standard listserv commands including:
+        subscribe
+        subscribe-confirm
+        unsubscribe
+        unsubscribe-confirm
+        error
+        info
+    An opprotunity to provide user-friendly welcome/goodbye/info list serv responses.
+
+
+Architecture:
+    The functionality is divided into three main parts:
+        CommandListServManager: Responsible for creating and delegating to the list serv commands
+        ListServCommands: A collection of plugins that handle specific commands like "info".
+        CommandListservProcessor: processes mail sent to the list serv for general 'broadcasting'.
+
+    CommandListServManager:
+        At initialization time, the CommandListServManager will load list serv specific config info like: listName,
+        listOwner, etc... It also loads and initializes all the available plugin commands.
+        At runtime, the CommandListServManager determines if it has a registered command for the request.
+        If so, it delegates to that command handler, if not, it sends an error using the ErrorCommand command handler.
+
+    ListServCommands:
+        All list serv commands implement the IListServCommand interface.  They typically perform any required business
+        logic, and then send reply mail.  All reply mail is typically based upon the text based resources.  These
+        text based resources, in theory, allow the list administrator to customize the messages sent to the mail list
+        without recompilation.
+
+   CommandListservProcessor:
+        When mail is sent to the processor, standard checks are made (like whether the user is a current member, and
+        if not, if they can still send email to the list...).  Then the subject line is formatted, some headers are
+        set to prevent permenent bouncing, and a footer is added which includes unsubscribe and info links.
+
+
+Todo:
+    Handle more complex mail commands:
+        Should handle mail addresses with the format: <listName>-<commandName>-<optionalCommandParams>@domain
+        This allows for more complex commands like: retrieve messages from start range to end range.
+    Confirmation commands:
+        Are easily spoofed due to the lack of 'command params' specified above.
+    MessageDigest:
+        Being relatively new to James, i'm not sure how or where to store extra user metadata like
+        subscription type (normal|digest).  Once this was in place, then i would need to register a schedule with
+        Avalon, and ensure that i had a persistent data store of the mail messages.  (This could be done with a private
+        list subscriber).
+
+
+
+Disclaimer:
+    I've tried to maintain both the coding standards and spirit of the current James dist (2.1) (not 2.1.1) as
+    much as possible.  With that said, i'm sure careful examination will show not only mistakes, but also superior
+    methods for implementing the same features.
+
+
+--Mark Imel
+February 16, 2003
+mimel@imelshire.com
