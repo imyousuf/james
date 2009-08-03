@@ -47,13 +47,13 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.apache.org/repos/asf/james/server/branches/v2.3
+      scm:svn:http://svn.apache.org/repos/asf/james/server/tags/2_3_2
     </connection>
     <developerConnection>
-      scm:svn:https://${maven.username}@svn.apache.org/repos/asf/james/server/branches/v2.3
+      scm:svn:https://${maven.username}@svn.apache.org/repos/asf/james/server/tags/2_3_2
     </developerConnection>
     <url>
-      http://svn.apache.org/viewcvs.cgi/james/server/branches/v2.3?root=Apache-SVN
+      http://svn.apache.org/viewcvs.cgi/james/server/tags/2_3_2?root=Apache-SVN
     </url>
   </scm>
 
@@ -364,8 +364,8 @@
 
   <distributionManagement>
     <site>
-      <id>server-2.3.1-website</id>
-      <url>scp://people.apache.org/www/james.apache.org/server/2.3.1/</url>
+      <id>server-2.3.2-website</id>
+      <url>scp://people.apache.org/www/james.apache.org/server/2.3.2/</url>
     </site>
   </distributionManagement>
 
