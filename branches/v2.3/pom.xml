@@ -31,7 +31,7 @@
   <groupId>org.apache.james</groupId>
   <artifactId>james-server</artifactId>
   <name>Apache JAMES Server</name>
-  <version>2.3.2-SNAPSHOT</version>
+  <version>2.3.2</version>
   <packaging>jar</packaging>
   <description>
     The Apache Java Enterprise Mail Server (a.k.a. JAMES Server)
