@@ -98,6 +98,7 @@ Release Notes - Apache JAMES Server
 **Since 3.2.0
     
 *** Sub-tasks Completed
+
  * [{{{https://issues.apache.org/jira/browse/JAMES-718}JAMES-718}}] -         Add warning to config.xml to explain the problems which can happen with matchers which extend AbstractStorageQuota
 
  * [{{{https://issues.apache.org/jira/browse/JAMES-790}JAMES-790}}] -         Remove ordb.org from docs
