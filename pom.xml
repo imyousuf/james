@@ -39,7 +39,7 @@
   <parent>
     <artifactId>james-server-root</artifactId>
     <groupId>org.apache.james</groupId>
-    <version>1.0</version>
+    <version>1.2</version>
     <relativePath>../james-project/project/server/pom.xml</relativePath>
   </parent>
   <url>http://james.apache.org/server/2.3.2/</url>
