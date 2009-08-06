@@ -1,0 +1,557 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+<project name="spring_integration" default="everything">
+
+    <import file="../build-tools/smoke.xml"/>
+    
+    <property file="../include.properties"/>
+    <property file="../default.properties"/>
+    
+    <property name="spring-deployment.artefact.name" value="${name}-spring-deployment-${version}" />
+
+    <property name="spring-deployment.target.basedir" value="${basedir}/target" />
+    <property name="spring-deployment.target.dir" value="${spring-deployment.target.basedir}/${spring-deployment.artefact.name}" />
+    <property name="spring-deployment.target.bin.dir" value="${spring-deployment.target.dir}/bin" />
+    <property name="spring-deployment.target.lib.dir" value="${spring-deployment.target.dir}/lib" />
+    <property name="spring-deployment.target.config.dir" value="${spring-deployment.target.dir}/conf" />
+    <property name="spring-deployment.target.jar" value="${spring-deployment.target.lib.dir}/${name}-spring-deployment-${version}.jar" />
+    <property name="spring-deployment.target.var.dir" value="${spring-deployment.target.dir}/var"/>
+
+    <property name="spring-deployment.dist.dir" value="${basedir}/dist/" />
+    <property name="spring-deployment.dist.bin.zip" value="${spring-deployment.dist.dir}/${spring-deployment.artefact.name}.zip" />
+    <property name="spring-deployment.dist.bin.tar" value="${spring-deployment.dist.dir}/${spring-deployment.artefact.name}.tar" />
+    <property name="spring-deployment.dist.bin.tgz" value="${spring-deployment.dist.dir}/${spring-deployment.artefact.name}.tgz" />
+
+    <property name="phoenix-deployment" value="../phoenix-deployment/" />
+    <property name="phoenix-deployment.build.lib.jar" value="${phoenix-deployment}/target/lib/${jars-prefix}${version}.jar" />
+    
+    <!-- Compiler options -->
+
+    <property name="compiler.debug" value="on"/>
+    <property name="compiler.generate.no.warnings" value="off"/>
+    <property name="compiler.args" value=""/>
+    <property name="compiler.max.memory" value="128m"/>
+    <patternset id="ignored.files">
+        <exclude name="**/CVS/**"/>
+        <exclude name="**/SCCS/**"/>
+        <exclude name="**/RCS/**"/>
+        <exclude name="**/rcs/**"/>
+        <exclude name="**/.DS_Store/**"/>
+        <exclude name="**/.svn/**"/>
+    </patternset>
+    <patternset id="compiler.resources">
+        <include name="**/?*.properties"/>
+        <include name="**/?*.xml"/>
+        <include name="**/?*.gif"/>
+        <include name="**/?*.png"/>
+        <include name="**/?*.jpeg"/>
+        <include name="**/?*.jpg"/>
+        <include name="**/?*.html"/>
+        <include name="**/?*.dtd"/>
+        <include name="**/?*.tld"/>
+    </patternset>
+
+    <dirname property="basedir" file="${ant.file}"/>
+
+    <property name="compiler.args" value="${compiler.args}"/>
+
+    <property name="output.dir" value="${basedir}/build/classes"/>
+
+    <path id="bootclasspath">
+        <!-- Paths to be included in compilation bootclasspath -->
+    </path>
+
+    <fileset id='james.jars' dir='${lib.dir}'>
+        <!-- TODO: include libraries without wildcards -->
+        <include name="${path.lib.james}/${jars-prefix}*-api-${version}.jar"/>
+        <include name="${path.lib.james}/${jars-prefix}*-util-${version}.jar"/>
+        <include name="${path.lib.james}/${jars-prefix}*-library-${version}.jar"/>
+        <include name="${path.lib.james}/${jars-prefix}*-function-${version}.jar"/>
+    </fileset>   
+    
+    <fileset id='main.jars' dir="${lib.dir}">
+        <include name='${jms-spec.jar}'/>
+        <include name='${activemq-core.jar}'/>    
+        <include name="${avalon-framework.jar}"/>
+        <include name="${avalon-framework-impl.jar}"/>
+        <include name="${dns.jar}"/>
+        <include name="${commons-collections.jar}"/>
+        <include name="${commons-dbcp.jar}"/>
+        <include name="${commons-pool.jar}"/>
+        <include name="${jakarta-oro.jar}"/>
+        <include name="${excalibur-pool-api.jar}"/>
+        <include name="${excalibur-pool-impl.jar}"/>
+        <include name="${excalibur-thread-api.jar}"/>
+        <include name="${excalibur-datasource.jar}"/>
+        <include name="${cornerstone-threads-api.jar}"/>
+        <include name="${cornerstone-connection-api.jar}"/>
+        <include name="${cornerstone-connection-impl.jar}"/>
+        <include name="${cornerstone-store-api.jar}"/>
+        <include name="${cornerstone-scheduler-api.jar}"/>
+        <include name="${cornerstone-sockets-api.jar}"/>
+        <include name="${cornerstone-datasources-api.jar}"/>
+        <include name="${derby.jar}"/>   
+        <include name="${javax-mail.jar}"/>
+        <include name="${javax-activation.jar}"/>
+        <include name="${bcmail.jar}"/>
+        <include name="${bcmail-workaround.jar}"/>
+        <include name="${javax.management}"/>
+        <include name="${jspf.jar}"/>
+        <include name="${mstor.jar}"/>
+        <include name="${commons-logging.jar}"/>
+        <include name="${jdom.jar}"/>
+        <include name="${xstream.jar}"/>
+        <include name="${std-mailet.jar}"/>
+        <include name="${torque.jar}"/>
+        <include name="${village.jar}"/>
+        <include name="${commons-lang.jar}"/>
+        <include name="${commons-configuration.jar}"/>
+        <include name="${base-mailet.jar}"/>
+        <include name="${jsieve.jar}"/>
+        <include name="${mailet.jar}"/>
+        <include name="${commons-digester.jar}"/>
+        <include name="${mime4j.jar}"/>
+        <include name="${commons-io.jar}"/>   
+        <include name="${jackrabbit-api.jar}"/>
+        <include name="${jackrabbit-commons.jar}"/>
+        <include name="${jackrabbit-rmi.jar}"/>
+        <include name="${jcr.jar}"/>
+        <include name="${jsr250.jar}"/>
+        <!-- Protocols should be coupled by deployment only -->
+        <include name='${path.lib.james}/apache-james-imap*.jar'/>
+        <include name='${path.lib.james}/${jarname.mailet.crypto}'/>  
+        <include name='${path.lib.bc}/{${jarname.bc.mail}'/>
+        <include name='${path.lib.bc}/{${jarname.bc.prov}'/>
+    </fileset>
+	
+    <!-- from phoenix-deployment build.xml -->
+    <path id="classpath.james.target">
+        <fileset refid='main.jars'/>
+        <fileset refid="james.jars"/> 
+        <!--<pathelement path="${java.class.path}" />-->
+        <!--<pathelement path="${build.classes}" />-->
+    </path>
+
+    <fileset id='excalibur.jars' dir="${lib.dir}">
+        <include name="${cornerstone-threads-impl.jar}"/>
+        <include name="${cornerstone-connection-impl.jar}"/>
+        <!-- TODO MISSING FROM STAGE <include name="${cornerstone-store-impl.jar}"/>-->
+        <include name="${cornerstone-scheduler-impl.jar}"/>
+        <include name="${cornerstone-sockets-impl.jar}"/>
+        <include name="${cornerstone-datasources-impl.jar}"/>
+        <include name="${excalibur-thread-impl.jar}"/>
+    </fileset>
+	
+    <path id="classpath.phoenix.implementations">
+        <fileset refid='excalibur.jars'/>
+    </path>
+    
+    <fileset id='spring.jars' dir="${basedir}/lib/spring">
+    <!-- TODO: remove from commons lists non-spring required libs --> 
+        <include name="commons-attributes-api.jar"/>
+        <include name="commons-attributes-compiler.jar"/>
+        <include name="commons-beanutils.jar"/>
+        <include name="commons-codec.jar"/>
+<!--            <include name="${basedir}/lib/commons-digester.jar"/>
+        <include name="${basedir}/lib/commons-lang.jar"/>
+        <include name="${basedir}/lib/commons-logging.jar"/>-->
+        <include name="commons-discovery.jar"/>
+        <include name="commons-fileupload.jar"/>
+        <include name="commons-httpclient.jar"/>
+        <include name="commons-io.jar"/>
+        <include name="commons-javaflow.jar"/>
+        <include name="commons-validator.jar"/>
+        <include name="spring.jar"/>
+    </fileset>
+	
+    <path id="classpath.spring">
+        <fileset refid='spring.jars'/>
+    </path>
+
+    <fileset id='misc.jars' dir="${basedir}/lib/log4j">
+        <include name="log4j-1.2.15.jar"/>
+    </fileset>
+	
+    <path id="classpath.misc">
+        <fileset refid='misc.jars'/>
+    </path>
+
+    <path id="classpath.all.libs">
+        <path refid="classpath.phoenix.implementations" />
+        <path refid="classpath.james.target" />
+        <path refid="classpath.spring" />
+        <path refid="classpath.misc" />
+    </path>
+
+    <path id="runclasspath">
+        <path refid="classpath.all.libs" />
+        <pathelement location="${basedir}/src/main/config/james/"/>
+        <pathelement location="${spring-deployment.target.jar}"/>
+    </path>
+
+    <patternset id="excluded.from">
+        <patternset refid="ignored.files"/>
+    </patternset>
+
+    <patternset id="excluded.from.compilation">
+        <patternset refid="excluded.from"/>
+    </patternset>
+
+    <path id="sourcepath">
+        <dirset dir="${basedir}">
+            <include name="src/main/java"/>
+        </dirset>
+    </path>
+
+    <property name='name.module' value='spring-deployment'/>
+    <import file='../build-tools/module-build.xml' optional='no'/>
+
+    <target name="clean">
+        <delete dir="${output.dir}"/>
+        <delete dir="${spring-deployment.target.basedir}"/>
+        <delete dir="${spring-deployment.dist.dir}"/>
+    </target>
+
+    <target name="init" description="Build initialization">
+        <!-- Perform any build initialization in this target -->
+            <condition property="is.james.compiled">   
+                <resourcecount refid="james.jars" when="greater" count="0" />   
+            </condition>   
+            <fail unless="is.james.compiled">Please ensure that James server is compiled
+     before trying to build the spring deployment. Please note that 'dist' must be 
+     run at least once before 'lite' can be run.
+            </fail>
+    </target>
+
+    <target name="dist-lite" depends="everything" description="forwards to everything - exists for compatibility with parent build.xml"/>
+    <target name="dist" depends="everything" description="forwards to everything - exists for compatibility with parent build.xml"/>
+    
+    <target name="everything" depends="init, clean, compile, package, dist-binary" description="build all"/>
+
+    <target name="compile" description="compile .java">
+        <mkdir dir="${output.dir}"/>
+        <javac destdir="${output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}"
+               memoryMaximumSize="${compiler.max.memory}" fork="true">
+            <compilerarg line="${compiler.args}"/>
+            <bootclasspath refid="bootclasspath"/>
+            <classpath refid="classpath.all.libs"/>
+            <src refid="sourcepath"/>
+        </javac>
+
+        <copy todir="${output.dir}">
+            <fileset dir="${basedir}/src/main/java">
+                <patternset refid="compiler.resources"/>
+                <type type="file"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="package" depends="package-prepare, package-aquire-notes, package-aquire-libs, package-aquire-config-files, package-james-spring-jar, generate-run-executable" />
+
+    <target name="package-prepare">
+        <mkdir dir="${spring-deployment.target.basedir}"/>
+        <mkdir dir="${spring-deployment.target.dir}"/>
+        <mkdir dir="${spring-deployment.target.lib.dir}"/>
+        <mkdir dir="${spring-deployment.target.bin.dir}"/>
+        <mkdir dir="${spring-deployment.target.config.dir}"/>
+        
+        <mkdir dir="${spring-deployment.target.var.dir}"/>
+        <mkdir dir="${spring-deployment.target.var.dir}/nntp"/>
+        <mkdir dir="${spring-deployment.target.var.dir}/nntp/groups"/>
+        <mkdir dir="${spring-deployment.target.var.dir}/nntp/articleid"/>
+        <mkdir dir="${spring-deployment.target.var.dir}/nntp/temp"/>
+        <mkdir dir="${spring-deployment.target.var.dir}/nntp/spool"/>
+    </target>
+    
+    <target name="package-james-spring-jar">
+        <jar jarfile="${spring-deployment.target.jar}" basedir="${output.dir}" >
+            <include name="org/apache/james/**/*.class"/>
+        </jar>
+    </target>
+    
+    <target name="package-aquire-notes" >
+        <copy todir="${spring-deployment.target.dir}" flatten="true">
+            <fileset dir="${basedir}">
+                <include name="HOW-TO.txt" />
+            </fileset>
+            <fileset dir="${basedir}/..">
+                <include name="LICENSE.txt" />
+                <include name="NOTICE.txt" />
+            </fileset>
+        </copy>
+    </target>
+    
+    <target name="package-aquire-libs" >
+        <copy todir="${spring-deployment.target.lib.dir}" flatten="true">
+            <fileset dir="${lib.dir}">
+                <include name="**/*.jar" />
+                <include name="**/*.LICENSE" />
+                <include name="**/LICENSE*" />
+            </fileset>
+            <fileset dir="${basedir}/lib">
+                <include name="**/*.jar" />
+                <include name="**/*.LICENSE" />
+                <include name="**/LICENSE*" />
+            </fileset>
+        </copy>
+        <echo>${phoenix-deployment.build.lib.jar}</echo>
+        <copy todir="${spring-deployment.target.lib.dir}" >
+            <fileset file="${phoenix-deployment.build.lib.jar}" />
+        </copy>
+    </target>
+    
+    <target name="package-aquire-config-files" >
+        <copy todir="${spring-deployment.target.config.dir}" flatten="true">
+            <fileset dir="${basedir}/src/main/config/james">
+                <include name="*.xml" />
+                <include name="*.properties" />
+            </fileset>
+        </copy>
+    </target>
+    
+    <target name="run" depends="compile, package">
+        <java classname="org.apache.james.container.spring.Main"
+              classpathref="runclasspath"
+              dir="${spring-deployment.target.bin.dir}"
+              fork="true" />
+    </target>
+
+    <target name="generate-run-executable" >
+        <path id="targetlibs">
+            <fileset dir="${spring-deployment.target.lib.dir}">
+                <include name="*.jar" />
+            </fileset>
+        </path>
+        <property name="exe-classpath" refid="targetlibs" />
+
+        <mkdir dir="${spring-deployment.target.bin.dir}" />
+
+        <!-- create unix startup script-->
+        <echo file="${spring-deployment.target.bin.dir}/run.sh" append="false"><![CDATA[#! /bin/sh
+################################################################
+# Licensed to the Apache Software Foundation (ASF) under one   #
+# or more contributor license agreements.  See the NOTICE file #
+# distributed with this work for additional information        #
+# regarding copyright ownership.  The ASF licenses this file   #
+# to you under the Apache License, Version 2.0 (the            #
+# "License"); you may not use this file except in compliance   #
+# with the License.  You may obtain a copy of the License at   #
+#                                                              #
+#   http://www.apache.org/licenses/LICENSE-2.0                 #
+#                                                              #
+# Unless required by applicable law or agreed to in writing,   #
+# software distributed under the License is distributed on an  #
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY       #
+# KIND, either express or implied.  See the License for the    #
+# specific language governing permissions and limitations      #
+# under the License.                                           #
+################################################################
+
+# Uncomment to get enable remote debugging
+# DEBUG="-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y"   
+JAMES_CONSOLE=james.console
+JAMES_PID=james.pid
+JAMES_CMD="java $DEBUG -cp ${exe-classpath}:../conf org.apache.james.container.spring.Main"             
+            
+case $1 in
+ start)
+  echo 'Booting James'
+  if [ -f $JAMES_PID ]
+  then
+    if ps -p `cat $JAMES_PID ` >/dev/null 2>/dev/null
+      then
+        echo "Already Running!!"
+        exit 1
+    fi
+  fi
+   
+  echo "START `date`" >> $JAMES_CONSOLE
+  nohup sh -c "exec $JAMES_CMD >>$JAMES_CONSOLE 2>&1" >/dev/null &
+  echo $! > $JAMES_PID
+  echo "James pid="`cat $JAMES_PID`
+  @@SEMI_COLON@@@@SEMI_COLON@@
+  
+ restart)
+  $0 stop $*
+  sleep 5
+  $0 start $*
+  @@SEMI_COLON@@@@SEMI_COLON@@
+
+ stop)
+  PID=`cat $JAMES_PID 2>/dev/null`
+  echo "Shutting down James: $PID"
+  kill $PID 2>/dev/null
+  sleep 5
+  kill -9 $PID 2>/dev/null
+  rm -f $JAMES_PID
+  echo "STOPPED `date`" >>$JAMES_CONSOLE
+  @@SEMI_COLON@@@@SEMI_COLON@@
+
+ *)
+  echo 'Booting James'
+  if [ -f $JAMES_PID ]
+  then
+    echo "James is already running"
+      exit 1
+  fi
+  exec $JAMES_CMD
+  @@SEMI_COLON@@@@SEMI_COLON@@
+
+esac   
+]]></echo>
+        <replace file="${spring-deployment.target.bin.dir}/run.sh" token="${spring-deployment.target.lib.dir}" value="../lib" />
+        <replace file="${spring-deployment.target.bin.dir}/run.sh" token=";" value=":" />
+        <replace file="${spring-deployment.target.bin.dir}/run.sh" token="@@SEMI_COLON@@" value=';'/>  
+        <chmod file="${spring-deployment.target.bin.dir}/run.sh" perm="a+rx" />
+
+        <!-- create windows startup script-->
+		<pathconvert property="spring-deployment.target.lib.dir.windows" targetos="windows">
+		  <path><pathelement location="${spring-deployment.target.lib.dir}" /></path>
+		</pathconvert>
+        <echo file="${spring-deployment.target.bin.dir}/run.bat" append="false">
+java -cp ${exe-classpath};../conf org.apache.james.container.spring.Main             
+        </echo>
+        <replace file="${spring-deployment.target.bin.dir}/run.bat" token="${spring-deployment.target.lib.dir.windows}" value="../lib" />
+        <replace file="${spring-deployment.target.bin.dir}/run.bat" token=":" value=";" />
+    </target>
+    
+    <target name="dist-war" description="build a war file distribution"  >
+        <war destfile="${spring-deployment.dist.dir}/${name}-spring-deployment-${version}.war" 
+             webxml="src/main/config/warfile/WEB-INF/web.xml"   >
+            <fileset dir="${spring-deployment.target.dir}" ><include name="NOTICE.txt" /></fileset>
+            <fileset dir="${spring-deployment.target.dir}" ><include name="LICENSE.txt" /></fileset>
+            <lib dir="${spring-deployment.target.lib.dir}" />
+            <zipfileset dir="${spring-deployment.target.config.dir}" prefix="WEB-INF/lib" >
+                <include name="log4j.properties" />
+            </zipfileset> 
+            <zipfileset dir="${spring-deployment.target.config.dir}" prefix="WEB-INF" >
+                <include name="spring-beans.xml" />
+                <include name="james-assembly.xml" />
+            </zipfileset> 
+            <zipfileset dir="${spring-deployment.target.config.dir}" prefix="WEB-INF/classes" >
+                <include name="james-config.xml" />
+            </zipfileset> 
+            <zipfileset dir="${spring-deployment.target.config.dir}" prefix="WEB-INF/conf" >
+                <exclude name="log4j.properties" />
+                <exclude name="spring-beans.xml" />
+                <exclude name="james-assembly.xml" />
+                <exclude name="james-config.xml" />
+            </zipfileset> 
+        </war>
+    </target>
+
+    <target name="dist-binary" >
+        <mkdir dir="${spring-deployment.dist.dir}" />
+        <zip compress="true" destfile="${spring-deployment.dist.bin.zip}" >
+            <zipfileset dir="${spring-deployment.target.dir}" prefix="${name}-spring-deployment-${version}">
+                <include name="**" /> 
+            </zipfileset>
+        </zip>     
+        <tar longfile="gnu" destfile="${spring-deployment.dist.bin.tar}" >
+            <tarfileset dir="${spring-deployment.target.dir}" prefix="${name}-spring-deployment-${version}">
+                <include name="**" /> 
+            </tarfileset>
+        </tar>
+        <gzip destfile="${spring-deployment.dist.bin.tgz}/" 
+             src="${spring-deployment.dist.bin.tar}"/>
+        <copy todir='${dir.master.dist}/bin' file='${spring-deployment.dist.bin.zip}'/>
+        <copy todir='${dir.master.dist}/bin' file='${spring-deployment.dist.bin.tgz}'/>
+    </target>
+    
+
+
+	<target 
+		name='eclipse'
+		depends=''>
+		<GenerateEclipseProject 
+			name='${name.module}' dir='${basedir}'>
+			<dependencies>
+        <classpathentry combineaccessrules="false" kind='src' path='/common-util'/>
+        <classpathentry combineaccessrules="false" kind='src' path='/javamail-util'/>
+        <classpathentry combineaccessrules="false" kind='src' path='/core-api'/>
+        <classpathentry combineaccessrules="false" kind='src' path='/domain-api'/>
+        <classpathentry combineaccessrules="false" kind='src' path='/imap-api'/>
+        <classpathentry combineaccessrules="false" kind="src" path="/user-api"/>
+        <classpathentry combineaccessrules="false" kind="src" path="/core-library"/>
+        <classpathentry combineaccessrules="false" kind="src" path="/management-library"/>
+        <classpathentry combineaccessrules="false" kind='src' path='/avalon-socket-library'/>
+        <classpathentry combineaccessrules="false" kind="src" path="/imap-codec-library"/>
+        <classpathentry combineaccessrules="false" kind="src" path="/imap-command-library"/>
+        <classpathentry combineaccessrules="false" kind="src" path="/imapmailbox-library"/>
+        <classpathentry combineaccessrules="false" kind="src" path="/mordred-library"/>
+        <classpathentry combineaccessrules="false" kind="src" path="/user-library"/>
+        <classpathentry combineaccessrules="false" kind="src" path="/avalon-user-function"/>
+        <classpathentry combineaccessrules="false" kind="src" path="/basic-user-function"/>
+        <classpathentry combineaccessrules="false" kind="src" path="/experimental-activemq-function"/>
+        <classpathentry combineaccessrules="false" kind="src" path="/experimental-seda-imap-function"/>
+        <classpathentry combineaccessrules="false" kind="src" path="/fetchmail-function"/>
+        <classpathentry combineaccessrules="false" kind="src" path="/imap-mailbox-processor-function"/>
+        <classpathentry combineaccessrules="false" kind="src" path="/imapserver-function"/>
+        <classpathentry combineaccessrules="false" kind="src" path="/jcr-store"/>
+        <classpathentry combineaccessrules="false" kind="src" path="/nntpserver-function"/>
+        <classpathentry combineaccessrules="false" kind="src" path="/phoenix-deployment"/>
+        <classpathentry combineaccessrules="false" kind="src" path="/pop3server-function"/>
+        <classpathentry combineaccessrules="false" kind="src" path="/remotemanager-function"/>
+        <classpathentry combineaccessrules="false" kind="src" path="/core-function"/>
+        <classpathentry combineaccessrules="false" kind="src" path="/smtpserver-function"/>
+        <classpathentry combineaccessrules="false" kind="src" path="/spoolmanager-function"/>
+        <classpathentry combineaccessrules="false" kind="src" path="/spring-deployment"/>
+        <classpathentry combineaccessrules="false" kind="src" path="/torque-mailboxmanager-function"/>
+			</dependencies>
+		</GenerateEclipseProject>
+	</target>
+
+    <target name='vut-smoke'>
+        <VUTSmoke 
+            build-dir='${build.dir}' 
+            zip='${spring-deployment.dist.bin.zip}' 
+            package='${spring-deployment.artefact.name}'
+            app-path='conf'
+            conf-path='conf'
+            conf-file-name='james-config.xml'
+            cmd='run'
+            log='bin/james.console'/>   
+    </target>     
+    
+    <target name='sieve-smoke'>
+        <SieveSmoke 
+            build-dir='${build.dir}' 
+            zip='${spring-deployment.dist.bin.zip}' 
+            package='${spring-deployment.artefact.name}'
+            app-path='conf'
+            conf-path='conf'
+            conf-file-name='james-config.xml'
+            cmd='run'
+            log='bin/james.console'/>   
+    </target>     
+ 
+    <target name='smoke'>
+        <Smoke 
+           zip='${spring-deployment.dist.bin.zip}' 
+           build-dir='${build.dir}' 
+           package='${spring-deployment.artefact.name}'
+           app-path='conf'
+           conf-path='conf'
+           conf-file-name='james-config.xml'
+           cmd='run'
+           log='bin/james.console'/>     
+    </target>   
+</project>
