@@ -34,6 +34,7 @@ import org.apache.james.smtpserver.SizeLimitedInputStream;
 import org.apache.james.util.stream.CharTerminatedInputStream;
 import org.apache.james.util.stream.DotStuffingInputStream;
 import org.apache.james.util.watchdog.BytesReadResetInputStream;
+import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.base.RFC2822Headers;
 import org.apache.mailet.base.RFC822DateFormat;
@@ -103,8 +104,27 @@ public class DataCmdHandler
      * @param argument the argument passed in with the command by the SMTP client
      */
     private void doDATA(SMTPSession session, String argument) {
-
         String responseString = null;
+        if ((argument != null) && (argument.length() > 0)) {
+            responseString = "500 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Unexpected argument provided with DATA command";
+            session.writeResponse(responseString);
+            
+            //TODO: Check if this should been!
+        }
+        if (!session.getState().containsKey(SMTPSession.SENDER)) {
+            responseString = "503 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" No sender specified";
+            session.writeResponse(responseString);
+            
+            // After this filter match we should not call any other handler!
+            session.setStopHandlerProcessing(true);
+            
+        } else if (!session.getState().containsKey(SMTPSession.RCPT_LIST)) {
+            responseString = "503 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" No recipients specified";
+            session.writeResponse(responseString);
+            
+            // After this filter match we should not call any other handler!
+            session.setStopHandlerProcessing(true);
+        } else {
         responseString = "354 Ok Send data ending with <CRLF>.<CRLF>";
         session.writeResponse(responseString);
         InputStream msgIn = new CharTerminatedInputStream(session
@@ -179,6 +199,7 @@ public class DataCmdHandler
                 }
                 msgIn = null;
             }
+        }
         }
 
     }
@@ -320,8 +341,8 @@ public class DataCmdHandler
             if (session.isRelayingAllowed()) {
                 mail.setAttribute(SMTP_AUTH_NETWORK_NAME,"true");
             }
-            
             session.setMail(mail);
+
         } catch (MessagingException me) {
             // if we get here, it means that we received a
             // MessagingException, which would happen BEFORE we call

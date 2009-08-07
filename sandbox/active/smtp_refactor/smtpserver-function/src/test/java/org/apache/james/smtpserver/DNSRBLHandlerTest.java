@@ -282,25 +282,5 @@ public class DNSRBLHandlerTest extends TestCase {
         assertTrue("Invalid config",exception);
     }
 
-    public void testAddJunkScore() throws ParseException {
-        DNSRBLHandler rbl = new DNSRBLHandler();
-
-        ContainerUtil.enableLogging(rbl, new MockLogger());
-
-        setupMockedSMTPSession(new MailAddress("any@domain"));
-        mockedSMTPSession.getConnectionState().put(JunkScore.JUNK_SCORE_SESSION, new JunkScoreImpl());
-        rbl.setDNSServer(mockedDnsServer);
-
-        rbl.setBlacklist(new String[] { "bl.spamcop.net." });
-        rbl.setGetDetail(false);
-        rbl.setScore(20);
-        rbl.setAction("junkScore");
-        rbl.onConnect(mockedSMTPSession);
-        assertNull("No details",mockedSMTPSession.getConnectionState().get(RBL_DETAIL_MAIL_ATTRIBUTE_NAME));
-        assertNotNull("Listed on RBL",mockedSMTPSession.getConnectionState().get(RBL_BLOCKLISTED_MAIL_ATTRIBUTE_NAME));
-        
-        rbl.onCommand(mockedSMTPSession);
-        assertEquals("Score stored",((JunkScore) mockedSMTPSession.getConnectionState().get(JunkScore.JUNK_SCORE_SESSION)).getStoredScore("DNSRBLCheck"), 20.0, 0d);
-    }
 
 }

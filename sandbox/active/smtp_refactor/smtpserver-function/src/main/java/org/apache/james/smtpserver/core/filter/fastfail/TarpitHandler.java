@@ -21,18 +21,16 @@
 
 package org.apache.james.smtpserver.core.filter.fastfail;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.smtpserver.core.PostRcptListener;
+import org.apache.mailet.MailAddress;
 
 public class TarpitHandler extends AbstractLogEnabled implements
-        CommandHandler, Configurable {
+        PostRcptListener, Configurable {
 
     private int tarpitRcptCount = 0;
 
@@ -96,10 +94,12 @@ public class TarpitHandler extends AbstractLogEnabled implements
         Thread.sleep((long) timeInMillis);
     }
 
+
     /**
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
+     * (non-Javadoc)
+     * @see org.apache.james.smtpserver.core.PostRcptListener#onRcpt(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.MailAddress)
      */
-    public void onCommand(SMTPSession session) {
+	public String onRcpt(SMTPSession session, MailAddress rcpt) {
 
         int rcptCount = 0;
         rcptCount = session.getRcptCount();
@@ -111,15 +111,6 @@ public class TarpitHandler extends AbstractLogEnabled implements
             } catch (InterruptedException e) {
             }
         }
-    }
-    
-    /**
-     * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
-     */
-    public Collection getImplCommands() {
-        Collection implCommands = new ArrayList();
-        implCommands.add("RCPT");
-        
-        return implCommands;
-    }
+        return null;
+	}
 }

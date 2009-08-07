@@ -36,14 +36,11 @@ import org.apache.james.test.mock.avalon.MockLogger;
 
 
 public class MaxRcptHandlerTest extends TestCase{
-    
-    private String response;
-    
+        
     private SMTPSession setupMockedSession(final int rcptCount) {
         SMTPSession session = new AbstractSMTPSession() {
             HashMap state = new HashMap();
-            boolean processing = false;
-            
+
             public Map getState() {
                 return state;
             }
@@ -51,18 +48,8 @@ public class MaxRcptHandlerTest extends TestCase{
             public boolean isRelayingAllowed() {
                 return false;
             }
+
             
-            public void writeResponse(String resp) {
-                response = resp;
-            }
-            
-            public void setStopHandlerProcessing(boolean processing) {
-                this.processing = processing;
-            }
-            
-            public boolean getStopHandlerProcessing() {
-                return processing;
-            }
             
             public int getRcptCount() {
                 return rcptCount;
@@ -78,44 +65,20 @@ public class MaxRcptHandlerTest extends TestCase{
     
         ContainerUtil.enableLogging(handler,new MockLogger());
     
-        handler.setAction("reject");
         handler.setMaxRcpt(2);
-        handler.onCommand(session);
-    
-        assertNotNull("Rejected.. To many recipients", response);
-        assertTrue("Reject.. Stop processing",session.getStopHandlerProcessing());
+        assertNotNull("Rejected.. To many recipients", handler.onRcpt(session,null));
     }
     
-    public void testAddScoreMaxRcpt() {
-        SMTPSession session = setupMockedSession(3);
-        session.getState().put(JunkScore.JUNK_SCORE, new JunkScoreImpl());
-    
-        MaxRcptHandler handler = new MaxRcptHandler();
-    
-        ContainerUtil.enableLogging(handler,new MockLogger());
-    
-        handler.setAction("junkScore");
-        handler.setScore(20);
-        handler.setMaxRcpt(2);
-        handler.onCommand(session);
-    
-        assertNull("Not Rejected.. we use junkScore action", response);
-        assertFalse("Not Rejected.. we use junkScore action",session.getStopHandlerProcessing());
-        assertEquals("Get Score", ((JunkScore) session.getState().get(JunkScore.JUNK_SCORE)).getStoredScore("MaxRcptCheck"),20.0,0d);
-    }
-    
+   
     public void testNotRejectMaxRcpt() {
         SMTPSession session = setupMockedSession(3);
         MaxRcptHandler handler = new MaxRcptHandler();
     
         ContainerUtil.enableLogging(handler,new MockLogger());
     
-        handler.setAction("reject");
         handler.setMaxRcpt(4);
-        handler.onCommand(session);
-    
-        assertNull("Not Rejected..", response);
-        assertFalse("Not stop processing",session.getStopHandlerProcessing());
+        
+        assertNull("Not Rejected..", handler.onRcpt(session,null));
     }
 
 }

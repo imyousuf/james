@@ -30,8 +30,8 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.dsn.DSNStatus;
-import org.apache.james.smtpserver.MessageHandler;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.smtpserver.core.PostDataListener;
 import org.apache.james.util.scanner.SpamAssassinInvoker;
 import org.apache.mailet.Mail;
 
@@ -52,7 +52,7 @@ import org.apache.mailet.Mail;
  * &lt;checkAuthNetworks&gt;false&lt;/checkAuthNetworks&gt; &lt;/handler&gt;
  */
 public class SpamAssassinHandler extends AbstractLogEnabled implements
-        MessageHandler, Configurable {
+        PostDataListener, Configurable {
 
     /**
      * The port spamd is listen on
@@ -139,18 +139,14 @@ public class SpamAssassinHandler extends AbstractLogEnabled implements
 
     }
 
-    /**
-     * @see org.apache.james.smtpserver.MessageHandler#onMessage(SMTPSession)
-     */
-    public void onMessage(SMTPSession session) {
-
+	public String onData(SMTPSession session, Mail mail) {
+		String responseString = null;
         // Not scan the message if relaying allowed
         if (session.isRelayingAllowed() && !checkAuthNetworks) {
-            return;
+            return null;
         }
 
         try {
-            Mail mail = session.getMail();
             MimeMessage message = mail.getMessage();
             SpamAssassinInvoker sa = new SpamAssassinInvoker(spamdHost,
                     spamdPort);
@@ -174,7 +170,7 @@ public class SpamAssassinHandler extends AbstractLogEnabled implements
                     // if the hits are bigger the rejectionHits reject the
                     // message
                     if (spamdRejectionHits <= hits) {
-                        String responseString = "554 "
+                        responseString = "554 "
                                 + DSNStatus.getStatus(DSNStatus.PERMANENT,
                                         DSNStatus.SECURITY_OTHER)
                                 + " This message reach the spam hits treshold. Please contact the Postmaster if the email is not SPAM. Message rejected";
@@ -189,10 +185,7 @@ public class SpamAssassinHandler extends AbstractLogEnabled implements
                                                 + spamdRejectionHits
                                                 + " hits: " + hits);
                         getLogger().info(buffer.toString());
-                        session.writeResponse(responseString);
-
-                        // Message reject .. abort it!
-                        session.abortMessage();
+                       
                     }
                 } catch (NumberFormatException e) {
                     // hits unknown
@@ -201,6 +194,7 @@ public class SpamAssassinHandler extends AbstractLogEnabled implements
         } catch (MessagingException e) {
             getLogger().error(e.getMessage());
         }
+		return responseString;
+	}
 
-    }
 }

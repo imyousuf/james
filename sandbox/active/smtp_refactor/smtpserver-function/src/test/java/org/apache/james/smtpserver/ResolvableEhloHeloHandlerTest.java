@@ -49,39 +49,14 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
     
     public final static String RCPT = "RCPT";
     
-    private String response = null;
     
-    private String command = null;
-    
-    public void setUp() {
-        response = null;
-        command = null;
-    }
-    
-    private String getResponse() {
-        return response;
-    }
-    
-    private void setCommand(String command) {
-        this.command = command;
-    }
-    
-    private SMTPSession setupMockSession(final String argument,
-             final boolean relaying, final boolean authRequired, final String user, final MailAddress recipient) {
+    private SMTPSession setupMockSession(final boolean relaying, final boolean authRequired, final String user) {
         
         SMTPSession session = new AbstractSMTPSession() {
 
-            boolean stop = false;
             HashMap connectionMap = new HashMap();
             HashMap map = new HashMap();
             
-            public String getCommandArgument() {
-                return argument;
-            }
-            
-            public String getCommandName() {
-                return command;
-            }
             
             public boolean isAuthRequired() {
                 return authRequired;
@@ -95,24 +70,12 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
                 return connectionMap;
             }
             
-            public void writeResponse(String resp) {
-                response = resp;
-            }
             
             public boolean isRelayingAllowed() {
                 return relaying;
             }
-            
-            public void setStopHandlerProcessing(boolean stop) {
-                this.stop = stop;
-            }
-            
-            public boolean getStopHandlerProcessing() {
-                return stop;
-            }
-            
+
             public Map getState() {
-                map.put(SMTPSession.CURRENT_RECIPIENT, recipient);
                 return map;
             }
             
@@ -135,7 +98,7 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
     }
     
     public void testRejectInvalidHelo() throws ParseException {
-        SMTPSession session = setupMockSession(INVALID_HOST,false,false,null,new MailAddress("test@localhost"));
+        SMTPSession session = setupMockSession(false,false,null);
         ResolvableEhloHeloHandler handler = new ResolvableEhloHeloHandler();
         
         ContainerUtil.enableLogging(handler,new MockLogger());
@@ -143,22 +106,18 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         handler.setDnsServer(setupMockDNSServer());
         
         // helo
-        setCommand(HELO);
-        handler.onCommand(session);
+        assertNull(handler.onHelo(session,INVALID_HOST));
         assertNotNull("Invalid HELO",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
         
         
         // rcpt
-        setCommand(RCPT);
-        handler.onCommand(session);
-        assertNotNull("Reject", getResponse());
+        assertNotNull("Reject",handler.onRcpt(session,new MailAddress("test@localhost")));
         
-        assertTrue("Stop handler processing",session.getStopHandlerProcessing());
     }
     
     
     public void testNotRejectValidHelo() throws ParseException {
-        SMTPSession session = setupMockSession(VALID_HOST,false,false,null,new MailAddress("test@localhost"));
+        SMTPSession session = setupMockSession(false,false,null);
         ResolvableEhloHeloHandler handler = new ResolvableEhloHeloHandler();
         
         ContainerUtil.enableLogging(handler,new MockLogger());
@@ -166,21 +125,16 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         handler.setDnsServer(setupMockDNSServer());
         
         // helo
-        setCommand(HELO);
-        handler.onCommand(session);
+        assertNull(handler.onHelo(session,VALID_HOST));
         assertNull("Valid HELO",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
         
         
         // rcpt
-        setCommand(RCPT);
-        handler.onCommand(session);
-        assertNull("Not reject", getResponse());
-        
-        assertFalse("Not stop handler processing",session.getStopHandlerProcessing());
+        assertNull("Not reject", handler.onRcpt(session,new MailAddress("test@localhost")));
     }
     
     public void testNotRejectInvalidHeloAuthUser() throws ParseException {
-        SMTPSession session = setupMockSession(INVALID_HOST,false,true,"valid@user",new MailAddress("test@localhost"));
+        SMTPSession session = setupMockSession(false,true,"valid@user");
         ResolvableEhloHeloHandler handler = new ResolvableEhloHeloHandler();
         
         ContainerUtil.enableLogging(handler,new MockLogger());
@@ -188,21 +142,16 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         handler.setDnsServer(setupMockDNSServer());
         
         // helo
-        setCommand(HELO);
-        handler.onCommand(session);
+        handler.onHelo(session,INVALID_HOST);
         assertNotNull("Value stored",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
         
         
         // rcpt
-        setCommand(RCPT);
-        handler.onCommand(session);
-        assertNull("Not reject", getResponse());
-        
-        assertFalse("Not stop handler processing",session.getStopHandlerProcessing());
+        assertNull("Not reject", handler.onRcpt(session,new MailAddress("test@localhost")));
     }
     
     public void testRejectInvalidHeloAuthUser() throws ParseException {
-        SMTPSession session = setupMockSession(INVALID_HOST,false,true,"valid@user",new MailAddress("test@localhost"));
+        SMTPSession session = setupMockSession(false,true,"valid@user");
         ResolvableEhloHeloHandler handler = new ResolvableEhloHeloHandler();
         
         ContainerUtil.enableLogging(handler,new MockLogger());
@@ -211,21 +160,17 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         handler.setCheckAuthUsers(true);
         
         // helo
-        setCommand(HELO);
-        handler.onCommand(session);
+        handler.onHelo(session,INVALID_HOST);
         assertNotNull("Value stored",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
         
         
         // rcpt
-        setCommand(RCPT);
-        handler.onCommand(session);
-        assertNotNull("reject", getResponse());
-        
-        assertTrue("stop handler processing",session.getStopHandlerProcessing());
+        assertNotNull("reject", handler.onRcpt(session,new MailAddress("test@localhost")));
+       
     }
     
     public void testNotRejectRelay() throws ParseException {
-        SMTPSession session = setupMockSession(INVALID_HOST,true,false,null,new MailAddress("test@localhost"));
+        SMTPSession session = setupMockSession(true,false,null);
         ResolvableEhloHeloHandler handler = new ResolvableEhloHeloHandler();
         
         ContainerUtil.enableLogging(handler,new MockLogger());
@@ -233,21 +178,17 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         handler.setDnsServer(setupMockDNSServer());
         
         // helo
-        setCommand(HELO);
-        handler.onCommand(session);
+        assertNull(handler.onHelo(session,INVALID_HOST));
         assertNull("Value not stored",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
         
         
         // rcpt
-        setCommand(RCPT);
-        handler.onCommand(session);
-        assertNull("Not reject", getResponse());
+        assertNull("Not reject", handler.onRcpt(session,new MailAddress("test@localhost")));
         
-        assertFalse("Not stop handler processing",session.getStopHandlerProcessing());
     }
     
     public void testRejectRelay() throws ParseException {
-        SMTPSession session = setupMockSession(INVALID_HOST,true,false,null,new MailAddress("test@localhost"));
+        SMTPSession session = setupMockSession(true,false,null);
         ResolvableEhloHeloHandler handler = new ResolvableEhloHeloHandler();
         
         ContainerUtil.enableLogging(handler,new MockLogger());
@@ -256,21 +197,17 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         handler.setCheckAuthNetworks(true);
         
         // helo
-        setCommand(HELO);
-        handler.onCommand(session);
+        assertNull(handler.onHelo(session,INVALID_HOST));
         assertNotNull("Value stored",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
         
         
         // rcpt
-        setCommand(RCPT);
-        handler.onCommand(session);
-        assertNotNull("Reject", getResponse());
+        assertNotNull("Reject", handler.onRcpt(session,new MailAddress("test@localhost")));
         
-        assertTrue("Stop handler processing",session.getStopHandlerProcessing());
     }
     
     public void testNotRejectInvalidHeloPostmaster() throws ParseException {
-        SMTPSession session = setupMockSession(INVALID_HOST,false,false,null,new MailAddress("postmaster@localhost"));
+        SMTPSession session = setupMockSession(false,false,null);
         ResolvableEhloHeloHandler handler = new ResolvableEhloHeloHandler();
         
         ContainerUtil.enableLogging(handler,new MockLogger());
@@ -278,21 +215,16 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         handler.setDnsServer(setupMockDNSServer());
         
         // helo
-        setCommand(HELO);
-        handler.onCommand(session);
+        assertNull(handler.onHelo(session,INVALID_HOST));
         assertNotNull("stored",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
         
         
         // rcpt
-        setCommand(RCPT);
-        handler.onCommand(session);
-        assertNull("Not Reject", getResponse());
-        
-        assertFalse("Not stop handler processing",session.getStopHandlerProcessing());
+        assertNull("Not Reject", handler.onRcpt(session,new MailAddress("postmaster@localhost")));
     }
     
     public void testNotRejectInvalidHeloAbuse() throws ParseException {
-        SMTPSession session = setupMockSession(INVALID_HOST,false,false,null,new MailAddress("abuse@localhost"));
+        SMTPSession session = setupMockSession(false,false,null);
         ResolvableEhloHeloHandler handler = new ResolvableEhloHeloHandler();
         
         ContainerUtil.enableLogging(handler,new MockLogger());
@@ -300,42 +232,12 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         handler.setDnsServer(setupMockDNSServer());
         
         // helo
-        setCommand(HELO);
-        handler.onCommand(session);
+        assertNull(handler.onHelo(session,INVALID_HOST));
         assertNotNull("stored",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
         
         
         // rcpt
-        setCommand(RCPT);
-        handler.onCommand(session);
-        assertNull("Not Reject", getResponse());
-        
-        assertFalse("Not stop handler processing",session.getStopHandlerProcessing());
+        assertNull("Not Reject", handler.onRcpt(session,new MailAddress("abuse@localhost")));
     }
     
-    public void testAddJunkScoreInvalidHelo() throws ParseException {
-        SMTPSession session = setupMockSession(INVALID_HOST,false,false,null,new MailAddress("test@localhost"));
-        session.getConnectionState().put(JunkScore.JUNK_SCORE_SESSION, new JunkScoreImpl());
-        ResolvableEhloHeloHandler handler = new ResolvableEhloHeloHandler();
-        
-        ContainerUtil.enableLogging(handler,new MockLogger());
-        
-        handler.setDnsServer(setupMockDNSServer());
-        handler.setAction("junkScore");
-        handler.setScore(20);
-        
-        // helo
-        setCommand(HELO);
-        handler.onCommand(session);
-        assertNotNull("Invalid HELO",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
-        
-        
-        // rcpt
-        setCommand(RCPT);
-        handler.onCommand(session);
-        assertNull("Not Reject", getResponse());
-        
-        assertFalse("Don'T stop handler processing",session.getStopHandlerProcessing());
-        assertEquals("JunkScore added", ((JunkScore) session.getConnectionState().get(JunkScore.JUNK_SCORE_SESSION)).getStoredScore("ResolvableEhloHeloCheck"), 20.0, 0d);
-    }
 }

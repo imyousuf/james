@@ -40,7 +40,6 @@ import org.apache.mailet.MailAddress;
 import junit.framework.TestCase;
 
 public class ValidRcptMXTest extends TestCase {
-    private String response = null;
 
     private final static String INVALID_HOST = "invalid.host.de";
 
@@ -49,23 +48,20 @@ public class ValidRcptMXTest extends TestCase {
     private final static String LOOPBACK = "127.0.0.1";
 
     protected void setUp() throws Exception {
-        response = null;
-
         super.setUp();
     }
 
-    private SMTPSession setupMockedSMTPSession(final MailAddress rcpt) {
+    private SMTPSession setupMockedSMTPSession() {
         SMTPSession session = new AbstractSMTPSession() {
             HashMap state = new HashMap();
             boolean stopProcessing = false;
 
             public Map getState() {
-                state.put(SMTPSession.CURRENT_RECIPIENT, rcpt);
                 return state;
             }
 
             public void writeResponse(String resp) {
-                response = resp;
+                // do nothing
             }
             
             public String getRemoteIPAddress() {
@@ -117,31 +113,23 @@ public class ValidRcptMXTest extends TestCase {
 
         handler.setDNSServer(dns);
         handler.setBannedNetworks(bNetworks, dns);
-        handler.onCommand(setupMockedSMTPSession(new MailAddress("test@" + INVALID_HOST)));
+        String response =  handler.onRcpt(setupMockedSMTPSession(),new MailAddress("test@" + INVALID_HOST));
 
         assertNotNull("Reject", response);
     }
     
-
-    public void testAddJunkScoreLoopbackMX() throws ParseException {
+    public void testNotRejectValidMX() throws ParseException {
         Collection bNetworks = new ArrayList();
-        bNetworks.add("127.0.0.1");
-        
-        SMTPSession session = setupMockedSMTPSession(new MailAddress("test@" + INVALID_HOST));
-        session.getState().put(JunkScore.JUNK_SCORE, new JunkScoreImpl());
         
         DNSService dns = setupMockedDNSServer();
         ValidRcptMX handler = new ValidRcptMX();
-        handler.setScore(20);
-        handler.setAction("junkScore");
 
         ContainerUtil.enableLogging(handler, new MockLogger());
 
         handler.setDNSServer(dns);
         handler.setBannedNetworks(bNetworks, dns);
-        handler.onCommand(session);
+        String response =  handler.onRcpt(setupMockedSMTPSession(),new MailAddress("test@" + INVALID_HOST));
 
         assertNull("Not Reject", response);
-        assertEquals("JunkScore added",((JunkScore) session.getState().get(JunkScore.JUNK_SCORE)).getStoredScore("ValidRcptMXCheck"),20.0, 0d);
     }
 }

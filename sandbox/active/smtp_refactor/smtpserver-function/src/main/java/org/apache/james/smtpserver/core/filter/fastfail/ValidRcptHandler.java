@@ -38,8 +38,8 @@ import org.apache.james.api.vut.ErrorMappingException;
 import org.apache.james.api.vut.VirtualUserTable;
 import org.apache.james.api.vut.VirtualUserTableStore;
 import org.apache.james.dsn.DSNStatus;
-import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.smtpserver.core.PostRcptListener;
 import org.apache.mailet.MailAddress;
 import org.apache.oro.text.regex.MalformedPatternException;
 import org.apache.oro.text.regex.Pattern;
@@ -49,7 +49,7 @@ import org.apache.oro.text.regex.Perl5Matcher;
 /**
  * Handler which reject invalid recipients
  */
-public class ValidRcptHandler extends AbstractLogEnabled implements CommandHandler, Configurable, Serviceable {
+public class ValidRcptHandler extends AbstractLogEnabled implements PostRcptListener, Configurable, Serviceable {
     
     private Collection recipients = new ArrayList();
     private Collection domains = new ArrayList();
@@ -159,46 +159,23 @@ public class ValidRcptHandler extends AbstractLogEnabled implements CommandHandl
         this.vut = vut;
     }
 
-    /**
-     * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
-     */
-    public Collection getImplCommands() {
-        Collection c = new ArrayList();
-        c.add("RCPT");
-            
-        return c;
-    }
+    
 
     /**
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
+     * (non-Javadoc)
+     * @see org.apache.james.smtpserver.core.PostRcptListener#onRcpt(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.MailAddress)
      */
-    public void onCommand(SMTPSession session) {
-        if (!session.isRelayingAllowed() && !(session.isAuthRequired() && session.getUser() != null)) {
-            checkValidRcpt(session);
-        } else {
-            getLogger().debug("Sender allowed");
-        }
-    }
-    
-    
-    
-    /**
-     * Check if the recipient should be accepted
-     * 
-     * @param session The SMTPSession
-     */
-    private void checkValidRcpt(SMTPSession session) {
-        MailAddress rcpt = (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT);
+	public String onRcpt(SMTPSession session, MailAddress rcpt) {
         boolean invalidUser = true;
 
-        if (session.getConfigurationData().getUsersRepository().contains(rcpt.getUser()) == true || recipients.contains(rcpt.toString().toLowerCase()) || domains.contains(rcpt.getHost().toLowerCase())) {
+        if (session.getConfigurationData().getUsersRepository().contains(rcpt.getLocalPart()) == true || recipients.contains(rcpt.toString().toLowerCase()) || domains.contains(rcpt.getDomain().toLowerCase())) {
             invalidUser = false;
         }
 
         // check if an valid virtual mapping exists
         if (invalidUser == true  && vut == true) {
             try {
-                Collection targetString = table.getMappings(rcpt.getUser(), rcpt.getHost());
+                Collection targetString = table.getMappings(rcpt.getLocalPart(), rcpt.getDomain());
         
                 if (targetString != null && targetString.isEmpty() == false) {
                     invalidUser = false;
@@ -208,9 +185,7 @@ public class ValidRcptHandler extends AbstractLogEnabled implements CommandHandl
                 String responseString = e.getMessage();
                 
                 getLogger().info("Rejected message. Reject Message: " + responseString);
-            
-                session.writeResponse(responseString);
-                session.setStopHandlerProcessing(true);
+                return responseString;
             }
         }
         
@@ -232,9 +207,8 @@ public class ValidRcptHandler extends AbstractLogEnabled implements CommandHandl
             String responseString = "554 " + DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_MAILBOX) + " Unknown user: " + rcpt.toString();
         
             getLogger().info("Rejected message. Unknown user: " + rcpt.toString());
-        
-            session.writeResponse(responseString);
-            session.setStopHandlerProcessing(true);
+            return responseString;
         }
-    }
+		return null;
+	}
 }

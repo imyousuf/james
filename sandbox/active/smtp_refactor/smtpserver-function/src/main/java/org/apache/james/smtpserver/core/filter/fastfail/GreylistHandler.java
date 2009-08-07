@@ -48,8 +48,8 @@ import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.util.NetMatcher;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.services.FileSystem;
-import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.smtpserver.core.PostRcptListener;
 import org.apache.james.util.TimeConverter;
 import org.apache.james.util.sql.JDBCUtil;
 import org.apache.james.util.sql.SqlResources;
@@ -59,7 +59,7 @@ import org.apache.mailet.MailAddress;
  * GreylistHandler which can be used to activate Greylisting
  */
 public class GreylistHandler extends AbstractLogEnabled implements
-    CommandHandler, Configurable, Serviceable, Initializable {
+    PostRcptListener, Configurable, Serviceable, Initializable {
 
     private DataSourceSelector datasources = null;
 
@@ -282,108 +282,6 @@ public class GreylistHandler extends AbstractLogEnabled implements
      */
     public void setUnseenLifeTime(String unseenLifeTime) {
         this.unseenLifeTime = TimeConverter.getMilliSeconds(unseenLifeTime);
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
-     */
-    public void onCommand(SMTPSession session) {
-        if (!session.isRelayingAllowed() && !(session.isAuthRequired() && session.getUser() != null)) {
-
-            if ((wNetworks == null) || (!wNetworks.matchInetNetwork(session.getRemoteIPAddress()))) {
-                doGreyListCheck(session, session.getCommandArgument());
-            } else {
-                getLogger().info("IpAddress " + session.getRemoteIPAddress() + " is whitelisted. Skip greylisting.");
-            }
-        } else {
-            getLogger().info("IpAddress " + session.getRemoteIPAddress() + " is allowed to send. Skip greylisting.");
-        }
-    }
-
-    /**
-     * Handler method called upon receipt of a RCPT command. Calls a greylist
-     * check
-     * 
-     * 
-     * @param session
-     *            SMTP session object
-     * @param argument
-     */
-    private void doGreyListCheck(SMTPSession session, String argument) {
-        String recip = "";
-        String sender = "";
-        MailAddress recipAddress = (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT);
-        MailAddress senderAddress = (MailAddress) session.getState().get(SMTPSession.SENDER);
-
-        if (recipAddress != null) recip = recipAddress.toString();
-        if (senderAddress != null) sender = senderAddress.toString();
-    
-        long time = System.currentTimeMillis();
-        String ipAddress = session.getRemoteIPAddress();
-    
-        try {
-            long createTimeStamp = 0;
-            int count = 0;
-            
-            // get the timestamp when he triplet was last seen
-            Iterator data = getGreyListData(datasource.getConnection(), ipAddress, sender, recip);
-            
-            if (data.hasNext()) {
-                createTimeStamp = Long.parseLong(data.next().toString());
-                count = Integer.parseInt(data.next().toString());
-            }
-            
-            getLogger().debug("Triplet " + ipAddress + " | " + sender + " | " + recip  +" -> TimeStamp: " + createTimeStamp);
-
-
-            // if the timestamp is bigger as 0 we have allready a triplet stored
-            if (createTimeStamp > 0) {
-                long acceptTime = createTimeStamp + tempBlockTime;
-        
-                if ((time < acceptTime) && (count == 0)) {
-                    String responseString = "451 " + DSNStatus.getStatus(DSNStatus.TRANSIENT, DSNStatus.NETWORK_DIR_SERVER) 
-                        + " Temporary rejected: Reconnect to fast. Please try again later";
-
-                    // reconnect to fast block it again
-                    session.writeResponse(responseString);
-                    session.setStopHandlerProcessing(true);
-
-                } else {
-                    
-                    getLogger().debug("Update triplet " + ipAddress + " | " + sender + " | " + recip + " -> timestamp: " + time);
-                    
-                    // update the triplet..
-                    updateTriplet(datasource.getConnection(), ipAddress, sender, recip, count, time);
-
-                }
-            } else {
-                getLogger().debug("New triplet " + ipAddress + " | " + sender + " | " + recip );
-           
-                // insert a new triplet
-                insertTriplet(datasource.getConnection(), ipAddress, sender, recip, count, time);
-      
-                // Tempory block on new triplet!
-                String responseString = "451 " + DSNStatus.getStatus(DSNStatus.TRANSIENT, DSNStatus.NETWORK_DIR_SERVER) 
-                    + " Temporary rejected: Please try again later";
-
-                session.writeResponse(responseString);
-                session.setStopHandlerProcessing(true);
-            }
-
-            // some kind of random cleanup process
-            if (Math.random() > 0.99) {
-                // cleanup old entries
-            
-                getLogger().debug("Delete old entries");
-            
-                cleanupAutoWhiteListGreyList(datasource.getConnection(),(time - autoWhiteListLifeTime));
-                cleanupGreyList(datasource.getConnection(), (time - unseenLifeTime));
-            }
-
-        } catch (SQLException e) {
-            // just log the exception
-            getLogger().error("Error on SQLquery: " + e.getMessage());
-        }
     }
 
     /**
@@ -678,9 +576,82 @@ public class GreylistHandler extends AbstractLogEnabled implements
         return wNetworks;
     }
 
-    public Collection getImplCommands() {
-        Collection c = new ArrayList();
-        c.add("RCPT");
-        return c;
-    }
+	public String onRcpt(SMTPSession session, MailAddress recipAddress) {
+		
+		//whitelisted
+		if ((wNetworks != null) &&!wNetworks.matchInetNetwork(session.getRemoteIPAddress())) {
+			 return null;
+		 }
+		
+		String responseString = null;
+		String recip = "";
+        String sender = "";
+        MailAddress senderAddress = (MailAddress) session.getState().get(SMTPSession.SENDER);
+
+        if (recipAddress != null) recip = recipAddress.toString();
+        if (senderAddress != null) sender = senderAddress.toString();
+    
+        long time = System.currentTimeMillis();
+        String ipAddress = session.getRemoteIPAddress();
+    
+        try {
+            long createTimeStamp = 0;
+            int count = 0;
+            
+            // get the timestamp when he triplet was last seen
+            Iterator data = getGreyListData(datasource.getConnection(), ipAddress, sender, recip);
+            
+            if (data.hasNext()) {
+                createTimeStamp = Long.parseLong(data.next().toString());
+                count = Integer.parseInt(data.next().toString());
+            }
+            
+            getLogger().debug("Triplet " + ipAddress + " | " + sender + " | " + recip  +" -> TimeStamp: " + createTimeStamp);
+
+
+            // if the timestamp is bigger as 0 we have allready a triplet stored
+            if (createTimeStamp > 0) {
+                long acceptTime = createTimeStamp + tempBlockTime;
+        
+                if ((time < acceptTime) && (count == 0)) {
+                    responseString = "451 " + DSNStatus.getStatus(DSNStatus.TRANSIENT, DSNStatus.NETWORK_DIR_SERVER) 
+                        + " Temporary rejected: Reconnect to fast. Please try again later";
+
+                    // reconnect to fast block it again
+
+                } else {
+                    
+                    getLogger().debug("Update triplet " + ipAddress + " | " + sender + " | " + recip + " -> timestamp: " + time);
+                    
+                    // update the triplet..
+                    updateTriplet(datasource.getConnection(), ipAddress, sender, recip, count, time);
+
+                }
+            } else {
+                getLogger().debug("New triplet " + ipAddress + " | " + sender + " | " + recip );
+           
+                // insert a new triplet
+                insertTriplet(datasource.getConnection(), ipAddress, sender, recip, count, time);
+      
+                // Tempory block on new triplet!
+            
+            }
+
+            // some kind of random cleanup process
+            if (Math.random() > 0.99) {
+                // cleanup old entries
+            
+                getLogger().debug("Delete old entries");
+            
+                cleanupAutoWhiteListGreyList(datasource.getConnection(),(time - autoWhiteListLifeTime));
+                cleanupGreyList(datasource.getConnection(), (time - unseenLifeTime));
+            }
+            return responseString;
+
+        } catch (SQLException e) {
+            // just log the exception
+            getLogger().error("Error on SQLquery: " + e.getMessage());
+        }		
+        return null;
+	}
 }

@@ -24,15 +24,15 @@ package org.apache.james.smtpserver.core;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
 
 /**
  * Handles EHLO command
  */
-public class EhloCmdHandler extends AbstractLogEnabled implements
-        CommandHandler {
+public class EhloCmdHandler extends AbstractCmdHandler<PostEhloListener> implements
+        CommandHandler, PostEhloListener {
 
     /**
      * The name of the command handled by the command handler
@@ -57,14 +57,49 @@ public class EhloCmdHandler extends AbstractLogEnabled implements
      * @param argument the argument passed in with the command by the SMTP client
      */
     private void doEHLO(SMTPSession session, String argument) {
-        StringBuffer responseBuffer = session.getResponseBuffer();
+        String responseString = null;        
+        
+        session.resetState();
+        
+        if (argument == null) {
+            responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Domain address required: " + COMMAND_NAME;
+            session.writeResponse(responseString);
+            
+            // After this filter match we should not call any other handler!
+            session.setStopHandlerProcessing(true);
+        } else {
+        	for (int i = 0; i < listeners.size(); i++) {
+        		listeners.get(i).onEhlo(session, argument);
+        	}
+        }
+        
+    	
+    }
+    
+    /**
+     * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
+     */
+    public Collection getImplCommands() {
+        Collection implCommands = new ArrayList();
+        implCommands.add("EHLO");
+        
+        return implCommands;
+    }
+
+	@Override
+	protected PostEhloListener getLastListener() {
+		return this;
+	}
+
+	public String onEhlo(SMTPSession session, String heloName) {
+		StringBuffer responseBuffer = session.getResponseBuffer();
 
         session.getConnectionState().put(SMTPSession.CURRENT_HELO_MODE, COMMAND_NAME);
 
         ArrayList esmtpextensions = new ArrayList();
 
         esmtpextensions.add(new StringBuffer(session.getConfigurationData()
-                .getHelloName()).append(" Hello ").append(argument)
+                .getHelloName()).append(" Hello ").append(heloName)
                 .append(" (").append(session.getRemoteHost()).append(" [")
                 .append(session.getRemoteIPAddress()).append("])").toString());
 
@@ -90,23 +125,14 @@ public class EhloCmdHandler extends AbstractLogEnabled implements
             if (i == esmtpextensions.size() - 1) {
                 responseBuffer.append("250 ");
                 responseBuffer.append((String) esmtpextensions.get(i));
-                session.writeResponse(session.clearResponseBuffer());
             } else {
                 responseBuffer.append("250-");
                 responseBuffer.append((String) esmtpextensions.get(i));
-                session.writeResponse(session.clearResponseBuffer());
             }
         }
-
-    }
-    
-    /**
-     * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
-     */
-    public Collection getImplCommands() {
-        Collection implCommands = new ArrayList();
-        implCommands.add("EHLO");
+        // store provided name
+        session.getState().put(SMTPSession.CURRENT_HELO_NAME, heloName);
         
-        return implCommands;
-    }
+		return responseBuffer.toString();
+	}
 }

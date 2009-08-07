@@ -22,48 +22,41 @@
 
 package org.apache.james.smtpserver.core.filter.fastfail;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.dsn.DSNStatus;
-import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.smtpserver.core.PostRcptListener;
 import org.apache.mailet.MailAddress;
 
 /**
  * 
  * This handler can be used to just ignore duplicated recipients. 
  */
-public class SupressDuplicateRcptHandler extends AbstractLogEnabled implements CommandHandler {
+public class SupressDuplicateRcptHandler extends AbstractLogEnabled implements PostRcptListener {
 
-    /**
-     * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
-     */
-    public Collection getImplCommands() {
-        Collection c = new ArrayList();
-        c.add("RCPT");
-    
-        return c;
-    }
+   
+	/**
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.james.smtpserver.core.PostRcptListener#onRcpt(org.apache.james.smtpserver.SMTPSession,
+	 *      org.apache.mailet.MailAddress)
+	 */
+	public String onRcpt(SMTPSession session, MailAddress rcpt) {
+		Collection rcptList = (Collection) session.getState().get(
+				SMTPSession.RCPT_LIST);
 
-    /**
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
-     */
-    public void onCommand(SMTPSession session) {
-        MailAddress rcpt = (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT);
-        Collection rcptList = (Collection) session.getState().get(SMTPSession.RCPT_LIST);
-    
-        // Check if the recipient is allready in the rcpt list
-        if(rcptList != null && rcptList.contains(rcpt)) {
-            StringBuffer responseBuffer = new StringBuffer();
-        
-            responseBuffer.append("250 " + DSNStatus.getStatus(DSNStatus.SUCCESS, DSNStatus.ADDRESS_VALID) + " Recipient <")
-                          .append(rcpt.toString()).append("> OK");
-            session.writeResponse(responseBuffer.toString());
-            session.setStopHandlerProcessing(true);
-            
-            getLogger().debug("Duplicate recipient not add to recipient list: " + rcpt.toString());
-        }
-    }
+		// Check if the recipient is allready in the rcpt list
+		if (rcptList != null && rcptList.contains(rcpt)) {
+			StringBuffer responseBuffer = new StringBuffer();
+
+			responseBuffer.append("250 " + DSNStatus.getStatus(DSNStatus.SUCCESS, DSNStatus.ADDRESS_VALID) + " Recipient <")
+					.append(rcpt.toString()).append("> OK");
+
+			getLogger().debug("Duplicate recipient not add to recipient list: "+ rcpt.toString());
+			return responseBuffer.toString();
+		}
+		return null;
+	}
 }

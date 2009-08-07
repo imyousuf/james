@@ -25,7 +25,7 @@ package org.apache.james.smtpserver.core;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
 
@@ -33,13 +33,13 @@ import org.apache.james.smtpserver.SMTPSession;
 /**
   * Handles HELO command
   */
-public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler {
+public class HeloCmdHandler extends AbstractCmdHandler<PostHeloListener> implements CommandHandler, PostHeloListener {
 
     /**
      * The name of the command handled by the command handler
      */
-    private final static String COMMAND_NAME = "HELO";   
-      
+    private final static String COMMAND_NAME = "HELO";       
+    
     /**
      * process HELO command
      *
@@ -54,16 +54,28 @@ public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler
      * @param argument the argument passed in with the command by the SMTP client
      */
     private void doHELO(SMTPSession session, String argument) {
-        String responseString = null;
-
-        session.getConnectionState().put(SMTPSession.CURRENT_HELO_MODE, COMMAND_NAME);
-        session.getResponseBuffer().append("250 ").append(
-                session.getConfigurationData().getHelloName())
-                .append(" Hello ").append(argument).append(" (").append(
-                        session.getRemoteHost()).append(" [").append(
-                        session.getRemoteIPAddress()).append("])");
-        responseString = session.clearResponseBuffer();
-        session.writeResponse(responseString);
+        String responseString = null;        
+        session.resetState();
+        
+        if (argument == null) {
+            responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Domain address required: " + COMMAND_NAME;
+            session.writeResponse(responseString);
+            
+            // After this filter match we should not call any other handler!
+            session.setStopHandlerProcessing(true);
+        }  else {
+        	 session.getConnectionState().put(SMTPSession.CURRENT_HELO_MODE, COMMAND_NAME);
+             
+             for (int i = 0; i < listeners.size(); i++) {
+             	responseString = listeners.get(i).onHelo(session, argument);
+             	if (responseString != null) {
+             		session.setStopHandlerProcessing(true);
+             		break;
+             	}
+             }
+             session.writeResponse(responseString);
+        }
+       
     }
     
     /**
@@ -74,5 +86,26 @@ public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler
         implCommands.add("HELO");
         
         return implCommands;
-    } 
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.smtpserver.core.PostHeloListener#onHelo(org.apache.james.smtpserver.SMTPSession, java.lang.String)
+     */
+	public String onHelo(SMTPSession session, String heloName) {
+        // store provided name
+        session.getState().put(SMTPSession.CURRENT_HELO_NAME,heloName);
+		session.getResponseBuffer().append("250 ").append(
+                session.getConfigurationData().getHelloName())
+                .append(" Hello ").append(heloName).append(" (").append(
+                        session.getRemoteHost()).append(" [").append(
+                        session.getRemoteIPAddress()).append("])");
+        String responseString = session.clearResponseBuffer();
+        return responseString;
+	}
+
+	@Override
+	protected PostHeloListener getLastListener() {
+		return this;
+	} 
 }
