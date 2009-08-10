@@ -32,7 +32,6 @@ import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.smtpserver.core.CoreCmdHandlerLoader;
 import org.apache.james.smtpserver.core.SendMailHandler;
 import org.apache.james.smtpserver.core.UnknownCmdHandler;
-import org.apache.james.smtpserver.core.filter.CoreFilterCmdHandlerLoader;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -77,8 +76,7 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
                 || configuration.getChildren("handler").length == 0) {
             configuration = new DefaultConfiguration("handlerchain");
             Properties cmds = new Properties();
-            cmds.setProperty("Default CoreCmdFilterHandlerLoader",
-                    CoreFilterCmdHandlerLoader.class.getName());
+           
             cmds.setProperty("Default CoreCmdHandlerLoader", CoreCmdHandlerLoader.class
                     .getName());
             cmds.setProperty("Default SendMailHandler", SendMailHandler.class
@@ -95,10 +93,7 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
             Configuration[] children = configuration.getChildren("handler");
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
-            // load the BaseFilterCmdHandler
-            loadClass(classLoader, CoreFilterCmdHandlerLoader.class.getName(),
-                    addHandler(null, CoreFilterCmdHandlerLoader.class.getName()));
-
+      
             // load the configured handlers
             if (children != null) {
                 for (int i = 0; i < children.length; i++) {
@@ -106,9 +101,7 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
                     if (className != null) {
 
                         // ignore base handlers.
-                        if (!className.equals(CoreFilterCmdHandlerLoader.class
-                                .getName())
-                                && !className.equals(CoreCmdHandlerLoader.class
+                        if (!className.equals(CoreCmdHandlerLoader.class
                                         .getName())
                                 && !className.equals(SendMailHandler.class
                                         .getName())) {

@@ -24,7 +24,6 @@ package org.apache.james.smtpserver;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.james.smtpserver.core.CoreCmdHandlerLoader;
-import org.apache.james.smtpserver.core.filter.CoreFilterCmdHandlerLoader;
 import org.apache.james.smtpserver.core.filter.fastfail.DNSRBLHandler;
 import org.apache.james.smtpserver.core.filter.fastfail.MaxRcptHandler;
 import org.apache.james.smtpserver.core.filter.fastfail.ResolvableEhloHeloHandler;
@@ -183,8 +182,6 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
 
         }
 
-        config.addChild(createHandler(CoreFilterCmdHandlerLoader.class
-                .getName(), null));
 
         if (m_heloResolv || m_ehloResolv) {
             DefaultConfiguration d = createHandler(

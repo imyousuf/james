@@ -166,6 +166,9 @@ public class ValidRcptHandler extends AbstractLogEnabled implements PostRcptList
      * @see org.apache.james.smtpserver.core.PostRcptListener#onRcpt(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.MailAddress)
      */
 	public String onRcpt(SMTPSession session, MailAddress rcpt) {
+		if (session.isRelayingAllowed()) {
+			return null;
+		}
         boolean invalidUser = true;
 
         if (session.getConfigurationData().getUsersRepository().contains(rcpt.getLocalPart()) == true || recipients.contains(rcpt.toString().toLowerCase()) || domains.contains(rcpt.getDomain().toLowerCase())) {

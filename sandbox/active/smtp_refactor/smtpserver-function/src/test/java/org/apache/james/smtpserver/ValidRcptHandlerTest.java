@@ -180,17 +180,7 @@ public class ValidRcptHandlerTest extends TestCase {
     
         assertNotNull("Rejected",response);
     }
-    
-    public void testNotRejectInvalidUserAuth() throws Exception {
-        ValidRcptHandler handler = new ValidRcptHandler();
-        ContainerUtil.service(handler, setUpServiceManager());
-        SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(),false,true,"authedUser");
-        ContainerUtil.enableLogging(handler,new MockLogger());
-    
-        String response = handler.onRcpt(session,new MailAddress(INVALID_USER + "@localhost"));
-    
-        assertNull("Not rejected",response);
-    }
+ 
     
     public void testNotRejectInvalidUserRelay() throws Exception {
         ValidRcptHandler handler = new ValidRcptHandler();
