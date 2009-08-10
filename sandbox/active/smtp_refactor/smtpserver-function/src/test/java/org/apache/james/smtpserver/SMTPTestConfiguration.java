@@ -184,9 +184,7 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
 
 
         if (m_heloResolv || m_ehloResolv) {
-            DefaultConfiguration d = createHandler(
-                    ResolvableEhloHeloHandler.class.getName(), null);
-            d.setAttribute("command", "EHLO,HELO,RCPT");
+            DefaultConfiguration d = createListener(ResolvableEhloHeloHandler.class.getName());
             d.addChild(Util.getValuedConfiguration("checkAuthNetworks",
                     m_checkAuthNetworks + ""));
             config.addChild(d);
@@ -232,5 +230,11 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
         d.setAttribute("class", className);
         return d;
     }
-    
+   
+    private DefaultConfiguration createListener(String className) {
+        DefaultConfiguration d = new DefaultConfiguration("handler");
+        
+        d.setAttribute("class", className);
+        return d;
+    }
 }

@@ -30,6 +30,8 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.smtpserver.core.CoreCmdHandlerLoader;
+import org.apache.james.smtpserver.core.HeloCmdHandler;
+import org.apache.james.smtpserver.core.PostHeloListener;
 import org.apache.james.smtpserver.core.SendMailHandler;
 import org.apache.james.smtpserver.core.UnknownCmdHandler;
 
@@ -52,6 +54,7 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
     private HashMap commandHandlerMap = new HashMap();
     private ArrayList messageHandlers = new ArrayList();
     private ArrayList connectHandlers = new ArrayList();
+    private ArrayList listeners = new ArrayList();
 
     private final CommandHandler unknownHandler = new UnknownCmdHandler();
     private ServiceManager serviceManager;
@@ -119,6 +122,30 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
                         addHandler(null, SendMailHandler.class.getName()));
             }
         }
+        
+        if (configuration != null) {
+            Configuration[] children = configuration.getChildren("listener");
+            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+
+      
+            // load the configured listener
+            if (children != null) {
+                for (int i = 0; i < children.length; i++) {
+                    String className = children[i].getAttribute("class");
+                    if (className != null) { 
+                        // load the listener
+                        loadClass(classLoader, className, children[i]);
+                        
+                    }
+                }
+
+                // load the BaseCmdHandler and SendMailHandler
+                loadClass(classLoader, CoreCmdHandlerLoader.class.getName(),
+                        addHandler(null, CoreCmdHandlerLoader.class.getName()));
+                loadClass(classLoader, SendMailHandler.class.getName(),
+                        addHandler(null, SendMailHandler.class.getName()));
+            }
+        }
 
         // the size must be greater than 1 because we added UnknownCmdHandler to
         // the map
@@ -173,6 +200,7 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
               ContainerUtil.initialize(h2.next());
             }
         }
+        bindListeners();
     }
 
     /**
@@ -261,6 +289,13 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
                     getLogger().info("Added MessageHandler: " + className);
                 }
             }
+            
+            if (handler instanceof PostHeloListener) {
+            	listeners.add(handler);
+                if (getLogger().isInfoEnabled()) {
+                    getLogger().info("Added PostHeloListener: " + className);
+                }
+            }
         } catch (ClassNotFoundException ex) {
             if (getLogger().isErrorEnabled()) {
                 getLogger().error("Failed to add Commandhandler: " + className,
@@ -291,6 +326,27 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
                     + className, e);
         }
     }
+    
+    private void bindListeners() {
+    	Iterator it = commandHandlerMap.entrySet().iterator();
+    	while(it.hasNext()) {
+    		Object obj = it.next();
+    		Iterator listenerIt = listeners.iterator();
+    		
+    		if (obj instanceof HeloCmdHandler) {
+    			while (listenerIt.hasNext()) {
+        			Object listener = listenerIt.next();
+        			if (listener instanceof PostHeloListener) {
+        				((HeloCmdHandler) obj).addListener((PostHeloListener) listener);
+        				if (getLogger().isInfoEnabled()) {
+        					getLogger().info("Bind PostHeloListener " + listener.getClass().getName() + " to handler " + obj.getClass().getName());
+        				}
+
+        			}
+        		}
+    		}
+    	}
+    }
 
     /**
      * Return a DefaultConfiguration build on the given command name and classname
@@ -306,6 +362,7 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
         return cmdConf;
     }
 
+    
     /**
      * Add it to map (key as command name, value is an array list of commandhandlers)
      *

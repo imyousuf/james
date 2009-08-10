@@ -77,8 +77,7 @@ public class SendMailHandler
 
 	@Override
 	protected PostDataListener getLastListener() {
-		// TODO Auto-generated method stub
-		return null;
+		return this;
 	}
 
 	public String onData(SMTPSession session, Mail mail) {

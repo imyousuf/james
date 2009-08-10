@@ -13,8 +13,12 @@ public abstract class AbstractCmdHandler<Listener> extends AbstractLogEnabled {
     }
     
     public void setListener(List<Listener> listeners) {
-    	listeners.addAll(this.listeners);
     	this.listeners = listeners;
+    	listeners.add(getLastListener());
+    }
+    
+    public void addListener(Listener listener) {
+    	listeners.add(listeners.size() -1,listener);
     }
     
     protected abstract Listener getLastListener();
