@@ -1,0 +1,442 @@
+<?xml version="1.0" encoding="ISO-8859-15"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.    
+-->
+<!--
+ | DISCLAIMER DISCLAIMER DISCLAIMER DISCLAIMER DISCLAIMER 
+ | 
+ | This file is only intended to be used to build the james-server
+ | website. It must not be used to build packages for james-server
+ | application.
+ | 
+ | DISCLAIMER DISCLAIMER DISCLAIMER DISCLAIMER DISCLAIMER 
+ -->
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.apache.james</groupId>
+  <artifactId>james-server</artifactId>
+  <name>Apache JAMES Server</name>
+  <version>2.3.2</version>
+  <packaging>jar</packaging>
+  <description>
+    The Apache Java Enterprise Mail Server (a.k.a. JAMES Server)
+  </description>
+  <parent>
+    <artifactId>james-server-root</artifactId>
+    <groupId>org.apache.james</groupId>
+    <version>1.2</version>
+    <relativePath>../james-project/project/server/pom.xml</relativePath>
+  </parent>
+  <url>http://james.apache.org/server/2.3.2/</url>
+  <inceptionYear>2002</inceptionYear>
+
+  <scm>
+    <connection>
+      scm:svn:http://svn.apache.org/repos/asf/james/server/tags/2_3_2
+    </connection>
+    <developerConnection>
+      scm:svn:https://${maven.username}@svn.apache.org/repos/asf/james/server/tags/2_3_2
+    </developerConnection>
+    <url>
+      http://svn.apache.org/viewcvs.cgi/james/server/tags/2_3_2?root=Apache-SVN
+    </url>
+  </scm>
+
+  <repositories>
+    <!-- 
+     this should be removed and custom jars should 
+     be copied to a local files based repository.
+    -->
+    <repository>
+      <id>bago-dist-m1</id>
+      <name>Temporary Repository</name>
+      <url>http://people.apache.org/~bago/maven/dist-m1</url>
+      <layout>legacy</layout>
+      <snapshots>
+        <enabled>true</enabled>
+        <checksumPolicy>ignore</checksumPolicy>
+      </snapshots>
+    </repository>
+    
+    <repository>
+      <id>central</id>
+      <name>Apache Snapshot Repository</name>
+      <url>http://people.apache.org/repo/m2-ibiblio-rsync-repository</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+    
+    <repository>
+      <id>apache.snapshots</id>
+      <name>Apache Snapshot Repository</name>
+      <url>http://people.apache.org/repo/m2-snapshot-repository</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+    </repository>
+
+<!-- 
+    <repository>
+      <id>local-server-3rd-party-m1</id>
+      <name>Local Server third party repository</name>
+      <url>file://${basedir}/repos/third-party-m1</url>
+      <layout>legacy</layout>
+      <releases>
+        <enabled>true</enabled>
+        <checksumPolicy>ignore</checksumPolicy>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+        <checksumPolicy>ignore</checksumPolicy>
+      </snapshots>
+    </repository>
+ -->
+     
+    <repository>
+      <id>ibiblio</id>
+      <name>Main maven repo</name>
+      <url>http://repo1.maven.org/maven2</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+ 
+  </repositories>
+
+  <dependencies verbose="true">
+
+    <!-- NEED TO DEAL WITH THESE JARS -->
+    <dependency>
+      <groupId>org.bouncycastle</groupId>
+      <artifactId>bcmail-jdk14</artifactId>
+      <version>129</version>
+    </dependency>
+    <dependency>
+      <groupId>org.bouncycastle</groupId>
+      <artifactId>bcmail-jdk14-workaround</artifactId>
+      <version>129</version>
+    </dependency>
+    <!-- NEED TO DEAL WITH THESE JARS -->
+    
+    <dependency>
+      <groupId>javax.mail</groupId>
+      <artifactId>mail</artifactId>
+      <version>1.4</version>
+    </dependency>
+
+    <dependency>
+      <groupId>avalon-framework</groupId>
+      <artifactId>avalon-framework-api</artifactId>
+      <version>4.3</version>
+    </dependency>
+
+    <dependency>
+      <groupId>avalon-framework</groupId>
+      <artifactId>avalon-framework-impl</artifactId>
+      <version>4.3</version>
+      <exclusions>
+        <exclusion>
+          <groupId>commons-logging</groupId>
+          <artifactId>commons-logging</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>jmock</groupId>
+          <artifactId>jmock</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>xalan</groupId>
+          <artifactId>xalan</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>xml-apis</groupId>
+          <artifactId>xmlParserAPIs</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-dbcp</groupId>
+      <artifactId>commons-dbcp</artifactId>
+      <version>1.2.1</version>
+      <exclusions>
+        <exclusion>
+          <groupId>xerces</groupId>
+          <artifactId>xercesImpl</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-net</groupId>
+      <artifactId>commons-net</artifactId>
+      <version>1.4.1</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>cornerstone-connection</groupId>
+      <artifactId>cornerstone-connection-api</artifactId>
+      <version>2.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>cornerstone-connection</groupId>
+      <artifactId>cornerstone-connection-impl</artifactId>
+      <version>2.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>cornerstone-sockets</groupId>
+      <artifactId>cornerstone-sockets-api</artifactId>
+      <version>2.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>cornerstone-sockets</groupId>
+      <artifactId>cornerstone-sockets-impl</artifactId>
+      <version>2.1</version>
+      <exclusions>
+        <exclusion>
+          <groupId>xml-apis</groupId>
+          <artifactId>xml-apis</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>cornerstone-datasources</groupId>
+      <artifactId>cornerstone-datasources-api</artifactId>
+      <version>2.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>excalibur-datasource</groupId>
+      <artifactId>excalibur-datasource</artifactId>
+      <version>2.1</version>
+      <exclusions>
+        <exclusion>
+          <groupId>excalibur-pool</groupId>
+          <artifactId>excalibur-pool-instrumented</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>excalibur-component</groupId>
+          <artifactId>excalibur-component</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>excalibur-component</groupId>
+          <artifactId>excalibur-testcase</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>excalibur-fortress</groupId>
+          <artifactId>excalibur-fortress</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>excalibur-fortress</groupId>
+          <artifactId>excalibur-fortress-container-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>excalibur-logger</groupId>
+          <artifactId>excalibur-logger</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>hsqldb</groupId>
+          <artifactId>hsqldb</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>excalibur-fortress</groupId>
+          <artifactId>excalibur-fortress-meta</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>cornerstone-datasources</groupId>
+      <artifactId>cornerstone-datasources-impl</artifactId>
+      <version>2.1</version>
+      <exclusions>
+        <exclusion>
+          <groupId>d-haven-managed-pool</groupId>
+          <artifactId>d-haven-managed-pool</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>cornerstone-scheduler</groupId>
+      <artifactId>cornerstone-scheduler-api</artifactId>
+      <version>2.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>cornerstone-scheduler</groupId>
+      <artifactId>cornerstone-scheduler-impl</artifactId>
+      <version>2.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>cornerstone-store</groupId>
+      <artifactId>cornerstone-store-api</artifactId>
+      <version>2.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>cornerstone-store</groupId>
+      <artifactId>cornerstone-store-impl</artifactId>
+      <version>2.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>dnsjava</groupId>
+      <artifactId>dnsjava</artifactId>
+      <version>2.0.6</version>
+    </dependency>
+
+    <dependency>
+      <groupId>excalibur-thread</groupId>
+      <artifactId>excalibur-thread-api</artifactId>
+      <version>2.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>excalibur-thread</groupId>
+      <artifactId>excalibur-thread-impl</artifactId>
+      <version>2.1</version>
+      <exclusions>
+        <exclusion>
+          <groupId>junitperf</groupId>
+          <artifactId>junitperf</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>avalon-logkit</groupId>
+      <artifactId>avalon-logkit</artifactId>
+      <version>2.1</version>
+      <exclusions>
+        <exclusion>
+          <groupId>geronimo-spec</groupId>
+          <artifactId>geronimo-spec-javamail</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>geronimo-spec</groupId>
+          <artifactId>geronimo-spec-jms</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>servletapi</groupId>
+          <artifactId>servletapi</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>oro</groupId>
+      <artifactId>oro</artifactId>
+      <version>2.0.8</version>
+    </dependency>
+
+  </dependencies>
+
+  <distributionManagement>
+    <site>
+      <id>server-2.3.2-website</id>
+      <url>scp://people.apache.org/www/james.apache.org/server/2.3.2/</url>
+    </site>
+  </distributionManagement>
+
+  <build>
+    <sourceDirectory>src/java</sourceDirectory>
+    <testSourceDirectory>src/test</testSourceDirectory>
+
+    <testResources>
+      <testResource>
+        <directory>src/test</directory>
+        <includes>
+          <include>**/*.zone</include>
+        </includes>
+      </testResource>
+    </testResources>
+    
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <optimize>true</optimize>
+          <source>1.4</source>
+          <target>1.4</target>
+        </configuration>
+      </plugin>
+    </plugins>
+
+  </build>
+
+  <reporting>
+    <plugins>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+      </plugin>
+      <!-- Removed because it seems to have bugs.
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>surefire-report-maven-plugin</artifactId>
+      </plugin>
+      -->
+      <plugin>
+        <artifactId>maven-javadoc-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>jxr-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <artifactId>maven-pmd-plugin</artifactId>
+        <configuration>
+          <targetjdk>1.4</targetjdk>
+          <rulesets>
+            <ruleset>/rulesets/basic.xml</ruleset>
+            <ruleset>/rulesets/controversial.xml</ruleset>
+          </rulesets>
+          <format>xml</format>
+          <linkXref>true</linkXref>
+          <sourceEncoding>utf-8</sourceEncoding>
+          <minimumTokens>100</minimumTokens>
+        </configuration>
+      </plugin>
+      <!--
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>taglist-maven-plugin</artifactId>
+      </plugin>
+      -->
+      <plugin>
+        <artifactId>maven-site-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </reporting>
+
+</project>

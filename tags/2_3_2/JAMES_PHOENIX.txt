@@ -1,0 +1,51 @@
+This is Phoenix 4.2 trunk with updated libraries.
+
+https://svn.apache.org/repos/asf/avalon/cvs-migration-snapshot/avalon-phoenix/
+
+Here are the differences between the svn version and this one:
+
+- removed xml libraries (we run only in java 1.4+)
+  upgraded avalon libraries to 4.3
+  upgraded cornerstone libraries to 2.1
+  upgraded logkit to 2.1
+  upgraded wrapper.* files to 3.2.0 release (http://wrapper.tanukisoftware.org/)
+  changed the build.xml to reflect the changes (e.g: added target=1.4).
+
+- changed the default SystemManager to NoopSystemManager in kernel.xml
+
+- added this code to org.apache.avalon.phoenix.launcher.Main:121:
+  ---------------------------------
+    // Set the Security property to the same value of the system property.
+    String ttlcache = System.getProperty("networkaddress.cache.ttl");
+    if (ttlcache != null) {
+        Security.setProperty("networkaddress.cache.ttl" , ttlcache);
+    }
+  ---------------------------------
+  ref: JAMES-679, JAMES-592
+
+- added a "-Dnetworkaddress.cache.ttl=300" to all executing scripts:
+  wrapper.conf, phoenix.sh, run.bat, james-server.sh
+
+- changed org.apache.avalon.phoenix.components.classloader.DefaultLoaderResolver
+  ---------------------------------
+    protected final URL[] resolveFileSet( final File base,
+                                          final String baseDirectory,
+                                          final String[] includes,
+                                          final String[] excludes )
+    {
+        //woefully inefficient .. but then again - no need
+        //for efficency here
+        final String newBaseDirectory = normalize( baseDirectory );
+        File newBase = new File(base, newBaseDirectory);
+        final ArrayList urls = new ArrayList();
+        if (newBase.exists() && newBase.isDirectory()) {
+        	final PathMatcher matcher = new PathMatcher( includes, excludes );
+        	scanDir( newBase, matcher, "", urls );
+        }
+        return (URL[]) urls.toArray( new URL[urls.size()] );
+    }
+  ---------------------------------
+  ref: JAMES-781
+
+Rebuilt.
+
