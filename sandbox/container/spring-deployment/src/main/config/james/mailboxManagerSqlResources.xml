@@ -1,0 +1,180 @@
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one   
+  or more contributor license agreements.  See the NOTICE file 
+  distributed with this work for additional information        
+  regarding copyright ownership.  The ASF licenses this file   
+  to you under the Apache License, Version 2.0 (the            
+  "License"); you may not use this file except in compliance   
+  with the License.  You may obtain a copy of the License at   
+                                                               
+    http://www.apache.org/licenses/LICENSE-2.0                 
+                                                               
+  Unless required by applicable law or agreed to in writing,   
+  software distributed under the License is distributed on an  
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY       
+  KIND, either express or implied.  See the License for the    
+  specific language governing permissions and limitations      
+  under the License.                                           
+ -->
+ <!-- SQL Statements used by MailboxManager for database access. -->
+<sqlResources>
+
+<!--
+     This section provided configuration to determine the determine the
+     database product which is being used for storage. Different database
+     products may require different SQL syntax.
+
+     The jdbc database connection is examined to see if it matches with the
+     regular expressions specified in any of the defined matchers. The matchers
+     are processed in the over provided here, with the first successful match
+     defining the "db" value for this connection.
+
+     This value is then used to choose between different definitions for various
+     named sql statements, defined below. If no match is found,
+     the default sql statements are used.
+-->
+  <dbMatchers>
+    <dbMatcher db="mysql" databaseProductName="my.*"/>
+    <dbMatcher db="derby" databaseProductName="derby.*"/>
+  </dbMatchers>
+
+  <dbOptions>
+  </dbOptions>
+  <sqlDefs name="org.apache.james.mailboxmanager.torque.DefaultMailboxManager">
+
+    <sql name="tableName">${table}</sql>
+
+    <sql name="createTable_mailbox" db="derby">
+CREATE TABLE mailbox
+(
+    mailbox_id BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY,
+    name VARCHAR(255) NOT NULL,
+    uid_validity BIGINT NOT NULL,
+    last_uid BIGINT NOT NULL,
+    message_count INTEGER default 0,
+    size BIGINT default 0,
+    PRIMARY KEY(mailbox_id),
+    UNIQUE (name))
+    </sql>
+    <sql name="createTable_message" db="derby">
+CREATE TABLE message
+(
+    mailbox_id BIGINT NOT NULL,
+    uid BIGINT NOT NULL,
+    internal_date TIMESTAMP,
+    size INTEGER,
+    PRIMARY KEY(mailbox_id,uid),
+    FOREIGN KEY (mailbox_id) REFERENCES mailbox (mailbox_id)
+        ON DELETE CASCADE
+  )     
+    </sql>
+    <sql name="createTable_message_flags" db="derby">   
+CREATE TABLE message_flags
+(
+    mailbox_id BIGINT NOT NULL,
+    uid BIGINT NOT NULL,
+    answered INTEGER default 0 NOT NULL,
+    deleted INTEGER default 0 NOT NULL,
+    draft INTEGER default 0 NOT NULL,
+    flagged INTEGER default 0 NOT NULL,
+    recent INTEGER default 0 NOT NULL,
+    seen INTEGER default 0 NOT NULL,
+    PRIMARY KEY(mailbox_id,uid),
+    FOREIGN KEY (mailbox_id, uid) REFERENCES message (mailbox_id, uid)
+        ON DELETE CASCADE
+  )
+    </sql>      
+    <sql name="createTable_message_header" db="derby">  
+CREATE TABLE message_header
+(
+    mailbox_id BIGINT NOT NULL,
+    uid BIGINT NOT NULL,
+    line_number INTEGER NOT NULL,
+    field VARCHAR(256) NOT NULL,
+    value VARCHAR(1024) NOT NULL,
+    PRIMARY KEY(mailbox_id,uid,line_number),
+    FOREIGN KEY (mailbox_id, uid) REFERENCES message (mailbox_id, uid)
+        ON DELETE CASCADE
+  ) 
+    </sql>  
+    <sql name="createTable_message_body" db="derby">    
+CREATE TABLE message_body
+(
+    mailbox_id BIGINT NOT NULL,
+    uid BIGINT NOT NULL,
+    body BLOB NOT NULL,
+    PRIMARY KEY(mailbox_id,uid),
+    FOREIGN KEY (mailbox_id, uid) REFERENCES message (mailbox_id, uid)
+        ON DELETE CASCADE
+  )
+    </sql>  
+    <!--
+       *** MySQL ***
+    -->
+    <sql name="createTable_mailbox" db="mysql">
+CREATE TABLE mailbox
+(
+    mailbox_id BIGINT NOT NULL AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    uid_validity BIGINT NOT NULL,
+    last_uid BIGINT NOT NULL,
+    message_count MEDIUMINT default 0,
+    size BIGINT default 0,
+    PRIMARY KEY(mailbox_id),
+    UNIQUE (name)) ENGINE=INNODB;
+    </sql>
+    <sql name="createTable_message" db="mysql">
+CREATE TABLE message
+(
+    mailbox_id BIGINT NOT NULL,
+    uid BIGINT NOT NULL,
+    internal_date DATETIME,
+    size MEDIUMINT,
+    PRIMARY KEY(mailbox_id,uid),
+    FOREIGN KEY (mailbox_id) REFERENCES mailbox (mailbox_id)
+        ON DELETE CASCADE
+  ) ENGINE=INNODB;      
+    </sql>
+    <sql name="createTable_message_flags" db="mysql">   
+CREATE TABLE message_flags
+(
+    mailbox_id BIGINT NOT NULL,
+    uid BIGINT NOT NULL,
+    answered INTEGER default 0 NOT NULL,
+    deleted INTEGER default 0 NOT NULL,
+    draft INTEGER default 0 NOT NULL,
+    flagged INTEGER default 0 NOT NULL,
+    recent INTEGER default 0 NOT NULL,
+    seen INTEGER default 0 NOT NULL,
+    PRIMARY KEY(mailbox_id,uid),
+    FOREIGN KEY (mailbox_id, uid) REFERENCES message (mailbox_id, uid)
+        ON DELETE CASCADE
+  ) ENGINE=INNODB;
+    </sql>      
+    <sql name="createTable_message_header" db="mysql">  
+CREATE TABLE message_header
+(
+    mailbox_id BIGINT NOT NULL,
+    uid BIGINT NOT NULL,
+    line_number MEDIUMINT NOT NULL,
+    field VARCHAR(256) NOT NULL,
+    value VARCHAR(1024) NOT NULL,
+    PRIMARY KEY(mailbox_id,uid,line_number),
+    FOREIGN KEY (mailbox_id, uid) REFERENCES message (mailbox_id, uid)
+        ON DELETE CASCADE
+  ) ENGINE=INNODB;      
+    </sql>  
+    <sql name="createTable_message_body" db="mysql">    
+CREATE TABLE message_body
+(
+    mailbox_id BIGINT NOT NULL,
+    uid BIGINT NOT NULL,
+    body LONGBLOB NOT NULL,
+    PRIMARY KEY(mailbox_id,uid),
+    FOREIGN KEY (mailbox_id, uid) REFERENCES message (mailbox_id, uid)
+        ON DELETE CASCADE
+) ENGINE=INNODB;        
+    </sql>  
+  </sqlDefs>
+</sqlResources>
+
