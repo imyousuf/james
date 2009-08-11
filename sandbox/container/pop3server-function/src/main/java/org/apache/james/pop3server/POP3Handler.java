@@ -169,7 +169,7 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
     }
     
     /**
-     * @see org.apache.james.socket.AbstractJamesHandler#handleProtocol()
+     * @see ProtocolHandler#handleProtocol()
      */
     public void handleProtocol() throws IOException {
         handlerState = AUTHENTICATION_READY;
@@ -266,7 +266,7 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
     }
     
     /**
-     * @see org.apache.james.socket.AbstractJamesHandler#errorHandler(java.lang.RuntimeException)
+     * @see ProtocolHandler#errorHandler(java.lang.RuntimeException)
      */
     public void errorHandler(RuntimeException e) {
         helper.defaultErrorHandler(e);

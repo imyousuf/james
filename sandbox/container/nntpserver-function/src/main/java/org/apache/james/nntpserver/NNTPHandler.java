@@ -252,7 +252,7 @@ public class NNTPHandler implements ProtocolHandler {
     boolean isAlreadyAuthenticated = false;
 
     /**
-     * @see org.apache.james.socket.AbstractJamesHandler#setConfigurationData(Object)
+     * @see ProtocolHandler#setConfigurationData(Object)
      */
     public void setConfigurationData(Object theData) {
         if (theData instanceof NNTPHandlerConfigurationData) {
@@ -263,7 +263,7 @@ public class NNTPHandler implements ProtocolHandler {
     }
 
     /**
-     * @see org.apache.james.socket.AbstractJamesHandler#handleProtocol()
+     * @see ProtocolHandler#handleProtocol()
      */
     public void handleProtocol() throws IOException {
         // section 7.1
@@ -293,7 +293,7 @@ public class NNTPHandler implements ProtocolHandler {
     }
     
     /**
-     * @see org.apache.james.socket.AbstractJamesHandler#errorHandler(java.lang.RuntimeException)
+     * @see ProtocolHandler#errorHandler(java.lang.RuntimeException)
      */
     public void errorHandler(RuntimeException e) {
         helper.defaultErrorHandler(e);
@@ -309,7 +309,7 @@ public class NNTPHandler implements ProtocolHandler {
     }
 
     /**
-     * @see org.apache.james.socket.AbstractJamesHandler#resetHandler
+     * @see ProtocolHandler#resetHandler
      */
     public void resetHandler() {
         // Clear the selected group, article info

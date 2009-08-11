@@ -677,7 +677,7 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
      */
     protected ConnectionHandler newHandler()
             throws Exception {
-        AbstractJamesHandler theHandler = (AbstractJamesHandler)theHandlerPool.get();
+        DelegatingJamesHandler theHandler = (DelegatingJamesHandler)theHandlerPool.get();
         
         if (getLogger().isDebugEnabled()) {
             getLogger().debug("Handler [" +  theHandler + "] obtained from pool.");
@@ -796,7 +796,7 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
      * @see org.apache.avalon.excalibur.pool.ObjectFactory#newInstance()
      */
     public Object newInstance() throws Exception {
-        final AbstractJamesHandler delegatingJamesHandler = new DelegatingJamesHandler(newProtocolHandlerInstance());
+        final DelegatingJamesHandler delegatingJamesHandler = new DelegatingJamesHandler(newProtocolHandlerInstance());
         delegatingJamesHandler.setName("Handler-" + handlerCount.getAndAdd(1));
         return delegatingJamesHandler;
     }

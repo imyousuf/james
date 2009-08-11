@@ -205,7 +205,7 @@ public class RemoteManagerHandler implements ProtocolHandler {
     }
 
     /**
-     * @see org.apache.james.socket.AbstractJamesHandler#errorHandler(java.lang.RuntimeException)
+     * @see ProtocolHandler#errorHandler(java.lang.RuntimeException)
      */
     public void errorHandler(RuntimeException e) {
         helper.getOutputWriter().println("Unexpected Error: "+e.getMessage());
