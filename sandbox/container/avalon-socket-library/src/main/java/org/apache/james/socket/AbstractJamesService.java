@@ -796,7 +796,7 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
      * @see org.apache.avalon.excalibur.pool.ObjectFactory#newInstance()
      */
     public Object newInstance() throws Exception {
-        final DelegatingJamesHandler delegatingJamesHandler = new DelegatingJamesHandler(newProtocolHandlerInstance());
+        final DelegatingJamesHandler delegatingJamesHandler = new DelegatingJamesHandler(newProtocolHandlerInstance(), dnsServer);
         delegatingJamesHandler.setName("Handler-" + handlerCount.getAndAdd(1));
         return delegatingJamesHandler;
     }

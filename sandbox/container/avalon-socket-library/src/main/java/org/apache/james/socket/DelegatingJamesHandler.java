@@ -19,19 +19,6 @@
 
 package org.apache.james.socket;
 
-import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
-import org.apache.avalon.excalibur.pool.Poolable;
-import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.logger.Logger;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
-import org.apache.james.api.dnsservice.DNSService;
-import org.apache.james.util.InternetPrintWriter;
-import org.apache.james.util.watchdog.Watchdog;
-import org.apache.james.util.watchdog.WatchdogTarget;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -44,20 +31,21 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
 
+import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
+import org.apache.avalon.excalibur.pool.Poolable;
+import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.logger.Logger;
+import org.apache.james.api.dnsservice.DNSService;
+import org.apache.james.util.InternetPrintWriter;
+import org.apache.james.util.watchdog.Watchdog;
+import org.apache.james.util.watchdog.WatchdogTarget;
+
 /**
  * Common Handler code
  */
-public class DelegatingJamesHandler extends AbstractLogEnabled implements ProtocolHandlerHelper, ConnectionHandler, Poolable,Serviceable  {
-
-    protected ProtocolHandler protocolHandler;
-    
-    
-    public DelegatingJamesHandler(ProtocolHandler delegated) {
-        this.protocolHandler = delegated;
-        this.protocolHandler.setProtocolHandlerHelper(this);
-    }
-    
-
+public class DelegatingJamesHandler extends AbstractLogEnabled implements ProtocolHandlerHelper, ConnectionHandler, Poolable {
+ 
     private static final int DEFAULT_OUTPUT_BUFFER_SIZE = 1024;
 
     private static final int DEFAULT_INPUT_BUFFER_SIZE = 1024;
@@ -74,37 +62,37 @@ public class DelegatingJamesHandler extends AbstractLogEnabled implements Protoc
      * The TCP/IP socket over which the service interaction
      * is occurring
      */
-    protected Socket socket;
+    private Socket socket;
 
     /**
      * The writer to which outgoing messages are written.
      */
-    protected PrintWriter out;
+    private PrintWriter out;
     
     /**
      * The incoming stream of bytes coming from the socket.
      */
-    protected InputStream in;
+    private InputStream in;
 
     /**
      * The reader associated with incoming characters.
      */
-    protected CRLFTerminatedReader inReader;
+    private CRLFTerminatedReader inReader;
 
     /**
      * The socket's output stream
      */
-    protected OutputStream outs;
+    private OutputStream outs;
     
     /**
      * The watchdog being used by this handler to deal with idle timeouts.
      */
-    protected Watchdog theWatchdog;
+    private Watchdog theWatchdog;
 
     /**
      * The watchdog target that idles out this handler.
      */
-    private WatchdogTarget theWatchdogTarget = new JamesWatchdogTarget();
+    private final WatchdogTarget theWatchdogTarget = new JamesWatchdogTarget();
     
     /**
      * The remote host name obtained by lookup on the socket.
@@ -115,11 +103,6 @@ public class DelegatingJamesHandler extends AbstractLogEnabled implements Protoc
      * The remote IP address of the socket.
      */
     private String remoteIP = null;
-
-    /**
-     * The DNSService
-     */
-    private DNSService dnsServer = null;
 
     /**
      * Used for debug: if not null enable tcp stream dump.
@@ -134,10 +117,16 @@ public class DelegatingJamesHandler extends AbstractLogEnabled implements Protoc
     
 
     /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
+     * The DNSService
      */
-    public void service(ServiceManager arg0) throws ServiceException {
-        setDnsServer((DNSService) arg0.lookup(DNSService.ROLE));
+    private final DNSService dnsServer;
+    
+    private final ProtocolHandler protocolHandler;
+    
+    public DelegatingJamesHandler(final ProtocolHandler delegated, final DNSService dnsServer) {
+        this.protocolHandler = delegated;
+        this.dnsServer = dnsServer;
+        this.protocolHandler.setProtocolHandlerHelper(this);
     }
 
     /**
@@ -439,10 +428,6 @@ public class DelegatingJamesHandler extends AbstractLogEnabled implements Protoc
         } else {
             this.tcplogprefix = null;
         }
-    }
-
-    public void setDnsServer(DNSService dnsServer) {
-        this.dnsServer = dnsServer;
     }
 
     /**
