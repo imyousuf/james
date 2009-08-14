@@ -121,7 +121,7 @@ public class ValidRcptMX extends AbstractLogEnabled implements RcptHook,
      */
     public HookResult doRcpt(SMTPSession session, MailAddress sender, MailAddress rcpt) {
 
-        String domain = rcpt.getHost();
+        String domain = rcpt.getDomain();
 
         // Email should be deliver local
         if (!domain.equals(LOCALHOST)) {
@@ -143,7 +143,7 @@ public class ValidRcptMX extends AbstractLogEnabled implements RcptHook,
                         // Check for invalid MX
                         if (bNetwork.matchInetNetwork(ip)) {
                             return new HookResult(HookReturnCode.DENY,SMTPRetCode.AUTH_REQUIRED, DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_AUTH) + " Invalid MX " + session.getRemoteIPAddress() 
-                                    + " for domain " + rcpt.getHost() + ". Reject email");
+                                    + " for domain " + domain + ". Reject email");
                         }
                     } catch (UnknownHostException e) {
                         // Ignore this
