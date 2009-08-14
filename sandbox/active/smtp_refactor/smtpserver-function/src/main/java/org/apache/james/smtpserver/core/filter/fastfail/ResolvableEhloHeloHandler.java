@@ -28,6 +28,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
+import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.dnsserver.DNSServer;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.SMTPRetCode;
@@ -48,7 +49,7 @@ public class ResolvableEhloHeloHandler extends AbstractLogEnabled implements Con
 
     protected boolean checkAuthNetworks = false;
 
-    protected DNSServer dnsServer = null;
+    protected DNSService dnsService = null;
 
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
@@ -66,7 +67,7 @@ public class ResolvableEhloHeloHandler extends AbstractLogEnabled implements Con
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
     public void service(ServiceManager serviceMan) throws ServiceException {
-        setDnsServer((DNSServer) serviceMan.lookup(DNSServer.ROLE));
+        setDNSService((DNSService) serviceMan.lookup(DNSServer.ROLE));
     }
 
     /**
@@ -82,11 +83,11 @@ public class ResolvableEhloHeloHandler extends AbstractLogEnabled implements Con
     /**
      * Set the DNSServer
      * 
-     * @param dnsServer
+     * @param dnsService
      *            The DNSServer
      */
-    public void setDnsServer(DNSServer dnsServer) {
-        this.dnsServer = dnsServer;
+    public void setDNSService(DNSService dnsService) {
+        this.dnsService = dnsService;
     }
 
     /**
@@ -118,7 +119,7 @@ public class ResolvableEhloHeloHandler extends AbstractLogEnabled implements Con
         // try to resolv the provided helo. If it can not resolved do not
         // accept it.
         try {
-            dnsServer.getByName(argument);
+        	dnsService.getByName(argument);
         } catch (UnknownHostException e) {
             return true;
         }

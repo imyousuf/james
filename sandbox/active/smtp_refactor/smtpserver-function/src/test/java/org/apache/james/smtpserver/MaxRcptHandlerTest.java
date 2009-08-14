@@ -72,24 +72,7 @@ public class MaxRcptHandlerTest extends TestCase{
     
         assertEquals("Rejected.. To many recipients", resp, HookReturnCode.DENY);
     }
-    /*
-    public void testAddScoreMaxRcpt() {
-        SMTPSession session = setupMockedSession(3);
-        session.getState().put(JunkScore.JUNK_SCORE, new JunkScoreImpl());
-    
-        MaxRcptHandler handler = new MaxRcptHandler();
-    
-        ContainerUtil.enableLogging(handler,new MockLogger());
-    
-        handler.setAction("junkScore");
-        handler.setScore(20);
-        handler.setMaxRcpt(2);
-        SMTPResponse response = handler.onCommand(session,"RCPT","<test@test>");
-
-        assertNull("Not Rejected.. we use junkScore action", response);
-        assertEquals("Get Score", ((JunkScore) session.getState().get(JunkScore.JUNK_SCORE)).getStoredScore("MaxRcptCheck"),20.0,0d);
-    }
-    */
+  
     
     public void testNotRejectMaxRcpt() throws ParseException {
         SMTPSession session = setupMockedSession(3);

@@ -33,12 +33,12 @@ import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.smtpserver.core.filter.fastfail.SpamAssassinHandler;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookReturnCode;
+import org.apache.james.test.mock.MockMimeMessage;
 import org.apache.james.test.mock.avalon.MockLogger;
-import org.apache.james.test.mock.javaxmail.MockMimeMessage;
 import org.apache.james.test.mock.mailet.MockMail;
 import org.apache.james.test.mock.util.MockSpamd;
 import org.apache.james.test.util.Util;
-import org.apache.james.util.SpamAssassinInvoker;
+import org.apache.james.util.scanner.SpamAssassinInvoker;
 import org.apache.mailet.Mail;
 
 public class SpamAssassinHandlerTest extends TestCase {

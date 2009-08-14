@@ -30,21 +30,22 @@ import java.util.Map;
 
 import javax.mail.internet.ParseException;
 
+import junit.framework.TestCase;
+
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.james.services.AbstractDNSServer;
-import org.apache.james.services.DNSServer;
+import org.apache.james.api.dnsservice.AbstractDNSServer;
+import org.apache.james.api.dnsservice.DNSService;
+import org.apache.james.dnsserver.DNSServer;
 import org.apache.james.smtpserver.core.filter.fastfail.DNSRBLHandler;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.mailet.MailAddress;
 
-import junit.framework.TestCase;
-
 public class DNSRBLHandlerTest extends TestCase {
 
-    private DNSServer mockedDnsServer;
+    private DNSService mockedDnsServer;
 
     private SMTPSession mockedSMTPSession;
 
@@ -159,7 +160,7 @@ public class DNSRBLHandlerTest extends TestCase {
         ContainerUtil.enableLogging(rbl, new MockLogger());
 
         setupMockedSMTPSession(new MailAddress("any@domain"));
-        rbl.setDNSServer(mockedDnsServer);
+        rbl.setDNSService(mockedDnsServer);
 
         rbl.setBlacklist(new String[] { "bl.spamcop.net." });
         rbl.setGetDetail(true);
@@ -176,7 +177,7 @@ public class DNSRBLHandlerTest extends TestCase {
         ContainerUtil.enableLogging(rbl, new MockLogger());
 
         setupMockedSMTPSession(new MailAddress("any@domain"));
-        rbl.setDNSServer(mockedDnsServer);
+        rbl.setDNSService(mockedDnsServer);
 
         rbl.setBlacklist(new String[] { "bl.spamcop.net." });
         rbl.setGetDetail(false);
@@ -194,7 +195,7 @@ public class DNSRBLHandlerTest extends TestCase {
         setRelayingAllowed(true);
         setupMockedSMTPSession(new MailAddress("any@domain"));
 
-        rbl.setDNSServer(mockedDnsServer);
+        rbl.setDNSService(mockedDnsServer);
 
         rbl.setBlacklist(new String[] { "bl.spamcop.net." });
         rbl.setGetDetail(true);
@@ -211,7 +212,7 @@ public class DNSRBLHandlerTest extends TestCase {
         setRemoteIp("192.168.0.1");
         setupMockedSMTPSession(new MailAddress("any@domain"));
 
-        rbl.setDNSServer(mockedDnsServer);
+        rbl.setDNSService(mockedDnsServer);
 
         rbl.setBlacklist(new String[] { "bl.spamcop.net." });
         rbl.setGetDetail(true);
@@ -228,7 +229,7 @@ public class DNSRBLHandlerTest extends TestCase {
         setRemoteIp("127.0.0.3");
         setupMockedSMTPSession(new MailAddress("any@domain"));
 
-        rbl.setDNSServer(mockedDnsServer);
+        rbl.setDNSService(mockedDnsServer);
 
         rbl.setBlacklist(new String[] { "bl.spamcop.net." });
         rbl.setGetDetail(true);
@@ -245,7 +246,7 @@ public class DNSRBLHandlerTest extends TestCase {
         setRemoteIp("127.0.0.2");
         setupMockedSMTPSession(new MailAddress("any@domain"));
 
-        rbl.setDNSServer(mockedDnsServer);
+        rbl.setDNSService(mockedDnsServer);
 
         rbl.setWhitelist(new String[] { "bl.spamcop.net." });
         rbl.setGetDetail(true);

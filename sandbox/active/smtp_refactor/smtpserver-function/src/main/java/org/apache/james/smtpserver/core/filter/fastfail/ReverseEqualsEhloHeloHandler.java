@@ -33,7 +33,7 @@ public class ReverseEqualsEhloHeloHandler extends ResolvableEhloHeloHandler {
     protected boolean isBadHelo(SMTPSession session, String argument) {
         try {
             // get reverse entry
-            String reverse = dnsServer.getHostName(dnsServer.getByName(
+            String reverse = dnsService.getHostName(dnsService.getByName(
                     session.getRemoteIPAddress()));
             if (!argument.equals(reverse)) {
                 return true;

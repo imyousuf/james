@@ -27,6 +27,7 @@ import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
+import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.util.NetMatcher;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.dnsserver.DNSServer;
@@ -74,7 +75,7 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
     /**
      * The DNSServer to use for queries
      */
-    private DNSServer dnsServer;
+    private DNSService dnsServer;
     
     /**
      * Whether authentication is required to use
@@ -133,7 +134,7 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
         mailetcontext = (MailetContext) manager.lookup("org.apache.mailet.MailetContext");
         mailServer = (MailServer) manager.lookup(MailServer.ROLE);
         users = (UsersRepository) manager.lookup(UsersRepository.ROLE);
-        dnsServer = (DNSServer) manager.lookup(DNSServer.ROLE); 
+        dnsServer = (DNSService) manager.lookup(DNSServer.ROLE); 
     }
 
     /**
@@ -259,17 +260,6 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
     public String getServiceType() {
         return "SMTP Service";
     }
-
-    /**
-     * @see org.apache.avalon.excalibur.pool.ObjectFactory#newInstance()
-     */
-    public Object newInstance() throws Exception {
-        SMTPHandler theHandler = new SMTPHandler();
-        //pass the handler chain to every SMTPhandler
-        theHandler.setHandlerChain(handlerChain);
-        
-        return theHandler;
-    }
     
     /**
      * @see org.apache.avalon.excalibur.pool.ObjectFactory#getCreatedClass()
@@ -322,17 +312,6 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
             return relayingAllowed;
         }
 
-        /**
-         * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#isAuthSupported(String)
-         */
-        public boolean isAuthSupported(String remoteIP) {
-            if (SMTPServer.this.authRequired == AUTH_ANNOUNCE) return true;
-            boolean authRequired = SMTPServer.this.authRequired != AUTH_DISABLED;
-            if (authorizedNetworks != null) {
-                authRequired = authRequired && !SMTPServer.this.authorizedNetworks.matchInetNetwork(remoteIP);
-            }
-            return authRequired;
-        }
 
         /**
          * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#getMailServer()
@@ -370,6 +349,25 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
         // TODO Auto-generated method stub
         return SMTPServer.this.addressBracketsEnforcement;
     }
+
+		public boolean isAuthRequired(String remoteIP) {
+			 if (SMTPServer.this.authRequired == AUTH_ANNOUNCE) return true;
+	            boolean authRequired = SMTPServer.this.authRequired != AUTH_DISABLED;
+	            if (authorizedNetworks != null) {
+	                authRequired = authRequired && !SMTPServer.this.authorizedNetworks.matchInetNetwork(remoteIP);
+	            }
+	            return authRequired;
+		}
+
+		public boolean isAuthRequired() {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		public boolean isVerifyIdentity() {
+			// TODO Auto-generated method stub
+			return false;
+		}
         
         //TODO: IF we create here an interface to get DNSServer
         //      we should access it from the SMTPHandlers

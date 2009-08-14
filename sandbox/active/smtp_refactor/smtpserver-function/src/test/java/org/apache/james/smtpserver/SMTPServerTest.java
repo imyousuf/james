@@ -25,35 +25,29 @@ import org.apache.avalon.cornerstone.services.threads.ThreadManager;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.commons.net.smtp.SMTPClient;
 import org.apache.commons.net.smtp.SMTPReply;
-import org.apache.james.Constants;
-import org.apache.james.core.MailImpl;
-import org.apache.james.services.DNSServer;
-import org.apache.james.services.JamesConnectionManager;
+import org.apache.james.api.dnsservice.DNSService;
+import org.apache.james.api.user.UsersRepository;
 import org.apache.james.services.MailServer;
-import org.apache.james.services.UsersRepository;
+import org.apache.james.socket.JamesConnectionManager;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockServiceManager;
 import org.apache.james.test.mock.avalon.MockSocketManager;
 import org.apache.james.test.mock.avalon.MockStore;
 import org.apache.james.test.mock.avalon.MockThreadManager;
-import org.apache.james.test.mock.james.InMemorySpoolRepository;
 import org.apache.james.test.mock.james.MockMailServer;
-import org.apache.james.test.mock.mailet.MockMailContext;
-import org.apache.james.test.mock.mailet.MockMailetConfig;
+import org.apache.mailet.base.test.FakeMailContext;
 import org.apache.james.test.util.Util;
-import org.apache.james.transport.mailets.RemoteDelivery;
 import org.apache.james.userrepository.MockUsersRepository;
-import org.apache.james.util.Base64;
+import org.apache.james.util.codec.Base64;
 import org.apache.james.util.connection.SimpleConnectionManager;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
+import org.apache.mailet.MailetContext;
 
 import javax.mail.MessagingException;
-import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -63,11 +57,9 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
 
 import junit.framework.TestCase;
 
@@ -76,7 +68,7 @@ import junit.framework.TestCase;
  */
 public class SMTPServerTest extends TestCase {
     
-    private final class AlterableDNSServer implements DNSServer {
+    private final class AlterableDNSServer implements DNSService {
         
         private InetAddress localhostByName = null;
         
@@ -158,6 +150,8 @@ public class SMTPServerTest extends TestCase {
     private SMTPTestConfiguration m_testConfiguration;
     private SMTPServer m_smtpServer;
     private MockUsersRepository m_usersRepository = new MockUsersRepository();
+    private MockServiceManager m_serviceManager;
+    private AlterableDNSServer m_dnsServer;
 
     public SMTPServerTest() {
         super("SMTPServerTest");
@@ -169,15 +163,15 @@ public class SMTPServerTest extends TestCase {
 
         if (sender == null && recipient == null && msg == null) fail("no verification can be done with all arguments null");
 
-        if (sender != null) assertEquals("sender verfication", sender, ((MailAddress)mailData.getSender()).toString());
-        if (recipient != null) assertTrue("recipient verfication", ((Collection) mailData.getRecipients()).contains(new MailAddress(recipient)));
+        if (sender != null) assertEquals("sender verfication", sender, mailData.getSender().toString());
+        if (recipient != null) assertTrue("recipient verfication", mailData.getRecipients().contains(new MailAddress(recipient)));
         if (msg != null) {
             ByteArrayOutputStream bo1 = new ByteArrayOutputStream();
             msg.writeTo(bo1);
             ByteArrayOutputStream bo2 = new ByteArrayOutputStream();
-            ((MimeMessage) mailData.getMessage()).writeTo(bo2);
+            mailData.getMessage().writeTo(bo2);
             assertEquals(bo1.toString(),bo2.toString());
-            assertEquals("message verification", msg, ((MimeMessage) mailData.getMessage()));
+            assertEquals("message verification", msg, mailData.getMessage());
         }
     }
     
@@ -198,6 +192,7 @@ public class SMTPServerTest extends TestCase {
         testConfiguration.init();
         ContainerUtil.configure(m_smtpServer, testConfiguration);
         ContainerUtil.initialize(m_smtpServer);
+        m_mailServer.setMaxMessageSizeBytes(m_testConfiguration.getMaxMessageSize()*1024);
     }
 
     private MockServiceManager setUpServiceManager() throws Exception {
@@ -205,14 +200,14 @@ public class SMTPServerTest extends TestCase {
         SimpleConnectionManager connectionManager = new SimpleConnectionManager();
         ContainerUtil.enableLogging(connectionManager, new MockLogger());
         m_serviceManager.put(JamesConnectionManager.ROLE, connectionManager);
-        m_serviceManager.put("org.apache.mailet.MailetContext", new MockMailContext());
-        m_mailServer = new MockMailServer();
+        m_serviceManager.put(MailetContext.class.getName(), new FakeMailContext());
+        m_mailServer = new MockMailServer(new MockUsersRepository());
         m_serviceManager.put(MailServer.ROLE, m_mailServer);
         m_serviceManager.put(UsersRepository.ROLE, m_usersRepository);
         m_serviceManager.put(SocketManager.ROLE, new MockSocketManager(m_smtpListenerPort));
         m_serviceManager.put(ThreadManager.ROLE, new MockThreadManager());
         m_dnsServer = new AlterableDNSServer();
-        m_serviceManager.put(DNSServer.ROLE, m_dnsServer);
+        m_serviceManager.put(DNSService.ROLE, m_dnsServer);
         m_serviceManager.put(Store.ROLE, new MockStore());
         return m_serviceManager;
     }
@@ -278,9 +273,9 @@ public class SMTPServerTest extends TestCase {
         // not cloning the message (added a MimeMessageCopyOnWriteProxy there)
         System.gc();
 
-        int size = ((MimeMessage) m_mailServer.getLastMail().getMessage()).getSize();
+        int size = m_mailServer.getLastMail().getMessage().getSize();
 
-        assertEquals(2, size);
+        assertEquals(size, 2);
     }
 
     public void testSimpleMailSendWithHELO() throws Exception {
@@ -385,40 +380,43 @@ public class SMTPServerTest extends TestCase {
         m_testConfiguration.setAuthorizedAddresses("192.168.0.1");
         finishSetUp(m_testConfiguration);
 
+        doTestHeloEhloResolv("helo");
+    }
 
-        SMTPClient smtpProtocol1 = new SMTPClient();
-        smtpProtocol1.connect("127.0.0.1", m_smtpListenerPort);
+    private void doTestHeloEhloResolv(String heloCommand) throws IOException {
+        SMTPClient smtpProtocol = new SMTPClient();
+        smtpProtocol.connect("127.0.0.1", m_smtpListenerPort);
 
-        assertTrue("first connection taken", smtpProtocol1.isConnected());
+        assertTrue("first connection taken", smtpProtocol.isConnected());
 
         // no message there, yet
         assertNull("no mail received by mail server", m_mailServer.getLastMail());
 
-        String helo1 = "abgsfe3rsf.de";
-        String helo2 = "james.apache.org";
+        String fictionalDomain = "abgsfe3rsf.de";
+        String existingDomain = "james.apache.org";
         String mail = "sender@james.apache.org";
         String rcpt = "rcpt@localhost";
-        
-        smtpProtocol1.sendCommand("helo",helo1);
-        smtpProtocol1.setSender(mail);
-        smtpProtocol1.addRecipient(rcpt);
-        
-        // this should give a 501 code cause the helo could not resolved
-        assertEquals("expected error: helo could not resolved", 501, smtpProtocol1.getReplyCode());
-        
-        // check if not rejected on postmaster and abuse
-        testNotRejectOnPostmasterAbuse(smtpProtocol1);
-            
-        smtpProtocol1.sendCommand("helo", helo2);
-        smtpProtocol1.setSender(mail);
-        smtpProtocol1.addRecipient(rcpt);
-        
-        // helo is resolvable. so this should give a 250 code
-        assertEquals("Helo accepted", 250, smtpProtocol1.getReplyCode());
 
-        smtpProtocol1.quit();
+        smtpProtocol.sendCommand(heloCommand, fictionalDomain);
+        smtpProtocol.setSender(mail);
+        smtpProtocol.addRecipient(rcpt);
+
+        // this should give a 501 code cause the helo/ehlo could not resolved
+        assertEquals("expected error: " + heloCommand + " could not resolved", 501, smtpProtocol.getReplyCode());
+
+        smtpProtocol.sendCommand(heloCommand, existingDomain);
+        smtpProtocol.setSender(mail);
+        smtpProtocol.addRecipient(rcpt);
+
+        if (smtpProtocol.getReplyCode() == 501) {
+            fail(existingDomain + " domain currently cannot be resolved (check your DNS/internet connection/proxy settings to make test pass)");
+        }
+        // helo/ehlo is resolvable. so this should give a 250 code
+        assertEquals(heloCommand + " accepted", 250, smtpProtocol.getReplyCode());
+
+        smtpProtocol.quit();
     }
-    
+
     public void testHeloResolvDefault() throws Exception {
         finishSetUp(m_testConfiguration);
 
@@ -436,24 +434,28 @@ public class SMTPServerTest extends TestCase {
         m_testConfiguration.setReverseEqualsHelo();
         m_testConfiguration.setAuthorizedAddresses("192.168.0.1");
         // temporary alter the loopback resolution
-        m_dnsServer.setLocalhostByName(InetAddress.getByName("james.apache.org"));
+        try {
+            m_dnsServer.setLocalhostByName(InetAddress.getByName("james.apache.org"));
+        } catch (UnknownHostException e) {
+            fail("james.apache.org currently cannot be resolved (check your DNS/internet connection/proxy settings to make test pass)");
+        }
         try {
             finishSetUp(m_testConfiguration);
     
             SMTPClient smtpProtocol1 = new SMTPClient();
             smtpProtocol1.connect("127.0.0.1", m_smtpListenerPort);
-    
+
             assertTrue("first connection taken", smtpProtocol1.isConnected());
-    
+
             // no message there, yet
             assertNull("no mail received by mail server", m_mailServer
                     .getLastMail());
-    
+
             String helo1 = "abgsfe3rsf.de";
             String helo2 = "james.apache.org";
             String mail = "sender";
             String rcpt = "recipient";
-    
+
             smtpProtocol1.sendCommand("helo", helo1);
             smtpProtocol1.setSender(mail);
             smtpProtocol1.addRecipient(rcpt);
@@ -461,9 +463,6 @@ public class SMTPServerTest extends TestCase {
             // this should give a 501 code cause the helo not equal reverse of ip
             assertEquals("expected error: helo not equals reverse of ip", 501,
                     smtpProtocol1.getReplyCode());
-            
-            // check if not rejected on postmaster and abuse
-            testNotRejectOnPostmasterAbuse(smtpProtocol1);
     
             smtpProtocol1.sendCommand("helo", helo2);
             smtpProtocol1.setSender(mail);
@@ -495,13 +494,12 @@ public class SMTPServerTest extends TestCase {
         smtpProtocol1.helo(InetAddress.getLocalHost().toString());
 
         String sender1 = "mail_sender1@xfwrqqfgfe.de";
-        String sender2 = "mail_sender2@james.apache.org";
         
         smtpProtocol1.setSender(sender1);
         assertEquals("expected 501 error", 501, smtpProtocol1.getReplyCode());
-    
-        smtpProtocol1.setSender(sender2);
-
+        
+        smtpProtocol1.addRecipient("test@localhost");
+        assertEquals("Recipient not accepted cause no valid sender", 503, smtpProtocol1.getReplyCode());
         smtpProtocol1.quit();
         
     }
@@ -547,7 +545,7 @@ public class SMTPServerTest extends TestCase {
     
     public void testSenderDomainResolvRelayClient() throws Exception {
         m_testConfiguration.setSenderDomainResolv();
-        m_testConfiguration.setCheckAuthNetworks(true);
+        //m_testConfiguration.setCheckAuthClients(true);
         finishSetUp(m_testConfiguration);
 
         SMTPClient smtpProtocol1 = new SMTPClient();
@@ -598,9 +596,6 @@ public class SMTPServerTest extends TestCase {
         smtpProtocol1.addRecipient(rcpt2);
         assertEquals("expected 452 error", 452, smtpProtocol1.getReplyCode());
         
-        // check if not rejected on postmaster and abuse
-        testNotRejectOnPostmasterAbuse(smtpProtocol1);
-        
         smtpProtocol1.sendShortMessageData("Subject: test\r\n\r\nTest body testMaxRcpt1\r\n");
         
         // After the data is send the rcpt count is set back to 0.. So a new mail with rcpt should be accepted
@@ -640,38 +635,7 @@ public class SMTPServerTest extends TestCase {
         m_testConfiguration.setAuthorizedAddresses("192.168.0.1");
         finishSetUp(m_testConfiguration);
 
-
-        SMTPClient smtpProtocol1 = new SMTPClient();
-        smtpProtocol1.connect("127.0.0.1", m_smtpListenerPort);
-
-        assertTrue("first connection taken", smtpProtocol1.isConnected());
-
-        // no message there, yet
-        assertNull("no mail received by mail server", m_mailServer.getLastMail());
-
-        String ehlo1 = "abgsfe3rsf.de";
-        String ehlo2 = "james.apache.org";
-        String mail = "test@account";
-        String rcpt = "test";
-        
-        smtpProtocol1.sendCommand("ehlo", ehlo1);
-        smtpProtocol1.setSender(mail);
-        smtpProtocol1.addRecipient(rcpt);
-        
-        // this should give a 501 code cause the ehlo could not resolved
-        assertEquals("expected error: ehlo could not resolved", 501, smtpProtocol1.getReplyCode());
-        
-        // check if not rejected on postmaster and abuse
-        testNotRejectOnPostmasterAbuse(smtpProtocol1);
-            
-        smtpProtocol1.sendCommand("ehlo", ehlo2);
-        smtpProtocol1.setSender(mail);
-        smtpProtocol1.addRecipient(rcpt);
-        
-        // ehlo is resolvable. so this should give a 250 code
-        assertEquals("ehlo accepted", 250, smtpProtocol1.getReplyCode());
-
-        smtpProtocol1.quit();
+        doTestHeloEhloResolv("ehlo");
     }
     
     public void testEhloResolvDefault() throws Exception {
@@ -692,44 +656,20 @@ public class SMTPServerTest extends TestCase {
         m_testConfiguration.setCheckAuthNetworks(true);
         finishSetUp(m_testConfiguration);
 
-
-        SMTPClient smtpProtocol1 = new SMTPClient();
-        smtpProtocol1.connect("127.0.0.1", m_smtpListenerPort);
-
-        assertTrue("first connection taken", smtpProtocol1.isConnected());
-
-        // no message there, yet
-        assertNull("no mail received by mail server", m_mailServer.getLastMail());
-
-        String ehlo1 = "abgsfe3rsf.de";
-        String ehlo2 = "james.apache.org";
-        String mail = "sender@localhost";
-        String rcpt = "test";
-        
-        smtpProtocol1.sendCommand("ehlo", ehlo1);
-        smtpProtocol1.setSender(mail);
-        smtpProtocol1.addRecipient(rcpt);
-        
-        // this should give a 501 code cause the ehlo could not resolved
-        assertEquals("expected error: ehlo could not resolved", 501, smtpProtocol1.getReplyCode());
-        
-        // check if not rejected on postmaster and abuse
-        testNotRejectOnPostmasterAbuse(smtpProtocol1);
-            
-        smtpProtocol1.sendCommand("ehlo", ehlo2);
-        smtpProtocol1.setSender(mail);
-        smtpProtocol1.addRecipient(rcpt);
-        // ehlo is resolvable. so this should give a 250 code
-        assertEquals("ehlo accepted", 250, smtpProtocol1.getReplyCode());
-
-        smtpProtocol1.quit();
+        doTestHeloEhloResolv("ehlo");
     }
     
     public void testReverseEqualsEhlo() throws Exception {
         m_testConfiguration.setReverseEqualsEhlo();
         m_testConfiguration.setAuthorizedAddresses("192.168.0.1");
         // temporary alter the loopback resolution
-        m_dnsServer.setLocalhostByName(m_dnsServer.getByName("james.apache.org"));
+        InetAddress jamesDomain = null;
+        try {
+            jamesDomain = m_dnsServer.getByName("james.apache.org");
+        } catch (UnknownHostException e) {
+            fail("james.apache.org currently cannot be resolved (check your DNS/internet connection/proxy settings to make test pass)");
+        }
+        m_dnsServer.setLocalhostByName(jamesDomain);
         try {
             finishSetUp(m_testConfiguration);
     
@@ -754,9 +694,6 @@ public class SMTPServerTest extends TestCase {
             // this should give a 501 code cause the ehlo not equals reverse of ip
             assertEquals("expected error: ehlo not equals reverse of ip", 501,
                     smtpProtocol1.getReplyCode());
-            
-            // check if not rejected on postmaster and abuse
-            testNotRejectOnPostmasterAbuse(smtpProtocol1);
     
             smtpProtocol1.sendCommand("ehlo", ehlo2);
             smtpProtocol1.setSender(mail);
@@ -884,13 +821,11 @@ public class SMTPServerTest extends TestCase {
         String userName = "test_user_smtp";
         m_usersRepository.addUser(userName, "pwd");
 
+        smtpProtocol.setSender("");
+
         smtpProtocol.sendCommand("AUTH PLAIN");
         smtpProtocol.sendCommand(Base64.encodeAsString("\0"+userName+"\0pwd\0"));
         assertEquals("authenticated", 235, smtpProtocol.getReplyCode());
-
-        smtpProtocol.setSender("");
-        assertEquals("expected sender ok", 250, smtpProtocol.getReplyCode());
-
 
         smtpProtocol.addRecipient("mail@sample.com");
         assertEquals("expected error", 503, smtpProtocol.getReplyCode());
@@ -1022,14 +957,13 @@ public class SMTPServerTest extends TestCase {
         wr.write("1234567810123456782012345678301234567840123456785012345678601234567870123456788012345678901234567100");
         wr.write("1234567810123456782012345678301234567840123456785012345678601234567870123456788012345678901234567100");
         wr.write("1234567810123456782012345678301234567840123456785012345678601234567870123456788012345678901234567100");
-        wr.write("1234567810123456782012345678301234567840123456785012345678601234567870123456788012345678901234567100\r\n");
-        // add a CRLF in the middle, to be sure we don't use more than 1000 bytes by RFC.
         wr.write("1234567810123456782012345678301234567840123456785012345678601234567870123456788012345678901234567100");
         wr.write("1234567810123456782012345678301234567840123456785012345678601234567870123456788012345678901234567100");
         wr.write("1234567810123456782012345678301234567840123456785012345678601234567870123456788012345678901234567100");
         wr.write("1234567810123456782012345678301234567840123456785012345678601234567870123456788012345678901234567100");
         wr.write("1234567810123456782012345678301234567840123456785012345678601234567870123456788012345678901234567100");
-        wr.write("12345678101234567820\r\n"); // 500 + CRLF + 520 + CRLF = 1024
+        wr.write("1234567810123456782012345678301234567840123456785012345678601234567870123456788012345678901234567100");
+        wr.write("1234567810123456782012\r\n"); // 1022 + CRLF = 1024
         wr.close();
         
         assertTrue(smtpProtocol.completePendingCommand());
@@ -1132,290 +1066,6 @@ public class SMTPServerTest extends TestCase {
         }
     }
     
-    // RemoteDelivery tests.
-    
-    InMemorySpoolRepository outgoingSpool;
-    private MockServiceManager m_serviceManager;
-    private AlterableDNSServer m_dnsServer;
-    
-    private Properties getStandardParameters() {
-        Properties parameters = new Properties();
-        parameters.put("delayTime", "500 msec, 500 msec, 500 msec"); // msec, sec, minute, hour
-        parameters.put("maxRetries", "3");
-        parameters.put("deliveryThreads", "1");
-        parameters.put("debug", "true");
-        parameters.put("sendpartial", "false");
-        parameters.put("bounceProcessor", "bounce");
-        parameters.put("outgoing", "mocked://outgoing/");
-        return parameters;
-    }
-    
-
-    /**
-     * This has been created to test javamail 1.4 introduced bug.
-     * http://issues.apache.org/jira/browse/JAMES-490
-     */
-    public void testDeliveryToSelfWithGatewayAndBind() throws Exception {
-        finishSetUp(m_testConfiguration);
-        outgoingSpool = new InMemorySpoolRepository();
-        ((MockStore) m_serviceManager.lookup(Store.ROLE)).add("outgoing", outgoingSpool);
-        
-        RemoteDelivery rd = new RemoteDelivery();
-        
-        MockMailContext mmc = new MockMailContext();
-        mmc.setAttribute(Constants.AVALON_COMPONENT_MANAGER,m_serviceManager);
-        mmc.setAttribute(Constants.HELLO_NAME,"localhost");
-        MockMailetConfig mci = new MockMailetConfig("Test",mmc,getStandardParameters());
-        mci.setProperty("bind", "127.0.0.1");
-        mci.setProperty("gateway","127.0.0.1");
-        mci.setProperty("gatewayPort",""+m_smtpListenerPort);
-        rd.init(mci);
-        String sources = "Content-Type: text/plain;\r\nSubject: test\r\n\r\nBody";
-        String sender = "test@localhost";
-        String recipient = "test@localhost";
-        MimeMessage mm = new MimeMessage(Session.getDefaultInstance(new Properties()),new ByteArrayInputStream(sources.getBytes()));
-        MailImpl mail = new MailImpl("name",new MailAddress(sender),Arrays.asList(new MailAddress[] {new MailAddress(recipient)}),mm);
-        
-        rd.service(mail);
-        
-        while (outgoingSpool.size() > 0) {
-            Thread.sleep(1000);
-        }
-
-        verifyLastMail(sender, recipient, null);
-        
-        assertEquals(((String) mm.getContent()).trim(),((String) ((MimeMessage) m_mailServer.getLastMail().getMessage()).getContent()).trim());
-        
-        mail.dispose();
-    }
-
-    
-    /**
-     * This is useful code to run tests on javamail bugs 
-     * http://issues.apache.org/jira/browse/JAMES-52
-     * 
-     * This one passes with javamail 1.4.1EA
-     * @throws Exception
-     */
-    public void test8bitmimeFromStream() throws Exception {
-        finishSetUp(m_testConfiguration);
-        outgoingSpool = new InMemorySpoolRepository();
-        ((MockStore) m_serviceManager.lookup(Store.ROLE)).add("outgoing", outgoingSpool);
-        
-        RemoteDelivery rd = new RemoteDelivery();
-        
-        MockMailContext mmc = new MockMailContext();
-        mmc.setAttribute(Constants.AVALON_COMPONENT_MANAGER,m_serviceManager);
-        mmc.setAttribute(Constants.HELLO_NAME,"localhost");
-        MockMailetConfig mci = new MockMailetConfig("Test",mmc,getStandardParameters());
-        mci.setProperty("gateway","127.0.0.1");
-        mci.setProperty("gatewayPort",""+m_smtpListenerPort);
-        rd.init(mci);
-        
-        //String sources = "Content-Type: text/plain;\r\nContent-Transfer-Encoding: quoted-printable\r\nSubject: test\r\n\r\nBody=80\r\n";
-        String sources = "Content-Type: text/plain; charset=iso-8859-15\r\nContent-Transfer-Encoding: quoted-printable\r\nSubject: test\r\n\r\nBody=80\r\n";
-        //String sources = "Content-Type: text/plain; charset=iso-8859-15\r\nContent-Transfer-Encoding: 8bit\r\nSubject: test\r\n\r\nBody\u20AC\r\n";
-        String sender = "test@localhost";
-        String recipient = "test@localhost";
-        MimeMessage mm = new MimeMessage(Session.getDefaultInstance(new Properties()),new ByteArrayInputStream(sources.getBytes()));
-        MailImpl mail = new MailImpl("name",new MailAddress(sender),Arrays.asList(new MailAddress[] {new MailAddress(recipient)}),mm);
-        
-        rd.service(mail);
-        
-        while (outgoingSpool.size() > 0) {
-            Thread.sleep(1000);
-        }
-
-        // verifyLastMail(sender, recipient, mm);
-        verifyLastMail(sender, recipient, null);
-        
-        // THIS WOULD FAIL BECAUSE OF THE JAVAMAIL BUG
-        assertEquals(mm.getContent(),m_mailServer.getLastMail().getMessage().getContent());
-        
-        mail.dispose();
-    }
-    
-    /**
-     * This is useful code to run tests on javamail bugs 
-     * http://issues.apache.org/jira/browse/JAMES-52
-     * 
-     * This one passes with javamail 1.4.1EA
-     * @throws Exception
-     */
-    public void test8bitmimeFromStreamWith8bitContent() throws Exception {
-        finishSetUp(m_testConfiguration);
-        outgoingSpool = new InMemorySpoolRepository();
-        ((MockStore) m_serviceManager.lookup(Store.ROLE)).add("outgoing", outgoingSpool);
-        
-        RemoteDelivery rd = new RemoteDelivery();
-        
-        MockMailContext mmc = new MockMailContext();
-        mmc.setAttribute(Constants.AVALON_COMPONENT_MANAGER,m_serviceManager);
-        mmc.setAttribute(Constants.HELLO_NAME,"localhost");
-        MockMailetConfig mci = new MockMailetConfig("Test",mmc,getStandardParameters());
-        mci.setProperty("gateway","127.0.0.1");
-        mci.setProperty("gatewayPort",""+m_smtpListenerPort);
-        rd.init(mci);
-        
-        //String sources = "Content-Type: text/plain;\r\nContent-Transfer-Encoding: quoted-printable\r\nSubject: test\r\n\r\nBody=80\r\n";
-        //String sources = "Content-Type: text/plain; charset=iso-8859-15\r\nContent-Transfer-Encoding: quoted-printable\r\nSubject: test\r\n\r\nBody=80\r\n";
-        String sources = "Content-Type: text/plain; charset=iso-8859-15\r\nContent-Transfer-Encoding: 8bit\r\nSubject: test\r\n\r\nBody\u20AC\r\n";
-        String sender = "test@localhost";
-        String recipient = "test@localhost";
-        MimeMessage mm = new MimeMessage(Session.getDefaultInstance(new Properties()),new ByteArrayInputStream(sources.getBytes()));
-        MailImpl mail = new MailImpl("name",new MailAddress(sender),Arrays.asList(new MailAddress[] {new MailAddress(recipient)}),mm);
-        
-        rd.service(mail);
-        
-        while (outgoingSpool.size() > 0) {
-            Thread.sleep(1000);
-        }
-
-        // verifyLastMail(sender, recipient, mm);
-        verifyLastMail(sender, recipient, null);
-        
-        // THIS WOULD FAIL BECAUSE OF THE JAVAMAIL BUG
-        assertEquals(mm.getContent(),m_mailServer.getLastMail().getMessage().getContent());
-        
-        mail.dispose();
-    }
-    
-    /**
-     * This is useful code to run tests on javamail bugs 
-     * http://issues.apache.org/jira/browse/JAMES-52
-     * 
-     * This one passes with javamail 1.4.1EA
-     * @throws Exception
-     */
-    public void test8bitmimeFromStreamWithoutContentTransferEncoding() throws Exception {
-        finishSetUp(m_testConfiguration);
-        outgoingSpool = new InMemorySpoolRepository();
-        ((MockStore) m_serviceManager.lookup(Store.ROLE)).add("outgoing", outgoingSpool);
-        
-        RemoteDelivery rd = new RemoteDelivery();
-        
-        MockMailContext mmc = new MockMailContext();
-        mmc.setAttribute(Constants.AVALON_COMPONENT_MANAGER,m_serviceManager);
-        mmc.setAttribute(Constants.HELLO_NAME,"localhost");
-        MockMailetConfig mci = new MockMailetConfig("Test",mmc,getStandardParameters());
-        mci.setProperty("gateway","127.0.0.1");
-        mci.setProperty("gatewayPort",""+m_smtpListenerPort);
-        rd.init(mci);
-        
-        String sources = "Content-Type: text/plain;\r\nSubject: test\r\n\r\nBody\u03B2\r\n";
-        //String sources = "Content-Type: text/plain; charset=iso-8859-15\r\nContent-Transfer-Encoding: quoted-printable\r\nSubject: test\r\n\r\nBody=80\r\n";
-        //String sources = "Content-Type: text/plain; charset=iso-8859-15\r\nContent-Transfer-Encoding: 8bit\r\nSubject: test\r\n\r\nBody\u20AC\r\n";
-        String sender = "test@localhost";
-        String recipient = "test@localhost";
-        MimeMessage mm = new MimeMessage(Session.getDefaultInstance(new Properties()),new ByteArrayInputStream(sources.getBytes()));
-        MailImpl mail = new MailImpl("name",new MailAddress(sender),Arrays.asList(new MailAddress[] {new MailAddress(recipient)}),mm);
-        
-        rd.service(mail);
-        
-        while (outgoingSpool.size() > 0) {
-            Thread.sleep(1000);
-        }
-
-        // verifyLastMail(sender, recipient, mm);
-        verifyLastMail(sender, recipient, null);
-        
-        // THIS WOULD FAIL BECAUSE OF THE JAVAMAIL BUG
-        assertEquals(mm.getContent(),m_mailServer.getLastMail().getMessage().getContent());
-        
-        mail.dispose();
-    }
-    
-    /**
-     * This is useful code to run tests on javamail bugs 
-     * http://issues.apache.org/jira/browse/JAMES-52
-     * 
-     * This one passes with javamail 1.4.1EA
-     * @throws Exception
-     */
-    public void test8bitmimeFromStreamWithoutContentTransferEncodingSentAs8bit() throws Exception {
-        finishSetUp(m_testConfiguration);
-        outgoingSpool = new InMemorySpoolRepository();
-        ((MockStore) m_serviceManager.lookup(Store.ROLE)).add("outgoing", outgoingSpool);
-        
-        RemoteDelivery rd = new RemoteDelivery();
-        
-        MockMailContext mmc = new MockMailContext();
-        mmc.setAttribute(Constants.AVALON_COMPONENT_MANAGER,m_serviceManager);
-        mmc.setAttribute(Constants.HELLO_NAME,"localhost");
-        MockMailetConfig mci = new MockMailetConfig("Test",mmc,getStandardParameters());
-        mci.setProperty("gateway","127.0.0.1");
-        mci.setProperty("gatewayPort",""+m_smtpListenerPort);
-        rd.init(mci);
-        
-        String sources = "Content-Type: text/plain;\r\nSubject: test\r\n\r\nBody=32=48\r\n";
-        //String sources = "Content-Type: text/plain; charset=iso-8859-15\r\nContent-Transfer-Encoding: quoted-printable\r\nSubject: test\r\n\r\nBody=80\r\n";
-        //String sources = "Content-Type: text/plain; charset=iso-8859-15\r\nContent-Transfer-Encoding: 8bit\r\nSubject: test\r\n\r\nBody\u20AC\r\n";
-        String sender = "test@localhost";
-        String recipient = "test@localhost";
-        MimeMessage mm = new MimeMessage(Session.getDefaultInstance(new Properties()),new ByteArrayInputStream(sources.getBytes()));
-        MailImpl mail = new MailImpl("name",new MailAddress(sender),Arrays.asList(new MailAddress[] {new MailAddress(recipient)}),mm);
-        
-        rd.service(mail);
-        
-        while (outgoingSpool.size() > 0) {
-            Thread.sleep(1000);
-        }
-
-        // verifyLastMail(sender, recipient, mm);
-        verifyLastMail(sender, recipient, null);
-        
-        // THIS WOULD FAIL BECAUSE OF THE JAVAMAIL BUG
-        assertEquals(mm.getContent(),m_mailServer.getLastMail().getMessage().getContent());
-        
-        mail.dispose();
-    }
-    
-    /**
-     * This is useful code to run tests on javamail bugs 
-     * http://issues.apache.org/jira/browse/JAMES-52
-     * 
-     * This one passes with javamail 1.4.1EA
-     * @throws Exception
-     */
-    public void test8bitmimeWith8bitmimeDisabledInServer() throws Exception {
-        finishSetUp(m_testConfiguration);
-        outgoingSpool = new InMemorySpoolRepository();
-        ((MockStore) m_serviceManager.lookup(Store.ROLE)).add("outgoing", outgoingSpool);
-        
-        RemoteDelivery rd = new RemoteDelivery();
-        
-        MockMailContext mmc = new MockMailContext();
-        mmc.setAttribute(Constants.AVALON_COMPONENT_MANAGER,m_serviceManager);
-        mmc.setAttribute(Constants.HELLO_NAME,"localhost");
-        MockMailetConfig mci = new MockMailetConfig("Test",mmc,getStandardParameters());
-        mci.setProperty("gateway","127.0.0.1");
-        mci.setProperty("gatewayPort",""+m_smtpListenerPort);
-        mci.setProperty("mail.smtp.allow8bitmime", "false");
-        rd.init(mci);
-        
-        //String sources = "Content-Type: text/plain;\r\nSubject: test\r\n\r\nBody=32=48\r\n";
-        //String sources = "Content-Type: text/plain; charset=iso-8859-15\r\nContent-Transfer-Encoding: quoted-printable\r\nSubject: test\r\n\r\nBody=80\r\n";
-        String sources = "Content-Type: text/plain; charset=iso-8859-15\r\nContent-Transfer-Encoding: 8bit\r\nSubject: test\r\n\r\nBody\u20AC\r\n";
-        String sender = "test@localhost";
-        String recipient = "test@localhost";
-        MimeMessage mm = new MimeMessage(Session.getDefaultInstance(new Properties()),new ByteArrayInputStream(sources.getBytes()));
-        MailImpl mail = new MailImpl("name",new MailAddress(sender),Arrays.asList(new MailAddress[] {new MailAddress(recipient)}),mm);
-        
-        rd.service(mail);
-        
-        while (outgoingSpool.size() > 0) {
-            Thread.sleep(1000);
-        }
-
-        // verifyLastMail(sender, recipient, mm);
-        verifyLastMail(sender, recipient, null);
-        
-        // THIS WOULD FAIL BECAUSE OF THE JAVAMAIL BUG
-        assertEquals(mm.getContent(),m_mailServer.getLastMail().getMessage().getContent());
-        
-        mail.dispose();
-    }
-    
     // Check if auth users get not rejected cause rbl. See JAMES-566
     public void testDNSRBLNotRejectAuthUser() throws Exception {
         m_testConfiguration.setAuthorizedAddresses("192.168.0.1/32");
@@ -1483,12 +1133,9 @@ public class SMTPServerTest extends TestCase {
 
         smtpProtocol.setSender(sender);
 
-        smtpProtocol.addRecipient("mail@localhost");
-        assertEquals("reject: "+smtpProtocol.getReplyString(), 554, smtpProtocol
+        smtpProtocol.addRecipient("mail@sample.com");
+        assertEquals("reject", 550, smtpProtocol
                 .getReplyCode());
-        
-        // check if not rejected on postmaster and abuse
-        testNotRejectOnPostmasterAbuse(smtpProtocol);
 
         smtpProtocol.sendShortMessageData("Subject: test\r\n\r\nTest body testDNSRBLRejectWorks\r\n");
 
@@ -1679,54 +1326,5 @@ public class SMTPServerTest extends TestCase {
         in.close();
         out.close();
         client.close();
-    }
-    
-    
-    /**
-     * Testmethod which should get called in all fastfail tests after a reject
-     * 
-     * @param smtpProtocol
-     * @throws Exception
-     */
-    private void testNotRejectOnPostmasterAbuse(SMTPClient smtpProtocol) throws Exception { 
-        smtpProtocol.addRecipient("postmaster");
-        assertEquals("Not reject emails to postmaster"+ smtpProtocol.getReplyString(), 250, smtpProtocol
-                .getReplyCode());
-        
-        smtpProtocol.addRecipient("abuse");
-        assertEquals("Not reject emails to abuse"+ smtpProtocol.getReplyString(), 250, smtpProtocol
-                .getReplyCode());
-    }
-    
-    public void testJunkScore() throws Exception {
-        m_testConfiguration.setAuthorizedAddresses("192.168.0.1/32");
-        m_testConfiguration.useRBL(true);
-        m_testConfiguration.useJunkScore(true);
-        finishSetUp(m_testConfiguration);
-
-        m_dnsServer.setLocalhostByName(InetAddress.getByName("127.0.0.1"));
-
-        SMTPClient smtpProtocol = new SMTPClient();
-        smtpProtocol.connect("127.0.0.1", m_smtpListenerPort);
-
-        smtpProtocol.sendCommand("ehlo", InetAddress.getLocalHost().toString());
-
-        String sender = "test_user_smtp@localhost";
-
-        smtpProtocol.setSender(sender);
-
-        smtpProtocol.addRecipient("mail@localhost");
-        assertEquals("not reject: "+smtpProtocol.getReplyString(), 250, smtpProtocol
-                .getReplyCode());
-
-        smtpProtocol.sendShortMessageData("Subject: test\r\n\r\nTest body testDNSRBLRejectWorks\r\n");
-        assertEquals("reject: "+smtpProtocol.getReplyString(), 554, smtpProtocol
-                .getReplyCode());
-        
-        smtpProtocol.quit();
-
-        // mail was rejected by SMTPServer
-        assertNull("mail reject by mail server", m_mailServer
-                .getLastMail());
     }
 }

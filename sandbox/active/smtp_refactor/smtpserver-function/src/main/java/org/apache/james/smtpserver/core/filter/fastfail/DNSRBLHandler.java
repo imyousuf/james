@@ -32,6 +32,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
+import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.dnsserver.DNSServer;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.ConnectHandler;
@@ -53,7 +54,7 @@ public class DNSRBLHandler
     private String[] whitelist;
     private String[] blacklist;
     
-    private DNSServer dnsServer = null;
+    private DNSService dnsServer = null;
     
     private boolean getDetail = false;
     
@@ -120,7 +121,7 @@ public class DNSRBLHandler
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
     public void service(ServiceManager serviceMan) throws ServiceException {
-        setDNSServer((DNSServer) serviceMan.lookup(DNSServer.ROLE));
+        setDNSService((DNSService) serviceMan.lookup(DNSServer.ROLE));
     }
     
     /**
@@ -153,10 +154,10 @@ public class DNSRBLHandler
     /**
      * Set the DNSServer
      * 
-     * @param dnsServer The DNSServer
+     * @param mockedDnsServer The DNSServer
      */
-    public void setDNSServer(DNSServer dnsServer) {
-        this.dnsServer = dnsServer;
+    public void setDNSService(DNSService mockedDnsServer) {
+        this.dnsServer = mockedDnsServer;
     }
 
     /**

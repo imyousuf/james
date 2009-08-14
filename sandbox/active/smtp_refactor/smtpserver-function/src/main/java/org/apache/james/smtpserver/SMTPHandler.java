@@ -21,10 +21,6 @@
 
 package org.apache.james.smtpserver;
 
-import org.apache.james.core.AbstractJamesHandler;
-import org.apache.james.util.CRLFDelimitedByteBuffer;
-import org.apache.james.util.mail.SMTPRetCode;
-
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Collection;
@@ -33,56 +29,57 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Random;
 
+import org.apache.james.Constants;
+import org.apache.james.socket.AbstractJamesHandler;
+import org.apache.james.socket.ProtocolHandler;
+import org.apache.james.socket.ProtocolHandlerHelper;
+import org.apache.james.util.CRLFDelimitedByteBuffer;
+import org.apache.mailet.base.RFC822DateFormat;
+
 /**
  * Provides SMTP functionality by carrying out the server side of the SMTP
  * interaction.
  *
  * @version CVS $Revision$ $Date$
  */
-public class SMTPHandler
-    extends AbstractJamesHandler
-    implements SMTPSession {
+public class SMTPHandler implements ProtocolHandler, SMTPSession {
 
-    /**
-     * Static Random instance used to generate SMTP ids
-     */
-    private final static Random random = new Random();
+	    private ProtocolHandlerHelper helper;
+	
+	     /**
+	     * The constants to indicate the current processing mode of the session
+	     */
+	    private final static byte COMMAND_MODE = 1;
+	    private final static byte RESPONSE_MODE = 2;
+	    private final static byte MESSAGE_RECEIVED_MODE = 3;
+	    private final static byte MESSAGE_ABORT_MODE = 4;
+	    private boolean sessionEnded = false;
 
-    /**
-     * The SMTPHandlerChain object set by SMTPServer
-     */
-    SMTPHandlerChain handlerChain = null;
+	    /**
+	    * SMTP Server identification string used in SMTP headers
+	     */
+	    private final static String SOFTWARE_TYPE = "JAMES SMTP Server " + Constants.SOFTWARE_VERSION;
+	
+	   /**
+	      * Static Random instance used to generate SMTP ids
+	      */
+	     private final static Random random = new Random();
+	 
+	     /**
+	     * Static RFC822DateFormat used to generate date headers
+	     */
+	     private final static RFC822DateFormat rfc822DateFormat = new RFC822DateFormat();
+	
+	   /**
+	    * The name of the currently parsed command
+	    */
+	    String curCommandName =  null;
 
-    /**
-     * The session termination status
-     */
-    private boolean sessionEnded = false;
-
-    /**
-     * The user name of the authenticated user associated with this SMTP transaction.
-     */
-    private String authenticatedUser;
-
-    /**
-     * whether or not authorization is required for this connection
-     */
-    private boolean authSupported;
-
-    /**
-     * whether or not this connection can relay without authentication
-     */
-    private boolean relayingAllowed;
-    
-    /**
-     * The id associated with this particular SMTP interaction.
-     */
-    private String smtpID;
-
-    /**
-     * The per-service configuration data that applies to all handlers
-     */
-    private SMTPHandlerConfigurationData theConfigData;
-
+	   /**
+	    * The value of the currently parsed command
+	    */
+	   String curCommandArgument =  null;
+	
     /**
      * The hash map holds states which should be used in the whole connection
      */
@@ -99,13 +96,19 @@ public class SMTPHandler
      */
     private LinkedList connectHandlers;
 
-    /**
-     * @see org.apache.james.core.AbstractJamesHandler#initHandler(java.net.Socket)
-     */
-    protected void initHandler(Socket connection) throws IOException {
-        super.initHandler(connection);
-        lineHandlers = handlerChain.getHandlers(LineHandler.class);
-    }
+	private SMTPHandlerConfigurationData theConfigData;
+
+	private boolean relayingAllowed;
+
+	private boolean authSupported;
+
+	private SMTPHandlerChain handlerChain;
+
+	private String authenticatedUser;
+
+	private String smtpID;
+
+	
 
     /**
      * Set the configuration data for the handler
@@ -120,13 +123,15 @@ public class SMTPHandler
         }
     }
     
-    /**
-     * @see org.apache.james.core.AbstractJamesHandler#handleProtocol()
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.socket.ProtocolHandler#handleProtocol()
      */
-    protected void handleProtocol() throws IOException {
+    public void handleProtocol() throws IOException {
         smtpID = random.nextInt(1024) + "";
-        relayingAllowed = theConfigData.isRelayingAllowed(remoteIP);
-        authSupported = theConfigData.isAuthSupported(remoteIP);
+        relayingAllowed = theConfigData.isRelayingAllowed(helper.getRemoteIP());
+        authSupported = theConfigData.isAuthRequired(helper.getRemoteIP());
+
         // Both called in resetHandler, we don't need to call them again here.
         // sessionEnded = false;
         // resetState();
@@ -168,12 +173,13 @@ public class SMTPHandler
             }
         }
 
-        theWatchdog.start();
+        CRLFDelimitedByteBuffer bytebufferHandler = new CRLFDelimitedByteBuffer(helper.getInputStream());
+        helper.getWatchdog().start();
         while(!sessionEnded) {
           //parse the command
           byte[] line =  null;
           try {
-              line = readInputLine();
+              line = bytebufferHandler.read();
           } catch (CRLFDelimitedByteBuffer.TerminationException e) {
               writeSMTPResponse(new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_ARGUMENTS, "Syntax error at character position " + e.position() + ". CR and LF must be CRLF paired.  See RFC 2821 #2.7.1."));
           } catch (CRLFDelimitedByteBuffer.LineLengthExceededException e) {
@@ -188,11 +194,11 @@ public class SMTPHandler
           } else {
               sessionEnded = true;
           }
-          theWatchdog.reset();
+          helper.getWatchdog().reset();
           
         }
-        theWatchdog.stop();
-        getLogger().debug("Closing socket.");
+        helper.getWatchdog().stop();
+        helper.getAvalonLogger().debug("Closing socket.");
     }
 
     /**
@@ -202,7 +208,7 @@ public class SMTPHandler
         // Write a single-line or multiline response
         if (response != null) {
             if (response.getRawLine() != null) {
-                writeLoggedFlushedResponse(response.getRawLine());
+                helper.writeLoggedFlushedResponse(response.getRawLine());
             } else {
                 // Iterator i = esmtpextensions.iterator();
                 for (int k = 0; k < response.getLines().size(); k++) {
@@ -211,11 +217,11 @@ public class SMTPHandler
                     if (k == response.getLines().size() - 1) {
                         respBuff.append(" ");
                         respBuff.append(response.getLines().get(k));
-                        writeLoggedFlushedResponse(respBuff.toString());
+                        helper.writeLoggedFlushedResponse(respBuff.toString());
                     } else {
                         respBuff.append("-");
                         respBuff.append(response.getLines().get(k));
-                        writeLoggedResponse(respBuff.toString());
+                        helper.writeLoggedResponse(respBuff.toString());
                     }
                 }
             }
@@ -229,7 +235,7 @@ public class SMTPHandler
     /**
      * Resets the handler data to a basic state.
      */
-    protected void resetHandler() {
+    public void resetHandler() {
         // not needed anymore because state is inside the connection state
         // resetState();
         resetConnectionState();
@@ -251,6 +257,7 @@ public class SMTPHandler
     public void setHandlerChain(SMTPHandlerChain handlerChain) {
         this.handlerChain = handlerChain;
         connectHandlers = handlerChain.getHandlers(ConnectHandler.class);
+        lineHandlers = handlerChain.getHandlers(LineHandler.class);
     }
 
 
@@ -258,14 +265,14 @@ public class SMTPHandler
      * @see org.apache.james.smtpserver.SMTPSession#getRemoteHost()
      */
     public String getRemoteHost() {
-        return remoteHost;
+        return helper.getRemoteHost();
     }
 
     /**
      * @see org.apache.james.smtpserver.SMTPSession#getRemoteIPAddress()
      */
     public String getRemoteIPAddress() {
-        return remoteIP;
+        return helper.getRemoteIP();
     }
 
     /**
@@ -403,5 +410,13 @@ public class SMTPHandler
             // ignore
         }
     }
+
+	public void errorHandler(RuntimeException e) {
+		helper.defaultErrorHandler(e);
+	}
+
+	public void setProtocolHandlerHelper(ProtocolHandlerHelper phh) {
+		helper = phh;
+	}
 
 }

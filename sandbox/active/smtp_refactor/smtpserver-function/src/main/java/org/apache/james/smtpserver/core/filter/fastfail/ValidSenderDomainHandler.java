@@ -27,6 +27,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
+import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.TemporaryResolutionException;
 import org.apache.james.dnsserver.DNSServer;
 import org.apache.james.dsn.DSNStatus;
@@ -47,7 +48,7 @@ public class ValidSenderDomainHandler
     
     private boolean checkAuthNetworks = false;
     
-    private DNSServer dnsServer = null;
+    private DNSService dnsServer = null;
 
     
     /**
@@ -65,7 +66,7 @@ public class ValidSenderDomainHandler
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
     public void service(ServiceManager serviceMan) throws ServiceException {
-        setDnsServer((DNSServer) serviceMan.lookup(DNSServer.ROLE));
+        setDNSService((DNSService) serviceMan.lookup(DNSServer.ROLE));
     }
     
     /**
@@ -73,7 +74,7 @@ public class ValidSenderDomainHandler
      * 
      * @param dnsServer The DnsServer
      */
-    public void setDnsServer(DNSServer dnsServer) {
+    public void setDNSService(DNSService dnsServer) {
         this.dnsServer = dnsServer;
     }
     

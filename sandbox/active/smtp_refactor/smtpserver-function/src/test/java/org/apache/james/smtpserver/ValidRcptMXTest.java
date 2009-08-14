@@ -29,8 +29,8 @@ import java.util.Map;
 import javax.mail.internet.ParseException;
 
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.james.services.AbstractDNSServer;
-import org.apache.james.services.DNSServer;
+import org.apache.james.api.dnsservice.AbstractDNSServer;
+import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.smtpserver.core.filter.fastfail.ValidRcptMX;
 import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.test.mock.avalon.MockLogger;
@@ -62,8 +62,8 @@ public class ValidRcptMXTest extends TestCase {
         return session;
     }
 
-    private DNSServer setupMockedDNSServer() {
-        DNSServer dns = new AbstractDNSServer() {
+    private DNSService setupMockedDNSServer() {
+    	DNSService dns = new AbstractDNSServer() {
 
             public Collection findMXRecords(String hostname) {
                 Collection mx = new ArrayList();
@@ -92,14 +92,14 @@ public class ValidRcptMXTest extends TestCase {
         Collection bNetworks = new ArrayList();
         bNetworks.add("127.0.0.1");
         
-        DNSServer dns = setupMockedDNSServer();
+        DNSService dns = setupMockedDNSServer();
         MailAddress mailAddress = new MailAddress("test@" + INVALID_HOST);
         SMTPSession session = setupMockedSMTPSession(mailAddress);
         ValidRcptMX handler = new ValidRcptMX();
 
         ContainerUtil.enableLogging(handler, new MockLogger());
 
-        handler.setDNSServer(dns);
+        handler.setDNSService(dns);
         handler.setBannedNetworks(bNetworks, dns);
         int rCode = handler.doRcpt(session, null, mailAddress).getResult();
 

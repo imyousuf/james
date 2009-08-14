@@ -39,13 +39,13 @@ import javax.mail.internet.MimeMultipart;
 import junit.framework.TestCase;
 
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.james.services.AbstractDNSServer;
-import org.apache.james.services.DNSServer;
+import org.apache.james.api.dnsservice.AbstractDNSServer;
+import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.smtpserver.core.filter.fastfail.URIRBLHandler;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookReturnCode;
+import org.apache.james.test.mock.MockMimeMessage;
 import org.apache.james.test.mock.avalon.MockLogger;
-import org.apache.james.test.mock.javaxmail.MockMimeMessage;
 import org.apache.james.test.mock.mailet.MockMail;
 import org.apache.mailet.Mail;
 
@@ -132,8 +132,8 @@ public class URIRBLHandlerTest extends TestCase {
      * Setup the mocked dnsserver
      *
      */
-    private DNSServer setupMockedDnsServer() {
-        DNSServer mockedDnsServer = new AbstractDNSServer() {
+    private DNSService setupMockedDnsServer() {
+    	DNSService mockedDnsServer = new AbstractDNSServer() {
 
             public Collection findTXTRecords(String hostname) {
                 List res = new ArrayList();
@@ -173,7 +173,7 @@ public class URIRBLHandlerTest extends TestCase {
         URIRBLHandler handler = new URIRBLHandler();
 
         ContainerUtil.enableLogging(handler, new MockLogger());
-        handler.setDnsServer(setupMockedDnsServer());
+        handler.setDNSService(setupMockedDnsServer());
         handler.setUriRblServer(servers);
         HookResult response = handler.onMessage(session, mockedMail);
 
@@ -190,7 +190,7 @@ public class URIRBLHandlerTest extends TestCase {
         URIRBLHandler handler = new URIRBLHandler();
 
         ContainerUtil.enableLogging(handler, new MockLogger());
-        handler.setDnsServer(setupMockedDnsServer());
+        handler.setDNSService(setupMockedDnsServer());
         handler.setUriRblServer(servers);
         HookResult response = handler.onMessage(session, mockedMail);
 
@@ -207,7 +207,7 @@ public class URIRBLHandlerTest extends TestCase {
         URIRBLHandler handler = new URIRBLHandler();
 
         ContainerUtil.enableLogging(handler, new MockLogger());
-        handler.setDnsServer(setupMockedDnsServer());
+        handler.setDNSService(setupMockedDnsServer());
         handler.setUriRblServer(servers);
         HookResult response = handler.onMessage(session, mockedMail);
 

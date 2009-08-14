@@ -30,6 +30,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
+import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.TemporaryResolutionException;
 import org.apache.james.api.dnsservice.util.NetMatcher;
 import org.apache.james.dnsserver.DNSServer;
@@ -48,7 +49,7 @@ import org.apache.mailet.MailAddress;
 public class ValidRcptMX extends AbstractLogEnabled implements RcptHook,
     Serviceable {
 
-    private DNSServer dnsServer = null;
+    private DNSService dnsServer = null;
 
     private static final String LOCALHOST = "localhost";
 
@@ -90,7 +91,7 @@ public class ValidRcptMX extends AbstractLogEnabled implements RcptHook,
      * @param networks Collection of networks 
      * @param dnsServer The DNSServer
      */
-    public void setBannedNetworks(Collection networks, DNSServer dnsServer) {
+    public void setBannedNetworks(Collection networks, DNSService dnsServer) {
         bNetwork = new NetMatcher(networks, dnsServer) {
             protected void log(String s) {
                 getLogger().debug(s);
@@ -103,7 +104,7 @@ public class ValidRcptMX extends AbstractLogEnabled implements RcptHook,
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
     public void service(ServiceManager arg0) throws ServiceException {
-        setDNSServer((DNSServer) arg0.lookup(DNSServer.ROLE));
+        setDNSService((DNSService) arg0.lookup(DNSServer.ROLE));
     }
 
     /**
@@ -112,7 +113,7 @@ public class ValidRcptMX extends AbstractLogEnabled implements RcptHook,
      * @param dnsServer
      *                The dnsServer
      */
-    public void setDNSServer(DNSServer dnsServer) {
+    public void setDNSService(DNSService dnsServer) {
         this.dnsServer = dnsServer;
     }
 

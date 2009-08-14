@@ -21,22 +21,22 @@
 
 package org.apache.james.smtpserver;
 
-import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.james.services.AbstractDNSServer;
-import org.apache.james.services.DNSServer;
-import org.apache.james.smtpserver.core.filter.fastfail.ResolvableEhloHeloHandler;
-import org.apache.james.smtpserver.hook.HookReturnCode;
-import org.apache.james.test.mock.avalon.MockLogger;
-import org.apache.mailet.MailAddress;
-
-import javax.mail.internet.ParseException;
-
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.mail.internet.ParseException;
+
 import junit.framework.TestCase;
+
+import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.james.api.dnsservice.AbstractDNSServer;
+import org.apache.james.api.dnsservice.DNSService;
+import org.apache.james.smtpserver.core.filter.fastfail.ResolvableEhloHeloHandler;
+import org.apache.james.smtpserver.hook.HookReturnCode;
+import org.apache.james.test.mock.avalon.MockLogger;
+import org.apache.mailet.MailAddress;
 
 public class ResolvableEhloHeloHandlerTest extends TestCase {
 
@@ -79,8 +79,8 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         return session;
     }
     
-    private DNSServer setupMockDNSServer() {
-        DNSServer dns = new AbstractDNSServer(){
+    private DNSService setupMockDNSServer() {
+    	DNSService dns = new AbstractDNSServer(){
             public InetAddress getByName(String host) throws UnknownHostException {
                 if (host.equals(INVALID_HOST)) 
                     throw new UnknownHostException();
@@ -98,7 +98,7 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         
         ContainerUtil.enableLogging(handler,new MockLogger());
         
-        handler.setDnsServer(setupMockDNSServer());
+        handler.setDNSService(setupMockDNSServer());
         
         handler.doHelo(session, INVALID_HOST);
         assertNotNull("Invalid HELO",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
@@ -115,7 +115,7 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         
         ContainerUtil.enableLogging(handler,new MockLogger());
         
-        handler.setDnsServer(setupMockDNSServer());
+        handler.setDNSService(setupMockDNSServer());
   
         handler.doHelo(session, VALID_HOST);
         assertNull("Valid HELO",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
@@ -151,7 +151,7 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         
         ContainerUtil.enableLogging(handler,new MockLogger());
         
-        handler.setDnsServer(setupMockDNSServer());
+        handler.setDNSService(setupMockDNSServer());
 
         handler.doHelo(session, INVALID_HOST);
         assertNotNull("Value stored",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
@@ -168,7 +168,7 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         
         ContainerUtil.enableLogging(handler,new MockLogger());
         
-        handler.setDnsServer(setupMockDNSServer());
+        handler.setDNSService(setupMockDNSServer());
         
 
         handler.doHelo(session, INVALID_HOST);
@@ -185,7 +185,7 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         
         ContainerUtil.enableLogging(handler,new MockLogger());
         
-        handler.setDnsServer(setupMockDNSServer());
+        handler.setDNSService(setupMockDNSServer());
         handler.setCheckAuthNetworks(true);
 
         handler.doHelo(session, INVALID_HOST);

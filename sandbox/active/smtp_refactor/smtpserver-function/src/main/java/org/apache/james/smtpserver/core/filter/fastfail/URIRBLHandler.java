@@ -41,6 +41,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
+import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.dnsserver.DNSServer;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.SMTPSession;
@@ -55,7 +56,7 @@ import org.apache.mailet.Mail;
 public class URIRBLHandler extends AbstractLogEnabled implements MessageHook,
     Serviceable {
 
-    private DNSServer dnsServer;
+    private DNSService dnsServer;
 
     private Collection uriRbl;
 
@@ -71,7 +72,7 @@ public class URIRBLHandler extends AbstractLogEnabled implements MessageHook,
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
     public void service(ServiceManager serviceMan) throws ServiceException {
-        setDnsServer((DNSServer) serviceMan.lookup(DNSServer.ROLE));
+    	setDNSService((DNSService) serviceMan.lookup(DNSServer.ROLE));
     }
 
     /**
@@ -140,11 +141,11 @@ public class URIRBLHandler extends AbstractLogEnabled implements MessageHook,
     /**
      * Set the DNSServer
      * 
-     * @param dnsServer
+     * @param service
      *            The DNSServer
      */
-    public void setDnsServer(DNSServer dnsServer) {
-        this.dnsServer = dnsServer;
+    public void setDNSService(DNSService service) {
+        this.dnsServer = service;
     }
 
     /**

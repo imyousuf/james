@@ -25,18 +25,19 @@ import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.jspf.SPF;
-import org.apache.james.jspf.SPF1Utils;
-import org.apache.james.jspf.SPFResult;
+import org.apache.james.dsn.DSNStatus;
 import org.apache.james.jspf.core.DNSService;
+import org.apache.james.jspf.core.SPF1Utils;
+import org.apache.james.jspf.executor.SPFResult;
+import org.apache.james.jspf.impl.DefaultSPF;
+import org.apache.james.jspf.impl.SPF;
+import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.smtpserver.hook.MailHook;
 import org.apache.james.smtpserver.hook.MessageHook;
 import org.apache.james.smtpserver.hook.RcptHook;
-import org.apache.james.util.mail.SMTPRetCode;
-import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
@@ -110,7 +111,7 @@ public class SPFHandler extends AbstractLogEnabled implements MailHook, RcptHook
      */
     public void initialize() throws Exception {
         if (dnsService == null) {
-            spf = new SPF(new SPFLogger(getLogger()));
+            spf = new DefaultSPF(new SPFLogger(getLogger()));
         } else {
             spf = new SPF(dnsService, new SPFLogger(getLogger()));
         }
@@ -198,6 +199,7 @@ public class SPFHandler extends AbstractLogEnabled implements MailHook, RcptHook
                         + " = " + spfResult);
 
         // Check if we should block!
+        /*
         if ((spfResult.equals(SPF1Utils.FAIL_CONV))
                 || (spfResult.equals(SPF1Utils.SOFTFAIL_CONV) && blockSoftFail)
                 || (spfResult.equals(SPF1Utils.PERM_ERROR_CONV) && blockPermError)) {
@@ -211,6 +213,7 @@ public class SPFHandler extends AbstractLogEnabled implements MailHook, RcptHook
         } else if (spfResult.equals(SPF1Utils.TEMP_ERROR_CONV)) {
             session.getState().put(SPF_TEMPBLOCKLISTED, "true");
         }
+        */
 
     }
 
