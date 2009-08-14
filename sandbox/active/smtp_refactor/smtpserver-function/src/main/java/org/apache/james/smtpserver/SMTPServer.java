@@ -27,11 +27,12 @@ import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
-import org.apache.james.core.AbstractJamesService;
-import org.apache.james.services.DNSServer;
+import org.apache.james.api.dnsservice.util.NetMatcher;
+import org.apache.james.api.user.UsersRepository;
+import org.apache.james.dnsserver.DNSServer;
 import org.apache.james.services.MailServer;
-import org.apache.james.services.UsersRepository;
-import org.apache.james.util.NetMatcher;
+import org.apache.james.socket.AbstractJamesService;
+import org.apache.james.socket.ProtocolHandler;
 import org.apache.mailet.MailetContext;
 
 /**
@@ -381,4 +382,13 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
     protected Object getConfigurationData() {
         return theConfigData;
     }
+
+	@Override
+	 public ProtocolHandler newProtocolHandlerInstance() {
+        SMTPHandler theHandler = new SMTPHandler();
+        //pass the handler chain to every SMTPhandler
+        theHandler.setHandlerChain(handlerChain);
+        return theHandler;
+    }
+
 }

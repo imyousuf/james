@@ -42,6 +42,6 @@ import java.util.Collection;
      * 
      * @return Collection which contains implemented commands
      */
-    Collection getImplCommands();
+    Collection<String> getImplCommands();
     
 }

@@ -30,6 +30,7 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.api.dnsservice.DNSService;
+import org.apache.james.util.CRLFDelimitedByteBuffer;
 import org.apache.james.util.InternetPrintWriter;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogTarget;
@@ -80,6 +81,12 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
      */
     protected InputStream in;
 
+    /**
+     * Manage inputstream as a bytebuffer
+     */
+    private CRLFDelimitedByteBuffer bytebufferHandler;
+
+    
     /**
      * The reader associated with incoming characters.
      */
@@ -166,7 +173,8 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
                 outs = new SplitOutputStream(outs, new FileOutputStream(tcplogprefix+"out"));
                 in = new CopyInputStream(in, new FileOutputStream(tcplogprefix+"in"));
             }
-            
+            bytebufferHandler = new CRLFDelimitedByteBuffer(in);
+
             // An ASCII encoding can be used because all transmissions other
             // that those in the message body command are guaranteed
             // to be ASCII
@@ -504,5 +512,19 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
     @Override
     public String toString() {
         return name;
+    }
+    
+
+    public final byte[] readInputLine() throws IOException {
+        return bytebufferHandler.read();
+    }
+    
+    public final String readInputLineAsString() throws IOException {
+        String line = bytebufferHandler.readString();
+        if (line != null && line.length() >= 2) {
+            return line.substring(0,line.length()-2);
+        } else {
+            return line;
+        }
     }
 }
