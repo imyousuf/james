@@ -105,7 +105,6 @@ public class ResolvableEhloHeloHandler extends AbstractLogEnabled implements Con
         
         if (isBadHelo(session, argument)) {
             session.getState().put(BAD_EHLO_HELO, "true");
-            System.out.println("bad_ehlo!");
         }
     }
     
@@ -132,11 +131,9 @@ public class ResolvableEhloHeloHandler extends AbstractLogEnabled implements Con
     protected boolean check(SMTPSession session,MailAddress rcpt) {
         // not reject it
         if (session.getState().get(BAD_EHLO_HELO) == null) {
-            System.out.println("doRcpt1");
             return false;
         }
 
-            System.out.println("doRcpt2");
         return true;
     }
 
@@ -144,7 +141,6 @@ public class ResolvableEhloHeloHandler extends AbstractLogEnabled implements Con
      * @see org.apache.james.smtpserver.hook.RcptHook#doRcpt(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
      */
     public HookResult doRcpt(SMTPSession session, MailAddress sender, MailAddress rcpt) {
-        System.out.println("doRcpt");
         if (check(session,rcpt)) {
             return new HookResult(HookReturnCode.DENY,SMTPRetCode.SYNTAX_ERROR_ARGUMENTS,DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.DELIVERY_INVALID_ARG)
                     + " Provided EHLO/HELO " + session.getState().get(SMTPSession.CURRENT_HELO_NAME) + " can not resolved.");
