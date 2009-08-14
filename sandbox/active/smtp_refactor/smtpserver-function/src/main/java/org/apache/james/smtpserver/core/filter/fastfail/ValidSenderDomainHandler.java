@@ -47,7 +47,6 @@ public class ValidSenderDomainHandler
     implements MailHook, Configurable, Serviceable {
     
     private boolean checkAuthNetworks = false;
-    
     private DNSService dnsServer = null;
 
     
@@ -94,14 +93,16 @@ public class ValidSenderDomainHandler
 
         // Not scan the message if relaying allowed
         if (session.isRelayingAllowed() && !checkAuthNetworks) {
-            return false;
+            getLogger().info("YES");
+
+        	return false;
         }
 
         Collection records = null;
             
         // try to resolv the provided domain in the senderaddress. If it can not resolved do not accept it.
         try {
-            records = dnsServer.findMXRecords(senderAddress.getHost());
+            records = dnsServer.findMXRecords(senderAddress.getDomain());
         } catch (TemporaryResolutionException e) {
             // TODO: Should we reject temporary ?
         }

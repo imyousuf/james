@@ -68,6 +68,7 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
         m_maxMessageSizeKB = kilobytes;
     }
     
+    
     public int getMaxMessageSize() {
         return m_maxMessageSizeKB;
     }
