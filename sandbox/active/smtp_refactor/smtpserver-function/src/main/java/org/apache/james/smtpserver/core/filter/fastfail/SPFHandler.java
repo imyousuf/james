@@ -28,6 +28,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.jspf.core.DNSService;
 import org.apache.james.jspf.core.SPF1Utils;
+import org.apache.james.jspf.core.exceptions.SPFErrorConstants;
 import org.apache.james.jspf.executor.SPFResult;
 import org.apache.james.jspf.impl.DefaultSPF;
 import org.apache.james.jspf.impl.SPF;
@@ -167,53 +168,51 @@ public class SPFHandler extends AbstractLogEnabled implements MailHook, RcptHook
         String heloEhlo = (String) session.getState().get(
                 SMTPSession.CURRENT_HELO_NAME);
 
-        // Not scan the message if relaying allowed
-        if (session.isRelayingAllowed() && !checkAuthNetworks) {
-            getLogger().info(
-                    "Ipaddress " + session.getRemoteIPAddress()
-                            + " is allowed to relay. Don't check it");
-            return;
-        }
-
         // We have no Sender or HELO/EHLO yet return false
         if (sender == null || heloEhlo == null) {
             getLogger().info("No Sender or HELO/EHLO present");
-            return;
-        }
-        
-        String ip = session.getRemoteIPAddress();
+        } else {
+            // No checks for authorized cliends
+            if (session.isRelayingAllowed() && checkAuthNetworks == false) {
+                getLogger().info(
+                        "Ipaddress " + session.getRemoteIPAddress()
+                                + " is allowed to relay. Don't check it");
+            } else {
 
-        SPFResult result = spf
-                .checkSPF(ip, sender.toString(), heloEhlo);
+                String ip = session.getRemoteIPAddress();
 
-        String spfResult = result.getResult();
+                SPFResult result = spf
+                        .checkSPF(ip, sender.toString(), heloEhlo);
 
-        String explanation = "Blocked - see: "
-                + result.getExplanation();
+                String spfResult = result.getResult();
 
-        // Store the header
-        session.getState().put(SPF_HEADER, result.getHeaderText());
+                String explanation = "Blocked - see: "
+                        + result.getExplanation();
 
-        getLogger().info(
-                "Result for " + ip + " - " + sender + " - " + heloEhlo
-                        + " = " + spfResult);
+                // Store the header
+                session.getState().put(SPF_HEADER, result.getHeaderText());
 
-        // Check if we should block!
-        /*
-        if ((spfResult.equals(SPF1Utils.FAIL_CONV))
-                || (spfResult.equals(SPF1Utils.SOFTFAIL_CONV) && blockSoftFail)
-                || (spfResult.equals(SPF1Utils.PERM_ERROR_CONV) && blockPermError)) {
+                getLogger().info(
+                        "Result for " + ip + " - " + sender + " - " + heloEhlo
+                                + " = " + spfResult);
 
-            if (spfResult.equals(SPF1Utils.PERM_ERROR_CONV)) {
-                explanation = "Block caused by an invalid SPF record";
+                // Check if we should block!
+                if ((spfResult.equals(SPFErrorConstants.FAIL_CONV))
+                        || (spfResult.equals(SPFErrorConstants.SOFTFAIL_CONV) && blockSoftFail)
+                        || (spfResult.equals(SPFErrorConstants.PERM_ERROR_CONV) && blockPermError)) {
+
+                    if (spfResult.equals(SPFErrorConstants.PERM_ERROR_CONV)) {
+                        explanation = "Block caused by an invalid SPF record";
+                    }
+                    session.getState().put(SPF_DETAIL, explanation);
+                    session.getState().put(SPF_BLOCKLISTED, "true");
+
+                } else if (spfResult.equals(SPFErrorConstants.TEMP_ERROR_CONV)) {
+                    session.getState().put(SPF_TEMPBLOCKLISTED, "true");
+                }
             }
-            session.getState().put(SPF_DETAIL, explanation);
-            session.getState().put(SPF_BLOCKLISTED, "true");
-
-        } else if (spfResult.equals(SPF1Utils.TEMP_ERROR_CONV)) {
-            session.getState().put(SPF_TEMPBLOCKLISTED, "true");
         }
-        */
+
 
     }
 
@@ -242,6 +241,7 @@ public class SPFHandler extends AbstractLogEnabled implements MailHook, RcptHook
             }
         }
         return new HookResult(HookReturnCode.DECLINED);
+      
     }
 
 
