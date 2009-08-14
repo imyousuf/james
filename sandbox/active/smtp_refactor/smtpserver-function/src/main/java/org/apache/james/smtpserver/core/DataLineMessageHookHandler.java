@@ -33,16 +33,16 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageInputStreamSource;
+import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.ExtensibleHandler;
 import org.apache.james.smtpserver.LineHandler;
 import org.apache.james.smtpserver.SMTPResponse;
+import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.WiringException;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookResultHook;
 import org.apache.james.smtpserver.hook.MessageHook;
-import org.apache.james.util.mail.SMTPRetCode;
-import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 

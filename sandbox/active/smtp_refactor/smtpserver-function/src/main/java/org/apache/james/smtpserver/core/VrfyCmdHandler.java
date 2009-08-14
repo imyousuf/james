@@ -24,11 +24,11 @@ package org.apache.james.smtpserver.core;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPResponse;
+import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
-import org.apache.james.util.mail.SMTPRetCode;
-import org.apache.james.util.mail.dsn.DSNStatus;
 
 /**
   * Command handler for handling VRFY command

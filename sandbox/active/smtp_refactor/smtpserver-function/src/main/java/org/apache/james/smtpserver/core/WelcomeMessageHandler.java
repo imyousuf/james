@@ -20,14 +20,14 @@
 
 package org.apache.james.smtpserver.core;
 
+import java.util.Date;
+
 import org.apache.james.Constants;
 import org.apache.james.smtpserver.ConnectHandler;
 import org.apache.james.smtpserver.SMTPResponse;
+import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
-import org.apache.james.util.mail.SMTPRetCode;
-import org.apache.mailet.dates.RFC822DateFormat;
-
-import java.util.Date;
+import org.apache.mailet.base.RFC822DateFormat;
 
 /**
  * This ConnectHandler print the greeting on connecting

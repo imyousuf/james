@@ -25,13 +25,13 @@ import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.StringTokenizer;
-import java.sql.Timestamp;
 
 import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.excalibur.datasource.DataSourceComponent;
@@ -43,19 +43,18 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
-
-import org.apache.james.services.DNSServer;
+import org.apache.james.api.dnsservice.util.NetMatcher;
+import org.apache.james.dnsserver.DNSServer;
+import org.apache.james.dsn.DSNStatus;
 import org.apache.james.services.FileSystem;
+import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.smtpserver.hook.RcptHook;
-import org.apache.james.util.JDBCUtil;
-import org.apache.james.util.NetMatcher;
-import org.apache.james.util.SqlResources;
 import org.apache.james.util.TimeConverter;
-import org.apache.james.util.mail.SMTPRetCode;
-import org.apache.james.util.mail.dsn.DSNStatus;
+import org.apache.james.util.sql.JDBCUtil;
+import org.apache.james.util.sql.SqlResources;
 import org.apache.mailet.MailAddress;
 
 /**

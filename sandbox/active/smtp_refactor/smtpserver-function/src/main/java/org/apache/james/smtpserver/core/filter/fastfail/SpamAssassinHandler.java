@@ -20,22 +20,22 @@
 
 package org.apache.james.smtpserver.core.filter.fastfail;
 
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.smtpserver.SMTPSession;
-import org.apache.james.smtpserver.hook.HookResult;
-import org.apache.james.smtpserver.hook.HookReturnCode;
-import org.apache.james.smtpserver.hook.MessageHook;
-import org.apache.james.util.SpamAssassinInvoker;
-import org.apache.james.util.mail.dsn.DSNStatus;
-import org.apache.mailet.Mail;
+import java.util.Iterator;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
-import java.util.Iterator;
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.james.dsn.DSNStatus;
+import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.smtpserver.hook.HookResult;
+import org.apache.james.smtpserver.hook.HookReturnCode;
+import org.apache.james.smtpserver.hook.MessageHook;
+import org.apache.james.util.scanner.SpamAssassinInvoker;
+import org.apache.mailet.Mail;
 
 /**
  * This MessageHandler could be used to check message against spamd before

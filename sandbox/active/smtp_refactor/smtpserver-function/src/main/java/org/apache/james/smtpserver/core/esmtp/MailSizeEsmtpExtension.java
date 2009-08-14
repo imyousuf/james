@@ -7,15 +7,15 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.LineHandler;
+import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.core.DataLineFilter;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.smtpserver.hook.MailParametersHook;
 import org.apache.james.smtpserver.hook.MessageHook;
-import org.apache.james.util.mail.SMTPRetCode;
-import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.Mail;
 
 /**

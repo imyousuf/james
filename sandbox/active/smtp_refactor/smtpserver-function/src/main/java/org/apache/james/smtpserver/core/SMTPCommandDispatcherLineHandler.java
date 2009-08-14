@@ -19,15 +19,6 @@
 
 package org.apache.james.smtpserver.core;
 
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.smtpserver.CommandHandler;
-import org.apache.james.smtpserver.ExtensibleHandler;
-import org.apache.james.smtpserver.LineHandler;
-import org.apache.james.smtpserver.SMTPResponse;
-import org.apache.james.smtpserver.SMTPSession;
-import org.apache.james.smtpserver.WiringException;
-import org.apache.james.util.mail.SMTPRetCode;
-
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,6 +27,15 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.james.smtpserver.CommandHandler;
+import org.apache.james.smtpserver.ExtensibleHandler;
+import org.apache.james.smtpserver.LineHandler;
+import org.apache.james.smtpserver.SMTPResponse;
+import org.apache.james.smtpserver.SMTPRetCode;
+import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.smtpserver.WiringException;
 
 public class SMTPCommandDispatcherLineHandler extends AbstractLogEnabled implements LineHandler, ExtensibleHandler {
 

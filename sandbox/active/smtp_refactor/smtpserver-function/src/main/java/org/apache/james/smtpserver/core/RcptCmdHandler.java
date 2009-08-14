@@ -19,19 +19,19 @@
 
 package org.apache.james.smtpserver.core;
 
-import org.apache.james.smtpserver.CommandHandler;
-import org.apache.james.smtpserver.SMTPResponse;
-import org.apache.james.smtpserver.SMTPSession;
-import org.apache.james.smtpserver.hook.HookResult;
-import org.apache.james.smtpserver.hook.RcptHook;
-import org.apache.james.util.mail.SMTPRetCode;
-import org.apache.james.util.mail.dsn.DSNStatus;
-import org.apache.mailet.MailAddress;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.StringTokenizer;
+
+import org.apache.james.dsn.DSNStatus;
+import org.apache.james.smtpserver.CommandHandler;
+import org.apache.james.smtpserver.SMTPResponse;
+import org.apache.james.smtpserver.SMTPRetCode;
+import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.smtpserver.hook.HookResult;
+import org.apache.james.smtpserver.hook.RcptHook;
+import org.apache.mailet.MailAddress;
 
 /**
  * Handles RCPT command

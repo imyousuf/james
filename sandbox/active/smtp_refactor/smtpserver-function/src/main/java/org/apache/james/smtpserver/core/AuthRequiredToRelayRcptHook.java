@@ -19,12 +19,12 @@
 package org.apache.james.smtpserver.core;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.james.dsn.DSNStatus;
+import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.smtpserver.hook.RcptHook;
-import org.apache.james.util.mail.SMTPRetCode;
-import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.MailAddress;
 
 /**

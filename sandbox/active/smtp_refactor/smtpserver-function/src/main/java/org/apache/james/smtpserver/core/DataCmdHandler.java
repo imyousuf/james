@@ -18,23 +18,6 @@
  ****************************************************************/
 package org.apache.james.smtpserver.core;
 
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.Constants;
-import org.apache.james.core.MailHeaders;
-import org.apache.james.core.MimeMessageInputStreamSource;
-import org.apache.james.smtpserver.CommandHandler;
-import org.apache.james.smtpserver.ExtensibleHandler;
-import org.apache.james.smtpserver.LineHandler;
-import org.apache.james.smtpserver.SMTPResponse;
-import org.apache.james.smtpserver.SMTPSession;
-import org.apache.james.smtpserver.WiringException;
-import org.apache.james.util.mail.SMTPRetCode;
-import org.apache.james.util.mail.dsn.DSNStatus;
-import org.apache.mailet.RFC2822Headers;
-import org.apache.mailet.dates.RFC822DateFormat;
-
-import javax.mail.MessagingException;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -43,6 +26,23 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
+
+import javax.mail.MessagingException;
+
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.james.Constants;
+import org.apache.james.core.MailHeaders;
+import org.apache.james.core.MimeMessageInputStreamSource;
+import org.apache.james.dsn.DSNStatus;
+import org.apache.james.smtpserver.CommandHandler;
+import org.apache.james.smtpserver.ExtensibleHandler;
+import org.apache.james.smtpserver.LineHandler;
+import org.apache.james.smtpserver.SMTPResponse;
+import org.apache.james.smtpserver.SMTPRetCode;
+import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.smtpserver.WiringException;
+import org.apache.mailet.base.RFC2822Headers;
+import org.apache.mailet.base.RFC822DateFormat;
 
 
 /**

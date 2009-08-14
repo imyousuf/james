@@ -21,22 +21,6 @@
 
 package org.apache.james.smtpserver.core.esmtp;
 
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.smtpserver.CommandHandler;
-import org.apache.james.smtpserver.ExtensibleHandler;
-import org.apache.james.smtpserver.LineHandler;
-import org.apache.james.smtpserver.SMTPResponse;
-import org.apache.james.smtpserver.SMTPSession;
-import org.apache.james.smtpserver.WiringException;
-import org.apache.james.smtpserver.hook.AuthHook;
-import org.apache.james.smtpserver.hook.HookResult;
-import org.apache.james.smtpserver.hook.HookResultHook;
-import org.apache.james.smtpserver.hook.HookReturnCode;
-import org.apache.james.smtpserver.hook.MailParametersHook;
-import org.apache.james.util.Base64;
-import org.apache.james.util.mail.SMTPRetCode;
-import org.apache.james.util.mail.dsn.DSNStatus;
-
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,6 +28,22 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
+
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.james.dsn.DSNStatus;
+import org.apache.james.smtpserver.CommandHandler;
+import org.apache.james.smtpserver.ExtensibleHandler;
+import org.apache.james.smtpserver.LineHandler;
+import org.apache.james.smtpserver.SMTPResponse;
+import org.apache.james.smtpserver.SMTPRetCode;
+import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.smtpserver.WiringException;
+import org.apache.james.smtpserver.hook.AuthHook;
+import org.apache.james.smtpserver.hook.HookResult;
+import org.apache.james.smtpserver.hook.HookResultHook;
+import org.apache.james.smtpserver.hook.HookReturnCode;
+import org.apache.james.smtpserver.hook.MailParametersHook;
+import org.apache.james.util.codec.Base64;
 
 
 /**

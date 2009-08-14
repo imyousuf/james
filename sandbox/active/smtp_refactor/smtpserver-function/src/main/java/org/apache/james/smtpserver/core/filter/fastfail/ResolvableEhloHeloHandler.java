@@ -19,6 +19,8 @@
 
 package org.apache.james.smtpserver.core.filter.fastfail;
 
+import java.net.UnknownHostException;
+
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -26,18 +28,15 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
-import org.apache.james.services.DNSServer;
+import org.apache.james.dnsserver.DNSServer;
+import org.apache.james.dsn.DSNStatus;
+import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HeloHook;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.smtpserver.hook.RcptHook;
-import org.apache.james.util.mail.SMTPRetCode;
-import org.apache.james.util.mail.dsn.DSNStatus;
-
 import org.apache.mailet.MailAddress;
-
-import java.net.UnknownHostException;
 
 
 /**

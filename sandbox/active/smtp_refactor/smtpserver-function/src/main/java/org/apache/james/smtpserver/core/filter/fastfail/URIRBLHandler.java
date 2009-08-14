@@ -22,20 +22,12 @@
 
 package org.apache.james.smtpserver.core.filter.fastfail;
 
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
-import org.apache.james.services.DNSServer;
-import org.apache.james.smtpserver.SMTPSession;
-import org.apache.james.smtpserver.hook.HookResult;
-import org.apache.james.smtpserver.hook.HookReturnCode;
-import org.apache.james.smtpserver.hook.MessageHook;
-import org.apache.james.util.mail.dsn.DSNStatus;
-import org.apache.james.util.urirbl.URIScanner;
-import org.apache.mailet.Mail;
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeBodyPart;
@@ -43,12 +35,19 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.internet.MimePart;
 
-import java.io.IOException;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.Serviceable;
+import org.apache.james.dnsserver.DNSServer;
+import org.apache.james.dsn.DSNStatus;
+import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.smtpserver.hook.HookResult;
+import org.apache.james.smtpserver.hook.HookReturnCode;
+import org.apache.james.smtpserver.hook.MessageHook;
+import org.apache.mailet.Mail;
 
 /**
  * Extract domains from message and check against URIRBLServer. For more informations see http://www.surbl.org

@@ -19,18 +19,18 @@
 
 package org.apache.james.smtpserver.core;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.ExtensibleHandler;
 import org.apache.james.smtpserver.SMTPResponse;
+import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookResultHook;
 import org.apache.james.smtpserver.hook.HookReturnCode;
-import org.apache.james.util.mail.SMTPRetCode;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Abstract class which Handle hooks.

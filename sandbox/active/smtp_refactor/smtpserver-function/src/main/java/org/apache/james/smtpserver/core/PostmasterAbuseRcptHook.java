@@ -34,7 +34,7 @@ public class PostmasterAbuseRcptHook extends AbstractLogEnabled implements RcptH
      * @see org.apache.james.smtpserver.hook.RcptHook#doRcpt(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
      */
     public HookResult doRcpt(SMTPSession session, MailAddress sender, MailAddress rcpt) {
-        if (rcpt.getUser().equalsIgnoreCase("postmaster") || rcpt.getUser().equalsIgnoreCase("abuse")) {
+        if (rcpt.getLocalPart().equalsIgnoreCase("postmaster") || rcpt.getLocalPart().equalsIgnoreCase("abuse")) {
             getLogger().debug("Sender allowed");
             return new HookResult(HookReturnCode.OK);
         } else {
