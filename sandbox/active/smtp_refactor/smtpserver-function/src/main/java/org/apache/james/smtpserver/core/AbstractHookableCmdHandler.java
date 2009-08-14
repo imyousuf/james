@@ -177,6 +177,7 @@ public abstract class AbstractHookableCmdHandler extends AbstractLogEnabled
      */
     protected abstract SMTPResponse doCoreCmd(SMTPSession session,
             String command, String parameters);
+    
 
     /**
      * @see org.apache.james.smtpserver.ExtensibleHandler#getMarkerInterfaces()

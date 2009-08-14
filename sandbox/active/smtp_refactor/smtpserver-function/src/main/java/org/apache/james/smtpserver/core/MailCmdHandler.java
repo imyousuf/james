@@ -48,9 +48,23 @@ public class MailCmdHandler extends AbstractHookableCmdHandler implements
      * A map of parameterHooks
      */
     private Map paramHooks;
-                                                            // message
 
-    /**
+    
+    
+    @Override
+	public SMTPResponse onCommand(SMTPSession session, String command,
+			String parameters) {
+		SMTPResponse response =  super.onCommand(session, command, parameters);
+		// Check if the response was not ok 
+		if (response.getRetCode().equals(SMTPRetCode.MAIL_OK) == false) {
+			// cleanup the session
+			session.getState().remove(SMTPSession.SENDER);
+		}
+		
+		return response;
+	}
+
+	/**
      * Handler method called upon receipt of a MAIL command. Sets up handler to
      * deliver mail as the stated sender.
      * 
