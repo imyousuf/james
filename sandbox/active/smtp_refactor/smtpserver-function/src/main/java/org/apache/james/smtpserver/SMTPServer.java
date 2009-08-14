@@ -30,7 +30,6 @@ import org.apache.james.Constants;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.util.NetMatcher;
 import org.apache.james.api.user.UsersRepository;
-import org.apache.james.dnsserver.DNSServer;
 import org.apache.james.services.MailServer;
 import org.apache.james.socket.AbstractJamesService;
 import org.apache.james.socket.ProtocolHandler;
@@ -134,7 +133,7 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
         mailetcontext = (MailetContext) manager.lookup("org.apache.mailet.MailetContext");
         mailServer = (MailServer) manager.lookup(MailServer.ROLE);
         users = (UsersRepository) manager.lookup(UsersRepository.ROLE);
-        dnsServer = (DNSService) manager.lookup(DNSServer.ROLE); 
+        dnsServer = (DNSService) manager.lookup(DNSService.ROLE); 
     }
 
     /**

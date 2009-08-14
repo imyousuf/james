@@ -29,7 +29,6 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.api.dnsservice.DNSService;
-import org.apache.james.dnsserver.DNSServer;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
@@ -67,7 +66,7 @@ public class ResolvableEhloHeloHandler extends AbstractLogEnabled implements Con
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
     public void service(ServiceManager serviceMan) throws ServiceException {
-        setDNSService((DNSService) serviceMan.lookup(DNSServer.ROLE));
+        setDNSService((DNSService) serviceMan.lookup(DNSService.ROLE));
     }
 
     /**

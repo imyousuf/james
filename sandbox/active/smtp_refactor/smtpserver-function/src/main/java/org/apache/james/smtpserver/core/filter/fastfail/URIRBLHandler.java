@@ -42,7 +42,6 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.api.dnsservice.DNSService;
-import org.apache.james.dnsserver.DNSServer;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
@@ -72,7 +71,7 @@ public class URIRBLHandler extends AbstractLogEnabled implements MessageHook,
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
     public void service(ServiceManager serviceMan) throws ServiceException {
-    	setDNSService((DNSService) serviceMan.lookup(DNSServer.ROLE));
+    	setDNSService((DNSService) serviceMan.lookup(DNSService.ROLE));
     }
 
     /**

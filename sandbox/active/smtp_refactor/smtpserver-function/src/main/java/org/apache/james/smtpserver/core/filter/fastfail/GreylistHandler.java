@@ -43,8 +43,8 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
+import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.util.NetMatcher;
-import org.apache.james.dnsserver.DNSServer;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.services.FileSystem;
 import org.apache.james.smtpserver.SMTPRetCode;
@@ -108,7 +108,7 @@ public class GreylistHandler extends AbstractLogEnabled implements
      */
     private String repositoryPath;
 
-    private DNSServer dnsServer;
+    private DNSService dnsServer;
 
     private NetMatcher wNetworks;
 
@@ -190,7 +190,7 @@ public class GreylistHandler extends AbstractLogEnabled implements
      */
     public void service(ServiceManager serviceMan) throws ServiceException {
         setDataSources((DataSourceSelector) serviceMan.lookup(DataSourceSelector.ROLE));
-        setDnsServer((DNSServer) serviceMan.lookup(DNSServer.ROLE));
+        setDNSService((DNSService) serviceMan.lookup(DNSService.ROLE));
         setFileSystem((FileSystem) serviceMan.lookup(FileSystem.ROLE));
     }
 
@@ -200,7 +200,7 @@ public class GreylistHandler extends AbstractLogEnabled implements
      * @param dnsServer
      *            The DNSServer
      */
-    public void setDnsServer(DNSServer dnsServer) {
+    public void setDNSService(DNSService dnsServer) {
         this.dnsServer = dnsServer;
     }
 
