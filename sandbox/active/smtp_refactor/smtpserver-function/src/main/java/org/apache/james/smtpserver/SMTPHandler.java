@@ -22,15 +22,12 @@
 package org.apache.james.smtpserver;
 
 import java.io.IOException;
-import java.net.Socket;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Random;
 
-import org.apache.james.Constants;
-import org.apache.james.socket.AbstractJamesHandler;
 import org.apache.james.socket.ProtocolHandler;
 import org.apache.james.socket.ProtocolHandlerHelper;
 import org.apache.james.util.CRLFDelimitedByteBuffer;
@@ -44,41 +41,29 @@ import org.apache.mailet.base.RFC822DateFormat;
  */
 public class SMTPHandler implements ProtocolHandler, SMTPSession {
 
-	    private ProtocolHandlerHelper helper;
-	
-	     /**
-	     * The constants to indicate the current processing mode of the session
-	     */
-	    private final static byte COMMAND_MODE = 1;
-	    private final static byte RESPONSE_MODE = 2;
-	    private final static byte MESSAGE_RECEIVED_MODE = 3;
-	    private final static byte MESSAGE_ABORT_MODE = 4;
-	    private boolean sessionEnded = false;
+	private ProtocolHandlerHelper helper;
 
-	    /**
-	    * SMTP Server identification string used in SMTP headers
-	     */
-	    private final static String SOFTWARE_TYPE = "JAMES SMTP Server " + Constants.SOFTWARE_VERSION;
-	
-	   /**
-	      * Static Random instance used to generate SMTP ids
-	      */
-	     private final static Random random = new Random();
-	 
-	     /**
-	     * Static RFC822DateFormat used to generate date headers
-	     */
-	     private final static RFC822DateFormat rfc822DateFormat = new RFC822DateFormat();
-	
-	   /**
-	    * The name of the currently parsed command
-	    */
-	    String curCommandName =  null;
+	private boolean sessionEnded = false;
 
-	   /**
-	    * The value of the currently parsed command
-	    */
-	   String curCommandArgument =  null;
+	/**
+	 * Static Random instance used to generate SMTP ids
+	 */
+	private final static Random random = new Random();
+
+	/**
+	 * Static RFC822DateFormat used to generate date headers
+	 */
+	private final static RFC822DateFormat rfc822DateFormat = new RFC822DateFormat();
+
+	/**
+	 * The name of the currently parsed command
+	 */
+	String curCommandName = null;
+
+	/**
+	 * The value of the currently parsed command
+	 */
+	String curCommandArgument = null;
 	
     /**
      * The hash map holds states which should be used in the whole connection
